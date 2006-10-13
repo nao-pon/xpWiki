@@ -352,7 +352,7 @@ if (!empty($const['page_show'])) {
 		if ($arg == '') $arg = $root->defaultpage;
 		$arg = rawurldecode($arg);
 		// XOOPS の redirect_header で付加されることがある &以降を削除
-		$arg = preg_replace("/&.+$/", "", $arg);
+		$arg = preg_replace("/&.*$/", "", $arg);
 		$arg = $this->strip_bracket($arg);
 		$arg = $this->input_filter($arg);
 		$get['page'] = $post['page'] = $vars['page'] = $arg;
