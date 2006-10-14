@@ -1,7 +1,7 @@
 <?php
 //
 // Created on 2006/10/02 by nao-pon http://hypweb.net/
-// $Id: xpwiki_func.php,v 1.1 2006/10/13 13:17:49 nao-pon Exp $
+// $Id: xpwiki_func.php,v 1.2 2006/10/14 15:35:18 nao-pon Exp $
 //
 class XpWikiFunc extends XpWikiXoopsWrapper {
 
@@ -26,8 +26,7 @@ class XpWikiFunc extends XpWikiXoopsWrapper {
 		static $instance = array();
 		
 		if (!isset($instance[$this->xpwiki->pid][$name])) {
-			if ($this->exist_plugin($name)) {
-				$class = "xpwiki_plugin_{$name}";
+			if ($class = $this->exist_plugin($name)) {
 				$instance[$this->xpwiki->pid][$name] = new $class($this);
 				$this->do_plugin_init($name);
 			} else {
@@ -40,13 +39,14 @@ class XpWikiFunc extends XpWikiXoopsWrapper {
 	
 	function get_plugin_filename ($name) {
 		
+		$files = array();
 		if (file_exists($this->root->mydirpath . '/private/plugin/' . $name . '.inc.php')) {
-			return $this->root->mydirpath . '/private/plugin/' . $name . '.inc.php';
-		} else if (file_exists($this->root->mytrustdirpath . '/plugin/' . $name . '.inc.php')) {
-			return $this->root->mytrustdirpath . '/plugin/' . $name . '.inc.php';
-		} else {
-			return false;
+			$files['user'] = $this->root->mydirpath . '/private/plugin/' . $name . '.inc.php';
 		}
+		if (file_exists($this->root->mytrustdirpath . '/plugin/' . $name . '.inc.php')) {
+			$files['system'] = $this->root->mytrustdirpath . '/plugin/' . $name . '.inc.php';
+		}
+		return $files;
 	}
 	
 	// Set global variables for plugins
@@ -75,18 +75,32 @@ class XpWikiFunc extends XpWikiXoopsWrapper {
 				return $exist[$this->xpwiki->pid][$name];
 			}
 		
-		$plugin_file = $this->get_plugin_filename ($name);
-		
-		if (preg_match('/^\w{1,64}$/', $name) && $plugin_file ) {
-			    	$exist[$this->xpwiki->pid][$name] = TRUE;
-			    	$count[$this->xpwiki->pid][$name] = 1;
-				require_once($plugin_file);
-				return TRUE;
-			} else {
-			    	$exist[$this->xpwiki->pid][$name] = FALSE;
-			    	$count[$this->xpwiki->pid][$name] = 1;
-				return FALSE;
+			$plugin_files = $this->get_plugin_filename ($name);
+			
+			$exist[$this->xpwiki->pid][$name] = FALSE;
+			$count[$this->xpwiki->pid][$name] = 1;
+			$ret = FALSE;
+			
+			if (preg_match('/^\w{1,64}$/', $name) && $plugin_files ) {
+				$ret =  FALSE;
+				if (isset($plugin_files['system'])) {
+					require_once($plugin_files['system']);
+					$class_name = "xpwiki_plugin_{$name}";
+					if (class_exists($class_name)) {
+						$exist[$this->xpwiki->pid][$name] = TRUE;
+						$count[$this->xpwiki->pid][$name] = 1;
+						$ret = $class_name;
+						if (isset($plugin_files['user'])) {
+							require_once($plugin_files['user']);
+							$class_name = "xpwiki_user_plugin_{$name}";
+							if (class_exists($class_name)) {
+								$ret = $class_name;
+							}
+						}
+					}
+				}
 			}
+			return $ret;
 		}
 	
 	// Check if plugin API 'action' exists
