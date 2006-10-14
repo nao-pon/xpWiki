@@ -61,10 +61,22 @@ if (!$files) {
 	Click &amp; Wait...
 </form>
 <hr />
+<h1>xpWiki Plugin converter from System to User</h1>
+<form enctype="multipart/form-data" action="index.php?mode=s2u" method="POST">
+    xpWiki system plugin file:<br /><input name="userfile" type="file" size="60" /><br />
+    <input type="submit" value="Do convert & Download!" onClick="this.style.visibility='hidden';return true;" />
+	Click &amp; Wait...
+</form>
+<hr />
 <a href="./">- Reload -</a>
 </body>
 </html>
 EOD;
+	exit;
+}
+
+if ($_GET['mode'] == "s2u") {
+	convert_s2u ($files);
 	exit;
 }
 
@@ -77,7 +89,7 @@ foreach($files as $input) {
 	if (file_exists($indir . $input)) {
 		$org_file = $indir . $input;
 	} else {
-		$org_file = $_FILES['userfile']['tmp_name'];	
+		$org_file = $_FILES['userfile']['tmp_name'];
 	}
 	
 	$dat = file($org_file);
@@ -530,5 +542,24 @@ function _global_replace($global,$str) {
 	$str = str_replace('\\"','"',$str);
 	$str = preg_replace("/\{?".preg_quote($global,"/")."((?:\[[^\]]+\])*)(?![a-zA-Z0-9_\x7f-\xff])\}?/i","{\$this->root->".substr($global,1)."$1}",$str);
 	return $str;
+}
+
+function convert_s2u ($files) {
+	$input = $files[0];
+	
+	$org_file = $_FILES['userfile']['tmp_name'];
+	$dat = join("",file($org_file));
+	
+	$dat = preg_replace("/((?:^|\n|\r)\s*class\s+xpwiki_)(plugin(_\w+)\s+extends\s+xpwiki_plugin)/","$1user_$2$3",$dat);
+	
+	unlink($org_file);
+
+	header('Content-Disposition: attachment; filename="' . $input . '"');
+	header('Content-Length: ' . strlen($dat));
+	header('Content-Type: plain/text');
+
+	echo $dat;
+	exit;
+
 }
 ?>
