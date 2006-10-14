@@ -7,7 +7,7 @@ class xpwiki_plugin_amazon extends xpwiki_plugin {
 	{
 
 	// PukiWiki - Yet another WikiWikiWeb clone.
-	// $Id: amazon.inc.php,v 1.1 2006/10/13 13:17:49 nao-pon Exp $
+	// $Id: amazon.inc.php,v 1.2 2006/10/14 15:39:12 nao-pon Exp $
 	// Id: amazon.inc.php,v 1.1 2003/07/24 13:00:00 ´×¼Ë
 	//
 	// Amazon plugin: Book-review maker via amazon.com/amazon.jp
@@ -144,7 +144,7 @@ EOD;
 			return $ret;
 		}
 	
-		$aryargs = func_get_args();
+		$aryargs = array_pad(func_get_args(),3,"");
 	
 		$align = strtolower($aryargs[1]);
 		if ($align == 'clear') return '<div style="clear:both"></div>'; // ²þ¹ÔÁÞÆþ
@@ -397,7 +397,7 @@ EOD;
 			}
 			$this->plugin_amazon_cache_image_save($body, $this->cont['CACHE_DIR']);
 		}
-		return $filename;
+		return str_replace($this->cont["DATA_HOME"], $this->cont["HOME_URL"], $filename);
 	}
 	
 	// Save title cache
