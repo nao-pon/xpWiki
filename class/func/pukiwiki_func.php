@@ -1,7 +1,7 @@
 <?php
 //
 // Created on 2006/10/02 by nao-pon http://hypweb.net/
-// $Id: pukiwiki_func.php,v 1.1 2006/10/13 13:17:49 nao-pon Exp $
+// $Id: pukiwiki_func.php,v 1.2 2006/10/14 15:29:42 nao-pon Exp $
 //
 class XpWikiPukiWikiFunc {
 
@@ -803,7 +803,7 @@ class XpWikiPukiWikiFunc {
 
 //----- Start convert_html.php -----//
 	// PukiWiki - Yet another WikiWikiWeb clone
-	// $Id: pukiwiki_func.php,v 1.1 2006/10/13 13:17:49 nao-pon Exp $
+	// $Id: pukiwiki_func.php,v 1.2 2006/10/14 15:29:42 nao-pon Exp $
 	// Copyright (C)
 	//   2002-2005 PukiWiki Developers Team
 	//   2001-2002 Originally written by yu-ji
@@ -901,13 +901,13 @@ class XpWikiPukiWikiFunc {
 			}
 		}
 	
-		return new Paragraph($text);
+		return new Paragraph($this->xpwiki, $text);
 	}
 //----- End convert_html.php -----//
 
 //----- Start func.php -----//
 	// PukiWiki - Yet another WikiWikiWeb clone.
-	// $Id: pukiwiki_func.php,v 1.1 2006/10/13 13:17:49 nao-pon Exp $
+	// $Id: pukiwiki_func.php,v 1.2 2006/10/14 15:29:42 nao-pon Exp $
 	// Copyright (C)
 	//   2002-2006 PukiWiki Developers Team
 	//   2001-2002 Originally written by yu-ji
@@ -1659,7 +1659,7 @@ EOD;
 
 //----- Start make_link.php -----//
 	// PukiWiki - Yet another WikiWikiWeb clone.
-	// $Id: pukiwiki_func.php,v 1.1 2006/10/13 13:17:49 nao-pon Exp $
+	// $Id: pukiwiki_func.php,v 1.2 2006/10/14 15:29:42 nao-pon Exp $
 	// Copyright (C)
 	//   2003-2005 PukiWiki Developers Team
 	//   2001-2002 Originally written by yu-ji
@@ -2447,7 +2447,7 @@ EOD;
 
 //----- Start html.php -----//
 	// PukiWiki - Yet another WikiWikiWeb clone.
-	// $Id: pukiwiki_func.php,v 1.1 2006/10/13 13:17:49 nao-pon Exp $
+	// $Id: pukiwiki_func.php,v 1.2 2006/10/14 15:29:42 nao-pon Exp $
 	// Copyright (C)
 	//   2002-2006 PukiWiki Developers Team
 	//   2001-2002 Originally written by yu-ji
@@ -2983,7 +2983,7 @@ EOD;
 
 //----- Start mail.php -----//
 	// PukiWiki - Yet another WikiWikiWeb clone.
-	// $Id: pukiwiki_func.php,v 1.1 2006/10/13 13:17:49 nao-pon Exp $
+	// $Id: pukiwiki_func.php,v 1.2 2006/10/14 15:29:42 nao-pon Exp $
 	// Copyright (C)
 	//   2003-2005 PukiWiki Developers Team
 	//   2003      Originally written by upk
@@ -3290,7 +3290,7 @@ EOD;
 
 //----- Start link.php -----//
 	// PukiWiki - Yet another WikiWikiWeb clone
-	// $Id: pukiwiki_func.php,v 1.1 2006/10/13 13:17:49 nao-pon Exp $
+	// $Id: pukiwiki_func.php,v 1.2 2006/10/14 15:29:42 nao-pon Exp $
 	// Copyright (C) 2003-2006 PukiWiki Developers Team
 	// License: GPL v2 or (at your option) any later version
 	//
