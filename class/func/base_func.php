@@ -1,7 +1,7 @@
 <?php
 //
 // Created on 2006/10/15 by nao-pon http://hypweb.net/
-// $Id: base_func.php,v 1.2 2006/10/15 12:16:47 nao-pon Exp $
+// $Id: base_func.php,v 1.3 2006/10/15 14:11:55 nao-pon Exp $
 //
 class XpWikiBaseFunc {
 	
@@ -25,6 +25,10 @@ class XpWikiBaseFunc {
 		$this->root->userinfo['uname'] = '';
 		$this->root->userinfo['uname_s'] = htmlspecialchars($this->root->userinfo['uname']);
 		$this->root->userinfo['gids'] = array();
+	}
+	
+	function get_lang ($default) {
+		return $default;
 	}
 }
 ?>

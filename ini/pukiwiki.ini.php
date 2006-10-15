@@ -1,6 +1,6 @@
 <?php
 // PukiWiki - Yet another WikiWikiWeb clone
-// $Id: pukiwiki.ini.php,v 1.2 2006/10/15 05:59:29 nao-pon Exp $
+// $Id: pukiwiki.ini.php,v 1.3 2006/10/15 14:11:55 nao-pon Exp $
 // Copyright (C)
 //   2002-2006 PukiWiki Developers Team
 //   2001-2002 Originally written by yu-ji
@@ -59,7 +59,7 @@ $const['PKWKEXP_DISABLE_MULTILINE_PLUGIN_HACK'] = 1; // 1 = Disabled
 // Language / Encoding settings
 
 // LANG - Internal content encoding ('en', 'ja', or ...)
-$const['LANG'] = 'ja';
+$const['LANG'] = $this->get_lang('ja');
 
 // UI_LANG - Content encoding for buttons, menus,  etc
 //$const['UI_LANG'] = $const['LANG']; // 'en' for Internationalized wikisite
@@ -303,7 +303,7 @@ $root->lastmod = 0;
 $root->date_format = 'Y-m-d';
 
 // Time format
-$root->time_format = 'H:i:s (T)';
+$root->time_format = 'H:i:s';
 
 /////////////////////////////////////////////////
 // Max number of RSS feed

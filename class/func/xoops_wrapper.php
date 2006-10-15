@@ -1,7 +1,7 @@
 <?php
 //
 // Created on 2006/10/11 by nao-pon http://hypweb.net/
-// $Id: xoops_wrapper.php,v 1.4 2006/10/15 12:16:46 nao-pon Exp $
+// $Id: xoops_wrapper.php,v 1.5 2006/10/15 14:11:55 nao-pon Exp $
 //
 class XpWikiXoopsWrapper extends XpWikiBackupFunc {
 	
@@ -68,6 +68,20 @@ class XpWikiXoopsWrapper extends XpWikiBackupFunc {
 		$config_handler =& xoops_gethandler('config');
 		$xoopsConfig =& $config_handler->getConfigsByCat(XOOPS_CONF);
 		return $xoopsConfig['default_TZ'] * 3600; //default_TZ	
+	}
+	
+	function get_lang ($default) {
+		$config_handler =& xoops_gethandler('config');
+		$xoopsConfig =& $config_handler->getConfigsByCat(XOOPS_CONF);
+		$language = $xoopsConfig['language'];
+		switch (strtolower($language)) {
+			case "japanese" :
+				return "ja";
+			case "english" :
+				return "en";
+			default:
+				return $default;
+		}
 	}
 }
 ?>
