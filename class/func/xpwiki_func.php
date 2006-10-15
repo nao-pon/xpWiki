@@ -1,7 +1,7 @@
 <?php
 //
 // Created on 2006/10/02 by nao-pon http://hypweb.net/
-// $Id: xpwiki_func.php,v 1.4 2006/10/15 10:47:05 nao-pon Exp $
+// $Id: xpwiki_func.php,v 1.5 2006/10/15 12:16:47 nao-pon Exp $
 //
 class XpWikiFunc extends XpWikiXoopsWrapper {
 
@@ -279,6 +279,7 @@ class XpWikiFunc extends XpWikiXoopsWrapper {
 		$this->root->cookie['name'] = (isset($cookies[1])) ? $cookies[1] : "";
 		if (empty($this->root->userinfo['uname'])) {
 			$this->root->userinfo['uname'] = $this->root->cookie['name'];
+			$this->root->userinfo['uname_s'] = htmlspecialchars($this->root->userinfo['uname']);
 		}
 	}
 	
@@ -289,7 +290,7 @@ class XpWikiFunc extends XpWikiXoopsWrapper {
 		setcookie($this->root->mydirname, $data, time()+86400*365, $url['path']); // 1年間
 	}
 	
-	function set_user_code () {
+	function set_usercode () {
 		
 		// cookieの読み込み
 		$this->load_cookie();
@@ -301,6 +302,11 @@ class XpWikiFunc extends XpWikiXoopsWrapper {
 		$this->ucd = substr(crypt($this->root->cookie['ucd'],($this->root->adminpass)? $this->root->adminpass : 'id'),-11);
 
 		// cookieを更新
+		$this->save_cookie();
+	}
+	
+	function save_name2cookie ($name) {
+		$this->root->cookie['name'] = $name;
 		$this->save_cookie();
 	}
 }

@@ -1,19 +1,42 @@
 <?php
 //
 // Created on 2006/10/11 by nao-pon http://hypweb.net/
-// $Id: xoops_wrapper.php,v 1.3 2006/10/15 10:47:05 nao-pon Exp $
+// $Id: xoops_wrapper.php,v 1.4 2006/10/15 12:16:46 nao-pon Exp $
 //
 class XpWikiXoopsWrapper extends XpWikiBackupFunc {
 	
-	function setModuleInfo () {
+	function set_moduleinfo () {
 		
 		$this->cont['ROOT_PATH'] = XOOPS_ROOT_PATH . "/";
 		$this->cont['ROOT_URL']  = XOOPS_URL . "/";
 		
-		$XoopsModule =& XoopsModule::getByDirname($this->root->mydirname);
+		$module_handler =& xoops_gethandler('module');
+		$XoopsModule =& $module_handler->getByDirname($this->root->mydirname);
+		
 		$this->root->module['name'] = $XoopsModule->getInfo('name');
 		$this->root->module['version'] = $XoopsModule->getInfo('version');
 		
+	}
+	
+	function set_userinfo () {
+		
+		global $xoopsUser;
+		
+		$module_handler =& xoops_gethandler('module');
+		$XoopsModule =& $module_handler->getByDirname($this->root->mydirname);
+		
+		if (is_object($xoopsUser))
+		{
+			$this->root->userinfo['admin'] = $xoopsUser->isAdmin($XoopsModule->mid());
+			$this->root->userinfo['uid'] = $xoopsUser->uid();
+			$this->root->userinfo['uname'] = $xoopsUser->uname();
+			$this->root->userinfo['uname_s'] = htmlspecialchars($this->root->userinfo['uname']);
+			$this->root->userinfo['gids'] = $xoopsUser->getGroups();
+		}
+		else
+		{
+			parent::set_userinfo();
+		}
 	}
 	
 	function check_editable($page, $auth_flag = TRUE, $exit_flag = TRUE)

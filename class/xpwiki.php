@@ -1,7 +1,7 @@
 <?php
 //
 // Created on 2006/09/29 by nao-pon http://hypweb.net/
-// $Id: xpwiki.php,v 1.2 2006/10/15 10:47:05 nao-pon Exp $
+// $Id: xpwiki.php,v 1.3 2006/10/15 12:16:47 nao-pon Exp $
 //
 
 class XpWiki {
@@ -30,7 +30,7 @@ class XpWiki {
 		$this->root->mydirname = $mydirname;
 		
 		$this->func = new XpWikiFunc($this);
-		$this->func->setModuleInfo();
+		$this->func->set_moduleinfo();
 
 		$this->root->mydirpath = $this->cont['ROOT_PATH']."modules/".$mydirname;
 		$this->root->mytrustdirpath = dirname(dirname(__FILE__));
@@ -39,10 +39,10 @@ class XpWiki {
 		$this->cont['HOME_URL'] = $this->cont['ROOT_URL']."modules/".$mydirname."/";
 		
 		// アクセスユーザーの情報読み込み
-		$this->func->set_user_info();
+		$this->func->set_userinfo();
 		
 		// cookie 用ユーザーコード取得 & cookie読み書き 
-		$this->func->set_user_code();
+		$this->func->set_usercode();
 	}
 
 	function init($page = "") {
