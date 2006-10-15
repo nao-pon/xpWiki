@@ -1,7 +1,7 @@
 <?php
 //
 // Created on 2006/10/11 by nao-pon http://hypweb.net/
-// $Id: xoops_wrapper.php,v 1.1 2006/10/13 13:17:49 nao-pon Exp $
+// $Id: xoops_wrapper.php,v 1.2 2006/10/15 05:59:29 nao-pon Exp $
 //
 class XpWikiXoopsWrapper extends XpWikiBackupFunc {
 	
@@ -42,6 +42,11 @@ class XpWikiXoopsWrapper extends XpWikiBackupFunc {
 				exit;
 			}
 		}
+	}
+	
+	function get_zonetime () {
+		global $xoopsConfig;
+		return $xoopsConfig['default_TZ'] * 3600; //default_TZ	
 	}
 }
 ?>

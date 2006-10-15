@@ -1,6 +1,6 @@
 <?php
 // PukiWiki - Yet another WikiWikiWeb clone
-// $Id: pukiwiki.ini.php,v 1.1 2006/10/13 13:17:49 nao-pon Exp $
+// $Id: pukiwiki.ini.php,v 1.2 2006/10/15 05:59:29 nao-pon Exp $
 // Copyright (C)
 //   2002-2006 PukiWiki Developers Team
 //   2001-2002 Originally written by yu-ji
@@ -62,7 +62,8 @@ $const['PKWKEXP_DISABLE_MULTILINE_PLUGIN_HACK'] = 1; // 1 = Disabled
 $const['LANG'] = 'ja';
 
 // UI_LANG - Content encoding for buttons, menus,  etc
-$const['UI_LANG'] = $const['LANG']; // 'en' for Internationalized wikisite
+//$const['UI_LANG'] = $const['LANG']; // 'en' for Internationalized wikisite
+$const['UI_LANG'] = $this->get_accept_language();
 
 /////////////////////////////////////////////////
 // Directory settings I (ended with '/', permission '777')
@@ -100,16 +101,10 @@ $const['IMAGE_DIR'] = $const['HOME_URL'].'image/';
 /////////////////////////////////////////////////
 // Local time setting
 
-switch ($const['LANG']) { // or specifiy one
-case 'ja':
-	$const['ZONE'] = 'JST';
-	$const['ZONETIME'] = 9 * 3600; // JST = GMT + 9
-	break;
-default  :
-	$const['ZONE'] = 'GMT';
-	$const['ZONETIME'] = 0;
-	break;
-}
+//$const['ZONETIME'] = 9 * 3600; // JST = GMT + 9
+if (!isset($const['ZONETIME'])) { $const['ZONETIME'] = $this->get_zonetime(); }
+//$const['ZONE'] = 'JST';
+if (!isset($const['ZONE'])) { $const['ZONE'] = $this->get_zone_by_time($const['ZONETIME'] / 3600); }
 
 /////////////////////////////////////////////////
 // Title of your Wikisite (Name this)
@@ -308,7 +303,7 @@ $root->lastmod = 0;
 $root->date_format = 'Y-m-d';
 
 // Time format
-$root->time_format = 'H:i:s';
+$root->time_format = 'H:i:s (T)';
 
 /////////////////////////////////////////////////
 // Max number of RSS feed
