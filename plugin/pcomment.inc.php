@@ -4,7 +4,7 @@ class xpwiki_plugin_pcomment extends xpwiki_plugin {
 
 
 	// PukiWiki - Yet another WikiWikiWeb clone
-	// $Id: pcomment.inc.php,v 1.1 2006/10/13 13:17:49 nao-pon Exp $
+	// $Id: pcomment.inc.php,v 1.2 2006/10/15 12:16:47 nao-pon Exp $
 	//
 	// pcomment plugin - Show/Insert comments into specified (another) page
 	//
@@ -116,7 +116,7 @@ $this->cont['PLUGIN_PCOMMENT_DIRECTION_DEFAULT'] =  1; // 1: above 0: below
 				$name = '';
 			} else {
 				$title = $this->root->_pcmt_messages['btn_name'];
-				$name = '<input type="text" name="name" size="' . $this->cont['PLUGIN_PCOMMENT_SIZE_NAME'] . '" />';
+				$name = '<input type="text" name="name" value="' . $this->root->userinfo['uname_s'] . '"size="' . $this->cont['PLUGIN_PCOMMENT_SIZE_NAME'] . '" />';
 			}
 	
 			$radio   = $params['reply'] ?
@@ -194,6 +194,8 @@ EOD;
 	
 		$msg = str_replace('$msg', rtrim($this->root->vars['msg']), $this->cont['PLUGIN_PCOMMENT_FORMAT_MSG']);
 		$name = (! isset($this->root->vars['name']) || $this->root->vars['name'] == '') ? $this->root->_no_name : $this->root->vars['name'];
+		// save name to cookie
+		if ($name) { $this->func->save_name2cookie($name); }
 		$name = ($name == '') ? '' : str_replace('$name', $name, $this->cont['PLUGIN_PCOMMENT_FORMAT_NAME']);
 		$date = (! isset($this->root->vars['nodate']) || $this->root->vars['nodate'] != '1') ?
 			str_replace('$now', $this->root->now, $this->cont['PLUGIN_PCOMMENT_FORMAT_NOW']) : '';

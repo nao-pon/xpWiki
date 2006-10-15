@@ -4,7 +4,7 @@ class xpwiki_plugin_comment extends xpwiki_plugin {
 
 
 	// PukiWiki - Yet another WikiWikiWeb clone
-	// $Id: comment.inc.php,v 1.1 2006/10/13 13:17:49 nao-pon Exp $
+	// $Id: comment.inc.php,v 1.2 2006/10/15 12:16:47 nao-pon Exp $
 	// Copyright (C)
 	//   2002-2005 PukiWiki Developers Team
 	//   2001-2002 Originally written by yu-ji
@@ -45,6 +45,8 @@ class xpwiki_plugin_comment extends xpwiki_plugin {
 		$comment  = str_replace('$msg', $this->root->vars['msg'], $this->cont['PLUGIN_COMMENT_FORMAT_MSG']);
 		if(isset($this->root->vars['name']) || ($this->root->vars['nodate'] != '1')) {
 			$_name = (! isset($this->root->vars['name']) || $this->root->vars['name'] == '') ? $this->root->_no_name : $this->root->vars['name'];
+			// save name to cookie
+			if ($_name) { $this->func->save_name2cookie($_name); }
 			$_name = ($_name == '') ? '' : str_replace('$name', $_name, $this->cont['PLUGIN_COMMENT_FORMAT_NAME']);
 			$_now  = ($this->root->vars['nodate'] == '1') ? '' :
 				str_replace('$now', $this->root->now, $this->cont['PLUGIN_COMMENT_FORMAT_NOW']);
@@ -111,7 +113,7 @@ class xpwiki_plugin_comment extends xpwiki_plugin {
 		} else {
 			$nametags = '<label for="_p_comment_name_' . $comment_no . '">' .
 			$this->root->_btn_name . '</label>' .
-			'<input type="text" name="name" id="_p_comment_name_' .
+			'<input type="text" name="name" value="'.$this->root->userinfo['uname_s'].'" id="_p_comment_name_' .
 			$comment_no .  '" size="' . $this->cont['PLUGIN_COMMENT_SIZE_NAME'] .
 			'" />' . "\n";
 		}
