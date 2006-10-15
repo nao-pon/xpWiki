@@ -1,7 +1,7 @@
 <?php
 //
 // Created on 2006/10/02 by nao-pon http://hypweb.net/
-// $Id: pukiwiki_func.php,v 1.2 2006/10/14 15:29:42 nao-pon Exp $
+// $Id: pukiwiki_func.php,v 1.3 2006/10/15 05:59:29 nao-pon Exp $
 //
 class XpWikiPukiWikiFunc {
 
@@ -49,7 +49,7 @@ class XpWikiPukiWikiFunc {
 	// Get physical file name of the page
 	function get_filename($page)
 	{
-		return $this->root->c['DATA_DIR'] . $this->encode($page) . '.txt';
+		return $this->cont['DATA_DIR'] . $this->encode($page) . '.txt';
 	}
 	
 	// Put a data(wiki text) into a physical file(diff, backup, text)
@@ -290,7 +290,7 @@ class XpWikiPukiWikiFunc {
 		if (isset($lines[$_page])) unset($lines[$_page]);
 	
 		// Add
-		array_unshift($lines, '-' . $this->format_date($this->root->c['UTIME']) . ' - ' . $_page .
+		array_unshift($lines, '-' . $this->format_date($this->cont['UTIME']) . ' - ' . $_page .
 			htmlspecialchars($subject) . "\n");
 	
 		// Get latest $limit reports
@@ -803,7 +803,7 @@ class XpWikiPukiWikiFunc {
 
 //----- Start convert_html.php -----//
 	// PukiWiki - Yet another WikiWikiWeb clone
-	// $Id: pukiwiki_func.php,v 1.2 2006/10/14 15:29:42 nao-pon Exp $
+	// $Id: pukiwiki_func.php,v 1.3 2006/10/15 05:59:29 nao-pon Exp $
 	// Copyright (C)
 	//   2002-2005 PukiWiki Developers Team
 	//   2001-2002 Originally written by yu-ji
@@ -907,7 +907,7 @@ class XpWikiPukiWikiFunc {
 
 //----- Start func.php -----//
 	// PukiWiki - Yet another WikiWikiWeb clone.
-	// $Id: pukiwiki_func.php,v 1.2 2006/10/14 15:29:42 nao-pon Exp $
+	// $Id: pukiwiki_func.php,v 1.3 2006/10/15 05:59:29 nao-pon Exp $
 	// Copyright (C)
 	//   2002-2006 PukiWiki Developers Team
 	//   2001-2002 Originally written by yu-ji
@@ -1385,12 +1385,13 @@ EOD;
 	// Get the date
 	function get_date($format, $timestamp = NULL)
 	{
-		$format = preg_replace('/(?<!\\\)T/',
-			preg_replace('/(.)/', '\\\$1', $this->root->c['ZONE']), $format);
+		//$format = preg_replace('/(?<!\\\)T/',
+		//	preg_replace('/(.)/', '\\\$1', $this->cont['ZONE']), $format);
+		$format = preg_replace('/(?<!\\\)T/',	"_\\Z\\ONE_", $format);
 	
-		$time = $this->root->c['ZONETIME'] + (($timestamp !== NULL) ? $timestamp : $this->root->c['UTIME']);
+		$time = $this->cont['ZONETIME'] + (($timestamp !== NULL) ? $timestamp : $this->cont['UTIME']);
 	
-		return date($format, $time);
+		return str_replace("_ZONE_", $this->cont['ZONE'], date($format, $time));
 	}
 	
 	// Format date string
@@ -1398,11 +1399,11 @@ EOD;
 	{
 		//	global $date_format, $time_format, $weeklabels;
 	
-		$val += $this->root->c['ZONETIME'];
+		//$val += $this->cont['ZONETIME'];
 	
-		$date = date($this->root->date_format, $val) .
+		$date = $this->get_date($this->root->date_format, $val) .
 			' (' . $this->root->weeklabels[date('w', $val)] . ') ' .
-			date($this->root->time_format, $val);
+			$this->get_date($this->root->time_format, $val);
 	
 		return $paren ? '(' . $date . ')' : $date;
 	}
@@ -1412,7 +1413,7 @@ EOD;
 	{
 		static $units = array('m'=>60, 'h'=>24, 'd'=>1);
 	
-		$time = max(0, ($this->root->c['UTIME'] - $time) / 60); // minutes
+		$time = max(0, ($this->cont['UTIME'] - $time) / 60); // minutes
 	
 		foreach ($units as $unit=>$card) {
 			if ($time < $card) break;
@@ -1659,7 +1660,7 @@ EOD;
 
 //----- Start make_link.php -----//
 	// PukiWiki - Yet another WikiWikiWeb clone.
-	// $Id: pukiwiki_func.php,v 1.2 2006/10/14 15:29:42 nao-pon Exp $
+	// $Id: pukiwiki_func.php,v 1.3 2006/10/15 05:59:29 nao-pon Exp $
 	// Copyright (C)
 	//   2003-2005 PukiWiki Developers Team
 	//   2001-2002 Originally written by yu-ji
@@ -2031,13 +2032,13 @@ EOD;
 		if (! isset($data[$d_url])) {
 			$data[$d_url] = array(
 				'',    // [0]: Last update date
-				$this->root->c['UTIME'], // [1]: Creation date
+				$this->cont['UTIME'], // [1]: Creation date
 				0,     // [2]: Reference counter
 				$url,  // [3]: Referer header
 				1      // [4]: Enable / Disable flag (1 = enable)
 			);
 		}
-		$data[$d_url][0] = $this->root->c['UTIME'];
+		$data[$d_url][0] = $this->cont['UTIME'];
 		$data[$d_url][2]++;
 	
 		$fp = fopen($filename, 'w');
@@ -2291,7 +2292,7 @@ EOD;
 		if (! $this->is_page($page)) return;
 	
 		$lastmod = $this->_backup_get_filetime($page);
-		if ($lastmod == 0 || $this->root->c['UTIME'] - $lastmod > 60 * 60 * $this->root->cycle)
+		if ($lastmod == 0 || $this->cont['UTIME'] - $lastmod > 60 * 60 * $this->root->cycle)
 		{
 			$backups = $this->get_backup($page);
 			$count   = count($backups) + 1;
@@ -2447,7 +2448,7 @@ EOD;
 
 //----- Start html.php -----//
 	// PukiWiki - Yet another WikiWikiWeb clone.
-	// $Id: pukiwiki_func.php,v 1.2 2006/10/14 15:29:42 nao-pon Exp $
+	// $Id: pukiwiki_func.php,v 1.3 2006/10/15 05:59:29 nao-pon Exp $
 	// Copyright (C)
 	//   2002-2006 PukiWiki Developers Team
 	//   2001-2002 Originally written by yu-ji
@@ -2983,7 +2984,7 @@ EOD;
 
 //----- Start mail.php -----//
 	// PukiWiki - Yet another WikiWikiWeb clone.
-	// $Id: pukiwiki_func.php,v 1.2 2006/10/14 15:29:42 nao-pon Exp $
+	// $Id: pukiwiki_func.php,v 1.3 2006/10/15 05:59:29 nao-pon Exp $
 	// Copyright (C)
 	//   2003-2005 PukiWiki Developers Team
 	//   2003      Originally written by upk
@@ -3290,7 +3291,7 @@ EOD;
 
 //----- Start link.php -----//
 	// PukiWiki - Yet another WikiWikiWeb clone
-	// $Id: pukiwiki_func.php,v 1.2 2006/10/14 15:29:42 nao-pon Exp $
+	// $Id: pukiwiki_func.php,v 1.3 2006/10/15 05:59:29 nao-pon Exp $
 	// Copyright (C) 2003-2006 PukiWiki Developers Team
 	// License: GPL v2 or (at your option) any later version
 	//
@@ -3549,6 +3550,8 @@ EOD;
 	}
 //----- End link.php -----//
 
-
+	function get_zonetime () {
+		return date("Z");	
+	}
 }
 ?>

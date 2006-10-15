@@ -1,7 +1,7 @@
 <?php
 //
 // Created on 2006/10/02 by nao-pon http://hypweb.net/
-// $Id: xpwiki_func.php,v 1.2 2006/10/14 15:35:18 nao-pon Exp $
+// $Id: xpwiki_func.php,v 1.3 2006/10/15 05:59:29 nao-pon Exp $
 //
 class XpWikiFunc extends XpWikiXoopsWrapper {
 
@@ -235,5 +235,37 @@ class XpWikiFunc extends XpWikiXoopsWrapper {
 			}
 		}
 	
+	// Get HTTP_ACCEPT_LANGUAGE
+	function get_accept_language () {
+		$lang = "en";
+		if (!empty($_SERVER["HTTP_ACCEPT_LANGUAGE"]))
+		{
+			if (preg_match_all("/([\w]+)/i",$_SERVER["HTTP_ACCEPT_LANGUAGE"],$match,PREG_PATTERN_ORDER)) {
+				foreach($match[1] as $lang) {
+					if (file_exists($this->cont['DATA_HOME']."private/lang/{$lang}.lng.php")) { break; }
+					else { $lang = "en"; }
+				}
+			}
+		}
+		return $lang;
+	}
+	
+	function get_zone_by_time ($time) {
+		$zones = array(
+			-8=>"PST",
+			-7=>"MST",
+			-6=>"CST",
+			-5=>"EST",
+			-4=>"AST",
+			0=>"GMT",
+			1=>"CET",
+			2=>"EET",
+			9=>"JST",
+		);
+		if (isset($zones[$time])) { return $zones[$time]; }
+		$time_string = ($time === 0)? "" : ($time > 0)? ("+".$time) : (string)$time;
+		return "UTC".$time_string;
+	}
+
 }
 ?>
