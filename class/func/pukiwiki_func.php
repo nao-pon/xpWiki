@@ -1,7 +1,7 @@
 <?php
 //
 // Created on 2006/10/02 by nao-pon http://hypweb.net/
-// $Id: pukiwiki_func.php,v 1.4 2006/10/15 10:47:05 nao-pon Exp $
+// $Id: pukiwiki_func.php,v 1.5 2006/10/15 14:11:18 nao-pon Exp $
 //
 class XpWikiPukiWikiFunc extends XpWikiBaseFunc {
 
@@ -803,7 +803,7 @@ class XpWikiPukiWikiFunc extends XpWikiBaseFunc {
 
 //----- Start convert_html.php -----//
 	// PukiWiki - Yet another WikiWikiWeb clone
-	// $Id: pukiwiki_func.php,v 1.4 2006/10/15 10:47:05 nao-pon Exp $
+	// $Id: pukiwiki_func.php,v 1.5 2006/10/15 14:11:18 nao-pon Exp $
 	// Copyright (C)
 	//   2002-2005 PukiWiki Developers Team
 	//   2001-2002 Originally written by yu-ji
@@ -907,7 +907,7 @@ class XpWikiPukiWikiFunc extends XpWikiBaseFunc {
 
 //----- Start func.php -----//
 	// PukiWiki - Yet another WikiWikiWeb clone.
-	// $Id: pukiwiki_func.php,v 1.4 2006/10/15 10:47:05 nao-pon Exp $
+	// $Id: pukiwiki_func.php,v 1.5 2006/10/15 14:11:18 nao-pon Exp $
 	// Copyright (C)
 	//   2002-2006 PukiWiki Developers Team
 	//   2001-2002 Originally written by yu-ji
@@ -1660,7 +1660,7 @@ EOD;
 
 //----- Start make_link.php -----//
 	// PukiWiki - Yet another WikiWikiWeb clone.
-	// $Id: pukiwiki_func.php,v 1.4 2006/10/15 10:47:05 nao-pon Exp $
+	// $Id: pukiwiki_func.php,v 1.5 2006/10/15 14:11:18 nao-pon Exp $
 	// Copyright (C)
 	//   2003-2005 PukiWiki Developers Team
 	//   2001-2002 Originally written by yu-ji
@@ -2448,7 +2448,7 @@ EOD;
 
 //----- Start html.php -----//
 	// PukiWiki - Yet another WikiWikiWeb clone.
-	// $Id: pukiwiki_func.php,v 1.4 2006/10/15 10:47:05 nao-pon Exp $
+	// $Id: pukiwiki_func.php,v 1.5 2006/10/15 14:11:18 nao-pon Exp $
 	// Copyright (C)
 	//   2002-2006 PukiWiki Developers Team
 	//   2001-2002 Originally written by yu-ji
@@ -2543,6 +2543,7 @@ EOD;
 	
 		// Last modification date (string) of the page
 		$lastmodified = $is_read ?  $this->format_date($this->get_filetime($_page)) .
+			' (' . $this->cont['ZONE'] . ')' .
 			' ' . $this->get_pg_passage($_page, FALSE) : '';
 	
 		// List of attached files to the page
@@ -2984,7 +2985,7 @@ EOD;
 
 //----- Start mail.php -----//
 	// PukiWiki - Yet another WikiWikiWeb clone.
-	// $Id: pukiwiki_func.php,v 1.4 2006/10/15 10:47:05 nao-pon Exp $
+	// $Id: pukiwiki_func.php,v 1.5 2006/10/15 14:11:18 nao-pon Exp $
 	// Copyright (C)
 	//   2003-2005 PukiWiki Developers Team
 	//   2003      Originally written by upk
@@ -3291,7 +3292,7 @@ EOD;
 
 //----- Start link.php -----//
 	// PukiWiki - Yet another WikiWikiWeb clone
-	// $Id: pukiwiki_func.php,v 1.4 2006/10/15 10:47:05 nao-pon Exp $
+	// $Id: pukiwiki_func.php,v 1.5 2006/10/15 14:11:18 nao-pon Exp $
 	// Copyright (C) 2003-2006 PukiWiki Developers Team
 	// License: GPL v2 or (at your option) any later version
 	//
