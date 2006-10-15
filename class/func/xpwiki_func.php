@@ -1,10 +1,13 @@
 <?php
 //
 // Created on 2006/10/02 by nao-pon http://hypweb.net/
-// $Id: xpwiki_func.php,v 1.3 2006/10/15 05:59:29 nao-pon Exp $
+// $Id: xpwiki_func.php,v 1.4 2006/10/15 10:47:05 nao-pon Exp $
 //
 class XpWikiFunc extends XpWikiXoopsWrapper {
 
+	// xpWiki functions.
+	// These are functions that need not be overwrited. 
+	
 	var $xpwiki;
 	var $root;
 	var $const;
@@ -266,6 +269,39 @@ class XpWikiFunc extends XpWikiXoopsWrapper {
 		$time_string = ($time === 0)? "" : ($time > 0)? ("+".$time) : (string)$time;
 		return "UTC".$time_string;
 	}
+	
+	function load_cookie () {
+		$cookies = array();
+		if (isset($_COOKIE[$this->root->mydirname])) {
+			$cookies = explode("\t", $_COOKIE[$this->root->mydirname]);
+		}
+		$this->root->cookie['ucd'] = (isset($cookies[0])) ? $cookies[0] : "";
+		$this->root->cookie['name'] = (isset($cookies[1])) ? $cookies[1] : "";
+		if (empty($this->root->userinfo['uname'])) {
+			$this->root->userinfo['uname'] = $this->root->cookie['name'];
+		}
+	}
+	
+	function save_cookie () {
+		$data = $this->root->cookie['ucd'].
+			"\t" . $this->root->cookie['name'];
+		$url = parse_url ( $this->cont['ROOT_URL'] );
+		setcookie($this->root->mydirname, $data, time()+86400*365, $url['path']); // 1年間
+	}
+	
+	function set_user_code () {
+		
+		// cookieの読み込み
+		$this->load_cookie();
+		
+		//user-codeの発行
+		if(!$this->root->cookie['ucd']){
+			$this->root->cookie['ucd'] = md5(getenv("REMOTE_ADDR"). __FILE__ .gmdate("Ymd", time()+9*60*60));
+		}
+		$this->ucd = substr(crypt($this->root->cookie['ucd'],($this->root->adminpass)? $this->root->adminpass : 'id'),-11);
 
+		// cookieを更新
+		$this->save_cookie();
+	}
 }
 ?>

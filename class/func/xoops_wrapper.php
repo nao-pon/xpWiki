@@ -1,13 +1,10 @@
 <?php
 //
 // Created on 2006/10/11 by nao-pon http://hypweb.net/
-// $Id: xoops_wrapper.php,v 1.2 2006/10/15 05:59:29 nao-pon Exp $
+// $Id: xoops_wrapper.php,v 1.3 2006/10/15 10:47:05 nao-pon Exp $
 //
 class XpWikiXoopsWrapper extends XpWikiBackupFunc {
 	
-	function XpWikiXoopsWrapper () {
-	}
-
 	function setModuleInfo () {
 		
 		$this->cont['ROOT_PATH'] = XOOPS_ROOT_PATH . "/";
@@ -45,7 +42,8 @@ class XpWikiXoopsWrapper extends XpWikiBackupFunc {
 	}
 	
 	function get_zonetime () {
-		global $xoopsConfig;
+		$config_handler =& xoops_gethandler('config');
+		$xoopsConfig =& $config_handler->getConfigsByCat(XOOPS_CONF);
 		return $xoopsConfig['default_TZ'] * 3600; //default_TZ	
 	}
 }
