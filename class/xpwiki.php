@@ -1,11 +1,11 @@
 <?php
 //
 // Created on 2006/09/29 by nao-pon http://hypweb.net/
-// $Id: xpwiki.php,v 1.1 2006/10/13 13:17:49 nao-pon Exp $
+// $Id: xpwiki.php,v 1.2 2006/10/15 10:47:05 nao-pon Exp $
 //
 
 class XpWiki {
-
+	
 	var $runmode = "xoops";
 	var $module;
 
@@ -38,6 +38,11 @@ class XpWiki {
 		$this->cont['DATA_HOME'] = $this->root->mydirpath."/";
 		$this->cont['HOME_URL'] = $this->cont['ROOT_URL']."modules/".$mydirname."/";
 		
+		// アクセスユーザーの情報読み込み
+		$this->func->set_user_info();
+		
+		// cookie 用ユーザーコード取得 & cookie読み書き 
+		$this->func->set_user_code();
 	}
 
 	function init($page = "") {
