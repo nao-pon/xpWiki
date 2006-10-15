@@ -1,6 +1,6 @@
 <?php
 // PukiWiki - Yet another WikiWikiWeb clone.
-// $Id: en.lng.php,v 1.1 2006/10/13 13:17:49 nao-pon Exp $
+// $Id: en.lng.php,v 1.2 2006/10/15 05:55:44 nao-pon Exp $
 // Copyright (C)
 //   2002-2005 PukiWiki Developers Team
 //   2001-2002 Originally written by yu-ji
@@ -11,136 +11,136 @@
 // NOTE: Encoding of this file, must equal to encoding setting
 
 // Encoding hint
-$_LANG['encode_hint']['en'] = '';
+$root->_LANG['encode_hint']['en'] = '';
 
 ///////////////////////////////////////
 // Page titles
-$_title_cannotedit = ' $1 is not editable';
-$_title_edit       = 'Edit of  $1';
-$_title_preview    = 'Preview of  $1';
-$_title_collided   = 'On updating  $1, a collision has occurred.';
-$_title_updated    = ' $1 was updated';
-$_title_deleted    = ' $1 was deleted';
-$_title_help       = 'Help';
-$_title_invalidwn  = 'It is not a valid WikiName';
-$_title_backuplist = 'Backup list';
+$root->_title_cannotedit = ' $1 is not editable';
+$root->_title_edit       = 'Edit of  $1';
+$root->_title_preview    = 'Preview of  $1';
+$root->_title_collided   = 'On updating  $1, a collision has occurred.';
+$root->_title_updated    = ' $1 was updated';
+$root->_title_deleted    = ' $1 was deleted';
+$root->_title_help       = 'Help';
+$root->_title_invalidwn  = 'It is not a valid WikiName';
+$root->_title_backuplist = 'Backup list';
 
 ///////////////////////////////////////
 // Messages
-$_msg_unfreeze = 'Unfreeze';
-$_msg_preview  = 'To confirm the changes, click the button at the bottom of the page';
-$_msg_preview_delete = '(The contents of the page are empty. Updating deletes this page.)';
-$_msg_collided = 'It seems that someone has already updated this page while you were editing it.<br />
+$root->_msg_unfreeze = 'Unfreeze';
+$root->_msg_preview  = 'To confirm the changes, click the button at the bottom of the page';
+$root->_msg_preview_delete = '(The contents of the page are empty. Updating deletes this page.)';
+$root->_msg_collided = 'It seems that someone has already updated this page while you were editing it.<br />
  + is placed at the beginning of a line that was newly added.<br />
  ! is placed at the beginning of a line that has possibly been updated.<br />
  Edit those lines, and submit again.';
 
-$_msg_collided_auto = 'It seems that someone has already updated this page while you were editing it.<br /> The collision has been corrected automatically, but there may still be some problems with the page.<br />
+$root->_msg_collided_auto = 'It seems that someone has already updated this page while you were editing it.<br /> The collision has been corrected automatically, but there may still be some problems with the page.<br />
  To confirm the changes to the page, press [Update].<br />';
 
-$_msg_invalidiwn  = ' $1 is not a valid $2.';
-$_msg_invalidpass = 'Invalid password.';
-$_msg_notfound    = 'The page was not found.';
-$_msg_addline     = 'The added line is <span class="diff_added">THIS COLOR</span>.';
-$_msg_delline     = 'The deleted line is <span class="diff_removed">THIS COLOR</span>.';
-$_msg_goto        = 'Go to $1.';
-$_msg_andresult   = 'In the page <strong> $2</strong>, <strong> $3</strong> pages that contain all the terms $1 were found.';
-$_msg_orresult    = 'In the page <strong> $2</strong>, <strong> $3</strong> pages that contain at least one of the terms $1 were found.';
-$_msg_notfoundresult = 'No page which contains $1 has been found.';
-$_msg_symbol      = 'Symbols';
-$_msg_other       = 'Others';
-$_msg_help        = 'View Text Formatting Rules';
-$this->_msg_week        = array('Sun','Mon','Tue','Wed','Thu','Fri','Sat');
-$_msg_content_back_to_top = '<div class="jumpmenu"><a href="#navigator">&uarr;</a></div>';
-$_msg_word        = 'These search terms have been highlighted:';
+$root->_msg_invalidiwn  = ' $1 is not a valid $2.';
+$root->_msg_invalidpass = 'Invalid password.';
+$root->_msg_notfound    = 'The page was not found.';
+$root->_msg_addline     = 'The added line is <span class="diff_added">THIS COLOR</span>.';
+$root->_msg_delline     = 'The deleted line is <span class="diff_removed">THIS COLOR</span>.';
+$root->_msg_goto        = 'Go to $1.';
+$root->_msg_andresult   = 'In the page <strong> $2</strong>, <strong> $3</strong> pages that contain all the terms $1 were found.';
+$root->_msg_orresult    = 'In the page <strong> $2</strong>, <strong> $3</strong> pages that contain at least one of the terms $1 were found.';
+$root->_msg_notfoundresult = 'No page which contains $1 has been found.';
+$root->_msg_symbol      = 'Symbols';
+$root->_msg_other       = 'Others';
+$root->_msg_help        = 'View Text Formatting Rules';
+$root->_msg_week        = array('Sun','Mon','Tue','Wed','Thu','Fri','Sat');
+$root->_msg_content_back_to_top = '<div class="jumpmenu"><a href="#navigator">&uarr;</a></div>';
+$root->_msg_word        = 'These search terms have been highlighted:';
 
 ///////////////////////////////////////
 // Symbols
-$_symbol_anchor   = '&dagger;';
-$_symbol_noexists = '?';
+$root->_symbol_anchor   = '&dagger;';
+$root->_symbol_noexists = '?';
 
 ///////////////////////////////////////
 // Form buttons
-$_btn_preview   = 'Preview';
-$_btn_repreview = 'Preview again';
-$_btn_update    = 'Update';
-$_btn_cancel    = 'Cancel';
-$_btn_notchangetimestamp = 'Do not change timestamp';
-$_btn_addtop    = 'Add to top of page';
-$_btn_template  = 'Use page as template';
-$_btn_load      = 'Load';
-$_btn_edit      = 'Edit';
-$_btn_delete    = 'Delete';
+$root->_btn_preview   = 'Preview';
+$root->_btn_repreview = 'Preview again';
+$root->_btn_update    = 'Update';
+$root->_btn_cancel    = 'Cancel';
+$root->_btn_notchangetimestamp = 'Do not change timestamp';
+$root->_btn_addtop    = 'Add to top of page';
+$root->_btn_template  = 'Use page as template';
+$root->_btn_load      = 'Load';
+$root->_btn_edit      = 'Edit';
+$root->_btn_delete    = 'Delete';
 
 ///////////////////////////////////////
 // Authentication
-$_title_cannotread = ' $1 is not readable';
-$_msg_auth         = 'PukiWikiAuth';
+$root->_title_cannotread = ' $1 is not readable';
+$root->_msg_auth         = 'PukiWikiAuth';
 
 ///////////////////////////////////////
 // Page name
-$rule_page = 'FormattingRules';	// Formatting rules
-$help_page = 'Help';		// Help
+$root->rule_page = 'FormattingRules';	// Formatting rules
+$root->help_page = 'Help';		// Help
 
 ///////////////////////////////////////
 // TrackBack (REMOVED)
-$_tb_date   = 'F j, Y, g:i A';
+$root->_tb_date   = 'F j, Y, g:i A';
 
 /////////////////////////////////////////////////
 // No subject (article)
-$_no_subject = 'no subject';
+$root->_no_subject = 'no subject';
 
 /////////////////////////////////////////////////
 // No name (article,comment,pcomment)
-$_no_name = '';
+$root->_no_name = '';
 
 /////////////////////////////////////////////////
 // Skin
 /////////////////////////////////////////////////
 
-$_LANG['skin']['add']       = 'Add';
-$_LANG['skin']['backup']    = 'Backup';
-$_LANG['skin']['copy']      = 'Copy';
-$_LANG['skin']['diff']      = 'Diff';
-$_LANG['skin']['edit']      = 'Edit';
-$_LANG['skin']['filelist']  = 'List of page files';	// List of filenames
-$_LANG['skin']['freeze']    = 'Freeze';
-$_LANG['skin']['help']      = 'Help';
-$_LANG['skin']['list']      = 'List of pages';
-$_LANG['skin']['new']       = 'New';
-$_LANG['skin']['rdf']       = 'RDF of recent changes';
-$_LANG['skin']['recent']    = 'Recent changes';	// RecentChanges
-$_LANG['skin']['refer']     = 'Referer';	// Show list of referer
-$_LANG['skin']['reload']    = 'Reload';
-$_LANG['skin']['rename']    = 'Rename';	// Rename a page (and related)
-$_LANG['skin']['rss']       = 'RSS of recent changes';
-$_LANG['skin']['rss10']     = & $_LANG['skin']['rss'];
-$_LANG['skin']['rss20']     = & $_LANG['skin']['rss'];
-$_LANG['skin']['search']    = 'Search';
-$_LANG['skin']['top']       = 'Front page';	// Top page
-$_LANG['skin']['trackback'] = 'Trackback';	// Show list of trackback
-$_LANG['skin']['unfreeze']  = 'Unfreeze';
-$_LANG['skin']['upload']    = 'Upload';	// Attach a file
+$root->_LANG['skin']['add']       = 'Add';
+$root->_LANG['skin']['backup']    = 'Backup';
+$root->_LANG['skin']['copy']      = 'Copy';
+$root->_LANG['skin']['diff']      = 'Diff';
+$root->_LANG['skin']['edit']      = 'Edit';
+$root->_LANG['skin']['filelist']  = 'List of page files';	// List of filenames
+$root->_LANG['skin']['freeze']    = 'Freeze';
+$root->_LANG['skin']['help']      = 'Help';
+$root->_LANG['skin']['list']      = 'List of pages';
+$root->_LANG['skin']['new']       = 'New';
+$root->_LANG['skin']['rdf']       = 'RDF of recent changes';
+$root->_LANG['skin']['recent']    = 'Recent changes';	// RecentChanges
+$root->_LANG['skin']['refer']     = 'Referer';	// Show list of referer
+$root->_LANG['skin']['reload']    = 'Reload';
+$root->_LANG['skin']['rename']    = 'Rename';	// Rename a page (and related)
+$root->_LANG['skin']['rss']       = 'RSS of recent changes';
+$root->_LANG['skin']['rss10']     = & $root->_LANG['skin']['rss'];
+$root->_LANG['skin']['rss20']     = & $root->_LANG['skin']['rss'];
+$root->_LANG['skin']['search']    = 'Search';
+$root->_LANG['skin']['top']       = 'Front page';	// Top page
+$root->_LANG['skin']['trackback'] = 'Trackback';	// Show list of trackback
+$root->_LANG['skin']['unfreeze']  = 'Unfreeze';
+$root->_LANG['skin']['upload']    = 'Upload';	// Attach a file
 
 ///////////////////////////////////////
 // Plug-in message
 ///////////////////////////////////////
 // add.inc.php
-$_title_add = 'Add to $1';
-$_msg_add   = 'Two and the contents of an input are added for a new-line to the contents of a page of present addition.';
+$root->_title_add = 'Add to $1';
+$root->_msg_add   = 'Two and the contents of an input are added for a new-line to the contents of a page of present addition.';
 	// This message is such bad english that I don't understand it, sorry. --Bjorn De Meyer
 
 ///////////////////////////////////////
 // article.inc.php
-$_btn_name    = 'Name: ';
-$_btn_article = 'Submit';
-$_btn_subject = 'Subject: ';
-$_msg_article_mail_sender = 'Author: ';
-$_msg_article_mail_page   = 'Page: ';
+$root->_btn_name    = 'Name: ';
+$root->_btn_article = 'Submit';
+$root->_btn_subject = 'Subject: ';
+$root->_msg_article_mail_sender = 'Author: ';
+$root->_msg_article_mail_page   = 'Page: ';
 
 ///////////////////////////////////////
 // attach.inc.php
-$_attach_messages = array(
+$root->_attach_messages = array(
 	'msg_uploaded' => 'Uploaded the file to  $1',
 	'msg_deleted'  => 'Deleted the file in  $1',
 	'msg_freezed'  => 'The file has been frozen.',
@@ -186,112 +186,112 @@ $_attach_messages = array(
 
 ///////////////////////////////////////
 // back.inc.php
-$_msg_back_word = 'Back';
+$root->_msg_back_word = 'Back';
 
 ///////////////////////////////////////
 // backup.inc.php
-$_title_backup_delete  = 'Deleting backup of  $1';
-$_title_backupdiff     = 'Backup diff of  $1(No. $2)';
-$_title_backupnowdiff  = 'Backup diff of  $1 vs current(No. $2)';
-$_title_backupsource   = 'Backup source of  $1(No. $2)';
-$_title_backup         = 'Backup of  $1(No. $2)';
-$_title_pagebackuplist = 'Backup list of  $1';
-$_title_backuplist     = 'Backup list';
-$_msg_backup_deleted   = 'Backup of  $1 has been deleted.';
-$_msg_backup_adminpass = 'Please input the password for deleting.';
-$_msg_backuplist       = 'List of Backups';
-$_msg_nobackup         = 'There are no backup(s) of  $1.';
-$_msg_diff             = 'diff';
-$_msg_nowdiff          = 'diff current';
-$_msg_source           = 'source';
-$_msg_backup           = 'backup';
-$_msg_view             = 'View the  $1.';
-$_msg_deleted          = ' $1 has been deleted.';
+$root->_title_backup_delete  = 'Deleting backup of  $1';
+$root->_title_backupdiff     = 'Backup diff of  $1(No. $2)';
+$root->_title_backupnowdiff  = 'Backup diff of  $1 vs current(No. $2)';
+$root->_title_backupsource   = 'Backup source of  $1(No. $2)';
+$root->_title_backup         = 'Backup of  $1(No. $2)';
+$root->_title_pagebackuplist = 'Backup list of  $1';
+$root->_title_backuplist     = 'Backup list';
+$root->_msg_backup_deleted   = 'Backup of  $1 has been deleted.';
+$root->_msg_backup_adminpass = 'Please input the password for deleting.';
+$root->_msg_backuplist       = 'List of Backups';
+$root->_msg_nobackup         = 'There are no backup(s) of  $1.';
+$root->_msg_diff             = 'diff';
+$root->_msg_nowdiff          = 'diff current';
+$root->_msg_source           = 'source';
+$root->_msg_backup           = 'backup';
+$root->_msg_view             = 'View the  $1.';
+$root->_msg_deleted          = ' $1 has been deleted.';
 
 ///////////////////////////////////////
 // calendar_viewer.inc.php
-$_err_calendar_viewer_param2   = 'Wrong second parameter.';
-$_msg_calendar_viewer_right    = 'Next %d&gt;&gt;';
-$_msg_calendar_viewer_left     = '&lt;&lt; Prev %d';
-$_msg_calendar_viewer_restrict = 'Due to the blocking, the calendar_viewer cannot refer to $1.';
+$root->_err_calendar_viewer_param2   = 'Wrong second parameter.';
+$root->_msg_calendar_viewer_right    = 'Next %d&gt;&gt;';
+$root->_msg_calendar_viewer_left     = '&lt;&lt; Prev %d';
+$root->_msg_calendar_viewer_restrict = 'Due to the blocking, the calendar_viewer cannot refer to $1.';
 
 ///////////////////////////////////////
 // calendar2.inc.php
-$_calendar2_plugin_edit  = '[edit]';
-$_calendar2_plugin_empty = '%s is empty.';
+$root->_calendar2_plugin_edit  = '[edit]';
+$root->_calendar2_plugin_empty = '%s is empty.';
 
 ///////////////////////////////////////
 // comment.inc.php
-$_btn_name    = 'Name: ';
-$_btn_comment = 'Post Comment';
-$_msg_comment = 'Comment: ';
-$_title_comment_collided = 'On updating  $1, a collision has occurred.';
-$_msg_comment_collided   = 'It seems that someone has already updated the page you were editing.<br />
+$root->_btn_name    = 'Name: ';
+$root->_btn_comment = 'Post Comment';
+$root->_msg_comment = 'Comment: ';
+$root->_title_comment_collided = 'On updating  $1, a collision has occurred.';
+$root->_msg_comment_collided   = 'It seems that someone has already updated the page you were editing.<br />
  The comment was added, alhough it may be inserted in the wrong position.<br />';
 
 ///////////////////////////////////////
 // deleted.inc.php
-$_deleted_plugin_title = 'The list of deleted pages';
-$_deleted_plugin_title_withfilename = 'The list of deleted pages (with filename)';
+$root->_deleted_plugin_title = 'The list of deleted pages';
+$root->_deleted_plugin_title_withfilename = 'The list of deleted pages (with filename)';
 
 ///////////////////////////////////////
 // diff.inc.php
-$_title_diff         = 'Diff of  $1';
-$_title_diff_delete  = 'Deleting diff of  $1';
-$_msg_diff_deleted   = 'Diff of  $1 has been deleted.';
-$_msg_diff_adminpass = 'Please input the password for deleting.';
+$root->_title_diff         = 'Diff of  $1';
+$root->_title_diff_delete  = 'Deleting diff of  $1';
+$root->_msg_diff_deleted   = 'Diff of  $1 has been deleted.';
+$root->_msg_diff_adminpass = 'Please input the password for deleting.';
 
 ///////////////////////////////////////
 // filelist.inc.php (list.inc.php)
-$_title_filelist = 'List of page files';
+$root->_title_filelist = 'List of page files';
 
 ///////////////////////////////////////
 // freeze.inc.php
-$_title_isfreezed = ' $1 has already been frozen';
-$_title_freezed   = ' $1 has been frozen.';
-$_title_freeze    = 'Freeze  $1';
-$_msg_freezing    = 'Please input the password for freezing.';
-$_btn_freeze      = 'Freeze';
+$root->_title_isfreezed = ' $1 has already been frozen';
+$root->_title_freezed   = ' $1 has been frozen.';
+$root->_title_freeze    = 'Freeze  $1';
+$root->_msg_freezing    = 'Please input the password for freezing.';
+$root->_btn_freeze      = 'Freeze';
 
 ///////////////////////////////////////
 // include.inc.php
-$_msg_include_restrict = 'Due to the blocking, $1 cannot be include(d).';
+$root->_msg_include_restrict = 'Due to the blocking, $1 cannot be include(d).';
 
 ///////////////////////////////////////
 // insert.inc.php
-$_btn_insert = 'add';
+$root->_btn_insert = 'add';
 
 ///////////////////////////////////////
 // interwiki.inc.php
-$_title_invalidiwn = 'This is not a valid InterWikiName';
+$root->_title_invalidiwn = 'This is not a valid InterWikiName';
 
 ///////////////////////////////////////
 // list.inc.php
-$_title_list = 'List of pages';
+$root->_title_list = 'List of pages';
 
 ///////////////////////////////////////
 // ls2.inc.php
-$_ls2_err_nopages = '<p>There is no child page in \' $1\'</p>';
-$_ls2_msg_title   = 'List of pages which begin with \' $1\'';
+$root->_ls2_err_nopages = '<p>There is no child page in \' $1\'</p>';
+$root->_ls2_msg_title   = 'List of pages which begin with \' $1\'';
 
 ///////////////////////////////////////
 // memo.inc.php
-$_btn_memo_update = 'update';
+$root->_btn_memo_update = 'update';
 
 ///////////////////////////////////////
 // navi.inc.php
-$_navi_prev = 'Prev';
-$_navi_next = 'Next';
-$_navi_up   = 'Up';
-$_navi_home = 'Home';
+$root->_navi_prev = 'Prev';
+$root->_navi_next = 'Next';
+$root->_navi_up   = 'Up';
+$root->_navi_home = 'Home';
 
 ///////////////////////////////////////
 // newpage.inc.php
-$_msg_newpage = 'New page';
+$root->_msg_newpage = 'New page';
 
 ///////////////////////////////////////
 // paint.inc.php
-$_paint_messages = array(
+$root->_paint_messages = array(
 	'field_name'    => 'Name',
 	'field_filename'=> 'Filename',
 	'field_comment' => 'Comment',
@@ -305,7 +305,7 @@ $_paint_messages = array(
 
 ///////////////////////////////////////
 // pcomment.inc.php
-$_pcmt_messages = array(
+$root->_pcmt_messages = array(
 	'btn_name'       => 'Name: ',
 	'btn_comment'    => 'Post Comment',
 	'msg_comment'    => 'Comment: ',
@@ -317,21 +317,21 @@ $_pcmt_messages = array(
 	The comment was added to the page, but there may be a problem.<br />',
 	'err_pagename'   => '[[%s]] : not a valid page name.',
 );
-$_msg_pcomment_restrict = 'Due to the blocking, no comments could be read from  $1 at all.';
+$root->_msg_pcomment_restrict = 'Due to the blocking, no comments could be read from  $1 at all.';
 
 ///////////////////////////////////////
 // popular.inc.php
-$_popular_plugin_frame       = '<h5>popular(%d)</h5><div>%s</div>';
-$_popular_plugin_today_frame = '<h5>today\'s(%d)</h5><div>%s</div>';
+$root->_popular_plugin_frame       = '<h5>popular(%d)</h5><div>%s</div>';
+$root->_popular_plugin_today_frame = '<h5>today\'s(%d)</h5><div>%s</div>';
 
 ///////////////////////////////////////
 // recent.inc.php
-$_recent_plugin_frame = '<h5>recent(%d)</h5>
+$root->_recent_plugin_frame = '<h5>recent(%d)</h5>
  <div>%s</div>';
 
 ///////////////////////////////////////
 // referer.inc.php
-$_referer_msg = array(
+$root->_referer_msg = array(
 	'msg_H0_Refer'       => 'Referer',
 	'msg_Hed_LastUpdate' => 'LastUpdate',
 	'msg_Hed_1stDate'    => 'First Register',
@@ -344,7 +344,7 @@ $_referer_msg = array(
 
 ///////////////////////////////////////
 // rename.inc.php
-$_rename_messages  = array(
+$root->_rename_messages  = array(
 	'err'            => '<p>error:%s</p>',
 	'err_nomatch'    => 'no matching page(s)',
 	'err_notvalid'   => 'the new name is invalid.',
@@ -373,18 +373,18 @@ $_rename_messages  = array(
 
 ///////////////////////////////////////
 // search.inc.php
-$_title_search  = 'Search';
-$_title_result  = 'Search result of  $1';
-$_msg_searching = 'Key words are case-insenstive, and are searched for in all pages.';
-$_btn_search    = 'Search';
-$_btn_and       = 'AND';
-$_btn_or        = 'OR';
-$_search_pages  = 'Search for page starts from $1';
-$_search_all    = 'Search for all pages';
+$root->_title_search  = 'Search';
+$root->_title_result  = 'Search result of  $1';
+$root->_msg_searching = 'Key words are case-insenstive, and are searched for in all pages.';
+$root->_btn_search    = 'Search';
+$root->_btn_and       = 'AND';
+$root->_btn_or        = 'OR';
+$root->_search_pages  = 'Search for page starts from $1';
+$root->_search_all    = 'Search for all pages';
 
 ///////////////////////////////////////
 // source.inc.php
-$_source_messages = array(
+$root->_source_messages = array(
 	'msg_title'    => 'Source of  $1',
 	'msg_notfound' => ' $1 was not found.',
 	'err_notfound' => 'cannot display the page source.'
@@ -392,19 +392,19 @@ $_source_messages = array(
 
 ///////////////////////////////////////
 // template.inc.php
-$_msg_template_start   = 'Start:<br />';
-$_msg_template_end     = 'End:<br />';
-$_msg_template_page    = '$1/copy';
-$_msg_template_refer   = 'Page:';
-$_msg_template_force   = 'Edit with a page name which already exists';
-$_err_template_already = ' $1 already exists.';
-$_err_template_invalid = ' $1 is not a valid page name.';
-$_btn_template_create  = 'Create';
-$_title_templatei      = 'create a new page, using  $1 as a template.';
+$root->_msg_template_start   = 'Start:<br />';
+$root->_msg_template_end     = 'End:<br />';
+$root->_msg_template_page    = '$1/copy';
+$root->_msg_template_refer   = 'Page:';
+$root->_msg_template_force   = 'Edit with a page name which already exists';
+$root->_err_template_already = ' $1 already exists.';
+$root->_err_template_invalid = ' $1 is not a valid page name.';
+$root->_btn_template_create  = 'Create';
+$root->_title_templatei      = 'create a new page, using  $1 as a template.';
 
 ///////////////////////////////////////
 // tracker.inc.php
-$_tracker_messages = array(
+$root->_tracker_messages = array(
 	'msg_list'   => 'List items of  $1',
 	'msg_back'   => '<p> $1</p>',
 	'msg_limit'  => 'top  $2 results out of  $1.',
@@ -421,23 +421,23 @@ $_tracker_messages = array(
 
 ///////////////////////////////////////
 // unfreeze.inc.php
-$_title_isunfreezed = ' $1 is not frozen';
-$_title_unfreezed   = ' $1 has been unfrozen.';
-$_title_unfreeze    = 'Unfreeze  $1';
-$_msg_unfreezing    = 'Please input the password for unfreezing.';
-$_btn_unfreeze      = 'Unfreeze';
+$root->_title_isunfreezed = ' $1 is not frozen';
+$root->_title_unfreezed   = ' $1 has been unfrozen.';
+$root->_title_unfreeze    = 'Unfreeze  $1';
+$root->_msg_unfreezing    = 'Please input the password for unfreezing.';
+$root->_btn_unfreeze      = 'Unfreeze';
 
 ///////////////////////////////////////
 // versionlist.inc.php
-$_title_versionlist = 'version list';
+$root->_title_versionlist = 'version list';
 
 ///////////////////////////////////////
 // vote.inc.php
-$_vote_plugin_choice = 'Selection';
-$_vote_plugin_votes  = 'Vote';
+$root->_vote_plugin_choice = 'Selection';
+$root->_vote_plugin_votes  = 'Vote';
 
 ///////////////////////////////////////
 // yetlist.inc.php
-$_title_yetlist = 'List of pages which have not yet been created.';
-$_err_notexist  = 'All pages have been created.';
+$root->_title_yetlist = 'List of pages which have not yet been created.';
+$root->_err_notexist  = 'All pages have been created.';
 ?>
