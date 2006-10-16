@@ -1,7 +1,7 @@
 <?php
 //
 // Created on 2006/10/03 by nao-pon http://hypweb.net/
-// $Id: include.php,v 1.2 2006/10/15 10:47:05 nao-pon Exp $
+// $Id: include.php,v 1.3 2006/10/16 02:51:45 nao-pon Exp $
 //
 
 include_once(dirname(__FILE__)."/class/xpwiki.php");
@@ -20,5 +20,8 @@ include_once(dirname(__FILE__)."/class/convert_html.php");
 include_once(dirname(__FILE__)."/class/make_link.php");
 include_once(dirname(__FILE__)."/class/diff.php");
 include_once(dirname(__FILE__)."/class/config.php");
+
+// add compat functions
+include_once(dirname(__FILE__)."/include/compat.php");
 
 ?>
