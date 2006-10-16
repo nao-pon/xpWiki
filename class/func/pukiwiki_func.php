@@ -1,7 +1,7 @@
 <?php
 //
 // Created on 2006/10/02 by nao-pon http://hypweb.net/
-// $Id: pukiwiki_func.php,v 1.7 2006/10/16 02:26:24 nao-pon Exp $
+// $Id: pukiwiki_func.php,v 1.8 2006/10/16 04:05:54 nao-pon Exp $
 //
 class XpWikiPukiWikiFunc extends XpWikiBaseFunc {
 
@@ -803,7 +803,7 @@ class XpWikiPukiWikiFunc extends XpWikiBaseFunc {
 
 //----- Start convert_html.php -----//
 	// PukiWiki - Yet another WikiWikiWeb clone
-	// $Id: pukiwiki_func.php,v 1.7 2006/10/16 02:26:24 nao-pon Exp $
+	// $Id: pukiwiki_func.php,v 1.8 2006/10/16 04:05:54 nao-pon Exp $
 	// Copyright (C)
 	//   2002-2005 PukiWiki Developers Team
 	//   2001-2002 Originally written by yu-ji
@@ -907,7 +907,7 @@ class XpWikiPukiWikiFunc extends XpWikiBaseFunc {
 
 //----- Start func.php -----//
 	// PukiWiki - Yet another WikiWikiWeb clone.
-	// $Id: pukiwiki_func.php,v 1.7 2006/10/16 02:26:24 nao-pon Exp $
+	// $Id: pukiwiki_func.php,v 1.8 2006/10/16 04:05:54 nao-pon Exp $
 	// Copyright (C)
 	//   2002-2006 PukiWiki Developers Team
 	//   2001-2002 Originally written by yu-ji
@@ -1688,7 +1688,7 @@ EOD;
 
 //----- Start make_link.php -----//
 	// PukiWiki - Yet another WikiWikiWeb clone.
-	// $Id: pukiwiki_func.php,v 1.7 2006/10/16 02:26:24 nao-pon Exp $
+	// $Id: pukiwiki_func.php,v 1.8 2006/10/16 04:05:54 nao-pon Exp $
 	// Copyright (C)
 	//   2003-2005 PukiWiki Developers Team
 	//   2001-2002 Originally written by yu-ji
@@ -2090,8 +2090,9 @@ EOD;
 	function pkwk_login($pass = '')
 	{
 		//	global $adminpass;
-	
-		if (! $this->cont['PKWK_READONLY'] && isset($this->root->adminpass) &&
+		if ($this->root->userinfo['admin']) {
+			return TRUE;
+		} else if (! $this->cont['PKWK_READONLY'] && isset($this->root->adminpass) &&
 			$this->pkwk_hash_compute($pass, $this->root->adminpass) === $this->root->adminpass) {
 			return TRUE;
 		} else {
@@ -2476,7 +2477,7 @@ EOD;
 
 //----- Start html.php -----//
 	// PukiWiki - Yet another WikiWikiWeb clone.
-	// $Id: pukiwiki_func.php,v 1.7 2006/10/16 02:26:24 nao-pon Exp $
+	// $Id: pukiwiki_func.php,v 1.8 2006/10/16 04:05:54 nao-pon Exp $
 	// Copyright (C)
 	//   2002-2006 PukiWiki Developers Team
 	//   2001-2002 Originally written by yu-ji
@@ -3013,7 +3014,7 @@ EOD;
 
 //----- Start mail.php -----//
 	// PukiWiki - Yet another WikiWikiWeb clone.
-	// $Id: pukiwiki_func.php,v 1.7 2006/10/16 02:26:24 nao-pon Exp $
+	// $Id: pukiwiki_func.php,v 1.8 2006/10/16 04:05:54 nao-pon Exp $
 	// Copyright (C)
 	//   2003-2005 PukiWiki Developers Team
 	//   2003      Originally written by upk
@@ -3320,7 +3321,7 @@ EOD;
 
 //----- Start link.php -----//
 	// PukiWiki - Yet another WikiWikiWeb clone
-	// $Id: pukiwiki_func.php,v 1.7 2006/10/16 02:26:24 nao-pon Exp $
+	// $Id: pukiwiki_func.php,v 1.8 2006/10/16 04:05:54 nao-pon Exp $
 	// Copyright (C) 2003-2006 PukiWiki Developers Team
 	// License: GPL v2 or (at your option) any later version
 	//
