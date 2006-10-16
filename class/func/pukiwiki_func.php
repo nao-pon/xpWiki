@@ -1,7 +1,7 @@
 <?php
 //
 // Created on 2006/10/02 by nao-pon http://hypweb.net/
-// $Id: pukiwiki_func.php,v 1.5 2006/10/15 14:11:18 nao-pon Exp $
+// $Id: pukiwiki_func.php,v 1.6 2006/10/16 02:18:07 nao-pon Exp $
 //
 class XpWikiPukiWikiFunc extends XpWikiBaseFunc {
 
@@ -803,7 +803,7 @@ class XpWikiPukiWikiFunc extends XpWikiBaseFunc {
 
 //----- Start convert_html.php -----//
 	// PukiWiki - Yet another WikiWikiWeb clone
-	// $Id: pukiwiki_func.php,v 1.5 2006/10/15 14:11:18 nao-pon Exp $
+	// $Id: pukiwiki_func.php,v 1.6 2006/10/16 02:18:07 nao-pon Exp $
 	// Copyright (C)
 	//   2002-2005 PukiWiki Developers Team
 	//   2001-2002 Originally written by yu-ji
@@ -907,7 +907,7 @@ class XpWikiPukiWikiFunc extends XpWikiBaseFunc {
 
 //----- Start func.php -----//
 	// PukiWiki - Yet another WikiWikiWeb clone.
-	// $Id: pukiwiki_func.php,v 1.5 2006/10/15 14:11:18 nao-pon Exp $
+	// $Id: pukiwiki_func.php,v 1.6 2006/10/16 02:18:07 nao-pon Exp $
 	// Copyright (C)
 	//   2002-2006 PukiWiki Developers Team
 	//   2001-2002 Originally written by yu-ji
@@ -1434,7 +1434,7 @@ EOD;
 	// Generate AutoLink patterns (thx to hirofummy)
 	function get_autolink_pattern(& $pages, $min_len = -1)
 	{
-		//	global $WikiName, $autolink, $nowikiname;
+	//	global $WikiName, $autolink, $nowikiname;
 	
 		$config = &new XpWikiConfig($this->xpwiki, 'AutoLink');
 		$config->read();
@@ -1445,7 +1445,7 @@ EOD;
 	
 		if ($min_len == -1) {
 			$min_len = $this->root->autolink;	// set $this->root->autolink, when omitted.
-		}
+	}
 	
 		foreach ($pages as $page)
 			if (preg_match('/^' . $this->root->WikiName . '$/', $page) ?
@@ -1461,39 +1461,67 @@ EOD;
 			$auto_pages_a = array_values(preg_grep('/^[A-Z]+$/i', $auto_pages));
 			$auto_pages   = array_values(array_diff($auto_pages,  $auto_pages_a));
 	
-			$result   = $this->get_autolink_pattern_sub($auto_pages,   0, count($auto_pages),   0);
-			$result_a = $this->get_autolink_pattern_sub($auto_pages_a, 0, count($auto_pages_a), 0);
+			$result   = $this->get_matcher_regex($auto_pages);
+			$result_a = $this->get_matcher_regex($auto_pages_a);
 		}
 		return array($result, $result_a, $forceignorepages);
 	}
 	
+	// Generate a regex, that just matches with all $array values
+	// NOTE: All array_keys($array) must be continuous integers, like 0 ... N
+	//       Also, all $array values must be strings.
+	// $offset = (int) $array[$offset] is the first value to check
+	// $sentry = (int) $array[$sentry - 1] is the last value to check  
+	// $pos    = (int) Position of letter to start checking. (0 = the first letter)
+	function get_matcher_regex(& $array, $offset = 0, $sentry = NULL, $pos = 0)
+	{
+		if (empty($array)) return '(?!)'; // Zero
+		if ($sentry === NULL) $sentry = count($array);
+	
+		// Too short. Skip this
+		$skip = ($pos >= mb_strlen($array[$offset]));
+		if ($skip) ++$offset;
+	
+		// Generate regex for each value
+		$regex = '';
+		$index = $offset;
+		$multi = FALSE;
+		while ($index < $sentry) {
+			if ($index != $offset) {
+				$multi = TRUE;
+				$regex .= '|'; // OR
+			}
+	
+			// Get one character from left side of the value
+			$char = mb_substr($array[$index], $pos, 1);
+	
+			// How many continuous keys have the same letter
+			// at the same position?
+			for ($i = $index; $i < $sentry; $i++)
+				if (mb_substr($array[$i], $pos, 1) != $char) break;
+	
+			if ($index < ($i - 1)) {
+				// Some more keys found
+				// Recurse
+				$regex .= str_replace(' ', '\\ ', preg_quote($char, '/')) .
+				$this->get_matcher_regex($array, $index, $i, $pos + 1);
+			} else {
+				// Not found
+				$regex .= str_replace(' ', '\\ ',
+				preg_quote(mb_substr($array[$index], $pos), '/'));
+			}
+			$index = $i;
+		}
+	
+		if ($skip || $multi) $regex = '(?:' . $regex . ')';
+		if ($skip) $regex .= '?'; // Match for $pages[$offset - 1]
+	
+		return $regex;
+	}
+	// Compat
 	function get_autolink_pattern_sub(& $pages, $start, $end, $pos)
 	{
-		if ($end == 0) return '(?!)';
-	
-		$result = '';
-		$count = $i = $j = 0;
-		$x = (mb_strlen($pages[$start]) <= $pos);
-		if ($x) ++$start;
-	
-		for ($i = $start; $i < $end; $i = $j) {
-			$char = mb_substr($pages[$i], $pos, 1);
-			for ($j = $i; $j < $end; $j++)
-				if (mb_substr($pages[$j], $pos, 1) != $char) break;
-	
-			if ($i != $start) $result .= '|';
-			if ($i >= ($j - 1)) {
-				$result .= str_replace(' ', '\\ ', preg_quote(mb_substr($pages[$i], $pos), '/'));
-			} else {
-				$result .= str_replace(' ', '\\ ', preg_quote($char, '/')) .
-					$this->get_autolink_pattern_sub($pages, $i, $j, $pos + 1);
-			}
-			++$count;
-		}
-		if ($x || $count > 1) $result = '(?:' . $result . ')';
-		if ($x)               $result .= '?';
-	
-		return $result;
+		return $this->get_matcher_regex(& $pages, $start, $end, $pos);
 	}
 	
 	// Load/get setting pairs from AutoAliasName
@@ -1660,7 +1688,7 @@ EOD;
 
 //----- Start make_link.php -----//
 	// PukiWiki - Yet another WikiWikiWeb clone.
-	// $Id: pukiwiki_func.php,v 1.5 2006/10/15 14:11:18 nao-pon Exp $
+	// $Id: pukiwiki_func.php,v 1.6 2006/10/16 02:18:07 nao-pon Exp $
 	// Copyright (C)
 	//   2003-2005 PukiWiki Developers Team
 	//   2001-2002 Originally written by yu-ji
@@ -2448,7 +2476,7 @@ EOD;
 
 //----- Start html.php -----//
 	// PukiWiki - Yet another WikiWikiWeb clone.
-	// $Id: pukiwiki_func.php,v 1.5 2006/10/15 14:11:18 nao-pon Exp $
+	// $Id: pukiwiki_func.php,v 1.6 2006/10/16 02:18:07 nao-pon Exp $
 	// Copyright (C)
 	//   2002-2006 PukiWiki Developers Team
 	//   2001-2002 Originally written by yu-ji
@@ -2985,7 +3013,7 @@ EOD;
 
 //----- Start mail.php -----//
 	// PukiWiki - Yet another WikiWikiWeb clone.
-	// $Id: pukiwiki_func.php,v 1.5 2006/10/15 14:11:18 nao-pon Exp $
+	// $Id: pukiwiki_func.php,v 1.6 2006/10/16 02:18:07 nao-pon Exp $
 	// Copyright (C)
 	//   2003-2005 PukiWiki Developers Team
 	//   2003      Originally written by upk
@@ -3292,7 +3320,7 @@ EOD;
 
 //----- Start link.php -----//
 	// PukiWiki - Yet another WikiWikiWeb clone
-	// $Id: pukiwiki_func.php,v 1.5 2006/10/15 14:11:18 nao-pon Exp $
+	// $Id: pukiwiki_func.php,v 1.6 2006/10/16 02:18:07 nao-pon Exp $
 	// Copyright (C) 2003-2006 PukiWiki Developers Team
 	// License: GPL v2 or (at your option) any later version
 	//
