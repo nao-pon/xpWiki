@@ -1,5 +1,6 @@
 <?php
 
+// Now debuging....
 error_reporting(E_ALL);
 
 $mytrustdirname = basename( dirname( __FILE__ ) ) ;
