@@ -75,7 +75,8 @@ EOD;
 	exit;
 }
 
-if ($_GET['mode'] == "s2u") {
+$mode = (empty($_GET['mode']))? "" : $_GET['mode'];
+if ($mode == "s2u") {
 	convert_s2u ($files);
 	exit;
 }
