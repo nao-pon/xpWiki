@@ -6,7 +6,7 @@ class xpwiki_plugin_update_entities extends xpwiki_plugin {
 	{
 
 	// PukiWiki - Yet another WikiWikiWeb clone
-	// $Id: update_entities.inc.php,v 1.1 2006/10/13 13:17:49 nao-pon Exp $
+	// $Id: update_entities.inc.php,v 1.2 2006/10/16 02:18:09 nao-pon Exp $
 	//
 	// Update entities plugin - Update XHTML entities from DTD
 	// (for admin)
@@ -110,8 +110,7 @@ EOD;
 			$min = min($min, $len);
 		}
 	
-		$pattern = "(?=[a-zA-Z0-9]\{$min,$max})" .
-		$this->func->get_autolink_pattern_sub($entities, 0, count($entities), 0);
+		$pattern = "(?=[a-zA-Z0-9]\{$min,$max})" . $this->func->get_matcher_regex($entities);
 		$fp = fopen($this->cont['CACHE_DIR']  . $this->cont['PKWK_ENTITIES_REGEX_CACHE'], 'w')
 			or $this->func->die_message('cannot write file PKWK_ENTITIES_REGEX_CACHE<br />' . "\n" .
 			'maybe permission is not writable or filename is too long');
