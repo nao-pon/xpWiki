@@ -4,7 +4,7 @@ class xpwiki_plugin_attach extends xpwiki_plugin {
 
 
 	// PukiWiki - Yet another WikiWikiWeb clone
-	// $Id: attach.inc.php,v 1.1 2006/10/13 13:17:49 nao-pon Exp $
+	// $Id: attach.inc.php,v 1.2 2006/10/16 04:05:54 nao-pon Exp $
 	// Copyright (C)
 	//   2003-2006 PukiWiki Developers Team
 	//   2002-2003 PANDA <panda@arino.jp> http://home.arino.jp/
@@ -100,7 +100,10 @@ class xpwiki_plugin_attach extends xpwiki_plugin {
 		$refer = isset($this->root->vars['refer']) ? $this->root->vars['refer'] : '';
 		$pass  = isset($this->root->vars['pass'])  ? $this->root->vars['pass']  : NULL;
 		$page  = isset($this->root->vars['page'])  ? $this->root->vars['page']  : '';
-	
+		
+		// isAdmin?
+		if ($this->root->userinfo['admin']) { $pass = TRUE; }
+		
 		if ($refer != '' && $this->func->is_pagename($refer)) {
 			if(in_array($pcmd, array('info', 'open', 'list'))) {
 				$this->func->check_readable($refer);
@@ -410,7 +413,7 @@ EOD;
 		$msg_maxsize = sprintf($this->root->_attach_messages['msg_maxsize'], number_format($maxsize/1024) . 'KB');
 	
 		$pass = '';
-		if ($this->cont['PLUGIN_ATTACH_PASSWORD_REQUIRE'] || $this->cont['PLUGIN_ATTACH_UPLOAD_ADMIN_ONLY']) {
+		if (!$this->root->userinfo['admin'] && ($this->cont['PLUGIN_ATTACH_PASSWORD_REQUIRE'] || $this->cont['PLUGIN_ATTACH_UPLOAD_ADMIN_ONLY'])) {
 			$title = $this->root->_attach_messages[$this->cont['PLUGIN_ATTACH_UPLOAD_ADMIN_ONLY'] ? 'msg_adminpass' : 'msg_password'];
 			$pass = '<br />' . $title . ': <input type="password" name="pass" size="8" />';
 		}
@@ -536,13 +539,25 @@ class XpWikiAttachFile
 		$s_page = htmlspecialchars($this->page);
 		$s_file = htmlspecialchars($this->file);
 		$s_err = ($err == '') ? '' : '<p style="font-weight:bold">' . $this->root->_attach_messages[$err] . '</p>';
-
+		
+		// isAdmin?
+		if ($this->root->userinfo['admin']) {
+			$pass_elem = '';
+			$msg_require = '';
+		} else {
+			$pass_elem =<<<EOD
+<label for="_p_attach_password">{$this->root->_attach_messages['msg_password']}:</label>
+<input type="password" name="pass" id="_p_attach_password" size="8" />
+EOD;
+			$msg_require = $this->root->_attach_messages['msg_require'];
+		}
+		
 		$msg_rename  = '';
 		if ($this->age) {
 			$msg_freezed = '';
 			$msg_delete  = '<input type="radio" name="pcmd" id="_p_attach_delete" value="delete" />' .
 				'<label for="_p_attach_delete">' .  $this->root->_attach_messages['msg_delete'] .
-				$this->root->_attach_messages['msg_require'] . '</label><br />';
+				$msg_require . '</label><br />';
 			$msg_freeze  = '';
 		} else {
 			if ($this->status['freeze']) {
@@ -550,22 +565,22 @@ class XpWikiAttachFile
 				$msg_delete  = '';
 				$msg_freeze  = '<input type="radio" name="pcmd" id="_p_attach_unfreeze" value="unfreeze" />' .
 					'<label for="_p_attach_unfreeze">' .  $this->root->_attach_messages['msg_unfreeze'] .
-					$this->root->_attach_messages['msg_require'] . '</label><br />';
+					$msg_require . '</label><br />';
 			} else {
 				$msg_freezed = '';
 				$msg_delete = '<input type="radio" name="pcmd" id="_p_attach_delete" value="delete" />' .
 					'<label for="_p_attach_delete">' . $this->root->_attach_messages['msg_delete'];
 				if ($this->cont['PLUGIN_ATTACH_DELETE_ADMIN_ONLY'] || $this->age)
-					$msg_delete .= $this->root->_attach_messages['msg_require'];
+					$msg_delete .= $msg_require;
 				$msg_delete .= '</label><br />';
 				$msg_freeze  = '<input type="radio" name="pcmd" id="_p_attach_freeze" value="freeze" />' .
 					'<label for="_p_attach_freeze">' .  $this->root->_attach_messages['msg_freeze'] .
-					$this->root->_attach_messages['msg_require'] . '</label><br />';
+					$msg_require . '</label><br />';
 
 				if ($this->cont['PLUGIN_ATTACH_RENAME_ENABLE']) {
 					$msg_rename  = '<input type="radio" name="pcmd" id="_p_attach_rename" value="rename" />' .
 						'<label for="_p_attach_rename">' .  $this->root->_attach_messages['msg_rename'] .
-						$this->root->_attach_messages['msg_require'] . '</label><br />&nbsp;&nbsp;&nbsp;&nbsp;' .
+						$msg_require . '</label><br />&nbsp;&nbsp;&nbsp;&nbsp;' .
 						'<label for="_p_attach_newname">' . $this->root->_attach_messages['msg_newname'] .
 						':</label> ' .
 						'<input type="text" name="newname" id="_p_attach_newname" size="40" value="' .
@@ -604,8 +619,7 @@ $s_err
   $msg_freeze
   $msg_rename
   <br />
-  <label for="_p_attach_password">{$this->root->_attach_messages['msg_password']}:</label>
-  <input type="password" name="pass" id="_p_attach_password" size="8" />
+  $pass_elem
   <input type="submit" value="{$this->root->_attach_messages['btn_submit']}" />
  </div>
 </form>
