@@ -1,20 +1,12 @@
 <?php
 // PukiWiki - Yet another WikiWikiWeb clone.
-// $Id: tdiary.css.php,v 1.1 2006/10/13 13:17:49 nao-pon Exp $
+// $Id: tdiary.css.php,v 1.2 2006/10/17 01:49:57 nao-pon Exp $
 // Copyright (C)
 //   2002-2005 PukiWiki Developers Team
 //   2001-2002 Originally written by yu-ji
 // License: GPL v2 or (at your option) any later version
 //
 // tDiary-css-wrapper
-
-// Send header
-header('Content-Type: text/css');
-$matches = array();
-if(ini_get('zlib.output_compression') && preg_match('/\b(gzip|deflate)\b/i', $_SERVER['HTTP_ACCEPT_ENCODING'], $matches)) {
-	header('Content-Encoding: ' . $matches[1]);
-	header('Vary: Accept-Encoding');
-}
 
 // Default charset
 $charset = isset($_GET['charset']) ? $_GET['charset']  : '';
@@ -29,6 +21,19 @@ if ($media != 'print') $media = 'screen';
 
 // Color theme
 $color_theme = isset($_GET['color']) ? $_GET['color'] : '';
+
+// Etag
+$etag = md5($charset.$media.$color_theme.filemtime(__FILE__));
+
+// Not Modified?
+if ($etag == @$_SERVER["HTTP_IF_NONE_MATCH"]) {
+	header( "HTTP/1.1 304 Not Modified" );
+	header( "Etag: ". $etag );
+	exit();
+}
+
+// Output buffering start
+ob_start();
 
 // Color theme: Design structure
 $c_background = $c_background2 = $c_background3 = $c_background4 = '';
@@ -578,3 +583,16 @@ td.vote_td2 {
 	color:inherit;
 	background-color:#<?php echo $color['td.vote_td2'] ?>;
 }
+<?php
+// Send header
+header('Content-Type: text/css');
+$matches = array();
+if(ini_get('zlib.output_compression') && preg_match('/\b(gzip|deflate)\b/i', $_SERVER['HTTP_ACCEPT_ENCODING'], $matches)) {
+	header('Content-Encoding: ' . $matches[1]);
+	header('Vary: Accept-Encoding');
+}
+header( "Last-Modified: " . gmdate( "D, d M Y H:i:s", filemtime(__FILE__) ) . " GMT" );
+header( "Etag: ". $etag );
+header( "Content-length: ". ob_get_length() );
+ob_end_flush()
+?>
