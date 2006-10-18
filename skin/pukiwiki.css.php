@@ -1,6 +1,6 @@
 <?php
 // PukiWiki - Yet another WikiWikiWeb clone.
-// $Id: pukiwiki.css.php,v 1.2 2006/10/18 03:02:08 nao-pon Exp $
+// $Id: pukiwiki.css.php,v 1.3 2006/10/18 13:27:36 nao-pon Exp $
 // Copyright (C)
 //   2002-2005 PukiWiki Developers Team
 //   2001-2002 Originally written by yu-ji
@@ -19,8 +19,12 @@ switch ($charset) {
 $media   = isset($_GET['media'])   ? $_GET['media']    : '';
 if ($media != 'print') $media = 'screen';
 
+// Base
+$base   = isset($_GET['base'])   ? "_".preg_replace("/[^\w-]+/","",$_GET['base'])    : '';
+$class = "div.xpwiki".$base;
+
 // Etag
-$etag = md5($charset.$media.filemtime(__FILE__));
+$etag = md5($base.$charset.$media.filemtime(__FILE__));
 
 // Not Modified?
 if ($etag == @$_SERVER["HTTP_IF_NONE_MATCH"]) {
@@ -47,20 +51,20 @@ div#wikihelper_base {
 	opacity: 0.85;
 }
 
-div.xpwiki { width:100%; }
+<?php echo $class ?> { width:100%; }
 
-div.xpwiki pre,
-div.xpwiki dl,
-div.xpwiki  ol,
-div.xpwiki  p,
-div.xpwiki  blockquote { line-height:130%; }
+<?php echo $class ?> pre,
+<?php echo $class ?> dl,
+<?php echo $class ?> ol,
+<?php echo $class ?> p,
+<?php echo $class ?> blockquote { line-height:130%; }
 
-div.xpwiki blockquote { margin-left:32px; }
+<?php echo $class ?> blockquote { margin-left:32px; }
 
-div.xpwiki table { width: auto; }
+<?php echo $class ?> table { width: auto; }
 
-div.xpwiki,
-div.xpwiki td {
+<?php echo $class ?>,
+<?php echo $class ?> td {
 	color:black;
 	background-color:white;
 	/*margin-left:2%;
@@ -69,7 +73,7 @@ div.xpwiki td {
 	font-family:verdana, arial, helvetica, Sans-Serif;
 }
 
-div.xpwiki a:link {
+<?php echo $class ?> a:link {
 <?php	if ($media == 'print') { ?>
 	text-decoration: underline;
 <?php	} else { ?>
@@ -80,14 +84,14 @@ div.xpwiki a:link {
 <?php	} ?>
 }
 
-div.xpwiki a:active {
+<?php echo $class ?> a:active {
 	color:#215dc6;
 	background-color:#CCDDEE;
 	text-decoration:none;
 	font-weight: none;
 }
 
-div.xpwiki a:visited {
+<?php echo $class ?> a:visited {
 <?php	if ($media == 'print') { ?>
 	text-decoration: underline;
 <?php	} else { ?>
@@ -98,15 +102,15 @@ div.xpwiki a:visited {
 <?php	} ?>
 }
 
-div.xpwiki a:hover {
+<?php echo $class ?> a:hover {
 	color:#215dc6;
 	background-color:#CCDDEE;
 	text-decoration:underline;
 	font-weight: none;
 }
 
-div.xpwiki h1,
-div.xpwiki h2 {
+<?php echo $class ?> h1,
+<?php echo $class ?> h2 {
 	font-family:verdana, arial, helvetica, Sans-Serif;
 	color:inherit;
 	background-color:#DDEEFF;
@@ -115,7 +119,7 @@ div.xpwiki h2 {
 	margin:0px 0px .5em 0px;
 	text-align: left;
 }
-div.xpwiki h3 {
+<?php echo $class ?> h3 {
 	font-family:verdana, arial, helvetica, Sans-Serif;
 	border-bottom:  3px solid #DDEEFF;
 	border-top:     1px solid #DDEEFF;
@@ -128,7 +132,7 @@ div.xpwiki h3 {
 	margin:0px 0px .5em 0px;
 	text-align: left;
 }
-div.xpwiki h4 {
+<?php echo $class ?> h4 {
 	font-family:verdana, arial, helvetica, Sans-Serif;
 	border-left:   18px solid #DDEEFF;
 
@@ -138,8 +142,8 @@ div.xpwiki h4 {
 	margin:0px 0px .5em 0px;
 	text-align: left;
 }
-div.xpwiki h5,
-div.xpwiki h6 {
+<?php echo $class ?> h5,
+<?php echo $class ?> h6 {
 	font-family:verdana, arial, helvetica, Sans-Serif;
 	color:inherit;
 	background-color:#DDEEFF;
@@ -149,7 +153,7 @@ div.xpwiki h6 {
 	text-align: left;
 }
 
-div.xpwiki h1.title {
+<?php echo $class ?> h1.title {
 	font-size: 30px;
 	font-weight:bold;
 	background-color:transparent;
@@ -158,13 +162,13 @@ div.xpwiki h1.title {
 	margin: 12px 0px 0px 0px;
 }
 
-div.xpwiki dt {
+<?php echo $class ?> dt {
 	font-weight:bold;
 	margin-top:1em;
 	margin-left:1em;
 }
 
-div.xpwiki pre {
+<?php echo $class ?> pre {
 	border-top:#DDDDEE 1px solid;
 	border-bottom:#888899 1px solid;
 	border-left:#DDDDEE 1px solid;
@@ -177,32 +181,32 @@ div.xpwiki pre {
 	background-color:#F0F8FF;
 }
 
-div.xpwiki img {
+<?php echo $class ?> img {
 	border:none;
 	vertical-align:middle;
 }
 
-div.xpwiki ul {
+<?php echo $class ?> ul {
 	margin-top:.5em;
 	margin-bottom:.5em;
 	line-height:130%;
 }
 
-div.xpwiki em { font-style:italic; }
+<?php echo $class ?> em { font-style:italic; }
 
-div.xpwiki strong { font-weight:bold; }
+<?php echo $class ?> strong { font-weight:bold; }
 
-div.xpwiki thead td.style_td,
-div.xpwiki tfoot td.style_td {
+<?php echo $class ?> thead td.style_td,
+<?php echo $class ?> tfoot td.style_td {
 	color:inherit;
 	background-color:#D0D8E0;
 }
-div.xpwiki thead th.style_th,
-div.xpwiki tfoot th.style_th {
+<?php echo $class ?> thead th.style_th,
+<?php echo $class ?> tfoot th.style_th {
 	color:inherit;
 	background-color:#E0E8F0;
 }
-div.xpwiki .style_table {
+<?php echo $class ?> .style_table {
 	padding:0px;
 	border:0px;
 	margin:auto;
@@ -210,38 +214,38 @@ div.xpwiki .style_table {
 	color:inherit;
 	background-color:#ccd5dd;
 }
-div.xpwiki .style_th {
+<?php echo $class ?> .style_th {
 	padding:5px;
 	margin:1px;
 	text-align:center;
 	color:inherit;
 	background-color:#EEEEEE;
 }
-div.xpwiki .style_td {
+<?php echo $class ?> .style_td {
 	padding:5px;
 	margin:1px;
 	color:inherit;
 	background-color:#EEF5FF;
 }
 
-div.xpwiki ul.list1 { list-style-type:disc; }
-div.xpwiki ul.list2 { list-style-type:circle; }
-div.xpwiki ul.list3 { list-style-type:square; }
-div.xpwiki ol.list1 { list-style-type:decimal; }
-div.xpwiki ol.list2 { list-style-type:lower-roman; }
-div.xpwiki ol.list3 { list-style-type:lower-alpha; }
-div.xpwiki li { list-style-type:normal; }
+<?php echo $class ?> ul.list1 { list-style-type:disc; }
+<?php echo $class ?> ul.list2 { list-style-type:circle; }
+<?php echo $class ?> ul.list3 { list-style-type:square; }
+<?php echo $class ?> ol.list1 { list-style-type:decimal; }
+<?php echo $class ?> ol.list2 { list-style-type:lower-roman; }
+<?php echo $class ?> ol.list3 { list-style-type:lower-alpha; }
+<?php echo $class ?> li { list-style-type:normal; }
 
-div.xpwiki div.ie5 { text-align:center; }
+<?php echo $class ?> div.ie5 { text-align:center; }
 
-div.xpwiki span.noexists {
+<?php echo $class ?> span.noexists {
 	color:inherit;
 	background-color:#FFFACC;
 }
 
-div.xpwiki .small { font-size:80%; }
+<?php echo $class ?> .small { font-size:80%; }
 
-div.xpwiki .super_index {
+<?php echo $class ?> .super_index {
 	color:#DD3333;
 	background-color:inherit;
 	font-weight:bold;
@@ -249,7 +253,7 @@ div.xpwiki .super_index {
 	vertical-align:super;
 }
 
-div.xpwiki a.note_super {
+<?php echo $class ?> a.note_super {
 	color:#DD3333;
 	background-color:inherit;
 	font-weight:bold;
@@ -257,17 +261,17 @@ div.xpwiki a.note_super {
 	vertical-align:super;
 }
 
-div.xpwiki div.jumpmenu {
+<?php echo $class ?> div.jumpmenu {
 	font-size:60%;
 	text-align:right;
 }
 
-div.xpwiki hr.full_hr {
+<?php echo $class ?> hr.full_hr {
 	border-style:ridge;
 	border-color:#333333;
 	border-width:1px 0px;
 }
-div.xpwiki hr.note_hr {
+<?php echo $class ?> hr.note_hr {
 	width:90%;
 	border-style:ridge;
 	border-color:#333333;
@@ -276,43 +280,43 @@ div.xpwiki hr.note_hr {
 	margin:1em auto 0em auto;
 }
 
-div.xpwiki span.size1 {
+<?php echo $class ?> span.size1 {
 	font-size:xx-small;
 	line-height:130%;
 	text-indent:0px;
 	display:inline;
 }
-div.xpwiki span.size2 {
+<?php echo $class ?> span.size2 {
 	font-size:x-small;
 	line-height:130%;
 	text-indent:0px;
 	display:inline;
 }
-div.xpwiki span.size3 {
+<?php echo $class ?> span.size3 {
 	font-size:small;
 	line-height:130%;
 	text-indent:0px;
 	display:inline;
 }
-div.xpwiki span.size4 {
+<?php echo $class ?> span.size4 {
 	font-size:medium;
 	line-height:130%;
 	text-indent:0px;
 	display:inline;
 }
-div.xpwiki span.size5 {
+<?php echo $class ?> span.size5 {
 	font-size:large;
 	line-height:130%;
 	text-indent:0px;
 	display:inline;
 }
-div.xpwiki span.size6 {
+<?php echo $class ?> span.size6 {
 	font-size:x-large;
 	line-height:130%;
 	text-indent:0px;
 	display:inline;
 }
-div.xpwiki span.size7 {
+<?php echo $class ?> span.size7 {
 	font-size:xx-large;
 	line-height:130%;
 	text-indent:0px;
@@ -320,61 +324,61 @@ div.xpwiki span.size7 {
 }
 
 /* html.php/catbody() */
-div.xpwiki strong.word0 {
+<?php echo $class ?> strong.word0 {
 	background-color:#FFFF66;
 	color:black;
 }
-div.xpwiki strong.word1 {
+<?php echo $class ?> strong.word1 {
 	background-color:#A0FFFF;
 	color:black;
 }
-div.xpwiki strong.word2 {
+<?php echo $class ?> strong.word2 {
 	background-color:#99FF99;
 	color:black;
 }
-div.xpwiki strong.word3 {
+<?php echo $class ?> strong.word3 {
 	background-color:#FF9999;
 	color:black;
 }
-div.xpwiki strong.word4 {
+<?php echo $class ?> strong.word4 {
 	background-color:#FF66FF;
 	color:black;
 }
-div.xpwiki strong.word5 {
+<?php echo $class ?> strong.word5 {
 	background-color:#880000;
 	color:white;
 }
-div.xpwiki strong.word6 {
+<?php echo $class ?> strong.word6 {
 	background-color:#00AA00;
 	color:white;
 }
-div.xpwiki strong.word7 {
+<?php echo $class ?> strong.word7 {
 	background-color:#886800;
 	color:white;
 }
-div.xpwiki strong.word8 {
+<?php echo $class ?> strong.word8 {
 	background-color:#004699;
 	color:white;
 }
-div.xpwiki strong.word9 {
+<?php echo $class ?> strong.word9 {
 	background-color:#990099;
 	color:white;
 }
 
 /* html.php/edit_form() */
-div.xpwiki .edit_form { clear:both; }
-div.xpwiki .edit_form textarea {
+<?php echo $class ?> .edit_form { clear:both; }
+<?php echo $class ?> .edit_form textarea {
 	width: 98%;
 	margin-right: 2%;
 }
 
 /* pukiwiki.skin.php */
-div.xpwiki div#header {
+<?php echo $class ?> div#header {
 	padding:0px;
 	margin:0px;
 }
 
-div.xpwiki div#navigator {
+<?php echo $class ?> div#navigator {
 <?php   if ($media == 'print') { ?>
 	display:none;
 <?php   } else { ?>
@@ -384,7 +388,7 @@ div.xpwiki div#navigator {
 <?php   } ?>
 }
 
-div.xpwiki td.menubar {
+<?php echo $class ?> td.menubar {
 <?php   if ($media == 'print') { ?>
 	display:none;
 <?php   } else { ?>
@@ -393,7 +397,7 @@ div.xpwiki td.menubar {
 <?php   } ?>
 }
 
-div.xpwiki div#menubar {
+<?php echo $class ?> div#menubar {
 <?php   if ($media == 'print') { ?>
 	display:none;
 <?php   } else { ?>
@@ -406,27 +410,27 @@ div.xpwiki div#menubar {
 <?php   } ?>
 }
 
-div.xpwiki div#menubar ul {
+<?php echo $class ?> div#menubar ul {
 	margin:0px 0px 0px .5em;
 	padding:0px 0px 0px .5em;
 }
 
-div.xpwiki div#menubar ul li { line-height:110%; }
+<?php echo $class ?> div#menubar ul li { line-height:110%; }
 
-div.xpwiki div#menubar h4 { font-size:110%; }
+<?php echo $class ?> div#menubar h4 { font-size:110%; }
 
-div.xpwiki div#body {
+<?php echo $class ?> div#body {
 	padding:0px;
 	margin:0px 0px 0px .5em;
 }
 
-div.xpwiki div#note {
+<?php echo $class ?> div#note {
 	clear:both;
 	padding:0px;
 	margin:0px;
 }
 
-div.xpwiki div#attach {
+<?php echo $class ?> div#attach {
 <?php   if ($media == 'print') { ?>
 	display:none;
 <?php   } else { ?>
@@ -436,7 +440,7 @@ div.xpwiki div#attach {
 <?php   } ?>
 }
 
-div.xpwiki div#toolbar {
+<?php echo $class ?> div#toolbar {
 <?php   if ($media == 'print') { ?>
         display:none;
 <?php   } else { ?>
@@ -447,13 +451,13 @@ div.xpwiki div#toolbar {
 <?php   } ?>
 }
 
-div.xpwiki div#lastmodified {
+<?php echo $class ?> div#lastmodified {
 	font-size:80%;
 	padding:0px;
 	margin:0px;
 }
 
-div.xpwiki div#related {
+<?php echo $class ?> div#related {
 <?php   if ($media == 'print') { ?>
         display:none;
 <?php   } else { ?>
@@ -463,23 +467,23 @@ div.xpwiki div#related {
 <?php   } ?>
 }
 
-div.xpwiki div#footer {
+<?php echo $class ?> div#footer {
 	font-size:70%;
 	padding:0px;
 	margin:16px 0px 0px 0px;
 }
 
-div.xpwiki div#banner {
+<?php echo $class ?> div#banner {
 	float:right;
 	margin-top:24px;
 }
 
-div.xpwiki div#preview {
+<?php echo $class ?> div#preview {
 	color:inherit;
 	background-color:#F5F8FF;
 }
 
-div.xpwiki img#logo {
+<?php echo $class ?> img#logo {
 <?php   if ($media == 'print') { ?>
 	display:none;
 <?php   } else { ?>
@@ -489,17 +493,17 @@ div.xpwiki img#logo {
 }
 
 /* aname.inc.php */
-div.xpwiki .anchor {}
-div.xpwiki .anchor_super {
+<?php echo $class ?> .anchor {}
+<?php echo $class ?> .anchor_super {
 	font-size:xx-small;
 	vertical-align:super;
 }
 
 /* br.inc.php */
-div.xpwiki br.spacer {}
+<?php echo $class ?> br.spacer {}
 
 /* calendar*.inc.php */
-div.xpwiki .style_calendar {
+<?php echo $class ?> .style_calendar {
 	padding:0px;
 	border:0px;
 	margin:3px;
@@ -507,7 +511,7 @@ div.xpwiki .style_calendar {
 	background-color:#CCD5DD;
 	text-align:center;
 }
-div.xpwiki .style_td_caltop {
+<?php echo $class ?> .style_td_caltop {
 	padding:5px;
 	margin:1px;
 	color:inherit;
@@ -515,42 +519,42 @@ div.xpwiki .style_td_caltop {
 	font-size:80%;
 	text-align:center;
 }
-div.xpwiki .style_td_today {
+<?php echo $class ?> .style_td_today {
 	padding:5px;
 	margin:1px;
 	color:inherit;
 	background-color:#FFFFDD;
 	text-align:center;
 }
-div.xpwiki .style_td_sat {
+<?php echo $class ?> .style_td_sat {
 	padding:5px;
 	margin:1px;
 	color:inherit;
 	background-color:#DDE5FF;
 	text-align:center;
 }
-div.xpwiki .style_td_sun {
+<?php echo $class ?> .style_td_sun {
 	padding:5px;
 	margin:1px;
 	color:inherit;
 	background-color:#FFEEEE;
 	text-align:center;
 }
-div.xpwiki .style_td_blank {
+<?php echo $class ?> .style_td_blank {
 	padding:5px;
 	margin:1px;
 	color:inherit;
 	background-color:#EEF5FF;
 	text-align:center;
 }
-div.xpwiki .style_td_day {
+<?php echo $class ?> .style_td_day {
 	padding:5px;
 	margin:1px;
 	color:inherit;
 	background-color:#EEF5FF;
 	text-align:center;
 }
-div.xpwiki .style_td_week {
+<?php echo $class ?> .style_td_week {
 	padding:5px;
 	margin:1px;
 	color:inherit;
@@ -561,46 +565,46 @@ div.xpwiki .style_td_week {
 }
 
 /* calendar_viewer.inc.php */
-div.xpwiki div.calendar_viewer {
+<?php echo $class ?> div.calendar_viewer {
 	color:inherit;
 	background-color:inherit;
 	margin-top:20px;
 	margin-bottom:10px;
 	padding-bottom:10px;
 }
-div.xpwiki span.calendar_viewer_left {
+<?php echo $class ?> span.calendar_viewer_left {
 	color:inherit;
 	background-color:inherit;
 	float:left;
 }
-div.xpwiki span.calendar_viewer_right {
+<?php echo $class ?> span.calendar_viewer_right {
 	color:inherit;
 	background-color:inherit;
 	float:right;
 }
 
 /* clear.inc.php */
-div.xpwiki .clear {
+<?php echo $class ?> .clear {
 	margin:0px;
 	clear:both;
 }
 
 /* counter.inc.php */
-div.xpwiki div.counter { font-size:70%; }
+<?php echo $class ?> div.counter { font-size:70%; }
 
 /* diff.inc.php */
-div.xpwiki span.diff_added {
+<?php echo $class ?> span.diff_added {
 	color:blue;
 	background-color:inherit;
 }
 
-div.xpwiki span.diff_removed {
+<?php echo $class ?> span.diff_removed {
 	color:red;
 	background-color:inherit;
 }
 
 /* hr.inc.php */
-div.xpwiki hr.short_line {
+<?php echo $class ?> hr.short_line {
 	text-align:center;
 	width:80%;
 	border-style:solid;
@@ -609,45 +613,45 @@ div.xpwiki hr.short_line {
 }
 
 /* include.inc.php */
-div.xpwiki h5.side_label { text-align:center; }
+<?php echo $class ?> h5.side_label { text-align:center; }
 
 /* navi.inc.php */
-div.xpwiki ul.navi {
+<?php echo $class ?> ul.navi {
 	margin:0px;
 	padding:0px;
 	text-align:center;
 }
-div.xpwiki li.navi_none {
+<?php echo $class ?> li.navi_none {
 	display:inline;
 	float:none;
 }
-div.xpwiki li.navi_left {
+<?php echo $class ?> li.navi_left {
 	display:inline;
 	float:left;
 	text-align:left;
 }
-div.xpwiki li.navi_right {
+<?php echo $class ?> li.navi_right {
 	display:inline;
 	float:right;
 	text-align:right;
 }
 
 /* new.inc.php */
-div.xpwiki span.comment_date { font-size:x-small; }
-div.xpwiki span.new1 {
+<?php echo $class ?> span.comment_date { font-size:x-small; }
+<?php echo $class ?> span.new1 {
 	color:red;
 	background-color:transparent;
 	font-size:x-small;
 }
-div.xpwiki span.new5 {
+<?php echo $class ?> span.new5 {
 	color:green;
 	background-color:transparent;
 	font-size:xx-small;
 }
 
 /* popular.inc.php */
-div.xpwiki span.counter { font-size:70%; }
-div.xpwiki ul.popular_list {
+<?php echo $class ?> span.counter { font-size:70%; }
+<?php echo $class ?> ul.popular_list {
 <?php
 /*
 	padding:0px;
@@ -660,7 +664,7 @@ div.xpwiki ul.popular_list {
 }
 
 /* recent.inc.php,showrss.inc.php */
-div.xpwiki ul.recent_list {
+<?php echo $class ?> ul.recent_list {
 <?php
 /*
 	padding:0px;
@@ -673,21 +677,21 @@ div.xpwiki ul.recent_list {
 }
 
 /* ref.inc.php */
-div.xpwiki div.img_margin {
+<?php echo $class ?> div.img_margin {
 	margin-left:32px;
 	margin-right:32px;
 }
 
 /* vote.inc.php */
-div.xpwiki td.vote_label {
+<?php echo $class ?> td.vote_label {
 	color:inherit;
 	background-color:#FFCCCC;
 }
-div.xpwiki td.vote_td1 {
+<?php echo $class ?> td.vote_td1 {
 	color:inherit;
 	background-color:#DDE5FF;
 }
-div.xpwiki td.vote_td2 {
+<?php echo $class ?> td.vote_td2 {
 	color:inherit;
 	background-color:#EEF5FF;
 }

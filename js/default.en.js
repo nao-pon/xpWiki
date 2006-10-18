@@ -20,5 +20,8 @@ var wikihelper_msg_elem = "Please choose the object which processes.";
 var wikihelper_msg_submit = "Submit now?";
 var wikihelper_msg_attach = "File attach link";
 
-// Include main script.
-document.write ('<scr'+'ipt type="text/javascr'+'ipt" src="' + wikihelper_root_url + 'skin/js/?src=main"></scr'+'ipt>');
+if (!wikihelper_loaded) {
+	// Include main script.
+	document.write ('<scr'+'ipt type="text/javascr'+'ipt" src="' + wikihelper_root_url + 'skin/js/?src=main"></scr'+'ipt>');
+}
+var wikihelper_loaded = true;
