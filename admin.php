@@ -3,8 +3,15 @@
 $mytrustdirname = basename( dirname( __FILE__ ) ) ;
 $mytrustdirpath = dirname( __FILE__ ) ;
 
+// check $xoopsModule
+if (!is_object($xoopsModule)) {
+	$module_handler =& xoops_gethandler('module');
+	$xoopsModule =& $module_handler->getByDirname($mydirname);
+}
+
 // check permission of 'module_admin' of this module
 $moduleperm_handler =& xoops_gethandler( 'groupperm' ) ;
+
 if( ! is_object( @$xoopsUser ) || ! $moduleperm_handler->checkRight( 'module_admin' , $xoopsModule->getVar( 'mid' ) , $xoopsUser->getGroups() ) ) die( 'only admin can access this area' ) ;
 
 $xoopsOption['pagetype'] = 'admin' ;
