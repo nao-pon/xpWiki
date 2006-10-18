@@ -1,7 +1,7 @@
 <?php
 //
 // Created on 2006/10/02 by nao-pon http://hypweb.net/
-// $Id: pukiwiki_func.php,v 1.8 2006/10/16 04:05:54 nao-pon Exp $
+// $Id: pukiwiki_func.php,v 1.9 2006/10/18 03:02:08 nao-pon Exp $
 //
 class XpWikiPukiWikiFunc extends XpWikiBaseFunc {
 
@@ -803,7 +803,7 @@ class XpWikiPukiWikiFunc extends XpWikiBaseFunc {
 
 //----- Start convert_html.php -----//
 	// PukiWiki - Yet another WikiWikiWeb clone
-	// $Id: pukiwiki_func.php,v 1.8 2006/10/16 04:05:54 nao-pon Exp $
+	// $Id: pukiwiki_func.php,v 1.9 2006/10/18 03:02:08 nao-pon Exp $
 	// Copyright (C)
 	//   2002-2005 PukiWiki Developers Team
 	//   2001-2002 Originally written by yu-ji
@@ -907,7 +907,7 @@ class XpWikiPukiWikiFunc extends XpWikiBaseFunc {
 
 //----- Start func.php -----//
 	// PukiWiki - Yet another WikiWikiWeb clone.
-	// $Id: pukiwiki_func.php,v 1.8 2006/10/16 04:05:54 nao-pon Exp $
+	// $Id: pukiwiki_func.php,v 1.9 2006/10/18 03:02:08 nao-pon Exp $
 	// Copyright (C)
 	//   2002-2006 PukiWiki Developers Team
 	//   2001-2002 Originally written by yu-ji
@@ -1688,7 +1688,7 @@ EOD;
 
 //----- Start make_link.php -----//
 	// PukiWiki - Yet another WikiWikiWeb clone.
-	// $Id: pukiwiki_func.php,v 1.8 2006/10/16 04:05:54 nao-pon Exp $
+	// $Id: pukiwiki_func.php,v 1.9 2006/10/18 03:02:08 nao-pon Exp $
 	// Copyright (C)
 	//   2003-2005 PukiWiki Developers Team
 	//   2001-2002 Originally written by yu-ji
@@ -2477,7 +2477,7 @@ EOD;
 
 //----- Start html.php -----//
 	// PukiWiki - Yet another WikiWikiWeb clone.
-	// $Id: pukiwiki_func.php,v 1.8 2006/10/16 04:05:54 nao-pon Exp $
+	// $Id: pukiwiki_func.php,v 1.9 2006/10/18 03:02:08 nao-pon Exp $
 	// Copyright (C)
 	//   2002-2006 PukiWiki Developers Team
 	//   2001-2002 Originally written by yu-ji
@@ -2577,8 +2577,8 @@ EOD;
 	
 		// List of attached files to the page
 		$plugin = & $this->get_plugin_instance("attach");
-	$attaches = ($this->root->attach_link && $is_read && $this->exist_plugin_action('attach')) ?
-			$plugin->attach_filelist() : '';
+		$attaches = ($this->root->attach_link && $is_read && $this->exist_plugin_action('attach')) ?
+		$plugin->attach_filelist() : '';
 	
 		// List of related pages
 		$related  = ($this->root->related_link && $is_read) ? $this->make_related($_page) : '';
@@ -2589,6 +2589,16 @@ EOD;
 	
 		// Tags will be inserted into <head></head>
 		$head_tag = ! empty($this->root->head_tags) ? join("\n", $this->root->head_tags) ."\n" : '';
+		
+		// WikiHelper JavaScript
+		$head_tag .= <<<EOD
+<script type="text/javascript">
+<!--
+var wikihelper_root_url = "{$this->cont['HOME_URL']}";
+//-->
+</script>
+<script type="text/javascript" src="{$this->cont['HOME_URL']}skin/js/?src=default.{$this->cont['UI_LANG']}"></script>
+EOD;
 	
 		// 1.3.x compat
 		// Last modification date (UNIX timestamp) of the page
@@ -2724,7 +2734,7 @@ EOD;
 	  <input type="hidden" name="cmd"    value="edit" />
 	  <input type="hidden" name="page"   value="$s_page" />
 	  <input type="hidden" name="digest" value="$s_digest" />
-	  <textarea name="msg" rows="{$this->root->rows}" cols="{$this->root->cols}">$s_postdata</textarea>
+	  <textarea name="msg" rel="wikihelper" rows="{$this->root->rows}" cols="{$this->root->cols}">$s_postdata</textarea>
 	  <br />
 	  <div style="float:left;">
 	   <input type="submit" name="preview" value="$btn_preview" accesskey="p" />
@@ -3014,7 +3024,7 @@ EOD;
 
 //----- Start mail.php -----//
 	// PukiWiki - Yet another WikiWikiWeb clone.
-	// $Id: pukiwiki_func.php,v 1.8 2006/10/16 04:05:54 nao-pon Exp $
+	// $Id: pukiwiki_func.php,v 1.9 2006/10/18 03:02:08 nao-pon Exp $
 	// Copyright (C)
 	//   2003-2005 PukiWiki Developers Team
 	//   2003      Originally written by upk
@@ -3321,7 +3331,7 @@ EOD;
 
 //----- Start link.php -----//
 	// PukiWiki - Yet another WikiWikiWeb clone
-	// $Id: pukiwiki_func.php,v 1.8 2006/10/16 04:05:54 nao-pon Exp $
+	// $Id: pukiwiki_func.php,v 1.9 2006/10/18 03:02:08 nao-pon Exp $
 	// Copyright (C) 2003-2006 PukiWiki Developers Team
 	// License: GPL v2 or (at your option) any later version
 	//

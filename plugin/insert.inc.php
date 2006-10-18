@@ -3,7 +3,7 @@ class xpwiki_plugin_insert extends xpwiki_plugin {
 	function plugin_insert_init () {
 
 
-	// $Id: insert.inc.php,v 1.1 2006/10/13 13:17:49 nao-pon Exp $
+	// $Id: insert.inc.php,v 1.2 2006/10/18 03:02:08 nao-pon Exp $
 	//
 	// Text inserting box plugin
 	
@@ -97,7 +97,7 @@ EOD;
   <input type="hidden" name="refer"  value="$s_page" />
   <input type="hidden" name="plugin" value="insert" />
   <input type="hidden" name="digest" value="$s_digest" />
-  <textarea name="msg" rows="$s_rows" cols="$s_cols"></textarea><br />
+  <textarea name="msg" rel="wikihelper" rows="$s_rows" cols="$s_cols"></textarea><br />
   <input type="submit" name="insert" value="{$this->root->_btn_insert}" />
  </div>
 </form>

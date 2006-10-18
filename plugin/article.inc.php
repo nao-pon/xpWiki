@@ -3,7 +3,7 @@ class xpwiki_plugin_article extends xpwiki_plugin {
 	function plugin_article_init () {
 
 
-	// $Id: article.inc.php,v 1.1 2006/10/13 13:17:49 nao-pon Exp $
+	// $Id: article.inc.php,v 1.2 2006/10/18 03:02:08 nao-pon Exp $
 	// Copyright (C)
 	//   2002-2005 PukiWiki Developers Team
 	//   2002      Originally written by OKAWARA,Satoshi <kawara@dml.co.jp>
@@ -176,8 +176,8 @@ EOD;
   <label for="_p_article_name_$article_no">{$this->root->_btn_name}</label>
   <input type="text" name="name" id="_p_article_name_$article_no" size="$name_cols" /><br />
   <label for="_p_article_subject_$article_no">{$this->root->_btn_subject}</label>
-  <input type="text" name="subject" id="_p_article_subject_$article_no" size="$subject_cols" /><br />
-  <textarea name="msg" rows="$article_rows" cols="$article_cols">\n</textarea><br />
+  <input type="text" name="subject" rel="wikihelper" id="_p_article_subject_$article_no" size="$subject_cols" /><br />
+  <textarea name="msg" rows="$article_rows" cols="$article_cols" rel="wikihelper">\n</textarea><br />
   <input type="submit" name="article" value="{$this->root->_btn_article}" />
  </div>
 </form>

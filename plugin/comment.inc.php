@@ -4,7 +4,7 @@ class xpwiki_plugin_comment extends xpwiki_plugin {
 
 
 	// PukiWiki - Yet another WikiWikiWeb clone
-	// $Id: comment.inc.php,v 1.2 2006/10/15 12:16:47 nao-pon Exp $
+	// $Id: comment.inc.php,v 1.3 2006/10/18 03:02:08 nao-pon Exp $
 	// Copyright (C)
 	//   2002-2005 PukiWiki Developers Team
 	//   2001-2002 Originally written by yu-ji
@@ -134,7 +134,7 @@ class xpwiki_plugin_comment extends xpwiki_plugin {
   <input type="hidden" name="above"  value="$above" />
   <input type="hidden" name="digest" value="{$this->root->digest}" />
   $nametags
-  <input type="text"   name="msg" id="_p_comment_comment_{$comment_no}" size="{$comment_cols[$this->xpwiki->pid]}" />
+  <input type="text"   name="msg" rel="wikihelper" id="_p_comment_comment_{$comment_no}" size="{$comment_cols[$this->xpwiki->pid]}" />
   <input type="submit" name="comment" value="{$this->root->_btn_comment}" />
  </div>
 </form>

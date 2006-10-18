@@ -1,6 +1,6 @@
 <?php
 // PukiWiki - Yet another WikiWikiWeb clone.
-// $Id: tdiary.css.php,v 1.2 2006/10/17 01:49:57 nao-pon Exp $
+// $Id: tdiary.css.php,v 1.3 2006/10/18 03:02:08 nao-pon Exp $
 // Copyright (C)
 //   2002-2005 PukiWiki Developers Team
 //   2001-2002 Originally written by yu-ji
@@ -101,6 +101,21 @@ default:
 // Output CSS ----
 ?>
 @charset "<?php echo $charset ?>";
+
+/* pukiwiki helper */
+div#wikihelper_base {
+	position:absolute;
+	top:-1000px;
+	left:-1000px;
+	/*background-color:white;*/
+	filter:alpha(opacity=85);
+	-moz-opacity: 0.85;
+	opacity: 0.85;
+}
+
+div#pukiwiki_helper_base small {
+	background-color:white;
+}
 
 /* ------------------------------------------ */
 /* PukiWiki abstruction CSS for tDiary themes */

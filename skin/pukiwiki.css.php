@@ -1,20 +1,12 @@
 <?php
 // PukiWiki - Yet another WikiWikiWeb clone.
-// $Id: pukiwiki.css.php,v 1.1 2006/10/13 13:17:49 nao-pon Exp $
+// $Id: pukiwiki.css.php,v 1.2 2006/10/18 03:02:08 nao-pon Exp $
 // Copyright (C)
 //   2002-2005 PukiWiki Developers Team
 //   2001-2002 Originally written by yu-ji
 // License: GPL v2 or (at your option) any later version
 //
 // Default CSS
-
-// Send header
-header('Content-Type: text/css');
-$matches = array();
-if(ini_get('zlib.output_compression') && preg_match('/\b(gzip|deflate)\b/i', $_SERVER['HTTP_ACCEPT_ENCODING'], $matches)) {
-	header('Content-Encoding: ' . $matches[1]);
-	header('Vary: Accept-Encoding');
-}
 
 // Default charset
 $charset = isset($_GET['charset']) ? $_GET['charset']  : '';
@@ -27,9 +19,33 @@ switch ($charset) {
 $media   = isset($_GET['media'])   ? $_GET['media']    : '';
 if ($media != 'print') $media = 'screen';
 
+// Etag
+$etag = md5($charset.$media.filemtime(__FILE__));
+
+// Not Modified?
+if ($etag == @$_SERVER["HTTP_IF_NONE_MATCH"]) {
+	header( "HTTP/1.1 304 Not Modified" );
+	header( "Etag: ". $etag );
+	exit();
+}
+
+// Output buffering start
+ob_start();
+
 // Output CSS ----
 ?>
 @charset "<?php echo $charset ?>";
+
+/* pukiwiki helper */
+div#wikihelper_base {
+	position:absolute;
+	top:-1000px;
+	left:-1000px;
+	background-color:white;
+	filter:alpha(opacity=85);
+	-moz-opacity: 0.85;
+	opacity: 0.85;
+}
 
 div.xpwiki { width:100%; }
 
@@ -675,3 +691,16 @@ div.xpwiki td.vote_td2 {
 	color:inherit;
 	background-color:#EEF5FF;
 }
+<?php
+// Send header
+header('Content-Type: text/css');
+$matches = array();
+if(ini_get('zlib.output_compression') && preg_match('/\b(gzip|deflate)\b/i', $_SERVER['HTTP_ACCEPT_ENCODING'], $matches)) {
+	header('Content-Encoding: ' . $matches[1]);
+	header('Vary: Accept-Encoding');
+}
+header( "Last-Modified: " . gmdate( "D, d M Y H:i:s", filemtime(__FILE__) ) . " GMT" );
+header( "Etag: ". $etag );
+header( "Content-length: ". ob_get_length() );
+ob_end_flush()
+?>

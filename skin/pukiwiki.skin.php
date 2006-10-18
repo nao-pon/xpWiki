@@ -1,6 +1,6 @@
 <?php
 // PukiWiki - Yet another WikiWikiWeb clone.
-// $Id: pukiwiki.skin.php,v 1.2 2006/10/17 01:49:57 nao-pon Exp $
+// $Id: pukiwiki.skin.php,v 1.3 2006/10/18 03:02:08 nao-pon Exp $
 // Copyright (C)
 //   2002-2006 PukiWiki Developers Team
 //   2001-2002 Originally written by yu-ji
@@ -71,12 +71,6 @@ $this->root->html_header = <<<EOD
 <link rel="stylesheet" type="text/css" media="screen" href="{$this->cont['HOME_URL']}{$this->cont['SKIN_DIR']}pukiwiki.css.php?charset={$css_charset}" charset="{$css_charset}" />
 <link rel="stylesheet" type="text/css" media="print"  href="{$this->cont['HOME_URL']}{$this->cont['SKIN_DIR']}pukiwiki.css.php?charset={$css_charset}&amp;media=print" charset="{$css_charset}" />
 <link rel="alternate" type="application/rss+xml" title="RSS" href="{$link['rss']}" />
-<script type="text/javascript">
-<!--
-var pukiwiki_root_url = "{$this->cont['HOME_URL']}";
-//-->
-</script>
-<script type="text/javascript" src="{$this->cont['HOME_URL']}skin/js/?src=default.{$this->cont['LANG']}"></script>
 $head_tag
 EOD;
 ?>
