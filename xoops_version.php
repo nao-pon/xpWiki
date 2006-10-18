@@ -26,8 +26,8 @@ $modversion['tables'] = array() ;
 
 // Admin things
 $modversion['hasAdmin'] = 1 ;
-$modversion['adminindex'] = 'index.php?mode=admin' ;
-$modversion['adminmenu'] = 'admin_menu.php' ;
+$modversion['adminindex'] = 'admin/index.php' ;
+$modversion['adminmenu'] = 'admin/admin_menu.php' ;
 
 // Search
 $modversion['hasSearch'] = 0 ;

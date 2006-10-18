@@ -10,7 +10,8 @@ define( $constpref.'_LOADED' , 1 ) ;
 
 define( $constpref.'_MODULE_DESCRIPTION' , 'A wiki module based on PukiWiki.' ) ;
 
-define( $constpref.'_UPDATE_SEARCH_INDEX' , 'Update indexes for searching' ) ;
+define( $constpref.'_PLUGIN_CONVERTER' , 'Plugin Converter' ) ;
+define( $constpref.'_SKIN_CONVERTER' , 'Skin Converter' ) ;
 
 }
 
