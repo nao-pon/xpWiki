@@ -10,7 +10,8 @@ define( $constpref.'_LOADED' , 1 ) ;
 
 define( $constpref.'_MODULE_DESCRIPTION' , 'PukiWikiベースのWikiモジュール' ) ;
 
-define( $constpref.'_UPDATE_SEARCH_INDEX' , '検索用インデックスの更新' ) ;
+define( $constpref.'_PLUGIN_CONVERTER' , 'プラグイン変換ツール' ) ;
+define( $constpref.'_SKIN_CONVERTER' , 'スキン変換ツール' ) ;
 
 }
 
