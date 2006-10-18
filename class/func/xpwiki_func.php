@@ -1,7 +1,7 @@
 <?php
 //
 // Created on 2006/10/02 by nao-pon http://hypweb.net/
-// $Id: xpwiki_func.php,v 1.5 2006/10/15 12:16:47 nao-pon Exp $
+// $Id: xpwiki_func.php,v 1.6 2006/10/18 03:02:08 nao-pon Exp $
 //
 class XpWikiFunc extends XpWikiXoopsWrapper {
 
@@ -308,6 +308,17 @@ class XpWikiFunc extends XpWikiXoopsWrapper {
 	function save_name2cookie ($name) {
 		$this->root->cookie['name'] = $name;
 		$this->save_cookie();
+	}
+	
+	// フォント指定JavaScript
+	function fontset_js_tag() {
+		return <<<EOD
+<script type="text/javascript">
+<!--
+	pukiwiki_show_fontset_img();
+-->
+</script>
+EOD;
 	}
 }
 ?>

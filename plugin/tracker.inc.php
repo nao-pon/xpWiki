@@ -4,7 +4,7 @@ class xpwiki_plugin_tracker extends xpwiki_plugin {
 
 
 	// PukiWiki - Yet another WikiWikiWeb clone
-	// $Id: tracker.inc.php,v 1.1 2006/10/13 13:17:49 nao-pon Exp $
+	// $Id: tracker.inc.php,v 1.2 2006/10/18 03:02:08 nao-pon Exp $
 	//
 	// Issue tracker plugin (See Also bugtrack plugin)
 	
@@ -232,21 +232,22 @@ EOD;
 			'_submit'=>'submit' // 追加ボタン
 			) as $field=>$class)
 		{
-			$class = 'Tracker_field_'.$class;
-			$fields[$field] = &new $class(array($field,$this->root->_tracker_messages["btn$field"],'','20',''),$base,$refer,$config);
+			$class = 'XpWikiTracker_field_'.$class;
+			$fields[$field] = &new $class($this->xpwiki, array($field,$this->root->_tracker_messages["btn$field"],'','20',''),$base,$refer,$config);
 		}
 	
 		foreach ($config->get('fields') as $field)
 		{
 			// 0=>項目名 1=>見出し 2=>形式 3=>オプション 4=>デフォルト値
-			$class = 'Tracker_field_'.$field[2];
+			//echo $field[2]."<br>";
+			$class = 'XpWikiTracker_field_'.$field[2];
 			if (!class_exists($class))
 			{ // デフォルト
 				$class = 'XpWikiTracker_field_text';
 				$field[2] = 'text';
 				$field[3] = '20';
 			}
-			$fields[$field[0]] = &new $class($field,$base,$refer,$config);
+			$fields[$field[0]] = &new $class($this->xpwiki, $field,$base,$refer,$config);
 		}
 		return $fields;
 	}
@@ -389,8 +390,12 @@ class XpWikiTracker_field_text extends XpWikiTracker_field
 	{
 		$s_name = htmlspecialchars($this->name);
 		$s_size = htmlspecialchars($this->values[0]);
+		if ($this->default_value == '$uname' || $this->default_value == '$X_uname' ) {
+			$this->default_value = $this->root->userinfo['uname'];
+		}
 		$s_value = htmlspecialchars($this->default_value);
-		return "<input type=\"text\" name=\"$s_name\" size=\"$s_size\" value=\"$s_value\" />";
+		$helper = ($this->name == "_name" || is_a($this, "XpWikiTracker_field_page"))? "" : " rel=\"wikihelper\"";
+		return "<input type=\"text\" name=\"$s_name\"{$helper} size=\"$s_size\" value=\"$s_value\" />";
 	}
 }
 class XpWikiTracker_field_page extends XpWikiTracker_field_text
@@ -400,8 +405,14 @@ class XpWikiTracker_field_page extends XpWikiTracker_field_text
 	function format_value($value)
 	{
 //		global $WikiName;
-
+		
 		$value = $this->func->strip_bracket($value);
+
+		if ($this->default_value == '$uname' || $this->default_value == '$X_uname' ) {
+			// save name to cookie
+			if ($value) { $this->func->save_name2cookie($value); }
+		}
+
 		if ($this->func->is_pagename($value))
 		{
 			$value = "[[$value]]";
@@ -433,7 +444,7 @@ class XpWikiTracker_field_textarea extends XpWikiTracker_field
 		$s_cols = htmlspecialchars($this->values[0]);
 		$s_rows = htmlspecialchars($this->values[1]);
 		$s_value = htmlspecialchars($this->default_value);
-		return "<textarea name=\"$s_name\" cols=\"$s_cols\" rows=\"$s_rows\">$s_value</textarea>";
+		return "<textarea name=\"$s_name\" rel=\"wikihelper\" cols=\"$s_cols\" rows=\"$s_rows\">$s_value</textarea>";
 	}
 	function format_cell($str)
 	{
@@ -458,7 +469,7 @@ class XpWikiTracker_field_format extends XpWikiTracker_field
 		$this->root   =& $xpwiki->root;
 		$this->cont   =& $xpwiki->cont;
 		$this->func   =& $xpwiki->func;
-		parent::Tracker_field($field,$page,$refer,$config);
+		parent::XpWikiTracker_field($xpwiki,$field,$page,$refer,$config);
 
 		foreach ($this->config->get($this->name) as $option)
 		{

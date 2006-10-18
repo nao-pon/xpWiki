@@ -4,7 +4,7 @@ class xpwiki_plugin_pcomment extends xpwiki_plugin {
 
 
 	// PukiWiki - Yet another WikiWikiWeb clone
-	// $Id: pcomment.inc.php,v 1.2 2006/10/15 12:16:47 nao-pon Exp $
+	// $Id: pcomment.inc.php,v 1.3 2006/10/18 03:02:08 nao-pon Exp $
 	//
 	// pcomment plugin - Show/Insert comments into specified (another) page
 	//
@@ -121,7 +121,7 @@ $this->cont['PLUGIN_PCOMMENT_DIRECTION_DEFAULT'] =  1; // 1: above 0: below
 	
 			$radio   = $params['reply'] ?
 				'<input type="radio" name="reply" value="0" tabindex="0" checked="checked" />' : '';
-			$comment = '<input type="text" name="msg" size="' . $this->cont['PLUGIN_PCOMMENT_SIZE_MSG'] . '" />';
+			$comment = '<input type="text" name="msg" rel="wikihelper" size="' . $this->cont['PLUGIN_PCOMMENT_SIZE_MSG'] . '" />';
 	
 			$s_page   = htmlspecialchars($page);
 			$s_refer  = htmlspecialchars($vars_page);
