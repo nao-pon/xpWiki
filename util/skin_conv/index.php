@@ -31,9 +31,10 @@ EOD;
 $func_init = "";
 
 $files = array();
-$indir = "./in/";
-$outdir = "./out/";
-$cachedir = "../cache/";
+$indir = "$mydirpath/cache/in/";
+$outdir = "$mydirpath/cache/out/";
+
+$cachedir = "$mydirpath/cache/";
 
 $isupload = 0;
 
@@ -41,7 +42,7 @@ if (!empty($_FILES['userfile']['name'])) {
 	$files[] = basename($_FILES['userfile']['name']);
 	$isupload = 1;
 } else {
-	if ($handle = opendir($indir)) {
+	if ($handle = @ opendir($indir)) {
 		while (false !== ($file = readdir($handle))) {
 			if (!is_dir($indir.$file)) {
 				$files[] = $file;
@@ -53,20 +54,15 @@ if (!empty($_FILES['userfile']['name'])) {
 
 if (!$files) {
 	echo <<<EOD
-<html>
-<body>
 <h1>Skin converter from PukiWiki 1.4 to xpWiki</h1>
-<form enctype="multipart/form-data" action="index.php" method="POST">
+<form enctype="multipart/form-data" action="index.php?page=skin_conv" method="POST">
     PukiWiki 1.4 skin file:<br /><input name="userfile" type="file" size="60" /><br />
     <input type="submit" value="Do convert & Download!" onClick="this.style.visibility='hidden';return true;" />
 	Click &amp; Wait...
 </form>
 <hr />
-<a href="./">- Reload -</a>
-</body>
-</html>
 EOD;
-	exit;
+	return;
 }
 
 $consts = file($cachedir."consts.txt");

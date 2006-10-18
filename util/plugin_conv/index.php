@@ -31,16 +31,17 @@ EOD;
 $func_init = "";
 
 $files = array();
-$indir = "./in/";
-$outdir = "./out/";
-$cachedir = "../cache/";
+$indir = "$mydirpath/cache/in/";
+$outdir = "$mydirpath/cache/out/";
+
+$cachedir = "$mydirpath/cache/";
 $isupload = 0;
 
 if (!empty($_FILES['userfile']['name'])) {
 	$files[] = basename($_FILES['userfile']['name']);
 	$isupload = 1;
 } else {
-	if ($handle = opendir($indir)) {
+	if ($handle = @ opendir($indir)) {
 		while (false !== ($file = readdir($handle))) {
 			if (!is_dir($indir.$file)) {
 				$files[] = $file;
@@ -52,27 +53,22 @@ if (!empty($_FILES['userfile']['name'])) {
 
 if (!$files) {
 	echo <<<EOD
-<html>
-<body>
 <h1>Plugin converter from PukiWiki 1.4 to xpWiki</h1>
-<form enctype="multipart/form-data" action="index.php" method="POST">
+<form enctype="multipart/form-data" action="index.php?page=plugin_conv" method="POST">
     PukiWiki 1.4 plugin file:<br /><input name="userfile" type="file" size="60" /><br />
     <input type="submit" value="Do convert & Download!" onClick="this.style.visibility='hidden';return true;" />
 	Click &amp; Wait...
 </form>
 <hr />
 <h1>xpWiki Plugin converter from System to User</h1>
-<form enctype="multipart/form-data" action="index.php?mode=s2u" method="POST">
+<form enctype="multipart/form-data" action="index.php?page=plugin_conv&amp;mode=s2u" method="POST">
     xpWiki system plugin file:<br /><input name="userfile" type="file" size="60" /><br />
     <input type="submit" value="Do convert & Download!" onClick="this.style.visibility='hidden';return true;" />
 	Click &amp; Wait...
 </form>
 <hr />
-<a href="./">- Reload -</a>
-</body>
-</html>
 EOD;
-	exit;
+	return;
 }
 
 $mode = (empty($_GET['mode']))? "" : $_GET['mode'];
@@ -382,7 +378,7 @@ EOD;
 	$out = str_replace("/*****_CLASS_INSERT_*****/",join('',$class_out),$out);
 	
 	// 定数置換の処理
-	$consts = file($cachedir."consts.txt");
+	$consts = file($cachedir."consts.dat");
 	$consts = array_map("trim", $consts);
 	
 	$consts = array_merge($consts, array_keys($defines));
@@ -410,7 +406,7 @@ EOD;
 	}
 	
 	// 必要な new CLASS() CLASS::CLASS の引数に xpwiki オブジェクトを追加する処置
-	$need_classes = file($cachedir."need_classes.txt");
+	$need_classes = file($cachedir."need_classes.dat");
 	$need_classes = array_map("trim", $need_classes);
 	
 	$need_classes = array_merge($need_classes, $need_xpwiki_classes);
@@ -435,7 +431,7 @@ EOD;
 	}
 	
 	// クラス名の書き換え
-	$_classes = file($cachedir."rename_classes.txt");
+	$_classes = file($cachedir."rename_classes.dat");
 	$_classes = array_map("trim", $_classes);
 	
 	$rename_classes = array_merge($_classes, $rename_classes);
@@ -463,17 +459,17 @@ EOD;
 	}
 	
 	// ファイル保存
-	if ($fp = fopen($cachedir."consts.txt","wb")) {
+	if ($fp = fopen($cachedir."consts.dat","wb")) {
 		fwrite($fp, join("\n",$consts));
 		fclose($fp);
 	}
 
-	if ($fp = fopen($cachedir."need_classes.txt","wb")) {
+	if ($fp = fopen($cachedir."need_classes.dat","wb")) {
 		fwrite($fp, join("\n",$need_classes));
 		fclose($fp);
 	}
 	
-	if ($fp = fopen($cachedir."rename_classes.txt","wb")) {
+	if ($fp = fopen($cachedir."rename_classes.dat","wb")) {
 		fwrite($fp, join("\n",$rename_classes));
 		fclose($fp);
 	}
@@ -500,6 +496,9 @@ EOD;
 		echo "</pre>";
 
 	} else {
+		while( ob_get_level() ) {
+			ob_end_clean() ;
+		}
 		header('Content-Disposition: attachment; filename="' . $input . '"');
 		header('Content-Length: ' . strlen($out));
 		header('Content-Type: plain/text');
@@ -554,6 +553,10 @@ function convert_s2u ($files) {
 	$dat = preg_replace("/((?:^|\n|\r)\s*class\s+xpwiki_)(plugin(_\w+)\s+extends\s+xpwiki_plugin)/","$1user_$2$3",$dat);
 	
 	unlink($org_file);
+
+	while( ob_get_level() ) {
+		ob_end_clean() ;
+	}
 
 	header('Content-Disposition: attachment; filename="' . $input . '"');
 	header('Content-Length: ' . strlen($dat));
