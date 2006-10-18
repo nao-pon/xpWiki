@@ -20,5 +20,8 @@ var wikihelper_msg_elem = "処理をする対象を選択してください。";
 var wikihelper_msg_submit = "このまま送信しますか？";
 var wikihelper_msg_attach = "ファイル添付リンク";
 
-// Include main script.
-document.write ('<scr'+'ipt type="text/javascr'+'ipt" src="' + wikihelper_root_url + 'skin/js/?src=main"></scr'+'ipt>');
+if (!wikihelper_loaded) {
+	// Include main script.
+	document.write ('<scr'+'ipt type="text/javascr'+'ipt" src="' + wikihelper_root_url + 'skin/js/?src=main"></scr'+'ipt>');
+}
+var wikihelper_loaded = true;

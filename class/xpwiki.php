@@ -1,7 +1,7 @@
 <?php
 //
 // Created on 2006/09/29 by nao-pon http://hypweb.net/
-// $Id: xpwiki.php,v 1.3 2006/10/15 12:16:47 nao-pon Exp $
+// $Id: xpwiki.php,v 1.4 2006/10/18 13:27:36 nao-pon Exp $
 //
 
 class XpWiki {
@@ -142,8 +142,6 @@ class XpWiki {
 	
 	function get_html_for_block ($page, $width = "100%") {
 		
-		$block = '<div style="width:'.$width.';overflow:hidden;">'."\n";
-		
 		// 初期化
 		$this->init($page);
 		
@@ -151,10 +149,20 @@ class XpWiki {
 		$this->execute();
 		
 		// 出力
-		$block .= $this->get_body();
-		
-		$block .= "</div>\n";
-		
+		$class = "xpwiki_".$this->root->mydirname;
+		$block = <<< EOD
+<link rel="stylesheet" type="text/css" media="screen" href="{$this->cont['HOME_URL']}{$this->cont['SKIN_DIR']}pukiwiki.css.php?charset=Shift_JIS&amp;base={$this->root->mydirname}" charset="Shift_JIS" />
+<script type="text/javascript">
+<!--
+var wikihelper_root_url = "{$this->cont['HOME_URL']}";
+//-->
+</script>
+<script type="text/javascript" src="{$this->cont['HOME_URL']}skin/js/?src=default.{$this->cont['UI_LANG']}"></script>
+<div class="{$class}" style="width:{$width};overflow:hidden;">
+{$this->body}
+</div>
+EOD;
+
 		return $block;
 	}
 	
