@@ -1,6 +1,6 @@
 <?php
 // PukiWiki - Yet another WikiWikiWeb clone.
-// $Id: config.php,v 1.1 2006/10/13 13:17:49 nao-pon Exp $
+// $Id: config.php,v 1.2 2006/10/18 02:59:58 nao-pon Exp $
 // Copyright (C) 2003-2005 PukiWiki Developers Team
 // License: GPL v2 or (at your option) any later version
 //
@@ -60,19 +60,19 @@ class XpWikiConfig
 					$this->objs[$obj->title] = $obj;
 					$obj = & new XpWikiConfigTable($line);
 				} else {
-					if (! is_a($obj, 'ConfigTable_Direct'))
+					if (! is_a($obj, 'XpWikiConfigTable_Direct'))
 						$obj = & new XpWikiConfigTable_Direct('', $obj);
 					$obj->set_key($line);
 				}
 				
 			} else if ($head == '-' && $level > 1) {
-				if (! is_a($obj, 'ConfigTable_Direct'))
+				if (! is_a($obj, 'XpWikiConfigTable_Direct'))
 					$obj = & new XpWikiConfigTable_Direct('', $obj);
 				$obj->add_value($line);
 
 			} else if ($head == '|' && preg_match('/^\|(.+)\|\s*$/', $line, $matches)) {
 				// Table row
-				if (! is_a($obj, 'ConfigTable_Sequential'))
+				if (! is_a($obj, 'XpWikiConfigTable_Sequential'))
 					$obj = & new XpWikiConfigTable_Sequential('', $obj);
 				// Trim() each table cell
 				$obj->add_value(array_map('trim', explode('|', $matches[1])));
