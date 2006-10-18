@@ -3,7 +3,7 @@
 $this->root->runmode = "standalone";
 
 // PukiWiki - Yet another WikiWikiWeb clone.
-// $Id: tdiary.skin.php,v 1.2 2006/10/18 03:02:08 nao-pon Exp $
+// $Id: tdiary.skin.php,v 1.3 2006/10/18 11:36:39 nao-pon Exp $
 // Copyright (C)
 //   2002-2006 PukiWiki Developers Team
 //   2001-2002 Originally written by yu-ji
@@ -572,6 +572,8 @@ if (isset($this->root->pkwk_dtd)) {
 	$meta_content_type = $this->pkwk_output_dtd();
 }
 
+$favicon = ($image['favicon'])? "<link rel=\"SHORTCUT ICON\" href=\"{$image['favicon']}\" />" : "";
+
 ?>
 <head>
  <?php echo $meta_content_type ?>
@@ -581,7 +583,7 @@ if (isset($this->root->pkwk_dtd)) {
 
  <title><?php echo $title ?> - <?php echo $this->root->page_title ?></title>
 
- <link rel="SHORTCUT ICON" href="<?php echo $image['favicon'] ?>" />
+ <?php echo $favicon ?>
  <link rel="stylesheet" type="text/css" media="all" href="<?php echo "{$this->cont['HOME_URL']}{$this->cont['TDIARY_DIR']}" ?>base.css" />
  <link rel="stylesheet" type="text/css" media="all" href="<?php echo "{$this->cont['HOME_URL']}{$this->cont['TDIARY_DIR']}" ?><?php echo $theme ?>/<?php echo $theme ?>.css" />
  <link rel="stylesheet" type="text/css" media="screen" href="<?php echo "{$this->cont['HOME_URL']}{$this->cont['TDIARY_DIR']}" ?>tdiary.css.php?charset=<?php echo $css_charset ?>&amp;color=<?php echo $css_theme ?>" charset="<?php echo $css_charset ?>" />
