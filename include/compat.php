@@ -1,12 +1,12 @@
 <?php
 //
 // Created on 2006/10/16 by nao-pon http://hypweb.net/
-// $Id: compat.php,v 1.1 2006/10/16 02:51:45 nao-pon Exp $
+// $Id: compat.php,v 1.2 2006/10/18 23:26:43 nao-pon Exp $
 //
 
 //// mbstring ////
 if (! extension_loaded('mbstring')) {
-	require(dirname(__FILE__) . 'mbstring.php');
+	require(dirname(__FILE__) . '/mbstring.php');
 }
 
 //// Compat ////
