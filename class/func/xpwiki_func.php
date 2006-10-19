@@ -1,7 +1,7 @@
 <?php
 //
 // Created on 2006/10/02 by nao-pon http://hypweb.net/
-// $Id: xpwiki_func.php,v 1.7 2006/10/19 14:14:42 nao-pon Exp $
+// $Id: xpwiki_func.php,v 1.8 2006/10/19 14:38:50 nao-pon Exp $
 //
 class XpWikiFunc extends XpWikiXoopsWrapper {
 
@@ -322,9 +322,10 @@ class XpWikiFunc extends XpWikiXoopsWrapper {
 		
 		// query 削除
 		if (! empty($_SERVER['QUERY_STRING'])) {
-			$_SERVER['QUERY_STRING'] = preg_replace("/(?:&|\?)(?:setskin|".preg_quote($this->cont['SETLANG'],"/").")=.+?(?:&|$)/","",$_SERVER['QUERY_STRING']);
-		} else if (! empty($_SERVER['argv'][0])) {
-			$_SERVER['argv'][0] = preg_replace("/(?:&|\?)(?:setskin|".$this->root->setlang.")=.+?(?:&|$)/","",$_SERVER['argv'][0]);
+			$_SERVER['QUERY_STRING'] = preg_replace("/(?:^|&)(?:setskin|".preg_quote($this->cont['SETLANG'],"/").")=.*?(?:&|$)/","",$_SERVER['QUERY_STRING']);
+		}
+		if (! empty($_SERVER['argv'][0])) {
+			$_SERVER['argv'][0] = preg_replace("/(?:^|&)(?:setskin|".preg_quote($this->cont['SETLANG'],"/").")=.*?(?:&|$)/","",$_SERVER['argv'][0]);
 		}
 		// cookieを更新
 		$this->save_cookie();
