@@ -1,7 +1,7 @@
 <?php
 //
 // Created on 2006/10/02 by nao-pon http://hypweb.net/
-// $Id: xpwiki_func.php,v 1.6 2006/10/18 03:02:08 nao-pon Exp $
+// $Id: xpwiki_func.php,v 1.7 2006/10/19 14:14:42 nao-pon Exp $
 //
 class XpWikiFunc extends XpWikiXoopsWrapper {
 
@@ -10,7 +10,7 @@ class XpWikiFunc extends XpWikiXoopsWrapper {
 	
 	var $xpwiki;
 	var $root;
-	var $const;
+	var $cont;
 	var $pid;
 	
 	function XpWikiFunc (& $xpwiki) {
@@ -241,9 +241,14 @@ class XpWikiFunc extends XpWikiXoopsWrapper {
 	// Get HTTP_ACCEPT_LANGUAGE
 	function get_accept_language () {
 		$lang = "en";
-		if (!empty($_SERVER["HTTP_ACCEPT_LANGUAGE"]))
+		$accept = @ $_SERVER["HTTP_ACCEPT_LANGUAGE"];
+		// cookie に指定があればそれを優先
+		if (!empty($this->root->cookie['lang'])) {
+			$accept = $this->root->cookie['lang'] . "," . $accept;
+		}
+		if (!empty($accept))
 		{
-			if (preg_match_all("/([\w]+)/i",$_SERVER["HTTP_ACCEPT_LANGUAGE"],$match,PREG_PATTERN_ORDER)) {
+			if (preg_match_all("/([\w]+)/i",$accept,$match,PREG_PATTERN_ORDER)) {
 				foreach($match[1] as $lang) {
 					if (file_exists($this->cont['DATA_HOME']."private/lang/{$lang}.lng.php")) { break; }
 					else { $lang = "en"; }
@@ -277,6 +282,8 @@ class XpWikiFunc extends XpWikiXoopsWrapper {
 		}
 		$this->root->cookie['ucd'] = (isset($cookies[0])) ? $cookies[0] : "";
 		$this->root->cookie['name'] = (isset($cookies[1])) ? $cookies[1] : "";
+		$this->root->cookie['skin'] = (isset($cookies[2])) ? $cookies[2] : "";
+		$this->root->cookie['lang'] = (isset($cookies[3])) ? $cookies[3] : "";
 		if (empty($this->root->userinfo['uname'])) {
 			$this->root->userinfo['uname'] = $this->root->cookie['name'];
 			$this->root->userinfo['uname_s'] = htmlspecialchars($this->root->userinfo['uname']);
@@ -284,23 +291,41 @@ class XpWikiFunc extends XpWikiXoopsWrapper {
 	}
 	
 	function save_cookie () {
-		$data = $this->root->cookie['ucd'].
-			"\t" . $this->root->cookie['name'];
+		$data =    $this->root->cookie['ucd'].
+			"\t" . $this->root->cookie['name'].
+			"\t" . $this->root->cookie['skin'].
+			"\t" . $this->root->cookie['lang'];
 		$url = parse_url ( $this->cont['ROOT_URL'] );
 		setcookie($this->root->mydirname, $data, time()+86400*365, $url['path']); // 1年間
 	}
 	
-	function set_usercode () {
+	function load_usercookie () {
 		
 		// cookieの読み込み
 		$this->load_cookie();
 		
-		//user-codeの発行
+		// user-codeの発行
 		if(!$this->root->cookie['ucd']){
 			$this->root->cookie['ucd'] = md5(getenv("REMOTE_ADDR"). __FILE__ .gmdate("Ymd", time()+9*60*60));
 		}
 		$this->ucd = substr(crypt($this->root->cookie['ucd'],($this->root->adminpass)? $this->root->adminpass : 'id'),-11);
-
+		
+		// スキン指定をcookieにセット
+		if (isset($_GET['setskin'])) {
+			$this->root->cookie['skin'] = ($_GET['setskin'] === "none")? "" : preg_replace("/[^\w-]+/","",$_GET['setskin']);
+		}
+		
+		// 言語指定をcookieにセット
+		if (isset($_GET[$this->cont['SETLANG']])) {
+			$this->root->cookie['lang'] = ($_GET[$this->cont['SETLANG']] === "none")? "" : preg_replace("/[^\w-]+/","",$_GET[$this->cont['SETLANG']]);
+		}
+		
+		// query 削除
+		if (! empty($_SERVER['QUERY_STRING'])) {
+			$_SERVER['QUERY_STRING'] = preg_replace("/(?:&|\?)(?:setskin|".preg_quote($this->cont['SETLANG'],"/").")=.+?(?:&|$)/","",$_SERVER['QUERY_STRING']);
+		} else if (! empty($_SERVER['argv'][0])) {
+			$_SERVER['argv'][0] = preg_replace("/(?:&|\?)(?:setskin|".$this->root->setlang.")=.+?(?:&|$)/","",$_SERVER['argv'][0]);
+		}
 		// cookieを更新
 		$this->save_cookie();
 	}

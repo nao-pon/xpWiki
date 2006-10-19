@@ -1,7 +1,7 @@
 <?php
 //
 // Created on 2006/09/29 by nao-pon http://hypweb.net/
-// $Id: xpwiki.php,v 1.4 2006/10/18 13:27:36 nao-pon Exp $
+// $Id: xpwiki.php,v 1.5 2006/10/19 14:14:42 nao-pon Exp $
 //
 
 class XpWiki {
@@ -38,11 +38,14 @@ class XpWiki {
 		$this->cont['DATA_HOME'] = $this->root->mydirpath."/";
 		$this->cont['HOME_URL'] = $this->cont['ROOT_URL']."modules/".$mydirname."/";
 		
+		// GET's query key of set lang.
+		$this->cont['SETLANG'] = "setlang"; 
+		
 		// アクセスユーザーの情報読み込み
 		$this->func->set_userinfo();
 		
 		// cookie 用ユーザーコード取得 & cookie読み書き 
-		$this->func->set_usercode();
+		$this->func->load_usercookie();
 	}
 
 	function init($page = "") {
