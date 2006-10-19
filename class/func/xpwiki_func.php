@@ -1,7 +1,7 @@
 <?php
 //
 // Created on 2006/10/02 by nao-pon http://hypweb.net/
-// $Id: xpwiki_func.php,v 1.8 2006/10/19 14:38:50 nao-pon Exp $
+// $Id: xpwiki_func.php,v 1.9 2006/10/19 15:51:14 nao-pon Exp $
 //
 class XpWikiFunc extends XpWikiXoopsWrapper {
 
@@ -313,20 +313,25 @@ class XpWikiFunc extends XpWikiXoopsWrapper {
 		// スキン指定をcookieにセット
 		if (isset($_GET['setskin'])) {
 			$this->root->cookie['skin'] = ($_GET['setskin'] === "none")? "" : preg_replace("/[^\w-]+/","",$_GET['setskin']);
+			if (isset($_SERVER['QUERY_STRING'])) {
+				$_SERVER['QUERY_STRING'] = preg_replace("/(^|&)setskin=.*?(?:&|$)/","$1",$_SERVER['QUERY_STRING']);
+			}
+			if (isset($_SERVER['argv'][0])) {
+				$_SERVER['argv'][0] = preg_replace("/(^|&)setskin=.*?(?:&|$)/","$1",$_SERVER['argv'][0]);
+			}
 		}
 		
 		// 言語指定をcookieにセット
 		if (isset($_GET[$this->cont['SETLANG']])) {
 			$this->root->cookie['lang'] = ($_GET[$this->cont['SETLANG']] === "none")? "" : preg_replace("/[^\w-]+/","",$_GET[$this->cont['SETLANG']]);
+			if (isset($_SERVER['QUERY_STRING'])) {
+				$_SERVER['QUERY_STRING'] = preg_replace("/(^|&)".preg_quote($this->cont['SETLANG'],"/")."=.*?(?:&|$)/","$1",$_SERVER['QUERY_STRING']);
+			}
+			if (isset($_SERVER['argv'][0])) {
+				$_SERVER['argv'][0] = preg_replace("/(^|&)".preg_quote($this->cont['SETLANG'],"/")."=.*?(?:&|$)/","$1",$_SERVER['argv'][0]);
+			}
 		}
-		
-		// query 削除
-		if (! empty($_SERVER['QUERY_STRING'])) {
-			$_SERVER['QUERY_STRING'] = preg_replace("/(?:^|&)(?:setskin|".preg_quote($this->cont['SETLANG'],"/").")=.*?(?:&|$)/","",$_SERVER['QUERY_STRING']);
-		}
-		if (! empty($_SERVER['argv'][0])) {
-			$_SERVER['argv'][0] = preg_replace("/(?:^|&)(?:setskin|".preg_quote($this->cont['SETLANG'],"/").")=.*?(?:&|$)/","",$_SERVER['argv'][0]);
-		}
+
 		// cookieを更新
 		$this->save_cookie();
 	}
