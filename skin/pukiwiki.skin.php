@@ -1,6 +1,6 @@
 <?php
 // PukiWiki - Yet another WikiWikiWeb clone.
-// $Id: pukiwiki.skin.php,v 1.4 2006/10/18 11:36:39 nao-pon Exp $
+// $Id: pukiwiki.skin.php,v 1.5 2006/10/19 13:10:58 nao-pon Exp $
 // Copyright (C)
 //   2002-2006 PukiWiki Developers Team
 //   2001-2002 Originally written by yu-ji
@@ -66,17 +66,20 @@ if (isset($pkwk_dtd)) {
 	$meta_content_type = pkwk_output_dtd();
 }
 */
+
 $favicon = ($image['favicon'])? "<link rel=\"SHORTCUT ICON\" href=\"{$image['favicon']}\" />" : "";
+$dirname = $this->root->mydirname;
+
 $this->root->html_header = <<<EOD
 $favicon
-<link rel="stylesheet" type="text/css" media="screen" href="{$this->cont['HOME_URL']}{$this->cont['SKIN_DIR']}pukiwiki.css.php?charset={$css_charset}" charset="{$css_charset}" />
-<link rel="stylesheet" type="text/css" media="print"  href="{$this->cont['HOME_URL']}{$this->cont['SKIN_DIR']}pukiwiki.css.php?charset={$css_charset}&amp;media=print" charset="{$css_charset}" />
+<link rel="stylesheet" type="text/css" media="screen" href="{$this->cont['HOME_URL']}{$this->cont['SKIN_DIR']}pukiwiki.css.php?charset={$css_charset}&amp;base={$dirname}" charset="{$css_charset}" />
+<link rel="stylesheet" type="text/css" media="print"  href="{$this->cont['HOME_URL']}{$this->cont['SKIN_DIR']}pukiwiki.css.php?charset={$css_charset}&amp;base={$dirname}&amp;media=print" charset="{$css_charset}" />
 <link rel="alternate" type="application/rss+xml" title="RSS" href="{$link['rss']}" />
 $head_tag
 EOD;
 ?>
 
-<div class="xpwiki">
+<div class="xpwiki_<?php echo $dirname ?>">
 <div id="header">
  <a href="<?php echo $link['top'] ?>"><img id="logo" src="<?php echo $this->cont['IMAGE_DIR'] . $image['logo'] ?>" width="80" height="80" alt="[PukiWiki]" title="[PukiWiki]" /></a>
 
