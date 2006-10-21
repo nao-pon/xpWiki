@@ -1,7 +1,7 @@
 <?php
 //
 // Created on 2006/09/29 by nao-pon http://hypweb.net/
-// $Id: xpwiki.php,v 1.6 2006/10/21 01:38:57 nao-pon Exp $
+// $Id: xpwiki.php,v 1.7 2006/10/21 12:42:46 nao-pon Exp $
 //
 
 class XpWiki {
@@ -148,9 +148,12 @@ class XpWiki {
 					}
 				} else {
 					//PukiWiki's skin
-					$this->cont['SKIN_DIR'] = "skin/" . $this->cont['SKIN_NAME'] . "/";
-					$skin = $this->cont['DATA_HOME'] . $this->cont['SKIN_DIR'] . 'pukiwiki.skin.php';
-					if (file_exists($skin)) { $this->cont['SKIN_FILE'] = $skin; }
+					$skindir = "skin/" . $this->cont['SKIN_NAME'] . "/";
+					$skin = $this->cont['DATA_HOME'] . $skindir . 'pukiwiki.skin.php';
+					if (file_exists($skin)) {
+						$this->cont['SKIN_DIR'] = $skindir;
+						$this->cont['SKIN_FILE'] = $skin;
+					}
 				}
 			}
 		}
@@ -188,7 +191,11 @@ class XpWiki {
 					
 				} else {
 					//PukiWiki's skin
-					$this->cont['SKIN_DIR'] = "skin/" . $this->cont['SKIN_NAME'] . "/";
+					$skindir = "skin/" . $this->cont['SKIN_NAME'] . "/";
+					$skin = $this->cont['DATA_HOME'] . $skindir . 'pukiwiki.skin.php';
+					if (file_exists($skin)) {
+						$this->cont['SKIN_DIR'] = $skindir;
+					}
 				}
 			}
 		}
