@@ -1,7 +1,7 @@
 <?php
 //
 // Created on 2006/10/11 by nao-pon http://hypweb.net/
-// $Id: xoops_wrapper.php,v 1.5 2006/10/15 14:11:55 nao-pon Exp $
+// $Id: xoops_wrapper.php,v 1.6 2006/10/21 01:38:57 nao-pon Exp $
 //
 class XpWikiXoopsWrapper extends XpWikiBackupFunc {
 	
@@ -17,7 +17,16 @@ class XpWikiXoopsWrapper extends XpWikiBackupFunc {
 		$this->root->module['version'] = $XoopsModule->getInfo('version');
 		
 	}
-	
+
+	function set_siteinfo () {
+		
+		$config_handler =& xoops_gethandler('config');
+		$xoopsConfig =& $config_handler->getConfigsByCat(XOOPS_CONF);
+		
+		$this->root->siteinfo['rooturl'] = XOOPS_URL."/";
+		$this->root->siteinfo['sitename'] = $xoopsConfig['sitename'];
+	}
+		
 	function set_userinfo () {
 		
 		global $xoopsUser;

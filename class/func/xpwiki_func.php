@@ -1,7 +1,7 @@
 <?php
 //
 // Created on 2006/10/02 by nao-pon http://hypweb.net/
-// $Id: xpwiki_func.php,v 1.9 2006/10/19 15:51:14 nao-pon Exp $
+// $Id: xpwiki_func.php,v 1.10 2006/10/21 01:38:57 nao-pon Exp $
 //
 class XpWikiFunc extends XpWikiXoopsWrapper {
 
@@ -18,6 +18,30 @@ class XpWikiFunc extends XpWikiXoopsWrapper {
 		$this->root  = & $xpwiki->root;
 		$this->cont = & $xpwiki->cont;
 		$this->pid = $xpwiki->pid;
+	}
+
+	function load_ini() {
+		$root = & $this->root;
+		$const = & $this->cont;
+		
+		/////////////////////////////////////////////////
+		// Time settings
+		
+		$const['LOCALZONE'] = date('Z');
+		$const['UTIME'] = time() - $const['LOCALZONE'];
+		$const['MUTIME'] = $this->getmicrotime();
+		
+		/////////////////////////////////////////////////
+		// Require INI_FILE
+		
+		$const['INI_FILE'] = $const['DATA_HOME'] . 'private/ini/pukiwiki.ini.php';
+		$die = '';
+		if (! file_exists($const['INI_FILE']) || ! is_readable($const['INI_FILE'])) {
+			$die .= 'File is not found. (INI_FILE)' . "\n";
+		} else {
+			require($const['INI_FILE']);
+		}
+		if ($die) $this->die_message(nl2br("\n\n" . $die));
 	}
 
 	function init() {

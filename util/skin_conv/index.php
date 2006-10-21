@@ -31,10 +31,10 @@ EOD;
 $func_init = "";
 
 $files = array();
-$indir = "$mydirpath/cache/in/";
-$outdir = "$mydirpath/cache/out/";
+$indir = "$mydirpath/private/cache/in/";
+$outdir = "$mydirpath/private/cache/out/";
 
-$cachedir = "$mydirpath/cache/";
+$cachedir = "$mydirpath/private/cache/";
 
 $isupload = 0;
 
@@ -65,7 +65,7 @@ EOD;
 	return;
 }
 
-$consts = file($cachedir."consts.txt");
+$consts = file($cachedir."consts.dat");
 $consts = array_map("trim", $consts);
 
 foreach($files as $input) {
@@ -171,9 +171,9 @@ foreach($files as $input) {
 	
 	$out = trim($out);
 
-	echo "<pre>";
-	echo htmlspecialchars($out);
-	echo "</pre>";
+	//echo "<pre>";
+	//echo htmlspecialchars($out);
+	//echo "</pre>";
 	
 	// 元ファイル削除
 	//unlink($org_file);
@@ -190,6 +190,11 @@ foreach($files as $input) {
 	} else {
 		// 元ファイル削除
 		@unlink($org_file);
+		
+		while( ob_get_level() ) {
+			ob_end_clean() ;
+		}
+		
 		header('Content-Disposition: attachment; filename="' . $input . '"');
 		header('Content-Length: ' . strlen($out));
 		header('Content-Type: plain/text');

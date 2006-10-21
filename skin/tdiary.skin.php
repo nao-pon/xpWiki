@@ -3,7 +3,7 @@
 $this->root->runmode = "standalone";
 
 // PukiWiki - Yet another WikiWikiWeb clone.
-// $Id: tdiary.skin.php,v 1.3 2006/10/18 11:36:39 nao-pon Exp $
+// $Id: tdiary.skin.php,v 1.4 2006/10/21 01:38:57 nao-pon Exp $
 // Copyright (C)
 //   2002-2006 PukiWiki Developers Team
 //   2001-2002 Originally written by yu-ji
@@ -104,7 +104,7 @@ case 'hatena_water':
 // tDiary theme: Select CSS color theme (Now testing:black only)
 
 if (isset($this->cont['TDIARY_COLOR_THEME'])) {
-	$css_theme = rawurlencode(TDIARY_COLOR_THEME);
+	$css_theme = rawurlencode($this->cont['TDIARY_COLOR_THEME']);
 } else {
 	$css_theme = '';
 
@@ -162,10 +162,10 @@ if (isset($this->cont['TDIARY_COLOR_THEME'])) {
 // tDiary theme: Page title design (which is fancy, date and text?)
 
 if (isset($this->cont['TDIARY_TITLE_DESIGN_DATE']) &&
-    (TDIARY_TITLE_DESIGN_DATE  == 0 ||
-     TDIARY_TITLE_DESIGN_DATE  == 1 ||
-     TDIARY_TITLE_DESIGN_DATE  == 2)) {
-	$title_design_date = TDIARY_TITLE_DESIGN_DATE;
+    ($this->cont['TDIARY_TITLE_DESIGN_DATE']  == 0 ||
+     $this->cont['TDIARY_TITLE_DESIGN_DATE']  == 1 ||
+     $this->cont['TDIARY_TITLE_DESIGN_DATE']  == 2)) {
+	$title_design_date = $this->cont['TDIARY_TITLE_DESIGN_DATE'];
 } else {
 	$title_design_date = 1; // Default: Select the date desin, or 'the same design'
 	switch($this->cont['TDIARY_THEME']){
@@ -235,7 +235,7 @@ if (isset($this->cont['TDIARY_TITLE_DESIGN_DATE']) &&
 
 // Default position
 if (isset($this->cont['TDIARY_SIDEBAR_POSITION'])) {
-	$sidebar = TDIARY_SIDEBAR_POSITION;
+	$sidebar = $this->cont['TDIARY_SIDEBAR_POSITION'];
 } else {
 	$sidebar = 'another'; // Default: Show as an another page below
 
@@ -581,7 +581,7 @@ $favicon = ($image['favicon'])? "<link rel=\"SHORTCUT ICON\" href=\"{$image['fav
 <?php if ($this->root->nofollow || ! $is_read)  { ?> <meta name="robots" content="NOINDEX,NOFOLLOW" /><?php } ?>
 <?php if ($this->cont['PKWK_ALLOW_JAVASCRIPT'] && isset($this->root->javascript)) { ?> <meta http-equiv="Content-Script-Type" content="text/javascript" /><?php } ?>
 
- <title><?php echo $title ?> - <?php echo $this->root->page_title ?></title>
+ <title><?php echo $title ?> - <?php echo $this->root->siteinfo['sitename'] ?></title>
 
  <?php echo $favicon ?>
  <link rel="stylesheet" type="text/css" media="all" href="<?php echo "{$this->cont['HOME_URL']}{$this->cont['TDIARY_DIR']}" ?>base.css" />
@@ -627,7 +627,9 @@ function _navigator(& $func, $key, $value = '', $javascript = ''){
 
 <?php if ($is_page) { ?>
   <?php if ($rw) { ?>
-	<?php _navigator($this, 'edit') ?>
+  	<?php if (!$is_freeze) { ?>
+		<?php _navigator($this, 'edit') ?>
+	<?php } ?>
 	<?php if ($is_read && $this->root->function_freeze) { ?>
 		<?php (! $is_freeze) ? _navigator($this, 'freeze') : _navigator($this, 'unfreeze') ?>
 	<?php } ?>
@@ -666,7 +668,7 @@ function _navigator(& $func, $key, $value = '', $javascript = ''){
 <div id="navigator"></div>
 <?php } // $this->cont['PKWK_SKIN_SHOW_NAVBAR'] ?>
 
-<h1><?php echo $this->root->page_title ?></h1>
+<h1><a href="<?php echo $this->root->siteinfo['rooturl'] ?>" title="Site Top"><?php echo $this->root->siteinfo['sitename'] ?></a> / <?php echo $this->root->page_title ?></h1>
 
 <div class="calendar">
 <?php if ($is_page && $this->cont['TDIARY_CALENDAR_DESIGN'] !== NULL) { ?>

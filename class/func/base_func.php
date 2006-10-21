@@ -1,7 +1,7 @@
 <?php
 //
 // Created on 2006/10/15 by nao-pon http://hypweb.net/
-// $Id: base_func.php,v 1.3 2006/10/15 14:11:55 nao-pon Exp $
+// $Id: base_func.php,v 1.4 2006/10/21 01:38:57 nao-pon Exp $
 //
 class XpWikiBaseFunc {
 	
@@ -17,6 +17,11 @@ class XpWikiBaseFunc {
 		$this->root->module['name'] = 'xpWiki';
 		$this->root->module['version'] = '0.1';
 		
+	}
+	
+	function set_siteinfo () {
+		$this->root->siteinfo['root_url'] = '';
+		$this->root->siteinfo['site_name'] = '';
 	}
 	
 	function set_userinfo () {

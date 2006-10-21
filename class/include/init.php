@@ -1,11 +1,9 @@
 <?php
 
 $root = & $this->root;
-$const = & $this->root->c;
+$const = & $this->cont;
 
-//print_r($this->xpwiki);exit;
 $const['S_VERSION'] = $root->module['version'];
-//$const['S_VERSION'] = '0.1';
 $const['S_COPYRIGHT'] = 
 	'<strong>xpWiki ' . $const['S_VERSION'] . '</strong>' .
 	' Copyright &copy; 2006-' .
@@ -31,24 +29,9 @@ $root->foot_explain = array();	// Footnotes
 $root->related      = array();	// Related pages
 $root->head_tags    = array();	// XHTML tags in <head></head>
 
-/////////////////////////////////////////////////
-// Time settings
-
-$const['LOCALZONE'] = date('Z');
-$const['UTIME'] = time() - $const['LOCALZONE'];
-$const['MUTIME'] = $this->getmicrotime();
-
-/////////////////////////////////////////////////
-// Require INI_FILE
-
-$const['INI_FILE'] = $const['DATA_HOME'] . 'private/ini/pukiwiki.ini.php';
-$die = '';
-if (! file_exists($const['INI_FILE']) || ! is_readable($const['INI_FILE'])) {
-	$die .= 'File is not found. (INI_FILE)' . "\n";
-} else {
-	require($const['INI_FILE']);
-}
-if ($die) $this->die_message(nl2br("\n\n" . $die));
+// UI_LANG - Content encoding for buttons, menus,  etc
+//$const['UI_LANG'] = $const['LANG']; // 'en' for Internationalized wikisite
+$const['UI_LANG'] = $this->get_accept_language();
 
 /////////////////////////////////////////////////
 // INI_FILE: LANG に基づくエンコーディング設定
@@ -261,9 +244,9 @@ if (!empty($const['page_show'])) {
 	// ページ名かInterWikiNameであるとみなす
 	$arg = '';
 	if (isset($_SERVER['QUERY_STRING']) && $_SERVER['QUERY_STRING']) {
-		$arg = & $_SERVER['QUERY_STRING'];
+		$arg = $_SERVER['QUERY_STRING'];
 	} else if (isset($_SERVER['argv']) && ! empty($_SERVER['argv'])) {
-		$arg = & $_SERVER['argv'][0];
+		$arg = $_SERVER['argv'][0];
 	}
 	if ($const['PKWK_QUERY_STRING_MAX'] && strlen($arg) > $const['PKWK_QUERY_STRING_MAX']) {
 		// Something nasty attack?
@@ -275,10 +258,11 @@ if (!empty($const['page_show'])) {
 	$arg = $this->input_filter($arg); // \0 除去
 	
 	// unset QUERY_STRINGs
-	foreach (array('QUERY_STRING', 'argv', 'argc') as $key) {
-	//	unset(${$key}, $_SERVER[$key], $HTTP_SERVER_VARS[$key]);
-		unset(${$key}, $_SERVER[$key]);
-	}
+	// Now use plugin or xoops. 
+	//foreach (array('QUERY_STRING', 'argv', 'argc') as $key) {
+	////	unset(${$key}, $_SERVER[$key], $HTTP_SERVER_VARS[$key]);
+	//	unset(${$key}, $_SERVER[$key]);
+	//}
 	// $_SERVER['REQUEST_URI'] is used at func.php NOW
 	//unset($REQUEST_URI, $HTTP_SERVER_VARS['REQUEST_URI']);
 	

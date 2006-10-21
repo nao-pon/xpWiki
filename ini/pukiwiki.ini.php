@@ -1,6 +1,6 @@
 <?php
 // PukiWiki - Yet another WikiWikiWeb clone
-// $Id: pukiwiki.ini.php,v 1.4 2006/10/15 14:15:06 nao-pon Exp $
+// $Id: pukiwiki.ini.php,v 1.5 2006/10/21 01:38:57 nao-pon Exp $
 // Copyright (C)
 //   2002-2006 PukiWiki Developers Team
 //   2001-2002 Originally written by yu-ji
@@ -61,9 +61,8 @@ $const['PKWKEXP_DISABLE_MULTILINE_PLUGIN_HACK'] = 1; // 1 = Disabled
 // LANG - Internal content encoding ('en', 'ja', or ...)
 $const['LANG'] = $this->get_lang('en');
 
-// UI_LANG - Content encoding for buttons, menus,  etc
-//$const['UI_LANG'] = $const['LANG']; // 'en' for Internationalized wikisite
-$const['UI_LANG'] = $this->get_accept_language();
+// GET QUERY's key of set lang.
+$const['SETLANG'] = "setlang"; 
 
 /////////////////////////////////////////////////
 // Directory settings I (ended with '/', permission '777')
@@ -89,6 +88,9 @@ $const['SKIN_DIR'] = 'skin/default/';
 // ./DATAHOME/SKIN_DIR from index.php, but
 // CSSs(*.css) and JavaScripts(*.js) are needed at
 // ./SKIN_DIR from index.php.
+
+// Enable Skin changer by GET REQUEST or Plugin? (0: off, 1: on)
+$const['SKIN_CHANGER'] = 1;
 
 // tDiary theme directory
 $const['TDIARY_DIR'] = 'skin/tdiary_theme/';
