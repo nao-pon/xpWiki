@@ -1,0 +1,86 @@
+<?php
+//
+// Created on 2006/10/20 by nao-pon http://hypweb.net/
+// $Id: skin_changer.inc.php,v 1.1 2006/10/21 01:38:57 nao-pon Exp $
+//
+class xpwiki_plugin_skin_changer extends xpwiki_plugin {
+	function plugin_skin_changer_init () {
+
+	}
+
+	function plugin_skin_changer_convert() {
+		$skins = array();
+		// SKIN Dirctory
+		$base = $this->cont['DATA_HOME'] . dirname($this->cont['SKIN_DIR']);
+		if ($dir = opendir($base)) {
+			$nomatch = array(".", "..", "js", "default");
+			$nomatch[] = preg_replace("#.*/([^/]+)/$#", "$1",$this->cont['TDIARY_DIR']);
+			while (false !== ($file = readdir($dir))) {
+				if (is_dir($base."/".$file)
+				 && !in_array($file, $nomatch)
+				 && file_exists("{$base}/{$file}/pukiwiki.skin.php")) {
+					$skins[$file] = $file;
+				}
+			}
+		}
+
+		// tDiary Dirctory
+		$base = $this->cont['DATA_HOME'] . $this->cont['TDIARY_DIR'];
+		if ($dir = opendir($base)) {
+			$nomatch = array(".", "..");
+			while (false !== ($file = readdir($dir))) {
+				if (is_dir($base."/".$file)
+				 && !in_array($file, $nomatch)
+				 && file_exists("{$base}/{$file}/{$file}.css")) {
+					$skins["tDiary-".$file] = "tD-".$file;
+				}
+			}
+		}
+		
+		$ret = '<p><ul class="list1" style="padding-left:'.$this->root->_ul_margin.'px;margin-left:'.$this->root->_ul_margin.'px;">'."\n";
+		
+		$now_query = @ $_SERVER['QUERY_STRING'];
+		$now_query = preg_replace("/&+$/", "", $now_query);
+		
+		$link = (empty($now_query))? "setskin=" : "{$now_query}&setskin="; 
+		foreach ($skins as $name=>$skin) {
+			if ($skin == $this->root->cookie['skin']) {
+				$ret .= '<li style="font-weight:bold;">'.htmlspecialchars($name).'</li>'."\n";
+			} else {
+				$ret .= '<li><a href="?'.htmlspecialchars($link.$skin).'" title="Change skin">'.htmlspecialchars($name).'</a></li>'."\n";
+			}
+		}
+		$ret .="</ul></p>\n";
+		return $ret;
+	}
+	
+	function plugin_skin_changer_inline() {
+		// 引数の数をチェック
+		$argv = func_get_args();
+		$text = array_pop($argv);
+		$name = @$argv[0];
+		
+		if (!$text) {
+			$text = htmlspecialchars($name);
+		}
+		
+		if (!$name && !$text) { return false; }
+	
+		if($name && !preg_match('/^[\w-]+$/', $name)) {
+			return false;
+		}
+		
+		$now_query = @ $_SERVER['QUERY_STRING'];
+		$now_query = preg_replace("/&+$/", "", $now_query);
+		
+		$link = (empty($now_query))? "setskin={$name}" : "{$now_query}&setskin={$name}"; 
+		
+		if ($name == $this->root->cookie['skin']) {
+			return '<span style="font-weight:bold;">'.$text.'</span>';
+		} else {
+			return '<a href="?'.str_replace("&","&amp;",$link).'" title="Change skin">'.$text.'</a>';
+		}
+	}
+
+}
+?>

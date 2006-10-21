@@ -1,7 +1,7 @@
 <?php
 //
 // Created on 2006/09/29 by nao-pon http://hypweb.net/
-// $Id: xpwiki.php,v 1.5 2006/10/19 14:14:42 nao-pon Exp $
+// $Id: xpwiki.php,v 1.6 2006/10/21 01:38:57 nao-pon Exp $
 //
 
 class XpWiki {
@@ -38,19 +38,25 @@ class XpWiki {
 		$this->cont['DATA_HOME'] = $this->root->mydirpath."/";
 		$this->cont['HOME_URL'] = $this->cont['ROOT_URL']."modules/".$mydirname."/";
 		
-		// GET's query key of set lang.
-		$this->cont['SETLANG'] = "setlang"; 
-		
-		// アクセスユーザーの情報読み込み
-		$this->func->set_userinfo();
-		
-		// cookie 用ユーザーコード取得 & cookie読み書き 
-		$this->func->load_usercookie();
 	}
 
 	function init($page = "") {
 
 		if ($page) {$this->cont['page_show'] = $page;}
+		
+		// サイト情報読み込み
+		$this->func->set_siteinfo();
+		
+		// ini ファイル読み込み
+		$this->func->load_ini();
+
+		// アクセスユーザーの情報読み込み
+		$this->func->set_userinfo();
+		
+		// cookie 用ユーザーコード取得 & cookie読み書き 
+		$this->func->load_usercookie();
+
+		// 各パラメーターを初期化
 		$this->func->init();
 	}
 	
@@ -120,7 +126,7 @@ class XpWiki {
 			}
 
 			// Output
-			$this->title     = $title;
+			$this->title     = $title . ' - ' . $this->root->page_title;
 			$this->page_name = $page;
 			$this->body      = $body;
 		}
@@ -128,6 +134,28 @@ class XpWiki {
 	
 	function catbody () {
 		
+		// SKIN select from Cookie or Plugin.
+		if ($this->cont['SKIN_CHANGER']) {
+			if ($this->root->cookie['skin']) {$this->cont['SKIN_NAME'] = $this->root->cookie['skin']; }
+			if (isset($this->cont['SKIN_NAME']) && preg_match('/^[\w-]+$/', $this->cont['SKIN_NAME'])) {
+				if (substr($this->cont['SKIN_NAME'],0,3) === "tD-") {
+					//tDiary's theme
+					$theme_name = substr($this->cont['SKIN_NAME'],3);
+					$theme_css = $this->cont['DATA_HOME'] . $this->cont['TDIARY_DIR'] . $theme_name . '/' . $theme_name . '.css';
+					if (file_exists($theme_css)) {
+						$this->cont['SKIN_FILE'] = $this->cont['DATA_HOME'] . $this->cont['TDIARY_DIR'] . 'tdiary.skin.php';
+						$this->cont['TDIARY_THEME'] =  $theme_name;
+					}
+				} else {
+					//PukiWiki's skin
+					$this->cont['SKIN_DIR'] = "skin/" . $this->cont['SKIN_NAME'] . "/";
+					$skin = $this->cont['DATA_HOME'] . $this->cont['SKIN_DIR'] . 'pukiwiki.skin.php';
+					if (file_exists($skin)) { $this->cont['SKIN_FILE'] = $skin; }
+				}
+			}
+		}
+		
+		// catbody
 		ob_start();
 		$this->func->catbody($this->title, $this->page_name, $this->body);
 		$this->html = ob_get_contents();
@@ -150,18 +178,32 @@ class XpWiki {
 		
 		// 実行
 		$this->execute();
+
+		// SKIN select from Cookie or Plugin.
+		if ($this->cont['SKIN_CHANGER']) {
+			if ($this->root->cookie['skin']) {$this->cont['SKIN_NAME'] = $this->root->cookie['skin']; }
+			if (isset($this->cont['SKIN_NAME']) && preg_match('/^[\w-]+$/', $this->cont['SKIN_NAME'])) {
+				if (substr($this->cont['SKIN_NAME'],0,3) === "tD-") {
+					//tDiary's theme
+					
+				} else {
+					//PukiWiki's skin
+					$this->cont['SKIN_DIR'] = "skin/" . $this->cont['SKIN_NAME'] . "/";
+				}
+			}
+		}
 		
 		// 出力
-		$class = "xpwiki_".$this->root->mydirname;
+		$base = "b_".$this->root->mydirname;
 		$block = <<< EOD
-<link rel="stylesheet" type="text/css" media="screen" href="{$this->cont['HOME_URL']}{$this->cont['SKIN_DIR']}pukiwiki.css.php?charset=Shift_JIS&amp;base={$this->root->mydirname}" charset="Shift_JIS" />
+<link rel="stylesheet" type="text/css" media="screen" href="{$this->cont['HOME_URL']}{$this->cont['SKIN_DIR']}block.css.php?charset=Shift_JIS&amp;base={$base}" charset="Shift_JIS" />
 <script type="text/javascript">
 <!--
 var wikihelper_root_url = "{$this->cont['HOME_URL']}";
 //-->
 </script>
 <script type="text/javascript" src="{$this->cont['HOME_URL']}skin/js/?src=default.{$this->cont['UI_LANG']}"></script>
-<div class="{$class}" style="width:{$width};overflow:hidden;">
+<div class="xpwiki_{$base}" style="width:{$width};overflow:hidden;">
 {$this->body}
 </div>
 EOD;
