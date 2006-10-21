@@ -1,7 +1,7 @@
 <?php
 //
 // Created on 2006/10/02 by nao-pon http://hypweb.net/
-// $Id: xpwiki_func.php,v 1.10 2006/10/21 01:38:57 nao-pon Exp $
+// $Id: xpwiki_func.php,v 1.11 2006/10/21 12:37:06 nao-pon Exp $
 //
 class XpWikiFunc extends XpWikiXoopsWrapper {
 
@@ -325,6 +325,8 @@ class XpWikiFunc extends XpWikiXoopsWrapper {
 	
 	function load_usercookie () {
 		
+		static $sendcookie = false; 
+		
 		// cookieの読み込み
 		$this->load_cookie();
 		
@@ -357,7 +359,8 @@ class XpWikiFunc extends XpWikiXoopsWrapper {
 		}
 
 		// cookieを更新
-		$this->save_cookie();
+		if (!$sendcookie) {	$this->save_cookie(); }
+		$sendcookie = TRUE;
 	}
 	
 	function save_name2cookie ($name) {
