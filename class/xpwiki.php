@@ -1,7 +1,7 @@
 <?php
 //
 // Created on 2006/09/29 by nao-pon http://hypweb.net/
-// $Id: xpwiki.php,v 1.7 2006/10/21 12:42:46 nao-pon Exp $
+// $Id: xpwiki.php,v 1.8 2006/10/22 13:23:21 nao-pon Exp $
 //
 
 class XpWiki {
@@ -178,6 +178,9 @@ class XpWiki {
 		
 		// 初期化
 		$this->init($page);
+		
+		// for menu plugin etc..
+		$this->root->runmode = "xoops";
 		
 		// 実行
 		$this->execute();
