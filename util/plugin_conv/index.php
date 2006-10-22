@@ -31,10 +31,10 @@ EOD;
 $func_init = "";
 
 $files = array();
-$indir = "$mydirpath/cache/in/";
-$outdir = "$mydirpath/cache/out/";
+$indir = "$mydirpath/private/cache/in/";
+$outdir = "$mydirpath/private/cache/out/";
 
-$cachedir = "$mydirpath/cache/";
+$cachedir = "$mydirpath/private/cache/";
 $isupload = 0;
 
 if (!empty($_FILES['userfile']['name'])) {

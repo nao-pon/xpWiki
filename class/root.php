@@ -1,7 +1,7 @@
 <?php
 //
 // Created on 2006/09/29 by nao-pon http://hypweb.net/
-// $Id: root.php,v 1.1 2006/10/13 13:17:49 nao-pon Exp $
+// $Id: root.php,v 1.2 2006/10/22 13:23:21 nao-pon Exp $
 //
 class XpWikiRoot {
 
@@ -12,6 +12,7 @@ class XpWikiRoot {
 	// xpwiki
 	var $mydirpath;
 	var $pgid;
+	var $runmode;
 	
 	// Global Vars
 	var $BracketName;
