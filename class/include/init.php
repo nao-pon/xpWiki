@@ -6,10 +6,10 @@ $const = & $this->cont;
 $const['S_VERSION'] = $root->module['version'];
 $const['S_COPYRIGHT'] = 
 	'<strong>xpWiki ' . $const['S_VERSION'] . '</strong>' .
-	' Copyright &copy; 2006-' .
-	' <a href="http://hypweb.net/">nao-pon</a>.' .
-	' License is <a href="http://www.gnu.org/licenses/gpl.html">GPL</a>.<br />' .
-	' Based on "PukiWiki" 1.4.8_alpha by <a href="http://pukiwiki.sourceforge.jp/">PukiWiki Developers Team</a>';
+	' Copyright ' .
+	$root->module['credits'] .
+	' License is GPL.<br />' .
+	' Based on "PukiWiki" 1.4.8_alpha';
 
 /////////////////////////////////////////////////
 // Init server variables
@@ -28,6 +28,7 @@ foreach (array('SCRIPT_NAME', 'SERVER_ADMIN', 'SERVER_NAME',
 $root->foot_explain = array();	// Footnotes
 $root->related      = array();	// Related pages
 $root->head_tags    = array();	// XHTML tags in <head></head>
+$root->head_precsses= array();	// XHTML CSS tags in <head></head> before skin's CSS.
 
 // UI_LANG - Content encoding for buttons, menus,  etc
 //$const['UI_LANG'] = $const['LANG']; // 'en' for Internationalized wikisite
