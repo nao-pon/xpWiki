@@ -1,13 +1,11 @@
 <?php
 //
 // Created on 2006/09/29 by nao-pon http://hypweb.net/
-// $Id: root.php,v 1.2 2006/10/22 13:23:21 nao-pon Exp $
+// $Id: root.php,v 1.3 2006/10/23 04:17:49 nao-pon Exp $
 //
 class XpWikiRoot {
 
-	var $v = array(); //variable
 	var $c = array(); //constant
-	var $f; //function;
 	
 	// xpwiki
 	var $mydirpath;
@@ -134,7 +132,7 @@ class XpWikiRoot {
 	function xpwiki_root() {
 
 	}
-	
+/*
 	function get_instance ($ver) {
 		static $instance = array();
 		
@@ -146,5 +144,6 @@ class XpWikiRoot {
 		
 		return $instance[$ver];
 	}
+*/
 }
 ?>
