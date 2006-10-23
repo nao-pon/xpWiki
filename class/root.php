@@ -1,7 +1,7 @@
 <?php
 //
 // Created on 2006/09/29 by nao-pon http://hypweb.net/
-// $Id: root.php,v 1.3 2006/10/23 04:17:49 nao-pon Exp $
+// $Id: root.php,v 1.4 2006/10/23 04:21:57 nao-pon Exp $
 //
 class XpWikiRoot {
 
@@ -132,18 +132,5 @@ class XpWikiRoot {
 	function xpwiki_root() {
 
 	}
-/*
-	function get_instance ($ver) {
-		static $instance = array();
-		
-		if (!isset($instance[$ver])) {
-			$instance[$ver] = new xpwiki_root;
-			$instance[$ver]->pid = $ver; 
-			$instance[$ver]->func = new xpwiki_func($instance[$ver]);
-		}
-		
-		return $instance[$ver];
-	}
-*/
 }
 ?>
