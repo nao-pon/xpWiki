@@ -3,7 +3,7 @@
 $this->root->runmode = "standalone";
 
 // PukiWiki - Yet another WikiWikiWeb clone.
-// $Id: pukiwiki.skin.php,v 1.1 2006/10/21 01:38:16 nao-pon Exp $
+// $Id: pukiwiki.skin.php,v 1.2 2006/10/23 08:08:50 nao-pon Exp $
 // Copyright (C)
 //   2002-2006 PukiWiki Developers Team
 //   2001-2002 Originally written by yu-ji
@@ -55,6 +55,15 @@ switch($this->cont['UI_LANG']){
 
 $favicon = ($image['favicon'])? "<link rel=\"SHORTCUT ICON\" href=\"{$image['favicon']}\" />" : "";
 
+// menu bar
+$menu_body = "";
+if ($this->arg_check('read') && $this->is_page($this->root->menubar) &&
+		$this->exist_plugin_convert('menu')) {
+	$menu_body = $this->do_plugin_convert('menu');
+}
+$head_tag .= ! empty($this->root->head_tags) ? "\n". join("\n", $this->root->head_tags) ."\n" : '';
+$head_precss .= ! empty($this->root->head_precsses) ? "\n". join("\n", $this->root->head_precsses) ."\n" : '';
+
 // ------------------------------------------------------------
 // Output
 
@@ -78,6 +87,7 @@ if (isset($this->root->pkwk_dtd)) {
 
  <title><?php echo $title ?> - <?php echo $this->root->siteinfo['sitename'] ?></title>
 
+<?php echo $head_precss?>
 <?php echo <<<EOD
  $favicon
  <link rel="stylesheet" type="text/css" media="screen" href="{$this->cont['HOME_URL']}{$this->cont['SKIN_DIR']}pukiwiki.css.php?charset={$css_charset}" charset="{$css_charset}" />
@@ -171,11 +181,11 @@ function _navigator(&$this, $key, $value = '', $javascript = ''){
 
 <?php echo $this->root->hr?>
 
-<?php if ($this->arg_check('read') && $this->exist_plugin_convert('menu')) {?>
+<?php if ($menu_body) {?>
 <table border="0" style="width:100%">
  <tr>
   <td class="menubar">
-   <div id="menubar"><?php echo $this->do_plugin_convert('menu')?></div>
+   <div id="menubar"><?php echo $menu_body?></div>
   </td>
   <td valign="top">
    <div id="body"><?php echo $body?></div>
