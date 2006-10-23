@@ -2,7 +2,7 @@
 class xpwiki_plugin_xoopsblock extends xpwiki_plugin {
 	
 	function plugin_xoopsblock_init() {
-	// $Id: xoopsblock.inc.php,v 1.1 2006/10/22 13:23:21 nao-pon Exp $
+	// $Id: xoopsblock.inc.php,v 1.2 2006/10/23 08:11:41 nao-pon Exp $
 	
 	/*
 	 * countdown.inc.php
@@ -149,15 +149,16 @@ class xpwiki_plugin_xoopsblock extends xpwiki_plugin {
 			unset($myblock);
 		}
 		
-		$css = "";
 		if (!$css_show) {
-			$css = "<link rel=\"stylesheet\" type=\"text/css\" media=\"all\" href=\"". XOOPS_URL ."/xoops.css\" />\n";
 			$css_show = true;
+			$this->root->head_precsses[] = "<link rel=\"stylesheet\" type=\"text/css\" media=\"all\" href=\"". XOOPS_URL ."/xoops.css\" />";
+			//global $xoopsConfig;
+			//$this->root->head_precsses[] = "<link rel=\"stylesheet\" type=\"text/css\" media=\"all\" href=\"". xoops_getcss($xoopsConfig['theme_set']) ."\" />\n";
 		}
 		
 		if ($tgt == "?") $ret = "<ul>$ret</ul>";
 		unset($xoopsblock,$xoopsgroup);
-		return "{$css}<div{$style}>{$ret}</div>{$clear}";
+		return "<div{$style}>{$ret}</div>{$clear}";
 	}
 	
 	function plugin_xoopsblock_getByType($type=""){
