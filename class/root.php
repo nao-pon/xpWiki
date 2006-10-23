@@ -1,7 +1,7 @@
 <?php
 //
 // Created on 2006/09/29 by nao-pon http://hypweb.net/
-// $Id: root.php,v 1.4 2006/10/23 04:21:57 nao-pon Exp $
+// $Id: root.php,v 1.5 2006/10/23 08:11:41 nao-pon Exp $
 //
 class XpWikiRoot {
 
@@ -69,6 +69,7 @@ class XpWikiRoot {
 	var $foot_explain;
 	var $function_freeze;
 	var $head_tags;
+	var $head_precsses;
 	var $help_page;
 	var $hr;
 	var $javascript;
