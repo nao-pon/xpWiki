@@ -2,7 +2,7 @@
 class xpwiki_plugin_xoopsblock extends xpwiki_plugin {
 	
 	function plugin_xoopsblock_init() {
-	// $Id: xoopsblock.inc.php,v 1.2 2006/10/23 08:11:41 nao-pon Exp $
+	// $Id: xoopsblock.inc.php,v 1.3 2006/10/24 23:55:07 nao-pon Exp $
 	
 	/*
 	 * countdown.inc.php
@@ -12,13 +12,15 @@ class xpwiki_plugin_xoopsblock extends xpwiki_plugin {
 	 *
 	 * XOOPSのブロックを表示するプラグイン
 	 */
-	
-		include_once(XOOPS_ROOT_PATH."/class/xoopsmodule.php");
-		include_once(XOOPS_ROOT_PATH."/class/xoopsblock.php");
-		
+		if ($this->root->module['platform'] === "xoops") {
+			include_once(XOOPS_ROOT_PATH."/class/xoopsmodule.php");
+			include_once(XOOPS_ROOT_PATH."/class/xoopsblock.php");
+		}
 	}
 	
 	function plugin_xoopsblock_convert() {
+		
+		if ($this->root->module['platform'] !== "xoops") { return ''; }
 		
 		static $css_show = FALSE;
 		
@@ -30,7 +32,7 @@ class xpwiki_plugin_xoopsblock extends xpwiki_plugin {
 			$tgt = "?";
 		} else { 
 			foreach(explode(",", $tgt) as $_bid) {
-				if (preg_match("/^\d+$/",$_bid)) {
+				if (preg_match("/^\d+$/",$_bid) && $_bid > 0) {
 					$tgt_bids[] = $_bid;
 				}					
 			}
@@ -88,61 +90,67 @@ class xpwiki_plugin_xoopsblock extends xpwiki_plugin {
 			$xoopsTpl = new XoopsTpl();
 
 			foreach ($tgt_bids as $bid) {
-				$myblock =& new XoopsBlock($bid);
-				$bcachetime = $myblock->getVar('bcachetime');
-				// Only a guest enable cache. by nao-pon
-				//if (empty($bcachetime)) {
-				if ($bcachetime % 10 == 1)
-				{
-					$bcachetime_guest = TRUE;
-					$bcachetime = $bcachetime - 1;
-				}
-				else
-				{
-					$bcachetime_guest = FALSE;
-				}
-				if (empty($bcachetime) || (is_object($xoopsUser) && $bcachetime_guest)) {
-				//if (empty($bcachetime)) {
-					$xoopsTpl->xoops_setCaching(0);
-				} else {
-					$xoopsTpl->xoops_setCaching(2);
-					$xoopsTpl->xoops_setCacheTime($bcachetime);
-				}
-				$btpl = $myblock->getVar('template');
-				if ($btpl != '') {
-					if (empty($bcachetime) || !$xoopsTpl->is_cached('db:'.$btpl, 'blk_'.$myblock->getVar('bid'))) {
-						//$xoopsLogger->addBlock($myblock->getVar('name'));
-						$bresult = $myblock->buildBlock();
-						if (!$bresult) {
-							continue;
-						}
-						$xoopsTpl->assign_by_ref('block', $bresult);
-						$bcontent = $xoopsTpl->fetch('db:'.$btpl, 'blk_'.$myblock->getVar('bid'));
-						$xoopsTpl->clear_assign('block');
-					} else {
-					   //$xoopsLogger->addBlock($myblock->getVar('name'), true, $bcachetime);
-						$bcontent = $xoopsTpl->fetch('db:'.$btpl, 'blk_'.$myblock->getVar('bid'));
+				$myblock = new XoopsBlock($bid);
+				$_bid = $myblock->getVar('bid');
+				if (! empty($_bid)) {
+					$bcachetime = $myblock->getVar('bcachetime');
+					// Only a guest enable cache. by nao-pon
+					//if (empty($bcachetime)) {
+					if ($bcachetime % 10 == 1)
+					{
+						$bcachetime_guest = TRUE;
+						$bcachetime = $bcachetime - 1;
 					}
-				} else {
-					//$bid = $myblock->getVar('bid');
-					if (empty($bcachetime) || !$xoopsTpl->is_cached('db:system_dummy.html', 'blk_'.$bid)) {
-						//$xoopsLogger->addBlock($myblock->getVar('name'));
-						$bresult = $myblock->buildBlock();
-						if (!$bresult) {
-							continue;
-						}
-						$xoopsTpl->assign_by_ref('dummy_content', $bresult['content']);
-						$bcontent = $xoopsTpl->fetch('db:system_dummy.html', 'blk_'.$bid);
-						$xoopsTpl->clear_assign('block');
-					} else {
-						//$xoopsLogger->addBlock($myblock->getVar('name'), true, $bcachetime);
-						$bcontent = $xoopsTpl->fetch('db:system_dummy.html', 'blk_'.$bid);
+					else
+					{
+						$bcachetime_guest = FALSE;
 					}
+					if (empty($bcachetime) || (is_object($xoopsUser) && $bcachetime_guest)) {
+					//if (empty($bcachetime)) {
+						$xoopsTpl->xoops_setCaching(0);
+					} else {
+						$xoopsTpl->xoops_setCaching(2);
+						$xoopsTpl->xoops_setCacheTime($bcachetime);
+					}
+					$btpl = $myblock->getVar('template');
+					if ($btpl != '') {
+						if (empty($bcachetime) || !$xoopsTpl->is_cached('db:'.$btpl, 'blk_'.$myblock->getVar('bid'))) {
+							//$xoopsLogger->addBlock($myblock->getVar('name'));
+							$bresult = $myblock->buildBlock();
+							if (!$bresult) {
+								continue;
+							}
+							$xoopsTpl->assign_by_ref('block', $bresult);
+							$bcontent = $xoopsTpl->fetch('db:'.$btpl, 'blk_'.$myblock->getVar('bid'));
+							$xoopsTpl->clear_assign('block');
+						} else {
+						   //$xoopsLogger->addBlock($myblock->getVar('name'), true, $bcachetime);
+							$bcontent = $xoopsTpl->fetch('db:'.$btpl, 'blk_'.$myblock->getVar('bid'));
+						}
+					} else {
+						//$bid = $myblock->getVar('bid');
+						if (empty($bcachetime) || !$xoopsTpl->is_cached('db:system_dummy.html', 'blk_'.$bid)) {
+							//$xoopsLogger->addBlock($myblock->getVar('name'));
+							$bresult = $myblock->buildBlock();
+							if (!$bresult) {
+								continue;
+							}
+							$xoopsTpl->assign_by_ref('dummy_content', $bresult['content']);
+							$bcontent = $xoopsTpl->fetch('db:system_dummy.html', 'blk_'.$bid);
+							$xoopsTpl->clear_assign('block');
+						} else {
+							//$xoopsLogger->addBlock($myblock->getVar('name'), true, $bcachetime);
+							$bcontent = $xoopsTpl->fetch('db:system_dummy.html', 'blk_'.$bid);
+						}
+					}
+					$btitle = $myblock->getVar('title');
+				} else {
+					$btitle = "Block($bid)";
+					$bcontent = "Block($bid) is not found.";
 				}
-
-
+					
 				if ($bcontent) {
-					$ret .= "<h5>".$myblock->getVar('title')."</h5>\n";
+					$ret .= "<h5>".$btitle."</h5>\n";
 					$ret .= $bcontent;
 				}
 			}
