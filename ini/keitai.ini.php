@@ -1,6 +1,6 @@
 <?php
 // PukiWiki - Yet another WikiWikiWeb clone.
-// $Id: keitai.ini.php,v 1.1 2006/10/13 13:17:49 nao-pon Exp $
+// $Id: keitai.ini.php,v 1.2 2006/10/24 00:11:03 nao-pon Exp $
 // Copyright (C)
 //   2002-2005 PukiWiki Developers Team
 //   2001-2002 Originally written by yu-ji
@@ -116,9 +116,9 @@ $root->cols = 22; $root->rows = 5;	// i_mode
 /////////////////////////////////////////////////
 // ブラウザに合わせた調整
 
-$root->ua_name  = $root->user_agent['name'];
-$root->ua_vers  = $root->user_agent['vers'];
-$root->ua_agent = $root->user_agent['agent'];
+$root->ua_name  = $user_agent['name'];
+$root->ua_vers  = $user_agent['vers'];
+$root->ua_agent = $user_agent['agent'];
 $root->matches  = array();
 
 // Browser-name only
@@ -146,7 +146,7 @@ switch ($root->ua_name) {
 	// http://www.dp.j-phone.com/dp/tool_dl/web/useragent.php
 	case 'J-PHONE':
 		$matches = array("");
-		preg_match('/^([0-9]+)\./', $root->user_agent['vers'], $matches);
+		preg_match('/^([0-9]+)\./', $user_agent['vers'], $matches);
 		switch($matches[1]){
 		case '3': $root->max_size =   6; break; // C type: lt   6000bytes
 		case '4': $root->max_size =  12; break; // P type: lt  12Kbytes
