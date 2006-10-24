@@ -107,23 +107,23 @@ if (isset($root->script)) {
 // INI_FILE: $agents:  UserAgent¤Î¼±ÊÌ
 
 $root->ua = 'HTTP_USER_AGENT';
-$root->user_agent = $matches = array();
+$user_agent = $matches = array();
 
-$root->user_agent['agent'] = isset($_SERVER['HTTP_USER_AGENT']) ? $_SERVER['HTTP_USER_AGENT'] : '';
+$user_agent['agent'] = isset($_SERVER['HTTP_USER_AGENT']) ? $_SERVER['HTTP_USER_AGENT'] : '';
 //unset(${$ua}, $_SERVER[$ua], $HTTP_SERVER_VARS[$ua], $ua);	// safety
 
 foreach ($root->agents as $agent) {
-	if (preg_match($agent['pattern'], $root->user_agent['agent'], $matches)) {
-		$root->user_agent['profile'] = isset($agent['profile']) ? $agent['profile'] : '';
-		$root->user_agent['name']    = isset($matches[1]) ? $matches[1] : '';	// device or browser name
-		$root->user_agent['vers']    = isset($matches[2]) ? $matches[2] : ''; // 's version
+	if (preg_match($agent['pattern'], $user_agent['agent'], $matches)) {
+		$user_agent['profile'] = isset($agent['profile']) ? $agent['profile'] : '';
+		$user_agent['name']    = isset($matches[1]) ? $matches[1] : '';	// device or browser name
+		$user_agent['vers']    = isset($matches[2]) ? $matches[2] : ''; // 's version
 		break;
 	}
 }
 unset($root->agents);
 
 // Profile-related init and setting
-$const['UA_PROFILE'] = isset($root->user_agent['profile']) ? $root->user_agent['profile'] : '';
+$const['UA_PROFILE'] = isset($user_agent['profile']) ? $user_agent['profile'] : '';
 
 $const['UA_INI_FILE'] = $const['DATA_HOME'] .'private/ini/'. $const['UA_PROFILE'] . '.ini.php';
 if (! file_exists($const['UA_INI_FILE']) || ! is_readable($const['UA_INI_FILE'])) {
