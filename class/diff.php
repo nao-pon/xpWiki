@@ -1,7 +1,7 @@
 <?php
 //----- Start diff.php -----//
 // PukiWiki - Yet another WikiWikiWeb clone.
-// $Id: diff.php,v 1.1 2006/10/13 13:17:49 nao-pon Exp $
+// $Id: diff.php,v 1.2 2006/10/24 23:55:49 nao-pon Exp $
 // Copyright (C)
 //   2003-2005 PukiWiki Developers Team
 //   2001-2002 Originally written by yu-ji
@@ -18,11 +18,11 @@
 // <A HREF="http://www.cs.arizona.edu/people/gene/PAPERS/np_diff.ps">
 // "An O(NP) Sequence Comparison Algorithm,"</A>
 // Information Processing Letters 35, 6 (1990), 317-323.
-class line_diff
+class XpWikiline_diff
 {
 	var $arr1, $arr2, $m, $n, $pos, $key, $plus, $minus, $equal, $reverse;
 
-	function line_diff($plus = '+', $minus = '-', $equal = ' ')
+	function XpWikiline_diff($plus = '+', $minus = '-', $equal = ' ')
 	{
 		$this->plus  = $plus;
 		$this->minus = $minus;
@@ -47,10 +47,10 @@ class line_diff
 		$str1 = str_replace("\r", '', $str1);
 		$str2 = str_replace("\r", '', $str2);
 		foreach (explode("\n", $str1) as $line) {
-			$this->arr1[] = new DiffLine($line);
+			$this->arr1[] = new XpWikiDiffLine($line);
 		}
 		foreach (explode("\n", $str2) as $line) {
-			$this->arr2[] = new DiffLine($line);
+			$this->arr2[] = new XpWikiDiffLine($line);
 		}
 	}
 
@@ -77,9 +77,9 @@ class line_diff
 		}
 
 		// Sentinel
-		array_unshift($this->arr1, new DiffLine(''));
+		array_unshift($this->arr1, new XpWikiDiffLine(''));
 		$this->m++;
-		array_unshift($this->arr2, new DiffLine(''));
+		array_unshift($this->arr2, new XpWikiDiffLine(''));
 		$this->n++;
 
 		$this->reverse = ($this->n < $this->m);
@@ -172,12 +172,12 @@ class line_diff
 	}
 }
 
-class DiffLine
+class XpWikiDiffLine
 {
 	var $text;
 	var $status;
 
-	function DiffLine($text)
+	function XpWikiDiffLine($text)
 	{
 		$this->text   = $text . "\n";
 		$this->status = array();
