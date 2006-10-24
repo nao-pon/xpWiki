@@ -1,6 +1,6 @@
 <?php
 // PukiWiki - Yet another WikiWikiWeb clone
-// $Id: pukiwiki.ini.php,v 1.5 2006/10/21 01:38:57 nao-pon Exp $
+// $Id: pukiwiki.ini.php,v 1.6 2006/10/24 00:16:45 nao-pon Exp $
 // Copyright (C)
 //   2002-2006 PukiWiki Developers Team
 //   2001-2002 Originally written by yu-ji
@@ -384,7 +384,7 @@ $root->notify_to   = 'to@example.com';	// To:
 $root->notify_from = 'from@example.com';	// From:
 
 // Subject: ($root->page = Page name wll be replaced)
-$root->notify_subject = '[PukiWiki] $root->page';
+$root->notify_subject = '['.$this->root->module['name'].'] $page';
 
 // Mail header
 // NOTE: Multiple items must be divided by "\r\n", not "\n".
