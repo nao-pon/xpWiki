@@ -1,7 +1,7 @@
 <?php
 //
 // Created on 2006/10/02 by nao-pon http://hypweb.net/
-// $Id: pukiwiki_func.php,v 1.10 2006/10/23 08:11:41 nao-pon Exp $
+// $Id: pukiwiki_func.php,v 1.11 2006/10/24 23:55:49 nao-pon Exp $
 //
 class XpWikiPukiWikiFunc extends XpWikiBaseFunc {
 
@@ -803,7 +803,7 @@ class XpWikiPukiWikiFunc extends XpWikiBaseFunc {
 
 //----- Start convert_html.php -----//
 	// PukiWiki - Yet another WikiWikiWeb clone
-	// $Id: pukiwiki_func.php,v 1.10 2006/10/23 08:11:41 nao-pon Exp $
+	// $Id: pukiwiki_func.php,v 1.11 2006/10/24 23:55:49 nao-pon Exp $
 	// Copyright (C)
 	//   2002-2005 PukiWiki Developers Team
 	//   2001-2002 Originally written by yu-ji
@@ -839,9 +839,9 @@ class XpWikiPukiWikiFunc extends XpWikiBaseFunc {
 	{
 		// Check the first letter of the line
 		if (substr($text, 0, 1) == '~') {
-			return new Paragraph($this->xpwiki, ' ' . substr($text, 1));
+			return new XpWikiParagraph($this->xpwiki, ' ' . substr($text, 1));
 		} else {
-			return new Inline($this->xpwiki, $text);
+			return new XpWikiInline($this->xpwiki, $text);
 		}
 	}
 	
@@ -851,7 +851,7 @@ class XpWikiPukiWikiFunc extends XpWikiBaseFunc {
 		if (count($out) < 2) {
 			return $this->Factory_Inline($text);
 		} else {
-			return new DList($this->xpwiki, $out);
+			return new XpWikiDList($this->xpwiki, $out);
 		}
 	}
 	
@@ -861,7 +861,7 @@ class XpWikiPukiWikiFunc extends XpWikiBaseFunc {
 		if (! preg_match('/^\|(.+)\|([hHfFcC]?)$/', $text, $out)) {
 			return $this->Factory_Inline($text);
 		} else {
-			return new Table($this->xpwiki, $out);
+			return new XpWikiTable($this->xpwiki, $out);
 		}
 	}
 	
@@ -871,7 +871,7 @@ class XpWikiPukiWikiFunc extends XpWikiBaseFunc {
 		if ($text == ',') {
 			return $this->Factory_Inline($text);
 		} else {
-			return new YTable($this->xpwiki, $this->csv_explode(',', substr($text, 1)));
+			return new XpWikiYTable($this->xpwiki, $this->csv_explode(',', substr($text, 1)));
 		}
 	}
 	
@@ -884,7 +884,7 @@ class XpWikiPukiWikiFunc extends XpWikiBaseFunc {
 			// Usual code
 			if (preg_match('/^\#([^\(]+)(?:\((.*)\))?/', $text, $matches) &&
 			    $this->exist_plugin_convert($matches[1])) {
-				return new Div($this->xpwiki, $matches);
+				return new XpWikiDiv($this->xpwiki, $matches);
 			}
 		} else {
 			// Hack code
@@ -893,21 +893,21 @@ class XpWikiPukiWikiFunc extends XpWikiBaseFunc {
 				$len  = strlen($matches[3]);
 				$body = array();
 				if ($len == 0) {
-					return new Div($this->xpwiki, $matches); // Seems legacy block plugin
+					return new XpWikiDiv($this->xpwiki, $matches); // Seems legacy block plugin
 				} else if (preg_match('/\{{' . $len . '}\s*\r(.*)\r\}{' . $len . '}/', $text, $body)) { 
 					$matches[2] .= "\r" . $body[1] . "\r";
-					return new Div($this->xpwiki, $matches); // Seems multiline-enabled block plugin
+					return new XpWikiDiv($this->xpwiki, $matches); // Seems multiline-enabled block plugin
 				}
 			}
 		}
 	
-		return new Paragraph($this->xpwiki, $text);
+		return new XpWikiParagraph($this->xpwiki, $text);
 	}
 //----- End convert_html.php -----//
 
 //----- Start func.php -----//
 	// PukiWiki - Yet another WikiWikiWeb clone.
-	// $Id: pukiwiki_func.php,v 1.10 2006/10/23 08:11:41 nao-pon Exp $
+	// $Id: pukiwiki_func.php,v 1.11 2006/10/24 23:55:49 nao-pon Exp $
 	// Copyright (C)
 	//   2002-2006 PukiWiki Developers Team
 	//   2001-2002 Originally written by yu-ji
@@ -1688,7 +1688,7 @@ EOD;
 
 //----- Start make_link.php -----//
 	// PukiWiki - Yet another WikiWikiWeb clone.
-	// $Id: pukiwiki_func.php,v 1.10 2006/10/23 08:11:41 nao-pon Exp $
+	// $Id: pukiwiki_func.php,v 1.11 2006/10/24 23:55:49 nao-pon Exp $
 	// Copyright (C)
 	//   2003-2005 PukiWiki Developers Team
 	//   2001-2002 Originally written by yu-ji
@@ -2402,7 +2402,7 @@ EOD;
 	// Create diff-style data between arrays
 	function do_diff($strlines1, $strlines2)
 	{
-		$obj = new line_diff();
+		$obj = new XpWikiline_diff();
 		$str = $obj->str_compare($strlines1, $strlines2);
 		return $str;
 	}
@@ -2422,7 +2422,7 @@ EOD;
 	// Merge helper (when it conflicts)
 	function do_update_diff($pagestr, $poststr, $original)
 	{
-		$obj = new line_diff();
+		$obj = new XpWikiline_diff();
 	
 		$obj->set_str('left', $original, $pagestr);
 		$obj->compare();
@@ -2477,7 +2477,7 @@ EOD;
 
 //----- Start html.php -----//
 	// PukiWiki - Yet another WikiWikiWeb clone.
-	// $Id: pukiwiki_func.php,v 1.10 2006/10/23 08:11:41 nao-pon Exp $
+	// $Id: pukiwiki_func.php,v 1.11 2006/10/24 23:55:49 nao-pon Exp $
 	// Copyright (C)
 	//   2002-2006 PukiWiki Developers Team
 	//   2001-2002 Originally written by yu-ji
@@ -3030,7 +3030,7 @@ EOD;
 
 //----- Start mail.php -----//
 	// PukiWiki - Yet another WikiWikiWeb clone.
-	// $Id: pukiwiki_func.php,v 1.10 2006/10/23 08:11:41 nao-pon Exp $
+	// $Id: pukiwiki_func.php,v 1.11 2006/10/24 23:55:49 nao-pon Exp $
 	// Copyright (C)
 	//   2003-2005 PukiWiki Developers Team
 	//   2003      Originally written by upk
@@ -3337,7 +3337,7 @@ EOD;
 
 //----- Start link.php -----//
 	// PukiWiki - Yet another WikiWikiWeb clone
-	// $Id: pukiwiki_func.php,v 1.10 2006/10/23 08:11:41 nao-pon Exp $
+	// $Id: pukiwiki_func.php,v 1.11 2006/10/24 23:55:49 nao-pon Exp $
 	// Copyright (C) 2003-2006 PukiWiki Developers Team
 	// License: GPL v2 or (at your option) any later version
 	//

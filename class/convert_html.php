@@ -1,14 +1,14 @@
 <?php
 
 // Block elements
-class Element {
+class XpWikiElement {
 	var $parent;
 	var $elements; // References of childs
 	var $last; // Insert new one at the back of the $last
 
 	var $xpwiki;
 
-	function Element(& $xpwiki) {
+	function XpWikiElement(& $xpwiki) {
 
 		$this->xpwiki = & $xpwiki;
 		$this->root = & $xpwiki->root;
@@ -65,9 +65,9 @@ class Element {
 }
 
 // Inline elements
-class Inline extends Element {
-	function Inline(& $xpwiki, $text) {
-		parent :: Element($xpwiki);
+class XpWikiInline extends XpWikiElement {
+	function XpWikiInline(& $xpwiki, $text) {
+		parent :: XpWikiElement($xpwiki);
 		$this->elements[] = trim((substr($text, 0, 1) == "\n") ? $text : $this->func->make_link($text));
 	}
 
@@ -77,7 +77,7 @@ class Inline extends Element {
 	}
 
 	function canContain($obj) {
-		return is_a($obj, 'Inline');
+		return is_a($obj, 'XpWikiInline');
 	}
 
 	function toString() {
@@ -86,18 +86,18 @@ class Inline extends Element {
 	}
 
 	function & toPara($class = '') {
-		$obj = & new Paragraph($this->xpwiki, '', $class);
+		$obj = & new XpWikiParagraph($this->xpwiki, '', $class);
 		$obj->insert($this);
 		return $obj;
 	}
 }
 
 // Paragraph: blank-line-separated sentences
-class Paragraph extends Element {
+class XpWikiParagraph extends XpWikiElement {
 	var $param;
 
-	function Paragraph(& $xpwiki, $text, $param = '') {
-		parent :: Element($xpwiki);
+	function XpWikiParagraph(& $xpwiki, $text, $param = '') {
+		parent :: XpWikiElement($xpwiki);
 		$this->param = $param;
 		if ($text == '')
 			return;
@@ -108,7 +108,7 @@ class Paragraph extends Element {
 	}
 
 	function canContain($obj) {
-		return is_a($obj, 'Inline');
+		return is_a($obj, 'XpWikiInline');
 	}
 
 	function toString() {
@@ -119,13 +119,13 @@ class Paragraph extends Element {
 // * Heading1
 // ** Heading2
 // *** Heading3
-class Heading extends Element {
+class XpWikiHeading extends XpWikiElement {
 	var $level;
 	var $id;
 	var $msg_top;
 
-	function Heading(& $root, $text) {
-		parent :: Element($root->xpwiki);
+	function XpWikiHeading(& $root, $text) {
+		parent :: XpWikiElement($root->xpwiki);
 
 		$this->level = min(3, strspn($text, '*'));
 		list ($text, $this->msg_top, $this->id) = $root->getAnchor($text, $this->level);
@@ -149,9 +149,9 @@ class Heading extends Element {
 
 // ----
 // Horizontal Rule
-class HRule extends Element {
-	function HRule(& $root, $text) {
-		parent :: Element($root->xpwiki);
+class XpWikiHRule extends XpWikiElement {
+	function XpWikiHRule(& $root, $text) {
+		parent :: XpWikiElement($root->xpwiki);
 	}
 
 	function canContain(& $obj) {
@@ -165,7 +165,7 @@ class HRule extends Element {
 }
 
 // Lists (UL, OL, DL)
-class ListContainer extends Element {
+class XpWikiListContainer extends XpWikiElement {
 	var $tag;
 	var $tag2;
 	var $level;
@@ -173,8 +173,8 @@ class ListContainer extends Element {
 	var $margin;
 	var $left_margin;
 
-	function ListContainer(& $xpwiki, $tag, $tag2, $head, $text) {
-		parent :: Element($xpwiki);
+	function XpWikiListContainer(& $xpwiki, $tag, $tag2, $head, $text) {
+		parent :: XpWikiElement($xpwiki);
 
 		$var_margin = '_'.$tag.'_margin';
 		$var_left_margin = '_'.$tag.'_left_margin';
@@ -188,14 +188,14 @@ class ListContainer extends Element {
 		$this->level = min(3, strspn($text, $head));
 		$text = ltrim(substr($text, $this->level));
 
-		parent :: insert(new ListElement($this->xpwiki, $this->level, $tag2));
+		parent :: insert(new XpWikiListElement($this->xpwiki, $this->level, $tag2));
 		//print_r($this->func->Factory_Inline);exit;
 		if ($text != '')
 			$this->last = & $this->last->insert($this->func->Factory_Inline($text));
 	}
 
 	function canContain(& $obj) {
-		return (!is_a($obj, 'ListContainer') || ($this->tag == $obj->tag && $this->level == $obj->level));
+		return (!is_a($obj, 'XpWikiListContainer') || ($this->tag == $obj->tag && $this->level == $obj->level));
 	}
 
 	function setParent(& $parent) {
@@ -204,7 +204,7 @@ class ListContainer extends Element {
 		parent :: setParent($parent);
 
 		$step = $this->level;
-		if (isset ($parent->parent) && is_a($parent->parent, 'ListContainer'))
+		if (isset ($parent->parent) && is_a($parent->parent, 'XpWikiListContainer'))
 			$step -= $parent->parent->level;
 
 		$margin = $this->margin * $step;
@@ -234,15 +234,15 @@ class ListContainer extends Element {
 	}
 }
 
-class ListElement extends Element {
-	function ListElement(& $xpwiki, $level, $head) {
-		parent :: Element($xpwiki);
+class XpWikiListElement extends XpWikiElement {
+	function XpWikiListElement(& $xpwiki, $level, $head) {
+		parent :: XpWikiElement($xpwiki);
 		$this->level = $level;
 		$this->head = $head;
 	}
 
 	function canContain(& $obj) {
-		return (!is_a($obj, 'ListContainer') || ($obj->level > $this->level));
+		return (!is_a($obj, 'XpWikiListContainer') || ($obj->level > $this->level));
 	}
 
 	function toString() {
@@ -253,28 +253,28 @@ class ListElement extends Element {
 // - One
 // - Two
 // - Three
-class UList extends ListContainer {
-	function UList(& $xpwiki, $text) {
-		parent :: ListContainer($xpwiki, 'ul', 'li', '-', $text);
+class XpWikiUList extends XpWikiListContainer {
+	function XpWikiUList(& $xpwiki, $text) {
+		parent :: XpWikiListContainer($xpwiki, 'ul', 'li', '-', $text);
 	}
 }
 
 // + One
 // + Two
 // + Three
-class OList extends ListContainer {
-	function OList(& $xpwiki, $text) {
-		parent :: ListContainer($xpwiki, 'ol', 'li', '+', $text);
+class XpWikiOList extends XpWikiListContainer {
+	function XpWikiOList(& $xpwiki, $text) {
+		parent :: XpWikiListContainer($xpwiki, 'ol', 'li', '+', $text);
 	}
 }
 
 // : definition1 | description1
 // : definition2 | description2
 // : definition3 | description3
-class DList extends ListContainer {
-	function DList(& $xpwiki, $out) {
-		parent :: ListContainer($xpwiki, 'dl', 'dt', ':', $out[0]);
-		$this->last = & Element :: insert(new ListElement($xpwiki, $this->level, 'dd'));
+class XpWikiDList extends XpWikiListContainer {
+	function XpWikiDList(& $xpwiki, $out) {
+		parent :: XpWikiListContainer($xpwiki, 'dl', 'dt', ':', $out[0]);
+		$this->last = & XpWikiElement :: insert(new XpWikiListElement($xpwiki, $this->level, 'dd'));
 		if ($out[1] != '')
 			$this->last = & $this->last->insert($xpwiki->func->Factory_Inline($out[1]));
 	}
@@ -282,11 +282,11 @@ class DList extends ListContainer {
 
 // > Someting cited
 // > like E-mail text
-class BQuote extends Element {
+class XpWikiBQuote extends XpWikiElement {
 	var $level;
 
-	function BQuote(& $root, $text) {
-		parent :: Element($root->xpwiki);
+	function XpWikiBQuote(& $root, $text) {
+		parent :: XpWikiElement($root->xpwiki);
 
 		$head = substr($text, 0, 1);
 		$this->level = min(3, strspn($text, $head));
@@ -309,12 +309,12 @@ class BQuote extends Element {
 
 	function & insert(& $obj) {
 		// BugTrack/521, BugTrack/545
-		if (is_a($obj, 'inline'))
+		if (is_a($obj, 'XpWikiinline'))
 			return parent :: insert($obj->toPara(' class="quotation"'));
 
-		if (is_a($obj, 'BQuote') && $obj->level == $this->level && count($obj->elements)) {
+		if (is_a($obj, 'XpWikiBQuote') && $obj->level == $this->level && count($obj->elements)) {
 			$obj = & $obj->elements[0];
-			if (is_a($this->last, 'Paragraph') && count($obj->elements))
+			if (is_a($this->last, 'XpWikiParagraph') && count($obj->elements))
 				$obj = & $obj->elements[0];
 		}
 		return parent :: insert($obj);
@@ -328,7 +328,7 @@ class BQuote extends Element {
 		$parent = & $root->last;
 
 		while (is_object($parent)) {
-			if (is_a($parent, 'BQuote') && $parent->level == $level)
+			if (is_a($parent, 'XpWikiBQuote') && $parent->level == $level)
 				return $parent->parent;
 			$parent = & $parent->parent;
 		}
@@ -336,14 +336,14 @@ class BQuote extends Element {
 	}
 }
 
-class TableCell extends Element {
+class XpWikiTableCell extends XpWikiElement {
 	var $tag = 'td'; // {td|th}
 	var $colspan = 1;
 	var $rowspan = 1;
 	var $style; // is array('width'=>, 'align'=>...);
 
-	function TableCell(& $xpwiki, $text, $is_template = FALSE) {
-		parent :: Element($xpwiki);
+	function XpWikiTableCell(& $xpwiki, $text, $is_template = FALSE) {
+		parent :: XpWikiElement($xpwiki);
 		$this->style = $matches = array ();
 
 		while (preg_match('/^(?:(LEFT|CENTER|RIGHT)|(BG)?COLOR\(([#\w]+)\)|SIZE\((\d+)\)):(.*)$/', $text, $matches)) {
@@ -380,7 +380,7 @@ class TableCell extends Element {
 		== '#') {
 			// Try using Div class for this $text
 			$obj = & $this->func->Factory_Div($text);
-			if (is_a($obj, 'Paragraph'))
+			if (is_a($obj, 'XpWikiParagraph'))
 				$obj = & $obj->elements[0];
 		} else {
 			$obj = & $this->func->Factory_Inline($text);
@@ -416,13 +416,13 @@ class TableCell extends Element {
 // | title1 | title2 | title3 |
 // | cell1  | cell2  | cell3  |
 // | cell4  | cell5  | cell6  |
-class Table extends Element {
+class XpWikiTable extends XpWikiElement {
 	var $type;
 	var $types;
 	var $col; // number of column
 
-	function Table(& $xpwiki, $out) {
-		parent :: Element($xpwiki);
+	function XpWikiTable(& $xpwiki, $out) {
+		parent :: XpWikiElement($xpwiki);
 
 		$cells = explode('|', $out[1]);
 		$this->col = count($cells);
@@ -431,12 +431,12 @@ class Table extends Element {
 		$is_template = ($this->type == 'c');
 		$row = array ();
 		foreach ($cells as $cell)
-			$row[] = & new TableCell($this->xpwiki, $cell, $is_template);
+			$row[] = & new XpWikiTableCell($this->xpwiki, $cell, $is_template);
 		$this->elements[] = $row;
 	}
 
 	function canContain(& $obj) {
-		return is_a($obj, 'Table') && ($obj->col == $this->col);
+		return is_a($obj, 'XpWikiTable') && ($obj->col == $this->col);
 	}
 
 	function & insert(& $obj) {
@@ -512,11 +512,11 @@ class Table extends Element {
 // , title1 , title2 , title3
 // , cell1  , cell2  , cell3
 // , cell4  , cell5  , cell6
-class YTable extends Element {
+class XpWikiYTable extends XpWikiElement {
 	var $col;
 
-	function YTable(& $xpwiki, $_value) {
-		parent :: Element($xpwiki);
+	function XpWikiYTable(& $xpwiki, $_value) {
+		parent :: XpWikiElement($xpwiki);
 
 		$align = $value = $matches = array ();
 		foreach ($_value as $val) {
@@ -546,7 +546,7 @@ class YTable extends Element {
 	}
 
 	function canContain(& $obj) {
-		return is_a($obj, 'YTable') && ($obj->col == $this->col);
+		return is_a($obj, 'XpWikiYTable') && ($obj->col == $this->col);
 	}
 
 	function & insert(& $obj) {
@@ -566,17 +566,17 @@ class YTable extends Element {
 // ' 'Space-beginning sentence
 // ' 'Space-beginning sentence
 // ' 'Space-beginning sentence
-class Pre extends Element {
-	function Pre(& $root, $text) {
+class XpWikiPre extends XpWikiElement {
+	function XpWikiPre(& $root, $text) {
 		//		global $preformat_ltrim;
-		parent :: Element($root->xpwiki);
+		parent :: XpWikiElement($root->xpwiki);
 		$this->elements[] = htmlspecialchars((!$this->root->preformat_ltrim || $text == '' || $text {
 			0}
 		!= ' ') ? $text : substr($text, 1));
 	}
 
 	function canContain(& $obj) {
-		return is_a($obj, 'Pre');
+		return is_a($obj, 'XpWikiPre');
 	}
 
 	function & insert(& $obj) {
@@ -590,12 +590,12 @@ class Pre extends Element {
 }
 
 // Block plugin: #something (started with '#')
-class Div extends Element {
+class XpWikiDiv extends XpWikiElement {
 	var $name;
 	var $param;
 
-	function Div(& $xpwiki, $out) {
-		parent :: Element($xpwiki);
+	function XpWikiDiv(& $xpwiki, $out) {
+		parent :: XpWikiElement($xpwiki);
 		list (, $this->name, $this->param) = array_pad($out, 3, '');
 	}
 
@@ -610,16 +610,16 @@ class Div extends Element {
 }
 
 // LEFT:/CENTER:/RIGHT:
-class Align extends Element {
+class XpWikiAlign extends XpWikiElement {
 	var $align;
 
-	function Align(& $xpwiki, $align) {
-		parent :: Element($xpwiki);
+	function XpWikiAlign(& $xpwiki, $align) {
+		parent :: XpWikiElement($xpwiki);
 		$this->align = $align;
 	}
 
 	function canContain(& $obj) {
-		return is_a($obj, 'Inline');
+		return is_a($obj, 'XpWikiInline');
 	}
 
 	function toString() {
@@ -628,19 +628,19 @@ class Align extends Element {
 }
 
 // Body
-class XpWikiBody extends Element {
+class XpWikiBody extends XpWikiElement {
 	var $id;
 	var $count = 0;
 	var $contents;
 	var $contents_last;
-	var $classes = array ('-' => 'UList', '+' => 'OList', '>' => 'BQuote', '<' => 'BQuote');
+	var $classes = array ('-' => 'XpWikiUList', '+' => 'XpWikiOList', '>' => 'XpWikiBQuote', '<' => 'XpWikiBQuote');
 	var $factories = array (':' => 'DList', '|' => 'Table', ',' => 'YTable', '#' => 'Div');
 
 	function XpWikiBody(& $xpwiki, $id) {
 		$this->id = $id;
-		$this->contents = & new Element($xpwiki);
+		$this->contents = & new XpWikiElement($xpwiki);
 		$this->contents_last = & $this->contents;
-		parent :: Element($xpwiki);
+		parent :: XpWikiElement($xpwiki);
 	}
 
 	function parse(& $lines) {
@@ -656,7 +656,7 @@ class XpWikiBody extends Element {
 
 			if (preg_match('/^(LEFT|CENTER|RIGHT):(.*)$/', $line, $matches)) {
 				// <div style="text-align:...">
-				$this->last = & $this->last->add(new Align($this->xpwiki, strtolower($matches[1])));
+				$this->last = & $this->last->add(new XpWikiAlign($this->xpwiki, strtolower($matches[1])));
 				if ($matches[2] == '')
 					continue;
 				$line = $matches[2];
@@ -672,7 +672,7 @@ class XpWikiBody extends Element {
 
 			// Horizontal Rule
 			if (substr($line, 0, 4) == '----') {
-				$this->insert(new HRule($this, $line));
+				$this->insert(new XpWikiHRule($this, $line));
 				continue;
 			}
 
@@ -697,13 +697,13 @@ class XpWikiBody extends Element {
 
 			// Heading
 			if ($head == '*') {
-				$this->insert(new Heading($this, $line));
+				$this->insert(new XpWikiHeading($this, $line));
 				continue;
 			}
 
 			// Pre
 			if ($head == ' ' || $head == "\t") {
-				$this->last = & $this->last->add(new Pre($this, $line));
+				$this->last = & $this->last->add(new XpWikiPre($this, $line));
 				continue;
 			}
 
@@ -750,14 +750,14 @@ class XpWikiBody extends Element {
 		$text = ' '.$text;
 
 		// Add 'page contents' link to its heading
-		$this->contents_last = & $this->contents_last->add(new Contents_UList($this->xpwiki, $text, $level, $id));
+		$this->contents_last = & $this->contents_last->add(new XpWikiContents_UList($this->xpwiki, $text, $level, $id));
 
 		// Add heding
 		return array ($text.$anchor, $this->count > 1 ? "\n".$this->root->top : '', $autoid);
 	}
 
 	function & insert(& $obj) {
-		if (is_a($obj, 'Inline'))
+		if (is_a($obj, 'XpWikiInline'))
 			$obj = & $obj->toPara();
 		return parent :: insert($obj);
 	}
@@ -779,14 +779,14 @@ class XpWikiBody extends Element {
 	}
 }
 
-class Contents_UList extends ListContainer {
-	function Contents_UList(& $xpwiki, $text, $level, $id) {
-		parent :: ListContainer($xpwiki, 'ul', 'li', '-', str_repeat('-', $level));
+class XpWikiContents_UList extends XpWikiListContainer {
+	function XpWikiContents_UList(& $xpwiki, $text, $level, $id) {
+		parent :: XpWikiListContainer($xpwiki, 'ul', 'li', '-', str_repeat('-', $level));
 		// Reformatting $text
 		// A line started with "\n" means "preformatted" ... X(
 		$this->func->make_heading($text);
 		$text = "\n".'<a href="#'.$id.'">'.$text.'</a>'."\n";
-		//parent::ListContainer('ul', 'li', '-', str_repeat('-', $level));
+		//parent::XpWikiListContainer('ul', 'li', '-', str_repeat('-', $level));
 		$this->insert($this->func->Factory_Inline($text));
 	}
 
@@ -796,7 +796,7 @@ class Contents_UList extends ListContainer {
 		parent :: setParent($parent);
 		$step = $this->level;
 		$margin = $this->left_margin;
-		if (isset ($parent->parent) && is_a($parent->parent, 'ListContainer')) {
+		if (isset ($parent->parent) && is_a($parent->parent, 'XpWikiListContainer')) {
 			$step -= $parent->parent->level;
 			$margin = 0;
 		}
