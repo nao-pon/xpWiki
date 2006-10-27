@@ -1,7 +1,7 @@
 <?php
 //
 // Created on 2006/10/02 by nao-pon http://hypweb.net/
-// $Id: xpwiki_func.php,v 1.11 2006/10/21 12:37:06 nao-pon Exp $
+// $Id: xpwiki_func.php,v 1.12 2006/10/27 11:58:37 nao-pon Exp $
 //
 class XpWikiFunc extends XpWikiXoopsWrapper {
 
@@ -334,7 +334,7 @@ class XpWikiFunc extends XpWikiXoopsWrapper {
 		if(!$this->root->cookie['ucd']){
 			$this->root->cookie['ucd'] = md5(getenv("REMOTE_ADDR"). __FILE__ .gmdate("Ymd", time()+9*60*60));
 		}
-		$this->ucd = substr(crypt($this->root->cookie['ucd'],($this->root->adminpass)? $this->root->adminpass : 'id'),-11);
+		$this->root->userinfo['ucd'] = substr(crypt($this->root->cookie['ucd'],($this->root->adminpass)? $this->root->adminpass : 'id'),-11);
 		
 		// スキン指定をcookieにセット
 		if (isset($_GET['setskin'])) {
