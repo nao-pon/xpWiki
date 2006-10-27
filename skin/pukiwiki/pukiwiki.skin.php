@@ -3,7 +3,7 @@
 $this->root->runmode = "standalone";
 
 // PukiWiki - Yet another WikiWikiWeb clone.
-// $Id: pukiwiki.skin.php,v 1.2 2006/10/23 08:08:50 nao-pon Exp $
+// $Id: pukiwiki.skin.php,v 1.3 2006/10/27 11:47:06 nao-pon Exp $
 // Copyright (C)
 //   2002-2006 PukiWiki Developers Team
 //   2001-2002 Originally written by yu-ji
@@ -62,7 +62,7 @@ if ($this->arg_check('read') && $this->is_page($this->root->menubar) &&
 	$menu_body = $this->do_plugin_convert('menu');
 }
 $head_tag .= ! empty($this->root->head_tags) ? "\n". join("\n", $this->root->head_tags) ."\n" : '';
-$head_precss .= ! empty($this->root->head_precsses) ? "\n". join("\n", $this->root->head_precsses) ."\n" : '';
+$head_pre_tag .= ! empty($this->root->head_pre_tags) ? "\n". join("\n", $this->root->head_pre_tags) ."\n" : '';
 
 // ------------------------------------------------------------
 // Output
@@ -87,7 +87,7 @@ if (isset($this->root->pkwk_dtd)) {
 
  <title><?php echo $title ?> - <?php echo $this->root->siteinfo['sitename'] ?></title>
 
-<?php echo $head_precss?>
+<?php echo $head_pre_tag?>
 <?php echo <<<EOD
  $favicon
  <link rel="stylesheet" type="text/css" media="screen" href="{$this->cont['HOME_URL']}{$this->cont['SKIN_DIR']}pukiwiki.css.php?charset={$css_charset}" charset="{$css_charset}" />
