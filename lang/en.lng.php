@@ -1,6 +1,6 @@
 <?php
 // PukiWiki - Yet another WikiWikiWeb clone.
-// $Id: en.lng.php,v 1.2 2006/10/15 05:55:44 nao-pon Exp $
+// $Id: en.lng.php,v 1.3 2006/10/27 12:02:57 nao-pon Exp $
 // Copyright (C)
 //   2002-2005 PukiWiki Developers Team
 //   2001-2002 Originally written by yu-ji
@@ -170,6 +170,7 @@ $root->_attach_messages = array(
 	'msg_md5hash'  => 'MD5 hash',
 	'msg_page'     => 'Page',
 	'msg_filename' => 'Stored filename',
+	'msg_owner'    => 'Owner',
 	'err_noparm'   => 'Cannot upload/delete file in  $1',
 	'err_exceed'   => 'File size too large to  $1',
 	'err_exists'   => 'File already exists in  $1',
