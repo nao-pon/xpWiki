@@ -3,7 +3,7 @@
 $this->root->runmode = "standalone";
 
 // PukiWiki - Yet another WikiWikiWeb clone.
-// $Id: tdiary.skin.php,v 1.5 2006/10/23 08:11:41 nao-pon Exp $
+// $Id: tdiary.skin.php,v 1.6 2006/10/27 11:49:36 nao-pon Exp $
 // Copyright (C)
 //   2002-2006 PukiWiki Developers Team
 //   2001-2002 Originally written by yu-ji
@@ -557,7 +557,7 @@ switch($this->cont['UI_LANG']){
 }
 
 $head_tag .= ! empty($this->root->head_tags) ? "\n". join("\n", $this->root->head_tags) ."\n" : '';
-$head_precss .= ! empty($this->root->head_precsses) ? "\n". join("\n", $this->root->head_precsses) ."\n" : '';
+$head_pre_tag .= ! empty($this->root->head_pre_tags) ? "\n". join("\n", $this->root->head_pre_tags) ."\n" : '';
 
 
 // ------------------------------------------------------------
@@ -587,7 +587,7 @@ $favicon = ($image['favicon'])? "<link rel=\"SHORTCUT ICON\" href=\"{$image['fav
 
  <title><?php echo $title ?> - <?php echo $this->root->siteinfo['sitename'] ?></title>
 
-<?php echo $head_precss?>
+<?php echo $head_pre_tag?>
  <?php echo $favicon ?>
  <link rel="stylesheet" type="text/css" media="all" href="<?php echo "{$this->cont['HOME_URL']}{$this->cont['TDIARY_DIR']}" ?>base.css" />
  <link rel="stylesheet" type="text/css" media="all" href="<?php echo "{$this->cont['HOME_URL']}{$this->cont['TDIARY_DIR']}" ?><?php echo $theme ?>/<?php echo $theme ?>.css" />
