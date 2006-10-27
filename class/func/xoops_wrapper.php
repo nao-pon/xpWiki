@@ -1,7 +1,7 @@
 <?php
 //
 // Created on 2006/10/11 by nao-pon http://hypweb.net/
-// $Id: xoops_wrapper.php,v 1.9 2006/10/24 23:55:06 nao-pon Exp $
+// $Id: xoops_wrapper.php,v 1.10 2006/10/27 11:57:32 nao-pon Exp $
 //
 class XpWikiXoopsWrapper extends XpWikiBackupFunc {
 	
@@ -45,6 +45,20 @@ class XpWikiXoopsWrapper extends XpWikiBackupFunc {
 		{
 			parent::set_userinfo();
 		}
+	}
+	
+	function get_userinfo_by_id ($uid) {
+		$config_handler =& xoops_gethandler('config');
+		$xoopsConfig =& $config_handler->getConfigsByCat(XOOPS_CONF);
+
+		$result = parent::get_userinfo_by_id($uid, $xoopsConfig['anonymous']);
+		$user_handler =& xoops_gethandler('user');
+		$user =& $user_handler->get( $uid );
+		if (is_object($user)) {
+			$result['uname'] = $user->uname();
+			$result['email'] = $user->email();
+		}
+		return $result;
 	}
 	
 	function check_editable($page, $auth_flag = TRUE, $exit_flag = TRUE)
@@ -150,7 +164,9 @@ class XpWikiXoopsWrapper extends XpWikiBackupFunc {
 		//	if ($result !== TRUE) die($result);
 		//}
 	
-		global $xoopsConfig;
+		$config_handler =& xoops_gethandler('config');
+		$xoopsConfig =& $config_handler->getConfigsByCat(XOOPS_CONF);
+		
 		$xoopsMailer =& getMailer();
 		$xoopsMailer->useMail();
 		$xoopsMailer->setFromEmail($xoopsConfig['adminmail']);
