@@ -1,7 +1,7 @@
 <?php
 //
 // Created on 2006/10/15 by nao-pon http://hypweb.net/
-// $Id: base_func.php,v 1.6 2006/10/24 23:55:06 nao-pon Exp $
+// $Id: base_func.php,v 1.7 2006/10/27 11:57:32 nao-pon Exp $
 //
 class XpWikiBaseFunc {
 	
@@ -15,7 +15,7 @@ class XpWikiBaseFunc {
 	function set_moduleinfo () {
 		
 		$this->root->module['name'] = 'xpWiki';
-		$this->root->module['version'] = '0.3';
+		$this->root->module['version'] = '0.5';
 		$this->root->module['credits'] = '&copy; 2006- hypweb.net';
 		$this->root->module['author'] = 'nao-pon';
 		$this->root->module['platform'] = 'standalone';
@@ -33,6 +33,17 @@ class XpWikiBaseFunc {
 		$this->root->userinfo['uname'] = '';
 		$this->root->userinfo['uname_s'] = htmlspecialchars($this->root->userinfo['uname']);
 		$this->root->userinfo['gids'] = array();
+	}
+
+	function get_userinfo_by_id ($uid, $defname=NULL) {
+		if (is_null($defname)) {
+			$defname = $this->root->anonymous;
+		}
+		$result = array(
+			'uname' => $defname,
+			'email' => '' 
+			);
+		return $result;
 	}
 	
 	function get_lang ($default) {
