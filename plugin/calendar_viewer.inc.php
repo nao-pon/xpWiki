@@ -4,7 +4,7 @@ class xpwiki_plugin_calendar_viewer extends xpwiki_plugin {
 
 
 	// PukiWiki - Yet another WikiWikiWeb clone
-	// $Id: calendar_viewer.inc.php,v 1.1 2006/10/13 13:17:49 nao-pon Exp $
+	// $Id: calendar_viewer.inc.php,v 1.2 2006/10/27 12:00:50 nao-pon Exp $
 	//
 	// Calendar viewer plugin - List pages that calendar/calnedar2 plugin created
 	// (Based on calendar and recent plugin)
@@ -196,16 +196,17 @@ class xpwiki_plugin_calendar_viewer extends xpwiki_plugin {
 			} else {
 				$s_page = htmlspecialchars($page);
 			}
-	
-			if ($this->cont['PKWK_READONLY']) {
-				$link   = $this->root->script . '?' . $r_page;
-			} else {
-				$link   = $this->root->script . '?cmd=edit&amp;page=' . $r_page;
+			
+			$edit = "";
+			$link   = $this->root->script . '?' . $r_page;
+			if (!$this->cont['PKWK_READONLY'] && $this->func->check_editable($page, FALSE, FALSE)) {
+				$edit = $this->root->script . '?cmd=edit&amp;page=' . $r_page;
+				$edit = '<div style="float:right;padding-right:10px;font-size:90%;"> (<a href="' . $edit . '">' . $this->root->_LANG['skin']['edit'] . '</a>)</div>';
 			}
 			$link   = '<a href="' . $link . '">' . $s_page . '</a>';
 	
-			$head   = '<h1>' . $link . '</h1>' . "\n";
-			$return_body .= $head . $body;
+			$head   = $edit . '<h1>' . $link . '</h1>' . "\n";
+			$return_body .= $head . $body . $this->root->hr;
 	
 			++$tmp;
 		}
