@@ -1,6 +1,6 @@
 <?php
 // PukiWiki - Yet another WikiWikiWeb clone
-// $Id: pukiwiki.ini.php,v 1.6 2006/10/24 00:16:45 nao-pon Exp $
+// $Id: pukiwiki.ini.php,v 1.7 2006/10/27 12:00:17 nao-pon Exp $
 // Copyright (C)
 //   2002-2006 PukiWiki Developers Team
 //   2001-2002 Originally written by yu-ji
@@ -53,7 +53,7 @@ $const['PKWK_QUERY_STRING_MAX'] = 640; // Bytes, 0 = OFF
 //   argsN+1
 //   }}
 //   #memo(This makes '#memo(foo)' to this)
-$const['PKWKEXP_DISABLE_MULTILINE_PLUGIN_HACK'] = 1; // 1 = Disabled
+$const['PKWKEXP_DISABLE_MULTILINE_PLUGIN_HACK'] = 0; // 1 = Disabled
 
 /////////////////////////////////////////////////
 // Language / Encoding settings
@@ -133,6 +133,9 @@ $root->whatsdeleted = 'RecentDeleted'; // Removeed page list
 $root->interwiki    = 'InterWikiName'; // Set InterWiki definition here
 $root->aliaspage    = 'AutoAliasName'; // Set AutoAlias definition here
 $root->menubar      = 'MenuBar';       // Menu
+
+// Guest user's name (It will be overwrite by xoops setting.)
+$root->anonymous = 'anonymous';
 
 /////////////////////////////////////////////////
 // Change default Document Type Definition
