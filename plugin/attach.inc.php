@@ -4,7 +4,7 @@ class xpwiki_plugin_attach extends xpwiki_plugin {
 
 
 	// PukiWiki - Yet another WikiWikiWeb clone
-	// $Id: attach.inc.php,v 1.2 2006/10/16 04:05:54 nao-pon Exp $
+	// $Id: attach.inc.php,v 1.3 2006/10/27 12:02:57 nao-pon Exp $
 	// Copyright (C)
 	//   2003-2006 PukiWiki Developers Team
 	//   2002-2003 PANDA <panda@arino.jp> http://home.arino.jp/
@@ -205,9 +205,14 @@ class xpwiki_plugin_attach extends xpwiki_plugin {
 	
 		if ($this->func->is_page($page))
 			touch($this->func->get_filename($page));
-	
+		
+		$owner = ($this->root->userinfo['uid'])?
+			"i:".$this->root->userinfo['uid'] :
+			"c:".$this->root->userinfo['ucd']."\t". $this->root->userinfo['uname'];
 		$obj->getstatus();
 		$obj->status['pass'] = ($pass !== TRUE && $pass !== NULL) ? md5($pass) : '';
+		$obj->status['md5'] = md5_file($obj->filename);  //for code plugin.
+		$obj->status['owner'] = $owner;
 		$obj->putstatus();
 	
 		if ($this->root->notify) {
@@ -446,7 +451,7 @@ class XpWikiAttachFile
 	var $size = 0;
 	var $time_str = '';
 	var $size_str = '';
-	var $status = array('count'=>array(0), 'age'=>'', 'pass'=>'', 'freeze'=>FALSE);
+	var $status = array('count'=>array(0), 'age'=>'', 'pass'=>'', 'freeze'=>FALSE, 'md5'=>'', 'owner'=>'');
 
 	function XpWikiAttachFile(& $xpwiki, $page, $file, $age = 0)
 	{
@@ -537,6 +542,7 @@ class XpWikiAttachFile
 
 		$r_page = rawurlencode($this->page);
 		$s_page = htmlspecialchars($this->page);
+		$l_page = $this->func->make_pagelink($this->page);
 		$s_file = htmlspecialchars($this->file);
 		$s_err = ($err == '') ? '' : '<p style="font-weight:bold">' . $this->root->_attach_messages[$err] . '</p>';
 		
@@ -591,6 +597,20 @@ EOD;
 		$info = $this->toString(TRUE, FALSE);
 
 		$retval = array('msg'=>sprintf($this->root->_attach_messages['msg_info'], htmlspecialchars($this->file)));
+		$filename = str_replace($this->cont['UPLOAD_DIR'], "", $this->filename);
+		$owner = $this->status['owner'];
+		if (substr($owner,0,2) === "i:") {
+			$owner = substr($owner,2);
+			$user = $this->func->get_userinfo_by_id($owner);
+			$user = htmlspecialchars($user['uname']);
+		} else {
+			list($ucd, $user) = array_pad(explode("\t",$owner),2,"");
+			if (!$user) {
+				$user = $this->func->get_userinfo_by_id(0);
+				$user = htmlspecialchars($user['uname']);
+			}
+			$user = htmlspecialchars($user) . " [".substr($ucd,2)."]";
+		}
 		$retval['body'] = <<< EOD
 <p class="small">
  [<a href="{$this->root->script}?plugin=attach&amp;pcmd=list&amp;refer=$r_page">{$this->root->_attach_messages['msg_list']}</a>]
@@ -598,13 +618,14 @@ EOD;
 </p>
 <dl>
  <dt>$info</dt>
- <dd>{$this->root->_attach_messages['msg_page']}:$s_page</dd>
- <dd>{$this->root->_attach_messages['msg_filename']}:{$this->filename}</dd>
+ <dd>{$this->root->_attach_messages['msg_page']}:$l_page</dd>
+ <dd>{$this->root->_attach_messages['msg_filename']}:{$filename}</dd>
  <dd>{$this->root->_attach_messages['msg_md5hash']}:{$this->md5hash}</dd>
  <dd>{$this->root->_attach_messages['msg_filesize']}:{$this->size_str} ({$this->size} bytes)</dd>
  <dd>Content-type:{$this->type}</dd>
  <dd>{$this->root->_attach_messages['msg_date']}:{$this->time_str}</dd>
  <dd>{$this->root->_attach_messages['msg_dlcount']}:{$this->status['count'][$this->age]}</dd>
+ <dd>{$this->root->_attach_messages['msg_owner']}:{$user}</dd>
  $msg_freezed
 </dl>
 <hr />

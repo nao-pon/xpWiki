@@ -1,6 +1,6 @@
 <?php
 // PukiWiki - Yet another WikiWikiWeb clone.
-// $Id: ja.lng.php,v 1.1 2006/10/13 13:17:49 nao-pon Exp $
+// $Id: ja.lng.php,v 1.2 2006/10/27 12:02:57 nao-pon Exp $
 // Copyright (C)
 //   2002-2005 PukiWiki Developers Team
 //   2001-2002 Originally written by yu-ji
@@ -172,6 +172,7 @@ $root->_attach_messages = array(
 	'msg_md5hash'  => 'MD5ハッシュ値',
 	'msg_page'     => 'ページ',
 	'msg_filename' => '格納ファイル名',
+	'msg_owner'    => '所有者',
 	'err_noparm'   => '$1 へはアップロード・削除はできません',
 	'err_exceed'   => '$1 へのファイルサイズが大きすぎます',
 	'err_exists'   => '$1 に同じファイル名が存在します',
