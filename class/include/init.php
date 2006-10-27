@@ -28,7 +28,7 @@ foreach (array('SCRIPT_NAME', 'SERVER_ADMIN', 'SERVER_NAME',
 $root->foot_explain = array();	// Footnotes
 $root->related      = array();	// Related pages
 $root->head_tags    = array();	// XHTML tags in <head></head>
-$root->head_precsses= array();	// XHTML CSS tags in <head></head> before skin's CSS.
+$root->head_pre_tags= array();	// XHTML pre tags in <head></head> before skin's CSS.
 
 // UI_LANG - Content encoding for buttons, menus,  etc
 //$const['UI_LANG'] = $const['LANG']; // 'en' for Internationalized wikisite
