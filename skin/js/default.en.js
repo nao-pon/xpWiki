@@ -22,6 +22,6 @@ var wikihelper_msg_attach = "File attach link";
 
 if (!wikihelper_loaded) {
 	// Include main script.
-	document.write ('<scr'+'ipt type="text/javascr'+'ipt" src="' + wikihelper_root_url + 'skin/js/?src=main"></scr'+'ipt>');
+	document.write ('<scr'+'ipt type="text/javascr'+'ipt" src="' + wikihelper_root_url + 'skin/loader.php?type=js&amp;src=main"></scr'+'ipt>');
 }
 var wikihelper_loaded = true;

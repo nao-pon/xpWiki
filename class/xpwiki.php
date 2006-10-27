@@ -1,7 +1,7 @@
 <?php
 //
 // Created on 2006/09/29 by nao-pon http://hypweb.net/
-// $Id: xpwiki.php,v 1.8 2006/10/22 13:23:21 nao-pon Exp $
+// $Id: xpwiki.php,v 1.9 2006/10/27 11:38:29 nao-pon Exp $
 //
 
 class XpWiki {
@@ -212,7 +212,7 @@ class XpWiki {
 var wikihelper_root_url = "{$this->cont['HOME_URL']}";
 //-->
 </script>
-<script type="text/javascript" src="{$this->cont['HOME_URL']}skin/js/?src=default.{$this->cont['UI_LANG']}"></script>
+<script type="text/javascript" src="{$this->cont['HOME_URL']}skin/loader.php?type=js&amp;src=default.{$this->cont['UI_LANG']}"></script>
 <div class="xpwiki_{$base}" style="width:{$width};overflow:hidden;">
 {$this->body}
 </div>
