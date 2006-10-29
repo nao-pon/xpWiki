@@ -1,6 +1,6 @@
 <?php
 // PukiWiki - Yet another WikiWikiWeb clone
-// $Id: pukiwiki.ini.php,v 1.7 2006/10/27 12:00:17 nao-pon Exp $
+// $Id: pukiwiki.ini.php,v 1.8 2006/10/29 12:45:00 nao-pon Exp $
 // Copyright (C)
 //   2002-2006 PukiWiki Developers Team
 //   2001-2002 Originally written by yu-ji
@@ -432,6 +432,10 @@ $root->auto_template_rules = array(
 $root->fixed_heading_anchor = 1;
 
 /////////////////////////////////////////////////
+// enable paraedit 
+$root->fixed_heading_anchor_edit = 1;
+
+/////////////////////////////////////////////////
 // Remove the first spaces from Preformatted text
 $root->preformat_ltrim = 1;
 
@@ -442,10 +446,6 @@ $root->line_break = 0;
 /////////////////////////////////////////////////
 // Use date-time rules (See rules.ini.php)
 $root->usedatetime = 1;
-
-/////////////////////////////////////////////////
-// enable paraedit 
-$root->fixed_heading_anchor_edit = 0;
 
 /////////////////////////////////////////////////
 // User-Agent settings
