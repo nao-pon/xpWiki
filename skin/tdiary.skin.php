@@ -3,7 +3,7 @@
 $this->root->runmode = "standalone";
 
 // PukiWiki - Yet another WikiWikiWeb clone.
-// $Id: tdiary.skin.php,v 1.6 2006/10/27 11:49:36 nao-pon Exp $
+// $Id: tdiary.skin.php,v 1.7 2006/10/29 12:36:38 nao-pon Exp $
 // Copyright (C)
 //   2002-2006 PukiWiki Developers Team
 //   2001-2002 Originally written by yu-ji
@@ -739,12 +739,22 @@ default:
 	<div class="section">
 <?php
 	// For read and preview: tDiary have no <h2> inside body
-	$body = preg_replace('#<h2 ([^>]*)>(.*?)<a class="anchor_super" ([^>]*)>.*?</a></h2>#',
-		'<h3 $1><a $3><span class="sanchor">_</span></a> $2</h3>', $body);
-	$body = preg_replace('#<h([34]) ([^>]*)>(.*?)<a class="anchor_super" ([^>]*)>.*?</a></h\1>#',
-		'<h$1 $2><a $4>_</a> $3</h$1>', $body);
-	$body = preg_replace('#<h2 ([^>]*)>(.*?)</h2>#',
-		'<h3 $1><span class="sanchor">_</span> $2</h3>', $body);
+	if($this->root->fixed_heading_anchor_edit && !$is_freeze) {
+	    $body = preg_replace('#<h2 (.*?)>(.*?)<a class="anchor_super" (.*?)>.*?</a> (<a .*</a>)</h2>#',
+	                         '<h3 $1><a $3><span class="sanchor">_</span></a> $2 $4</h3>', $body);
+	    $body = preg_replace('#<h([34]) (.*?)>(.*?)<a class="anchor_super" (.*?)>.*?</a> (<a .*</a>)</h\1>#',
+	                         '<h$1 $2><a $4>_</a> $3 $5</h$1>', $body);
+	    $body = preg_replace('#<h2 ([^>]*)>(.*?)</h2>#',
+	                         '<h3 $1><span class="sanchor">_</span> $2</h3>', $body);
+	} else {
+	
+		$body = preg_replace('#<h2 ([^>]*)>(.*?)<a class="anchor_super" ([^>]*)>.*?</a></h2>#',
+			'<h3 $1><a $3><span class="sanchor">_</span></a> $2</h3>', $body);
+		$body = preg_replace('#<h([34]) ([^>]*)>(.*?)<a class="anchor_super" ([^>]*)>.*?</a></h\1>#',
+			'<h$1 $2><a $4>_</a> $3</h$1>', $body);
+		$body = preg_replace('#<h2 ([^>]*)>(.*?)</h2>#',
+			'<h3 $1><span class="sanchor">_</span> $2</h3>', $body);
+	}
 	if ($is_read) {
 		// Read
 		echo $body;

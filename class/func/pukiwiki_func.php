@@ -1,7 +1,7 @@
 <?php
 //
 // Created on 2006/10/02 by nao-pon http://hypweb.net/
-// $Id: pukiwiki_func.php,v 1.12 2006/10/27 11:48:23 nao-pon Exp $
+// $Id: pukiwiki_func.php,v 1.13 2006/10/29 12:36:38 nao-pon Exp $
 //
 class XpWikiPukiWikiFunc extends XpWikiBaseFunc {
 
@@ -803,7 +803,7 @@ class XpWikiPukiWikiFunc extends XpWikiBaseFunc {
 
 //----- Start convert_html.php -----//
 	// PukiWiki - Yet another WikiWikiWeb clone
-	// $Id: pukiwiki_func.php,v 1.12 2006/10/27 11:48:23 nao-pon Exp $
+	// $Id: pukiwiki_func.php,v 1.13 2006/10/29 12:36:38 nao-pon Exp $
 	// Copyright (C)
 	//   2002-2005 PukiWiki Developers Team
 	//   2001-2002 Originally written by yu-ji
@@ -907,7 +907,7 @@ class XpWikiPukiWikiFunc extends XpWikiBaseFunc {
 
 //----- Start func.php -----//
 	// PukiWiki - Yet another WikiWikiWeb clone.
-	// $Id: pukiwiki_func.php,v 1.12 2006/10/27 11:48:23 nao-pon Exp $
+	// $Id: pukiwiki_func.php,v 1.13 2006/10/29 12:36:38 nao-pon Exp $
 	// Copyright (C)
 	//   2002-2006 PukiWiki Developers Team
 	//   2001-2002 Originally written by yu-ji
@@ -1688,7 +1688,7 @@ EOD;
 
 //----- Start make_link.php -----//
 	// PukiWiki - Yet another WikiWikiWeb clone.
-	// $Id: pukiwiki_func.php,v 1.12 2006/10/27 11:48:23 nao-pon Exp $
+	// $Id: pukiwiki_func.php,v 1.13 2006/10/29 12:36:38 nao-pon Exp $
 	// Copyright (C)
 	//   2003-2005 PukiWiki Developers Team
 	//   2001-2002 Originally written by yu-ji
@@ -2477,7 +2477,7 @@ EOD;
 
 //----- Start html.php -----//
 	// PukiWiki - Yet another WikiWikiWeb clone.
-	// $Id: pukiwiki_func.php,v 1.12 2006/10/27 11:48:23 nao-pon Exp $
+	// $Id: pukiwiki_func.php,v 1.13 2006/10/29 12:36:38 nao-pon Exp $
 	// Copyright (C)
 	//   2002-2006 PukiWiki Developers Team
 	//   2001-2002 Originally written by yu-ji
@@ -2709,6 +2709,7 @@ EOD;
 		$s_digest    = htmlspecialchars($digest);
 		$s_postdata  = htmlspecialchars($refer . $postdata);
 		$s_original  = isset($this->root->vars['original']) ? htmlspecialchars($this->root->vars['original']) : $s_postdata;
+		$s_id        = isset($this->root->vars['paraid']) ? htmlspecialchars($this->root->vars['paraid']) : '';
 		$b_preview   = isset($this->root->vars['preview']); // TRUE when preview
 		$btn_preview = $b_preview ? $this->root->_btn_repreview : $this->root->_btn_preview;
 	
@@ -2740,6 +2741,7 @@ EOD;
 	  <input type="hidden" name="cmd"    value="edit" />
 	  <input type="hidden" name="page"   value="$s_page" />
 	  <input type="hidden" name="digest" value="$s_digest" />
+	  <input type="hidden" name="paraid"     value="$s_id" />
 	  <textarea name="msg" rel="wikihelper" rows="{$this->root->rows}" cols="{$this->root->cols}">$s_postdata</textarea>
 	  <br />
 	  <div style="float:left;">
@@ -3030,7 +3032,7 @@ EOD;
 
 //----- Start mail.php -----//
 	// PukiWiki - Yet another WikiWikiWeb clone.
-	// $Id: pukiwiki_func.php,v 1.12 2006/10/27 11:48:23 nao-pon Exp $
+	// $Id: pukiwiki_func.php,v 1.13 2006/10/29 12:36:38 nao-pon Exp $
 	// Copyright (C)
 	//   2003-2005 PukiWiki Developers Team
 	//   2003      Originally written by upk
@@ -3337,7 +3339,7 @@ EOD;
 
 //----- Start link.php -----//
 	// PukiWiki - Yet another WikiWikiWeb clone
-	// $Id: pukiwiki_func.php,v 1.12 2006/10/27 11:48:23 nao-pon Exp $
+	// $Id: pukiwiki_func.php,v 1.13 2006/10/29 12:36:38 nao-pon Exp $
 	// Copyright (C) 2003-2006 PukiWiki Developers Team
 	// License: GPL v2 or (at your option) any later version
 	//

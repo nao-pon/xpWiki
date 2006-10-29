@@ -744,7 +744,9 @@ class XpWikiBody extends XpWikiElement {
 			$id = & $autoid;
 			$anchor = '';
 		} else {
-			$anchor = ' &aname('.$id.',super,full){'.$this->root->_symbol_anchor.'};';
+			//$anchor = ' &aname('.$id.',super,full){'.$this->root->_symbol_anchor.'};';
+			$anchor = " &aname($id,super,full){{$this->root->_symbol_anchor}};";
+			if ($this->root->fixed_heading_anchor_edit) $anchor .= " &edit(#$id,paraedit);";
 		}
 
 		$text = ' '.$text;

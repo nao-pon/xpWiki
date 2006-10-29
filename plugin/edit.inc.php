@@ -4,7 +4,7 @@ class xpwiki_plugin_edit extends xpwiki_plugin {
 
 
 	// PukiWiki - Yet another WikiWikiWeb clone.
-	// $Id: edit.inc.php,v 1.1 2006/10/13 13:17:49 nao-pon Exp $
+	// $Id: edit.inc.php,v 1.2 2006/10/29 12:36:38 nao-pon Exp $
 	// Copyright (C) 2001-2006 PukiWiki Developers Team
 	// License: GPL v2 or (at your option) any later version
 	//
@@ -33,7 +33,17 @@ class xpwiki_plugin_edit extends xpwiki_plugin {
 			return $this->plugin_edit_cancel();
 		}
 	
-		$postdata = @join('', $this->func->get_source($page));
+		//$postdata = @join('', $this->func->get_source($page));
+		$source = $this->func->get_source($page);
+		$postdata = $this->root->vars['original'] = @join('', $source);
+		if (! empty($this->root->vars['paraid'])) {
+			$postdata = $this->plugin_edit_parts($this->root->vars['paraid'], $source);
+			if ($postdata === FALSE) {
+				unset($this->root->vars['paraid']);
+				$postdata = $this->root->vars['original']; // なかったことに :)
+			}
+		}
+
 		if ($postdata == '') $postdata = $this->func->auto_template($page);
 	
 		return array('msg'=>$this->root->_title_edit, 'body'=>$this->func->edit_form($page, $postdata));
@@ -102,16 +112,18 @@ class xpwiki_plugin_edit extends xpwiki_plugin {
 	
 		$page    = array_shift($args);
 		if ($page == NULL) $page = '';
-		$_noicon = $_nolabel = FALSE;
+		$_noicon = $_nolabel = $_paraedit = FALSE;
 		foreach($args as $arg){
 			switch(strtolower($arg)){
-			case ''       :                   break;
-			case 'nolabel': $_nolabel = TRUE; break;
-			case 'noicon' : $_noicon  = TRUE; break;
-			default       : return $usage[$this->xpwiki->pid];
+			case ''        :                    break;
+			case 'paraedit': $_paraedit = TRUE; break;
+			case 'nolabel' : $_nolabel  = TRUE; break;
+			case 'noicon'  : $_noicon   = TRUE; break;
+			default        : return $usage[$this->xpwiki->pid];
 			}
 		}
-	
+		if ($_paraedit) $_nolabel = TRUE;
+		
 		// Separate a page-name and a fixed anchor
 		list($s_page, $id, $editable) = $this->func->anchor_explode($page, TRUE);
 	
@@ -121,6 +133,7 @@ class xpwiki_plugin_edit extends xpwiki_plugin {
 		// $s_page fixed
 		$isfreeze = $this->func->is_freeze($s_page);
 		$ispage   = $this->func->is_page($s_page);
+		if ($_paraedit && $isfreeze) return ''; // Show nothing
 	
 		// Paragraph edit enabled or not
 		$short = htmlspecialchars('Edit');
@@ -163,7 +176,7 @@ class xpwiki_plugin_edit extends xpwiki_plugin {
 		if ($isfreeze) {
 			$url   = $this->root->script . '?cmd=unfreeze&amp;page=' . rawurlencode($s_page);
 		} else {
-			$s_id = ($id == '') ? '' : '&amp;id=' . $id;
+			$s_id = ($id == '') ? '' : '&amp;paraid=' . $id;
 			$url  = $this->root->script . '?cmd=edit&amp;page=' . rawurlencode($s_page) . $s_id;
 		}
 		$atag  = '<a' . $class . ' href="' . $url . '" title="' . $title . '">';
@@ -194,6 +207,29 @@ class xpwiki_plugin_edit extends xpwiki_plugin {
 	
 		$this->root->vars['msg'] = preg_replace($this->cont['PLUGIN_EDIT_FREEZE_REGEX'], '', $this->root->vars['msg']);
 		$msg = & $this->root->vars['msg']; // Reference
+		
+		// paraedit
+		if (isset($this->root->vars['add']) && $this->root->vars['add']) {
+			if (isset($this->root->vars['add_top']) && $this->root->vars['add_top']) {
+				$postdata  = $postdata . "\n\n" . @join('', $this->func->get_source($page));
+			} else {
+				$postdata  = @join('', $this->func->get_source($page)) . "\n\n" . $postdata;
+			}
+		} else {
+			if (isset($this->root->vars['paraid']) && $this->root->vars['paraid']) {
+				$source = preg_split('/([^\n]*\n)/', $this->root->vars['original'], -1,
+					PREG_SPLIT_NO_EMPTY | PREG_SPLIT_DELIM_CAPTURE);
+				if ($this->plugin_edit_parts($this->root->vars['paraid'], $source, $this->root->vars['msg']) !== FALSE) {
+					$postdata = $postdata_input = join('', $source);
+					$msg = & $postdata; // REFERENCE
+				} else {
+					// $this->root->vars['msg']だけがページに書き込まれてしまうのを防ぐ。
+					$postdata = $postdata_input =
+						rtrim($this->root->vars['original']) . "\n\n" . $this->root->vars['msg'];
+					$msg = & $postdata; // REFERENCE
+				}
+			}
+		}
 	
 		$retvars = array();
 	
@@ -225,6 +261,9 @@ class xpwiki_plugin_edit extends xpwiki_plugin {
 			// Edit or Remove
 			$postdata = & $msg; // Reference
 		}
+
+		unset($this->root->vars['paraid']);// 更新が衝突したら全文編集に切り替え
+		$retvars['body'] .= $this->func->edit_form($page, $postdata_input, $oldpagemd5, FALSE);
 	
 		// NULL POSTING, OR removing existing page
 		if ($postdata == '') {
@@ -259,6 +298,22 @@ class xpwiki_plugin_edit extends xpwiki_plugin {
 		$this->func->pkwk_headers_sent();
 		header('Location: ' . $this->func->get_script_uri() . '?' . rawurlencode($this->root->vars['page']));
 		exit;
+	}
+	
+	// ソースの一部を抽出/置換する
+	function plugin_edit_parts($id, & $source, $postdata = '')
+	{
+		$postdata = rtrim($postdata)."\n";
+		$heads = preg_grep('/^\*{1,3}.+$/', $source);
+		$heads[count($source)] = ''; // Sentinel
+	
+		while (list($start, $line) = each($heads)) {
+			if (preg_match("/\[#$id\]/", $line)) {
+				list($end, $line) = each($heads);
+				return join('', array_splice($source, $start, $end - $start, $postdata));
+			}
+		}
+		return FALSE;
 	}
 }
 ?>
