@@ -1,7 +1,7 @@
 <?php
 //
 // Created on 2006/10/02 by nao-pon http://hypweb.net/
-// $Id: xpwiki_func.php,v 1.14 2006/10/30 14:25:21 nao-pon Exp $
+// $Id: xpwiki_func.php,v 1.15 2006/10/30 23:28:15 nao-pon Exp $
 //
 class XpWikiFunc extends XpWikiXoopsWrapper {
 
@@ -382,7 +382,7 @@ EOD;
 	function get_page_cache ($page) {
 
 		// キャッシュ判定
-		$cache_file = $this->cont['CACHE_DIR']."page/".$this->encode($page).".dat";
+		$cache_file = $this->cont['CACHE_DIR']."page/".$this->encode($page).".".$this->cont['UI_LANG'];
 		if ($this->root->userinfo['uid'] === 0 && $this->root->pagecache_min > 0 && file_exists($cache_file) && (filemtime($cache_file) + $this->root->pagecache_min * 60) > time()) {
 			$cache_dat = unserialize(join('',file($cache_file)));
 		} else {
@@ -404,7 +404,7 @@ EOD;
 							'related'       => $this->root->related
 						),
 						'cont'          => array(
-							'SKIN_NAME'     => $this->cont['SKIN_NAME']
+							'SKIN_NAME'     => @$this->cont['SKIN_NAME']
 						)
 					)
 				));
@@ -423,7 +423,15 @@ EOD;
 	}
 	
 	function clear_page_cache ($page) {
-		@unlink ($this->cont['CACHE_DIR']."page/".$this->encode($page).".dat");
+		$base = $this->root->mytrustdirpath."/lang";
+		if ($handle = opendir($base)) {
+			while (false !== ($file = readdir($handle))) {
+				if (preg_match("/^([\w-]+)\.lng\.php$/", $file, $match)) {
+					@unlink ($this->cont['CACHE_DIR']."page/".$this->encode($page).".".$match[1]);
+				}
+			}
+			closedir($handle);
+		}
 		return ;
 	}
 }
