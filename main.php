@@ -26,8 +26,6 @@ include_once "$mytrustdirpath/include.php";
 
 $xpwiki = new XpWiki($mydirname);
 
-//$xpwiki->setValue('module',$xoopsModule);
-
 // initialize
 // $xpwiki->init("[Page name]"); (if show a page.)
 $xpwiki->init();
