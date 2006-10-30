@@ -4,7 +4,7 @@ class xpwiki_plugin_tracker extends xpwiki_plugin {
 
 
 	// PukiWiki - Yet another WikiWikiWeb clone
-	// $Id: tracker.inc.php,v 1.2 2006/10/18 03:02:08 nao-pon Exp $
+	// $Id: tracker.inc.php,v 1.3 2006/10/30 13:59:31 nao-pon Exp $
 	//
 	// Issue tracker plugin (See Also bugtrack plugin)
 	
@@ -391,7 +391,7 @@ class XpWikiTracker_field_text extends XpWikiTracker_field
 		$s_name = htmlspecialchars($this->name);
 		$s_size = htmlspecialchars($this->values[0]);
 		if ($this->default_value == '$uname' || $this->default_value == '$X_uname' ) {
-			$this->default_value = $this->root->userinfo['uname'];
+			$this->default_value = $this->cont['USER_NAME_REPLACE'];
 		}
 		$s_value = htmlspecialchars($this->default_value);
 		$helper = ($this->name == "_name" || is_a($this, "XpWikiTracker_field_page"))? "" : " rel=\"wikihelper\"";

@@ -1,7 +1,7 @@
 <?php
 //
 // Created on 2006/10/02 by nao-pon http://hypweb.net/
-// $Id: xpwiki_func.php,v 1.12 2006/10/27 11:58:37 nao-pon Exp $
+// $Id: xpwiki_func.php,v 1.13 2006/10/30 13:59:31 nao-pon Exp $
 //
 class XpWikiFunc extends XpWikiXoopsWrapper {
 
@@ -377,6 +377,53 @@ class XpWikiFunc extends XpWikiXoopsWrapper {
 -->
 </script>
 EOD;
+	}
+	
+	function get_page_cache ($page) {
+
+		// キャッシュ判定
+		$cache_file = $this->cont['CACHE_DIR']."page/".$this->encode($page).".dat";
+		if ($this->root->userinfo['uid'] === 0 && $this->root->pagecache_min > 0 && file_exists($cache_file) && (filemtime($cache_file) + $this->root->pagecache_min * 60) > time()) {
+			$cache_dat = unserialize(join('',file($cache_file)));
+		} else {
+			$cache_dat = FALSE;
+		}
+		if (!$cache_dat) {
+			$body  = $this->convert_html($this->get_source($page));
+			
+			// キャッシュ保存
+			if ($this->root->userinfo['uid'] === 0 && $this->root->pagecache_min > 0) {
+				$fp = fopen($cache_file, "wb");
+				fwrite($fp, serialize(
+					array(
+						'body'          => $body,
+						'root'          => array(
+							'foot_explain'  => $this->root->foot_explain,
+							'head_pre_tags' => $this->root->head_pre_tags,
+							'head_tags'     => $this->root->head_tags
+						),
+						'cont'          => array(
+							'SKIN_NAME'     => $this->cont['SKIN_NAME']
+						)
+					)
+				));
+				fclose($fp);
+			}
+		} else {
+			$body = array_shift($cache_dat);
+			foreach ($cache_dat['root'] as $_key=>$_val) {
+				$this->root->$_key = $_val;	
+			}
+			foreach ($cache_dat['cont'] as $_key=>$_val) {
+				$this->cont[$_key] = $_val;	
+			}
+		}
+		return $body;
+	}
+	
+	function clear_page_cache ($page) {
+		@unlink ($this->cont['CACHE_DIR']."page/".$this->encode($page).".dat");
+		return ;
 	}
 }
 ?>

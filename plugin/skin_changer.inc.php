@@ -1,7 +1,7 @@
 <?php
 //
 // Created on 2006/10/20 by nao-pon http://hypweb.net/
-// $Id: skin_changer.inc.php,v 1.1 2006/10/21 01:38:57 nao-pon Exp $
+// $Id: skin_changer.inc.php,v 1.2 2006/10/30 13:59:31 nao-pon Exp $
 //
 class xpwiki_plugin_skin_changer extends xpwiki_plugin {
 	function plugin_skin_changer_init () {
@@ -44,7 +44,7 @@ class xpwiki_plugin_skin_changer extends xpwiki_plugin {
 		
 		$link = (empty($now_query))? "setskin=" : "{$now_query}&setskin="; 
 		foreach ($skins as $name=>$skin) {
-			if ($skin == $this->root->cookie['skin']) {
+			if ($skin == $this->root->cookie['skin'] && ($this->root->pagecache_min === 0 || $this->root->userinfo['uid'] !== 0)) {
 				$ret .= '<li style="font-weight:bold;">'.htmlspecialchars($name).'</li>'."\n";
 			} else {
 				$ret .= '<li><a href="?'.htmlspecialchars($link.$skin).'" title="Change skin">'.htmlspecialchars($name).'</a></li>'."\n";
@@ -75,7 +75,7 @@ class xpwiki_plugin_skin_changer extends xpwiki_plugin {
 		
 		$link = (empty($now_query))? "setskin={$name}" : "{$now_query}&setskin={$name}"; 
 		
-		if ($name == $this->root->cookie['skin']) {
+		if ($name == $this->root->cookie['skin'] && ($this->root->pagecache_min === 0 || $this->root->userinfo['uid'] !== 0)) {
 			return '<span style="font-weight:bold;">'.$text.'</span>';
 		} else {
 			return '<a href="?'.str_replace("&","&amp;",$link).'" title="Change skin">'.$text.'</a>';

@@ -4,7 +4,7 @@ class xpwiki_plugin_comment extends xpwiki_plugin {
 
 
 	// PukiWiki - Yet another WikiWikiWeb clone
-	// $Id: comment.inc.php,v 1.3 2006/10/18 03:02:08 nao-pon Exp $
+	// $Id: comment.inc.php,v 1.4 2006/10/30 13:59:31 nao-pon Exp $
 	// Copyright (C)
 	//   2002-2005 PukiWiki Developers Team
 	//   2001-2002 Originally written by yu-ji
@@ -113,7 +113,7 @@ class xpwiki_plugin_comment extends xpwiki_plugin {
 		} else {
 			$nametags = '<label for="_p_comment_name_' . $comment_no . '">' .
 			$this->root->_btn_name . '</label>' .
-			'<input type="text" name="name" value="'.$this->root->userinfo['uname_s'].'" id="_p_comment_name_' .
+			'<input type="text" name="name" value="'.$this->cont['USER_NAME_REPLACE'].'" id="_p_comment_name_' .
 			$comment_no .  '" size="' . $this->cont['PLUGIN_COMMENT_SIZE_NAME'] .
 			'" />' . "\n";
 		}

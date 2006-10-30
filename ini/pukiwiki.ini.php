@@ -1,6 +1,6 @@
 <?php
 // PukiWiki - Yet another WikiWikiWeb clone
-// $Id: pukiwiki.ini.php,v 1.8 2006/10/29 12:45:00 nao-pon Exp $
+// $Id: pukiwiki.ini.php,v 1.9 2006/10/30 13:59:31 nao-pon Exp $
 // Copyright (C)
 //   2002-2006 PukiWiki Developers Team
 //   2001-2002 Originally written by yu-ji
@@ -448,6 +448,11 @@ $root->line_break = 0;
 $root->usedatetime = 1;
 
 /////////////////////////////////////////////////
+// ページキャッシュの設定 (ゲストアクセス時のみ)
+// ページキャッシュを最長何分間するか？
+$this->root->pagecache_min = 0;
+
+/////////////////////////////////////////////////
 // User-Agent settings
 //
 // If you want to ignore embedded browsers for rich-content-wikisite,
@@ -579,4 +584,7 @@ $const['PKWK_DIFF_SHOW_CONFLICT_DETAIL'] = 1;
 
 // Fixed prefix of configuration-page's name
 $const['PKWK_CONFIG_PREFIX'] = ':config/';
+
+// 名前欄の仮文字列(コンバート後にユーザー名に置換) 
+$const['USER_NAME_REPLACE'] = '__uSER_nAME_rEPLACE__';
 ?>
