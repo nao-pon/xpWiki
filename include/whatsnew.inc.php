@@ -1,0 +1,37 @@
+<?php
+//
+// Created on 2006/10/29 by nao-pon http://hypweb.net/
+// $Id: whatsnew.inc.php,v 1.1 2006/10/30 03:01:48 nao-pon Exp $
+//
+
+// DIRNAME_new() 関数を動的に生成
+eval( '
+
+function '.$mydirname.'_new( $limit=0, $offset=0 )
+{
+	return xpwiki_whatsnew_base( "'.$mydirname.'" , $limit, $offset ) ;
+}
+
+' ) ;
+
+
+// DIRNAME_new() 関数の実体
+function xpwiki_whatsnew_base( $mydirname, $limit, $offset ) {
+
+	// 必要なファイルの読み込み
+	$mytrustdirpath = dirname(dirname( __FILE__ )) ;
+	include_once "$mytrustdirpath/include.php";
+	
+	// XpWiki オブジェクト作成
+	$xpwiki = new XpWiki($mydirname);
+	
+	// whatsnew extension 読み込み
+	$xpwiki->load_extensions("whatsnew");
+	
+	// 初期化
+	$xpwiki->init();
+	
+	// whatsnew データ取得
+	return $xpwiki->extension->whatsnew->get ($limit, $offset);
+}
+?>
