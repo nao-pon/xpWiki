@@ -1,7 +1,7 @@
 <?php
 //
 // Created on 2006/09/29 by nao-pon http://hypweb.net/
-// $Id: xpwiki.php,v 1.9 2006/10/27 11:38:29 nao-pon Exp $
+// $Id: xpwiki.php,v 1.10 2006/10/30 02:58:52 nao-pon Exp $
 //
 
 class XpWiki {
@@ -220,9 +220,40 @@ EOD;
 
 		return $block;
 	}
-	
-	function setValue ($key, $val) {
-		$this->$key = $val;
+/*
+	// すべてのExtensionを読み込む
+	function load_extensions_all () {
+		$base = $this->root->mytrustdirpath."/class/extension";
+		if ($handle = opendir($base)) {
+			while (false !== ($file = readdir($handle))) {
+				if (preg_match("/^([\w-]+\).php$/",$file,$match)) {
+					include_once($base."/".$file);
+					$name = $match[1];
+					$class = "XPWikiExtension_".$name;
+					if (class_exists($class)) {
+						$this->extension->$name = new $class($this);
+					}
+				}
+			}
+			closedir($handle);
+		}	
+	}
+*/
+	// 指定のExtensionを読み込む
+	function load_extensions ($exts) {
+		$base = $this->root->mytrustdirpath."/class/extension";
+		if (!is_array($exts)) {
+			$exts = array($exts);
+		}
+		foreach($exts as $name) {
+			if (preg_match("/^[\w-]+$/",$name)) {
+				include_once($base."/".$name.".php");
+				$class = "XPWikiExtension_".$name;
+				if (class_exists($class)) {
+					$this->extension->$name = new $class($this);
+				}
+			}
+		}	
 	}
 }
 ?>
