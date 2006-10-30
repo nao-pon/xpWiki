@@ -1,7 +1,7 @@
 <?php
 //
 // Created on 2006/10/02 by nao-pon http://hypweb.net/
-// $Id: xpwiki_func.php,v 1.13 2006/10/30 13:59:31 nao-pon Exp $
+// $Id: xpwiki_func.php,v 1.14 2006/10/30 14:25:21 nao-pon Exp $
 //
 class XpWikiFunc extends XpWikiXoopsWrapper {
 
@@ -400,7 +400,8 @@ EOD;
 						'root'          => array(
 							'foot_explain'  => $this->root->foot_explain,
 							'head_pre_tags' => $this->root->head_pre_tags,
-							'head_tags'     => $this->root->head_tags
+							'head_tags'     => $this->root->head_tags,
+							'related'       => $this->root->related
 						),
 						'cont'          => array(
 							'SKIN_NAME'     => $this->cont['SKIN_NAME']
