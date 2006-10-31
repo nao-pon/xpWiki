@@ -28,7 +28,7 @@ class xpwiki_plugin_tag extends xpwiki_plugin {
 		return call_user_func_array(array($this->root->plugin_tag, 'convert'), $args);
 	}
 }
-	// $Id: tag.inc.php,v 1.2 2006/10/27 11:51:16 nao-pon Exp $
+	// $Id: tag.inc.php,v 1.3 2006/10/31 06:13:23 nao-pon Exp $
 	
 class XpWikiPluginTag
 {
@@ -122,27 +122,15 @@ class XpWikiPluginTag
 
 		if (! $this->check_tagnames($tags))
 			return 'tag(): tag names are illegal. Do not use ^ and -. ';
-
-		list($dels, $adds) = $this->get_tag_diff($page, $tags);
-		$this->renew_tagcache($page, $tags);
-
-		$tagcloud = $this->read_tagcloud();
-		foreach ($dels as $tag) {
-			$count = $this->del_page($tag, $page);
-			if ($count === FALSE)
-				return "tag(): failed to delete $page from tag cache for $tag. ";
-			$tagcloud[$this->get_key($tag)] = array($tag, $count);
-		}
-		foreach ($adds as $tag) {
-			$count = $this->add_page($tag, $page);
-			if ($count === FALSE)
-				return "tag(): failed to add $page to tag cache for $tag. ";
-			$tagcloud[$this->get_key($tag)] = array($tag, $count);
-		}
-		if ($this->write_tagcloud($tagcloud) === FALSE)
-			return "tag(): failed to write tag cloud cache. ";
 		
-		return $this->frontend($tags);
+		if (!empty($this->root->runtimeflag['preview']))
+			return $this->frontend($tags);
+		
+		if ($ret = $this->renew_tagcache($page, $tags)) {
+			return $this->frontend($tags);
+		} else {
+			return $ret;
+		}
 	}
 
 	// for another listing plugin
@@ -256,9 +244,33 @@ class XpWikiPluginTag
 
 	function renew_tagcache($page, $tags)
 	{
+		list($dels, $adds) = $this->get_tag_diff($page, $tags);
+
 		$storage = $this->get_pagestorage($page);
-		if ($this->file_put_contents($storage, implode("\n", $tags) . "\n") === FALSE)
-			return FALSE;
+		if (!$tags) {
+			@unlink($storage);
+		} else {
+			if ($this->file_put_contents($storage, implode("\n", $tags) . "\n") === FALSE)
+				return "tag(): failed to write page tagdata. ";
+		}
+		
+		$tagcloud = $this->read_tagcloud();
+		foreach ($dels as $tag) {
+			$count = $this->del_page($tag, $page);
+			if ($count === FALSE)
+				return "tag(): failed to delete $page from tag cache for $tag. ";
+			$tagcloud[$this->get_key($tag)] = array($tag, $count);
+		}
+		foreach ($adds as $tag) {
+			$count = $this->add_page($tag, $page);
+			if ($count === FALSE)
+				return "tag(): failed to add $page to tag cache for $tag. ";
+			$tagcloud[$this->get_key($tag)] = array($tag, $count);
+		}
+		if ($this->write_tagcloud($tagcloud) === FALSE)
+			return "tag(): failed to write tag cloud cache. ";
+		
+		return TRUE;
 	}
 
 	// PHP4 does not allow static function
