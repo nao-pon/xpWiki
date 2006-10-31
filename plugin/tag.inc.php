@@ -28,7 +28,7 @@ class xpwiki_plugin_tag extends xpwiki_plugin {
 		return call_user_func_array(array($this->root->plugin_tag, 'convert'), $args);
 	}
 }
-	// $Id: tag.inc.php,v 1.3 2006/10/31 06:13:23 nao-pon Exp $
+	// $Id: tag.inc.php,v 1.4 2006/10/31 23:57:36 nao-pon Exp $
 	
 class XpWikiPluginTag
 {
@@ -123,7 +123,7 @@ class XpWikiPluginTag
 		if (! $this->check_tagnames($tags))
 			return 'tag(): tag names are illegal. Do not use ^ and -. ';
 		
-		if (!empty($this->root->runtimeflag['preview']))
+		if ($this->root->rtf['convert_nest'] > 1 || !empty($this->root->rtf['preview']))
 			return $this->frontend($tags);
 		
 		if ($ret = $this->renew_tagcache($page, $tags)) {
