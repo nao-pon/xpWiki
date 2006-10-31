@@ -4,7 +4,7 @@ class xpwiki_plugin_edit extends xpwiki_plugin {
 
 
 	// PukiWiki - Yet another WikiWikiWeb clone.
-	// $Id: edit.inc.php,v 1.3 2006/10/31 00:36:00 nao-pon Exp $
+	// $Id: edit.inc.php,v 1.4 2006/10/31 04:54:26 nao-pon Exp $
 	// Copyright (C) 2001-2006 PukiWiki Developers Team
 	// License: GPL v2 or (at your option) any later version
 	//
@@ -205,31 +205,24 @@ class xpwiki_plugin_edit extends xpwiki_plugin {
 		$page   = isset($this->root->vars['page'])   ? $this->root->vars['page']   : '';
 		$add    = isset($this->root->vars['add'])    ? $this->root->vars['add']    : '';
 		$digest = isset($this->root->vars['digest']) ? $this->root->vars['digest'] : '';
+		$paraid = isset($this->root->vars['paraid']) ? $this->root->vars['paraid'] : '';
 	
 		$this->root->vars['msg'] = preg_replace($this->cont['PLUGIN_EDIT_FREEZE_REGEX'], '', $this->root->vars['msg']);
 		$msg = & $this->root->vars['msg']; // Reference
 		
-		// paraedit
-		if (isset($this->root->vars['add']) && $this->root->vars['add']) {
-			if (isset($this->root->vars['add_top']) && $this->root->vars['add_top']) {
-				$postdata  = $postdata . "\n\n" . @join('', $this->func->get_source($page));
+		// ParaEdit
+		$hash = '';
+		if ($paraid) {
+			$source = preg_split('/([^\n]*\n)/', $this->root->vars['original'], -1,
+				PREG_SPLIT_NO_EMPTY | PREG_SPLIT_DELIM_CAPTURE);
+			if ($this->plugin_edit_parts($paraid, $source, $msg) !== FALSE) {
+				$fullmsg = join('', $source);
 			} else {
-				$postdata  = @join('', $this->func->get_source($page)) . "\n\n" . $postdata;
+				// $this->root->vars['msg']だけがページに書き込まれてしまうのを防ぐ。
+				$fullmsg = rtrim($this->root->vars['original']) . "\n\n" . $msg;
 			}
-		} else {
-			if (isset($this->root->vars['paraid']) && $this->root->vars['paraid']) {
-				$source = preg_split('/([^\n]*\n)/', $this->root->vars['original'], -1,
-					PREG_SPLIT_NO_EMPTY | PREG_SPLIT_DELIM_CAPTURE);
-				if ($this->plugin_edit_parts($this->root->vars['paraid'], $source, $this->root->vars['msg']) !== FALSE) {
-					$postdata = $postdata_input = join('', $source);
-					$msg = & $postdata; // REFERENCE
-				} else {
-					// $this->root->vars['msg']だけがページに書き込まれてしまうのを防ぐ。
-					$postdata = $postdata_input =
-						rtrim($this->root->vars['original']) . "\n\n" . $this->root->vars['msg'];
-					$msg = & $postdata; // REFERENCE
-				}
-			}
+			$msg = $fullmsg;
+			$hash = '#' . $paraid;
 		}
 	
 		$retvars = array();
@@ -239,6 +232,7 @@ class xpwiki_plugin_edit extends xpwiki_plugin {
 		$oldpagemd5 = md5($oldpagesrc);
 		if ($digest != $oldpagemd5) {
 			$this->root->vars['digest'] = $oldpagemd5; // Reset
+			unset($this->root->vars['paraid']); // 更新が衝突したら全文編集に切り替え
 	
 			$original = isset($this->root->vars['original']) ? $this->root->vars['original'] : '';
 			list($postdata_input, $auto) = $this->func->do_update_diff($oldpagesrc, $msg, $original);
@@ -263,9 +257,6 @@ class xpwiki_plugin_edit extends xpwiki_plugin {
 			$postdata = & $msg; // Reference
 		}
 
-		unset($this->root->vars['paraid']);// 更新が衝突したら全文編集に切り替え
-		$retvars['body'] .= $this->func->edit_form($page, $postdata_input, $oldpagemd5, FALSE);
-	
 		// NULL POSTING, OR removing existing page
 		if ($postdata == '') {
 			$this->func->page_write($page, $postdata);
@@ -288,7 +279,7 @@ class xpwiki_plugin_edit extends xpwiki_plugin {
 	
 		$this->func->page_write($page, $postdata, $this->root->notimeupdate != 0 && $notimestamp);
 		$this->func->pkwk_headers_sent();
-		header('Location: ' . $this->func->get_script_uri() . '?' . rawurlencode($page));
+		header('Location: ' . $this->func->get_script_uri() . '?' . rawurlencode($page) . $hash);
 		exit;
 	}
 	
