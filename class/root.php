@@ -1,7 +1,7 @@
 <?php
 //
 // Created on 2006/09/29 by nao-pon http://hypweb.net/
-// $Id: root.php,v 1.6 2006/10/27 11:56:23 nao-pon Exp $
+// $Id: root.php,v 1.7 2006/10/31 23:54:54 nao-pon Exp $
 //
 class XpWikiRoot {
 
@@ -110,6 +110,7 @@ class XpWikiRoot {
 	var $related_link;
 	var $related_str;
 	var $rows;
+	var $rtf = array(); //RunTimeFlag
 	var $rule_page;
 	var $rule_related_str;
 	var $script;
@@ -131,7 +132,7 @@ class XpWikiRoot {
 	var $whatsnew;
 	
 	function xpwiki_root() {
-
+		
 	}
 }
 ?>
