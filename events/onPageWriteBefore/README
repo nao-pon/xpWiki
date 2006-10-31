@@ -1,1 +1,37 @@
+<?php
+/*
 Custom event files are included in this directory.
+You can use next variables here.
+
+$this        : XpWiki Function object
+$page        : page name
+$postdata    : text data of page
+$notimestamp : no change time stamp flag (TRUE or FALSE)
+$mode        : Action mode (insert, update or delete)
+
+*/
+
+// Here is a sample code.
+
+// This block always execute.
+
+// Get plugin instance
+$_plugin = & $this->get_plugin_instance('PLUGIN_NAME');
+
+// exec plugin function with arguments.
+$aryargs = array('hoge', 'hege');
+$result  = call_user_func_array(array(& $_plugin, 'PLUGIN_FUNCTION_NAME'), $aryargs);
+
+if ( $mode === 'insert' ) {
+	// Only page create time.
+
+} else if ( $mode === 'update' ) {
+	// Only page update time.
+
+} else if ( $mode === 'delete' ) {
+	// Only page delete time.
+
+}
+
+unset ($_plugin);
+?>
