@@ -1,7 +1,7 @@
 <?php
 //
 // Created on 2006/10/02 by nao-pon http://hypweb.net/
-// $Id: xpwiki_func.php,v 1.15 2006/10/30 23:28:15 nao-pon Exp $
+// $Id: xpwiki_func.php,v 1.16 2006/11/01 08:37:03 nao-pon Exp $
 //
 class XpWikiFunc extends XpWikiXoopsWrapper {
 
@@ -383,7 +383,19 @@ EOD;
 
 		// キャッシュ判定
 		$cache_file = $this->cont['CACHE_DIR']."page/".$this->encode($page).".".$this->cont['UI_LANG'];
-		if ($this->root->userinfo['uid'] === 0 && $this->root->pagecache_min > 0 && file_exists($cache_file) && (filemtime($cache_file) + $this->root->pagecache_min * 60) > time()) {
+		
+		$use_cache_always = FALSE;
+		if (isset($this->root->rtf['use_cache_always']) && file_exists($cache_file)) {
+			$this->root->userinfo['admin'] = FALSE;
+			$this->root->userinfo['uid'] = 0;
+			$this->root->userinfo['uname'] = '';
+			$this->root->userinfo['uname_s'] = '';
+			$this->root->userinfo['gids'] = array();
+			$use_cache_always = TRUE;
+		}
+		
+		if (($this->root->userinfo['uid'] === 0 && $this->root->pagecache_min > 0 && file_exists($cache_file) && (filemtime($cache_file) + $this->root->pagecache_min * 60) > time())
+			|| $use_cache_always) {
 			$cache_dat = unserialize(join('',file($cache_file)));
 		} else {
 			$cache_dat = FALSE;
@@ -392,7 +404,7 @@ EOD;
 			$body  = $this->convert_html($this->get_source($page));
 			
 			// キャッシュ保存
-			if ($this->root->userinfo['uid'] === 0 && $this->root->pagecache_min > 0) {
+			if ($use_cache_always || ($this->root->userinfo['uid'] === 0 && $this->root->pagecache_min > 0)) {
 				$fp = fopen($cache_file, "wb");
 				fwrite($fp, serialize(
 					array(
