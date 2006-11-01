@@ -1,7 +1,7 @@
 <?php
 //
 // Created on 2006/10/29 by nao-pon http://hypweb.net/
-// $Id: whatsnew.php,v 1.1 2006/10/30 03:01:48 nao-pon Exp $
+// $Id: whatsnew.php,v 1.2 2006/11/01 08:36:00 nao-pon Exp $
 //
 
 class XpWikiExtension_whatsnew extends XpWikiExtension {
@@ -32,6 +32,7 @@ class XpWikiExtension_whatsnew extends XpWikiExtension {
 			// 指定ページの本文取得
 			$page = new XpWiki($this->root->mydirname);
 			$page->init($base);
+			$page->root->rtf['use_cache_always'] = TRUE;
 			$page->execute();
 			$desc = $page->body;
 	
