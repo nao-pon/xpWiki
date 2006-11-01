@@ -4,13 +4,13 @@ class xpwiki_plugin_search extends xpwiki_plugin {
 
 
 	// PukiWiki - Yet another WikiWikiWeb clone.
-	// $Id: search.inc.php,v 1.1 2006/10/13 13:17:49 nao-pon Exp $
+	// $Id: search.inc.php,v 1.2 2006/11/01 04:19:37 nao-pon Exp $
 	//
 	// Search plugin
 	
 	// Allow search via GET method 'index.php?plugin=search&word=keyword'
 	// NOTE: Also allows DoS to your site more easily by SPAMbot or worm or ...
-		$this->cont['PLUGIN_SEARCH_DISABLE_GET_ACCESS'] =  1; // 1, 0
+		$this->cont['PLUGIN_SEARCH_DISABLE_GET_ACCESS'] =  0; // 1, 0
 	
 		$this->cont['PLUGIN_SEARCH_MAX_LENGTH'] =  80;
 		$this->cont['PLUGIN_SEARCH_MAX_BASE'] =    16; // #search(1,2,3,...,15,16)
@@ -106,10 +106,11 @@ EOD;
 EOD;
 			$base_option = '<div class="small">' . $base_msg . '</div>';
 		}
-	
+		$method = $this->cont['PLUGIN_SEARCH_DISABLE_GET_ACCESS']? 'POST' : 'GET';
 		return <<<EOD
-<form action="{$this->root->script}?cmd=search" method="post">
+<form action="{$this->root->script}" method="$method">
  <div>
+  <input type="hidden" name="cmd" value="search" />
   <input type="text"  name="word" value="$s_word" size="20" />
   <input type="radio" name="type" id="_p_search_AND" value="AND" $and_check />
   <label for="_p_search_AND">{$this->root->_btn_and}</label>
