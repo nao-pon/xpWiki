@@ -1,11 +1,11 @@
 <?php
 
-eval( ' function xoops_module_update_'.$mydirname.'( $module ) { return wraps_onupdate_base( $module , "'.$mydirname.'" ) ; } ' ) ;
+eval( ' function xoops_module_update_'.$mydirname.'( $module ) { return xpwiki_onupdate_base( $module , "'.$mydirname.'" ) ; } ' ) ;
 
 
-if( ! function_exists( 'wraps_onupdate_base' ) ) {
+if( ! function_exists( 'xpwiki_onupdate_base' ) ) {
 
-function wraps_onupdate_base( $module , $mydirname )
+function xpwiki_onupdate_base( $module , $mydirname )
 {
 	// transations on module update
 
@@ -14,7 +14,7 @@ function wraps_onupdate_base( $module , $mydirname )
 	// for Cube 2.1
 	if( defined( 'XOOPS_CUBE_LEGACY' ) ) {
 		$root =& XCube_Root::getSingleton();
-		$root->mDelegateManager->add( 'Legacy.Admin.Event.ModuleUpdate.' . ucfirst($mydirname) . '.Success', 'wraps_message_append_onupdate' ) ;
+		$root->mDelegateManager->add( 'Legacy.Admin.Event.ModuleUpdate.' . ucfirst($mydirname) . '.Success', 'xpwiki_message_append_onupdate' ) ;
 		$msgs = array() ;
 	} else {
 		if( ! is_array( $msgs ) ) $msgs = array() ;
@@ -70,7 +70,7 @@ function wraps_onupdate_base( $module , $mydirname )
 	return true ;
 }
 
-function wraps_message_append_onupdate( &$module_obj , &$log )
+function xpwiki_message_append_onupdate( &$module_obj , &$log )
 {
 	if( is_array( @$GLOBALS['msgs'] ) ) {
 		foreach( $GLOBALS['msgs'] as $message ) {

@@ -1,11 +1,11 @@
 <?php
 
-eval( ' function xoops_module_install_'.$mydirname.'( $module ) { return wraps_oninstall_base( $module , "'.$mydirname.'" ) ; } ' ) ;
+eval( ' function xoops_module_install_'.$mydirname.'( $module ) { return xpwiki_oninstall_base( $module , "'.$mydirname.'" ) ; } ' ) ;
 
 
-if( ! function_exists( 'wraps_oninstall_base' ) ) {
+if( ! function_exists( 'xpwiki_oninstall_base' ) ) {
 
-function wraps_oninstall_base( $module , $mydirname )
+function xpwiki_oninstall_base( $module , $mydirname )
 {
 	// transations on module install
 
@@ -14,7 +14,7 @@ function wraps_oninstall_base( $module , $mydirname )
 	// for Cube 2.1
 	if( defined( 'XOOPS_CUBE_LEGACY' ) ) {
 		$root =& XCube_Root::getSingleton();
-		$root->mDelegateManager->add( 'Legacy.Admin.Event.ModuleInstall.' . ucfirst($mydirname) . '.Success' , 'wraps_message_append_oninstall' ) ;
+		$root->mDelegateManager->add( 'Legacy.Admin.Event.ModuleInstall.' . ucfirst($mydirname) . '.Success' , 'xpwiki_message_append_oninstall' ) ;
 		$ret = array() ;
 	} else {
 		if( ! is_array( $ret ) ) $ret = array() ;
@@ -105,7 +105,7 @@ function wraps_oninstall_base( $module , $mydirname )
 	return true ;
 }
 
-function wraps_message_append_oninstall( &$module_obj , &$log )
+function xpwiki_message_append_oninstall( &$module_obj , &$log )
 {
 	if( is_array( @$GLOBALS['ret'] ) ) {
 		foreach( $GLOBALS['ret'] as $message ) {
