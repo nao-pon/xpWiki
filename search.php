@@ -2,15 +2,19 @@
 
 eval( '
 
-function '.$mydirname.'_global_search( $keywords , $andor , $limit , $offset , $userid )
+function '. $mydirname .'_global_search( $keywords , $andor , $limit , $offset , $userid )
 {
-	return wraps_global_search_base( "'.$mydirname.'" , $keywords , $andor , $limit , $offset , $userid ) ;
+	// for XOOPS Search module
+	static $readed = FALSE;
+	if($readed) { return array() ; }
+	$readed = TRUE;
+	return xpwiki_global_search_base( "'.$mydirname.'" , $keywords , $andor , $limit , $offset , $userid ) ;
 }
 
 ' ) ;
 
 
-if( ! function_exists( 'wraps_global_search_base' ) ) {
+if( ! function_exists( 'xpwiki_global_search_base' ) ) {
 
 function xpwiki_global_search_base( $mydirname , $keywords , $andor , $limit , $offset , $userid )
 {
@@ -18,45 +22,37 @@ function xpwiki_global_search_base( $mydirname , $keywords , $andor , $limit , $
 	if( ! empty( $userid ) ) {
 		return array() ;
 	}
-
-	$db =& Database::getInstance() ;
-
-	// XOOPS Search module
+	
+	$xpwiki = new XpWiki($mydirname);
+	$xpwiki->init();
+	
+	// for XOOPS Search module
 	$showcontext = empty( $_GET['showcontext'] ) ? 0 : 1 ;
-	$select4con = $showcontext ? "`body` AS text" : "'' AS text" ;
 
 	if( is_array( $keywords ) && count( $keywords ) > 0 ) {
-		switch( strtolower( $andor ) ) {
-			case "and" :
-				$whr = "" ;
-				foreach( $keywords as $keyword ) {
-					$whr .= "`body` LIKE '%$keyword%' AND " ;
-				}
-				$whr .= "1" ;
-				break ;
-			case "or" :
-				$whr = "" ;
-				foreach( $keywords as $keyword ) {
-					$whr .= "`body` LIKE '%$keyword%' OR " ;
-				}
-				$whr .= "0" ;
-				break ;
-			default :
-				$whr = "`body` LIKE '%{$keywords[0]}%'" ;
-				break ;
-		}
+		$word = join(' ',$keywords);
 	} else {
-		$whr = 1 ;
+		$word = '';
 	}
-
-	$sql = "SELECT `filename`,`title`,`mtime`,$select4con FROM ".$db->prefix( $mydirname."_indexes WHERE ($whr) ORDER BY 1" ) ;
-	$result = $db->query( $sql , $limit , $offset ) ;
+	//echo $word;
+	$results = $xpwiki->func->do_search($word, strtoupper($andor), TRUE);
+	
+	rsort($results);
+	$results = array_splice($results, $offset, $limit);
+	
 	$ret = array() ;
 	$context = '' ;
-	while( list( $filename , $title , $mtime , $text ) = $db->fetchRow( $result ) ) {
+	foreach($results as $page) {
 
 		// get context for module "search"
 		if( function_exists( 'search_make_context' ) && $showcontext ) {
+
+			$pobj = new XpWiki($mydirname);
+			$pobj->init($page);
+			$pobj->root->rtf['use_cache_always'] = TRUE;
+			$pobj->execute();
+			$text = $pobj->body;
+
 			$full_context = strip_tags( $text ) ;
 			if( function_exists( 'easiestml' ) ) $full_context = easiestml( $full_context ) ;
 			$context = search_make_context( $full_context , $keywords ) ;
@@ -64,9 +60,9 @@ function xpwiki_global_search_base( $mydirname , $keywords , $andor , $limit , $
 
 		$ret[] = array(
 			"image" => "" ,
-			"link" => "index.php/$filename" ,
-			"title" => $title ,
-			"time" => $mtime ,
+			"link" => 'index.php?' . rawurlencode($page) . '&amp;word=' . rawurlencode($word), 
+			"title" => htmlspecialchars($page) ,
+			"time" => $xpwiki->func->get_filetime($page) ,
 			"uid" => "0" ,
 			"context" => $context
 		) ;
