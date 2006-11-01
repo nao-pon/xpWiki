@@ -1,11 +1,11 @@
 <?php
 
-eval( ' function xoops_module_uninstall_'.$mydirname.'( $module ) { return wraps_onuninstall_base( $module , "'.$mydirname.'" ) ; } ' ) ;
+eval( ' function xoops_module_uninstall_'.$mydirname.'( $module ) { return xpwiki_onuninstall_base( $module , "'.$mydirname.'" ) ; } ' ) ;
 
 
-if( ! function_exists( 'wraps_onuninstall_base' ) ) {
+if( ! function_exists( 'xpwiki_onuninstall_base' ) ) {
 
-function wraps_onuninstall_base( $module , $mydirname )
+function xpwiki_onuninstall_base( $module , $mydirname )
 {
 	// transations on module uninstall
 
@@ -14,7 +14,7 @@ function wraps_onuninstall_base( $module , $mydirname )
 	// for Cube 2.1
 	if( defined( 'XOOPS_CUBE_LEGACY' ) ) {
 		$root =& XCube_Root::getSingleton();
-		$root->mDelegateManager->add( 'Legacy.Admin.Event.ModuleUninstall.' . ucfirst($mydirname) . '.Success' , 'wraps_message_append_onuninstall' ) ;
+		$root->mDelegateManager->add( 'Legacy.Admin.Event.ModuleUninstall.' . ucfirst($mydirname) . '.Success' , 'xpwiki_message_append_onuninstall' ) ;
 		$ret = array() ;
 	} else {
 		if( ! is_array( $ret ) ) $ret = array() ;
@@ -61,7 +61,7 @@ function wraps_onuninstall_base( $module , $mydirname )
 	return true ;
 }
 
-function wraps_message_append_onuninstall( &$module_obj , &$log )
+function xpwiki_message_append_onuninstall( &$module_obj , &$log )
 {
 	if( is_array( @$GLOBALS['ret'] ) ) {
 		foreach( $GLOBALS['ret'] as $message ) {
