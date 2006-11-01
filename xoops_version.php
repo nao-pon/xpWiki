@@ -1,4 +1,6 @@
 <?php
+// check dirctory name.
+if( preg_match("/^[a-zA-Z_][a-zA-Z0-9_]*$/", $mydirname) ) {
 
 // language file (modinfo.php)
 if( file_exists( dirname(__FILE__).'/language/'.@$xoopsConfig['language'].'/modinfo.php' ) ) {
@@ -30,9 +32,9 @@ $modversion['adminindex'] = 'admin/index.php' ;
 $modversion['adminmenu'] = 'admin/admin_menu.php' ;
 
 // Search
-$modversion['hasSearch'] = 0 ;
+$modversion['hasSearch'] = 1 ;
 $modversion['search']['file'] = 'search.php' ;
-$modversion['search']['func'] = $mydirname.'_global_search' ;
+$modversion['search']['func'] = $mydirname .'_global_search' ;
 
 // Menu
 $modversion['hasMain'] = 1 ;
@@ -59,5 +61,5 @@ $modversion['onInstall'] = 'oninstall.php' ;
 $modversion['onUpdate'] = 'onupdate.php' ;
 $modversion['onUninstall'] = 'onuninstall.php' ;
 
-
+}
 ?>
