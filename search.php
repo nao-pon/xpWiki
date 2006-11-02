@@ -22,7 +22,9 @@ function xpwiki_global_search_base( $mydirname , $keywords , $andor , $limit , $
 	if( ! empty( $userid ) ) {
 		return array() ;
 	}
-	
+
+	include_once dirname( __FILE__ ) . '/include.php';
+
 	$xpwiki = new XpWiki($mydirname);
 	$xpwiki->init();
 	
@@ -42,10 +44,11 @@ function xpwiki_global_search_base( $mydirname , $keywords , $andor , $limit , $
 	
 	$ret = array() ;
 	$context = '' ;
+	$make_context_func = function_exists( 'search_make_context' )? 'search_make_context' : (function_exists( 'xoops_make_context' )? 'xoops_make_context' : '');
 	foreach($results as $page) {
 
 		// get context for module "search"
-		if( function_exists( 'search_make_context' ) && $showcontext ) {
+		if( $make_context_func && $showcontext ) {
 
 			$pobj = new XpWiki($mydirname);
 			$pobj->init($page);
@@ -55,7 +58,7 @@ function xpwiki_global_search_base( $mydirname , $keywords , $andor , $limit , $
 
 			$full_context = strip_tags( $text ) ;
 			if( function_exists( 'easiestml' ) ) $full_context = easiestml( $full_context ) ;
-			$context = search_make_context( $full_context , $keywords ) ;
+			$context = $make_context_func( $full_context , $keywords ) ;
 		}
 
 		$ret[] = array(
