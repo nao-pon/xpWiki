@@ -1,6 +1,6 @@
 <?php
 // PukiWiki - Yet another WikiWikiWeb clone
-// $Id: pukiwiki.ini.php,v 1.9 2006/10/30 13:59:31 nao-pon Exp $
+// $Id: pukiwiki.ini.php,v 1.10 2006/11/03 07:13:43 nao-pon Exp $
 // Copyright (C)
 //   2002-2006 PukiWiki Developers Team
 //   2001-2002 Originally written by yu-ji
@@ -450,7 +450,16 @@ $root->usedatetime = 1;
 /////////////////////////////////////////////////
 // ページキャッシュの設定 (ゲストアクセス時のみ)
 // ページキャッシュを最長何分間するか？
-$this->root->pagecache_min = 0;
+$root->pagecache_min = 0;
+
+// ページ更新時常にページキャッシュを破棄するページ
+$root->always_clear_cache_pages = array (
+	//$root->defaultpage,
+	$root->menubar,
+);
+
+// 上位層のページもキャッシュをクリアする
+$root->clear_cache_parent = TRUE; // (TRUE or FASLE)
 
 /////////////////////////////////////////////////
 // User-Agent settings
