@@ -4,7 +4,7 @@ class xpwiki_plugin_edit extends xpwiki_plugin {
 
 
 	// PukiWiki - Yet another WikiWikiWeb clone.
-	// $Id: edit.inc.php,v 1.5 2006/10/31 23:55:47 nao-pon Exp $
+	// $Id: edit.inc.php,v 1.6 2006/11/03 02:26:34 nao-pon Exp $
 	// Copyright (C) 2001-2006 PukiWiki Developers Team
 	// License: GPL v2 or (at your option) any later version
 	//
@@ -296,7 +296,7 @@ class xpwiki_plugin_edit extends xpwiki_plugin {
 	function plugin_edit_parts($id, & $source, $postdata = '')
 	{
 		$postdata = rtrim($postdata)."\n";
-		$heads = preg_grep('/^\*{1,3}.+$/', $source);
+		$heads = preg_grep('/^\*{1,3}.+\[#[A-Za-z][\w-]+\].*$/', $source);
 		$heads[count($source)] = ''; // Sentinel
 	
 		while (list($start, $line) = each($heads)) {
