@@ -1,7 +1,7 @@
 <?php
 //
 // Created on 2006/10/02 by nao-pon http://hypweb.net/
-// $Id: xpwiki_func.php,v 1.16 2006/11/01 08:37:03 nao-pon Exp $
+// $Id: xpwiki_func.php,v 1.17 2006/11/03 07:13:42 nao-pon Exp $
 //
 class XpWikiFunc extends XpWikiXoopsWrapper {
 
@@ -437,9 +437,21 @@ EOD;
 	function clear_page_cache ($page) {
 		$base = $this->root->mytrustdirpath."/lang";
 		if ($handle = opendir($base)) {
+			$clr_pages = $this->root->always_clear_cache_pages;
+			$clr_pages[] = $page;
+			if ($this->root->clear_cache_parent)
+			{
+				// 上位層のページ
+				while (strpos($page,"/") !== FALSE) {
+					$page = dirname($page);
+					$clr_pages[] = $page;
+				}
+			}
 			while (false !== ($file = readdir($handle))) {
 				if (preg_match("/^([\w-]+)\.lng\.php$/", $file, $match)) {
-					@unlink ($this->cont['CACHE_DIR']."page/".$this->encode($page).".".$match[1]);
+					foreach ($clr_pages as $_page) {
+						@unlink ($this->cont['CACHE_DIR']."page/".$this->encode($_page).".".$match[1]);
+					}
 				}
 			}
 			closedir($handle);
