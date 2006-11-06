@@ -1,7 +1,7 @@
 <?php
 //
 // Created on 2006/10/02 by nao-pon http://hypweb.net/
-// $Id: pukiwiki_func.php,v 1.17 2006/11/01 04:20:27 nao-pon Exp $
+// $Id: pukiwiki_func.php,v 1.18 2006/11/06 01:53:34 nao-pon Exp $
 //
 class XpWikiPukiWikiFunc extends XpWikiBaseFunc {
 
@@ -838,7 +838,7 @@ class XpWikiPukiWikiFunc extends XpWikiBaseFunc {
 
 //----- Start convert_html.php -----//
 	// PukiWiki - Yet another WikiWikiWeb clone
-	// $Id: pukiwiki_func.php,v 1.17 2006/11/01 04:20:27 nao-pon Exp $
+	// $Id: pukiwiki_func.php,v 1.18 2006/11/06 01:53:34 nao-pon Exp $
 	// Copyright (C)
 	//   2002-2005 PukiWiki Developers Team
 	//   2001-2002 Originally written by yu-ji
@@ -948,7 +948,7 @@ class XpWikiPukiWikiFunc extends XpWikiBaseFunc {
 
 //----- Start func.php -----//
 	// PukiWiki - Yet another WikiWikiWeb clone.
-	// $Id: pukiwiki_func.php,v 1.17 2006/11/01 04:20:27 nao-pon Exp $
+	// $Id: pukiwiki_func.php,v 1.18 2006/11/06 01:53:34 nao-pon Exp $
 	// Copyright (C)
 	//   2002-2006 PukiWiki Developers Team
 	//   2001-2002 Originally written by yu-ji
@@ -1729,7 +1729,7 @@ EOD;
 
 //----- Start make_link.php -----//
 	// PukiWiki - Yet another WikiWikiWeb clone.
-	// $Id: pukiwiki_func.php,v 1.17 2006/11/01 04:20:27 nao-pon Exp $
+	// $Id: pukiwiki_func.php,v 1.18 2006/11/06 01:53:34 nao-pon Exp $
 	// Copyright (C)
 	//   2003-2005 PukiWiki Developers Team
 	//   2001-2002 Originally written by yu-ji
@@ -2518,7 +2518,7 @@ EOD;
 
 //----- Start html.php -----//
 	// PukiWiki - Yet another WikiWikiWeb clone.
-	// $Id: pukiwiki_func.php,v 1.17 2006/11/01 04:20:27 nao-pon Exp $
+	// $Id: pukiwiki_func.php,v 1.18 2006/11/06 01:53:34 nao-pon Exp $
 	// Copyright (C)
 	//   2002-2006 PukiWiki Developers Team
 	//   2001-2002 Originally written by yu-ji
@@ -2628,24 +2628,8 @@ EOD;
 		ksort($this->root->foot_explain, SORT_NUMERIC);
 		$notes = ! empty($this->root->foot_explain) ? $this->root->note_hr . join("\n", $this->root->foot_explain) : '';
 		
-		// Pre Tags
-		$head_pre_tag = ! empty($this->root->head_pre_tags) ? join("\n", $this->root->head_pre_tags) ."\n" : '';
-		
-		// Tags will be inserted into <head></head>
-		$head_tag = ! empty($this->root->head_tags) ? join("\n", $this->root->head_tags) ."\n" : '';
-		
-		// WikiHelper JavaScript
-		$head_tag .= <<<EOD
-<script type="text/javascript">
-<!--
-var wikihelper_root_url = "{$this->cont['HOME_URL']}";
-//-->
-</script>
-<script type="text/javascript" src="{$this->cont['HOME_URL']}skin/loader.php?type=js&amp;src=default.{$this->cont['UI_LANG']}"></script>
-EOD;
-		// reformat
-		$this->root->head_tags = array();
-		$this->root->head_pre_tags = array();
+		// Head Tags
+		list($head_pre_tag, $head_tag) = $this->get_additional_headtags($this);
 		
 		// 1.3.x compat
 		// Last modification date (UNIX timestamp) of the page
@@ -3073,7 +3057,7 @@ EOD;
 
 //----- Start mail.php -----//
 	// PukiWiki - Yet another WikiWikiWeb clone.
-	// $Id: pukiwiki_func.php,v 1.17 2006/11/01 04:20:27 nao-pon Exp $
+	// $Id: pukiwiki_func.php,v 1.18 2006/11/06 01:53:34 nao-pon Exp $
 	// Copyright (C)
 	//   2003-2005 PukiWiki Developers Team
 	//   2003      Originally written by upk
@@ -3380,7 +3364,7 @@ EOD;
 
 //----- Start link.php -----//
 	// PukiWiki - Yet another WikiWikiWeb clone
-	// $Id: pukiwiki_func.php,v 1.17 2006/11/01 04:20:27 nao-pon Exp $
+	// $Id: pukiwiki_func.php,v 1.18 2006/11/06 01:53:34 nao-pon Exp $
 	// Copyright (C) 2003-2006 PukiWiki Developers Team
 	// License: GPL v2 or (at your option) any later version
 	//
