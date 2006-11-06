@@ -1,7 +1,7 @@
 <?php
 //
 // Created on 2006/10/02 by nao-pon http://hypweb.net/
-// $Id: xpwiki_func.php,v 1.17 2006/11/03 07:13:42 nao-pon Exp $
+// $Id: xpwiki_func.php,v 1.18 2006/11/06 01:53:34 nao-pon Exp $
 //
 class XpWikiFunc extends XpWikiXoopsWrapper {
 
@@ -413,7 +413,8 @@ EOD;
 							'foot_explain'  => $this->root->foot_explain,
 							'head_pre_tags' => $this->root->head_pre_tags,
 							'head_tags'     => $this->root->head_tags,
-							'related'       => $this->root->related
+							'related'       => $this->root->related,
+							'runmode'       => $this->root->runmode
 						),
 						'cont'          => array(
 							'SKIN_NAME'     => @$this->cont['SKIN_NAME']
@@ -457,6 +458,29 @@ EOD;
 			closedir($handle);
 		}
 		return ;
+	}
+	
+	function get_additional_headtags (& $obj) {
+		// Pre Tags
+		$head_pre_tag = ! empty($obj->root->head_pre_tags) ? join("\n", $obj->root->head_pre_tags) ."\n" : '';
+		
+		// Tags will be inserted into <head></head>
+		$head_tag = ! empty($obj->root->head_tags) ? join("\n", $obj->root->head_tags) ."\n" : '';
+		
+		// WikiHelper JavaScript
+		$head_tag .= <<<EOD
+<script type="text/javascript">
+<!--
+var wikihelper_root_url = "{$obj->cont['HOME_URL']}";
+//-->
+</script>
+<script type="text/javascript" src="{$obj->cont['HOME_URL']}skin/loader.php?type=js&amp;src=default.{$obj->cont['UI_LANG']}"></script>
+EOD;
+		// reformat
+		$obj->root->head_tags = array();
+		$obj->root->head_pre_tags = array();
+		
+		return array($head_pre_tag, $head_tag);
 	}
 }
 ?>
