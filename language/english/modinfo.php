@@ -12,6 +12,7 @@ define( $constpref.'_MODULE_DESCRIPTION' , 'A wiki module based on PukiWiki.' ) 
 
 define( $constpref.'_PLUGIN_CONVERTER' , 'Plugin Converter' ) ;
 define( $constpref.'_SKIN_CONVERTER' , 'Skin Converter' ) ;
+define( $constpref.'_ADMIN_TOOLS' , 'Admin Tools' ) ;
 
 }
 
