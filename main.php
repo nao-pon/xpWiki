@@ -76,6 +76,34 @@ if ($xpwiki->runmode == "xoops") {
 	// xoops footer
 	include XOOPS_ROOT_PATH.'/footer.php';
 
+} else if ($xpwiki->runmode == "xoops_admin") {
+
+	$xoopsOption['pagetype'] = 'admin' ;
+	require XOOPS_ROOT_PATH.'/include/cp_functions.php' ;
+
+	// xoops admin header
+	xoops_cp_header() ;
+	
+	// Decide charset for CSS
+	$css_charset = 'iso-8859-1';
+	switch($xpwiki->cont['UI_LANG']){
+		case 'ja': $css_charset = 'Shift_JIS'; break;
+	}
+	$dirname = $xpwiki->root->mydirname;
+	// Head Tags
+	list($head_pre_tag, $head_tag) = $xpwiki->func->get_additional_headtags($xpwiki->func);
+	
+	echo <<<EOD
+$head_pre_tag
+<link rel="stylesheet" type="text/css" media="screen" href="{$xpwiki->cont['HOME_URL']}{$xpwiki->cont['SKIN_DIR']}pukiwiki.css.php?charset={$css_charset}&amp;base={$dirname}" charset="{$css_charset}" />	
+$head_tag
+EOD;
+	
+	echo $xpwiki->html;
+	
+	// xoops admin footer
+	xoops_cp_footer() ;	
+
 } else if ($xpwiki->runmode == "standalone") {
 	
 	while( ob_get_level() ) {
@@ -84,4 +112,5 @@ if ($xpwiki->runmode == "xoops") {
 	echo $xpwiki->html;
 
 }
+
 exit;
