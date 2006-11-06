@@ -80,10 +80,29 @@ if ($xpwiki->runmode == "xoops") {
 
 	$xoopsOption['pagetype'] = 'admin' ;
 	require XOOPS_ROOT_PATH.'/include/cp_functions.php' ;
+	
+	// language files
+	$mydirpath = $xpwiki->root->mydirpath;
+	$mytrustdirpath = $xpwiki->root->mytrustdirpath ;
+	$language = empty( $xoopsConfig['language'] ) ? 'english' : $xoopsConfig['language'] ;
+	if( file_exists( "$mydirpath/language/$language/admin.php" ) ) {
+		// user customized language file
+		include_once "$mydirpath/language/$language/admin.php" ;
+	} else if( file_exists( "$mytrustdirpath/language/$language/admin.php" ) ) {
+		// default language file
+		include_once "$mytrustdirpath/language/$language/admin.php" ;
+	} else {
+		// fallback english
+		include_once "$mytrustdirpath/language/english/admin.php" ;
+	}
 
 	// xoops admin header
 	xoops_cp_header() ;
-	
+
+	// mymenu
+	//$mymenu_fake_uri = '' ;
+	include dirname(__FILE__).'/admin/mymenu.php' ;
+
 	// Decide charset for CSS
 	$css_charset = 'iso-8859-1';
 	switch($xpwiki->cont['UI_LANG']){
