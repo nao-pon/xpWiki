@@ -1,0 +1,23 @@
+#freeze
+#xoopsadmin
+
+* 管理用ツール一覧 [#i95b71f6]
+
+** 管理者専用ツール [#kbcfbc57]
+
+-[[ページ名変更>[[cmd:rename]]]]
+-[[バックアップ・リストア>[[cmd:dump]]]]
+-[[ページ間リンク情報更新>[[cmd:links]]]]
+-[[データーベースシンクロ>[[cmd:dbsync]]]]
+
+** その他のツール [#cf9cc793]
+
+-各種一覧
+--[[サイトマップ>[[cmd:map]]]]
+--[[未作成ページ一覧>[[cmd:yetlist]]]]
+--[[削除ページ一覧>[[cmd:deleted]]]]
+--[[添付ファイル一覧>[[cmd:filelist]]]]
+--[[構成ファイルのバージョンリスト>[[cmd:versionlist]]]]
+-各種出力
+--[[md5ハッシュ計算>[[cmd:md5]]]]
+--[[TouchGraphWikiBrowser用のインデックス作成>[[cmd:touchgraph]]]]
