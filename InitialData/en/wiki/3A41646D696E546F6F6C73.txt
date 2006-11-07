@@ -1,0 +1,23 @@
+#freeze
+#xoopsadmin
+
+* Admin tools list [#i95b71f6]
+
+** Admin only [#kbcfbc57]
+
+-[[Page rename>[[cmd:rename]]]]
+-[[Backup & Restore>[[cmd:dump]]]]
+-[[Link cache remake>[[cmd:links]]]]
+-[[Synchronize Database>[[cmd:dbsync]]]]
+
+** Other tooles [#cf9cc793]
+
+-Lists
+--[[SiteMap>[[cmd:map]]]]
+--[[Yet list>[[cmd:yetlist]]]]
+--[[Deleted list>[[cmd:deleted]]]]
+--[[Attach list>[[cmd:filelist]]]]
+--[[Version list>[[cmd:versionlist]]]]
+-Outputs
+--[[md5 hash>[[cmd:md5]]]]
+--[[Index for TouchGraphWikiBrowser>[[cmd:touchgraph]]]]

@@ -66,7 +66,16 @@ function xpwiki_onupdate_base( $module , $mydirname )
 	include_once XOOPS_ROOT_PATH.'/class/xoopsblock.php' ;
 	include_once XOOPS_ROOT_PATH.'/class/template.php' ;
 	xoops_template_clear_module_cache( $mid ) ;
-
+	
+	// xpWiki original functions
+	include_once dirname(__FILE__).'/include/check.func.php';
+	$_ret = xpwikifunc_permission_check($mydirname);
+	if (!$_ret) {
+		$msgs = array_merge($msgs, xpwikifunc_defdata_check($mydirname));
+	} else {
+		$msgs = array_merge($msgs, $_ret);
+	}
+		
 	return true ;
 }
 
