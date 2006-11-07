@@ -1,50 +1,57 @@
 <?php
+// $Id: dump.inc.php,v 1.2 2006/11/07 00:05:50 nao-pon Exp $
+//
+// Remote dump / restore plugin
+// Originated as tarfile.inc.php by teanan / Interfair Laboratory 2004.
+
 class xpwiki_plugin_dump extends xpwiki_plugin {
 	function plugin_dump_init () {
+		
+		// 言語ファイルの読み込み
+		$this->load_language();
 
-
-	// $Id: dump.inc.php,v 1.1 2006/10/13 13:17:49 nao-pon Exp $
-	//
-	// Remote dump / restore plugin
-	// Originated as tarfile.inc.php by teanan / Interfair Laboratory 2004.
+		// 管理画面モード指定
+		if ($this->root->module['platform'] == "xoops") {
+			$this->root->runmode = "xoops_admin";
+		}
+				
+		/////////////////////////////////////////////////
+		// User defines
+		
+		// Allow using resture function
+		$this->cont['PLUGIN_DUMP_ALLOW_RESTORE'] =  TRUE; // FALSE, TRUE
 	
-	/////////////////////////////////////////////////
-	// User defines
-	
-	// Allow using resture function
-		$this->cont['PLUGIN_DUMP_ALLOW_RESTORE'] =  FALSE; // FALSE, TRUE
-	
-	// ページ名をディレクトリ構造に変換する際の文字コード (for mbstring)
+		// ページ名をディレクトリ構造に変換する際の文字コード (for mbstring)
 		$this->cont['PLUGIN_DUMP_FILENAME_ENCORDING'] =  'SJIS';
 	
-	// 最大アップロードサイズ
+		// 最大アップロードサイズ
 		$this->cont['PLUGIN_DUMP_MAX_FILESIZE'] =  1024; // Kbyte
 	
-	/////////////////////////////////////////////////
-	// Internal defines
-	
-	// Action
+		/////////////////////////////////////////////////
+		// Internal defines
+		
+		// Action
 		$this->cont['PLUGIN_DUMP_DUMP'] =     'dump';    // Dump & download
 		$this->cont['PLUGIN_DUMP_RESTORE'] =  'restore'; // Upload & restore
 	
-		global $_STORAGE;
+		//global $_STORAGE;
 	
-	// DATA_DIR (wiki/*.txt)
-		$_STORAGE['DATA_DIR']['add_filter']     = '^[0-9A-F]+\.txt';
-		$_STORAGE['DATA_DIR']['extract_filter'] = '^' . preg_quote($this->cont['DATA_DIR'], '/')   . '((?:[0-9A-F])+)(\.txt){0,1}';
+		// DATA_DIR (wiki/*.txt)
+		$this->root->_STORAGE['DATA_DIR']['add_filter']     = '^[0-9A-F]+\.txt';
+		$this->root->_STORAGE['DATA_DIR']['extract_filter'] = '^' . preg_quote($this->cont['DATA_DIR'], '/')   . '((?:[0-9A-F])+)(\.txt){0,1}';
 	
-	// UPLOAD_DIR (attach/*)
-		$_STORAGE['UPLOAD_DIR']['add_filter']     = '^[0-9A-F_]+';
-		$_STORAGE['UPLOAD_DIR']['extract_filter'] = '^' . preg_quote($this->cont['UPLOAD_DIR'], '/') . '((?:[0-9A-F]{2})+)_((?:[0-9A-F])+)';
+		// UPLOAD_DIR (attach/*)
+		$this->root->_STORAGE['UPLOAD_DIR']['add_filter']     = '^[0-9A-F_]+';
+		$this->root->_STORAGE['UPLOAD_DIR']['extract_filter'] = '^' . preg_quote($this->cont['UPLOAD_DIR'], '/') . '((?:[0-9A-F]{2})+)_((?:[0-9A-F])+)';
 	
-	// BACKUP_DIR (backup/*.gz)
-		$_STORAGE['BACKUP_DIR']['add_filter']     = '^[0-9A-F]+\.gz';
-		$_STORAGE['BACKUP_DIR']['extract_filter'] =  '^' . preg_quote($this->cont['BACKUP_DIR'], '/') . '((?:[0-9A-F])+)(\.gz){0,1}';
+		// BACKUP_DIR (backup/*.gz)
+		$this->root->_STORAGE['BACKUP_DIR']['add_filter']     = '^[0-9A-F]+\.gz';
+		$this->root->_STORAGE['BACKUP_DIR']['extract_filter'] =  '^' . preg_quote($this->cont['BACKUP_DIR'], '/') . '((?:[0-9A-F])+)(\.gz){0,1}';
 	
-	/////////////////////////////////////////////////
-	// tarlib: a class library for tar file creation and expansion
-	
-	// Tar related definition
+		/////////////////////////////////////////////////
+		// tarlib: a class library for tar file creation and expansion
+		
+		// Tar related definition
 		$this->cont['TARLIB_HDR_LEN'] =            512;	// ヘッダの大きさ
 		$this->cont['TARLIB_BLK_LEN'] =            512;	// 単位ブロック長さ
 		$this->cont['TARLIB_HDR_NAME_OFFSET'] =      0;	// ファイル名のオフセット
@@ -60,7 +67,7 @@ class xpwiki_plugin_dump extends xpwiki_plugin {
 		$this->cont['TARLIB_HDR_CHKSUM_LEN'] =       8;	// チェックサムの長さ
 		$this->cont['TARLIB_HDR_TYPE_OFFSET'] =    156;	// ファイルタイプへのオフセット
 	
-	// Status
+		// Status
 		$this->cont['TARLIB_STATUS_INIT'] =     0;		// 初期状態
 		$this->cont['TARLIB_STATUS_OPEN'] =    10;		// 読み取り
 		$this->cont['TARLIB_STATUS_CREATE'] =  20;		// 書き込み
@@ -69,14 +76,14 @@ class xpwiki_plugin_dump extends xpwiki_plugin {
 		$this->cont['TARLIB_DATA_UGID'] =       '000000 ';	// uid / gid
 		$this->cont['TARLIB_DATA_CHKBLANKS'] =  '        ';
 	
-	// GNU拡張仕様(ロングファイル名対応)
+		// GNU拡張仕様(ロングファイル名対応)
 		$this->cont['TARLIB_DATA_LONGLINK'] =  '././@LongLink';
 	
-	// Type flag
+		// Type flag
 		$this->cont['TARLIB_HDR_FILE'] =  '0';
 		$this->cont['TARLIB_HDR_LINK'] =  'L';
 	
-	// Kind of the archive
+		// Kind of the archive
 		$this->cont['TARLIB_KIND_TGZ'] =  0;
 		$this->cont['TARLIB_KIND_TAR'] =  1;
 
@@ -90,15 +97,15 @@ class xpwiki_plugin_dump extends xpwiki_plugin {
 	//	global $vars;
 	
 		if ($this->cont['PKWK_READONLY']) $this->func->die_message('PKWK_READONLY prohibits this');
-	
+		
 		$pass = isset($_POST['pass']) ? $_POST['pass'] : NULL;
 		$act  = isset($this->root->vars['act'])   ? $this->root->vars['act']   : NULL;
 	
 		$body = '';
 	
-		if ($pass !== NULL) {
+		if ($this->root->userinfo['admin'] || $pass !== NULL) {
 			if (! $this->func->pkwk_login($pass)) {
-				$body = "<p><strong>パスワードが違います。</strong></p>\n";
+				$body = "<p><strong>{$this->msg['password_ng']}</strong></p>\n";
 			} else {
 				switch($act){
 				case $this->cont['PLUGIN_DUMP_DUMP']:
@@ -107,9 +114,9 @@ class xpwiki_plugin_dump extends xpwiki_plugin {
 				case $this->cont['PLUGIN_DUMP_RESTORE']:
 					$retcode = $this->plugin_dump_upload();
 					if ($retcode['code'] == TRUE) {
-						$msg = 'アップロードが完了しました';
+						$msg = $this->msg['upload_ok'];
 					} else {
-						$msg = 'アップロードに失敗しました';
+						$msg = $this->msg['upload_ng'];
 					}
 					$body .= $retcode['msg'];
 					return array('msg' => $msg, 'body' => $body);
@@ -151,7 +158,7 @@ class xpwiki_plugin_dump extends xpwiki_plugin {
 		$filecount = 0;
 		$tar = new XpWikitarlib($this->xpwiki);
 		$tar->create($this->cont['CACHE_DIR'], $arc_kind) or
-			$this->func->die_message('テンポラリファイルの生成に失敗しました。');
+			$this->func->die_message($this->msg['maketmp_ng']);
 	
 		if ($bk_wiki)   $filecount += $tar->add_dir($this->cont['DATA_DIR'],   $this->root->_STORAGE['DATA_DIR']['add_filter'],   $namedecode);
 		if ($bk_attach) $filecount += $tar->add_dir($this->cont['UPLOAD_DIR'], $this->root->_STORAGE['UPLOAD_DIR']['add_filter'], $namedecode);
@@ -161,7 +168,7 @@ class xpwiki_plugin_dump extends xpwiki_plugin {
 	
 		if ($filecount === 0) {
 			@unlink($tar->filename);
-			return '<p><strong>ファイルがみつかりませんでした。</strong></p>';
+			return '<p><strong>'.$this->msg['file_notfound'].'</strong></p>';
 		} else {
 			// ダウンロード
 			$this->download_tarfile($tar->filename, $arc_kind);
@@ -202,7 +209,7 @@ class xpwiki_plugin_dump extends xpwiki_plugin {
 		if(! move_uploaded_file($_FILES['upload_file']['tmp_name'], $uploadfile) ||
 		   ! $tar->open($uploadfile, $arc_kind)) {
 			@unlink($uploadfile);
-			$this->func->die_message('ファイルがみつかりませんでした。');
+			$this->func->die_message($this->msg['file_notfound']);
 		}
 	
 		$pattern = "(({$this->root->_STORAGE['DATA_DIR']}['extract_filter']})|" .
@@ -211,10 +218,10 @@ class xpwiki_plugin_dump extends xpwiki_plugin {
 		$files = $tar->extract($pattern);
 		if (empty($files)) {
 			@unlink($uploadfile);
-			return array('code' => FALSE, 'msg' => '<p>展開できるファイルがありませんでした。</p>');
+			return array('code' => FALSE, 'msg' => '<p>'.$this->msg['tarfile_notfound'].'</p>');
 		}
 	
-		$msg  = '<p><strong>展開したファイル一覧</strong><ul>';
+		$msg  = '<p><strong>'.$this->msg['filelist'].'</strong><ul>';
 		foreach($files as $name) {
 			$msg .= "<li>$name</li>\n";
 		}
@@ -252,29 +259,36 @@ class xpwiki_plugin_dump extends xpwiki_plugin {
 	function plugin_dump_disp_form()
 	{
 	//	global $script, $defaultpage;
-	
+		
 		$act_down = $this->cont['PLUGIN_DUMP_DUMP'];
 		$act_up   = $this->cont['PLUGIN_DUMP_RESTORE'];
 		$maxsize  = $this->cont['PLUGIN_DUMP_MAX_FILESIZE'];
+		
+		$this->msg['max_filesize'] = str_replace('$maxsize', $maxsize, $this->msg['max_filesize']);
+
+		$passform = ($this->root->userinfo['admin'])? '' :
+			'<label for="_p_dump_adminpass_dump"><strong>'.$this->msg['admin_pass'].'</strong></label>
+  <input type="password" name="pass" id="_p_dump_adminpass_dump" size="12" />';
+
 	
 		$data = <<<EOD
 <span class="small">
 </span>
-<h3>データのダウンロード</h3>
+<h3>{$this->msg['data_download']}</h3>
 <form action="{$this->root->script}" method="post">
  <div>
   <input type="hidden" name="cmd"  value="dump" />
   <input type="hidden" name="page" value="{$this->root->defaultpage}" />
   <input type="hidden" name="act"  value="$act_down" />
 
-<p><strong>アーカイブの形式</strong>
+<p><strong>{$this->msg['tar_type']}</strong>
 <br />
   <input type="radio" name="pcmd" id="_p_dump_tgz" value="tgz" checked="checked" />
-  <label for="_p_dump_tgz"> 〜.tar.gz 形式</label><br />
+  <label for="_p_dump_tgz">{$this->msg['tar.gz']}</label><br />
   <input type="radio" name="pcmd" id="_p_dump_tar" value="tar" />
-  <label for="_p_dump_tar">〜.tar 形式</label>
+  <label for="_p_dump_tar">{$this->msg['tar']}</label>
 </p>
-<p><strong>バックアップディレクトリ</strong>
+<p><strong>{$this->msg['backup_dir']}</strong>
 <br />
   <input type="checkbox" name="bk_wiki" id="_p_dump_d_wiki" checked="checked" />
   <label for="_p_dump_d_wiki">wiki</label><br />
@@ -283,14 +297,12 @@ class xpwiki_plugin_dump extends xpwiki_plugin {
   <input type="checkbox" name="bk_backup" id="_p_dump_d_backup" />
   <label for="_p_dump_d_backup">backup</label><br />
 </p>
-<p><strong>オプション</strong>
+<p><strong>{$this->msg['option']}</strong>
 <br />
   <input type="checkbox" name="namedecode" id="_p_dump_namedecode" />
-  <label for="_p_dump_namedecode">エンコードされているページ名をディレクトリ階層つきのファイルにデコード
-  (※リストアに使うことはできなくなります。また、一部の文字は '_' に置換されます)</label><br />
+  <label for="_p_dump_namedecode">{$this->msg['decode_pagename']}</label><br />
 </p>
-<p><label for="_p_dump_adminpass_dump"><strong>管理者パスワード</strong></label>
-  <input type="password" name="pass" id="_p_dump_adminpass_dump" size="12" />
+<p>$passform
   <input type="submit"   name="ok"   value="OK" />
 </p>
  </div>
@@ -298,22 +310,24 @@ class xpwiki_plugin_dump extends xpwiki_plugin {
 EOD;
 	
 		if($this->cont['PLUGIN_DUMP_ALLOW_RESTORE']) {
+			$passform = ($this->root->userinfo['admin'])? '' :
+				'<label for="_p_dump_adminpass_restore"><strong>'.$this->msg['admin_pass'].'</strong></label>
+  <input type="password" name="pass" id="_p_dump_adminpass_restore" size="12" />';
 			$data .= <<<EOD
-<h3>$this->func->データのリストア (*.tar, *.tar.gz)</h3>
+<h3>{$this->msg['data_restore']}</h3>
 <form enctype="multipart/form-data" action="{$this->root->script}" method="post">
  <div>
   <input type="hidden" name="cmd"  value="dump" />
   <input type="hidden" name="page" value="{$this->root->defaultpage}" />
   <input type="hidden" name="act"  value="$act_up" />
-<p><strong>[重要] 同じ名前のデータファイルは上書きされますので、十分ご注意ください。</strong></p>
+<p><strong>{$this->msg['data_overwrite']}</strong></p>
 <p><span class="small">
-アップロード可能な最大ファイルサイズは、$maxsize KByte までです。<br />
+{$this->msg['max_filesize']}<br />
 </span>
-  <label for="_p_dump_upload_file">ファイル:</label>
+  <label for="_p_dump_upload_file">{$this->msg['file']}</label>
   <input type="file" name="upload_file" id="_p_dump_upload_file" size="40" />
 </p>
-<p><label for="_p_dump_adminpass_restore"><strong>管理者パスワード</strong></label>
-  <input type="password" name="pass" id="_p_dump_adminpass_restore" size="12" />
+<p>$passform
   <input type="submit"   name="ok"   value="OK" />
 </p>
  </div>
