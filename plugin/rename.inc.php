@@ -1,15 +1,20 @@
 <?php
+// PukiWiki - Yet another WikiWikiWeb clone
+// $Id: rename.inc.php,v 1.2 2006/11/07 00:31:26 nao-pon Exp $
+//
+// Rename plugin: Rename page-name and related data
+//
+// Usage: http://path/to/pukiwikiphp?plugin=rename[&refer=page_name]
+
 class xpwiki_plugin_rename extends xpwiki_plugin {
 	function plugin_rename_init () {
 
-
-	// PukiWiki - Yet another WikiWikiWeb clone
-	// $Id: rename.inc.php,v 1.1 2006/10/13 13:17:49 nao-pon Exp $
-	//
-	// Rename plugin: Rename page-name and related data
-	//
-	// Usage: http://path/to/pukiwikiphp?plugin=rename[&refer=page_name]
-	
+		// 管理画面モード指定
+		// 便宜上、ログインしていなくてもパスワードで実行できるようにしておく。
+		if ($this->root->userinfo['admin'] && $this->root->module['platform'] == "xoops") {
+			$this->root->runmode = "xoops_admin";
+		}
+		
 		$this->cont['PLUGIN_RENAME_LOGPAGE'] =  ':RenameLog';
 
 	}
@@ -226,7 +231,8 @@ EOD;
 					$exists[$_page][$old] = $new;
 	
 		$pass = $this->plugin_rename_getvar('pass');
-		if ($pass != '' && $this->func->pkwk_login($pass)) {
+		$pmode = $this->plugin_rename_getvar('pmode');
+		if ($pmode === 'proceed' && $this->func->pkwk_login($pass)) {
 			return $this->plugin_rename_proceed($pages, $files, $exists);
 		} else if ($pass != '') {
 			$msg = $this->plugin_rename_err('adminpass');
@@ -273,7 +279,11 @@ EOD;
 			$input .= '<input type="radio" name="exist" value="1" />' .
 			$this->root->_rename_messages['msg_exist_overwrite'] . '<br />';
 		}
-	
+		
+		$passform = ($this->root->userinfo['admin'])? '' :
+			'<label for="_p_rename_adminpass">'.$this->root->_rename_messages['msg_adminpass'].'</label>
+  <input type="password" name="pass" id="_p_rename_adminpass" value="" />';
+		
 		$ret = array();
 		$ret['msg'] = $this->root->_rename_messages['msg_title'];
 		$ret['body'] = <<<EOD
@@ -281,9 +291,9 @@ EOD;
 <form action="{$this->root->script}" method="post">
  <div>
   <input type="hidden" name="plugin" value="rename" />
+  <input type="hidden" name="pmode" value="proceed" />
   $input
-  <label for="_p_rename_adminpass">{$this->root->_rename_messages['msg_adminpass']}</label>
-  <input type="password" name="pass" id="_p_rename_adminpass" value="" />
+  $passform
   <input type="submit" value="{$this->root->_rename_messages['btn_submit']}" />
  </div>
 </form>
