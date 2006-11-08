@@ -68,8 +68,9 @@ div.code_src pre.pre_body
     margin: 0;
     padding: 0;
     padding-left: 0.5em;
-    border: 1px;
+    border: none;
     line-height: 120%;
+    width: 100%;
 }
 
 /* 行番号表示 */
@@ -80,8 +81,8 @@ table.code_table pre.pre_number
     margin: 0;
     padding: 0;
     padding-right: 0.5em;
-    border: 1px;
-    border-right: 1px solid #CCDDDD;
+    border: none;
+    /*border-right: 1px solid #CCDDDD;*/
     line-height: 120%;
     min-width: 3ex;
 }
@@ -90,8 +91,8 @@ table.code_table pre.pre_number
 table.code_table pre.code_outline {
     margin:  0;
     padding: 0;
-    border: 1px;
-    border-right: 1px solid #F5FFFF;
+    border: none;
+    /*border-right: 1px solid #F5FFFF;*/
     width: 10px;
     text-align: center;
     background: #E0F5F5;
