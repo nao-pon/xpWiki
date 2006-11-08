@@ -1,7 +1,7 @@
 <?php
 //
 // Created on 2006/11/07 by nao-pon http://hypweb.net/
-// $Id: check.func.php,v 1.1 2006/11/07 07:02:49 nao-pon Exp $
+// $Id: check.func.php,v 1.2 2006/11/08 14:02:31 nao-pon Exp $
 //
 
 // when onInstall & onUpdate
@@ -68,7 +68,7 @@ function xpwikifunc_defdata_check ($mydirname) {
 
 		if ($handle = opendir($from)) {
 			while (false !== ($file = readdir($handle))) {
-				if ($file !== '.' && $file !== '..') {
+				if ($file !== '.' && $file !== '..' && ! is_dir($from.'/'.$file)) {
 					if (! file_exists($to.'/'.$file)) {
 						copy($from.'/'.$file, $to.'/'.$file);
 						touch($to.'/'.$file, filemtime($from.'/'.$file));
