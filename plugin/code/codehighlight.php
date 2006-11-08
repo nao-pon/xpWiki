@@ -108,28 +108,14 @@ class XpWikiCodeHighlight {
 				// アウトラインのメニュー
 				if ($option['block']) {
 					$_code_expand = 'Everything is expanded.';
-					//$_code_expand = _('Everything is expanded.');
 					$_code_short = 'Everything is shortened.';
-					//$_code_short = _('Everything is shortened.');
 					$menu .= '<img src="'.$this->cont['PLUGIN_CODE_OUTLINE_OPEN_FILE'].'" style="cursor: pointer" alt="'.$_code_expand.'" title="'.$_code_expand.'" '
-						.'onclick="javascript:code_classname(\''.$this->cont['PLUGIN_CODE_HEADER'].$this->id_number.'\','.$data['blocknum'].',\'\',\'code_block\',\''.$this->cont['IMAGE_DIR'].'\')" '
-						.'onkeypress="javascript:code_classname(\''.CODE_HEADER.$this->id_number.'\','.$data['blocknum'].',\'\',\'code_block\',\''.$this->cont['IMAGE_DIR'].'\')" />'
+						.'onclick="javascript:code_classname(\''.$this->cont['PLUGIN_CODE_HEADER'].$this->id_number.'\','.$data['blocknum'].',\'\',\'code_block\')" '
+						.'onkeypress="javascript:code_classname(\''.CODE_HEADER.$this->id_number.'\','.$data['blocknum'].',\'\',\'code_block\')" />'
 						.'<img src="'.$this->cont['PLUGIN_CODE_OUTLINE_CLOSE_FILE'].'" style="cursor: pointer" alt="'.$_code_short.'" title="'.$_code_short.'" '
-						.'onclick="javascript:code_classname(\''.$this->cont['PLUGIN_CODE_HEADER'].$this->id_number.'\','.$data['blocknum'].',\'none\',\'code_block\',\''.$this->cont['IMAGE_DIR'].'\')" '
-						.'onkeypress="javascript:code_classname(\''.$this->cont['PLUGIN_CODE_HEADER'].$this->id_number.'\','.$data['blocknum'].',\'none\',\'code_block\',\''.$this->cont['IMAGE_DIR'].'\')" />';
+						.'onclick="javascript:code_classname(\''.$this->cont['PLUGIN_CODE_HEADER'].$this->id_number.'\','.$data['blocknum'].',\'none\',\'code_block\')" '
+						.'onkeypress="javascript:code_classname(\''.$this->cont['PLUGIN_CODE_HEADER'].$this->id_number.'\','.$data['blocknum'].',\'none\',\'code_block\')" />';
 				}
-				/*
-				if ($option['comment']) {
-					$menu .=  '<img src="'.$this->cont['PLUGIN_CODE_OUTLINE_CLOSE_FILE'].'" style="cursor: hand" alt="'.$_code_short.'" title="'.$_code_short.'" '
-						.'onclick="javascript:code_classname(\''.$this->cont['PLUGIN_CODE_HEADER'].$this->id_number.'\','.$data['blocknum'].',\'none\',\'code_comment\',\''.$this->cont['IMAGE_DIR'].'\')" '
-						.'onkeypress="javascript:code_classname(\''.$this->cont['PLUGIN_CODE_HEADER'].$this->id_number.'\','.$data['blocknum'].',\'none\',\'code_comment\',\''.$this->cont['IMAGE_DIR'].'\')" />';
-				}
-				if ($option['literal']) {
-					$menu .=  '<img src="'.$this->cont['PLUGIN_CODE_OUTLINE_CLOSE_FILE'].'" style="cursor: hand" alt="'.$_code_short.'" title="'.$_code_short.'" '
-						.'onclick="javascript:code_classname(\''.$this->cont['PLUGIN_CODE_HEADER'].$this->id_number.'\','.$data['blocknum'].',\'none\',\'code_string\',\''.$this->cont['IMAGE_DIR'].'\')" '
-						.'onkeypress="javascript:code_classname(\''.$this->cont['PLUGIN_CODE_HEADER'].$this->id_number.'\','.$data['blocknum'].',\'none\',\'code_string\',\''.$this->cont['IMAGE_DIR'].'\')" />';
-				}
-				*/
 			}
 			$menu .= '</div>';
 		}
@@ -1286,7 +1272,7 @@ class XpWikiCodeHighlight {
 						//$letter = $array['state'] ? '<img src="'.$this->cont['IMAGE_DIR'].'treemenu_triangle_open.png"  width="9" height="9" alt="-" title="close"  class="treemenu" />' : '<img src="'.$this->cont['IMAGE_DIR'].'treemenu_triangle_close.png" width="9" height="9" alt="+" title="open" class="treemenu" />';
 						if($plus == '')
 							$plus = '<a class="'.$this->cont['PLUGIN_CODE_HEADER'].'outline" href="javascript:code_outline(\''
-								.$this->cont['PLUGIN_CODE_HEADER'].$id.'\',\''.$this->cont['IMAGE_DIR'].'\')" id="'.$this->cont['PLUGIN_CODE_HEADER'].$id.'a">'.$letter.'</a>';
+								.$this->cont['PLUGIN_CODE_HEADER'].$id.'\')" id="'.$this->cont['PLUGIN_CODE_HEADER'].$id.'a">'.$letter.'</a>';
 						$plus1 .= '<span id="'.$this->cont['PLUGIN_CODE_HEADER'].$id.'o" style="display:'.$display.'">';
 						$plus2 .= '<span id="'.$this->cont['PLUGIN_CODE_HEADER'].$id.'n" style="display:'.$display.'">';
 						$this->nestlevel = $array['nest'];
