@@ -1,7 +1,7 @@
 <?php
 //
 // Created on 2006/10/02 by nao-pon http://hypweb.net/
-// $Id: pukiwiki_func.php,v 1.19 2006/11/07 04:52:10 nao-pon Exp $
+// $Id: pukiwiki_func.php,v 1.20 2006/11/08 11:45:51 nao-pon Exp $
 //
 class XpWikiPukiWikiFunc extends XpWikiBaseFunc {
 
@@ -230,7 +230,9 @@ class XpWikiPukiWikiFunc extends XpWikiBaseFunc {
 		$page = $this->strip_bracket($page);
 		
 		// ページキャッシュを破棄
-		$this->clear_page_cache ($page);
+		if ($dir == $this->cont['DATA_DIR']) {
+			$this->clear_page_cache ($page);
+		}
 		
 		$file = $dir . $this->encode($page) . '.txt';
 		$file_exists = file_exists($file);
@@ -838,7 +840,7 @@ class XpWikiPukiWikiFunc extends XpWikiBaseFunc {
 
 //----- Start convert_html.php -----//
 	// PukiWiki - Yet another WikiWikiWeb clone
-	// $Id: pukiwiki_func.php,v 1.19 2006/11/07 04:52:10 nao-pon Exp $
+	// $Id: pukiwiki_func.php,v 1.20 2006/11/08 11:45:51 nao-pon Exp $
 	// Copyright (C)
 	//   2002-2005 PukiWiki Developers Team
 	//   2001-2002 Originally written by yu-ji
@@ -948,7 +950,7 @@ class XpWikiPukiWikiFunc extends XpWikiBaseFunc {
 
 //----- Start func.php -----//
 	// PukiWiki - Yet another WikiWikiWeb clone.
-	// $Id: pukiwiki_func.php,v 1.19 2006/11/07 04:52:10 nao-pon Exp $
+	// $Id: pukiwiki_func.php,v 1.20 2006/11/08 11:45:51 nao-pon Exp $
 	// Copyright (C)
 	//   2002-2006 PukiWiki Developers Team
 	//   2001-2002 Originally written by yu-ji
@@ -1729,7 +1731,7 @@ EOD;
 
 //----- Start make_link.php -----//
 	// PukiWiki - Yet another WikiWikiWeb clone.
-	// $Id: pukiwiki_func.php,v 1.19 2006/11/07 04:52:10 nao-pon Exp $
+	// $Id: pukiwiki_func.php,v 1.20 2006/11/08 11:45:51 nao-pon Exp $
 	// Copyright (C)
 	//   2003-2005 PukiWiki Developers Team
 	//   2001-2002 Originally written by yu-ji
@@ -2522,7 +2524,7 @@ EOD;
 
 //----- Start html.php -----//
 	// PukiWiki - Yet another WikiWikiWeb clone.
-	// $Id: pukiwiki_func.php,v 1.19 2006/11/07 04:52:10 nao-pon Exp $
+	// $Id: pukiwiki_func.php,v 1.20 2006/11/08 11:45:51 nao-pon Exp $
 	// Copyright (C)
 	//   2002-2006 PukiWiki Developers Team
 	//   2001-2002 Originally written by yu-ji
@@ -2770,7 +2772,7 @@ EOD;
 	  <input type="hidden" name="cmd"    value="edit" />
 	  <input type="hidden" name="page"   value="$s_page" />
 	  <input type="hidden" name="digest" value="$s_digest" />
-	  <input type="hidden" name="paraid"     value="$s_id" />
+	  <input type="hidden" name="paraid" value="$s_id" />
 	  <textarea name="msg" rel="wikihelper" rows="{$this->root->rows}" cols="{$this->root->cols}">$s_postdata</textarea>
 	  <br />
 	  <div style="float:left;">
@@ -2784,6 +2786,7 @@ EOD;
 	 <form action="{$this->root->script}" method="post" style="margin-top:0px;">
 	  <input type="hidden" name="cmd"    value="edit" />
 	  <input type="hidden" name="page"   value="$s_page" />
+	  <input type="hidden" name="paraid" value="$s_id" />
 	  <input type="submit" name="cancel" value="{$this->root->_btn_cancel}" accesskey="c" />
 	 </form>
 	</div>
@@ -3061,7 +3064,7 @@ EOD;
 
 //----- Start mail.php -----//
 	// PukiWiki - Yet another WikiWikiWeb clone.
-	// $Id: pukiwiki_func.php,v 1.19 2006/11/07 04:52:10 nao-pon Exp $
+	// $Id: pukiwiki_func.php,v 1.20 2006/11/08 11:45:51 nao-pon Exp $
 	// Copyright (C)
 	//   2003-2005 PukiWiki Developers Team
 	//   2003      Originally written by upk
@@ -3368,7 +3371,7 @@ EOD;
 
 //----- Start link.php -----//
 	// PukiWiki - Yet another WikiWikiWeb clone
-	// $Id: pukiwiki_func.php,v 1.19 2006/11/07 04:52:10 nao-pon Exp $
+	// $Id: pukiwiki_func.php,v 1.20 2006/11/08 11:45:51 nao-pon Exp $
 	// Copyright (C) 2003-2006 PukiWiki Developers Team
 	// License: GPL v2 or (at your option) any later version
 	//
