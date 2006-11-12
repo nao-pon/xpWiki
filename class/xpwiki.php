@@ -1,7 +1,7 @@
 <?php
 //
 // Created on 2006/09/29 by nao-pon http://hypweb.net/
-// $Id: xpwiki.php,v 1.11 2006/10/30 13:59:31 nao-pon Exp $
+// $Id: xpwiki.php,v 1.12 2006/11/12 08:43:57 nao-pon Exp $
 //
 
 class XpWiki {
@@ -9,9 +9,10 @@ class XpWiki {
 	var $runmode = "xoops";
 	var $module;
 
-	var $root;
-	var $const;
-	var $func;
+	var $root;  // Like a Global variable
+	var $const; // Like a Const
+	var $func;  // All functions
+	var $db;    // Database Connection
 	
 	var $page_name;
 	var $body;
@@ -26,7 +27,7 @@ class XpWiki {
 		$this->pid = $pid;
 				
 		$this->root = new XpWikiRoot();
-		$this->cont = & $this->root->c;
+		$this->cont =& $this->root->c;
 		$this->root->mydirname = $mydirname;
 		
 		$this->func = new XpWikiFunc($this);
@@ -37,6 +38,8 @@ class XpWiki {
 
 		$this->cont['DATA_HOME'] = $this->root->mydirpath."/";
 		$this->cont['HOME_URL'] = $this->cont['ROOT_URL']."modules/".$mydirname."/";
+		
+		$this->db =& $this->func->get_db_connection(); 
 		
 	}
 
@@ -114,13 +117,16 @@ class XpWiki {
 				
 				if (!empty($root->vars['cmd']) && $root->vars['cmd'] != 'read') {
 					$func->ref_save($base);
-					redirect_header($root->script."?".rawurlencode($base),0,$title);
+					$func->redirect_header($root->script."?".rawurlencode($base),0,$title);
 					exit();
 				} else {
-					$vars['cmd']  = 'read';
-					$vars['page'] = $base;
-					//$body  = $func->convert_html($func->get_source($base));
+					$root->vars['cmd']  = 'read';
+					$root->vars['page'] = $base;
 					$body  = $func->get_page_cache($base);
+					
+					//$pgobj = new XpWikiPage($this, $base);
+					//$body = $pgobj->html;
+					
 					// cont['USER_NAME_REPLACE'] ¤ò ÃÖ´¹
 					$body  = str_replace($this->cont['USER_NAME_REPLACE'], $this->root->userinfo['uname_s'], $body);
 					$body .= $func->tb_get_rdf($root->vars['page']);

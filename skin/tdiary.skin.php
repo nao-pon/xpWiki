@@ -3,7 +3,7 @@
 $this->root->runmode = "standalone";
 
 // PukiWiki - Yet another WikiWikiWeb clone.
-// $Id: tdiary.skin.php,v 1.8 2006/10/31 06:10:37 nao-pon Exp $
+// $Id: tdiary.skin.php,v 1.9 2006/11/12 08:43:57 nao-pon Exp $
 // Copyright (C)
 //   2002-2006 PukiWiki Developers Team
 //   2001-2002 Originally written by yu-ji
@@ -37,7 +37,7 @@ if (! isset($this->cont['PKWK_SKIN_SHOW_NAVBAR']))
 // Show toolbar at your choice, with <div class="footer"> design
 // NOTE: Some theme become looking worse with this!
 if (! isset($this->cont['PKWK_SKIN_SHOW_TOOLBAR']))
-	$this->cont['PKWK_SKIN_SHOW_TOOLBAR'] =  0; // 0, 1
+	$this->cont['PKWK_SKIN_SHOW_TOOLBAR'] =  1; // 0, 1
 
 // TDIARY_SIDEBAR_POSITION: See below
 
@@ -632,11 +632,14 @@ function _navigator(& $func, $key, $value = '', $javascript = ''){
 
 <?php if ($is_page) { ?>
   <?php if ($rw) { ?>
-  	<?php if (!$is_freeze) { ?>
+  	<?php if (!$is_freeze && $is_editable) { ?>
 		<?php _navigator($this, 'edit') ?>
 	<?php } ?>
 	<?php if ($is_read && $this->root->function_freeze) { ?>
 		<?php (! $is_freeze) ? _navigator($this, 'freeze') : _navigator($this, 'unfreeze') ?>
+	<?php } ?>
+	<?php if ($is_owner) { ?>
+		<?php _navigator($this,'pginfo') ?>
 	<?php } ?>
  <?php } ?>
    <?php _navigator($this, 'diff') ?>
@@ -877,7 +880,7 @@ $this->root->_IMAGE['skin']['rss10']    = & $this->root->_IMAGE['skin']['rss'];
 $this->root->_IMAGE['skin']['rss20']    = 'rss20.png';
 $this->root->_IMAGE['skin']['rdf']      = 'rdf.png';
 
-function _toolbar($key, $x = 20, $y = 20){
+function _toolbar($this, $key, $x = 20, $y = 20){
 	$lang  = & $this->root->_LANG['skin'];
 	$link  = & $this->root->_LINK;
 	$image = & $this->root->_IMAGE['skin'];
@@ -892,38 +895,40 @@ function _toolbar($key, $x = 20, $y = 20){
 	return TRUE;
 }
 ?>
- <?php _toolbar('top') ?>
+ <?php _toolbar($this, 'top') ?>
 
 <?php if ($is_page) { ?>
  &nbsp;
  <?php if ($rw) { ?>
-	<?php _toolbar('edit') ?>
+  	<?php if (!$is_freeze && $is_editable) { ?>
+		<?php _toolbar($this, 'edit') ?>
+	<?php } ?>
 	<?php if ($is_read && $this->root->function_freeze) { ?>
-		<?php if (! $is_freeze) { _toolbar('freeze'); } else { _toolbar('unfreeze'); } ?>
+		<?php if (! $is_freeze) { _toolbar($this, 'freeze'); } else { _toolbar($this, 'unfreeze'); } ?>
 	<?php } ?>
  <?php } ?>
- <?php _toolbar('diff') ?>
+ <?php _toolbar($this, 'diff') ?>
 <?php if ($this->root->do_backup) { ?>
-	<?php _toolbar('backup') ?>
+	<?php _toolbar($this, 'backup') ?>
 <?php } ?>
  <?php if ($rw && (bool)ini_get('file_uploads')) { ?>
-	<?php _toolbar('upload') ?>
+	<?php _toolbar($this, 'upload') ?>
  <?php } ?>
  <?php if ($rw) { ?>
-	<?php _toolbar('copy') ?>
-	<?php _toolbar('rename') ?>
+	<?php _toolbar($this, 'copy') ?>
+	<?php _toolbar($this, 'rename') ?>
  <?php } ?>
- <?php _toolbar('reload') ?>
+ <?php _toolbar($this, 'reload') ?>
 <?php } ?>
  &nbsp;
  <?php if ($rw) { ?>
-	<?php _toolbar('new') ?>
+	<?php _toolbar($this, 'new') ?>
  <?php } ?>
- <?php _toolbar('list')   ?>
- <?php _toolbar('search') ?>
- <?php _toolbar('recent') ?>
- &nbsp; <?php _toolbar('help') ?>
- &nbsp; <?php _toolbar('rss10', 36, 14) ?>
+ <?php _toolbar($this, 'list')   ?>
+ <?php _toolbar($this, 'search') ?>
+ <?php _toolbar($this, 'recent') ?>
+ &nbsp; <?php _toolbar($this, 'help') ?>
+ &nbsp; <?php _toolbar($this, 'rss10', 36, 14) ?>
  <br />
 <?php } // $this->cont['PKWK_SKIN_SHOW_TOOLBAR'] ?>
 

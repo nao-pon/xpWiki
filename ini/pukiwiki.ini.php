@@ -1,6 +1,6 @@
 <?php
 // PukiWiki - Yet another WikiWikiWeb clone
-// $Id: pukiwiki.ini.php,v 1.10 2006/11/03 07:13:43 nao-pon Exp $
+// $Id: pukiwiki.ini.php,v 1.11 2006/11/12 08:43:57 nao-pon Exp $
 // Copyright (C)
 //   2002-2006 PukiWiki Developers Team
 //   2001-2002 Originally written by yu-ji
@@ -279,6 +279,24 @@ $root->edit_auth_pages = array(
 	'#BarDiary#'		=> 'bar',
 	'#HogeHoge#'		=> 'hoge',
 	'#(NETABARE|NetaBare)#'	=> 'foo,bar,hoge',
+);
+
+/////////////////////////////////////////////////
+// ペ〖ジ攫鼠のサイト惮年猛
+// inherit = 0:费镜回年なし, 1:惮年猛费镜回年, 2:动扩费镜回年, 3:惮年猛费镜した猛, 4:动扩费镜した猛
+$root->pginfo = array(
+	'uid'       => 0,     // UserID
+	'ucd'       => '',    // UserCode(by cookie)
+	'uname'     => '',    // UserName(by cookie)
+	'einherit'  => 3,     // Edit Inherit
+	'eaids'     => 'all', // Editable users
+	'egids'     => 'all', // Editable groups
+	'vinherit'  => 3,     // View Inherit
+	'vaids'     => 'all', // Viewable users
+	'vgids'     => 'all', // Viewable groups
+	'lastuid'   => 0,     // Last editer's uid
+	'lastucd'   => '',    // Last editer's ucd(by cookie)
+	'lastuname' => '',    // Last editer's name(by cookie)
 );
 
 /////////////////////////////////////////////////

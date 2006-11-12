@@ -1,6 +1,6 @@
 <?php
 // PukiWiki - Yet another WikiWikiWeb clone.
-// $Id: en.lng.php,v 1.3 2006/10/27 12:02:57 nao-pon Exp $
+// $Id: en.lng.php,v 1.4 2006/11/12 08:43:57 nao-pon Exp $
 // Copyright (C)
 //   2002-2005 PukiWiki Developers Team
 //   2001-2002 Originally written by yu-ji
@@ -53,6 +53,8 @@ $root->_msg_help        = 'View Text Formatting Rules';
 $root->_msg_week        = array('Sun','Mon','Tue','Wed','Thu','Fri','Sat');
 $root->_msg_content_back_to_top = '<div class="jumpmenu"><a href="#navigator">&uarr;</a></div>';
 $root->_msg_word        = 'These search terms have been highlighted:';
+$root->_msg_not_readable   = 'You don\'t have enough permission for read.';
+$root->_msg_not_editable   = 'You don\'t have enough permission for edit.';
 
 ///////////////////////////////////////
 // Symbols
@@ -121,6 +123,7 @@ $root->_LANG['skin']['top']       = 'Front page';	// Top page
 $root->_LANG['skin']['trackback'] = 'Trackback';	// Show list of trackback
 $root->_LANG['skin']['unfreeze']  = 'Unfreeze';
 $root->_LANG['skin']['upload']    = 'Upload';	// Attach a file
+$root->_LANG['skin']['pginfo']    = 'Permission';
 
 ///////////////////////////////////////
 // Plug-in message

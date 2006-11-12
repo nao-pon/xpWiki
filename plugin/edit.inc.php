@@ -4,14 +4,16 @@ class xpwiki_plugin_edit extends xpwiki_plugin {
 
 
 	// PukiWiki - Yet another WikiWikiWeb clone.
-	// $Id: edit.inc.php,v 1.7 2006/11/08 11:38:14 nao-pon Exp $
+	// $Id: edit.inc.php,v 1.8 2006/11/12 08:43:57 nao-pon Exp $
 	// Copyright (C) 2001-2006 PukiWiki Developers Team
 	// License: GPL v2 or (at your option) any later version
 	//
 	// Edit plugin (cmd=edit)
 	
-	// Remove #freeze written by hand
+		// Remove #freeze written by hand
 		$this->cont['PLUGIN_EDIT_FREEZE_REGEX'] = '/^(?:#freeze(?!\w)\s*)+/im';
+		// Remove #pginfo written by hand
+		$this->cont['PLUGIN_EDIT_PGINFO_REGEX'] = '/^(?:#pginfo\(.*\)\s*)+/im';
 
 	}
 	
@@ -45,6 +47,9 @@ class xpwiki_plugin_edit extends xpwiki_plugin {
 		}
 
 		if ($postdata == '') $postdata = $this->func->auto_template($page);
+		
+		$postdata = preg_replace($this->cont['PLUGIN_EDIT_PGINFO_REGEX'], '', $postdata);
+		
 	
 		return array('msg'=>$this->root->_title_edit, 'body'=>$this->func->edit_form($page, $postdata));
 	}
@@ -208,6 +213,7 @@ class xpwiki_plugin_edit extends xpwiki_plugin {
 		$paraid = isset($this->root->vars['paraid']) ? $this->root->vars['paraid'] : '';
 	
 		$this->root->vars['msg'] = preg_replace($this->cont['PLUGIN_EDIT_FREEZE_REGEX'], '', $this->root->vars['msg']);
+		$this->root->vars['msg'] = preg_replace($this->cont['PLUGIN_EDIT_PGINFO_REGEX'], '', $this->root->vars['msg']);
 		$msg = & $this->root->vars['msg']; // Reference
 		
 		// ParaEdit
@@ -235,6 +241,8 @@ class xpwiki_plugin_edit extends xpwiki_plugin {
 			unset($this->root->vars['paraid']); // 更新が衝突したら全文編集に切り替え
 	
 			$original = isset($this->root->vars['original']) ? $this->root->vars['original'] : '';
+			$oldpagesrc = preg_replace($this->cont['PLUGIN_EDIT_PGINFO_REGEX'], '', $oldpagesrc);
+			$original = preg_replace($this->cont['PLUGIN_EDIT_PGINFO_REGEX'], '', $original);
 			list($postdata_input, $auto) = $this->func->do_update_diff($oldpagesrc, $msg, $original);
 	
 			$retvars['msg' ] = $this->root->_title_collided;
@@ -259,7 +267,7 @@ class xpwiki_plugin_edit extends xpwiki_plugin {
 
 		// NULL POSTING, OR removing existing page
 		if ($postdata == '') {
-			$this->func->page_write($page, $postdata);
+			$this->func->page_write($page, $pginfo_str.$postdata);
 			$retvars['msg' ] = $this->root->_title_deleted;
 			$retvars['body'] = str_replace('$1', htmlspecialchars($page), $this->root->_title_deleted);
 	
@@ -276,8 +284,15 @@ class xpwiki_plugin_edit extends xpwiki_plugin {
 			$retvars['body'] .= $this->func->edit_form($page, $msg, $digest, FALSE);
 			return $retvars;
 		}
+
+		// ページ情報
+		$pginfo = $this->func->get_pginfo($page);
+		$pginfo['lastuid'] = $this->root->userinfo['uid'];
+		$pginfo['lastucd'] = $this->root->userinfo['ucd'];
+		$pginfo['lastuname'] = $this->root->cookie['name'];
+		$pginfo_str = '#pginfo('.join("\t",$pginfo).')'."\n";
 	
-		$this->func->page_write($page, $postdata, $this->root->notimeupdate != 0 && $notimestamp);
+		$this->func->page_write($page, $pginfo_str.$postdata, $this->root->notimeupdate != 0 && $notimestamp);
 		$this->func->pkwk_headers_sent();
 		header('Location: ' . $this->func->get_script_uri() . '?' . rawurlencode($page) . $hash);
 		exit;
