@@ -1,7 +1,7 @@
 <?php
 //
 // Created on 2006/10/02 by nao-pon http://hypweb.net/
-// $Id: xpwiki_func.php,v 1.19 2006/11/07 00:04:59 nao-pon Exp $
+// $Id: xpwiki_func.php,v 1.20 2006/11/12 08:43:57 nao-pon Exp $
 //
 class XpWikiFunc extends XpWikiXoopsWrapper {
 
@@ -486,5 +486,219 @@ EOD;
 		
 		return array($head_pre_tag, $head_tag);
 	}
+	
+	// ページ情報を得る
+	function get_pginfo ($page, $src='') {
+		static $info = array();
+		
+		if (isset($info[$this->xpwiki->pid][$page])) { return $info[$this->xpwiki->pid][$page]; }
+		
+		if ($src) {
+			if (is_array($src)) {
+				$src = join('', $src);
+			}
+		} else {
+			$src = $this->get_source($page, TRUE, 1024);
+		}
+		
+		// inherit = 0:継承指定なし, 1:規定値継承指定, 2:強制継承指定, 3:規定値継承した値, 4:強制継承した値
+		if (preg_match("/^#pginfo\((.+)\)\s*/m", $src, $match)) {
+			$_tmp = explode("\t",$match[1]);
+			$pginfo['uid']       = (int)$_tmp[0];
+			$pginfo['ucd']       = $_tmp[1];
+			$pginfo['uname']     = $_tmp[2];
+			$pginfo['einherit']  = (int)$_tmp[3];
+			$pginfo['eaids']     = $_tmp[4];
+			$pginfo['egids']     = $_tmp[5];
+			$pginfo['vinherit']  = (int)$_tmp[6];
+			$pginfo['vaids']     = $_tmp[7];
+			$pginfo['vgids']     = $_tmp[8];
+			$pginfo['lastuid']   = (int)$_tmp[9];
+			$pginfo['lastucd']   = $_tmp[10];
+			$pginfo['lastuname'] = $_tmp[11];
+		} else {
+			$pginfo = $this->pageinfo_inherit($page);
+			if (!$this->is_page($page))
+			{
+				$pginfo['uid'] = $this->root->userinfo['uid'];
+				$pginfo['ucd'] = $this->root->userinfo['ucd'];
+				$pginfo['uname'] = $this->root->cookie['name'];
+			}
+		}
+		$info[$this->xpwiki->pid][$page] = $pginfo;
+		return $pginfo;
+	}
+	
+	// ページ情報の継承を受ける(指定があれば)
+	function pageinfo_inherit ($page) {
+		// サイト規定値読み込み
+		$pginfo = $this->root->pginfo;
+		
+		$done['edit'] = $done['view'] = 0;
+		while ($done['edit'] < 2 && $done['view'] < 2) {
+			if (strpos($page, '/') !== FALSE) {
+				//上位ページを見る
+				$uppage = dirname($page);
+				$_pginfo = $this->get_pginfo($uppage);
+				// 編集権限
+				if ($done['edit'] < 2) {
+					if ($_pginfo['einherit'] === 2 || $_pginfo['einherit'] === 4) {
+						$pginfo['einherit'] = 4;
+						$pginfo['eaids'] = $_pginfo['eaids'];
+						$pginfo['egids'] = $_pginfo['egids'];
+						$done['edit'] = 2;
+					}
+					if (!$done['edit'] && ($_pginfo['einherit'] === 1 || $_pginfo['einherit'] === 3)) {
+						$pginfo['einherit'] = 3;
+						$pginfo['eaids'] = $_pginfo['eaids'];
+						$pginfo['egids'] = $_pginfo['egids'];
+						$done['edit'] = 1;
+					}
+				}
+				// 閲覧権限
+				if ($done['view'] < 2) {
+					if ($_pginfo['vinherit'] === 2 || $_pginfo['vinherit'] === 4) {
+						$pginfo['vinherit'] = 4;
+						$pginfo['vaids'] = $_pginfo['vaids'];
+						$pginfo['vgids'] = $_pginfo['vgids'];
+						$done['view'] = 2;
+					}
+					if (!$done['view'] && ($_pginfo['vinherit'] === 1 || $_pginfo['vinherit'] === 3)) {
+						$pginfo['vinherit'] = 3;
+						$pginfo['vaids'] = $_pginfo['vaids'];
+						$pginfo['vgids'] = $_pginfo['vgids'];
+						$done['view'] = 1;
+					}
+				}
+				// さらに上階層
+				$page = $uppage;
+			} else {
+				// 上階層なし
+				$done['edit'] = 2;
+				$done['view'] = 2;
+			}
+		}
+		return $pginfo;
+	}
+	
+	// グループ選択フォーム作成
+	function make_grouplist_form ($tagname, $ids = array(), $disabled='') {
+		$groups = $this->get_group_list();
+		$mygroups = $this->get_mygroups();
+		
+		//$disabled = ($disabled)? ' disabled="disabled"' : '';
+		
+		$ret = '<select size="10" name="'.$tagname.'[]" id="'.$tagname.'[]" multiple="multiple"'.$disabled.'>'."\n";
+		$all = FALSE;
+		if ($ids === 'all' || $ids === 'none') {
+			$ids = array();
+		}
+		foreach ($groups as $gid => $gname){
+			if ($this->root->userinfo['admin'] || in_array($gid,$mygroups)){
+				$sel = (in_array($gid,$ids))? ' selected="selected"' : '';
+				$ret .= '<option value="'.$gid.'"'.$sel.'>'.$gname.'</option>';
+			}
+		}
+		$ret .= '</select>';
+		return $ret;
+	}
+	
+	// ユーザー選択フォーム作成
+	function make_userlist_form ($tagname, $ids = array(), $disabled='') {
+		$allusers = $this->get_allusers();
+		
+		//$disabled = ($disabled)? ' disabled="disabled"' : '';
+		
+		$ret = '<select size="10" name="'.$tagname.'[]" id="'.$tagname.'[]" multiple="multiple"'.$disabled.'>';
+		$all = FALSE;
+		if ($ids === 'all' || $ids === 'none') {
+			$ids = array();
+		}
+		foreach ($allusers as $uid => $uname){
+				$sel = (in_array($uid,$ids))? ' selected="selected"' : '';
+				if ($uid !== $this->root->userinfo['uid']) $ret .= '<option value="'.$uid.'"'.$sel.'>'.$uname.'</option>';
+		}
+		$ret .= '</select>';
+		return $ret;		
+	}
+	
+	//　ページオーナー権限があるかどうか
+	function is_owner ($page) {
+		if ($this->root->userinfo['admin']) { return TRUE; }
+		$pginfo = $this->get_pginfo($page);
+		if ($pginfo['uid'] && ($pginfo['uid'] === $this->root->userinfo['uid'])) { return TRUE; }
+		return FALSE;
+	}
+	
+	// ページ毎閲覧権限チェック
+	function check_readable_page ($page, $auth_flag = TRUE, $exit_flag = TRUE) {
+		if ($this->is_owner($page)) return TRUE;
+		
+		$ret = FALSE;
+		// #pginfo
+		$pginfo = $this->get_pginfo($page);
+		if ($pginfo['vgids'] === 'none' || $pginfo['vgids'] === 'none') {
+			$ret = FALSE;
+		} else {
+			$vgids = explode('&', $pginfo['vgids']);
+			$vaids = explode('&', $pginfo['vaids']);
+			$_vg = array_merge($vgids, $this->root->userinfo['gids']);
+			$vgauth = (count($_vg) === count(array_unique($_vg)))? FALSE : TRUE;
+			
+			if (
+				$pginfo['vgids'] === 'all' || 
+				$pginfo['vaids'] === 'all' ||
+				$vgauth || 
+				in_array($pginfo['uid'], $vaids)	
+			) {
+				$ret = TRUE;
+			}
+		}
+		if ($ret) return TRUE;
+		if ($exit_flag) {
+			$title = $this->root->_msg_not_readable;
+			$this->redirect_header($this->root->script, 1, $title);
+			exit;
+		}
+		return FALSE;
+	}
+
+	// ページ毎編集権限チェック
+	function check_editable_page ($page, $auth_flag = TRUE, $exit_flag = TRUE) {
+		if ($this->is_owner($page)) return TRUE;
+		
+		if (!$this->check_readable_page ($page, $auth_flag, $exit_flag)) {
+			return FALSE;
+		}
+		
+		$ret = FALSE;
+		// #pginfo
+		$pginfo = $this->get_pginfo($page);
+		if ($pginfo['egids'] === 'none' || $pginfo['egids'] === 'none') {
+			$ret = FALSE;
+		} else {
+			$egids = explode('&', $pginfo['egids']);
+			$eaids = explode('&', $pginfo['eaids']);
+			$_eg = array_merge($egids, $this->root->userinfo['gids']);
+			$eauth = (count($_eg) === count(array_unique($_eg)))? FALSE : TRUE;
+			
+			if (
+				$pginfo['egids'] === 'all' || 
+				$pginfo['eaids'] === 'all' ||
+				$eauth || 
+				in_array($pginfo['uid'], $eaids)	
+			) {
+				$ret = TRUE;
+			}
+		}
+		if ($ret) return TRUE;
+		if ($exit_flag) {
+			$title = $this->root->_msg_not_editable;
+			$this->redirect_header($this->root->script.'?'.rawurlencode($page), 1, $title);
+			exit;
+		}
+		return FALSE;
+	}
+
 }
 ?>

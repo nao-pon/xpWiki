@@ -1,6 +1,6 @@
 <?php
 // PukiWiki - Yet another WikiWikiWeb clone.
-// $Id: ja.lng.php,v 1.2 2006/10/27 12:02:57 nao-pon Exp $
+// $Id: ja.lng.php,v 1.3 2006/11/12 08:43:57 nao-pon Exp $
 // Copyright (C)
 //   2002-2005 PukiWiki Developers Team
 //   2001-2002 Originally written by yu-ji
@@ -55,6 +55,8 @@ $root->_msg_help           = 'テキスト整形のルールを表示する';
 $root->_msg_week           = array('日','月','火','水','木','金','土');
 $root->_msg_content_back_to_top = '<div class="jumpmenu"><a href="#navigator">&uarr;</a></div>';
 $root->_msg_word           = 'これらのキーワードがハイライトされています：';
+$root->_msg_not_readable   = 'ページを表示する権限がありません。';
+$root->_msg_not_editable   = 'ページを編集する権限がありません。';
 
 ///////////////////////////////////////
 // Symbols
@@ -123,6 +125,7 @@ $root->_LANG['skin']['top']       = 'トップ';	// Top page
 $root->_LANG['skin']['trackback'] = 'Trackback';	// Show list of trackback
 $root->_LANG['skin']['unfreeze']  = '凍結解除';
 $root->_LANG['skin']['upload']    = '添付';	// Attach a file
+$root->_LANG['skin']['pginfo']    = '権限';
 
 ///////////////////////////////////////
 // Plug-in message

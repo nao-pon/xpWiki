@@ -1,6 +1,6 @@
 <?php
 // PukiWiki - Yet another WikiWikiWeb clone.
-// $Id: pukiwiki.skin.php,v 1.6 2006/10/27 11:49:36 nao-pon Exp $
+// $Id: pukiwiki.skin.php,v 1.7 2006/11/12 08:43:57 nao-pon Exp $
 // Copyright (C)
 //   2002-2006 PukiWiki Developers Team
 //   2001-2002 Originally written by yu-ji
@@ -122,11 +122,14 @@ function _navigator($this, $key, $value = '', $javascript = ''){
 <?php if ($is_page) { ?>
  [
  <?php if ($rw) { ?>
-	<?php if (!$is_freeze) { ?>
+	<?php if (!$is_freeze && $is_editable) { ?>
 		<?php _navigator($this,'edit') ?> |
 	<?php } ?>
 	<?php if ($is_read && $this->root->function_freeze) { ?>
 		<?php (! $is_freeze) ? _navigator($this,'freeze') : _navigator($this,'unfreeze') ?> |
+	<?php } ?>
+	<?php if ($is_owner) { ?>
+		<?php _navigator($this,'pginfo') ?> |
 	<?php } ?>
  <?php } ?>
  <?php _navigator($this,'diff') ?>
@@ -241,7 +244,7 @@ function _toolbar($this, $key, $x = 20, $y = 20){
 <?php if ($is_page) { ?>
  &nbsp;
  <?php if ($rw) { ?>
- 	<?php if (!$is_freeze) { ?>
+ 	<?php if (!$is_freeze && $is_editable) { ?>
 		<?php _toolbar($this, 'edit') ?>
 	<?php } ?>
 	<?php if ($is_read && $this->root->function_freeze) { ?>
