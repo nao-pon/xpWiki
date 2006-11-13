@@ -1,7 +1,7 @@
 <?php
 //
 // Created on 2006/11/09 by nao-pon http://hypweb.net/
-// $Id: pginfo.en.php,v 1.1 2006/11/12 08:43:57 nao-pon Exp $
+// $Id: pginfo.en.php,v 1.2 2006/11/13 11:56:22 nao-pon Exp $
 //
 
 $msg = array(
@@ -66,5 +66,8 @@ Options marked * mean, they have not beed processed yet.",
 	'no_parmission_title' => 'Not have enough permission to make permission setting of $1',
 	'no_parmission' => 'You don\'t have enough permission to make permission setting. It is only an administrator and a page creator that can do it by authority setting.',
 	'done_ok' => 'Saved editing / reading permission.',
+	'change_owner' => 'Change page owner',
+	'search_user' => 'User Serach',
+	'for_remove' => 'Click a name for Remove.',
 );
 ?>

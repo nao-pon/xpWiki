@@ -1,7 +1,7 @@
 <?php
 //
 // Created on 2006/11/09 by nao-pon http://hypweb.net/
-// $Id: pginfo.ja.php,v 1.1 2006/11/12 08:43:57 nao-pon Exp $
+// $Id: pginfo.ja.php,v 1.2 2006/11/13 11:56:22 nao-pon Exp $
 //
 
 $msg = array(
@@ -64,5 +64,8 @@ $msg = array(
 	'no_parmission_title' => '$1の権限設定をする権限がありません',
 	'no_parmission' => '編集・閲覧権限設定をする権限がありません。権限設定をできるのは管理者とページ作成者のみです。',
 	'done_ok' => '編集・閲覧権限を設定しました',
+	'change_owner' => 'ページオーナーの変更',
+	'search_user' => 'ユーザー検索',
+	'for_remove' => '選択を解除するには、名前をクリックしてください。',
 );
 ?>

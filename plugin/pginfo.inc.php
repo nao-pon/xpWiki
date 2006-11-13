@@ -2,7 +2,7 @@
 /////////////////////////////////////////////////
 // PukiWiki - Yet another WikiWikiWeb clone.
 //
-// $Id: pginfo.inc.php,v 1.1 2006/11/12 08:43:57 nao-pon Exp $
+// $Id: pginfo.inc.php,v 1.2 2006/11/13 11:56:22 nao-pon Exp $
 //
 
 class xpwiki_plugin_pginfo extends xpwiki_plugin {
@@ -78,29 +78,40 @@ class xpwiki_plugin_pginfo extends xpwiki_plugin {
 				$_pginfo = $this->func->pageinfo_inherit($page);
 				$pginfo['egids'] = $_pginfo['egids'];
 				$pginfo['eaids'] = $_pginfo['eaids'];
+				// 下層ページも設定解除
+				if ($cpages) {
+					foreach ($cpages as $_page) {
+						$child_dat[$_page]['einherit'] = 3;
+						$child_dat[$_page]['egids'] = $_pginfo['egids'];
+						$child_dat[$_page]['eaids'] = $_pginfo['eaids'];
+					}
+					$do_child = TRUE;
+				}
 			} else {
 				$egid = @$this->root->post['egid'];
 				if ($egid === 'select') {
-					$egid = @join("&", @$this->root->post['egids']);
+					$egid = @join('&', @$this->root->post['egids']);
 					if (!$egid) {$egid = 'none';}
 				}
 				$pginfo['egids'] = $egid;
 				
 				$eaid = @$this->root->post['eaid'];
 				if ($eaid === 'select') {
-					$eaid = @join("&", @$this->root->post['eaids']);
+					$eaid = @str_replace(',', '&', @$this->root->post['eaids']);
 					if (!$eaid) {$eaid = 'none';}
 				}
 				$pginfo['eaids'] = $eaid;
 			}
 			// 下層ページの継承指定
-			if ($pginfo['einherit'] === 1 || $pginfo['einherit'] === 2) {
-				foreach ($cpages as $_page) {
-					$child_dat[$_page]['einherit'] = $pginfo['einherit'] + 2;
-					$child_dat[$_page]['egids'] = $pginfo['egids'];
-					$child_dat[$_page]['eaids'] = $pginfo['eaids'];
+			if ($cpages) {
+				if ($pginfo['einherit'] === 1 || $pginfo['einherit'] === 2) {
+					foreach ($cpages as $_page) {
+						$child_dat[$_page]['einherit'] = $pginfo['einherit'] + 2;
+						$child_dat[$_page]['egids'] = $pginfo['egids'];
+						$child_dat[$_page]['eaids'] = $pginfo['eaids'];
+					}
+					$do_child = TRUE;
 				}
-				$do_child = TRUE;
 			}
 		}
 		
@@ -112,29 +123,40 @@ class xpwiki_plugin_pginfo extends xpwiki_plugin {
 				$_pginfo = $this->func->pageinfo_inherit($page);
 				$pginfo['vgids'] = $_pginfo['vgids'];
 				$pginfo['vaids'] = $_pginfo['vaids'];
+				// 下層ページも設定解除
+				if ($cpages) {
+					foreach ($cpages as $_page) {
+						$child_dat[$_page]['vinherit'] = 3;
+						$child_dat[$_page]['vgids'] = $_pginfo['vgids'];
+						$child_dat[$_page]['vaids'] = $_pginfo['vaids'];
+					}
+					$do_child = TRUE;
+				}
 			} else {
 				$vgid = @$this->root->post['vgid'];
 				if ($vgid === 'select') {
-					$vgid = @join("&", @$this->root->post['vgids']);
+					$vgid = @join('&', @$this->root->post['vgids']);
 					if (!$vgid) {$vgid = 'none';}
 				}
 				$pginfo['vgids'] = $vgid;
 				
 				$vaid = @$this->root->post['vaid'];
 				if ($vaid === 'select') {
-					$vaid = @join("&", @$this->root->post['vaids']);
+					$vaid = @str_replace(',', '&', @$this->root->post['vaids']);
 					if (!$vaid) {$vaid = 'none';}
 				}
 				$pginfo['vaids'] = $vaid;
 			}
-			// 下層ページの継承指定
-			if ($pginfo['vinherit'] === 1 || $pginfo['vinherit'] === 2) {
-				foreach ($cpages as $_page) {
-					$child_dat[$_page]['vinherit'] = $pginfo['vinherit'] + 2;
-					$child_dat[$_page]['vgids'] = $pginfo['vgids'];
-					$child_dat[$_page]['vaids'] = $pginfo['vaids'];
+			if ($cpages) {
+				// 下層ページの継承指定
+				if ($pginfo['vinherit'] === 1 || $pginfo['vinherit'] === 2) {
+					foreach ($cpages as $_page) {
+						$child_dat[$_page]['vinherit'] = $pginfo['vinherit'] + 2;
+						$child_dat[$_page]['vgids'] = $pginfo['vgids'];
+						$child_dat[$_page]['vaids'] = $pginfo['vaids'];
+					}
+					$do_child = TRUE;
 				}
-				$do_child = TRUE;
 			}
 		}
 		$pginfo_str = '#pginfo('.join("\t",$pginfo).')'."\n";
@@ -208,6 +230,12 @@ class xpwiki_plugin_pginfo extends xpwiki_plugin {
 	
 	// ページ毎の権限設定フォーム
 	function show_page_form ($page) {
+
+		$this->root->head_pre_tags[] = '<script type="text/javascript" src="'.$this->cont['HOME_URL'].'skin/loader.php?type=js&amp;src=prototype"></script>';
+		$this->root->head_pre_tags[] = '<script type="text/javascript" src="'.$this->cont['HOME_URL'].'skin/loader.php?type=js&amp;src=log"></script>';
+		$this->root->head_pre_tags[] = '<script type="text/javascript" src="'.$this->cont['HOME_URL'].'skin/loader.php?type=js&amp;src=suggest"></script>';
+		$this->root->head_pre_tags[] = '<link rel="stylesheet" type="text/css" media="screen" href="'.$this->cont['HOME_URL'].'skin/loader.php?type=css&amp;src=suggest" />';
+		
 		
 		$pginfo = $this->func->get_pginfo($page);
 		$spage = htmlspecialchars($page);
@@ -217,14 +245,17 @@ class xpwiki_plugin_pginfo extends xpwiki_plugin {
 		$s_['vinhelit'] = array_pad(array(), 4, '');
 		$s_['vinhelit'][$pginfo['vinherit']] = ' checked="checked"';
 		
+		$efor_remove = $vfor_remove = $this->msg['for_remove'];
 		$s_['edisable'] = $s_['vdisable'] = $s_['ecannot'] = $s_['vcannot'] = '';
 		if ($pginfo['einherit'] === 4) {
 			$s_['edisable'] = ' disabled="disabled "';
 			$s_['ecannot'] = $this->msg['can_not_set'].'<br />';
+			$efor_remove = '';
 		}
 		if ($pginfo['vinherit'] === 4) {
 			$s_['vdisable'] = ' disabled="disabled "';
 			$s_['vcannot'] = $this->msg['can_not_set'].'<br />';
+			$vfor_remove = '';
 		}
 		
 		foreach(array('eaids','egids','vaids','vgids') as $key) {
@@ -238,9 +269,29 @@ class xpwiki_plugin_pginfo extends xpwiki_plugin {
 			}
 		}
 		$edit_group_list = $this->func->make_grouplist_form('egids', $egids, $s_['edisable']);
-		$edit_user_list = $this->func->make_userlist_form('eaids', $eaids, $s_['edisable']);
+		$edit_user_list = '';
+		if ($eaids && is_array($eaids)) {
+			foreach($eaids as $eaid) {
+				if ($pginfo['einherit'] === 4) {
+					$edit_user_list .= htmlspecialchars($this->func->getUnameFromId($eaid)).'['.$eaid.'] '; 
+				} else {
+					$edit_user_list .= '<span class="exist">'.htmlspecialchars($this->func->getUnameFromId($eaid)).'['.$eaid.'] </span>'; 
+				}
+			}
+		}
+		
 		$view_group_list = $this->func->make_grouplist_form('vgids', $vgids, $s_['vdisable']);
-		$view_user_list = $this->func->make_userlist_form('vaids', $vaids, $s_['vdisable']);
+		$view_user_list = '';
+		if ($eaids && is_array($vaids)) {
+			foreach($vaids as $vaid) {
+				if ($pginfo['vinherit'] === 4) {
+					$view_user_list .= htmlspecialchars($this->func->getUnameFromId($vaid)).'['.$vaid.'] '; 
+				} else {
+					$view_user_list .= '<span class="exist">'.htmlspecialchars($this->func->getUnameFromId($vaid)).'['.$vaid.'] </span>'; 
+				}
+			}
+		}
+
 		
 		$e_default = ($pginfo['einherit'] === 3)? '<p>'.$this->msg['default_inherit'].'</p>' : '';
 		$v_default = ($pginfo['vinherit'] === 3)? '<p>'.$this->msg['default_inherit'].'</p>' : '';
@@ -249,6 +300,19 @@ class xpwiki_plugin_pginfo extends xpwiki_plugin {
 		$ret['msg'] = $this->msg['title_permission'];
 		$ret['body'] = '';
 		$ret['body'] = <<<EOD
+<script>
+var XpWikiSuggest1 = null;
+var onLoadHandler = function(){
+	XpWikiSuggest1 = new XpWikiUnameSuggest('{$this->cont['HOME_URL']}','xpwiki_tag_input1','xpwiki_suggest_list1','xpwiki_tag_hidden1','xpwiki_tag_list1');
+	XpWikiSuggest2 = new XpWikiUnameSuggest('{$this->cont['HOME_URL']}','xpwiki_tag_input2','xpwiki_suggest_list2','xpwiki_tag_hidden2','xpwiki_tag_list2');
+};
+if (window.addEventListener) {
+    window.addEventListener("load", onLoadHandler, true);
+} else {
+    window.attachEvent("onload", onLoadHandler);
+}
+</script>
+
 <form action="{$this->root->script}" method="post">
 <p>
  <ul>
@@ -280,7 +344,13 @@ class xpwiki_plugin_pginfo extends xpwiki_plugin {
   <input name="eaid" id="_eaid1" type="radio" value="all"{$s_['eaids']['all']}{$s_['edisable']} /><label for="_eaid1"> {$this->msg['admit_all_user']}</label><br />
   <input name="eaid" id="_eaid2" type="radio" value="none"{$s_['eaids']['none']}{$s_['edisable']} /><label for="_eaid2"> {$this->msg['not_admit_all_user']}</label><br />
   <input name="eaid" id="_eaid3" type="radio" value="select"{$s_['eaids']['select']}{$s_['edisable']} /><label for="_eaid3"> {$this->msg['admit_select_user']}</label><br />
-  <div style="margin-left:2em;">{$edit_user_list}</div>
+  <div style="margin-left:2em;">
+    <div id="xpwiki_tag_list1" class="xpwiki_tag_list">{$edit_user_list}</div>
+    <input type="hidden" name="eaids" id="xpwiki_tag_hidden1" value="" />
+    {$this->msg['search_user']}: <input type="text" size="25" id="xpwiki_tag_input1" name="xpwiki_tag_input1" autocomplete='off' class="form_text"{$s_['edisable']} /><br />
+    {$efor_remove}
+    <div id='xpwiki_suggest_list1' class="auto_complete"></div>
+  </div>
  </td>
 </tr></table>
 
@@ -310,7 +380,13 @@ class xpwiki_plugin_pginfo extends xpwiki_plugin {
   <input name="vaid" id="_vaid1" type="radio" value="all"{$s_['vaids']['all']}{$s_['vdisable']} /><label for="_vaid1"> {$this->msg['admit_all_user']}</label><br />
   <input name="vaid" id="_vaid2" type="radio" value="none"{$s_['vaids']['none']}{$s_['vdisable']} /><label for="_vaid2"> {$this->msg['not_admit_all_user']}</label><br />
   <input name="vaid" id="_vaid3" type="radio" value="select"{$s_['vaids']['select']}{$s_['vdisable']} /><label for="_vaid3"> {$this->msg['admit_select_user']}</label><br />
-  <div style="margin-left:2em;">{$view_user_list}</div>
+  <div style="margin-left:2em;">
+    <div id="xpwiki_tag_list2" class="xpwiki_tag_list">{$view_user_list}</div>
+    <input type="hidden" name="vaids" id="xpwiki_tag_hidden2" value="" />
+    {$this->msg['search_user']}: <input type="text" size="25" id="xpwiki_tag_input2" name="xpwiki_tag_input2" autocomplete='off' class="form_text"{$s_['vdisable']} /><br />
+    {$vfor_remove}
+    <div id='xpwiki_suggest_list2' class="auto_complete"></div>
+  </div>
  </td>
 </tr></table>
 

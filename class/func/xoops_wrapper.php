@@ -1,7 +1,7 @@
 <?php
 //
 // Created on 2006/10/11 by nao-pon http://hypweb.net/
-// $Id: xoops_wrapper.php,v 1.11 2006/11/12 08:43:57 nao-pon Exp $
+// $Id: xoops_wrapper.php,v 1.12 2006/11/13 11:56:22 nao-pon Exp $
 //
 class XpWikiXoopsWrapper extends XpWikiBackupFunc {
 	
@@ -212,6 +212,15 @@ class XpWikiXoopsWrapper extends XpWikiBackupFunc {
 		if ($sort) asort($ret);
 		$users[$sort] = $ret;
 		return $ret;
+	}
+	
+	// ユーザー名を得る
+	function getUnameFromId ($uid) {
+		static $user = NULL;
+		if (is_null($user)) {
+			$user = new XoopsUser();
+		}
+		return $user->getUnameFromId($uid);
 	}
 	
 	function redirect_header($url, $wait, $title) {
