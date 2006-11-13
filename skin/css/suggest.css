@@ -1,0 +1,53 @@
+/*------Suggest--------*/
+div.auto_complete {
+	width: auto;
+	background: #fff;
+	font-size: 12px;
+}
+div.auto_complete ul {
+	border:1px solid #888;
+	margin:0;
+	padding:0;
+	width:100%;
+	overflow: hidden;
+	list-style-type:none;
+	cursor: pointer;
+}
+div.auto_complete ul li {
+	margin:0;
+	padding:3px;
+	width:100%;
+}
+div.auto_complete ul li.selected { 
+	background-color: #ffb; 
+}
+div.auto_complete ul strong.highlight { 
+	color: #800; 
+	margin:0;
+	padding:0;
+}
+div.auto_complete ul li b {
+	color: #0000FF;
+	font-weight: normal;
+}
+div.auto_complete span {
+	cursor: pointer;
+}
+div.xpwiki_tag_list {
+	height: 3em;
+	border:1px solid #888;
+	overflow: auto;
+}
+div#xpwiki_tag_list span {
+	cursor: pointer;
+}
+
+span.exist {
+	background-color: transparent;
+	cursor: pointer;
+}
+
+span.exist_highlight {
+	background-color: #FFC1C1;
+	cursor: pointer;
+}

@@ -1,7 +1,7 @@
 <?php
 //
 // Created on 2006/10/02 by nao-pon http://hypweb.net/
-// $Id: xpwiki_func.php,v 1.20 2006/11/12 08:43:57 nao-pon Exp $
+// $Id: xpwiki_func.php,v 1.21 2006/11/13 11:56:22 nao-pon Exp $
 //
 class XpWikiFunc extends XpWikiXoopsWrapper {
 
@@ -588,7 +588,8 @@ EOD;
 		
 		//$disabled = ($disabled)? ' disabled="disabled"' : '';
 		
-		$ret = '<select size="10" name="'.$tagname.'[]" id="'.$tagname.'[]" multiple="multiple"'.$disabled.'>'."\n";
+		$size = min(10, count($groups));
+		$ret = '<select size="'.$size.'" name="'.$tagname.'[]" id="'.$tagname.'[]" multiple="multiple"'.$disabled.'>'."\n";
 		$all = FALSE;
 		if ($ids === 'all' || $ids === 'none') {
 			$ids = array();
