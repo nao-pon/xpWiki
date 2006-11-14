@@ -1,6 +1,6 @@
 <?php
 // PukiWiki - Yet another WikiWikiWeb clone.
-// $Id: pukiwiki.skin.php,v 1.8 2006/11/14 01:14:45 nao-pon Exp $
+// $Id: pukiwiki.skin.php,v 1.9 2006/11/14 01:29:51 nao-pon Exp $
 // Copyright (C)
 //   2002-2006 PukiWiki Developers Team
 //   2001-2002 Originally written by yu-ji
@@ -91,7 +91,7 @@ EOD;
    <a href="<?php echo $link['reload'] ?>"><span class="small"><?php echo $link['reload'] ?></span></a>
  <?php } else if (!$is_top) { ?>
    <span class="small">
-   <?php $_plugin = $this->get_plugin_instance("topicpath");echo $_plugin->plugin_topicpath_inline();?>
+   <?php echo $this->do_plugin_inline('topicpath'); ?>
    </span>
  <?php } ?>
 <?php } ?>

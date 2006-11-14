@@ -3,7 +3,7 @@
 $this->root->runmode = "standalone";
 
 // PukiWiki - Yet another WikiWikiWeb clone.
-// $Id: tdiary.skin.php,v 1.9 2006/11/12 08:43:57 nao-pon Exp $
+// $Id: tdiary.skin.php,v 1.10 2006/11/14 01:29:51 nao-pon Exp $
 // Copyright (C)
 //   2002-2006 PukiWiki Developers Team
 //   2001-2002 Originally written by yu-ji
@@ -27,7 +27,7 @@ if (! isset($this->cont['TDIARY_THEME']))
 //   0    = Show topicpath
 //   1    = Show reload URL
 if (! isset($this->cont['TDIARY_CALENDAR_DESIGN']))
-	$this->cont['TDIARY_CALENDAR_DESIGN'] =  NULL; // NULL, 0, 1
+	$this->cont['TDIARY_CALENDAR_DESIGN'] = 0; // NULL, 0, 1
 
 // Show / Hide navigation bar UI at your choice
 // NOTE: This is not stop their functionalities!
@@ -682,8 +682,8 @@ function _navigator(& $func, $key, $value = '', $javascript = ''){
 <?php if ($is_page && $this->cont['TDIARY_CALENDAR_DESIGN'] !== NULL) { ?>
 	<?php if($this->cont['TDIARY_CALENDAR_DESIGN']) { ?>
 		<a href="<?php echo $link['reload'] ?>"><span class="small"><?php echo $link['reload'] ?></span></a>
-	<?php } else { ?>
-		<?php require_once($this->cont['PLUGIN_DIR'] . 'topicpath.inc.php'); echo $this->plugin_topicpath_inline(); ?>
+	<?php } else  if (!$is_top) { ?>
+		<?php echo $this->do_plugin_inline('topicpath'); ?>
 	<?php } ?>
 <?php } ?>
 </div>
