@@ -293,7 +293,7 @@ EOD;
 		$page = isset ($this->root->vars['page']) ? rawurlencode($this->root->vars['page']) : '';
 
 		// Footnote
-		$this->root->foot_explain[$id] = '<a id="notefoot_'.$id.'" href="'.$script.'#notetext_'.$id.'" class="note_super">*'.$id.'</a>'."\n".'<span class="small">'.$note.'</span><br />';
+		$this->root->foot_explain[$id] = '<a id="notefoot_'.$id.'" name="notefoot_'.$id.'" href="'.$script.'#notetext_'.$id.'" class="note_super">*'.$id.'</a>'."\n".'<span class="small">'.$note.'</span><br />';
 
 		// A hyperlink, content-body to footnote
 		if (!is_numeric($this->cont['PKWK_FOOTNOTE_TITLE_MAX']) || $this->cont['PKWK_FOOTNOTE_TITLE_MAX'] <= 0) {
@@ -305,7 +305,7 @@ EOD;
 			$abbr = (mb_strlen($title) < $count) ? '...' : '';
 			$title = ' title="'.$title.$abbr.'"';
 		}
-		$name = '<a id="notetext_'.$id.'" href="'.$script.'#notefoot_'.$id.'" class="note_super"'.$title.'>*'.$id.'</a>';
+		$name = '<a id="notetext_'.$id.'" name="notetext_'.$id.'" href="'.$script.'#notefoot_'.$id.'" class="note_super"'.$title.'>*'.$id.'</a>';
 
 		return parent :: setParam($page, $name, $body);
 	}

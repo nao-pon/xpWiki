@@ -1,6 +1,6 @@
 <?php
 // PukiWiki - Yet another WikiWikiWeb clone.
-// $Id: pukiwiki.skin.php,v 1.7 2006/11/12 08:43:57 nao-pon Exp $
+// $Id: pukiwiki.skin.php,v 1.8 2006/11/14 01:14:45 nao-pon Exp $
 // Copyright (C)
 //   2002-2006 PukiWiki Developers Team
 //   2001-2002 Originally written by yu-ji
@@ -82,14 +82,14 @@ EOD;
 
 <div class="xpwiki_<?php echo $dirname ?>">
 <div id="header">
- <a href="<?php echo $link['top'] ?>"><img id="logo" src="<?php echo $this->cont['IMAGE_DIR'] . $image['logo'] ?>" width="80" height="80" alt="[PukiWiki]" title="[PukiWiki]" /></a>
+ <a href="<?php echo $link['top'] ?>"><img id="logo" name="logo" src="<?php echo $this->cont['IMAGE_DIR'] . $image['logo'] ?>" width="80" height="80" alt="[PukiWiki]" title="[PukiWiki]" /></a>
 
  <h1 class="title"><?php echo $page ?></h1>
 
 <?php if ($is_page) { ?>
  <?php if($this->cont['SKIN_DEFAULT_DISABLE_TOPICPATH']) { ?>
    <a href="<?php echo $link['reload'] ?>"><span class="small"><?php echo $link['reload'] ?></span></a>
- <?php } else { ?>
+ <?php } else if (!$is_top) { ?>
    <span class="small">
    <?php $_plugin = $this->get_plugin_instance("topicpath");echo $_plugin->plugin_topicpath_inline();?>
    </span>
@@ -285,7 +285,7 @@ function _toolbar($this, $key, $x = 20, $y = 20){
 <?php } ?>
 
 <div id="footer">
- Site admin: <a href="<?php echo $this->root->modifierlink ?>"><?php echo $this->root->modifier ?></a><p />
+ <p>Site admin: <a href="<?php echo $this->root->modifierlink ?>"><?php echo $this->root->modifier ?></a></p>
  <?php echo $this->cont['S_COPYRIGHT'] ?>.
  Powered by PHP <?php echo PHP_VERSION ?>. HTML convert time: <?php echo $taketime ?> sec.
 </div>
