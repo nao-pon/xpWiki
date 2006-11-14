@@ -1,7 +1,7 @@
 <?php
 //
 // Created on 2006/09/29 by nao-pon http://hypweb.net/
-// $Id: xpwiki.php,v 1.12 2006/11/12 08:43:57 nao-pon Exp $
+// $Id: xpwiki.php,v 1.13 2006/11/14 01:14:45 nao-pon Exp $
 //
 
 class XpWiki {
@@ -129,7 +129,9 @@ class XpWiki {
 					
 					// cont['USER_NAME_REPLACE'] ¤ò ÃÖ´¹
 					$body  = str_replace($this->cont['USER_NAME_REPLACE'], $this->root->userinfo['uname_s'], $body);
-					$body .= $func->tb_get_rdf($root->vars['page']);
+					if ($root->trackback) {
+						$body .= $func->tb_get_rdf($root->vars['page']);
+					}
 					$func->ref_save($root->vars['page']);
 				}
 			}
