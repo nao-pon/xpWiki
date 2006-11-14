@@ -3,7 +3,7 @@
 $this->root->runmode = "standalone";
 
 // PukiWiki - Yet another WikiWikiWeb clone.
-// $Id: tdiary.skin.php,v 1.10 2006/11/14 01:29:51 nao-pon Exp $
+// $Id: tdiary.skin.php,v 1.11 2006/11/14 01:36:38 nao-pon Exp $
 // Copyright (C)
 //   2002-2006 PukiWiki Developers Team
 //   2001-2002 Originally written by yu-ji
@@ -683,7 +683,7 @@ function _navigator(& $func, $key, $value = '', $javascript = ''){
 	<?php if($this->cont['TDIARY_CALENDAR_DESIGN']) { ?>
 		<a href="<?php echo $link['reload'] ?>"><span class="small"><?php echo $link['reload'] ?></span></a>
 	<?php } else  if (!$is_top) { ?>
-		<?php echo $this->do_plugin_inline('topicpath'); ?>
+		<?php echo $this->do_plugin_inline('topicpath','',$_dum); ?>
 	<?php } ?>
 <?php } ?>
 </div>
