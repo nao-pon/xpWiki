@@ -2,7 +2,7 @@
 /////////////////////////////////////////////////
 // PukiWiki - Yet another WikiWikiWeb clone.
 //
-// $Id: pginfo.inc.php,v 1.2 2006/11/13 11:56:22 nao-pon Exp $
+// $Id: pginfo.inc.php,v 1.3 2006/11/15 01:13:46 nao-pon Exp $
 //
 
 class xpwiki_plugin_pginfo extends xpwiki_plugin {
@@ -231,11 +231,10 @@ class xpwiki_plugin_pginfo extends xpwiki_plugin {
 	// ページ毎の権限設定フォーム
 	function show_page_form ($page) {
 
-		$this->root->head_pre_tags[] = '<script type="text/javascript" src="'.$this->cont['HOME_URL'].'skin/loader.php?type=js&amp;src=prototype"></script>';
-		$this->root->head_pre_tags[] = '<script type="text/javascript" src="'.$this->cont['HOME_URL'].'skin/loader.php?type=js&amp;src=log"></script>';
-		$this->root->head_pre_tags[] = '<script type="text/javascript" src="'.$this->cont['HOME_URL'].'skin/loader.php?type=js&amp;src=suggest"></script>';
-		$this->root->head_pre_tags[] = '<link rel="stylesheet" type="text/css" media="screen" href="'.$this->cont['HOME_URL'].'skin/loader.php?type=css&amp;src=suggest" />';
-		
+		$this->func->add_tag_head('prototype.js');
+		$this->func->add_tag_head('log.js');
+		$this->func->add_tag_head('suggest.js');
+		$this->func->add_tag_head('suggest.css');
 		
 		$pginfo = $this->func->get_pginfo($page);
 		$spage = htmlspecialchars($page);

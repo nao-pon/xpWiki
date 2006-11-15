@@ -1,7 +1,7 @@
 <?php
 //
 // Created on 2006/10/25 by nao-pon http://hypweb.net/
-// $Id: code.inc.php,v 1.1 2006/10/27 11:50:40 nao-pon Exp $
+// $Id: code.inc.php,v 1.2 2006/11/15 01:13:46 nao-pon Exp $
 //
 
 class xpwiki_plugin_code extends xpwiki_plugin {
@@ -99,12 +99,7 @@ class xpwiki_plugin_code extends xpwiki_plugin {
 		else
 			$this->func->die_message('file '.$this->root->mytrustdirpath.'/code/codehighlight.php not exist or not readable.');
 
-	//	static $plugin_code_jscript_flag = 1;
-		static $loaded = array();
-		if (!isset($loaded['css'])) {
-			$loaded['css'] = TRUE;
-			$this->root->head_pre_tags[] = '<link rel="stylesheet" type="text/css" media="screen" href="'.$this->cont['HOME_URL'].'skin/loader.php?type=css&amp;src=code" />';
-		}
+		$this->func->add_tag_head('code.css');
 
 		$title = '';
 		$lang = null;
@@ -153,9 +148,8 @@ class xpwiki_plugin_code extends xpwiki_plugin {
 			list($html, $option) = $this->_plugin_code_read_cache($arg);
 			if ($html != '' or $html != null)
 			{
-				if (!isset($loaded['js']) && $option['outline']) {
-					$loaded['js'] = TRUE;
-					$this->root->head_pre_tags[] = '<script type="text/javascript" src="'.$this->cont['HOME_URL'].'skin/loader.php?type=js&amp;src=code"></script>';
+				if ($option['outline']) {
+					$this->func->add_tag_head('code.js');
 				}
 				return $html;
 			}
@@ -174,13 +168,8 @@ class xpwiki_plugin_code extends xpwiki_plugin {
 
 		$lines = '<div class="'.$lang.'">'.$lines.'</div>';
 
-		//if ($plugin_code_jscript_flag[$this->xpwiki->pid] && $option['outline']) {
-		//	$plugin_code_jscript_flag[$this->xpwiki->pid] = 0;
-		//	$title .= '<script type="text/javascript" src="'.$this->cont['SKIN_DIR'].'code.js"></script>'."\n";
-		//}
-		if (!isset($loaded['js']) && $option['outline']) {
-			$loaded['js'] = TRUE;
-			$this->root->head_pre_tags[] = '<script type="text/javascript" src="'.$this->cont['HOME_URL'].'skin/loader.php?type=js&amp;src=code"></script>';
+		if ($option['outline']) {
+			$this->func->add_tag_head('code.js');
 		}
 
 		$html = $title.$lines;

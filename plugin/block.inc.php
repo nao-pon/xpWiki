@@ -3,7 +3,7 @@ class xpwiki_plugin_block extends xpwiki_plugin {
 	function plugin_block_init () {
 
 
-	// $Id: block.inc.php,v 1.1 2006/10/15 12:16:47 nao-pon Exp $
+	// $Id: block.inc.php,v 1.2 2006/11/15 01:13:46 nao-pon Exp $
 	
 	/*
 	 * countdown.inc.php
@@ -19,10 +19,10 @@ class xpwiki_plugin_block extends xpwiki_plugin {
 	{
 	//	static $b_count = 1;
 		static $b_count = array();
-		if (!isset($b_count[$this->xpwiki->pid])) {$b_count[$this->xpwiki->pid] = 1;}
-	//	static $b_tag = array();
+		if (!isset($b_count[$this->xpwiki->pid])) {$b_count[$this->xpwiki->pid] = 0;}
 		static $b_tag = array();
 		if (!isset($b_tag[$this->xpwiki->pid])) {$b_tag[$this->xpwiki->pid] = array();}
+		static $b_round = array();
 		$ie5_div = "";
 		$_style = "";
 		$tate_div = "";
@@ -31,7 +31,23 @@ class xpwiki_plugin_block extends xpwiki_plugin {
 		$block_class = "wiki_body_block";
 		if (!isset($b_tag[$this->xpwiki->pid][$b_count[$this->xpwiki->pid]])) $b_tag[$this->xpwiki->pid][$b_count[$this->xpwiki->pid]] = 0;
 		
-		$params = array('end'=>false,'clear'=>false,'left'=>false,'center'=>false,'right'=>false,'around'=>false,'tate'=>false,'h'=>'','width'=>"",'w'=>"",'class'=>false,'font-size'=>'','_args'=>array(),'_done'=>FALSE);
+		$params = array(
+			'end'=>false,
+			'clear'=>false,
+			'left'=>false,
+			'center'=>false,
+			'right'=>false,
+			'around'=>false,
+			'tate'=>false,
+			'h'=>'',
+			'width'=>"",
+			'w'=>"",
+			'class'=>false,
+			'font-size'=>'',
+			'round' => false,
+			'_args'=>array(),
+			'_done'=>FALSE,
+		);
 		//array_walk(func_get_args(), 'block_check_arg', &$params);
 		//なぜか $args のメンバー数が多い時 array_walk ではPHPが落ちることがある
 		foreach(func_get_args() as $key=>$val)
@@ -42,14 +58,20 @@ class xpwiki_plugin_block extends xpwiki_plugin {
 		// end
 		if ($params['end'])
 		{
-			$ret = str_repeat("</div>",$b_tag[$this->xpwiki->pid][$b_count[$this->xpwiki->pid]])."\n";
-			$b_tag[$this->xpwiki->pid][$b_count[$this->xpwiki->pid]]--;
+			$ret = '';
+			if (isset($b_round[$this->xpwiki->pid][$b_count[$this->xpwiki->pid]])) {
+				$ret .= '<div class="round_bb"><div></div></div>';
+			}
+			$ret .= str_repeat("</div>",$b_tag[$this->xpwiki->pid][$b_count[$this->xpwiki->pid]])."\n";
+			//$b_tag[$this->xpwiki->pid][$b_count[$this->xpwiki->pid]]--;
+			$b_count[$this->xpwiki->pid]--;
 			return $ret;
 		}
 		// clear
 		if ($params['clear']) return '<div style="clear:both"></div>'."\n";
 		
 		$b_tag[$this->xpwiki->pid][$b_count[$this->xpwiki->pid]] = 1;
+		//$b_count[$this->xpwiki->pid]++;
 		
 		if ($params['left']) $align = 'left';
 		if ($params['center']) $align = 'center';
@@ -63,8 +85,8 @@ class xpwiki_plugin_block extends xpwiki_plugin {
 		$tate = $params['tate'];
 		$height = $params['h'];
 		
-		$b_count[$this->xpwiki->pid]++;
-		$b_tag[$this->xpwiki->pid][$b_count[$this->xpwiki->pid]]++;
+		//$b_count[$this->xpwiki->pid]++;
+		//$b_tag[$this->xpwiki->pid][$b_count[$this->xpwiki->pid]]++;
 		
 		if ($tate)
 		{
@@ -114,11 +136,19 @@ class xpwiki_plugin_block extends xpwiki_plugin {
 				$style = " style='margin-left:auto;margin-right:auto;{$_style}'";
 			}
 			//$ie5_div = "<div class=\"ie5\"{$tate_style}>";
-			$ie5_div = "<div class=\"ie5\">";
-			$b_tag[$this->xpwiki->pid][$b_count[$this->xpwiki->pid]]++;
+			//$ie5_div = "<div class=\"ie5\">";
+			$ie5_div = '';
+			//$b_tag[$this->xpwiki->pid][$b_count[$this->xpwiki->pid]]++;
 		}
 		
-		return "{$ie5_div}<div{$style} class=\"{$block_class}\">{$tate_div}{$tate_js}";
+		$round = '';
+		if ($params['round']) {
+			$round ='<div class="round_box"><div class="round_bi"><div class="round_bt"><div></div></div><div class="round_content">';
+			$b_round[$this->xpwiki->pid][$b_count[$this->xpwiki->pid]] = TRUE;
+			$b_tag[$this->xpwiki->pid][$b_count[$this->xpwiki->pid]] += 3;
+			$this->func->add_tag_head('block.css');
+		}
+		return "{$ie5_div}<div{$style} class=\"{$block_class}\">{$tate_div}{$tate_js}{$round}";
 	}
 	
 	//オプションを解析する

@@ -1,7 +1,7 @@
 <?php
 //
 // Created on 2006/09/29 by nao-pon http://hypweb.net/
-// $Id: xpwiki.php,v 1.13 2006/11/14 01:14:45 nao-pon Exp $
+// $Id: xpwiki.php,v 1.14 2006/11/15 01:13:46 nao-pon Exp $
 //
 
 class XpWiki {
@@ -193,6 +193,9 @@ class XpWiki {
 		// for menu plugin etc..
 		$this->root->runmode = "xoops";
 		
+		// ブロック取得モード
+		$this->root->is_block = TRUE;
+		
 		// 実行
 		$this->execute();
 
@@ -213,17 +216,15 @@ class XpWiki {
 				}
 			}
 		}
+		// Head Tags
+		list($head_pre_tag, $head_tag) = $this->func->get_additional_headtags($this);
 		
 		// 出力
 		$base = "b_".$this->root->mydirname;
 		$block = <<< EOD
+$head_pre_tag
 <link rel="stylesheet" type="text/css" media="screen" href="{$this->cont['HOME_URL']}{$this->cont['SKIN_DIR']}block.css.php?charset=Shift_JIS&amp;base={$base}" charset="Shift_JIS" />
-<script type="text/javascript">
-<!--
-var wikihelper_root_url = "{$this->cont['HOME_URL']}";
-//-->
-</script>
-<script type="text/javascript" src="{$this->cont['HOME_URL']}skin/loader.php?type=js&amp;src=default.{$this->cont['UI_LANG']}"></script>
+$head_tag
 <div class="xpwiki_{$base}" style="width:{$width};overflow:hidden;">
 {$this->body}
 </div>

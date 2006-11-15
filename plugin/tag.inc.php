@@ -28,7 +28,7 @@ class xpwiki_plugin_tag extends xpwiki_plugin {
 		return call_user_func_array(array($this->root->plugin_tag, 'convert'), $args);
 	}
 }
-	// $Id: tag.inc.php,v 1.4 2006/10/31 23:57:36 nao-pon Exp $
+	// $Id: tag.inc.php,v 1.5 2006/11/15 01:13:46 nao-pon Exp $
 	
 class XpWikiPluginTag
 {
@@ -48,7 +48,7 @@ class XpWikiPluginTag
 		
 		if (!$loaded) {
 			$loaded = TRUE;
-			$this->root->head_pre_tags[] = '<link rel="stylesheet" type="text/css" media="screen" href="'.$this->cont['HOME_URL'].'skin/loader.php?type=css&amp;src=tagcloud" />';
+			$this->func->add_tag_head('tagcloud.css');
 		}
 		
 		// option

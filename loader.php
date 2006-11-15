@@ -1,26 +1,29 @@
 <?php
 //
 // Created on 2006/10/25 by nao-pon http://hypweb.net/
-// $Id: loader.php,v 1.1 2006/10/27 11:42:18 nao-pon Exp $
+// $Id: loader.php,v 1.2 2006/11/15 01:13:46 nao-pon Exp $
 //
 
 // 変数初期化
-$type = preg_replace("/[^\w.-]+/","",@ $_GET['type']);
-$src  = preg_replace("/[^\w.-]+/","",@ $_GET['src']);
+$type  = preg_replace("/[^\w.-]+/","",@ $_GET['type']);
+$src   = preg_replace("/[^\w.-]+/","",@ $_GET['src']);
+$block = (isset($_GET['b']))? 'b_' : '';
 
 if (!$type || !$src) { exit(); }
 
 $basedir = ($type === "png" || $type === "gif")? "image/" : "";
 
 // html側に指定ファイルがあれば、それにリダイレクト
-if (file_exists("{$skin_dirname}/{$basedir}{$type}/{$src}.{$type}")) {
-	header("Location: {$basedir}{$type}/{$src}.{$type}");
+if (file_exists("{$skin_dirname}/{$basedir}{$type}/{$block}{$src}.{$type}")) {
+	header("Location: {$basedir}{$type}/{$block}{$src}.{$type}");
 	exit();
 }
 
+$dir = '';
 switch ($type) {
 	case "css":
 		$c_type = "text/css";
+		$dir = $block.basename(dirname($skin_dirname));
 		break;
 	case "js":
 		$c_type = "application/x-javascript";
@@ -46,7 +49,7 @@ if ($type === "js" && substr($src,0,7) == "default") {
 
 if (file_exists($src_file)) {
 	$filetime = filemtime($src_file);
-	$etag = md5($type.$src.$filetime);
+	$etag = md5($type.$dir.$src.$filetime);
 	/*
 	$notmod = ($etag == @$_SERVER["HTTP_IF_NONE_MATCH"]);
 	if ($notmod || isset($_SERVER["HTTP_IF_MODIFIED_SINCE"])) {
@@ -63,6 +66,9 @@ if (file_exists($src_file)) {
 		exit();
 	}
 	$out = join("",file($src_file));
+	if ($dir) {
+		$out = str_replace('$dir', $dir, $out);
+	}
 }
 
 header( "Content-Type: " . $c_type );
