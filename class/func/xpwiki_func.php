@@ -1,7 +1,7 @@
 <?php
 //
 // Created on 2006/10/02 by nao-pon http://hypweb.net/
-// $Id: xpwiki_func.php,v 1.21 2006/11/13 11:56:22 nao-pon Exp $
+// $Id: xpwiki_func.php,v 1.22 2006/11/15 01:13:46 nao-pon Exp $
 //
 class XpWikiFunc extends XpWikiXoopsWrapper {
 
@@ -700,6 +700,21 @@ EOD;
 		}
 		return FALSE;
 	}
-
+	
+	function add_tag_head ($file,$pre=TRUE) {
+		static $done = array();
+		if (isset($done[$this->xpwiki->pid][$file])) { return; }
+		$done[$this->xpwiki->pid][$file] = TRUE;
+		
+		if (preg_match("/^(.+)\.([^\.]+)$/",$file,$match)) {
+			$target = $pre? 'head_pre_tags' : 'head_tags';
+			$block = (isset($this->root->is_block))? '&amp;b=1' : '';
+			if ($match[2] === 'css') {
+				$this->root->{$target}[] = '<link rel="stylesheet" type="text/css" media="screen" href="'.$this->cont['HOME_URL'].'skin/loader.php?type=css&amp;src='.$match[1].$block.'" />';
+			} else if ($match[2] === 'js') {
+				$this->root->{$target}[] = '<script type="text/javascript" src="'.$this->cont['HOME_URL'].'skin/loader.php?type=js&amp;src='.$match[1].'"></script>';
+			}
+		}	
+	}
 }
 ?>
