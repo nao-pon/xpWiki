@@ -4,7 +4,7 @@ class xpwiki_plugin_edit extends xpwiki_plugin {
 
 
 	// PukiWiki - Yet another WikiWikiWeb clone.
-	// $Id: edit.inc.php,v 1.8 2006/11/12 08:43:57 nao-pon Exp $
+	// $Id: edit.inc.php,v 1.9 2006/11/15 04:19:10 nao-pon Exp $
 	// Copyright (C) 2001-2006 PukiWiki Developers Team
 	// License: GPL v2 or (at your option) any later version
 	//
@@ -214,6 +214,8 @@ class xpwiki_plugin_edit extends xpwiki_plugin {
 	
 		$this->root->vars['msg'] = preg_replace($this->cont['PLUGIN_EDIT_FREEZE_REGEX'], '', $this->root->vars['msg']);
 		$this->root->vars['msg'] = preg_replace($this->cont['PLUGIN_EDIT_PGINFO_REGEX'], '', $this->root->vars['msg']);
+
+		$this->root->vars['original'] = preg_replace($this->cont['PLUGIN_EDIT_PGINFO_REGEX'], '', $this->root->vars['original']);
 		$msg = & $this->root->vars['msg']; // Reference
 		
 		// ParaEdit
@@ -317,7 +319,7 @@ class xpwiki_plugin_edit extends xpwiki_plugin {
 	// ソースの一部を抽出/置換する
 	function plugin_edit_parts($id, & $source, $postdata = '')
 	{
-		$postdata = rtrim($postdata)."\n";
+		$postdata = rtrim($postdata)."\n\n";
 		$heads = preg_grep('/^\*{1,3}.+\[#[A-Za-z][\w-]+\].*$/', $source);
 		$heads[count($source)] = ''; // Sentinel
 	
