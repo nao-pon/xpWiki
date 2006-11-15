@@ -4,7 +4,7 @@ class xpwiki_plugin_edit extends xpwiki_plugin {
 
 
 	// PukiWiki - Yet another WikiWikiWeb clone.
-	// $Id: edit.inc.php,v 1.9 2006/11/15 04:19:10 nao-pon Exp $
+	// $Id: edit.inc.php,v 1.10 2006/11/15 23:40:10 nao-pon Exp $
 	// Copyright (C) 2001-2006 PukiWiki Developers Team
 	// License: GPL v2 or (at your option) any later version
 	//
@@ -232,6 +232,12 @@ class xpwiki_plugin_edit extends xpwiki_plugin {
 			$msg = $fullmsg;
 			$hash = '#' . $paraid;
 		}
+		
+		// 文末処理
+		$msg = rtrim($msg)."\n";
+		
+		// 改行・TAB・スペースのみだったら削除とみなす
+		$msg = preg_replace('/^[ \s]+$/', '', $msg);
 	
 		$retvars = array();
 	
@@ -244,7 +250,6 @@ class xpwiki_plugin_edit extends xpwiki_plugin {
 	
 			$original = isset($this->root->vars['original']) ? $this->root->vars['original'] : '';
 			$oldpagesrc = preg_replace($this->cont['PLUGIN_EDIT_PGINFO_REGEX'], '', $oldpagesrc);
-			$original = preg_replace($this->cont['PLUGIN_EDIT_PGINFO_REGEX'], '', $original);
 			list($postdata_input, $auto) = $this->func->do_update_diff($oldpagesrc, $msg, $original);
 	
 			$retvars['msg' ] = $this->root->_title_collided;
@@ -320,6 +325,10 @@ class xpwiki_plugin_edit extends xpwiki_plugin {
 	function plugin_edit_parts($id, & $source, $postdata = '')
 	{
 		$postdata = rtrim($postdata)."\n\n";
+		
+		// 改行・TAB・スペースのみだったら削除とみなす
+		$postdata = preg_replace('/^[ \s]+$/', '', $postdata);
+		
 		$heads = preg_grep('/^\*{1,3}.+\[#[A-Za-z][\w-]+\].*$/', $source);
 		$heads[count($source)] = ''; // Sentinel
 	
