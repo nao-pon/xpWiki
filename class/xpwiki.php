@@ -1,7 +1,7 @@
 <?php
 //
 // Created on 2006/09/29 by nao-pon http://hypweb.net/
-// $Id: xpwiki.php,v 1.14 2006/11/15 01:13:46 nao-pon Exp $
+// $Id: xpwiki.php,v 1.15 2006/11/19 11:22:15 nao-pon Exp $
 //
 
 class XpWiki {
@@ -122,7 +122,7 @@ class XpWiki {
 				} else {
 					$root->vars['cmd']  = 'read';
 					$root->vars['page'] = $base;
-					$body  = $func->get_page_cache($base);
+					$body  = $func->get_body($base);
 					
 					//$pgobj = new XpWikiPage($this, $base);
 					//$body = $pgobj->html;
@@ -137,9 +137,15 @@ class XpWiki {
 			}
 
 			// Output
-			$this->title     = $title . ' - ' . $this->root->page_title;
-			$this->page_name = $page;
-			$this->body      = $body;
+			$this->title         = $title . ' - ' . $this->root->page_title;
+			$this->page_name     = $page;
+			$this->body          = $body;
+			$this->foot_explain  = $root->foot_explain;
+			$this->head_pre_tags = $root->head_pre_tags;
+			$this->head_tags     = $root->head_tags;
+			$this->related       = $root->related;
+			$this->notyets       = $root->notyets;
+
 		}
 	}
 	
@@ -174,7 +180,7 @@ class XpWiki {
 		$this->func->catbody($this->title, $this->page_name, $this->body);
 		$this->html = ob_get_contents();
 		if (!empty($this->root->runmode)) $this->runmode = $this->root->runmode;
-		ob_end_clean();
+		while( ob_get_level() ) { ob_end_clean() ; }
 
 		return;
 	}

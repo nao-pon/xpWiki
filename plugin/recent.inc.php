@@ -3,7 +3,7 @@ class xpwiki_plugin_recent extends xpwiki_plugin {
 	function plugin_recent_init () {
 
 
-	// $Id: recent.inc.php,v 1.1 2006/10/13 13:17:49 nao-pon Exp $
+	// $Id: recent.inc.php,v 1.2 2006/11/19 11:22:15 nao-pon Exp $
 	// Copyright (C)
 	//   2002-2006 PukiWiki Developers Team
 	//   2002      Y.MASUI http://masui.net/pukiwiki/ masui@masui.net
@@ -33,18 +33,48 @@ class xpwiki_plugin_recent extends xpwiki_plugin {
 	//	global $vars, $date_format, $_recent_plugin_frame, $show_passage;
 	//	static $exec_count = 1;
 		static $exec_count = array();
+
 		if (!isset($exec_count[$this->xpwiki->pid])) {$exec_count[$this->xpwiki->pid] = 1;}
 	
 		$recent_lines = $this->cont['PLUGIN_RECENT_DEFAULT_LINES'];
-		if (func_num_args()) {
+		
+		//if (func_num_args()) {
+		//	$args = func_get_args();
+		//	if (! is_numeric($args[0]) || isset($args[1])) {
+		//		return $this->cont['PLUGIN_RECENT_USAGE'] . '<br />';
+		//	} else {
+		//		$recent_lines = $args[0];
+		//	}
+		//}
+
+		$prefix = "";
+		if(func_num_args()>0) {
 			$args = func_get_args();
-			if (! is_numeric($args[0]) || isset($args[1])) {
-				return $this->cont['PLUGIN_RECENT_USAGE'] . '<br />';
-			} else {
-				$recent_lines = $args[0];
+			$recent_lines = (int)$args[0];
+			$prefix = $args[0];
+			$prefix = preg_replace("/\/$/","",$prefix);
+			if ($this->func->is_page($prefix))
+			{
+				if (isset($args[1]) && is_numeric($args[1]))
+					$recent_lines = $args[1];
 			}
+			else if (isset($args[1]))
+			{
+				$prefix = $args[1];
+				$prefix = preg_replace("/\/$/","",$prefix);
+				if (is_page($prefix))
+				{
+					if (isset($args[0]) && is_numeric($args[0]))
+						$recent_lines = $args[0];
+				}
+				else
+					$prefix = "";
+			}
+			else
+				$prefix = "";
 		}
-	
+		$_prefix = ($prefix)? $prefix . '/' : '';
+		
 		// Show only N times
 		if ($exec_count[$this->xpwiki->pid] > $this->cont['PLUGIN_RECENT_EXEC_LIMIT']) {
 			return '#recent(): You called me too much' . '<br />' . "\n";
@@ -52,13 +82,15 @@ class xpwiki_plugin_recent extends xpwiki_plugin {
 			++$exec_count[$this->xpwiki->pid];
 		}
 	
-		if (! file_exists($this->cont['PLUGIN_RECENT_CACHE']))
-			return '#recent(): Cache file of RecentChanges not found' . '<br />';
+		//if (! file_exists($this->cont['PLUGIN_RECENT_CACHE']))
+		//	return '#recent(): Cache file of RecentChanges not found' . '<br />';
 	
 		// Get latest N changes
-		$lines = $this->func->file_head($this->cont['PLUGIN_RECENT_CACHE'], $recent_lines);
-		if ($lines == FALSE) return '#recent(): File can not open' . '<br />' . "\n";
-	
+		//$lines = $this->func->file_head($this->cont['PLUGIN_RECENT_CACHE'], $recent_lines);
+		//if ($lines == FALSE) return '#recent(): File can not open' . '<br />' . "\n";
+		$lines = $this->func->get_existpages_db(FALSE,$_prefix,$recent_lines," ORDER BY editedtime DESC",TRUE,FALSE,TRUE,TRUE);
+		
+		
 		$script = $this->func->get_script_uri();
 		$date = $items = '';
 		foreach ($lines as $line) {

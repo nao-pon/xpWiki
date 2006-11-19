@@ -4,7 +4,7 @@ class xpwiki_plugin_edit extends xpwiki_plugin {
 
 
 	// PukiWiki - Yet another WikiWikiWeb clone.
-	// $Id: edit.inc.php,v 1.10 2006/11/15 23:40:10 nao-pon Exp $
+	// $Id: edit.inc.php,v 1.11 2006/11/19 11:22:15 nao-pon Exp $
 	// Copyright (C) 2001-2006 PukiWiki Developers Team
 	// License: GPL v2 or (at your option) any later version
 	//
@@ -12,9 +12,6 @@ class xpwiki_plugin_edit extends xpwiki_plugin {
 	
 		// Remove #freeze written by hand
 		$this->cont['PLUGIN_EDIT_FREEZE_REGEX'] = '/^(?:#freeze(?!\w)\s*)+/im';
-		// Remove #pginfo written by hand
-		$this->cont['PLUGIN_EDIT_PGINFO_REGEX'] = '/^(?:#pginfo\(.*\)\s*)+/im';
-
 	}
 	
 	function plugin_edit_action()
@@ -48,7 +45,7 @@ class xpwiki_plugin_edit extends xpwiki_plugin {
 
 		if ($postdata == '') $postdata = $this->func->auto_template($page);
 		
-		$postdata = preg_replace($this->cont['PLUGIN_EDIT_PGINFO_REGEX'], '', $postdata);
+		$postdata = preg_replace($this->cont['PKWK_PGINFO_REGEX'], '', $postdata);
 		
 	
 		return array('msg'=>$this->root->_title_edit, 'body'=>$this->func->edit_form($page, $postdata));
@@ -213,9 +210,9 @@ class xpwiki_plugin_edit extends xpwiki_plugin {
 		$paraid = isset($this->root->vars['paraid']) ? $this->root->vars['paraid'] : '';
 	
 		$this->root->vars['msg'] = preg_replace($this->cont['PLUGIN_EDIT_FREEZE_REGEX'], '', $this->root->vars['msg']);
-		$this->root->vars['msg'] = preg_replace($this->cont['PLUGIN_EDIT_PGINFO_REGEX'], '', $this->root->vars['msg']);
+		$this->root->vars['msg'] = preg_replace($this->cont['PKWK_PGINFO_REGEX'], '', $this->root->vars['msg']);
 
-		$this->root->vars['original'] = preg_replace($this->cont['PLUGIN_EDIT_PGINFO_REGEX'], '', $this->root->vars['original']);
+		$this->root->vars['original'] = preg_replace($this->cont['PKWK_PGINFO_REGEX'], '', $this->root->vars['original']);
 		$msg = & $this->root->vars['msg']; // Reference
 		
 		// ParaEdit
@@ -249,7 +246,7 @@ class xpwiki_plugin_edit extends xpwiki_plugin {
 			unset($this->root->vars['paraid']); // 更新が衝突したら全文編集に切り替え
 	
 			$original = isset($this->root->vars['original']) ? $this->root->vars['original'] : '';
-			$oldpagesrc = preg_replace($this->cont['PLUGIN_EDIT_PGINFO_REGEX'], '', $oldpagesrc);
+			$oldpagesrc = preg_replace($this->cont['PKWK_PGINFO_REGEX'], '', $oldpagesrc);
 			list($postdata_input, $auto) = $this->func->do_update_diff($oldpagesrc, $msg, $original);
 	
 			$retvars['msg' ] = $this->root->_title_collided;
@@ -293,13 +290,14 @@ class xpwiki_plugin_edit extends xpwiki_plugin {
 		}
 
 		// ページ情報
-		$pginfo = $this->func->get_pginfo($page);
-		$pginfo['lastuid'] = $this->root->userinfo['uid'];
-		$pginfo['lastucd'] = $this->root->userinfo['ucd'];
-		$pginfo['lastuname'] = $this->root->cookie['name'];
-		$pginfo_str = '#pginfo('.join("\t",$pginfo).')'."\n";
+		//$pginfo = $this->func->get_pginfo($page);
+		//$pginfo['lastuid'] = $this->root->userinfo['uid'];
+		//$pginfo['lastucd'] = $this->root->userinfo['ucd'];
+		//$pginfo['lastuname'] = $this->root->cookie['name'];
+		//$pginfo_str = '#pginfo('.join("\t",$pginfo).')'."\n";
 	
-		$this->func->page_write($page, $pginfo_str.$postdata, $this->root->notimeupdate != 0 && $notimestamp);
+		//$this->func->page_write($page, $pginfo_str.$postdata, $this->root->notimeupdate != 0 && $notimestamp);
+		$this->func->page_write($page, $postdata, $this->root->notimeupdate != 0 && $notimestamp);
 		$this->func->pkwk_headers_sent();
 		header('Location: ' . $this->func->get_script_uri() . '?' . rawurlencode($page) . $hash);
 		exit;

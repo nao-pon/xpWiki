@@ -27,6 +27,7 @@ foreach (array('SCRIPT_NAME', 'SERVER_ADMIN', 'SERVER_NAME',
 
 $root->foot_explain = array();	// Footnotes
 $root->related      = array();	// Related pages
+$root->notyets      = array();	// Not yet pages
 $root->head_tags    = array();	// XHTML tags in <head></head>
 $root->head_pre_tags= array();	// XHTML pre tags in <head></head> before skin's CSS.
 
@@ -340,14 +341,47 @@ if (!empty($const['page_show'])) {
 		$arg = preg_replace("/&.*$/", "", $arg);
 		$arg = $this->strip_bracket($arg);
 		$arg = $this->input_filter($arg);
+		
+		// RecentChanges is a cmd in xpWiki
+		if ($arg === 'RecentChanges'){
+			$get['cmd'] = $post['cmd'] = $vars['cmd'] = 'recentchanges';
+		}
+			
 		$get['page'] = $post['page'] = $vars['page'] = $arg;
 	}
 	
+	// PlainText DB 更新する？
+	if (@$vars['cmd'] === 'read') {
+		$_udp_file = $const['CACHE_DIR'].$this->encode($vars['page']).".udp";
+		if (file_exists($_udp_file)) {
+			$_udp_mode = join('',file($_udp_file));
+			unlink($_udp_file);
+			
+			// ブラウザとのコネクションが切れても実行し続ける
+			ignore_user_abort(TRUE);
+			
+			// ブラウザにはリダイレクトを通知
+			$base = preg_replace("#^(https?://[^/]+).*$#i","$1",$const['ROOT_URL']);
+			$uri = $base.$_SERVER['REQUEST_URI'];
+			while( ob_get_level() ) { ob_end_clean() ; }
+			$out = "\r\n";
+			header("Content-Length: ".strlen($out));
+			header("Connection: close");
+			header("Location: " . $uri);
+			echo $out;
+			flush();
+			
+			// ブラウザは再表示し、PHPは実行を継続
+			sleep(5);
+			$this->plain_db_write($vars['page'], $_udp_mode);
+			exit();
+		}
+	}
+
 	// 入力チェック: 'cmd=' prohibits nasty 'plugin='
 	if (isset($vars['cmd']) && isset($vars['plugin']))
 		unset($get['plugin'], $post['plugin'], $vars['plugin']);
 		
-	//exit ($vars['cmd']);
 }
 $root->get =& $get;
 $root->post =& $post;

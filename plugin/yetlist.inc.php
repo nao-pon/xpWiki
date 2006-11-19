@@ -6,7 +6,7 @@ class xpwiki_plugin_yetlist extends xpwiki_plugin {
 
 	}
 	// PukiWiki - Yet another WikiWikiWeb clone
-	// $Id: yetlist.inc.php,v 1.1 2006/10/13 13:17:49 nao-pon Exp $
+	// $Id: yetlist.inc.php,v 1.2 2006/11/19 11:22:15 nao-pon Exp $
 	// Copyright (C) 2001-2006 PukiWiki Developers Team
 	// License: GPL v2 or (at your option) any later version
 	//
@@ -18,10 +18,14 @@ class xpwiki_plugin_yetlist extends xpwiki_plugin {
 	//	global $whatsdeleted;
 	
 		$retval = array('msg' => $this->root->_title_yetlist, 'body' => '');
-	
-		// Diff
-		$pages = array_diff($this->func->get_existpages($this->cont['CACHE_DIR'], '.ref'), $this->func->get_existpages());
-		if (empty($pages)) {
+
+		$yetlists = array();
+		if (file_exists($this->cont['CACHE_DIR']."yetlist.dat"))
+		{
+			$yetlists = unserialize(join("",file($this->cont['CACHE_DIR']."yetlist.dat")));
+		}
+
+		if (empty($yetlists)) {
 			$retval['body'] = $this->root->_err_notexist;
 			return $retval;
 		}
@@ -31,15 +35,9 @@ class xpwiki_plugin_yetlist extends xpwiki_plugin {
 		// Load .ref files and Output
 		$script      = $this->func->get_script_uri();
 		$refer_regex = '/' . $this->root->non_list . '|^' . preg_quote($this->root->whatsdeleted, '/') . '$/S';
-		asort($pages, SORT_STRING);
-		foreach ($pages as $file=>$page) {
-			$refer = array();
-			foreach (file($this->cont['CACHE_DIR'] . $file) as $line) {
-				list($_page) = explode("\t", rtrim($line));
-				$refer[] = $_page;
-			}
-			// Diff
-			$refer = array_diff($refer, preg_grep($refer_regex, $refer));
+		ksort($yetlists, SORT_STRING);
+		foreach ($yetlists as $page=>$refer) {
+
 			if (! empty($refer)) {
 				$empty = FALSE;
 				$refer = array_unique($refer);

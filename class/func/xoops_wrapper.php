@@ -1,7 +1,7 @@
 <?php
 //
 // Created on 2006/10/11 by nao-pon http://hypweb.net/
-// $Id: xoops_wrapper.php,v 1.12 2006/11/13 11:56:22 nao-pon Exp $
+// $Id: xoops_wrapper.php,v 1.13 2006/11/19 11:22:15 nao-pon Exp $
 //
 class XpWikiXoopsWrapper extends XpWikiBackupFunc {
 	
@@ -186,9 +186,10 @@ class XpWikiXoopsWrapper extends XpWikiBackupFunc {
 	}
 
 	// ユーザーが所属するグループIDを得る
-	function get_mygroups(){
+	function get_mygroups($uid = NULL){
+		if (is_null($uid)) $uid = $this->root->userinfo['uid'];
 		$XM =& xoops_gethandler('member');
-		return $XM->getGroupsByUser($this->root->userinfo['uid']);
+		return $XM->getGroupsByUser($uid);
 	}
 	// グループ一覧を得る
 	function get_group_list()
