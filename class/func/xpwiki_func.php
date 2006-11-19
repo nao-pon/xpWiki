@@ -1,7 +1,7 @@
 <?php
 //
 // Created on 2006/10/02 by nao-pon http://hypweb.net/
-// $Id: xpwiki_func.php,v 1.23 2006/11/19 11:22:15 nao-pon Exp $
+// $Id: xpwiki_func.php,v 1.24 2006/11/19 12:37:39 nao-pon Exp $
 //
 class XpWikiFunc extends XpWikiXoopsWrapper {
 
@@ -1374,6 +1374,22 @@ EOD;
 			}
 		}
 		return $where[$this->xpwiki->pid][$key];
+	}
+
+	// plain Text を取得する
+	function get_plain_text_db ($page) {
+		
+		$pgid = $this->get_pgid_by_name($page);
+		
+		$query = 'SELECT `plain` FROM `'.$this->xpwiki->db->prefix($this->root->mydirname."_plain").'` WHERE `pgid` = \''.$pgid.'\' LIMIT 1';		
+		$result = $this->xpwiki->db->query($query);
+		
+		$text = '';
+		if ($result)
+		{
+			list($text) = mysql_fetch_row($result);
+		}
+		return $text;
 	}
 }
 ?>
