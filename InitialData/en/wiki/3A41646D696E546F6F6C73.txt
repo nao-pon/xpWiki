@@ -7,7 +7,6 @@
 
 -[[Page rename>[[cmd:rename]]]]
 -[[Backup & Restore>[[cmd:dump]]]]
--[[Link cache remake>[[cmd:links]]]]
 -[[Synchronize Database>[[cmd:dbsync]]]]
 
 ** Other tooles [#cf9cc793]
