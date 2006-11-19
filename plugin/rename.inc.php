@@ -1,6 +1,6 @@
 <?php
 // PukiWiki - Yet another WikiWikiWeb clone
-// $Id: rename.inc.php,v 1.2 2006/11/07 00:31:26 nao-pon Exp $
+// $Id: rename.inc.php,v 1.3 2006/11/19 11:22:15 nao-pon Exp $
 //
 // Rename plugin: Rename page-name and related data
 //
@@ -14,9 +14,6 @@ class xpwiki_plugin_rename extends xpwiki_plugin {
 		if ($this->root->userinfo['admin'] && $this->root->module['platform'] == "xoops") {
 			$this->root->runmode = "xoops_admin";
 		}
-		
-		$this->cont['PLUGIN_RENAME_LOGPAGE'] =  ':RenameLog';
-
 	}
 	
 	function plugin_rename_action()
@@ -353,10 +350,10 @@ EOD;
 				if (isset($exists[$page][$old]) && $exists[$page][$old])
 					unlink($new);
 				rename($old, $new);
-	
+				
 				// linkデータベースを更新する BugTrack/327 arino
-				$this->func->links_update($old);
-				$this->func->links_update($new);
+				//$this->func->links_update($old);
+				//$this->func->links_update($new);
 			}
 		}
 	
@@ -384,10 +381,14 @@ EOD;
 			$postdata[] = '----' . "\n";
 		}
 	
-		foreach ($pages as $old=>$new)
+		foreach ($pages as $old=>$new) {
 			$postdata[] = '-' . $this->func->decode($old) .
 			$this->root->_rename_messages['msg_arrow'] . $this->func->decode($new) . "\n";
-	
+			
+			// pginfo DB 更新
+			$this->func->pginfo_rename_db_write($this->func->decode($page), $this->func->decode($new));
+		}
+		
 		// 更新の衝突はチェックしない。
 	
 		// ファイルの書き込み

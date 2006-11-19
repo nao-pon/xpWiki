@@ -4,7 +4,7 @@ class xpwiki_plugin_unfreeze extends xpwiki_plugin {
 
 
 	// PukiWiki - Yet another WikiWikiWeb clone.
-	// $Id: unfreeze.inc.php,v 1.2 2006/10/15 12:16:47 nao-pon Exp $
+	// $Id: unfreeze.inc.php,v 1.3 2006/11/19 11:22:15 nao-pon Exp $
 	//
 	// Unfreeze(Unlock) plugin
 	
@@ -40,6 +40,10 @@ class xpwiki_plugin_unfreeze extends xpwiki_plugin {
 	
 			// Update 
 			$this->func->is_freeze($page, TRUE);
+
+			// pginfo DB write
+			$this->func->pginfo_freeze_db_write ($page, 0);
+
 			if ($this->cont['PLUGIN_UNFREEZE_EDIT']) {
 				$this->root->vars['cmd'] = 'read'; // To show 'Freeze' link
 				$msg  = & $this->root->_title_unfreezed;

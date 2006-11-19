@@ -1,7 +1,7 @@
 <?php
 //
 // Created on 2006/10/25 by nao-pon http://hypweb.net/
-// $Id: code.inc.php,v 1.2 2006/11/15 01:13:46 nao-pon Exp $
+// $Id: code.inc.php,v 1.3 2006/11/19 11:22:15 nao-pon Exp $
 //
 
 class xpwiki_plugin_code extends xpwiki_plugin {
@@ -340,7 +340,7 @@ class xpwiki_plugin_code extends xpwiki_plugin {
 			return $data['_error'];
 		}
 		$text = $data['data'];
-		$title = $data['title'];
+		$title = @$data['title'];
 
 		if ($end === null)
 			$end = substr_count($text, "\n") + $begin -1;

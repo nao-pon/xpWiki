@@ -1,6 +1,6 @@
 <?php
 // PukiWiki - Yet another WikiWikiWeb clone
-// $Id: pukiwiki.ini.php,v 1.11 2006/11/12 08:43:57 nao-pon Exp $
+// $Id: pukiwiki.ini.php,v 1.12 2006/11/19 11:22:15 nao-pon Exp $
 // Copyright (C)
 //   2002-2006 PukiWiki Developers Team
 //   2001-2002 Originally written by yu-ji
@@ -133,6 +133,8 @@ $root->whatsdeleted = 'RecentDeleted'; // Removeed page list
 $root->interwiki    = 'InterWikiName'; // Set InterWiki definition here
 $root->aliaspage    = 'AutoAliasName'; // Set AutoAlias definition here
 $root->menubar      = 'MenuBar';       // Menu
+
+$const['PLUGIN_RENAME_LOGPAGE'] = ':RenameLog'; // Rename Log page
 
 // Guest user's name (It will be overwrite by xoops setting.)
 $root->anonymous = 'anonymous';
@@ -614,4 +616,7 @@ $const['PKWK_CONFIG_PREFIX'] = ':config/';
 
 // 名前欄の仮文字列(コンバート後にユーザー名に置換) 
 $const['USER_NAME_REPLACE'] = '__uSER_nAME_rEPLACE__';
+
+// #pginfo の正規表現 (#pginfo削除などに利用)
+$const['PKWK_PGINFO_REGEX'] = '/^(?:#pginfo\(.*\)\s*)+/m';
 ?>

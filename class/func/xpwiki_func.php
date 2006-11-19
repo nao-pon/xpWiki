@@ -1,7 +1,7 @@
 <?php
 //
 // Created on 2006/10/02 by nao-pon http://hypweb.net/
-// $Id: xpwiki_func.php,v 1.22 2006/11/15 01:13:46 nao-pon Exp $
+// $Id: xpwiki_func.php,v 1.23 2006/11/19 11:22:15 nao-pon Exp $
 //
 class XpWikiFunc extends XpWikiXoopsWrapper {
 
@@ -115,7 +115,6 @@ class XpWikiFunc extends XpWikiXoopsWrapper {
 				require_once($plugin_files['system']);
 				$class_name = "xpwiki_plugin_{$name}";
 				if (class_exists($class_name)) {
-					$exist[$this->xpwiki->pid][$name] = TRUE;
 					$count[$this->xpwiki->pid][$name] = 1;
 					$ret = $class_name;
 					if (isset($plugin_files['user'])) {
@@ -125,6 +124,9 @@ class XpWikiFunc extends XpWikiXoopsWrapper {
 							$ret = $class_name;
 						}
 					}
+					$ret = $class_name;
+					$exist[$this->xpwiki->pid][$name] = $ret;
+					$count[$this->xpwiki->pid][$name] = 1;
 				}
 			}
 		}
@@ -177,12 +179,16 @@ class XpWikiFunc extends XpWikiXoopsWrapper {
 	// Call API 'action' of the plugin
 	function do_plugin_action($name) {
 		if (! $this->exist_plugin_action($name)) return array();
-
-		//if($this->do_plugin_init($name) === FALSE)
-		//		$this->die_message('Plugin init failed: ' . $name);
-	
+		
 		$plugin = & $this->get_plugin_instance($name);
+		
+		// ブラウザとのコネクションが切れても実行し続ける
+		$_iua = ignore_user_abort(TRUE);
+		
 		$retvar = call_user_func(array(& $plugin, 'plugin_' . $name . '_action'));
+		
+		// ignore_user_abort の設定値戻し
+		ignore_user_abort($_iua);
 		
 		// Insert a hidden field, supports idenrtifying text enconding
 		if ($this->cont['PKWK_ENCODING_HINT'] != '')
@@ -195,11 +201,6 @@ class XpWikiFunc extends XpWikiXoopsWrapper {
 	
 	// Call API 'convert' of the plugin
 	function do_plugin_convert($name, $args = '') {
-		//	global $digest;
-	
-		//if($this->do_plugin_init($name) === FALSE)
-		//		return '[Plugin init failed: ' . $name . ']';
-	
 		if (! $this->cont['PKWKEXP_DISABLE_MULTILINE_PLUGIN_HACK']) {
 			// Multiline plugin?
 			$pos  = strpos($args, "\r"); // "\r" is just a delimiter
@@ -238,11 +239,6 @@ class XpWikiFunc extends XpWikiXoopsWrapper {
 	
 	// Call API 'inline' of the plugin
 	function do_plugin_inline($name, $args, & $body) {
-		//	global $digest;
-	
-		//if($this->do_plugin_init($name) === FALSE)
-		//		return '[Plugin init failed: ' . $name . ']';
-	
 		if ($args !== '') {
 			$aryargs = $this->csv_explode(',', $args);
 		} else {
@@ -383,10 +379,11 @@ class XpWikiFunc extends XpWikiXoopsWrapper {
 EOD;
 	}
 	
-	function get_page_cache ($page) {
+	function get_body ($page) {
 
 		// キャッシュ判定
-		$cache_file = $this->cont['CACHE_DIR']."page/".$this->encode($page).".".$this->cont['UI_LANG'];
+		$is_block = (isset($this->root->is_block))? 'b_' : '';
+		$cache_file = $this->cont['CACHE_DIR']."page/".$is_block.$this->encode($page).".".$this->cont['UI_LANG'];
 		
 		$use_cache_always = FALSE;
 		if (isset($this->root->rtf['use_cache_always']) && file_exists($cache_file)) {
@@ -456,6 +453,7 @@ EOD;
 				if (preg_match("/^([\w-]+)\.lng\.php$/", $file, $match)) {
 					foreach ($clr_pages as $_page) {
 						@unlink ($this->cont['CACHE_DIR']."page/".$this->encode($_page).".".$match[1]);
+						@unlink ($this->cont['CACHE_DIR']."page/b_".$this->encode($_page).".".$match[1]);
 					}
 				}
 			}
@@ -715,6 +713,667 @@ EOD;
 				$this->root->{$target}[] = '<script type="text/javascript" src="'.$this->cont['HOME_URL'].'skin/loader.php?type=js&amp;src='.$match[1].'"></script>';
 			}
 		}	
+	}
+	
+	//ページ名からページIDを求める
+	function get_pgid_by_name($page)
+	{
+		static $page_id = array();
+		$page = addslashes($this->strip_bracket($page));
+		if (isset($page_id[$this->xpwiki->pid][$page])) return $page_id[$this->xpwiki->pid][$page];
+		
+		$db =& $this->xpwiki->db;
+		$query = "SELECT * FROM ".$db->prefix($this->root->mydirname."_pginfo")." WHERE name='$page' LIMIT 1;";
+		$res = $db->query($query);
+		if (!$res) return 0;
+		$ret = mysql_fetch_row($res);
+		$page_id[$this->xpwiki->pid][$page] = $ret[0];
+		return $ret[0];
+	}
+
+	//ページ名から最初の見出しを得る
+	function get_heading($page, $init=false)
+	{
+		static $ret = array();
+		$page = $this->strip_bracket($page);
+		
+		if (isset($ret[$this->xpwiki->pid][$page])) return $ret[$this->xpwiki->pid][$page];
+		
+		$page = addslashes($page);
+		$db =& $this->xpwiki->db;
+		$query = "SELECT `title` FROM ".$db->prefix($this->root->mydirname."_pginfo")." WHERE name='$page' LIMIT 1;";
+		$res = $db->query($query);
+		if (!$res) return "";
+		$_ret = mysql_fetch_row($res);
+		$_ret = htmlspecialchars($_ret[0],ENT_NOQUOTES);
+		return $ret[$this->xpwiki->pid][$page] = ($_ret || $init)? $_ret : htmlspecialchars($page,ENT_NOQUOTES);
+	}
+	
+	//ページ名から最初の見出しを得る(ファイルから)
+	function get_heading_init($page)
+	{
+		$_body = join('', $this->get_source($page));
+		if (!$_body) return '';
+		
+		$ret = '';
+		if (preg_match('/^\*+.+\s*$/m',$_body,$match)) {
+			$ret = $match[0];
+		} else if (preg_match('/^(?! |\s|#|\/\/).+\s*$/m',$_body,$match)) {
+			$ret = $match[0];
+		}
+		
+		if ($ret) {
+			$ret = strip_tags($this->convert_html($ret));
+			$ret = str_replace(array("\r","\n","\t", '&dagger;', '?', '&nbsp;'),' ',$ret);
+			$ret = preg_replace('/\s+/',' ',$ret);
+			$ret = trim($ret);
+		}
+		return ($ret)? $ret : "- no title -";
+	}
+
+	// 全ページ名を配列にDB版
+	function get_existpages_db($nocheck=false,$page="",$limit=0,$order="",$nolisting=false,$nochiled=false,$nodelete=true,$withtime=FALSE)
+	{
+		static $_aryret = array();
+		if (isset($_aryret[$this->xpwiki->pid]) && !$nocheck && !$page && !$limit && !$order && !$nolisting && !$nochiled && $nodelete && !$withtime) return $_aryret[$this->xpwiki->pid];
+	
+		$aryret = array();
+		
+		if ($nocheck) {
+			$where = '';
+		} else {
+			$where = $this->get_readable_where();
+		}
+		
+		if ($page)
+		{
+			if (substr($page,-1) == '/')
+			{
+				$page = addslashes(substr($page,0,-1));
+				if ($nochiled)
+					$page_where = "name = '$page' OR ( name LIKE '$page/%' AND name NOT LIKE '$page/%/%' )";
+				else
+					$page_where = "name = '$page' OR name LIKE '$page/%'";
+			}
+			else
+			{
+				$page = addslashes(strip_bracket($page));
+				if ($nochiled)
+					$page_where = "name LIKE '$page%' AND name NOT LIKE '$page%/%'";
+				else
+					$page_where = "name LIKE '$page%'";
+			}
+			if ($where)
+				$where = " ($page_where) AND ($where)";
+			else
+				$where = " $page_where";
+				
+		}
+		else
+		{
+			if ($nochiled)
+			{
+				$page_where = "name NOT LIKE '%/%'";
+	
+				if ($where)
+					$where = " ($page_where) AND ($where)";
+				else
+					$where = " $page_where";
+			}
+		}
+		if ($nolisting)
+		{
+			if ($where)
+				$where = " (name NOT LIKE ':%') AND ($where)";
+			else
+				$where = " (name NOT LIKE ':%')";
+		}
+		if ($nodelete)
+		{
+			if ($where)
+				$where = " (editedtime !=0) AND ($where)";
+			else
+				$where = " (editedtime !=0)";
+		}
+		if ($where) $where = " WHERE".$where;
+		$limit = ($limit)? " LIMIT $limit" : "";
+		//echo $where;
+		$query = "SELECT `editedtime`, `name` FROM ".$this->xpwiki->db->prefix($this->root->mydirname."_pginfo")."$where$order$limit;";
+		$res = $this->xpwiki->db->query($query);
+		if ($res)
+		{
+			while($data = mysql_fetch_row($res))
+			{
+				$aryret[$this->encode($data[1]).'.txt'] = ($withtime)? $data[0]."\t".$data[1] : $data[1];
+			}
+		}
+		if (!$nocheck && !$page && !$limit && !$order && !$nolisting && !$nochiled && $nodelete && !$withtime) $_aryret[$this->xpwiki->pid] = $aryret;
+		return $aryret;
+	}
+
+	// pginfo DB を更新
+	function pginfo_db_write($page, $action, $pginfo)
+	{
+		$file = $this->get_filename($page);
+		$editedtime = filemtime($file) - $this->cont['LOCALZONE'];
+		$s_name = addslashes($page);
+		
+		// pgid
+		$id = $this->get_pgid_by_name($page);
+		
+		foreach (array('uid', 'ucd', 'uname', 'einherit', 'vinherit', 'lastuid', 'lastucd', 'lastuname') as $key) {
+			$$key = addslashes($pginfo[$key]);
+		}
+		foreach (array('eaids', 'egids', 'vaids', 'vgids') as $key) {
+			if ($pginfo[$key] === 'all' || $pginfo[$key] === 'none') {
+				$$key = $pginfo[$key];
+			} else {
+				$$key = '&'.$pginfo[$key].'&';
+			}
+		}
+		
+		//最初の見出し行取得
+		$title = addslashes(str_replace(array('&lt;','&gt;','&amp;','&quot;','&#039;'),array('<','>','&','"',"'"),$this->get_heading_init($page)));
+	
+		// 新規作成
+		if ($action == "insert")
+		{
+			$buildtime = $editedtime;
+			
+			if ($id)
+			{
+				// 以前に削除したページ
+				$value = "`name`='$s_name' ," .
+						"`title`='$title' ," .
+						"`buildtime`='$buildtime' ," .
+						"`editedtime`='$editedtime' ," .
+						"`uid`='$uid' ," .
+						"`ucd`='$ucd' ," .
+						"`uname`='$uname' ," .
+						"`freeze`='0' ," .
+						"`einherit`='$einherit' ," .
+						"`eaids`='$eaids' ," .
+						"`egids`='$egids' ," .
+						"`vinherit`='$vinherit' ," .
+						"`vaids`='$vaids' ," .
+						"`vgids`='$vgids' ," .
+						"`lastuid`='$lastuid' ," .
+						"`lastucd`='$lastucd' ," .
+						"`lastuname`='$lastuname' ," .
+						"`update`='0'";
+				$query = "UPDATE ".$this->xpwiki->db->prefix($this->root->mydirname."_pginfo")." SET $value WHERE pgid = '$id' LIMIT 1";
+			}
+			else
+			{
+				$query = "INSERT INTO ".$this->xpwiki->db->prefix($this->root->mydirname."_pginfo").
+						" (`name`,`title`,`buildtime`,`editedtime`,`uid`,`ucd`,`uname`,`freeze`,`einherit`,`eaids`,`egids`,`vinherit`,`vaids`,`vgids`,`lastuid`,`lastucd`,`lastuname`,`update`)" .
+						" values('$s_name','$title','$buildtime','$editedtime','$uid','$ucd','$uname','$freeze','$einherit','$eaids','$egids','$vinherit','$vaids','$vgids','$lastuid','$lastucd','$lastuname','0')";
+			}
+
+			$result = $this->xpwiki->db->query($query);
+			$this->need_update_plaindb($page,"insert");
+			
+			//投稿数カウントアップ
+			//if ($uid && $countup_xoops)
+			//{
+			//	$user =new XoopsUser($uid);
+			//	$user->incrementPost();
+			//}
+		}
+
+		// ページ更新 
+		elseif ($action == "update")
+		{
+			$value = "`title`='$title' ," .
+					"`editedtime`='$editedtime' ," .
+					"`lastuid`='$lastuid' ," .
+					"`lastucd`='$lastucd' ," .
+					"`lastuname`='$lastuname'";
+			$query = "UPDATE ".$this->xpwiki->db->prefix($this->root->mydirname."_pginfo")." SET $value WHERE pgid = '$id' LIMIT 1";
+			$result = $this->xpwiki->db->query($query);
+			$this->need_update_plaindb($page,"update");
+		}
+		
+		// ページ削除
+		elseif ($action == "delete")
+		{
+	
+			$value = "editedtime=0";
+			$query = "UPDATE ".$this->xpwiki->db->prefix($this->root->mydirname."_pginfo")." SET $value WHERE pgid = '$id' LIMIT 1";
+			$result = $this->xpwiki->db->query($query);
+			$this->plain_db_write($page,"delete");
+		}
+
+	}
+	
+	// freeze情報更新
+	function pginfo_freeze_db_write ($page, $freeze) {
+
+		// pgid
+		$id = $this->get_pgid_by_name($page);
+		
+		if ($id) {
+			$value = "`freeze`='$freeze'";	
+			$query = "UPDATE ".$this->xpwiki->db->prefix($this->root->mydirname."_pginfo")." SET $value WHERE pgid = '$id' LIMIT 1";
+			$result = $this->xpwiki->db->queryF($query);
+		}
+	}
+	
+	// 権限情報更新
+	function pginfo_perm_db_write ($page, $pginfo) {
+
+		// pgid
+		$id = $this->get_pgid_by_name($page);
+		
+		if ($id) {
+			foreach (array('einherit', 'vinherit') as $key) {
+				$$key = addslashes($pginfo[$key]);
+			}
+			foreach (array('eaids', 'egids', 'vaids', 'vgids') as $key) {
+				if ($pginfo[$key] === 'all' || $pginfo[$key] === 'none') {
+					$$key = $pginfo[$key];
+				} else {
+					$$key = '&'.$pginfo[$key].'&';
+				}
+			}
+			$value = "`einherit`='$einherit' ," .
+					"`eaids`='$eaids' ," .
+					"`egids`='$egids' ," .
+					"`vinherit`='$vinherit' ," .
+					"`vaids`='$vaids' ," .
+					"`vgids`='$vgids'";		
+			$query = "UPDATE ".$this->xpwiki->db->prefix($this->root->mydirname."_pginfo")." SET $value WHERE pgid = '$id' LIMIT 1";
+			$result = $this->xpwiki->db->query($query);
+		}
+	}
+	
+	// ページ名のリネーム
+	function pginfo_rename_db_write ($fromname, $toname) {
+		// pgid
+		$id = $this->get_pgid_by_name($fromname);
+		if ($id) {
+			// リンク情報更新準備
+			$this->plain_db_write($fromname,"delete");
+
+			$_toname = addslashes($toname);
+			$value = "`name`='$_toname'";		
+			$query = "UPDATE ".$this->xpwiki->db->prefix($this->root->mydirname."_pginfo")." SET $value WHERE pgid = '$id' LIMIT 1";
+			//exit($query);
+			$result = $this->xpwiki->db->query($query);
+			
+			// リンク情報更新
+			$this->plain_db_write($toname,"insert");
+
+		}
+	}
+	
+	// plane_text DB を更新
+	function plain_db_write($page, $action, $init = FALSE)
+	{
+		if (!$pgid = $this->get_pgid_by_name($page)) return false;
+		
+		//ソースを取得
+		$data = join('',$this->get_source($page));
+		//delete_page_info($data);
+		
+		//処理しないプラグインを削除
+		$no_plugins = explode(',',@$this->root->noplain_plugin);
+		
+		$rel_pages = array();
+		// ページ読みのデータページはコンバート処理しない(過負荷対策)
+		if ($page != $this->root->pagereading_config_page)
+		{
+			$spc = array
+			(
+				array
+				(
+					'&lt;',
+					'&gt;',
+					'&amp;',
+					'&quot;',
+					'&#039;',
+					'&nbsp;',
+				)
+				,
+				array
+				(
+					'<',
+					'>',
+					'&',
+					'"',
+					"'",
+					" ",
+				)
+			);
+			
+			$pobj = new XpWiki($this->root->mydirname);
+			$pobj->init($page);
+			$pobj->root->userinfo['admin'] = TRUE;
+			$pobj->root->userinfo['uname_s'] = '';
+			$pobj->execute();
+			$data = $pobj->body;
+
+			// remove javascript
+			$data = preg_replace("#<script.+?/script>#i","",$data);
+
+			// リンク先ページ名
+			//$rel_pages = array_merge(array_keys($pobj->related), array_keys($pobj->notyets));
+			$rel_pages = array_keys($pobj->related);
+			$rel_pages = array_unique($rel_pages);
+			
+			// 未作成ページ
+			if ($page != $pobj->root->whatsdeleted && $page != $pobj->cont['PLUGIN_RENAME_LOGPAGE'])
+			{	
+				$yetlists = array();
+				$notyets = array_keys($pobj->notyets);
+				
+				if (file_exists($this->cont['CACHE_DIR']."yetlist.dat"))
+				{
+					$yetlists = unserialize(join("",file($this->cont['CACHE_DIR']."yetlist.dat")));
+				}
+				
+				// ページ新規作成されたらリストから除外
+				if ($action === 'insert') {
+					if (isset($yetlists[$page])) {unset($yetlists[$page]);}
+				}
+				
+				// とりあえず参照元リストから除去
+				foreach($yetlists as $_notyet => $_pages) {
+					$yetlists[$_notyet] = array_diff($_pages, array($page));
+					if (!$yetlists[$_notyet]) { unset($yetlists[$_notyet]); }
+				}	
+				
+				// 削除時以外は参照元リストに追加
+				if ($action !== 'delete' && $notyets) {
+					foreach($notyets as $notyet) {
+						$yetlists[$notyet][] = $page;
+						$yetlists[$notyet] = array_unique($yetlists[$notyet]);
+					}
+				}
+
+				if ($fp = fopen($this->cont['CACHE_DIR']."yetlist.dat","wb"))
+				{
+					fputs($fp, serialize($yetlists));
+					fclose($fp);
+				}
+			}
+/*
+			// 付箋
+			if ($fusen_enable_allpage && empty($pwm_plugin_flg['fusen']['convert']))
+			{
+				require_once(PLUGIN_DIR."fusen.inc.php");
+				$fusen_tag = do_plugin_convert("fusen");
+				$fusen_tag = str_replace(array(WIKI_NAME_DEF,WIKI_UCD_DEF,'_XOOPS_WIKI_HOST_'),array("","",XOOPS_WIKI_HOST),$fusen_tag);
+				$data .= $fusen_tag;
+			}
+*/
+			$data = preg_replace("/".preg_quote("<a href=\"{$this->root->script}?cmd=edit&amp;page=","/")."[^\"]+".preg_quote("\">{$this->root->_symbol_noexists}</a>","/")."/","",$data);
+			$data = str_replace($spc[0],$spc[1],strip_tags($data)).join(',',$rel_pages);
+			
+			// 英数字は半角,カタカナは全角,ひらがなはカタカナに
+			if (function_exists("mb_convert_kana"))
+			{
+				$data = mb_convert_kana($data,'aKV');
+			}
+		}
+		$data = addslashes(preg_replace("/[\s]+/","",$data));
+		//echo $data."<hr>";
+		// 新規作成
+		if ($action == "insert")
+		{
+			$query = "INSERT INTO ".$this->xpwiki->db->prefix($this->root->mydirname."_plain")." (pgid,plain) VALUES($pgid,'$data');";
+			$result=$this->xpwiki->db->queryF($query);
+			//if (!$result) echo $query."<hr>";
+			
+			//リンク先ページ
+			foreach ($rel_pages as $rel_page)
+			{
+				$relid = $this->get_pgid_by_name($rel_page);
+				if ($pgid == $relid || !$relid) {continue;}
+				$query = "INSERT INTO ".$this->xpwiki->db->prefix($this->root->mydirname."_rel")." (pgid,relid) VALUES(".$pgid.",".$relid.");";
+				$result=$this->xpwiki->db->queryF($query);
+				//if (!$result) echo $query."<hr>";
+			}
+			
+			//リンク元ページ
+			//global $WikiName,$autolink,$nowikiname,$search_non_list,$wiki_common_dirs;
+			// $pageがAutoLinkの対象となり得る場合
+			if ($this->root->autolink
+				and (preg_match('/^'.$this->root->WikiName.'$/',$page) ? $this->root->nowikiname : strlen($page) >= $this->root->autolink))
+			{
+				// $pageを参照していそうなページに一気に追加
+				$this->root->search_non_list = 1;
+				
+				$lookup_page = $page;
+				/*
+				// 検索ページ名の共通リンクディレクトリを省略
+				if (count($this->root->wiki_common_dirs))
+				{
+					foreach($this->root->wiki_common_dirs as $wiki_common_dir)
+					{
+						if (strpos($lookup_page,$wiki_common_dir) === 0)
+						{
+							$lookup_page = str_replace($wiki_common_dir,"",$lookup_page);
+							if ($this->root->autolink > strlen($lookup_page)){$lookup_page = $page;}
+							break;
+						}
+					}
+				}
+				*/
+				// 検索実行
+				$pages = $this->do_search($lookup_page,'AND',TRUE);
+				
+				foreach ($pages as $_page)
+				{
+					$refid = $this->get_pgid_by_name($_page);
+					if ($pgid == $refid || !$refid) {continue;}
+					$query = "INSERT INTO ".$this->xpwiki->db->prefix($this->root->mydirname."_rel")." (pgid,relid) VALUES(".$refid.",".$pgid.");";
+					$result=$this->xpwiki->db->queryF($query);
+					// PlainテキストDB 更新予約を設定
+					//$this->need_update_plaindb($_page);
+					// 相手先ページも更新
+					$this->plain_db_write($_page, 'update');
+					// ページHTMLキャッシュを削除
+					$this->clear_page_cache($_page);
+				}
+			}
+		}
+		
+		// ページ更新
+		elseif ($action == "update")
+		{
+			$value = "plain='$data'";
+			$query = "UPDATE ".$this->xpwiki->db->prefix($this->root->mydirname."_plain")." SET $value WHERE pgid = $pgid;";
+			$result=$this->xpwiki->db->queryF($query);
+			//if (!$result) echo $query."<hr>";
+			
+			//リンク先ページ
+			$query = "DELETE FROM ".$this->xpwiki->db->prefix($this->root->mydirname."_rel")." WHERE pgid = ".$pgid.";";
+			$result=$this->xpwiki->db->queryF($query);
+			//if (!$result) echo $query."<hr>";
+			foreach ($rel_pages as $rel_page)
+			{
+				$relid = $this->get_pgid_by_name($rel_page);
+				if ($pgid == $relid || !$relid) {continue;}
+				$query = "INSERT INTO ".$this->xpwiki->db->prefix($this->root->mydirname."_rel")." (pgid,relid) VALUES(".$pgid.",".$relid.");";
+				$result=$this->xpwiki->db->queryF($query);
+				//if (!$result) echo $query."<hr>";
+			}
+		}
+		
+		// ページ削除
+		elseif ($action == "delete")
+		{
+			$query = "DELETE FROM ".$this->xpwiki->db->prefix($this->root->mydirname."_plain")." WHERE pgid = $pgid;";
+			$result=$this->xpwiki->db->queryF($query);
+			//if (!$result) echo $query."<hr>";
+			
+			//リンクページ
+			$query = "DELETE FROM ".$this->xpwiki->db->prefix($this->root->mydirname."_rel")." WHERE pgid = ".$pgid." OR relid = ".$pgid.";";
+			$result=$this->xpwiki->db->queryF($query);
+		}
+		else
+			return false;
+		
+		return true;
+	}
+
+	// attach DB を更新
+	function attach_db_write($data,$action)
+	{
+		$ret = TRUE;
+		
+		//if (!$pgid = $data['pgid']) return false;
+		
+		$pgid = (int)$data['pgid'];
+		$name = $data['name'];
+		$type = $data['type'];
+		$mtime = (int)$data['mtime'];
+		$size = (int)$data['size'];
+		// $mode normal=0, isbn=1, thumb=2
+		$mode = (preg_match("/^ISBN.*\.(dat|jpg)/",$name))? 1 : ((preg_match("/^\d\d?%/",$name))? 2 : 0);
+		$age = (int)$data['status']['age'];
+		$count = (int)$data['status']['count'][$age];
+		$pass = $data['status']['pass'];
+		$freeze = (int)$data['status']['freeze'];
+		$owner = $data['status']['owner'];
+		$copyright = (int)@$data['status']['copyright'];
+
+		if (!empty($owner) && $owner{0} === 'i') {
+			$owner = (int)substr($owner,2);
+		} else {
+			$owner = 0;
+		}
+		
+		// 新規作成
+		if ($action == "insert")
+		{
+			$query = "INSERT INTO ".$this->xpwiki->db->prefix($this->root->mydirname."_attach")." (pgid,name,type,mtime,size,mode,count,age,pass,freeze,copyright,owner) VALUES($pgid,'$name','$type',$mtime,$size,'$mode',$count,$age,'$pass',$freeze,$copyright,$owner);";
+			$result=$this->xpwiki->db->queryF($query);
+			//if (!$result) echo $query."<hr>";
+		}
+		
+		// 更新
+		elseif ($action == "update")
+		{
+			$value = "pgid=$pgid"
+			.",name='$name'"
+			.",type='$type'"
+			.",mtime=$mtime"
+			.",size=$size"
+			.",mode=$mode"
+			.",count=$count"
+			.",age=$age"
+			.",pass='$pass'"
+			.",freeze=$freeze"
+			.",copyright=$copyright"
+			.",owner=$owner";
+			$query = "UPDATE ".$this->xpwiki->db->prefix($this->root->mydirname."_attach")." SET $value WHERE pgid=$pgid AND name='$name' LIMIT 1;";
+			$result=$this->xpwiki->db->queryF($query);
+			//if (!$result) echo $query."<hr>";
+		}
+		
+		// ファイル削除
+		elseif ($action == "delete")
+		{
+			$q_name = ($name)? " AND name='{$name}' LIMIT 1" : "";
+			
+			$ret = array();
+			$query = "SELECT name FROM ".$this->xpwiki->db->prefix($this->root->mydirname."_attach")." WHERE pgid = {$pgid}{$q_name};";
+			if ($result=$xoopsDB->query($query))
+			{
+				while($data = mysql_fetch_row($result))
+				{
+					$ret[] = $data[0];
+				}
+			}
+			if (!$ret) $ret = TRUE;
+			
+			$query = "DELETE FROM ".$this->xpwiki->db->prefix($this->root->mydirname."_attach")." WHERE pgid = {$pgid}{$q_name};";
+			
+			$result=$this->xpwiki->db->queryF($query);
+			//if (!$result) echo $query."<hr>";
+		}
+		else
+			return false;
+		
+		return $ret;
+	}
+
+	// プラグインからplane_text DB を更新を指示(コンバート時)
+	function need_update_plaindb($page = null, $mode = 'update')
+	{
+		if (is_null($page)) $page = $this->root->vars['page'];
+		
+		if ($this->is_page($page))
+		{
+			// ランチャーファイル作成
+			$filename = $this->cont['CACHE_DIR'].$this->encode($page).".udp";
+			if ($fp = fopen($filename, 'wb')) {
+				fwrite($fp, $mode);
+				fclose($fp);
+			}
+		}
+		return;
+	}
+	
+	// データベースから関連ページを得る
+	function links_get_related_db($page)
+	{
+		static $links = array();
+		
+		if (isset($links[$this->xpwiki->pid][$page])) {return $links[$this->xpwiki->pid][$page];}
+		$links[$this->xpwiki->pid][$page] = array();
+		
+		$where = "`relid` = ".$this->get_pgid_by_name($page)." AND p.pgid = r.pgid";
+		$r_where = $this->get_readable_where('p.');
+		if ($r_where) {
+			$where = "($where AND ($r_where))";
+		}
+		$where = " WHERE " . $where;
+		
+		$query = "SELECT p.name, p.editedtime FROM `".$this->xpwiki->db->prefix($this->root->mydirname."_rel")."` AS r, `".$this->xpwiki->db->prefix($this->root->mydirname."_pginfo")."` AS p ".$where;
+		$result = $this->xpwiki->db->query($query);
+		//echo $query;
+		
+		if ($result)
+		{
+			while(list($name,$time) = mysql_fetch_row($result))
+			{
+				$links[$this->xpwiki->pid][$page][$name] = $time;
+			}
+		}
+		
+		return $links[$this->xpwiki->pid][$page];
+	}
+	
+	// 閲覧権限チェック用 WHERE句取得
+	function get_readable_where ($table = '', $is_admin = NULL, $uid = NULL) {
+		static $where = array();
+		
+		if (is_null($is_admin)) $is_admin = $this->root->userinfo['admin'];
+		if (is_null($uid)) $uid = $this->root->userinfo['uid'];
+		
+		$key = ($is_admin)? ("-1".$table) : ("$uid".$table);
+		
+		if (!isset($where[$this->xpwiki->pid][$key]))
+		{
+			if ($is_admin)
+				$where[$this->xpwiki->pid][$key] = '';
+			else
+			{
+				$_where = "";
+				if ($uid) $_where .= " ({$table}`uid` = '$uid') OR";
+				$_where .= " ({$table}`vaids` = 'all')";
+				if ($uid) $_where .= " OR ({$table}`vaids` LIKE '%&{$uid}&%')";
+				foreach($this->get_mygroups($uid) as $gid)
+				{
+					$_where .= " OR ({$table}`vgids` LIKE '%&{$gid}&%')";
+				}
+				$where[$this->xpwiki->pid][$key] = $_where.' ';
+			}
+		}
+		return $where[$this->xpwiki->pid][$key];
 	}
 }
 ?>
