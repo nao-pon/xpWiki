@@ -3,7 +3,7 @@
 $this->root->runmode = "standalone";
 
 // PukiWiki - Yet another WikiWikiWeb clone.
-// $Id: pukiwiki.skin.php,v 1.3 2006/10/27 11:47:06 nao-pon Exp $
+// $Id: pukiwiki.skin.php,v 1.4 2006/11/24 13:42:43 nao-pon Exp $
 // Copyright (C)
 //   2002-2006 PukiWiki Developers Team
 //   2001-2002 Originally written by yu-ji
@@ -101,16 +101,16 @@ EOD;
 <div class="xpwiki">
 
 <div id="header">
- <a href="<?php echo $link['top']?>"><img id="logo" src="<?php echo $this->cont['IMAGE_DIR'] . $image['logo']?>" width="80" height="80" alt="[PukiWiki]" title="[PukiWiki]" /></a>
+ <a href="<?php echo $link['top']?>"><img id="logo" name="logo" src="<?php echo $this->cont['IMAGE_DIR'] . $image['logo']?>" width="80" height="80" alt="[PukiWiki]" title="[PukiWiki]" /></a>
 
  <h1 class="title"><?php echo $page?> :: <a href="<?php echo $this->root->siteinfo['rooturl'] ?>" title="Site Top"><?php echo $this->root->siteinfo['sitename'] ?></a></h1>
 
 <?php if ($is_page) {?>
  <?php if($this->cont['SKIN_DEFAULT_DISABLE_TOPICPATH']) {?>
    <a href="<?php echo $link['reload']?>"><span class="small"><?php echo $link['reload']?></span></a>
- <?php } else {?>
+ <?php } else if (!$is_top) {?>
    <span class="small">
-   <?php $_plugin = $this->get_plugin_instance("topicpath");echo $_plugin->plugin_topicpath_inline();?>
+   <?php echo $this->do_plugin_inline('topicpath','',$_dum); ?>
    </span>
  <?php }?>
 <?php }?>
@@ -138,12 +138,15 @@ function _navigator(&$this, $key, $value = '', $javascript = ''){
 <?php if ($is_page) {?>
  [
  <?php if ($rw) {?>
-	<?php if (! $is_freeze) {?>
+	<?php if (! $is_freeze && $is_editable) {?>
 		<?php _navigator($this, 'edit')?> |
 	<?php }?>
 	<?php if ($is_read && $this->root->function_freeze) {?>
 		<?php (! $is_freeze) ? _navigator($this, 'freeze') : _navigator($this, 'unfreeze')?> |
 	<?php }?>
+	<?php if ($is_owner) { ?>
+		<?php _navigator($this,'pginfo') ?> |
+	<?php } ?>
  <?php }?>
  <?php _navigator($this, 'diff')?>
  <?php if ($this->root->do_backup) {?>
@@ -254,7 +257,9 @@ function _toolbar(&$this, $key, $x = 20, $y = 20){
 <?php if ($is_page) {?>
  &nbsp;
  <?php if ($rw) {?>
-	<?php _toolbar($this, 'edit')?>
+ 	<?php if (!$is_freeze && $is_editable) { ?>
+		<?php _toolbar($this, 'edit')?>
+	<?php }?>
 	<?php if ($is_read && $this->root->function_freeze) {?>
 		<?php if (! $is_freeze) { _toolbar($this, 'freeze'); } else { _toolbar($this, 'unfreeze'); }?>
 	<?php }?>
@@ -293,7 +298,7 @@ function _toolbar(&$this, $key, $x = 20, $y = 20){
 <?php }?>
 
 <div id="footer">
- Site admin: <a href="<?php echo $this->root->modifierlink?>"><?php echo $this->root->modifier?></a><p />
+ <p>Site admin: <a href="<?php echo $this->root->modifierlink?>"><?php echo $this->root->modifier?></a></p>
  <?php echo $this->cont['S_COPYRIGHT']?>.
  Powered by PHP <?php echo PHP_VERSION?>. HTML convert time: <?php echo $taketime?> sec.
 </div>
