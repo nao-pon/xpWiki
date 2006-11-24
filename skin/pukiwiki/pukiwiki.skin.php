@@ -3,7 +3,7 @@
 $this->root->runmode = "standalone";
 
 // PukiWiki - Yet another WikiWikiWeb clone.
-// $Id: pukiwiki.skin.php,v 1.4 2006/11/24 13:42:43 nao-pon Exp $
+// $Id: pukiwiki.skin.php,v 1.5 2006/11/24 14:08:52 nao-pon Exp $
 // Copyright (C)
 //   2002-2006 PukiWiki Developers Team
 //   2001-2002 Originally written by yu-ji
@@ -54,6 +54,7 @@ switch($this->cont['UI_LANG']){
 }
 
 $favicon = ($image['favicon'])? "<link rel=\"SHORTCUT ICON\" href=\"{$image['favicon']}\" />" : "";
+$dirname = $this->root->mydirname;
 
 // menu bar
 $menu_body = "";
@@ -99,6 +100,7 @@ EOD;
 </head>
 <body>
 <div class="xpwiki">
+<div class="xpwiki_<?php echo $dirname ?>">
 
 <div id="header">
  <a href="<?php echo $link['top']?>"><img id="logo" name="logo" src="<?php echo $this->cont['IMAGE_DIR'] . $image['logo']?>" width="80" height="80" alt="[PukiWiki]" title="[PukiWiki]" /></a>
@@ -302,7 +304,7 @@ function _toolbar(&$this, $key, $x = 20, $y = 20){
  <?php echo $this->cont['S_COPYRIGHT']?>.
  Powered by PHP <?php echo PHP_VERSION?>. HTML convert time: <?php echo $taketime?> sec.
 </div>
-
+</div>
 </div>
 </body>
 </html>
