@@ -15,7 +15,7 @@
 --[[SiteMap>[[cmd:map]]]]
 --[[Yet list>[[cmd:yetlist]]]]
 --[[Deleted list>[[cmd:deleted]]]]
---[[Attach list>[[cmd:filelist]]]]
+--[[Page filename list>[[cmd:filelist]]]]
 --[[Version list>[[cmd:versionlist]]]]
 -Outputs
 --[[md5 hash>[[cmd:md5]]]]

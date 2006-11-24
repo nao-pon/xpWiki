@@ -176,7 +176,12 @@ class XpWikiLink {
 		$this->body = $body;
 		$this->type = $type;
 		if (!$this->cont['PKWK_DISABLE_INLINE_IMAGE_FROM_URI'] && $this->func->is_url($alias) && preg_match('/\.(gif|png|jpe?g)$/i', $alias)) {
-			$alias = '<img src="'.htmlspecialchars($alias).'" alt="'.$name.'" />';
+			if ($this->cont['SHOW_EXTIMG_BY_REF'] && !$this->func->refcheck(0,$alias)) {
+				$_dum = '';
+				$alias = $this->func->do_plugin_inline('ref', $alias, $_dum);
+			} else {
+				$alias = '<img src="'.htmlspecialchars($alias).'" alt="'.$name.'" />';
+			}
 		} else
 			if ($alias != '') {
 				if ($converter === NULL)

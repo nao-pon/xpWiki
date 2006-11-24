@@ -1,6 +1,6 @@
 <?php
 // PukiWiki - Yet another WikiWikiWeb clone.
-// $Id: en.lng.php,v 1.4 2006/11/12 08:43:57 nao-pon Exp $
+// $Id: en.lng.php,v 1.5 2006/11/24 13:47:07 nao-pon Exp $
 // Copyright (C)
 //   2002-2005 PukiWiki Developers Team
 //   2001-2002 Originally written by yu-ji
@@ -185,7 +185,33 @@ $root->_attach_messages = array(
 	'err_adminpass'=> 'Wrong administrator password',
 	'btn_upload'   => 'Upload',
 	'btn_info'     => 'Information',
-	'btn_submit'   => 'Submit'
+	'btn_submit'   => 'Submit',
+	'msg_copyrighted'  => 'The attached file was copyrighting protected.',
+	'msg_uncopyrighted'=> 'The copyright protection of the attached file was released.',
+	'msg_copyright' => 'The attached file was copyrighting protected.',
+	'msg_copyright0' => 'This file is mine or copyright-free.',
+	'err_copyright'=> 'This file cannot not be displayed and be downloaded because it is not protected by the copyright.',
+	'err_extension'=> 'The extension cannot append the file of $1 because there is no ownerd authority on this page.',
+	'msg_set_css'  => '$1 style sheet was set up.',
+	'msg_unset_css'=> '$1 style sheet was canceled.',
+	'msg_untar'    => 'UNTAR',
+	'msg_search_updata'=> 'The uploaded data to this page is looked for.',
+	'msg_paint_tool'=> 'Painting tool',
+	'msg_shi'      => 'SHI PAINTER',
+	'msg_shipro'   => 'SHI PAINTER Pro',
+	'msg_width'    => 'Width',
+	'msg_height'   => 'Height',
+	'msg_max'      => 'Max size',
+	'msg_do_paint' => 'Do painting',
+	'msg_save_movie'=> 'Animation recording',
+	'msg_adv_setting'=> '--- Extended specification ---',
+	'msg_init_image'=> 'The picture file read into canvas (JPEG or GIF)',
+	'msg_fit_size' => 'Canvas size is united with this picture.',
+	'msg_extensions' => 'Extension of file that can be appended ( $1 )',
+	'msg_rotated_ok' => 'Image was rotated.<br />It might not be correctly displayed by a browser as no reload.',
+	'msg_rotated_ng' => 'Image was not able to be rotated.',
+	'err_isflash' => 'Can not upload a Flash file.',
+	'msg_make_thumb' => 'Make a thumbnail.(Image file only): ',
 );
 
 ///////////////////////////////////////

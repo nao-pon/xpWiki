@@ -3,7 +3,7 @@
 $this->root->runmode = "standalone";
 
 // PukiWiki - Yet another WikiWikiWeb clone.
-// $Id: tdiary.skin.php,v 1.11 2006/11/14 01:36:38 nao-pon Exp $
+// $Id: tdiary.skin.php,v 1.12 2006/11/24 13:47:07 nao-pon Exp $
 // Copyright (C)
 //   2002-2006 PukiWiki Developers Team
 //   2001-2002 Originally written by yu-ji
@@ -577,6 +577,7 @@ if (isset($this->root->pkwk_dtd)) {
 }
 
 $favicon = ($image['favicon'])? "<link rel=\"SHORTCUT ICON\" href=\"{$image['favicon']}\" />" : "";
+$dirname = $this->root->mydirname;
 
 ?>
 <head>
@@ -606,6 +607,7 @@ $favicon = ($image['favicon'])? "<link rel=\"SHORTCUT ICON\" href=\"{$image['fav
 	</div>
 </div><!-- class="sidebar" -->
 
+<div class="xpwiki_<?php echo $dirname ?>">
 <div class="pkwk_body">
 <div class="main">
 <?php } // if ($menu && $sidebar == 'strict') ?>
@@ -700,6 +702,7 @@ function _navigator(& $func, $key, $value = '', $javascript = ''){
 
 
 <?php if ($menu && ($sidebar == 'top' || $sidebar == 'bottom')) { ?>
+<div class="xpwiki_<?php echo $dirname ?>">
 <div class="pkwk_body">
 <div class="main">
 <?php } ?>
@@ -815,8 +818,10 @@ default:
 <?php if ($menu && $sidebar == 'another') { ?>
 </div><!-- class="main" -->
 </div><!-- class="pkwk_body" -->
+</div><!-- class="xpwiki_dirname" -->
 
 <!-- Sidebar another -->
+<div class="xpwiki_<?php echo $dirname ?>">
 <div class="pkwk_body">
 	<h1>&nbsp;</h1>
 	<div class="calendar"></div>
@@ -832,7 +837,9 @@ default:
 	</div>
 	<hr class="sep" />
 </div><!-- class="pkwk_body" -->
+</div><!-- class="xpwiki_dirname" -->
 
+<div class="xpwiki_<?php echo $dirname ?>">
 <div class="pkwk_body">
 <div class="main">
 <?php } // if ($menu && $sidebar == 'another') ?>
@@ -841,6 +848,7 @@ default:
 <?php if ($menu && ($sidebar == 'top' || $sidebar == 'bottom')) { ?>
 </div><!-- class="main" -->
 </div><!-- class="pkwk_body" -->
+</div><!-- class="xpwiki_dirname" -->
 <?php } ?>
 
 

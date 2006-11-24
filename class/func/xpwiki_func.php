@@ -1,7 +1,7 @@
 <?php
 //
 // Created on 2006/10/02 by nao-pon http://hypweb.net/
-// $Id: xpwiki_func.php,v 1.24 2006/11/19 12:37:39 nao-pon Exp $
+// $Id: xpwiki_func.php,v 1.25 2006/11/24 13:47:07 nao-pon Exp $
 //
 class XpWikiFunc extends XpWikiXoopsWrapper {
 
@@ -621,7 +621,7 @@ EOD;
 		return $ret;		
 	}
 	
-	//　ページオーナー権限があるかどうか
+	// ページオーナー権限があるかどうか
 	function is_owner ($page) {
 		if ($this->root->userinfo['admin']) { return TRUE; }
 		$pginfo = $this->get_pginfo($page);
@@ -636,7 +636,7 @@ EOD;
 		$ret = FALSE;
 		// #pginfo
 		$pginfo = $this->get_pginfo($page);
-		if ($pginfo['vgids'] === 'none' || $pginfo['vgids'] === 'none') {
+		if ($pginfo['vgids'] === 'none' && $pginfo['vaids'] === 'none') {
 			$ret = FALSE;
 		} else {
 			$vgids = explode('&', $pginfo['vgids']);
@@ -648,7 +648,7 @@ EOD;
 				$pginfo['vgids'] === 'all' || 
 				$pginfo['vaids'] === 'all' ||
 				$vgauth || 
-				in_array($pginfo['uid'], $vaids)	
+				in_array($this->root->userinfo['uid'], $vaids)
 			) {
 				$ret = TRUE;
 			}
@@ -673,7 +673,7 @@ EOD;
 		$ret = FALSE;
 		// #pginfo
 		$pginfo = $this->get_pginfo($page);
-		if ($pginfo['egids'] === 'none' || $pginfo['egids'] === 'none') {
+		if ($pginfo['egids'] === 'none' && $pginfo['eaids'] === 'none') {
 			$ret = FALSE;
 		} else {
 			$egids = explode('&', $pginfo['egids']);
@@ -685,7 +685,7 @@ EOD;
 				$pginfo['egids'] === 'all' || 
 				$pginfo['eaids'] === 'all' ||
 				$eauth || 
-				in_array($pginfo['uid'], $eaids)	
+				in_array($this->root->userinfo['uid'], $eaids)
 			) {
 				$ret = TRUE;
 			}
@@ -714,9 +714,144 @@ EOD;
 			}
 		}	
 	}
+
+	// リファラチェック $blank = 1 で未設定も不許可(デフォルトで未設定は許可)
+	function refcheck($blank = 0, $ref = NULL)
+	{
+		if (is_null($ref)) $ref = @$_SERVER['HTTP_REFERER'];
+		if (!$blank && !$ref) return true;
+		if (strpos($ref, $this->cont['ROOT_URL']) === 0 ) return TRUE;
+		
+		return FALSE;
+	}
 	
+	// ページ作成者のIDを求める
+	function get_pg_auther ($page) {
+		$pginfo = $this->get_pginfo($page);
+		return $pginfo['uid'];
+	}
+
+
+	//EXIFデータを得る
+	function get_exif_data($file, $alltag = FALSE){
+		if (!function_exists('read_exif_data')) return false;
+		switch (exif_imagetype($file)) {
+			case IMAGETYPE_JPEG:
+			case IMAGETYPE_TIFF_II:
+			case IMAGETYPE_TIFF_MM:
+				break;
+			default:
+				return false;
+		}
+		$ret = array();
+		$exif_data = @read_exif_data($file);
+		
+		if (!$exif_data) return $ret;
+		
+		$ret['title'] = "-- Shot Info --";
+		//if (isset($exif_data['Make']))	$ret['Maker '] = $exif_data['Make'];
+		if (isset($exif_data['Model']))
+			$ret['Camera '] = $exif_data['Model'];
+		
+		if (isset($exif_data['DateTimeOriginal']))
+			$ret['Date '] = $exif_data['DateTimeOriginal'];
+		
+		if (isset($exif_data['ExposureTime']))
+			$ret['Shutter Speed '] = $this->get_exif_numbar($exif_data['ExposureTime']).' sec';
+		
+		if (isset($exif_data['FNumber']))
+			$ret['F(Shot) '] = 'F '.$this->get_exif_numbar($exif_data['FNumber']);
+		
+		if (isset($exif_data['FocalLength']))
+			$ret['Lens '] = $this->get_exif_numbar($exif_data['FocalLength']).' mm';
+				
+		if (isset($exif_data['MaxApertureValue']))
+			@$ret['Lens '] .= '/F '.$this->get_exif_numbar($exif_data['MaxApertureValue']);
+		
+		if (isset($exif_data['Flash'])){
+			if ($exif_data['Flash'] == 0) {$ret['Flash '] = "OFF";}
+			else if ($exif_data['Flash'] == 1) {$ret['Flash '] = "ON";}
+			else if ($exif_data['Flash'] == 5) {$ret['Flash '] = "Light(No Reflection)";}
+			else if ($exif_data['Flash'] == 7) {$ret['Flash '] = "Light(Reflection)";}
+			else if ($exif_data['Flash'] == 9) {$ret['Flash '] = "Always ON";}
+			else if ($exif_data['Flash'] == 16) {$ret['Flash '] = "Always OFF";}
+			else if ($exif_data['Flash'] == 24) {$ret['Flash '] = "Auto(None)";}
+			else if ($exif_data['Flash'] == 25) {$ret['Flash '] = "Auto(Light)";}
+			else {$ret['Flash'] = $exif_data['Flash '];}
+		}
+		
+		if ($alltag) {
+			$ret['-- :Orignal Exif'] = '--';
+			foreach ($exif_data as $key=>$sect) {
+				if (is_array($sect) == FALSE) {
+					$ret[$key] = trim($sect);
+				} else {
+					foreach($sect as $name=>$val)	$ret[$key . $name] = trim($val);
+				}
+			}
+			// 表示しないパラメーター
+			unset($ret['FileName'], $ret['MakerNote']);
+			
+		}
+		
+		return $ret;
+	}
+	function get_exif_numbar ($dat, $APEX=FALSE) {
+		if (preg_match('#^([\d]+)/([1-9]+)$#',$dat,$match)) {
+			$dat = $match[1] / $match[2];
+		} else {
+			$dat = (float)$dat;
+		}
+		if ($APEX) {
+			$dat = pow(sqrt(2), $dat);
+		}
+		if ($dat < 1) {
+			$dat = '1/' . (int)(1/$dat);
+		}
+		return $dat;
+	}
+	
+	// php.ini の略式文字列からバイト数を得る
+	function return_bytes($val) {
+		$val = trim($val);
+		$last = strtolower($val{strlen($val)-1});
+		switch($last) {
+			// 'G' は、PHP 5.1.0 より有効となる
+			case 'g':
+				$val *= 1024;
+			case 'm':
+				$val *= 1024;
+			 case 'k':
+				$val *= 1024;
+		}
+		return $val;
+	}
+
+	//ページ名から最初の見出しを得る(ファイルから)
+	function get_heading_init($page)
+	{
+		$_body = join('', $this->get_source($page));
+		if (!$_body) return '';
+		
+		$ret = '';
+		if (preg_match('/^\*+.+\s*$/m',$_body,$match)) {
+			$ret = $match[0];
+		} else if (preg_match('/^(?! |\s|#|\/\/).+\s*$/m',$_body,$match)) {
+			$ret = $match[0];
+		}
+		
+		if ($ret) {
+			$ret = strip_tags($this->convert_html($ret));
+			$ret = str_replace(array("\r","\n","\t", '&dagger;', '?', '&nbsp;'),' ',$ret);
+			$ret = preg_replace('/\s+/',' ',$ret);
+			$ret = trim($ret);
+		}
+		return ($ret)? $ret : "- no title -";
+	}
+
+/*----- DB Functions -----*/ 
 	//ページ名からページIDを求める
-	function get_pgid_by_name($page)
+	function get_pgid_by_name ($page)
 	{
 		static $page_id = array();
 		$page = addslashes($this->strip_bracket($page));
@@ -749,28 +884,6 @@ EOD;
 		return $ret[$this->xpwiki->pid][$page] = ($_ret || $init)? $_ret : htmlspecialchars($page,ENT_NOQUOTES);
 	}
 	
-	//ページ名から最初の見出しを得る(ファイルから)
-	function get_heading_init($page)
-	{
-		$_body = join('', $this->get_source($page));
-		if (!$_body) return '';
-		
-		$ret = '';
-		if (preg_match('/^\*+.+\s*$/m',$_body,$match)) {
-			$ret = $match[0];
-		} else if (preg_match('/^(?! |\s|#|\/\/).+\s*$/m',$_body,$match)) {
-			$ret = $match[0];
-		}
-		
-		if ($ret) {
-			$ret = strip_tags($this->convert_html($ret));
-			$ret = str_replace(array("\r","\n","\t", '&dagger;', '?', '&nbsp;'),' ',$ret);
-			$ret = preg_replace('/\s+/',' ',$ret);
-			$ret = trim($ret);
-		}
-		return ($ret)? $ret : "- no title -";
-	}
-
 	// 全ページ名を配列にDB版
 	function get_existpages_db($nocheck=false,$page="",$limit=0,$order="",$nolisting=false,$nochiled=false,$nodelete=true,$withtime=FALSE)
 	{
@@ -1002,8 +1115,8 @@ EOD;
 			$result = $this->xpwiki->db->query($query);
 			
 			// リンク情報更新
-			$this->plain_db_write($toname,"insert");
-
+			//$this->plain_db_write($toname,"insert");
+			$this->need_update_plaindb($toname,"insert");
 		}
 	}
 	
@@ -1225,26 +1338,21 @@ EOD;
 		
 		//if (!$pgid = $data['pgid']) return false;
 		
-		$pgid = (int)$data['pgid'];
-		$name = $data['name'];
-		$type = $data['type'];
-		$mtime = (int)$data['mtime'];
-		$size = (int)$data['size'];
+		$id = (int)@$data['id'];
+		$pgid = (int)@$data['pgid'];
+		$name = @$data['name'];
+		$type = @$data['type'];
+		$mtime = (int)@$data['mtime'];
+		$size = (int)@$data['size'];
 		// $mode normal=0, isbn=1, thumb=2
 		$mode = (preg_match("/^ISBN.*\.(dat|jpg)/",$name))? 1 : ((preg_match("/^\d\d?%/",$name))? 2 : 0);
-		$age = (int)$data['status']['age'];
-		$count = (int)$data['status']['count'][$age];
-		$pass = $data['status']['pass'];
-		$freeze = (int)$data['status']['freeze'];
-		$owner = $data['status']['owner'];
+		$age = (int)@$data['status']['age'];
+		$count = (int)@$data['status']['count'][$age];
+		$pass = @$data['status']['pass'];
+		$freeze = (int)@$data['status']['freeze'];
+		$owner = @$data['status']['owner'];
 		$copyright = (int)@$data['status']['copyright'];
 
-		if (!empty($owner) && $owner{0} === 'i') {
-			$owner = (int)substr($owner,2);
-		} else {
-			$owner = 0;
-		}
-		
 		// 新規作成
 		if ($action == "insert")
 		{
@@ -1268,7 +1376,7 @@ EOD;
 			.",freeze=$freeze"
 			.",copyright=$copyright"
 			.",owner=$owner";
-			$query = "UPDATE ".$this->xpwiki->db->prefix($this->root->mydirname."_attach")." SET $value WHERE pgid=$pgid AND name='$name' LIMIT 1;";
+			$query = "UPDATE ".$this->xpwiki->db->prefix($this->root->mydirname."_attach")." SET $value WHERE `id`='$id' LIMIT 1";
 			$result=$this->xpwiki->db->queryF($query);
 			//if (!$result) echo $query."<hr>";
 		}
@@ -1280,7 +1388,7 @@ EOD;
 			
 			$ret = array();
 			$query = "SELECT name FROM ".$this->xpwiki->db->prefix($this->root->mydirname."_attach")." WHERE pgid = {$pgid}{$q_name};";
-			if ($result=$xoopsDB->query($query))
+			if ($result=$this->xpwiki->db->query($query))
 			{
 				while($data = mysql_fetch_row($result))
 				{
@@ -1298,6 +1406,18 @@ EOD;
 			return false;
 		
 		return $ret;
+	}
+
+	function get_attachfile_id ($page, $name, $age) {
+		$data = 0;
+		$pgid = $this->get_pgid_by_name($page);
+		$name = addslashes($name);
+		$query = "SELECT `id` FROM ".$this->xpwiki->db->prefix($this->root->mydirname."_attach")." WHERE `pgid`='{$pgid}' AND `name`='{$name}' AND age='{$age}' LIMIT 1";
+		if ($result=$this->xpwiki->db->query($query)) {
+			$data = mysql_fetch_row($result);
+			$data = $data[0];
+		}
+		return $data;
 	}
 
 	// プラグインからplane_text DB を更新を指示(コンバート時)
@@ -1390,6 +1510,22 @@ EOD;
 			list($text) = mysql_fetch_row($result);
 		}
 		return $text;
+	}
+
+	// ページの最終更新時間を更新
+	function touch_db($page)
+	{
+		if ($id = $this->get_pgid_by_name($page))
+		{
+			clearstatcache();
+			$editedtime = filemtime($this->cont['DATA_DIR'].$this->encode($page).".txt");
+			$value = "`editedtime` = '$editedtime' ,".
+					"`lastuid`='{$this->root->userinfo['uid']}' ," .
+					"`lastucd`='{$this->root->userinfo['ucd']}' ," .
+					"`lastuname`='{$this->root->cookie['name']}'";
+			$query = "UPDATE ".$this->xpwiki->db->prefix($this->root->mydirname."_pginfo")." SET $value WHERE `pgid`='$id'";
+			$result = $this->xpwiki->db->queryF($query);
+		}
 	}
 }
 ?>

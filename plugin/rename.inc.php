@@ -1,6 +1,6 @@
 <?php
 // PukiWiki - Yet another WikiWikiWeb clone
-// $Id: rename.inc.php,v 1.3 2006/11/19 11:22:15 nao-pon Exp $
+// $Id: rename.inc.php,v 1.4 2006/11/24 13:47:07 nao-pon Exp $
 //
 // Rename plugin: Rename page-name and related data
 //
@@ -386,7 +386,7 @@ EOD;
 			$this->root->_rename_messages['msg_arrow'] . $this->func->decode($new) . "\n";
 			
 			// pginfo DB 更新
-			$this->func->pginfo_rename_db_write($this->func->decode($page), $this->func->decode($new));
+			$this->func->pginfo_rename_db_write($this->func->decode($old), $this->func->decode($new));
 		}
 		
 		// 更新の衝突はチェックしない。

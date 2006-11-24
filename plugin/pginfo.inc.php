@@ -2,7 +2,7 @@
 /////////////////////////////////////////////////
 // PukiWiki - Yet another WikiWikiWeb clone.
 //
-// $Id: pginfo.inc.php,v 1.4 2006/11/19 11:22:15 nao-pon Exp $
+// $Id: pginfo.inc.php,v 1.5 2006/11/24 13:47:07 nao-pon Exp $
 //
 
 class xpwiki_plugin_pginfo extends xpwiki_plugin {
@@ -56,6 +56,7 @@ class xpwiki_plugin_pginfo extends xpwiki_plugin {
 		
 		// 下層ページの一覧
 		$cpages = $this->func->get_existpages(NULL, $page.'/');
+		$cpages = array_diff($cpages, array($page));
 		$child_dat = array();
 		$do_child = FALSE;
 		
