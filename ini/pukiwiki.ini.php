@@ -1,6 +1,6 @@
 <?php
 // PukiWiki - Yet another WikiWikiWeb clone
-// $Id: pukiwiki.ini.php,v 1.12 2006/11/19 11:22:15 nao-pon Exp $
+// $Id: pukiwiki.ini.php,v 1.13 2006/11/24 13:47:07 nao-pon Exp $
 // Copyright (C)
 //   2002-2006 PukiWiki Developers Team
 //   2001-2002 Originally written by yu-ji
@@ -35,6 +35,9 @@ if (! isset($const['PKWK_SAFE_MODE']))
 //   attack to Wiki readers, but easy way to show images.
 if (! isset($const['PKWK_DISABLE_INLINE_IMAGE_FROM_URI']))
 	$const['PKWK_DISABLE_INLINE_IMAGE_FROM_URI'] = 0;
+// $const['PKWK_DISABLE_INLINE_IMAGE_FROM_URI'] = 0 の時、
+// 外部サイトのファイルは ref プラグインを使用して表示する
+$const['SHOW_EXTIMG_BY_REF'] = TRUE;
 
 // PKWK_QUERY_STRING_MAX
 //   Max length of GET method, prohibits some worm attack ASAP

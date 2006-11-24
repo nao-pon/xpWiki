@@ -1,7 +1,7 @@
 <?php
 //
 // Created on 2006/10/11 by nao-pon http://hypweb.net/
-// $Id: xoops_wrapper.php,v 1.13 2006/11/19 11:22:15 nao-pon Exp $
+// $Id: xoops_wrapper.php,v 1.14 2006/11/24 13:47:07 nao-pon Exp $
 //
 class XpWikiXoopsWrapper extends XpWikiBackupFunc {
 	
@@ -224,6 +224,21 @@ class XpWikiXoopsWrapper extends XpWikiBackupFunc {
 		return $user->getUnameFromId($uid);
 	}
 	
+	// 管理者権限があるか調べる
+	function check_admin ($uid = NULL) {
+		if (is_null($uid)) $uid = $this->root->userinfo['uid'];
+		
+		if (!$uid) return FALSE;
+		
+		$module_handler =& xoops_gethandler('module');
+		$member_handler =& xoops_gethandler('member');
+		
+		$XoopsModule =& $module_handler->getByDirname($this->root->mydirname);
+		$xoopsUser =& $member_handler->getUser($uid);
+		return $xoopsUser->isAdmin($XoopsModule->mid());
+	}
+	
+	// リダイレクト
 	function redirect_header($url, $wait, $title) {
 		redirect_header($url, $wait, $title);
 		exit;

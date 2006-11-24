@@ -60,7 +60,7 @@ function wikihelper_show_fontset_img()
 		wikihelper_adv_tag += '<span style="cursor:pointer;">';
 		
 		if (wikihelper_Is_pukiwikimod) wikihelper_adv_tag +=
-	'<img src="'+wikihelper_root_url+'image/clip.png" width="18" height="16" border="0" title="'+wikihelper_msg_attach+'" alt="&amp;attachref;" onClick="javascript:wikihelper_ins(\'&attachref();\'); return false;" '+'/'+'>';
+	'<img src="'+wikihelper_root_url+'image/clip.png" width="18" height="16" border="0" title="'+wikihelper_msg_attach+'" alt="&amp;ref;" onClick="javascript:wikihelper_ins(\'&ref();\'); return false;" '+'/'+'>';
 		
 		 wikihelper_adv_tag +=
 	'<img src="'+wikihelper_root_url+'image/ncr.gif" width="22" height="16" border="0" title="'+wikihelper_msg_to_ncr+'" alt="'+wikihelper_msg_to_ncr+'" onClick="javascript:wikihelper_charcode(); return false;" '+'/'+'>'+

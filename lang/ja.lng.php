@@ -1,6 +1,6 @@
 <?php
 // PukiWiki - Yet another WikiWikiWeb clone.
-// $Id: ja.lng.php,v 1.3 2006/11/12 08:43:57 nao-pon Exp $
+// $Id: ja.lng.php,v 1.4 2006/11/24 13:47:07 nao-pon Exp $
 // Copyright (C)
 //   2002-2005 PukiWiki Developers Team
 //   2001-2002 Originally written by yu-ji
@@ -168,7 +168,7 @@ $root->_attach_messages = array(
 	'msg_isfreeze' => 'このファイルは凍結されています。',
 	'msg_rename'   => '名前を変更します。',
 	'msg_newname'  => '新しい名前',
-	'msg_require'  => '(管理者パスワードが必要です)',
+	'msg_require'  => '(管理者 or アップロード時 パスワードが必要です)',
 	'msg_filesize' => 'サイズ',
 	'msg_date'     => '登録日時',
 	'msg_dlcount'  => 'アクセス数',
@@ -187,7 +187,34 @@ $root->_attach_messages = array(
 	'err_adminpass'=> '管理者パスワードが一致しません。',
 	'btn_upload'   => 'アップロード',
 	'btn_info'     => '詳細',
-	'btn_submit'   => '実行'
+	'btn_submit'   => '実行',
+	'msg_copyrighted'  => '添付ファイルを著作権保護しました。',
+	'msg_uncopyrighted'=> '添付ファイルの著作権保護を解除しました。',
+	'msg_copyright' => 'このファイルは著作権上、保護する必要があります。',
+	'msg_copyright0' => 'このファイルは 私の著作物 または 著作権フリー です。',
+	'msg_copyright_s' => '他人の著作物',
+	'err_copyright'=> 'このファイルは著作権上、保護されているため 表示・ダウンロード はできません。',
+	'err_extension'=> 'このページのオーナー権限がないため、拡張子が $1 のファイルは添付できません。',
+	'msg_set_css'  => '$1 へスタイルシートを設定しました。',
+	'msg_unset_css'=> '$1 のスタイルシートを解除しました。',
+	'msg_untar'    => 'TAR形式を解凍する',
+	'msg_search_updata'=> 'このページへのアップロード済みデータを探す。',
+	'msg_paint_tool'=> 'お絵かきツール',
+	'msg_shi'      => 'しぃペインター',
+	'msg_shipro'   => 'しぃペインターPro',
+	'msg_width'    => '横',
+	'msg_height'   => '縦',
+	'msg_max'      => '最大',
+	'msg_do_paint' => 'お絵かきする',
+	'msg_save_movie'=> '動画記録',
+	'msg_adv_setting'=> '---　拡張指定　---',
+	'msg_init_image'=> 'キャンバスに読み込む画像ファイル(JPEG or GIF)',
+	'msg_fit_size' => 'キャンバスサイズをこの画像に合わせる',
+	'msg_extensions' => '添付可能なファイルの拡張子( $1 )',
+	'msg_rotated_ok' => '画像を回転しました。<br />ブラウザでリロードしないと正しく表示されていないかもしれません。',
+	'msg_rotated_ng' => '画像を回転できませんでした。',
+	'err_isflash' => 'Flashファイルをアップロードする権限がありません。',
+	'msg_make_thumb' => 'サムネイルを作成(画像ファイルのみ): ',
 );
 
 ///////////////////////////////////////
