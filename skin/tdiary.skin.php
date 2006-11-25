@@ -3,7 +3,7 @@
 $this->root->runmode = "standalone";
 
 // PukiWiki - Yet another WikiWikiWeb clone.
-// $Id: tdiary.skin.php,v 1.12 2006/11/24 13:47:07 nao-pon Exp $
+// $Id: tdiary.skin.php,v 1.13 2006/11/25 11:20:11 nao-pon Exp $
 // Copyright (C)
 //   2002-2006 PukiWiki Developers Team
 //   2001-2002 Originally written by yu-ji
@@ -598,6 +598,7 @@ $dirname = $this->root->mydirname;
 <?php echo $head_tag ?>
 </head>
 <body><!-- Theme:<?php echo htmlspecialchars($theme) . ' Sidebar:' . $sidebar ?> -->
+<div class="xpwiki_<?php echo $dirname ?>">
 
 <?php if ($menu && $sidebar == 'strict') { ?>
 <!-- Sidebar top -->
@@ -607,7 +608,6 @@ $dirname = $this->root->mydirname;
 	</div>
 </div><!-- class="sidebar" -->
 
-<div class="xpwiki_<?php echo $dirname ?>">
 <div class="pkwk_body">
 <div class="main">
 <?php } // if ($menu && $sidebar == 'strict') ?>
@@ -702,7 +702,6 @@ function _navigator(& $func, $key, $value = '', $javascript = ''){
 
 
 <?php if ($menu && ($sidebar == 'top' || $sidebar == 'bottom')) { ?>
-<div class="xpwiki_<?php echo $dirname ?>">
 <div class="pkwk_body">
 <div class="main">
 <?php } ?>
@@ -818,10 +817,8 @@ default:
 <?php if ($menu && $sidebar == 'another') { ?>
 </div><!-- class="main" -->
 </div><!-- class="pkwk_body" -->
-</div><!-- class="xpwiki_dirname" -->
 
 <!-- Sidebar another -->
-<div class="xpwiki_<?php echo $dirname ?>">
 <div class="pkwk_body">
 	<h1>&nbsp;</h1>
 	<div class="calendar"></div>
@@ -837,9 +834,7 @@ default:
 	</div>
 	<hr class="sep" />
 </div><!-- class="pkwk_body" -->
-</div><!-- class="xpwiki_dirname" -->
 
-<div class="xpwiki_<?php echo $dirname ?>">
 <div class="pkwk_body">
 <div class="main">
 <?php } // if ($menu && $sidebar == 'another') ?>
@@ -848,7 +843,6 @@ default:
 <?php if ($menu && ($sidebar == 'top' || $sidebar == 'bottom')) { ?>
 </div><!-- class="main" -->
 </div><!-- class="pkwk_body" -->
-</div><!-- class="xpwiki_dirname" -->
 <?php } ?>
 
 
@@ -953,6 +947,6 @@ function _toolbar($this, $key, $x = 20, $y = 20){
 </div><!-- class="pkwk_body" -->
 <?php } ?>
 
-
+</div><!-- class="xpwiki_dirname" -->
 </body>
 </html>
