@@ -1,5 +1,5 @@
 <?php
-// $Id: ref.inc.php,v 1.2 2006/11/24 13:47:07 nao-pon Exp $
+// $Id: ref.inc.php,v 1.3 2006/11/25 11:19:40 nao-pon Exp $
 /*
 
 	*プラグイン ref
@@ -300,7 +300,6 @@ class xpwiki_plugin_ref extends xpwiki_plugin {
 				$lvar['text'] = '';
 				$lvar['title'][] =  (preg_match('/([^\/]+)$/', $lvar['name'], $match))? $match[1] : '';
 				$lvar['title'] = htmlspecialchars(join(', ', $lvar['title']));
-				$lvar['isimg'] = TRUE;
 			} else if ($lvar['type'] === 2) {
 				// URL画像以外
 				$lvar['url'] = '';
@@ -308,7 +307,6 @@ class xpwiki_plugin_ref extends xpwiki_plugin {
 				$lvar['text'] = htmlspecialchars($lvar['name']);
 				$lvar['title'][] = (preg_match('/([^\/]+)$/', $lvar['name'], $match))? $match[1] : '';
 				$lvar['title'] = htmlspecialchars(join(', ', $lvar['title']));
-				$lvar['isimg'] = FALSE;
 			} else if ($lvar['type'] === 3) {
 				// 添付画像
 				$size = $this->getimagesize($lvar['file']);
@@ -396,7 +394,6 @@ class xpwiki_plugin_ref extends xpwiki_plugin {
 					$lvar['title'] = htmlspecialchars(join(', ', $lvar['title']));
 					$lvar['title'] = $this->func->make_line_rules($lvar['title']);
 				}
-				$lvar['isimg'] = TRUE;
 			} else if ($lvar['type'] === 5) {
 				// 添付その他
 				$lvar['url'] = '';
@@ -411,7 +408,6 @@ class xpwiki_plugin_ref extends xpwiki_plugin {
 					$lvar['text'] = preg_replace('/([^\/]+)$/', "$1", $lvar['name']);
 					$lvar['title'] = htmlspecialchars($lvar['info']);
 				}
-				$lvar['isimg'] = FALSE;
 			}
 			
 			// 出力組み立て
