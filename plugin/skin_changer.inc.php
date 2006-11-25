@@ -1,7 +1,7 @@
 <?php
 //
 // Created on 2006/10/20 by nao-pon http://hypweb.net/
-// $Id: skin_changer.inc.php,v 1.2 2006/10/30 13:59:31 nao-pon Exp $
+// $Id: skin_changer.inc.php,v 1.3 2006/11/25 10:55:10 nao-pon Exp $
 //
 class xpwiki_plugin_skin_changer extends xpwiki_plugin {
 	function plugin_skin_changer_init () {
@@ -9,7 +9,7 @@ class xpwiki_plugin_skin_changer extends xpwiki_plugin {
 	}
 
 	function plugin_skin_changer_convert() {
-		$skins = array();
+		$skins = $t_skins = array();
 		// SKIN Dirctory
 		$base = $this->cont['DATA_HOME'] . dirname($this->cont['SKIN_DIR']);
 		if ($dir = opendir($base)) {
@@ -32,10 +32,13 @@ class xpwiki_plugin_skin_changer extends xpwiki_plugin {
 				if (is_dir($base."/".$file)
 				 && !in_array($file, $nomatch)
 				 && file_exists("{$base}/{$file}/{$file}.css")) {
-					$skins["tDiary-".$file] = "tD-".$file;
+					$t_skins[$file] = "tD-".$file;
 				}
 			}
 		}
+		
+		ksort($skins);
+		ksort($t_skins);
 		
 		$ret = '<p><ul class="list1" style="padding-left:'.$this->root->_ul_margin.'px;margin-left:'.$this->root->_ul_margin.'px;">'."\n";
 		
@@ -50,7 +53,17 @@ class xpwiki_plugin_skin_changer extends xpwiki_plugin {
 				$ret .= '<li><a href="?'.htmlspecialchars($link.$skin).'" title="Change skin">'.htmlspecialchars($name).'</a></li>'."\n";
 			}
 		}
-		$ret .="</ul></p>\n";
+		$ret .= '<li>t-Diary Skins'."\n";
+		$ret .= '<ul class="list2" style="padding-left:'.$this->root->_ul_margin.'px;margin-left:'.$this->root->_ul_margin.'px;">'."\n";
+		foreach ($t_skins as $name=>$skin) {
+			if ($skin == $this->root->cookie['skin'] && ($this->root->pagecache_min === 0 || $this->root->userinfo['uid'] !== 0)) {
+				$ret .= '<li style="font-weight:bold;">'.htmlspecialchars($name).'</li>'."\n";
+			} else {
+				$ret .= '<li><a href="?'.htmlspecialchars($link.$skin).'" title="Change skin">'.htmlspecialchars($name).'</a></li>'."\n";
+			}
+		}
+		$ret .= '</ul></li>'."\n";
+		$ret .="</ul></p>\n"."\n";
 		return $ret;
 	}
 	
