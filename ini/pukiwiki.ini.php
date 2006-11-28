@@ -1,6 +1,6 @@
 <?php
 // PukiWiki - Yet another WikiWikiWeb clone
-// $Id: pukiwiki.ini.php,v 1.13 2006/11/24 13:47:07 nao-pon Exp $
+// $Id: pukiwiki.ini.php,v 1.14 2006/11/28 12:45:11 nao-pon Exp $
 // Copyright (C)
 //   2002-2006 PukiWiki Developers Team
 //   2001-2002 Originally written by yu-ji
@@ -621,5 +621,5 @@ $const['PKWK_CONFIG_PREFIX'] = ':config/';
 $const['USER_NAME_REPLACE'] = '__uSER_nAME_rEPLACE__';
 
 // #pginfo の正規表現 (#pginfo削除などに利用)
-$const['PKWK_PGINFO_REGEX'] = '/^(?:#pginfo\(.*\)\s*)+/m';
+$const['PKWK_PGINFO_REGEX'] = '/^(?:#pginfo\(.*\)[\r\n]*)+/m';
 ?>
