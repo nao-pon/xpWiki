@@ -1,7 +1,7 @@
 <?php
 //
 // Created on 2006/09/29 by nao-pon http://hypweb.net/
-// $Id: xpwiki.php,v 1.16 2006/11/28 00:13:30 nao-pon Exp $
+// $Id: xpwiki.php,v 1.17 2006/11/28 07:27:35 nao-pon Exp $
 //
 
 class XpWiki {
@@ -111,7 +111,6 @@ class XpWiki {
 			} else {
 				if ($base == '' || ! $func->is_page($base)) {
 					$base  = $root->defaultpage;
-					$title = htmlspecialchars($func->strip_bracket($base));
 					$page  = $func->make_search($base);
 				}
 				
@@ -123,9 +122,6 @@ class XpWiki {
 					$root->vars['cmd']  = 'read';
 					$root->vars['page'] = $base;
 					$body  = $func->get_body($base);
-					
-					//$pgobj = new XpWikiPage($this, $base);
-					//$body = $pgobj->html;
 					
 					if ($root->trackback) {
 						$body .= $func->tb_get_rdf($root->vars['page']);
