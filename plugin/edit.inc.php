@@ -4,7 +4,7 @@ class xpwiki_plugin_edit extends xpwiki_plugin {
 
 
 	// PukiWiki - Yet another WikiWikiWeb clone.
-	// $Id: edit.inc.php,v 1.12 2006/11/28 08:26:18 nao-pon Exp $
+	// $Id: edit.inc.php,v 1.13 2006/11/28 12:47:31 nao-pon Exp $
 	// Copyright (C) 2001-2006 PukiWiki Developers Team
 	// License: GPL v2 or (at your option) any later version
 	//
@@ -45,9 +45,6 @@ class xpwiki_plugin_edit extends xpwiki_plugin {
 
 		if ($postdata == '') $postdata = $this->func->auto_template($page);
 		
-		$postdata = preg_replace($this->cont['PKWK_PGINFO_REGEX'], '', $postdata);
-		
-	
 		return array('msg'=>$this->root->_title_edit, 'body'=>$this->func->edit_form($page, $postdata));
 	}
 	

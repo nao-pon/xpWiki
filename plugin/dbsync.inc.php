@@ -1,7 +1,7 @@
 <?php
 //
 // Created on 2006/11/17 by nao-pon http://hypweb.net/
-// $Id: dbsync.inc.php,v 1.1 2006/11/19 11:22:15 nao-pon Exp $
+// $Id: dbsync.inc.php,v 1.2 2006/11/28 12:48:42 nao-pon Exp $
 //
 
 class xpwiki_plugin_dbsync extends xpwiki_plugin {
@@ -290,7 +290,7 @@ __EOD__;
 				$title = "";
 				if (!$id || !empty($this->root->post['title']) || !$this->func->get_heading($page, true))
 				{
-					$title = addslashes(str_replace(array('&lt;','&gt;','&amp;','&quot;','&#039;'),array('<','>','&','"',"'"),$this->func->get_heading_init($page)));
+					$title = addslashes($this->func->get_heading_init($page));
 					//echo $title;
 				}
 				
