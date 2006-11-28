@@ -1,5 +1,5 @@
 <?php
-// $Id: ref.inc.php,v 1.5 2006/11/28 07:29:29 nao-pon Exp $
+// $Id: ref.inc.php,v 1.6 2006/11/28 12:43:23 nao-pon Exp $
 /*
 
 	*プラグイン ref
@@ -720,7 +720,7 @@ _HTML_;
 				$_w = $params['_w'] ? $width  / $params['_w'] : 0;
 				$_h = $params['_h'] ? $height / $params['_h'] : 0;
 				$zoom = max($_w, $_h);
-				$params['_%'] = 100 / $zoom;
+				$params['_%'] = round(100 / $zoom);
 			} else {
 				$width  = $params['_w'] ? $params['_w'] : $width;
 				$height = $params['_h'] ? $params['_h'] : $height;
