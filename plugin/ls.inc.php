@@ -9,7 +9,7 @@ class xpwiki_plugin_ls extends xpwiki_plugin {
 	 * CopyRight 2002 Y.MASUI GPL2
 	 * http://masui.net/pukiwiki/ masui@masui.net
 	 *
-	 * $Id: ls.inc.php,v 1.2 2006/11/28 00:17:56 nao-pon Exp $
+	 * $Id: ls.inc.php,v 1.3 2006/11/28 08:24:36 nao-pon Exp $
 		 */
 
 	}
@@ -46,7 +46,7 @@ class xpwiki_plugin_ls extends xpwiki_plugin {
 			{
 				list($comment) = $this->func->get_source($page);
 				// 見出しの固有ID部を削除
-				$comment = preg_replace('/^(\*{1,3}.*)\[#[A-Za-z][\w-]+\](.*)$/','$1$2',$comment);
+				$comment = preg_replace('/^(\*{1,6}.*)\[#[A-Za-z][\w-]+\](.*)$/','$1$2',$comment);
 	
 				$comment = '- ' . ereg_replace('^[-*]+','',$comment);
 			}

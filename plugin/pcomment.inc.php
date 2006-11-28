@@ -4,7 +4,7 @@ class xpwiki_plugin_pcomment extends xpwiki_plugin {
 
 
 	// PukiWiki - Yet another WikiWikiWeb clone
-	// $Id: pcomment.inc.php,v 1.4 2006/10/30 13:59:31 nao-pon Exp $
+	// $Id: pcomment.inc.php,v 1.5 2006/11/28 08:24:36 nao-pon Exp $
 	//
 	// pcomment plugin - Show/Insert comments into specified (another) page
 	//
@@ -246,7 +246,7 @@ EOD;
 						$level   = strlen($matches[1]) + 1;
 	
 						while ($end_position < $count) {
-							if (preg_match('/^(\-{1,3})(?!\-)/', $postdata[$end_position], $matches)
+							if (preg_match('/^(\-{1,6})(?!\-)/', $postdata[$end_position], $matches)
 								&& strlen($matches[1]) < $level) break;
 							++$end_position;
 						}

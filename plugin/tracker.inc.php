@@ -4,7 +4,7 @@ class xpwiki_plugin_tracker extends xpwiki_plugin {
 
 
 	// PukiWiki - Yet another WikiWikiWeb clone
-	// $Id: tracker.inc.php,v 1.4 2006/11/28 00:17:57 nao-pon Exp $
+	// $Id: tracker.inc.php,v 1.5 2006/11/28 08:24:36 nao-pon Exp $
 	//
 	// Issue tracker plugin (See Also bugtrack plugin)
 	
@@ -322,7 +322,7 @@ EOD;
 	{
 		$source = $this->func->get_source($page);
 		// 見出しの固有ID部を削除
-		$source = preg_replace('/^(\*{1,3}.*)\[#[A-Za-z][\w-]+\](.*)$/m','$1$2',$source);
+		$source = preg_replace('/^(\*{1,6}.*)\[#[A-Za-z][\w-]+\](.*)$/m','$1$2',$source);
 		// #freezeを削除
 		return preg_replace('/^#freeze\s*$/im', '', $source);
 	}
@@ -761,7 +761,7 @@ class XpWikiTracker_list
 			$moved[$this->xpwiki->pid][$page] = TRUE;
 			return $this->add($page,$name);
 		}
-		$source = join('',preg_replace('/^(\*{1,3}.*)\[#[A-Za-z][\w-]+\](.*)$/','$1$2',$source));
+		$source = join('',preg_replace('/^(\*{1,6}.*)\[#[A-Za-z][\w-]+\](.*)$/','$1$2',$source));
 
 		// デフォルト値
 		$this->rows[$name] = array(
