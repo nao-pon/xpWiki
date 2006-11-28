@@ -4,7 +4,7 @@ class xpwiki_plugin_edit extends xpwiki_plugin {
 
 
 	// PukiWiki - Yet another WikiWikiWeb clone.
-	// $Id: edit.inc.php,v 1.11 2006/11/19 11:22:15 nao-pon Exp $
+	// $Id: edit.inc.php,v 1.12 2006/11/28 08:26:18 nao-pon Exp $
 	// Copyright (C) 2001-2006 PukiWiki Developers Team
 	// License: GPL v2 or (at your option) any later version
 	//
@@ -65,7 +65,7 @@ class xpwiki_plugin_edit extends xpwiki_plugin {
 			$this->root->vars['msg'] = join('', $this->func->get_source($this->root->vars['template_page']));
 	
 			// Cut fixed anchors
-			$this->root->vars['msg'] = preg_replace('/^(\*{1,3}.*)\[#[A-Za-z][\w-]+\](.*)$/m', '$1$2', $this->root->vars['msg']);
+			$this->root->vars['msg'] = preg_replace('/^(\*{1,6}.*)\[#[A-Za-z][\w-]+\](.*)$/m', '$1$2', $this->root->vars['msg']);
 		}
 	
 		$this->root->vars['msg'] = preg_replace($this->cont['PLUGIN_EDIT_FREEZE_REGEX'], '', $this->root->vars['msg']);
@@ -129,14 +129,17 @@ class xpwiki_plugin_edit extends xpwiki_plugin {
 		
 		// Separate a page-name and a fixed anchor
 		list($s_page, $id, $editable) = $this->func->anchor_explode($page, TRUE);
-	
+		
 		// Default: This one
 		if ($s_page == '') $s_page = isset($this->root->vars['page']) ? $this->root->vars['page'] : '';
+
+		// 編集権限チェック
+		$is_editable = $this->func->check_editable($s_page,FALSE,FALSE);
 	
 		// $s_page fixed
 		$isfreeze = $this->func->is_freeze($s_page);
 		$ispage   = $this->func->is_page($s_page);
-		if ($_paraedit && $isfreeze) return ''; // Show nothing
+		if ($_paraedit && ($isfreeze || !$is_editable)) return ''; // Show nothing
 	
 		// Paragraph edit enabled or not
 		$short = htmlspecialchars('Edit');
@@ -327,7 +330,7 @@ class xpwiki_plugin_edit extends xpwiki_plugin {
 		// 改行・TAB・スペースのみだったら削除とみなす
 		$postdata = preg_replace('/^[ \s]+$/', '', $postdata);
 		
-		$heads = preg_grep('/^\*{1,3}.+\[#[A-Za-z][\w-]+\].*$/', $source);
+		$heads = preg_grep('/^\*{1,6}.+\[#[A-Za-z][\w-]+\].*$/', $source);
 		$heads[count($source)] = ''; // Sentinel
 	
 		while (list($start, $line) = each($heads)) {
