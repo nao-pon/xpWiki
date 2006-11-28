@@ -1,5 +1,5 @@
 <?php
-// $Id: ref.inc.php,v 1.4 2006/11/28 00:17:56 nao-pon Exp $
+// $Id: ref.inc.php,v 1.5 2006/11/28 07:29:29 nao-pon Exp $
 /*
 
 	*プラグイン ref
@@ -87,13 +87,13 @@ class xpwiki_plugin_ref extends xpwiki_plugin {
 		$page     = $this->root->vars['page'];
 		$filename = $this->root->vars['src'] ;
 		
-		if ($this->plugin_ref_check_copyright($filename,$page))
-			return array('msg'=>'Can not show', 'body'=>$usage);
-	
 		$ref = $this->cont['UPLOAD_DIR'] . $this->func->encode($page) . '_' . $this->func->encode(preg_replace('#^.*/#', '', $filename));
 		if(! file_exists($ref))
 			return array('msg'=>'Attach file not found', 'body'=>$usage);
-	
+		
+		if ($this->check_copyright($ref))
+			return array('msg'=>'Can not show', 'body'=>$usage);
+		
 		$got = $this->getimagesize($ref);
 		if (! isset($got[2])) $got[2] = FALSE;
 		switch ($got[2]) {
@@ -153,7 +153,7 @@ class xpwiki_plugin_ref extends xpwiki_plugin {
 		//エラーチェック
 		if (!func_num_args()) return 'no argument(s).';
 		
-		$params = $this->plugin_ref_body(func_get_args());
+		$params = $this->get_body(func_get_args());
 		
 		if ($params['_error']) {
 			$ret = $params['_error'];
@@ -168,7 +168,7 @@ class xpwiki_plugin_ref extends xpwiki_plugin {
 		//エラーチェック
 		if (!func_num_args()) return 'no argument(s).';
 		
-		$params = $this->plugin_ref_body(func_get_args());
+		$params = $this->get_body(func_get_args());
 		
 		if ($params['_error']) {
 			$ret = $params['_error'];
@@ -195,7 +195,7 @@ class xpwiki_plugin_ref extends xpwiki_plugin {
 	}
 	
 	// BodyMake
-	function plugin_ref_body($args){
+	function get_body($args){
 		// 初期化
 		$params = array(
 			'left'   => FALSE, // 左寄せ
@@ -235,7 +235,7 @@ class xpwiki_plugin_ref extends xpwiki_plugin {
 		if ($lvar['refid']) {
 			// サイズ指定子があるかチェック
 			$params['_args'] = $args;
-			$this->ref_check_arg_ex ($params, $lvar);
+			$this->check_arg_ex ($params, $lvar);
 			$thumb = ($params['_size'])? '' :  '&amp;thumb=1';
 			
 			$params['_body'] = '<a href="'.$this->root->script.
@@ -259,10 +259,10 @@ class xpwiki_plugin_ref extends xpwiki_plugin {
 		// 残りの引数の処理
 		if (! empty($args))
 			foreach ($args as $arg)
-				$this->ref_check_arg($arg, $params);
+				$this->check_arg($arg, $params);
 		
 		// 拡張パラメーターの処理
-		$this->ref_check_arg_ex ($params, $lvar);
+		$this->check_arg_ex ($params, $lvar);
 		
 		if ($lvar['type'] > 2 ) {
 			// ファイル情報
@@ -321,7 +321,7 @@ class xpwiki_plugin_ref extends xpwiki_plugin {
 				$lvar['link'] = '';
 				$lvar['title'][] = (preg_match('/([^\/]+)$/', $lvar['name'], $match))? $match[1] : '';
 				
-				$copyright = $this->plugin_ref_check_copyright($lvar['name'], $lvar['page']);
+				$copyright = $this->check_copyright($lvar['file']);
 				if ($copyright) {
 					//著作権保護されている場合はサイズ$this->cont['PLUGIN_REF_COPYRIGHT_IMG_MAX%']%以内かつ縦横 $this->cont['PLUGIN_REF_COPYRIGHT_IMG_MAX']px 以内で表示
 					$params['_size'] = TRUE;
@@ -617,9 +617,6 @@ _HTML_;
 				$lvar['file'] = $this->cont['UPLOAD_DIR'] .  $this->func->encode($_page) . '_' . $e_name;
 				$is_file_second = is_file($lvar['file']);
 	
-				// If the second argument is WikiName, or double-bracket-inserted pagename (compat)
-				//$is_bracket_bracket = preg_match("/^({$this->root->WikiName}|\[\[{$this->root->BracketName}\]\])$/", $args[0]);
-	
 				//if ($is_file_second && $is_bracket_bracket) {
 				if ($is_file_second) {
 					// Believe the second argument (compat)
@@ -746,11 +743,8 @@ _HTML_;
 	}
 
 	// 著作権情報を調べる
-	function plugin_ref_check_copyright($name, $page)
+	function check_copyright($filename)
 	{
-		$filename = $this->cont['UPLOAD_DIR'] .
-			$this->func->encode($page) . '_' . $this->func->encode($name);
-		
 		$status = $this->get_fileinfo($filename);
 		$copyright = $status['copyright'];
 		return $copyright;
@@ -817,7 +811,7 @@ _HTML_;
 				$copyright = 0;
 				$dat['data'] = join('',file($this->cont['IMAGE_DIR'].'noimage.png'));
 			}
-			if ($this->plugin_ref_cache_image_save($dat['data'], $filename, $name, $copyright)) {
+			if ($this->cache_image_save($dat['data'], $filename, $name, $copyright)) {
 				$cache = TRUE;
 			}
 		} else {
@@ -834,7 +828,7 @@ _HTML_;
 	}
 
 	// 画像キャッシュを保存
-	function plugin_ref_cache_image_save(& $data, $filename, $name, $copyright)
+	function cache_image_save(& $data, $filename, $name, $copyright)
 	{
 		$attach = $this->func->get_plugin_instance('attach');
 		if (!$attach || !method_exists($attach, 'do_upload')) {
@@ -868,7 +862,7 @@ _HTML_;
 	}
 
 	// オプションを解析する
-	function ref_check_arg($val, & $params)
+	function check_arg($val, & $params)
 	{
 		if ($val == '') {
 			$params['_done'] = TRUE;
@@ -889,7 +883,7 @@ _HTML_;
 	}
 
 	// 拡張パラメーターの処理
-	function ref_check_arg_ex (& $params, & $lvar) {
+	function check_arg_ex (& $params, & $lvar) {
 		foreach ($params['_args'] as $arg){
 			$m = array();
 			if (preg_match("/^(m)?w(?:idth)?:([0-9]+)$/i",$arg,$m)){
