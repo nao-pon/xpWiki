@@ -1,7 +1,7 @@
 <?php
 //
 // Created on 2006/10/02 by nao-pon http://hypweb.net/
-// $Id: pukiwiki_func.php,v 1.26 2006/11/28 00:17:57 nao-pon Exp $
+// $Id: pukiwiki_func.php,v 1.27 2006/11/28 08:28:28 nao-pon Exp $
 //
 class XpWikiPukiWikiFunc extends XpWikiBaseFunc {
 
@@ -189,7 +189,7 @@ class XpWikiPukiWikiFunc extends XpWikiBaseFunc {
 			
 			// Adding fixed anchor into headings
 			if ($this->root->fixed_heading_anchor &&
-			    preg_match('/^(\*{1,3}.*?)(?:\[#([A-Za-z][\w-]*)\]\s*)?$/', $line, $matches) &&
+			    preg_match('/^(\*{1,6}.*?)(?:\[#([A-Za-z][\w-]*)\]\s*)?$/', $line, $matches) &&
 			    (! isset($matches[2]) || $matches[2] == '')) {
 				// Generate unique id
 				$anchor = $this->generate_fixed_heading_anchor_id($matches[1]);
@@ -338,11 +338,13 @@ class XpWikiPukiWikiFunc extends XpWikiBaseFunc {
 	// Update RecentDeleted
 	function add_recent($page, $recentpage, $subject = '', $limit = 0)
 	{
-		return;
-/*
 		if ($this->cont['PKWK_READONLY'] || $limit == 0 || $page == '' || $recentpage == '' ||
 		    $this->check_non_list($page)) return;
-	
+		
+		// set mode
+		$mode = ($this->is_page($recentpage))? 'update' : 'insert';
+		$pginfo = $this->get_pginfo($recentpage);
+		
 		// Load
 		$lines = $matches = array();
 		foreach ($this->get_source($recentpage) as $line)
@@ -374,7 +376,9 @@ class XpWikiPukiWikiFunc extends XpWikiBaseFunc {
 		fputs($fp, join('', $lines));
 		flock($fp, LOCK_UN);
 		fclose($fp);
-*/
+		
+		// pginfo DB write
+		$this->pginfo_db_write($recentpage, $mode, $pginfo);
 	}
 	
 	// Update PKWK_MAXSHOW_CACHE itself (Add or renew about the $page) (Light)
@@ -889,7 +893,7 @@ class XpWikiPukiWikiFunc extends XpWikiBaseFunc {
 
 //----- Start convert_html.php -----//
 	// PukiWiki - Yet another WikiWikiWeb clone
-	// $Id: pukiwiki_func.php,v 1.26 2006/11/28 00:17:57 nao-pon Exp $
+	// $Id: pukiwiki_func.php,v 1.27 2006/11/28 08:28:28 nao-pon Exp $
 	// Copyright (C)
 	//   2002-2005 PukiWiki Developers Team
 	//   2001-2002 Originally written by yu-ji
@@ -1002,7 +1006,7 @@ class XpWikiPukiWikiFunc extends XpWikiBaseFunc {
 
 //----- Start func.php -----//
 	// PukiWiki - Yet another WikiWikiWeb clone.
-	// $Id: pukiwiki_func.php,v 1.26 2006/11/28 00:17:57 nao-pon Exp $
+	// $Id: pukiwiki_func.php,v 1.27 2006/11/28 08:28:28 nao-pon Exp $
 	// Copyright (C)
 	//   2002-2006 PukiWiki Developers Team
 	//   2001-2002 Originally written by yu-ji
@@ -1126,7 +1130,7 @@ class XpWikiPukiWikiFunc extends XpWikiBaseFunc {
 			$body = join('', $this->get_source($template_page));
 	
 			// Remove fixed-heading anchors
-			$body = preg_replace('/^(\*{1,3}.*)\[#[A-Za-z][\w-]+\](.*)$/m', '$1$2', $body);
+			$body = preg_replace('/^(\*{1,6}.*)\[#[A-Za-z][\w-]+\](.*)$/m', '$1$2', $body);
 	
 			// Remove '#freeze'
 			$body = preg_replace('/^#freeze\s*$/m', '', $body);
@@ -1783,7 +1787,7 @@ EOD;
 
 //----- Start make_link.php -----//
 	// PukiWiki - Yet another WikiWikiWeb clone.
-	// $Id: pukiwiki_func.php,v 1.26 2006/11/28 00:17:57 nao-pon Exp $
+	// $Id: pukiwiki_func.php,v 1.27 2006/11/28 08:28:28 nao-pon Exp $
 	// Copyright (C)
 	//   2003-2005 PukiWiki Developers Team
 	//   2001-2002 Originally written by yu-ji
@@ -2586,7 +2590,7 @@ EOD;
 
 //----- Start html.php -----//
 	// PukiWiki - Yet another WikiWikiWeb clone.
-	// $Id: pukiwiki_func.php,v 1.26 2006/11/28 00:17:57 nao-pon Exp $
+	// $Id: pukiwiki_func.php,v 1.27 2006/11/28 08:28:28 nao-pon Exp $
 	// Copyright (C)
 	//   2002-2006 PukiWiki Developers Team
 	//   2001-2002 Originally written by yu-ji
@@ -2637,7 +2641,7 @@ EOD;
 		$_LINK['rdf']      = "{$this->root->script}?cmd=rss&amp;ver=1.0";
 		$_LINK['recent']   = "{$this->root->script}?" . rawurlencode($this->root->whatsnew) . '#header';
 		$_LINK['refer']    = "{$this->root->script}?plugin=referer&amp;page=$r_page#header";
-		$_LINK['reload']   = "{$this->root->script}?$r_page#header";
+		$_LINK['reload']   = "{$this->root->script}?$r_page";
 		$_LINK['rename']   = "{$this->root->script}?plugin=rename&amp;refer=$r_page#header";
 		$_LINK['rss']      = "{$this->root->script}?cmd=rss";
 		$_LINK['rss10']    = "{$this->root->script}?cmd=rss&amp;ver=1.0"; // Same as 'rdf'
@@ -2803,6 +2807,14 @@ EOD;
 			if (isset($this->root->vars['refer']) && $this->root->vars['refer'] != '')
 				$refer = '[[' . $this->strip_bracket($this->root->vars['refer']) . ']]' . "\n\n";
 		}
+		
+		// 添付ファイルリスト
+		$attaches = '';
+		if ($this->root->show_attachlist_editform && $this->is_page($page)) {
+			$plugin = & $this->get_plugin_instance("attach");
+			$attaches = ($plugin) ? $plugin->attach_filelist() : '';
+			if ($attaches) $attaches = $this->root->hr . '<p>' . $attaches . '</p>';
+		}
 	
 		$r_page      = rawurlencode($page);
 		$s_page      = htmlspecialchars($page);
@@ -2859,6 +2871,7 @@ EOD;
 	  <input type="submit" name="cancel" value="{$this->root->_btn_cancel}" accesskey="c" />
 	 </form>
 	</div>
+	$attaches
 EOD;
 	
 		if (isset($this->root->vars['help'])) {
@@ -2980,11 +2993,11 @@ EOD;
 		// Cut fixed-heading anchors
 		$id = '';
 		$matches = array();
-		if (preg_match('/^(\*{0,3})(.*?)\[#([A-Za-z][\w-]+)\](.*?)$/m', $str, $matches)) {
+		if (preg_match('/^(\*{0,6})(.*?)\[#([A-Za-z][\w-]+)\](.*?)$/m', $str, $matches)) {
 			$str = $matches[2] . $matches[4];
 			$id  = & $matches[3];
 		} else {
-			$str = preg_replace('/^\*{0,3}/', '', $str);
+			$str = preg_replace('/^\*{0,6}/', '', $str);
 		}
 	
 		// Cut footnotes and tags
@@ -3133,7 +3146,7 @@ EOD;
 
 //----- Start mail.php -----//
 	// PukiWiki - Yet another WikiWikiWeb clone.
-	// $Id: pukiwiki_func.php,v 1.26 2006/11/28 00:17:57 nao-pon Exp $
+	// $Id: pukiwiki_func.php,v 1.27 2006/11/28 08:28:28 nao-pon Exp $
 	// Copyright (C)
 	//   2003-2005 PukiWiki Developers Team
 	//   2003      Originally written by upk
@@ -3440,7 +3453,7 @@ EOD;
 
 //----- Start link.php -----//
 	// PukiWiki - Yet another WikiWikiWeb clone
-	// $Id: pukiwiki_func.php,v 1.26 2006/11/28 00:17:57 nao-pon Exp $
+	// $Id: pukiwiki_func.php,v 1.27 2006/11/28 08:28:28 nao-pon Exp $
 	// Copyright (C) 2003-2006 PukiWiki Developers Team
 	// License: GPL v2 or (at your option) any later version
 	//

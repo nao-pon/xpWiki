@@ -1,6 +1,6 @@
 <?php
 // PukiWiki - Yet another WikiWikiWeb clone.
-// $Id: default.ini.php,v 1.1 2006/10/13 13:17:49 nao-pon Exp $
+// $Id: default.ini.php,v 1.2 2006/11/28 08:28:28 nao-pon Exp $
 // Copyright (C)
 //   2003-2005 PukiWiki Developers Team
 //   2001-2002 Originally written by yu-ji
@@ -19,7 +19,11 @@ if (!empty($const['TDIARY_THEME'])) {
 
 /////////////////////////////////////////////////
 // 雛形とするページの読み込みを可能にする
-$root->load_template_func = 1;
+$root->load_template_func = 0;
+
+/////////////////////////////////////////////////
+// 編集フォームに添付ファイルリストを表示する
+$root->show_attachlist_editform = 1;
 
 /////////////////////////////////////////////////
 // 検索文字列を色分けする
