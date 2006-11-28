@@ -302,7 +302,7 @@ class XpWikiPluginLsx
 			$pdepth = $depth;
 			
 			if (! $this->options['notitle'][1]) {
-				$relative .=  ' [' .$this->func->get_heading($page).']';
+				$relative .=  ' [' .$this->func->unhtmlspecialchars($this->func->get_heading($page), ENT_NOQUOTES).']';
 			}
 			if ($exist) {
 				$html .= $this->make_pagelink($page, $relative);
