@@ -1,7 +1,7 @@
 <?php
 //
 // Created on 2006/10/02 by nao-pon http://hypweb.net/
-// $Id: pukiwiki_func.php,v 1.27 2006/11/28 08:28:28 nao-pon Exp $
+// $Id: pukiwiki_func.php,v 1.28 2006/11/28 12:45:53 nao-pon Exp $
 //
 class XpWikiPukiWikiFunc extends XpWikiBaseFunc {
 
@@ -893,7 +893,7 @@ class XpWikiPukiWikiFunc extends XpWikiBaseFunc {
 
 //----- Start convert_html.php -----//
 	// PukiWiki - Yet another WikiWikiWeb clone
-	// $Id: pukiwiki_func.php,v 1.27 2006/11/28 08:28:28 nao-pon Exp $
+	// $Id: pukiwiki_func.php,v 1.28 2006/11/28 12:45:53 nao-pon Exp $
 	// Copyright (C)
 	//   2002-2005 PukiWiki Developers Team
 	//   2001-2002 Originally written by yu-ji
@@ -1006,7 +1006,7 @@ class XpWikiPukiWikiFunc extends XpWikiBaseFunc {
 
 //----- Start func.php -----//
 	// PukiWiki - Yet another WikiWikiWeb clone.
-	// $Id: pukiwiki_func.php,v 1.27 2006/11/28 08:28:28 nao-pon Exp $
+	// $Id: pukiwiki_func.php,v 1.28 2006/11/28 12:45:53 nao-pon Exp $
 	// Copyright (C)
 	//   2002-2006 PukiWiki Developers Team
 	//   2001-2002 Originally written by yu-ji
@@ -1787,7 +1787,7 @@ EOD;
 
 //----- Start make_link.php -----//
 	// PukiWiki - Yet another WikiWikiWeb clone.
-	// $Id: pukiwiki_func.php,v 1.27 2006/11/28 08:28:28 nao-pon Exp $
+	// $Id: pukiwiki_func.php,v 1.28 2006/11/28 12:45:53 nao-pon Exp $
 	// Copyright (C)
 	//   2003-2005 PukiWiki Developers Team
 	//   2001-2002 Originally written by yu-ji
@@ -2590,7 +2590,7 @@ EOD;
 
 //----- Start html.php -----//
 	// PukiWiki - Yet another WikiWikiWeb clone.
-	// $Id: pukiwiki_func.php,v 1.27 2006/11/28 08:28:28 nao-pon Exp $
+	// $Id: pukiwiki_func.php,v 1.28 2006/11/28 12:45:53 nao-pon Exp $
 	// Copyright (C)
 	//   2002-2006 PukiWiki Developers Team
 	//   2001-2002 Originally written by yu-ji
@@ -2601,19 +2601,6 @@ EOD;
 	// Show page-content
 	function catbody($title, $page, $body)
 	{
-		//	global $script, $vars, $arg, $defaultpage, $whatsnew, $help_page, $hr;
-		//	global $attach_link, $related_link, $cantedit, $function_freeze;
-		//	global $search_word_color, $_msg_word, $foot_explain, $note_hr, $head_tags;
-		//	global $trackback, $trackback_javascript, $referer, $javascript;
-		//	global $nofollow;
-		//	global $_LANG, $_LINK, $_IMAGE;
-	
-		//	global $pkwk_dtd;     // XHTML 1.1, XHTML1.0, HTML 4.01 Transitional...
-		//	global $page_title;   // Title of this site
-		//	global $do_backup;    // Do backup or not
-		//	global $modifier;     // Site administrator's  web page
-		//	global $modifierlink; // Site administrator's name
-	
 		if (! file_exists($this->cont['SKIN_FILE']) || ! is_readable($this->cont['SKIN_FILE']))
 			$this->die_message('SKIN_FILE is not found'.$this->cont['SKIN_FILE']);
 	
@@ -2758,13 +2745,8 @@ EOD;
 	// Show 'edit' form
 	function edit_form($page, $postdata, $digest = FALSE, $b_template = TRUE)
 	{
-		//	global $script, $vars, $rows, $cols, $hr, $function_freeze;
-		//	global $_btn_preview, $_btn_repreview, $_btn_update, $_btn_cancel, $_msg_help;
-		//	global $whatsnew, $_btn_template, $_btn_load, $load_template_func;
-		//	global $notimeupdate;
-		
 		// #pginfo ºï½ü
-		$postdata = preg_replace("/^#pginfo\(.*\)\s*/m", '', $postdata);
+		$postdata = preg_replace($this->cont['PKWK_PGINFO_REGEX'], '', $postdata);
 		
 		// Newly generate $digest or not
 		if ($digest === FALSE) $digest = md5(join('', $this->get_source($page)));
@@ -3146,7 +3128,7 @@ EOD;
 
 //----- Start mail.php -----//
 	// PukiWiki - Yet another WikiWikiWeb clone.
-	// $Id: pukiwiki_func.php,v 1.27 2006/11/28 08:28:28 nao-pon Exp $
+	// $Id: pukiwiki_func.php,v 1.28 2006/11/28 12:45:53 nao-pon Exp $
 	// Copyright (C)
 	//   2003-2005 PukiWiki Developers Team
 	//   2003      Originally written by upk
@@ -3453,7 +3435,7 @@ EOD;
 
 //----- Start link.php -----//
 	// PukiWiki - Yet another WikiWikiWeb clone
-	// $Id: pukiwiki_func.php,v 1.27 2006/11/28 08:28:28 nao-pon Exp $
+	// $Id: pukiwiki_func.php,v 1.28 2006/11/28 12:45:53 nao-pon Exp $
 	// Copyright (C) 2003-2006 PukiWiki Developers Team
 	// License: GPL v2 or (at your option) any later version
 	//
