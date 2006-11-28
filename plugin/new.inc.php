@@ -5,7 +5,7 @@ class xpwiki_plugin_new extends xpwiki_plugin {
 	{
 
 	// PukiWiki - Yet another WikiWikiWeb clone.
-	// $Id: new.inc.php,v 1.1 2006/10/13 13:17:49 nao-pon Exp $
+	// $Id: new.inc.php,v 1.2 2006/11/28 00:17:56 nao-pon Exp $
 	//
 	// New! plugin
 	//
@@ -53,17 +53,23 @@ class xpwiki_plugin_new extends xpwiki_plugin {
 			if (substr($page, -1) == '/') {
 				// Check multiple pages started with "$page"
 				$timestamp = 0;
-				$regex = '/^' . preg_quote($page, '/') . '/';
-				foreach (preg_grep($regex, $this->func->get_existpages()) as $page) {
-					// Get the latest pagename and its timestamp
-					$_timestamp = $this->func->get_filetime($page);
-					if ($timestamp < $_timestamp) {
-						$timestamp = $_timestamp;
-						$retval    = $nolink ? '' : $this->func->make_pagelink($page);
-					}
+				//$regex = '/^' . preg_quote($page, '/') . '/';
+				//foreach (preg_grep($regex, $this->func->get_existpages()) as $page) {
+				//	// Get the latest pagename and its timestamp
+				//	$_timestamp = $this->func->get_filetime($page);
+				//	if ($timestamp < $_timestamp) {
+				//		$timestamp = $_timestamp;
+				//		$retval    = $nolink ? '' : $this->func->make_pagelink($page);
+				//	}
+				//}
+				$_page = $this->func->get_existpages(FALSE, $page, 1, $order=" ORDER BY `editedtime` DESC", false, false, true, TRUE);
+				if ($_page) {
+					list($timestamp, ) = explode("\t", array_shift($_page));
+					$retval    = $nolink ? '' : $this->func->make_pagelink(substr($page, 0, strlen($page) - 1));
 				}
+				
 				if ($timestamp == 0)
-					return '&new(pagename/[,nolink]): No such pages;';
+					return '&new(' . $page . '[,nolink]);: No such pages;';
 			} else {
 				// Check a page
 				if ($this->func->is_page($page)) {

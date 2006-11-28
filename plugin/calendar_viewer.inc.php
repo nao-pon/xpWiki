@@ -4,7 +4,7 @@ class xpwiki_plugin_calendar_viewer extends xpwiki_plugin {
 
 
 	// PukiWiki - Yet another WikiWikiWeb clone
-	// $Id: calendar_viewer.inc.php,v 1.2 2006/10/27 12:00:50 nao-pon Exp $
+	// $Id: calendar_viewer.inc.php,v 1.3 2006/11/28 00:17:56 nao-pon Exp $
 	//
 	// Calendar viewer plugin - List pages that calendar/calnedar2 plugin created
 	// (Based on calendar and recent plugin)
@@ -131,14 +131,15 @@ class xpwiki_plugin_calendar_viewer extends xpwiki_plugin {
 	
 		// ページリストの取得
 		$pagelist = array();
-		if ($dir = @opendir($this->cont['DATA_DIR'])) {
+		//if ($dir = @opendir($this->cont['DATA_DIR'])) {
 			$_date = $this->func->get_date('Y' . $date_sep . 'm' . $date_sep . 'd');
 			$page_date  = '';
-			while($file = readdir($dir)) {
-				if ($file == '..' || $file == '.') continue;
-				if (substr($file, 0, $filepattern_len) != $filepattern) continue;
+			//while($file = readdir($dir)) {
+			//	if ($file == '..' || $file == '.') continue;
+			//	if (substr($file, 0, $filepattern_len) != $filepattern) continue;
 	
-				$page      = $this->func->decode(trim(preg_replace('/\.txt$/', ' ', $file)));
+			//	$page      = $this->func->decode(trim(preg_replace('/\.txt$/', ' ', $file)));
+			foreach($this->func->get_existpages(FALSE,$pagepattern) as $page) {
 				$page_date = substr($page, $pagepattern_len);
 	
 				// Verify the $page_date pattern (Default: yyyy-mm-dd).
@@ -151,8 +152,8 @@ class xpwiki_plugin_calendar_viewer extends xpwiki_plugin {
 	
 				$pagelist[] = $page;
 			}
-		}
-		closedir($dir);
+		//}
+		//closedir($dir);
 	
 		if ($mode == 'past') {
 			rsort($pagelist);	// New => Old
@@ -173,11 +174,11 @@ class xpwiki_plugin_calendar_viewer extends xpwiki_plugin {
 			$this->root->get['page'] = $this->root->post['page'] = $this->root->vars['page'] = $page;
 	
 			// 現状で閲覧許可がある場合だけ表示する
-			if ($this->func->check_readable($page, FALSE, FALSE)) {
+			//if ($this->func->check_readable($page, FALSE, FALSE)) {
 				$body = $this->func->convert_html($this->func->get_source($page));
-			} else {
-				$body = str_replace('$1', $page, $this->root->_msg_calendar_viewer_restrict);
-			}
+			//} else {
+			//	$body = str_replace('$1', $page, $this->root->_msg_calendar_viewer_restrict);
+			//}
 	
 			$r_page = rawurlencode($page);
 	

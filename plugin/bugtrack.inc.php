@@ -3,7 +3,7 @@ class xpwiki_plugin_bugtrack extends xpwiki_plugin {
 	function plugin_bugtrack_init()
 	{
 
-	// $Id: bugtrack.inc.php,v 1.1 2006/10/13 13:17:49 nao-pon Exp $
+	// $Id: bugtrack.inc.php,v 1.2 2006/11/28 00:17:56 nao-pon Exp $
 	//
 	// PukiWiki BugTrack plugin
 	//
@@ -272,8 +272,8 @@ EOD;
 		$data = array();
 		$pattern = $page . '/';
 		$pattern_len = strlen($pattern);
-		foreach ($this->func->get_existpages() as $page)
-			if (strpos($page, $pattern) === 0 && is_numeric(substr($page, $pattern_len)))
+		foreach ($this->func->get_existpages(FALSE, $pattern) as $page)
+			if (is_numeric(substr($page, $pattern_len)))
 				array_push($data, $this->plugin_bugtrack_list_pageinfo($page));
 	
 		$count_list = count($this->root->_plugin_bugtrack['state_list']);

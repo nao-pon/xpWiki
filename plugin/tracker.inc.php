@@ -4,7 +4,7 @@ class xpwiki_plugin_tracker extends xpwiki_plugin {
 
 
 	// PukiWiki - Yet another WikiWikiWeb clone
-	// $Id: tracker.inc.php,v 1.3 2006/10/30 13:59:31 nao-pon Exp $
+	// $Id: tracker.inc.php,v 1.4 2006/11/28 00:17:57 nao-pon Exp $
 	//
 	// Issue tracker plugin (See Also bugtrack plugin)
 	
@@ -725,17 +725,17 @@ class XpWikiTracker_list
 		$this->rows = array();
 		$pattern = "$page/";
 		$pattern_len = strlen($pattern);
-		foreach ($this->func->get_existpages() as $_page)
+		foreach ($this->func->get_existpages(FALSE, $pattern) as $_page)
 		{
-			if (strpos($_page,$pattern) === 0)
-			{
+			//if (strpos($_page,$pattern) === 0)
+			//{
 				$name = substr($_page,$pattern_len);
 				if (preg_match($this->cont['TRACKER_LIST_EXCLUDE_PATTERN'],$name))
 				{
 					continue;
 				}
 				$this->add($_page,$name);
-			}
+			//}
 		}
 	}
 	function add($page,$name)

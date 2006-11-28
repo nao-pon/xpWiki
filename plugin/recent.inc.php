@@ -3,7 +3,7 @@ class xpwiki_plugin_recent extends xpwiki_plugin {
 	function plugin_recent_init () {
 
 
-	// $Id: recent.inc.php,v 1.2 2006/11/19 11:22:15 nao-pon Exp $
+	// $Id: recent.inc.php,v 1.3 2006/11/28 00:17:57 nao-pon Exp $
 	// Copyright (C)
 	//   2002-2006 PukiWiki Developers Team
 	//   2002      Y.MASUI http://masui.net/pukiwiki/ masui@masui.net
@@ -88,7 +88,7 @@ class xpwiki_plugin_recent extends xpwiki_plugin {
 		// Get latest N changes
 		//$lines = $this->func->file_head($this->cont['PLUGIN_RECENT_CACHE'], $recent_lines);
 		//if ($lines == FALSE) return '#recent(): File can not open' . '<br />' . "\n";
-		$lines = $this->func->get_existpages_db(FALSE,$_prefix,$recent_lines," ORDER BY editedtime DESC",TRUE,FALSE,TRUE,TRUE);
+		$lines = $this->func->get_existpages(FALSE,$_prefix,$recent_lines," ORDER BY editedtime DESC",TRUE,FALSE,TRUE,TRUE);
 		
 		
 		$script = $this->func->get_script_uri();
