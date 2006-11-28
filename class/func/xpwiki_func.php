@@ -1,7 +1,7 @@
 <?php
 //
 // Created on 2006/10/02 by nao-pon http://hypweb.net/
-// $Id: xpwiki_func.php,v 1.26 2006/11/28 00:17:57 nao-pon Exp $
+// $Id: xpwiki_func.php,v 1.27 2006/11/28 12:47:56 nao-pon Exp $
 //
 class XpWikiFunc extends XpWikiXoopsWrapper {
 
@@ -836,10 +836,24 @@ EOD;
 			$ret = str_replace(array("\r","\n","\t", '&dagger;', '?', '&nbsp;'),' ',$ret);
 			$ret = preg_replace('/\s+/',' ',$ret);
 			$ret = trim($ret);
+			$ret = $this->unhtmlspecialchars($ret, ENT_QUOTES);
 		}
 		return ($ret)? $ret : "- no title -";
 	}
-
+	
+	function unhtmlspecialchars ($str, $quote_style = ENT_COMPAT) {
+		$fr = array('&lt;', '&gt;', '&amp;');
+		$tr = array('<',    '>',    '&'    );
+		if ($quote_style !== ENT_NOQUOTES) {
+			$fr[] = '&quot;';
+			$tr[] = '"';
+		}
+		if ($quote_style === ENT_QUOTES) {
+			$fr[] = '&#039;';
+			$tr[] = '\'';
+		}			
+		return str_replace($fr, $tr, $str);
+	}
 /*----- DB Functions -----*/ 
 	//ページ名からページIDを求める
 	function get_pgid_by_name ($page)
@@ -985,7 +999,7 @@ EOD;
 		}
 		
 		//最初の見出し行取得
-		$title = addslashes(str_replace(array('&lt;','&gt;','&amp;','&quot;','&#039;'),array('<','>','&','"',"'"),$this->get_heading_init($page)));
+		$title = addslashes($this->get_heading_init($page));
 	
 		// 新規作成
 		if ($action == "insert")
