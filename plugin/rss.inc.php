@@ -6,7 +6,7 @@ class xpwiki_plugin_rss extends xpwiki_plugin {
 
 	}
 	// PukiWiki - Yet another WikiWikiWeb clone
-	// $Id: rss.inc.php,v 1.1 2006/10/13 13:17:49 nao-pon Exp $
+	// $Id: rss.inc.php,v 1.2 2006/11/28 00:17:56 nao-pon Exp $
 	//
 	// RSS plugin: Publishing RSS of RecentChanges
 	//
@@ -32,8 +32,8 @@ class xpwiki_plugin_rss extends xpwiki_plugin {
 		default: die('Invalid RSS version!!');
 		}
 	
-		$recent = $this->cont['CACHE_DIR'] . $this->cont['PKWK_MAXSHOW_CACHE'];
-		if (! file_exists($recent)) die('PKWK_MAXSHOW_CACHE is not found');
+		//$recent = $this->cont['CACHE_DIR'] . $this->cont['PKWK_MAXSHOW_CACHE'];
+		//if (! file_exists($recent)) die('PKWK_MAXSHOW_CACHE is not found');
 	
 		$lang = $this->cont['LANG'];
 		$page_title_utf8 = mb_convert_encoding($this->root->page_title, 'UTF-8', $this->cont['SOURCE_ENCODING']);
@@ -41,8 +41,9 @@ class xpwiki_plugin_rss extends xpwiki_plugin {
 	
 		// Creating <item>
 		$items = $rdf_li = '';
-	
-		foreach ($this->func->file_head($recent, $this->root->rss_max) as $line) {
+		$lines = $this->func->get_existpages(FALSE, '', $this->root->rss_max," ORDER BY editedtime DESC",TRUE,FALSE,TRUE,TRUE);
+		
+		foreach ($lines as $line) {
 			list($time, $page) = explode("\t", rtrim($line));
 			$r_page = rawurlencode($page);
 			$title  = mb_convert_encoding($page, 'UTF-8', $this->cont['SOURCE_ENCODING']);

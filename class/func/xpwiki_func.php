@@ -1,7 +1,7 @@
 <?php
 //
 // Created on 2006/10/02 by nao-pon http://hypweb.net/
-// $Id: xpwiki_func.php,v 1.25 2006/11/24 13:47:07 nao-pon Exp $
+// $Id: xpwiki_func.php,v 1.26 2006/11/28 00:17:57 nao-pon Exp $
 //
 class XpWikiFunc extends XpWikiXoopsWrapper {
 
@@ -415,7 +415,8 @@ EOD;
 							'head_pre_tags' => $this->root->head_pre_tags,
 							'head_tags'     => $this->root->head_tags,
 							'related'       => $this->root->related,
-							'runmode'       => $this->root->runmode
+							'runmode'       => $this->root->runmode,
+							'related_link'  => $this->root->related_link
 						),
 						'cont'          => array(
 							'SKIN_NAME'     => @$this->cont['SKIN_NAME']
@@ -734,18 +735,8 @@ EOD;
 
 	//EXIFデータを得る
 	function get_exif_data($file, $alltag = FALSE){
-		if (!function_exists('read_exif_data')) return false;
-		switch (exif_imagetype($file)) {
-			case IMAGETYPE_JPEG:
-			case IMAGETYPE_TIFF_II:
-			case IMAGETYPE_TIFF_MM:
-				break;
-			default:
-				return false;
-		}
 		$ret = array();
 		$exif_data = @read_exif_data($file);
-		
 		if (!$exif_data) return $ret;
 		
 		$ret['title'] = "-- Shot Info --";
@@ -885,10 +876,15 @@ EOD;
 	}
 	
 	// 全ページ名を配列にDB版
-	function get_existpages_db($nocheck=false,$page="",$limit=0,$order="",$nolisting=false,$nochiled=false,$nodelete=true,$withtime=FALSE)
+	function get_existpages($nocheck=false, $base="", $limit=0, $order="", $nolisting=false, $nochiled=false, $nodelete=true, $withtime=FALSE)
 	{
+		// File版を使用
+		if (is_string($nocheck) && $nocheck !== DATA_DIR) {
+			return parent::get_existpages($nocheck,$base);
+		}
+
 		static $_aryret = array();
-		if (isset($_aryret[$this->xpwiki->pid]) && !$nocheck && !$page && !$limit && !$order && !$nolisting && !$nochiled && $nodelete && !$withtime) return $_aryret[$this->xpwiki->pid];
+		if (isset($_aryret[$this->xpwiki->pid]) && !$nocheck && !$base && !$limit && !$order && !$nolisting && !$nochiled && $nodelete && !$withtime) return $_aryret[$this->xpwiki->pid];
 	
 		$aryret = array();
 		
@@ -898,40 +894,42 @@ EOD;
 			$where = $this->get_readable_where();
 		}
 		
-		if ($page)
+		if ($base)
 		{
-			if (substr($page,-1) == '/')
+			if (substr($base,-1) == '/')
 			{
-				$page = addslashes(substr($page,0,-1));
+				$base = addslashes(substr($base,0,-1));
 				if ($nochiled)
-					$page_where = "name = '$page' OR ( name LIKE '$page/%' AND name NOT LIKE '$page/%/%' )";
+					//$base_where = "name = '$base' OR ( name LIKE '$base/%' AND name NOT LIKE '$base/%/%' )";
+					$base_where = "name LIKE '$base/%' AND name NOT LIKE '$base/%/%'";
 				else
-					$page_where = "name = '$page' OR name LIKE '$page/%'";
+					//$base_where = "name = '$base' OR name LIKE '$base/%'";
+					$base_where = "name LIKE '$base/%'";
 			}
 			else
 			{
-				$page = addslashes(strip_bracket($page));
+				$base = addslashes(strip_bracket($base));
 				if ($nochiled)
-					$page_where = "name LIKE '$page%' AND name NOT LIKE '$page%/%'";
+					$base_where = "name LIKE '$base%' AND name NOT LIKE '$base%/%'";
 				else
-					$page_where = "name LIKE '$page%'";
+					$base_where = "name LIKE '$base%'";
 			}
 			if ($where)
-				$where = " ($page_where) AND ($where)";
+				$where = " ($base_where) AND ($where)";
 			else
-				$where = " $page_where";
+				$where = " $base_where";
 				
 		}
 		else
 		{
 			if ($nochiled)
 			{
-				$page_where = "name NOT LIKE '%/%'";
+				$base_where = "name NOT LIKE '%/%'";
 	
 				if ($where)
-					$where = " ($page_where) AND ($where)";
+					$where = " ($base_where) AND ($where)";
 				else
-					$where = " $page_where";
+					$where = " $base_where";
 			}
 		}
 		if ($nolisting)
@@ -952,6 +950,7 @@ EOD;
 		$limit = ($limit)? " LIMIT $limit" : "";
 		//echo $where;
 		$query = "SELECT `editedtime`, `name` FROM ".$this->xpwiki->db->prefix($this->root->mydirname."_pginfo")."$where$order$limit;";
+		//echo $query;
 		$res = $this->xpwiki->db->query($query);
 		if ($res)
 		{
@@ -960,7 +959,7 @@ EOD;
 				$aryret[$this->encode($data[1]).'.txt'] = ($withtime)? $data[0]."\t".$data[1] : $data[1];
 			}
 		}
-		if (!$nocheck && !$page && !$limit && !$order && !$nolisting && !$nochiled && $nodelete && !$withtime) $_aryret[$this->xpwiki->pid] = $aryret;
+		if (!$nocheck && !$base && !$limit && !$order && !$nolisting && !$nochiled && $nodelete && !$withtime) $_aryret[$this->xpwiki->pid] = $aryret;
 		return $aryret;
 	}
 
@@ -1226,7 +1225,7 @@ EOD;
 			// 英数字は半角,カタカナは全角,ひらがなはカタカナに
 			if (function_exists("mb_convert_kana"))
 			{
-				$data = mb_convert_kana($data,'aKV');
+				$data = mb_convert_kana($data,'aKVC');
 			}
 		}
 		$data = addslashes(preg_replace("/[\s]+/","",$data));
@@ -1527,5 +1526,13 @@ EOD;
 			$result = $this->xpwiki->db->queryF($query);
 		}
 	}
+	
+	// 
+	// 'Search' main function (DB版)
+	function do_search($word, $type = 'AND', $non_format = FALSE, $base = '', $db = FALSE, $limit = 0, $offset = 0 , $userid = 0)
+	{
+		if (!$db) return parent::do_search($word, $type, $non_format, $base);
+	}
+
 }
 ?>

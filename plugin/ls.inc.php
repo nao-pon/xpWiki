@@ -9,7 +9,7 @@ class xpwiki_plugin_ls extends xpwiki_plugin {
 	 * CopyRight 2002 Y.MASUI GPL2
 	 * http://masui.net/pukiwiki/ masui@masui.net
 	 *
-	 * $Id: ls.inc.php,v 1.1 2006/10/13 13:17:49 nao-pon Exp $
+	 * $Id: ls.inc.php,v 1.2 2006/11/28 00:17:56 nao-pon Exp $
 		 */
 
 	}
@@ -29,12 +29,12 @@ class xpwiki_plugin_ls extends xpwiki_plugin {
 		$prefix = $this->root->vars['page'].'/';
 	
 		$pages = array();
-		foreach ($this->func->get_existpages() as $page)
+		foreach ($this->func->get_existpages(FALSE, $prefix) as $page)
 		{
-			if (strpos($page,$prefix) === 0)
-			{
+			//if (strpos($page,$prefix) === 0)
+			//{
 				$pages[] = $page;
-			}
+			//}
 		}
 		natcasesort($pages);
 	

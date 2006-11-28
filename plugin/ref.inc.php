@@ -1,5 +1,5 @@
 <?php
-// $Id: ref.inc.php,v 1.3 2006/11/25 11:19:40 nao-pon Exp $
+// $Id: ref.inc.php,v 1.4 2006/11/28 00:17:56 nao-pon Exp $
 /*
 
 	*プラグイン ref
@@ -70,6 +70,9 @@ class xpwiki_plugin_ref extends xpwiki_plugin {
 		// ファイルオーナーが...すべて禁止:0 , 管理人のみ:1 , 登録ユーザーのみ:2 , すべて許可:3
 		// セキュリティ上、0 or 1 での運用を強く奨励
 		$this->cont['PLUGIN_REF_FLASH_INLINE'] = 1;
+		
+		// Exif データを取得し title属性に付加する (TRUE or FALSE)
+		$this->cont['PLUGIN_REF_GET_EXIF'] = FALSE;
 	}
 
 	// Output an image (fast, non-logging <==> attach plugin)
@@ -337,11 +340,13 @@ class xpwiki_plugin_ref extends xpwiki_plugin {
 				$lvar['title'][] = $img['title'];
 
 				//EXIF DATA
-				$exif_data = $this->func->get_exif_data($lvar['file']);
-				if ($exif_data){
-					$lvar['title'][] = $exif_data['title'];
-					foreach($exif_data as $key => $value){
-						if ($key != "title") $lvar['title'][] = "$key: $value";
+				if ($this->cont['PLUGIN_REF_GET_EXIF']) {
+					$exif_data = $this->func->get_exif_data($lvar['file']);
+					if ($exif_data){
+						$lvar['title'][] = $exif_data['title'];
+						foreach($exif_data as $key => $value){
+							if ($key != "title") $lvar['title'][] = "$key: $value";
+						}
 					}
 				}
 				
@@ -351,14 +356,12 @@ class xpwiki_plugin_ref extends xpwiki_plugin {
 				$lvar['url'] = $lvar['file'];
 				if ($params['_%']) {
 					$s_file = $this->cont['UPLOAD_DIR']."s/".$this->func->encode($lvar['page']).'_'.$this->func->encode($params['_%']."%".$lvar['name']);
-					if (!file_exists($s_file) && ($params['_%'] < 95)) {
+					if (file_exists($s_file)) {
+						//サムネイル作成済みならそれを参照
+						$lvar['url'] = $s_file;
+					} else if ($params['_%'] < 95) {
 						//サムネイル作成
-						$lvar['url'] = $this->plugin_ref_make_thumb($lvar['file'], $s_file, $img['width'], $img['height'], $img['org_w'], $img['org_h']);
-					} else {
-						if (file_exists($s_file)) {
-							//サムネイルがあればサムネイルを参照
-							$lvar['url'] = $s_file;
-						}
+						$lvar['url'] = $this->make_thumb($lvar['file'], $s_file, $img['width'], $img['height']);
 					}
 				}
 				
@@ -413,7 +416,7 @@ class xpwiki_plugin_ref extends xpwiki_plugin {
 			// 出力組み立て
 			if ($lvar['url']) {
 				// 画像
-				$params['_body'] = '<img src="' . $lvar['url'] . '" alt="' . $lvar['title'] . '" title="' . $lvar['title'] . '" ' . $img['info'] . '/>';
+				$params['_body'] = '<img src="' . $lvar['url'] . '" alt="' . $lvar['title'] . '" title="' . $lvar['title'] . '"' . $img['class'] . $img['info'] . '/>';
 				if ($lvar['link']) {
 					$params['_body'] = '<a href="' . $lvar['link'] . '" title="' . $lvar['title'] . '">' . $params['_body'] . '</a>';
 				}
@@ -792,6 +795,7 @@ _HTML_;
 
 	// イメージサイズを取得
 	function getimagesize($file) {
+		//return FALSE;
 		return @getimagesize($file);
 	}
 	
@@ -858,7 +862,7 @@ _HTML_;
 	}
 
 	// サムネイル画像を作成
-	function plugin_ref_make_thumb($url,$s_file,$width,$height,$org_w,$org_h)
+	function make_thumb($url,$s_file,$width,$height)
 	{
 		return HypCommonFunc::make_thumb($url,$s_file,$width,$height,"1,95");
 	}

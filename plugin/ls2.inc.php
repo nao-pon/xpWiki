@@ -5,7 +5,7 @@ class xpwiki_plugin_ls2 extends xpwiki_plugin {
 
 	// PukiWiki - Yet another WikiWikiWeb clone.
 	//
-	// $Id: ls2.inc.php,v 1.1 2006/10/13 13:17:49 nao-pon Exp $
+	// $Id: ls2.inc.php,v 1.2 2006/11/28 00:17:57 nao-pon Exp $
 	//
 	// List plugin 2
 	
@@ -96,8 +96,8 @@ class xpwiki_plugin_ls2 extends xpwiki_plugin {
 	
 		$pages = array();
 		if ($prefix != '') {
-			foreach ($this->func->get_existpages() as $_page)
-				if (strpos($_page, $prefix) === 0)
+			foreach ($this->func->get_existpages(FALSE, $prefix) as $_page)
+				//if (strpos($_page, $prefix) === 0)
 					$pages[] = $_page;
 		} else {
 			$pages = $this->func->get_existpages();

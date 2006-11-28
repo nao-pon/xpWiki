@@ -4,7 +4,7 @@ class xpwiki_plugin_navi extends xpwiki_plugin {
 
 
 	// PukiWiki - Yet another WikiWikiWeb clone.
-	// $Id: navi.inc.php,v 1.1 2006/10/13 13:17:49 nao-pon Exp $
+	// $Id: navi.inc.php,v 1.2 2006/11/28 00:17:57 nao-pon Exp $
 	//
 	// Navi plugin: Show DocBook-like navigation bar and contents
 	
@@ -94,8 +94,9 @@ class xpwiki_plugin_navi extends xpwiki_plugin {
 			'home1'=>'',
 		);
 	
-			$pages = preg_grep('/^' . preg_quote($home, '/') .
-			'($|\/)/', $this->func->get_existpages());
+			//$pages = preg_grep('/^' . preg_quote($home, '/') .
+			//'($|\/)/', $this->func->get_existpages());
+			$pages = $this->func->get_existpages(FALSE, $home . '/');
 			if ($this->cont['PLUGIN_NAVI_EXCLUSIVE_REGEX'] != '') {
 				// If old PHP could use preg_grep(,,PREG_GREP_INVERT)...
 				$pages = array_diff($pages,

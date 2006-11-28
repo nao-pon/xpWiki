@@ -687,12 +687,12 @@ class XpWikiPluginLsx
 
 	function get_existpages()
 	{
-		return xpwiki_plugin_lsx::get_existpages();
+		return $this->func->get_existpages(FALSE, $this->options['prefix'][1]);
 	}
 
 	function get_filetime($page)
 	{
-		return xpwiki_plugin_lsx::get_filetime($page);
+		return $this->func->get_filetime($page);
 	}
 }
 ///////////////////////////////////////
