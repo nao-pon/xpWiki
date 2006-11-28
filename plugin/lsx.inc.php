@@ -50,6 +50,7 @@ class XpWikiPluginLsx
 			'date'		=> array('bool', false), // obsolete
 			'new'		=> array('bool', false),
 			'tag'		=> array('string', ''),
+			'notitle'	=> array('bool', false),
 		);
 		// Modify here for external plugins
 		$this->plugin_contents = 'contentsx';
@@ -300,6 +301,9 @@ class XpWikiPluginLsx
 			}
 			$pdepth = $depth;
 			
+			if (! $this->options['notitle'][1]) {
+				$relative .=  ' [' .$this->func->get_heading($page).']';
+			}
 			if ($exist) {
 				$html .= $this->make_pagelink($page, $relative);
 			} else {
