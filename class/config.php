@@ -1,6 +1,6 @@
 <?php
 // PukiWiki - Yet another WikiWikiWeb clone.
-// $Id: config.php,v 1.2 2006/10/18 02:59:58 nao-pon Exp $
+// $Id: config.php,v 1.3 2006/11/28 08:24:53 nao-pon Exp $
 // Copyright (C) 2003-2005 PukiWiki Developers Team
 // License: GPL v2 or (at your option) any later version
 //
@@ -54,7 +54,7 @@ class XpWikiConfig
 
 			} else if ($head == '*') {
 				// Cut fixed-heading anchors
-				$line = preg_replace('/^(\*{1,3}.*)\[#[A-Za-z][\w-]+\](.*)$/', '$1$2', $line);
+				$line = preg_replace('/^(\*{1,6}.*)\[#[A-Za-z][\w-]+\](.*)$/', '$1$2', $line);
 
 				if ($level == 1) {
 					$this->objs[$obj->title] = $obj;

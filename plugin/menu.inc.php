@@ -6,7 +6,7 @@ class xpwiki_plugin_menu extends xpwiki_plugin {
 	/////////////////////////////////////////////////
 	// PukiWiki - Yet another WikiWikiWeb clone.
 	//
-	// $Id: menu.inc.php,v 1.2 2006/10/22 13:23:21 nao-pon Exp $
+	// $Id: menu.inc.php,v 1.3 2006/11/28 08:24:36 nao-pon Exp $
 	//
 	
 	// サブメニューを使用する
@@ -59,7 +59,7 @@ class xpwiki_plugin_menu extends xpwiki_plugin {
 				return '<!-- #menu(): You already view ' . htmlspecialchars($page) . ' -->';
 			} else {
 				// Cut fixed anchors
-				$menutext = preg_replace('/^(\*{1,3}.*)\[#[A-Za-z][\w-]+\](.*)$/m', '$1$2', $this->func->get_source($page));
+				$menutext = preg_replace('/^(\*{1,6}.*)\[#[A-Za-z][\w-]+\](.*)$/m', '$1$2', $this->func->get_source($page));
 				// remove xoops_block if runmode = xoops.
 				if ($this->root->runmode == "xoops") {
 					$menutext = preg_replace("/^#xoopsblock.*$/m","",$menutext);

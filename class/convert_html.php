@@ -127,7 +127,7 @@ class XpWikiHeading extends XpWikiElement {
 	function XpWikiHeading(& $root, $text) {
 		parent :: XpWikiElement($root->xpwiki);
 
-		$this->level = min(3, strspn($text, '*'));
+		$this->level = min(5, strspn($text, '*'));
 		list ($text, $this->msg_top, $this->id) = $root->getAnchor($text, $this->level);
 		$this->insert($root->func->Factory_Inline($text));
 		$this->level++; // h2,h3,h4
@@ -185,7 +185,7 @@ class XpWikiListContainer extends XpWikiElement {
 
 		$this->tag = $tag;
 		$this->tag2 = $tag2;
-		$this->level = min(3, strspn($text, $head));
+		$this->level = strspn($text, $head);
 		$text = ltrim(substr($text, $this->level));
 
 		parent :: insert(new XpWikiListElement($this->xpwiki, $this->level, $tag2));
@@ -651,7 +651,7 @@ class XpWikiBody extends XpWikiElement {
 			$line = array_shift($lines);
 
 			// Escape comments
-			if (substr($line, 0, 2) == '//')
+			if (substr($line, 0, 2) === '//')
 				continue;
 
 			if (preg_match('/^(LEFT|CENTER|RIGHT):(.*)$/', $line, $matches)) {
@@ -665,13 +665,15 @@ class XpWikiBody extends XpWikiElement {
 			$line = rtrim($line, "\r\n");
 
 			// Empty
-			if ($line == '') {
+			if ($line === '') {
 				$this->last = & $this;
 				continue;
 			}
 
 			// Horizontal Rule
-			if (substr($line, 0, 4) == '----') {
+			//if (substr($line, 0, 4) === '----') {
+			if (preg_match('/^\-+$/', $line)) {
+			
 				$this->insert(new XpWikiHRule($this, $line));
 				continue;
 			}
@@ -692,23 +694,22 @@ class XpWikiBody extends XpWikiElement {
 			}
 
 			// The first character
-			$head = $line {
-				0};
+			$head = $line {0};
 
 			// Heading
-			if ($head == '*') {
+			if ($head === '*') {
 				$this->insert(new XpWikiHeading($this, $line));
 				continue;
 			}
 
 			// Pre
-			if ($head == ' ' || $head == "\t") {
+			if ($head === ' ' || $head === "\t") {
 				$this->last = & $this->last->add(new XpWikiPre($this, $line));
 				continue;
 			}
 
 			// Line Break
-			if (substr($line, -1) == '~')
+			if (substr($line, -1) === '~')
 				$line = substr($line, 0, -1)."\r";
 
 			// Other Character
