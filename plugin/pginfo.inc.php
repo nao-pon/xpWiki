@@ -2,7 +2,7 @@
 /////////////////////////////////////////////////
 // PukiWiki - Yet another WikiWikiWeb clone.
 //
-// $Id: pginfo.inc.php,v 1.6 2006/11/28 00:17:57 nao-pon Exp $
+// $Id: pginfo.inc.php,v 1.7 2006/11/29 14:06:51 nao-pon Exp $
 //
 
 class xpwiki_plugin_pginfo extends xpwiki_plugin {
@@ -62,6 +62,9 @@ class xpwiki_plugin_pginfo extends xpwiki_plugin {
 		// #pginfo 再構築
 		if ($pginfo['einherit'] !== 4)
 		{
+			// 元々このページのみの設定値だった？
+			$only_this = ($pginfo['einherit'] === 0)? TRUE : FALSE;
+			
 			$pginfo['einherit'] = (int)@$this->root->post['einherit'];
 			if ($pginfo['einherit'] === 3) {
 				//設定解除
@@ -69,7 +72,7 @@ class xpwiki_plugin_pginfo extends xpwiki_plugin {
 				$pginfo['egids'] = $_pginfo['egids'];
 				$pginfo['eaids'] = $_pginfo['eaids'];
 				// 下層ページも設定解除
-				if ($cpages) {
+				if (!$only_this && $cpages) {
 					foreach ($cpages as $_page) {
 						$child_dat[$_page]['einherit'] = 3;
 						$child_dat[$_page]['egids'] = $_pginfo['egids'];
@@ -107,6 +110,9 @@ class xpwiki_plugin_pginfo extends xpwiki_plugin {
 		
 		if ($pginfo['vinherit'] !== 4)
 		{
+			// 元々このページのみの設定値だった？
+			$only_this = ($pginfo['vinherit'] === 0)? TRUE : FALSE;
+
 			$pginfo['vinherit'] = (int)@$this->root->post['vinherit'];
 			if ($pginfo['vinherit'] === 3) {
 				//設定解除
@@ -114,7 +120,7 @@ class xpwiki_plugin_pginfo extends xpwiki_plugin {
 				$pginfo['vgids'] = $_pginfo['vgids'];
 				$pginfo['vaids'] = $_pginfo['vaids'];
 				// 下層ページも設定解除
-				if ($cpages) {
+				if (!$only_this && $cpages) {
 					foreach ($cpages as $_page) {
 						$child_dat[$_page]['vinherit'] = 3;
 						$child_dat[$_page]['vgids'] = $_pginfo['vgids'];
@@ -158,7 +164,7 @@ class xpwiki_plugin_pginfo extends xpwiki_plugin {
 			$buf = '';
 		}
 		// #pginfo 差し替え
-		$src = preg_replace("/^#pginfo\(.*\)\s*/m", '', join('', $src));
+		$src = preg_replace("/^#pginfo\(.*\)[\r\n]*/m", '', join('', $src));
 		$src = $buf . $pginfo_str . $src;		
 		
 		// ページ保存
@@ -212,7 +218,7 @@ class xpwiki_plugin_pginfo extends xpwiki_plugin {
 					$buf = '';
 				}
 				// #pginfo 差し替え
-				$src = preg_replace("/^#pginfo\(.*\)\s*/m", '', join('', $src));
+				$src = preg_replace("/^#pginfo\(.*\)[\r\n]*/m", '', join('', $src));
 				$src = $buf . $pginfo_str . $src;		
 				
 				// ページ保存
