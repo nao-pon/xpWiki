@@ -1,7 +1,7 @@
 <?php
 //
 // Created on 2006/10/02 by nao-pon http://hypweb.net/
-// $Id: xpwiki_func.php,v 1.27 2006/11/28 12:47:56 nao-pon Exp $
+// $Id: xpwiki_func.php,v 1.28 2006/11/29 13:09:47 nao-pon Exp $
 //
 class XpWikiFunc extends XpWikiXoopsWrapper {
 
@@ -403,6 +403,7 @@ EOD;
 		}
 		if (!$cache_dat) {
 			$body  = $this->convert_html($this->get_source($page));
+			$this->root->content_title = $this->get_heading($page);
 			
 			// キャッシュ保存
 			if ($use_cache_always || ($this->root->userinfo['uid'] === 0 && $this->root->pagecache_min > 0)) {
@@ -416,7 +417,8 @@ EOD;
 							'head_tags'     => $this->root->head_tags,
 							'related'       => $this->root->related,
 							'runmode'       => $this->root->runmode,
-							'related_link'  => $this->root->related_link
+							'related_link'  => $this->root->related_link,
+							'content_title' => $this->root->content_title
 						),
 						'cont'          => array(
 							'SKIN_NAME'     => @$this->cont['SKIN_NAME']
@@ -524,6 +526,7 @@ EOD;
 				$pginfo['uname'] = $this->root->cookie['name'];
 			}
 		}
+		$pginfo['reading'] = '';
 		$info[$this->xpwiki->pid][$page] = $pginfo;
 		return $pginfo;
 	}
@@ -842,8 +845,8 @@ EOD;
 	}
 	
 	function unhtmlspecialchars ($str, $quote_style = ENT_COMPAT) {
-		$fr = array('&lt;', '&gt;', '&amp;');
-		$tr = array('<',    '>',    '&'    );
+		$fr = array('&lt;', '&gt;');
+		$tr = array('<',    '>');
 		if ($quote_style !== ENT_NOQUOTES) {
 			$fr[] = '&quot;';
 			$tr[] = '"';
@@ -851,9 +854,26 @@ EOD;
 		if ($quote_style === ENT_QUOTES) {
 			$fr[] = '&#039;';
 			$tr[] = '\'';
-		}			
+		}
+		$fr[] = '&amp;';
+		$tr[] = '&';
 		return str_replace($fr, $tr, $str);
 	}
+	
+	// ページ頭文字読みの配列を取得
+	function get_readings() {
+		$readings = array();
+		$pages = $this->get_existpages(false, "", 0, "", false, false, true, array('reading', 'title'));
+		foreach ($pages as $page=>$dat) {
+			if (empty($dat['reading'])) {
+				$dat['reading'] = $this->get_page_reading($page);
+			}
+			$readings[$page] = $dat['reading'];
+			$titles[$page] = $dat['title'];
+		}
+		return array($readings, $titles);
+	}
+	
 /*----- DB Functions -----*/ 
 	//ページ名からページIDを求める
 	function get_pgid_by_name ($page)
@@ -885,7 +905,7 @@ EOD;
 		$res = $db->query($query);
 		if (!$res) return "";
 		$_ret = mysql_fetch_row($res);
-		$_ret = htmlspecialchars($_ret[0],ENT_NOQUOTES);
+		$_ret = htmlspecialchars($_ret[0], ENT_QUOTES);
 		return $ret[$this->xpwiki->pid][$page] = ($_ret || $init)? $_ret : htmlspecialchars($page,ENT_NOQUOTES);
 	}
 	
@@ -893,7 +913,7 @@ EOD;
 	function get_existpages($nocheck=false, $base="", $limit=0, $order="", $nolisting=false, $nochiled=false, $nodelete=true, $withtime=FALSE)
 	{
 		// File版を使用
-		if (is_string($nocheck) && $nocheck !== DATA_DIR) {
+		if (is_string($nocheck) && $nocheck !== $this->cont['DATA_DIR']) {
 			return parent::get_existpages($nocheck,$base);
 		}
 
@@ -962,15 +982,26 @@ EOD;
 		}
 		if ($where) $where = " WHERE".$where;
 		$limit = ($limit)? " LIMIT $limit" : "";
-		//echo $where;
-		$query = "SELECT `editedtime`, `name` FROM ".$this->xpwiki->db->prefix($this->root->mydirname."_pginfo")."$where$order$limit;";
-		//echo $query;
+		$select = '';
+		if (is_array($withtime)) {
+			$keys = array_merge($withtime, array('name'));
+			$keys = array_unique($keys);
+			$select = '`' . join('`,`', $keys) . '`';
+			$query = 'SELECT '.$select.' FROM '.$this->xpwiki->db->prefix($this->root->mydirname."_pginfo").$where.$order.$limit;
+		} else {
+			$query = 'SELECT `editedtime`, `name` FROM '.$this->xpwiki->db->prefix($this->root->mydirname."_pginfo").$where.$order.$limit;
+		}
 		$res = $this->xpwiki->db->query($query);
 		if ($res)
 		{
-			while($data = mysql_fetch_row($res))
-			{
-				$aryret[$this->encode($data[1]).'.txt'] = ($withtime)? $data[0]."\t".$data[1] : $data[1];
+			if ($select) {
+				while($data = mysql_fetch_assoc($res)) {
+					$aryret[$data['name']] = $data;
+				}
+			} else {
+				while($data = mysql_fetch_row($res)) {
+					$aryret[$this->encode($data[1]).'.txt'] = ($withtime)? $data[0]."\t".$data[1] : $data[1];
+				}
 			}
 		}
 		if (!$nocheck && !$base && !$limit && !$order && !$nolisting && !$nochiled && $nodelete && !$withtime) $_aryret[$this->xpwiki->pid] = $aryret;
@@ -987,7 +1018,7 @@ EOD;
 		// pgid
 		$id = $this->get_pgid_by_name($page);
 		
-		foreach (array('uid', 'ucd', 'uname', 'einherit', 'vinherit', 'lastuid', 'lastucd', 'lastuname') as $key) {
+		foreach (array('uid', 'ucd', 'uname', 'einherit', 'vinherit', 'lastuid', 'lastucd', 'lastuname', 'reading') as $key) {
 			$$key = addslashes($pginfo[$key]);
 		}
 		foreach (array('eaids', 'egids', 'vaids', 'vgids') as $key) {
@@ -996,6 +1027,13 @@ EOD;
 			} else {
 				$$key = '&'.$pginfo[$key].'&';
 			}
+		}
+		
+		// ページ名読み整形
+		// 英数字は半角,カタカナは全角,ひらがなはカタカナに
+		if (function_exists("mb_convert_kana"))
+		{
+			$reading = mb_convert_kana($reading,'aKVC');
 		}
 		
 		//最初の見出し行取得
@@ -1026,14 +1064,15 @@ EOD;
 						"`lastuid`='$lastuid' ," .
 						"`lastucd`='$lastucd' ," .
 						"`lastuname`='$lastuname' ," .
-						"`update`='0'";
+						"`update`='0' ," .
+						"`reading`='$reading'";
 				$query = "UPDATE ".$this->xpwiki->db->prefix($this->root->mydirname."_pginfo")." SET $value WHERE pgid = '$id' LIMIT 1";
 			}
 			else
 			{
 				$query = "INSERT INTO ".$this->xpwiki->db->prefix($this->root->mydirname."_pginfo").
-						" (`name`,`title`,`buildtime`,`editedtime`,`uid`,`ucd`,`uname`,`freeze`,`einherit`,`eaids`,`egids`,`vinherit`,`vaids`,`vgids`,`lastuid`,`lastucd`,`lastuname`,`update`)" .
-						" values('$s_name','$title','$buildtime','$editedtime','$uid','$ucd','$uname','$freeze','$einherit','$eaids','$egids','$vinherit','$vaids','$vgids','$lastuid','$lastucd','$lastuname','0')";
+						" (`name`,`title`,`buildtime`,`editedtime`,`uid`,`ucd`,`uname`,`freeze`,`einherit`,`eaids`,`egids`,`vinherit`,`vaids`,`vgids`,`lastuid`,`lastucd`,`lastuname`,`update`,`reading`)" .
+						" values('$s_name','$title','$buildtime','$editedtime','$uid','$ucd','$uname','$freeze','$einherit','$eaids','$egids','$vinherit','$vaids','$vgids','$lastuid','$lastucd','$lastuname','0','$reading')";
 			}
 
 			$result = $this->xpwiki->db->query($query);
@@ -1055,6 +1094,7 @@ EOD;
 					"`lastuid`='$lastuid' ," .
 					"`lastucd`='$lastucd' ," .
 					"`lastuname`='$lastuname'";
+			if ($reading) $value .= " ,`reading`='$reading'";
 			$query = "UPDATE ".$this->xpwiki->db->prefix($this->root->mydirname."_pginfo")." SET $value WHERE pgid = '$id' LIMIT 1";
 			$result = $this->xpwiki->db->query($query);
 			$this->need_update_plaindb($page,"update");
@@ -1541,11 +1581,126 @@ EOD;
 		}
 	}
 	
-	// 
 	// 'Search' main function (DB版)
 	function do_search($word, $type = 'AND', $non_format = FALSE, $base = '', $db = FALSE, $limit = 0, $offset = 0 , $userid = 0)
 	{
 		if (!$db) return parent::do_search($word, $type, $non_format, $base);
+	}
+
+	// ページ読みを取得
+	function get_page_reading ($page) {
+		// 無効になっている
+		if (! $this->root->pagereading_enable) return '';
+		
+		$reading = '';
+		$pgid = $this->get_pgid_by_name($page);
+		
+		if ($pgid) {
+			$query = 'SELECT `reading` FROM `'.$this->xpwiki->db->prefix($this->root->mydirname."_pginfo").'` WHERE `pgid` = \''.$pgid.'\' LIMIT 1';		
+			$result = $this->xpwiki->db->query($query);
+	
+			if ($result)
+			{
+				list($reading) = mysql_fetch_row($result);
+			}
+		}
+		
+		if ($reading) return $reading;
+				
+		// Execute ChaSen/KAKASI, and get annotation
+		switch(strtolower($this->root->pagereading_kanji2kana_converter)) {
+		case 'chasen':
+			if(! file_exists($this->root->pagereading_chasen_path))
+				$this->die_message('ChaSen not found: ' . $this->root->pagereading_chasen_path);
+
+			$tmpfname = tempnam(realpath($this->cont['CACHE_DIR']), 'PageReading');
+			$fp = fopen($tmpfname, 'w') or
+				$this->die_message('Cannot write temporary file "' . $tmpfname . '".' . "\n");
+			fputs($fp, mb_convert_encoding($page . "\n",
+					$this->root->pagereading_kanji2kana_encoding, $this->cont['SOURCE_ENCODING']));
+			fclose($fp);
+
+			$chasen = "{$this->root->pagereading_chasen_path} -F %y $tmpfname";
+			$fp     = popen($chasen, 'r');
+			if($fp === FALSE) {
+				unlink($tmpfname);
+				$this->die_message('ChaSen execution failed: ' . $chasen);
+			}
+			$line = fgets($fp);
+			$line = mb_convert_encoding($line, $this->cont['SOURCE_ENCODING'],
+				$this->root->pagereading_kanji2kana_encoding);
+			$line = chop($line);
+			$reading = $line;
+			pclose($fp);
+
+			unlink($tmpfname) or
+				$this->die_message('Temporary file can not be removed: ' . $tmpfname);
+			break;
+
+		case 'kakasi':	/*FALLTHROUGH*/
+		case 'kakashi':
+			if(! file_exists($this->root->pagereading_kakasi_path))
+				$this->die_message('KAKASI not found: ' . $this->root->pagereading_kakasi_path);
+
+			$tmpfname = tempnam(realpath($this->cont['CACHE_DIR']), 'PageReading');
+			$fp       = fopen($tmpfname, 'w') or
+				$this->die_message('Cannot write temporary file "' . $tmpfname . '".' . "\n");
+			fputs($fp, mb_convert_encoding($page . "\n",
+				$this->root->pagereading_kanji2kana_encoding, $this->cont['SOURCE_ENCODING']));
+			fclose($fp);
+
+			$kakasi = "{$this->root->pagereading_kakasi_path} -kK -HK -JK < $tmpfname";
+			$fp     = popen($kakasi, 'r');
+			if($fp === FALSE) {
+				unlink($tmpfname);
+				$this->die_message('KAKASI execution failed: ' . $kakasi);
+			}
+
+			$line = fgets($fp);
+			$line = mb_convert_encoding($line, $this->cont['SOURCE_ENCODING'],
+				$this->root->pagereading_kanji2kana_encoding);
+			$line = chop($line);
+			$reading = $line;
+			pclose($fp);
+
+			unlink($tmpfname) or
+				$this->die_message('Temporary file can not be removed: ' . $tmpfname);
+			break;
+
+		case 'none':
+			$patterns = $replacements = $matches = array();
+			foreach ($this->get_source($this->root->pagereading_config_dict) as $line) {
+				$line = chop($line);
+				if(preg_match('|^ /([^/]+)/,\s*(.+)$|', $line, $matches)) {
+					$patterns[]     = $matches[1];
+					$replacements[] = $matches[2];
+				}
+			}
+			$reading = $page;
+			foreach ($patterns as $no => $pattern)
+				$reading = mb_convert_kana(mb_ereg_replace($pattern,
+					$replacements[$no], $reading), 'aKCV');
+			break;
+
+		default:
+			$this->die_message('Unknown kanji-kana converter: ' . $this->root->pagereading_kanji2kana_converter . '.');
+			break;
+		}
+
+		$page_r = array();
+		foreach(explode('/', $reading) as $_reading) {
+			$page_r[] = mb_substr($_reading, 0, 1);
+		}
+		$reading = join('/', $page_r);
+		
+		// DBに保存
+		if ($pgid) {
+			$value = "`reading` = '".addslashes($reading)."'";
+			$query = "UPDATE ".$this->xpwiki->db->prefix($this->root->mydirname."_pginfo")." SET $value WHERE `pgid`='$pgid'";
+			$result = $this->xpwiki->db->queryF($query);
+		}
+		
+		return $reading;
 	}
 
 }
