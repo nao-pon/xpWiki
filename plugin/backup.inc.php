@@ -4,7 +4,7 @@ class xpwiki_plugin_backup extends xpwiki_plugin {
 
 
 	// PukiWiki - Yet another WikiWikiWeb clone.
-	// $Id: backup.inc.php,v 1.1 2006/10/13 13:17:49 nao-pon Exp $
+	// $Id: backup.inc.php,v 1.2 2006/11/29 13:09:05 nao-pon Exp $
 	// Copyright (C)
 	//   2002-2005 PukiWiki Developers Team
 	//   2001-2002 Originally written by yu-ji
@@ -240,10 +240,11 @@ EOD;
 	// List for all pages
 	function plugin_backup_get_list_all($withfilename = FALSE)
 	{
-	//	global $cantedit;
-	
-		$pages = array_diff($this->func->get_existpages($this->cont['BACKUP_DIR'], $this->cont['BACKUP_EXT']), $this->root->cantedit);
-	
+		// 閲覧権限のないページを省く
+		$pages = array_intersect($this->func->get_existpages($this->cont['BACKUP_DIR'], $this->cont['BACKUP_EXT']), $this->func->get_existpages(FALSE, "", 0, "", FALSE, FALSE, FALSE));
+		
+		$pages = array_diff($pages, $this->root->cantedit);
+
 		if (empty($pages)) {
 			return '';
 		} else {
