@@ -1,7 +1,7 @@
 <?php
 //
 // Created on 2006/10/02 by nao-pon http://hypweb.net/
-// $Id: pukiwiki_func.php,v 1.28 2006/11/28 12:45:53 nao-pon Exp $
+// $Id: pukiwiki_func.php,v 1.29 2006/11/29 13:09:47 nao-pon Exp $
 //
 class XpWikiPukiWikiFunc extends XpWikiBaseFunc {
 
@@ -95,6 +95,10 @@ class XpWikiPukiWikiFunc extends XpWikiBaseFunc {
 			$pginfo['lastuname'] = $this->root->cookie['name'];
 			$pginfo_str = '#pginfo('.join("\t",$pginfo).')'."\n";
 			$postdata = $pginfo_str.preg_replace($this->cont['PKWK_PGINFO_REGEX'], '', $postdata);
+			// ページ頭文字読み
+			if (!empty($this->root->vars['reading'])) {
+				$pginfo['reading'] = $this->root->vars['reading'];
+			}
 		}
 		
 		// Create and write diff
@@ -893,7 +897,7 @@ class XpWikiPukiWikiFunc extends XpWikiBaseFunc {
 
 //----- Start convert_html.php -----//
 	// PukiWiki - Yet another WikiWikiWeb clone
-	// $Id: pukiwiki_func.php,v 1.28 2006/11/28 12:45:53 nao-pon Exp $
+	// $Id: pukiwiki_func.php,v 1.29 2006/11/29 13:09:47 nao-pon Exp $
 	// Copyright (C)
 	//   2002-2005 PukiWiki Developers Team
 	//   2001-2002 Originally written by yu-ji
@@ -1006,7 +1010,7 @@ class XpWikiPukiWikiFunc extends XpWikiBaseFunc {
 
 //----- Start func.php -----//
 	// PukiWiki - Yet another WikiWikiWeb clone.
-	// $Id: pukiwiki_func.php,v 1.28 2006/11/28 12:45:53 nao-pon Exp $
+	// $Id: pukiwiki_func.php,v 1.29 2006/11/29 13:09:47 nao-pon Exp $
 	// Copyright (C)
 	//   2002-2006 PukiWiki Developers Team
 	//   2001-2002 Originally written by yu-ji
@@ -1348,8 +1352,8 @@ class XpWikiPukiWikiFunc extends XpWikiBaseFunc {
 	
 		if($this->root->pagereading_enable) {
 			mb_regex_encoding($this->cont['SOURCE_ENCODING']);
-			$readings = $this->get_readings($pages);
 		}
+		list($readings, $titles) = $this->get_readings($pages);
 	
 		$list = $matches = array();
 	
@@ -1364,9 +1368,10 @@ class XpWikiPukiWikiFunc extends XpWikiBaseFunc {
 			$r_page  = rawurlencode($page);
 			$s_page  = htmlspecialchars($page, ENT_QUOTES);
 			$passage = $this->get_pg_passage($page);
+			$title = (empty($titles[$page]))? '' : ' [ ' . htmlspecialchars($titles[$page]) . ' ]';
 	
 			$str = '   <li><a href="' . $href . $r_page . '">' .
-				$s_page . '</a>' . $passage;
+				$s_page . '</a>' . $passage . $title;
 	
 			if ($withfilename) {
 				$s_file = htmlspecialchars($file);
@@ -1408,8 +1413,8 @@ class XpWikiPukiWikiFunc extends XpWikiBaseFunc {
 			if ($this->root->list_index) {
 				++$cnt;
 				$arr_index[] = '<a id="top_' . $cnt .
-					'" href="#head_' . $cnt . '"><strong>' .
-					$head . '</strong></a>';
+					'" href="#head_' . $cnt . '">&nbsp;<strong>' .
+					$head . '</strong>&nbsp;</a>';
 				$retval .= ' <li><a id="head_' . $cnt . '" href="#top_' . $cnt .
 					'"><strong>' . $head . '</strong></a>' . "\n" .
 					'  <ul>' . "\n";
@@ -1423,7 +1428,7 @@ class XpWikiPukiWikiFunc extends XpWikiBaseFunc {
 		if ($this->root->list_index && $cnt > 0) {
 			$top = array();
 			while (! empty($arr_index))
-				$top[] = join(' | ' . "\n", array_splice($arr_index, 0, 16)) . "\n";
+				$top[] = join('|', array_splice($arr_index, 0, 16)) . "\n";
 	
 			$retval = '<div id="top" style="text-align:center">' . "\n" .
 				join('<br />', $top) . '</div>' . "\n" . $retval;
@@ -1787,7 +1792,7 @@ EOD;
 
 //----- Start make_link.php -----//
 	// PukiWiki - Yet another WikiWikiWeb clone.
-	// $Id: pukiwiki_func.php,v 1.28 2006/11/28 12:45:53 nao-pon Exp $
+	// $Id: pukiwiki_func.php,v 1.29 2006/11/29 13:09:47 nao-pon Exp $
 	// Copyright (C)
 	//   2003-2005 PukiWiki Developers Team
 	//   2001-2002 Originally written by yu-ji
@@ -2590,7 +2595,7 @@ EOD;
 
 //----- Start html.php -----//
 	// PukiWiki - Yet another WikiWikiWeb clone.
-	// $Id: pukiwiki_func.php,v 1.28 2006/11/28 12:45:53 nao-pon Exp $
+	// $Id: pukiwiki_func.php,v 1.29 2006/11/29 13:09:47 nao-pon Exp $
 	// Copyright (C)
 	//   2002-2006 PukiWiki Developers Team
 	//   2001-2002 Originally written by yu-ji
@@ -2790,6 +2795,18 @@ EOD;
 				$refer = '[[' . $this->strip_bracket($this->root->vars['refer']) . ']]' . "\n\n";
 		}
 		
+		// ページ読み
+		if ($this->root->rtf['preview']) {
+			$reading_str = $this->root->vars['reading'];
+		} else {
+			$reading_str = htmlspecialchars($this->get_page_reading($page));
+		}
+		if ($this->root->pagereading_enable) {
+			$reading = $this->root->_btn_reading . ': <input type="text" name="reading" size="15" value="'.$reading_str.'" /><br />';
+		} else  {
+			$reading = '<input type="hidden" name="reading" size="15" value="'.$reading_str.'" />';
+		}
+		
 		// 添付ファイルリスト
 		$attaches = '';
 		if ($this->root->show_attachlist_editform && $this->is_page($page)) {
@@ -2832,6 +2849,7 @@ EOD;
 	 <form action="{$this->root->script}" method="post" style="margin-bottom:0px;">
 	$template
 	  $addtag
+	  $reading
 	  <input type="hidden" name="cmd"    value="edit" />
 	  <input type="hidden" name="page"   value="$s_page" />
 	  <input type="hidden" name="digest" value="$s_digest" />
@@ -3128,7 +3146,7 @@ EOD;
 
 //----- Start mail.php -----//
 	// PukiWiki - Yet another WikiWikiWeb clone.
-	// $Id: pukiwiki_func.php,v 1.28 2006/11/28 12:45:53 nao-pon Exp $
+	// $Id: pukiwiki_func.php,v 1.29 2006/11/29 13:09:47 nao-pon Exp $
 	// Copyright (C)
 	//   2003-2005 PukiWiki Developers Team
 	//   2003      Originally written by upk
@@ -3435,7 +3453,7 @@ EOD;
 
 //----- Start link.php -----//
 	// PukiWiki - Yet another WikiWikiWeb clone
-	// $Id: pukiwiki_func.php,v 1.28 2006/11/28 12:45:53 nao-pon Exp $
+	// $Id: pukiwiki_func.php,v 1.29 2006/11/29 13:09:47 nao-pon Exp $
 	// Copyright (C) 2003-2006 PukiWiki Developers Team
 	// License: GPL v2 or (at your option) any later version
 	//

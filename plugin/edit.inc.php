@@ -4,7 +4,7 @@ class xpwiki_plugin_edit extends xpwiki_plugin {
 
 
 	// PukiWiki - Yet another WikiWikiWeb clone.
-	// $Id: edit.inc.php,v 1.13 2006/11/28 12:47:31 nao-pon Exp $
+	// $Id: edit.inc.php,v 1.14 2006/11/29 13:09:47 nao-pon Exp $
 	// Copyright (C) 2001-2006 PukiWiki Developers Team
 	// License: GPL v2 or (at your option) any later version
 	//
@@ -80,9 +80,9 @@ class xpwiki_plugin_edit extends xpwiki_plugin {
 		if ($postdata == '')
 			$body .= '<strong>' . $this->root->_msg_preview_delete . '</strong>';
 		$body .= '<br />' . "\n";
-	
+		
+		$this->root->rtf['preview'] = TRUE;
 		if ($postdata) {
-			$this->root->rtf['preview'] = TRUE;
 			$postdata = $this->func->make_str_rules($postdata);
 			$postdata = explode("\n", $postdata);
 			$postdata = $this->func->drop_submit($this->func->convert_html($postdata));
@@ -289,14 +289,6 @@ class xpwiki_plugin_edit extends xpwiki_plugin {
 			return $retvars;
 		}
 
-		// ページ情報
-		//$pginfo = $this->func->get_pginfo($page);
-		//$pginfo['lastuid'] = $this->root->userinfo['uid'];
-		//$pginfo['lastucd'] = $this->root->userinfo['ucd'];
-		//$pginfo['lastuname'] = $this->root->cookie['name'];
-		//$pginfo_str = '#pginfo('.join("\t",$pginfo).')'."\n";
-	
-		//$this->func->page_write($page, $pginfo_str.$postdata, $this->root->notimeupdate != 0 && $notimestamp);
 		$this->func->page_write($page, $postdata, $this->root->notimeupdate != 0 && $notimestamp);
 		$this->func->pkwk_headers_sent();
 		header('Location: ' . $this->func->get_script_uri() . '?' . rawurlencode($page) . $hash);

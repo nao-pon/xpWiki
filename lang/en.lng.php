@@ -1,6 +1,6 @@
 <?php
 // PukiWiki - Yet another WikiWikiWeb clone.
-// $Id: en.lng.php,v 1.5 2006/11/24 13:47:07 nao-pon Exp $
+// $Id: en.lng.php,v 1.6 2006/11/29 13:09:47 nao-pon Exp $
 // Copyright (C)
 //   2002-2005 PukiWiki Developers Team
 //   2001-2002 Originally written by yu-ji
@@ -73,6 +73,7 @@ $root->_btn_template  = 'Use page as template';
 $root->_btn_load      = 'Load';
 $root->_btn_edit      = 'Edit';
 $root->_btn_delete    = 'Delete';
+$root->_btn_reading   = 'Reading of a page initial';
 
 ///////////////////////////////////////
 // Authentication

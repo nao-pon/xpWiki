@@ -24,9 +24,11 @@ function xpwiki_onupdate_base( $module , $mydirname )
 	$mid = $module->getVar('mid') ;
 
 	// TABLES (write here ALTER TABLE etc. if necessary)
+	$query = "ALTER TABLE `".$db->prefix($mydirname."_pginfo")."` ADD `reading` VARCHAR( 255 ) BINARY NOT NULL";
+	$db->query($query);
 	
 	// DB Check for db non support version
-	$query = "SELECT * FROM ".$db->prefix($mydirname."_pginfo")." LIMIT 1;";
+	$query = "SELECT * FROM ".$db->prefix($mydirname."_pginfo")." LIMIT 1";
 	if(! $result=$db->query($query)) {
 		// TABLES (loading mysql.sql)
 		$sql_file_path = dirname(__FILE__).'/sql/mysql.sql' ;
