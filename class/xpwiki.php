@@ -1,7 +1,7 @@
 <?php
 //
 // Created on 2006/09/29 by nao-pon http://hypweb.net/
-// $Id: xpwiki.php,v 1.17 2006/11/28 07:27:35 nao-pon Exp $
+// $Id: xpwiki.php,v 1.18 2006/11/29 13:07:56 nao-pon Exp $
 //
 
 class XpWiki {
@@ -134,6 +134,9 @@ class XpWiki {
 
 
 			// Output
+			if (!empty($this->root->content_title) && $title !== $this->root->content_title)
+				$title .= ' ['.$this->func->unhtmlspecialchars($this->root->content_title, ENT_QUOTES).']';
+
 			$this->title         = $title . ' - ' . $this->root->page_title;
 			$this->page_name     = $page;
 			$this->body          = $body;
@@ -142,7 +145,6 @@ class XpWiki {
 			$this->head_tags     = $root->head_tags;
 			$this->related       = $root->related;
 			$this->notyets       = $root->notyets;
-
 		}
 	}
 	
