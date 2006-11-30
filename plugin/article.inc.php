@@ -3,7 +3,7 @@ class xpwiki_plugin_article extends xpwiki_plugin {
 	function plugin_article_init () {
 
 
-	// $Id: article.inc.php,v 1.3 2006/10/30 13:59:31 nao-pon Exp $
+	// $Id: article.inc.php,v 1.4 2006/11/30 11:59:00 nao-pon Exp $
 	// Copyright (C)
 	//   2002-2005 PukiWiki Developers Team
 	//   2002      Originally written by OKAWARA,Satoshi <kawara@dml.co.jp>
@@ -71,7 +71,7 @@ class xpwiki_plugin_article extends xpwiki_plugin {
 		if ($this->cont['PLUGIN_ARTICLE_AUTO_BR']) {
 			//改行の取り扱いはけっこう厄介。特にURLが絡んだときは…
 			//コメント行、整形済み行には~をつけないように arino
-			$msg = join("\n", preg_replace('/^(?!\/\/)(?!\s)(.*)$/', '$1~', explode("\n", $msg)));
+			$msg = join("\n", preg_replace('/^(?!\/\/|\s|\*)(.*)$/', '$1~', explode("\n", $msg)));
 		}
 		$article .= $msg . "\n\n" . '//';
 	
