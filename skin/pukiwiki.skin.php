@@ -1,6 +1,6 @@
 <?php
 // PukiWiki - Yet another WikiWikiWeb clone.
-// $Id: pukiwiki.skin.php,v 1.10 2006/11/14 01:36:38 nao-pon Exp $
+// $Id: pukiwiki.skin.php,v 1.11 2006/11/30 11:59:57 nao-pon Exp $
 // Copyright (C)
 //   2002-2006 PukiWiki Developers Team
 //   2001-2002 Originally written by yu-ji
@@ -277,7 +277,7 @@ function _toolbar($this, $key, $x = 20, $y = 20){
 <?php } // PKWK_SKIN_SHOW_TOOLBAR ?>
 
 <?php if ($lastmodified != '') { ?>
-<div id="lastmodified">Last-modified: <?php echo $lastmodified ?></div>
+<div id="lastmodified">Last-modified: <?php echo $lastmodified ?> by <?php echo $pginfo['lastuname'] ?></div>
 <?php } ?>
 
 <?php if ($related != '') { ?>
@@ -285,6 +285,7 @@ function _toolbar($this, $key, $x = 20, $y = 20){
 <?php } ?>
 
 <div id="footer">
+ <p>Page owner: <?php echo $pginfo['uname'] ?></p>
  <p>Site admin: <a href="<?php echo $this->root->modifierlink ?>"><?php echo $this->root->modifier ?></a></p>
  <?php echo $this->cont['S_COPYRIGHT'] ?>.
  Powered by PHP <?php echo PHP_VERSION ?>. HTML convert time: <?php echo $taketime ?> sec.

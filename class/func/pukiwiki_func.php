@@ -1,7 +1,7 @@
 <?php
 //
 // Created on 2006/10/02 by nao-pon http://hypweb.net/
-// $Id: pukiwiki_func.php,v 1.29 2006/11/29 13:09:47 nao-pon Exp $
+// $Id: pukiwiki_func.php,v 1.30 2006/11/30 11:59:56 nao-pon Exp $
 //
 class XpWikiPukiWikiFunc extends XpWikiBaseFunc {
 
@@ -897,7 +897,7 @@ class XpWikiPukiWikiFunc extends XpWikiBaseFunc {
 
 //----- Start convert_html.php -----//
 	// PukiWiki - Yet another WikiWikiWeb clone
-	// $Id: pukiwiki_func.php,v 1.29 2006/11/29 13:09:47 nao-pon Exp $
+	// $Id: pukiwiki_func.php,v 1.30 2006/11/30 11:59:56 nao-pon Exp $
 	// Copyright (C)
 	//   2002-2005 PukiWiki Developers Team
 	//   2001-2002 Originally written by yu-ji
@@ -1010,7 +1010,7 @@ class XpWikiPukiWikiFunc extends XpWikiBaseFunc {
 
 //----- Start func.php -----//
 	// PukiWiki - Yet another WikiWikiWeb clone.
-	// $Id: pukiwiki_func.php,v 1.29 2006/11/29 13:09:47 nao-pon Exp $
+	// $Id: pukiwiki_func.php,v 1.30 2006/11/30 11:59:56 nao-pon Exp $
 	// Copyright (C)
 	//   2002-2006 PukiWiki Developers Team
 	//   2001-2002 Originally written by yu-ji
@@ -1792,7 +1792,7 @@ EOD;
 
 //----- Start make_link.php -----//
 	// PukiWiki - Yet another WikiWikiWeb clone.
-	// $Id: pukiwiki_func.php,v 1.29 2006/11/29 13:09:47 nao-pon Exp $
+	// $Id: pukiwiki_func.php,v 1.30 2006/11/30 11:59:56 nao-pon Exp $
 	// Copyright (C)
 	//   2003-2005 PukiWiki Developers Team
 	//   2001-2002 Originally written by yu-ji
@@ -2595,7 +2595,7 @@ EOD;
 
 //----- Start html.php -----//
 	// PukiWiki - Yet another WikiWikiWeb clone.
-	// $Id: pukiwiki_func.php,v 1.29 2006/11/29 13:09:47 nao-pon Exp $
+	// $Id: pukiwiki_func.php,v 1.30 2006/11/30 11:59:56 nao-pon Exp $
 	// Copyright (C)
 	//   2002-2006 PukiWiki Developers Team
 	//   2001-2002 Originally written by yu-ji
@@ -2617,6 +2617,9 @@ EOD;
 	
 		$_page  = isset($this->root->vars['page']) ? $this->root->vars['page'] : '';
 		$r_page = rawurlencode($_page);
+		
+		// Page infomation
+		$pginfo = $this->get_pginfo($_page);
 	
 		// Set $_LINK for skin
 		$_LINK['add']      = "{$this->root->script}?cmd=add&amp;page=$r_page#header";
@@ -3146,7 +3149,7 @@ EOD;
 
 //----- Start mail.php -----//
 	// PukiWiki - Yet another WikiWikiWeb clone.
-	// $Id: pukiwiki_func.php,v 1.29 2006/11/29 13:09:47 nao-pon Exp $
+	// $Id: pukiwiki_func.php,v 1.30 2006/11/30 11:59:56 nao-pon Exp $
 	// Copyright (C)
 	//   2003-2005 PukiWiki Developers Team
 	//   2003      Originally written by upk
@@ -3453,7 +3456,7 @@ EOD;
 
 //----- Start link.php -----//
 	// PukiWiki - Yet another WikiWikiWeb clone
-	// $Id: pukiwiki_func.php,v 1.29 2006/11/29 13:09:47 nao-pon Exp $
+	// $Id: pukiwiki_func.php,v 1.30 2006/11/30 11:59:56 nao-pon Exp $
 	// Copyright (C) 2003-2006 PukiWiki Developers Team
 	// License: GPL v2 or (at your option) any later version
 	//
