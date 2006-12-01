@@ -1,7 +1,7 @@
 <?php
 //
 // Created on 2006/10/29 by nao-pon http://hypweb.net/
-// $Id: whatsnew.php,v 1.4 2006/11/28 00:14:56 nao-pon Exp $
+// $Id: whatsnew.php,v 1.5 2006/12/01 01:44:38 nao-pon Exp $
 //
 
 class XpWikiExtension_whatsnew extends XpWikiExtension {
@@ -20,7 +20,7 @@ class XpWikiExtension_whatsnew extends XpWikiExtension {
 		$recent_dat  = $this->cont['PKWK_MAXSHOW_CACHE'];
 		//$recent_line = @file($this->cont['CACHE_DIR'] . $recent_dat);
 		//$recent_arr  = array_slice($recent_line, 0, $limit);
-		$recent_arr = $this->func->get_existpages(FALSE,'',$limit," ORDER BY editedtime DESC",TRUE,FALSE,TRUE,TRUE);
+		$recent_arr = $this->func->get_existpages(FALSE, '', array('limit' => $limit, 'order' => ' ORDER BY editedtime DESC', 'nolisting' => TRUE, 'withtime' =>TRUE));
 		
 		foreach($recent_arr as $line) {
 			list($time, $base) = explode("\t", trim($line));
