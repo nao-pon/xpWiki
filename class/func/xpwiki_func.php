@@ -1,7 +1,7 @@
 <?php
 //
 // Created on 2006/10/02 by nao-pon http://hypweb.net/
-// $Id: xpwiki_func.php,v 1.30 2006/12/01 09:07:43 nao-pon Exp $
+// $Id: xpwiki_func.php,v 1.31 2006/12/01 14:37:43 nao-pon Exp $
 //
 class XpWikiFunc extends XpWikiXoopsWrapper {
 
@@ -886,7 +886,7 @@ EOD;
 	// ページ頭文字読みの配列を取得
 	function get_readings() {
 		$readings = array();
-		$pages = $this->get_existpages(false, "", 0, "", false, false, true, array('reading', 'title'));
+		$pages = $this->get_existpages(false, "", array('withtime' => array('reading', 'title')));
 		foreach ($pages as $page=>$dat) {
 			if (empty($dat['reading'])) {
 				$dat['reading'] = $this->get_page_reading($page);
