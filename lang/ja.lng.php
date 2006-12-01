@@ -1,6 +1,6 @@
 <?php
 // PukiWiki - Yet another WikiWikiWeb clone.
-// $Id: ja.lng.php,v 1.6 2006/12/01 09:07:43 nao-pon Exp $
+// $Id: ja.lng.php,v 1.7 2006/12/01 14:41:08 nao-pon Exp $
 // Copyright (C)
 //   2002-2005 PukiWiki Developers Team
 //   2001-2002 Originally written by yu-ji
@@ -14,7 +14,7 @@
 // Encoding hint
 $root->_LANG['encode_hint']['ja'] = 'ぷ';
 
-// なぞなぞ認証
+// Q & A 認証
 $root->riddles = array(
 //	'問題' => '答え',
 	'「東京」の読みがな？(ひらがなで)' => 'とうきょう',
@@ -35,7 +35,7 @@ $root->_title_deleted    = '$1 を削除しました';
 $root->_title_help       = 'ヘルプ';
 $root->_title_invalidwn  = '有効なWikiNameではありません';
 $root->_title_backuplist = 'バックアップ一覧';
-$root->_title_ng_riddle  = 'なぞなぞ認証に失敗しました<br />$1 をプレビューします';
+$root->_title_ng_riddle  = 'Q & A 認証に失敗しました<br />$1 をプレビューします';
 
 ///////////////////////////////////////
 // Messages
@@ -87,7 +87,7 @@ $root->_btn_load      = '読込';
 $root->_btn_edit      = '編集';
 $root->_btn_delete    = '削除';
 $root->_btn_reading   = 'ページ頭文字読み';
-$root->_btn_riddle    = '<strong>なぞなぞ認証</strong>: ページ更新時は「なぞなぞ」にお答えください。(プレビュー時は必要ありません)';
+$root->_btn_riddle    = '<strong>Q & A 認証</strong>: ページ更新時は次の質問にお答えください。(プレビュー時は必要ありません)';
 
 ///////////////////////////////////////
 // Authentication
