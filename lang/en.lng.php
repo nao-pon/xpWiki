@@ -1,6 +1,6 @@
 <?php
 // PukiWiki - Yet another WikiWikiWeb clone.
-// $Id: en.lng.php,v 1.7 2006/12/01 09:07:43 nao-pon Exp $
+// $Id: en.lng.php,v 1.8 2006/12/01 14:41:08 nao-pon Exp $
 // Copyright (C)
 //   2002-2005 PukiWiki Developers Team
 //   2001-2002 Originally written by yu-ji
@@ -13,7 +13,7 @@
 // Encoding hint
 $root->_LANG['encode_hint']['en'] = '';
 
-// Riddle Verification
+// Q & A Verification
 $root->riddles = array(
 //	'Question' => 'Answer',
 	'a, b, c and next is?' => 'd',
@@ -34,7 +34,7 @@ $root->_title_deleted    = ' $1 was deleted';
 $root->_title_help       = 'Help';
 $root->_title_invalidwn  = 'It is not a valid WikiName';
 $root->_title_backuplist = 'Backup list';
-$root->_title_ng_riddle  = 'Failed in the riddle verification.<br />Preview of  $1';
+$root->_title_ng_riddle  = 'Failed in the Q & A verification.<br />Preview of  $1';
 
 ///////////////////////////////////////
 // Messages
@@ -85,7 +85,7 @@ $root->_btn_load      = 'Load';
 $root->_btn_edit      = 'Edit';
 $root->_btn_delete    = 'Delete';
 $root->_btn_reading   = 'Reading of a page initial';
-$root->_btn_riddle    = '<strong>Riddle Verification</strong>: Please answer "a riddle" before page update. (needless at preview)';
+$root->_btn_riddle    = '<strong>Q & A Verification</strong>: Please answer next a question before page update. (needless at preview)';
 
 ///////////////////////////////////////
 // Authentication
