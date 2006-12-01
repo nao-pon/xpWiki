@@ -47,6 +47,7 @@ CREATE TABLE `pginfo` (
   `lastucd` varchar(12) NOT NULL default '',
   `lastuname` varchar(255) NOT NULL default '',
   `update` tinyint(1) NOT NULL default '0',
+  `reading` varchar(255) binary NOT NULL default '',
   PRIMARY KEY  (`pgid`),
   UNIQUE KEY `name` (`name`),
   KEY `uid` (`uid`)
