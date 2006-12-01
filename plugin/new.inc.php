@@ -5,7 +5,7 @@ class xpwiki_plugin_new extends xpwiki_plugin {
 	{
 
 	// PukiWiki - Yet another WikiWikiWeb clone.
-	// $Id: new.inc.php,v 1.2 2006/11/28 00:17:56 nao-pon Exp $
+	// $Id: new.inc.php,v 1.3 2006/12/01 01:44:38 nao-pon Exp $
 	//
 	// New! plugin
 	//
@@ -62,7 +62,7 @@ class xpwiki_plugin_new extends xpwiki_plugin {
 				//		$retval    = $nolink ? '' : $this->func->make_pagelink($page);
 				//	}
 				//}
-				$_page = $this->func->get_existpages(FALSE, $page, 1, $order=" ORDER BY `editedtime` DESC", false, false, true, TRUE);
+				$_page = $this->func->get_existpages(FALSE, $page, array('limit' => 1, 'order' => ' ORDER BY `editedtime` DESC', 'withtime' => TRUE));
 				if ($_page) {
 					list($timestamp, ) = explode("\t", array_shift($_page));
 					$retval    = $nolink ? '' : $this->func->make_pagelink(substr($page, 0, strlen($page) - 1));

@@ -6,7 +6,7 @@ class xpwiki_plugin_rss extends xpwiki_plugin {
 
 	}
 	// PukiWiki - Yet another WikiWikiWeb clone
-	// $Id: rss.inc.php,v 1.2 2006/11/28 00:17:56 nao-pon Exp $
+	// $Id: rss.inc.php,v 1.3 2006/12/01 01:44:38 nao-pon Exp $
 	//
 	// RSS plugin: Publishing RSS of RecentChanges
 	//
@@ -41,7 +41,7 @@ class xpwiki_plugin_rss extends xpwiki_plugin {
 	
 		// Creating <item>
 		$items = $rdf_li = '';
-		$lines = $this->func->get_existpages(FALSE, '', $this->root->rss_max," ORDER BY editedtime DESC",TRUE,FALSE,TRUE,TRUE);
+		$lines = $this->func->get_existpages(FALSE, '', array('limit' => $this->root->rss_max, 'order' => ' ORDER BY editedtime DESC', 'nolisting' => TRUE, 'withtime' =>TRUE));
 		
 		foreach ($lines as $line) {
 			list($time, $page) = explode("\t", rtrim($line));

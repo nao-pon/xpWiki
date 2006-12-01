@@ -1,7 +1,7 @@
 <?php
 //
 // Created on 2006/10/02 by nao-pon http://hypweb.net/
-// $Id: xpwiki_func.php,v 1.28 2006/11/29 13:09:47 nao-pon Exp $
+// $Id: xpwiki_func.php,v 1.29 2006/12/01 01:44:38 nao-pon Exp $
 //
 class XpWikiFunc extends XpWikiXoopsWrapper {
 
@@ -910,16 +910,27 @@ EOD;
 	}
 	
 	// 全ページ名を配列にDB版
-	function get_existpages($nocheck=false, $base="", $limit=0, $order="", $nolisting=false, $nochiled=false, $nodelete=true, $withtime=FALSE)
+	function get_existpages($nocheck=false, $base="", $options = array())
 	{
 		// File版を使用
 		if (is_string($nocheck) && $nocheck !== $this->cont['DATA_DIR']) {
 			return parent::get_existpages($nocheck,$base);
 		}
-
+		
 		static $_aryret = array();
-		if (isset($_aryret[$this->xpwiki->pid]) && !$nocheck && !$base && !$limit && !$order && !$nolisting && !$nochiled && $nodelete && !$withtime) return $_aryret[$this->xpwiki->pid];
-	
+		if (isset($_aryret[$this->xpwiki->pid]) && !$options) return $_aryret[$this->xpwiki->pid];
+		
+		$keys = array(
+			'limit'     => 0,
+			'order'     => '',
+			'nolisting' => FALSE,
+			'nochiled'  => FALSE,
+			'nodelete'  => TRUE,
+			'withtime'  => FALSE );
+		foreach ($keys as $key => $def) {
+			$$key = (isset($options[$key]))? $options[$key] : $def ;
+		}
+		
 		$aryret = array();
 		
 		if ($nocheck) {
