@@ -1,7 +1,7 @@
 <?php
 //
 // Created on 2006/10/02 by nao-pon http://hypweb.net/
-// $Id: pukiwiki_func.php,v 1.30 2006/11/30 11:59:56 nao-pon Exp $
+// $Id: pukiwiki_func.php,v 1.31 2006/12/01 09:07:43 nao-pon Exp $
 //
 class XpWikiPukiWikiFunc extends XpWikiBaseFunc {
 
@@ -897,7 +897,7 @@ class XpWikiPukiWikiFunc extends XpWikiBaseFunc {
 
 //----- Start convert_html.php -----//
 	// PukiWiki - Yet another WikiWikiWeb clone
-	// $Id: pukiwiki_func.php,v 1.30 2006/11/30 11:59:56 nao-pon Exp $
+	// $Id: pukiwiki_func.php,v 1.31 2006/12/01 09:07:43 nao-pon Exp $
 	// Copyright (C)
 	//   2002-2005 PukiWiki Developers Team
 	//   2001-2002 Originally written by yu-ji
@@ -1010,7 +1010,7 @@ class XpWikiPukiWikiFunc extends XpWikiBaseFunc {
 
 //----- Start func.php -----//
 	// PukiWiki - Yet another WikiWikiWeb clone.
-	// $Id: pukiwiki_func.php,v 1.30 2006/11/30 11:59:56 nao-pon Exp $
+	// $Id: pukiwiki_func.php,v 1.31 2006/12/01 09:07:43 nao-pon Exp $
 	// Copyright (C)
 	//   2002-2006 PukiWiki Developers Team
 	//   2001-2002 Originally written by yu-ji
@@ -1792,7 +1792,7 @@ EOD;
 
 //----- Start make_link.php -----//
 	// PukiWiki - Yet another WikiWikiWeb clone.
-	// $Id: pukiwiki_func.php,v 1.30 2006/11/30 11:59:56 nao-pon Exp $
+	// $Id: pukiwiki_func.php,v 1.31 2006/12/01 09:07:43 nao-pon Exp $
 	// Copyright (C)
 	//   2003-2005 PukiWiki Developers Team
 	//   2001-2002 Originally written by yu-ji
@@ -2595,7 +2595,7 @@ EOD;
 
 //----- Start html.php -----//
 	// PukiWiki - Yet another WikiWikiWeb clone.
-	// $Id: pukiwiki_func.php,v 1.30 2006/11/30 11:59:56 nao-pon Exp $
+	// $Id: pukiwiki_func.php,v 1.31 2006/12/01 09:07:43 nao-pon Exp $
 	// Copyright (C)
 	//   2002-2006 PukiWiki Developers Team
 	//   2001-2002 Originally written by yu-ji
@@ -2751,7 +2751,7 @@ EOD;
 	}
 	
 	// Show 'edit' form
-	function edit_form($page, $postdata, $digest = FALSE, $b_template = TRUE)
+	function edit_form($page, $postdata, $digest = FALSE, $b_template = TRUE, $options = array())
 	{
 		// #pginfo 削除
 		$postdata = preg_replace($this->cont['PKWK_PGINFO_REGEX'], '', $postdata);
@@ -2799,7 +2799,7 @@ EOD;
 		}
 		
 		// ページ読み
-		if ($this->root->rtf['preview']) {
+		if (!empty($this->root->rtf['preview'])) {
 			$reading_str = $this->root->vars['reading'];
 		} else {
 			$reading_str = htmlspecialchars($this->get_page_reading($page));
@@ -2816,6 +2816,15 @@ EOD;
 			$plugin = & $this->get_plugin_instance("attach");
 			$attaches = ($plugin) ? $plugin->attach_filelist() : '';
 			if ($attaches) $attaches = $this->root->hr . '<p>' . $attaches . '</p>';
+		}
+		
+		// なぞなぞ認証
+		$riddle = '';
+		if (isset($options['riddle'])) {
+			$riddle = '<p>' . $this->root->_btn_riddle . '<br />' .
+				'&nbsp;&nbsp;<strong>Q:</strong> ' . htmlspecialchars($options['riddle']) . '<br />' . 
+				'&nbsp;&nbsp;<strong>A:</strong> <input type="text" name="riddle'.md5($this->cont['HOME_URL'].$options['riddle']).'" size="30" value="" autocomplete="off" onChange="document.getElementById(\'edit_preview\').type=\'button\';document.getElementById(\'edit_preview\').disabled=true;" /><br />' .
+				'</p>';	
 		}
 	
 		$r_page      = rawurlencode($page);
@@ -2859,8 +2868,9 @@ EOD;
 	  <input type="hidden" name="paraid" value="$s_id" />
 	  <textarea name="msg" rel="wikihelper" rows="{$this->root->rows}" cols="{$this->root->cols}">$s_postdata</textarea>
 	  <br />
+	  $riddle
 	  <div style="float:left;">
-	   <input type="submit" name="preview" value="$btn_preview" accesskey="p" />
+	   <input type="submit" name="preview" value="$btn_preview" accesskey="p" id="edit_preview" />
 	   <input type="submit" name="write"   value="{$this->root->_btn_update}" accesskey="s" />
 	   $add_top
 	   $add_notimestamp
@@ -3149,7 +3159,7 @@ EOD;
 
 //----- Start mail.php -----//
 	// PukiWiki - Yet another WikiWikiWeb clone.
-	// $Id: pukiwiki_func.php,v 1.30 2006/11/30 11:59:56 nao-pon Exp $
+	// $Id: pukiwiki_func.php,v 1.31 2006/12/01 09:07:43 nao-pon Exp $
 	// Copyright (C)
 	//   2003-2005 PukiWiki Developers Team
 	//   2003      Originally written by upk
@@ -3456,7 +3466,7 @@ EOD;
 
 //----- Start link.php -----//
 	// PukiWiki - Yet another WikiWikiWeb clone
-	// $Id: pukiwiki_func.php,v 1.30 2006/11/30 11:59:56 nao-pon Exp $
+	// $Id: pukiwiki_func.php,v 1.31 2006/12/01 09:07:43 nao-pon Exp $
 	// Copyright (C) 2003-2006 PukiWiki Developers Team
 	// License: GPL v2 or (at your option) any later version
 	//

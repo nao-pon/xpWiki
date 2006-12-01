@@ -1,7 +1,7 @@
 <?php
 //
 // Created on 2006/10/02 by nao-pon http://hypweb.net/
-// $Id: xpwiki_func.php,v 1.29 2006/12/01 01:44:38 nao-pon Exp $
+// $Id: xpwiki_func.php,v 1.30 2006/12/01 09:07:43 nao-pon Exp $
 //
 class XpWikiFunc extends XpWikiXoopsWrapper {
 
@@ -703,6 +703,29 @@ EOD;
 		return FALSE;
 	}
 	
+	// なぞなぞ認証をチェック
+	function check_riddle () {
+		$ret = FALSE;
+		if ($this->root->userinfo['admin'] ||
+			$this->root->riddle_auth === 0 ||
+			($this->root->riddle_auth === 1 && $this->root->userinfo['uid'] !== 0)
+		) return TRUE;
+		foreach ($this->root->vars as $key => $val) {
+			if (substr($key, 0, 6) === 'riddle') {
+				$q_key = substr($key, 6);
+				foreach ($this->root->riddles as $q => $a) {
+					if ($q_key === md5($this->cont['HOME_URL'].$q)) {
+						if ($a === rtrim($val)) {
+							$ret = TRUE;
+						}
+						break;
+					}
+				}
+				break;
+			}
+		}
+		return $ret;	
+	}
 	function add_tag_head ($file,$pre=TRUE) {
 		static $done = array();
 		if (isset($done[$this->xpwiki->pid][$file])) { return; }
