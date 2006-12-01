@@ -4,7 +4,7 @@ class xpwiki_plugin_edit extends xpwiki_plugin {
 
 
 	// PukiWiki - Yet another WikiWikiWeb clone.
-	// $Id: edit.inc.php,v 1.14 2006/11/29 13:09:47 nao-pon Exp $
+	// $Id: edit.inc.php,v 1.15 2006/12/01 09:07:43 nao-pon Exp $
 	// Copyright (C) 2001-2006 PukiWiki Developers Team
 	// License: GPL v2 or (at your option) any later version
 	//
@@ -21,13 +21,17 @@ class xpwiki_plugin_edit extends xpwiki_plugin {
 		if ($this->cont['PKWK_READONLY']) $this->func->die_message('PKWK_READONLY prohibits editing');
 	
 		$page = isset($this->root->vars['page']) ? $this->root->vars['page'] : '';
-	
+		
 		$this->func->check_editable($page, true, true);
-	
+		
 		if (isset($this->root->vars['preview']) || ($this->root->load_template_func && isset($this->root->vars['template']))) {
 			return $this->plugin_edit_preview();
 		} else if (isset($this->root->vars['write'])) {
-			return $this->plugin_edit_write();
+			if ($this->func->check_riddle()) {
+				return $this->plugin_edit_write();
+			} else {
+				return $this->plugin_edit_preview(TRUE);
+			}
 		} else if (isset($this->root->vars['cancel'])) {
 			return $this->plugin_edit_cancel();
 		}
@@ -45,11 +49,14 @@ class xpwiki_plugin_edit extends xpwiki_plugin {
 
 		if ($postdata == '') $postdata = $this->func->auto_template($page);
 		
-		return array('msg'=>$this->root->_title_edit, 'body'=>$this->func->edit_form($page, $postdata));
+		// なぞなぞ認証
+		$options = $this->get_riddle();
+
+		return array('msg'=>$this->root->_title_edit, 'body'=>$this->func->edit_form($page, $postdata, FALSE, TRUE, $options));
 	}
 	
 	// Preview
-	function plugin_edit_preview()
+	function plugin_edit_preview($ng_riddle = FALSE)
 	{
 	//	global $vars;
 	//	global $_title_preview, $_msg_preview, $_msg_preview_delete;
@@ -88,9 +95,13 @@ class xpwiki_plugin_edit extends xpwiki_plugin {
 			$postdata = $this->func->drop_submit($this->func->convert_html($postdata));
 			$body .= '<div id="preview">' . $postdata . '</div>' . "\n";
 		}
-		$body .= $this->func->edit_form($page, $this->root->vars['msg'], $this->root->vars['digest'], FALSE);
+		
+		// なぞなぞ認証
+		$options = $this->get_riddle();
+
+		$body .= $this->func->edit_form($page, $this->root->vars['msg'], $this->root->vars['digest'], TRUE, $options);
 	
-		return array('msg'=>$this->root->_title_preview, 'body'=>$body);
+		return array('msg'=>(!$ng_riddle)? $this->root->_title_preview : $this->root->_title_ng_riddle, 'body'=>$body);
 	}
 	
 	// Inline: Show edit (or unfreeze text) link
@@ -329,6 +340,19 @@ class xpwiki_plugin_edit extends xpwiki_plugin {
 			}
 		}
 		return FALSE;
+	}
+	
+	// なぞなぞ認証用 $option 取得
+	function get_riddle () {
+		if ($this->root->userinfo['admin'] ||
+			$this->root->riddle_auth === 0 ||
+			($this->root->riddle_auth === 1 && $this->root->userinfo['uid'] !== 0)
+		) {
+			$options = array();
+		} else {
+			$options['riddle'] = array_rand($this->root->riddles);
+		}
+		return $options;	
 	}
 }
 ?>
