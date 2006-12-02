@@ -1,17 +1,16 @@
 <?php
+// PukiWiki - Yet another WikiWikiWeb clone
+// $Id: counter.inc.php,v 1.2 2006/12/02 12:55:26 nao-pon Exp $
+// Copyright (C)
+//   2002-2005 PukiWiki Developers Team
+//   2002 Y.MASUI GPL2 http://masui.net/pukiwiki/ masui@masui.net
+// License: GPL2
+//
+// Counter plugin
+
 class xpwiki_plugin_counter extends xpwiki_plugin {
 	function plugin_counter_init () {
 
-
-	// PukiWiki - Yet another WikiWikiWeb clone
-	// $Id: counter.inc.php,v 1.1 2006/10/13 13:17:49 nao-pon Exp $
-	// Copyright (C)
-	//   2002-2005 PukiWiki Developers Team
-	//   2002 Y.MASUI GPL2 http://masui.net/pukiwiki/ masui@masui.net
-	// License: GPL2
-	//
-	// Counter plugin
-	
 	// Counter file's suffix
 		$this->cont['PLUGIN_COUNTER_SUFFIX'] =  '.count';
 
@@ -20,8 +19,6 @@ class xpwiki_plugin_counter extends xpwiki_plugin {
 	// Report one
 	function plugin_counter_inline()
 	{
-	//	global $vars;
-	
 		// BugTrack2/106: Only variables can be passed by reference from PHP 5.0.5
 		$args = func_get_args(); // with array_shift()
 	
@@ -41,8 +38,6 @@ class xpwiki_plugin_counter extends xpwiki_plugin {
 	// Report all
 	function plugin_counter_convert()
 	{
-	//	global $vars;
-	
 		$counter = $this->plugin_counter_get_count($this->root->vars['page']);
 		return <<<EOD
 <div class="counter">
@@ -56,17 +51,12 @@ EOD;
 	// Return a summary
 	function plugin_counter_get_count($page)
 	{
-	//	global $vars;
-	//	static $counters = array();
 		static $counters = array();
 		if (!isset($counters[$this->xpwiki->pid])) {$counters[$this->xpwiki->pid] = array();}
-	//	static $default;
 		static $default = array();
-		if (!isset($default[$this->xpwiki->pid])) {$default[$this->xpwiki->pid] = array();}
-	
-		if (! isset($default[$this->xpwiki->pid]))
+		if (!isset($default[$this->xpwiki->pid]))
 			$default[$this->xpwiki->pid] = array(
-				'total'     => 0,
+			'total'     => 0,
 			'date'      => $this->func->get_date('Y/m/d'),
 			'today'     => 0,
 			'yesterday' => 0,
@@ -111,11 +101,27 @@ EOD;
 		if ($modify && $this->root->vars['cmd'] == 'read') {
 			rewind($fp);
 			ftruncate($fp, 0);
-			foreach (array_keys($default[$this->xpwiki->pid]) as $key)
+			foreach (array_keys($default[$this->xpwiki->pid]) as $key) {
 				fputs($fp, $counters[$this->xpwiki->pid][$page][$key] . "\n");
+				$$key = $counters[$this->xpwiki->pid][$page][$key];
+			}
 		}
 		flock($fp, LOCK_UN);
 		fclose($fp);
+		
+		// DB¤ò¹¹¿·
+		if (isset($total)) {
+			$pgid = $this->func->get_pgid_by_name($page);
+			
+			$query = "UPDATE ".$this->xpwiki->db->prefix($this->root->mydirname."_count")." SET `count`='$total',`today`='$date',`today_count`='$today',`yesterday_count`='$yesterday',`ip`='$ip' WHERE `pgid`='$pgid' LIMIT 1";
+			$result=$this->xpwiki->db->queryF($query);
+			
+			if (!mysql_affected_rows())
+			{
+				$query = "INSERT INTO ".$this->xpwiki->db->prefix($this->root->mydirname."_count")." (`pgid`,`count`,`today`,`today_count`,`yesterday_count`,`ip`) VALUES('$pgid','$total','$date','$today','$yesterday','$ip')";
+				$result=$this->xpwiki->db->queryF($query);
+			}
+		}
 	
 		return $counters[$this->xpwiki->pid][$page];
 	}
