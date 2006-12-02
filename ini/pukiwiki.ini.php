@@ -1,6 +1,6 @@
 <?php
 // PukiWiki - Yet another WikiWikiWeb clone
-// $Id: pukiwiki.ini.php,v 1.15 2006/12/01 09:07:43 nao-pon Exp $
+// $Id: pukiwiki.ini.php,v 1.16 2006/12/02 10:36:57 nao-pon Exp $
 // Copyright (C)
 //   2002-2006 PukiWiki Developers Team
 //   2001-2002 Originally written by yu-ji
@@ -286,7 +286,7 @@ $root->edit_auth_pages = array(
 	'#(NETABARE|NetaBare)#'	=> 'foo,bar,hoge',
 );
 
-// なぞなぞ認証 (使用しない = 0, ゲストのみ = 1, 管理者以外 = 2)
+// Q & A 認証 (使用しない = 0, ゲストのみ = 1, 管理者以外 = 2)
 $root->riddle_auth = 1;
 
 /////////////////////////////////////////////////
