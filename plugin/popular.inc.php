@@ -2,7 +2,7 @@
 /////////////////////////////////////////////////
 // PukiWiki - Yet another WikiWikiWeb clone.
 //
-// $Id: popular.inc.php,v 1.3 2006/12/03 02:36:52 nao-pon Exp $
+// $Id: popular.inc.php,v 1.4 2006/12/03 07:15:09 nao-pon Exp $
 //
 
 /*
@@ -64,7 +64,8 @@ class xpwiki_plugin_popular extends xpwiki_plugin {
 			$except = $array[1];
 			$except = str_replace(array("&#124;","&#x7c;"," "),"|",$except);
 		case 1:
-			$max = $array[0];
+			$max = (int)$array[0]; 
+			$max = (!$max)? $this->cont['PLUGIN_POPULAR_DEFAULT'] : $max;
 		}
 	
 		$nopage = " AND p.editedtime != 0";
