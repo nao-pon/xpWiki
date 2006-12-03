@@ -2,7 +2,7 @@
 /////////////////////////////////////////////////
 // PukiWiki - Yet another WikiWikiWeb clone.
 //
-// $Id: popular.inc.php,v 1.2 2006/12/02 13:47:58 nao-pon Exp $
+// $Id: popular.inc.php,v 1.3 2006/12/03 02:36:52 nao-pon Exp $
 //
 
 /*
@@ -17,14 +17,14 @@
  * #popular
  * #popular(20)
  * #popular(20,FrontPage|MenuBar)
- * #popular(20,FrontPage|MenuBar,true)
- * #popular(20,FrontPage|MenuBar,true,XOOPS)
- * #popular(20,FrontPage|MenuBar,true,,1)
+ * #popular(20,FrontPage|MenuBar,1)
+ * #popular(20,FrontPage|MenuBar,1,XOOPS)
+ * #popular(20,FrontPage|MenuBar,-1,,1)
  *
  * [引数]
  * 1 - 表示する件数                                    default 10
  * 2 - 表示させないページ(半角スペースまたは | 区切り) default なし
- * 3 - 今日(true)か通算(false)の一覧かのフラグ         default false
+ * 3 - 今日(today|1)か昨日(yesterday|-1)か通算(total|0)の一覧かのフラグ         default false
  * 4 - 集計対象の仮想階層ページ名                      default なし
  * 5 - 多階層ページの場合、最下層のみを表示 ( 0 or 1 ) default 0
  */
@@ -43,7 +43,7 @@ class xpwiki_plugin_popular extends xpwiki_plugin {
 		$except = '';
 	
 		$array = func_get_args();
-		$today = FALSE;
+		$yesterday = $today = FALSE;
 		$prefix = "";
 		$compact = 0;
 	
@@ -54,8 +54,12 @@ class xpwiki_plugin_popular extends xpwiki_plugin {
 			$prefix = $array[3];
 			$prefix = preg_replace("/\/$/","",$prefix);
 		case 3:
-			if ($array[2])
+			if ($array[2]) {
 				$today = $this->func->get_date('Y/m/d');
+				if ($array[2] === 'yesterday' || $array[2] === '-1') {
+					$yesterday = $this->func->get_date('Y/m/d', $this->cont['UTIME'] - 86400);
+				}
+			}
 		case 2:
 			$except = $array[1];
 			$except = str_replace(array("&#124;","&#x7c;"," "),"|",$except);
@@ -63,7 +67,7 @@ class xpwiki_plugin_popular extends xpwiki_plugin {
 			$max = $array[0];
 		}
 	
-		$nopage = "";
+		$nopage = " AND p.editedtime != 0";
 		if ($except)
 		{
 			$excepts = explode("|",$except);
@@ -92,27 +96,31 @@ class xpwiki_plugin_popular extends xpwiki_plugin {
 		if ($where) $where = " AND ($where)";
 		if ($today)
 		{
-			$where = " WHERE (c.pgid = p.pgid) AND (p.name NOT LIKE ':%') AND (today = '$today')$nopage$where";
-			$sort = "today_count";
+			$_where = $where;
+			$where = " WHERE (c.pgid = p.pgid) AND (p.name NOT LIKE ':%') AND (today = '$today')".($yesterday ? 'AND (c.`yesterday_count` != 0)' : '')."$nopage$_where";
+			if ($yesterday) {
+				$where .= " UNION SELECT p.`name`, c.`today_count` AS `count`";
+				$where .= " FROM ".$this->xpwiki->db->prefix($this->root->mydirname."_pginfo")." as p , ".$this->xpwiki->db->prefix($this->root->mydirname."_count")." as c";
+				$where .= " WHERE (c.pgid = p.pgid) AND (p.name NOT LIKE ':%') AND (today = '$yesterday')$nopage$_where";
+				$select = "p.`name`, c.`yesterday_count` AS `count`";
+			} else {
+				$select = "p.`name`, c.`today_count` AS `count`";
+			}
 		}
 		else
 		{
 			$where = " WHERE (c.pgid = p.pgid) AND (p.name NOT LIKE ':%')$nopage$where";
-			$sort = "count";
+			$select = "p.`name`, c.`count` AS `count`";
 		}
 		//echo $where;
-		$query = "SELECT p.`name`, c.`count`, c.`today_count` FROM ".$this->xpwiki->db->prefix($this->root->mydirname."_pginfo")." as p , ".$this->xpwiki->db->prefix($this->root->mydirname."_count")." as c $where ORDER BY $sort DESC LIMIT $max;";
+		$query = "SELECT $select FROM ".$this->xpwiki->db->prefix($this->root->mydirname."_pginfo")." as p , ".$this->xpwiki->db->prefix($this->root->mydirname."_count")." as c $where ORDER BY `count` DESC LIMIT $max";
 		$res = $this->xpwiki->db->query($query);
 		//echo $query."<br>";
 		if ($res)
 		{
 			while($data = mysql_fetch_row($res))
 			{
-				//echo $data[0]."<br>";
-				if ($today)
-					$counters["_$data[0]"] = $data[2];
-				else
-					$counters["_$data[0]"] = $data[1];
+				$counters[$data[0]] = $data[1];
 			}
 		}
 	
@@ -135,7 +143,6 @@ class xpwiki_plugin_popular extends xpwiki_plugin {
 			$new_mark = "";
 			
 			foreach ($counters as $page=>$count) {
-				$page = htmlspecialchars(substr($page,1));
 				//Newマーク付加
 				if ($this->func->exist_plugin_inline("new"))
 					$new_mark = $this->func->do_plugin_inline("new","{$page},nolink",$_dum);
@@ -155,7 +162,7 @@ class xpwiki_plugin_popular extends xpwiki_plugin {
 			$items .= '</ul>';
 		}
 		//return sprintf($today ? $this->root->_popular_plugin_today_frame : $this->root->_popular_plugin_frame,count($counters),$bypege,$items);
-		return sprintf($today ? $this->root->_popular_plugin_today_frame : $this->root->_popular_plugin_frame, count($counters), $items, $bypege);
+		return sprintf($today ? ($yesterday ? $this->root->_popular_plugin_yesterday_frame : $this->root->_popular_plugin_today_frame) : $this->root->_popular_plugin_frame, count($counters), $items, $bypege);
 
 	}
 }
