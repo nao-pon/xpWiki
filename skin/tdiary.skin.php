@@ -3,7 +3,7 @@
 $this->root->runmode = "standalone";
 
 // PukiWiki - Yet another WikiWikiWeb clone.
-// $Id: tdiary.skin.php,v 1.13 2006/11/25 11:20:11 nao-pon Exp $
+// $Id: tdiary.skin.php,v 1.14 2006/12/03 23:16:48 nao-pon Exp $
 // Copyright (C)
 //   2002-2006 PukiWiki Developers Team
 //   2001-2002 Originally written by yu-ji
@@ -807,12 +807,15 @@ default:
 <?php } ?>
 
 <!-- Design for tDiary "Today's referrer" -->
-<div class="referer"><?php if ($lastmodified != '') echo 'Last-modified: ' . $lastmodified; ?></div>
+
+<div class="referer">
+<?php if ($is_page) echo $this->do_plugin_convert('counter') ?>
+<?php if ($lastmodified != '') echo 'Last-modified: ' . $lastmodified; ?> by <?php echo $pginfo['lastuname'] ?>
+</div>
 
 </div><!-- class="day" -->
 
 <hr class="sep" />
-
 
 <?php if ($menu && $sidebar == 'another') { ?>
 </div><!-- class="main" -->
@@ -935,7 +938,8 @@ function _toolbar($this, $key, $x = 20, $y = 20){
 <?php } // $this->cont['PKWK_SKIN_SHOW_TOOLBAR'] ?>
 
 <!-- Copyright etc -->
- Site admin: <a href="<?php echo $this->root->modifierlink ?>"><?php echo $this->root->modifier ?></a><p />
+<div>Page owner: <?php echo $pginfo['uname'] ?></div>
+<div>Site admin: <a href="<?php echo $this->root->modifierlink ?>"><?php echo $this->root->modifier ?></a></div>
  <?php echo $this->cont['S_COPYRIGHT'] ?>.
  Powered by PHP <?php echo PHP_VERSION ?><br />
  HTML convert time: <?php echo $taketime ?> sec.
