@@ -1,6 +1,6 @@
 <?php
 // PukiWiki - Yet another WikiWikiWeb clone.
-// $Id: en.lng.php,v 1.9 2006/12/02 13:47:58 nao-pon Exp $
+// $Id: en.lng.php,v 1.10 2006/12/03 23:19:06 nao-pon Exp $
 // Copyright (C)
 //   2002-2005 PukiWiki Developers Team
 //   2001-2002 Originally written by yu-ji
@@ -364,8 +364,9 @@ $root->_msg_pcomment_restrict = 'Due to the blocking, no comments could be read 
 
 ///////////////////////////////////////
 // popular.inc.php
-$root->_popular_plugin_frame       = '<h5>popular(%1$d)%3$s</h5><div>%2$s</div>';
-$root->_popular_plugin_today_frame = '<h5>today\'s(%1$d)%3$s</h5><div>%2$s</div>';
+$root->_popular_plugin_frame       = '<h5>Popular(%1$d)%3$s</h5><div>%2$s</div>';
+$root->_popular_plugin_today_frame = '<h5>Today\'s(%1$d)%3$s</h5><div>%2$s</div>';
+$root->_popular_plugin_yesterday_frame = '<h5>Yesterday\'s(%1$d)%3$s</h5><div>%2$s</div>';
 
 ///////////////////////////////////////
 // recent.inc.php
