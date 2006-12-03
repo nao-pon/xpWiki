@@ -1,7 +1,7 @@
 <?php
 //
 // Created on 2006/10/02 by nao-pon http://hypweb.net/
-// $Id: pukiwiki_func.php,v 1.31 2006/12/01 09:07:43 nao-pon Exp $
+// $Id: pukiwiki_func.php,v 1.32 2006/12/03 02:21:57 nao-pon Exp $
 //
 class XpWikiPukiWikiFunc extends XpWikiBaseFunc {
 
@@ -897,7 +897,7 @@ class XpWikiPukiWikiFunc extends XpWikiBaseFunc {
 
 //----- Start convert_html.php -----//
 	// PukiWiki - Yet another WikiWikiWeb clone
-	// $Id: pukiwiki_func.php,v 1.31 2006/12/01 09:07:43 nao-pon Exp $
+	// $Id: pukiwiki_func.php,v 1.32 2006/12/03 02:21:57 nao-pon Exp $
 	// Copyright (C)
 	//   2002-2005 PukiWiki Developers Team
 	//   2001-2002 Originally written by yu-ji
@@ -1010,7 +1010,7 @@ class XpWikiPukiWikiFunc extends XpWikiBaseFunc {
 
 //----- Start func.php -----//
 	// PukiWiki - Yet another WikiWikiWeb clone.
-	// $Id: pukiwiki_func.php,v 1.31 2006/12/01 09:07:43 nao-pon Exp $
+	// $Id: pukiwiki_func.php,v 1.32 2006/12/03 02:21:57 nao-pon Exp $
 	// Copyright (C)
 	//   2002-2006 PukiWiki Developers Team
 	//   2001-2002 Originally written by yu-ji
@@ -1792,7 +1792,7 @@ EOD;
 
 //----- Start make_link.php -----//
 	// PukiWiki - Yet another WikiWikiWeb clone.
-	// $Id: pukiwiki_func.php,v 1.31 2006/12/01 09:07:43 nao-pon Exp $
+	// $Id: pukiwiki_func.php,v 1.32 2006/12/03 02:21:57 nao-pon Exp $
 	// Copyright (C)
 	//   2003-2005 PukiWiki Developers Team
 	//   2001-2002 Originally written by yu-ji
@@ -2595,7 +2595,7 @@ EOD;
 
 //----- Start html.php -----//
 	// PukiWiki - Yet another WikiWikiWeb clone.
-	// $Id: pukiwiki_func.php,v 1.31 2006/12/01 09:07:43 nao-pon Exp $
+	// $Id: pukiwiki_func.php,v 1.32 2006/12/03 02:21:57 nao-pon Exp $
 	// Copyright (C)
 	//   2002-2006 PukiWiki Developers Team
 	//   2001-2002 Originally written by yu-ji
@@ -2681,7 +2681,12 @@ EOD;
 		$is_owner = $this->is_owner($_page);
 		$is_editable = $this->check_editable($_page, FALSE, FALSE);
 		$is_top = ($_page == $this->root->defaultpage)? TRUE : FALSE;
-	
+		
+		// Countup counter
+		if ($is_page && $this->exist_plugin_convert('counter')) {
+			$this->do_plugin_convert('counter');
+		}
+		
 		// Last modification date (string) of the page
 		$lastmodified = $is_read ?  $this->format_date($this->get_filetime($_page)) .
 			' (' . $this->cont['ZONE'] . ')' .
@@ -3159,7 +3164,7 @@ EOD;
 
 //----- Start mail.php -----//
 	// PukiWiki - Yet another WikiWikiWeb clone.
-	// $Id: pukiwiki_func.php,v 1.31 2006/12/01 09:07:43 nao-pon Exp $
+	// $Id: pukiwiki_func.php,v 1.32 2006/12/03 02:21:57 nao-pon Exp $
 	// Copyright (C)
 	//   2003-2005 PukiWiki Developers Team
 	//   2003      Originally written by upk
@@ -3466,7 +3471,7 @@ EOD;
 
 //----- Start link.php -----//
 	// PukiWiki - Yet another WikiWikiWeb clone
-	// $Id: pukiwiki_func.php,v 1.31 2006/12/01 09:07:43 nao-pon Exp $
+	// $Id: pukiwiki_func.php,v 1.32 2006/12/03 02:21:57 nao-pon Exp $
 	// Copyright (C) 2003-2006 PukiWiki Developers Team
 	// License: GPL v2 or (at your option) any later version
 	//
