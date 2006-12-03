@@ -1,6 +1,6 @@
 <?php
 // PukiWiki - Yet another WikiWikiWeb clone
-// $Id: pukiwiki.ini.php,v 1.16 2006/12/02 10:36:57 nao-pon Exp $
+// $Id: pukiwiki.ini.php,v 1.17 2006/12/03 23:30:12 nao-pon Exp $
 // Copyright (C)
 //   2002-2006 PukiWiki Developers Team
 //   2001-2002 Originally written by yu-ji
@@ -180,6 +180,11 @@ $root->referer = 0;
 /////////////////////////////////////////////////
 // _Disable_ WikiName auto-linking
 $root->nowikiname = 0;
+
+/////////////////////////////////////////////////
+// 2階層以上で basename が 数字と- のみの場合
+// リンク時の表示をタイトルに置換する 0 or 1
+$root->pagename_num2str = 1;
 
 /////////////////////////////////////////////////
 // AutoLink feature
