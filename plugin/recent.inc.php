@@ -3,7 +3,7 @@ class xpwiki_plugin_recent extends xpwiki_plugin {
 	function plugin_recent_init () {
 
 
-	// $Id: recent.inc.php,v 1.4 2006/12/01 01:44:38 nao-pon Exp $
+	// $Id: recent.inc.php,v 1.5 2006/12/03 23:18:16 nao-pon Exp $
 	// Copyright (C)
 	//   2002-2006 PukiWiki Developers Team
 	//   2002      Y.MASUI http://masui.net/pukiwiki/ masui@masui.net
@@ -114,8 +114,10 @@ class xpwiki_plugin_recent extends xpwiki_plugin {
 			} else {
 				$r_page = rawurlencode($page);
 				$passage = $this->root->show_passage ? ' ' . $this->func->get_passage($time) : '';
-				$items .= ' <li><a href="' . $script . '?' . $r_page . '"' . 
-				' title="' . $s_page . $passage . '">' . $s_page . '</a></li>' . "\n";
+				//$items .= ' <li><a href="' . $script . '?' . $r_page . '"' . 
+				//' title="' . $s_page . $passage . '">' . $s_page . '</a></li>' . "\n";
+				$items .= ' <li>'.$this->func->make_pagelink($page).'</li>' . "\n";
+
 			}
 		}
 		// End of the day
