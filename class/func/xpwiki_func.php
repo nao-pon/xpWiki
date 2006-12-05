@@ -1,7 +1,7 @@
 <?php
 //
 // Created on 2006/10/02 by nao-pon http://hypweb.net/
-// $Id: xpwiki_func.php,v 1.32 2006/12/05 01:54:41 nao-pon Exp $
+// $Id: xpwiki_func.php,v 1.33 2006/12/05 23:55:53 nao-pon Exp $
 //
 class XpWikiFunc extends XpWikiXoopsWrapper {
 
@@ -896,6 +896,11 @@ EOD;
 			$titles[$page] = $dat['title'];
 		}
 		return array($readings, $titles);
+	}
+	
+	// #pginfo を除去する
+	function remove_pginfo ($str) {
+		return preg_replace($this->cont['PKWK_PGINFO_REGEX'], '', $str);
 	}
 	
 /*----- DB Functions -----*/ 

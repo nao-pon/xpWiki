@@ -4,7 +4,7 @@ class xpwiki_plugin_tracker extends xpwiki_plugin {
 
 
 	// PukiWiki - Yet another WikiWikiWeb clone
-	// $Id: tracker.inc.php,v 1.6 2006/12/03 23:17:30 nao-pon Exp $
+	// $Id: tracker.inc.php,v 1.7 2006/12/05 23:55:54 nao-pon Exp $
 	//
 	// Issue tracker plugin (See Also bugtrack plugin)
 	
@@ -324,7 +324,7 @@ EOD;
 		// 見出しの固有ID部を削除
 		$source = preg_replace('/^(\*{1,6}.*)\[#[A-Za-z][\w-]+\](.*)$/m','$1$2',$source);
 		// #freeze #info を削除
-		return preg_replace($this->cont['PKWK_PGINFO_REGEX'], '', preg_replace('/^#freeze\s*$/im', '', $source));
+		return $this->func->remove_pginfo(preg_replace('/^#freeze\s*$/im', '', $source));
 	}
 }
 	// フィールドクラス
