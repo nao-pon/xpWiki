@@ -1,7 +1,7 @@
 <?php
 //
 // Created on 2006/10/02 by nao-pon http://hypweb.net/
-// $Id: pukiwiki_func.php,v 1.33 2006/12/03 23:30:12 nao-pon Exp $
+// $Id: pukiwiki_func.php,v 1.34 2006/12/05 00:01:06 nao-pon Exp $
 //
 class XpWikiPukiWikiFunc extends XpWikiBaseFunc {
 
@@ -897,7 +897,7 @@ class XpWikiPukiWikiFunc extends XpWikiBaseFunc {
 
 //----- Start convert_html.php -----//
 	// PukiWiki - Yet another WikiWikiWeb clone
-	// $Id: pukiwiki_func.php,v 1.33 2006/12/03 23:30:12 nao-pon Exp $
+	// $Id: pukiwiki_func.php,v 1.34 2006/12/05 00:01:06 nao-pon Exp $
 	// Copyright (C)
 	//   2002-2005 PukiWiki Developers Team
 	//   2001-2002 Originally written by yu-ji
@@ -1010,7 +1010,7 @@ class XpWikiPukiWikiFunc extends XpWikiBaseFunc {
 
 //----- Start func.php -----//
 	// PukiWiki - Yet another WikiWikiWeb clone.
-	// $Id: pukiwiki_func.php,v 1.33 2006/12/03 23:30:12 nao-pon Exp $
+	// $Id: pukiwiki_func.php,v 1.34 2006/12/05 00:01:06 nao-pon Exp $
 	// Copyright (C)
 	//   2002-2006 PukiWiki Developers Team
 	//   2001-2002 Originally written by yu-ji
@@ -1792,7 +1792,7 @@ EOD;
 
 //----- Start make_link.php -----//
 	// PukiWiki - Yet another WikiWikiWeb clone.
-	// $Id: pukiwiki_func.php,v 1.33 2006/12/03 23:30:12 nao-pon Exp $
+	// $Id: pukiwiki_func.php,v 1.34 2006/12/05 00:01:06 nao-pon Exp $
 	// Copyright (C)
 	//   2003-2005 PukiWiki Developers Team
 	//   2001-2002 Originally written by yu-ji
@@ -2599,7 +2599,7 @@ EOD;
 
 //----- Start html.php -----//
 	// PukiWiki - Yet another WikiWikiWeb clone.
-	// $Id: pukiwiki_func.php,v 1.33 2006/12/03 23:30:12 nao-pon Exp $
+	// $Id: pukiwiki_func.php,v 1.34 2006/12/05 00:01:06 nao-pon Exp $
 	// Copyright (C)
 	//   2002-2006 PukiWiki Developers Team
 	//   2001-2002 Originally written by yu-ji
@@ -2807,6 +2807,15 @@ EOD;
 				$refer = '[[' . $this->strip_bracket($this->root->vars['refer']) . ']]' . "\n\n";
 		}
 		
+		$r_page      = rawurlencode($page);
+		$s_page      = htmlspecialchars($page);
+		$s_digest    = htmlspecialchars($digest);
+		$s_postdata  = htmlspecialchars($refer . $postdata);
+		$s_original  = isset($this->root->vars['original']) ? htmlspecialchars($this->root->vars['original']) : $s_postdata;
+		$s_id        = isset($this->root->vars['paraid']) ? htmlspecialchars($this->root->vars['paraid']) : '';
+		$b_preview   = isset($this->root->vars['preview']); // TRUE when preview
+		$btn_preview = $b_preview ? $this->root->_btn_repreview : $this->root->_btn_preview;
+		
 		// ページ読み
 		if (!empty($this->root->rtf['preview'])) {
 			$reading_str = $this->root->vars['reading'];
@@ -2827,23 +2836,25 @@ EOD;
 			if ($attaches) $attaches = $this->root->hr . '<p>' . $attaches . '</p>';
 		}
 		
-		// なぞなぞ認証
+		// Q & A 認証
 		$riddle = '';
 		if (isset($options['riddle'])) {
 			$riddle = '<p>' . $this->root->_btn_riddle . '<br />' .
-				'&nbsp;&nbsp;<strong>Q:</strong> ' . htmlspecialchars($options['riddle']) . '<br />' . 
-				'&nbsp;&nbsp;<strong>A:</strong> <input type="text" name="riddle'.md5($this->cont['HOME_URL'].$options['riddle']).'" size="30" value="" autocomplete="off" onChange="document.getElementById(\'edit_preview\').type=\'button\';document.getElementById(\'edit_preview\').disabled=true;" /><br />' .
+				'&nbsp;&nbsp;<strong>Q:</strong> ' . htmlspecialchars($options['riddle']) . '<br />' .
+				'&nbsp;&nbsp;<strong>A:</strong> <input type="text" name="riddle'.md5($this->cont['HOME_URL'].$options['riddle']) .
+				'" size="30" value="" autocomplete="off" onChange="
+					with (document.getElementById(\'edit_preview\')){
+						name=\'write\';
+						value=\''.$this->root->_btn_update.'\';
+						setAttribute(\'accesskey\',\'s\');
+					}
+					with (document.getElementById(\'edit_write\')){
+						name=\'preview\';
+						document.getElementById(\'edit_write\').value=\''.$btn_preview.'\';
+						setAttribute(\'accesskey\',\'p\');
+					}" /><br />' .
 				'</p>';	
 		}
-	
-		$r_page      = rawurlencode($page);
-		$s_page      = htmlspecialchars($page);
-		$s_digest    = htmlspecialchars($digest);
-		$s_postdata  = htmlspecialchars($refer . $postdata);
-		$s_original  = isset($this->root->vars['original']) ? htmlspecialchars($this->root->vars['original']) : $s_postdata;
-		$s_id        = isset($this->root->vars['paraid']) ? htmlspecialchars($this->root->vars['paraid']) : '';
-		$b_preview   = isset($this->root->vars['preview']); // TRUE when preview
-		$btn_preview = $b_preview ? $this->root->_btn_repreview : $this->root->_btn_preview;
 	
 		// Checkbox 'do not change timestamp'
 		$add_notimestamp = '';
@@ -2880,7 +2891,7 @@ EOD;
 	  $riddle
 	  <div style="float:left;">
 	   <input type="submit" name="preview" value="$btn_preview" accesskey="p" id="edit_preview" />
-	   <input type="submit" name="write"   value="{$this->root->_btn_update}" accesskey="s" />
+	   <input type="submit" name="write"   value="{$this->root->_btn_update}" accesskey="s" id="edit_write" />
 	   $add_top
 	   $add_notimestamp
 	  </div>
@@ -3168,7 +3179,7 @@ EOD;
 
 //----- Start mail.php -----//
 	// PukiWiki - Yet another WikiWikiWeb clone.
-	// $Id: pukiwiki_func.php,v 1.33 2006/12/03 23:30:12 nao-pon Exp $
+	// $Id: pukiwiki_func.php,v 1.34 2006/12/05 00:01:06 nao-pon Exp $
 	// Copyright (C)
 	//   2003-2005 PukiWiki Developers Team
 	//   2003      Originally written by upk
@@ -3475,7 +3486,7 @@ EOD;
 
 //----- Start link.php -----//
 	// PukiWiki - Yet another WikiWikiWeb clone
-	// $Id: pukiwiki_func.php,v 1.33 2006/12/03 23:30:12 nao-pon Exp $
+	// $Id: pukiwiki_func.php,v 1.34 2006/12/05 00:01:06 nao-pon Exp $
 	// Copyright (C) 2003-2006 PukiWiki Developers Team
 	// License: GPL v2 or (at your option) any later version
 	//
