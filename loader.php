@@ -1,7 +1,7 @@
 <?php
 //
 // Created on 2006/10/25 by nao-pon http://hypweb.net/
-// $Id: loader.php,v 1.2 2006/11/15 01:13:46 nao-pon Exp $
+// $Id: loader.php,v 1.3 2006/12/05 00:03:29 nao-pon Exp $
 //
 
 // 変数初期化
@@ -21,18 +21,21 @@ if (file_exists("{$skin_dirname}/{$basedir}{$type}/{$block}{$src}.{$type}")) {
 
 $dir = '';
 switch ($type) {
-	case "css":
-		$c_type = "text/css";
+	case 'css':
+		$c_type = 'text/css';
 		$dir = $block.basename(dirname($skin_dirname));
 		break;
-	case "js":
-		$c_type = "application/x-javascript";
+	case 'js':
+		$c_type = 'application/x-javascript';
 		break;
-	case "png":
-		$c_type = "image/png";
+	case 'png':
+		$c_type = 'image/png';
 		break;
-	case "gif":
-		$c_type = "image/gif";
+	case 'gif':
+		$c_type = 'image/gif';
+		break;
+	case 'xml':
+		$c_type = 'application/xml; charset=utf-8';
 		break;
 	default:
 		exit();
@@ -69,13 +72,15 @@ if (file_exists($src_file)) {
 	if ($dir) {
 		$out = str_replace('$dir', $dir, $out);
 	}
+	header( "Content-Type: " . $c_type );
+	header( "Last-Modified: " . gmdate( "D, d M Y H:i:s", $filetime ) . " GMT" );
+	header( "Etag: ". $etag );
+	header( "Content-length: ".strlen($out) );
+} else {
+	$out = 'File not found.';
+	header( "HTTP/1.1 404 Not Found" );
+	header( "Content-length: ".strlen($out) );
 }
-
-header( "Content-Type: " . $c_type );
-header( "Last-Modified: " . gmdate( "D, d M Y H:i:s", $filetime ) . " GMT" );
-header( "Etag: ". $etag );
-header( "Content-length: ".strlen($out) );
 echo $out;
 exit();
-
 ?>
