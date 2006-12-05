@@ -65,10 +65,7 @@ if ($xpwiki->runmode == "xoops") {
 	}
 	*/
 
-	
-	//$xpwiki->catbody();
-
-	$xoopsTpl->assign("xoops_pagetitle",$xpwiki->title);
+	$xoopsTpl->assign("xoops_pagetitle",$xpwiki->headtitle);
 	$xoopsTpl->assign("xoops_module_header", $xpwiki->root->html_header . $xoopsTpl->get_template_vars("xoops_module_header"));
 	
 	echo $xpwiki->html;
