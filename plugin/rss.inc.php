@@ -1,6 +1,6 @@
 <?php
 // PukiWiki - Yet another WikiWikiWeb clone
-// $Id: rss.inc.php,v 1.4 2006/12/05 00:03:29 nao-pon Exp $
+// $Id: rss.inc.php,v 1.5 2006/12/05 23:19:55 nao-pon Exp $
 //
 // RSS plugin: Publishing RSS of RecentChanges
 //
@@ -19,7 +19,7 @@ class xpwiki_plugin_rss extends xpwiki_plugin {
 	function plugin_rss_action()
 	{
 		$version = isset($this->root->vars['ver']) ? $this->root->vars['ver'] : '';
-		$base = isset($this->root->vars['p']) ? $this->root->vars['p'].'/' : '';
+		$base = isset($this->root->vars['p']) ? $this->root->vars['p'] : '';
 		$s_base = $base ? '/' . htmlspecialchars($base) : '';
 		switch($version){
 		case '':  $version = '1.0'; break; // Default
@@ -71,7 +71,7 @@ class xpwiki_plugin_rss extends xpwiki_plugin {
 			$this->root->userinfo['admin'] = FALSE;
 			$this->root->userinfo['uid'] = 0;
 			
-			$lines = $this->func->get_existpages(FALSE, $base, array('limit' => $this->root->rss_max, 'order' => ' ORDER BY editedtime DESC', 'nolisting' => TRUE, 'withtime' =>TRUE));
+			$lines = $this->func->get_existpages(FALSE, $base . '/', array('limit' => $this->root->rss_max, 'order' => ' ORDER BY editedtime DESC', 'nolisting' => TRUE, 'withtime' =>TRUE));
 			
 			$this->root->userinfo['admin'] = $_admin;
 			$this->root->userinfo['uid'] = $_uid;
@@ -111,8 +111,8 @@ EOD;
 					$a_page->root->rtf['use_cache_always'] = TRUE;
 					$a_page->execute();
 					$html = $a_page->body;
-					// form script 削除
-					$html = preg_replace('#<(form|script).+?/\\1>#is', '',$html);
+					// form script embed object 削除
+					$html = preg_replace('#<(form|script|embed|object).+?/\\1>#is', '',$html);
 					// タグ中の class, id, name 属性を指定を削除
 					$html = preg_replace('/(<[^>]*)\s+(?:class|id|name)=[^\s>]+([^>]*>)/', '$1$2', $html);
 					
@@ -151,7 +151,8 @@ EOD;
 			// Feeding start
 			print '<?xml version="1.0" encoding="UTF-8"?>' . "\n\n";
 		
-			$r_whatsnew = rawurlencode($this->root->whatsnew);
+			//$r_whatsnew = rawurlencode($this->root->whatsnew);
+			$link = $base? $self . '?' . rawurlencode($base) : $self;
 			
 			switch ($version) {
 			case '0.91':
@@ -164,7 +165,7 @@ EOD;
 <rss version="$version">
  <channel>
   <title>$page_title_utf8</title>
-  <link>$self?$r_whatsnew</link>
+  <link>$link</link>
   <description>xpWiki RecentChanges</description>
   <language>$lang</language>
 
@@ -188,7 +189,7 @@ $xmlns_trackback
   xml:lang="$lang">
  <channel rdf:about="$self?$r_whatsnew">
   <title>$page_title_utf8</title>
-  <link>$self?$r_whatsnew</link>
+  <link>$link</link>
   <description>xpWiki RecentChanges</description>
   <dc:date>$maketime</dc:date>
   <items>
