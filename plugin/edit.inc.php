@@ -4,7 +4,7 @@ class xpwiki_plugin_edit extends xpwiki_plugin {
 
 
 	// PukiWiki - Yet another WikiWikiWeb clone.
-	// $Id: edit.inc.php,v 1.15 2006/12/01 09:07:43 nao-pon Exp $
+	// $Id: edit.inc.php,v 1.16 2006/12/05 23:55:54 nao-pon Exp $
 	// Copyright (C) 2001-2006 PukiWiki Developers Team
 	// License: GPL v2 or (at your option) any later version
 	//
@@ -221,9 +221,9 @@ class xpwiki_plugin_edit extends xpwiki_plugin {
 		$paraid = isset($this->root->vars['paraid']) ? $this->root->vars['paraid'] : '';
 	
 		$this->root->vars['msg'] = preg_replace($this->cont['PLUGIN_EDIT_FREEZE_REGEX'], '', $this->root->vars['msg']);
-		$this->root->vars['msg'] = preg_replace($this->cont['PKWK_PGINFO_REGEX'], '', $this->root->vars['msg']);
+		$this->root->vars['msg'] = $this->func->remove_pginfo($this->root->vars['msg']);
 
-		$this->root->vars['original'] = preg_replace($this->cont['PKWK_PGINFO_REGEX'], '', $this->root->vars['original']);
+		$this->root->vars['original'] = $this->func->remove_pginfo($this->root->vars['original']);
 		$msg = & $this->root->vars['msg']; // Reference
 		
 		// ParaEdit
@@ -257,7 +257,7 @@ class xpwiki_plugin_edit extends xpwiki_plugin {
 			unset($this->root->vars['paraid']); // 更新が衝突したら全文編集に切り替え
 	
 			$original = isset($this->root->vars['original']) ? $this->root->vars['original'] : '';
-			$oldpagesrc = preg_replace($this->cont['PKWK_PGINFO_REGEX'], '', $oldpagesrc);
+			$oldpagesrc = $this->func->remove_pginfo($oldpagesrc);
 			list($postdata_input, $auto) = $this->func->do_update_diff($oldpagesrc, $msg, $original);
 	
 			$retvars['msg' ] = $this->root->_title_collided;
