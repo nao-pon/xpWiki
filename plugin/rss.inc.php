@@ -1,6 +1,6 @@
 <?php
 // PukiWiki - Yet another WikiWikiWeb clone
-// $Id: rss.inc.php,v 1.5 2006/12/05 23:19:55 nao-pon Exp $
+// $Id: rss.inc.php,v 1.6 2006/12/06 04:15:02 nao-pon Exp $
 //
 // RSS plugin: Publishing RSS of RecentChanges
 //
@@ -66,15 +66,16 @@ class xpwiki_plugin_rss extends xpwiki_plugin {
 			$items = $rdf_li = '';
 			
 			// ゲスト扱いで一覧を取得
-			$_admin = $this->root->userinfo['admin'];
-			$_uid = $this->root->userinfo['uid'];
+			$_userinfo = $this->root->userinfo;
 			$this->root->userinfo['admin'] = FALSE;
 			$this->root->userinfo['uid'] = 0;
+			$this->root->userinfo['uname'] = '';
+			$this->root->userinfo['uname_s'] = '';
+			$this->root->userinfo['gids'] = array();
 			
-			$lines = $this->func->get_existpages(FALSE, $base . '/', array('limit' => $this->root->rss_max, 'order' => ' ORDER BY editedtime DESC', 'nolisting' => TRUE, 'withtime' =>TRUE));
+			$lines = $this->func->get_existpages(FALSE, ($base ? $base . '/' : ''), array('limit' => $this->root->rss_max, 'order' => ' ORDER BY editedtime DESC', 'nolisting' => TRUE, 'withtime' =>TRUE));
 			
-			$this->root->userinfo['admin'] = $_admin;
-			$this->root->userinfo['uid'] = $_uid;
+			$this->root->userinfo = $_userinfo;
 			
 			foreach ($lines as $line) {
 				list($time, $page) = explode("\t", rtrim($line));
@@ -105,6 +106,13 @@ EOD;
 		
 					$date = substr_replace($this->func->get_date('Y-m-d\TH:i:sO', $time), ':', -2, 0);
 					
+					// 追加情報取得
+					$added = $this->func->get_page_changes($page);
+					// form script embed object 削除
+					$added = preg_replace('#<(form|script|embed|object).+?/\\1>#is', '',$added);
+					// タグ中の class, id, name 属性を指定を削除
+					$added = preg_replace('/(<[^>]*)\s+(?:class|id|name)=[^\s>]+([^>]*>)/', '$1$2', $added);
+					
 					// 指定ページの本文取得
 					$a_page = new XpWiki($this->root->mydirname);
 					$a_page->init($page);
@@ -116,13 +124,11 @@ EOD;
 					// タグ中の class, id, name 属性を指定を削除
 					$html = preg_replace('/(<[^>]*)\s+(?:class|id|name)=[^\s>]+([^>]*>)/', '$1$2', $html);
 					
-					$heading = $this->func->get_heading($page);
-					$description = strip_tags($html);
-					list(,$tmp) = array_pad(explode($heading, $description, 2), 2, '');
-					if ($tmp) $description = $tmp;
-					$description = preg_replace('/(\s+|&'.$this->root->entity_pattern.';)/i', '', $heading . $description);
+					$description = strip_tags(($added ? $added . '&#182;' : '') . $html);
+					$description = preg_replace('/(\s+|&'.$this->root->entity_pattern.';)/i', '', $description);
 					$description = mb_substr($description, 0, 250);
-					//$description = $this->func->get_heading($page);
+					
+					if ($added) $html = '<dl><dt>Changes</dt><dd>' . $added . '</dd></dl><hr />' . $html;
 					
 					$trackback_ping = '';
 					if ($this->root->trackback) {
