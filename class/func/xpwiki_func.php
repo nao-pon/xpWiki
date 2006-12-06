@@ -1,7 +1,7 @@
 <?php
 //
 // Created on 2006/10/02 by nao-pon http://hypweb.net/
-// $Id: xpwiki_func.php,v 1.33 2006/12/05 23:55:53 nao-pon Exp $
+// $Id: xpwiki_func.php,v 1.34 2006/12/06 04:14:37 nao-pon Exp $
 //
 class XpWikiFunc extends XpWikiXoopsWrapper {
 
@@ -897,12 +897,72 @@ EOD;
 		}
 		return array($readings, $titles);
 	}
-	
+
 	// #pginfo を除去する
 	function remove_pginfo ($str) {
 		return preg_replace($this->cont['PKWK_PGINFO_REGEX'], '', $str);
 	}
+
+	// ページ内容追加履歴の書き出し
+	function push_page_changes($page, $txt, $del=false) {
+		
+		if (!$this->is_page($page)) return;
+		$id = $this->get_pgid_by_name($page);
+		$add_file = $this->cont['DIFF_DIR'].$id.".add";
 	
+		if ($del) {
+			@unlink($add_file);
+			return;
+		}	
+
+		$txt = preg_replace('/^\+(.*\s*)$/m', '$1', $txt);
+		
+		// ゲスト扱いにする
+		$_userinfo = $this->root->userinfo;
+		$this->root->userinfo['admin'] = FALSE;
+		$this->root->userinfo['uid'] = 0;
+		$this->root->userinfo['uname'] = '';
+		$this->root->userinfo['uname_s'] = '';
+		$this->root->userinfo['gids'] = array();
+		
+		$txt = rtrim($this->convert_html($txt));
+		
+		$this->root->userinfo = $_userinfo;
+		
+		if (!$txt) {return;}
+	
+		$sep = "&#182;<!--ADD_TEXT_SEP-->\n";
+		$limit = 5;
+		
+		$data = @join('',@file($add_file));
+		if ($data) {
+			$adds = preg_split("/".preg_quote($sep,"/")."/",$data);
+			$adds = array_slice($adds,0,$limit-1);
+		} else {
+			$adds = array();
+		}
+		
+		array_unshift($adds,$txt);
+		
+		if ($fp = @fopen($add_file,"wb")) {
+			fputs($fp,join($sep,$adds));
+			fclose($fp);
+		}
+	}
+
+	// ページ内容追加履歴の取得
+	function get_page_changes ($page) {
+		if (!$this->is_page($page)) return;
+		
+		$id = $this->get_pgid_by_name($page);
+		$add_file = $this->cont['DIFF_DIR'].$id.".add";
+		if (file_exists($add_file)) {
+			return join('', file($add_file));
+		} else {
+			return '';
+		}
+	}
+
 /*----- DB Functions -----*/ 
 	//ページ名からページIDを求める
 	function get_pgid_by_name ($page)
