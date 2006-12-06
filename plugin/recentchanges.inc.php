@@ -1,7 +1,7 @@
 <?php
 //
 // Created on 2006/11/19 by nao-pon http://hypweb.net/
-// $Id: recentchanges.inc.php,v 1.2 2006/12/06 04:15:10 nao-pon Exp $
+// $Id: recentchanges.inc.php,v 1.3 2006/12/06 05:18:31 nao-pon Exp $
 //
 class xpwiki_plugin_recentchanges extends xpwiki_plugin {
 	
@@ -36,6 +36,7 @@ class xpwiki_plugin_recentchanges extends xpwiki_plugin {
 				$added = $this->func->get_page_changes($data[1]);
 				if ($this->show_recent && $added) {
 					list($added) = explode('&#182;<!--ADD_TEXT_SEP-->',$added);
+					$added = $this->func->drop_submit($added);
 					$items .= str_replace('$1', $added, $this->show_recent_format);
 				}
 				$items .="</li>\n";
