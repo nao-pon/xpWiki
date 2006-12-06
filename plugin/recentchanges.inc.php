@@ -1,11 +1,17 @@
 <?php
 //
 // Created on 2006/11/19 by nao-pon http://hypweb.net/
-// $Id: recentchanges.inc.php,v 1.1 2006/11/19 11:22:15 nao-pon Exp $
+// $Id: recentchanges.inc.php,v 1.2 2006/12/06 04:15:10 nao-pon Exp $
 //
 class xpwiki_plugin_recentchanges extends xpwiki_plugin {
+	
+	var $show_recent;
+	
 	function plugin_recentchanges_init () {
-
+		// 直近追加された部分を表示する
+		$this->show_recent = TRUE;
+		// そのフォーマット
+		$this->show_recent_format = '<div style="font-size:80%;">$1</div>';
 	}
 	
 	function plugin_recentchanges_action()
@@ -26,7 +32,13 @@ class xpwiki_plugin_recentchanges extends xpwiki_plugin {
 			{
 				$lastmod = $this->func->format_date($data[3]);
 				$tb_tag = ($this->root->trackback)? "<a href=\"$script?plugin=tb&amp;__mode=view&amp;tb_id=".tb_get_id($data[1])."\" title=\"TrackBack\">TB(".$this->func->tb_count($data[1]).")</a> - " : "";
-				$items .="<li>$lastmod - ".$tb_tag.$this->func->make_pagelink($data[1])."</li>\n";
+				$items .= "<li>$lastmod - ".$tb_tag.$this->func->make_pagelink($data[1]);
+				$added = $this->func->get_page_changes($data[1]);
+				if ($this->show_recent && $added) {
+					list($added) = explode('&#182;<!--ADD_TEXT_SEP-->',$added);
+					$items .= str_replace('$1', $added, $this->show_recent_format);
+				}
+				$items .="</li>\n";
 			}
 			$items .= '</ul>';
 	
