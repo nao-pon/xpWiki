@@ -1,7 +1,7 @@
 <?php
 //
 // Created on 2006/10/02 by nao-pon http://hypweb.net/
-// $Id: pukiwiki_func.php,v 1.37 2006/12/06 05:19:23 nao-pon Exp $
+// $Id: pukiwiki_func.php,v 1.38 2006/12/06 06:05:45 nao-pon Exp $
 //
 class XpWikiPukiWikiFunc extends XpWikiBaseFunc {
 
@@ -911,7 +911,7 @@ class XpWikiPukiWikiFunc extends XpWikiBaseFunc {
 
 //----- Start convert_html.php -----//
 	// PukiWiki - Yet another WikiWikiWeb clone
-	// $Id: pukiwiki_func.php,v 1.37 2006/12/06 05:19:23 nao-pon Exp $
+	// $Id: pukiwiki_func.php,v 1.38 2006/12/06 06:05:45 nao-pon Exp $
 	// Copyright (C)
 	//   2002-2005 PukiWiki Developers Team
 	//   2001-2002 Originally written by yu-ji
@@ -1024,7 +1024,7 @@ class XpWikiPukiWikiFunc extends XpWikiBaseFunc {
 
 //----- Start func.php -----//
 	// PukiWiki - Yet another WikiWikiWeb clone.
-	// $Id: pukiwiki_func.php,v 1.37 2006/12/06 05:19:23 nao-pon Exp $
+	// $Id: pukiwiki_func.php,v 1.38 2006/12/06 06:05:45 nao-pon Exp $
 	// Copyright (C)
 	//   2002-2006 PukiWiki Developers Team
 	//   2001-2002 Originally written by yu-ji
@@ -1806,7 +1806,7 @@ EOD;
 
 //----- Start make_link.php -----//
 	// PukiWiki - Yet another WikiWikiWeb clone.
-	// $Id: pukiwiki_func.php,v 1.37 2006/12/06 05:19:23 nao-pon Exp $
+	// $Id: pukiwiki_func.php,v 1.38 2006/12/06 06:05:45 nao-pon Exp $
 	// Copyright (C)
 	//   2003-2005 PukiWiki Developers Team
 	//   2001-2002 Originally written by yu-ji
@@ -2613,7 +2613,7 @@ EOD;
 
 //----- Start html.php -----//
 	// PukiWiki - Yet another WikiWikiWeb clone.
-	// $Id: pukiwiki_func.php,v 1.37 2006/12/06 05:19:23 nao-pon Exp $
+	// $Id: pukiwiki_func.php,v 1.38 2006/12/06 06:05:45 nao-pon Exp $
 	// Copyright (C)
 	//   2002-2006 PukiWiki Developers Team
 	//   2001-2002 Originally written by yu-ji
@@ -2856,17 +2856,21 @@ EOD;
 			$riddle = '<p>' . $this->root->_btn_riddle . '<br />' .
 				'&nbsp;&nbsp;<strong>Q:</strong> ' . htmlspecialchars($options['riddle']) . '<br />' .
 				'&nbsp;&nbsp;<strong>A:</strong> <input type="text" name="riddle'.md5($this->cont['HOME_URL'].$options['riddle']) .
-				'" size="30" value="" autocomplete="off" onChange="
-					with (document.getElementById(\'edit_preview\')){
-						name=\'write\';
-						value=\''.$this->root->_btn_update.'\';
-						setAttribute(\'accesskey\',\'s\');
-					}
-					with (document.getElementById(\'edit_write\')){
-						name=\'preview\';
-						document.getElementById(\'edit_write\').value=\''.$btn_preview.'\';
-						setAttribute(\'accesskey\',\'p\');
-					}" /><br />' .
+				'" size="30" value="" autocomplete="off" onkeyup="
+					(function (e){
+						if (e.value && document.getElementById(\'edit_write\').name === \'write\') {
+							with (document.getElementById(\'edit_preview\')){
+								name=\'write\';
+								value=\''.$this->root->_btn_update.'\';
+								setAttribute(\'accesskey\',\'s\');
+							}
+							with (document.getElementById(\'edit_write\')){
+								name=\'preview\';
+								value=\''.$btn_preview.'\';
+								setAttribute(\'accesskey\',\'p\');
+							}
+						}
+					})(this)" /><br />' .
 				'</p>';	
 		}
 	
@@ -3193,7 +3197,7 @@ EOD;
 
 //----- Start mail.php -----//
 	// PukiWiki - Yet another WikiWikiWeb clone.
-	// $Id: pukiwiki_func.php,v 1.37 2006/12/06 05:19:23 nao-pon Exp $
+	// $Id: pukiwiki_func.php,v 1.38 2006/12/06 06:05:45 nao-pon Exp $
 	// Copyright (C)
 	//   2003-2005 PukiWiki Developers Team
 	//   2003      Originally written by upk
@@ -3500,7 +3504,7 @@ EOD;
 
 //----- Start link.php -----//
 	// PukiWiki - Yet another WikiWikiWeb clone
-	// $Id: pukiwiki_func.php,v 1.37 2006/12/06 05:19:23 nao-pon Exp $
+	// $Id: pukiwiki_func.php,v 1.38 2006/12/06 06:05:45 nao-pon Exp $
 	// Copyright (C) 2003-2006 PukiWiki Developers Team
 	// License: GPL v2 or (at your option) any later version
 	//
