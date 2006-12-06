@@ -4,7 +4,7 @@ class xpwiki_plugin_edit extends xpwiki_plugin {
 
 
 	// PukiWiki - Yet another WikiWikiWeb clone.
-	// $Id: edit.inc.php,v 1.16 2006/12/05 23:55:54 nao-pon Exp $
+	// $Id: edit.inc.php,v 1.17 2006/12/06 06:04:50 nao-pon Exp $
 	// Copyright (C) 2001-2006 PukiWiki Developers Team
 	// License: GPL v2 or (at your option) any later version
 	//
@@ -49,7 +49,7 @@ class xpwiki_plugin_edit extends xpwiki_plugin {
 
 		if ($postdata == '') $postdata = $this->func->auto_template($page);
 		
-		// なぞなぞ認証
+		// Q & A 認証
 		$options = $this->get_riddle();
 
 		return array('msg'=>$this->root->_title_edit, 'body'=>$this->func->edit_form($page, $postdata, FALSE, TRUE, $options));
@@ -96,7 +96,7 @@ class xpwiki_plugin_edit extends xpwiki_plugin {
 			$body .= '<div id="preview">' . $postdata . '</div>' . "\n";
 		}
 		
-		// なぞなぞ認証
+		// Q & A 認証
 		$options = $this->get_riddle();
 
 		$body .= $this->func->edit_form($page, $this->root->vars['msg'], $this->root->vars['digest'], TRUE, $options);
@@ -342,7 +342,7 @@ class xpwiki_plugin_edit extends xpwiki_plugin {
 		return FALSE;
 	}
 	
-	// なぞなぞ認証用 $option 取得
+	// Q & A 認証用 $option 取得
 	function get_riddle () {
 		if ($this->root->userinfo['admin'] ||
 			$this->root->riddle_auth === 0 ||
