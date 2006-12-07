@@ -1,6 +1,6 @@
 <?php
 // PukiWiki - Yet another WikiWikiWeb clone.
-// $Id: ja.lng.php,v 1.9 2006/12/03 23:19:06 nao-pon Exp $
+// $Id: ja.lng.php,v 1.10 2006/12/07 00:32:46 nao-pon Exp $
 // Copyright (C)
 //   2002-2005 PukiWiki Developers Team
 //   2001-2002 Originally written by yu-ji
@@ -139,6 +139,7 @@ $root->_LANG['skin']['trackback'] = 'Trackback';	// Show list of trackback
 $root->_LANG['skin']['unfreeze']  = '凍結解除';
 $root->_LANG['skin']['upload']    = '添付';	// Attach a file
 $root->_LANG['skin']['pginfo']    = '権限';
+$root->_LANG['skin']['comments']  = 'コメント';
 
 ///////////////////////////////////////
 // Plug-in message

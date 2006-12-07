@@ -52,7 +52,25 @@ $modversion['blocks'] = array() ;
 $modversion['hasComments'] = 0 ;
 
 // Configs
-$modversion['config'] = array() ;
+$modversion['config'][] = array(
+	'name'			=> 'comment_dirname' ,
+	'title'			=> $constpref.'_COM_DIRNAME' ,
+	'description'	=> '' ,
+	'formtype'		=> 'textbox' ,
+	'valuetype'		=> 'text' ,
+	'default'		=> '' ,
+	'options'		=> array()
+) ;
+
+$modversion['config'][] = array(
+	'name'			=> 'comment_forum_id' ,
+	'title'			=> $constpref.'_COM_FORUM_ID' ,
+	'description'	=> '' ,
+	'formtype'		=> 'textbox' ,
+	'valuetype'		=> 'int' ,
+	'default'		=> '0' ,
+	'options'		=> array()
+) ;
 
 // Notification
 $modversion['hasNotification'] = 0 ;

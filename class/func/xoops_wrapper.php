@@ -1,7 +1,7 @@
 <?php
 //
 // Created on 2006/10/11 by nao-pon http://hypweb.net/
-// $Id: xoops_wrapper.php,v 1.14 2006/11/24 13:47:07 nao-pon Exp $
+// $Id: xoops_wrapper.php,v 1.15 2006/12/07 00:32:46 nao-pon Exp $
 //
 class XpWikiXoopsWrapper extends XpWikiBackupFunc {
 	
@@ -16,8 +16,10 @@ class XpWikiXoopsWrapper extends XpWikiBackupFunc {
 		
 		$module_handler =& xoops_gethandler('module');
 		$XoopsModule =& $module_handler->getByDirname($this->root->mydirname);
+		$config_handler =& xoops_gethandler('config');
 		
 		$this->root->module = $XoopsModule->getInfo();
+		$this->root->module['config'] =& $config_handler->getConfigsByCat(0, $XoopsModule->mid());
 		$this->root->module['platform'] = "xoops";
 	}
 
@@ -236,6 +238,40 @@ class XpWikiXoopsWrapper extends XpWikiBackupFunc {
 		$XoopsModule =& $module_handler->getByDirname($this->root->mydirname);
 		$xoopsUser =& $member_handler->getUser($uid);
 		return $xoopsUser->isAdmin($XoopsModule->mid());
+	}
+	
+	// ページコメント取得
+	function get_page_comments ($page) {
+		$pgid = $this->get_pgid_by_name($page);
+		if (!$pgid) return '';
+		
+		require_once XOOPS_ROOT_PATH.'/class/template.php';
+		$tpl = new XoopsTpl();
+		// assign
+		$tpl->assign(
+			array(
+				'mod_config' => $this->root->module['config'] ,
+				'content' => array (
+								'id' => $pgid,
+								'subject' => $page,
+							),
+			)
+		);
+		return $tpl->fetch( 'db:'.$this->root->mydirname.'_main_d3comment.html' ) ;	
+	}
+	
+	// ページコメント件数取得
+	function count_page_comments ($page) {
+		$count = NULL;
+
+		$pgid = $this->get_pgid_by_name($page);
+		if (!$pgid) return $count;
+		
+		$sql = "SELECT COUNT(t.topic_id) FROM ".$this->xpwiki->db->prefix($this->root->module['config']['comment_dirname']."_topics")." t WHERE t.forum_id={$this->root->module['config']['comment_forum_id']} AND ! t.topic_invisible AND topic_external_link_id=$pgid" ;
+		if( $trs = $this->xpwiki->db->query( $sql ) ) {
+			list( $count ) = $this->xpwiki->db->fetchRow( $trs ) ;
+		}
+		return $count;
 	}
 	
 	// リダイレクト
