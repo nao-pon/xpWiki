@@ -1,7 +1,7 @@
 <?php
 //
 // Created on 2006/10/11 by nao-pon http://hypweb.net/
-// $Id: xoops_wrapper.php,v 1.15 2006/12/07 00:32:46 nao-pon Exp $
+// $Id: xoops_wrapper.php,v 1.16 2006/12/07 06:38:29 nao-pon Exp $
 //
 class XpWikiXoopsWrapper extends XpWikiBackupFunc {
 	
@@ -21,6 +21,11 @@ class XpWikiXoopsWrapper extends XpWikiBackupFunc {
 		$this->root->module = $XoopsModule->getInfo();
 		$this->root->module['config'] =& $config_handler->getConfigsByCat(0, $XoopsModule->mid());
 		$this->root->module['platform'] = "xoops";
+		
+		if (empty($this->root->module['config']['comment_forum_id']) ||
+			!file_exists(XOOPS_ROOT_PATH . '/modules/' . $this->root->module['config']['comment_dirname'])) {
+			$this->root->allow_pagecomment = FALSE;
+		}
 	}
 
 	function set_siteinfo () {
@@ -242,6 +247,9 @@ class XpWikiXoopsWrapper extends XpWikiBackupFunc {
 	
 	// ページコメント取得
 	function get_page_comments ($page) {
+		
+		if (!$this->root->allow_pagecomment) return '';
+		
 		$pgid = $this->get_pgid_by_name($page);
 		if (!$pgid) return '';
 		
@@ -262,11 +270,12 @@ class XpWikiXoopsWrapper extends XpWikiBackupFunc {
 	
 	// ページコメント件数取得
 	function count_page_comments ($page) {
-		$count = NULL;
-
-		$pgid = $this->get_pgid_by_name($page);
-		if (!$pgid) return $count;
+		if (!$this->root->allow_pagecomment) return 0;
 		
+		$pgid = $this->get_pgid_by_name($page);
+		if (!$pgid) return 0;
+
+		$count = 0;		
 		$sql = "SELECT COUNT(t.topic_id) FROM ".$this->xpwiki->db->prefix($this->root->module['config']['comment_dirname']."_topics")." t WHERE t.forum_id={$this->root->module['config']['comment_forum_id']} AND ! t.topic_invisible AND topic_external_link_id=$pgid" ;
 		if( $trs = $this->xpwiki->db->query( $sql ) ) {
 			list( $count ) = $this->xpwiki->db->fetchRow( $trs ) ;
