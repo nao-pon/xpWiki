@@ -69,7 +69,7 @@ if ($xpwiki->runmode == "xoops") {
 	$xoopsTpl->assign("xoops_module_header", $xpwiki->root->html_header . $xoopsTpl->get_template_vars("xoops_module_header"));
 	
 	echo $xpwiki->html;
-	
+
 	// xoops footer
 	include XOOPS_ROOT_PATH.'/footer.php';
 

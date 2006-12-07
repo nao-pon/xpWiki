@@ -14,6 +14,8 @@ define( $constpref.'_PLUGIN_CONVERTER' , 'プラグイン変換ツール' ) ;
 define( $constpref.'_SKIN_CONVERTER' , 'スキン変換ツール' ) ;
 define( $constpref.'_ADMIN_TOOLS' , '管理用ツール一覧' ) ;
 
+define( $constpref.'_COM_DIRNAME','コメント統合するd3forumのdirname');
+define( $constpref.'_COM_FORUM_ID','コメント統合するフォーラムの番号');
 }
 
 

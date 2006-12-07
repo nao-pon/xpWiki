@@ -3,7 +3,7 @@
 $this->root->runmode = "standalone";
 
 // PukiWiki - Yet another WikiWikiWeb clone.
-// $Id: tdiary.skin.php,v 1.14 2006/12/03 23:16:48 nao-pon Exp $
+// $Id: tdiary.skin.php,v 1.15 2006/12/07 00:32:46 nao-pon Exp $
 // Copyright (C)
 //   2002-2006 PukiWiki Developers Team
 //   2001-2002 Originally written by yu-ji
@@ -673,6 +673,9 @@ function _navigator(& $func, $key, $value = '', $javascript = ''){
 <?php if ($this->root->referer)   { ?> &nbsp;
    <?php _navigator($this, 'refer') ?>
 <?php } ?>
+<?php if ($page_comments_count)   { ?> &nbsp;
+   <?php echo $page_comments_count ?>
+<?php } ?>
 </div></div>
 <?php } else { ?>
 <div id="navigator"></div>
@@ -858,6 +861,14 @@ default:
 </div><!-- class="sidebar" -->
 <?php } // if ($menu && $sidebar == 'bottom') ?>
 
+<?php if ($page_comments) { ?>
+<div class="body">
+<?php echo $this->root->hr ?>
+ <div class="commentbody">
+  <?php echo $page_comments ?>
+ </div>
+</div>
+<?php } ?>
 
 <div class="footer">
 <?php if ($this->cont['PKWK_SKIN_SHOW_TOOLBAR']) { ?>

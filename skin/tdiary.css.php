@@ -1,6 +1,6 @@
 <?php
 // PukiWiki - Yet another WikiWikiWeb clone.
-// $Id: tdiary.css.php,v 1.3 2006/10/18 03:02:08 nao-pon Exp $
+// $Id: tdiary.css.php,v 1.4 2006/12/07 00:32:46 nao-pon Exp $
 // Copyright (C)
 //   2002-2005 PukiWiki Developers Team
 //   2001-2002 Originally written by yu-ji
@@ -178,6 +178,10 @@ ol.list2 { list-style-type:lower-roman; }
 ol.list3 { list-style-type:lower-alpha; }
 
 div.ie5 { text-align:center; }
+
+div.commentbody table {
+	width: 100%;
+}
 
 /* NoSuchPage? */
 span.noexists {

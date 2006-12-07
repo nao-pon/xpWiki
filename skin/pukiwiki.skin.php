@@ -1,6 +1,6 @@
 <?php
 // PukiWiki - Yet another WikiWikiWeb clone.
-// $Id: pukiwiki.skin.php,v 1.12 2006/12/02 12:55:51 nao-pon Exp $
+// $Id: pukiwiki.skin.php,v 1.13 2006/12/07 00:32:46 nao-pon Exp $
 // Copyright (C)
 //   2002-2006 PukiWiki Developers Team
 //   2001-2002 Originally written by yu-ji
@@ -163,6 +163,9 @@ function _navigator($this, $key, $value = '', $javascript = ''){
 <?php if ($this->root->referer)   { ?> &nbsp;
  [ <?php _navigator($this,'refer') ?> ]
 <?php } ?>
+<?php if ($page_comments_count)   { ?> &nbsp;
+ [ <?php echo $page_comments_count ?> ]
+<?php } ?>
 <?php } // PKWK_SKIN_SHOW_NAVBAR ?>
 </div>
 
@@ -192,6 +195,11 @@ function _navigator($this, $key, $value = '', $javascript = ''){
 <?php echo $this->root->hr ?>
 <?php echo $attaches ?>
 </div>
+<?php } ?>
+
+<?php if ($page_comments) { ?>
+<?php echo $this->root->hr ?>
+<div class="commentbody"><?php echo $page_comments ?></div>
 <?php } ?>
 
 <?php echo $this->root->hr ?>

@@ -1,7 +1,7 @@
 <?php
 //
 // Created on 2006/09/29 by nao-pon http://hypweb.net/
-// $Id: xpwiki.php,v 1.19 2006/12/05 00:02:07 nao-pon Exp $
+// $Id: xpwiki.php,v 1.20 2006/12/07 00:32:46 nao-pon Exp $
 //
 
 class XpWiki {
@@ -140,6 +140,7 @@ class XpWiki {
 			$this->pagetitle     = $this->headtitle . ' - ' . $this->root->page_title;
 			
 			$this->title         = $title;
+			$this->page          = $base;
 			$this->page_name     = $page;
 			$this->body          = $body;
 			$this->foot_explain  = $root->foot_explain;

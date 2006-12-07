@@ -1,6 +1,6 @@
 <?php
 // PukiWiki - Yet another WikiWikiWeb clone.
-// $Id: pukiwiki.css.php,v 1.3 2006/10/18 13:27:36 nao-pon Exp $
+// $Id: pukiwiki.css.php,v 1.4 2006/12/07 00:32:46 nao-pon Exp $
 // Copyright (C)
 //   2002-2005 PukiWiki Developers Team
 //   2001-2002 Originally written by yu-ji
@@ -363,6 +363,9 @@ div#wikihelper_base {
 <?php echo $class ?> strong.word9 {
 	background-color:#990099;
 	color:white;
+}
+<?php echo $class ?> div.commentbody table {
+	width: 100%;
 }
 
 /* html.php/edit_form() */
