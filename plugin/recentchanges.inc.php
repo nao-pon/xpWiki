@@ -1,7 +1,7 @@
 <?php
 //
 // Created on 2006/11/19 by nao-pon http://hypweb.net/
-// $Id: recentchanges.inc.php,v 1.3 2006/12/06 05:18:31 nao-pon Exp $
+// $Id: recentchanges.inc.php,v 1.4 2006/12/08 06:09:31 nao-pon Exp $
 //
 class xpwiki_plugin_recentchanges extends xpwiki_plugin {
 	
@@ -11,7 +11,10 @@ class xpwiki_plugin_recentchanges extends xpwiki_plugin {
 		// 直近追加された部分を表示する
 		$this->show_recent = TRUE;
 		// そのフォーマット
-		$this->show_recent_format = '<div style="font-size:80%;">$1</div>';
+		$this->show_recent_format = '<div class="recent_add">$1</div>';
+		
+		// Add CSS
+		$this->func->add_tag_head('recentchanges.css');
 	}
 	
 	function plugin_recentchanges_action()
