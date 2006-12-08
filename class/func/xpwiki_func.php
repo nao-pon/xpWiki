@@ -1,7 +1,7 @@
 <?php
 //
 // Created on 2006/10/02 by nao-pon http://hypweb.net/
-// $Id: xpwiki_func.php,v 1.34 2006/12/06 04:14:37 nao-pon Exp $
+// $Id: xpwiki_func.php,v 1.35 2006/12/08 06:08:31 nao-pon Exp $
 //
 class XpWikiFunc extends XpWikiXoopsWrapper {
 
@@ -887,7 +887,7 @@ EOD;
 	// ページ頭文字読みの配列を取得
 	function get_readings() {
 		$readings = array();
-		$pages = $this->get_existpages(false, "", array('withtime' => array('reading', 'title')));
+		$pages = $this->get_existpages(false, "", array('select' => array('reading', 'title')));
 		foreach ($pages as $page=>$dat) {
 			if (empty($dat['reading'])) {
 				$dat['reading'] = $this->get_page_reading($page);
@@ -999,7 +999,7 @@ EOD;
 	}
 	
 	// 全ページ名を配列にDB版
-	function get_existpages($nocheck=false, $base="", $options = array())
+	function get_existpages($nocheck = FALSE, $base = '', $options = array())
 	{
 		// File版を使用
 		if (is_string($nocheck) && $nocheck !== $this->cont['DATA_DIR']) {
@@ -1007,7 +1007,7 @@ EOD;
 		}
 		
 		static $_aryret = array();
-		if (isset($_aryret[$this->xpwiki->pid]) && !$options) return $_aryret[$this->xpwiki->pid];
+		if (isset($_aryret[$this->xpwiki->pid]) && $nocheck === FALSE && $base === '' && !$options) return $_aryret[$this->xpwiki->pid];
 		
 		$keys = array(
 			'limit'     => 0,
@@ -1015,7 +1015,8 @@ EOD;
 			'nolisting' => FALSE,
 			'nochiled'  => FALSE,
 			'nodelete'  => TRUE,
-			'withtime'  => FALSE );
+			'withtime'  => FALSE,
+			'select'    => array() );
 		foreach ($keys as $key => $def) {
 			$$key = (isset($options[$key]))? $options[$key] : $def ;
 		}
@@ -1082,12 +1083,12 @@ EOD;
 		}
 		if ($where) $where = " WHERE".$where;
 		$limit = ($limit)? " LIMIT $limit" : "";
-		$select = '';
-		if (is_array($withtime)) {
-			$keys = array_merge($withtime, array('name'));
+		$_select = '';
+		if ($select) {
+			$keys = array_merge($select, array('name'));
 			$keys = array_unique($keys);
-			$select = '`' . join('`,`', $keys) . '`';
-			$query = 'SELECT '.$select.' FROM '.$this->xpwiki->db->prefix($this->root->mydirname."_pginfo").$where.$order.$limit;
+			$_select = '`' . join('`,`', $keys) . '`';
+			$query = 'SELECT '.$_select.' FROM '.$this->xpwiki->db->prefix($this->root->mydirname."_pginfo").$where.$order.$limit;
 		} else {
 			$query = 'SELECT `editedtime`, `name` FROM '.$this->xpwiki->db->prefix($this->root->mydirname."_pginfo").$where.$order.$limit;
 		}
@@ -1104,7 +1105,7 @@ EOD;
 				}
 			}
 		}
-		if (!$nocheck && !$base && !$limit && !$order && !$nolisting && !$nochiled && $nodelete && !$withtime) $_aryret[$this->xpwiki->pid] = $aryret;
+		if ($nocheck === FALSE && $base === '' && !$options) $_aryret[$this->xpwiki->pid] = $aryret;
 		return $aryret;
 	}
 
