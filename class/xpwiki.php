@@ -1,7 +1,7 @@
 <?php
 //
 // Created on 2006/09/29 by nao-pon http://hypweb.net/
-// $Id: xpwiki.php,v 1.20 2006/12/07 00:32:46 nao-pon Exp $
+// $Id: xpwiki.php,v 1.21 2006/12/08 06:05:48 nao-pon Exp $
 //
 
 class XpWiki {
@@ -14,7 +14,8 @@ class XpWiki {
 	var $func;  // All functions
 	var $db;    // Database Connection
 	
-	var $page_name;
+	var $skin_title;
+	var $page;
 	var $body;
 	var $html;
 
@@ -141,7 +142,7 @@ class XpWiki {
 			
 			$this->title         = $title;
 			$this->page          = $base;
-			$this->page_name     = $page;
+			$this->skin_title    = $page;
 			$this->body          = $body;
 			$this->foot_explain  = $root->foot_explain;
 			$this->head_pre_tags = $root->head_pre_tags;
@@ -179,7 +180,7 @@ class XpWiki {
 		
 		// catbody
 		ob_start();
-		$this->func->catbody($this->title, $this->page_name, $this->body);
+		$this->func->catbody($this->title, $this->skin_title, $this->body);
 		$this->html = ob_get_contents();
 		if (!empty($this->root->runmode)) $this->runmode = $this->root->runmode;
 		while( ob_get_level() ) { ob_end_clean() ; }
@@ -191,6 +192,28 @@ class XpWiki {
 
 		return $this->body;
 
+	}
+	
+	function get_page_count () {
+		if (!$this->page || !$this->func->is_page($this->page)) return 0;
+		$pgid = $this->func->get_pgid_by_name($this->page);
+		
+		$count = 0;
+		
+		$sql = 'SELECT `count` FROM `'.$this->db->prefix($this->root->mydirname."_count").'` WHERE pgid = '.$pgid.' LIMIT 1';
+		$res = $this->db->query($sql);
+		if ($res) {
+			list($count) = mysql_fetch_row($res);	
+		}
+		return $count;
+	}
+	
+	function get_comment_count () {
+		return $this->func->count_page_comments($this->page);
+	}
+	
+	function get_pginfo () {
+		return $this->func->get_pginfo($this->page);
 	}
 	
 	function get_html_for_block ($page, $width = "100%") {
