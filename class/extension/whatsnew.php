@@ -1,7 +1,7 @@
 <?php
 //
 // Created on 2006/10/29 by nao-pon http://hypweb.net/
-// $Id: whatsnew.php,v 1.5 2006/12/01 01:44:38 nao-pon Exp $
+// $Id: whatsnew.php,v 1.6 2006/12/08 06:09:06 nao-pon Exp $
 //
 
 class XpWikiExtension_whatsnew extends XpWikiExtension {
@@ -25,17 +25,33 @@ class XpWikiExtension_whatsnew extends XpWikiExtension {
 		foreach($recent_arr as $line) {
 			list($time, $base) = explode("\t", trim($line));
 			$localtime = $time + ($this->cont['ZONETIME']);
-	
+			// 追加情報取得
+			$added = $this->func->get_page_changes($base);
+						
+			$uppage = dirname($base);
+			if ($uppage === $base || $uppage === '.') {
+				$ret[$i]['cat_link'] = '';
+				$ret[$i]['cat_name'] = '';
+			} else {
+				$ret[$i]['cat_link'] = $this->root->script."?".rawurlencode($uppage);
+				$ret[$i]['cat_name'] = $uppage;
+			}
+			
 			$ret[$i]['link']  = $this->root->script."?".rawurlencode($base);
-			$ret[$i]['title'] = $base;
+			$ret[$i]['title'] = preg_replace('/^[0-9-]+$/', $this->func->get_heading($base), basename($base));
 			$ret[$i]['time']  = $localtime;
 			
-			// 指定ページの本文取得
+			// 指定ページの本文などを取得
 			$page = new XpWiki($this->root->mydirname);
 			$page->init($base);
 			$page->root->rtf['use_cache_always'] = TRUE;
 			$page->execute();
-			$ret[$i]['description'] = strip_tags($page->body);
+			$pginfo = $page->get_pginfo();
+
+			$ret[$i]['description'] = strip_tags(($added ? $added . '&#182;' : '') .$page->body);
+			$ret[$i]['hits']        = $page->get_page_count();
+			$ret[$i]['replies']     = $page->get_comment_count();
+			$ret[$i]['uid']         = $pginfo['lastuid'];
 			
 			//$ret[$i]['description'] = $this->func->get_plain_text_db($base);
 			
