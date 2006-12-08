@@ -2,7 +2,7 @@
 /////////////////////////////////////////////////
 // PukiWiki - Yet another WikiWikiWeb clone.
 //
-// $Id: popular.inc.php,v 1.4 2006/12/03 07:15:09 nao-pon Exp $
+// $Id: popular.inc.php,v 1.5 2006/12/08 00:59:44 nao-pon Exp $
 //
 
 /*
@@ -102,7 +102,7 @@ class xpwiki_plugin_popular extends xpwiki_plugin {
 			if ($yesterday) {
 				$where .= " UNION SELECT p.`name`, c.`today_count` AS `count`";
 				$where .= " FROM ".$this->xpwiki->db->prefix($this->root->mydirname."_pginfo")." as p , ".$this->xpwiki->db->prefix($this->root->mydirname."_count")." as c";
-				$where .= " WHERE (c.pgid = p.pgid) AND (p.name NOT LIKE ':%') AND (today = '$yesterday')$nopage$_where";
+				$where .= " WHERE (p.name NOT LIKE ':%') AND (today = '$yesterday')$nopage$_where";
 				$select = "p.`name`, c.`yesterday_count` AS `count`";
 			} else {
 				$select = "p.`name`, c.`today_count` AS `count`";
@@ -114,9 +114,9 @@ class xpwiki_plugin_popular extends xpwiki_plugin {
 			$select = "p.`name`, c.`count` AS `count`";
 		}
 		//echo $where;
-		$query = "SELECT $select FROM ".$this->xpwiki->db->prefix($this->root->mydirname."_pginfo")." as p , ".$this->xpwiki->db->prefix($this->root->mydirname."_count")." as c $where ORDER BY `count` DESC LIMIT $max";
+		$query = "SELECT $select FROM ".$this->xpwiki->db->prefix($this->root->mydirname."_count")." as c INNER JOIN ".$this->xpwiki->db->prefix($this->root->mydirname."_pginfo")." as p ON c.pgid = p.pgid $where ORDER BY `count` DESC LIMIT $max";
 		$res = $this->xpwiki->db->query($query);
-		//echo $query."<br>";
+		//if ($this->root->userinfo['admin']) echo $query."<br>";
 		if ($res)
 		{
 			while($data = mysql_fetch_row($res))
