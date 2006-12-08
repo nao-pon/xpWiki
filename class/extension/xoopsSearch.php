@@ -1,7 +1,7 @@
 <?php
 //
 // Created on 2006/11/27 by nao-pon http://hypweb.net/
-// $Id: xoopsSearch.php,v 1.1 2006/11/28 00:15:59 nao-pon Exp $
+// $Id: xoopsSearch.php,v 1.2 2006/12/08 06:06:08 nao-pon Exp $
 //
 class XpWikiExtension_xoopsSearch extends XpWikiExtension {
 
@@ -21,7 +21,7 @@ class XpWikiExtension_xoopsSearch extends XpWikiExtension {
 			$where = "$where AND ($where_readable)";
 		}
 		
-		$sql = "SELECT p.pgid,p.name,p.editedtime,p.title,p.uid FROM ".$this->xpwiki->db->prefix($this->root->mydirname."_pginfo")." p LEFT JOIN ".$this->xpwiki->db->prefix($this->root->mydirname."_plain")." t ON t.pgid=p.pgid WHERE ($where) ";
+		$sql = "SELECT p.pgid,p.name,p.editedtime,p.title,p.uid FROM ".$this->xpwiki->db->prefix($this->root->mydirname."_pginfo")." p INNER JOIN ".$this->xpwiki->db->prefix($this->root->mydirname."_plain")." t ON t.pgid=p.pgid WHERE ($where) ";
 		if ( $userid != 0 ) {
 			$sql .= "AND (p.uid=".$userid.") ";
 		}
