@@ -38,33 +38,9 @@ $xpwiki->catbody();
 
 if ($xpwiki->runmode == "xoops") {
 	
-	// get contents as array.
-	//$xpwiki_outputs = $xpwiki->getcontent_as_array();
-	
-	// template name
-	//$xoopsOption['template_main'] = $xpwiki->template_name;
-	
 	// xoops header
 	include XOOPS_ROOT_PATH.'/header.php';
 	
-	// output to template
-	// page title
-	//$xoopsTpl->assign("xoops_pagetitle",$xpwiki_outputs['header']['title']."-".$xoopsModule->name());
-	
-	// contents
-	//$xoopsTpl->assign("md_xpwiki_outputs",$xpwiki_outputs);
-	
-	/*
-	// page comment
-	if ($use_xoops_comments && $show_comments)
-	{
-		$HTTP_GET_VARS['pgid'] = $_GET['pgid'] = $pgid;
-		$xoopsTpl->assign('show_comments', true);
-		$xoopsTpl->assign('comments_title', $xpwiki->get_lang('page_comment_title'));
-		include_once XOOPS_ROOT_PATH.'/include/comment_view.php';
-	}
-	*/
-
 	$xoopsTpl->assign("xoops_pagetitle",$xpwiki->headtitle);
 	$xoopsTpl->assign("xoops_module_header", $xpwiki->root->html_header . $xoopsTpl->get_template_vars("xoops_module_header"));
 	
