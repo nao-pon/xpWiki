@@ -1,7 +1,7 @@
 <?php
 //
 // Created on 2006/10/02 by nao-pon http://hypweb.net/
-// $Id: xpwiki_func.php,v 1.35 2006/12/08 06:08:31 nao-pon Exp $
+// $Id: xpwiki_func.php,v 1.36 2006/12/08 08:27:51 nao-pon Exp $
 //
 class XpWikiFunc extends XpWikiXoopsWrapper {
 
@@ -1010,6 +1010,7 @@ EOD;
 		if (isset($_aryret[$this->xpwiki->pid]) && $nocheck === FALSE && $base === '' && !$options) return $_aryret[$this->xpwiki->pid];
 		
 		$keys = array(
+			'where'     => '',
 			'limit'     => 0,
 			'order'     => '',
 			'nolisting' => FALSE,
@@ -1023,10 +1024,11 @@ EOD;
 		
 		$aryret = array();
 		
-		if ($nocheck) {
-			$where = '';
-		} else {
-			$where = $this->get_readable_where();
+		if (!$nocheck) {
+			if ($where)
+				$where = " (" . $this->get_readable_where() . ") AND ($where)";
+			else
+				$where = $this->get_readable_where();
 		}
 		
 		if ($base)
