@@ -9,7 +9,7 @@ class xpwiki_plugin_attach extends xpwiki_plugin {
 	/////////////////////////////////////////////////
 	// PukiWiki - Yet another WikiWikiWeb clone.
 	//
-	//  $Id: attach.inc.php,v 1.4 2006/11/24 13:47:07 nao-pon Exp $
+	//  $Id: attach.inc.php,v 1.5 2006/12/10 01:25:07 nao-pon Exp $
 	//  ORG: attach.inc.php,v 1.31 2003/07/27 14:15:29 arino Exp $
 	//
 	
@@ -1471,9 +1471,6 @@ class XpWikiAttachFiles
 	// ファイル一覧を取得
 	function toString($flat,$fromall=FALSE,$mode="")
 	{
-//		global $_title_cannotread,$script;
-		$this->func->add_tag_head('attach.css');
-		
 		if (!$this->func->check_readable($this->page,FALSE,FALSE))
 		{
 			return str_replace('$1',$this->func->make_pagelink($this->page),$this->root->_title_cannotread);
@@ -1482,6 +1479,9 @@ class XpWikiAttachFiles
 		{
 			return $this->to_flat();
 		}
+		
+		$this->func->add_tag_head('attach.css');
+		
 		$ret = '';
 		$files = array_keys($this->files);
 		$navi = "";
