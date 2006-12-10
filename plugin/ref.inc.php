@@ -1,5 +1,5 @@
 <?php
-// $Id: ref.inc.php,v 1.6 2006/11/28 12:43:23 nao-pon Exp $
+// $Id: ref.inc.php,v 1.7 2006/12/10 03:55:42 nao-pon Exp $
 /*
 
 	*プラグイン ref
@@ -73,6 +73,7 @@ class xpwiki_plugin_ref extends xpwiki_plugin {
 		
 		// Exif データを取得し title属性に付加する (TRUE or FALSE)
 		$this->cont['PLUGIN_REF_GET_EXIF'] = FALSE;
+		
 	}
 
 	// Output an image (fast, non-logging <==> attach plugin)
@@ -137,14 +138,29 @@ class xpwiki_plugin_ref extends xpwiki_plugin {
 				break;
 			}
 		}
+
+		$etag = md5_file($ref);
+		if ($etag == @$_SERVER["HTTP_IF_NONE_MATCH"]) {
+			header('HTTP/1.1 304 Not Modified' );
+			header('Etag: '. $etag );
+			header('Cache-Control: private');
+			header('Pragma: ');
+			exit();
+		}		
+		
 		$file = htmlspecialchars($filename);
 		$size = filesize($ref);
-	
+
 		// Output
 		$this->func->pkwk_common_headers();
 		header('Content-Disposition: inline; filename="' . $filename . '"');
 		header('Content-Length: ' . $size);
 		header('Content-Type: '   . $type);
+		header('Last-Modified: '  . gmdate( "D, d M Y H:i:s", filemtime($ref) ) . " GMT" );
+		header('Etag: '           . $etag );
+		header('Cache-Control: private');
+		header('Pragma: ');
+		
 		@readfile($ref);
 		exit;
 	}
@@ -381,8 +397,10 @@ class xpwiki_plugin_ref extends xpwiki_plugin {
 					// URI for in-line image output
 					if (! $this->cont['PLUGIN_REF_DIRECT_ACCESS']) {
 						// With ref plugin (faster than attach)
-						$lvar['link'] = $this->root->script . '?plugin=attach' . '&amp;refer=' . rawurlencode($lvar['page']) .
-						'&amp;openfile=' . rawurlencode($lvar['name']); // Show its filename at the last
+						//$lvar['link'] = $this->root->script . '?plugin=attach' . '&amp;refer=' . rawurlencode($lvar['page']) .
+						//'&amp;openfile=' . rawurlencode($lvar['name']); // Show its filename at the last
+						$lvar['link'] = $this->root->script . '?plugin=ref' . '&amp;page=' . rawurlencode($lvar['page']) .
+						'&amp;src=' . rawurlencode($lvar['name']); // Show its filename at the last
 					} else {
 						// Try direct-access, if possible
 						$lvar['link'] = $lvar['file'];
@@ -416,9 +434,18 @@ class xpwiki_plugin_ref extends xpwiki_plugin {
 			// 出力組み立て
 			if ($lvar['url']) {
 				// 画像
+				// lightbox
+				if ($this->root->ref_use_lightbox) {
+					$this->root->ref_use_lightbox = FALSE;
+					$this->func->add_tag_head('prototype.js');
+					$this->func->add_tag_head('effects.js');
+					$this->func->add_tag_head('lightbox.js');
+					$this->func->add_tag_head('lightbox.css');
+				}
+				// 画像ファイル
 				$params['_body'] = '<img src="' . $lvar['url'] . '" alt="' . $lvar['title'] . '" title="' . $lvar['title'] . '"' . $img['class'] . $img['info'] . '/>';
 				if ($lvar['link']) {
-					$params['_body'] = '<a href="' . $lvar['link'] . '" title="' . $lvar['title'] . '">' . $params['_body'] . '</a>';
+					$params['_body'] = '<a href="' . $lvar['link'] . '" title="' . $lvar['title'] . '" type="img">' . $params['_body'] . '</a>';
 				}
 			} else {
 				// その他ファイル

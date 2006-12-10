@@ -133,6 +133,8 @@ class XpWikiLink {
 	var $body;
 	var $alias;
 
+	var $is_image;
+
 	// Constructor
 	function XpWikiLink(& $xpwiki, $start) {
 
@@ -176,6 +178,7 @@ class XpWikiLink {
 		$this->body = $body;
 		$this->type = $type;
 		if (!$this->cont['PKWK_DISABLE_INLINE_IMAGE_FROM_URI'] && $this->func->is_url($alias) && preg_match('/\.(gif|png|jpe?g)$/i', $alias)) {
+			$this->is_image = TRUE;
 			if ($this->cont['SHOW_EXTIMG_BY_REF'] && !$this->func->refcheck(0,$alias)) {
 				$_dum = '';
 				$alias = $this->func->do_plugin_inline('ref', $alias, $_dum);
@@ -355,7 +358,8 @@ EOD;
 		} else {
 			$rel = ' rel="nofollow"';
 		}
-		return '<a href="'.$this->name.'"'.$rel.'>'.$this->alias.'</a>';
+		$img = ($this->is_image)? ' type="img"' : '';
+		return '<a href="'.$this->name.'" title="'.preg_replace('#^https?://#','',$this->name).'"'.$rel.$img.'>'.$this->alias.'</a>';
 	}
 }
 

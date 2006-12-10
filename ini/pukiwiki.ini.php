@@ -1,6 +1,6 @@
 <?php
 // PukiWiki - Yet another WikiWikiWeb clone
-// $Id: pukiwiki.ini.php,v 1.19 2006/12/07 01:37:24 nao-pon Exp $
+// $Id: pukiwiki.ini.php,v 1.20 2006/12/10 03:55:42 nao-pon Exp $
 // Copyright (C)
 //   2002-2006 PukiWiki Developers Team
 //   2001-2002 Originally written by yu-ji
@@ -367,6 +367,9 @@ $root->maxage = 120; // Stock latest N backups
 
 // Splitter of backup data (NOTE: Too dangerous to change)
 $const['PKWK_SPLITTER'] = '>>>>>>>>>>';
+
+// Use lightdox function(with JavaScript) for open a image. 
+$root->ref_use_lightbox = 1;
 
 /////////////////////////////////////////////////
 // Command execution per update
