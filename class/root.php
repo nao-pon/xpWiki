@@ -1,7 +1,7 @@
 <?php
 //
 // Created on 2006/09/29 by nao-pon http://hypweb.net/
-// $Id: root.php,v 1.7 2006/10/31 23:54:54 nao-pon Exp $
+// $Id: root.php,v 1.8 2006/12/11 04:23:35 nao-pon Exp $
 //
 class XpWikiRoot {
 
@@ -94,7 +94,8 @@ class XpWikiRoot {
 	var $notify_to;
 	var $notimeupdate;
 	var $nowikiname;
-	var $page_title;
+	var $module_title;
+	var $pagetitle;
 	var $pagereading_chasen_path;
 	var $pagereading_config_dict;
 	var $pagereading_config_page;

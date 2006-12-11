@@ -2,7 +2,7 @@
 /////////////////////////////////////////////////
 // PukiWiki - Yet another WikiWikiWeb clone.
 //
-// $Id: rsslink.inc.php,v 1.1 2006/12/05 00:03:29 nao-pon Exp $
+// $Id: rsslink.inc.php,v 1.2 2006/12/11 04:23:35 nao-pon Exp $
 //
 class xpwiki_plugin_rsslink extends xpwiki_plugin {
 	function plugin_rsslink_init () {
@@ -47,7 +47,7 @@ class xpwiki_plugin_rsslink extends xpwiki_plugin {
 		else
 		{
 			$s_page = "";
-			$page = " of ".htmlspecialchars($this->root->page_title);
+			$page = " of ".htmlspecialchars($this->root->module_title);
 		}
 		if ($type == "rss10")
 		{

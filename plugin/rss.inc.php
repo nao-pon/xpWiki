@@ -1,6 +1,6 @@
 <?php
 // PukiWiki - Yet another WikiWikiWeb clone
-// $Id: rss.inc.php,v 1.6 2006/12/06 04:15:02 nao-pon Exp $
+// $Id: rss.inc.php,v 1.7 2006/12/11 04:23:35 nao-pon Exp $
 //
 // RSS plugin: Publishing RSS of RecentChanges
 //
@@ -57,7 +57,7 @@ class xpwiki_plugin_rss extends xpwiki_plugin {
 			ob_start();
 					
 			$lang = $this->cont['LANG'];
-			$page_title_utf8 = $this->root->siteinfo['sitename'] . '::' . $this->root->page_title . $s_base;
+			$page_title_utf8 = $this->root->siteinfo['sitename'] . '::' . $this->root->module_title . $s_base;
 			$self = $this->func->get_script_uri();
 			$maketime = $date = substr_replace($this->func->get_date('Y-m-d\TH:i:sO'), ':', -2, 0);
 			$rss_css = $this->cont['HOME_URL'] . 'skin/loader.php?type=xml&amp;src=rss.' . $this->cont['UI_LANG'];

@@ -3,7 +3,7 @@
 $this->root->runmode = "standalone";
 
 // PukiWiki - Yet another WikiWikiWeb clone.
-// $Id: tdiary.skin.php,v 1.15 2006/12/07 00:32:46 nao-pon Exp $
+// $Id: tdiary.skin.php,v 1.16 2006/12/11 04:23:35 nao-pon Exp $
 // Copyright (C)
 //   2002-2006 PukiWiki Developers Team
 //   2001-2002 Originally written by yu-ji
@@ -586,7 +586,7 @@ $dirname = $this->root->mydirname;
 <?php if ($this->root->nofollow || ! $is_read)  { ?> <meta name="robots" content="NOINDEX,NOFOLLOW" /><?php } ?>
 <?php if ($this->cont['PKWK_ALLOW_JAVASCRIPT'] && isset($this->root->javascript)) { ?> <meta http-equiv="Content-Script-Type" content="text/javascript" /><?php } ?>
 
- <title><?php echo $title ?> - <?php echo $this->root->siteinfo['sitename'] ?></title>
+ <title><?php echo htmlspecialchars($this->root->pagetitle) ?> - <?php echo $this->root->siteinfo['sitename'] ?></title>
 
 <?php echo $head_pre_tag?>
  <?php echo $favicon ?>
@@ -681,7 +681,7 @@ function _navigator(& $func, $key, $value = '', $javascript = ''){
 <div id="navigator"></div>
 <?php } // $this->cont['PKWK_SKIN_SHOW_NAVBAR'] ?>
 
-<h1><a href="<?php echo $this->root->siteinfo['rooturl'] ?>" title="Site Top"><?php echo $this->root->siteinfo['sitename'] ?></a> / <?php echo $this->root->page_title ?></h1>
+<h1><a href="<?php echo $this->root->siteinfo['rooturl'] ?>" title="Site Top"><?php echo $this->root->siteinfo['sitename'] ?></a> / <?php echo $this->root->module_title ?></h1>
 
 <div class="calendar">
 <?php if ($is_page && $this->cont['TDIARY_CALENDAR_DESIGN'] !== NULL) { ?>
