@@ -1,6 +1,6 @@
 <?php
 // PukiWiki - Yet another WikiWikiWeb clone
-// $Id: pukiwiki.ini.php,v 1.20 2006/12/10 03:55:42 nao-pon Exp $
+// $Id: pukiwiki.ini.php,v 1.21 2006/12/11 04:23:35 nao-pon Exp $
 // Copyright (C)
 //   2002-2006 PukiWiki Developers Team
 //   2001-2002 Originally written by yu-ji
@@ -114,8 +114,10 @@ if (!isset($const['ZONE'])) { $const['ZONE'] = $this->get_zone_by_time($const['Z
 /////////////////////////////////////////////////
 // Title of your Wikisite (Name this)
 // Also used as RSS feed's channel name etc
-$root->page_title = $root->module['name'] ;
-//$root->page_title = "xpWiki";
+$root->module_title = $root->module['name'] ;
+
+// HTML HEAD Title
+$root->html_head_title = '$page_title$content_title - $module_title';
 
 // Specify PukiWiki URL (default: auto)
 //$root->script = 'http://example.com/pukiwiki/';

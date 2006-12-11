@@ -148,7 +148,7 @@ foreach(array($const['DATA_DIR'], $const['DIFF_DIR'], $const['BACKUP_DIR'], $con
 
 // 設定ファイルの変数チェック
 $temp = '';
-foreach(array('rss_max', 'page_title', 'note_hr', 'related_link', 'show_passage',
+foreach(array('rss_max', 'note_hr', 'related_link', 'show_passage',
 	'rule_related_str', 'load_template_func') as $var){
 	if (! isset($root->{$var})) $temp .= '$' . $var . "\n";
 }
