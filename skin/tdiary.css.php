@@ -1,6 +1,6 @@
 <?php
 // PukiWiki - Yet another WikiWikiWeb clone.
-// $Id: tdiary.css.php,v 1.4 2006/12/07 00:32:46 nao-pon Exp $
+// $Id: tdiary.css.php,v 1.5 2006/12/11 04:24:15 nao-pon Exp $
 // Copyright (C)
 //   2002-2005 PukiWiki Developers Team
 //   2001-2002 Originally written by yu-ji
@@ -115,6 +115,14 @@ div#wikihelper_base {
 
 div#pukiwiki_helper_base small {
 	background-color:white;
+}
+
+pre {
+	white-space: -moz-pre-wrap; /* Mozilla */
+	white-space: -pre-wrap;     /* Opera 4-6 */
+	white-space: -o-pre-wrap;   /* Opera 7 */
+	white-space: pre-wrap;      /* CSS3 */
+	word-wrap: break-word;      /* IE 5.5+ */
 }
 
 /* ------------------------------------------ */
