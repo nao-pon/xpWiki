@@ -16,7 +16,7 @@
 // -----------------------------------------------------------------------------------
 //
 //  edited by nao-pon - http://hypweb.net/
-//  $Id: lightbox.js,v 1.1 2006/12/10 03:55:41 nao-pon Exp $
+//  $Id: lightbox.js,v 1.2 2006/12/11 04:19:54 nao-pon Exp $
 //
 // -----------------------------------------------------------------------------------
 //
@@ -120,7 +120,11 @@ Lightbox.prototype = {
 		this.myhost = this.myhost.replace(reg, "##__BACK_SLASH__##$1").replace(/##__BACK_SLASH__##/g, '\\');
 		this.myhost = new RegExp("^"+this.myhost,"i");
 		
-		var anchors = document.getElementById('body').getElementsByTagName('a');
+		if (!document.getElementById('body')) {
+			var anchors = document.getElementsByTagName('body')[0].getElementsByTagName('a');
+		} else {
+			var anchors = document.getElementById('body').getElementsByTagName('a');
+		}
 		
 		// loop through all anchor tags
 		for (var i=0; i<anchors.length; i++){
@@ -257,8 +261,14 @@ Lightbox.prototype = {
 		imageNum = 0;
 
 		if (!document.getElementsByTagName){ return; }
-		var anchors = document.getElementById('body').getElementsByTagName('a');
-
+		
+		//var anchors = document.getElementById('body').getElementsByTagName('a');
+		if (!document.getElementById('body')) {
+			var anchors = document.getElementsByTagName('body')[0].getElementsByTagName('a');
+		} else {
+			var anchors = document.getElementById('body').getElementsByTagName('a');
+		}
+		
 		if((imageLink.getAttribute('rel') == 'lightbox')){
 			// add single image to imageArray
 			imageArray.push(new Array(imageLink.getAttribute('href'), imageLink.getAttribute('title')));
