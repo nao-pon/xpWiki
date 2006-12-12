@@ -16,7 +16,7 @@
 // -----------------------------------------------------------------------------------
 //
 //  edited by nao-pon - http://hypweb.net/
-//  $Id: lightbox.js,v 1.2 2006/12/11 04:19:54 nao-pon Exp $
+//  $Id: lightbox.js,v 1.3 2006/12/12 08:33:28 nao-pon Exp $
 //
 // -----------------------------------------------------------------------------------
 //
@@ -332,7 +332,7 @@ Lightbox.prototype = {
 		}
 		
 		this.timer = setTimeout(function(){
-			this.imgPreloader.src = './plugin_data/lightbox/images/timeout.gif';
+			this.imgPreloader.src = './skin/loader.php?type=gif&src=timeout';
 		}.bind(this),lightbox_timeout);
 	},
 	
@@ -354,7 +354,7 @@ Lightbox.prototype = {
 		var rc = eval(Req.responseText);
 		if (rc != 200)
 		{
-			this.imgPreloader.src = './plugin_data/lightbox/images/notfound.gif';
+			this.imgPreloader.src = './skin/loader.php?type=gif&src=notfound';
 		}
 	},
 	
