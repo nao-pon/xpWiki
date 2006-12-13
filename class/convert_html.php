@@ -254,8 +254,8 @@ class XpWikiListElement extends XpWikiElement {
 // - Two
 // - Three
 class XpWikiUList extends XpWikiListContainer {
-	function XpWikiUList(& $xpwiki, $text) {
-		parent :: XpWikiListContainer($xpwiki, 'ul', 'li', '-', $text);
+	function XpWikiUList(& $root, $text) {
+		parent :: XpWikiListContainer($root->xpwiki, 'ul', 'li', '-', $text);
 	}
 }
 
@@ -263,8 +263,8 @@ class XpWikiUList extends XpWikiListContainer {
 // + Two
 // + Three
 class XpWikiOList extends XpWikiListContainer {
-	function XpWikiOList(& $xpwiki, $text) {
-		parent :: XpWikiListContainer($xpwiki, 'ol', 'li', '+', $text);
+	function XpWikiOList(& $root, $text) {
+		parent :: XpWikiListContainer($root->xpwiki, 'ol', 'li', '+', $text);
 	}
 }
 
@@ -633,8 +633,16 @@ class XpWikiBody extends XpWikiElement {
 	var $count = 0;
 	var $contents;
 	var $contents_last;
-	var $classes = array ('-' => 'XpWikiUList', '+' => 'XpWikiOList', '>' => 'XpWikiBQuote', '<' => 'XpWikiBQuote');
-	var $factories = array (':' => 'DList', '|' => 'Table', ',' => 'YTable', '#' => 'Div');
+	var $classes = array (
+		'-' => 'XpWikiUList',
+		'+' => 'XpWikiOList',
+		'>' => 'XpWikiBQuote',
+		'<' => 'XpWikiBQuote');
+	var $factories = array (
+		':' => 'DList',
+		'|' => 'Table',
+		',' => 'YTable',
+		'#' => 'Div');
 
 	function XpWikiBody(& $xpwiki, $id) {
 		$this->id = $id;
