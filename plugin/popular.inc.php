@@ -2,7 +2,7 @@
 /////////////////////////////////////////////////
 // PukiWiki - Yet another WikiWikiWeb clone.
 //
-// $Id: popular.inc.php,v 1.6 2006/12/10 01:24:08 nao-pon Exp $
+// $Id: popular.inc.php,v 1.7 2006/12/13 04:41:52 nao-pon Exp $
 //
 
 /*
@@ -127,7 +127,7 @@ class xpwiki_plugin_popular extends xpwiki_plugin {
 		$items = '';
 		if ($prefix)
 		{
-			$bypege = " [ ".$this->func->make_pagelink($prefix,$prefix)." ]";
+			$bypege = " [ ".$this->func->make_pagelink($prefix,$prefix)." ] ";
 			$prefix .= "/";
 			$prefix = preg_quote($prefix,"/");
 		}
@@ -137,7 +137,7 @@ class xpwiki_plugin_popular extends xpwiki_plugin {
 		if (count($counters))
 		{
 			$_style = $this->root->_ul_left_margin + $this->root->_ul_margin;
-			$_style = " style=\"margin-left:". $_style ."px;padding-left:". $_style ."px;\"";
+			$_style = " style=\"margin-left:". $_style ."px;padding-left:". $_style ."px;";
 			$items = '<ul class="popular_list"'.$_style.'">';
 			$new_mark = "";
 			
