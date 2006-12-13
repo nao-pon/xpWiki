@@ -1,6 +1,6 @@
 <?php
 // PukiWiki - Yet another WikiWikiWeb clone.
-// $Id: pukiwiki.css.php,v 1.5 2006/12/11 04:24:15 nao-pon Exp $
+// $Id: pukiwiki.css.php,v 1.6 2006/12/13 04:57:57 nao-pon Exp $
 // Copyright (C)
 //   2002-2005 PukiWiki Developers Team
 //   2001-2002 Originally written by yu-ji
@@ -23,8 +23,11 @@ if ($media != 'print') $media = 'screen';
 $base   = isset($_GET['base'])   ? "_".preg_replace("/[^\w-]+/","",$_GET['base'])    : '';
 $class = "div.xpwiki".$base;
 
+// Over write
+$overwrite = (empty($overwrite))? '' : $overwrite;
+
 // Etag
-$etag = md5($base.$charset.$media.filemtime(__FILE__));
+$etag = md5($base.$charset.$media.$overwrite.filemtime(__FILE__));
 
 // Not Modified?
 if ($etag == @$_SERVER["HTTP_IF_NONE_MATCH"]) {
@@ -704,6 +707,9 @@ div#wikihelper_base {
 	background-color:#EEF5FF;
 }
 <?php
+// Over write
+echo $overwrite;
+
 // Send header
 header('Content-Type: text/css');
 $matches = array();
