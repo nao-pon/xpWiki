@@ -1,38 +1,89 @@
 <?php
 // PukiWiki - Yet another WikiWikiWeb clone
-// $Id: rss.inc.php,v 1.7 2006/12/11 04:23:35 nao-pon Exp $
+// $Id: rss.inc.php,v 1.8 2006/12/13 04:45:31 nao-pon Exp $
 //
 // RSS plugin: Publishing RSS of RecentChanges
 //
-// Usage: plugin=rss[&ver=[0.91|1.0|2.0]] (Default: 0.91)
+// Usage: plugin=rss[&ver=[0.91|1.0|2.0|atom]] (Default: 1.0)
 //
 // NOTE for acronyms
 //   RSS 0.9,  1.0  : RSS means 'RDF Site Summary'
 //   RSS 0.91, 0.92 : RSS means 'Rich Site Summary'
 //   RSS 2.0        : RSS means 'Really Simple Syndication' (born from RSS 0.92)
+//   RSS Atom       : RSS means 'Atom Syndication Format'
 
 class xpwiki_plugin_rss extends xpwiki_plugin {
+	var $maxcount;
+	
 	function plugin_rss_init () {
+		// リストアップ最大ページ数
+		$this->maxcount = 100;
+	}
+
+	function get_content ($page) {
+		// 追加情報取得
+		$added = $this->func->get_page_changes($page);
+		// form script embed object 削除
+		$added = preg_replace('#<(form|script|embed|object).+?/\\1>#is', '',$added);
+		// タグ中の class, id, name 属性を指定を削除
+		$added = preg_replace('/(<[^>]*)\s+(?:class|id|name)=[^\s>]+([^>]*>)/', '$1$2', $added);
+		
+		// 指定ページの本文取得
+		$a_page = new XpWiki($this->root->mydirname);
+		$a_page->init($page);
+		$a_page->root->rtf['use_cache_always'] = TRUE;
+		$a_page->execute();
+		$html = $a_page->body;
+		
+		// form script embed object 削除
+		$html = preg_replace('#<(form|script|embed|object).+?/\\1>#is', '',$html);
+		
+		// アンカーリンクを削除
+		$html = preg_replace('#<a href="\#[^"]+">(.*?)</a>#', '$1', $html);
+		
+		// タグ中の class, id, name 属性を指定を削除
+		$html = preg_replace('/(<[^>]*)\s+class=[^\s>]+([^>]*>)/', '$1$2', $html);
+		$html = preg_replace('/(<[^>]*)\s+id=[^\s>]+([^>]*>)/', '$1$2', $html);
+		$html = preg_replace('/(<[^>]*)\s+name=[^\s>]+([^>]*>)/', '$1$2', $html);
+
+		$description = strip_tags(($added ? $added . '&#182;' : '') . $html);
+		$description = preg_replace('/(\s+|&'.$this->root->entity_pattern.';)/i', '', $description);
+		$description = mb_substr($description, 0, 250);
+		
+		if ($added) $html = '<dl><dt>Changes</dt><dd>' . $added . '</dd></dl><hr />' . $html;
+		$userinfo = $this->func->get_userinfo_by_id($this->func->get_pg_auther($page));
+
+		$tags = array();
+		if (file_exists($this->cont['CACHE_DIR'] . $this->func->encode($page) . '_page.tag')) {
+			$tags = file($this->cont['CACHE_DIR'] . $this->func->encode($page) . '_page.tag');
+		}
+		return array($description, $html, $userinfo, $tags);
 
 	}
 	
 	function plugin_rss_action()
 	{
-		$version = isset($this->root->vars['ver']) ? $this->root->vars['ver'] : '';
+		$version = isset($this->root->vars['ver']) ? strtolower($this->root->vars['ver']) : '';
 		$base = isset($this->root->vars['p']) ? $this->root->vars['p'] : '';
 		$s_base = $base ? '/' . htmlspecialchars($base) : '';
 		switch($version){
-		case '':  $version = '1.0'; break; // Default
+		case '':  $version = '1.0';  break; // Default
 		case '1': $version = '1.0';  break; // Sugar
 		case '2': $version = '2.0';  break; // Sugar
+		case 'atom': /* FALLTHROUGH */
 		case '0.91': /* FALLTHROUGH */
 		case '1.0' : /* FALLTHROUGH */
 		case '2.0' : break;
 		default: die('Invalid RSS version!!');
 		}
 		
+		$count = (empty($this->root->vars['count']))? $this->root->rss_max : (int)$this->root->vars['count'];
+		
+		$count = max($count, 1);
+		$count = min($count, $this->maxcount);
+			
 		// キャッシュファイル名
-		$c_file = $this->cont['CACHE_DIR'] . 'plugin/' . md5($version.$base) . $this->cont['UI_LANG'] . '.rss';
+		$c_file = $this->cont['CACHE_DIR'] . 'plugin/' . md5($version.$base.$count) . $this->cont['UI_LANG'] . '.rss';
 
 		// 念のためバッファをクリア
 		while( ob_get_level() ) { ob_end_clean() ; }
@@ -57,9 +108,11 @@ class xpwiki_plugin_rss extends xpwiki_plugin {
 			ob_start();
 					
 			$lang = $this->cont['LANG'];
-			$page_title_utf8 = $this->root->siteinfo['sitename'] . '::' . $this->root->module_title . $s_base;
+			$page_title = $this->root->siteinfo['sitename'] . '::' . $this->root->module_title . $s_base;
 			$self = $this->func->get_script_uri();
 			$maketime = $date = substr_replace($this->func->get_date('Y-m-d\TH:i:sO'), ':', -2, 0);
+			$buildtime = $this->func->get_date('r');
+			$pubtime = 0;
 			$rss_css = $this->cont['HOME_URL'] . 'skin/loader.php?type=xml&amp;src=rss.' . $this->cont['UI_LANG'];
 		
 			// Creating <item>
@@ -73,7 +126,7 @@ class xpwiki_plugin_rss extends xpwiki_plugin {
 			$this->root->userinfo['uname_s'] = '';
 			$this->root->userinfo['gids'] = array();
 			
-			$lines = $this->func->get_existpages(FALSE, ($base ? $base . '/' : ''), array('limit' => $this->root->rss_max, 'order' => ' ORDER BY editedtime DESC', 'nolisting' => TRUE, 'withtime' =>TRUE));
+			$lines = $this->func->get_existpages(FALSE, ($base ? $base . '/' : ''), array('limit' => $count, 'order' => ' ORDER BY editedtime DESC', 'nolisting' => TRUE, 'withtime' =>TRUE));
 			
 			$this->root->userinfo = $_userinfo;
 			
@@ -81,19 +134,36 @@ class xpwiki_plugin_rss extends xpwiki_plugin {
 				list($time, $page) = explode("\t", rtrim($line));
 				$r_page = rawurlencode($page);
 				$title  = $page;
+				if (!$pubtime) $pubtime = $this->func->get_date('r', $time);
 		
 				switch ($version) {
-				case '0.91': /* FALLTHROUGH */
-				case '2.0':
-					$date = $this->func->get_date('D, d M Y H:i:s T', $time);
-					$date = ($version == '0.91') ?
-						' <description>' . $date . '</description>' :
-						' <pubDate>'     . $date . '</pubDate>';
+				
+				case '0.91':
+					$date = $this->func->get_date('r', $time);
 					$items .= <<<EOD
 <item>
  <title>$title</title>
  <link>$self?$r_page</link>
-$date
+ <description>$date</description>
+</item>
+
+EOD;
+					break;
+				
+				case '2.0':
+					list($description, $html, $userinfo) = $this->get_content($page);
+					$author = htmlspecialchars($userinfo['uname']);
+					$date = $this->func->get_date('r', $time);
+					$items .= <<<EOD
+<item>
+ <title>$title</title>
+ <link>$self?$r_page</link>
+ <guid>$self?$r_page</guid>
+ <pubDate>$date</pubDate>
+ <description>$description</description>
+ <content:encoded><![CDATA[
+  $html
+  ]]></content:encoded>
 </item>
 
 EOD;
@@ -101,34 +171,19 @@ EOD;
 		
 				case '1.0':
 					// Add <item> into <items>
+					list($description, $html, $userinfo, $tags) = $this->get_content($page);
+					$author = htmlspecialchars($userinfo['uname']);
+					
+					$tag = '';
+					if ($tags) {
+						$tags = array_map('htmlspecialchars',array_map('rtrim',$tags));
+						$tag = '<dc:subject>' . join("</dc:subject>\n <dc:subject>", $tags).'</dc:subject>';
+					}
+					
 					$rdf_li .= '    <rdf:li rdf:resource="' . $self .
 					'?' . $r_page . '" />' . "\n";
-		
+					
 					$date = substr_replace($this->func->get_date('Y-m-d\TH:i:sO', $time), ':', -2, 0);
-					
-					// 追加情報取得
-					$added = $this->func->get_page_changes($page);
-					// form script embed object 削除
-					$added = preg_replace('#<(form|script|embed|object).+?/\\1>#is', '',$added);
-					// タグ中の class, id, name 属性を指定を削除
-					$added = preg_replace('/(<[^>]*)\s+(?:class|id|name)=[^\s>]+([^>]*>)/', '$1$2', $added);
-					
-					// 指定ページの本文取得
-					$a_page = new XpWiki($this->root->mydirname);
-					$a_page->init($page);
-					$a_page->root->rtf['use_cache_always'] = TRUE;
-					$a_page->execute();
-					$html = $a_page->body;
-					// form script embed object 削除
-					$html = preg_replace('#<(form|script|embed|object).+?/\\1>#is', '',$html);
-					// タグ中の class, id, name 属性を指定を削除
-					$html = preg_replace('/(<[^>]*)\s+(?:class|id|name)=[^\s>]+([^>]*>)/', '$1$2', $html);
-					
-					$description = strip_tags(($added ? $added . '&#182;' : '') . $html);
-					$description = preg_replace('/(\s+|&'.$this->root->entity_pattern.';)/i', '', $description);
-					$description = mb_substr($description, 0, 250);
-					
-					if ($added) $html = '<dl><dt>Changes</dt><dd>' . $added . '</dd></dl><hr />' . $html;
 					
 					$trackback_ping = '';
 					if ($this->root->trackback) {
@@ -140,16 +195,54 @@ EOD;
 <item rdf:about="$self?$r_page">
  <title>$title</title>
  <link>$self?$r_page</link>
+ <dc:date>$date</dc:date>
+ <dc:creator>$author</dc:creator>
+ $tag
  <description>$description</description>
  <content:encoded><![CDATA[
  $html
  ]]></content:encoded>
- <dc:date>$date</dc:date>
  <dc:identifier>$self?$r_page</dc:identifier>
 $trackback_ping
 </item>
 
 EOD;
+					break;
+				case 'atom':
+					list($description, $html, $userinfo, $tags) = $this->get_content($page);
+					$author = htmlspecialchars($userinfo['uname']);
+					
+					$tag = '';
+					if ($tags) {
+						$tags = array_map('htmlspecialchars',array_map('rtrim',$tags));
+						foreach($tags as $_tag) {
+							$tag .= '<category term="'.str_replace('"', '\\"',$_tag).'"/>'."\n";
+						}
+					}
+					
+					$date = substr_replace($this->func->get_date('Y-m-d\TH:i:sO', $time), ':', -2, 0);
+					
+					$id = "$self".$this->func->get_pgid_by_name($page);
+					
+					$items .= <<<EOD
+<entry>
+ <title type="html">$title</title>
+ <link rel="alternate" type="text/html" href="$self?$r_page" />
+ <id>$id</id>
+ <updated>$date</updated>
+ <published>$date</published>
+ $tag
+ <author>
+  <name>$author</name>
+ </author>
+ <summary type="html">$description</summary>
+ <content type="html"><![CDATA[
+ $html
+ ]]></content>
+</entry>
+
+EOD;
+
 					break;
 				}
 			}
@@ -162,19 +255,38 @@ EOD;
 			
 			switch ($version) {
 			case '0.91':
-				print '<!DOCTYPE rss PUBLIC "-//Netscape Communications//DTD RSS 0.91//EN"' .
-			' "http://my.netscape.com/publish/formats/rss-0.91.dtd">' . "\n";
-				 /* FALLTHROUGH */
-		
-			case '2.0':
 				print <<<EOD
+<!DOCTYPE rss PUBLIC "-//Netscape Communications//DTD RSS 0.91//EN" "http://my.netscape.com/publish/formats/rss-0.91.dtd">
 <rss version="$version">
  <channel>
-  <title>$page_title_utf8</title>
+  <title>$page_title</title>
   <link>$link</link>
   <description>xpWiki RecentChanges</description>
   <language>$lang</language>
 
+$items
+ </channel>
+</rss>
+EOD;
+				break;		
+			case '2.0':
+				print <<<EOD
+<rss version="$version" xmlns:content="http://purl.org/rss/1.0/modules/content/">
+ <channel>
+  <title>$page_title</title>
+  <link>$link</link>
+  <description>xpWiki RecentChanges</description>
+  <language>$lang</language>
+  <image>
+   <url>{$self}module_icon.php</url>
+   <title>$page_title</title>
+   <link>$link</link>
+   <description>$page_title</description>
+  </image>
+  <pubDate>$pubtime</pubDate>
+  <lastBuildDate>$buildtime</lastBuildDate>
+  <generator>xpWiki</generator>
+    
 $items
  </channel>
 </rss>
@@ -193,20 +305,50 @@ $xmlns_trackback
   xmlns:rdf="http://www.w3.org/1999/02/22-rdf-syntax-ns#"
   xmlns:content="http://purl.org/rss/1.0/modules/content/"
   xml:lang="$lang">
- <channel rdf:about="$self?$r_whatsnew">
-  <title>$page_title_utf8</title>
+ <channel rdf:about="$link">
+  <title>$page_title</title>
   <link>$link</link>
   <description>xpWiki RecentChanges</description>
   <dc:date>$maketime</dc:date>
+  <image rdf:resource="{$self}module_icon.php" />
   <items>
    <rdf:Seq>
 $rdf_li
    </rdf:Seq>
   </items>
  </channel>
+ <image rdf:about="{$self}module_icon.php">
+   <title>$page_title</title>
+   <link>$link</link>
+   <url>{$self}module_icon.php</url>
+ </image>
 
 $items
 </rdf:RDF>
+EOD;
+				break;
+			case 'atom':
+				$rpage = ($base)? '&amp;p='.rawurlencode($base) : '';
+				$feedurl = $this->cont['HOME_URL'].'?cmd=rss'.$rpage.'&amp;ver=atom';
+				$rpage = ($base)? '&amp;p='.rawurlencode($base) : '';
+				$modifier = htmlspecialchars($this->root->modifier);
+				print <<<EOD
+<feed xmlns="http://www.w3.org/2005/Atom" xml:lang="$lang">
+ <title>$page_title</title>
+ <link rel="alternate" type="text/html" href="$link" />
+ <link rel="self" type="application/atom+xml" href="$feedurl" />
+ <id>$self</id>
+ <updated>$maketime</updated>
+ <subtitle>xpWiki RecentChanges</subtitle>
+ <generator uri="http://hypweb.net/">xpWiki</generator>
+  <rights>hypweb.net</rights>
+ <author>
+  <name>$modifier</name>
+  <uri>{$this->root->modifierlink}</uri>
+ </author>
+
+$items
+</feed>
 EOD;
 				break;
 			}
@@ -227,7 +369,6 @@ EOD;
 		header('Content-Length: ' . strlen($out));
 		header('Cache-Control: private');
 		header('Pragma:');
-		//header('Expires:');
 		header('Last-Modified: ' . gmdate( 'D, d M Y H:i:s', $filetime ) . ' GMT' );
 		header('Etag: '. $etag );
 		echo $out;

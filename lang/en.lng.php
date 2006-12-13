@@ -1,6 +1,6 @@
 <?php
 // PukiWiki - Yet another WikiWikiWeb clone.
-// $Id: en.lng.php,v 1.11 2006/12/07 00:32:46 nao-pon Exp $
+// $Id: en.lng.php,v 1.12 2006/12/13 04:45:31 nao-pon Exp $
 // Copyright (C)
 //   2002-2005 PukiWiki Developers Team
 //   2001-2002 Originally written by yu-ji
@@ -129,8 +129,9 @@ $root->_LANG['skin']['refer']     = 'Referer';	// Show list of referer
 $root->_LANG['skin']['reload']    = 'Reload';
 $root->_LANG['skin']['rename']    = 'Rename';	// Rename a page (and related)
 $root->_LANG['skin']['rss']       = 'RSS of recent changes';
-$root->_LANG['skin']['rss10']     = & $root->_LANG['skin']['rss'];
-$root->_LANG['skin']['rss20']     = & $root->_LANG['skin']['rss'];
+$root->_LANG['skin']['rss10']     = $root->_LANG['skin']['rss'] . ' (RSS 1.0)';
+$root->_LANG['skin']['rss20']     = $root->_LANG['skin']['rss'] . ' (RSS 2.0)';
+$root->_LANG['skin']['atom']      = $root->_LANG['skin']['rss'] . ' (RSS Atom)';
 $root->_LANG['skin']['search']    = 'Search';
 $root->_LANG['skin']['top']       = 'Front page';	// Top page
 $root->_LANG['skin']['trackback'] = 'Trackback';	// Show list of trackback
