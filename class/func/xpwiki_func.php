@@ -1,7 +1,7 @@
 <?php
 //
 // Created on 2006/10/02 by nao-pon http://hypweb.net/
-// $Id: xpwiki_func.php,v 1.36 2006/12/08 08:27:51 nao-pon Exp $
+// $Id: xpwiki_func.php,v 1.37 2006/12/13 05:01:24 nao-pon Exp $
 //
 class XpWikiFunc extends XpWikiXoopsWrapper {
 
@@ -961,6 +961,38 @@ EOD;
 		} else {
 			return '';
 		}
+	}
+	
+	// SKIN Function
+	function skin_navigator ($this, $key, $value = '', $javascript = '') {
+		$lang = & $this->root->_LANG['skin'];
+		$link = & $this->root->_LINK;
+		if (! isset($lang[$key])) { echo $key.' LANG NOT FOUND'; return FALSE; }
+		if (! isset($link[$key])) { echo $key.' LINK NOT FOUND'; return FALSE; }
+		if (! $this->cont['PKWK_ALLOW_JAVASCRIPT']) $javascript = '';
+	
+		echo '<a href="' . $link[$key] . '" ' . $javascript . '>' .
+			(($value === '') ? $lang[$key] : $value) .
+			'</a>';
+	
+		return TRUE;
+	}
+
+	// SKIN Function
+	function skin_toolbar ($this, $key, $x = 20, $y = 20) {
+		$lang  = & $this->root->_LANG['skin'];
+		$link  = & $this->root->_LINK;
+		$image = & $this->root->_IMAGE['skin'];
+		if (! isset($lang[$key]) ) { echo $key.' LANG NOT FOUND';  return FALSE; }
+		if (! isset($link[$key]) ) { echo $key.' LINK NOT FOUND';  return FALSE; }
+		if (! isset($image[$key])) { echo $key.' IMAGE NOT FOUND'; return FALSE; }
+	
+		echo '<a href="' . $link[$key] . '">' .
+			'<img src="' . $this->cont['IMAGE_DIR'] . $image[$key] . '" width="' . $x . '" height="' . $y . '" ' .
+				'alt="' . $lang[$key] . '" title="' . $lang[$key] . '" />' .
+			'</a>';
+	
+		return TRUE;
 	}
 
 /*----- DB Functions -----*/ 
