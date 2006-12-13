@@ -3,7 +3,7 @@
 $this->root->runmode = "standalone";
 
 // PukiWiki - Yet another WikiWikiWeb clone.
-// $Id: tdiary.skin.php,v 1.16 2006/12/11 04:23:35 nao-pon Exp $
+// $Id: tdiary.skin.php,v 1.17 2006/12/13 05:01:23 nao-pon Exp $
 // Copyright (C)
 //   2002-2006 PukiWiki Developers Team
 //   2001-2002 Originally written by yu-ji
@@ -36,8 +36,8 @@ if (! isset($this->cont['PKWK_SKIN_SHOW_NAVBAR']))
 
 // Show toolbar at your choice, with <div class="footer"> design
 // NOTE: Some theme become looking worse with this!
-if (! isset($this->cont['PKWK_SKIN_SHOW_TOOLBAR']))
-	$this->cont['PKWK_SKIN_SHOW_TOOLBAR'] =  1; // 0, 1
+if (! isset($this->cont['PKWK_SKIN_SHOW$toolbar']))
+	$this->cont['PKWK_SKIN_SHOW$toolbar'] =  1; // 0, 1
 
 // TDIARY_SIDEBAR_POSITION: See below
 
@@ -615,63 +615,48 @@ $dirname = $this->root->mydirname;
 <!-- Navigation buttuns -->
 <?php if ($this->cont['PKWK_SKIN_SHOW_NAVBAR']) { ?>
 <div class="adminmenu"><div id="navigator">
-<?php
-function _navigator(& $func, $key, $value = '', $javascript = ''){
-	$lang = $func->root->_LANG['skin'];
-	$link = $func->root->_LINK;
-	if (! isset($lang[$key])) { echo 'LANG NOT FOUND'; return FALSE; }
-	if (! isset($link[$key])) { echo 'LINK NOT FOUND'; return FALSE; }
-	if (! $func->cont['PKWK_ALLOW_JAVASCRIPT']) $func->root->javascript = '';
-
-	echo '<span class="adminmenu"><a href="' . $link[$key] . '" ' . $func->root->javascript . '>' .
-		(($value === '') ? $lang[$key] : $value) .
-		'</a></span>';
-
-	return TRUE;
-}
-?>
- <?php _navigator($this, 'top') ?> &nbsp;
+ <?php $navigator($this, 'top') ?> &nbsp;
 
 <?php if ($is_page) { ?>
   <?php if ($rw) { ?>
   	<?php if (!$is_freeze && $is_editable) { ?>
-		<?php _navigator($this, 'edit') ?>
+		<?php $navigator($this, 'edit') ?>
 	<?php } ?>
 	<?php if ($is_read && $this->root->function_freeze) { ?>
-		<?php (! $is_freeze) ? _navigator($this, 'freeze') : _navigator($this, 'unfreeze') ?>
+		<?php (! $is_freeze) ? $navigator($this, 'freeze') : $navigator($this, 'unfreeze') ?>
 	<?php } ?>
 	<?php if ($is_owner) { ?>
-		<?php _navigator($this,'pginfo') ?>
+		<?php $navigator($this,'pginfo') ?>
 	<?php } ?>
  <?php } ?>
-   <?php _navigator($this, 'diff') ?>
+   <?php $navigator($this, 'diff') ?>
  <?php if ($this->root->do_backup) { ?>
-	<?php _navigator($this, 'backup') ?>
+	<?php $navigator($this, 'backup') ?>
  <?php } ?>
  <?php if ($rw && (bool)ini_get('file_uploads')) { ?>
-	<?php _navigator($this, 'upload') ?>
+	<?php $navigator($this, 'upload') ?>
  <?php } ?>
-   <?php _navigator($this, 'reload') ?>
+   <?php $navigator($this, 'reload') ?>
    &nbsp;
 <?php } ?>
 
  <?php if ($rw) { ?>
-	<?php _navigator($this, 'new') ?>
+	<?php $navigator($this, 'new') ?>
  <?php } ?>
-   <?php _navigator($this, 'list') ?>
+   <?php $navigator($this, 'list') ?>
  <?php if ($this->arg_check('list')) { ?>
-   <?php _navigator($this, 'filelist') ?>
+   <?php $navigator($this, 'filelist') ?>
  <?php } ?>
-   <?php _navigator($this, 'search') ?>
-   <?php _navigator($this, 'recent') ?>
-   <?php _navigator($this, 'help')   ?>
+   <?php $navigator($this, 'search') ?>
+   <?php $navigator($this, 'recent') ?>
+   <?php $navigator($this, 'help')   ?>
 
 <?php if ($this->root->trackback) { ?> &nbsp;
-   <?php _navigator($this, 'trackback', $lang['trackback'] . '(' . $this->tb_count($_page) . ')',
+   <?php $navigator($this, 'trackback', $lang['trackback'] . '(' . $this->tb_count($_page) . ')',
  	($this->root->trackback_javascript == 1) ? 'onclick="OpenTrackback(this.href); return false"' : '') ?>
 <?php } ?>
 <?php if ($this->root->referer)   { ?> &nbsp;
-   <?php _navigator($this, 'refer') ?>
+   <?php $navigator($this, 'refer') ?>
 <?php } ?>
 <?php if ($page_comments_count)   { ?> &nbsp;
    <?php echo $page_comments_count ?>
@@ -871,7 +856,7 @@ default:
 <?php } ?>
 
 <div class="footer">
-<?php if ($this->cont['PKWK_SKIN_SHOW_TOOLBAR']) { ?>
+<?php if ($this->cont['PKWK_SKIN_SHOW$toolbar']) { ?>
 <!-- Toolbar -->
 <?php
 
@@ -891,62 +876,48 @@ $this->root->_IMAGE['skin']['search']   = 'search.png';
 $this->root->_IMAGE['skin']['recent']   = 'recentchanges.png';
 $this->root->_IMAGE['skin']['backup']   = 'backup.png';
 $this->root->_IMAGE['skin']['help']     = 'help.png';
-$this->root->_IMAGE['skin']['rss']      = 'rss.png';
-$this->root->_IMAGE['skin']['rss10']    = & $this->root->_IMAGE['skin']['rss'];
-$this->root->_IMAGE['skin']['rss20']    = 'rss20.png';
+$this->root->_IMAGE['skin']['rss']      = 'feed-rss.png';
+$this->root->_IMAGE['skin']['rss10']    = 'feed-rss1.png';
+$this->root->_IMAGE['skin']['rss20']    = 'feed-rss2.png';
+$this->root->_IMAGE['skin']['atom']     = 'feed-atom.png';
 $this->root->_IMAGE['skin']['rdf']      = 'rdf.png';
-
-function _toolbar($this, $key, $x = 20, $y = 20){
-	$lang  = & $this->root->_LANG['skin'];
-	$link  = & $this->root->_LINK;
-	$image = & $this->root->_IMAGE['skin'];
-	if (! isset($lang[$key]) ) { echo 'LANG NOT FOUND';  return FALSE; }
-	if (! isset($link[$key]) ) { echo 'LINK NOT FOUND';  return FALSE; }
-	if (! isset($image[$key])) { echo 'IMAGE NOT FOUND'; return FALSE; }
-
-	echo '<a href="' . $link[$key] . '">' .
-		'<img src="' . $this->cont['IMAGE_DIR'] . $image[$key] . '" width="' . $x . '" height="' . $y . '" ' .
-			'alt="' . $lang[$key] . '" title="' . $lang[$key] . '" />' .
-		'</a>';
-	return TRUE;
-}
 ?>
- <?php _toolbar($this, 'top') ?>
+ <?php $toolbar($this, 'top') ?>
 
 <?php if ($is_page) { ?>
  &nbsp;
  <?php if ($rw) { ?>
   	<?php if (!$is_freeze && $is_editable) { ?>
-		<?php _toolbar($this, 'edit') ?>
+		<?php $toolbar($this, 'edit') ?>
 	<?php } ?>
 	<?php if ($is_read && $this->root->function_freeze) { ?>
-		<?php if (! $is_freeze) { _toolbar($this, 'freeze'); } else { _toolbar($this, 'unfreeze'); } ?>
+		<?php if (! $is_freeze) { $toolbar($this, 'freeze'); } else { $toolbar($this, 'unfreeze'); } ?>
 	<?php } ?>
  <?php } ?>
- <?php _toolbar($this, 'diff') ?>
+ <?php $toolbar($this, 'diff') ?>
 <?php if ($this->root->do_backup) { ?>
-	<?php _toolbar($this, 'backup') ?>
+	<?php $toolbar($this, 'backup') ?>
 <?php } ?>
  <?php if ($rw && (bool)ini_get('file_uploads')) { ?>
-	<?php _toolbar($this, 'upload') ?>
+	<?php $toolbar($this, 'upload') ?>
  <?php } ?>
  <?php if ($rw) { ?>
-	<?php _toolbar($this, 'copy') ?>
-	<?php _toolbar($this, 'rename') ?>
+	<?php $toolbar($this, 'copy') ?>
+	<?php $toolbar($this, 'rename') ?>
  <?php } ?>
- <?php _toolbar($this, 'reload') ?>
+ <?php $toolbar($this, 'reload') ?>
 <?php } ?>
  &nbsp;
  <?php if ($rw) { ?>
-	<?php _toolbar($this, 'new') ?>
+	<?php $toolbar($this, 'new') ?>
  <?php } ?>
- <?php _toolbar($this, 'list')   ?>
- <?php _toolbar($this, 'search') ?>
- <?php _toolbar($this, 'recent') ?>
- &nbsp; <?php _toolbar($this, 'help') ?>
- &nbsp; <?php _toolbar($this, 'rss10', 36, 14) ?>
+ <?php $toolbar($this, 'list')   ?>
+ <?php $toolbar($this, 'search') ?>
+ <?php $toolbar($this, 'recent') ?>
+ &nbsp; <?php $toolbar($this, 'help') ?>
+ &nbsp; <?php $toolbar($this, 'rss10', 14, 14) ?>
  <br />
-<?php } // $this->cont['PKWK_SKIN_SHOW_TOOLBAR'] ?>
+<?php } // $this->cont['PKWK_SKIN_SHOW$toolbar'] ?>
 
 <!-- Copyright etc -->
 <div>Page owner: <?php echo $pginfo['uname'] ?></div>
