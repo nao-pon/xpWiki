@@ -1,6 +1,6 @@
 <?php
 // PukiWiki - Yet another WikiWikiWeb clone.
-// $Id: ja.lng.php,v 1.10 2006/12/07 00:32:46 nao-pon Exp $
+// $Id: ja.lng.php,v 1.11 2006/12/13 04:45:31 nao-pon Exp $
 // Copyright (C)
 //   2002-2005 PukiWiki Developers Team
 //   2001-2002 Originally written by yu-ji
@@ -131,8 +131,9 @@ $root->_LANG['skin']['refer']     = '¥ê¥ó¥¯¸µ';	// Show list of referer
 $root->_LANG['skin']['reload']    = '¥ê¥í¡¼¥É';
 $root->_LANG['skin']['rename']    = 'Ì¾Á°ÊÑ¹¹';	// Rename a page (and related)
 $root->_LANG['skin']['rss']       = 'ºÇ½ª¹¹¿·¤ÎRSS';	// RSS of RecentChanges
-$root->_LANG['skin']['rss10']     = & $root->_LANG['skin']['rss'];
-$root->_LANG['skin']['rss20']     = & $root->_LANG['skin']['rss'];
+$root->_LANG['skin']['rss10']     = $root->_LANG['skin']['rss'] . ' 1.0';
+$root->_LANG['skin']['rss20']     = $root->_LANG['skin']['rss'] . ' 2.0';
+$root->_LANG['skin']['atom']      = $root->_LANG['skin']['rss'] . ' Atom';
 $root->_LANG['skin']['search']    = 'Ã±¸ì¸¡º÷';
 $root->_LANG['skin']['top']       = '¥È¥Ã¥×';	// Top page
 $root->_LANG['skin']['trackback'] = 'Trackback';	// Show list of trackback
@@ -368,9 +369,9 @@ $root->_msg_pcomment_restrict = '±ÜÍ÷À©¸Â¤¬¤«¤«¤Ã¤Æ¤¤¤ë¤¿¤á¡¢$1¤«¤é¤Ï¥³¥á¥ó¥È¤òÆ
 
 ///////////////////////////////////////
 // popular.inc.php
-$root->_popular_plugin_frame       = '<h5>¿Íµ¤¤Î%1$d·ï%3$s</h5><div>%2$s</div>';
-$root->_popular_plugin_today_frame = '<h5>º£Æü¤Î%1$d·ï%3$s</h5><div>%2$s</div>';
-$root->_popular_plugin_yesterday_frame = '<h5>ºòÆü¤Î%1$d·ï%3$s</h5><div>%2$s</div>';
+$root->_popular_plugin_frame       = '<h5>%3$s¿Íµ¤¤Î%1$d·ï</h5><div>%2$s</div>';
+$root->_popular_plugin_today_frame = '<h5>%3$sº£Æü¤Î%1$d·ï</h5><div>%2$s</div>';
+$root->_popular_plugin_yesterday_frame = '<h5>%3$sºòÆü¤Î%1$d·ï</h5><div>%2$s</div>';
 
 ///////////////////////////////////////
 // recent.inc.php
