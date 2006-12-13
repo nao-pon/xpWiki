@@ -1,6 +1,6 @@
 <?php
 // PukiWiki - Yet another WikiWikiWeb clone.
-// $Id: pukiwiki.skin.php,v 1.3 2006/11/24 14:14:25 nao-pon Exp $
+// $Id: pukiwiki.skin.php,v 1.4 2006/12/13 05:05:00 nao-pon Exp $
 // Copyright (C)
 //   2002-2006 PukiWiki Developers Team
 //   2001-2002 Originally written by yu-ji
@@ -28,16 +28,11 @@ if (! isset($this->cont['PKWK_SKIN_SHOW_NAVBAR']))
 
 // Show / Hide toolbar UI at your choice
 // NOTE: This is not stop their functionalities!
-if (! isset($this->cont['PKWK_SKIN_SHOW_TOOLBAR']))
-	$this->cont['PKWK_SKIN_SHOW_TOOLBAR'] = 1; // 1, 0
+if (! isset($this->cont['PKWK_SKIN_SHOW$toolbar']))
+	$this->cont['PKWK_SKIN_SHOW$toolbar'] = 1; // 1, 0
 
 // ------------------------------------------------------------
 // Code start
-
-// Prohibit direct access
-//if (! isset($this->cont['UI_LANG'])) die('UI_LANG is not set');
-//if (! isset($this->root->_LANG)) die('$_LANG is not set');
-//if (! isset($this->cont['PKWK_READONLY'])) die('PKWK_READONLY is not set');
 
 $lang  = & $_LANG['skin'];
 $link  = & $_LINK;
@@ -52,20 +47,6 @@ switch($this->cont['UI_LANG']){
 
 // ------------------------------------------------------------
 // Output
-/*
-// HTTP headers
-//$this->root->pkwk_common_headers();
-header('Cache-control: no-cache');
-header('Pragma: no-cache');
-header('Content-Type: text/html; charset=' . $this->cont['CONTENT_CHARSET']);
-
-// HTML DTD, <html>, and receive content-type
-if (isset($pkwk_dtd)) {
-	$meta_content_type = pkwk_output_dtd($pkwk_dtd);
-} else {
-	$meta_content_type = pkwk_output_dtd();
-}
-*/
 
 $favicon = ($image['favicon'])? "<link rel=\"SHORTCUT ICON\" href=\"{$image['favicon']}\" />" : "";
 $dirname = $this->root->mydirname;
@@ -100,68 +81,50 @@ EOD;
 
 <div id="navigator">
 <?php if($this->cont['PKWK_SKIN_SHOW_NAVBAR']) { ?>
-<?php
-if (!function_exists("_navigator")){
-function _navigator($this, $key, $value = '', $javascript = ''){
-	$lang = & $this->root->_LANG['skin'];
-	$link = & $this->root->_LINK;
-	if (! isset($lang[$key])) { echo 'LANG NOT FOUND'; return FALSE; }
-	if (! isset($link[$key])) { echo 'LINK NOT FOUND'; return FALSE; }
-	if (! $this->cont['PKWK_ALLOW_JAVASCRIPT']) $javascript = '';
-
-	echo '<a href="' . $link[$key] . '" ' . $javascript . '>' .
-		(($value === '') ? $lang[$key] : $value) .
-		'</a>';
-
-	return TRUE;
-}
-}
-?>
- [ <?php _navigator($this,'top') ?> ] &nbsp;
-
+ [ <?php $navigator($this,'top') ?> ] &nbsp;
 <?php if ($is_page) { ?>
  [
  <?php if ($rw) { ?>
 	<?php if (!$is_freeze && $is_editable) { ?>
-		<?php _navigator($this,'edit') ?> |
+		<?php $navigator($this,'edit') ?> |
 	<?php } ?>
 	<?php if ($is_read && $this->root->function_freeze) { ?>
-		<?php (! $is_freeze) ? _navigator($this,'freeze') : _navigator($this,'unfreeze') ?> |
+		<?php (! $is_freeze) ? $navigator($this,'freeze') : $navigator($this,'unfreeze') ?> |
 	<?php } ?>
 	<?php if ($is_owner) { ?>
-		<?php _navigator($this,'pginfo') ?> |
+		<?php $navigator($this,'pginfo') ?> |
 	<?php } ?>
  <?php } ?>
- <?php _navigator($this,'diff') ?>
+ <?php $navigator($this,'diff') ?>
  <?php if ($this->root->do_backup) { ?>
-	| <?php _navigator($this,'backup') ?>
+	| <?php $navigator($this,'backup') ?>
  <?php } ?>
  <?php if ($rw && (bool)ini_get('file_uploads')) { ?>
-	| <?php _navigator($this,'upload') ?>
+	| <?php $navigator($this,'upload') ?>
  <?php } ?>
- | <?php _navigator($this,'reload') ?>
+ | <?php $navigator($this,'reload') ?>
  ] &nbsp;
 <?php } ?>
 
  [
  <?php if ($rw) { ?>
-	<?php _navigator($this,'new') ?> |
+	<?php $navigator($this,'new') ?> |
  <?php } ?>
-   <?php _navigator($this,'list') ?>
+   <?php $navigator($this,'list') ?>
  <?php if ($this->arg_check('list')) { ?>
-	| <?php _navigator($this,'filelist') ?>
+	| <?php $navigator($this,'filelist') ?>
  <?php } ?>
- | <?php _navigator($this,'search') ?>
- | <?php _navigator($this,'recent') ?>
- | <?php _navigator($this,'help')   ?>
+ | <?php $navigator($this,'search') ?>
+ | <?php $navigator($this,'recent') ?>
+ | <?php $navigator($this,'help')   ?>
  ]
 
 <?php if ($this->root->trackback) { ?> &nbsp;
- [ <?php _navigator($this,'trackback', $lang['trackback'] . '(' . $this->tb_count($_page) . ')',
+ [ <?php $navigator($this,'trackback', $lang['trackback'] . '(' . $this->tb_count($_page) . ')',
  	($trackback_javascript == 1) ? 'onclick="OpenTrackback(this.href); return false"' : '') ?> ]
 <?php } ?>
 <?php if ($this->root->referer)   { ?> &nbsp;
- [ <?php _navigator($this,'refer') ?> ]
+ [ <?php $navigator($this,'refer') ?> ]
 <?php } ?>
 <?php } // PKWK_SKIN_SHOW_NAVBAR ?>
 </div>
@@ -196,7 +159,7 @@ function _navigator($this, $key, $value = '', $javascript = ''){
 
 <?php echo $this->root->hr ?>
 
-<?php if ($this->cont['PKWK_SKIN_SHOW_TOOLBAR']) { ?>
+<?php if ($this->cont['PKWK_SKIN_SHOW$toolbar']) { ?>
 <!-- Toolbar -->
 <div id="toolbar">
 <?php
@@ -217,67 +180,55 @@ $this->root->_IMAGE['skin']['search']   = 'search.png';
 $this->root->_IMAGE['skin']['recent']   = 'recentchanges.png';
 $this->root->_IMAGE['skin']['backup']   = 'backup.png';
 $this->root->_IMAGE['skin']['help']     = 'help.png';
-$this->root->_IMAGE['skin']['rss']      = 'rss.png';
-$this->root->_IMAGE['skin']['rss10']    = & $this->root->_IMAGE['skin']['rss'];
-$this->root->_IMAGE['skin']['rss20']    = 'rss20.png';
+$this->root->_IMAGE['skin']['rss']      = 'feed-rss.png';
+$this->root->_IMAGE['skin']['rss10']    = 'feed-rss1.png';
+$this->root->_IMAGE['skin']['rss20']    = 'feed-rss2.png';
+$this->root->_IMAGE['skin']['atom']     = 'feed-atom.png';
 $this->root->_IMAGE['skin']['rdf']      = 'rdf.png';
-
-if (!function_exists("_toolbar")){
-function _toolbar($this, $key, $x = 20, $y = 20){
-	$lang  = & $this->root->_LANG['skin'];
-	$link  = & $this->root->_LINK;
-	$image = & $this->root->_IMAGE['skin'];
-	if (! isset($lang[$key]) ) { echo $key.'LANG NOT FOUND';  return FALSE; }
-	if (! isset($link[$key]) ) { echo 'LINK NOT FOUND';  return FALSE; }
-	if (! isset($image[$key])) { echo 'IMAGE NOT FOUND'; return FALSE; }
-
-	echo '<a href="' . $link[$key] . '">' .
-		'<img src="' . $this->cont['IMAGE_DIR'] . $image[$key] . '" width="' . $x . '" height="' . $y . '" ' .
-			'alt="' . $lang[$key] . '" title="' . $lang[$key] . '" />' .
-		'</a>';
-	return TRUE;
-}
-}
 ?>
- <?php _toolbar($this, 'top') ?>
+ <?php $toolbar($this, 'top') ?>
 
 <?php if ($is_page) { ?>
  &nbsp;
  <?php if ($rw) { ?>
  	<?php if (!$is_freeze && $is_editable) { ?>
-		<?php _toolbar($this, 'edit') ?>
+		<?php $toolbar($this, 'edit') ?>
 	<?php } ?>
 	<?php if ($is_read && $this->root->function_freeze) { ?>
-		<?php if (! $is_freeze) { _toolbar($this, 'freeze'); } else { _toolbar($this, 'unfreeze'); } ?>
+		<?php if (! $is_freeze) { $toolbar($this, 'freeze'); } else { $toolbar($this, 'unfreeze'); } ?>
 	<?php } ?>
  <?php } ?>
- <?php _toolbar($this, 'diff') ?>
+ <?php $toolbar($this, 'diff') ?>
 <?php if ($this->root->do_backup) { ?>
-	<?php _toolbar($this, 'backup') ?>
+	<?php $toolbar($this, 'backup') ?>
 <?php } ?>
 <?php if ($rw) { ?>
 	<?php if ((bool)ini_get('file_uploads')) { ?>
-		<?php _toolbar($this, 'upload') ?>
+		<?php $toolbar($this, 'upload') ?>
 	<?php } ?>
-	<?php _toolbar($this, 'copy') ?>
-	<?php _toolbar($this, 'rename') ?>
+	<?php $toolbar($this, 'copy') ?>
+	<?php $toolbar($this, 'rename') ?>
 <?php } ?>
- <?php _toolbar($this, 'reload') ?>
+ <?php $toolbar($this, 'reload') ?>
 <?php } ?>
  &nbsp;
 <?php if ($rw) { ?>
-	<?php _toolbar($this, 'new') ?>
+	<?php $toolbar($this, 'new') ?>
 <?php } ?>
- <?php _toolbar($this, 'list')   ?>
- <?php _toolbar($this, 'search') ?>
- <?php _toolbar($this, 'recent') ?>
- &nbsp; <?php _toolbar($this, 'help') ?>
- &nbsp; <?php _toolbar($this, 'rss10', 36, 14) ?>
+ <?php $toolbar($this, 'list')   ?>
+ <?php $toolbar($this, 'search') ?>
+ <?php $toolbar($this, 'recent') ?>
+ &nbsp; <?php $toolbar($this, 'help') ?>
+ &nbsp; <?php $toolbar($this, 'rss10', 14, 14) ?>
+ <?php $toolbar($this, 'rss20', 14, 14) ?>
+ <?php $toolbar($this, 'atom', 14, 14) ?>
 </div>
-<?php } // PKWK_SKIN_SHOW_TOOLBAR ?>
+<?php } // PKWK_SKIN_SHOW$toolbar ?>
+
+<?php if ($is_page) echo $this->do_plugin_convert('counter') ?>
 
 <?php if ($lastmodified != '') { ?>
-<div id="lastmodified">Last-modified: <?php echo $lastmodified ?></div>
+<div id="lastmodified">Last-modified: <?php echo $lastmodified ?> by <?php echo $pginfo['lastuname'] ?></div>
 <?php } ?>
 
 <?php if ($related != '') { ?>
@@ -285,7 +236,8 @@ function _toolbar($this, $key, $x = 20, $y = 20){
 <?php } ?>
 
 <div id="footer">
- <p>Site admin: <a href="<?php echo $this->root->modifierlink ?>"><?php echo $this->root->modifier ?></a></p>
+ <div>Page owner: <?php echo $pginfo['uname'] ?></div>
+ <div>Site admin: <a href="<?php echo $this->root->modifierlink ?>"><?php echo $this->root->modifier ?></a></div>
  <?php echo $this->cont['S_COPYRIGHT'] ?>.
  Powered by PHP <?php echo PHP_VERSION ?>. HTML convert time: <?php echo $taketime ?> sec.
 </div>
