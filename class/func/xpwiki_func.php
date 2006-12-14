@@ -1,7 +1,7 @@
 <?php
 //
 // Created on 2006/10/02 by nao-pon http://hypweb.net/
-// $Id: xpwiki_func.php,v 1.37 2006/12/13 05:01:24 nao-pon Exp $
+// $Id: xpwiki_func.php,v 1.38 2006/12/14 08:44:38 nao-pon Exp $
 //
 class XpWikiFunc extends XpWikiXoopsWrapper {
 
@@ -1077,7 +1077,7 @@ EOD;
 			}
 			else
 			{
-				$base = addslashes(strip_bracket($base));
+				$base = addslashes($this->strip_bracket($base));
 				if ($nochiled)
 					$base_where = "name LIKE '$base%' AND name NOT LIKE '$base%/%'";
 				else

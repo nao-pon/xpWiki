@@ -1,7 +1,7 @@
 <?php
 //
 // Created on 2006/10/02 by nao-pon http://hypweb.net/
-// $Id: pukiwiki_func.php,v 1.42 2006/12/13 05:01:24 nao-pon Exp $
+// $Id: pukiwiki_func.php,v 1.43 2006/12/14 08:44:07 nao-pon Exp $
 //
 class XpWikiPukiWikiFunc extends XpWikiBaseFunc {
 
@@ -911,7 +911,7 @@ class XpWikiPukiWikiFunc extends XpWikiBaseFunc {
 
 //----- Start convert_html.php -----//
 	// PukiWiki - Yet another WikiWikiWeb clone
-	// $Id: pukiwiki_func.php,v 1.42 2006/12/13 05:01:24 nao-pon Exp $
+	// $Id: pukiwiki_func.php,v 1.43 2006/12/14 08:44:07 nao-pon Exp $
 	// Copyright (C)
 	//   2002-2005 PukiWiki Developers Team
 	//   2001-2002 Originally written by yu-ji
@@ -1024,7 +1024,7 @@ class XpWikiPukiWikiFunc extends XpWikiBaseFunc {
 
 //----- Start func.php -----//
 	// PukiWiki - Yet another WikiWikiWeb clone.
-	// $Id: pukiwiki_func.php,v 1.42 2006/12/13 05:01:24 nao-pon Exp $
+	// $Id: pukiwiki_func.php,v 1.43 2006/12/14 08:44:07 nao-pon Exp $
 	// Copyright (C)
 	//   2002-2006 PukiWiki Developers Team
 	//   2001-2002 Originally written by yu-ji
@@ -1806,7 +1806,7 @@ EOD;
 
 //----- Start make_link.php -----//
 	// PukiWiki - Yet another WikiWikiWeb clone.
-	// $Id: pukiwiki_func.php,v 1.42 2006/12/13 05:01:24 nao-pon Exp $
+	// $Id: pukiwiki_func.php,v 1.43 2006/12/14 08:44:07 nao-pon Exp $
 	// Copyright (C)
 	//   2003-2005 PukiWiki Developers Team
 	//   2001-2002 Originally written by yu-ji
@@ -1993,7 +1993,7 @@ EOD;
 	// Get TrackBack ID from page name
 	function tb_get_id($page)
 	{
-		return md5($page);
+		return $this->get_pgid_by_name($page);
 	}
 	
 	// Get page name from TrackBack ID
@@ -2167,7 +2167,10 @@ EOD;
 	{
 		//	global $referer;
 	
-		if ($this->cont['PKWK_READONLY'] || ! $this->root->referer || empty($_SERVER['HTTP_REFERER'])) return TRUE;
+		if ($this->cont['PKWK_READONLY'] ||
+			! $this->root->referer ||
+			! empty($this->cont['page_show']) ||
+			empty($_SERVER['HTTP_REFERER'])) return TRUE;
 	
 		$url = $_SERVER['HTTP_REFERER'];
 	
@@ -2613,7 +2616,7 @@ EOD;
 
 //----- Start html.php -----//
 	// PukiWiki - Yet another WikiWikiWeb clone.
-	// $Id: pukiwiki_func.php,v 1.42 2006/12/13 05:01:24 nao-pon Exp $
+	// $Id: pukiwiki_func.php,v 1.43 2006/12/14 08:44:07 nao-pon Exp $
 	// Copyright (C)
 	//   2002-2006 PukiWiki Developers Team
 	//   2001-2002 Originally written by yu-ji
@@ -2668,11 +2671,14 @@ EOD;
 		$_LINK['top']      = "{$this->root->script}?" . rawurlencode($this->root->defaultpage);
 		if ($this->root->trackback) {
 			$tb_id = $this->tb_get_id($_page);
-			$_LINK['trackback'] = "{$this->root->script}?plugin=tb&amp;__mode=view&amp;tb_id=$tb_id#header";
+			$_LINK['trackback'] = "{$this->root->script}?plugin=tb&amp;__mode=view&amp;tb_id=$tb_id";
 		}
 		$_LINK['unfreeze'] = "{$this->root->script}?cmd=unfreeze&amp;page=$r_page#header";
 		$_LINK['upload']   = "{$this->root->script}?plugin=attach&amp;pcmd=upload&amp;page=$r_page#header";
-	
+		
+		// Set _LANG
+		$_LANG =& $this->root->_LANG;
+		
 		// Compat: Skins for 1.4.4 and before
 		$link_add       = & $_LINK['add'];
 		$link_new       = & $_LINK['new'];	// New!
@@ -2704,6 +2710,7 @@ EOD;
 		$is_owner = $this->is_owner($_page);
 		$is_editable = $this->check_editable($_page, FALSE, FALSE);
 		$is_top = ($_page == $this->root->defaultpage)? TRUE : FALSE;
+		$trackback_javascript = $this->root->trackback_javascript;
 		
 		// Page Comments
 		$page_comments = ($is_read && $this->root->allow_pagecomment)? '<div id="pageComments">' . $this->get_page_comments($_page) . '</div>' : '';
@@ -3206,7 +3213,7 @@ EOD;
 
 //----- Start mail.php -----//
 	// PukiWiki - Yet another WikiWikiWeb clone.
-	// $Id: pukiwiki_func.php,v 1.42 2006/12/13 05:01:24 nao-pon Exp $
+	// $Id: pukiwiki_func.php,v 1.43 2006/12/14 08:44:07 nao-pon Exp $
 	// Copyright (C)
 	//   2003-2005 PukiWiki Developers Team
 	//   2003      Originally written by upk
@@ -3513,7 +3520,7 @@ EOD;
 
 //----- Start link.php -----//
 	// PukiWiki - Yet another WikiWikiWeb clone
-	// $Id: pukiwiki_func.php,v 1.42 2006/12/13 05:01:24 nao-pon Exp $
+	// $Id: pukiwiki_func.php,v 1.43 2006/12/14 08:44:07 nao-pon Exp $
 	// Copyright (C) 2003-2006 PukiWiki Developers Team
 	// License: GPL v2 or (at your option) any later version
 	//
