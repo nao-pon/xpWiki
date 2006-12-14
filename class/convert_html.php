@@ -375,11 +375,9 @@ class XpWikiTableCell extends XpWikiElement {
 					$text = substr($text, 1);
 				}
 
-		if ($text != '' && $text {
-			0 }
-		== '#') {
+		if ($text != '' && $text { 0 } == '#') {
 			// Try using Div class for this $text
-			$obj = & $this->func->Factory_Div($text);
+			$obj = & $this->func->Factory_Div($this, $text);
 			if (is_a($obj, 'XpWikiParagraph'))
 				$obj = & $obj->elements[0];
 		} else {
@@ -730,7 +728,7 @@ class XpWikiBody extends XpWikiElement {
 			// Other Character
 			if (isset ($this->factories[$head])) {
 				$factoryname = 'Factory_'.$this->factories[$head];
-				$this->last = & $this->last->add($this->func-> $factoryname ($this, $line));
+				$this->last = & $this->last->add($this->func->$factoryname($this, $line));
 				continue;
 			}
 
