@@ -3,7 +3,7 @@
 $this->root->runmode = "standalone";
 
 // PukiWiki - Yet another WikiWikiWeb clone.
-// $Id: tdiary.skin.php,v 1.17 2006/12/13 05:01:23 nao-pon Exp $
+// $Id: tdiary.skin.php,v 1.18 2006/12/14 02:56:26 nao-pon Exp $
 // Copyright (C)
 //   2002-2006 PukiWiki Developers Team
 //   2001-2002 Originally written by yu-ji
@@ -916,6 +916,8 @@ $this->root->_IMAGE['skin']['rdf']      = 'rdf.png';
  <?php $toolbar($this, 'recent') ?>
  &nbsp; <?php $toolbar($this, 'help') ?>
  &nbsp; <?php $toolbar($this, 'rss10', 14, 14) ?>
+ <?php $toolbar($this, 'rss20', 14, 14) ?>
+ <?php $toolbar($this, 'atom', 14, 14) ?>
  <br />
 <?php } // $this->cont['PKWK_SKIN_SHOW$toolbar'] ?>
 
