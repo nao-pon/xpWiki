@@ -1,58 +1,54 @@
 <?php
+// $Id: bugtrack.inc.php,v 1.3 2006/12/14 07:17:17 nao-pon Exp $
+//
+// PukiWiki BugTrack plugin
+//
+// Copyright:
+// 2002-2005 PukiWiki Developers Team
+// 2002 Y.MASUI GPL2  http://masui.net/pukiwiki/ masui@masui.net
+
 class xpwiki_plugin_bugtrack extends xpwiki_plugin {
 	function plugin_bugtrack_init()
 	{
-
-	// $Id: bugtrack.inc.php,v 1.2 2006/11/28 00:17:56 nao-pon Exp $
-	//
-	// PukiWiki BugTrack plugin
-	//
-	// Copyright:
-	// 2002-2005 PukiWiki Developers Team
-	// 2002 Y.MASUI GPL2  http://masui.net/pukiwiki/ masui@masui.net
-	
-	// Numbering format
+		// Numbering format
 		$this->cont['PLUGIN_BUGTRACK_NUMBER_FORMAT'] =  '%d'; // Like 'page/1'
-//$this->cont['PLUGIN_BUGTRACK_NUMBER_FORMAT'] =  '%03d'; // Like 'page/001'
+		//$this->cont['PLUGIN_BUGTRACK_NUMBER_FORMAT'] =  '%03d'; // Like 'page/001'
 
 
-	//	global $_plugin_bugtrack;
-	//	static $init;
 		static $init = array();
-		if (!isset($init[$this->xpwiki->pid])) {$init[$this->xpwiki->pid] = array();}
-	
+
 		if (isset($init[$this->xpwiki->pid])) return; // Already init
 		if (isset($this->root->_plugin_bugtrack)) die('Global $_plugin_bugtrack had been init. Why?');
 		$init[$this->xpwiki->pid] = TRUE;
 	
 		$this->root->_plugin_bugtrack = array(
 			'priority_list'  => array('緊急', '重要', '普通', '低'),
-		'state_list'     => array('提案', '着手', 'CVS待ち', '完了', '保留', '却下'),
-		'state_sort'     => array('着手', 'CVS待ち', '保留', '完了', '提案', '却下'),
-		'state_bgcolor'  => array('#ccccff', '#ffcc99', '#ccddcc', '#ccffcc', '#ffccff', '#cccccc', '#ff3333'),
-		'header_bgcolor' => '#ffffcc',
-		'base'     => 'ページ',
-		'summary'  => 'サマリ',
-		'nosummary'=> 'ここにサマリを記入して下さい',
-		'priority' => '優先順位',
-		'state'    => '状態',
-		'name'     => '投稿者',
-		'noname'   => '名無しさん',
-		'date'     => '投稿日',
-		'body'     => 'メッセージ',
-		'category' => 'カテゴリー',
-		'pagename' => 'ページ名',
-		'pagename_comment' => '空欄のままだと自動的にページ名が振られます。',
-		'version_comment'  => '空欄でも構いません',
-		'version'  => 'バージョン',
-		'submit'   => '追加'
+			'state_list'     => array('提案', '着手', 'CVS待ち', '完了', '保留', '却下'),
+			'state_sort'     => array('着手', 'CVS待ち', '保留', '完了', '提案', '却下'),
+			'state_bgcolor'  => array('#ccccff', '#ffcc99', '#ccddcc', '#ccffcc', '#ffccff', '#cccccc', '#ff3333'),
+			'header_color'   => '#44a',
+			'header_bgcolor' => '#ffffcc',
+			'base'     => 'ページ',
+			'summary'  => 'サマリ',
+			'nosummary'=> 'ここにサマリを記入して下さい',
+			'priority' => '優先順位',
+			'state'    => '状態',
+			'name'     => '投稿者',
+			'noname'   => '名無しさん',
+			'date'     => '投稿日',
+			'body'     => 'メッセージ',
+			'category' => 'カテゴリー',
+			'pagename' => 'ページ名',
+			'pagename_comment' => '空欄のままだと自動的にページ名が振られます。',
+			'version_comment'  => '空欄でも構いません',
+			'version'  => 'バージョン',
+			'submit'   => '追加'
 		);
 	}
 	
 	// #bugtrack: Show bugtrack form
 	function plugin_bugtrack_convert()
 	{
-	//	global $vars;
 	
 		if ($this->cont['PKWK_READONLY']) return ''; // Show nothing
 	
@@ -69,8 +65,6 @@ class xpwiki_plugin_bugtrack extends xpwiki_plugin {
 	
 	function plugin_bugtrack_print_form($base, $category)
 	{
-	//	global $_plugin_bugtrack;
-	//	static $id = 0;
 		static $id = array();
 		if (!isset($id[$this->xpwiki->pid])) {$id[$this->xpwiki->pid] = 0;}
 	
@@ -174,7 +168,6 @@ EOD;
 	// Add new issue
 	function plugin_bugtrack_action()
 	{
-	//	global $post;
 	
 		if ($this->cont['PKWK_READONLY']) $this->func->die_message('PKWK_READONLY prohibits editing');
 		if ($this->root->post['mode'] != 'submit') return FALSE;
@@ -190,7 +183,6 @@ EOD;
 	
 	function plugin_bugtrack_write($base, $pagename, $summary, $name, $priority, $state, $category, $version, $body)
 	{
-	//	global $post;
 	
 		$base     = $this->func->strip_bracket($base);
 		$pagename = $this->func->strip_bracket($pagename);
@@ -227,7 +219,6 @@ EOD;
 	// Generate new page contents
 	function plugin_bugtrack_template($base, $summary, $name, $priority, $state, $category, $version, $body)
 	{
-	//	global $_plugin_bugtrack, $WikiName;
 	
 		if (! preg_match("/^{$this->root->WikiName}$$/",$base)) $base = '[[' . $base . ']]';
 		if ($name != '' && ! preg_match("/^{$this->root->WikiName}$$/",$name)) $name = '[[' . $name . ']]';
@@ -238,15 +229,15 @@ EOD;
 		 return <<<EOD
 * $summary
 
-- ${_plugin_bugtrack['base'    ]}: $base
-- ${_plugin_bugtrack['name'    ]}: $name
-- ${_plugin_bugtrack['priority']}: $priority
-- ${_plugin_bugtrack['state'   ]}: $state
-- ${_plugin_bugtrack['category']}: $category
-- ${_plugin_bugtrack['date'    ]}: now?
-- ${_plugin_bugtrack['version' ]}: $version
+- {$this->root->_plugin_bugtrack['base'    ]}: $base
+- {$this->root->_plugin_bugtrack['name'    ]}: $name
+- {$this->root->_plugin_bugtrack['priority']}: $priority
+- {$this->root->_plugin_bugtrack['state'   ]}: $state
+- {$this->root->_plugin_bugtrack['category']}: $category
+- {$this->root->_plugin_bugtrack['date'    ]}: now?
+- {$this->root->_plugin_bugtrack['version' ]}: $version
 
-** ${_plugin_bugtrack['body']}
+** {$this->root->_plugin_bugtrack['body']}
 $body
 --------
 
@@ -305,9 +296,10 @@ EOD;
 		}
 	
 		$table_html = ' <tr>' . "\n";
+		$color = htmlspecialchars($this->root->_plugin_bugtrack['header_color']);
 		$bgcolor = htmlspecialchars($this->root->_plugin_bugtrack['header_bgcolor']);
 		foreach (array('pagename', 'state', 'priority', 'category', 'name', 'summary') as $item)
-			$table_html .= '  <th style="background-color:' . $bgcolor . '">' .
+			$table_html .= '  <th style="color:' . $color . ';background-color:' . $bgcolor . '">' .
 			htmlspecialchars($this->root->_plugin_bugtrack[$item]) . '</th>' . "\n";
 		$table_html .= ' </tr>' . "\n";
 	
@@ -316,7 +308,7 @@ EOD;
 			$table_html .= join("\n", $table[$i]);
 		}
 	
-		return '<table border="1" width="100%">' . "\n" .
+		return '<table border="1" style="width:100%;">' . "\n" .
 		$table_html . "\n" .
 		'</table>';
 	}
@@ -324,7 +316,6 @@ EOD;
 	// Get one set of data from a page (or a page moved to $page)
 	function plugin_bugtrack_list_pageinfo($page, $no = NULL, $recurse = TRUE)
 	{
-	//	global $WikiName, $InterWikiName, $BracketName, $_plugin_bugtrack;
 	
 		if ($no === NULL)
 			$no = preg_match('/\/([0-9]+)$/', $page, $matches) ? $matches[1] : 0;
