@@ -3,7 +3,7 @@ class xpwiki_plugin_referer extends xpwiki_plugin {
 	function plugin_referer_init () {
 
 
-	// $Id: referer.inc.php,v 1.1 2006/10/13 13:17:49 nao-pon Exp $
+	// $Id: referer.inc.php,v 1.2 2006/12/14 08:52:37 nao-pon Exp $
 	/*
 	 * PukiWiki Referer プラグイン(リンク元表示プラグイン)
 	 * (C) 2003, Katsumi Saito <katsumi@jo1upk.ymt.prug.or.jp>
@@ -25,8 +25,8 @@ class xpwiki_plugin_referer extends xpwiki_plugin {
 		if (isset($this->root->vars['page']) && $this->func->is_page($this->root->vars['page'])) {
 			$sort = (empty($this->root->vars['sort'])) ? '0d' : $this->root->vars['sort'];
 			return array(
-				'msg'  => $this->root->_referer_msg['msg_H0_Refer'],
-			'body' => $this->plugin_referer_body($this->root->vars['page'], $sort));
+				'msg'  => $this->root->vars['page'] . ' ' . $this->root->_referer_msg['msg_H0_Refer'],
+				'body' => $this->plugin_referer_body($this->root->vars['page'], $sort));
 		}
 		$pages = $this->func->get_existpages($this->cont['TRACKBACK_DIR'], '.ref');
 	
@@ -107,7 +107,11 @@ class xpwiki_plugin_referer extends xpwiki_plugin {
 			// 非ASCIIキャラクタ(だけ)をURLエンコードしておく BugTrack/440
 			$e_url = htmlspecialchars(preg_replace('/([" \x80-\xff]+)/e', 'rawurlencode("$1")', $url));
 			$s_url = htmlspecialchars(mb_convert_encoding(rawurldecode($url), $this->cont['SOURCE_ENCODING'], 'auto'));
-	
+			$s_url = str_replace('&amp;amp;', '&amp;', $s_url);
+			
+			// 長い英数を折り返す
+			$s_url = preg_replace('/[\x20-\x7e\s]{36}/', "$0<wbr />", $s_url);
+			
 			$lpass = $this->func->get_passage($ltime, FALSE); // 最終更新日時からの経過時間
 			$spass = $this->func->get_passage($stime, FALSE); // 初回登録日時からの経過時間
 			$ldate = $this->func->get_date($this->root->_referer_msg['msg_Fmt_Date'], $ltime); // 最終更新日時文字列
@@ -133,7 +137,9 @@ class xpwiki_plugin_referer extends xpwiki_plugin {
 			$body .= ' </tr>' . "\n";
 		}
 		$href = $this->root->script . '?plugin=referer&amp;page=' . rawurlencode($page);
+		$title = '<h2>' . $this->func->make_pagelink($this->root->vars['page']) . '</h2>';
 		return <<<EOD
+$title
 <table border="1" cellspacing="1" summary="Referer">
  <tr>
   <td style="background-color:$color_last" colspan="2">
@@ -158,9 +164,8 @@ EOD;
 	{
 	//	static $color;
 		static $color = array();
-		if (!isset($color[$this->xpwiki->pid])) {$color[$this->xpwiki->pid] = array();}
 	
-		if (! isset($color[$this->xpwiki->pid])) {
+		if (!isset($color[$this->xpwiki->pid])) {
 			// Default color
 			$color[$this->xpwiki->pid] = array('cur' => '#88ff88', 'etc' => '#cccccc');
 	
