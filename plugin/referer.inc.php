@@ -3,7 +3,7 @@ class xpwiki_plugin_referer extends xpwiki_plugin {
 	function plugin_referer_init () {
 
 
-	// $Id: referer.inc.php,v 1.2 2006/12/14 08:52:37 nao-pon Exp $
+	// $Id: referer.inc.php,v 1.3 2006/12/14 23:32:44 nao-pon Exp $
 	/*
 	 * PukiWiki Referer プラグイン(リンク元表示プラグイン)
 	 * (C) 2003, Katsumi Saito <katsumi@jo1upk.ymt.prug.or.jp>
@@ -123,7 +123,7 @@ class xpwiki_plugin_referer extends xpwiki_plugin {
 			'  <td>' . $lpass . '</td>' . "\n";
 	
 			$body .= ($count == 1) ?
-				'  <td colspan="2">N/A</td>' . "\n" :
+				'  <td colspan="2">&nbsp;&#8656;</td>' . "\n" :
 				'  <td>' . $sdate . '</td>' . "\n" .
 			'  <td>' . $spass . '</td>' . "\n";
 	
@@ -138,20 +138,22 @@ class xpwiki_plugin_referer extends xpwiki_plugin {
 		}
 		$href = $this->root->script . '?plugin=referer&amp;page=' . rawurlencode($page);
 		$title = '<h2>' . $this->func->make_pagelink($this->root->vars['page']) . '</h2>';
+		$list = '<div style="text-align:right;"><a href="'.$this->root->script.'?plugin=referer#header">' . $this->root->_referer_msg['msg_Hed_Referer'].' '.$this->root->_title_list . '</a></div>';
 		return <<<EOD
 $title
-<table border="1" cellspacing="1" summary="Referer">
+$list
+<table style="background-color:Gray;" border="1" cellspacing="1" summary="Referer">
  <tr>
-  <td style="background-color:$color_last" colspan="2">
+  <th style="background-color:$color_last" colspan="2">
    <a href="$href&amp;sort=$sort_last">{$this->root->_referer_msg['msg_Hed_LastUpdate']}$arrow_last</a>
   </td>
-  <td style="background-color:$color_1st" colspan="2">
+  <th style="background-color:$color_1st" colspan="2">
    <a href="$href&amp;sort=$sort_1st">{$this->root->_referer_msg['msg_Hed_1stDate']}$arrow_1st</a>
   </td>
-  <td style="background-color:$color_ctr;text-align:right">
+  <th style="background-color:$color_ctr;text-align:right">
    <a href="$href&amp;sort=$sort_ctr">{$this->root->_referer_msg['msg_Hed_RefCounter']}$arrow_ctr</a>
   </td>
-  <td style="background-color:$color_ref">
+  <th style="background-color:$color_ref">
    <a href="$href&amp;sort=3">{$this->root->_referer_msg['msg_Hed_Referer']}</a>
    </td>
  </tr>
