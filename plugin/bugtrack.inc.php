@@ -1,5 +1,5 @@
 <?php
-// $Id: bugtrack.inc.php,v 1.3 2006/12/14 07:17:17 nao-pon Exp $
+// $Id: bugtrack.inc.php,v 1.4 2006/12/15 01:06:17 nao-pon Exp $
 //
 // PukiWiki BugTrack plugin
 //
@@ -118,7 +118,7 @@ class xpwiki_plugin_bugtrack extends xpwiki_plugin {
  <table border="0">
   <tr>
    <th><label for="_p_bugtrack_name_{$id[$this->xpwiki->pid]}">$s_name</label></th>
-   <td><input  id="_p_bugtrack_name_{$id[$this->xpwiki->pid]}" name="name" size="20" type="text" /></td>
+   <td><input id="_p_bugtrack_name_{$id[$this->xpwiki->pid]}" name="name" size="20" type="text" value="{$this->cont['USER_NAME_REPLACE']}"/></td>
   </tr>
   <tr>
    <th><label for="_p_bugtrack_category_{$id[$this->xpwiki->pid]}">$s_category</label></th>
@@ -148,7 +148,7 @@ class xpwiki_plugin_bugtrack extends xpwiki_plugin {
   </tr>
   <tr>
    <th><label   for="_p_bugtrack_body_{$id[$this->xpwiki->pid]}">$s_body</label></th>
-   <td><textarea id="_p_bugtrack_body_{$id[$this->xpwiki->pid]}" name="body" cols="60" rows="6"></textarea></td>
+   <td><textarea id="_p_bugtrack_body_{$id[$this->xpwiki->pid]}" name="body" cols="60" rows="6" rel="wikihelper"></textarea></td>
   </tr>
   <tr>
    <td colspan="2" align="center">
@@ -221,6 +221,10 @@ EOD;
 	{
 	
 		if (! preg_match("/^{$this->root->WikiName}$$/",$base)) $base = '[[' . $base . ']]';
+
+		// save name to cookie
+		if ($name) { $this->func->save_name2cookie($name); }
+
 		if ($name != '' && ! preg_match("/^{$this->root->WikiName}$$/",$name)) $name = '[[' . $name . ']]';
 	
 		if ($name    == '') $name    = $this->root->_plugin_bugtrack['noname'];
@@ -276,7 +280,7 @@ EOD;
 			list($page, $no, $summary, $name, $priority, $state, $category) = $line;
 			foreach (array('summary', 'name', 'priority', 'state', 'category') as $item)
 				$$item = htmlspecialchars($$item);
-			$page_link = $this->func->make_pagelink($page);
+			$page_link = $this->func->make_pagelink($page, $page);
 	
 			$state_no = array_search($state, $this->root->_plugin_bugtrack['state_sort']);
 			if ($state_no === NULL || $state_no === FALSE) $state_no = $count_list;
