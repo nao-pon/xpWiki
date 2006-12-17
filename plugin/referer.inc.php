@@ -3,7 +3,7 @@ class xpwiki_plugin_referer extends xpwiki_plugin {
 	function plugin_referer_init () {
 
 
-	// $Id: referer.inc.php,v 1.3 2006/12/14 23:32:44 nao-pon Exp $
+	// $Id: referer.inc.php,v 1.4 2006/12/17 11:34:54 nao-pon Exp $
 	/*
 	 * PukiWiki Referer プラグイン(リンク元表示プラグイン)
 	 * (C) 2003, Katsumi Saito <katsumi@jo1upk.ymt.prug.or.jp>
@@ -45,7 +45,12 @@ class xpwiki_plugin_referer extends xpwiki_plugin {
 	//	global $script, $_referer_msg;
 	
 		$data = $this->func->tb_get($this->func->tb_get_filename($page, '.ref'));
-		if (empty($data)) return '<p>no data.</p>';
+
+		$title = '<h2>' . $this->func->make_pagelink($page) . '</h2>';
+		$list = '<div style="text-align:right;"><a href="'.$this->root->script.'?plugin=referer#header">' . $this->root->_referer_msg['msg_Hed_Referer'].' '.$this->root->_title_list . '</a></div>';
+
+
+		if (empty($data)) return $title . $list . '<p>no data.</p>';
 	
 		$bg = $this->plugin_referer_set_color();
 	
@@ -137,12 +142,10 @@ class xpwiki_plugin_referer extends xpwiki_plugin {
 			$body .= ' </tr>' . "\n";
 		}
 		$href = $this->root->script . '?plugin=referer&amp;page=' . rawurlencode($page);
-		$title = '<h2>' . $this->func->make_pagelink($this->root->vars['page']) . '</h2>';
-		$list = '<div style="text-align:right;"><a href="'.$this->root->script.'?plugin=referer#header">' . $this->root->_referer_msg['msg_Hed_Referer'].' '.$this->root->_title_list . '</a></div>';
 		return <<<EOD
 $title
 $list
-<table style="background-color:Gray;" border="1" cellspacing="1" summary="Referer">
+<table style="" border="1" cellspacing="1" summary="Referer">
  <tr>
   <th style="background-color:$color_last" colspan="2">
    <a href="$href&amp;sort=$sort_last">{$this->root->_referer_msg['msg_Hed_LastUpdate']}$arrow_last</a>
