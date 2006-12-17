@@ -12,17 +12,14 @@ function wikihelper_face(v)
 	if (wikihelper_elem != null)
 	{
 		var ss = wikihelper_getSelectStart(wikihelper_elem);
-		//if (ss == 0) {
-		//	wikihelper_elem.value = "&nbsp;" + wikihelper_elem.value;
-		//	ss = 6;
-		//}
+		
 		var se = wikihelper_getSelectEnd(wikihelper_elem);
 		var s1 = (wikihelper_elem.value).substring(0,ss);
 		var s2 = (wikihelper_elem.value).substring(se,wikihelper_getTextLength(wikihelper_elem));
 		var s3 = wikihelper_getMozSelection(wikihelper_elem);
 		if (!s1 && !s2 && !s3) s1 = wikihelper_elem.value;
-		if (!s1 && !s3) {
-			s1 = "&nbsp;";
+		if ((!s1 || s1.match(/[\r\n]$/)) && !s3) {
+			s1 = s1 + "&nbsp;";
 			se += 6;
 		}
 		wikihelper_setText(s1 + s3 + ' ' + v + ' ' + s2);
@@ -62,7 +59,7 @@ function wikihelper_ins(v)
 		var s3 = wikihelper_getMozSelection(wikihelper_elem);
 		if (!s1 && !s2 && !s3) s1 = wikihelper_elem.value;
 		wikihelper_setText(s1 + s3 + v + s2);
-		se = se + v.length + 2;
+		se = se + v.length;
 		wikihelper_elem.setSelectionRange(se, se);
 		wikihelper_elem.focus();
 	}
