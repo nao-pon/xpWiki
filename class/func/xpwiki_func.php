@@ -1,7 +1,7 @@
 <?php
 //
 // Created on 2006/10/02 by nao-pon http://hypweb.net/
-// $Id: xpwiki_func.php,v 1.38 2006/12/14 08:44:38 nao-pon Exp $
+// $Id: xpwiki_func.php,v 1.39 2006/12/17 11:41:42 nao-pon Exp $
 //
 class XpWikiFunc extends XpWikiXoopsWrapper {
 
@@ -961,6 +961,22 @@ EOD;
 		} else {
 			return '';
 		}
+	}
+	
+	// ページ専用CSSタグを得る
+	function get_page_css_tag ($page) {
+		$ret = '';
+		$_page = '';
+		foreach(explode('/',$page) as $val)
+		{
+			$_page = ($_page)? $_page."/".$val : $val;
+			$pgid = $this->get_pgid_by_name($_page);
+			if (file_exists($this->cont['CACHE_DIR'].$pgid.'.css'))
+			{
+				$ret .= '<link rel="stylesheet" type="text/css" media="screen" href="'.$this->cont['HOME_URL'].'skin/loader.php?type=pagecss&amp;src='.$pgid.'" />'."\n";
+			}
+		}
+		return $ret;
 	}
 	
 	// SKIN Function

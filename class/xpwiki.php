@@ -1,7 +1,7 @@
 <?php
 //
 // Created on 2006/09/29 by nao-pon http://hypweb.net/
-// $Id: xpwiki.php,v 1.22 2006/12/11 04:23:35 nao-pon Exp $
+// $Id: xpwiki.php,v 1.23 2006/12/17 11:41:42 nao-pon Exp $
 //
 
 class XpWiki {
@@ -125,15 +125,17 @@ class XpWiki {
 					$body  = $func->get_body($base);
 					
 					if ($root->trackback) {
-						$body .= $func->tb_get_rdf($root->vars['page']);
+						$body .= $func->tb_get_rdf($base);
 					}
-					$func->ref_save($root->vars['page']);
+					$func->ref_save($base);
+					
+					// 各ページ用の .css
+					$root->head_tags[] = $func->get_page_css_tag($base);
 				}
 			}
 			// cont['USER_NAME_REPLACE'] を 置換
 			$body  = str_replace($this->cont['USER_NAME_REPLACE'], $this->root->userinfo['uname_s'], $body);
-
-
+			
 			// Output
 			$page_title = strip_tags($title);
 			$content_title = (!empty($this->root->content_title) && $title !== $this->root->content_title)?
@@ -256,7 +258,7 @@ class XpWiki {
 		
 		// 出力
 		$base = "b_".$this->root->mydirname;
-		$block = <<< EOD
+		$block = <<<EOD
 $head_pre_tag
 <link rel="stylesheet" type="text/css" media="screen" href="{$this->cont['HOME_URL']}{$this->cont['SKIN_DIR']}block.css.php?charset=Shift_JIS&amp;base={$base}" charset="Shift_JIS" />
 $head_tag

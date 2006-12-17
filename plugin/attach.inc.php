@@ -9,7 +9,7 @@ class xpwiki_plugin_attach extends xpwiki_plugin {
 	/////////////////////////////////////////////////
 	// PukiWiki - Yet another WikiWikiWeb clone.
 	//
-	//  $Id: attach.inc.php,v 1.5 2006/12/10 01:25:07 nao-pon Exp $
+	//  $Id: attach.inc.php,v 1.6 2006/12/17 11:41:42 nao-pon Exp $
 	//  ORG: attach.inc.php,v 1.31 2003/07/27 14:15:29 arino Exp $
 	//
 	
@@ -331,7 +331,7 @@ class xpwiki_plugin_attach extends xpwiki_plugin {
 		{
 			if ( is_uploaded_file($tmpname) )
 			{
-				$_pagecss_file = $this->cont['CACHE_DIR'].$this->func->encode($this->func->strip_bracket($page)).".css";
+				$_pagecss_file = $this->cont['CACHE_DIR'].$this->func->get_pgid_by_name($page).".css";
 				if (file_exists($_pagecss_file)) unlink($_pagecss_file);
 				if (move_uploaded_file($tmpname,$_pagecss_file))
 				{

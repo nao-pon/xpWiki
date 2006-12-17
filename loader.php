@@ -1,13 +1,14 @@
 <?php
 //
 // Created on 2006/10/25 by nao-pon http://hypweb.net/
-// $Id: loader.php,v 1.3 2006/12/05 00:03:29 nao-pon Exp $
+// $Id: loader.php,v 1.4 2006/12/17 11:41:42 nao-pon Exp $
 //
 
 // 変数初期化
 $type  = preg_replace("/[^\w.-]+/","",@ $_GET['type']);
 $src   = preg_replace("/[^\w.-]+/","",@ $_GET['src']);
 $block = (isset($_GET['b']))? 'b_' : '';
+$src_file = '';
 
 if (!$type || !$src) { exit(); }
 
@@ -34,6 +35,11 @@ switch ($type) {
 	case 'gif':
 		$c_type = 'image/gif';
 		break;
+	case 'pagecss':
+		$c_type = 'text/css';
+		$dir = $block.basename(dirname($skin_dirname));
+		$src_file = $mydirname = dirname($skin_dirname) . '/private/cache/' . $src . '.css';
+		break;
 	case 'xml':
 		$c_type = 'application/xml; charset=utf-8';
 		break;
@@ -41,7 +47,8 @@ switch ($type) {
 		exit();
 }
 
-$src_file = dirname(__FILE__)."/skin/{$basedir}{$type}/".preg_replace("/[^\w.]/","",$src).".$type";
+if (!$src_file)
+	$src_file = dirname(__FILE__)."/skin/{$basedir}{$type}/".preg_replace("/[^\w.]/","",$src).".$type";
 
 // default.LANG
 if ($type === "js" && substr($src,0,7) == "default") {
