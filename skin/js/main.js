@@ -228,15 +228,15 @@ function wikihelper_hide_helper() {
 // Branch.
 if (wikihelper_WinIE)
 {
-	document.write ('<scr'+'ipt type="text/javascr'+'ipt" src="' + wikihelper_root_url + 'skin/loader.php?type=js&amp;src=winie"></scr'+'ipt>');
+	document.write ('<scr'+'ipt type="text/javascr'+'ipt" src="' + wikihelper_root_url + 'skin/loader.php?src=winie.js"></scr'+'ipt>');
 }
 else if (wikihelper_Gecko)
 {
-	document.write ('<scr'+'ipt type="text/javascr'+'ipt" src="' + wikihelper_root_url + 'skin/loader.php?type=js&amp;src=gecko"></scr'+'ipt>');
+	document.write ('<scr'+'ipt type="text/javascr'+'ipt" src="' + wikihelper_root_url + 'skin/loader.php?src=gecko.js"></scr'+'ipt>');
 }
 else
 {
-	document.write ('<scr'+'ipt type="text/javascr'+'ipt" src="' + wikihelper_root_url + 'skin/loader.php?type=js&amp;src=other"></scr'+'ipt>');
+	document.write ('<scr'+'ipt type="text/javascr'+'ipt" src="' + wikihelper_root_url + 'skin/loader.php?src=other.js"></scr'+'ipt>');
 }
 
 // Add function in 'window.onload' event.

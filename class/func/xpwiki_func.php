@@ -1,7 +1,7 @@
 <?php
 //
 // Created on 2006/10/02 by nao-pon http://hypweb.net/
-// $Id: xpwiki_func.php,v 1.39 2006/12/17 11:41:42 nao-pon Exp $
+// $Id: xpwiki_func.php,v 1.40 2006/12/18 14:27:01 nao-pon Exp $
 //
 class XpWikiFunc extends XpWikiXoopsWrapper {
 
@@ -480,7 +480,7 @@ EOD;
 var wikihelper_root_url = "{$obj->cont['HOME_URL']}";
 //-->
 </script>
-<script type="text/javascript" src="{$obj->cont['HOME_URL']}skin/loader.php?type=js&amp;src=default.{$obj->cont['UI_LANG']}"></script>
+<script type="text/javascript" src="{$obj->cont['HOME_URL']}skin/loader.php?src=default.{$obj->cont['UI_LANG']}.js"></script>
 EOD;
 		// reformat
 		$obj->root->head_tags = array();
@@ -736,9 +736,9 @@ EOD;
 			$target = $pre? 'head_pre_tags' : 'head_tags';
 			$block = (isset($this->root->is_block))? '&amp;b=1' : '';
 			if ($match[2] === 'css') {
-				$this->root->{$target}[] = '<link rel="stylesheet" type="text/css" media="screen" href="'.$this->cont['HOME_URL'].'skin/loader.php?type=css&amp;src='.$match[1].$block.'" />';
+				$this->root->{$target}[] = '<link rel="stylesheet" type="text/css" media="screen" href="'.$this->cont['HOME_URL'].'skin/loader.php?'.$block.'src='.$match[1].'.css" />';
 			} else if ($match[2] === 'js') {
-				$this->root->{$target}[] = '<script type="text/javascript" src="'.$this->cont['HOME_URL'].'skin/loader.php?type=js&amp;src='.$match[1].'"></script>';
+				$this->root->{$target}[] = '<script type="text/javascript" src="'.$this->cont['HOME_URL'].'skin/loader.php?src='.$match[1].'.js"></script>';
 			}
 		}	
 	}
@@ -967,13 +967,23 @@ EOD;
 	function get_page_css_tag ($page) {
 		$ret = '';
 		$_page = '';
+		
+		// トップページ
+		$pgid = $this->get_pgid_by_name($this->root->defaultpage);
+		if (file_exists($this->cont['CACHE_DIR'].$pgid.'.css'))
+		{
+			$ret .= '<link rel="stylesheet" type="text/css" media="screen" href="'.$this->cont['HOME_URL'].'skin/loader.php?src='.$pgid.'.page.css" />'."\n";
+		}
+		
 		foreach(explode('/',$page) as $val)
 		{
 			$_page = ($_page)? $_page."/".$val : $val;
-			$pgid = $this->get_pgid_by_name($_page);
-			if (file_exists($this->cont['CACHE_DIR'].$pgid.'.css'))
-			{
-				$ret .= '<link rel="stylesheet" type="text/css" media="screen" href="'.$this->cont['HOME_URL'].'skin/loader.php?type=pagecss&amp;src='.$pgid.'" />'."\n";
+			if ($_page !== $this->root->defaultpage) {
+				$pgid = $this->get_pgid_by_name($_page);
+				if (file_exists($this->cont['CACHE_DIR'].$pgid.'.css'))
+				{
+					$ret .= '<link rel="stylesheet" type="text/css" media="screen" href="'.$this->cont['HOME_URL'].'skin/loader.php?src='.$pgid.'.page.css" />'."\n";
+				}
 			}
 		}
 		return $ret;
