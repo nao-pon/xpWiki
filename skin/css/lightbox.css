@@ -55,7 +55,7 @@
 #nextLink {
 	width: 49%;
 	height: 100%;
-	background: transparent url(./loader.php?type=gif&src=blank) no-repeat; /* Trick IE into showing hover */
+	background: transparent url(./loader.php?src=blank.gif) no-repeat; /* Trick IE into showing hover */
 	display: block;
 }
 
@@ -69,12 +69,12 @@
 
 #prevLink:hover,
 #prevLink:visited:hover {
-	background: url(./loader.php?type=gif&src=prevlabel) left 15% no-repeat;
+	background: url(./loader.php?src=prevlabel.gif) left 15% no-repeat;
 }
 
 #nextLink:hover,
 #nextLink:visited:hover {
-	background: url(./loader.php?type=gif&src=nextlabel) right 15% no-repeat;
+	background: url(./loader.php?src=nextlabel.gif) right 15% no-repeat;
 }
 
 #imageDataContainer {
@@ -111,7 +111,7 @@
 #imageData #bottomNavClose,
 #imageData #originalLink,
 #imageData #originalLinkNew {
-	background-image: url(./loader.php?type=png&src=buttons);
+	background-image: url(./loader.php?src=buttons.png);
 	background-repeat: no-repeat;
 	display: block;
 	height: 36px;

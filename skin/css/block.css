@@ -1,7 +1,7 @@
 /* CSS for the box starts here */  
 div.xpwiki_$dir .round_box {  
     padding:0 12px 0 0;  
-    background:#fff url(loader.php?type=gif&src=borders) 100% 0 repeat-y;  
+    background:#fff url(loader.php?src=borders.gif) 100% 0 repeat-y;  
 }
 div.xpwiki_$dir .round_content {  
 	margin:0; 
@@ -9,25 +9,25 @@ div.xpwiki_$dir .round_content {
 }    
 div.xpwiki_$dir .round_bi {  
     padding:0 0 0 12px;  
-    background:#fff url(loader.php?type=gif&src=borders) 0 0 repeat-y;  
+    background:#fff url(loader.php?src=borders.gif) 0 0 repeat-y;  
 }  
 div.xpwiki_$dir .round_bt {  
     height:17px;  
     margin:0 -12px;  
-    background:url(loader.php?type=gif&src=box) 100% 0 no-repeat;  
+    background:url(loader.php?src=box.gif) 100% 0 no-repeat;  
 }  
 div.xpwiki_$dir .round_bt div {  
     width:18px;  
     height:17px;  
-    background:url(loader.php?type=gif&src=box) 0 0 no-repeat;  
+    background:url(loader.php?src=box.gif) 0 0 no-repeat;  
 }  
 div.xpwiki_$dir .round_bb {  
     height:17px;  
     margin:0 -12px;  
-    background:url(loader.php?type=gif&src=box) 100% 100% no-repeat;  
+    background:url(loader.php?src=box.gif) 100% 100% no-repeat;  
 }  
 div.xpwiki_$dir .round_bb div {  
     width:18px;  
     height:17px;  
-    background:url(loader.php?type=gif&src=box) 0 100% no-repeat;  
+    background:url(loader.php?src=box.gif) 0 100% no-repeat;  
 }

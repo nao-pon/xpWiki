@@ -1,26 +1,39 @@
 <?php
 //
 // Created on 2006/10/25 by nao-pon http://hypweb.net/
-// $Id: loader.php,v 1.4 2006/12/17 11:41:42 nao-pon Exp $
+// $Id: loader.php,v 1.5 2006/12/18 14:27:01 nao-pon Exp $
 //
 
 // 変数初期化
-$type  = preg_replace("/[^\w.-]+/","",@ $_GET['type']);
+//$type  = preg_replace("/[^\w.-]+/","",@ $_GET['type']);
 $src   = preg_replace("/[^\w.-]+/","",@ $_GET['src']);
 $block = (isset($_GET['b']))? 'b_' : '';
-$src_file = '';
+$addcss = $dir = $out = $type = $src_file = '';
+
+if (preg_match("/^(.+)\.([^.]+)$/",$src,$match)) {
+	$type = $match[2];
+	$src = $match[1];
+	if (substr($src, -5) === '.page') {
+		$type = 'pagecss';
+		$src = substr($src, 0, strlen($src) - 5);
+	}
+}
 
 if (!$type || !$src) { exit(); }
 
 $basedir = ($type === "png" || $type === "gif")? "image/" : "";
 
-// html側に指定ファイルがあれば、それにリダイレクト
-if (file_exists("{$skin_dirname}/{$basedir}{$type}/{$block}{$src}.{$type}")) {
-	header("Location: {$basedir}{$type}/{$block}{$src}.{$type}");
-	exit();
+if (file_exists("{$skin_dirname}/{$basedir}{$type}/{$src}.{$type}")) {
+	if ($type !== 'css') {
+		// html側に指定ファイルがあれば、それにリダイレクト
+		header("Location: {$basedir}{$type}/{$src}.{$type}");
+		exit();
+	} else {
+		// CSS は上書き
+		$addcss = join('', file("{$skin_dirname}/{$basedir}{$type}/{$src}.{$type}"));
+	}
 }
 
-$dir = '';
 switch ($type) {
 	case 'css':
 		$c_type = 'text/css';
@@ -59,7 +72,7 @@ if ($type === "js" && substr($src,0,7) == "default") {
 
 if (file_exists($src_file)) {
 	$filetime = filemtime($src_file);
-	$etag = md5($type.$dir.$src.$filetime);
+	$etag = md5($type.$dir.$src.$filetime.$addcss);
 	/*
 	$notmod = ($etag == @$_SERVER["HTTP_IF_NONE_MATCH"]);
 	if ($notmod || isset($_SERVER["HTTP_IF_MODIFIED_SINCE"])) {
@@ -77,16 +90,16 @@ if (file_exists($src_file)) {
 	}
 	$out = join("",file($src_file));
 	if ($dir) {
-		$out = str_replace('$dir', $dir, $out);
+		$out = str_replace('$dir', $dir, $out . "\n" . $addcss);
 	}
 	header( "Content-Type: " . $c_type );
 	header( "Last-Modified: " . gmdate( "D, d M Y H:i:s", $filetime ) . " GMT" );
 	header( "Etag: ". $etag );
 	header( "Content-length: ".strlen($out) );
 } else {
-	$out = 'File not found.';
+	//$out = 'File not found.';
 	header( "HTTP/1.1 404 Not Found" );
-	header( "Content-length: ".strlen($out) );
+	//header( "Content-length: ".strlen($out) );
 }
 echo $out;
 exit();
