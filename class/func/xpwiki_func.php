@@ -1,7 +1,7 @@
 <?php
 //
 // Created on 2006/10/02 by nao-pon http://hypweb.net/
-// $Id: xpwiki_func.php,v 1.40 2006/12/18 14:27:01 nao-pon Exp $
+// $Id: xpwiki_func.php,v 1.41 2006/12/18 23:28:42 nao-pon Exp $
 //
 class XpWikiFunc extends XpWikiXoopsWrapper {
 
@@ -734,7 +734,7 @@ EOD;
 		
 		if (preg_match("/^(.+)\.([^\.]+)$/",$file,$match)) {
 			$target = $pre? 'head_pre_tags' : 'head_tags';
-			$block = (isset($this->root->is_block))? '&amp;b=1' : '';
+			$block = (isset($this->root->is_block))? 'b=1&amp;' : '';
 			if ($match[2] === 'css') {
 				$this->root->{$target}[] = '<link rel="stylesheet" type="text/css" media="screen" href="'.$this->cont['HOME_URL'].'skin/loader.php?'.$block.'src='.$match[1].'.css" />';
 			} else if ($match[2] === 'js') {
@@ -967,12 +967,13 @@ EOD;
 	function get_page_css_tag ($page) {
 		$ret = '';
 		$_page = '';
+		$block = (isset($this->root->is_block))? 'b=1&amp;' : '';
 		
 		// トップページ
 		$pgid = $this->get_pgid_by_name($this->root->defaultpage);
 		if (file_exists($this->cont['CACHE_DIR'].$pgid.'.css'))
 		{
-			$ret .= '<link rel="stylesheet" type="text/css" media="screen" href="'.$this->cont['HOME_URL'].'skin/loader.php?src='.$pgid.'.page.css" />'."\n";
+			$ret .= '<link rel="stylesheet" type="text/css" media="screen" href="'.$this->cont['HOME_URL'].'skin/loader.php?'.$block.'src='.$pgid.'.page.css" />'."\n";
 		}
 		
 		foreach(explode('/',$page) as $val)
@@ -982,7 +983,7 @@ EOD;
 				$pgid = $this->get_pgid_by_name($_page);
 				if (file_exists($this->cont['CACHE_DIR'].$pgid.'.css'))
 				{
-					$ret .= '<link rel="stylesheet" type="text/css" media="screen" href="'.$this->cont['HOME_URL'].'skin/loader.php?src='.$pgid.'.page.css" />'."\n";
+					$ret .= '<link rel="stylesheet" type="text/css" media="screen" href="'.$this->cont['HOME_URL'].'skin/loader.php?'.$block.'src='.$pgid.'.page.css" />'."\n";
 				}
 			}
 		}
