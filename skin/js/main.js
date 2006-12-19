@@ -1,7 +1,7 @@
 // Init.
 var wikihelper_WinIE=(document.all&&!window.opera&&navigator.platform=="Win32");
 var wikihelper_Gecko=(navigator && navigator.userAgent && navigator.userAgent.indexOf("Gecko/") != -1);
-var wikihelper_Is_pukiwikimod = (document.URL.indexOf(wikihelper_root_url,0) == 0);
+//var wikihelper_Is_pukiwikimod = (document.URL.indexOf(wikihelper_root_url,0) == 0);
 
 var wikihelper_elem;
 var wikihelper_mapLoad=0;
@@ -59,14 +59,15 @@ function wikihelper_show_fontset_img()
 	{
 		wikihelper_adv_tag += '<span style="cursor:pointer;">';
 		
-		if (wikihelper_Is_pukiwikimod) wikihelper_adv_tag +=
-	'<img src="'+wikihelper_root_url+'image/clip.png" width="18" height="16" border="0" title="'+wikihelper_msg_attach+'" alt="&amp;ref;" onClick="javascript:wikihelper_ins(\'&ref();\'); return false;" '+'/'+'>';
+	//	if (wikihelper_Is_pukiwikimod) wikihelper_adv_tag +=
+	//'<img src="'+wikihelper_root_url+'image/clip.png" width="18" height="16" border="0" title="'+wikihelper_msg_attach+'" alt="&amp;ref;" onClick="javascript:wikihelper_ins(\'&ref();\'); return false;" '+'/'+'>';
 		
 		 wikihelper_adv_tag +=
+	'<img src="'+wikihelper_root_url+'image/clip.png" width="18" height="16" border="0" title="'+wikihelper_msg_attach+'" alt="&amp;ref;" onClick="javascript:wikihelper_ins(\'&ref();\'); return false;" '+'/'+'>'+
 	'<img src="'+wikihelper_root_url+'image/ncr.gif" width="22" height="16" border="0" title="'+wikihelper_msg_to_ncr+'" alt="'+wikihelper_msg_to_ncr+'" onClick="javascript:wikihelper_charcode(); return false;" '+'/'+'>'+
 	'<img src="'+wikihelper_root_url+'image/br.gif" width="18" height="16" border="0" title="&amp;br;" alt="&amp;br;" onClick="javascript:wikihelper_ins(\'&br;\'); return false;" '+'/'+'>'+
 	'<img src="'+wikihelper_root_url+'image/iplugin.gif" width="18" height="16" border="0" title="Inline Plugin" alt="Inline Plugin" onClick="javascript:wikihelper_ins(\'&(){};\'); return false;" '+'/'+'>'+
-	'<'+'/'+'span><br>';
+	'<'+'/'+'span><br '+'/'+'>';
 	}
 
 	var wikihelper_helper_img = 
