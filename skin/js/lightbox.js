@@ -16,7 +16,7 @@
 // -----------------------------------------------------------------------------------
 //
 //  edited by nao-pon - http://hypweb.net/
-//  $Id: lightbox.js,v 1.5 2006/12/19 00:58:46 nao-pon Exp $
+//  $Id: lightbox.js,v 1.6 2006/12/19 11:20:48 nao-pon Exp $
 //
 // -----------------------------------------------------------------------------------
 
@@ -266,11 +266,11 @@ Lightbox.prototype = {
 		if (!document.getElementsByTagName){ return; }
 		
 		//var anchors = document.getElementById('body').getElementsByTagName('a');
-		if (!document.getElementById('body')) {
+		//if (!document.getElementById('body')) {
 			var anchors = document.getElementsByTagName('body')[0].getElementsByTagName('a');
-		} else {
-			var anchors = document.getElementById('body').getElementsByTagName('a');
-		}
+		//} else {
+		//	var anchors = document.getElementById('body').getElementsByTagName('a');
+		//}
 		
 		if((imageLink.getAttribute('rel') == 'lightbox')){
 			// add single image to imageArray
