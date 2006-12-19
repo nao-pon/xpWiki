@@ -16,9 +16,12 @@
 // -----------------------------------------------------------------------------------
 //
 //  edited by nao-pon - http://hypweb.net/
-//  $Id: lightbox.js,v 1.4 2006/12/18 14:27:01 nao-pon Exp $
+//  $Id: lightbox.js,v 1.5 2006/12/19 00:58:46 nao-pon Exp $
 //
 // -----------------------------------------------------------------------------------
+
+if (!Lightbox) {
+
 //
 //	Configuration
 //
@@ -120,11 +123,11 @@ Lightbox.prototype = {
 		this.myhost = this.myhost.replace(reg, "##__BACK_SLASH__##$1").replace(/##__BACK_SLASH__##/g, '\\');
 		this.myhost = new RegExp("^"+this.myhost,"i");
 		
-		if (!document.getElementById('body')) {
+		//if (!document.getElementById('body')) {
 			var anchors = document.getElementsByTagName('body')[0].getElementsByTagName('a');
-		} else {
-			var anchors = document.getElementById('body').getElementsByTagName('a');
-		}
+		//} else {
+		//	var anchors = document.getElementById('body').getElementsByTagName('a');
+		//}
 		
 		// loop through all anchor tags
 		for (var i=0; i<anchors.length; i++){
@@ -728,3 +731,5 @@ function pause(numberMillis) {
 
 function initLightbox() { myLightbox = new Lightbox(); }
 Event.observe(window, 'load', initLightbox, false);
+
+}
