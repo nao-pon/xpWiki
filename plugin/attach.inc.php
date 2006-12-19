@@ -9,7 +9,7 @@ class xpwiki_plugin_attach extends xpwiki_plugin {
 	/////////////////////////////////////////////////
 	// PukiWiki - Yet another WikiWikiWeb clone.
 	//
-	//  $Id: attach.inc.php,v 1.6 2006/12/17 11:41:42 nao-pon Exp $
+	//  $Id: attach.inc.php,v 1.7 2006/12/19 11:18:49 nao-pon Exp $
 	//  ORG: attach.inc.php,v 1.31 2003/07/27 14:15:29 arino Exp $
 	//
 	
@@ -175,6 +175,11 @@ class xpwiki_plugin_attach extends xpwiki_plugin {
 		{
 			//ページが指定されていて pcmd がない時は 'upload' にする
 			$pcmd = 'upload';
+		}
+		
+		if (empty($this->root->vars['page']) && $pcmd === 'upload') {
+			// ページ名の指定がない場合は list
+			$pcmd = 'list';
 		}
 		
 		// リファラチェック
