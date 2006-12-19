@@ -1,6 +1,6 @@
 <?php
 // PukiWiki - Yet another WikiWikiWeb clone.
-// $Id: pukiwiki.css.php,v 1.6 2006/12/13 04:57:57 nao-pon Exp $
+// $Id: pukiwiki.css.php,v 1.7 2006/12/19 00:57:17 nao-pon Exp $
 // Copyright (C)
 //   2002-2005 PukiWiki Developers Team
 //   2001-2002 Originally written by yu-ji
@@ -83,7 +83,7 @@ div#wikihelper_base {
 	color:#215dc6;
 	background-color:inherit;
 	text-decoration:none;
-	font-weight: none;
+	font-weight: inherit;
 <?php	} ?>
 }
 
@@ -91,7 +91,7 @@ div#wikihelper_base {
 	color:#215dc6;
 	background-color:#CCDDEE;
 	text-decoration:none;
-	font-weight: none;
+	font-weight: inherit;
 }
 
 <?php echo $class ?> a:visited {
@@ -101,7 +101,7 @@ div#wikihelper_base {
 	color:#a63d21;
 	background-color:inherit;
 	text-decoration:none;
-	font-weight: none;
+	font-weight: inherit;
 <?php	} ?>
 }
 
@@ -109,7 +109,7 @@ div#wikihelper_base {
 	color:#215dc6;
 	background-color:#CCDDEE;
 	text-decoration:underline;
-	font-weight: none;
+	font-weight: inherit;
 }
 
 <?php echo $class ?> h1,
@@ -236,13 +236,14 @@ div#wikihelper_base {
 	background-color:#EEF5FF;
 }
 
-<?php echo $class ?> ul.list1 { list-style-type:disc; }
-<?php echo $class ?> ul.list2 { list-style-type:circle; }
-<?php echo $class ?> ul.list3 { list-style-type:square; }
-<?php echo $class ?> ol.list1 { list-style-type:decimal; }
-<?php echo $class ?> ol.list2 { list-style-type:lower-roman; }
-<?php echo $class ?> ol.list3 { list-style-type:lower-alpha; }
-<?php echo $class ?> li { list-style-type:normal; }
+<?php echo $class ?> li { list-style-type:disc; }
+
+<?php echo $class ?> ul.list1 li { list-style-type:disc; }
+<?php echo $class ?> ul.list2 li { list-style-type:circle; }
+<?php echo $class ?> ul.list3 li { list-style-type:square; }
+<?php echo $class ?> ol.list1 li { list-style-type:decimal; }
+<?php echo $class ?> ol.list2 li { list-style-type:lower-roman; }
+<?php echo $class ?> ol.list3 li { list-style-type:lower-alpha; }
 
 <?php echo $class ?> div.ie5 { text-align:center; }
 
