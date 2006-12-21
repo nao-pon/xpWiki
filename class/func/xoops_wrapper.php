@@ -1,7 +1,7 @@
 <?php
 //
 // Created on 2006/10/11 by nao-pon http://hypweb.net/
-// $Id: xoops_wrapper.php,v 1.17 2006/12/14 23:33:37 nao-pon Exp $
+// $Id: xoops_wrapper.php,v 1.18 2006/12/21 04:40:17 nao-pon Exp $
 //
 class XpWikiXoopsWrapper extends XpWikiBackupFunc {
 	
@@ -128,10 +128,6 @@ class XpWikiXoopsWrapper extends XpWikiBackupFunc {
 				// Validation check
 				$func = 'pkwk_mail_notify(): ';
 				$mail_regex   = '/[^@]+@[^@]{1,}\.[^@]{2,}/';
-				//if (! preg_match($mail_regex, $this->root->notify_to))
-				//	die($func . 'Invalid $this->root->notify_to');
-				//if (! preg_match($mail_regex, $this->root->notify_from))
-				//	die($func . 'Invalid $this->root->notify_from');
 				if ($this->root->notify_header != '') {
 					$header_regex = "/\A(?:\r\n|\r|\n)|\r\n\r\n/";
 					if (preg_match($header_regex, $this->root->notify_header))
@@ -148,9 +144,6 @@ class XpWikiXoopsWrapper extends XpWikiBackupFunc {
 							
 			// Additional header(s) by admin
 			if ($this->root->notify_header != '') $_headers[$this->xpwiki->pid] .= "\r\n" . $this->root->notify_header;
-
-	
-			//$_after_pop[$this->xpwiki->pid] = $this->root->smtp_auth;
 		}
 	
 		if ($subject == '' || ($message == '' && empty($footer))) return FALSE;
@@ -169,12 +162,6 @@ class XpWikiXoopsWrapper extends XpWikiBackupFunc {
 				$_footer .= $key . ': ' . $value . "\n";
 			$message .= $_footer;
 		}
-	
-		// Wait POP/APOP auth completion
-		//if ($_after_pop[$this->xpwiki->pid]) {
-		//	$result = $this->pop_before_smtp();
-		//	if ($result !== TRUE) die($result);
-		//}
 	
 		$config_handler =& xoops_gethandler('config');
 		$xoopsConfig =& $config_handler->getConfigsByCat(XOOPS_CONF);
