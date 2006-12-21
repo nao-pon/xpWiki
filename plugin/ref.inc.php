@@ -1,5 +1,5 @@
 <?php
-// $Id: ref.inc.php,v 1.7 2006/12/10 03:55:42 nao-pon Exp $
+// $Id: ref.inc.php,v 1.8 2006/12/21 01:40:39 nao-pon Exp $
 /*
 
 	*プラグイン ref
@@ -139,7 +139,7 @@ class xpwiki_plugin_ref extends xpwiki_plugin {
 			}
 		}
 
-		$etag = md5_file($ref);
+		$etag = filemtime($ref);
 		if ($etag == @$_SERVER["HTTP_IF_NONE_MATCH"]) {
 			header('HTTP/1.1 304 Not Modified' );
 			header('Etag: '. $etag );
