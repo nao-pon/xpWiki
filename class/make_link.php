@@ -37,19 +37,19 @@ class XpWikiInlineConverter {
 		$this->func = & $xpwiki->func;
 
 		if ($converters === NULL) {
-				$converters = array ('plugin', // Inline plugins
-		'note', // Footnotes
-		'url', // URLs
-		'url_interwiki', // URLs (interwiki definition)
-		'mailto', // mailto: URL schemes
-		'interwikiname', // InterWikiNames
-		'autoalias', // AutoAlias
-		'autolink', // AutoLinks
-		'bracketname', // BracketNames
-		'wikiname', // WikiNames
-		'autoalias_a', // AutoAlias(alphabet)
-		'autolink_a', // AutoLinks(alphabet)
-	);
+			$converters = array ('plugin', // Inline plugins
+				'note', // Footnotes
+				'url', // URLs
+				'url_interwiki', // URLs (interwiki definition)
+				'mailto', // mailto: URL schemes
+				'interwikiname', // InterWikiNames
+				'autoalias', // AutoAlias
+				'autolink', // AutoLinks
+				'bracketname', // BracketNames
+				'wikiname', // WikiNames
+				'autoalias_a', // AutoAlias(alphabet)
+				'autolink_a', // AutoLinks(alphabet)
+			);
 		}
 
 		if ($excludes !== NULL)
@@ -353,13 +353,14 @@ EOD;
 	}
 
 	function toString() {
-		if (FALSE) {
-			$rel = '';
-		} else {
+		if (strpos($this->name, $this->cont['ROOT_URL']) === FALSE) {
 			$rel = ' rel="nofollow"';
+			$class = ' class="ext"';
+		} else {
+			$rel = $class = '';
 		}
 		$img = ($this->is_image)? ' type="img"' : '';
-		return '<a href="'.$this->name.'" title="'.preg_replace('#^https?://#','',$this->name).'"'.$rel.$img.'>'.$this->alias.'</a>';
+		return '<a href="'.$this->name.'" title="'.preg_replace('#^https?://#','',$this->name).'"'.$rel.$class.$img.'>'.$this->alias.'</a>';
 	}
 }
 
@@ -609,7 +610,7 @@ class XpWikiLink_autolink extends XpWikiLink {
 	}
 
 	function toString() {
-		return $this->func->make_pagelink($this->name, $this->alias, '', $this->page, TRUE);
+		return $this->func->make_pagelink($this->name, $this->alias, '', $this->page, 'autolink');
 	}
 }
 
