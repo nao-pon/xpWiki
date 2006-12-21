@@ -1,6 +1,6 @@
 <?php
 // PukiWiki - Yet another WikiWikiWeb clone.
-// $Id: pukiwiki.css.php,v 1.7 2006/12/19 00:57:17 nao-pon Exp $
+// $Id: pukiwiki.css.php,v 1.8 2006/12/21 06:27:19 nao-pon Exp $
 // Copyright (C)
 //   2002-2005 PukiWiki Developers Team
 //   2001-2002 Originally written by yu-ji
@@ -30,7 +30,7 @@ $overwrite = (empty($overwrite))? '' : $overwrite;
 $etag = md5($base.$charset.$media.$overwrite.filemtime(__FILE__));
 
 // Not Modified?
-if ($etag == @$_SERVER["HTTP_IF_NONE_MATCH"]) {
+if ($etag === @$_SERVER["HTTP_IF_NONE_MATCH"]) {
 	header( "HTTP/1.1 304 Not Modified" );
 	header( "Etag: ". $etag );
 	exit();
@@ -77,7 +77,7 @@ div#wikihelper_base {
 }
 
 <?php echo $class ?> a:link {
-<?php	if ($media == 'print') { ?>
+<?php	if ($media === 'print') { ?>
 	text-decoration: underline;
 <?php	} else { ?>
 	color:#215dc6;
@@ -95,7 +95,7 @@ div#wikihelper_base {
 }
 
 <?php echo $class ?> a:visited {
-<?php	if ($media == 'print') { ?>
+<?php	if ($media === 'print') { ?>
 	text-decoration: underline;
 <?php	} else { ?>
 	color:#a63d21;
@@ -111,6 +111,24 @@ div#wikihelper_base {
 	text-decoration:underline;
 	font-weight: inherit;
 }
+
+<?php if ($media === 'screen') { ?>
+<?php echo $class ?> a.ext {
+	border-bottom: 1px blue dotted;
+	background-image: url(../loader.php?src=ext.png);
+	background-repeat: no-repeat;
+	background-position: left 3px;
+	padding-left: 12px;
+}
+
+<?php echo $class ?> a.pagelink {
+	/*border-bottom: 1px silver dotted;*/
+}
+
+<?php echo $class ?> a.autolink {
+	/*border-bottom: 1px silver dotted;*/
+}
+<?php	} ?>
 
 <?php echo $class ?> h1,
 <?php echo $class ?> h2 {
@@ -391,7 +409,7 @@ div#wikihelper_base {
 }
 
 <?php echo $class ?> div#navigator {
-<?php   if ($media == 'print') { ?>
+<?php   if ($media === 'print') { ?>
 	display:none;
 <?php   } else { ?>
 	clear:both;
@@ -401,7 +419,7 @@ div#wikihelper_base {
 }
 
 <?php echo $class ?> td.menubar {
-<?php   if ($media == 'print') { ?>
+<?php   if ($media === 'print') { ?>
 	display:none;
 <?php   } else { ?>
 	width:9em;
@@ -410,7 +428,7 @@ div#wikihelper_base {
 }
 
 <?php echo $class ?> div#menubar {
-<?php   if ($media == 'print') { ?>
+<?php   if ($media === 'print') { ?>
 	display:none;
 <?php   } else { ?>
 	width:9em;
@@ -443,7 +461,7 @@ div#wikihelper_base {
 }
 
 <?php echo $class ?> div#attach {
-<?php   if ($media == 'print') { ?>
+<?php   if ($media === 'print') { ?>
 	display:none;
 <?php   } else { ?>
 	clear:both;
@@ -453,7 +471,7 @@ div#wikihelper_base {
 }
 
 <?php echo $class ?> div#toolbar {
-<?php   if ($media == 'print') { ?>
+<?php   if ($media === 'print') { ?>
         display:none;
 <?php   } else { ?>
 	clear:both;
@@ -470,7 +488,7 @@ div#wikihelper_base {
 }
 
 <?php echo $class ?> div#related {
-<?php   if ($media == 'print') { ?>
+<?php   if ($media === 'print') { ?>
         display:none;
 <?php   } else { ?>
 	font-size:80%;
@@ -496,7 +514,7 @@ div#wikihelper_base {
 }
 
 <?php echo $class ?> img#logo {
-<?php   if ($media == 'print') { ?>
+<?php   if ($media === 'print') { ?>
 	display:none;
 <?php   } else { ?>
 	float:left;
