@@ -9,7 +9,7 @@ class xpwiki_plugin_attach extends xpwiki_plugin {
 	/////////////////////////////////////////////////
 	// PukiWiki - Yet another WikiWikiWeb clone.
 	//
-	//  $Id: attach.inc.php,v 1.7 2006/12/19 11:18:49 nao-pon Exp $
+	//  $Id: attach.inc.php,v 1.8 2006/12/21 01:40:28 nao-pon Exp $
 	//  ORG: attach.inc.php,v 1.31 2003/07/27 14:15:29 arino Exp $
 	//
 	
@@ -429,7 +429,7 @@ class xpwiki_plugin_attach extends xpwiki_plugin {
 		$obj->status['owner'] = $this->root->userinfo['uid'];
 		$obj->status['ucd']   = $this->root->userinfo['ucd'];
 		$obj->status['uname'] = $this->root->userinfo['uname'];
-		$obj->status['md5'] = md5_file($obj->filename);  //for code plugin.
+		$obj->status['md5'] = md5_file($obj->filename);
 		$obj->status['admins'] = (int)$this->func->check_admin($this->root->userinfo['uid']);
 		
 		$obj->action = $_action;
@@ -895,7 +895,6 @@ class XpWikiAttachFile
 		$this->logname = $this->basename.'.log';
 		$this->exist = file_exists($this->filename);
 		$this->time = $this->exist ? filemtime($this->filename) - $this->cont['LOCALZONE'] : 0;
-		$this->md5hash = $this->exist ? md5_file($this->filename) : '';
 		$this->owner_id = 0;
 	}
 	// ファイル情報取得
@@ -1057,7 +1056,7 @@ class XpWikiAttachFile
 				$img_info = "Image: {$isize[0]} x {$isize[1]} px";
 				if ($is_editable && (defined('HYP_JPEGTRAN_PATH') || $isize[2] == 2))
 				{
-					$img_info = <<< EOD
+					$img_info = <<<EOD
 <form action="{$this->root->script}" method="post">
  <div>
   $img_info
@@ -1132,11 +1131,11 @@ EOD;
 			}
 		}
 		$v_filename = ($this->status['copyright'])? "<dd>{$this->root->_attach_messages['err_copyright']}</dd>" : "<dd>{$this->root->_attach_messages['msg_filename']}:".basename($this->filename)."</dd>";
-		$v_md5hash  = ($this->status['copyright'])? "" : "<dd>{$this->root->_attach_messages['msg_md5hash']}:{$this->md5hash}</dd>";
+		$v_md5hash  = ($this->status['copyright'])? "" : "<dd>{$this->root->_attach_messages['msg_md5hash']}:{$this->status['md5']}</dd>";
 		if ($img_info) $img_info = "<dd>{$img_info}</dd>";
 		if ($exif_tags) $exif_tags = "<dd>{$exif_tags}</dd>";
 		
-		$retval['body'] = <<< EOD
+		$retval['body'] = <<<EOD
 <p class="small">
  [<a href="{$this->root->script}?plugin=attach&amp;pcmd=list&amp;refer=$r_page">{$this->root->_attach_messages['msg_list']}</a>]
  [<a href="{$this->root->script}?plugin=attach&amp;pcmd=list">{$this->root->_attach_messages['msg_listall']}</a>]
@@ -1160,7 +1159,7 @@ $s_err
 EOD;
 		if ($is_editable)
 		{
-			$retval['body'] .= <<< EOD
+			$retval['body'] .= <<<EOD
 <hr />
 <form action="{$this->root->script}" method="post">
  <div>
@@ -1652,10 +1651,10 @@ class XpWikiAttachPages
 					$this->err = 1;
 					return;
 				}
-			$_row = mysql_fetch_row($result);
-			if (!$_row[0]) return;
+			list($_count) = mysql_fetch_row($result);
+			if (!$_count) return;
 			
-			$this->pages[$page]->count = $_row[0];
+			$this->pages[$page]->count = $_count;
 			$this->pages[$page]->max = $max;
 			$this->pages[$page]->start = $start;
 			$this->pages[$page]->order = $f_order;
@@ -1675,23 +1674,12 @@ class XpWikiAttachPages
 		else
 		{
 			// WHERE句
-			if ($this->root->userinfo['admin'])
-				$where = "";
-			else
-			{
-				$where = "";
-				if ($this->root->userinfo['uid']) $where .= " (p.uid = {$this->root->userinfo['uid']}) OR";
-				$where .= " (p.vaids = 'all') OR (p.vgids LIKE '%&3&%')";
-				if ($this->root->userinfo['uid']) $where .= " OR (p.vaids LIKE '%&{$this->root->userinfo['uid']}&%')";
-				foreach($this->func->get_mygroups() as $gid)
-				{
-					$where .= " OR (p.vgids LIKE '%&{$gid}&%')";
-				}
-				$where = " WHERE".$where;
-			}
+			$where = $this->func->get_readable_where('p.');
+			
+			if ($where) $where = ' WHERE '.$where;
 			
 			// 添付ファイルのあるページ数カウント
-			$query = "SELECT p.pgid FROM ".$this->xpwiki->db->prefix($this->root->mydirname."_pginfo")." p INNER JOIN ".$this->xpwiki->db->prefix($this->root->mydirname."_attach")." a ON p.pgid=a.pgid{$where} GROUP BY a.pgid;";
+			$query = "SELECT DISTINCT p.pgid FROM ".$this->xpwiki->db->prefix($this->root->mydirname."_pginfo")." p INNER JOIN ".$this->xpwiki->db->prefix($this->root->mydirname."_attach")." a ON p.pgid=a.pgid{$where}";
 			$result = $this->xpwiki->db->query($query);
 			
 			$this->count = $result ? mysql_num_rows($result) : 0;
@@ -1704,9 +1692,10 @@ class XpWikiAttachPages
 			$order = ($f_order == "name")? " ORDER BY p.name ASC" : " ORDER BY p.editedtime DESC";
 			$limit = " LIMIT $start,$max";
 			
-			$query = "SELECT p.name,p.editedtime FROM ".$this->xpwiki->db->prefix($this->root->mydirname."_pginfo")." p INNER JOIN ".$this->xpwiki->db->prefix($this->root->mydirname."_attach")." a ON p.pgid=a.pgid{$where} GROUP BY a.pgid{$order}{$limit};";
+			$query = "SELECT DISTINCT p.name FROM ".$this->xpwiki->db->prefix($this->root->mydirname."_pginfo")." p INNER JOIN ".$this->xpwiki->db->prefix($this->root->mydirname."_attach")." a ON p.pgid=a.pgid{$where} {$limit};";
 			if (!$result = $this->xpwiki->db->query($query)) echo "QUERY ERROR : ".$query;
 			
+			//if ($this->root->userinfo['admin']) echo $query;
 			
 			while($_row = mysql_fetch_row($result))
 			{
