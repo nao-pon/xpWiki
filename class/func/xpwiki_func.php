@@ -1,7 +1,7 @@
 <?php
 //
 // Created on 2006/10/02 by nao-pon http://hypweb.net/
-// $Id: xpwiki_func.php,v 1.41 2006/12/18 23:28:42 nao-pon Exp $
+// $Id: xpwiki_func.php,v 1.42 2006/12/26 00:08:52 nao-pon Exp $
 //
 class XpWikiFunc extends XpWikiXoopsWrapper {
 
@@ -404,7 +404,7 @@ EOD;
 			$cache_dat = unserialize(join('',file($cache_file)));
 			$body = array_shift($cache_dat);
 			foreach ($cache_dat['root'] as $_key=>$_val) {
-				$this->root->$_key = $_val;	
+				$this->root->$_key = $_val;
 			}
 			foreach ($cache_dat['cont'] as $_key=>$_val) {
 				$this->cont[$_key] = $_val;	
@@ -427,7 +427,8 @@ EOD;
 							'related'       => $this->root->related,
 							'runmode'       => $this->root->runmode,
 							'related_link'  => $this->root->related_link,
-							'content_title' => $this->root->content_title
+							'content_title' => $this->root->content_title,
+							'allow_pagecomment'=> $this->root->allow_pagecomment
 						),
 						'cont'          => array(
 							'SKIN_NAME'     => @$this->cont['SKIN_NAME']
