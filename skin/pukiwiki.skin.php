@@ -1,6 +1,6 @@
 <?php
 // PukiWiki - Yet another WikiWikiWeb clone.
-// $Id: pukiwiki.skin.php,v 1.15 2006/12/26 00:10:47 nao-pon Exp $
+// $Id: pukiwiki.skin.php,v 1.16 2006/12/29 00:23:50 nao-pon Exp $
 // Copyright (C)
 //   2002-2006 PukiWiki Developers Team
 //   2001-2002 Originally written by yu-ji
@@ -91,13 +91,15 @@ EOD;
  <?php if ($rw) { ?>
 	<?php $navigator($this,'new') ?> |
  <?php } ?>
-   <?php $navigator($this,'list') ?>
  <?php if ($this->arg_check('list')) { ?>
-	| <?php $navigator($this,'filelist') ?>
+	<?php $navigator($this,'filelist') ?> |
+	<?php $navigator($this,'attaches') ?> |
+ <?php } else { ?>
+   <?php $navigator($this,'list') ?> |
  <?php } ?>
- | <?php $navigator($this,'search') ?>
- | <?php $navigator($this,'recent') ?>
- | <?php $navigator($this,'help')   ?>
+ <?php $navigator($this,'search') ?> |
+ <?php $navigator($this,'recent') ?> |
+ <?php $navigator($this,'help')   ?>
  ]
 </div><!--/navigator_wiki-->
 

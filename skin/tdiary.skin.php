@@ -3,7 +3,7 @@
 $this->root->runmode = "standalone";
 
 // PukiWiki - Yet another WikiWikiWeb clone.
-// $Id: tdiary.skin.php,v 1.18 2006/12/14 02:56:26 nao-pon Exp $
+// $Id: tdiary.skin.php,v 1.19 2006/12/29 00:24:08 nao-pon Exp $
 // Copyright (C)
 //   2002-2006 PukiWiki Developers Team
 //   2001-2002 Originally written by yu-ji
@@ -643,9 +643,11 @@ $dirname = $this->root->mydirname;
  <?php if ($rw) { ?>
 	<?php $navigator($this, 'new') ?>
  <?php } ?>
-   <?php $navigator($this, 'list') ?>
  <?php if ($this->arg_check('list')) { ?>
-   <?php $navigator($this, 'filelist') ?>
+	<?php $navigator($this,'filelist') ?>
+	<?php $navigator($this,'attaches') ?>
+ <?php } else { ?>
+   <?php $navigator($this,'list') ?>
  <?php } ?>
    <?php $navigator($this, 'search') ?>
    <?php $navigator($this, 'recent') ?>

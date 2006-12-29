@@ -1,6 +1,6 @@
 <?php
 // PukiWiki - Yet another WikiWikiWeb clone.
-// $Id: en.lng.php,v 1.12 2006/12/13 04:45:31 nao-pon Exp $
+// $Id: en.lng.php,v 1.13 2006/12/29 00:23:50 nao-pon Exp $
 // Copyright (C)
 //   2002-2005 PukiWiki Developers Team
 //   2001-2002 Originally written by yu-ji
@@ -119,6 +119,7 @@ $root->_LANG['skin']['copy']      = 'Copy';
 $root->_LANG['skin']['diff']      = 'Diff';
 $root->_LANG['skin']['edit']      = 'Edit';
 $root->_LANG['skin']['filelist']  = 'List of page files';	// List of filenames
+$root->_LANG['skin']['attaches']  = 'Atattches';
 $root->_LANG['skin']['freeze']    = 'Freeze';
 $root->_LANG['skin']['help']      = 'Help';
 $root->_LANG['skin']['list']      = 'List of pages';
