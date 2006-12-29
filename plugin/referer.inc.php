@@ -3,7 +3,7 @@ class xpwiki_plugin_referer extends xpwiki_plugin {
 	function plugin_referer_init () {
 
 
-	// $Id: referer.inc.php,v 1.4 2006/12/17 11:34:54 nao-pon Exp $
+	// $Id: referer.inc.php,v 1.5 2006/12/29 00:22:26 nao-pon Exp $
 	/*
 	 * PukiWiki Referer プラグイン(リンク元表示プラグイン)
 	 * (C) 2003, Katsumi Saito <katsumi@jo1upk.ymt.prug.or.jp>
@@ -18,7 +18,9 @@ class xpwiki_plugin_referer extends xpwiki_plugin {
 	{
 	//	global $vars, $referer;
 	//	global $_referer_msg;
-	
+		// CSS
+		$this->func->add_tag_head('referer.css');
+		
 		// Setting: Off
 		if (! $this->root->referer) return array('msg'=>'','body'=>'');
 	
@@ -105,7 +107,9 @@ class xpwiki_plugin_referer extends xpwiki_plugin {
 		}
 	
 		$body = '';
+		$i = 0;
 		foreach ($data as $arr) {
+			$i++;
 			// 0:最終更新日時, 1:初回登録日時, 2:参照カウンタ, 3:Referer ヘッダ, 4:利用可否フラグ(1は有効)
 			list($ltime, $stime, $count, $url, $enable) = $arr;
 	
@@ -115,24 +119,28 @@ class xpwiki_plugin_referer extends xpwiki_plugin {
 			$s_url = str_replace('&amp;amp;', '&amp;', $s_url);
 			
 			// 長い英数を折り返す
-			$s_url = preg_replace('/[\x20-\x7e\s]{36}/', "$0<wbr />", $s_url);
+			$s_url = str_replace('&amp;amp;', '&amp;', $s_url);
+			$s_url = preg_replace('#^https?://#i', '', $s_url);
+			//$s_url = preg_replace('/[\x20-\x7e\s]{36}/', "$0<wbr />", $s_url);
+			$s_url = preg_replace('#(\/|%[0-9a-f]{2}|_|&amp;)#i', '$1<wbr />', $s_url);
 			
 			$lpass = $this->func->get_passage($ltime, FALSE); // 最終更新日時からの経過時間
 			$spass = $this->func->get_passage($stime, FALSE); // 初回登録日時からの経過時間
 			$ldate = $this->func->get_date($this->root->_referer_msg['msg_Fmt_Date'], $ltime); // 最終更新日時文字列
 			$sdate = $this->func->get_date($this->root->_referer_msg['msg_Fmt_Date'], $stime); // 初回登録日時文字列
-	
+			
+			$class = ' class="' . (($i % 2)? 'even' : 'odd') . '"';
 			$body .=
-				' <tr>' . "\n" .
-			'  <td>' . $ldate . '</td>' . "\n" .
-			'  <td>' . $lpass . '</td>' . "\n";
+				' <tr'.$class.'>' . "\n" .
+			'  <td nowrap="nowrap">' . $ldate . '</td>' . "\n" .
+			'  <td><small>(' . $lpass . ')</small></td>' . "\n";
 	
 			$body .= ($count == 1) ?
 				'  <td colspan="2">&nbsp;&#8656;</td>' . "\n" :
-				'  <td>' . $sdate . '</td>' . "\n" .
-			'  <td>' . $spass . '</td>' . "\n";
+				'  <td nowrap="nowrap">' . $sdate . '</td>' . "\n" .
+			'  <td><small>(' . $spass . ')</small></td>' . "\n";
 	
-			$body .= '  <td style="text-align:right;">' . $count . '</td>' . "\n";
+			$body .= '  <td style="text-align:right;font-weight:bold;">' . $count . '</td>' . "\n";
 	
 			// 適用不可データのときはアンカーをつけない
 			$body .= $this->plugin_referer_ignore_check($url) ?
@@ -145,20 +153,20 @@ class xpwiki_plugin_referer extends xpwiki_plugin {
 		return <<<EOD
 $title
 $list
-<table style="" border="1" cellspacing="1" summary="Referer">
- <tr>
+<table style="" border="1" cellspacing="1" summary="Referer" class="referer">
+ <tr class="head">
   <th style="background-color:$color_last" colspan="2">
    <a href="$href&amp;sort=$sort_last">{$this->root->_referer_msg['msg_Hed_LastUpdate']}$arrow_last</a>
-  </td>
+  </th>
   <th style="background-color:$color_1st" colspan="2">
    <a href="$href&amp;sort=$sort_1st">{$this->root->_referer_msg['msg_Hed_1stDate']}$arrow_1st</a>
-  </td>
+  </th>
   <th style="background-color:$color_ctr;text-align:right">
    <a href="$href&amp;sort=$sort_ctr">{$this->root->_referer_msg['msg_Hed_RefCounter']}$arrow_ctr</a>
-  </td>
+  </th>
   <th style="background-color:$color_ref">
    <a href="$href&amp;sort=3">{$this->root->_referer_msg['msg_Hed_Referer']}</a>
-   </td>
+   </th>
  </tr>
  $body
 </table>
