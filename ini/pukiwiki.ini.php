@@ -1,6 +1,6 @@
 <?php
 // PukiWiki - Yet another WikiWikiWeb clone
-// $Id: pukiwiki.ini.php,v 1.22 2006/12/14 23:33:37 nao-pon Exp $
+// $Id: pukiwiki.ini.php,v 1.23 2006/12/29 00:35:28 nao-pon Exp $
 // Copyright (C)
 //   2002-2006 PukiWiki Developers Team
 //   2001-2002 Originally written by yu-ji
@@ -191,6 +191,15 @@ $root->nowikiname = 0;
 // 2階層以上で basename が 数字と- のみの場合
 // リンク時の表示をタイトルに置換する 0 or 1
 $root->pagename_num2str = 1;
+
+/////////////////////////////////////////////////
+// ページリンクを [pgid].html の形式にする
+// modules/[DirName]/.htaccess に次の設定が必要です
+/* .htaccess 
+RewriteEngine on
+RewriteRule ^([0-9]+)\.html$ index.php?pgid=$1 [qsappend,L]
+ */
+$root->static_url = 0;
 
 /////////////////////////////////////////////////
 // AutoLink feature
