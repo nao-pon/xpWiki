@@ -293,6 +293,17 @@ if (!empty($const['page_show'])) {
 	$post   = & $_POST;
 	$cookie = & $_COOKIE;
 	
+	// pgid でのアクセス
+	if (!empty($get['pgid'])) {
+		if ($page = $this->get_name_by_pgid((int)$get['pgid'])) {
+			$get['cmd'] = 'read';
+			$get['page'] = $page;
+		} else {
+			header("HTTP/1.0 404 Not Found");
+			$arg = '';
+		}
+	}
+	
 	// GET + POST = $vars
 	if (empty($_POST)) {
 		$vars = & $_GET;  // Major pattern: Read-only access via GET
@@ -375,6 +386,11 @@ if (!empty($const['page_show'])) {
 			sleep(5);
 			$this->plain_db_write($vars['page'], $_udp_mode);
 			exit();
+		}
+		// ついでの処理(ページ表示時に必要なもの)
+		// $_GET['pgid'] をセット
+		if (empty($_GET['pgid'])) {
+			$_GET['pgid'] = $this->get_pgid_by_name($vars['page']);
 		}
 	}
 
