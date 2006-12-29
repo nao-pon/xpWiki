@@ -1,7 +1,7 @@
 <?php
 //
 // Created on 2006/10/02 by nao-pon http://hypweb.net/
-// $Id: xpwiki_func.php,v 1.42 2006/12/26 00:08:52 nao-pon Exp $
+// $Id: xpwiki_func.php,v 1.43 2006/12/29 00:26:10 nao-pon Exp $
 //
 class XpWikiFunc extends XpWikiXoopsWrapper {
 
@@ -1027,17 +1027,32 @@ EOD;
 	//ページ名からページIDを求める
 	function get_pgid_by_name ($page)
 	{
-		static $page_id = array();
-		$page = addslashes($this->strip_bracket($page));
-		if (isset($page_id[$this->xpwiki->pid][$page])) return $page_id[$this->xpwiki->pid][$page];
+		//static $page_id = array();
+		$page = addslashes($page);
+		if (isset($this->root->pgids[$page])) return $this->root->pgids[$page];
 		
 		$db =& $this->xpwiki->db;
-		$query = "SELECT * FROM ".$db->prefix($this->root->mydirname."_pginfo")." WHERE name='$page' LIMIT 1;";
+		$query = "SELECT `pgid` FROM ".$db->prefix($this->root->mydirname."_pginfo")." WHERE name='$page' LIMIT 1";
 		$res = $db->query($query);
 		if (!$res) return 0;
-		$ret = mysql_fetch_row($res);
-		$page_id[$this->xpwiki->pid][$page] = $ret[0];
-		return $ret[0];
+		list($ret) = mysql_fetch_row($res);
+		$this->root->pgids[$page] = $ret;
+		return $ret;
+	}
+
+	//ページIDからページ名を求める
+	function get_name_by_pgid($id)
+	{
+		static $page_name = array();
+		if (isset($page_name[$this->xpwiki->pid][$id])) return $page_name[$this->xpwiki->pid][$id];
+		
+		$db =& $this->xpwiki->db;
+		$query = "SELECT `name` FROM ".$db->prefix($this->root->mydirname."_pginfo")." WHERE pgid='$id' LIMIT 1";
+		$res = $db->query($query);
+		if (!$res) return '';
+		list($ret) = mysql_fetch_row($res);
+		$page_name[$id] = $ret;
+		return $ret;
 	}
 
 	//ページ名から最初の見出しを得る
@@ -1147,12 +1162,12 @@ EOD;
 		$limit = ($limit)? " LIMIT $limit" : "";
 		$_select = '';
 		if ($select) {
-			$keys = array_merge($select, array('name'));
+			$keys = array_merge($select, array('name', 'pgid'));
 			$keys = array_unique($keys);
 			$_select = '`' . join('`,`', $keys) . '`';
 			$query = 'SELECT '.$_select.' FROM '.$this->xpwiki->db->prefix($this->root->mydirname."_pginfo").$where.$order.$limit;
 		} else {
-			$query = 'SELECT `editedtime`, `name` FROM '.$this->xpwiki->db->prefix($this->root->mydirname."_pginfo").$where.$order.$limit;
+			$query = 'SELECT `editedtime`, `name`, `pgid` FROM '.$this->xpwiki->db->prefix($this->root->mydirname."_pginfo").$where.$order.$limit;
 		}
 		$res = $this->xpwiki->db->query($query);
 		if ($res)
@@ -1160,10 +1175,12 @@ EOD;
 			if ($select) {
 				while($data = mysql_fetch_assoc($res)) {
 					$aryret[$data['name']] = $data;
+					$this->root->pgids[$data['name']] = $data['pgid'];
 				}
 			} else {
 				while($data = mysql_fetch_row($res)) {
 					$aryret[$this->encode($data[1]).'.txt'] = ($withtime)? $data[0]."\t".$data[1] : $data[1];
+					$this->root->pgids[$data[1]] = $data[2];
 				}
 			}
 		}
