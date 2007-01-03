@@ -1,65 +1,58 @@
 <?php
+// PukiWiki - Yet another WikiWikiWeb clone
+// $Id: calendar_viewer.inc.php,v 1.4 2007/01/03 08:40:51 nao-pon Exp $
+//
+// Calendar viewer plugin - List pages that calendar/calnedar2 plugin created
+// (Based on calendar and recent plugin)
+
+/*
+ ** pagename
+ * - A working root of calendar or calendar2 plugin
+ *   pagename/2004-12-30
+ *   pagename/2004-12-31
+ *   ...
+ *
+ ** (yyyy-mm|n|this)
+ * this    - Show 'this month'
+ * yyyy-mm - Show pages at year:yyyy and month:mm
+ * n       - Show first n pages
+ * x*n     - Show first n pages from x-th page (0 = first)
+ *
+ ** [mode]
+ * past   - Show today, and the past below. Recommended for ChangeLogs and diaries (default)
+ * future - Show today, and the future below. Recommended for event planning and scheduling
+ * view   - Show all, from the past to the future
+ *
+ ** [separater]
+ * - Specify separator of yyyy/mm/dd
+ * - Default: '-' (yyyy-mm-dd)
+ *
+ * TODO
+ *  Stop showing links 'next month' and 'previous month' with past/future mode for 'this month'
+ *    #calendar_viewer(pagename,this,past)
+ */
+
 class xpwiki_plugin_calendar_viewer extends xpwiki_plugin {
 	function plugin_calendar_viewer_init () {
-
-
-	// PukiWiki - Yet another WikiWikiWeb clone
-	// $Id: calendar_viewer.inc.php,v 1.3 2006/11/28 00:17:56 nao-pon Exp $
-	//
-	// Calendar viewer plugin - List pages that calendar/calnedar2 plugin created
-	// (Based on calendar and recent plugin)
-	
-	// Page title's date format
-	//  * See PHP date() manual for detail
-	//  * '$\w' = weeklabel defined in $_msg_week
+		// Page title's date format
+		//  * See PHP date() manual for detail
+		//  * '$\w' = weeklabel defined in $_msg_week
 		$this->cont['PLUGIN_CALENDAR_VIEWER_DATE_FORMAT'] = 
-	//	FALSE         // 'pagename/2004-02-09' -- As is
-		//	'D, d M, Y'   // 'Mon, 09 Feb, 2004'
-		//	'F d, Y'      // 'February 09, 2004'
-		//	'[Y-m-d]'     // '[2004-02-09]'
-				'Y/n/j ($\w)' // '2004/2/9 (Mon)'
-	;
+			//	FALSE         // 'pagename/2004-02-09' -- As is
+			//	'D, d M, Y'   // 'Mon, 09 Feb, 2004'
+			//	'F d, Y'      // 'February 09, 2004'
+			//	'[Y-m-d]'     // '[2004-02-09]'
+			'Y/n/j ($\w)' // '2004/2/9 (Mon)'
+		;
 	
-	// ----
+		// ----
 	
 		$this->cont['PLUGIN_CALENDAR_VIEWER_USAGE'] = 
-	'#calendar_viewer(pagename,this|yyyy-mm|n|x*y[,mode[,separater]])';
-	/*
-	 ** pagename
-	 * - A working root of calendar or calendar2 plugin
-	 *   pagename/2004-12-30
-	 *   pagename/2004-12-31
-	 *   ...
-	 *
-	 ** (yyyy-mm|n|this)
-	 * this    - Show 'this month'
-	 * yyyy-mm - Show pages at year:yyyy and month:mm
-	 * n       - Show first n pages
-	 * x*n     - Show first n pages from x-th page (0 = first)
-	 *
-	 ** [mode]
-	 * past   - Show today, and the past below. Recommended for ChangeLogs and diaries (default)
-	 * future - Show today, and the future below. Recommended for event planning and scheduling
-	 * view   - Show all, from the past to the future
-	 *
-	 ** [separater]
-	 * - Specify separator of yyyy/mm/dd
-	 * - Default: '-' (yyyy-mm-dd)
-	 *
-	 * TODO
-	 *  Stop showing links 'next month' and 'previous month' with past/future mode for 'this month'
-	 *    #calendar_viewer(pagename,this,past)
-		 */
-
+			'#calendar_viewer(pagename,this|yyyy-mm|n|x*y[,mode[,separater]])';
 	}
 	
 	function plugin_calendar_viewer_convert()
 	{
-	//	global $vars, $get, $post, $script, $weeklabels;
-	//	global $_msg_calendar_viewer_right, $_msg_calendar_viewer_left;
-	//	global $_msg_calendar_viewer_restrict, $_err_calendar_viewer_param2;
-	
-	//	static $viewed = array();
 		static $viewed = array();
 		if (!isset($viewed[$this->xpwiki->pid])) {$viewed[$this->xpwiki->pid] = array();}
 	
@@ -131,29 +124,21 @@ class xpwiki_plugin_calendar_viewer extends xpwiki_plugin {
 	
 		// ページリストの取得
 		$pagelist = array();
-		//if ($dir = @opendir($this->cont['DATA_DIR'])) {
-			$_date = $this->func->get_date('Y' . $date_sep . 'm' . $date_sep . 'd');
-			$page_date  = '';
-			//while($file = readdir($dir)) {
-			//	if ($file == '..' || $file == '.') continue;
-			//	if (substr($file, 0, $filepattern_len) != $filepattern) continue;
-	
-			//	$page      = $this->func->decode(trim(preg_replace('/\.txt$/', ' ', $file)));
-			foreach($this->func->get_existpages(FALSE,$pagepattern) as $page) {
-				$page_date = substr($page, $pagepattern_len);
-	
-				// Verify the $page_date pattern (Default: yyyy-mm-dd).
-				// Past-mode hates the future, and
-				// Future-mode hates the past.
-				if (($this->plugin_calendar_viewer_isValidDate($page_date, $date_sep) == FALSE) || 
-					($page_date > $_date && ($mode == 'past')) ||
-					($page_date < $_date && ($mode == 'future')))
-						continue;
-	
-				$pagelist[] = $page;
-			}
-		//}
-		//closedir($dir);
+		$_date = $this->func->get_date('Y' . $date_sep . 'm' . $date_sep . 'd');
+		$page_date  = '';
+		foreach($this->func->get_existpages(FALSE,$pagepattern) as $page) {
+			$page_date = substr($page, $pagepattern_len);
+
+			// Verify the $page_date pattern (Default: yyyy-mm-dd).
+			// Past-mode hates the future, and
+			// Future-mode hates the past.
+			if (($this->plugin_calendar_viewer_isValidDate($page_date, $date_sep) == FALSE) || 
+				($page_date > $_date && ($mode == 'past')) ||
+				($page_date < $_date && ($mode == 'future')))
+					continue;
+
+			$pagelist[] = $page;
+		}
 	
 		if ($mode == 'past') {
 			rsort($pagelist);	// New => Old
@@ -173,12 +158,7 @@ class xpwiki_plugin_calendar_viewer extends xpwiki_plugin {
 			$page = $pagelist[$tmp];
 			$this->root->get['page'] = $this->root->post['page'] = $this->root->vars['page'] = $page;
 	
-			// 現状で閲覧許可がある場合だけ表示する
-			//if ($this->func->check_readable($page, FALSE, FALSE)) {
-				$body = $this->func->convert_html($this->func->get_source($page));
-			//} else {
-			//	$body = str_replace('$1', $page, $this->root->_msg_calendar_viewer_restrict);
-			//}
+			$body = $this->func->convert_html($this->func->get_source($page));
 	
 			$r_page = rawurlencode($page);
 	
@@ -294,8 +274,6 @@ class xpwiki_plugin_calendar_viewer extends xpwiki_plugin {
 	
 	function plugin_calendar_viewer_action()
 	{
-	//	global $vars, $get, $post, $script;
-	
 		$date_sep = '-';
 	
 		$return_vars_array = array();
@@ -332,7 +310,7 @@ class xpwiki_plugin_calendar_viewer extends xpwiki_plugin {
 		if ($aSepList == '') {
 			// yyymmddとしてチェック（手抜き(^^;）
 			return checkdate(substr($aStr, 4, 2), substr($aStr, 6, 2), substr($aStr, 0, 4));
-		} else if (ereg("^([0-9]{2,4})[$aSepList]([0-9]{1,2})[$aSepList]([0-9]{1,2})$", $aStr, $matches) ) {
+		} else if (preg_match("#^([0-9]{2,4})[$aSepList]([0-9]{1,2})[$aSepList]([0-9]{1,2})$#", $aStr, $matches) ) {
 			return checkdate($matches[2], $matches[3], $matches[1]);
 		} else {
 			return FALSE;
