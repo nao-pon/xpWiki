@@ -296,8 +296,8 @@ if (!empty($const['page_show'])) {
 	// pgid でのアクセス
 	if (!empty($get['pgid'])) {
 		if ($page = $this->get_name_by_pgid((int)$get['pgid'])) {
-			$get['cmd'] = 'read';
-			$get['page'] = $page;
+			$post['cmd'] = $get['cmd'] = '';
+			$arg = $page;
 		} else {
 			header("HTTP/1.0 404 Not Found");
 			$arg = '';
@@ -354,7 +354,7 @@ if (!empty($const['page_show'])) {
 		$arg = $this->input_filter($arg);
 		
 		// RecentChanges is a cmd in xpWiki
-		if ($arg === 'RecentChanges'){
+		if ($arg === $root->whatsnew){
 			$get['cmd'] = $post['cmd'] = $vars['cmd'] = 'recentchanges';
 		}
 			
