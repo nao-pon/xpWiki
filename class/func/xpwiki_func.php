@@ -1,7 +1,7 @@
 <?php
 //
 // Created on 2006/10/02 by nao-pon http://hypweb.net/
-// $Id: xpwiki_func.php,v 1.43 2006/12/29 00:26:10 nao-pon Exp $
+// $Id: xpwiki_func.php,v 1.44 2007/01/07 00:58:30 nao-pon Exp $
 //
 class XpWikiFunc extends XpWikiXoopsWrapper {
 
@@ -528,6 +528,16 @@ EOD;
 				$pginfo['uname'] = $this->root->cookie['name'];
 			}
 		}
+		
+		if ($pginfo['uid'] && !$pginfo['uname']) {
+			$_uinfo = $this->get_userinfo_by_id($pginfo['uid']);
+			$pginfo['uname'] = $_uinfo['uname'];
+		}
+		if ($pginfo['lastuid'] && !$pginfo['lastuname']) {
+			$_uinfo = $this->get_userinfo_by_id($pginfo['lastuid']);
+			$pginfo['lastuname'] = $_uinfo['uname'];
+		}
+
 		$pginfo['reading'] = '';
 		$info[$this->xpwiki->pid][$page] = $pginfo;
 		return $pginfo;
