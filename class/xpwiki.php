@@ -1,7 +1,7 @@
 <?php
 //
 // Created on 2006/09/29 by nao-pon http://hypweb.net/
-// $Id: xpwiki.php,v 1.23 2006/12/17 11:41:42 nao-pon Exp $
+// $Id: xpwiki.php,v 1.24 2007/01/07 01:00:22 nao-pon Exp $
 //
 
 class XpWiki {
@@ -188,8 +188,8 @@ class XpWiki {
 		ob_start();
 		$this->func->catbody($this->title, $this->skin_title, $this->body);
 		$this->html = ob_get_contents();
+		ob_end_clean();
 		if (!empty($this->root->runmode)) $this->runmode = $this->root->runmode;
-		while( ob_get_level() ) { ob_end_clean() ; }
 
 		return;
 	}
