@@ -12,7 +12,7 @@ $constpref = '_MI_' . strtoupper( $mydirname ) ;
 
 
 $modversion['name'] = $mydirname ;
-$modversion['version'] = "0.8.16" ;
+$modversion['version'] = "0.8.17" ;
 $modversion['description'] = constant($constpref.'_MODULE_DESCRIPTION') ;
 $modversion['credits'] = "&copy; 2006 hypweb.net.";
 $modversion['author'] = "nao-pon" ;
