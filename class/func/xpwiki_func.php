@@ -1,7 +1,7 @@
 <?php
 //
 // Created on 2006/10/02 by nao-pon http://hypweb.net/
-// $Id: xpwiki_func.php,v 1.44 2007/01/07 00:58:30 nao-pon Exp $
+// $Id: xpwiki_func.php,v 1.45 2007/01/09 12:25:09 nao-pon Exp $
 //
 class XpWikiFunc extends XpWikiXoopsWrapper {
 
@@ -264,7 +264,7 @@ class XpWikiFunc extends XpWikiXoopsWrapper {
 	
 	// Get HTTP_ACCEPT_LANGUAGE
 	function get_accept_language () {
-		$lang = "en";
+		$lang = $this->cont['LANG']; // 規定値
 		$accept = @ $_SERVER["HTTP_ACCEPT_LANGUAGE"];
 		// cookie に指定があればそれを優先
 		if (!empty($this->root->cookie['lang'])) {
