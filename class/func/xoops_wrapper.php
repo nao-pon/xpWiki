@@ -1,7 +1,7 @@
 <?php
 //
 // Created on 2006/10/11 by nao-pon http://hypweb.net/
-// $Id: xoops_wrapper.php,v 1.18 2006/12/21 04:40:17 nao-pon Exp $
+// $Id: xoops_wrapper.php,v 1.19 2007/01/10 08:24:51 nao-pon Exp $
 //
 class XpWikiXoopsWrapper extends XpWikiBackupFunc {
 	
@@ -118,6 +118,20 @@ class XpWikiXoopsWrapper extends XpWikiBackupFunc {
 		}
 	}
 
+	function get_setlang ($default) {
+		if (defined('EASIESTML_LANGS')) return 'easiestml_lang'; // GIJOE's EMLH
+		else if (defined('SYSUTIL_ML_PARAM_NAME')) return SYSUTIL_ML_PARAM_NAME; // nobunobu's sysutil
+		else if (defined('CUBE_UTILS_ML_PARAM_NAME')) return CUBE_UTILS_ML_PARAM_NAME; // nobunobu's cubeUtils
+		else $default;
+	}
+	
+	function get_setlang_c ($default) {
+		if (defined('EASIESTML_LANGS')) return 'easiestml_lang'; // GIJOE's EMLH
+		else if (defined('SYSUTIL_ML_COOKIE_NAME')) return SYSUTIL_ML_COOKIE_NAME; // nobunobu's sysutil
+		else if (defined('CUBE_UTILS_ML_COOKIE_NAME')) return CUBE_UTILS_ML_COOKIE_NAME; // nobunobu's cubeUtils
+		else $default;
+	}
+	
 	function pkwk_mail_notify($subject, $message, $footer = array())
 	{
 		static $_to, $_headers, $_after_pop;
