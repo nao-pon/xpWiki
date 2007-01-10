@@ -1,7 +1,7 @@
 <?php
 //
 // Created on 2006/10/02 by nao-pon http://hypweb.net/
-// $Id: xpwiki_func.php,v 1.45 2007/01/09 12:25:09 nao-pon Exp $
+// $Id: xpwiki_func.php,v 1.46 2007/01/10 04:04:53 nao-pon Exp $
 //
 class XpWikiFunc extends XpWikiXoopsWrapper {
 
@@ -1002,12 +1002,12 @@ EOD;
 	}
 	
 	// SKIN Function
-	function skin_navigator ($this, $key, $value = '', $javascript = '') {
-		$lang = & $this->root->_LANG['skin'];
-		$link = & $this->root->_LINK;
+	function skin_navigator ($obj, $key, $value = '', $javascript = '') {
+		$lang = & $obj->root->_LANG['skin'];
+		$link = & $obj->root->_LINK;
 		if (! isset($lang[$key])) { echo $key.' LANG NOT FOUND'; return FALSE; }
 		if (! isset($link[$key])) { echo $key.' LINK NOT FOUND'; return FALSE; }
-		if (! $this->cont['PKWK_ALLOW_JAVASCRIPT']) $javascript = '';
+		if (! $obj->cont['PKWK_ALLOW_JAVASCRIPT']) $javascript = '';
 	
 		echo '<a href="' . $link[$key] . '" ' . $javascript . '>' .
 			(($value === '') ? $lang[$key] : $value) .
@@ -1017,16 +1017,16 @@ EOD;
 	}
 
 	// SKIN Function
-	function skin_toolbar ($this, $key, $x = 20, $y = 20) {
-		$lang  = & $this->root->_LANG['skin'];
-		$link  = & $this->root->_LINK;
-		$image = & $this->root->_IMAGE['skin'];
+	function skin_toolbar ($obj, $key, $x = 20, $y = 20) {
+		$lang  = & $obj->root->_LANG['skin'];
+		$link  = & $obj->root->_LINK;
+		$image = & $obj->root->_IMAGE['skin'];
 		if (! isset($lang[$key]) ) { echo $key.' LANG NOT FOUND';  return FALSE; }
 		if (! isset($link[$key]) ) { echo $key.' LINK NOT FOUND';  return FALSE; }
 		if (! isset($image[$key])) { echo $key.' IMAGE NOT FOUND'; return FALSE; }
 	
 		echo '<a href="' . $link[$key] . '">' .
-			'<img src="' . $this->cont['IMAGE_DIR'] . $image[$key] . '" width="' . $x . '" height="' . $y . '" ' .
+			'<img src="' . $obj->cont['IMAGE_DIR'] . $image[$key] . '" width="' . $x . '" height="' . $y . '" ' .
 				'alt="' . $lang[$key] . '" title="' . $lang[$key] . '" />' .
 			'</a>';
 	
