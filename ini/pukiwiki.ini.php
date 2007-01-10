@@ -1,6 +1,6 @@
 <?php
 // PukiWiki - Yet another WikiWikiWeb clone
-// $Id: pukiwiki.ini.php,v 1.23 2006/12/29 00:35:28 nao-pon Exp $
+// $Id: pukiwiki.ini.php,v 1.24 2007/01/10 08:24:51 nao-pon Exp $
 // Copyright (C)
 //   2002-2006 PukiWiki Developers Team
 //   2001-2002 Originally written by yu-ji
@@ -65,7 +65,10 @@ $const['PKWKEXP_DISABLE_MULTILINE_PLUGIN_HACK'] = 0; // 1 = Disabled
 $const['LANG'] = $this->get_lang('en');
 
 // GET QUERY's key of set lang.
-$const['SETLANG'] = "setlang"; 
+$const['SETLANG'] = $this->get_setlang('setlang');
+
+// COOKIE's key of set lang.
+$const['SETLANG_C'] = $this->get_setlang_c(''); 
 
 /////////////////////////////////////////////////
 // Directory settings I (ended with '/', permission '777')
