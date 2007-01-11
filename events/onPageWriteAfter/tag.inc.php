@@ -1,74 +1,61 @@
 <?php
 //
 // Created on 2006/10/31 by nao-pon http://hypweb.net/
-// $Id: tag.inc.php,v 1.3 2006/11/02 15:59:29 nao-pon Exp $
+// $Id: tag.inc.php,v 1.4 2007/01/11 08:39:03 nao-pon Exp $
 //
-if (file_exists($this->cont['CACHE_DIR'] . $this->encode($page) . '_page.tag')) {
-	// ページのtagデータファイルがある場合
-	
-	// temp
-	$_temparr = array();
-	
-	// tagプラグイン記述の存在チェック
-	$_temparr['found'] = FALSE;
-	$_temparr['ic'] = new XpWikiInlineConverter($this->xpwiki, array('plugin'));
-	$_temparr['data'] = explode("\n",$postdata);
-	while (! empty($_temparr['data'])) {
-		
-		$_temparr['line'] =  array_shift($_temparr['data']);
-		
-		// The first character
-		$_temparr['head'] = $_temparr['line']{0};
-		
-		if (
-			// Escape comments
-			substr($_temparr['line'], 0, 2) === '//' ||
-			// Horizontal Rule
-			substr($_temparr['line'], 0, 4) === '----' ||
-			// Pre
-			$_temparr['head'] === ' ' || $_temparr['head'] === "\t"
-		) {	continue; }
+function xpwiki_onPageWriteAfter_tag(&$xpwiki_func, &$page, &$postdata, &$notimestamp, &$mode, &$diffdata) {
 
-		// Multiline-enabled block plugin
-		if (!$this->cont['PKWKEXP_DISABLE_MULTILINE_PLUGIN_HACK'] && preg_match('/^#[^{]+(\{\{+)\s*$/', $_temparr['line'], $matches)) {
-			$_temparr['len'] = strlen($matches[1]);
-			while (! empty ($_temparr['data'])) {
-				$_temparr['$next_line'] = preg_replace("/[\r\n]*$/", '', array_shift($_temparr['data']));
-				if (preg_match('/\}{'.$_temparr['len'].'}/', $_temparr['$next_line'])) { break; }
-			}
-		}
-		
-		// ちょっと重いけどしっかりチェック版
-		$_temparr['arr'] = $_temparr['ic']->get_objects($_temparr['line'], $page);
-		while( ! empty($_temparr['arr']) ) {
-			$_temparr['obj'] = array_shift($_temparr['arr']);
-			if ( $_temparr['obj']->name === 'tag' ) {
-				$_temparr['found'] = TRUE;
-				break 2;
-			}
-		}
-		
-		/*
-		// ちょっと手抜きの軽量版
-		if (preg_match("/&tag\([\^)]*\)(\{.*?\})?;/",$_temparr['line'])) {
-			$_temparr['found'] = TRUE;
-			break;
-		}
-		*/
-		
-	}
+	// ページのtagデータファイルがある || tagプラグインらしき記述がある？
+	$do = file_exists($xpwiki_func->cont['CACHE_DIR'] . $xpwiki_func->encode($page) . '_page.tag');
+	if ($do || preg_match("/&tag\([\^)]*\)(\{.*?\})?;/",$postdata)) {
+		$params = array();
+		$ic = new XpWikiInlineConverter($xpwiki_func->xpwiki, array('plugin'));
+		$data = explode("\n",$postdata);
+		while (! empty($data)) {
+			$line =  array_shift($data);
+			
+			if (!$line) continue; // 空行
+			
+			// The first character
+			$head = $line{0};
+			
+			if (
+				// Escape comments
+				substr($line, 0, 2) === '//' ||
+				// Horizontal Rule
+				substr($line, 0, 4) === '----' ||
+				// Pre
+				$head === ' ' || $head === "\t"
+			) {	continue; }
 	
-	if ($mode === 'delete' || ($mode === 'update' && $_temparr['found'] === FALSE)) {
-		// ページ削除または&tag();を削除した場合
-		$_temparr['plugin'] =& $this->get_plugin_instance('tag');
-		if ($_temparr['plugin'] !== FALSE) {
-			$aryargs = array($page, array());
-			call_user_func_array(array($this->root->plugin_tag, 'renew_tagcache'), $aryargs);
+			// Multiline-enabled block plugin
+			if (!$xpwiki_func->cont['PKWKEXP_DISABLE_MULTILINE_PLUGIN_HACK'] && preg_match('/^#[^{]+(\{\{+)\s*$/', $line, $matches)) {
+				$len = strlen($matches[1]);
+				while (! empty ($data)) {
+					$next_line = preg_replace("/[\r\n]*$/", '', array_shift($data));
+					if (preg_match('/\}{'.$len.'}/', $next_line)) { break; }
+				}
+			}
+			
+			// tagプラグインのパラメータを抽出
+			$arr = $ic->get_objects($line, $page);
+			while( ! empty($arr) ) {
+				$obj = array_shift($arr);
+				if ( $obj->name === 'tag' ) {
+					$do = TRUE;
+					$params = array_merge($params, $xpwiki_func->csv_explode(',', $obj->param));
+				}
+			}
 		}
-	} else if ($mode === 'update' && $notimestamp) {
-		// ページ編集でページタイムスタンプを保持する場合
-		$this->pkwk_touch_file($this->cont['CACHE_DIR'] . $this->encode($page) . '_page.tag',1);
+		
+		if ($do) {
+			$plugin =& $xpwiki_func->get_plugin_instance('tag');
+			if ($plugin !== FALSE) {
+				$params = array_unique($params);
+				$_aryargs = array($page, $params);
+				call_user_func_array(array($xpwiki_func->root->plugin_tag, 'renew_tagcache'), $_aryargs);
+			}
+		}
 	}
-	unset($_temparr);
 }
 ?>
