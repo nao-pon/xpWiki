@@ -28,7 +28,7 @@ class xpwiki_plugin_tag extends xpwiki_plugin {
 		return call_user_func_array(array($this->root->plugin_tag, 'convert'), $args);
 	}
 }
-	// $Id: tag.inc.php,v 1.5 2006/11/15 01:13:46 nao-pon Exp $
+	// $Id: tag.inc.php,v 1.6 2007/01/11 08:39:03 nao-pon Exp $
 	
 class XpWikiPluginTag
 {
@@ -111,12 +111,15 @@ class XpWikiPluginTag
 		if (func_num_args() == 0){
 			return 'tag(): no argument(s). ';
 		}
-//		global $vars;
-		$page = $this->root->vars['page'];
+
+		//$page = $this->root->vars['page'];
 		$args = func_get_args(); array_pop($args); $tags = $args;
 		// $tags = array_map('strtolower', $tags); // does not work for UTF-8
 		$tags = array_unique($tags);
-
+		
+		return $this->frontend($tags);
+		
+		/*
 		if (! $this->is_page_new($page))
 			return $this->frontend($tags);
 
@@ -131,6 +134,7 @@ class XpWikiPluginTag
 		} else {
 			return $ret;
 		}
+		*/
 	}
 
 	// for another listing plugin
