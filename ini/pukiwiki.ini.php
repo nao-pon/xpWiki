@@ -1,6 +1,6 @@
 <?php
 // PukiWiki - Yet another WikiWikiWeb clone
-// $Id: pukiwiki.ini.php,v 1.24 2007/01/10 08:24:51 nao-pon Exp $
+// $Id: pukiwiki.ini.php,v 1.25 2007/01/11 23:21:00 nao-pon Exp $
 // Copyright (C)
 //   2002-2006 PukiWiki Developers Team
 //   2001-2002 Originally written by yu-ji
@@ -63,6 +63,12 @@ $const['PKWKEXP_DISABLE_MULTILINE_PLUGIN_HACK'] = 0; // 1 = Disabled
 
 // LANG - Internal content encoding ('en', 'ja', or ...)
 $const['LANG'] = $this->get_lang('en');
+
+/////////////////////////////////////////////////
+// UI LANG Auto Discovery
+
+// Accept Lang
+$const['ACCEPT_LANG_REGEX'] = '/(?:^|\W)(ja|en)/i';
 
 // GET QUERY's key of set lang.
 $const['SETLANG'] = $this->get_setlang('setlang');

@@ -1,7 +1,7 @@
 <?php
 //
 // Created on 2006/10/02 by nao-pon http://hypweb.net/
-// $Id: xpwiki_func.php,v 1.47 2007/01/10 08:24:51 nao-pon Exp $
+// $Id: xpwiki_func.php,v 1.48 2007/01/11 23:21:00 nao-pon Exp $
 //
 class XpWikiFunc extends XpWikiXoopsWrapper {
 
@@ -267,8 +267,10 @@ class XpWikiFunc extends XpWikiXoopsWrapper {
 		$lang = $this->cont['LANG']; // 規定値
 		$accept = @ $_SERVER["HTTP_ACCEPT_LANGUAGE"];
 		// 他の言語切り替えシステムをチェック
-		if (!empty($this->cont['SETLANG_C']) && !empty($this->root->cookie[$this->cont['SETLANG_C']])) {
-			$accept = $this->cont['SETLANG_C'] . "," . $accept;
+		if (!empty($this->cont['SETLANG_C']) && !empty($_COOKIE[$this->cont['SETLANG_C']])) {
+			if (preg_match($this->cont['ACCEPT_LANG_REGEX'], $_COOKIE[$this->cont['SETLANG_C']], $match)) {
+				$accept = $match[1] . "," . $accept;
+			}
 		}
 		// cookie に指定があればそれを優先
 		if (!empty($this->root->cookie['lang'])) {
@@ -353,7 +355,12 @@ class XpWikiFunc extends XpWikiXoopsWrapper {
 		
 		// 言語指定をcookieにセット
 		if (isset($_GET[$this->cont['SETLANG']])) {
-			$this->root->cookie['lang'] = ($_GET[$this->cont['SETLANG']] === "none")? "" : preg_replace("/[^\w-]+/","",$_GET[$this->cont['SETLANG']]);
+			$this->root->cookie['lang'] = '';
+			// 正規化
+			if (preg_match($this->cont['ACCEPT_LANG_REGEX'], $_GET[$this->cont['SETLANG']], $match)) {
+				$this->root->cookie['lang'] = $match[1];
+			}
+			//$this->root->cookie['lang'] = ($_GET[$this->cont['SETLANG']] === "none")? "" : preg_replace("/[^\w-]+/","",$_GET[$this->cont['SETLANG']]);
 			if (isset($_SERVER['QUERY_STRING'])) {
 				$_SERVER['QUERY_STRING'] = preg_replace("/(^|&)".preg_quote($this->cont['SETLANG'],"/")."=.*?(?:&|$)/","$1",$_SERVER['QUERY_STRING']);
 			}
