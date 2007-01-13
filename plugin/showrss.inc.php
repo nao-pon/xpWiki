@@ -1,22 +1,21 @@
 <?php
+// PukiWiki - Yet another WikiWikiWeb clone
+// $Id: showrss.inc.php,v 1.2 2007/01/13 01:55:50 nao-pon Exp $
+//  Id:showrss.inc.php,v 1.40 2003/03/18 11:52:58 hiro Exp
+// Copyright (C):
+//     2002-2006 PukiWiki Developers Team
+//     2002      PANDA <panda@arino.jp>
+//     (Original)hiro_do3ob@yahoo.co.jp
+// License: GPL, same as PukiWiki
+//
+// Show RSS (of remote site) plugin
+// NOTE:
+//    * This plugin needs 'PHP xml extension'
+//    * Cache data will be stored as CACHE_DIR/*.tmp
+
 class xpwiki_plugin_showrss extends xpwiki_plugin {
 	function plugin_showrss_init () {
 
-
-	// PukiWiki - Yet another WikiWikiWeb clone
-	// $Id: showrss.inc.php,v 1.1 2006/10/13 13:17:49 nao-pon Exp $
-	//  Id:showrss.inc.php,v 1.40 2003/03/18 11:52:58 hiro Exp
-	// Copyright (C):
-	//     2002-2006 PukiWiki Developers Team
-	//     2002      PANDA <panda@arino.jp>
-	//     (Original)hiro_do3ob@yahoo.co.jp
-	// License: GPL, same as PukiWiki
-	//
-	// Show RSS (of remote site) plugin
-	// NOTE:
-	//    * This plugin needs 'PHP xml extension'
-	//    * Cache data will be stored as CACHE_DIR/*.tmp
-	
 		$this->cont['PLUGIN_SHOWRSS_USAGE'] =  '#showrss(URI-to-RSS[,default|menubar|recent[,Cache-lifetime[,Show-timestamp]]])';
 
 	}
@@ -38,12 +37,9 @@ class xpwiki_plugin_showrss extends xpwiki_plugin {
 	
 	function plugin_showrss_convert()
 	{
-	//	static $_xml;
-		static $_xml = array();
-		if (!isset($_xml[$this->xpwiki->pid])) {$_xml[$this->xpwiki->pid] = array();}
-	
-		if (! isset($_xml[$this->xpwiki->pid])) $_xml[$this->xpwiki->pid] = extension_loaded('xml');
-		if (! $_xml[$this->xpwiki->pid]) return '#showrss: xml extension is not found<br />' . "\n";
+		static $_xml;
+		if (! isset ($_xml)) $_xml = extension_loaded('xml');
+		if (! $_xml) return '#showrss: xml extension is not found<br />' . "\n";
 	
 		$num = func_num_args();
 		if ($num == 0) return $this->cont['PLUGIN_SHOWRSS_USAGE'] . '<br />' . "\n";
@@ -59,7 +55,7 @@ class xpwiki_plugin_showrss extends xpwiki_plugin {
 		case 1: $uri       = trim($argv[0]);
 		}
 	
-		$class = ($template == '' || $template == 'default') ? 'XpWikiShowRSS_html' : 'ShowRSS_html_' . $template;
+		$class = ($template == '' || $template == 'default') ? 'XpWikiShowRSS_html' : 'XpWikiShowRSS_html_' . $template;
 		if (! is_numeric($cachehour))
 			return '#showrss: Cache-lifetime seems not numeric: ' . htmlspecialchars($cachehour) . '<br />' . "\n";
 		if (! class_exists($class))
@@ -70,14 +66,14 @@ class xpwiki_plugin_showrss extends xpwiki_plugin {
 		list($rss, $time) = $this->plugin_showrss_get_rss($uri, $cachehour);
 		if ($rss === FALSE) return '#showrss: Failed fetching RSS from the server<br />' . "\n";
 	
-		$time = '';
+		$time_str = '';
 		if ($timestamp > 0) {
-			$time = '<p style="font-size:10px; font-weight:bold">Last-Modified:' .
+			$time_str = '<p style="font-size:10px; font-weight:bold">Last-Modified:' .
 			$this->func->get_date('Y/m/d H:i:s', $time) .  '</p>';
 		}
 	
-		$obj = new $class($rss);
-		return $obj->toString($time);
+		$obj = new $class($this->xpwiki, $rss);
+		return $obj->toString($time_str);
 	}
 	
 	// Get and save RSS
@@ -115,7 +111,7 @@ class xpwiki_plugin_showrss extends xpwiki_plugin {
 		}
 	
 		// Parse
-		$obj = new XpWikiShowRSS_XML();
+		$obj = new XpWikiShowRSS_XML($this->xpwiki);
 		return array($obj->parse($buf),$time);
 	}
 	
@@ -155,7 +151,7 @@ class xpwiki_plugin_showrss extends xpwiki_plugin {
 	}
 }
 	
-	// Create HTML from RSS array()
+// Create HTML from RSS array()
 class XpWikiShowRSS_html
 {
 	var $items = array();
@@ -211,7 +207,11 @@ EOD;
 class XpWikiShowRSS_html_menubar extends XpWikiShowRSS_html
 {
 	var $class = ' class="small"';
-
+	
+	//function XpWikiShowRSS_html_menubar(& $xpwiki) {
+	//	parent::XpWikiShowRSS_html($xpwiki);
+	//}
+	
 	function format_link($link) {
 		return '<li>' . $link . '</li>' . "\n";
 	}
@@ -225,6 +225,10 @@ class XpWikiShowRSS_html_recent extends XpWikiShowRSS_html
 {
 	var $class = ' class="small"';
 
+	//function XpWikiShowRSS_html_recent (& $xpwiki) {
+	//	parent::XpWikiShowRSS_html($xpwiki);
+	//}
+	
 	function format_link($link) {
 		return '<li>' . $link . '</li>' . "\n";
 	}
@@ -243,6 +247,14 @@ class XpWikiShowRSS_XML
 	var $is_item;
 	var $tag;
 	var $encoding;
+	
+	function XpWikiShowRSS_XML(& $xpwiki)
+	{
+		$this->xpwiki =& $xpwiki;
+		$this->root   =& $xpwiki->root;
+		$this->cont   =& $xpwiki->cont;
+		$this->func   =& $xpwiki->func;
+	}
 
 	function parse($buf)
 	{
