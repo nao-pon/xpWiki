@@ -296,7 +296,7 @@ if (!empty($const['page_show'])) {
 	// pgid でのアクセス
 	if (!empty($get['pgid'])) {
 		if ($page = $this->get_name_by_pgid((int)$get['pgid'])) {
-			$post['cmd'] = $get['cmd'] = '';
+			if (empty($get['page'])) $get['page'] = $page;
 			$arg = $page;
 		} else {
 			header("HTTP/1.0 404 Not Found");
