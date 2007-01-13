@@ -1,39 +1,44 @@
 <?php
+// PukiWiki - Yet another WikiWikiWeb clone
+// $Id: topicpath.inc.php,v 1.2 2007/01/13 02:13:28 nao-pon Exp $
+//
+// 'topicpath' plugin for PukiWiki, available under GPL
+
 class xpwiki_plugin_topicpath extends xpwiki_plugin {
 	function plugin_topicpath_init () {
 
-
-	// PukiWiki - Yet another WikiWikiWeb clone
-	// $Id: topicpath.inc.php,v 1.1 2006/10/13 13:17:49 nao-pon Exp $
-	//
-	// 'topicpath' plugin for PukiWiki, available under GPL
-	
-	// Show a link to $defaultpage or not
+		// Show a link to $defaultpage or not
 		$this->cont['PLUGIN_TOPICPATH_TOP_DISPLAY'] =  1;
-	
-	// Label for $defaultpage
+		
+		// Label for $defaultpage
 		$this->cont['PLUGIN_TOPICPATH_TOP_LABEL'] =  'Top';
-	
-	// Separetor / of / topic / path
+		
+		// Separetor / of / topic / path
 		$this->cont['PLUGIN_TOPICPATH_TOP_SEPARATOR'] =  ' / ';
-	
-	// Show the page itself or not
+		
+		// Show the page itself or not
 		$this->cont['PLUGIN_TOPICPATH_THIS_PAGE_DISPLAY'] =  1;
-	
-	// If PLUGIN_TOPICPATH_THIS_PAGE_DISPLAY, add a link to itself
+		
+		// If PLUGIN_TOPICPATH_THIS_PAGE_DISPLAY, add a link to itself
 		$this->cont['PLUGIN_TOPICPATH_THIS_PAGE_LINK'] =  0;
 
 	}
 	
 	function plugin_topicpath_convert()
 	{
-		return '<div>' . $this->plugin_topicpath_inline() . '</div>';
+		$args = func_get_args();
+		$sep = (empty($args[0]))? '' : $args[0];
+		return '<div>' . $this->plugin_topicpath_inline($sep) . '</div>';
 	}
 	
-	function plugin_topicpath_inline()
+	function plugin_topicpath_inline($sep = '')
 	{
-	//	global $script, $vars, $defaultpage;
-	
+		if ($sep) {
+			$sep = htmlspecialchars($sep);
+			$sep = preg_replace('/&amp;(#[0-9]+|#x[0-9a-f]+|' . $this->root->entity_pattern . ';)/','&$1',$sep);
+			$this->cont['PLUGIN_TOPICPATH_TOP_SEPARATOR'] = $sep;
+		}
+		
 		$page = isset($this->root->vars['page']) ? $this->root->vars['page'] : '';
 		if ($page == '' || $page == $this->root->defaultpage) return '';
 	
@@ -60,8 +65,9 @@ class xpwiki_plugin_topicpath extends xpwiki_plugin {
 				$topic_path[] = $element;
 			} else {
 				// Page exists or not exists
-				$topic_path[] = '<a href="' . $this->root->script . '?' . $landing . '">' .
-				$element . '</a>';
+				//$topic_path[] = '<a href="' . $this->root->script . '?' . $landing . '">' .
+				//$element . '</a>';
+				$topic_path[] = $this->func->make_pagelink($_landing, $element);
 			}
 		}
 	
