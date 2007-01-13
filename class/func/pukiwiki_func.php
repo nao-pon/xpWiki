@@ -1,7 +1,7 @@
 <?php
 //
 // Created on 2006/10/02 by nao-pon http://hypweb.net/
-// $Id: pukiwiki_func.php,v 1.48 2007/01/11 08:33:29 nao-pon Exp $
+// $Id: pukiwiki_func.php,v 1.49 2007/01/13 01:50:10 nao-pon Exp $
 //
 class XpWikiPukiWikiFunc extends XpWikiBaseFunc {
 
@@ -915,7 +915,7 @@ class XpWikiPukiWikiFunc extends XpWikiBaseFunc {
 
 //----- Start convert_html.php -----//
 	// PukiWiki - Yet another WikiWikiWeb clone
-	// $Id: pukiwiki_func.php,v 1.48 2007/01/11 08:33:29 nao-pon Exp $
+	// $Id: pukiwiki_func.php,v 1.49 2007/01/13 01:50:10 nao-pon Exp $
 	// Copyright (C)
 	//   2002-2005 PukiWiki Developers Team
 	//   2001-2002 Originally written by yu-ji
@@ -1028,7 +1028,7 @@ class XpWikiPukiWikiFunc extends XpWikiBaseFunc {
 
 //----- Start func.php -----//
 	// PukiWiki - Yet another WikiWikiWeb clone.
-	// $Id: pukiwiki_func.php,v 1.48 2007/01/11 08:33:29 nao-pon Exp $
+	// $Id: pukiwiki_func.php,v 1.49 2007/01/13 01:50:10 nao-pon Exp $
 	// Copyright (C)
 	//   2002-2006 PukiWiki Developers Team
 	//   2001-2002 Originally written by yu-ji
@@ -1810,7 +1810,7 @@ EOD;
 
 //----- Start make_link.php -----//
 	// PukiWiki - Yet another WikiWikiWeb clone.
-	// $Id: pukiwiki_func.php,v 1.48 2007/01/11 08:33:29 nao-pon Exp $
+	// $Id: pukiwiki_func.php,v 1.49 2007/01/13 01:50:10 nao-pon Exp $
 	// Copyright (C)
 	//   2003-2005 PukiWiki Developers Team
 	//   2001-2002 Originally written by yu-ji
@@ -2621,7 +2621,7 @@ EOD;
 
 //----- Start html.php -----//
 	// PukiWiki - Yet another WikiWikiWeb clone.
-	// $Id: pukiwiki_func.php,v 1.48 2007/01/11 08:33:29 nao-pon Exp $
+	// $Id: pukiwiki_func.php,v 1.49 2007/01/13 01:50:10 nao-pon Exp $
 	// Copyright (C)
 	//   2002-2006 PukiWiki Developers Team
 	//   2001-2002 Originally written by yu-ji
@@ -2710,12 +2710,13 @@ EOD;
 		$link_rename    = & $_LINK['rename'];
 	
 		// Init flags
-		$is_page = ($this->is_pagename($_page) && ! $this->arg_check('backup') && $_page != $this->root->whatsnew);
-		$is_read = ($this->arg_check('read') && $this->is_page($_page));
-		$is_freeze = $this->is_freeze($_page);
-		$is_owner = $this->is_owner($_page);
-		$is_editable = $this->check_editable($_page, FALSE, FALSE);
-		$is_top = ($_page == $this->root->defaultpage)? TRUE : FALSE;
+		// ブロック用にglobal変数にも保存
+		$GLOBALS['XpwikiFlag']['is_page'] = $is_page = ($this->is_pagename($_page) && ! $this->arg_check('backup') && $_page != $this->root->whatsnew);
+		$GLOBALS['XpwikiFlag']['is_read'] = $is_read = ($this->arg_check('read') && $this->is_page($_page));
+		$GLOBALS['XpwikiFlag']['is_freeze'] = $is_freeze = $this->is_freeze($_page);
+		$GLOBALS['XpwikiFlag']['is_owner'] = $is_owner = $this->is_owner($_page);
+		$GLOBALS['XpwikiFlag']['is_editable'] = $is_editable = $this->check_editable($_page, FALSE, FALSE);
+		$GLOBALS['XpwikiFlag']['is_top'] = $is_top = ($_page == $this->root->defaultpage)? TRUE : FALSE;
 		$trackback_javascript = $this->root->trackback_javascript;
 		
 		// nofollow
@@ -3224,7 +3225,7 @@ EOD;
 
 //----- Start mail.php -----//
 	// PukiWiki - Yet another WikiWikiWeb clone.
-	// $Id: pukiwiki_func.php,v 1.48 2007/01/11 08:33:29 nao-pon Exp $
+	// $Id: pukiwiki_func.php,v 1.49 2007/01/13 01:50:10 nao-pon Exp $
 	// Copyright (C)
 	//   2003-2005 PukiWiki Developers Team
 	//   2003      Originally written by upk
@@ -3531,7 +3532,7 @@ EOD;
 
 //----- Start link.php -----//
 	// PukiWiki - Yet another WikiWikiWeb clone
-	// $Id: pukiwiki_func.php,v 1.48 2007/01/11 08:33:29 nao-pon Exp $
+	// $Id: pukiwiki_func.php,v 1.49 2007/01/13 01:50:10 nao-pon Exp $
 	// Copyright (C) 2003-2006 PukiWiki Developers Team
 	// License: GPL v2 or (at your option) any later version
 	//
