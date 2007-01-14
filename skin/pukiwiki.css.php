@@ -1,6 +1,6 @@
 <?php
 // PukiWiki - Yet another WikiWikiWeb clone.
-// $Id: pukiwiki.css.php,v 1.11 2007/01/09 12:25:39 nao-pon Exp $
+// $Id: pukiwiki.css.php,v 1.12 2007/01/14 01:35:39 nao-pon Exp $
 // Copyright (C)
 //   2002-2005 PukiWiki Developers Team
 //   2001-2002 Originally written by yu-ji
@@ -58,7 +58,6 @@ $class { width:100%; }
 
 $class pre,
 $class dl,
-$class ol,
 $class p,
 $class blockquote { line-height:130%; }
 
@@ -212,12 +211,6 @@ $class img {
 	vertical-align:middle;
 }
 
-$class ul {
-	margin-top:.5em;
-	margin-bottom:.5em;
-	line-height:130%;
-}
-
 $class em { font-style:italic; }
 
 $class strong { font-weight:bold; }
@@ -252,6 +245,14 @@ $class .style_td {
 	margin:1px;
 	color:inherit;
 	background-color:#EEF5FF;
+}
+
+$class ul,
+$class ol {
+	margin-top:.5em;
+	margin-bottom:.5em;
+	line-height:130%;
+	list-style-position:outside;
 }
 
 $class li { list-style-type:disc; }
