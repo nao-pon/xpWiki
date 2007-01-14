@@ -1,6 +1,6 @@
 <?php
 // PukiWiki - Yet another WikiWikiWeb clone
-// $Id: rss.inc.php,v 1.10 2007/01/13 01:55:12 nao-pon Exp $
+// $Id: rss.inc.php,v 1.11 2007/01/14 01:52:14 nao-pon Exp $
 //
 // RSS plugin: Publishing RSS of RecentChanges
 //
@@ -356,6 +356,9 @@ EOD;
 			}
 			$out = mb_convert_encoding(ob_get_contents(), 'UTF-8', $this->cont['CONTENT_CHARSET']);
 			ob_end_clean();
+			
+			// NULLバイト除去
+			$out = $this->func->input_filter($out);
 			
 			//キャッシュ書き込み
 			if ($fp = @fopen($c_file,"wb"))
