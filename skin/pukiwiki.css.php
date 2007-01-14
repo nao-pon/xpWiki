@@ -1,6 +1,6 @@
 <?php
 // PukiWiki - Yet another WikiWikiWeb clone.
-// $Id: pukiwiki.css.php,v 1.12 2007/01/14 01:35:39 nao-pon Exp $
+// $Id: pukiwiki.css.php,v 1.13 2007/01/14 13:42:27 nao-pon Exp $
 // Copyright (C)
 //   2002-2005 PukiWiki Developers Team
 //   2001-2002 Originally written by yu-ji
@@ -252,10 +252,21 @@ $class ol {
 	margin-top:.5em;
 	margin-bottom:.5em;
 	line-height:130%;
+	
+	list-style-type:disc;
 	list-style-position:outside;
+	list-style-image:none;
+	marker-offset:auto;
+	color: inhelit;
 }
 
-$class li { list-style-type:disc; }
+$class li {
+	list-style-type:disc;
+	list-style-position:outside;
+	list-style-image:none;
+	marker-offset:auto;
+	color: inhelit;
+}
 
 $class ul.list1 li,
 $class li ul.list1 li {	list-style-type:disc; }
