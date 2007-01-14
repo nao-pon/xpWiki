@@ -2,7 +2,7 @@
 /////////////////////////////////////////////////
 // PukiWiki - Yet another WikiWikiWeb clone.
 //
-// $Id: pginfo.inc.php,v 1.7 2006/11/29 14:06:51 nao-pon Exp $
+// $Id: pginfo.inc.php,v 1.8 2007/01/14 13:43:50 nao-pon Exp $
 //
 
 class xpwiki_plugin_pginfo extends xpwiki_plugin {
@@ -165,10 +165,17 @@ class xpwiki_plugin_pginfo extends xpwiki_plugin {
 		}
 		// #pginfo 差し替え
 		$src = preg_replace("/^#pginfo\(.*\)[\r\n]*/m", '', join('', $src));
-		$src = $buf . $pginfo_str . $src;		
+		$src = $buf . $pginfo_str . $src;
 		
 		// ページ保存
-		$this->func->file_write($this->cont['DATA_DIR'], $page, $src, TRUE);
+		$redirect = '';
+		if ($this->func->is_page($page)) {
+			$this->func->file_write($this->cont['DATA_DIR'], $page, $src, TRUE);
+		} else {
+			// ページが未作成の場合
+			$redirect = $this->root->script."?cmd=edit&amp;page=".rawurlencode($page);
+			$this->func->page_write($page, $src);
+		}
 		
 		// pginfo DB 更新
 		$this->func->pginfo_perm_db_write($page, $pginfo);
@@ -180,7 +187,7 @@ class xpwiki_plugin_pginfo extends xpwiki_plugin {
 
 		$msg  = $this->msg['done_ok'];
 		$body = '';
-		return array('msg'=>$msg, 'body'=>$body);
+		return array('msg'=>$msg, 'body'=>$body, 'redirect'=>$redirect);
 
 	}
 	
