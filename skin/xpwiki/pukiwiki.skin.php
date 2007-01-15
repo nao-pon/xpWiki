@@ -1,6 +1,6 @@
 <?php
 // PukiWiki - Yet another WikiWikiWeb clone.
-// $Id: pukiwiki.skin.php,v 1.4 2006/12/13 05:05:00 nao-pon Exp $
+// $Id: pukiwiki.skin.php,v 1.5 2007/01/15 09:02:59 nao-pon Exp $
 // Copyright (C)
 //   2002-2006 PukiWiki Developers Team
 //   2001-2002 Originally written by yu-ji
@@ -62,8 +62,29 @@ EOD;
 ?>
 
 <div class="xpwiki_<?php echo $dirname ?>">
+
+<div id="navigator">
+
+<?php if($this->cont['PKWK_SKIN_SHOW_NAVBAR']) { ?>
+
+<div class="navigator_wiki">
+ [
+ <?php if ($rw) { ?>
+	<?php $navigator($this,'new') ?> |
+ <?php } ?>
+ <?php if ($this->arg_check('list')) { ?>
+	<?php $navigator($this,'filelist') ?> |
+	<?php $navigator($this,'attaches') ?> |
+ <?php } else { ?>
+   <?php $navigator($this,'list') ?> |
+ <?php } ?>
+ <?php $navigator($this,'search') ?> |
+ <?php $navigator($this,'recent') ?> |
+ <?php $navigator($this,'help')   ?>
+ ]
+</div><!--/navigator_wiki-->
+
 <div id="header">
- <a href="<?php echo $link['top'] ?>"><img id="logo" name="logo" src="<?php echo $this->cont['IMAGE_DIR'] . $image['logo'] ?>" width="80" height="80" alt="[PukiWiki]" title="[PukiWiki]" /></a>
 
  <h1 class="title"><?php echo $page ?></h1>
 
@@ -79,9 +100,7 @@ EOD;
 
 </div>
 
-<div id="navigator">
-<?php if($this->cont['PKWK_SKIN_SHOW_NAVBAR']) { ?>
- [ <?php $navigator($this,'top') ?> ] &nbsp;
+<div class="navigator_page">
 <?php if ($is_page) { ?>
  [
  <?php if ($rw) { ?>
@@ -104,32 +123,29 @@ EOD;
  <?php } ?>
  | <?php $navigator($this,'reload') ?>
  ] &nbsp;
+<?php } else { ?>
+ [ <?php $navigator($this, 'top')?> ]
 <?php } ?>
+</div><!--/navigator_page-->
 
- [
- <?php if ($rw) { ?>
-	<?php $navigator($this,'new') ?> |
- <?php } ?>
-   <?php $navigator($this,'list') ?>
- <?php if ($this->arg_check('list')) { ?>
-	| <?php $navigator($this,'filelist') ?>
- <?php } ?>
- | <?php $navigator($this,'search') ?>
- | <?php $navigator($this,'recent') ?>
- | <?php $navigator($this,'help')   ?>
- ]
+<hr style="clear: both;" />
 
-<?php if ($this->root->trackback) { ?> &nbsp;
+<div class="navigator_info">
+<?php if ($this->root->trackback) { ?>
  [ <?php $navigator($this,'trackback', $lang['trackback'] . '(' . $this->tb_count($_page) . ')',
  	($trackback_javascript == 1) ? 'onclick="OpenTrackback(this.href); return false"' : '') ?> ]
 <?php } ?>
-<?php if ($this->root->referer)   { ?> &nbsp;
+<?php if ($this->root->referer)   { ?>
  [ <?php $navigator($this,'refer') ?> ]
 <?php } ?>
-<?php } // PKWK_SKIN_SHOW_NAVBAR ?>
-</div>
+<?php if ($page_comments_count)   { ?>
+ [ <?php echo $page_comments_count ?> ]
+<?php } ?>
+</div><!--/navigator_info-->
 
-<?php echo $this->root->hr ?>
+<?php } // PKWK_SKIN_SHOW_NAVBAR ?>
+</div><!--/#navigator-->
+
 
 <?php if ($this->arg_check('read') && $this->exist_plugin_convert('menu') && $this->root->show_menu_bar) { ?>
 <table border="0" style="width:100%">
@@ -155,6 +171,11 @@ EOD;
 <?php echo $this->root->hr ?>
 <?php echo $attaches ?>
 </div>
+<?php } ?>
+
+<?php if ($page_comments) { ?>
+<?php echo $this->root->hr ?>
+<div class="commentbody"><?php echo $page_comments ?></div>
 <?php } ?>
 
 <?php echo $this->root->hr ?>
@@ -185,6 +206,7 @@ $this->root->_IMAGE['skin']['rss10']    = 'feed-rss1.png';
 $this->root->_IMAGE['skin']['rss20']    = 'feed-rss2.png';
 $this->root->_IMAGE['skin']['atom']     = 'feed-atom.png';
 $this->root->_IMAGE['skin']['rdf']      = 'rdf.png';
+
 ?>
  <?php $toolbar($this, 'top') ?>
 
