@@ -172,8 +172,8 @@ unset($die, $temp);
 // 指定ページ表示モード
 if (!empty($const['page_show'])) {
 	
-	$get['cmd']  = $post['cmd']  = $vars['cmd']  = 'read';
-	$get['page'] = $post['page'] = $vars['page'] = $const['page_show'];
+	$root->get['cmd']  = $root->post['cmd']  = $root->vars['cmd']  = 'read';
+	$root->get['page'] = $root->post['page'] = $root->vars['page'] = $const['page_show'];
 
 } else {
 
@@ -187,55 +187,55 @@ if (!empty($const['page_show'])) {
 	/////////////////////////////////////////////////
 	// 外部からくる変数のチェック
 	
-	// Prohibit $_GET attack
+	// Prohibit $root->get attack
 	foreach (array('msg', 'pass') as $key) {
-		if (isset($_GET[$key])) die_message('Sorry, already reserved: ' . $key . '=');
+		if (isset($root->get[$key])) die_message('Sorry, already reserved: ' . $key . '=');
 	}
 	
 	// Expire risk
-	unset($HTTP_GET_VARS, $HTTP_POST_VARS);	//, 'SERVER', 'ENV', 'SESSION', ...
-	unset($_REQUEST);	// Considered harmful
+	//unset($HTTP_GET_VARS, $HTTP_POST_VARS);	//, 'SERVER', 'ENV', 'SESSION', ...
+	//unset($_REQUEST);	// Considered harmful
 	
 	// Remove null character etc.
-	$_GET    = $this->input_filter($_GET);
-	$_POST   = $this->input_filter($_POST);
-	$_COOKIE = $this->input_filter($_COOKIE);
+	$root->get    = $this->input_filter($root->get);
+	$root->post   = $this->input_filter($root->post);
+	$root->cookie = $this->input_filter($root->cookie);
 	
-	// 文字コード変換 ($_POST)
+	// 文字コード変換 ($root->post)
 	// <form> で送信された文字 (ブラウザがエンコードしたデータ) のコードを変換
 	// POST method は常に form 経由なので、必ず変換する
 	//
-	if (isset($_POST['encode_hint']) && $_POST['encode_hint'] != '') {
+	if (isset($root->post['encode_hint']) && $root->post['encode_hint'] != '') {
 		// do_plugin_xxx() の中で、<form> に encode_hint を仕込んでいるので、
 		// encode_hint を用いてコード検出する。
 		// 全体を見てコード検出すると、機種依存文字や、妙なバイナリ
 		// コードが混入した場合に、コード検出に失敗する恐れがある。
-		$encode = mb_detect_encoding($_POST['encode_hint']);
-		mb_convert_variables($const['SOURCE_ENCODING'], $encode, $_POST);
+		$encode = mb_detect_encoding($root->post['encode_hint']);
+		mb_convert_variables($const['SOURCE_ENCODING'], $encode, $root->post);
 	
-	} else if (isset($_POST['charset']) && $_POST['charset'] != '') {
+	} else if (isset($root->post['charset']) && $root->post['charset'] != '') {
 		// TrackBack Ping で指定されていることがある
 		// うまくいかない場合は自動検出に切り替え
 		if (mb_convert_variables($const['SOURCE_ENCODING'],
-		    $_POST['charset'], $_POST) !== $_POST['charset']) {
-			mb_convert_variables($const['SOURCE_ENCODING'], 'auto', $_POST);
+		    $root->post['charset'], $root->post) !== $root->post['charset']) {
+			mb_convert_variables($const['SOURCE_ENCODING'], 'auto', $root->post);
 		}
 	
-	} else if (! empty($_POST)) {
+	} else if (! empty($root->post)) {
 		// 全部まとめて、自動検出／変換
-		mb_convert_variables($const['SOURCE_ENCODING'], 'auto', $_POST);
+		mb_convert_variables($const['SOURCE_ENCODING'], 'auto', $root->post);
 	}
 	
-	// 文字コード変換 ($_GET)
+	// 文字コード変換 ($root->get)
 	// GET method は form からの場合と、<a href="http://script/?key=value> の場合がある
 	// <a href...> の場合は、サーバーが rawurlencode しているので、コード変換は不要
-	if (isset($_GET['encode_hint']) && $_GET['encode_hint'] != '')
+	if (isset($root->get['encode_hint']) && $root->get['encode_hint'] != '')
 	{
 		// form 経由の場合は、ブラウザがエンコードしているので、コード検出・変換が必要。
 		// encode_hint が含まれているはずなので、それを見て、コード検出した後、変換する。
 		// 理由は、post と同様
-		$encode = mb_detect_encoding($_GET['encode_hint']);
-		mb_convert_variables($const['SOURCE_ENCODING'], $encode, $_GET);
+		$encode = mb_detect_encoding($root->get['encode_hint']);
+		mb_convert_variables($const['SOURCE_ENCODING'], $encode, $root->get);
 	}
 	
 	
@@ -274,29 +274,22 @@ if (!empty($const['page_show'])) {
 	$arg = $arg[0];
 	
 	/////////////////////////////////////////////////
-	// QUERY_STRINGを分解してコード変換し、$_GET に上書き
+	// QUERY_STRINGを分解してコード変換し、$root->get に上書き
 	
 	// URI を urlencode せずに入力した場合に対処する
 	$matches = array();
 	foreach (explode('&', $arg) as $key_and_value) {
 		if (preg_match('/^([^=]+)=(.+)/', $key_and_value, $matches) &&
 		    mb_detect_encoding($matches[2]) != 'ASCII') {
-			$_GET[$matches[1]] = $matches[2];
+			$root->get[$matches[1]] = $matches[2];
 		}
 	}
 	unset($matches);
 	
-	/////////////////////////////////////////////////
-	// GET, POST, COOKIE
-	
-	$get    = & $_GET;
-	$post   = & $_POST;
-	$cookie = & $_COOKIE;
-	
 	// pgid でのアクセス
-	if (!empty($get['pgid'])) {
-		if ($page = $this->get_name_by_pgid((int)$get['pgid'])) {
-			if (empty($get['page'])) $get['page'] = $page;
+	if (!empty($root->get['pgid'])) {
+		if ($page = $this->get_name_by_pgid((int)$root->get['pgid'])) {
+			if (empty($root->get['page'])) $root->get['page'] = $page;
 			$arg = $page;
 		} else {
 			header("HTTP/1.0 404 Not Found");
@@ -304,47 +297,47 @@ if (!empty($const['page_show'])) {
 		}
 	}
 	
-	// GET + POST = $vars
-	if (empty($_POST)) {
-		$vars = & $_GET;  // Major pattern: Read-only access via GET
-	} else if (empty($_GET)) {
-		$vars = & $_POST; // Minor pattern: Write access via POST etc.
+	// GET + POST = $root->vars
+	if (empty($root->post)) {
+		$root->vars = $root->get;  // Major pattern: Read-only access via GET
+	} else if (empty($root->get)) {
+		$root->vars = $root->post; // Minor pattern: Write access via POST etc.
 	} else {
-		$vars = array_merge($_GET, $_POST); // Considered reliable than $_REQUEST
+		$root->vars = array_merge($root->get, $root->post); // Considered reliable than $_REQUEST
 	}
 	
 	// 入力チェック: cmd, plugin の文字列は英数字以外ありえない
 	foreach(array('cmd', 'plugin') as $var) {
-		if (isset($vars[$var]) && ! preg_match('/^[a-zA-Z][a-zA-Z0-9_]*$/', $vars[$var]))
-			unset($get[$var], $post[$var], $vars[$var]);
+		if (isset($root->vars[$var]) && ! preg_match('/^[a-zA-Z][a-zA-Z0-9_]*$/', $root->vars[$var]))
+			unset($root->get[$var], $root->post[$var], $root->vars[$var]);
 	}
 	
 	// 整形: page, strip_bracket()
-	if (isset($vars['page'])) {
-		$get['page'] = $post['page'] = $vars['page']  = $this->strip_bracket($vars['page']);
+	if (isset($root->vars['page'])) {
+		$root->get['page'] = $root->post['page'] = $root->vars['page']  = $this->strip_bracket($root->vars['page']);
 	} else {
-		$get['page'] = $post['page'] = $vars['page'] = '';
+		$root->get['page'] = $root->post['page'] = $root->vars['page'] = '';
 	}
 	
 	// 整形: msg, 改行を取り除く
-	if (isset($vars['msg'])) {
-		$get['msg'] = $post['msg'] = $vars['msg'] = str_replace("\r", '', $vars['msg']);
+	if (isset($root->vars['msg'])) {
+		$root->get['msg'] = $root->post['msg'] = $root->vars['msg'] = str_replace("\r", '', $root->vars['msg']);
 	}
 	
 	// 後方互換性 (?md5=...)
-	if (isset($vars['md5']) && $vars['md5'] != '') {
-		$get['cmd'] = $post['cmd'] = $vars['cmd'] = 'md5';
+	if (isset($root->vars['md5']) && $root->vars['md5'] != '') {
+		$root->get['cmd'] = $root->post['cmd'] = $root->vars['cmd'] = 'md5';
 	}
 	
 	// TrackBack Ping
-	if (isset($vars['tb_id']) && $vars['tb_id'] != '') {
-		$get['cmd'] = $post['cmd'] = $vars['cmd'] = 'tb';
+	if (isset($root->vars['tb_id']) && $root->vars['tb_id'] != '') {
+		$root->get['cmd'] = $root->post['cmd'] = $root->vars['cmd'] = 'tb';
 	}
 	
 	// cmdもpluginも指定されていない場合は、QUERY_STRINGをページ名かInterWikiNameであるとみなす
-	if (! isset($vars['cmd']) && ! isset($vars['plugin'])) {
+	if (! isset($root->vars['cmd']) && ! isset($root->vars['plugin'])) {
 	
-		$get['cmd']  = $post['cmd']  = $vars['cmd']  = 'read';
+		$root->get['cmd']  = $root->post['cmd']  = $root->vars['cmd']  = 'read';
 	
 		if ($arg == '') $arg = $root->defaultpage;
 		$arg = rawurldecode($arg);
@@ -355,15 +348,15 @@ if (!empty($const['page_show'])) {
 		
 		// RecentChanges is a cmd in xpWiki
 		if ($arg === $root->whatsnew){
-			$get['cmd'] = $post['cmd'] = $vars['cmd'] = 'recentchanges';
+			$root->get['cmd'] = $root->post['cmd'] = $root->vars['cmd'] = 'recentchanges';
 		}
 			
-		$get['page'] = $post['page'] = $vars['page'] = $arg;
+		$root->get['page'] = $root->post['page'] = $root->vars['page'] = $arg;
 	}
 	
 	// PlainText DB 更新する？
-	if (@$vars['cmd'] === 'read') {
-		$_udp_file = $const['CACHE_DIR'].$this->encode($vars['page']).".udp";
+	if (@$root->vars['cmd'] === 'read') {
+		$_udp_file = $const['CACHE_DIR'].$this->encode($root->vars['page']).".udp";
 		if (file_exists($_udp_file)) {
 			$_udp_mode = join('',file($_udp_file));
 			unlink($_udp_file);
@@ -384,24 +377,21 @@ if (!empty($const['page_show'])) {
 			
 			// ブラウザは再表示し、PHPは実行を継続
 			sleep(5);
-			$this->plain_db_write($vars['page'], $_udp_mode);
+			$this->plain_db_write($root->vars['page'], $_udp_mode);
 			exit();
 		}
 		// ついでの処理(ページ表示時に必要なもの)
 		// $_GET['pgid'] をセット
 		if (empty($_GET['pgid'])) {
-			$_GET['pgid'] = $this->get_pgid_by_name($vars['page']);
+			$_GET['pgid'] = $root->get['pgid'] = $this->get_pgid_by_name($root->vars['page']);
 		}
 	}
 
 	// 入力チェック: 'cmd=' prohibits nasty 'plugin='
-	if (isset($vars['cmd']) && isset($vars['plugin']))
-		unset($get['plugin'], $post['plugin'], $vars['plugin']);
+	if (isset($root->vars['cmd']) && isset($root->vars['plugin']))
+		unset($root->get['plugin'], $root->post['plugin'], $root->vars['plugin']);
 		
 }
-$root->get =& $get;
-$root->post =& $post;
-$root->vars =& $vars;
 
 /////////////////////////////////////////////////
 // 初期設定($WikiName,$BracketNameなど)

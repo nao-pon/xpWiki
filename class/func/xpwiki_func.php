@@ -1,7 +1,7 @@
 <?php
 //
 // Created on 2006/10/02 by nao-pon http://hypweb.net/
-// $Id: xpwiki_func.php,v 1.49 2007/01/14 13:43:50 nao-pon Exp $
+// $Id: xpwiki_func.php,v 1.50 2007/01/15 09:02:23 nao-pon Exp $
 //
 class XpWikiFunc extends XpWikiXoopsWrapper {
 
@@ -267,8 +267,8 @@ class XpWikiFunc extends XpWikiXoopsWrapper {
 		$lang = $this->cont['LANG']; // 規定値
 		$accept = @ $_SERVER["HTTP_ACCEPT_LANGUAGE"];
 		// 他の言語切り替えシステムをチェック
-		if (!empty($this->cont['SETLANG_C']) && !empty($_COOKIE[$this->cont['SETLANG_C']])) {
-			if (preg_match($this->cont['ACCEPT_LANG_REGEX'], $_COOKIE[$this->cont['SETLANG_C']], $match)) {
+		if (!empty($this->cont['SETLANG_C']) && !empty($this->root->cookie[$this->cont['SETLANG_C']])) {
+			if (preg_match($this->cont['ACCEPT_LANG_REGEX'], $this->root->cookie[$this->cont['SETLANG_C']], $match)) {
 				$accept = $match[1] . "," . $accept;
 			}
 		}
@@ -343,8 +343,8 @@ class XpWikiFunc extends XpWikiXoopsWrapper {
 		$this->root->userinfo['ucd'] = substr(crypt($this->root->cookie['ucd'],($this->root->adminpass)? $this->root->adminpass : 'id'),-11);
 		
 		// スキン指定をcookieにセット
-		if (isset($_GET['setskin'])) {
-			$this->root->cookie['skin'] = ($_GET['setskin'] === "none")? "" : preg_replace("/[^\w-]+/","",$_GET['setskin']);
+		if (isset($this->root->get['setskin'])) {
+			$this->root->cookie['skin'] = ($this->root->get['setskin'] === "none")? "" : preg_replace("/[^\w-]+/","",$this->root->get['setskin']);
 			if (isset($_SERVER['QUERY_STRING'])) {
 				$_SERVER['QUERY_STRING'] = preg_replace("/(^|&)setskin=.*?(?:&|$)/","$1",$_SERVER['QUERY_STRING']);
 			}
@@ -354,13 +354,13 @@ class XpWikiFunc extends XpWikiXoopsWrapper {
 		}
 		
 		// 言語指定をcookieにセット
-		if (isset($_GET[$this->cont['SETLANG']])) {
+		if (isset($this->root->get[$this->cont['SETLANG']])) {
 			$this->root->cookie['lang'] = '';
 			// 正規化
-			if (preg_match($this->cont['ACCEPT_LANG_REGEX'], $_GET[$this->cont['SETLANG']], $match)) {
+			if (preg_match($this->cont['ACCEPT_LANG_REGEX'], $this->root->get[$this->cont['SETLANG']], $match)) {
 				$this->root->cookie['lang'] = $match[1];
 			}
-			//$this->root->cookie['lang'] = ($_GET[$this->cont['SETLANG']] === "none")? "" : preg_replace("/[^\w-]+/","",$_GET[$this->cont['SETLANG']]);
+			//$this->root->cookie['lang'] = ($this->root->get[$this->cont['SETLANG']] === "none")? "" : preg_replace("/[^\w-]+/","",$this->root->get[$this->cont['SETLANG']]);
 			if (isset($_SERVER['QUERY_STRING'])) {
 				$_SERVER['QUERY_STRING'] = preg_replace("/(^|&)".preg_quote($this->cont['SETLANG'],"/")."=.*?(?:&|$)/","$1",$_SERVER['QUERY_STRING']);
 			}

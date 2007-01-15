@@ -1,7 +1,7 @@
 <?php
 //
 // Created on 2006/09/29 by nao-pon http://hypweb.net/
-// $Id: xpwiki.php,v 1.25 2007/01/14 13:43:50 nao-pon Exp $
+// $Id: xpwiki.php,v 1.26 2007/01/15 09:02:24 nao-pon Exp $
 //
 
 class XpWiki {
@@ -46,6 +46,12 @@ class XpWiki {
 
 	function init($page = "") {
 
+		// GET, POST, COOKIE
+		// 基本的に直接操作しない
+		$this->root->get    = $_GET;
+		$this->root->post   = $_POST;
+		$this->root->cookie = $_COOKIE;
+		
 		if ($page) {$this->cont['page_show'] = $page;}
 		
 		// サイト情報読み込み
