@@ -1,6 +1,6 @@
 <?php
 // PukiWiki - Yet another WikiWikiWeb clone.
-// $Id: pukiwiki.skin.php,v 1.16 2006/12/29 00:23:50 nao-pon Exp $
+// $Id: pukiwiki.skin.php,v 1.17 2007/01/15 08:58:28 nao-pon Exp $
 // Copyright (C)
 //   2002-2006 PukiWiki Developers Team
 //   2001-2002 Originally written by yu-ji
@@ -34,11 +34,6 @@ if (! isset($this->cont['PKWK_SKIN_SHOW$toolbar']))
 // ------------------------------------------------------------
 // Code start
 
-// Prohibit direct access
-//if (! isset($this->cont['UI_LANG'])) die('UI_LANG is not set');
-//if (! isset($this->root->_LANG)) die('$_LANG is not set');
-//if (! isset($this->cont['PKWK_READONLY'])) die('PKWK_READONLY is not set');
-
 $lang  = & $_LANG['skin'];
 $link  = & $_LINK;
 $image = & $_IMAGE['skin'];
@@ -52,20 +47,6 @@ switch($this->cont['UI_LANG']){
 
 // ------------------------------------------------------------
 // Output
-/*
-// HTTP headers
-//$this->root->pkwk_common_headers();
-header('Cache-control: no-cache');
-header('Pragma: no-cache');
-header('Content-Type: text/html; charset=' . $this->cont['CONTENT_CHARSET']);
-
-// HTML DTD, <html>, and receive content-type
-if (isset($pkwk_dtd)) {
-	$meta_content_type = pkwk_output_dtd($pkwk_dtd);
-} else {
-	$meta_content_type = pkwk_output_dtd();
-}
-*/
 
 $favicon = ($image['favicon'])? "<link rel=\"SHORTCUT ICON\" href=\"{$image['favicon']}\" />" : "";
 $dirname = $this->root->mydirname;
@@ -154,10 +135,10 @@ EOD;
  [ <?php $navigator($this,'trackback', $lang['trackback'] . '(' . $this->tb_count($_page) . ')',
  	($trackback_javascript == 1) ? 'onclick="OpenTrackback(this.href); return false"' : '') ?> ]
 <?php } ?>
-<?php if ($this->root->referer)   { ?> &nbsp;
+<?php if ($this->root->referer)   { ?>
  [ <?php $navigator($this,'refer') ?> ]
 <?php } ?>
-<?php if ($page_comments_count)   { ?> &nbsp;
+<?php if ($page_comments_count)   { ?>
  [ <?php echo $page_comments_count ?> ]
 <?php } ?>
 </div><!--/navigator_info-->
