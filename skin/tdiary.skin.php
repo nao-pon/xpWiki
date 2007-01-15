@@ -3,7 +3,7 @@
 $this->root->runmode = "standalone";
 
 // PukiWiki - Yet another WikiWikiWeb clone.
-// $Id: tdiary.skin.php,v 1.19 2006/12/29 00:24:08 nao-pon Exp $
+// $Id: tdiary.skin.php,v 1.20 2007/01/15 08:59:55 nao-pon Exp $
 // Copyright (C)
 //   2002-2006 PukiWiki Developers Team
 //   2001-2002 Originally written by yu-ji
@@ -598,7 +598,7 @@ $dirname = $this->root->mydirname;
 <?php echo $head_tag ?>
 </head>
 <body><!-- Theme:<?php echo htmlspecialchars($theme) . ' Sidebar:' . $sidebar ?> -->
-<div class="xpwiki_<?php echo $dirname ?>">
+<div class="xpwiki_<?php echo $dirname ?>" style="position:relative;">
 
 <?php if ($menu && $sidebar == 'strict') { ?>
 <!-- Sidebar top -->
@@ -763,17 +763,25 @@ default:
 </div><!-- class="body" -->
 
 
-<?php if ($notes != '') { ?>
+<?php if ($notes != '' || $page_comments) { ?>
 <div class="comment"><!-- Design for tDiary "Comments" -->
 	<div class="caption">&nbsp;</div>
-	<div class="commentbody"><br />
-		<?php
-		$notes = preg_replace('#<span class="small">(.*?)</span>#', '<p>$1</p>', $notes);
-		echo preg_replace('#<a (id="notefoot_[^>]*)>(.*?)</a>#',
-			'<div class="commentator"><a $1><span class="canchor"></span> ' .
-			'<span class="commentator">$2</span></a>' .
-			'<span class="commenttime"></span></div>', $notes);
-		?>
+	<div class="commentbody">
+	 <br />
+	 	<?php if ($notes != '') { ?>
+			<?php
+			$notes = preg_replace('#<span class="small">(.*?)</span>#', '<p>$1</p>', $notes);
+			echo preg_replace('#<a (id="notefoot_[^>]*)>(.*?)</a>#',
+				'<div class="commentator"><a $1><span class="canchor"></span> ' .
+				'<span class="commentator">$2</span></a>' .
+				'<span class="commenttime"></span></div>', $notes);
+			echo $this->root->hr;
+			?>
+		<?php } ?>
+		<?php if ($page_comments) { ?>
+			<?php echo $page_comments ?>
+		<?php } ?>
+
 	</div>
 </div>
 <?php } ?>
@@ -847,15 +855,6 @@ default:
 	</div>
 </div><!-- class="sidebar" -->
 <?php } // if ($menu && $sidebar == 'bottom') ?>
-
-<?php if ($page_comments) { ?>
-<div class="body">
-<?php echo $this->root->hr ?>
- <div class="commentbody">
-  <?php echo $page_comments ?>
- </div>
-</div>
-<?php } ?>
 
 <div class="footer">
 <?php if ($this->cont['PKWK_SKIN_SHOW$toolbar']) { ?>
