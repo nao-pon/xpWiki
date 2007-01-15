@@ -1,6 +1,6 @@
 <?php
 // PukiWiki - Yet another WikiWikiWeb clone.
-// $Id: pukiwiki.css.php,v 1.13 2007/01/14 13:42:27 nao-pon Exp $
+// $Id: pukiwiki.css.php,v 1.14 2007/01/15 08:59:12 nao-pon Exp $
 // Copyright (C)
 //   2002-2005 PukiWiki Developers Team
 //   2001-2002 Originally written by yu-ji
@@ -54,7 +54,10 @@ div#wikihelper_base {
 	opacity: 0.85;
 }
 
-$class { width:100%; }
+$class {
+	width:100%;
+	position:relative;
+}
 
 $class pre,
 $class dl,
@@ -69,8 +72,6 @@ $class,
 $class td {
 	color:black;
 	background-color:white;
-	/*margin-left:2%;
-	margin-right:2%;*/
 	font-size:100%;
 	font-family:verdana, arial, helvetica, Sans-Serif;
 }
@@ -433,6 +434,7 @@ $class div#navigator {
 	clear:both;
 	padding:4px 0px 0px 0px;
 	margin:0px;
+	font-size:90%;
 <?php   } ?>
 }
 
@@ -456,7 +458,7 @@ $class td.menubar {
 <?php   if ($media === 'print') { ?>
 	display:none;
 <?php   } else { ?>
-	width:9em;
+	width:10em;
 	vertical-align:top;
 <?php   } ?>
 }
@@ -465,7 +467,7 @@ $class div#menubar {
 <?php   if ($media === 'print') { ?>
 	display:none;
 <?php   } else { ?>
-	width:9em;
+	/*width:9em;*/
 	padding:0px;
 	margin:4px;
 	word-break:break-all;
@@ -501,6 +503,7 @@ $class div#attach {
 	clear:both;
 	padding:0px;
 	margin:0px;
+	font-size:90%;
 <?php   } ?>
 }
 
