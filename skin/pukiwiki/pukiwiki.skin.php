@@ -3,7 +3,7 @@
 $this->root->runmode = "standalone";
 
 // PukiWiki - Yet another WikiWikiWeb clone.
-// $Id: pukiwiki.skin.php,v 1.6 2006/12/13 05:05:00 nao-pon Exp $
+// $Id: pukiwiki.skin.php,v 1.7 2007/01/15 09:02:59 nao-pon Exp $
 // Copyright (C)
 //   2002-2006 PukiWiki Developers Team
 //   2001-2002 Originally written by yu-ji
@@ -86,20 +86,20 @@ if (isset($this->root->pkwk_dtd)) {
 <?php if ($this->root->nofollow || ! $is_read)  {?> <meta name="robots" content="NOINDEX,NOFOLLOW" /><?php }?>
 <?php if ($this->cont['PKWK_ALLOW_JAVASCRIPT'] && isset($this->root->javascript)) {?> <meta http-equiv="Content-Script-Type" content="text/javascript" /><?php }?>
 
- <title><?php echo $title ?> - <?php echo $this->root->siteinfo['sitename'] ?></title>
+ <title><?php echo htmlspecialchars($this->root->pagetitle) ?> - <?php echo $this->root->siteinfo['sitename'] ?></title>
 
 <?php echo $head_pre_tag?>
 <?php echo <<<EOD
  $favicon
- <link rel="stylesheet" type="text/css" media="screen" href="{$this->cont['HOME_URL']}{$this->cont['SKIN_DIR']}pukiwiki.css.php?charset={$css_charset}" charset="{$css_charset}" />
- <link rel="stylesheet" type="text/css" media="print"  href="{$this->cont['HOME_URL']}{$this->cont['SKIN_DIR']}pukiwiki.css.php?charset={$css_charset}&amp;media=print" charset="{$css_charset}" />
+ <link rel="stylesheet" type="text/css" media="screen" href="{$this->cont['HOME_URL']}{$this->cont['SKIN_DIR']}pukiwiki.css.php?charset={$css_charset}&amp;base={$dirname}" charset="{$css_charset}" />
+ <link rel="stylesheet" type="text/css" media="print"  href="{$this->cont['HOME_URL']}{$this->cont['SKIN_DIR']}pukiwiki.css.php?charset={$css_charset}&amp;base={$dirname}&amp;media=print" charset="{$css_charset}" />
  <link rel="alternate" type="application/rss+xml" title="RSS" href="{$link['rss']}" />
 EOD;
 ?>
 <?php echo $head_tag?>
 </head>
 <body>
-<div class="xpwiki">
+<div class="xpwiki_<?php echo $dirname ?>">
 <div id="header">
  <a href="<?php echo $link['top']?>"><img id="logo" name="logo" src="<?php echo $this->cont['IMAGE_DIR'] . $image['logo']?>" width="80" height="80" alt="[PukiWiki]" title="[PukiWiki]" /></a>
 
@@ -161,13 +161,16 @@ EOD;
  [ <?php $navigator($this, 'trackback', $lang['trackback'] . '(' . $this->tb_count($_page) . ')',
  	($this->root->trackback_javascript == 1) ? 'onclick="OpenTrackback(this.href); return false"' : '')?> ]
 <?php }?>
-<?php if ($this->root->referer)   {?> &nbsp;
+<?php if ($this->root->referer)   {?>
  [ <?php $navigator($this, 'refer')?> ]
 <?php }?>
+<?php if ($page_comments_count)   { ?>
+ [ <?php echo $page_comments_count ?> ]
+<?php } ?>
 <?php } // $this->cont['PKWK_SKIN_SHOW_NAVBAR']?>
 </div>
 
-<?php echo $this->root->hr?>
+<hr style="clear:both;">
 
 <?php if ($menu_body) {?>
 <table border="0" style="width:100%">
@@ -194,6 +197,11 @@ EOD;
 <?php echo $attaches?>
 </div>
 <?php }?>
+
+<?php if ($page_comments) { ?>
+<?php echo $this->root->hr ?>
+<div class="commentbody"><?php echo $page_comments ?></div>
+<?php } ?>
 
 <?php echo $this->root->hr?>
 
