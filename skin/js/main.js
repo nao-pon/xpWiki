@@ -47,10 +47,11 @@ function wikihelper_show_fontset_img()
 		'<area shape="rect" coords="56,8,64,16" title="White" alt="White" href="#" onClick="javascript:wikihelper_tag(\'White\'); return false;" '+'/'+'>'+
 		'<'+'/'+'map>'+
 		'<div id="wikihelper_base"><'+'/'+'div>';
-		//document.write(map);
+
 		var src = document.createElement('div');
 		src.innerHTML = map;
-		document.body.insertBefore(src,document.body.firstChild);
+		src.zIndex = 1000;
+		document.body.appendChild(src);
 	}
 
 	// Helper image tag set
@@ -98,8 +99,6 @@ function wikihelper_show_fontset_img()
 	
 	str += '<small> [<a href="#" title="Close" onClick="javascript:wikihelper_hide_helper(); return false;">x</a>]<'+'/'+'small>';
 	document.getElementById("wikihelper_base").innerHTML = str;
-	// document.write(str);
-	
 }
 
 function wikihelper_adv_swich()
