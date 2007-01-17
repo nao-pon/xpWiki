@@ -1,13 +1,13 @@
 <?php
 //
 // Created on 2006/10/31 by nao-pon http://hypweb.net/
-// $Id: tag.inc.php,v 1.4 2007/01/11 08:39:03 nao-pon Exp $
+// $Id: tag.inc.php,v 1.5 2007/01/17 03:52:06 nao-pon Exp $
 //
 function xpwiki_onPageWriteAfter_tag(&$xpwiki_func, &$page, &$postdata, &$notimestamp, &$mode, &$diffdata) {
 
 	// ページのtagデータファイルがある || tagプラグインらしき記述がある？
 	$do = file_exists($xpwiki_func->cont['CACHE_DIR'] . $xpwiki_func->encode($page) . '_page.tag');
-	if ($do || preg_match("/&tag\([\^)]*\)(\{.*?\})?;/",$postdata)) {
+	if ($do || preg_match("/&tag\([^)]*\)(\{.*?\})?;/",$postdata)) {
 		$params = array();
 		$ic = new XpWikiInlineConverter($xpwiki_func->xpwiki, array('plugin'));
 		$data = explode("\n",$postdata);
