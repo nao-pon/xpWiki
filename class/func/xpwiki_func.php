@@ -1,7 +1,7 @@
 <?php
 //
 // Created on 2006/10/02 by nao-pon http://hypweb.net/
-// $Id: xpwiki_func.php,v 1.50 2007/01/15 09:02:23 nao-pon Exp $
+// $Id: xpwiki_func.php,v 1.51 2007/01/18 00:09:24 nao-pon Exp $
 //
 class XpWikiFunc extends XpWikiXoopsWrapper {
 
@@ -266,12 +266,6 @@ class XpWikiFunc extends XpWikiXoopsWrapper {
 	function get_accept_language () {
 		$lang = $this->cont['LANG']; // 規定値
 		$accept = @ $_SERVER["HTTP_ACCEPT_LANGUAGE"];
-		// 他の言語切り替えシステムをチェック
-		if (!empty($this->cont['SETLANG_C']) && !empty($this->root->cookie[$this->cont['SETLANG_C']])) {
-			if (preg_match($this->cont['ACCEPT_LANG_REGEX'], $this->root->cookie[$this->cont['SETLANG_C']], $match)) {
-				$accept = $match[1] . "," . $accept;
-			}
-		}
 		// cookie に指定があればそれを優先
 		if (!empty($this->root->cookie['lang'])) {
 			$accept = $this->root->cookie['lang'] . "," . $accept;
@@ -317,6 +311,13 @@ class XpWikiFunc extends XpWikiXoopsWrapper {
 		if (empty($this->root->userinfo['uname'])) {
 			$this->root->userinfo['uname'] = $this->root->cookie['name'];
 			$this->root->userinfo['uname_s'] = htmlspecialchars($this->root->userinfo['uname']);
+		}
+		
+		// 他の言語切り替えシステムをチェック
+		if (!empty($this->cont['SETLANG_C']) && !empty($this->root->cookie[$this->cont['SETLANG_C']])) {
+			if (preg_match($this->cont['ACCEPT_LANG_REGEX'], $this->root->cookie[$this->cont['SETLANG_C']], $match)) {
+				$this->root->cookie['lang'] = $match[1];
+			}
 		}
 	}
 	
