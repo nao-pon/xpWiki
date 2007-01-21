@@ -1,7 +1,7 @@
 <?php
 //
 // Created on 2006/10/25 by nao-pon http://hypweb.net/
-// $Id: code.inc.php,v 1.4 2006/12/18 14:27:01 nao-pon Exp $
+// $Id: code.inc.php,v 1.5 2007/01/21 01:58:42 nao-pon Exp $
 //
 
 class xpwiki_plugin_code extends xpwiki_plugin {
@@ -611,7 +611,8 @@ class xpwiki_plugin_code extends xpwiki_plugin {
 	function _plugin_code_makeNumber($end, $begin=1)
 	{
 		$number='';
-		$str_len=max(3,strlen(''.$end));
+		//$str_len=max(3,strlen(''.$end));
+		$str_len = strlen(''.$end);
 		for($i=$begin; $i<=$end; ++$i) {
 			$number.= sprintf('%'.$str_len.'d',($i))."\n";
 		}
