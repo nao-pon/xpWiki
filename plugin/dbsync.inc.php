@@ -1,7 +1,7 @@
 <?php
 //
 // Created on 2006/11/17 by nao-pon http://hypweb.net/
-// $Id: dbsync.inc.php,v 1.2 2006/11/28 12:48:42 nao-pon Exp $
+// $Id: dbsync.inc.php,v 1.3 2007/01/21 01:54:31 nao-pon Exp $
 //
 
 class xpwiki_plugin_dbsync extends xpwiki_plugin {
@@ -715,7 +715,8 @@ __EOD__;
 	{
 	//	global $script,$post,$_links_messages;
 		
-		$token = $this->func->get_token_html();
+		//$token = $this->func->get_token_html();
+		$token = '';
 		
 		$html = <<<__EOD__
 <form method="POST" action="{$this->root->script}" onsubmit="return pukiwiki_check(this);">
