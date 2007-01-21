@@ -1,7 +1,7 @@
 <?php
 //
 // Created on 2006/10/02 by nao-pon http://hypweb.net/
-// $Id: xpwiki_func.php,v 1.51 2007/01/18 00:09:24 nao-pon Exp $
+// $Id: xpwiki_func.php,v 1.52 2007/01/21 02:08:31 nao-pon Exp $
 //
 class XpWikiFunc extends XpWikiXoopsWrapper {
 
@@ -1465,6 +1465,9 @@ EOD;
 					fclose($fp);
 				}
 			}
+			
+			unset($pobj);
+			
 /*
 			// ÉÕäµ
 			if ($fusen_enable_allpage && empty($pwm_plugin_flg['fusen']['convert']))
