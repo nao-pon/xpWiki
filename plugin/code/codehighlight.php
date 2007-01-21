@@ -121,7 +121,7 @@ class XpWikiCodeHighlight {
 		}
 
 		if ($option['number'])
-			$data['number'] = '<pre class="'.$this->cont['PLUGIN_CODE_HEADER'].'number">'.$data['number'].'</pre>';
+			$data['number'] = '<pre class="'.$this->cont['PLUGIN_CODE_HEADER'].'number" style="width:'.max(1.5,strlen(''.count(explode("\n",$data['number'])))+0.5).'ex;">'.$data['number'].'</pre>';
 		else
 			$data['number'] = null;
 
@@ -1253,8 +1253,9 @@ class XpWikiCodeHighlight {
 		$this->nestlevel = 1;
 
 		//$linelen=$line+1;
-		$str_len = max(3, strlen(''.$end-1));
-
+		//$str_len = max(3, strlen(''.$end-1));
+		$str_len = strlen(''.$end);
+		
 		for($i=$begin; $i<=$end; ++$i) {
 			$plus = '';
 			$plus1 = '';

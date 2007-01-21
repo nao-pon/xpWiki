@@ -80,11 +80,11 @@ div.xpwiki_$dir table.code_table pre.pre_number
     background: #F0F8FF;
     margin: 0;
     padding: 0;
-    padding-right: 0.5em;
+    padding-right: 0.5ex;
     border: none;
     /*border-right: 1px solid #CCDDDD;*/
     line-height: 120%;
-    min-width: 3ex;
+    /*min-width: 3.5ex;*/
 }
 
 /* アウトライン表示 */
