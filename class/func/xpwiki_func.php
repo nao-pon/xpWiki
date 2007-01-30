@@ -1,7 +1,7 @@
 <?php
 //
 // Created on 2006/10/02 by nao-pon http://hypweb.net/
-// $Id: xpwiki_func.php,v 1.52 2007/01/21 02:08:31 nao-pon Exp $
+// $Id: xpwiki_func.php,v 1.53 2007/01/30 01:58:50 nao-pon Exp $
 //
 class XpWikiFunc extends XpWikiXoopsWrapper {
 
@@ -551,7 +551,9 @@ EOD;
 		}
 
 		$pginfo['reading'] = '';
-		$info[$this->xpwiki->pid][$page] = $pginfo;
+		if ($page) {
+			$info[$this->xpwiki->pid][$page] = $pginfo;
+		}
 		return $pginfo;
 	}
 	

@@ -6,7 +6,7 @@ class xpwiki_plugin_diff extends xpwiki_plugin {
 
 	}
 	// PukiWiki - Yet another WikiWikiWeb clone.
-	// $Id: diff.inc.php,v 1.1 2006/10/13 13:17:49 nao-pon Exp $
+	// $Id: diff.inc.php,v 1.2 2007/01/30 01:58:49 nao-pon Exp $
 	// Copyright (C)
 	//   2002-2005 PukiWiki Developers Team
 	//   2002      Originally written by yu-ji
@@ -37,11 +37,12 @@ class xpwiki_plugin_diff extends xpwiki_plugin {
 	
 		$r_page = rawurlencode($page);
 		$s_page = htmlspecialchars($page);
-	
+		$lasteditor = $this->func->get_lasteditor($this->func->get_pginfo($page));
 		$menu = array(
+			'<li>' . $this->root->_LANG['skin']['recent'] . ': ' . $lasteditor . '</li>',
 			'<li>' . $this->root->_msg_addline . '</li>',
-		'<li>' . $this->root->_msg_delline . '</li>'
-	);
+			'<li>' . $this->root->_msg_delline . '</li>'
+			);
 	
 		$is_page = $this->func->is_page($page);
 		if ($is_page) {
