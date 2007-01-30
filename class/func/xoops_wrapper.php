@@ -1,7 +1,7 @@
 <?php
 //
 // Created on 2006/10/11 by nao-pon http://hypweb.net/
-// $Id: xoops_wrapper.php,v 1.21 2007/01/11 23:21:00 nao-pon Exp $
+// $Id: xoops_wrapper.php,v 1.22 2007/01/30 01:58:50 nao-pon Exp $
 //
 class XpWikiXoopsWrapper extends XpWikiBackupFunc {
 	
@@ -166,6 +166,8 @@ class XpWikiXoopsWrapper extends XpWikiBackupFunc {
 		if (isset($footer['PAGE'])) $subject = str_replace('$page', $footer['PAGE'], $subject);
 	
 		// Footer
+		$footer['UID'] = $this->root->userinfo['uid'];
+		$footer['UNAME'] = $this->root->userinfo['uname'] . ' [' . $this->root->userinfo['ucd'] . ']';
 		if (isset($footer['REMOTE_ADDR'])) $footer['REMOTE_ADDR'] = & $_SERVER['REMOTE_ADDR'];
 		if (isset($footer['USER_AGENT']))
 			$footer['USER_AGENT']  = '(' . $this->cont['UA_PROFILE'] . ') ' . $this->cont['UA_NAME'] . '/' . $this->cont['UA_VERS'];
@@ -247,6 +249,24 @@ class XpWikiXoopsWrapper extends XpWikiBackupFunc {
 		return $xoopsUser->isAdmin($XoopsModule->mid());
 	}
 	
+	// 最終更新者名を得る
+	function get_lasteditor($pginfo, $withlink = TRUE, $withucd = TRUE) {
+		
+		if ($pginfo['lastuid']) {
+			if ($withlink) {
+				$lasteditor = '<a href="'.XOOPS_URL.'/userinfo.php?uid='.$pginfo['lastuid'].'">' . htmlspecialchars($pginfo['lastuname']) . '</a>';
+			} else {
+				$lasteditor = htmlspecialchars($pginfo['lastuname']);
+			}
+		} else {
+			if ($withucd) {
+				$lasteditor = htmlspecialchars($pginfo['lastuname']). ($pginfo['lastucd']? '['.$pginfo['lastucd'].']' : '');
+			} else {
+				$lasteditor = htmlspecialchars($pginfo['lastuname']);
+			}
+		}
+		return $lasteditor;
+	}
 	// ページコメント取得
 	function get_page_comments ($page) {
 		

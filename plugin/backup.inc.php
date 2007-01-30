@@ -4,7 +4,7 @@ class xpwiki_plugin_backup extends xpwiki_plugin {
 
 
 	// PukiWiki - Yet another WikiWikiWeb clone.
-	// $Id: backup.inc.php,v 1.3 2006/12/01 01:44:38 nao-pon Exp $
+	// $Id: backup.inc.php,v 1.4 2007/01/30 01:58:49 nao-pon Exp $
 	// Copyright (C)
 	//   2002-2005 PukiWiki Developers Team
 	//   2001-2002 Originally written by yu-ji
@@ -90,11 +90,12 @@ class xpwiki_plugin_backup extends xpwiki_plugin {
 			$body .= '  <ul>' . "\n";
 			foreach($backups as $age => $val) {
 				$date = $this->func->format_date($val['time'], TRUE);
+				$lasteditor = ' ' . $this->func->get_lasteditor($this->func->get_pginfo('',$val['data']));
 				$body .= ($age == $s_age) ?
-					'   <li><em>' . $age . ' ' . $date . '</em></li>' . "\n" :
+					'   <li><em>' . $age . ' ' . $date . $lasteditor . '</em></li>' . "\n" :
 					'   <li><a href="' . $script . '?cmd=backup&amp;action=' .
 				$r_action . '&amp;page=' . $r_page . '&amp;age=' . $age .
-				'">' . $age . ' ' . $date . '</a></li>' . "\n";
+				'">' . $age . ' ' . $date . '</a>' . $lasteditor . '</li>' . "\n";
 			}
 			$body .= '  </ul>' . "\n";
 		}
@@ -224,12 +225,14 @@ EOD;
 				$_anchor_to   = '</a>';
 			}
 			$date = $this->func->format_date($data['time'], TRUE);
+			$lasteditor = $this->func->get_lasteditor($this->func->get_pginfo('',$data['data']));
 			$retval[1] .= <<<EOD
    <li>$_anchor_from$age $date$_anchor_to
      [ <a href="$href$age&amp;action=diff">{$this->root->_msg_diff}</a>
      | <a href="$href$age&amp;action=nowdiff">{$this->root->_msg_nowdiff}</a>
      | <a href="$href$age&amp;action=source">{$this->root->_msg_source}</a>
      ]
+     $lasteditor
    </li>
 EOD;
 		}
