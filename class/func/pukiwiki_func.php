@@ -1,7 +1,7 @@
 <?php
 //
 // Created on 2006/10/02 by nao-pon http://hypweb.net/
-// $Id: pukiwiki_func.php,v 1.55 2007/01/30 01:58:50 nao-pon Exp $
+// $Id: pukiwiki_func.php,v 1.56 2007/02/10 23:49:30 nao-pon Exp $
 //
 class XpWikiPukiWikiFunc extends XpWikiBaseFunc {
 
@@ -61,8 +61,6 @@ class XpWikiPukiWikiFunc extends XpWikiBaseFunc {
 	// Put a data(wiki text) into a physical file(diff, backup, text)
 	function page_write($page, $postdata, $notimestamp = FALSE)
 	{
-		//	global $trackback, $autoalias, $aliaspage;
-	
 		if ($this->cont['PKWK_READONLY']) return; // Do nothing
 		
 		// set mode. use at custum events.
@@ -180,8 +178,6 @@ class XpWikiPukiWikiFunc extends XpWikiBaseFunc {
 	// Modify original text with user-defined / system-defined rules
 	function make_str_rules($source)
 	{
-		//	global $str_rules, $fixed_heading_anchor;
-	
 		$lines = explode("\n", $source);
 		$count = count($lines);
 	
@@ -278,9 +274,6 @@ class XpWikiPukiWikiFunc extends XpWikiBaseFunc {
 	// Output to a file
 	function file_write($dir, $page, $str, $notimestamp = FALSE)
 	{
-		//	global $_msg_invalidiwn, $notify, $notify_diff_only, $notify_subject;
-		//	global $whatsdeleted, $maxshow_deleted;
-		
 		if ($this->cont['PKWK_READONLY']) return; // Do nothing
 		if ($dir != $this->cont['DATA_DIR'] && $dir != $this->cont['DIFF_DIR']) die('file_write(): Invalid directory');
 	
@@ -509,8 +502,6 @@ class XpWikiPukiWikiFunc extends XpWikiBaseFunc {
 	// Re-create PKWK_MAXSHOW_CACHE (Heavy)
 	function put_lastmodified()
 	{
-		//	global $maxshow, $whatsnew, $autolink;
-	
 		if ($this->cont['PKWK_READONLY']) return; // Do nothing
 	
 		// Get WHOLE page list (always as guest)
@@ -605,8 +596,7 @@ class XpWikiPukiWikiFunc extends XpWikiBaseFunc {
 	// Get elapsed date of the page
 	function get_pg_passage($page, $sw = TRUE)
 	{
-		//	global $show_passage;
-			if (! $this->root->show_passage) return '';
+		if (! $this->root->show_passage) return '';
 	
 		$time = $this->get_filetime($page);
 		$pg_passage = ($time != 0) ? $this->get_passage($time) : '';
@@ -617,8 +607,6 @@ class XpWikiPukiWikiFunc extends XpWikiBaseFunc {
 	// Last-Modified header
 	function header_lastmod($page = NULL)
 	{
-		//	global $lastmod;
-	
 		if ($this->root->lastmod && $this->is_page($page)) {
 			$this->pkwk_headers_sent();
 			header('Last-Modified: ' .
@@ -661,11 +649,6 @@ class XpWikiPukiWikiFunc extends XpWikiBaseFunc {
 	// Get PageReading(pronounce-annotated) data in an array()
 	function get_readings()
 	{
-		//	global $pagereading_enable, $pagereading_kanji2kana_converter;
-		//	global $pagereading_kanji2kana_encoding, $pagereading_chasen_path;
-		//	global $pagereading_kakasi_path, $pagereading_config_page;
-		//	global $pagereading_config_dict;
-	
 		$pages = $this->get_existpages();
 	
 		$readings = array();
@@ -835,8 +818,7 @@ class XpWikiPukiWikiFunc extends XpWikiBaseFunc {
 	// Get a list of related pages of the page
 	function links_get_related($page)
 	{
-		//	global $vars, $related;
-			static $links = array();
+		static $links = array();
 	
 		if (isset($links[$this->xpwiki->pid][$page])) return $links[$this->xpwiki->pid][$page];
 	
@@ -930,7 +912,7 @@ class XpWikiPukiWikiFunc extends XpWikiBaseFunc {
 
 //----- Start convert_html.php -----//
 	// PukiWiki - Yet another WikiWikiWeb clone
-	// $Id: pukiwiki_func.php,v 1.55 2007/01/30 01:58:50 nao-pon Exp $
+	// $Id: pukiwiki_func.php,v 1.56 2007/02/10 23:49:30 nao-pon Exp $
 	// Copyright (C)
 	//   2002-2005 PukiWiki Developers Team
 	//   2001-2002 Originally written by yu-ji
@@ -941,7 +923,6 @@ class XpWikiPukiWikiFunc extends XpWikiBaseFunc {
 	
 	function convert_html($lines)
 	{
-		//	global $vars, $digest;
 		static $contents_id = array();
 		if (!isset( $contents_id[$this->xpwiki->pid] )) {$contents_id[$this->xpwiki->pid] = 0;}
 		
@@ -975,43 +956,47 @@ class XpWikiPukiWikiFunc extends XpWikiBaseFunc {
 	{
 		// Check the first letter of the line
 		if (substr($text, 0, 1) == '~') {
-			return new XpWikiParagraph($this->xpwiki, ' ' . substr($text, 1));
+			$ret = & new XpWikiParagraph($this->xpwiki, ' ' . substr($text, 1));
 		} else {
-			return new XpWikiInline($this->xpwiki, $text);
+			$ret = & new XpWikiInline($this->xpwiki, $text);
 		}
+		return $ret;
 	}
 	
-	function & Factory_DList(& $root, $text)
+	function & Factory_DList($text)
 	{
 		$out = explode('|', ltrim($text), 2);
 		if (count($out) < 2) {
 			return $this->Factory_Inline($text);
 		} else {
-			return new XpWikiDList($this->xpwiki, $out);
+			$ret = & new XpWikiDList($this->xpwiki, $out);
+			return $ret;
 		}
 	}
 	
 	// '|'-separated table
-	function & Factory_Table(& $root, $text)
+	function & Factory_Table($text)
 	{
 		if (! preg_match('/^\|(.+)\|([hHfFcC]?)$/', $text, $out)) {
 			return $this->Factory_Inline($text);
 		} else {
-			return new XpWikiTable($this->xpwiki, $out);
+			$ret = & new XpWikiTable($this->xpwiki, $out);
+			return $ret;
 		}
 	}
 	
 	// Comma-separated table
-	function & Factory_YTable(& $root, $text)
+	function & Factory_YTable($text)
 	{
 		if ($text == ',') {
 			return $this->Factory_Inline($text);
 		} else {
-			return new XpWikiYTable($this->xpwiki, $this->csv_explode(',', substr($text, 1)));
+			$ret = & new XpWikiYTable($this->xpwiki, $this->csv_explode(',', substr($text, 1)));
+			return $ret;
 		}
 	}
 	
-	function & Factory_Div(& $root, $text)
+	function & Factory_Div($text)
 	{
 		$matches = array();
 	
@@ -1020,7 +1005,8 @@ class XpWikiPukiWikiFunc extends XpWikiBaseFunc {
 			// Usual code
 			if (preg_match('/^\#([^\(]+)(?:\((.*)\))?/', $text, $matches) &&
 			    $this->exist_plugin_convert($matches[1])) {
-				return new XpWikiDiv($this->xpwiki, $matches);
+				$ret = & new XpWikiDiv($this->xpwiki, $matches);
+				return $ret;
 			}
 		} else {
 			// Hack code
@@ -1029,21 +1015,22 @@ class XpWikiPukiWikiFunc extends XpWikiBaseFunc {
 				$len  = strlen($matches[3]);
 				$body = array();
 				if ($len == 0) {
-					return new XpWikiDiv($this->xpwiki, $matches); // Seems legacy block plugin
+					$ret = & new XpWikiDiv($this->xpwiki, $matches); // Seems legacy block plugin
 				} else if (preg_match('/\{{' . $len . '}\s*\r(.*)\r\}{' . $len . '}/', $text, $body)) { 
 					$matches[2] .= "\r" . $body[1] . "\r";
-					return new XpWikiDiv($this->xpwiki, $matches); // Seems multiline-enabled block plugin
+					$ret = & new XpWikiDiv($this->xpwiki, $matches); // Seems multiline-enabled block plugin
 				}
+				return $ret;
 			}
 		}
-	
-		return new XpWikiParagraph($this->xpwiki, $text);
+		$ret = & new XpWikiParagraph($this->xpwiki, $text);
+		return $ret;
 	}
 //----- End convert_html.php -----//
 
 //----- Start func.php -----//
 	// PukiWiki - Yet another WikiWikiWeb clone.
-	// $Id: pukiwiki_func.php,v 1.55 2007/01/30 01:58:50 nao-pon Exp $
+	// $Id: pukiwiki_func.php,v 1.56 2007/02/10 23:49:30 nao-pon Exp $
 	// Copyright (C)
 	//   2002-2006 PukiWiki Developers Team
 	//   2001-2002 Originally written by yu-ji
@@ -1053,14 +1040,11 @@ class XpWikiPukiWikiFunc extends XpWikiBaseFunc {
 	
 	function is_interwiki($str)
 	{
-		//	global $InterWikiName;
 			return preg_match('/^' . $this->root->InterWikiName . '$/', $str);
 	}
 	
 	function is_pagename($str)
 	{
-		//	global $BracketName;
-	
 		$is_pagename = (! $this->is_interwiki($str) &&
 			  preg_match('/^(?!\/)' . $this->root->BracketName . '$(?<!\/$)/', $str) &&
 			! preg_match('#(^|/)\.{1,2}(/|$)#', $str));
@@ -1096,8 +1080,7 @@ class XpWikiPukiWikiFunc extends XpWikiBaseFunc {
 	
 	function is_editable($page)
 	{
-		//	global $cantedit;
-			static $is_editable = array();
+		static $is_editable = array();
 	
 		if (! isset($is_editable[$this->xpwiki->pid][$page])) {
 			$is_editable[$this->xpwiki->pid][$page] = (
@@ -1112,10 +1095,9 @@ class XpWikiPukiWikiFunc extends XpWikiBaseFunc {
 	
 	function is_freeze($page, $clearcache = FALSE)
 	{
-		//	global $function_freeze;
-			static $is_freeze = array();
+		static $is_freeze = array();
 	
-			if ($clearcache === TRUE) $is_freeze = array();
+		if ($clearcache === TRUE) $is_freeze = array();
 		if (isset($is_freeze[$this->xpwiki->pid][$page])) return $is_freeze[$this->xpwiki->pid][$page];
 	
 			if (! $this->root->function_freeze || ! $this->is_page($page)) {
@@ -1139,19 +1121,16 @@ class XpWikiPukiWikiFunc extends XpWikiBaseFunc {
 	// $non_list will be preg_quote($str, '/') later.
 	function check_non_list($page = '')
 	{
-		//	global $non_list;
-			static $regex;
-	
-			if (! isset($regex[$this->xpwiki->pid])) $regex[$this->xpwiki->pid] = '/' . $this->root->non_list . '/';
-	
-			return preg_match($regex[$this->xpwiki->pid], $page);
+		static $regex;
+
+		if (! isset($regex[$this->xpwiki->pid])) $regex[$this->xpwiki->pid] = '/' . $this->root->non_list . '/';
+
+		return preg_match($regex[$this->xpwiki->pid], $page);
 	}
 	
 	// Auto template
 	function auto_template($page)
 	{
-		//	global $auto_template_func, $auto_template_rules;
-	
 		if (! $this->root->auto_template_func) return '';
 	
 		$body = '';
@@ -1252,10 +1231,6 @@ class XpWikiPukiWikiFunc extends XpWikiBaseFunc {
 	// 'Search' main function
 	function do_search($word, $type = 'AND', $non_format = FALSE, $base = '')
 	{
-		//	global $script, $whatsnew, $non_list, $search_non_list;
-		//	global $_msg_andresult, $_msg_orresult, $_msg_notfoundresult;
-		//	global $search_auth, $show_passage;
-	
 		$retval = array();
 	
 		$b_type = ($type == 'AND'); // AND:TRUE OR:FALSE
@@ -1332,8 +1307,7 @@ class XpWikiPukiWikiFunc extends XpWikiBaseFunc {
 	// Argument check for program
 	function arg_check($str)
 	{
-		//	global $vars;
-			return isset($this->root->vars['cmd']) && (strpos($this->root->vars['cmd'], $str) === 0);
+		return isset($this->root->vars['cmd']) && (strpos($this->root->vars['cmd'], $str) === 0);
 	}
 	
 	// Encode page-name
@@ -1373,10 +1347,6 @@ class XpWikiPukiWikiFunc extends XpWikiBaseFunc {
 	// Create list of pages
 	function page_list($pages, $cmd = 'read', $withfilename = FALSE)
 	{
-		//	global $script, $list_index;
-		//	global $_msg_symbol, $_msg_other;
-		//	global $pagereading_enable;
-	
 		// ソートキーを決定する。 ' ' < '[a-zA-Z]' < 'zz'という前提。
 		$symbol = ' ';
 		$other = 'zz';
@@ -1472,8 +1442,6 @@ class XpWikiPukiWikiFunc extends XpWikiBaseFunc {
 	// Show text formatting rules
 	function catrule()
 	{
-		//	global $rule_page;
-	
 		if (! $this->is_page($this->root->rule_page)) {
 			return '<p>Sorry, page \'' . htmlspecialchars($this->root->rule_page) .
 				'\' unavailable.</p>';
@@ -1534,8 +1502,6 @@ EOD;
 	// Format date string
 	function format_date($val, $paren = FALSE)
 	{
-		//	global $date_format, $time_format, $weeklabels;
-	
 		//$val += $this->cont['ZONETIME'];
 	
 		$date = $this->get_date($this->root->date_format, $val) .
@@ -1571,8 +1537,6 @@ EOD;
 	// Generate AutoLink patterns (thx to hirofummy)
 	function get_autolink_pattern(& $pages, $min_len = -1)
 	{
-	//	global $WikiName, $autolink, $nowikiname;
-	
 		$config = &new XpWikiConfig($this->xpwiki, 'AutoLink');
 		$config->read();
 		$ignorepages      = $config->get('IgnoreList');
@@ -1582,7 +1546,7 @@ EOD;
 	
 		if ($min_len == -1) {
 			$min_len = $this->root->autolink;	// set $this->root->autolink, when omitted.
-	}
+		}
 	
 		foreach ($pages as $page)
 			if (preg_match('/^' . $this->root->WikiName . '$/', $page) ?
@@ -1664,8 +1628,7 @@ EOD;
 	// Load/get setting pairs from AutoAliasName
 	function get_autoaliases($word = '')
 	{
-		//	global $aliaspage, $autoalias_max_words;
-			static $pairs;
+		static $pairs;
 	
 		if (! isset($pairs[$this->xpwiki->pid])) {
 			$pairs[$this->xpwiki->pid] = array();
@@ -1708,8 +1671,7 @@ EOD;
 	// Get absolute-URI of this script
 	function get_script_uri($init_uri = '')
 	{
-		//	global $script_directory_index;
-			static $script;
+		static $script;
 	
 		if ($init_uri == '') {
 			// Get
@@ -1825,7 +1787,7 @@ EOD;
 
 //----- Start make_link.php -----//
 	// PukiWiki - Yet another WikiWikiWeb clone.
-	// $Id: pukiwiki_func.php,v 1.55 2007/01/30 01:58:50 nao-pon Exp $
+	// $Id: pukiwiki_func.php,v 1.56 2007/02/10 23:49:30 nao-pon Exp $
 	// Copyright (C)
 	//   2003-2005 PukiWiki Developers Team
 	//   2001-2002 Originally written by yu-ji
@@ -1836,8 +1798,7 @@ EOD;
 	// Hyperlink decoration
 	function make_link($string, $page = '')
 	{
-		//	global $vars;
-			static $converter;
+		static $converter;
 	
 		if (! isset($converter[$this->xpwiki->pid])) $converter[$this->xpwiki->pid] = new XpWikiInlineConverter($this->xpwiki);
 	
@@ -1849,8 +1810,6 @@ EOD;
 	// Make hyperlink for the page
 	function make_pagelink($page, $alias = '', $anchor = '', $refer = '', $class = 'pagelink')
 	{
-		//	global $script, $vars, $link_compact, $related, $_symbol_noexists;
-	
 		$s_page = htmlspecialchars($this->strip_bracket($page));
 		if ($alias) {
 			$s_alias = $alias;
@@ -1907,8 +1866,6 @@ EOD;
 	// Resolve relative / (Unix-like)absolute path of the page
 	function get_fullname($name, $refer)
 	{
-		//	global $defaultpage;
-	
 		// 'Here'
 		if ($name == '' || $name == './') return $refer;
 	
@@ -1944,7 +1901,6 @@ EOD;
 	// Render an InterWiki into a URL
 	function get_interwiki_url($name, $param)
 	{
-		//	global $WikiName, $interwiki;
 		static $interwikinames;
 		static $encode_aliases = array('sjis'=>'SJIS', 'euc'=>'EUC-JP', 'utf8'=>'UTF-8');
 	
@@ -2053,8 +2009,6 @@ EOD;
 	// $minus = Removed lines may include URLs
 	function tb_send($page, $plus, $minus = '')
 	{
-		//	global $page_title;
-	
 		$script = $this->get_script_uri();
 	
 		// Disable 'max execution time' (php.ini: max_execution_time)
@@ -2157,8 +2111,6 @@ EOD;
 	// HTTP-GET from $uri, and reveal the TrackBack Ping URL
 	function tb_get_url($url)
 	{
-		//	global $use_proxy, $no_proxy;
-	
 		// Don't go across HTTP-proxy server
 		$parse_url = parse_url($url);
 		if (empty($parse_url['host']) ||
@@ -2185,8 +2137,6 @@ EOD;
 	// Save or update referer data
 	function ref_save($page)
 	{
-		//	global $referer;
-	
 		if ($this->cont['PKWK_READONLY'] ||
 			! $this->root->referer ||
 			! empty($this->cont['page_show']) ||
@@ -2241,7 +2191,6 @@ EOD;
 	
 	function pkwk_login($pass = '')
 	{
-		//	global $adminpass;
 		if ($this->root->userinfo['admin']) {
 			return TRUE;
 		} else if (! $this->cont['PKWK_READONLY'] && isset($this->root->adminpass) &&
@@ -2352,8 +2301,6 @@ EOD;
 	// Check edit-permission
 	function check_editable($page, $auth_flag = TRUE, $exit_flag = TRUE)
 	{
-		//	global $script, $_title_cannotedit, $_msg_unfreeze;
-	
 		if ($this->edit_auth($page, $auth_flag, $exit_flag) && $this->is_editable($page)) {
 			// Editable
 			return TRUE;
@@ -2383,7 +2330,6 @@ EOD;
 	
 	function edit_auth($page, $auth_flag = TRUE, $exit_flag = TRUE)
 	{
-		//	global $edit_auth, $edit_auth_pages, $_title_cannotedit;
 		if (!$this->check_editable_page($page, $auth_flag, $exit_flag)) {
 			return FALSE;
 		}
@@ -2393,7 +2339,6 @@ EOD;
 	
 	function read_auth($page, $auth_flag = TRUE, $exit_flag = TRUE)
 	{
-		//	global $read_auth, $read_auth_pages, $_title_cannotread;
 		if (!$this->check_readable_page($page, $auth_flag, $exit_flag)) {
 			return FALSE;
 		}
@@ -2404,8 +2349,6 @@ EOD;
 	// Basic authentication
 	function basic_auth($page, $auth_flag, $exit_flag, $auth_pages, $title_cannot)
 	{
-		//	global $auth_method_type, $auth_users, $_msg_auth;
-	
 		// Checked by:
 		$target_str = '';
 		if ($this->root->auth_method_type == 'pagename') {
@@ -2466,9 +2409,6 @@ EOD;
 	
 	function make_backup($page, $delete = FALSE)
 	{
-		//	global $cycle, $maxage;
-		//	global $do_backup, $del_backup;
-	
 		if ($this->cont['PKWK_READONLY'] || ! $this->root->do_backup) return;
 	
 		if ($this->root->del_backup && $delete) {
@@ -2594,7 +2534,6 @@ EOD;
 		$arr = $obj->arr_compare('all', $diff1, $diff2);
 	
 		if ($this->cont['PKWK_DIFF_SHOW_CONFLICT_DETAIL']) {
-		//		global $do_update_diff_table;
 	
 			$this->root->do_update_diff_table = <<<EOD
 	<p>l : between backup data and stored page data.<br />
@@ -2636,7 +2575,7 @@ EOD;
 
 //----- Start html.php -----//
 	// PukiWiki - Yet another WikiWikiWeb clone.
-	// $Id: pukiwiki_func.php,v 1.55 2007/01/30 01:58:50 nao-pon Exp $
+	// $Id: pukiwiki_func.php,v 1.56 2007/02/10 23:49:30 nao-pon Exp $
 	// Copyright (C)
 	//   2002-2006 PukiWiki Developers Team
 	//   2001-2002 Originally written by yu-ji
@@ -2834,8 +2773,7 @@ EOD;
 	 	// Add plugin
 		$addtag = $add_top = '';
 		if(isset($this->root->vars['add'])) {
-		//		global $_btn_addtop;
-				$addtag  = '<input type="hidden" name="add"    value="true" />';
+			$addtag  = '<input type="hidden" name="add"    value="true" />';
 			$add_top = isset($this->root->vars['add_top']) ? ' checked="checked"' : '';
 			$add_top = '<input type="checkbox" name="add_top" ' .
 				'id="_edit_form_add_top" value="true"' . $add_top . ' />' . "\n" .
@@ -2924,8 +2862,7 @@ EOD;
 		// Checkbox 'do not change timestamp'
 		$add_notimestamp = '';
 		if ($this->root->notimeupdate != 0) {
-		//		global $_btn_notchangetimestamp;
-				$checked_time = isset($this->root->vars['notimestamp']) ? ' checked="checked"' : '';
+			$checked_time = isset($this->root->vars['notimestamp']) ? ' checked="checked"' : '';
 			// Only for administrator
 			if ($this->root->notimeupdate == 2) {
 				$add_notimestamp = '   ' .
@@ -2986,9 +2923,6 @@ EOD;
 	// Related pages
 	function make_related($page, $tag = '')
 	{
-		//	global $script, $vars, $rule_related_str, $related_str;
-		//	global $_ul_left_margin, $_ul_margin, $_list_pad_str;
-	
 		$links = $this->links_get_related($page);
 	
 		if ($tag) {
@@ -3030,8 +2964,7 @@ EOD;
 	// User-defined rules (convert without replacing source)
 	function make_line_rules($str)
 	{
-		//	global $line_rules;
-			static $pattern, $replace;
+		static $pattern, $replace;
 	
 		if (! isset($pattern[$this->xpwiki->pid])) {
 			$pattern[$this->xpwiki->pid] = array_map(create_function('$a',
@@ -3046,8 +2979,7 @@ EOD;
 	// Remove all HTML tags(or just anchor tags), and WikiName-speific decorations
 	function strip_htmltag($str, $all = TRUE)
 	{
-		//	global $_symbol_noexists;
-			static $noexists_pattern;
+		static $noexists_pattern;
 	
 		if (! isset($noexists_pattern[$this->xpwiki->pid]))
 			$noexists_pattern[$this->xpwiki->pid] = '#<span class="noexists">([^<]*)<a[^>]+>' .
@@ -3074,8 +3006,6 @@ EOD;
 	// Make a backlink. searching-link of the page name, by the page name, for the page name
 	function make_search($page)
 	{
-		//	global $script;
-	
 		$s_page = htmlspecialchars($page);
 		$r_page = rawurlencode($page);
 	
@@ -3086,8 +3016,6 @@ EOD;
 	// Make heading string (remove heading-related decorations from Wiki text)
 	function make_heading(& $str, $strip = TRUE)
 	{
-		//	global $NotePattern;
-	
 		// Cut fixed-heading anchors
 		$id = '';
 		$matches = array();
@@ -3244,7 +3172,7 @@ EOD;
 
 //----- Start mail.php -----//
 	// PukiWiki - Yet another WikiWikiWeb clone.
-	// $Id: pukiwiki_func.php,v 1.55 2007/01/30 01:58:50 nao-pon Exp $
+	// $Id: pukiwiki_func.php,v 1.56 2007/02/10 23:49:30 nao-pon Exp $
 	// Copyright (C)
 	//   2003-2005 PukiWiki Developers Team
 	//   2003      Originally written by upk
@@ -3255,8 +3183,7 @@ EOD;
 	// Send a mail to the administrator
 	function pkwk_mail_notify($subject, $message, $footer = array())
 	{
-		//	global $smtp_server, $smtp_auth, $notify_to, $notify_from, $notify_header;
-			static $_to, $_headers, $_after_pop;
+		static $_to, $_headers, $_after_pop;
 	
 		// Init and lock
 		if (! isset($_to[$this->xpwiki->pid])) {
@@ -3406,9 +3333,6 @@ EOD;
 		$redirect_max = NULL, $content_charset = '')
 	{
 	if (is_null($redirect_max)) {$redirect_max = $this->cont['PKWK_HTTP_REQUEST_URL_REDIRECT_MAX'];}
-		//	global $use_proxy, $no_proxy, $proxy_host, $proxy_port;
-		//	global $need_proxy_auth, $proxy_auth_user, $proxy_auth_pass;
-	
 		$rc  = array();
 		$arr = parse_url($url);
 	
@@ -3551,7 +3475,7 @@ EOD;
 
 //----- Start link.php -----//
 	// PukiWiki - Yet another WikiWikiWeb clone
-	// $Id: pukiwiki_func.php,v 1.55 2007/01/30 01:58:50 nao-pon Exp $
+	// $Id: pukiwiki_func.php,v 1.56 2007/02/10 23:49:30 nao-pon Exp $
 	// Copyright (C) 2003-2006 PukiWiki Developers Team
 	// License: GPL v2 or (at your option) any later version
 	//
@@ -3655,8 +3579,6 @@ EOD;
 		$this->links_add($page, array_diff($rel_new, $rel_old), $rel_auto);
 		$this->links_delete($page, array_diff($rel_old, $rel_new));
 	
-	//	global $WikiName, $autolink, $nowikiname, $search_non_list;
-	
 		// $pageが新規作成されたページで、AutoLinkの対象となり得る場合
 		if ($time && ! $rel_file_exist && $this->root->autolink
 			&& (preg_match("/^{$this->root->WikiName}$/", $page) ? $this->root->nowikiname : strlen($page) >= $this->root->autolink))
@@ -3686,8 +3608,6 @@ EOD;
 	// Init link cache (Called from link plugin)
 	function links_init()
 	{
-		//	global $whatsnew;
-	
 		if ($this->cont['PKWK_READONLY']) return; // Do nothing
 	
 		if (ini_get('safe_mode') == '0') set_time_limit(0);
