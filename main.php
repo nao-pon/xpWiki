@@ -1,7 +1,7 @@
 <?php
 
 // Now debuging....
-error_reporting(E_ALL);
+// error_reporting(E_ALL);
 
 $mytrustdirname = basename( dirname( __FILE__ ) ) ;
 $mytrustdirpath = dirname( __FILE__ ) ;
