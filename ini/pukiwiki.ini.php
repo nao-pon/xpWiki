@@ -1,6 +1,6 @@
 <?php
 // PukiWiki - Yet another WikiWikiWeb clone
-// $Id: pukiwiki.ini.php,v 1.25 2007/01/11 23:21:00 nao-pon Exp $
+// $Id: pukiwiki.ini.php,v 1.26 2007/02/11 00:11:58 nao-pon Exp $
 // Copyright (C)
 //   2002-2006 PukiWiki Developers Team
 //   2001-2002 Originally written by yu-ji
@@ -476,6 +476,9 @@ $root->non_list = '^\:';
 
 // Search ignored pages
 $root->search_non_list = 1;
+
+// Show page's filelist only admin.
+$root->filelist_only_admin = 0;
 
 /////////////////////////////////////////////////
 // Template setting
