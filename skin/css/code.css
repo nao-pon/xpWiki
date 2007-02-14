@@ -4,45 +4,45 @@
  */
 
 /* オペレータ */
-div.xpwiki_$dir div.xpwiki_$dir span.code_operator {color: blue;}
+div.xpwiki_$dir span.code_operator {color: blue;}
 /* 識別子 */
-div.xpwiki_$dir div.xpwiki_$dir span.code_identifier {color: darkblue;}
+div.xpwiki_$dir span.code_identifier {color: darkblue;}
 
 /* 制御構文 */
-div.xpwiki_$dir div.xpwiki_$dir span.code_control  {color: navy;}
+div.xpwiki_$dir span.code_control  {color: navy;}
 /* 標準関数 */
-div.xpwiki_$dir div.xpwiki_$dir span.code_function {color: blue;}
+div.xpwiki_$dir span.code_function {color: blue;}
 /* 定数 */
-div.xpwiki_$dir div.xpwiki_$dir span.code_constant {color: teal;}
+div.xpwiki_$dir span.code_constant {color: teal;}
 
 /* module, import, 将来対応する pragma */
-div.xpwiki_$dir div.xpwiki_$dir span.code_pragma {color: #008080;}
+div.xpwiki_$dir span.code_pragma {color: #008080;}
 /* __stdcall などの処理系専用の奴とか */
-div.xpwiki_$dir div.xpwiki_$dir span.code_system {color: #5f0000;}
+div.xpwiki_$dir span.code_system {color: #5f0000;}
 /* 環境変数  */
-div.xpwiki_$dir div.xpwiki_$dir span.code_environment {color: #777777;}
+div.xpwiki_$dir span.code_environment {color: #777777;}
 /* 文字列 */
-div.xpwiki_$dir div.xpwiki_$dir span.code_string {color: green;}
+div.xpwiki_$dir span.code_string {color: green;}
 /* コメント */
-div.xpwiki_$dir div.xpwiki_$dir span.code_comment {color: darkorange;}
+div.xpwiki_$dir span.code_comment {color: darkorange;}
 
 /* 個々のハイライト専用 */
 /* for TeX */
-div.xpwiki_$dir div.xpwiki_$dir span.code_formula {color: teal;}
+div.xpwiki_$dir span.code_formula {color: teal;}
 /* for diff*/
-div.xpwiki_$dir div.xpwiki_$dir span.code_changed {color: green;}
-div.xpwiki_$dir div.xpwiki_$dir span.code_added   {color: blue;}
-div.xpwiki_$dir div.xpwiki_$dir span.code_removed {color: red;}
+div.xpwiki_$dir span.code_changed {color: green;}
+div.xpwiki_$dir span.code_added   {color: blue;}
+div.xpwiki_$dir span.code_removed {color: red;}
 /* for make*/
-div.xpwiki_$dir div.xpwiki_$dir span.code_execute {color: teal;}
-div.xpwiki_$dir div.xpwiki_$dir span.code_target  {color: darkblue;}
-div.xpwiki_$dir div.xpwiki_$dir span.code_src     {color: darkgreen;}
+div.xpwiki_$dir span.code_execute {color: teal;}
+div.xpwiki_$dir span.code_target  {color: darkblue;}
+div.xpwiki_$dir span.code_src     {color: darkgreen;}
 /* for PukiWiki */
-div.xpwiki_$dir div.xpwiki_$dir span.code_header{color: blue;}
-div.xpwiki_$dir div.xpwiki_$dir span.code_table {color: darkgreen;}
-div.xpwiki_$dir div.xpwiki_$dir span.code_list  {color: navy;}
-div.xpwiki_$dir div.xpwiki_$dir span.code_pre   {color: teal;}
-div.xpwiki_$dir div.xpwiki_$dir span.code_quote {color: #777700;}
+div.xpwiki_$dir span.code_header{color: blue;}
+div.xpwiki_$dir span.code_table {color: darkgreen;}
+div.xpwiki_$dir span.code_list  {color: navy;}
+div.xpwiki_$dir span.code_pre   {color: teal;}
+div.xpwiki_$dir span.code_quote {color: #777700;}
 
 /* ソースコード表示部分の設定 */
 /* 段組をしない場合の設定 */
