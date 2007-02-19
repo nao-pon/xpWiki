@@ -1,6 +1,6 @@
 <?php
 // PukiWiki - Yet another WikiWikiWeb clone.
-// $Id: pukiwiki.css.php,v 1.15 2007/01/18 23:20:47 nao-pon Exp $
+// $Id: pukiwiki.css.php,v 1.16 2007/02/19 02:40:21 nao-pon Exp $
 // Copyright (C)
 //   2002-2005 PukiWiki Developers Team
 //   2001-2002 Originally written by yu-ji
@@ -253,7 +253,7 @@ $class ol {
 	margin-bottom:.5em;
 	line-height:130%;
 	
-	list-style-type:disc;
+	list-style-type:inherit;
 	list-style-position:outside;
 	list-style-image:none;
 	marker-offset:auto;
@@ -261,25 +261,19 @@ $class ol {
 }
 
 $class li {
-	list-style-type:disc;
+	list-style-type:inherit;
 	list-style-position:outside;
 	list-style-image:none;
 	marker-offset:auto;
 	color: inherit;
 }
 
-$class ul.list1 li,
-$class li ul.list1 li {	list-style-type:disc; }
-$class ul.list2 li,
-$class li ul.list2 li { list-style-type:circle; }
-$class ul.list3 li,
-$class li ul.list3 li { list-style-type:square; }
-$class ol.list1 li,
-$class li ol.list1 li { list-style-type:decimal; }
-$class ol.list2 li,
-$class li ol.list2 li { list-style-type:lower-roman; }
-$class ol.list3 li,
-$class li ol.list3 li { list-style-type:lower-alpha; }
+$class ul.list1 { list-style-type:disc; }
+$class ul.list2 { list-style-type:circle; }
+$class ul.list3 { list-style-type:square; }
+$class ol.list1 { list-style-type:decimal; }
+$class ol.list2 { list-style-type:lower-roman; }
+$class ol.list3 { list-style-type:lower-alpha; }
 
 $class div.ie5 { text-align:center; }
 
