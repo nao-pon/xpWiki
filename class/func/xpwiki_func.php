@@ -1,7 +1,7 @@
 <?php
 //
 // Created on 2006/10/02 by nao-pon http://hypweb.net/
-// $Id: xpwiki_func.php,v 1.53 2007/01/30 01:58:50 nao-pon Exp $
+// $Id: xpwiki_func.php,v 1.54 2007/02/20 12:35:17 nao-pon Exp $
 //
 class XpWikiFunc extends XpWikiXoopsWrapper {
 
@@ -788,55 +788,56 @@ EOD;
 	//EXIFデータを得る
 	function get_exif_data($file, $alltag = FALSE){
 		$ret = array();
-		$exif_data = @read_exif_data($file);
-		if (!$exif_data) return $ret;
-		
-		$ret['title'] = "-- Shot Info --";
-		//if (isset($exif_data['Make']))	$ret['Maker '] = $exif_data['Make'];
-		if (isset($exif_data['Model']))
-			$ret['Camera '] = $exif_data['Model'];
-		
-		if (isset($exif_data['DateTimeOriginal']))
-			$ret['Date '] = $exif_data['DateTimeOriginal'];
-		
-		if (isset($exif_data['ExposureTime']))
-			$ret['Shutter Speed '] = $this->get_exif_numbar($exif_data['ExposureTime']).' sec';
-		
-		if (isset($exif_data['FNumber']))
-			$ret['F(Shot) '] = 'F '.$this->get_exif_numbar($exif_data['FNumber']);
-		
-		if (isset($exif_data['FocalLength']))
-			$ret['Lens '] = $this->get_exif_numbar($exif_data['FocalLength']).' mm';
-				
-		if (isset($exif_data['MaxApertureValue']))
-			@$ret['Lens '] .= '/F '.$this->get_exif_numbar($exif_data['MaxApertureValue']);
-		
-		if (isset($exif_data['Flash'])){
-			if ($exif_data['Flash'] == 0) {$ret['Flash '] = "OFF";}
-			else if ($exif_data['Flash'] == 1) {$ret['Flash '] = "ON";}
-			else if ($exif_data['Flash'] == 5) {$ret['Flash '] = "Light(No Reflection)";}
-			else if ($exif_data['Flash'] == 7) {$ret['Flash '] = "Light(Reflection)";}
-			else if ($exif_data['Flash'] == 9) {$ret['Flash '] = "Always ON";}
-			else if ($exif_data['Flash'] == 16) {$ret['Flash '] = "Always OFF";}
-			else if ($exif_data['Flash'] == 24) {$ret['Flash '] = "Auto(None)";}
-			else if ($exif_data['Flash'] == 25) {$ret['Flash '] = "Auto(Light)";}
-			else {$ret['Flash'] = $exif_data['Flash '];}
-		}
-		
-		if ($alltag) {
-			$ret['-- :Orignal Exif'] = '--';
-			foreach ($exif_data as $key=>$sect) {
-				if (is_array($sect) == FALSE) {
-					$ret[$key] = trim($sect);
-				} else {
-					foreach($sect as $name=>$val)	$ret[$key . $name] = trim($val);
-				}
-			}
-			// 表示しないパラメーター
-			unset($ret['FileName'], $ret['MakerNote']);
+		if (function_exists('read_exif_data')) {
+			$exif_data = @read_exif_data($file);
+			if (!$exif_data) return $ret;
 			
+			$ret['title'] = "-- Shot Info --";
+			//if (isset($exif_data['Make']))	$ret['Maker '] = $exif_data['Make'];
+			if (isset($exif_data['Model']))
+				$ret['Camera '] = $exif_data['Model'];
+			
+			if (isset($exif_data['DateTimeOriginal']))
+				$ret['Date '] = $exif_data['DateTimeOriginal'];
+			
+			if (isset($exif_data['ExposureTime']))
+				$ret['Shutter Speed '] = $this->get_exif_numbar($exif_data['ExposureTime']).' sec';
+			
+			if (isset($exif_data['FNumber']))
+				$ret['F(Shot) '] = 'F '.$this->get_exif_numbar($exif_data['FNumber']);
+			
+			if (isset($exif_data['FocalLength']))
+				$ret['Lens '] = $this->get_exif_numbar($exif_data['FocalLength']).' mm';
+					
+			if (isset($exif_data['MaxApertureValue']))
+				@$ret['Lens '] .= '/F '.$this->get_exif_numbar($exif_data['MaxApertureValue']);
+			
+			if (isset($exif_data['Flash'])){
+				if ($exif_data['Flash'] == 0) {$ret['Flash '] = "OFF";}
+				else if ($exif_data['Flash'] == 1) {$ret['Flash '] = "ON";}
+				else if ($exif_data['Flash'] == 5) {$ret['Flash '] = "Light(No Reflection)";}
+				else if ($exif_data['Flash'] == 7) {$ret['Flash '] = "Light(Reflection)";}
+				else if ($exif_data['Flash'] == 9) {$ret['Flash '] = "Always ON";}
+				else if ($exif_data['Flash'] == 16) {$ret['Flash '] = "Always OFF";}
+				else if ($exif_data['Flash'] == 24) {$ret['Flash '] = "Auto(None)";}
+				else if ($exif_data['Flash'] == 25) {$ret['Flash '] = "Auto(Light)";}
+				else {$ret['Flash'] = $exif_data['Flash '];}
+			}
+			
+			if ($alltag) {
+				$ret['-- :Orignal Exif'] = '--';
+				foreach ($exif_data as $key=>$sect) {
+					if (is_array($sect) == FALSE) {
+						$ret[$key] = trim($sect);
+					} else {
+						foreach($sect as $name=>$val)	$ret[$key . $name] = trim($val);
+					}
+				}
+				// 表示しないパラメーター
+				unset($ret['FileName'], $ret['MakerNote']);
+				
+			}
 		}
-		
 		return $ret;
 	}
 	function get_exif_numbar ($dat, $APEX=FALSE) {
