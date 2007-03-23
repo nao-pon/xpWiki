@@ -1,7 +1,7 @@
 <?php
 //
 // Created on 2006/10/02 by nao-pon http://hypweb.net/
-// $Id: xpwiki_func.php,v 1.54 2007/02/20 12:35:17 nao-pon Exp $
+// $Id: xpwiki_func.php,v 1.55 2007/03/23 14:35:01 nao-pon Exp $
 //
 class XpWikiFunc extends XpWikiXoopsWrapper {
 
@@ -678,7 +678,7 @@ EOD;
 				$pginfo['vgids'] === 'all' || 
 				$pginfo['vaids'] === 'all' ||
 				$vgauth || 
-				in_array($this->root->userinfo['uid'], $vaids)
+				in_array($this->root->userinfo['uid'], $vaids, true)
 			) {
 				$ret = TRUE;
 			}
@@ -715,7 +715,7 @@ EOD;
 				$pginfo['egids'] === 'all' || 
 				$pginfo['eaids'] === 'all' ||
 				$eauth || 
-				in_array($this->root->userinfo['uid'], $eaids)
+				in_array($this->root->userinfo['uid'], $eaids, true)
 			) {
 				$ret = TRUE;
 			}
