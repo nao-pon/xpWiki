@@ -1,6 +1,6 @@
 <?php
 // PukiWiki - Yet another WikiWikiWeb clone
-// $Id: rss.inc.php,v 1.11 2007/01/14 01:52:14 nao-pon Exp $
+// $Id: rss.inc.php,v 1.12 2007/03/23 14:31:54 nao-pon Exp $
 //
 // RSS plugin: Publishing RSS of RecentChanges
 //
@@ -188,11 +188,13 @@ EOD;
 					$date = substr_replace($this->func->get_date('Y-m-d\TH:i:sO', $time), ':', -2, 0);
 					
 					$trackback_ping = '';
+					/*
 					if ($this->root->trackback) {
 						$tb_id = md5($r_page);
 						$trackback_ping = ' <trackback:ping>' . $self .
 						'?tb_id=' . $tb_id . '</trackback:ping>';
 					}
+					*/
 					$items .= <<<EOD
 <item rdf:about="$self?$r_page">
  <title>$title</title>
