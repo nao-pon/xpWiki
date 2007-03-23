@@ -1,7 +1,7 @@
 <?php
 //
 // Created on 2006/10/02 by nao-pon http://hypweb.net/
-// $Id: pukiwiki_func.php,v 1.56 2007/02/10 23:49:30 nao-pon Exp $
+// $Id: pukiwiki_func.php,v 1.57 2007/03/23 14:40:26 nao-pon Exp $
 //
 class XpWikiPukiWikiFunc extends XpWikiBaseFunc {
 
@@ -912,7 +912,7 @@ class XpWikiPukiWikiFunc extends XpWikiBaseFunc {
 
 //----- Start convert_html.php -----//
 	// PukiWiki - Yet another WikiWikiWeb clone
-	// $Id: pukiwiki_func.php,v 1.56 2007/02/10 23:49:30 nao-pon Exp $
+	// $Id: pukiwiki_func.php,v 1.57 2007/03/23 14:40:26 nao-pon Exp $
 	// Copyright (C)
 	//   2002-2005 PukiWiki Developers Team
 	//   2001-2002 Originally written by yu-ji
@@ -1030,7 +1030,7 @@ class XpWikiPukiWikiFunc extends XpWikiBaseFunc {
 
 //----- Start func.php -----//
 	// PukiWiki - Yet another WikiWikiWeb clone.
-	// $Id: pukiwiki_func.php,v 1.56 2007/02/10 23:49:30 nao-pon Exp $
+	// $Id: pukiwiki_func.php,v 1.57 2007/03/23 14:40:26 nao-pon Exp $
 	// Copyright (C)
 	//   2002-2006 PukiWiki Developers Team
 	//   2001-2002 Originally written by yu-ji
@@ -1494,7 +1494,7 @@ EOD;
 		//	preg_replace('/(.)/', '\\\$1', $this->cont['ZONE']), $format);
 		$format = preg_replace('/(?<!\\\)T/',	"_\\Z\\ONE_", $format);
 	
-		$time = $this->cont['ZONETIME'] + (($timestamp !== NULL) ? $timestamp : $this->cont['UTIME']);
+		$time = ((preg_match('/(?<!\\\)(O|P|r)/', $format))? date('Z') : $this->cont['ZONETIME']) + (($timestamp !== NULL) ? $timestamp : $this->cont['UTIME']);
 	
 		return str_replace("_ZONE_", $this->cont['ZONE'], date($format, $time));
 	}
@@ -1787,7 +1787,7 @@ EOD;
 
 //----- Start make_link.php -----//
 	// PukiWiki - Yet another WikiWikiWeb clone.
-	// $Id: pukiwiki_func.php,v 1.56 2007/02/10 23:49:30 nao-pon Exp $
+	// $Id: pukiwiki_func.php,v 1.57 2007/03/23 14:40:26 nao-pon Exp $
 	// Copyright (C)
 	//   2003-2005 PukiWiki Developers Team
 	//   2001-2002 Originally written by yu-ji
@@ -2575,7 +2575,7 @@ EOD;
 
 //----- Start html.php -----//
 	// PukiWiki - Yet another WikiWikiWeb clone.
-	// $Id: pukiwiki_func.php,v 1.56 2007/02/10 23:49:30 nao-pon Exp $
+	// $Id: pukiwiki_func.php,v 1.57 2007/03/23 14:40:26 nao-pon Exp $
 	// Copyright (C)
 	//   2002-2006 PukiWiki Developers Team
 	//   2001-2002 Originally written by yu-ji
@@ -3172,7 +3172,7 @@ EOD;
 
 //----- Start mail.php -----//
 	// PukiWiki - Yet another WikiWikiWeb clone.
-	// $Id: pukiwiki_func.php,v 1.56 2007/02/10 23:49:30 nao-pon Exp $
+	// $Id: pukiwiki_func.php,v 1.57 2007/03/23 14:40:26 nao-pon Exp $
 	// Copyright (C)
 	//   2003-2005 PukiWiki Developers Team
 	//   2003      Originally written by upk
@@ -3475,7 +3475,7 @@ EOD;
 
 //----- Start link.php -----//
 	// PukiWiki - Yet another WikiWikiWeb clone
-	// $Id: pukiwiki_func.php,v 1.56 2007/02/10 23:49:30 nao-pon Exp $
+	// $Id: pukiwiki_func.php,v 1.57 2007/03/23 14:40:26 nao-pon Exp $
 	// Copyright (C) 2003-2006 PukiWiki Developers Team
 	// License: GPL v2 or (at your option) any later version
 	//
