@@ -1,6 +1,6 @@
 <?php
 // PukiWiki - Yet another WikiWikiWeb clone
-// $Id: rename.inc.php,v 1.4 2006/11/24 13:47:07 nao-pon Exp $
+// $Id: rename.inc.php,v 1.5 2007/04/02 23:29:17 nao-pon Exp $
 //
 // Rename plugin: Rename page-name and related data
 //
@@ -344,9 +344,9 @@ EOD;
 			foreach ($exists as $key=>$arr)
 				unset($files[$key]);
 	
-		set_time_limit(0);
 		foreach ($files as $page=>$arr) {
 			foreach ($arr as $old=>$new) {
+				@set_time_limit(30);
 				if (isset($exists[$page][$old]) && $exists[$page][$old])
 					unlink($new);
 				rename($old, $new);
