@@ -1,7 +1,7 @@
 <?php
 //
 // Created on 2006/10/02 by nao-pon http://hypweb.net/
-// $Id: pukiwiki_func.php,v 1.57 2007/03/23 14:40:26 nao-pon Exp $
+// $Id: pukiwiki_func.php,v 1.58 2007/04/02 23:24:47 nao-pon Exp $
 //
 class XpWikiPukiWikiFunc extends XpWikiBaseFunc {
 
@@ -912,7 +912,7 @@ class XpWikiPukiWikiFunc extends XpWikiBaseFunc {
 
 //----- Start convert_html.php -----//
 	// PukiWiki - Yet another WikiWikiWeb clone
-	// $Id: pukiwiki_func.php,v 1.57 2007/03/23 14:40:26 nao-pon Exp $
+	// $Id: pukiwiki_func.php,v 1.58 2007/04/02 23:24:47 nao-pon Exp $
 	// Copyright (C)
 	//   2002-2005 PukiWiki Developers Team
 	//   2001-2002 Originally written by yu-ji
@@ -1030,7 +1030,7 @@ class XpWikiPukiWikiFunc extends XpWikiBaseFunc {
 
 //----- Start func.php -----//
 	// PukiWiki - Yet another WikiWikiWeb clone.
-	// $Id: pukiwiki_func.php,v 1.57 2007/03/23 14:40:26 nao-pon Exp $
+	// $Id: pukiwiki_func.php,v 1.58 2007/04/02 23:24:47 nao-pon Exp $
 	// Copyright (C)
 	//   2002-2006 PukiWiki Developers Team
 	//   2001-2002 Originally written by yu-ji
@@ -1787,7 +1787,7 @@ EOD;
 
 //----- Start make_link.php -----//
 	// PukiWiki - Yet another WikiWikiWeb clone.
-	// $Id: pukiwiki_func.php,v 1.57 2007/03/23 14:40:26 nao-pon Exp $
+	// $Id: pukiwiki_func.php,v 1.58 2007/04/02 23:24:47 nao-pon Exp $
 	// Copyright (C)
 	//   2003-2005 PukiWiki Developers Team
 	//   2001-2002 Originally written by yu-ji
@@ -2012,7 +2012,7 @@ EOD;
 		$script = $this->get_script_uri();
 	
 		// Disable 'max execution time' (php.ini: max_execution_time)
-		if (ini_get('safe_mode') == '0') set_time_limit(0);
+		if (ini_get('safe_mode') == '0') set_time_limit(120);
 	
 		// Get URLs from <a>(anchor) tag from convert_html()
 		$links = array();
@@ -2575,7 +2575,7 @@ EOD;
 
 //----- Start html.php -----//
 	// PukiWiki - Yet another WikiWikiWeb clone.
-	// $Id: pukiwiki_func.php,v 1.57 2007/03/23 14:40:26 nao-pon Exp $
+	// $Id: pukiwiki_func.php,v 1.58 2007/04/02 23:24:47 nao-pon Exp $
 	// Copyright (C)
 	//   2002-2006 PukiWiki Developers Team
 	//   2001-2002 Originally written by yu-ji
@@ -3172,7 +3172,7 @@ EOD;
 
 //----- Start mail.php -----//
 	// PukiWiki - Yet another WikiWikiWeb clone.
-	// $Id: pukiwiki_func.php,v 1.57 2007/03/23 14:40:26 nao-pon Exp $
+	// $Id: pukiwiki_func.php,v 1.58 2007/04/02 23:24:47 nao-pon Exp $
 	// Copyright (C)
 	//   2003-2005 PukiWiki Developers Team
 	//   2003      Originally written by upk
@@ -3475,7 +3475,7 @@ EOD;
 
 //----- Start link.php -----//
 	// PukiWiki - Yet another WikiWikiWeb clone
-	// $Id: pukiwiki_func.php,v 1.57 2007/03/23 14:40:26 nao-pon Exp $
+	// $Id: pukiwiki_func.php,v 1.58 2007/04/02 23:24:47 nao-pon Exp $
 	// Copyright (C) 2003-2006 PukiWiki Developers Team
 	// License: GPL v2 or (at your option) any later version
 	//
@@ -3524,7 +3524,7 @@ EOD;
 	{
 		if ($this->cont['PKWK_READONLY']) return; // Do nothing
 	
-		if (ini_get('safe_mode') == '0') set_time_limit(0);
+		if (ini_get('safe_mode') == '0') set_time_limit(120);
 	
 		$time = $this->is_page($page, TRUE) ? $this->get_filetime($page) : 0;
 	
@@ -3610,7 +3610,6 @@ EOD;
 	{
 		if ($this->cont['PKWK_READONLY']) return; // Do nothing
 	
-		if (ini_get('safe_mode') == '0') set_time_limit(0);
 	
 		// Init database
 		foreach ($this->get_existfiles($this->cont['CACHE_DIR'], '.ref') as $cache)
@@ -3621,7 +3620,9 @@ EOD;
 		$ref   = array(); // 参照元
 		foreach ($this->get_existpages() as $page) {
 			if ($page == $this->root->whatsnew) continue;
-	
+			
+			if (ini_get('safe_mode') == '0') set_time_limit(60);
+			
 			$rel   = array(); // 参照先
 			$links = $this->links_get_objects($page);
 			foreach ($links as $_obj) {
