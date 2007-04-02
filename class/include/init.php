@@ -189,7 +189,7 @@ if (!empty($const['page_show'])) {
 	
 	// Prohibit $root->get attack
 	foreach (array('msg', 'pass') as $key) {
-		if (isset($root->get[$key])) die_message('Sorry, already reserved: ' . $key . '=');
+		if (isset($root->get[$key])) $this->die_message('Sorry, already reserved: ' . $key . '=');
 	}
 	
 	// Expire risk
