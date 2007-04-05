@@ -1,7 +1,7 @@
 <?php
 //
 // Created on 2006/09/29 by nao-pon http://hypweb.net/
-// $Id: xpwiki.php,v 1.26 2007/01/15 09:02:24 nao-pon Exp $
+// $Id: xpwiki.php,v 1.27 2007/04/05 04:40:37 nao-pon Exp $
 //
 
 class XpWiki {
@@ -20,7 +20,7 @@ class XpWiki {
 	var $html;
 
 
-	function XpWiki ($mydirname) {
+	function XpWiki ($mydirname, $moddir='modules/') {
 		
 		static $pid;
 		
@@ -34,11 +34,11 @@ class XpWiki {
 		$this->func = new XpWikiFunc($this);
 		$this->func->set_moduleinfo();
 
-		$this->root->mydirpath = $this->cont['ROOT_PATH']."modules/".$mydirname;
+		$this->root->mydirpath = $this->cont['ROOT_PATH'].$moddir.$mydirname;
 		$this->root->mytrustdirpath = dirname(dirname(__FILE__));
 
 		$this->cont['DATA_HOME'] = $this->root->mydirpath."/";
-		$this->cont['HOME_URL'] = $this->cont['ROOT_URL']."modules/".$mydirname."/";
+		$this->cont['HOME_URL'] = $this->cont['ROOT_URL'].$moddir.$mydirname."/";
 		
 		$this->db =& $this->func->get_db_connection(); 
 		
