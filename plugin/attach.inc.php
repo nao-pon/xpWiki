@@ -9,7 +9,7 @@ class xpwiki_plugin_attach extends xpwiki_plugin {
 	/////////////////////////////////////////////////
 	// PukiWiki - Yet another WikiWikiWeb clone.
 	//
-	//  $Id: attach.inc.php,v 1.8 2006/12/21 01:40:28 nao-pon Exp $
+	//  $Id: attach.inc.php,v 1.9 2007/04/05 04:42:06 nao-pon Exp $
 	//  ORG: attach.inc.php,v 1.31 2003/07/27 14:15:29 arino Exp $
 	//
 	
@@ -1383,6 +1383,12 @@ EOD;
 		
 		ini_set('default_charset','');
 		mb_http_output('pass');
+		
+		// SSL環境にIEでアクセスするとファイルが開けないバグ対策 orz...
+		if ($this->cont['UA_NAME'] === 'MSIE' && strtolower($this->cont['HOME_URL']{4}) === 's') {
+			header('Pragma:');
+			header('Cache-Control:');
+		}
 		
 		// 画像以外(管理者所有を除く)はダウンロード扱いにする(XSS対策)
 		$_i_size = getimagesize($this->filename);
