@@ -96,13 +96,7 @@ $root->weeklabels = $root->_msg_week;
 /////////////////////////////////////////////////
 // INI_FILE: Init $script
 
-$root->script = str_replace(XOOPS_ROOT_PATH, XOOPS_URL, $root->mydirpath)."/";
-
-if (isset($root->script)) {
-	$this->get_script_uri($root->script); // Init manually
-} else {
-	$root->script = $this->get_script_uri(); // Init automatically
-}
+$root->script = $const['HOME_URL'];
 
 /////////////////////////////////////////////////
 // INI_FILE: $agents:  UserAgent§Œº± Ã
