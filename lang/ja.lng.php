@@ -1,6 +1,6 @@
 <?php
 // PukiWiki - Yet another WikiWikiWeb clone.
-// $Id: ja.lng.php,v 1.12 2006/12/29 00:23:50 nao-pon Exp $
+// $Id: ja.lng.php,v 1.13 2007/04/09 01:06:32 nao-pon Exp $
 // Copyright (C)
 //   2002-2005 PukiWiki Developers Team
 //   2001-2002 Originally written by yu-ji
@@ -176,7 +176,7 @@ $root->_attach_messages = array(
 	'msg_file'     => '添付ファイル',
 	'msg_maxsize'  => 'アップロード可能最大ファイルサイズは %s です。',
 	'msg_count'    => ' <span class="small">%s件</span>',
-	'msg_password' => 'パスワード',
+	'msg_password' => 'パスワード(必須)',
 	'msg_adminpass'=> '管理者パスワード',
 	'msg_delete'   => 'このファイルを削除します。',
 	'msg_freeze'   => 'このファイルを凍結します。',
