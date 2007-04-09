@@ -4,7 +4,7 @@ class xpwiki_plugin_edit extends xpwiki_plugin {
 
 
 	// PukiWiki - Yet another WikiWikiWeb clone.
-	// $Id: edit.inc.php,v 1.17 2006/12/06 06:04:50 nao-pon Exp $
+	// $Id: edit.inc.php,v 1.18 2007/04/09 01:07:15 nao-pon Exp $
 	// Copyright (C) 2001-2006 PukiWiki Developers Team
 	// License: GPL v2 or (at your option) any later version
 	//
@@ -282,7 +282,7 @@ class xpwiki_plugin_edit extends xpwiki_plugin {
 
 		// NULL POSTING, OR removing existing page
 		if ($postdata == '') {
-			$this->func->page_write($page, $pginfo_str.$postdata);
+			$this->func->page_write($page, $postdata);
 			$retvars['msg' ] = $this->root->_title_deleted;
 			$retvars['body'] = str_replace('$1', htmlspecialchars($page), $this->root->_title_deleted);
 	
