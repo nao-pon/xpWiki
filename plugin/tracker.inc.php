@@ -4,7 +4,7 @@ class xpwiki_plugin_tracker extends xpwiki_plugin {
 
 
 	// PukiWiki - Yet another WikiWikiWeb clone
-	// $Id: tracker.inc.php,v 1.7 2006/12/05 23:55:54 nao-pon Exp $
+	// $Id: tracker.inc.php,v 1.8 2007/04/09 01:03:49 nao-pon Exp $
 	//
 	// Issue tracker plugin (See Also bugtrack plugin)
 	
@@ -182,7 +182,7 @@ EOD;
 		$fields = $this->plugin_tracker_get_fields($page,$refer,$config);
 	
 		// Creating an empty page, before attaching files
-		touch($this->func->get_filename($page));
+		// touch($this->func->get_filename($page));
 	
 		foreach (array_keys($fields) as $key)
 		{
@@ -349,8 +349,8 @@ class XpWikiTracker_field
 		$this->func   =& $xpwiki->func;
 //		global $post;
 //		static $id = 0;
-			static $id = array();
-			if (!isset($id[$this->xpwiki->pid])) {$id[$this->xpwiki->pid] = 0;}
+		static $id = array();
+		if (!isset($id[$this->xpwiki->pid])) {$id[$this->xpwiki->pid] = 0;}
 
 		$this->id = ++$id[$this->xpwiki->pid];
 		$this->name = $field[0];
@@ -515,19 +515,37 @@ class XpWikiTracker_field_file extends XpWikiTracker_field_format
 
 	function get_tag()
 	{
+		static $loaded = array();
+		
 		$s_name = htmlspecialchars($this->name);
 		$s_size = htmlspecialchars($this->values[0]);
-		return "<input type=\"file\" name=\"$s_name\" size=\"$s_size\" />";
+		$s_id = '_p_tracker_' . $s_name . '_' . $this->id;
+		
+		$attach_plugin =& $this->func->get_plugin_instance('attach');
+		$pass = '';
+		if (!isset($loaded[$this->xpwiki->pid]) && $this->cont['ATTACH_PASSWORD_REQUIRE'] && !$this->cont['ATTACH_UPLOAD_ADMIN_ONLY'] && !$this->root->userinfo['uid'])
+		{
+			$title = $this->root->_attach_messages[$this->cont['ATTACH_UPLOAD_ADMIN_ONLY'] ? 'msg_adminpass' : 'msg_password'];
+			$pass = '<br />'.$title.': <input type="password" name="upload_pass" size="8" />';
+		}
+		$loaded[$this->xpwiki->pid] = true;
+		
+		return "<input type=\"file\" name=\"$s_name\" size=\"$s_size\" /> <input type=\"checkbox\" id=\"{$s_id}_copyright\" name=\"{$s_name}_copyright\" value=\"1\" /> <label for=\"{$s_id}_copyright\">{$this->root->_attach_messages['msg_copyright']}</label>" . $pass;
 	}
 	function format_value($str)
 	{
 		if (array_key_exists($this->name,$_FILES))
 		{
-			require_once($this->cont['PLUGIN_DIR'].'attach.inc.php');
-			$result = $this->func->attach_upload($_FILES[$this->name],$this->page);
+			$copyright = (isset($_POST[$this->name.'_copyright']))? TRUE : FALSE;
+			$pass = (empty($_POST['upload_pass']))? NULL : $_POST['upload_pass'];
+			
+			$attach_plugin =& $this->func->get_plugin_instance('attach');
+			$result = $attach_plugin->attach_upload($_FILES[$this->name], $this->page, $pass, $copyright);
 			if ($result['result']) // アップロード成功
 			{
 				return parent::format_value($this->page.'/'.$_FILES[$this->name]['name']);
+			} else {
+				return parent::format_value($result['msg']);
 			}
 		}
 		// ファイルが指定されていないか、アップロードに失敗
