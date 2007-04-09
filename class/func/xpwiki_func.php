@@ -1,7 +1,7 @@
 <?php
 //
 // Created on 2006/10/02 by nao-pon http://hypweb.net/
-// $Id: xpwiki_func.php,v 1.55 2007/03/23 14:35:01 nao-pon Exp $
+// $Id: xpwiki_func.php,v 1.56 2007/04/09 01:43:43 nao-pon Exp $
 //
 class XpWikiFunc extends XpWikiXoopsWrapper {
 
@@ -309,7 +309,11 @@ class XpWikiFunc extends XpWikiXoopsWrapper {
 		$this->root->cookie['skin'] = (isset($cookies[2])) ? $cookies[2] : "";
 		$this->root->cookie['lang'] = (isset($cookies[3])) ? $cookies[3] : "";
 		if (empty($this->root->userinfo['uname'])) {
-			$this->root->userinfo['uname'] = $this->root->cookie['name'];
+			if (empty($this->root->cookie['name'])) {
+				$this->root->userinfo['uname'] = $this->root->siteinfo['anonymous'];
+			} else {
+				$this->root->userinfo['uname'] = $this->root->cookie['name'];
+			}
 			$this->root->userinfo['uname_s'] = htmlspecialchars($this->root->userinfo['uname']);
 		}
 		
@@ -537,17 +541,17 @@ EOD;
 			{
 				$pginfo['uid'] = $this->root->userinfo['uid'];
 				$pginfo['ucd'] = $this->root->userinfo['ucd'];
-				$pginfo['uname'] = $this->root->cookie['name'];
+				$pginfo['uname'] = htmlspecialchars($this->root->userinfo['uname']);
 			}
 		}
 		
 		if ($pginfo['uid'] && !$pginfo['uname']) {
 			$_uinfo = $this->get_userinfo_by_id($pginfo['uid']);
-			$pginfo['uname'] = $_uinfo['uname'];
+			$pginfo['uname'] = htmlspecialchars($_uinfo['uname']);
 		}
 		if ($pginfo['lastuid'] && !$pginfo['lastuname']) {
 			$_uinfo = $this->get_userinfo_by_id($pginfo['lastuid']);
-			$pginfo['lastuname'] = $_uinfo['uname'];
+			$pginfo['lastuname'] = htmlspecialchars($_uinfo['uname']);
 		}
 
 		$pginfo['reading'] = '';
@@ -1216,33 +1220,35 @@ EOD;
 	// pginfo DB を更新
 	function pginfo_db_write($page, $action, $pginfo)
 	{
-		$file = $this->get_filename($page);
-		$editedtime = filemtime($file) - $this->cont['LOCALZONE'];
-		$s_name = addslashes($page);
-		
 		// pgid
 		$id = $this->get_pgid_by_name($page);
 		
-		foreach (array('uid', 'ucd', 'uname', 'einherit', 'vinherit', 'lastuid', 'lastucd', 'lastuname', 'reading') as $key) {
-			$$key = addslashes($pginfo[$key]);
-		}
-		foreach (array('eaids', 'egids', 'vaids', 'vgids') as $key) {
-			if ($pginfo[$key] === 'all' || $pginfo[$key] === 'none') {
-				$$key = $pginfo[$key];
-			} else {
-				$$key = '&'.$pginfo[$key].'&';
+		if ($action !== 'delete') {
+			$file = $this->get_filename($page);
+			$editedtime = filemtime($file) - $this->cont['LOCALZONE'];
+			$s_name = addslashes($page);
+			
+			foreach (array('uid', 'ucd', 'uname', 'einherit', 'vinherit', 'lastuid', 'lastucd', 'lastuname', 'reading') as $key) {
+				$$key = addslashes($pginfo[$key]);
 			}
-		}
+			foreach (array('eaids', 'egids', 'vaids', 'vgids') as $key) {
+				if ($pginfo[$key] === 'all' || $pginfo[$key] === 'none') {
+					$$key = $pginfo[$key];
+				} else {
+					$$key = '&'.$pginfo[$key].'&';
+				}
+			}
 		
-		// ページ名読み整形
-		// 英数字は半角,カタカナは全角,ひらがなはカタカナに
-		if (function_exists("mb_convert_kana"))
-		{
-			$reading = mb_convert_kana($reading,'aKVC');
+			// ページ名読み整形
+			// 英数字は半角,カタカナは全角,ひらがなはカタカナに
+			if (function_exists("mb_convert_kana"))
+			{
+				$reading = mb_convert_kana($reading,'aKVC');
+			}
+			
+			//最初の見出し行取得
+			$title = addslashes($this->get_heading_init($page));
 		}
-		
-		//最初の見出し行取得
-		$title = addslashes($this->get_heading_init($page));
 	
 		// 新規作成
 		if ($action == "insert")
