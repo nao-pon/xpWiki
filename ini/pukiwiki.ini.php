@@ -1,6 +1,6 @@
 <?php
 // PukiWiki - Yet another WikiWikiWeb clone
-// $Id: pukiwiki.ini.php,v 1.26 2007/02/11 00:11:58 nao-pon Exp $
+// $Id: pukiwiki.ini.php,v 1.27 2007/04/09 01:39:03 nao-pon Exp $
 // Copyright (C)
 //   2002-2006 PukiWiki Developers Team
 //   2001-2002 Originally written by yu-ji
@@ -503,6 +503,10 @@ $root->preformat_ltrim = 1;
 /////////////////////////////////////////////////
 // Convert linebreaks into <br />
 $root->line_break = 0;
+
+/////////////////////////////////////////////////
+// Use extended table format like a PukiWikiMod
+$root->extended_table_format = 1;
 
 /////////////////////////////////////////////////
 // Use date-time rules (See rules.ini.php)

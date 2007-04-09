@@ -345,7 +345,11 @@ class XpWikiTableCell extends XpWikiElement {
 	function XpWikiTableCell(& $xpwiki, $text, $is_template = FALSE) {
 		parent :: XpWikiElement($xpwiki);
 		$this->style = $matches = array ();
-
+		
+		if ($this->root->extended_table_format) {
+			$text = $this->get_cell_style($text);
+		}
+		
 		while (preg_match('/^(?:(LEFT|CENTER|RIGHT)|(BG)?COLOR\(([#\w]+)\)|SIZE\((\d+)\)):(.*)$/', $text, $matches)) {
 			if ($matches[1]) {
 				$this->style['align'] = 'text-align:'.strtolower($matches[1]).';';
@@ -409,6 +413,107 @@ class XpWikiTableCell extends XpWikiElement {
 
 		return $this->wrap(parent :: toString(), $this->tag, $param, FALSE);
 	}
+
+	function get_cell_style($string) {
+		$cells = explode('|',$string,2);
+//		echo "CELL: {$cells[0]}\n";
+		$colors_reg = "aqua|navy|black|olive|blue|purple|fuchsia|red|gray|silver|green|teal|lime|white|maroon|yellow|transparent";
+		if (preg_match("/FC:(#?[0-9abcdef]{6}?|$colors_reg|0)/i",$cells[0],$tmp)) {
+			if ($tmp[1]==="0") $tmp[1]="transparent";
+			$this->style['fcolor'] = "color:".$tmp[1].";";
+			$cells[0] = preg_replace("/FC:(#?[0-9abcdef]{6}?|$colors_reg|0)(\(([^),]*)(,no|,one|,1)?\))/i","FC:$2",$cells[0]);
+			$cells[0] = preg_replace("/FC:(#?[0-9abcdef]{6}?|$colors_reg|0)/i","",$cells[0]);
+		}
+		// ?????????
+		if (preg_match("/(?:SC|BC):(#?[0-9abcdef]{6}?|$colors_reg|0)/i",$cells[0],$tmp)) {
+			if ($tmp[1]==="0") $tmp[1]="transparent";
+			$this->style['color'] = "background-color:".$tmp[1].";";
+			$cells[0] = preg_replace("/(?:SC|BC):(#?[0-9abcdef]{6}?|$colors_reg|0)(\(([^),]*)(,no|,one|,1)?\))/i","BC:$2",$cells[0]);
+			$cells[0] = preg_replace("/(?:SC|BC):(#?[0-9abcdef]{6}?|$colors_reg|0)/i","",$cells[0]);
+		}
+		// ?????????
+		if (preg_match("/(?:SC|BC):\(([^),]*)(,once|,1)?\)/i",$cells[0],$tmp)) {
+			$tmp[1] = str_replace("http","HTTP",$tmp[1]);
+			$this->style['color'] .= "background-image: url(".$tmp[1].");";
+			if ($tmp[2]) $this->style['color'] .= "background-repeat: no-repeat;";
+			$cells[0] = preg_replace("/(?:SC|BC):\(([^),]*)(,once|,1)?\)/i","",$cells[0]);
+		}
+		if (preg_match("/K:([0-9]+),?([0-9]*)(one|two|boko|deko|in|out|dash|dott)?/i",$cells[0],$tmp)) {
+			if (array_key_exists (3,$tmp)) {
+				switch (strtolower($reg[3])) {
+					case 'one':
+				 		$border_type = "solid";
+				 		break;
+					case 'two':
+						$border_type = "double";
+				 		break;
+					case 'boko':
+						$border_type = "groove";
+				 		break;
+					case 'deko':
+						$border_type = "ridge";
+				 		break;
+					case 'in':
+						$border_type = "inset";
+				 		break;
+					case 'out':
+						$border_type = "outset";
+				 		break;
+					case 'dash':
+						$border_type = "dashed";
+				 		break;
+					case 'dott':
+						$border_type = "dotted";
+				 		break;
+					default:
+						$border_type = "outset";
+				}
+			} else {
+				$border_type = "outset";
+			}
+			//$this->table_style .= " border=\"".$tmp[1]."\"";
+			if (array_key_exists (1,$tmp)) {
+				if ($tmp[1]==="0"){
+					$this->style['border'] = "border:none;";
+				} else {
+					$this->style['border'] = "border:".$border_type." ".$tmp[1]."px;";
+				}
+			}
+			if (array_key_exists (2,$tmp)) {
+				if ($tmp[2]!=""){
+					$this->style['padding'] = " padding:".$tmp[2].";";
+				} else {
+					$this->style['padding'] = " padding:5px;";
+				}
+			}
+			$cells[0] = preg_replace("/K:([0-9]+),?([0-9]*)(one|two|boko|deko|in|out|dash|dott)?/i","",$cells[0]);
+		} else {
+//			$this->style['border'] = "border:none;";
+		}
+		// ???????
+		if (preg_match("/KC:(#?[0-9abcdef]{6}?|$colors_reg|0)/i",$cells[0],$tmp)) {
+			if ($tmp[1]==="0") $tmp[1]="transparent";
+			$this->style['border-color'] = "border-color:".$tmp[1].";";
+			$cells[0] = preg_replace("/KC:(#?[0-9abcdef]{6}?|$colors_reg|0)/i","",$cells[0]);
+		}
+//		echo "CELL: {$cells[0]}\n";
+		// ????????????
+		if (preg_match("/(?:^ *)(?:(LEFT|CENTER|RIGHT)?:(TOP|MIDDLE|BOTTOM)?)?(?::([0-9]+[%]?))?/i",$cells[0],$tmp)) {
+			//var_dump($tmp); echo "<br>\n";
+			if ($tmp[1] || $tmp[2] || $tmp[3]) {
+				if ($tmp[3]) {
+					if (!strpos($tmp[3],"%")) $tmp[3] .= "px";
+					$this->style['width'] = "width:".$tmp[3].";";
+				}
+				if ($tmp[1]) $this->style['align'] = "text-align:".strtolower($tmp[1]).";";
+				if ($tmp[2]) $this->style['valign'] = "vertical-align:".strtolower($tmp[2]).";";
+				$cells[0] = preg_replace("/(?:^ *)(?:(LEFT|CENTER|RIGHT)?:(TOP|MIDDLE|BOTTOM)?)?(?::([0-9]+[%]?))?/i","",$cells[0]);
+			}
+		}
+//		echo "CELL2: {$cells[0]}<br>\n";
+//		var_dump($this->style);
+		return implode('|',$cells);
+	}
 }
 
 // | title1 | title2 | title3 |
@@ -418,15 +523,22 @@ class XpWikiTable extends XpWikiElement {
 	var $type;
 	var $types;
 	var $col; // number of column
+	var $table_around,$table_sheet,$table_style,$div_style,$table_align;
 
 	function XpWikiTable(& $xpwiki, $out) {
 		parent :: XpWikiElement($xpwiki);
 
 		$cells = explode('|', $out[1]);
+
 		$this->col = count($cells);
 		$this->type = strtolower($out[2]);
 		$this->types = array ($this->type);
 		$is_template = ($this->type == 'c');
+		
+		if ($this->root->extended_table_format && $is_template) {
+			$cells[0] = $this->get_table_style($cells[0]);
+		}
+		
 		$row = array ();
 		foreach ($cells as $cell)
 			$row[] = & new XpWikiTableCell($this->xpwiki, $cell, $is_template);
@@ -501,9 +613,125 @@ class XpWikiTable extends XpWikiElement {
 			}
 			$string .= $this->wrap($part_string, $part);
 		}
-		$string = $this->wrap($string, 'table', ' class="style_table" cellspacing="1" border="0"');
+		//$string = $this->wrap($string, 'table', ' class="style_table" cellspacing="1" border="0"');
 
-		return $this->wrap($string, 'div', ' class="ie5"');
+		//return $this->wrap($string, 'div', ' class="ie5"');
+		
+		$string = $this->wrap($string, 'table', ' class="style_table"'."$this->table_style style=\"$this->table_sheet\"");
+		
+		return $this->wrap($string, 'div', ' class="ie5" '.$this->div_style).$this->table_around;
+
+	}
+
+	function get_table_style($string) {
+//		echo "TABLE: $string <br>\n";
+		$colors_reg = "aqua|navy|black|olive|blue|purple|fuchsia|red|gray|silver|green|teal|lime|white|maroon|yellow|transparent";
+		//$this->table_around = "<br clear=all /><br />";
+		$this->table_around = "<br clear=all />";
+		// ??????
+		if (preg_match("/AROUND/i",$string)) $this->table_around = "";
+		// ??????
+		if (preg_match("/B:([0-9]+),?([0-9]*)(one|two|boko|deko|in|out|dash|dott)?/i",$string,$reg)) {
+			if (array_key_exists (3,$reg)) {
+				switch (strtolower($reg[3])) {
+					case 'one':
+				 		$border_type = "solid";
+				 		break;
+					case 'two':
+						$border_type = "double";
+				 		break;
+					case 'boko':
+						$border_type = "groove";
+				 		break;
+					case 'deko':
+						$border_type = "ridge";
+				 		break;
+					case 'in':
+						$border_type = "inset";
+				 		break;
+					case 'out':
+						$border_type = "outset";
+				 		break;
+					case 'dash':
+						$border_type = "dashed";
+				 		break;
+					case 'dott':
+						$border_type = "dotted";
+				 		break;
+					default:
+						$border_type = "outset";
+				}
+			} else {
+				$border_type = "outset";
+			}
+			
+			//$this->table_style .= " border=\"".$reg[1]."\"";
+			if (array_key_exists (1,$reg)) {
+				if ($reg[1]==="0"){
+					$this->table_sheet .= "border:none;";
+				} else {
+					$this->table_sheet .= "border:".$border_type." ".$reg[1]."px;";
+				}
+			}
+			if (array_key_exists (2,$reg)) {
+				if ($reg[2]!=""){
+					$this->table_style .= " cellspacing=\"".$reg[2]."\"";
+				} else {
+					$this->table_style .= " cellspacing=\"1\"";
+				}
+			}
+			$string = preg_replace("/B:([0-9]+),?([0-9]*)(one|two|boko|deko|in|out|dash|dott)?/i","",$string);
+		} else {
+			$this->table_style .= " border=\"0\" cellspacing=\"1\"";
+			//$this->table_style .= " cellspacing=\"1\"";
+			//$this->table_sheet .= "border:none;";
+		}
+		// ???????
+		if (preg_match("/BC:(#?[0-9abcdef]{6}?|$colors_reg|0)/i",$string,$reg)) {
+			$this->table_sheet .= "border-color:".$reg[1].";";
+			$string = preg_replace("/BC:(#?[0-9abcdef]{6}?|$colors_reg)/i","",$string);
+		}
+		// ?????????
+		if (preg_match("/TC:(#?[0-9abcdef]{6}?|$colors_reg|0)/i",$string,$reg)) {
+			if ($reg[1]==="0") $reg[1]="transparent";
+			$this->table_sheet .= "background-color:".$reg[1].";";
+			$string = preg_replace("/TC:(#?[0-9abcdef]{6}?|$colors_reg|0)(\(([^),]*)(,no|,one|,1)?\))/i","TC:$2",$string);
+			$string = preg_replace("/TC:(#?[0-9abcdef]{6}?|$colors_reg|0)/i","",$string);
+		}
+		// ??????????
+		if (preg_match("/TC:\(([^),]*)(,once|,1)?\)/i",$string,$reg)) {
+			$reg[1] = str_replace("http","HTTP",$reg[1]);
+			$this->table_sheet .= "background-image: url(".$reg[1].");";
+			if ($reg[2]) $this->table_sheet .= "background-repeat: no-repeat;";
+			$string = preg_replace("/TC:\(([^),]*)(,once|,1)?\)/i","",$string);
+		}
+		// ??????
+		if (preg_match("/T(LEFT|RIGHT)/i",$string,$reg)) {
+			$this->table_align = strtolower($reg[1]);
+			$this->table_style .= " align=\"".$this->table_align."\"";
+			$this->div_style = " style=\"text-align:".$this->table_align."\"";
+			if ($this->table_align == "left"){
+				$this->table_sheet .= "margin-left:10px;margin-right:auto;";
+			} else {
+				$this->table_sheet .= "margin-left:auto;margin-right:10px;";
+			}
+		}
+		if (preg_match("/T(CENTER)/i",$string,$reg)) {
+			$this->table_style .= " align=\"".strtolower($reg[1])."\"";
+			$this->div_style = " style=\"text-align:".strtolower($reg[1])."\"";
+			$this->table_sheet .= "margin-left:auto;margin-right:auto;";
+			$this->table_around = "";
+		}
+//		echo "TABLE2: $string<br>\n";
+		if (preg_match("/(TLEFT|TCENTER|TRIGHT|(?:[^A-Z]T)):([0-9]+[%]?)/i",$string,$reg)) {
+			if (array_key_exists (2,$reg)) {
+				if (!strpos($reg[2],"%")) $reg[2] .= "px";
+				$this->table_sheet .= "width:".$reg[2].";";
+			}
+		}
+		$string = preg_replace("/(TLEFT|TCENTER|TRIGHT|([^F])T):([0-9]+[%]?)?/i","",$string);
+//		echo "TABLE2: '$string'<br>\n";
+		return ltrim($string);
 	}
 }
 
