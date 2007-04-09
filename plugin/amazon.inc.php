@@ -7,7 +7,7 @@ class xpwiki_plugin_amazon extends xpwiki_plugin {
 	{
 
 	// PukiWiki - Yet another WikiWikiWeb clone.
-	// $Id: amazon.inc.php,v 1.2 2006/10/14 15:39:12 nao-pon Exp $
+	// $Id: amazon.inc.php,v 1.3 2007/04/09 01:04:57 nao-pon Exp $
 	// Id: amazon.inc.php,v 1.1 2003/07/24 13:00:00 ´×¼Ë
 	//
 	// Amazon plugin: Book-review maker via amazon.com/amazon.jp
@@ -433,9 +433,10 @@ EOD;
 	
 		$filename = $this->cont['DATA_DIR'] . $this->func->encode($page) . '.txt';
 		if (! is_readable($filename)) {
-			$fp = fopen($filename, 'w');
-			fwrite($fp, $data);
-			fclose($fp);
+			//$fp = fopen($filename, 'w');
+			//fwrite($fp, $data);
+			//fclose($fp);
+			$this->func->page_write($page, $data);
 			return TRUE;
 		} else {
 			return FALSE;
