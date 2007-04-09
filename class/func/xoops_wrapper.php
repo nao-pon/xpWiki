@@ -1,7 +1,7 @@
 <?php
 //
 // Created on 2006/10/11 by nao-pon http://hypweb.net/
-// $Id: xoops_wrapper.php,v 1.22 2007/01/30 01:58:50 nao-pon Exp $
+// $Id: xoops_wrapper.php,v 1.23 2007/04/09 01:43:43 nao-pon Exp $
 //
 class XpWikiXoopsWrapper extends XpWikiBackupFunc {
 	
@@ -36,6 +36,7 @@ class XpWikiXoopsWrapper extends XpWikiBackupFunc {
 		
 		$this->root->siteinfo['rooturl'] = XOOPS_URL."/";
 		$this->root->siteinfo['sitename'] = $xoopsConfig['sitename'];
+		$this->root->siteinfo['anonymous'] = $xoopsConfig['anonymous'];
 	}
 		
 	function set_userinfo () {
@@ -254,15 +255,15 @@ class XpWikiXoopsWrapper extends XpWikiBackupFunc {
 		
 		if ($pginfo['lastuid']) {
 			if ($withlink) {
-				$lasteditor = '<a href="'.XOOPS_URL.'/userinfo.php?uid='.$pginfo['lastuid'].'">' . htmlspecialchars($pginfo['lastuname']) . '</a>';
+				$lasteditor = '<a href="'.XOOPS_URL.'/userinfo.php?uid='.$pginfo['lastuid'].'">' . $pginfo['lastuname'] . '</a>';
 			} else {
-				$lasteditor = htmlspecialchars($pginfo['lastuname']);
+				$lasteditor = $pginfo['lastuname'];
 			}
 		} else {
 			if ($withucd) {
-				$lasteditor = htmlspecialchars($pginfo['lastuname']). ($pginfo['lastucd']? '['.$pginfo['lastucd'].']' : '');
+				$lasteditor = $pginfo['lastuname']. ($pginfo['lastucd']? '['.$pginfo['lastucd'].']' : '');
 			} else {
-				$lasteditor = htmlspecialchars($pginfo['lastuname']);
+				$lasteditor = $pginfo['lastuname'];
 			}
 		}
 		return $lasteditor;
