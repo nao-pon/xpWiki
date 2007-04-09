@@ -1,5 +1,5 @@
 <?php
-// $Id: ref.inc.php,v 1.8 2006/12/21 01:40:39 nao-pon Exp $
+// $Id: ref.inc.php,v 1.9 2007/04/09 01:05:53 nao-pon Exp $
 /*
 
 	*プラグイン ref
@@ -925,7 +925,7 @@ _HTML_;
 				$params['_max'] = $params['zoom'];
 			} else if (preg_match("/^([0-9.]+)%$/i",$arg,$m)){
 				$params['_%'] = $m[1];
-			} else if (preg_match("/^t:(.+)$/i",$arg,$m)){
+			} else if (preg_match("/^t:(.*)$/i",$arg,$m)){
 				$m[1] = htmlspecialchars(str_replace("&amp;quot;","",$m[1]));
 				if ($m[1]) $lvar['title'][] = $m[1];
 			} else if (preg_match('/^([0-9]+)x([0-9]+)$/', $arg, $m)) {
