@@ -1,7 +1,7 @@
 <?php
 //
 // Created on 2006/09/29 by nao-pon http://hypweb.net/
-// $Id: xpwiki.php,v 1.27 2007/04/05 04:40:37 nao-pon Exp $
+// $Id: xpwiki.php,v 1.28 2007/04/10 09:18:33 nao-pon Exp $
 //
 
 class XpWiki {
@@ -18,6 +18,7 @@ class XpWiki {
 	var $page;
 	var $body;
 	var $html;
+	var $breadcrumbs_array;
 
 
 	function XpWiki ($mydirname, $moddir='modules/') {
@@ -197,6 +198,9 @@ class XpWiki {
 		$this->html = ob_get_contents();
 		ob_end_clean();
 		if (!empty($this->root->runmode)) $this->runmode = $this->root->runmode;
+		
+		$this->breadcrumbs_array = $this->func->get_breadcrumbs_array($this->page);
+		$this->breadcrumbs_array[] = array('name' => preg_replace('#^'.preg_quote(preg_replace('#/[^/]+$#','',$this->page).'/', '#').'#', '', $this->title), 'url' =>'');
 
 		return;
 	}
@@ -205,6 +209,10 @@ class XpWiki {
 
 		return $this->body;
 
+	}
+	
+	function get_var ($var) {
+		return (isset($this->$var))? $this->$var : null;
 	}
 	
 	function get_page_count () {

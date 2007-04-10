@@ -1,7 +1,7 @@
 <?php
 //
 // Created on 2006/10/02 by nao-pon http://hypweb.net/
-// $Id: xpwiki_func.php,v 1.56 2007/04/09 01:43:43 nao-pon Exp $
+// $Id: xpwiki_func.php,v 1.57 2007/04/10 09:18:32 nao-pon Exp $
 //
 class XpWikiFunc extends XpWikiXoopsWrapper {
 
@@ -1050,6 +1050,33 @@ EOD;
 			'</a>';
 	
 		return TRUE;
+	}
+
+	// Breadcrumbs
+	function get_breadcrumbs_array ($page, $name = 'name', $url = 'url') {
+		$parts = explode('/', $page);
+	
+		$self = array_pop($parts); // Remove the page itself
+		$ret = array();
+		//$ret[] = array($name => $self, $url = '');
+		while (! empty($parts)) {
+			$_landing = join('/', $parts);
+			$landing  = rawurlencode($_landing);
+			$element = htmlspecialchars(array_pop($parts));
+			
+			if (! $this->is_page($_landing)) {
+				// Page not exists
+				$ret[] = array($name => $element, $url => '');
+			} else {
+				// Page exists
+				$link = (@$this->root->static_url)? $this->get_pgid_by_name($_landing) . '.html' : '?' . $landing;
+				$ret[] = array($name => $element, $url => $this->root->script . $link);
+			}
+		}
+		$ret[] = array($name => $this->root->module['title'], $url => $this->root->script);
+		
+		return array_reverse($ret);
+		
 	}
 
 /*----- DB Functions -----*/ 
