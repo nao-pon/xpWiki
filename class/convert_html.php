@@ -500,13 +500,13 @@ class XpWikiTableCell extends XpWikiElement {
 		// ????????????
 		if (preg_match("/(?:^ *)(?:(LEFT|CENTER|RIGHT)?:(TOP|MIDDLE|BOTTOM)?)?(?::([0-9]+[%]?))?/i",$cells[0],$tmp)) {
 			//var_dump($tmp); echo "<br>\n";
-			if ($tmp[1] || $tmp[2] || $tmp[3]) {
-				if ($tmp[3]) {
+			if (@$tmp[1] || @$tmp[2] || @$tmp[3]) {
+				if (@$tmp[3]) {
 					if (!strpos($tmp[3],"%")) $tmp[3] .= "px";
 					$this->style['width'] = "width:".$tmp[3].";";
 				}
-				if ($tmp[1]) $this->style['align'] = "text-align:".strtolower($tmp[1]).";";
-				if ($tmp[2]) $this->style['valign'] = "vertical-align:".strtolower($tmp[2]).";";
+				if (@$tmp[1]) $this->style['align'] = "text-align:".strtolower($tmp[1]).";";
+				if (@$tmp[2]) $this->style['valign'] = "vertical-align:".strtolower($tmp[2]).";";
 				$cells[0] = preg_replace("/(?:^ *)(?:(LEFT|CENTER|RIGHT)?:(TOP|MIDDLE|BOTTOM)?)?(?::([0-9]+[%]?))?/i","",$cells[0]);
 			}
 		}
