@@ -1,7 +1,7 @@
 <?php
 //
 // Created on 2006/10/02 by nao-pon http://hypweb.net/
-// $Id: pukiwiki_func.php,v 1.60 2007/04/11 23:53:08 nao-pon Exp $
+// $Id: pukiwiki_func.php,v 1.61 2007/04/12 05:00:27 nao-pon Exp $
 //
 class XpWikiPukiWikiFunc extends XpWikiBaseFunc {
 
@@ -148,8 +148,23 @@ class XpWikiPukiWikiFunc extends XpWikiBaseFunc {
 		}
 		*/
 	
-		//$this->links_update($page);
-	
+		// For AutoLink
+		if ($mode !== 'update' && $this->root->autolink){
+			// Get WHOLE page list (always as guest)
+			$temp[0] = $this->root->userinfo['admin'];
+			$temp[1] = $this->root->userinfo['uid'];
+			$this->root->userinfo['admin'] = FALSE;
+			$this->root->userinfo['uid'] = 0;
+			
+			$pages = $this->get_existpages();
+			
+			$this->root->userinfo['admin'] = $temp[0];
+			$this->root->userinfo['uid'] = $temp[1];
+			
+			$this->autolink_pattern_write($this->cont['CACHE_DIR'] . $this->cont['PKWK_AUTOLINK_REGEX_CACHE'],
+				$this->get_autolink_pattern($pages, $this->root->autolink));
+		}
+		
 		// Update autoalias.dat (AutoAliasName)
 		if ($this->root->autoalias && $page == $this->root->aliaspage) {
 			$aliases = $this->get_autoaliases();
@@ -304,9 +319,6 @@ class XpWikiPukiWikiFunc extends XpWikiBaseFunc {
 			// Remove the page
 			unlink($file);
 	
-			// Update RecentDeleted, and remove the page from RecentChanges
-			$this->lastmodified_add($this->root->whatsdeleted, $page);
-	
 			// Clear is_page() cache
 			$this->is_page($page, TRUE);
 	
@@ -342,8 +354,6 @@ class XpWikiPukiWikiFunc extends XpWikiBaseFunc {
 	
 		// Optional actions
 		if ($dir == $this->cont['DATA_DIR']) {
-			// Update RecentChanges (Add or renew the $page)
-			if ($timestamp === FALSE) $this->lastmodified_add($page);
 	
 			// Command execution per update
 			if (isset($this->cont['PKWK_UPDATE_EXEC']) && $this->cont['PKWK_UPDATE_EXEC'])
@@ -415,169 +425,10 @@ class XpWikiPukiWikiFunc extends XpWikiBaseFunc {
 		$this->pginfo_db_write($recentpage, $mode, $pginfo);
 	}
 	
-	// Update PKWK_MAXSHOW_CACHE itself (Add or renew about the $page) (Light)
-	// Use without $autolink
-	function lastmodified_add($update = '', $remove = '')
-	{
-		// AutoLink implimentation needs everything, for now
-		if ($this->root->autolink) {
-			$this->put_lastmodified(); // Try to (re)create ALL
-			return;
-		}
-		return;		
-/*
-		if (($update == '' || $this->check_non_list($update)) && $remove == '')
-			return; // No need
-	
-		$file = $this->cont['CACHE_DIR'] . $this->cont['PKWK_MAXSHOW_CACHE'];
-		if (! file_exists($file)) {
-			$this->put_lastmodified(); // Try to (re)create ALL
-			return;
-		}
-	
-		// Open
-		$this->pkwk_touch_file($file);
-		$fp = fopen($file, 'r+') or
-			$this->die_message('Cannot open ' . 'CACHE_DIR/' . $this->cont['PKWK_MAXSHOW_CACHE']);
-		set_file_buffer($fp, 0);
-		flock($fp, LOCK_EX);
-	
-		// Read (keep the order of the lines)
-		$recent_pages = $matches = array();
-		foreach($this->file_head($file, $this->root->maxshow + $this->cont['PKWK_MAXSHOW_ALLOWANCE'], FALSE) as $line)
-			if (preg_match('/^([0-9]+)\t(.+)/', $line, $matches))
-				$recent_pages[$matches[2]] = $matches[1];
-	
-		// Remove if it exists inside
-		if (isset($recent_pages[$update])) unset($recent_pages[$update]);
-		if (isset($recent_pages[$remove])) unset($recent_pages[$remove]);
-	
-		// Add to the top: like array_unshift()
-		if ($update != '')
-			$recent_pages = array($update => $this->get_filetime($update)) + $recent_pages;
-	
-		// Check
-		$abort = count($recent_pages) < $this->root->maxshow;
-	
-		if (! $abort) {
-			// Write
-			ftruncate($fp, 0);
-			rewind($fp);
-			foreach ($recent_pages as $_page=>$time)
-				fputs($fp, $time . "\t" . $_page . "\n");
-		}
-	
-		flock($fp, LOCK_UN);
-		fclose($fp);
-	
-		if ($abort) {
-			$this->put_lastmodified(); // Try to (re)create ALL
-			return;
-		}
-	
-	
-	
-		// ----
-		// Update the page 'RecentChanges'
-	
-		$recent_pages = array_splice($recent_pages, 0, $this->root->maxshow);
-		$file = $this->get_filename($this->root->whatsnew);
-	
-		// Open
-		$this->pkwk_touch_file($file);
-		$fp = fopen($file, 'r+') or
-			$this->die_message('Cannot open ' . htmlspecialchars($this->root->whatsnew));
-		set_file_buffer($fp, 0);
-		flock($fp, LOCK_EX);
-	
-		// Recreate
-		ftruncate($fp, 0);
-		rewind($fp);
-		foreach ($recent_pages as $_page=>$time)
-			fputs($fp, '-' . htmlspecialchars($this->format_date($time)) .
-				' - ' . '[[' . htmlspecialchars($_page) . ']]' . "\n");
-		fputs($fp, '#norelated' . "\n"); // :)
-	
-		flock($fp, LOCK_UN);
-		fclose($fp);
-*/
-	}
-	
 	// Re-create PKWK_MAXSHOW_CACHE (Heavy)
 	function put_lastmodified()
 	{
-		if ($this->cont['PKWK_READONLY']) return; // Do nothing
-	
-		// Get WHOLE page list (always as guest)
-		$temp[0] = $this->root->userinfo['admin'];
-		$temp[1] = $this->root->userinfo['uid'];
-		$this->root->userinfo['admin'] = FALSE;
-		$this->root->userinfo['uid'] = 0;
-		
-		$pages = $this->get_existpages();
-		
-		$this->root->userinfo['admin'] = $temp[0];
-		$this->root->userinfo['uid'] = $temp[1];
-
-/*	
-		// Check ALL filetime
-		$recent_pages = array();
-		foreach($pages as $page)
-			if ($page != $this->root->whatsnew && ! $this->check_non_list($page))
-				$recent_pages[$page] = $this->get_filetime($page);
-	
-		// Sort decending order of last-modification date
-		arsort($recent_pages, SORT_NUMERIC);
-	
-		// Cut unused lines
-		// BugTrack2/179: array_splice() will break integer keys in hashtable
-		$count   = $this->root->maxshow + $this->cont['PKWK_MAXSHOW_ALLOWANCE'];
-		$_recent = array();
-		foreach($recent_pages as $key=>$value) {
-			unset($recent_pages[$key]);
-			$_recent[$key] = $value;
-			if (--$count < 1) break;
-		}
-		$recent_pages = & $_recent;
-	
-		// Re-create PKWK_MAXSHOW_CACHE
-		$file = $this->cont['CACHE_DIR'] . $this->cont['PKWK_MAXSHOW_CACHE'];
-		$this->pkwk_touch_file($file);
-		$fp = fopen($file, 'r+') or
-			$this->die_message('Cannot open' . 'CACHE_DIR/' . $this->cont['PKWK_MAXSHOW_CACHE']);
-		set_file_buffer($fp, 0);
-		flock($fp, LOCK_EX);
-		ftruncate($fp, 0);
-		rewind($fp);
-		foreach ($recent_pages as $page=>$time)
-			fputs($fp, $time . "\t" . $page . "\n");
-		flock($fp, LOCK_UN);
-		fclose($fp);
-	
-		// Create RecentChanges
-		$file = $this->get_filename($this->root->whatsnew);
-		$this->pkwk_touch_file($file);
-		$fp = fopen($file, 'r+') or
-			$this->die_message('Cannot open ' . htmlspecialchars($this->root->whatsnew));
-		set_file_buffer($fp, 0);
-		flock($fp, LOCK_EX);
-		ftruncate($fp, 0);
-		rewind($fp);
-		foreach (array_keys($recent_pages) as $page) {
-			$time      = $recent_pages[$page];
-			$s_lastmod = htmlspecialchars($this->format_date($time));
-			$s_page    = htmlspecialchars($page);
-			fputs($fp, '-' . $s_lastmod . ' - [[' . $s_page . ']]' . "\n");
-		}
-		fputs($fp, '#norelated' . "\n"); // :)
-		flock($fp, LOCK_UN);
-		fclose($fp);
-*/	
-		// For AutoLink
-		if ($this->root->autolink){
-			$this->autolink_pattern_write($this->cont['CACHE_DIR'] . $this->cont['PKWK_AUTOLINK_REGEX_CACHE'],
-				$this->get_autolink_pattern($pages, $this->root->autolink));
-		}
+		return;
 	}
 	
 	// update autolink data
@@ -916,7 +767,7 @@ class XpWikiPukiWikiFunc extends XpWikiBaseFunc {
 
 //----- Start convert_html.php -----//
 	// PukiWiki - Yet another WikiWikiWeb clone
-	// $Id: pukiwiki_func.php,v 1.60 2007/04/11 23:53:08 nao-pon Exp $
+	// $Id: pukiwiki_func.php,v 1.61 2007/04/12 05:00:27 nao-pon Exp $
 	// Copyright (C)
 	//   2002-2005 PukiWiki Developers Team
 	//   2001-2002 Originally written by yu-ji
@@ -1034,7 +885,7 @@ class XpWikiPukiWikiFunc extends XpWikiBaseFunc {
 
 //----- Start func.php -----//
 	// PukiWiki - Yet another WikiWikiWeb clone.
-	// $Id: pukiwiki_func.php,v 1.60 2007/04/11 23:53:08 nao-pon Exp $
+	// $Id: pukiwiki_func.php,v 1.61 2007/04/12 05:00:27 nao-pon Exp $
 	// Copyright (C)
 	//   2002-2006 PukiWiki Developers Team
 	//   2001-2002 Originally written by yu-ji
@@ -1795,7 +1646,7 @@ EOD;
 
 //----- Start make_link.php -----//
 	// PukiWiki - Yet another WikiWikiWeb clone.
-	// $Id: pukiwiki_func.php,v 1.60 2007/04/11 23:53:08 nao-pon Exp $
+	// $Id: pukiwiki_func.php,v 1.61 2007/04/12 05:00:27 nao-pon Exp $
 	// Copyright (C)
 	//   2003-2005 PukiWiki Developers Team
 	//   2001-2002 Originally written by yu-ji
@@ -2583,7 +2434,7 @@ EOD;
 
 //----- Start html.php -----//
 	// PukiWiki - Yet another WikiWikiWeb clone.
-	// $Id: pukiwiki_func.php,v 1.60 2007/04/11 23:53:08 nao-pon Exp $
+	// $Id: pukiwiki_func.php,v 1.61 2007/04/12 05:00:27 nao-pon Exp $
 	// Copyright (C)
 	//   2002-2006 PukiWiki Developers Team
 	//   2001-2002 Originally written by yu-ji
@@ -3180,7 +3031,7 @@ EOD;
 
 //----- Start mail.php -----//
 	// PukiWiki - Yet another WikiWikiWeb clone.
-	// $Id: pukiwiki_func.php,v 1.60 2007/04/11 23:53:08 nao-pon Exp $
+	// $Id: pukiwiki_func.php,v 1.61 2007/04/12 05:00:27 nao-pon Exp $
 	// Copyright (C)
 	//   2003-2005 PukiWiki Developers Team
 	//   2003      Originally written by upk
@@ -3483,7 +3334,7 @@ EOD;
 
 //----- Start link.php -----//
 	// PukiWiki - Yet another WikiWikiWeb clone
-	// $Id: pukiwiki_func.php,v 1.60 2007/04/11 23:53:08 nao-pon Exp $
+	// $Id: pukiwiki_func.php,v 1.61 2007/04/12 05:00:27 nao-pon Exp $
 	// Copyright (C) 2003-2006 PukiWiki Developers Team
 	// License: GPL v2 or (at your option) any later version
 	//
