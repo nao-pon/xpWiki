@@ -10,6 +10,8 @@ class XpWikiInlineConverter {
 	var $pattern;
 	var $pos;
 	var $result;
+	
+	var $ext_autolink_url, $ext_autolink_base, $ext_sutolink_len;
 
 	function get_clone($obj) {
 		static $clone_func;
@@ -84,6 +86,10 @@ class XpWikiInlineConverter {
 		while (!empty ($arr)) {
 			$retval .= array_shift($arr).array_shift($this->result);
 		}
+		
+		// External AutoLink
+		$retval = $this->ext_autolink($retval);
+		
 		return $retval;
 	}
 
@@ -115,6 +121,77 @@ class XpWikiInlineConverter {
 				return $this->converters[$start];
 		}
 		return NULL;
+	}
+
+	// External AutoLinks
+	function ext_autolink(&$str) {
+		$autolinks = $this->func->root->ext_autolinks;
+		
+		if (!$autolinks) return $str;
+		
+		foreach($autolinks as $autolink)
+		{
+			if ($pat = $this->get_ext_autolink($autolink)) {
+				$pattern = "/(<(?:a|A).*?<\/(?:a|A)>|<[^>]*>|&(?:#[0-9]+|#x[0-9a-f]+|[0-9a-zA-Z]+);)|($pat)/s";
+				$str = preg_replace_callback($pattern,array(&$this,'ext_autolink_replace'),$str);
+			}
+		}
+		
+		return $str;
+	}
+	function ext_autolink_replace($match) {
+		
+		if (!empty($match[1])) return $match[1];
+		$name = $match[2];
+		
+		@ list ($auto, $auto_a, $forceignorepages) = @ file($this->func->cont['CACHE_DIR'].$this->func->cont['PKWK_AUTOLINK_REGEX_CACHE']);
+		// 無視リストに含まれているページを捨てる
+		if (in_array($name, explode("\t", trim($forceignorepages)))) {return $match[0];}
+		
+		// minimum length of name
+		if (strlen($name) < $this->ext_sutolink_len) {return $match[0];}
+		
+		if ($this->func->root->script === $this->ext_autolink_url) {
+			// 自己Wiki
+			return $this->func->make_pagelink($this->ext_autolink_base.$name, $name);
+		} else {
+			return '<a href="'.$this->ext_autolink_url.'?'.rawurlencode($this->ext_autolink_base.$name).'" title="'.htmlspecialchars('Ext: '.$this->ext_autolink_base.$name).'" class="ext_autolink">'.htmlspecialchars($name).'</a>';
+		}
+	}
+	function get_ext_autolink($autolink) {
+		
+		$autolink['url'] = ($autolink['url'])? $autolink['url'] : $this->func->root->script;
+		$autolink['base'] = trim($autolink['base'],'/');
+		
+		$enc_conv = (strtoupper($this->func->cont['CONTENT_CHARSET']) !== strtoupper($autolink['enc']));
+		
+		$target = ($enc_conv)?
+			mb_convert_encoding($autolink['base'], $autolink['enc'], $this->func->cont['CONTENT_CHARSET']) : $autolink['base'];
+		$target = $autolink['url'].'?plugin=api&pcmd=autolink&base='.rawurlencode($target);
+		
+		$cache = $this->func->cont['CACHE_DIR'].md5($target).'.extautolink';
+		
+		$cache_min = intval(max($autolink['cache'], 10));
+		if (file_exists($cache) && filemtime($cache) + $cache_min * 60 > time()) {
+			$pat = join('',file($cache));
+		} else {
+			$data = $this->func->http_request($target);
+			if ($data['rc'] !== 200) {
+				return '';
+			} else {
+				$pat = ($enc_conv)?
+					mb_convert_encoding($data['data'], $this->func->cont['CONTENT_CHARSET'], $autolink['enc']) : $data['data'];
+				$pat = trim($pat);
+				if (preg_match('/[\r\n]+/',$pat)) $pat = ''; // 保険。無効なレスポンスかも？
+			}
+			$fp = fopen($cache, 'w');
+			fwrite($fp, $pat);
+			fclose($fp);
+		}
+		$this->ext_autolink_url = $autolink['url'];
+		$this->ext_autolink_base = ($autolink['base'])? $autolink['base'] . '/' : '';
+		$this->ext_sutolink_len = intval($autolink['len']);
+		return $pat;
 	}
 }
 

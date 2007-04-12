@@ -1,12 +1,16 @@
 <?php
 // PukiWiki - Yet another WikiWikiWeb clone
-// $Id: pukiwiki.ini.php,v 1.27 2007/04/09 01:39:03 nao-pon Exp $
+// $Id: pukiwiki.ini.php,v 1.28 2007/04/12 05:12:24 nao-pon Exp $
 // Copyright (C)
 //   2002-2006 PukiWiki Developers Team
 //   2001-2002 Originally written by yu-ji
 // License: GPL v2 or (at your option) any later version
 //
 // PukiWiki main setting file
+
+/////////////////////////////////////////////////
+// Variable initialize
+$root->ext_autolinks= array();	// External AutoLink
 
 /////////////////////////////////////////////////
 // Functionality settings
@@ -216,6 +220,18 @@ $root->static_url = 0;
 
 // Minimum length of page name
 $root->autolink = 0; // Bytes, 0 = OFF (try 8)
+
+/////////////////////////////////////////////////
+// External AutoLink
+// AutoLink to external site's page.
+
+//$root->ext_autolinks[] = array(
+//	'url'   => 'http://xoops.hypweb.net/modules/xpwiki/' , // '' means own wiki
+//	'base'  => 'keyword' ,	// base directory ('' means all pages)
+//	'len'   => 3 ,			// minimum length of link text
+//	'enc'   => 'EUC-JP' ,	// character encoding
+//	'cache' => 180			// cache minutes (minimum: 10min)
+//);
 
 /////////////////////////////////////////////////
 // AutoAlias feature
