@@ -1,6 +1,6 @@
 <?php
 // PukiWiki - Yet another WikiWikiWeb clone.
-// $Id: pukiwiki.css.php,v 1.16 2007/02/19 02:40:21 nao-pon Exp $
+// $Id: pukiwiki.css.php,v 1.17 2007/04/12 08:42:11 nao-pon Exp $
 // Copyright (C)
 //   2002-2005 PukiWiki Developers Team
 //   2001-2002 Originally written by yu-ji
@@ -126,6 +126,14 @@ $class a.pagelink {
 
 $class a.autolink {
 	/*border-bottom: 1px silver dotted;*/
+}
+
+$class a.ext_autolink {
+	/*border-bottom: 1px silver dotted;*/
+	background-image: url(../loader.php?src=ext.png);
+	background-repeat: no-repeat;
+	background-position: left 3px;
+	padding-left: 12px;
 }
 <?php	} ?>
 
