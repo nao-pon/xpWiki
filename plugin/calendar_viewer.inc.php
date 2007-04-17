@@ -1,6 +1,6 @@
 <?php
 // PukiWiki - Yet another WikiWikiWeb clone
-// $Id: calendar_viewer.inc.php,v 1.4 2007/01/03 08:40:51 nao-pon Exp $
+// $Id: calendar_viewer.inc.php,v 1.5 2007/04/17 23:38:49 nao-pon Exp $
 //
 // Calendar viewer plugin - List pages that calendar/calnedar2 plugin created
 // (Based on calendar and recent plugin)
@@ -118,8 +118,9 @@ class xpwiki_plugin_calendar_viewer extends xpwiki_plugin {
 		} else {
 			$pagepattern     = $this->func->strip_bracket($pagename) . '/';
 			$pagepattern_len = strlen($pagepattern);
-			$filepattern     = $this->func->encode($pagepattern . $page_YM);
-			$filepattern_len = strlen($filepattern);
+			$pagepattern    .= $page_YM;
+			//$filepattern     = $this->func->encode($pagepattern . $page_YM);
+			//$filepattern_len = strlen($filepattern);
 		}
 	
 		// ページリストの取得
@@ -152,6 +153,7 @@ class xpwiki_plugin_calendar_viewer extends xpwiki_plugin {
 	
 		// $limit_page の件数までインクルード
 		$tmp = max($limit_base, 0); // Skip minus
+		if (!$this->root->rtf['convert_nest']) $this->root->rtf['convert_nest']++;
 		while ($tmp < $limit_page) {
 			if (! isset($pagelist[$tmp])) break;
 	
@@ -220,10 +222,14 @@ class xpwiki_plugin_calendar_viewer extends xpwiki_plugin {
 			}
 			$prev_YM = sprintf('%04d%s%02d', $prev_year, $date_sep, $prev_month);
 			if ($mode == 'past') {
-				$right_YM   = $prev_YM;
-				$right_text = $prev_YM . '&gt;&gt;'; // >>
-				$left_YM    = $next_YM;
-				$left_text  = '&lt;&lt;' . $next_YM; // <<
+				//$right_YM   = $prev_YM;
+				//$right_text = $prev_YM . '&gt;&gt;'; // >>
+				//$left_YM    = $next_YM;
+				//$left_text  = '&lt;&lt;' . $next_YM; // <<
+				$left_YM    = $prev_YM;
+				$left_text  = '&lt;&lt;' . $prev_YM; // <<
+				$right_YM   = $next_YM;
+				$right_text = $next_YM . '&gt;&gt;'; // >>
 			} else {
 				$left_YM    = $prev_YM;
 				$left_text  = '&lt;&lt;' . $prev_YM; // <<
@@ -290,7 +296,7 @@ class xpwiki_plugin_calendar_viewer extends xpwiki_plugin {
 	
 		$args_array = array($this->root->vars['page'], $page_YM, $mode, $date_sep);
 		$return_vars_array['body'] = call_user_func_array (array(& $this, "plugin_calendar_viewer_convert"), $args_array);
-	
+		
 		//$return_vars_array['msg'] = 'calendar_viewer ' . $vars['page'] . '/' . $page_YM;
 		$return_vars_array['msg'] = 'calendar_viewer ' . htmlspecialchars($this->root->vars['page']);
 		if ($this->root->vars['page'] != '') $return_vars_array['msg'] .= '/';
