@@ -1,6 +1,6 @@
 <?php
 // PukiWiki - Yet another WikiWikiWeb clone
-// $Id: pukiwiki.ini.php,v 1.29 2007/04/17 23:15:44 nao-pon Exp $
+// $Id: pukiwiki.ini.php,v 1.30 2007/04/17 23:37:26 nao-pon Exp $
 // Copyright (C)
 //   2002-2006 PukiWiki Developers Team
 //   2001-2002 Originally written by yu-ji
@@ -225,12 +225,28 @@ $root->autolink = 0; // Bytes, 0 = OFF (try 8)
 // External AutoLink
 // AutoLink to external site's page.
 
+//// Auto link for hypweb's xpwiki/keyword/[ANY]
 //$root->ext_autolinks[] = array(
 //	'url'   => 'http://xoops.hypweb.net/modules/xpwiki/' , // '' means own wiki
-//	'base'  => 'keyword' ,	// base directory ('' means all pages)
-//	'len'   => 3 ,			// minimum length of link text
-//	'enc'   => 'EUC-JP' ,	// character encoding
-//	'cache' => 180			// cache minutes (minimum: 10min)
+//	'urldat'=> 0 ,				// url is autolink's data.(0:No, 1:Yes)
+//	'base'  => 'keyword' ,		// base directory ('' means all pages)
+//	'len'   => 3 ,				// minimum length of link text
+//	'enc'   => 'EUC-JP' ,		// character encoding
+//	'cache' => 180 ,			// cache minutes (minimum: 10min)
+//	'title' => 'hypweb: [KEY]' ,// title attr ([KEY] replaced a target word)
+//	'pat'   => '' ,				// Link pattern. (can use [URLENCODE], [WIKIENCODE])
+//);
+
+//// Auto link for kaunet.biz
+//$root->ext_autolinks[] = array(
+//	'url'   => 'http://www.kaunet.biz/dat/autolink.dat' , // '' means own wiki
+//	'urldat'=> 1 ,				// url is autolink's data.(0:No, 1:Yes)
+//	'base'  => '' ,				// base directory ('' means all pages)
+//	'len'   => 3 ,				// minimum length of link text
+//	'enc'   => 'UTF-8' ,		// character encoding
+//	'cache' => 180 ,			// cache minutes (minimum: 10min)
+//	'title' => 'Kaunet: [KEY]' ,// title attr ([KEY] replaced a target word)
+//	'pat'   => 'http://www.kaunet.biz/[WIKIENCODE].html' ,// Link pattern. (can use [URLENCODE], [WIKIENCODE])
 //);
 
 /////////////////////////////////////////////////
