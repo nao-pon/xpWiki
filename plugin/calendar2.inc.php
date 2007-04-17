@@ -5,7 +5,7 @@ class xpwiki_plugin_calendar2 extends xpwiki_plugin {
 
 
 	}
-	// $Id: calendar2.inc.php,v 1.1 2006/10/13 13:17:49 nao-pon Exp $
+	// $Id: calendar2.inc.php,v 1.2 2007/04/17 23:40:39 nao-pon Exp $
 	//
 	// Calendar2 plugin
 	//
@@ -193,12 +193,16 @@ EOD;
 		if ($date == '') $date = $this->func->get_date('Ym');
 		$yy = sprintf('%04d.%02d', substr($date, 0, 4),substr($date, 4, 2));
 	
-		$aryargs = array($this->root->vars['page'], $date);
+		$aryargs = array($this->root->vars['page'], $date, 'off');
 		$s_page  = htmlspecialchars($this->root->vars['page']);
 	
 		$ret['msg']  = 'calendar ' . $s_page . '/' . $yy;
 		$ret['body'] = call_user_func_array (array(& $this, "plugin_calendar2_convert"), $aryargs);
-	
+
+		$args_array = array($this->root->vars['page'], str_replace('.', '-', $yy), 'past', '-');
+		$plugin = & $this->func->get_plugin_instance('calendar_viewer');
+		$ret['body'] .= call_user_func_array (array(& $plugin, "plugin_calendar_viewer_convert"), $args_array);
+
 		$this->root->vars['page'] = $page;
 	
 		return $ret;
