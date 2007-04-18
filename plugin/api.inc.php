@@ -1,7 +1,7 @@
 <?php
 /*
  * Created on 2007/04/11 by nao-pon http://hypweb.net/
- * $Id: api.inc.php,v 1.1 2007/04/12 05:12:24 nao-pon Exp $
+ * $Id: api.inc.php,v 1.2 2007/04/18 14:14:05 nao-pon Exp $
  */
 
 class xpwiki_plugin_api extends xpwiki_plugin {
@@ -21,8 +21,11 @@ class xpwiki_plugin_api extends xpwiki_plugin {
 		
 	}
 	
-	function autolink () {
-		$base = (isset($this->root->vars['base']))? (string)$this->root->vars['base'] : '';
+	function autolink ($need_ret = false, $base = null) {
+		if (is_null($base)) {
+			$base = '';
+			$base = (isset($this->root->vars['base']))? (string)$this->root->vars['base'] : '';
+		}
 		$base = trim($base, '/');
 		
 		$cache = $this->cont['CACHE_DIR'].md5($base).'.autolink.api';
@@ -61,7 +64,11 @@ class xpwiki_plugin_api extends xpwiki_plugin {
 			fwrite($fp, $out);
 			fclose($fp);
 		}
-		$this->output($out);
+		if ($need_ret) {
+			return $out;
+		} else {
+			$this->output($out);
+		}
 	}
 	
 	function output ($str) {

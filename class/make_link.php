@@ -178,7 +178,8 @@ class XpWikiInlineConverter {
 	}
 	function get_ext_autolink($autolink) {
 		
-		$autolink['url'] = ($autolink['url'])? $autolink['url'] : $this->func->root->script;
+		$this->ext_autolink_own =  (empty($autolink['url']));
+		
 		$autolink['base'] = trim($autolink['base'],'/');
 		
 		$this->ext_autolink_enc_conv = (strtoupper($this->func->cont['CONTENT_CHARSET']) !== strtoupper($autolink['enc']));
@@ -196,37 +197,41 @@ class XpWikiInlineConverter {
 		if (file_exists($cache) && filemtime($cache) + $cache_min * 60 > time()) {
 			$pat = join('',file($cache));
 		} else {
-			$data = $this->func->http_request($target);
-			if ($data['rc'] !== 200) {
-				$pat = '';
+			if ($this->ext_autolink_own) {
+				$plugin = & $this->func->get_plugin_instance('api');
+				$pat = $plugin->autolink(true, $autolink['base']);
 			} else {
-				$pat = ($this->ext_autolink_enc_conv)?
-					mb_convert_encoding($data['data'], $this->func->cont['CONTENT_CHARSET'], $autolink['enc']) : $data['data'];
-				$pat = trim($pat);
-				@list($pat1, $pat2) = preg_split('/[\r\n]+/',$pat);
-				// 正規表現の検査
-				foreach(explode("\t", $pat1) as $_pat) {
-					if (preg_match('/('.$_pat.')/s','') === false){
-						$pat1 = '';
-						break;
+				$data = $this->func->http_request($target);
+				if ($data['rc'] !== 200) {
+					$pat = '';
+				} else {
+					$pat = ($this->ext_autolink_enc_conv)?
+						mb_convert_encoding($data['data'], $this->func->cont['CONTENT_CHARSET'], $autolink['enc']) : $data['data'];
+					$pat = trim($pat);
+					@list($pat1, $pat2) = preg_split('/[\r\n]+/',$pat);
+					// 正規表現の検査
+					foreach(explode("\t", $pat1) as $_pat) {
+						if (preg_match('/('.$_pat.')/s','') === false){
+							$pat1 = '';
+							break;
+						}
 					}
-				}
-				foreach(explode("\t", $pat2) as $_pat) {
-					if (preg_match('/('.$_pat.')/s','') === false){
-						$pat2 = '';
-						break;
+					foreach(explode("\t", $pat2) as $_pat) {
+						if (preg_match('/('.$_pat.')/s','') === false){
+							$pat2 = '';
+							break;
+						}
 					}
+					$pat = '';
+					if ($pat1) { $pat = $pat1; }
+					if ($pat2) { $pat .= "\t" . $pat2; }
 				}
-				$pat = '';
-				if ($pat1) { $pat = $pat1; }
-				if ($pat2) { $pat .= "\t" . $pat2; }
 			}
 			$fp = fopen($cache, 'w');
 			fwrite($fp, $pat);
 			fclose($fp);
 		}
 		$this->ext_autolink_url = $autolink['url'];
-		$this->ext_autolink_own = ($this->func->root->script === $this->ext_autolink_url);
 		$this->ext_autolink_base = ($autolink['base'])? $autolink['base'] . '/' : '';
 		$this->ext_autolink_len = intval($autolink['len']);
 		$this->ext_autolink_enc = (isset($autolink['enc']))? $autolink['enc'] : '';
