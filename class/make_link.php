@@ -203,14 +203,23 @@ class XpWikiInlineConverter {
 				$pat = ($this->ext_autolink_enc_conv)?
 					mb_convert_encoding($data['data'], $this->func->cont['CONTENT_CHARSET'], $autolink['enc']) : $data['data'];
 				$pat = trim($pat);
-				@list($pat) = preg_split('/[\r\n]+/',$pat);
+				@list($pat1, $pat2) = preg_split('/[\r\n]+/',$pat);
 				// 正規表現の検査
-				foreach(explode("\t", $pat) as $_pat) {
+				foreach(explode("\t", $pat1) as $_pat) {
 					if (preg_match('/('.$_pat.')/s','') === false){
-						$pat = '';
+						$pat1 = '';
 						break;
 					}
 				}
+				foreach(explode("\t", $pat2) as $_pat) {
+					if (preg_match('/('.$_pat.')/s','') === false){
+						$pat2 = '';
+						break;
+					}
+				}
+				$pat = '';
+				if ($pat1) { $pat = $pat1; }
+				if ($pat2) { $pat .= "\t" . $pat2; }
 			}
 			$fp = fopen($cache, 'w');
 			fwrite($fp, $pat);
