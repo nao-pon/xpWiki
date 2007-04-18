@@ -198,12 +198,19 @@ class XpWikiInlineConverter {
 		} else {
 			$data = $this->func->http_request($target);
 			if ($data['rc'] !== 200) {
-				return '';
+				$pat = '';
 			} else {
 				$pat = ($this->ext_autolink_enc_conv)?
 					mb_convert_encoding($data['data'], $this->func->cont['CONTENT_CHARSET'], $autolink['enc']) : $data['data'];
 				$pat = trim($pat);
-				if (preg_match('/[\r\n]+/',$pat)) $pat = ''; // 保険。無効なレスポンスかも？
+				@list($pat) = preg_split('/[\r\n]+/',$pat);
+				// 正規表現の検査
+				foreach(explode("\t", $pat) as $_pat) {
+					if (preg_match('/('.$_pat.')/s','') === false){
+						$pat = '';
+						break;
+					}
+				}
 			}
 			$fp = fopen($cache, 'w');
 			fwrite($fp, $pat);
