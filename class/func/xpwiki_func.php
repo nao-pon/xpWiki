@@ -1,7 +1,7 @@
 <?php
 //
 // Created on 2006/10/02 by nao-pon http://hypweb.net/
-// $Id: xpwiki_func.php,v 1.57 2007/04/10 09:18:32 nao-pon Exp $
+// $Id: xpwiki_func.php,v 1.58 2007/04/19 14:43:40 nao-pon Exp $
 //
 class XpWikiFunc extends XpWikiXoopsWrapper {
 
@@ -659,7 +659,7 @@ EOD;
 	function is_owner ($page) {
 		if ($this->root->userinfo['admin']) { return TRUE; }
 		$pginfo = $this->get_pginfo($page);
-		if ($pginfo['uid'] && ($pginfo['uid'] === $this->root->userinfo['uid'])) { return TRUE; }
+		if ($this->is_page($page) && $pginfo['uid'] && ($pginfo['uid'] === $this->root->userinfo['uid'])) { return TRUE; }
 		return FALSE;
 	}
 	
@@ -690,7 +690,14 @@ EOD;
 		if ($ret) return TRUE;
 		if ($exit_flag) {
 			$title = $this->root->_msg_not_readable;
-			$this->redirect_header($this->root->script, 1, $title);
+			if (!$this->root->userinfo['uid'] && $auth_flag) {
+				// needs login
+				$this->redirect_header($this->root->siteinfo['loginurl'], 1, $title, true);
+			} else if ($page === $this->root->defaultpage) {
+				$this->redirect_header($this->root->siteinfo['rooturl'], 1, $title);
+			} else {
+				$this->redirect_header($this->root->script, 1, $title);
+			}
 			exit;
 		}
 		return FALSE;
@@ -727,7 +734,14 @@ EOD;
 		if ($ret) return TRUE;
 		if ($exit_flag) {
 			$title = $this->root->_msg_not_editable;
-			$this->redirect_header($this->root->script.'?'.rawurlencode($page), 1, $title);
+			if (!$this->root->userinfo['uid'] && $auth_flag) {
+				// needs login
+				$this->redirect_header($this->root->siteinfo['loginurl'], 1, $title, true);
+			} else if ($this->is_page($page)) {
+				$this->redirect_header($this->root->script.'?'.rawurlencode($page), 1, $title);
+			} else {
+				$this->redirect_header($this->root->script, 1, $title);
+			}
 			exit;
 		}
 		return FALSE;
