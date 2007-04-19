@@ -1,7 +1,7 @@
 <?php
 //
 // Created on 2006/10/11 by nao-pon http://hypweb.net/
-// $Id: xoops_wrapper.php,v 1.23 2007/04/09 01:43:43 nao-pon Exp $
+// $Id: xoops_wrapper.php,v 1.24 2007/04/19 14:43:40 nao-pon Exp $
 //
 class XpWikiXoopsWrapper extends XpWikiBackupFunc {
 	
@@ -34,7 +34,8 @@ class XpWikiXoopsWrapper extends XpWikiBackupFunc {
 		$config_handler =& xoops_gethandler('config');
 		$xoopsConfig =& $config_handler->getConfigsByCat(XOOPS_CONF);
 		
-		$this->root->siteinfo['rooturl'] = XOOPS_URL."/";
+		$this->root->siteinfo['rooturl'] = XOOPS_URL.'/';
+		$this->root->siteinfo['loginurl'] = XOOPS_URL.'/user.php';
 		$this->root->siteinfo['sitename'] = $xoopsConfig['sitename'];
 		$this->root->siteinfo['anonymous'] = $xoopsConfig['anonymous'];
 	}
@@ -307,8 +308,8 @@ class XpWikiXoopsWrapper extends XpWikiBackupFunc {
 	}
 	
 	// リダイレクト
-	function redirect_header($url, $wait, $title) {
-		redirect_header($url, $wait, $title);
+	function redirect_header($url, $wait = 3, $title = '', $addredirect = true) {
+		redirect_header($url, $wait, $title, $addredirect);
 		exit;
 	}
 }
