@@ -1,6 +1,6 @@
 <?php
 // PukiWiki - Yet another WikiWikiWeb clone.
-// $Id: en.lng.php,v 1.13 2006/12/29 00:23:50 nao-pon Exp $
+// $Id: en.lng.php,v 1.14 2007/04/19 13:32:19 nao-pon Exp $
 // Copyright (C)
 //   2002-2005 PukiWiki Developers Team
 //   2001-2002 Originally written by yu-ji
@@ -70,7 +70,7 @@ $root->_msg_not_editable   = 'You don\'t have enough permission for edit.';
 ///////////////////////////////////////
 // Symbols
 $root->_symbol_anchor   = '&dagger;';
-$root->_symbol_noexists = '?';
+$root->_symbol_noexists = '<img src="'.$const['IMAGE_DIR'].'paraedit.png" alt="" title="MakePage" height="9" width="9">';
 
 ///////////////////////////////////////
 // Form buttons
