@@ -9,8 +9,6 @@ class XpWikiInlineConverter {
 	var $pattern;
 	var $pos;
 	var $result;
-	
-	var $ext_autolink_url, $ext_autolink_base, $ext_sutolink_len;
 
 	function get_clone($obj) {
 		static $clone_func;
@@ -124,11 +122,9 @@ class XpWikiInlineConverter {
 
 	// External AutoLinks
 	function ext_autolink(&$str) {
-		$autolinks = $this->func->root->ext_autolinks;
+		if (empty($this->func->root->ext_autolinks)) return $str;
 		
-		if (!$autolinks) return $str;
-		
-		foreach($autolinks as $autolink)
+		foreach($this->func->root->ext_autolinks as $autolink)
 		{
 			if ($pat = $this->get_ext_autolink($autolink)) {
 				foreach(explode("\t", $pat) as $_pat){
@@ -159,26 +155,37 @@ class XpWikiInlineConverter {
 		$page = $this->ext_autolink_base.$name;
 		$title = htmlspecialchars(str_replace('[KEY]', $this->ext_autolink_base.$name, $this->ext_autolink_title));
 		
-		if ($this->ext_autolink_own) {
-			// ¼«¸ÊWiki
-			return $this->func->make_pagelink($page, $name);
-		} else if ($this->ext_autolink_pat) {
+		if ($this->ext_autolink_own !== false) {
+			// own site
+			if ($this->ext_autolink_own) {
+				// other xpWiki
+				return $this->ext_autolink_func->make_pagelink($page, $name, '', '', 'ext_autolink');
+			} else {
+				// own xpWiki
+				return $this->func->make_pagelink($page, $name, '', '', 'autolink');
+			}
+		} else {
 			if ($this->ext_autolink_enc_conv) {
 				$page = mb_convert_encoding($page, $this->ext_autolink_enc, $this->func->cont['CONTENT_CHARSET']);
 			}
-			$urlencode = rawurlencode($page);
-			$wikiencode = $this->func->encode($page);
-			
-			$_url = str_replace(array('[URLENCODE]', '[WIKIENCODE]'), array($urlencode, $wikiencode), $this->ext_autolink_pat);
-			
-			return '<a href="'.$_url.'" title="'.$title.'" class="ext_autolink">'.htmlspecialchars($name).'</a>';
-		} else {
-			return '<a href="'.$this->ext_autolink_url.'?'.rawurlencode($page).'" title="'.$title.'" class="ext_autolink">'.htmlspecialchars($name).'</a>';
+			if ($this->ext_autolink_pat) {
+				if (isset($this->ext_autolink_replace['from'])) {
+					$_url = str_replace($this->ext_autolink_replace['from'], $this->ext_autolink_replace['func']($page), $this->ext_autolink_pat); 
+				}
+				return '<a href="'.$_url.'" title="'.$title.'" class="ext_autolink">'.htmlspecialchars($name).'</a>';
+			} else {
+				return '<a href="'.$this->ext_autolink_url.'?'.rawurlencode($page).'" title="'.$title.'" class="ext_autolink">'.htmlspecialchars($name).'</a>';
+			}
 		}
 	}
 	function get_ext_autolink($autolink) {
 		
-		$this->ext_autolink_own =  (empty($autolink['url']));
+		$autolink['url'] = (isset($autolink['url']))? $autolink['url'] : '';
+		if (preg_match('#^https?://#', $autolink['url'])) {
+			$this->ext_autolink_own = false;
+		} else {
+			$this->ext_autolink_own = $autolink['url'];
+		}
 		
 		$autolink['base'] = trim($autolink['base'],'/');
 		
@@ -196,9 +203,21 @@ class XpWikiInlineConverter {
 		$cache_min = intval(max($autolink['cache'], 10));
 		if (file_exists($cache) && filemtime($cache) + $cache_min * 60 > time()) {
 			$pat = join('',file($cache));
+			if ($this->ext_autolink_own !== false && $this->ext_autolink_own) {
+					$obj = new XpWiki($this->ext_autolink_own); 
+					$obj->init();
+					$this->ext_autolink_func = & $obj->func;				
+			}
 		} else {
-			if ($this->ext_autolink_own) {
-				$plugin = & $this->func->get_plugin_instance('api');
+			if ($this->ext_autolink_own !== false) {
+				if ($this->ext_autolink_own) {
+					$obj = new XpWiki($this->ext_autolink_own); 
+					$obj->init();
+					$this->ext_autolink_func = & $obj->func;
+					$plugin = & $obj->func->get_plugin_instance('api');
+				} else {
+					$plugin = & $this->func->get_plugin_instance('api');
+				}
 				$pat = $plugin->autolink(true, $autolink['base']);
 			} else {
 				$data = $this->func->http_request($target);
@@ -237,6 +256,20 @@ class XpWikiInlineConverter {
 		$this->ext_autolink_enc = (isset($autolink['enc']))? $autolink['enc'] : '';
 		$this->ext_autolink_pat = (isset($autolink['pat']))? $autolink['pat'] : '';
 		$this->ext_autolink_title = (isset($autolink['title']))? $autolink['title'] : 'Ext: [KEY]';
+		
+		if ($this->ext_autolink_pat) {
+			if (strpos($this->ext_autolink_pat, '[URL_ENCODE]') !== false) {
+				$this->ext_autolink_replace['from'] = '[URL_ENCODE]';
+				$this->ext_autolink_replace['func'] = create_function('$key', 'return urlencode($key);');
+			} else if (strpos($this->ext_autolink_pat, '[WIKI_ENCODE]') !== false) {
+				$this->ext_autolink_replace['from'] = '[WIKI_ENCODE]';
+				$this->ext_autolink_replace['func'] = create_function('$key', 'return XpWikiFunc::encode($key);');
+			} else if (strpos($this->ext_autolink_pat, '[EWORDS_ENCODE]') !== false) {
+				$this->ext_autolink_replace['from'] = '[EWORDS_ENCODE]';
+				$this->ext_autolink_replace['func'] = create_function('$key', 'return str_replace(array(\'%\',\'.\'), array(\'\',\'2E\'), urlencode($key));');
+			}
+		}
+		
 		return $pat;
 	}
 }
