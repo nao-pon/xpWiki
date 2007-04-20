@@ -1,6 +1,6 @@
 <?php
 // PukiWiki - Yet another WikiWikiWeb clone
-// $Id: pukiwiki.ini.php,v 1.32 2007/04/20 01:47:42 nao-pon Exp $
+// $Id: pukiwiki.ini.php,v 1.33 2007/04/20 12:57:43 nao-pon Exp $
 // Copyright (C)
 //   2002-2006 PukiWiki Developers Team
 //   2001-2002 Originally written by yu-ji
@@ -226,7 +226,7 @@ $root->autolink = 0; // Bytes, 0 = OFF (try 8)
 // AutoLink to external site's page.
 
 //// Auto link for hypweb's xpwiki/keyword/[ANY]
-//$root->ext_autolinks[] = array(
+//$root->ext_autolinks[] = array(	// Array key is valid pages split with '&' (prefix search)
 //	'url'   => 'http://xoops.hypweb.net/modules/xpwiki/' , // '' means own wiki, 'DirctoryName' for other xpWiki in this site.
 //	'urldat'=> 0 ,				// url is autolink's data.(0:No, 1:Yes)
 //	'base'  => 'keyword' ,		// base directory ('' means all pages)
@@ -238,7 +238,7 @@ $root->autolink = 0; // Bytes, 0 = OFF (try 8)
 //);
 
 //// Auto link for kaunet.biz
-//$root->ext_autolinks[] = array(
+//$root->ext_autolinks[] = array(	// Array key is valid pages split with '&' (prefix search)
 //	'url'   => 'http://www.kaunet.biz/dat/autolink.dat' , // '' means own wiki, 'DirctoryName' for other xpWiki in this site.
 //	'urldat'=> 1 ,				// url is autolink's data.(0:No, 1:Yes)
 //	'base'  => '' ,				// base directory ('' means all pages)
@@ -250,7 +250,7 @@ $root->autolink = 0; // Bytes, 0 = OFF (try 8)
 //);
 
 //// Auto link for e-words.jp
-//$root->ext_autolinks[] = array(
+//$root->ext_autolinks[] = array(	// Array key is valid pages split with '&' (prefix search)
 //	'url'   => 'http://xoops.hypweb.net/download/e-words.autolink.dat', // '' means own wiki, 'DirctoryName' for other xpWiki in this site.
 //	'urldat'=> 1 ,				// url is autolink's data.
 //	'base'  => '' ,				// base directory ('' means all pages)
