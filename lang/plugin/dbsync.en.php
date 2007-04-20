@@ -1,29 +1,29 @@
 <?php
 //
 // Created on 2006/11/09 by nao-pon http://hypweb.net/
-// $Id: dbsync.en.php,v 1.1 2006/11/19 11:22:15 nao-pon Exp $
+// $Id: dbsync.en.php,v 1.2 2007/04/20 06:50:52 nao-pon Exp $
 //
 
 $msg = array(
-	'title_update'  => 'ページ情報DB更新',
-	'msg_adminpass' => '管理者パスワード',
-	'msg_all' => 'DBをすべて初期化&再設定',
-	'msg_select' => '以下から選択して初期化&再設定',
-	'msg_hint' => '初期導入時はすべてにチェックをつけて実行してください。',
-	'msg_init' => 'ページ基本情報DB',
-	'msg_count' => 'ページカウンター情報DB',
-	'msg_noretitle' => '既存のページはタイトル情報を保持する。',
-	'msg_retitle' => '既存のページもタイトル情報を再取得する。',
-	'msg_plain_init' => '検索用テキストDB と ページ間リンク情報DB',
-	'msg_plain_init_notall' => '検索用テキストDBが空のページのみ処理する。',
-	'msg_plain_init_all' => 'すべてのページを処理する。(時間が掛かります。)',
-	'msg_attach_init' => '添付ファイル情報DB',
-	'msg_progress_report' => '進捗状況:',
-	'msg_now_doing' => '只今、サーバー側で処理中です。<br />下の進捗画面に「すべての処理が完了しました。」と表示されるまで<br />このページを開いたままにして置いてください。',
-	'msg_next_do' => '<span style="color:blue;">サーバーの実行時間制限により処理を中断しました。<br />下の進捗画面最下部の「続きの処理を実行」をクリックして<br />引き続き処理を行ってください。</span>',
-	'btn_submit'    => '実行',
-	'btn_next_do'    => '続きの処理を実行',
-	'msg_done'      => 'すべての処理が完了しました。',
+	'title_update'  => 'Update Page Information DB',
+	'msg_adminpass' => 'Admin password',
+	'msg_all' => 'Initialization and a reset of all',
+	'msg_select' => 'Initialization and a reset of select',
+	'msg_hint' => 'Check all at the time of initial introduction.',
+	'msg_init' => 'Page infomation DB',
+	'msg_count' => 'Page counter DB',
+	'msg_noretitle' => 'An existing page maintains title information.',
+	'msg_retitle' => 'An existing page acquires title information again, too.',
+	'msg_plain_init' => 'Text DB for searches and DB for link between pages',
+	'msg_plain_init_notall' => 'Text DB for searches treats only an empty page.',
+	'msg_plain_init_all' => 'Processes all pages. (It takes time.)',
+	'msg_attach_init' => 'Attached file information DB',
+	'msg_progress_report' => 'Progress:',
+	'msg_now_doing' => 'Now processing in a server side.<br />Keep open this page until display "All processing was completed" to a lower progress screen.',
+	'msg_next_do' => '<span style="color:blue;">Stopped processing by a limit for execute time of a server.<br />Click "Do continue" of a lower progress screen bedrock, and please work to last.</span>',
+	'btn_submit'    => 'Go!',
+	'btn_next_do'    => 'Do continue.',
+	'msg_done'      => 'All processing was completed.',
 	'msg_usage'     => "
 * Description
 
@@ -40,8 +40,8 @@ If you see 'Continue' button, you should click this to complete this procedure.
 
 * Run
 
-Please click 'Run' button.
-If you cannot see 'Run' button, you should login as a Administrator user.
+Please click 'Go!' button.
+If you cannot see 'Go!' button, you should login as a Administrator user.
 
 Options marked * mean, they have not beed processed yet.",
 );
