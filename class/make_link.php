@@ -124,12 +124,14 @@ class XpWikiInlineConverter {
 	function ext_autolink(&$str) {
 		if (empty($this->func->root->ext_autolinks)) return $str;
 		
-		foreach($this->func->root->ext_autolinks as $autolink)
+		foreach($this->func->root->ext_autolinks as $valid => $autolink)
 		{
-			if ($pat = $this->get_ext_autolink($autolink)) {
-				foreach(explode("\t", $pat) as $_pat){
-					$pattern = "/(<(?:a|A).*?<\/(?:a|A)>|<[^>]*>|&(?:#[0-9]+|#x[0-9a-f]+|[0-9a-zA-Z]+);)|($_pat)/s";
-					$str = preg_replace_callback($pattern,array(&$this,'ext_autolink_replace'),$str);
+			if ($pat = $this->get_ext_autolink($autolink, $valid)) {
+				if ($pat) {
+					foreach(explode("\t", $pat) as $_pat){
+						$pattern = "/(<(?:a|A).*?<\/(?:a|A)>|<[^>]*>|&(?:#[0-9]+|#x[0-9a-f]+|[0-9a-zA-Z]+);)|($_pat)/s";
+						$str = preg_replace_callback($pattern,array(&$this,'ext_autolink_replace'),$str);
+					}
 				}
 			}
 		}
@@ -178,9 +180,33 @@ class XpWikiInlineConverter {
 			}
 		}
 	}
-	function get_ext_autolink($autolink) {
+	function get_ext_autolink($autolink, $valid) {
 		
-		$autolink['url'] = (isset($autolink['url']))? $autolink['url'] : '';
+		// check valid pages.
+		if (is_string($valid) && $this->func->root->vars['page']) {
+			$_check = false;
+			foreach(explode('&', $valid) as $_valid) {
+				if (strpos($this->func->root->vars['page'], $_valid) === 0) {
+					$_check = true;
+					break;
+				}
+			}
+			if (! $_check ) return '';
+		}
+		
+		// initialize
+		$inits = array(
+			'url'   => '' ,
+			'urldat'=> 0 ,
+			'base'  => '' ,
+			'len'   => 3 ,
+			'enc'   => $this->func->cont['CONTENT_CHARSET'] ,
+			'cache' => 10 ,
+			'title' => 'Ext:[KEY]' ,
+			'pat'   => ''
+		);
+		$autolink = array_merge($inits, $autolink);
+		
 		if (preg_match('#^https?://#', $autolink['url'])) {
 			$this->ext_autolink_own = false;
 		} else {
@@ -191,7 +217,7 @@ class XpWikiInlineConverter {
 		
 		$this->ext_autolink_enc_conv = (strtoupper($this->func->cont['CONTENT_CHARSET']) !== strtoupper($autolink['enc']));
 		
-		if (!empty($autolink['urldat'])){
+		if (! $autolink['urldat']){
 			$target = $autolink['url'];
 		} else {
 			$target = ($this->ext_autolink_enc_conv)?
@@ -228,7 +254,7 @@ class XpWikiInlineConverter {
 						mb_convert_encoding($data['data'], $this->func->cont['CONTENT_CHARSET'], $autolink['enc']) : $data['data'];
 					$pat = trim($pat);
 					@list($pat1, $pat2) = preg_split('/[\r\n]+/',$pat);
-					// 正規表現の検査
+					// check regex pattern
 					foreach(explode("\t", $pat1) as $_pat) {
 						if (preg_match('/('.$_pat.')/s','') === false){
 							$pat1 = '';
