@@ -1,49 +1,10 @@
 <?php
 //
 // Created on 2006/11/09 by nao-pon http://hypweb.net/
-// $Id: pginfo.en.php,v 1.2 2006/11/13 11:56:22 nao-pon Exp $
+// $Id: pginfo.en.php,v 1.3 2007/04/20 06:50:17 nao-pon Exp $
 //
 
 $msg = array(
-	'title_update'  => 'ページ情報DB更新',
-	'msg_adminpass' => '管理者パスワード',
-	'msg_all' => 'DBをすべて初期化&再設定',
-	'msg_select' => '以下から選択して初期化&再設定',
-	'msg_hint' => '初期導入時はすべてにチェックをつけて実行してください。',
-	'msg_init' => 'ページ基本情報DB',
-	'msg_count' => 'ページカウンター情報DB',
-	'msg_noretitle' => '既存のページはタイトル情報を保持する。',
-	'msg_retitle' => '既存のページもタイトル情報を再取得する。',
-	'msg_plain_init' => '検索用テキストDB と ページ間リンク情報DB',
-	'msg_plain_init_notall' => '検索用テキストDBが空のページのみ処理する。',
-	'msg_plain_init_all' => 'すべてのページを処理する。(時間が掛かります。)',
-	'msg_attach_init' => '添付ファイル情報DB',
-	'msg_progress_report' => '進捗状況:',
-	'msg_now_doing' => '只今、サーバー側で処理中です。<br />下の進捗画面に「すべての処理が完了しました。」と表示されるまで<br />このページを開いたままにして置いてください。',
-	'msg_next_do' => '<span style="color:blue;">サーバーの実行時間制限により処理を中断しました。<br />下の進捗画面最下部の「続きの処理を実行」をクリックして<br />引き続き処理を行ってください。</span>',
-	'btn_submit'    => '実行',
-	'btn_next_do'    => '続きの処理を実行',
-	'msg_done'      => 'すべての処理が完了しました。',
-	'msg_usage'     => "
-* Description
-
-:Update Page Information DB|
-Scan all page files and rebuild page information DB.
-
-* Notice
-
-Please wait a while, after clicking 'Run' button.
-
-Max PHP execution time on this server is set to &font(red,b){%1d}; seconds.
-So, this process will be paused at every &font(red,b){%2d}; seconds and will show 'Continue' button.
-If you see 'Continue' button, you should click this to complete this procedure.
-
-* Run
-
-Please click 'Run' button.
-If you cannot see 'Run' button, you should login as a Administrator user.
-
-Options marked * mean, they have not beed processed yet.",
 	// for page permission
 	'title_permission' => 'Permission setting of $1',
 	'edit_permission' => 'Editable Permission',
