@@ -1,7 +1,7 @@
 <?php
 //
 // Created on 2006/10/02 by nao-pon http://hypweb.net/
-// $Id: pukiwiki_func.php,v 1.64 2007/04/20 00:32:22 nao-pon Exp $
+// $Id: pukiwiki_func.php,v 1.65 2007/04/22 22:19:06 nao-pon Exp $
 //
 class XpWikiPukiWikiFunc extends XpWikiBaseFunc {
 
@@ -767,7 +767,7 @@ class XpWikiPukiWikiFunc extends XpWikiBaseFunc {
 
 //----- Start convert_html.php -----//
 	// PukiWiki - Yet another WikiWikiWeb clone
-	// $Id: pukiwiki_func.php,v 1.64 2007/04/20 00:32:22 nao-pon Exp $
+	// $Id: pukiwiki_func.php,v 1.65 2007/04/22 22:19:06 nao-pon Exp $
 	// Copyright (C)
 	//   2002-2005 PukiWiki Developers Team
 	//   2001-2002 Originally written by yu-ji
@@ -801,9 +801,16 @@ class XpWikiPukiWikiFunc extends XpWikiBaseFunc {
 		$body->parse($lines);
 		
 		$ret = $body->toString();
+
+		// External AutoLink
+		if (! empty($this->root->ext_autolinks) && $this->root->rtf['convert_nest'] === 1) {
+			include_once(dirname(dirname(__FILE__)).'/ext_autolink.php');
+			$ext_autolink_obj = new XpWikiPukiExtAutoLink($this->xpwiki);
+			$ext_autolink_obj->ext_autolink($ret);
+		}
+
 		--$this->root->rtf['convert_nest'];
 		return $ret;
-		//return $body->toString();
 	}
 	
 	// Returns inline-related object
@@ -886,7 +893,7 @@ class XpWikiPukiWikiFunc extends XpWikiBaseFunc {
 
 //----- Start func.php -----//
 	// PukiWiki - Yet another WikiWikiWeb clone.
-	// $Id: pukiwiki_func.php,v 1.64 2007/04/20 00:32:22 nao-pon Exp $
+	// $Id: pukiwiki_func.php,v 1.65 2007/04/22 22:19:06 nao-pon Exp $
 	// Copyright (C)
 	//   2002-2006 PukiWiki Developers Team
 	//   2001-2002 Originally written by yu-ji
@@ -1654,7 +1661,7 @@ EOD;
 
 //----- Start make_link.php -----//
 	// PukiWiki - Yet another WikiWikiWeb clone.
-	// $Id: pukiwiki_func.php,v 1.64 2007/04/20 00:32:22 nao-pon Exp $
+	// $Id: pukiwiki_func.php,v 1.65 2007/04/22 22:19:06 nao-pon Exp $
 	// Copyright (C)
 	//   2003-2005 PukiWiki Developers Team
 	//   2001-2002 Originally written by yu-ji
@@ -2446,7 +2453,7 @@ EOD;
 
 //----- Start html.php -----//
 	// PukiWiki - Yet another WikiWikiWeb clone.
-	// $Id: pukiwiki_func.php,v 1.64 2007/04/20 00:32:22 nao-pon Exp $
+	// $Id: pukiwiki_func.php,v 1.65 2007/04/22 22:19:06 nao-pon Exp $
 	// Copyright (C)
 	//   2002-2006 PukiWiki Developers Team
 	//   2001-2002 Originally written by yu-ji
@@ -3043,7 +3050,7 @@ EOD;
 
 //----- Start mail.php -----//
 	// PukiWiki - Yet another WikiWikiWeb clone.
-	// $Id: pukiwiki_func.php,v 1.64 2007/04/20 00:32:22 nao-pon Exp $
+	// $Id: pukiwiki_func.php,v 1.65 2007/04/22 22:19:06 nao-pon Exp $
 	// Copyright (C)
 	//   2003-2005 PukiWiki Developers Team
 	//   2003      Originally written by upk
@@ -3346,7 +3353,7 @@ EOD;
 
 //----- Start link.php -----//
 	// PukiWiki - Yet another WikiWikiWeb clone
-	// $Id: pukiwiki_func.php,v 1.64 2007/04/20 00:32:22 nao-pon Exp $
+	// $Id: pukiwiki_func.php,v 1.65 2007/04/22 22:19:06 nao-pon Exp $
 	// Copyright (C) 2003-2006 PukiWiki Developers Team
 	// License: GPL v2 or (at your option) any later version
 	//
