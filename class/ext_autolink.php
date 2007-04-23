@@ -1,12 +1,13 @@
 <?php
 /*
  * Created on 2007/04/23 by nao-pon http://hypweb.net/
- * $Id: ext_autolink.php,v 1.1 2007/04/22 22:19:05 nao-pon Exp $
+ * $Id: ext_autolink.php,v 1.2 2007/04/23 23:48:28 nao-pon Exp $
  */
 class XpWikiPukiExtAutoLink {
 	// External AutoLinks
 	
 	function XpWikiPukiExtAutoLink (& $xpwiki) {
+		ini_set('mbstring.substitute_character', 'none');
 		$this->xpwiki = & $xpwiki;
 		$this->root = & $xpwiki->root;
 		$this->cont = & $xpwiki->cont;
@@ -107,7 +108,7 @@ class XpWikiPukiExtAutoLink {
 		
 		$this->ext_autolink_enc_conv = (strtoupper($this->cont['CONTENT_CHARSET']) !== strtoupper($autolink['enc']));
 		
-		if (! $autolink['urldat']){
+		if ($autolink['urldat']){
 			$target = $autolink['url'];
 		} else {
 			$target = ($this->ext_autolink_enc_conv)?
