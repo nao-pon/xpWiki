@@ -1,7 +1,7 @@
 <?php
 /*
  * Created on 2007/04/23 by nao-pon http://hypweb.net/
- * $Id: ext_autolink.php,v 1.3 2007/04/24 08:59:17 nao-pon Exp $
+ * $Id: ext_autolink.php,v 1.4 2007/05/06 22:15:06 nao-pon Exp $
  */
 class XpWikiPukiExtAutoLink {
 	// External AutoLinks
@@ -22,7 +22,7 @@ class XpWikiPukiExtAutoLink {
 			if ($pat = $this->get_ext_autolink($autolink, $valid)) {
 				if ($pat) {
 					foreach(explode("\t", $pat) as $_pat){
-						$pattern = "/(<(?:a|A).*?<\/(?:a|A)>|<[^>]*>|&(?:#[0-9]+|#x[0-9a-f]+|[0-9a-zA-Z]+);)|($_pat)/sS";
+						$pattern = "/(<(?:a|A).*?<\/(?:a|A)>|<(?:textarea).*?<\/(?:textarea)>|<[^>]*>|&(?:#[0-9]+|#x[0-9a-f]+|[0-9a-zA-Z]+);)|($_pat)/sS";
 						$str = preg_replace_callback($pattern,array(&$this,'ext_autolink_replace'),$str);
 					}
 				}
