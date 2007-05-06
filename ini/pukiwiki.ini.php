@@ -1,6 +1,6 @@
 <?php
 // PukiWiki - Yet another WikiWikiWeb clone
-// $Id: pukiwiki.ini.php,v 1.33 2007/04/20 12:57:43 nao-pon Exp $
+// $Id: pukiwiki.ini.php,v 1.34 2007/05/06 22:17:13 nao-pon Exp $
 // Copyright (C)
 //   2002-2006 PukiWiki Developers Team
 //   2001-2002 Originally written by yu-ji
@@ -361,6 +361,9 @@ $root->edit_auth_pages = array(
 
 // Q & A 認証 (使用しない = 0, ゲストのみ = 1, 管理者以外 = 2)
 $root->riddle_auth = 1;
+
+// 編集権限をプラグインでの書き込みにも適用する
+$root->plugin_follow_editauth = 0;
 
 /////////////////////////////////////////////////
 // ページ情報のサイト規定値
