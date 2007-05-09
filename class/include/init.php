@@ -46,6 +46,11 @@ case 'en':
 	$const['MB_LANGUAGE'] = 'English';	// 'uni'(means UTF-8), 'English', or 'Japanese'
 	// Internal content encoding (for mbstring extension)
 	$const['SOURCE_ENCODING'] = _CHARSET;
+	
+	if ($const['UI_LANG'] === 'ja' && _CHARSET !== 'UTF-8') {
+		$const['UI_LANG'] = 'en';
+	}
+	
 	break;
 	
 case 'ja': // _CHARSET
