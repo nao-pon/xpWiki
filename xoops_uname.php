@@ -9,12 +9,14 @@ $enc = (isset($_GET['e']))? (string)$_GET['e'] : "";
 
 $dats = array();
 $oq = $q = str_replace("\0","",$q);
-$enc = str_replace("\0","",$enc);
-$use_utf8 = (strtoupper($enc) === 'UTF-8');
+$enc = strtoupper(str_replace("\0","",$enc));
+$encs = array( 'EUC-JP' , 'SJIS', 'EUCJP-WIN', 'SJIS-WIN', 'JIS', 'ISO-2022-JP' );
+$use_mb = (in_array($enc, $encs));
+$use_utf8 = ($enc === 'UTF-8');
 
 if ($q !== "") {
 	
-	if (! $use_utf8) {
+	if ($use_mb) {
 		$q = addslashes(mb_convert_encoding($q, $enc, 'UTF-8'));
 	}
 
@@ -59,7 +61,7 @@ if ($q !== "") {
 
 $oq = '"'.str_replace('"','\"',$oq).'"';
 $ret = join(", ",$unames);
-if (! $use_utf8) {
+if ($use_mb) {
 	$ret = addslashes(mb_convert_encoding($ret, 'UTF-8', $enc));
 }
 $ret = "this.setSuggest($oq,new Array(".$ret."));";
