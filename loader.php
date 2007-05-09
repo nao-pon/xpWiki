@@ -1,7 +1,7 @@
 <?php
 //
 // Created on 2006/10/25 by nao-pon http://hypweb.net/
-// $Id: loader.php,v 1.5 2006/12/18 14:27:01 nao-pon Exp $
+// $Id: loader.php,v 1.6 2007/05/09 12:08:36 nao-pon Exp $
 //
 
 // 変数初期化
@@ -64,9 +64,9 @@ if (!$src_file)
 	$src_file = dirname(__FILE__)."/skin/{$basedir}{$type}/".preg_replace("/[^\w.]/","",$src).".$type";
 
 // default.LANG
-if ($type === "js" && substr($src,0,7) == "default") {
+if ($type === "js" && substr($src,0,7) === "default") {
 	if (!file_exists($src_file)) {
-		$src = dirname(__FILE__)."/js/default.en.js";
+		$src_file = dirname(__FILE__)."/skin/js/default.en.js";
 	}
 }
 

@@ -1,7 +1,7 @@
 <?php
 //
 // Created on 2006/10/11 by nao-pon http://hypweb.net/
-// $Id: xoops_wrapper.php,v 1.24 2007/04/19 14:43:40 nao-pon Exp $
+// $Id: xoops_wrapper.php,v 1.25 2007/05/09 12:08:37 nao-pon Exp $
 //
 class XpWikiXoopsWrapper extends XpWikiBackupFunc {
 	
@@ -109,9 +109,10 @@ class XpWikiXoopsWrapper extends XpWikiBackupFunc {
 	function get_lang ($default) {
 		$config_handler =& xoops_gethandler('config');
 		$xoopsConfig =& $config_handler->getConfigsByCat(XOOPS_CONF);
-		$language = $xoopsConfig['language'];
+		$language = preg_replace('/^(.*)(utf)?$/i', '$1', $xoopsConfig['language']);
 		switch (strtolower($language)) {
 			case "japanese" :
+			case "japaneseutf" :
 				return "ja";
 			case "english" :
 				return "en";

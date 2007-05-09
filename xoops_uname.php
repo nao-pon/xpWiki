@@ -4,14 +4,19 @@ error_reporting(0);
 
 include(dirname(__FILE__).'/include/compat.php');
 
-$q = (isset($_GET['q']))? $_GET['q'] : "";
+$q = (isset($_GET['q']))? (string)$_GET['q'] : "";
+$enc = (isset($_GET['e']))? (string)$_GET['e'] : "";
 
 $dats = array();
 $oq = $q = str_replace("\0","",$q);
+$enc = str_replace("\0","",$enc);
+$use_utf8 = (strtoupper($enc) === 'UTF-8');
 
-if ($q !== "")
-{
-	$q = addslashes(mb_convert_encoding($q,"EUC-JP","UTF-8"));
+if ($q !== "") {
+	
+	if (! $use_utf8) {
+		$q = addslashes(mb_convert_encoding($q, $enc, 'UTF-8'));
+	}
 
 	$where1 = " WHERE `uname` LIKE '".$q."%'";
 	$where2 = " WHERE `uname` LIKE '%".$q."%' AND `uname` NOT LIKE '".$q."%'";
@@ -21,19 +26,23 @@ if ($q !== "")
 	mysql_connect(XOOPS_DB_HOST, XOOPS_DB_USER, XOOPS_DB_PASS) or die(mysql_error());
 	mysql_select_db(XOOPS_DB_NAME); 
 	
+	if ($use_utf8) {
+		mysql_query( "/*!40101 SET NAMES utf8 */" );
+		mysql_query( "/*!40101 SET SESSION collation_connection=utf8_japanese_ci */" );
+	}
+	
 	$query = "SELECT `uid`, `uname` FROM `".XOOPS_DB_PREFIX."_users`".$where1.$order." LIMIT ".$limit;
 	
-	$suggests = $tags = array();
+	$unames = $suggests = $tags = array();
 	if ($result = mysql_query($query))
 	{
 		while($dat = mysql_fetch_row($result))
 		{
-			//$uids[] = '"'.str_replace('"','\"',$dat[0]).'"';
 			$unames[] = '"'.str_replace('"','\"',$dat[1]).'['.$dat[0].']"';
 		}
 	}
 
-	$count = count($uids);
+	$count = count($unames);
 	if ($count < $limit)
 	{
 		$query = "SELECT `uid`, `uname` FROM `".XOOPS_DB_PREFIX."_users`".$where2.$order." LIMIT ".($limit - $count);
@@ -41,7 +50,6 @@ if ($q !== "")
 		{
 			while($dat = mysql_fetch_row($result))
 			{
-				//$uids[] = '"'.str_replace('"','\"',$dat[0]).'"';
 				$unames[] = '"'.str_replace('"','\"',$dat[1]).'['.$dat[0].']"';
 			}
 		}		
@@ -50,9 +58,11 @@ if ($q !== "")
 }
 
 $oq = '"'.str_replace('"','\"',$oq).'"';
-//$ret = "this.setSuggest($oq,new Array(".join(", ",$uids)."),new Array(".mb_convert_encoding(join(", ",$unames),"UTF-8","EUC-JP")."));";
-$ret = "this.setSuggest($oq,new Array(".mb_convert_encoding(join(", ",$unames),"UTF-8","EUC-JP")."));";
-
+$ret = join(", ",$unames);
+if (! $use_utf8) {
+	$ret = addslashes(mb_convert_encoding($ret, 'UTF-8', $enc));
+}
+$ret = "this.setSuggest($oq,new Array(".$ret."));";
 
 header ("Content-Type: text/html; charset=UTF-8");
 header ("Content-Length: ".strlen($ret));
