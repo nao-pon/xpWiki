@@ -41,22 +41,23 @@ $const['UI_LANG'] = $this->get_accept_language();
 switch ($const['LANG']){
 case 'en':
 	// Internal content encoding = Output content charset (for skin)
-	$const['CONTENT_CHARSET'] = 'iso-8859-1'; // 'UTF-8', 'iso-8859-1', 'EUC-JP' or ...
+	$const['CONTENT_CHARSET'] = _CHARSET;
 	// mb_language (for mbstring extension)
 	$const['MB_LANGUAGE'] = 'English';	// 'uni'(means UTF-8), 'English', or 'Japanese'
 	// Internal content encoding (for mbstring extension)
-	$const['SOURCE_ENCODING'] = 'ASCII';	// 'UTF-8', 'ASCII', or 'EUC-JP'
+	$const['SOURCE_ENCODING'] = _CHARSET;
 	break;
 	
-case 'ja': // EUC-JP
-	$const['CONTENT_CHARSET'] = 'EUC-JP';
+case 'ja': // _CHARSET
+	$const['CONTENT_CHARSET'] = _CHARSET;
 	$const['MB_LANGUAGE'] = 'Japanese';
-	$const['SOURCE_ENCODING'] = 'EUC-JP';
+	$const['SOURCE_ENCODING'] = _CHARSET;
 	break;
 
 default:
-	$this->die_message('No such language "' . LANG . '"'.memory_get_usage());
+	$this->die_message('No such language "' . $const['LANG'] . '"'.memory_get_usage());
 }
+$const['FILE_ENCORD_EXT'] = ('utf-8' === strtolower(_CHARSET))? 'utf' : '';
 
 mb_language($const['MB_LANGUAGE']);
 mb_internal_encoding($const['SOURCE_ENCODING']);
@@ -67,11 +68,28 @@ mb_detect_order('auto');
 /////////////////////////////////////////////////
 // INI_FILE: Require LANG_FILE
 
-$const['LANG_FILE_HINT'] = $const['DATA_HOME'] . 'private/lang/' . $const['LANG'] . '.lng.php';	// For encoding hint
-$const['LANG_FILE'] = $const['DATA_HOME'] . 'private/lang/' . $const['UI_LANG'] . '.lng.php';	// For UI resource
+$lang_file_hint = $const['DATA_HOME'] . 'private/lang/' . $const['LANG'] . $const['FILE_ENCORD_EXT'] . '.lng.php';	// For encoding hint
+$lang_file = $const['DATA_HOME'] . 'private/lang/' . $const['UI_LANG'] . $const['FILE_ENCORD_EXT'] . '.lng.php';	// For UI resource
+
+// html側になければtrust側
+if (! file_exists($lang_file_hint)) {
+	$lang_file_hint = $this->root->mytrustdirpath.'/lang/' . $const['LANG'] . $const['FILE_ENCORD_EXT'] . '.lng.php';
+}
+if (! file_exists($lang_file)) {
+	$lang_file = $this->root->mytrustdirpath.'/lang/' . $const['UI_LANG'] . $const['FILE_ENCORD_EXT'] . '.lng.php';
+}
+
+// それでもなければ 'en'
+if (! file_exists($lang_file_hint)) {
+	$lang_file_hint = $const['DATA_HOME'] . 'private/lang/en.lng.php';
+}
+if (! file_exists($lang_file)) {
+	$lang_file = $const['DATA_HOME'] . 'private/lang/en.lng.php';
+}
+
 $die = '';
 
-$langfiles = array($const['LANG_FILE_HINT'], $const['LANG_FILE']);
+$langfiles = array($lang_file_hint, $lang_file);
 array_unique($langfiles);
 foreach ($langfiles as $langfile) {
 	if (! file_exists($langfile) || ! is_readable($langfile)) {

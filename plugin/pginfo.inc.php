@@ -2,7 +2,7 @@
 /////////////////////////////////////////////////
 // PukiWiki - Yet another WikiWikiWeb clone.
 //
-// $Id: pginfo.inc.php,v 1.8 2007/01/14 13:43:50 nao-pon Exp $
+// $Id: pginfo.inc.php,v 1.9 2007/05/09 12:08:37 nao-pon Exp $
 //
 
 class xpwiki_plugin_pginfo extends xpwiki_plugin {
@@ -301,10 +301,10 @@ class xpwiki_plugin_pginfo extends xpwiki_plugin {
 			}
 		}
 
-		
 		$e_default = ($pginfo['einherit'] === 3)? '<p>'.$this->msg['default_inherit'].'</p>' : '';
 		$v_default = ($pginfo['vinherit'] === 3)? '<p>'.$this->msg['default_inherit'].'</p>' : '';
 
+		$enc = $this->cont['CONTENT_CHARSET'];
 
 		$ret['msg'] = $this->msg['title_permission'];
 		$ret['body'] = '';
@@ -312,8 +312,8 @@ class xpwiki_plugin_pginfo extends xpwiki_plugin {
 <script>
 var XpWikiSuggest1 = null;
 var onLoadHandler = function(){
-	XpWikiSuggest1 = new XpWikiUnameSuggest('{$this->cont['HOME_URL']}','xpwiki_tag_input1','xpwiki_suggest_list1','xpwiki_tag_hidden1','xpwiki_tag_list1');
-	XpWikiSuggest2 = new XpWikiUnameSuggest('{$this->cont['HOME_URL']}','xpwiki_tag_input2','xpwiki_suggest_list2','xpwiki_tag_hidden2','xpwiki_tag_list2');
+	XpWikiSuggest1 = new XpWikiUnameSuggest('{$this->cont['HOME_URL']}','xpwiki_tag_input1','xpwiki_suggest_list1','xpwiki_tag_hidden1','xpwiki_tag_list1','{$enc}');
+	XpWikiSuggest2 = new XpWikiUnameSuggest('{$this->cont['HOME_URL']}','xpwiki_tag_input2','xpwiki_suggest_list2','xpwiki_tag_hidden2','xpwiki_tag_list2','{$enc}');
 };
 if (window.addEventListener) {
     window.addEventListener("load", onLoadHandler, true);

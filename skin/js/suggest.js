@@ -1,7 +1,7 @@
 var XpWikiUnameSuggest = Class.create();
 XpWikiUnameSuggest.prototype = {
 
-	initialize: function(baseurl, e_input, e_slist, e_hidden, e_list){
+	initialize: function(baseurl, e_input, e_slist, e_hidden, e_list, enc){
 		
 		this._baseurl = baseurl;
 		this.input    = $(e_input);
@@ -10,7 +10,7 @@ XpWikiUnameSuggest.prototype = {
 		this.gettag_url = "";
 		this.gettag_pram = "";
 		
-		this._suggest = new XpWikiSuggest(baseurl, e_input, e_slist);
+		this._suggest = new XpWikiSuggest(baseurl, e_input, e_slist, enc);
 		this._suggest.finishedTagList = $(e_list)
 		this._suggest.clickAdd = function(tag){this.add_func(tag);}.bind(this);
 		
@@ -167,7 +167,7 @@ XpWikiUnameSuggest.prototype = {
 
 var XpWikiSuggest = Class.create();
 XpWikiSuggest.prototype = {
-	initialize: function(baseurl, input, list){
+	initialize: function(baseurl, input, list, enc){
 		
 		if (!Form.Element.Observer.prototype.registerCallback)
 		{
@@ -199,6 +199,7 @@ XpWikiSuggest.prototype = {
 		
 		this._baseurl      = baseurl;
 		this._posturl      = baseurl + "xoops_uname.php";
+		this._enc          = enc;
 		this.tagText       = $(input);
 		this.candidateList = $(list);
 		this.finishedTagList = null;
@@ -263,7 +264,7 @@ XpWikiSuggest.prototype = {
 				return;
 			}
 			Log.info('server access');
-			var params = "q=" + encodeURIComponent($F(this.tagText));
+			var params = "q=" + encodeURIComponent($F(this.tagText)) + '&e=' + encodeURIComponent(this._enc);
 			Log.info(params);
 			new Ajax.Request(
 				this._posturl,{

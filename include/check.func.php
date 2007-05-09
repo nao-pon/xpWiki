@@ -1,7 +1,7 @@
 <?php
 //
 // Created on 2006/11/07 by nao-pon http://hypweb.net/
-// $Id: check.func.php,v 1.2 2006/11/08 14:02:31 nao-pon Exp $
+// $Id: check.func.php,v 1.3 2007/05/09 12:08:37 nao-pon Exp $
 //
 
 // when onInstall & onUpdate
@@ -45,10 +45,15 @@ function xpwikifunc_defdata_check ($mydirname) {
 	$config_handler =& xoops_gethandler('config');
 	$xoopsConfig =& $config_handler->getConfigsByCat(XOOPS_CONF);
 	$language = $xoopsConfig['language'];
+	$utf = '';
 	
 	switch (strtolower($language)) {
 		case 'japanese' :
+		case 'japaneseutf' :
 			$lang = 'ja';
+			if ('utf-8' === strtolower(_CHARSET)) {
+				$utf = 'EUC-JP';
+			}
 			break;
 		case 'english' :
 			$lang = 'en';
@@ -71,6 +76,9 @@ function xpwikifunc_defdata_check ($mydirname) {
 				if ($file !== '.' && $file !== '..' && ! is_dir($from.'/'.$file)) {
 					if (! file_exists($to.'/'.$file)) {
 						copy($from.'/'.$file, $to.'/'.$file);
+						if ($utf) {
+							xpwikifunc_conv_utf($to.'/'.$file, $utf);
+						}
 						touch($to.'/'.$file, filemtime($from.'/'.$file));
 						$msg[] = "Copied a file '{$file}'.<br />";
 					}
@@ -81,5 +89,15 @@ function xpwikifunc_defdata_check ($mydirname) {
 	}
 	
 	return $msg;
+}
+
+function xpwikifunc_conv_utf($file, $utf) {
+	$dat = join('', file($file));
+	$dat = mb_convert_encoding($dat, 'UTF-8', $utf);
+	if ($fp = fopen($file, 'wb')) {
+		fwrite($fp, $dat);
+		fclose($fp);
+	}
+	return ;
 }
 ?>
