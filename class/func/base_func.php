@@ -1,7 +1,7 @@
 <?php
 //
 // Created on 2006/10/15 by nao-pon http://hypweb.net/
-// $Id: base_func.php,v 1.7 2006/10/27 11:57:32 nao-pon Exp $
+// $Id: base_func.php,v 1.8 2007/05/10 08:41:18 nao-pon Exp $
 //
 class XpWikiBaseFunc {
 	
@@ -19,7 +19,7 @@ class XpWikiBaseFunc {
 		$this->root->module['credits'] = '&copy; 2006- hypweb.net';
 		$this->root->module['author'] = 'nao-pon';
 		$this->root->module['platform'] = 'standalone';
-		
+		$this->root->enable_pagecomment = FALSE;
 	}
 	
 	function set_siteinfo () {

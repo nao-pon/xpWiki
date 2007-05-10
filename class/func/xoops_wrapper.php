@@ -1,7 +1,7 @@
 <?php
 //
 // Created on 2006/10/11 by nao-pon http://hypweb.net/
-// $Id: xoops_wrapper.php,v 1.25 2007/05/09 12:08:37 nao-pon Exp $
+// $Id: xoops_wrapper.php,v 1.26 2007/05/10 08:41:18 nao-pon Exp $
 //
 class XpWikiXoopsWrapper extends XpWikiBackupFunc {
 	
@@ -23,9 +23,10 @@ class XpWikiXoopsWrapper extends XpWikiBackupFunc {
 		$this->root->module['config'] =& $config_handler->getConfigsByCat(0, $XoopsModule->mid());
 		$this->root->module['platform'] = "xoops";
 		
+		$this->root->enable_pagecomment = TRUE;
 		if (empty($this->root->module['config']['comment_forum_id']) ||
 			!file_exists(XOOPS_ROOT_PATH . '/modules/' . $this->root->module['config']['comment_dirname'])) {
-			$this->root->allow_pagecomment = FALSE;
+			$this->root->enable_pagecomment = FALSE;
 		}
 	}
 
