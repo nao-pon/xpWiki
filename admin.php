@@ -4,7 +4,7 @@ $mytrustdirname = basename( dirname( __FILE__ ) ) ;
 $mytrustdirpath = dirname( __FILE__ ) ;
 
 // check $xoopsModule
-if (!is_object($xoopsModule)) {
+if ( ! is_object( @$xoopsModule ) ) {
 	$module_handler =& xoops_gethandler('module');
 	$xoopsModule =& $module_handler->getByDirname($mydirname);
 }
