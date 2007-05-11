@@ -1,7 +1,7 @@
 <?php
 //
 // Created on 2006/10/02 by nao-pon http://hypweb.net/
-// $Id: xpwiki_func.php,v 1.60 2007/05/11 11:49:58 nao-pon Exp $
+// $Id: xpwiki_func.php,v 1.61 2007/05/11 11:58:29 nao-pon Exp $
 //
 class XpWikiFunc extends XpWikiXoopsWrapper {
 
@@ -173,7 +173,7 @@ class XpWikiFunc extends XpWikiXoopsWrapper {
 		
 		$plugin = & $this->get_plugin_instance($name);
 	
-		return plugin_init($name, $plugin);
+		return $this->plugin_init($name, $plugin);
 	}
 	
 	// Call API 'action' of the plugin
