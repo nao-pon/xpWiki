@@ -1,7 +1,7 @@
 <?php
 //
 // Created on 2006/10/02 by nao-pon http://hypweb.net/
-// $Id: xpwiki_func.php,v 1.59 2007/05/09 12:08:36 nao-pon Exp $
+// $Id: xpwiki_func.php,v 1.60 2007/05/11 11:49:58 nao-pon Exp $
 //
 class XpWikiFunc extends XpWikiXoopsWrapper {
 
@@ -427,6 +427,7 @@ EOD;
 			}
 		} else {
 			// 通常のレンダリング
+			$this->root->rtf['convert_nest'] = 0;
 			$body  = $this->convert_html($this->get_source($page));
 			$this->root->content_title = $this->get_heading($page);
 			
