@@ -30,6 +30,7 @@ $root->related      = array();	// Related pages
 $root->notyets      = array();	// Not yet pages
 $root->head_tags    = array();	// XHTML tags in <head></head>
 $root->head_pre_tags= array();	// XHTML pre tags in <head></head> before skin's CSS.
+$root->rtf['convert_nest'] = 1; // convert_html nest level
 
 // UI_LANG - Content encoding for buttons, menus,  etc
 //$const['UI_LANG'] = $const['LANG']; // 'en' for Internationalized wikisite

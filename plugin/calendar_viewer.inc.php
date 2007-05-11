@@ -1,6 +1,6 @@
 <?php
 // PukiWiki - Yet another WikiWikiWeb clone
-// $Id: calendar_viewer.inc.php,v 1.5 2007/04/17 23:38:49 nao-pon Exp $
+// $Id: calendar_viewer.inc.php,v 1.6 2007/05/11 11:49:58 nao-pon Exp $
 //
 // Calendar viewer plugin - List pages that calendar/calnedar2 plugin created
 // (Based on calendar and recent plugin)
@@ -153,7 +153,7 @@ class xpwiki_plugin_calendar_viewer extends xpwiki_plugin {
 	
 		// $limit_page の件数までインクルード
 		$tmp = max($limit_base, 0); // Skip minus
-		if (!$this->root->rtf['convert_nest']) $this->root->rtf['convert_nest']++;
+
 		while ($tmp < $limit_page) {
 			if (! isset($pagelist[$tmp])) break;
 	
