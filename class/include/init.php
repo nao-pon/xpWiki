@@ -191,6 +191,9 @@ unset($die, $temp);
 if (!empty($const['page_show'])) {
 	
 	$root->get['cmd']  = $root->post['cmd']  = $root->vars['cmd']  = 'read';
+	if ($const['page_show'] === '#RenderMode') {
+		$const['page_show'] = '';
+	}
 	$root->get['page'] = $root->post['page'] = $root->vars['page'] = $const['page_show'];
 
 } else {
