@@ -1,7 +1,7 @@
 <?php
 //
 // Created on 2006/09/29 by nao-pon http://hypweb.net/
-// $Id: xpwiki.php,v 1.30 2007/05/14 08:01:51 nao-pon Exp $
+// $Id: xpwiki.php,v 1.31 2007/05/14 09:12:18 nao-pon Exp $
 //
 
 class XpWiki {
@@ -321,12 +321,22 @@ EOD;
 	}
 	
 	// xpWiki render mode
-	function transform($text) {
+	function transform($text, $cssbase = '') {
 		$this->init('#RenderMode');
 		$this->cont['PKWK_READONLY'] = 1;
 		$this->root->top = '';
 		$text = str_replace("\r", '', $text);
-		return $this->func->convert_html($text);
+		
+		$text = $this->func->convert_html($text);
+		
+		list($head_pre_tag, $head_tag) = $this->func->get_additional_headtags($this);
+		$csstag = ($cssbase)? '<link rel="stylesheet" type="text/css" media="screen" href="'.$this->cont['HOME_URL'].$this->cont['SKIN_DIR'].'block.css.php?charset=Shift_JIS&amp;base='.$cssbase.'" charset="Shift_JIS" />' : '';
+		if ($cssbase) {
+			$text = '<div class="xpwiki_'.$cssbase.'">'."\n".$text."\n".'</div>';
+		}
+		
+		return $head_pre_tag."\n".$csstag."\n".$head_tag."\n".$text;
+
 	}
 }
 ?>
