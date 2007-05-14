@@ -1,7 +1,7 @@
 <?php
 //
 // Created on 2006/09/29 by nao-pon http://hypweb.net/
-// $Id: xpwiki.php,v 1.29 2007/05/14 06:08:36 nao-pon Exp $
+// $Id: xpwiki.php,v 1.30 2007/05/14 08:01:51 nao-pon Exp $
 //
 
 class XpWiki {
@@ -324,6 +324,8 @@ EOD;
 	function transform($text) {
 		$this->init('#RenderMode');
 		$this->cont['PKWK_READONLY'] = 1;
+		$this->root->top = '';
+		$text = str_replace("\r", '', $text);
 		return $this->func->convert_html($text);
 	}
 }
