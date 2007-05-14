@@ -1,7 +1,7 @@
 <?php
 //
 // Created on 2006/10/02 by nao-pon http://hypweb.net/
-// $Id: pukiwiki_func.php,v 1.69 2007/05/13 00:29:41 nao-pon Exp $
+// $Id: pukiwiki_func.php,v 1.70 2007/05/14 08:01:52 nao-pon Exp $
 //
 class XpWikiPukiWikiFunc extends XpWikiBaseFunc {
 
@@ -776,7 +776,7 @@ class XpWikiPukiWikiFunc extends XpWikiBaseFunc {
 
 //----- Start convert_html.php -----//
 	// PukiWiki - Yet another WikiWikiWeb clone
-	// $Id: pukiwiki_func.php,v 1.69 2007/05/13 00:29:41 nao-pon Exp $
+	// $Id: pukiwiki_func.php,v 1.70 2007/05/14 08:01:52 nao-pon Exp $
 	// Copyright (C)
 	//   2002-2005 PukiWiki Developers Team
 	//   2001-2002 Originally written by yu-ji
@@ -788,7 +788,9 @@ class XpWikiPukiWikiFunc extends XpWikiBaseFunc {
 	function convert_html($lines)
 	{
 		static $contents_id = array();
+		static $real_nest = array();
 		if (!isset( $contents_id[$this->xpwiki->pid] )) {$contents_id[$this->xpwiki->pid] = 0;}
+		if (!isset( $real_nest[$this->xpwiki->pid] )) {$real_nest[$this->xpwiki->pid] = 0;}
 		
 		// Set nest level
 		if (!isset($this->root->rtf['convert_nest'])) {
@@ -796,7 +798,8 @@ class XpWikiPukiWikiFunc extends XpWikiBaseFunc {
 		} else {
 			++$this->root->rtf['convert_nest'];
 		}
-
+		++$real_nest[$this->xpwiki->pid];
+		
 		// 編集権限がない場合の挙動指定
 		if ($this->root->rtf['convert_nest'] > 1) $_PKWK_READONLY = $this->cont['PKWK_READONLY'];
 		if (! empty($this->root->plugin_follow_editauth) && $this->root->vars['page'] && ! $this->edit_auth($this->root->vars['page'], FALSE, FALSE)) {
@@ -818,7 +821,7 @@ class XpWikiPukiWikiFunc extends XpWikiBaseFunc {
 		$ret = $body->toString();
 
 		// External AutoLink
-		if (! empty($this->root->ext_autolinks) && $this->root->rtf['convert_nest'] === 1) {
+		if (! empty($this->root->ext_autolinks) && $real_nest[$this->xpwiki->pid] === 1) {
 			include_once(dirname(dirname(__FILE__)).'/ext_autolink.php');
 			$ext_autolink_obj = new XpWikiPukiExtAutoLink($this->xpwiki);
 			$ext_autolink_obj->ext_autolink($ret);
@@ -827,6 +830,7 @@ class XpWikiPukiWikiFunc extends XpWikiBaseFunc {
 		if ($this->root->rtf['convert_nest'] > 1) $this->cont['PKWK_READONLY'] = $_PKWK_READONLY;
 		
 		--$this->root->rtf['convert_nest'];
+		--$real_nest[$this->xpwiki->pid];
 		return $ret;
 	}
 	
@@ -910,7 +914,7 @@ class XpWikiPukiWikiFunc extends XpWikiBaseFunc {
 
 //----- Start func.php -----//
 	// PukiWiki - Yet another WikiWikiWeb clone.
-	// $Id: pukiwiki_func.php,v 1.69 2007/05/13 00:29:41 nao-pon Exp $
+	// $Id: pukiwiki_func.php,v 1.70 2007/05/14 08:01:52 nao-pon Exp $
 	// Copyright (C)
 	//   2002-2006 PukiWiki Developers Team
 	//   2001-2002 Originally written by yu-ji
@@ -1678,7 +1682,7 @@ EOD;
 
 //----- Start make_link.php -----//
 	// PukiWiki - Yet another WikiWikiWeb clone.
-	// $Id: pukiwiki_func.php,v 1.69 2007/05/13 00:29:41 nao-pon Exp $
+	// $Id: pukiwiki_func.php,v 1.70 2007/05/14 08:01:52 nao-pon Exp $
 	// Copyright (C)
 	//   2003-2005 PukiWiki Developers Team
 	//   2001-2002 Originally written by yu-ji
@@ -2470,7 +2474,7 @@ EOD;
 
 //----- Start html.php -----//
 	// PukiWiki - Yet another WikiWikiWeb clone.
-	// $Id: pukiwiki_func.php,v 1.69 2007/05/13 00:29:41 nao-pon Exp $
+	// $Id: pukiwiki_func.php,v 1.70 2007/05/14 08:01:52 nao-pon Exp $
 	// Copyright (C)
 	//   2002-2006 PukiWiki Developers Team
 	//   2001-2002 Originally written by yu-ji
@@ -3066,7 +3070,7 @@ EOD;
 
 //----- Start mail.php -----//
 	// PukiWiki - Yet another WikiWikiWeb clone.
-	// $Id: pukiwiki_func.php,v 1.69 2007/05/13 00:29:41 nao-pon Exp $
+	// $Id: pukiwiki_func.php,v 1.70 2007/05/14 08:01:52 nao-pon Exp $
 	// Copyright (C)
 	//   2003-2005 PukiWiki Developers Team
 	//   2003      Originally written by upk
@@ -3369,7 +3373,7 @@ EOD;
 
 //----- Start link.php -----//
 	// PukiWiki - Yet another WikiWikiWeb clone
-	// $Id: pukiwiki_func.php,v 1.69 2007/05/13 00:29:41 nao-pon Exp $
+	// $Id: pukiwiki_func.php,v 1.70 2007/05/14 08:01:52 nao-pon Exp $
 	// Copyright (C) 2003-2006 PukiWiki Developers Team
 	// License: GPL v2 or (at your option) any later version
 	//
