@@ -32,8 +32,8 @@ if( file_exists( "$mydirpath/language/$language/admin.php" ) ) {
 
 if( ! empty( $_GET['lib'] ) ) {
 	// common libs (eg. altsys)
-	$lib = preg_replace( '[^a-zA-Z0-9_-]' , '' , $_GET['lib'] ) ;
-	$page = preg_replace( '[^a-zA-Z0-9_-]' , '' , @$_GET['page'] ) ;
+	$lib = preg_replace( '/[^a-zA-Z0-9_-]/' , '' , $_GET['lib'] ) ;
+	$page = preg_replace( '/[^a-zA-Z0-9_-]/' , '' , @$_GET['page'] ) ;
 	
 	if( file_exists( XOOPS_TRUST_PATH.'/libs/'.$lib.'/'.$page.'.php' ) ) {
 		include XOOPS_TRUST_PATH.'/libs/'.$lib.'/'.$page.'.php' ;
@@ -44,7 +44,7 @@ if( ! empty( $_GET['lib'] ) ) {
 	}
 } else {
 	// fork each pages of this module
-	$page = preg_replace( '[^a-zA-Z0-9_-]' , '' , @$_GET['page'] ) ;
+	$page = preg_replace( '/[^a-zA-Z0-9_-]/' , '' , @$_GET['page'] ) ;
 	
 	if( file_exists( "$mytrustdirpath/admin/$page.php" ) ) {
 		include "$mytrustdirpath/admin/$page.php" ;
