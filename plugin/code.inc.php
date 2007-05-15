@@ -1,7 +1,7 @@
 <?php
 //
 // Created on 2006/10/25 by nao-pon http://hypweb.net/
-// $Id: code.inc.php,v 1.5 2007/01/21 01:58:42 nao-pon Exp $
+// $Id: code.inc.php,v 1.6 2007/05/15 06:11:27 nao-pon Exp $
 //
 
 class xpwiki_plugin_code extends xpwiki_plugin {
@@ -203,7 +203,7 @@ class xpwiki_plugin_code extends xpwiki_plugin {
 		}
 
 		// md5ハッシュ取得
-		list(,,,,$md5) = array_pad(@file($this->cont['UPLOAD_DIR'].$file.".log"),5,"");
+		list(,,,,,,,,$md5) = array_pad(@file($this->cont['UPLOAD_DIR'].$file.".log"),9,"");
 		$md5 = trim($md5);
 
 		$fp = fopen($this->cont['CACHE_DIR'].$file.'.code', 'w') or
@@ -256,7 +256,7 @@ class xpwiki_plugin_code extends xpwiki_plugin {
 
 		$dat = unserialize($fdata);
 		//md5ハッシュの検査
-		list(,,,,$md5) = array_pad(@file($this->cont['UPLOAD_DIR'].$file.".log"),5,"");
+		list(,,,,,,,,$md5) = array_pad(@file($this->cont['UPLOAD_DIR'].$file.".log"),9,"");
 		$md5 = trim($md5);
 		if ($dat[2] !== $md5) {$dat[0] = "";}
 
