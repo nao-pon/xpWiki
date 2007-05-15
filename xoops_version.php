@@ -12,7 +12,7 @@ $constpref = '_MI_' . strtoupper( $mydirname ) ;
 
 
 $modversion['name'] = $mydirname ;
-$modversion['version'] = "1.21" ;
+$modversion['version'] = "2.01" ;
 $modversion['description'] = constant($constpref.'_MODULE_DESCRIPTION') ;
 $modversion['credits'] = "&copy; 2006-2007 hypweb.net.";
 $modversion['author'] = "nao-pon" ;
@@ -46,7 +46,16 @@ $modversion['sub'] = array() ;
 $modversion['templates'] = array() ;
 
 // Blocks
-$modversion['blocks'] = array() ;
+$modversion['blocks'][1] = array(
+	'file'			=> 'blocks.php' ,
+	'name'			=> constant($constpref.'_BNAME_A_PAGE') ,
+	'description'	=> constant($constpref.'_BDESC_A_PAGE') ,
+	'show_func'		=> 'b_xpwiki_a_page_show' ,
+	'edit_func'		=> 'b_xpwiki_a_page_edit' ,
+	'options'		=> $mydirname . '||100%|' ,
+	'template'		=> '' , // use "module" template instead
+	'can_clone'		=> true ,
+) ;
 
 // Comments
 $modversion['hasComments'] = 0 ;
