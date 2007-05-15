@@ -8,6 +8,10 @@ if( defined( 'FOR_XOOPS_LANG_CHECKER' ) || ! defined( $constpref.'_LOADED' ) ) {
 // a flag for this language file has already been read or not.
 define( $constpref.'_LOADED' , 1 ) ;
 
+// Names of blocks for this module (Not all module has blocks)
+define( $constpref."_BNAME_A_PAGE","ページ表示 ({$mydirname})");
+define( $constpref."_BDESC_A_PAGE","ページ名を指定してその内容をブロックに表示することができます");
+
 define( $constpref.'_MODULE_DESCRIPTION' , 'PukiWikiベースのWikiモジュール' ) ;
 
 define( $constpref.'_PLUGIN_CONVERTER' , 'プラグイン変換ツール' ) ;
