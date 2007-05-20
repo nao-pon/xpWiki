@@ -9,7 +9,7 @@ class xpwiki_plugin_attach extends xpwiki_plugin {
 	/////////////////////////////////////////////////
 	// PukiWiki - Yet another WikiWikiWeb clone.
 	//
-	//  $Id: attach.inc.php,v 1.9 2007/04/05 04:42:06 nao-pon Exp $
+	//  $Id: attach.inc.php,v 1.10 2007/05/20 00:55:22 nao-pon Exp $
 	//  ORG: attach.inc.php,v 1.31 2003/07/27 14:15:29 arino Exp $
 	//
 	
@@ -1321,7 +1321,7 @@ EOD;
 		
 		if ($ret) {
 			$this->del_thumb_files();
-			touch($this->filename, $filemtime);
+			$this->func->pkwk_touch_file($this->filename, $filemtime);
 		}
 		
 		$param  = '&file='.rawurlencode($this->file).'&refer='.rawurlencode($this->page).
