@@ -1,6 +1,6 @@
 <?php
 // PukiWiki - Yet another WikiWikiWeb clone
-// $Id: pukiwiki.ini.php,v 1.34 2007/05/06 22:17:13 nao-pon Exp $
+// $Id: pukiwiki.ini.php,v 1.35 2007/05/20 01:00:15 nao-pon Exp $
 // Copyright (C)
 //   2002-2006 PukiWiki Developers Team
 //   2001-2002 Originally written by yu-ji
@@ -220,6 +220,10 @@ $root->static_url = 0;
 
 // Minimum length of page name
 $root->autolink = 0; // Bytes, 0 = OFF (try 8)
+
+// Is upper directory hierarchy omissible?
+// ¾åÁØ³¬ÁØÌ¾¤Ï¾ÊÎ¬²ÄÇ½ ?
+$root->autolink_omissible_upper = 0; // Bytes(need $root->autolink = ON), 0 = OFF
 
 /////////////////////////////////////////////////
 // External AutoLink

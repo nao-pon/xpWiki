@@ -1,7 +1,7 @@
 <?php
 /*
  * Created on 2007/04/23 by nao-pon http://hypweb.net/
- * $Id: ext_autolink.php,v 1.4 2007/05/06 22:15:06 nao-pon Exp $
+ * $Id: ext_autolink.php,v 1.5 2007/05/20 01:00:15 nao-pon Exp $
  */
 class XpWikiPukiExtAutoLink {
 	// External AutoLinks
@@ -22,7 +22,7 @@ class XpWikiPukiExtAutoLink {
 			if ($pat = $this->get_ext_autolink($autolink, $valid)) {
 				if ($pat) {
 					foreach(explode("\t", $pat) as $_pat){
-						$pattern = "/(<(?:a|A).*?<\/(?:a|A)>|<(?:textarea).*?<\/(?:textarea)>|<[^>]*>|&(?:#[0-9]+|#x[0-9a-f]+|[0-9a-zA-Z]+);)|($_pat)/sS";
+						$pattern = "/(<(?:a|A).*?<\/(?:a|A)>|<(?:textarea|style|script).*?<\/(?:textarea|style|script)>|<[^>]*>|&(?:#[0-9]+|#x[0-9a-f]+|[0-9a-zA-Z]+);)|($_pat)/sS";
 						$str = preg_replace_callback($pattern,array(&$this,'ext_autolink_replace'),$str);
 					}
 				}
@@ -72,6 +72,7 @@ class XpWikiPukiExtAutoLink {
 		}
 	}
 	function get_ext_autolink($autolink, $valid) {
+		static $done = array();
 		
 		// check valid pages.
 		if (is_string($valid) && $this->root->vars['page']) {
@@ -116,6 +117,10 @@ class XpWikiPukiExtAutoLink {
 			$target = $autolink['url'].'?plugin=api&pcmd=autolink&base='.rawurlencode($target);
 		}
 		$cache = $this->cont['CACHE_DIR'].md5($target).'.extautolink';
+		
+		// 重複登録チェック
+		if (isset($done[$this->xpwiki->pid][$target])) return '';
+		$done[$this->xpwiki->pid][$target] = true;
 		
 		$cache_min = intval(max($autolink['cache'], 10));
 		if (file_exists($cache) && filemtime($cache) + $cache_min * 60 > time()) {

@@ -1,7 +1,7 @@
 <?php
 //
 // Created on 2006/10/02 by nao-pon http://hypweb.net/
-// $Id: pukiwiki_func.php,v 1.70 2007/05/14 08:01:52 nao-pon Exp $
+// $Id: pukiwiki_func.php,v 1.71 2007/05/20 01:00:15 nao-pon Exp $
 //
 class XpWikiPukiWikiFunc extends XpWikiBaseFunc {
 
@@ -776,7 +776,7 @@ class XpWikiPukiWikiFunc extends XpWikiBaseFunc {
 
 //----- Start convert_html.php -----//
 	// PukiWiki - Yet another WikiWikiWeb clone
-	// $Id: pukiwiki_func.php,v 1.70 2007/05/14 08:01:52 nao-pon Exp $
+	// $Id: pukiwiki_func.php,v 1.71 2007/05/20 01:00:15 nao-pon Exp $
 	// Copyright (C)
 	//   2002-2005 PukiWiki Developers Team
 	//   2001-2002 Originally written by yu-ji
@@ -819,12 +819,35 @@ class XpWikiPukiWikiFunc extends XpWikiBaseFunc {
 		$body->parse($lines);
 		
 		$ret = $body->toString();
-
-		// External AutoLink
-		if (! empty($this->root->ext_autolinks) && $real_nest[$this->xpwiki->pid] === 1) {
-			include_once(dirname(dirname(__FILE__)).'/ext_autolink.php');
-			$ext_autolink_obj = new XpWikiPukiExtAutoLink($this->xpwiki);
-			$ext_autolink_obj->ext_autolink($ret);
+		
+		
+		// Auto link
+		if ($real_nest[$this->xpwiki->pid] === 1) {
+			// Internal Autolink
+			if ($this->root->autolink) {
+				$this->int_autolink_proc($ret);
+				// Is upper directory hierarchy omissible?
+				if ($this->root->autolink_omissible_upper) {
+					$_omissible_upper = (empty($this->root->vars['page']))? '' : $this->root->vars['page'];
+					$_omissible_upper = preg_replace('#^(.*)/[^/]+$#', "$1", $_omissible_upper);
+					if ($_omissible_upper) {
+						if (empty($this->root->ext_autolinks)) $this->root->ext_autolinks = array();
+						array_unshift ($this->root->ext_autolinks ,
+							array(
+								'base' => $_omissible_upper,
+								'len'  => $this->root->autolink_omissible_upper,
+								'enc'  => $this->cont['CONTENT_CHARSET']
+							));
+					}
+				}
+			}
+			
+			// External AutoLink
+			if (! empty($this->root->ext_autolinks)) {
+				include_once(dirname(dirname(__FILE__)).'/ext_autolink.php');
+				$ext_autolink_obj = new XpWikiPukiExtAutoLink($this->xpwiki);
+				$ext_autolink_obj->ext_autolink($ret);
+			}
 		}
 		
 		if ($this->root->rtf['convert_nest'] > 1) $this->cont['PKWK_READONLY'] = $_PKWK_READONLY;
@@ -832,6 +855,35 @@ class XpWikiPukiWikiFunc extends XpWikiBaseFunc {
 		--$this->root->rtf['convert_nest'];
 		--$real_nest[$this->xpwiki->pid];
 		return $ret;
+	}
+	
+	// Internal Autolink
+	function int_autolink_proc (& $str) {
+		if (! $this->root->autolink || ! file_exists($this->cont['CACHE_DIR'].$this->cont['PKWK_AUTOLINK_REGEX_CACHE'])) return ;
+		
+		@ list ($auto, $auto_a, $forceignorepages) = file($this->cont['CACHE_DIR'].$this->cont['PKWK_AUTOLINK_REGEX_CACHE']);
+		$this->rt_global['forceignorepages'] = explode("\t", trim($forceignorepages));
+		
+		// ページ数が多い場合は、セパレータ \t で複数パターンに分割されている
+		$auto = explode("\t",trim($auto));
+		foreach($auto as $pat)
+		{
+			$pattern = "/(<(?:a|A).*?<\/(?:a|A)>|<(?:textarea|style|script).*?<\/(?:textarea|style|script)>|<[^>]*>|&(?:#[0-9]+|#x[0-9a-f]+|[0-9a-zA-Z]+);)|($pat)/sS";
+			$str = preg_replace_callback($pattern, array(& $this, 'int_auto_link_replace'), $str);
+		}
+		
+		return ;
+	}
+	
+	function int_auto_link_replace($match)
+	{
+		if (!empty($match[1])) return $match[1];
+		$alias = $name = $match[2];
+		
+		// 無視リストに含まれているページを捨てる
+		if (in_array($name, $this->rt_global['forceignorepages'])) { return $match[0]; }
+		
+		return $this->make_pagelink($name, $alias, '', '', 'autolink');
 	}
 	
 	// Returns inline-related object
@@ -914,7 +966,7 @@ class XpWikiPukiWikiFunc extends XpWikiBaseFunc {
 
 //----- Start func.php -----//
 	// PukiWiki - Yet another WikiWikiWeb clone.
-	// $Id: pukiwiki_func.php,v 1.70 2007/05/14 08:01:52 nao-pon Exp $
+	// $Id: pukiwiki_func.php,v 1.71 2007/05/20 01:00:15 nao-pon Exp $
 	// Copyright (C)
 	//   2002-2006 PukiWiki Developers Team
 	//   2001-2002 Originally written by yu-ji
@@ -1447,16 +1499,109 @@ EOD;
 		if (empty($auto_pages)) {
 			$result = $result_a = $this->root->nowikiname ? '(?!)' : $this->root->WikiName;
 		} else {
-			$auto_pages = array_unique($auto_pages);
-			sort($auto_pages, SORT_STRING);
+			//$auto_pages = array_unique($auto_pages);
+			//sort($auto_pages, SORT_STRING);
 	
-			$auto_pages_a = array_values(preg_grep('/^[A-Z]+$/i', $auto_pages));
-			$auto_pages   = array_values(array_diff($auto_pages,  $auto_pages_a));
+			//$auto_pages_a = array_values(preg_grep('/^[A-Z]+$/i', $auto_pages));
+			//$auto_pages   = array_values(array_diff($auto_pages,  $auto_pages_a));
 	
-			$result   = $this->get_matcher_regex($auto_pages);
-			$result_a = $this->get_matcher_regex($auto_pages_a);
+			//$result   = $this->get_matcher_regex($auto_pages);
+			//$result_a = $this->get_matcher_regex($auto_pages_a);
+			$result   = $this->get_matcher_regex_safe($auto_pages);
+			$result_a = '(?!)';
 		}
 		return array($result, $result_a, $forceignorepages);
+	}
+	
+	function get_matcher_regex_safe ($pages, $spliter = "\t", $array_fix = true, $nest = 0) {
+		
+		if ($array_fix) {
+			$pages = array_map('trim', $pages);
+			$pages = array_unique($pages);
+			foreach(array_keys($pages, '') as $key) {
+				unset($pages[$key]);
+			}
+			sort($pages, SORT_STRING);
+		}
+		
+		++$nest;
+		$reg = $this->get_matcher_regex_safe_sub($pages);
+		$regs = preg_split("/(\d+)\x08/", $reg, -1, PREG_SPLIT_DELIM_CAPTURE);
+		$pats = array();
+		$index = 0;
+		reset($regs);
+		while (list($key, $pat) = each($regs)) {
+			list($key, $val) = each($regs);
+			if (!$val) $val = count($pages);
+			if (@ preg_match('/' . $pat. '/', '') === false) {
+				if ($nest <= 10) {
+					$count = $val - $index;
+					$split = floor(($val - $index) / 2);
+					$pages1 = array_slice($pages, $index, $split);
+					$pages2 = array_slice($pages, $split, $count - $split);
+					$pats[] = $this->get_matcher_regex_safe($pages1, $spliter, false, $nest);
+					$pats[] = $this->get_matcher_regex_safe($pages2, $spliter, false, $nest);
+					$index = $val;
+				}
+			} else {
+				$pats[] = $pat;
+			}
+		}
+		return join($spliter, $pats);
+	}
+	
+	function get_matcher_regex_safe_sub (& $array, $offset = 0, $sentry = NULL, $pos = 0, $nest = 0)
+	{
+		++$nest;
+		$limit = 1024 * 32 - 10;
+		
+		if (empty($array)) return '(?!)'; // Zero
+		if ($sentry === NULL) $sentry = count($array);
+		
+		// Too short. Skip this
+		$skip = ($pos >= mb_strlen($array[$offset]));
+		if ($skip) ++$offset;
+
+		// Generate regex for each value
+		$regex = '';
+		$index = $offset;
+		$multi = FALSE;
+		$reglen = 0;
+		while ($index < $sentry) {
+			if ($index != $offset) {
+				$multi = TRUE;
+				if ($nest === 1 && strlen($regex) - $reglen > $limit) {
+					$reglen = strlen($regex);
+					$regex .= ')'.($index)."\x08(?:";
+				} else {
+					$regex .= '|'; // OR
+				}
+			}
+
+			// Get one character from left side of the value
+			$char = mb_substr($array[$index], $pos, 1);
+
+			// How many continuous keys have the same letter
+			// at the same position?
+			for ($i = $index; $i < $sentry; $i++)
+				if (mb_substr($array[$i], $pos, 1) != $char) break;
+			
+			if ($index < ($i - 1)) {
+				// Some more keys found
+				// Recurse
+				$regex .= str_replace(' ', '\\ ', preg_quote($char, '/')) .
+				$this->get_matcher_regex_safe_sub($array, $index, $i, $pos + 1, $nest);
+			} else {
+				// Not found
+				$regex .= str_replace(' ', '\\ ',
+				preg_quote(mb_substr($array[$index], $pos), '/'));
+			}
+			$index = $i;
+		}
+		
+		if ($skip || $multi) $regex = '(?:' . $regex . ')';
+		if ($skip) $regex .= '?'; // Match for $pages[$offset - 1]
+		return $regex;
 	}
 	
 	// Generate a regex, that just matches with all $array values
@@ -1682,7 +1827,7 @@ EOD;
 
 //----- Start make_link.php -----//
 	// PukiWiki - Yet another WikiWikiWeb clone.
-	// $Id: pukiwiki_func.php,v 1.70 2007/05/14 08:01:52 nao-pon Exp $
+	// $Id: pukiwiki_func.php,v 1.71 2007/05/20 01:00:15 nao-pon Exp $
 	// Copyright (C)
 	//   2003-2005 PukiWiki Developers Team
 	//   2001-2002 Originally written by yu-ji
@@ -2474,7 +2619,7 @@ EOD;
 
 //----- Start html.php -----//
 	// PukiWiki - Yet another WikiWikiWeb clone.
-	// $Id: pukiwiki_func.php,v 1.70 2007/05/14 08:01:52 nao-pon Exp $
+	// $Id: pukiwiki_func.php,v 1.71 2007/05/20 01:00:15 nao-pon Exp $
 	// Copyright (C)
 	//   2002-2006 PukiWiki Developers Team
 	//   2001-2002 Originally written by yu-ji
@@ -3070,7 +3215,7 @@ EOD;
 
 //----- Start mail.php -----//
 	// PukiWiki - Yet another WikiWikiWeb clone.
-	// $Id: pukiwiki_func.php,v 1.70 2007/05/14 08:01:52 nao-pon Exp $
+	// $Id: pukiwiki_func.php,v 1.71 2007/05/20 01:00:15 nao-pon Exp $
 	// Copyright (C)
 	//   2003-2005 PukiWiki Developers Team
 	//   2003      Originally written by upk
@@ -3373,7 +3518,7 @@ EOD;
 
 //----- Start link.php -----//
 	// PukiWiki - Yet another WikiWikiWeb clone
-	// $Id: pukiwiki_func.php,v 1.70 2007/05/14 08:01:52 nao-pon Exp $
+	// $Id: pukiwiki_func.php,v 1.71 2007/05/20 01:00:15 nao-pon Exp $
 	// Copyright (C) 2003-2006 PukiWiki Developers Team
 	// License: GPL v2 or (at your option) any later version
 	//
