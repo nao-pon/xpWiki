@@ -1,7 +1,7 @@
 <?php
 /*
  * Created on 2007/04/11 by nao-pon http://hypweb.net/
- * $Id: api.inc.php,v 1.2 2007/04/18 14:14:05 nao-pon Exp $
+ * $Id: api.inc.php,v 1.3 2007/05/20 01:00:15 nao-pon Exp $
  */
 
 class xpwiki_plugin_api extends xpwiki_plugin {
@@ -54,8 +54,8 @@ class xpwiki_plugin_api extends xpwiki_plugin {
 			}
 			
 			if ($pages) {
-				sort($pages, SORT_STRING);
-				$out = $this->func->get_matcher_regex($pages);
+				//sort($pages, SORT_STRING);
+				$out = $this->func->get_matcher_regex_safe($pages);
 			} else {
 				$out = '(?!)';
 			}

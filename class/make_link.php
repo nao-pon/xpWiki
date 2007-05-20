@@ -43,11 +43,11 @@ class XpWikiInlineConverter {
 				'mailto', // mailto: URL schemes
 				'interwikiname', // InterWikiNames
 				'autoalias', // AutoAlias
-				'autolink', // AutoLinks
+				//'autolink', // AutoLinks
 				'bracketname', // BracketNames
 				'wikiname', // WikiNames
 				'autoalias_a', // AutoAlias(alphabet)
-				'autolink_a', // AutoLinks(alphabet)
+				//'autolink_a', // AutoLinks(alphabet)
 			);
 		}
 
