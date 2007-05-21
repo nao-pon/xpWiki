@@ -1,14 +1,13 @@
 <?php
 /*
  * Created on 2007/05/13 by nao-pon http://hypweb.net/
- * $Id: setup.php,v 1.1 2007/05/15 06:28:57 nao-pon Exp $
+ * $Id: setup.php,v 1.2 2007/05/21 01:20:09 nao-pon Exp $
  */
 
 $ng = $out = '';
 
 // Install setting
 if (! file_exists($mydirpath . '/.installed')) {
-	@ touch ($mydirpath . '/.installed');
 	
 	// Set imagemagick, jpegtran path.
 	$out .= "* Now imagemagick & jpegtran path setting.\n";
@@ -18,15 +17,19 @@ if (! file_exists($mydirpath . '/.installed')) {
 		
 		$dat .= "<?php\n";
 		
-		if ( ini_get('safe_mode') ) {
-			if (chmod($mydirpath . '/include/hyp_common/image_magick.cgi', 0705)) {
-				$out .= '- chmod( '. $mydirpath . '/include/hyp_common/image_magick.cgi, 0705 ) - OK.' . "\n";
-				$_path = XOOPS_URL . '/modules/' . $mytrustdirname . '/include/hyp_common/image_magick.cgi';
-				$dat .= "define('HYP_IMAGE_MAGICK_URL', '{$_path}');\n";
-			} else {
-				$ng  .= '- chmod( '. $mydirpath . '/include/hyp_common/image_magick.cgi, 0705 ) - NG.' . "\n";
-			}
+		if (file_exists(XOOPS_ROOT_PATH.'/class/hyp_common/image_magick.cgi')) {
+			$image_magick_cgi = XOOPS_ROOT_PATH.'/class/hyp_common/image_magick.cgi';
+		} else {
+			$image_magick_cgi = $mydirpath . '/include/hyp_common/image_magick.cgi';
 		}
+		if (chmod($image_magick_cgi, 0705)) {
+			$out .= '- chmod( '. $image_magick_cgi . ', 0705 ) - OK.' . "\n";
+			$_path = str_replace(XOOPS_ROOT_PATH, XOOPS_URL, $image_magick_cgi);
+			$dat .= "define('HYP_IMAGE_MAGICK_URL', '{$_path}');\n";
+		} else {
+			$ng  .= '- chmod( '. $mydirpath . '/include/hyp_common/image_magick.cgi, 0705 ) - NG.' . "\n";
+		}
+
 
 		$exec = array();
 		@ exec( "whereis -b convert" , $exec) ;
@@ -46,6 +49,10 @@ if (! file_exists($mydirpath . '/.installed')) {
 			$dat .= "define('HYP_JPEGTRAN_PATH', '{$path}');\n";
 		}
 		$dat .= "?>\n";
+		
+		if (!$ng) {
+			@ touch ($mydirpath . '/.installed');
+		}
 	}
 	
 	$filename = XOOPS_TRUST_PATH . '/class/hyp_common/execpath.inc.php';
@@ -107,6 +114,8 @@ if ($ng) {
 	$out .= $ng;
 	$out .= str_repeat('-', 40) . "\n";
 }
+
+chmod($mydirpath . '/admin/setup.cgi', 0400);
 
 if (php_sapi_name() == "cli")
 {
