@@ -1,7 +1,7 @@
 <?php
 //
 // Created on 2006/11/17 by nao-pon http://hypweb.net/
-// $Id: dbsync.inc.php,v 1.3 2007/01/21 01:54:31 nao-pon Exp $
+// $Id: dbsync.inc.php,v 1.4 2007/05/21 08:31:01 nao-pon Exp $
 //
 
 class xpwiki_plugin_dbsync extends xpwiki_plugin {
@@ -438,12 +438,12 @@ __EOD__;
 					continue;
 				}
 				
-				$array = file($this->cont['COUNTER_DIR'].$file);
+				$array = array_pad(file($this->cont['COUNTER_DIR'].$file), 5, '');
 				$pgid = $this->func->get_pgid_by_name($page);
-				$count = rtrim($array[0]);
-				$today = rtrim($array[1]);
-				$today_count = rtrim($array[2]);
-				$yesterday_count = rtrim($array[3]);
+				$count = intval(rtrim($array[0]));
+				$today = intval(rtrim($array[1]));
+				$today_count = intval(rtrim($array[2]));
+				$yesterday_count = intval(rtrim($array[3]));
 				$ip = rtrim($array[4]);
 				
 				$query = "insert into ".$this->xpwiki->db->prefix($this->root->mydirname."_count")." (pgid,count,today,today_count,yesterday_count,ip) values('$pgid',$count,'$today',$today_count,$yesterday_count,'$ip');";
