@@ -1,3 +1,5 @@
-PukiWikiを作ろうと思って参考にされたPerlで書かれたスクリプトです。
+YukiWiki is another Wiki engine for Perl CGI environment, by Hiroshi Yuki.
 
-[[結城浩さんのページ:http://www.hyuki.com/]]
+PukiWiki was started from PHP porting of YukiWiki.
+
+[[YukiWiki Site:http://www.hyuki.com/]]

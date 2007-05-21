@@ -1,1 +1,2 @@
-[[BracketName]] &#12398;&#12424;&#12358;&#12395;[[]]&#12391;&#22258;&#12358;&#12392;[[BracketName]]&#12395;&#12394;&#12426;&#12414;&#12377;&#12290;
+* &#91;&#91;&#66;racketName&#93;&#93;
+A string enclosed with [[ and ]] makes a BracketName, which is another link style in Pukiwiki.
