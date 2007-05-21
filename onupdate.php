@@ -15,6 +15,7 @@ function xpwiki_onupdate_base( $module , $mydirname )
 	if( defined( 'XOOPS_CUBE_LEGACY' ) ) {
 		$root =& XCube_Root::getSingleton();
 		$root->mDelegateManager->add( 'Legacy.Admin.Event.ModuleUpdate.' . ucfirst($mydirname) . '.Success', 'xpwiki_message_append_onupdate' ) ;
+		$root->mDelegateManager->add( 'Legacy.Admin.Event.ModuleUpdate.' . ucfirst($mydirname) . '.Fail' , 'xpwiki_message_append_onupdate' ) ;
 		$msgs = array() ;
 	} else {
 		if( ! is_array( $msgs ) ) $msgs = array() ;
@@ -117,6 +118,7 @@ function xpwiki_onupdate_base( $module , $mydirname )
 		$msgs = array_merge($msgs, xpwikifunc_defdata_check($mydirname));
 	} else {
 		$msgs = array_merge($msgs, $_ret);
+		return false;
 	}
 		
 	return true ;

@@ -15,6 +15,7 @@ function xpwiki_oninstall_base( $module , $mydirname )
 	if( defined( 'XOOPS_CUBE_LEGACY' ) ) {
 		$root =& XCube_Root::getSingleton();
 		$root->mDelegateManager->add( 'Legacy.Admin.Event.ModuleInstall.' . ucfirst($mydirname) . '.Success' , 'xpwiki_message_append_oninstall' ) ;
+		$root->mDelegateManager->add( 'Legacy.Admin.Event.ModuleInstall.' . ucfirst($mydirname) . '.Fail' , 'xpwiki_message_append_oninstall' ) ;
 		$ret = array() ;
 	} else {
 		if( ! is_array( $ret ) ) $ret = array() ;
@@ -109,6 +110,7 @@ function xpwiki_oninstall_base( $module , $mydirname )
 		$ret += xpwikifunc_defdata_check($mydirname);
 	} else {
 		$ret += $_ret;
+		return false;
 	}
 
 	return true ;
