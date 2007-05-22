@@ -1,6 +1,6 @@
 <?php
 // PukiWiki - Yet another WikiWikiWeb clone.
-// $Id: jautf.lng.php,v 1.1 2007/05/09 12:08:37 nao-pon Exp $
+// $Id: ja_utf8.lng.php,v 1.1 2007/05/22 02:32:54 nao-pon Exp $
 // Copyright (C)
 //   2002-2005 PukiWiki Developers Team
 //   2001-2002 Originally written by yu-ji

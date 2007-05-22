@@ -1,7 +1,7 @@
 <?php
 //
 // Created on 2006/11/09 by nao-pon http://hypweb.net/
-// $Id: dbsync.jautf.php,v 1.1 2007/05/09 12:08:36 nao-pon Exp $
+// $Id: dbsync.ja_utf8.php,v 1.1 2007/05/22 02:32:54 nao-pon Exp $
 //
 
 $msg = array(

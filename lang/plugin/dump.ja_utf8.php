@@ -1,7 +1,7 @@
 <?php
 //
 // Created on 2006/11/06 by nao-pon http://hypweb.net/
-// $Id: dump.jautf.php,v 1.2 2007/05/10 04:18:06 nao-pon Exp $
+// $Id: dump.ja_utf8.php,v 1.1 2007/05/22 02:32:54 nao-pon Exp $
 //
 $msg = array(
 'upload_ok'        => 'アップロードが完了しました',
