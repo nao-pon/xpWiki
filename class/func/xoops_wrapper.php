@@ -1,7 +1,7 @@
 <?php
 //
 // Created on 2006/10/11 by nao-pon http://hypweb.net/
-// $Id: xoops_wrapper.php,v 1.26 2007/05/10 08:41:18 nao-pon Exp $
+// $Id: xoops_wrapper.php,v 1.27 2007/05/22 02:19:44 nao-pon Exp $
 //
 class XpWikiXoopsWrapper extends XpWikiBackupFunc {
 	
@@ -301,8 +301,8 @@ class XpWikiXoopsWrapper extends XpWikiBackupFunc {
 		$pgid = $this->get_pgid_by_name($page);
 		if (!$pgid) return 0;
 
-		$count = 0;		
-		$sql = "SELECT COUNT(t.topic_id) FROM ".$this->xpwiki->db->prefix($this->root->module['config']['comment_dirname']."_topics")." t WHERE t.forum_id={$this->root->module['config']['comment_forum_id']} AND ! t.topic_invisible AND topic_external_link_id=$pgid" ;
+		$count = 0;
+		$sql = "SELECT COUNT(p.topic_id) FROM ".$this->xpwiki->db->prefix($this->root->module['config']['comment_dirname']."_posts")." p INNER JOIN ".$this->xpwiki->db->prefix($this->root->module['config']['comment_dirname']."_topics")." t ON p.topic_id = t.topic_id WHERE t.forum_id={$this->root->module['config']['comment_forum_id']} AND ! t.topic_invisible AND topic_external_link_id=$pgid" ;
 		if( $trs = $this->xpwiki->db->query( $sql ) ) {
 			list( $count ) = $this->xpwiki->db->fetchRow( $trs ) ;
 		}
