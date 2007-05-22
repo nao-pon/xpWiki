@@ -63,7 +63,7 @@ case 'ja': // _CHARSET
 default:
 	$this->die_message('No such language "' . $const['LANG'] . '"'.memory_get_usage());
 }
-$const['FILE_ENCORD_EXT'] = ('utf-8' === strtolower(_CHARSET))? 'utf' : '';
+$const['FILE_ENCORD_EXT'] = ('utf-8' === strtolower(_CHARSET))? '_utf8' : '';
 
 mb_language($const['MB_LANGUAGE']);
 mb_internal_encoding($const['SOURCE_ENCODING']);
@@ -397,7 +397,7 @@ if (!empty($const['page_show'])) {
 			flush();
 			
 			// ブラウザは再表示し、PHPは実行を継続
-			sleep(5);
+			// sleep(5);
 			$this->plain_db_write($root->vars['page'], $_udp_mode);
 			exit();
 		}
