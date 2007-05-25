@@ -1,6 +1,6 @@
 <?php
 // PukiWiki - Yet another WikiWikiWeb clone
-// $Id: calendar_viewer.inc.php,v 1.6 2007/05/11 11:49:58 nao-pon Exp $
+// $Id: calendar_viewer.inc.php,v 1.7 2007/05/25 02:57:04 nao-pon Exp $
 //
 // Calendar viewer plugin - List pages that calendar/calnedar2 plugin created
 // (Based on calendar and recent plugin)
@@ -60,9 +60,24 @@ class xpwiki_plugin_calendar_viewer extends xpwiki_plugin {
 			return $this->cont['PLUGIN_CALENDAR_VIEWER_USAGE'] . '<br />' . "\n";
 	
 		$func_args = func_get_args();
-	
+
+		// for PukiWikiMod compat
+		$_options = array();
+		foreach($func_args as $option) {
+			if (strtolower($option) == "notoday")
+				$notoday = true;
+			else if(strtolower(substr($option,0,9)) == "contents:")
+				$contents_lev = (int)substr($option,9);
+			else
+				$_options[] = $option;
+		}
+		$func_args = $_options;	
+
 		// Default values
 		$pagename    = $func_args[0];	// 基準となるページ名
+		if (strtolower($pagename) === "this") {
+			$pagename = $this->root->vars['page'];
+		}
 		$page_YM     = '';	// 一覧表示する年月
 		$limit_base  = 0;	// 先頭から数えて何ページ目から表示するか (先頭)
 		$limit_pitch = 0;	// 何件づつ表示するか
@@ -316,7 +331,7 @@ class xpwiki_plugin_calendar_viewer extends xpwiki_plugin {
 		if ($aSepList == '') {
 			// yyymmddとしてチェック（手抜き(^^;）
 			return checkdate(substr($aStr, 4, 2), substr($aStr, 6, 2), substr($aStr, 0, 4));
-		} else if (preg_match("#^([0-9]{2,4})[$aSepList]([0-9]{1,2})[$aSepList]([0-9]{1,2})$#", $aStr, $matches) ) {
+		} else if (preg_match("#^([0-9]{2,4})[$aSepList]([0-9]{1,2})[$aSepList]([0-9]{1,2})([$aSepList][0-9])?$#", $aStr, $matches) ) {
 			return checkdate($matches[2], $matches[3], $matches[1]);
 		} else {
 			return FALSE;

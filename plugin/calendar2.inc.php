@@ -5,7 +5,7 @@ class xpwiki_plugin_calendar2 extends xpwiki_plugin {
 
 
 	}
-	// $Id: calendar2.inc.php,v 1.2 2007/04/17 23:40:39 nao-pon Exp $
+	// $Id: calendar2.inc.php,v 1.3 2007/05/25 02:57:04 nao-pon Exp $
 	//
 	// Calendar2 plugin
 	//
@@ -20,15 +20,22 @@ class xpwiki_plugin_calendar2 extends xpwiki_plugin {
 	
 		$date_str = $this->func->get_date('Ym');
 		$base     = $this->func->strip_bracket($this->root->vars['page']);
-	
+
 		$today_view = TRUE;
 		if (func_num_args()) {
 			$args = func_get_args();
 			foreach ($args as $arg) {
-				if (is_numeric($arg) && strlen($arg) == 6) {
+				if (is_numeric($arg) && (strlen($arg) == 6 || strlen($arg) == 8)) {
 					$date_str = $arg;
 				} else if ($arg == 'off') {
 					$today_view = FALSE;
+				
+				// for PukiWikiMod compat
+				} else if(strtolower(substr($arg,0,9)) == "category:"){
+					$category_view = htmlspecialchars(substr($arg,8));
+				} else if(strtolower(substr($arg,0,9)) == "contents:"){
+					$contents_lev = (int)substr($arg,9);
+				
 				} else {
 					$base = $this->func->strip_bracket($arg);
 				}
@@ -44,15 +51,20 @@ class xpwiki_plugin_calendar2 extends xpwiki_plugin {
 		$s_base   = htmlspecialchars($base);
 		$r_prefix = rawurlencode($prefix);
 		$s_prefix = htmlspecialchars($prefix);
-	
+
 		$yr  = substr($date_str, 0, 4);
 		$mon = substr($date_str, 4, 2);
-		if ($yr != $this->func->get_date('Y') || $mon != $this->func->get_date('m')) {
-			$now_day = 1;
-			$other_month = 1;
-		} else {
-			$now_day = $this->func->get_date('d');
+		if (strlen($date_str) === 8) {
+			$now_day = substr($date_str,6,2);
 			$other_month = 0;
+		} else {
+			if ($yr != $this->func->get_date('Y') || $mon != $this->func->get_date('m')) {
+				$now_day = 1;
+				$other_month = 1;
+			} else {
+				$now_day = $this->func->get_date('d');
+				$other_month = 0;
+			}
 		}
 	
 		$today = getdate(mktime(0, 0, 0, $mon, $now_day, $yr) - $this->cont['LOCALZONE'] + $this->cont['ZONETIME']);
@@ -127,8 +139,11 @@ EOD;
 			} else if ($wday == 6) { //  Saturday
 				$style = 'style_td_sat';
 			}
-	
-			if ($this->func->is_page($page)) {
+			
+			// for PukiWikiMod compat
+			$moblog_page = $page."-0";
+			
+			if ($this->func->is_page($page) || $this->func->is_page($moblog_page)) {
 				$link = '<a href="' . $this->root->script . '?' . $r_page . '" title="' . $s_page .
 				'"><strong>' . $day . '</strong></a>';
 			} else {
@@ -155,8 +170,7 @@ EOD;
 		'   </table>' . "\n";
 	
 		if ($today_view) {
-			$tpage = $prefix . sprintf('%4d-%02d-%02d', $today['year'],
-			$today['mon'], $today['mday']);
+			$tpage = $prefix . sprintf('%4d-%02d-%02d', $today['year'],	$today['mon'], $today['mday']);
 			$r_tpage = rawurlencode($tpage);
 			if ($this->func->is_page($tpage)) {
 				$_page = $this->root->vars['page'];
@@ -168,8 +182,7 @@ EOD;
 				$this->root->get['page'] = $this->root->post['page'] = $this->root->vars['page'] = $_page;
 			} else {
 				$str = sprintf($this->root->_calendar2_plugin_empty,
-				$this->func->make_pagelink(sprintf('%s%4d-%02d-%02d', $prefix,
-				$today['year'], $today['mon'], $today['mday'])));
+				$this->func->make_pagelink($tpage));
 			}
 			$ret .= '  </td>' . "\n" .
 			'  <td valign="top">' . $str . '</td>' . "\n" .
@@ -192,8 +205,16 @@ EOD;
 	
 		if ($date == '') $date = $this->func->get_date('Ym');
 		$yy = sprintf('%04d.%02d', substr($date, 0, 4),substr($date, 4, 2));
+
+		if (strlen($date) === 8) {
+			$yy = sprintf("%04d.%02d.%02d",substr($date,0,4),substr($date,4,2),substr($date,6,2));
+			$aryargs = array($this->root->vars['page'], $date);
+		} else {
+			$yy = sprintf("%04d.%02d",substr($date,0,4),substr($date,4,2));
+			$aryargs = array($this->root->vars['page'], $date, 'off');
+		}
 	
-		$aryargs = array($this->root->vars['page'], $date, 'off');
+		//$aryargs = array($this->root->vars['page'], $date, 'off');
 		$s_page  = htmlspecialchars($this->root->vars['page']);
 	
 		$ret['msg']  = 'calendar ' . $s_page . '/' . $yy;
