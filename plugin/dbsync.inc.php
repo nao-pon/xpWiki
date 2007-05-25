@@ -1,7 +1,7 @@
 <?php
 //
 // Created on 2006/11/17 by nao-pon http://hypweb.net/
-// $Id: dbsync.inc.php,v 1.4 2007/05/21 08:31:01 nao-pon Exp $
+// $Id: dbsync.inc.php,v 1.5 2007/05/25 03:00:10 nao-pon Exp $
 //
 
 class xpwiki_plugin_dbsync extends xpwiki_plugin {
@@ -65,12 +65,18 @@ var xpwiki_dbsync_doing = false;
 var xpwiki_dbsync_timerID;
 function xpwiki_dbsync_done()
 {
+	document.getElementById('xpwiki_dbsync_submit').style.visibility = "visible";
 	document.getElementById('xpwiki_dbsync_submit').disabled = false;
 }
 function xpwiki_dbsync_blink(mode)
 {
 	var timer;
 	clearTimeout(xpwiki_dbsync_timerID);
+	
+	if (mode == 'start') {
+		document.getElementById('xpwiki_dbsync_submit').disabled = true;
+		document.getElementById('xpwiki_dbsync_submit').style.visibility = "hidden";
+	}
 	
 	if (mode == 'stop')
 	{
@@ -724,7 +730,7 @@ __EOD__;
   {$token}
   <input type="hidden" name="encode_hint" value="คื" />
   <input type="hidden" name="plugin" value="dbsync" />
-  <input type="hidden" name="action" value="update" />
+  <input type="hidden" name="pmode" value="update" />
   <input type="hidden" name="mode" value="select" />
   <input type="hidden" name="init" value="{$this->root->post['init']}" />
   <input type="hidden" name="title" value="{$this->root->post['title']}" />
@@ -736,7 +742,7 @@ __EOD__;
 </form>
 <script>
 <!--
-parent.$this->xpwiki_dbsync_blink('continue');
+parent.xpwiki_dbsync_blink('continue');
 -->
 </script>
 </body></html>
