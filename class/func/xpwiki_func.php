@@ -1,7 +1,7 @@
 <?php
 //
 // Created on 2006/10/02 by nao-pon http://hypweb.net/
-// $Id: xpwiki_func.php,v 1.61 2007/05/11 11:58:29 nao-pon Exp $
+// $Id: xpwiki_func.php,v 1.62 2007/05/25 02:58:51 nao-pon Exp $
 //
 class XpWikiFunc extends XpWikiXoopsWrapper {
 
@@ -1392,7 +1392,7 @@ EOD;
 				if ($pginfo[$key] === 'all' || $pginfo[$key] === 'none') {
 					$$key = $pginfo[$key];
 				} else {
-					$$key = '&'.$pginfo[$key].'&';
+					$$key = '&'.trim($pginfo[$key],'&').'&';
 				}
 			}
 			$value = "`einherit`='$einherit' ," .
@@ -1467,8 +1467,9 @@ EOD;
 			
 			$pobj = new XpWiki($this->root->mydirname);
 			$pobj->init($page);
-			$pobj->root->userinfo['admin'] = TRUE;
+			$pobj->root->userinfo['admin'] = true;
 			$pobj->root->userinfo['uname_s'] = '';
+			$pobj->root->rtf['is_init'] = true;
 			$pobj->execute();
 			$data = $pobj->body;
 
