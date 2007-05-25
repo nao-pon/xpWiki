@@ -1,6 +1,6 @@
 <?php
 // PukiWiki - Yet another WikiWikiWeb clone.
-// $Id: pukiwiki.css.php,v 1.18 2007/04/19 13:31:06 nao-pon Exp $
+// $Id: pukiwiki.css.php,v 1.19 2007/05/25 02:57:48 nao-pon Exp $
 // Copyright (C)
 //   2002-2005 PukiWiki Developers Team
 //   2001-2002 Originally written by yu-ji
@@ -424,6 +424,7 @@ $class .edit_form textarea {
 $class div#header {
 	padding:0px;
 	margin:0px;
+	background-color: transparent;
 }
 
 $class div#navigator {
