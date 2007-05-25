@@ -1,7 +1,7 @@
 <?php
 //
 // Created on 2006/10/02 by nao-pon http://hypweb.net/
-// $Id: pukiwiki_func.php,v 1.71 2007/05/20 01:00:15 nao-pon Exp $
+// $Id: pukiwiki_func.php,v 1.72 2007/05/25 02:57:04 nao-pon Exp $
 //
 class XpWikiPukiWikiFunc extends XpWikiBaseFunc {
 
@@ -776,7 +776,7 @@ class XpWikiPukiWikiFunc extends XpWikiBaseFunc {
 
 //----- Start convert_html.php -----//
 	// PukiWiki - Yet another WikiWikiWeb clone
-	// $Id: pukiwiki_func.php,v 1.71 2007/05/20 01:00:15 nao-pon Exp $
+	// $Id: pukiwiki_func.php,v 1.72 2007/05/25 02:57:04 nao-pon Exp $
 	// Copyright (C)
 	//   2002-2005 PukiWiki Developers Team
 	//   2001-2002 Originally written by yu-ji
@@ -966,7 +966,7 @@ class XpWikiPukiWikiFunc extends XpWikiBaseFunc {
 
 //----- Start func.php -----//
 	// PukiWiki - Yet another WikiWikiWeb clone.
-	// $Id: pukiwiki_func.php,v 1.71 2007/05/20 01:00:15 nao-pon Exp $
+	// $Id: pukiwiki_func.php,v 1.72 2007/05/25 02:57:04 nao-pon Exp $
 	// Copyright (C)
 	//   2002-2006 PukiWiki Developers Team
 	//   2001-2002 Originally written by yu-ji
@@ -1827,7 +1827,7 @@ EOD;
 
 //----- Start make_link.php -----//
 	// PukiWiki - Yet another WikiWikiWeb clone.
-	// $Id: pukiwiki_func.php,v 1.71 2007/05/20 01:00:15 nao-pon Exp $
+	// $Id: pukiwiki_func.php,v 1.72 2007/05/25 02:57:04 nao-pon Exp $
 	// Copyright (C)
 	//   2003-2005 PukiWiki Developers Team
 	//   2001-2002 Originally written by yu-ji
@@ -1854,7 +1854,7 @@ EOD;
 		if ($alias) {
 			$s_alias = $alias;
 		} else {
-			$s_alias = $this->root->pagename_num2str ? preg_replace('/\/(?:[0-9\-]+|[B0-9][A-Z0-9]{9})$/','/'.$this->get_heading($page),$s_page) : $s_page;
+			$s_alias = ($this->root->pagename_num2str && $this->is_page($page)) ? preg_replace('/\/(?:[0-9\-]+|[B0-9][A-Z0-9]{9})$/','/'.$this->get_heading($page),$s_page) : $s_page;
 			$s_alias = str_replace('/', '/<wbr />', $s_alias);
 		}
 	
@@ -1985,7 +1985,26 @@ EOD;
 		case 'moin': // MoinMoin
 			$param = str_replace('%', '_', rawurlencode($param));
 			break;
-	
+
+		// 二重にURLエンコードする
+		case 'dbl':
+			$param = rawurlencode(rawurlencode($param));
+			break;
+					
+		// HexEncode系
+		case 'hex_utf8':
+		case 'wiki_utf8':
+			$param = $this->encode(mb_convert_encoding($param,'UTF-8',$this->cont['SOURCE_ENCODING']));
+			break;
+		case 'hex_sjis':
+		case 'wiki_sjis':
+			$param = $this->encode(mb_convert_encoding($param,'SJIS',$this->cont['SOURCE_ENCODING']));
+			break;
+		case 'hex_euc-jp':
+		case 'wiki_euc-jp':
+			$param = $this->encode(mb_convert_encoding($param,'EUC-JP',$this->cont['SOURCE_ENCODING']));
+			break;
+
 		default:
 			// Alias conversion of $opt
 			if (isset($encode_aliases[$opt])) $opt = & $encode_aliases[$opt];
@@ -2619,7 +2638,7 @@ EOD;
 
 //----- Start html.php -----//
 	// PukiWiki - Yet another WikiWikiWeb clone.
-	// $Id: pukiwiki_func.php,v 1.71 2007/05/20 01:00:15 nao-pon Exp $
+	// $Id: pukiwiki_func.php,v 1.72 2007/05/25 02:57:04 nao-pon Exp $
 	// Copyright (C)
 	//   2002-2006 PukiWiki Developers Team
 	//   2001-2002 Originally written by yu-ji
@@ -3215,7 +3234,7 @@ EOD;
 
 //----- Start mail.php -----//
 	// PukiWiki - Yet another WikiWikiWeb clone.
-	// $Id: pukiwiki_func.php,v 1.71 2007/05/20 01:00:15 nao-pon Exp $
+	// $Id: pukiwiki_func.php,v 1.72 2007/05/25 02:57:04 nao-pon Exp $
 	// Copyright (C)
 	//   2003-2005 PukiWiki Developers Team
 	//   2003      Originally written by upk
@@ -3518,7 +3537,7 @@ EOD;
 
 //----- Start link.php -----//
 	// PukiWiki - Yet another WikiWikiWeb clone
-	// $Id: pukiwiki_func.php,v 1.71 2007/05/20 01:00:15 nao-pon Exp $
+	// $Id: pukiwiki_func.php,v 1.72 2007/05/25 02:57:04 nao-pon Exp $
 	// Copyright (C) 2003-2006 PukiWiki Developers Team
 	// License: GPL v2 or (at your option) any later version
 	//
