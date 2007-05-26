@@ -4,7 +4,7 @@ class xpwiki_plugin_aname extends xpwiki_plugin {
 
 
 	// PukiWiki - Yet another WikiWikiWeb clone
-	// $Id: aname.inc.php,v 1.2 2006/11/14 01:14:45 nao-pon Exp $
+	// $Id: aname.inc.php,v 1.3 2007/05/26 01:00:05 nao-pon Exp $
 	// Copyright (C)
 	//   2002-2005 PukiWiki Developers Team
 	//   2001-2002 Originally written by yu-ji
@@ -110,7 +110,7 @@ class xpwiki_plugin_aname extends xpwiki_plugin {
 		$id = htmlspecialchars($id); // Insurance
 		$class   = $f_super ? 'anchor_super' : 'anchor';
 		$attr_id = $f_noid  ? '' : ' id="' . $id . '" name="' . $id . '"';
-		$url     = $f_full  ? $this->func->get_script_uri() . '?' . rawurlencode($this->root->vars['page']) : '';
+		$url     = $f_full  ? $this->func->get_page_uri($this->root->vars['page'], true) : '';
 		if ($body != '') {
 			$href  = ' href="' . $url . '#' . $id . '"';
 			$title = ' title="' . $id . '"';

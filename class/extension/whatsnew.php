@@ -1,7 +1,7 @@
 <?php
 //
 // Created on 2006/10/29 by nao-pon http://hypweb.net/
-// $Id: whatsnew.php,v 1.6 2006/12/08 06:09:06 nao-pon Exp $
+// $Id: whatsnew.php,v 1.7 2007/05/26 00:55:55 nao-pon Exp $
 //
 
 class XpWikiExtension_whatsnew extends XpWikiExtension {
@@ -33,11 +33,11 @@ class XpWikiExtension_whatsnew extends XpWikiExtension {
 				$ret[$i]['cat_link'] = '';
 				$ret[$i]['cat_name'] = '';
 			} else {
-				$ret[$i]['cat_link'] = $this->root->script."?".rawurlencode($uppage);
+				$ret[$i]['cat_link'] = $this->func->get_page_uri($uppage, true);
 				$ret[$i]['cat_name'] = $uppage;
 			}
 			
-			$ret[$i]['link']  = $this->root->script."?".rawurlencode($base);
+			$ret[$i]['link']  = $this->func->get_page_uri($base, true);
 			$ret[$i]['title'] = preg_replace('/^[0-9-]+$/', $this->func->get_heading($base), basename($base));
 			$ret[$i]['time']  = $localtime;
 			
