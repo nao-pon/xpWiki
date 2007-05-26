@@ -1,7 +1,7 @@
 <?php
 //
 // Created on 2006/10/02 by nao-pon http://hypweb.net/
-// $Id: xpwiki_func.php,v 1.62 2007/05/25 02:58:51 nao-pon Exp $
+// $Id: xpwiki_func.php,v 1.63 2007/05/26 00:58:06 nao-pon Exp $
 //
 class XpWikiFunc extends XpWikiXoopsWrapper {
 
@@ -1035,6 +1035,11 @@ EOD;
 		return $ret;
 	}
 	
+	// ページURIを得る
+	function get_page_uri($page, $full = false) {
+		return ($full ? $this->cont['HOME_URL'] : '' ) . (@ $this->root->static_url ? $this->get_pgid_by_name($page) . '.html' : '?' . rawurlencode($page));
+	}
+	
 	// SKIN Function
 	function skin_navigator ($obj, $key, $value = '', $javascript = '') {
 		$lang = & $obj->root->_LANG['skin'];
@@ -1584,7 +1589,7 @@ EOD;
 				}
 				*/
 				// 検索実行
-				$pages = $this->do_search($lookup_page,'AND',TRUE);
+				$pages = ($this->root->rtf['is_init'])? $this->do_source_search($lookup_page,'AND',TRUE) : $this->do_search($lookup_page,'AND',TRUE);
 				
 				foreach ($pages as $_page)
 				{
@@ -1839,9 +1844,102 @@ EOD;
 	}
 	
 	// 'Search' main function (DB版)
-	function do_search($word, $type = 'AND', $non_format = FALSE, $base = '', $db = FALSE, $limit = 0, $offset = 0 , $userid = 0)
+	function do_search($words, $type = 'AND', $non_format = FALSE, $base = '', $db = TRUE, $field='name,text', $limit = 0, $offset = 0 , $userid = 0)
 	{
-		if (!$db) return parent::do_search($word, $type, $non_format, $base);
+		if (!$db) return parent::do_search($words, $type, $non_format, $base);
+		
+		$keywords = preg_split('/\s+/', $words, -1, PREG_SPLIT_NO_EMPTY);
+		
+		$fields = explode(',', $field);
+		
+		$andor = ($type === 'AND')? 'AND' : 'OR';
+		
+		$where_readable = $this->get_readable_where('p.');
+		$where = "p.editedtime != 0";
+		if ($base) {
+			$where .= " AND p.name LIKE '".addslashes($base)."%'";
+		}
+		if ($where_readable) {
+			$where = "$where AND ($where_readable)";
+		}
+		
+		$sql = "SELECT p.name, p.editedtime, p.title FROM ".$this->xpwiki->db->prefix($this->root->mydirname."_pginfo")." p INNER JOIN ".$this->xpwiki->db->prefix($this->root->mydirname."_plain")." t ON t.pgid=p.pgid WHERE ($where) ";
+		if ( $userid != 0 ) {
+			$sql .= "AND (p.uid=".$userid.") ";
+		}
+		
+		if ( is_array($keywords) && $keywords ) {
+			// 英数字は半角,カタカナは全角,ひらがなはカタカナに
+			$sql .= "AND (";
+			$i = 0;
+			foreach ($keywords as $keyword) {
+				if ($i++ !== 0) $sql .= " $andor ";
+				if (function_exists("mb_convert_kana"))
+				{
+					// 英数字は半角,カタカナは全角,ひらがなはカタカナに
+					$word = addslashes(mb_convert_kana($keyword,'aKCV'));
+				} else {
+					$word = addslashes($keyword);
+				}
+				if (in_array('name', $fields) && in_array('text', $fields)) {
+					$sql .= "(p.name LIKE '%{$word}%' OR t.plain LIKE '%{$word}%')";
+				} else if (in_array('name', $fields)) {
+					$sql .= "p.name LIKE '%{$word}%'";
+				} else if (in_array('text', $fields)) {
+					$sql .= "t.plain LIKE '%{$word}%'";
+				}
+			}
+			$sql .= ") ";
+		}
+		
+		$result = $this->xpwiki->db->query($sql, $limit, $offset);
+		
+		$ret = array();
+		
+		if (!$keywords) $keywords = array();
+		$sword = rawurlencode(join(' ',$keywords));
+		
+		$pages = array();
+		if (in_array('source', $fields)) {
+			foreach($this->do_source_search ($word, $type, true, $base) as $page) {
+				$pages[$page] = '';
+			}
+		}
+		while($myrow = $this->xpwiki->db->fetchArray($result)) {
+			$pages[$myrow['name']] = array($myrow['editedtime'], $myrow['title']);
+		}
+		
+		if ($non_format) return array_keys($pages);
+	
+		$r_word = rawurlencode($words);
+		$s_word = htmlspecialchars($words);
+		if (empty($pages))
+			return str_replace('$1', $s_word, $this->root->_msg_notfoundresult);
+	
+		ksort($pages);
+		
+		$count = count($this->get_existpages());
+		
+		$retval = '<ul>' . "\n";
+		foreach ($pages as $page => $data) {
+			if (!$data[0]) $data[0] = $this->get_filetime($page);
+			if (!$data[1]) $data[1] = $this->get_heading($page);
+			$s_page  = htmlspecialchars($page);
+			$passage = $this->root->show_passage ? ' ' . $this->get_passage($data[0]) : '';
+			$retval .= ' <li><a href="' . $this->get_page_uri($page, true) . (@ $this->root->static_url ? '?' : '&amp;') . 'word=' . $r_word . '">' . $s_page .
+				'</a><small>' . $passage . '</small> [ ' . htmlspecialchars($data[1]) . ' ]</li>' . "\n";
+		}
+		$retval .= '</ul>' . "\n";
+	
+		$retval .= str_replace('$1', $s_word, str_replace('$2', count($pages),
+			str_replace('$3', $count, $b_type ? $this->root->_msg_andresult : $this->root->_msg_orresult)));
+	
+		return $retval;
+	}
+
+	// Wikiソーステキストから検索
+	function do_source_search ($word, $type = 'AND', $non_format = FALSE, $base = '') {
+		return parent::do_search ($word, $type, $non_format, $base);
 	}
 
 	// ページ読みを取得
@@ -1959,6 +2057,6 @@ EOD;
 		
 		return $reading;
 	}
-
+	
 }
 ?>
