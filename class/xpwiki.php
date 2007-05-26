@@ -1,7 +1,7 @@
 <?php
 //
 // Created on 2006/09/29 by nao-pon http://hypweb.net/
-// $Id: xpwiki.php,v 1.31 2007/05/14 09:12:18 nao-pon Exp $
+// $Id: xpwiki.php,v 1.32 2007/05/26 00:56:52 nao-pon Exp $
 //
 
 class XpWiki {
@@ -19,6 +19,8 @@ class XpWiki {
 	var $body;
 	var $html;
 	var $breadcrumbs_array;
+	
+	var $iniVar;
 
 
 	function XpWiki ($mydirname, $moddir='modules/') {
@@ -69,6 +71,18 @@ class XpWiki {
 
 		// 各パラメーターを初期化
 		$this->func->init();
+		
+		// オプション設定
+		if (!empty($this->iniVar['root'])) {
+			foreach($this->iniVar['root'] as $key => $val) {
+				$this->root->$key = $val;
+			}
+		}
+		if (!empty($this->iniVar['const'])) {
+			foreach($this->iniVar['const'] as $key => $val) {
+				$this->cont[$key] = $val;
+			}
+		}
 	}
 	
 	function execute() {
@@ -337,6 +351,18 @@ EOD;
 		
 		return $head_pre_tag."\n".$csstag."\n".$head_tag."\n".$text;
 
+	}
+	
+	function setIniRoot($key = '', $val = '') {
+		if (!$key) return;
+		$key = strval($key);
+		$this->iniVar['root'][$key] = $val;
+	}
+	
+	function setIniConst($key = '', $val = '') {
+		if (!$key) return;
+		$key = strval($key);
+		$this->iniVar['const'][$key] = $val;
 	}
 }
 ?>
