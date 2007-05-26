@@ -4,7 +4,7 @@ class xpwiki_plugin_search extends xpwiki_plugin {
 
 
 	// PukiWiki - Yet another WikiWikiWeb clone.
-	// $Id: search.inc.php,v 1.2 2006/11/01 04:19:37 nao-pon Exp $
+	// $Id: search.inc.php,v 1.3 2007/05/26 01:00:41 nao-pon Exp $
 	//
 	// Search plugin
 	
@@ -15,6 +15,8 @@ class xpwiki_plugin_search extends xpwiki_plugin {
 		$this->cont['PLUGIN_SEARCH_MAX_LENGTH'] =  80;
 		$this->cont['PLUGIN_SEARCH_MAX_BASE'] =    16; // #search(1,2,3,...,15,16)
 
+		// Œ¾Œêƒtƒ@ƒCƒ‹‚Ì“Ç‚Ýž‚Ý
+		$this->load_language();
 	}
 	
 	// Show a search box on a page
@@ -52,8 +54,14 @@ class xpwiki_plugin_search extends xpwiki_plugin {
 	
 		if ($s_word != '') {
 			// Search
+			$fields = array();
+			if (!empty($this->root->vars['search_name'])) $fields[] = 'name';
+			if (!empty($this->root->vars['search_text'])) $fields[] = 'text';
+			if (!empty($this->root->vars['search_source'])) $fields[] = 'source';
+			$filed = join(',', $fields);
+			
 			$msg  = str_replace('$1', $s_word, $this->root->_title_result);
-			$body = $this->func->do_search($this->root->vars['word'], $type, FALSE, $base);
+			$body = $this->func->do_search($this->root->vars['word'], $type, FALSE, $base, TRUE, $filed);
 		} else {
 			// Init
 			unset($this->root->vars['word']); // Stop using $_msg_word at lib/html.php
@@ -79,7 +87,16 @@ class xpwiki_plugin_search extends xpwiki_plugin {
 		} else {
 			$and_check = ' checked="checked"';
 		}
-	
+		
+		if ($s_word) {
+			$search_check['name'] = (empty($this->root->vars['search_name']))? '' : ' checked="checked"';
+			$search_check['text'] = (empty($this->root->vars['search_text']))? '' : ' checked="checked"';
+			$search_check['source'] = (empty($this->root->vars['search_source']))? '' : ' checked="checked"';
+		} else {
+			$search_check['name'] = $search_check['text'] = ' checked="checked"';
+			$search_check['source'] = '';
+		}
+
 		$base_option = '';
 		if (!empty($bases)) {
 			$base_msg = '';
@@ -117,6 +134,11 @@ EOD;
   <input type="radio" name="type" id="_p_search_OR"  value="OR"  $or_check  />
   <label for="_p_search_OR">{$this->root->_btn_or}</label>
   &nbsp;<input type="submit" value="{$this->root->_btn_search}" />
+  <p>
+  <input type="checkbox" name="search_name" id="_p_search_name" value="1"{$search_check['name']} /> <label for="_p_search_name">{$this->msg['btn_search_name']}</label>&nbsp;
+  <input type="checkbox" name="search_text" id="_p_search_text" value="1"{$search_check['text']} /> <label for="_p_search_text">{$this->msg['btn_search_text']}</label>&nbsp;
+  <input type="checkbox" name="search_source" id="_p_search_source" value="1"{$search_check['source']} /> <label for="_p_search_source">{$this->msg['btn_search_source']}</label>
+  </p>
  </div>
 $base_option
 </form>
