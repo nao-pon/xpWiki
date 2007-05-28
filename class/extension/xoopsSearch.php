@@ -1,7 +1,7 @@
 <?php
 //
 // Created on 2006/11/27 by nao-pon http://hypweb.net/
-// $Id: xoopsSearch.php,v 1.2 2006/12/08 06:06:08 nao-pon Exp $
+// $Id: xoopsSearch.php,v 1.3 2007/05/28 07:57:42 nao-pon Exp $
 //
 class XpWikiExtension_xoopsSearch extends XpWikiExtension {
 
@@ -16,7 +16,7 @@ class XpWikiExtension_xoopsSearch extends XpWikiExtension {
 		$showcontext = empty( $_GET['showcontext'] ) ? 0 : 1 ;
 
 		$where_readable = $this->func->get_readable_where('p.');
-		$where = "p.editedtime != 0 AND p.name NOT LIKE ':config/%' AND p.name != ':RenameLog'";
+		$where = "p.editedtime != 0";
 		if ($where_readable) {
 			$where = "$where AND ($where_readable)";
 		}
@@ -39,7 +39,7 @@ class XpWikiExtension_xoopsSearch extends XpWikiExtension {
 				} else {
 					$word = addslashes($keyword);
 				}
-				$sql .= "(p.name LIKE '%{$word}%' OR t.plain LIKE '%{$word}%')";
+				$sql .= "(p.name_ci LIKE '%{$word}%' OR t.plain LIKE '%{$word}%')";
 			}
 			$sql .= ") ";
 		}
@@ -73,7 +73,7 @@ class XpWikiExtension_xoopsSearch extends XpWikiExtension {
 
 			$title = ($myrow['title'])? ' ['.$myrow['title'].']' : '';
 			$ret[] = array(
-				'link'    => 'index.php?' . rawurlencode($myrow['name']) . '&amp;word=' . $sword,
+				'link'    => $this->func->get_page_uri($myrow['name']) . (@ $this->root->static_url ? '?' : '&amp;') . 'word=' . $sword,
 				'title'   => htmlspecialchars($myrow['name'].$title, ENT_QUOTES),
 				'image'   => '',
 				'time'    => $myrow['editedtime'],

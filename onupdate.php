@@ -24,13 +24,9 @@ function xpwiki_onupdate_base( $module , $mydirname )
 	$db =& Database::getInstance() ;
 	$mid = $module->getVar('mid') ;
 
-	// TABLES (write here ALTER TABLE etc. if necessary)
-	$query = "ALTER TABLE `".$db->prefix($mydirname."_pginfo")."` ADD `reading` VARCHAR( 255 ) BINARY NOT NULL";
-	$db->query($query);
-	
 	// DB Check for db non support version
-	$query = "SELECT * FROM ".$db->prefix($mydirname."_pginfo")." LIMIT 1";
-	if(! $result=$db->query($query)) {
+	$query = "SELECT * FROM ".$db->prefix($mydirname."_pginfo") ;
+	if(! $db->query($query)) {
 		// TABLES (loading mysql.sql)
 		$sql_file_path = dirname(__FILE__).'/sql/mysql.sql' ;
 		$prefix_mod = $db->prefix() . '_' . $mydirname ;
@@ -68,6 +64,19 @@ function xpwiki_onupdate_base( $module , $mydirname )
 				}
 			}
 		}
+	}
+
+	// TABLES (write here ALTER TABLE etc. if necessary)
+	$query = "SELECT `reading` FROM ".$db->prefix($mydirname."_pginfo") ;
+	if(! $db->query($query)) {
+		$db->queryF("ALTER TABLE `".$db->prefix($mydirname."_pginfo")."` ADD `reading` VARCHAR( 255 ) BINARY NOT NULL");
+	}
+
+	$query = "SELECT `name_ci` FROM ".$db->prefix($mydirname."_pginfo") ;
+	if(! $db->query($query)) {
+		$db->query('ALTER TABLE `'.$db->prefix($mydirname.'_pginfo').'` ADD `name_ci` VARCHAR( 255 ) NOT NULL');
+		$db->query('ALTER TABLE `'.$db->prefix($mydirname.'_pginfo').'` ADD INDEX ( `name_ci` )');
+		$db->query('UPDATE `'.$db->prefix($mydirname.'_pginfo').'` SET `name_ci` = `name`');
 	}
 
 	// TEMPLATES (all templates have been already removed by modulesadmin)

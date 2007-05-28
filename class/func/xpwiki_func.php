@@ -1,7 +1,7 @@
 <?php
 //
 // Created on 2006/10/02 by nao-pon http://hypweb.net/
-// $Id: xpwiki_func.php,v 1.63 2007/05/26 00:58:06 nao-pon Exp $
+// $Id: xpwiki_func.php,v 1.64 2007/05/28 07:57:42 nao-pon Exp $
 //
 class XpWikiFunc extends XpWikiXoopsWrapper {
 
@@ -1107,8 +1107,9 @@ EOD;
 		$page = addslashes($page);
 		if (isset($this->root->pgids[$page])) return $this->root->pgids[$page];
 		
+		$case = ($this->root->page_case_insensitive)? '_ci' : '';
 		$db =& $this->xpwiki->db;
-		$query = "SELECT `pgid` FROM ".$db->prefix($this->root->mydirname."_pginfo")." WHERE name='$page' LIMIT 1";
+		$query = "SELECT `pgid` FROM ".$db->prefix($this->root->mydirname."_pginfo")." WHERE name".$case."='$page' LIMIT 1";
 		$res = $db->query($query);
 		if (!$res) return 0;
 		list($ret) = mysql_fetch_row($res);
@@ -1323,14 +1324,15 @@ EOD;
 						"`lastucd`='$lastucd' ," .
 						"`lastuname`='$lastuname' ," .
 						"`update`='0' ," .
-						"`reading`='$reading'";
+						"`reading`='$reading' ," .
+						"`name_ci`='$s_name'";
 				$query = "UPDATE ".$this->xpwiki->db->prefix($this->root->mydirname."_pginfo")." SET $value WHERE pgid = '$id' LIMIT 1";
 			}
 			else
 			{
 				$query = "INSERT INTO ".$this->xpwiki->db->prefix($this->root->mydirname."_pginfo").
-						" (`name`,`title`,`buildtime`,`editedtime`,`uid`,`ucd`,`uname`,`freeze`,`einherit`,`eaids`,`egids`,`vinherit`,`vaids`,`vgids`,`lastuid`,`lastucd`,`lastuname`,`update`,`reading`)" .
-						" values('$s_name','$title','$buildtime','$editedtime','$uid','$ucd','$uname','0','$einherit','$eaids','$egids','$vinherit','$vaids','$vgids','$lastuid','$lastucd','$lastuname','0','$reading')";
+						" (`name`,`title`,`buildtime`,`editedtime`,`uid`,`ucd`,`uname`,`freeze`,`einherit`,`eaids`,`egids`,`vinherit`,`vaids`,`vgids`,`lastuid`,`lastucd`,`lastuname`,`update`,`reading`,`name_ci`)" .
+						" values('$s_name','$title','$buildtime','$editedtime','$uid','$ucd','$uname','0','$einherit','$eaids','$egids','$vinherit','$vaids','$vgids','$lastuid','$lastucd','$lastuname','0','$reading','$s_name')";
 			}
 
 			$result = $this->xpwiki->db->query($query);
@@ -1420,7 +1422,7 @@ EOD;
 			$this->plain_db_write($fromname,"delete");
 
 			$_toname = addslashes($toname);
-			$value = "`name`='$_toname'";		
+			$value = "`name`='$_toname', `name_ci`='$_toname'";		
 			$query = "UPDATE ".$this->xpwiki->db->prefix($this->root->mydirname."_pginfo")." SET $value WHERE pgid = '$id' LIMIT 1";
 			//exit($query);
 			$result = $this->xpwiki->db->query($query);
@@ -1882,9 +1884,9 @@ EOD;
 					$word = addslashes($keyword);
 				}
 				if (in_array('name', $fields) && in_array('text', $fields)) {
-					$sql .= "(p.name LIKE '%{$word}%' OR t.plain LIKE '%{$word}%')";
+					$sql .= "(p.name_ci LIKE '%{$word}%' OR t.plain LIKE '%{$word}%')";
 				} else if (in_array('name', $fields)) {
-					$sql .= "p.name LIKE '%{$word}%'";
+					$sql .= "p.name_ci LIKE '%{$word}%'";
 				} else if (in_array('text', $fields)) {
 					$sql .= "t.plain LIKE '%{$word}%'";
 				}
@@ -2058,5 +2060,15 @@ EOD;
 		return $reading;
 	}
 	
+	// 大文字小文字を正しいページ名に矯正する
+	function get_pagename_realcase ($page) {
+		$query = 'SELECT `name` FROM `'.$this->xpwiki->db->prefix($this->root->mydirname.'_pginfo').'` WHERE `name_ci` = \''.addslashes($page).'\' LIMIT 1';
+		//echo $query;
+		if ($result = $this->xpwiki->db->query($query)) {
+			list($fixed_page) = $this->xpwiki->db->fetchRow($result);
+			if ($fixed_page) return $fixed_page;
+		}
+		return $page;
+	}
 }
 ?>

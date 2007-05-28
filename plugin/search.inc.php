@@ -4,7 +4,7 @@ class xpwiki_plugin_search extends xpwiki_plugin {
 
 
 	// PukiWiki - Yet another WikiWikiWeb clone.
-	// $Id: search.inc.php,v 1.3 2007/05/26 01:00:41 nao-pon Exp $
+	// $Id: search.inc.php,v 1.4 2007/05/28 07:57:42 nao-pon Exp $
 	//
 	// Search plugin
 	
@@ -22,11 +22,9 @@ class xpwiki_plugin_search extends xpwiki_plugin {
 	// Show a search box on a page
 	function plugin_search_convert()
 	{
-	//	static $done;
 		static $done = array();
-		if (!isset($done[$this->xpwiki->pid])) {$done[$this->xpwiki->pid] = array();}
-	
-		if (isset($done[$this->xpwiki->pid])) {
+		
+		if (! empty($done[$this->xpwiki->pid])) {
 			return '#search(): You already view a search box<br />' . "\n";
 		} else {
 			$done[$this->xpwiki->pid] = TRUE;
@@ -129,15 +127,13 @@ EOD;
  <div>
   <input type="hidden" name="cmd" value="search" />
   <input type="text"  name="word" value="$s_word" size="20" />
-  <input type="radio" name="type" id="_p_search_AND" value="AND" $and_check />
-  <label for="_p_search_AND">{$this->root->_btn_and}</label>
-  <input type="radio" name="type" id="_p_search_OR"  value="OR"  $or_check  />
-  <label for="_p_search_OR">{$this->root->_btn_or}</label>
+  <input type="radio" name="type" id="_p_search_AND" value="AND" $and_check />&nbsp;<label for="_p_search_AND">{$this->root->_btn_and}</label>
+  <input type="radio" name="type" id="_p_search_OR"  value="OR"  $or_check  />&nbsp;<label for="_p_search_OR">{$this->root->_btn_or}</label>
   &nbsp;<input type="submit" value="{$this->root->_btn_search}" />
   <p>
-  <input type="checkbox" name="search_name" id="_p_search_name" value="1"{$search_check['name']} /> <label for="_p_search_name">{$this->msg['btn_search_name']}</label>&nbsp;
-  <input type="checkbox" name="search_text" id="_p_search_text" value="1"{$search_check['text']} /> <label for="_p_search_text">{$this->msg['btn_search_text']}</label>&nbsp;
-  <input type="checkbox" name="search_source" id="_p_search_source" value="1"{$search_check['source']} /> <label for="_p_search_source">{$this->msg['btn_search_source']}</label>
+  <input type="checkbox" name="search_name" id="_p_search_name" value="1"{$search_check['name']} />&nbsp;<label for="_p_search_name">{$this->msg['btn_search_name']}</label>&nbsp;
+  <input type="checkbox" name="search_text" id="_p_search_text" value="1"{$search_check['text']} />&nbsp;<label for="_p_search_text">{$this->msg['btn_search_text']}</label>&nbsp;
+  <input type="checkbox" name="search_source" id="_p_search_source" value="1"{$search_check['source']} />&nbsp;<label for="_p_search_source">{$this->msg['btn_search_source']}</label>
   </p>
  </div>
 $base_option
