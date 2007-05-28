@@ -4,7 +4,7 @@ class xpwiki_plugin_edit extends xpwiki_plugin {
 
 
 	// PukiWiki - Yet another WikiWikiWeb clone.
-	// $Id: edit.inc.php,v 1.18 2007/04/09 01:07:15 nao-pon Exp $
+	// $Id: edit.inc.php,v 1.19 2007/05/28 08:50:57 nao-pon Exp $
 	// Copyright (C) 2001-2006 PukiWiki Developers Team
 	// License: GPL v2 or (at your option) any later version
 	//
@@ -16,11 +16,14 @@ class xpwiki_plugin_edit extends xpwiki_plugin {
 	
 	function plugin_edit_action()
 	{
-	//	global $vars, $_title_edit, $load_template_func;
-	
 		if ($this->cont['PKWK_READONLY']) $this->func->die_message('PKWK_READONLY prohibits editing');
 	
 		$page = isset($this->root->vars['page']) ? $this->root->vars['page'] : '';
+
+		if ($page && $this->root->page_case_insensitive) {
+			$page = $this->func->get_pagename_realcase($page);
+			$this->root->get['page'] = $this->root->post['page'] = $this->root->vars['page'] = $page;
+		}
 		
 		$this->func->check_editable($page, true, true);
 		
@@ -36,7 +39,6 @@ class xpwiki_plugin_edit extends xpwiki_plugin {
 			return $this->plugin_edit_cancel();
 		}
 	
-		//$postdata = @join('', $this->func->get_source($page));
 		$source = $this->func->get_source($page);
 		$postdata = $this->root->vars['original'] = @join('', $source);
 		if (! empty($this->root->vars['paraid'])) {
