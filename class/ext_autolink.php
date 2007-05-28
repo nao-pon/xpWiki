@@ -1,7 +1,7 @@
 <?php
 /*
  * Created on 2007/04/23 by nao-pon http://hypweb.net/
- * $Id: ext_autolink.php,v 1.6 2007/05/20 13:23:02 nao-pon Exp $
+ * $Id: ext_autolink.php,v 1.7 2007/05/28 07:57:43 nao-pon Exp $
  */
 class XpWikiPukiExtAutoLink {
 	// External AutoLinks
@@ -19,12 +19,18 @@ class XpWikiPukiExtAutoLink {
 		
 		foreach($this->root->ext_autolinks as $valid => $autolink)
 		{
-			if ($pat = $this->get_ext_autolink($autolink, $valid)) {
-				if ($pat) {
-					foreach(explode("\t", $pat) as $_pat){
-						$pattern = "/(<(?:a|A).*?<\/(?:a|A)>|<(?:textarea|style|script).*?<\/(?:textarea|style|script)>|<[^>]*>|&(?:#[0-9]+|#x[0-9a-f]+|[0-9a-zA-Z]+);)|($_pat)/sS";
-						$str = preg_replace_callback($pattern,array(&$this,'ext_autolink_replace'),$str);
-					}
+			list($pat, $ci) = $this->get_ext_autolink($autolink, $valid);
+			if ($pat) {
+				if ($ci) {
+					$pat_pre = '/(<a.*?<\/a>|<(?:textarea|style|script).*?<\/(?:textarea|style|script)>|<[^>]*>|&(?:#[0-9]+|#x[0-9a-f]+|[0-9a-z]+);)|(';
+					$pat_aft = ')/isS';	
+				} else {
+					$pat_pre = '/(<(?:a|A).*?<\/(?:a|A)>|<(?:textarea|style|script).*?<\/(?:textarea|style|script)>|<[^>]*>|&(?:#[0-9]+|#x[0-9a-f]+|[0-9a-zA-Z]+);)|(';
+					$pat_aft = ')/sS';	
+				}
+				foreach(explode("\t", $pat) as $_pat){
+					$pattern = $pat_pre.$_pat.$pat_aft;
+					$str = preg_replace_callback($pattern,array(&$this,'ext_autolink_replace'),$str);
 				}
 			}
 		}
@@ -83,13 +89,14 @@ class XpWikiPukiExtAutoLink {
 					break;
 				}
 			}
-			if (! $_check ) return '';
+			if (! $_check ) return array('',0);
 		}
 		
 		// initialize
 		$inits = array(
 			'url'   => '' ,
 			'urldat'=> 0 ,
+			'case_i'=> 0 ,
 			'base'  => '' ,
 			'len'   => 3 ,
 			'enc'   => $this->cont['CONTENT_CHARSET'] ,
@@ -98,6 +105,7 @@ class XpWikiPukiExtAutoLink {
 			'pat'   => ''
 		);
 		$autolink = array_merge($inits, $autolink);
+		$ci = $autolink['case_i'];
 		
 		if (preg_match('#^https?://#', $autolink['url'])) {
 			$this->ext_autolink_own = false;
@@ -119,7 +127,7 @@ class XpWikiPukiExtAutoLink {
 		$cache = $this->cont['CACHE_DIR'].md5($target).'.extautolink';
 		
 		// 重複登録チェック
-		if (isset($done[$this->xpwiki->pid][$target])) return '';
+		if (isset($done[$this->xpwiki->pid][$target])) array('',0);
 		$done[$this->xpwiki->pid][$target] = true;
 		
 		$cache_min = intval(max($autolink['cache'], 10));
@@ -129,7 +137,8 @@ class XpWikiPukiExtAutoLink {
 			if ($this->ext_autolink_own !== false) {
 					$obj = new XpWiki($this->ext_autolink_own); 
 					$obj->init();
-					$this->ext_autolink_func = & $obj->func;				
+					$this->ext_autolink_func = & $obj->func;	
+					$ci = $obj->root->page_case_insensitive;			
 			}
 		} else {
 			if ($this->ext_autolink_own !== false) {
@@ -137,8 +146,10 @@ class XpWikiPukiExtAutoLink {
 					$obj = new XpWiki($this->ext_autolink_own); 
 					$obj->init();
 					$this->ext_autolink_func = & $obj->func;
+					$ci = $obj->root->page_case_insensitive;
 					$plugin = & $obj->func->get_plugin_instance('api');
 				} else {
+					$ci = $this->root->page_case_insensitive;
 					$plugin = & $this->func->get_plugin_instance('api');
 				}
 				$pat = $plugin->autolink(true, $autolink['base']);
@@ -197,7 +208,7 @@ class XpWikiPukiExtAutoLink {
 			}
 		}
 		
-		return $pat;
+		return array($pat, $ci);
 	}
 }
 ?>

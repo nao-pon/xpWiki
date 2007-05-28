@@ -1,7 +1,7 @@
 <?php
 //
 // Created on 2006/11/17 by nao-pon http://hypweb.net/
-// $Id: dbsync.inc.php,v 1.5 2007/05/25 03:00:10 nao-pon Exp $
+// $Id: dbsync.inc.php,v 1.6 2007/05/28 07:57:42 nao-pon Exp $
 //
 
 class xpwiki_plugin_dbsync extends xpwiki_plugin {
@@ -304,8 +304,8 @@ __EOD__;
 				{
 					// ¿·µ¬ºîÀ®
 					$query = "INSERT INTO ".$this->xpwiki->db->prefix($this->root->mydirname."_pginfo").
-						" (`name`,`title`,`buildtime`,`editedtime`,`uid`,`ucd`,`uname`,`freeze`,`einherit`,`eaids`,`egids`,`vinherit`,`vaids`,`vgids`,`lastuid`,`lastucd`,`lastuname`,`update`)" .
-						" values('$name','$title','$buildtime','$editedtime','$uid','$ucd','$uname','$freeze','$einherit','$eaids','$egids','$vinherit','$vaids','$vgids','$lastuid','$lastucd','$lastuname','1')";
+						" (`name`,`title`,`buildtime`,`editedtime`,`uid`,`ucd`,`uname`,`freeze`,`einherit`,`eaids`,`egids`,`vinherit`,`vaids`,`vgids`,`lastuid`,`lastucd`,`lastuname`,`update`,`name_ci`)" .
+						" values('$name','$title','$buildtime','$editedtime','$uid','$ucd','$uname','$freeze','$einherit','$eaids','$egids','$vinherit','$vaids','$vgids','$lastuid','$lastucd','$lastuname','1','$name')";
 				}
 				else
 				{
@@ -334,7 +334,8 @@ __EOD__;
 						.",`lastuid`='$lastuid'"
 						.",`lastucd`='$lastucd'"
 						.",`lastuname`='$lastuname'"
-						.",`update`='1'";
+						.",`update`='1'"
+						.",`name_ci`='$name'";
 					$query = "UPDATE ".$this->xpwiki->db->prefix($this->root->mydirname."_pginfo")." SET $value WHERE pgid = '$id' LIMIT 1;";
 				}
 				$result=$this->xpwiki->db->queryF($query);

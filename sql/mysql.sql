@@ -48,9 +48,11 @@ CREATE TABLE `pginfo` (
   `lastuname` varchar(255) NOT NULL default '',
   `update` tinyint(1) NOT NULL default '0',
   `reading` varchar(255) binary NOT NULL default '',
+  `name_ci` varchar(255) NOT NULL default '',
   PRIMARY KEY  (`pgid`),
   UNIQUE KEY `name` (`name`),
-  KEY `uid` (`uid`)
+  KEY `uid` (`uid`),
+  KEY `name_ci` (`name_ci`)
 ) TYPE=MyISAM;
 
 CREATE TABLE `plain` (
