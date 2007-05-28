@@ -39,6 +39,13 @@ function xpwiki_oninstall_base( $module , $mydirname )
 		}
 
 		$sql_query = trim( file_get_contents( $sql_file_path ) ) ;
+		
+		// [ MySQL Version >= 5 ] BLOB and TEXT columns cannot be assigned a default value.
+		$mysql_ver = mysql_get_server_info();
+		if (@ $mysql_ver{0} >= 5) {
+			$sql_query = str_replace(' default \'\'', '', $sql_query);
+		}
+		
 		$sqlutil->splitMySqlFile( $pieces , $sql_query ) ;
 		$created_tables = array() ;
 		foreach( $pieces as $piece ) {
