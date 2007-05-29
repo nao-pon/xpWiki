@@ -1,6 +1,6 @@
 <?php
 // PukiWiki - Yet another WikiWikiWeb clone
-// $Id: rss.inc.php,v 1.12 2007/03/23 14:31:54 nao-pon Exp $
+// $Id: rss.inc.php,v 1.13 2007/05/29 23:23:04 nao-pon Exp $
 //
 // RSS plugin: Publishing RSS of RecentChanges
 //
@@ -29,7 +29,8 @@ class xpwiki_plugin_rss extends xpwiki_plugin {
 		$added = preg_replace('/(<[^>]*)\s+(?:class|id|name)=[^\s>]+([^>]*>)/', '$1$2', $added);
 		
 		// 指定ページの本文取得
-		$a_page = new XpWiki($this->root->mydirname);
+		//$a_page = new XpWiki($this->root->mydirname);
+		$a_page = & XpWiki::getSingleton($this->root->mydirname);
 		$a_page->init($page);
 		$a_page->root->rtf['use_cache_always'] = TRUE;
 		$a_page->execute();
@@ -135,6 +136,7 @@ class xpwiki_plugin_rss extends xpwiki_plugin {
 			foreach ($lines as $line) {
 				list($time, $page) = explode("\t", rtrim($line));
 				$r_page = rawurlencode($page);
+				$link = $this->func->get_page_uri($page, true);
 				$title  = $page;
 				if (!$pubtime) $pubtime = $this->func->get_date('r', $time);
 		
@@ -145,7 +147,7 @@ class xpwiki_plugin_rss extends xpwiki_plugin {
 					$items .= <<<EOD
 <item>
  <title>$title</title>
- <link>$self?$r_page</link>
+ <link>$link</link>
  <description>$date</description>
 </item>
 
@@ -159,8 +161,8 @@ EOD;
 					$items .= <<<EOD
 <item>
  <title>$title</title>
- <link>$self?$r_page</link>
- <guid>$self?$r_page</guid>
+ <link>$link</link>
+ <guid>$link</guid>
  <pubDate>$date</pubDate>
  <description>$description</description>
  <content:encoded><![CDATA[
@@ -182,8 +184,7 @@ EOD;
 						$tag = '<dc:subject>' . join("</dc:subject>\n <dc:subject>", $tags).'</dc:subject>';
 					}
 					
-					$rdf_li .= '    <rdf:li rdf:resource="' . $self .
-					'?' . $r_page . '" />' . "\n";
+					$rdf_li .= '    <rdf:li rdf:resource="' . $link . '" />' . "\n";
 					
 					$date = substr_replace($this->func->get_date('Y-m-d\TH:i:sO', $time), ':', -2, 0);
 					
@@ -198,7 +199,7 @@ EOD;
 					$items .= <<<EOD
 <item rdf:about="$self?$r_page">
  <title>$title</title>
- <link>$self?$r_page</link>
+ <link>$link</link>
  <dc:date>$date</dc:date>
  <dc:creator>$author</dc:creator>
  $tag
@@ -226,12 +227,12 @@ EOD;
 					
 					$date = substr_replace($this->func->get_date('Y-m-d\TH:i:sO', $time), ':', -2, 0);
 					
-					$id = "$self".$this->func->get_pgid_by_name($page);
+					$id = $link;
 					
 					$items .= <<<EOD
 <entry>
  <title type="html">$title</title>
- <link rel="alternate" type="text/html" href="$self?$r_page" />
+ <link rel="alternate" type="text/html" href="$link" />
  <id>$id</id>
  <updated>$date</updated>
  <published>$date</published>
@@ -255,7 +256,7 @@ EOD;
 			print '<?xml version="1.0" encoding="UTF-8"?>' . "\n\n";
 		
 			//$r_whatsnew = rawurlencode($this->root->whatsnew);
-			$link = $base? $self . '?' . rawurlencode($base) : $self;
+			$link = $base? $this->func->get_page_uri($base, true) : $self;
 			
 			switch ($version) {
 			case '0.91':

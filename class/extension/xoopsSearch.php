@@ -1,7 +1,7 @@
 <?php
 //
 // Created on 2006/11/27 by nao-pon http://hypweb.net/
-// $Id: xoopsSearch.php,v 1.3 2007/05/28 07:57:42 nao-pon Exp $
+// $Id: xoopsSearch.php,v 1.4 2007/05/29 23:23:03 nao-pon Exp $
 //
 class XpWikiExtension_xoopsSearch extends XpWikiExtension {
 
@@ -60,7 +60,8 @@ class XpWikiExtension_xoopsSearch extends XpWikiExtension {
 			// get context for module "search"
 			if( $make_context_func && $showcontext ) {
 	
-				$pobj = new XpWiki($this->root->mydirname);
+				//$pobj = new XpWiki($this->root->mydirname);
+				$pobj = & XpWiki::getSingleton($this->root->mydirname);
 				$pobj->init($myrow['name']);
 				$pobj->root->rtf['use_cache_always'] = TRUE;
 				$pobj->execute();

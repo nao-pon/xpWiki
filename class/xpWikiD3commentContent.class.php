@@ -22,7 +22,8 @@ function fetchSummary( $pgid )
 	$body = '';
 	if (strpos(@$_SERVER['REQUEST_URI'], '/modules/'.$mydirname) === FALSE) {
 		include_once dirname(dirname(__FILE__))."/include.php";
-		$page = new XpWiki($mydirname);
+		//$page = new XpWiki($mydirname);
+		$page = & XpWiki::getSingleton($mydirname);
 		$page->init($data['name']);
 		$page->execute();
 		$body = $page->body;

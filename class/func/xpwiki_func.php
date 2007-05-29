@@ -1,7 +1,7 @@
 <?php
 //
 // Created on 2006/10/02 by nao-pon http://hypweb.net/
-// $Id: xpwiki_func.php,v 1.64 2007/05/28 07:57:42 nao-pon Exp $
+// $Id: xpwiki_func.php,v 1.65 2007/05/29 23:23:04 nao-pon Exp $
 //
 class XpWikiFunc extends XpWikiXoopsWrapper {
 
@@ -1471,14 +1471,17 @@ EOD;
 					" ",
 				)
 			);
-			
-			$pobj = new XpWiki($this->root->mydirname);
+
+//if ($init) echo memory_get_usage().':'.basename(__FILE__).'-'.__LINE__.'<br />';
+			//$pobj = new XpWiki($this->root->mydirname);
+			$pobj = & XpWiki::getSingleton($this->root->mydirname);
 			$pobj->init($page);
 			$pobj->root->userinfo['admin'] = true;
 			$pobj->root->userinfo['uname_s'] = '';
 			$pobj->root->rtf['is_init'] = true;
 			$pobj->execute();
 			$data = $pobj->body;
+//if ($init) echo memory_get_usage().':'.basename(__FILE__).'-'.__LINE__.'<hr />';
 
 			// remove javascript
 			$data = preg_replace("#<script.+?/script>#i","",$data);
@@ -1524,8 +1527,6 @@ EOD;
 					fclose($fp);
 				}
 			}
-			
-			unset($pobj);
 			
 /*
 			// …’‰µ

@@ -1,7 +1,7 @@
 <?php
 /*
  * Created on 2007/04/23 by nao-pon http://hypweb.net/
- * $Id: ext_autolink.php,v 1.7 2007/05/28 07:57:43 nao-pon Exp $
+ * $Id: ext_autolink.php,v 1.8 2007/05/29 23:23:04 nao-pon Exp $
  */
 class XpWikiPukiExtAutoLink {
 	// External AutoLinks
@@ -135,7 +135,8 @@ class XpWikiPukiExtAutoLink {
 		if ($this->ext_autolink_own !== '' && file_exists($cache) && filemtime($cache) + $cache_min * 60 > time()) {
 			$pat = join('',file($cache));
 			if ($this->ext_autolink_own !== false) {
-					$obj = new XpWiki($this->ext_autolink_own); 
+					//$obj = new XpWiki($this->ext_autolink_own);
+					$obj = & XpWiki::getSingleton($this->ext_autolink_own);
 					$obj->init();
 					$this->ext_autolink_func = & $obj->func;	
 					$ci = $obj->root->page_case_insensitive;			
@@ -143,7 +144,8 @@ class XpWikiPukiExtAutoLink {
 		} else {
 			if ($this->ext_autolink_own !== false) {
 				if ($this->ext_autolink_own) {
-					$obj = new XpWiki($this->ext_autolink_own); 
+					//$obj = new XpWiki($this->ext_autolink_own);
+					$obj = & XpWiki::getSingleton($this->ext_autolink_own);
 					$obj->init();
 					$this->ext_autolink_func = & $obj->func;
 					$ci = $obj->root->page_case_insensitive;
