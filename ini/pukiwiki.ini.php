@@ -1,6 +1,6 @@
 <?php
 // PukiWiki - Yet another WikiWikiWeb clone
-// $Id: pukiwiki.ini.php,v 1.36 2007/05/28 07:57:43 nao-pon Exp $
+// $Id: pukiwiki.ini.php,v 1.37 2007/05/29 23:08:58 nao-pon Exp $
 // Copyright (C)
 //   2002-2006 PukiWiki Developers Team
 //   2001-2002 Originally written by yu-ji
@@ -610,6 +610,10 @@ $root->agents = array(
 
     // Embedded browsers (Non-rich)
 
+	array('pattern'=>'#^(Vodafone)/([0-9\.]+)#',	'profile'=>'keitai'),
+	array('pattern'=>'#^(SoftBank)/([0-9\.]+)#',	'profile'=>'keitai'),
+
+
 	// Windows CE (the others)
 	// Sample: "Mozilla/2.0 (compatible; MSIE 3.02; Windows CE; 240x320 )" (GFORT, NTT DoCoMo)
 	array('pattern'=>'#\b(Windows CE)\b#', 'profile'=>'keitai'),
@@ -680,8 +684,12 @@ $root->agents = array(
 	// NOTE: Keep this pattern above Mozilla
 	// Sample: "Mozilla/5.0 (Windows; U; Windows NT 5.0; ja-JP; rv:1.7) Gecko/20040803 Firefox/0.9.3"
 	array('pattern'=>'#\b(Firefox)/([0-9\.]+)\b#',	'profile'=>'default'),
-
-    	// Loose default: Including something Mozilla
+	
+	// Mac Safari
+	// Sample: "Mozilla/5.0 (Macintosh; U; PPC Mac OS X; ja-jp) AppleWebKit/416.11 (KHTML, like Gecko) Safari/416.12"
+    array('pattern'=>'#\b(Safari)(?:/([0-9\.]+))?\b#',	'profile'=>'default'),
+    
+    // Loose default: Including something Mozilla
 	array('pattern'=>'#^([a-zA-z0-9 ]+)/([0-9\.]+)\b#',	'profile'=>'default'),
 
 	array('pattern'=>'#^#',	'profile'=>'default'),	// Sentinel

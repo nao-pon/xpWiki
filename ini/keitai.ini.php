@@ -1,6 +1,6 @@
 <?php
 // PukiWiki - Yet another WikiWikiWeb clone.
-// $Id: keitai.ini.php,v 1.3 2006/11/28 08:28:28 nao-pon Exp $
+// $Id: keitai.ini.php,v 1.4 2007/05/29 23:08:58 nao-pon Exp $
 // Copyright (C)
 //   2002-2005 PukiWiki Developers Team
 //   2001-2002 Originally written by yu-ji
@@ -154,7 +154,17 @@ switch ($root->ua_name) {
 		switch($matches[1]){
 		case '3': $root->max_size =   6; break; // C type: lt   6000bytes
 		case '4': $root->max_size =  12; break; // P type: lt  12Kbytes
-		case '5': $root->max_size = 200; break; // W type: lt 200Kbytes
+		case '5': $root->max_size =  40; break; // W type: lt 200Kbytes
+		}
+		$root->cols = 24; $root->rows = 20;
+		break;
+
+	case 'Vodafone':
+	case 'SoftBank':
+		$matches = array("");
+		preg_match('/^([0-9]+)\./', $user_agent['vers'], $matches);
+		switch($matches[1]){
+		case '1': $root->max_size = 40; break;
 		}
 		$root->cols = 24; $root->rows = 20;
 		break;
