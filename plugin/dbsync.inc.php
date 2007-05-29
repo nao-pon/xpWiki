@@ -1,7 +1,7 @@
 <?php
 //
 // Created on 2006/11/17 by nao-pon http://hypweb.net/
-// $Id: dbsync.inc.php,v 1.6 2007/05/28 07:57:42 nao-pon Exp $
+// $Id: dbsync.inc.php,v 1.7 2007/05/29 23:23:04 nao-pon Exp $
 //
 
 class xpwiki_plugin_dbsync extends xpwiki_plugin {
@@ -526,6 +526,9 @@ __EOD__;
 				$files[] = $file;
 			}
 			
+			// PHP の上限メモリーサイズ
+			$memory_limit = HypCommonFunc::return_bytes(ini_get('memory_limit'));
+			
 			foreach(array_diff($files,$domix) as $file)
 			{
 				if($file == ".." || $file == "." || strstr($file,".txt")===FALSE)
@@ -583,7 +586,10 @@ __EOD__;
 					$dones[0][] = $file;
 				}
 				
-				if ($this->root->post['start_time'] + (ini_get('max_execution_time') - 5) < time())
+				// メモリーチェック マージン 1MB (1024 * 1024 = 1048576)
+				$memory_full = ($memory_limit && memory_get_usage() + 1048576 > $memory_limit);
+				
+				if ($memory_full || $this->root->post['start_time'] + (ini_get('max_execution_time') - 5) < time())
 				{
 					// 処理済ファイルリスト保存
 					if ($fp = fopen($work,"wb"))

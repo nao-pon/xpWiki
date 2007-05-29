@@ -1,7 +1,7 @@
 <?php
 //
 // Created on 2006/09/29 by nao-pon http://hypweb.net/
-// $Id: xpwiki.php,v 1.32 2007/05/26 00:56:52 nao-pon Exp $
+// $Id: xpwiki.php,v 1.33 2007/05/29 23:23:04 nao-pon Exp $
 //
 
 class XpWiki {
@@ -45,6 +45,14 @@ class XpWiki {
 		
 		$this->db =& $this->func->get_db_connection(); 
 		
+	}
+
+	function & getSingleton ($mddir) {
+		static $obj;
+		if (! isset($obj[$mddir])) {
+			$obj[$mddir] = new XpWiki($mddir);
+		}
+		return $obj[$mddir];
 	}
 
 	function init($page = "") {
@@ -157,6 +165,10 @@ class XpWiki {
 			}
 			// cont['USER_NAME_REPLACE'] ¤ò ÃÖ´¹
 			$body  = str_replace($this->cont['USER_NAME_REPLACE'], $this->root->userinfo['uname_s'], $body);
+			// For Safari
+			if ($this->cont['UA_NAME'] === 'Safari') {
+				$body = preg_replace('/(<form)([^>]*>)/' , '$1 accept-charset="UTF-8"$2', $body);
+			}
 			
 			// Output
 			$page_title = strip_tags($title);
