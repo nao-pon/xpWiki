@@ -549,7 +549,7 @@ class XpWikiPluginLsx
 		foreach ($array as $i => $befree) {
 			$field_array[$i] = $array[$i][$fieldname];
 		}
-		return max($field_array);
+		return ($field_array)? max($field_array) : 0;
 	}
 
 	function depth_metapages()
