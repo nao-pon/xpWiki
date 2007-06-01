@@ -1,7 +1,7 @@
 <?php
 //
 // Created on 2006/10/29 by nao-pon http://hypweb.net/
-// $Id: whatsnew.inc.php,v 1.2 2007/04/12 05:01:30 nao-pon Exp $
+// $Id: whatsnew.inc.php,v 1.3 2007/06/01 01:05:34 nao-pon Exp $
 //
 
 // DIRNAME_new() 関数を動的に生成
@@ -33,7 +33,12 @@ if (! function_exists('xpwiki_whatsnew_base')) {
 		$xpwiki->init();
 		
 		// whatsnew データ取得
-		return $xpwiki->extension->whatsnew->get ($limit, $offset);
+		$ret = $xpwiki->extension->whatsnew->get ($limit, $offset);
+		
+		// オブジェクト破棄
+		$xpwiki = null;
+		
+		return $ret;
 	}
 }
 ?>
