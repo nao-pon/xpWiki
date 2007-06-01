@@ -1,5 +1,5 @@
 <?php
-// $Id: ref.inc.php,v 1.9 2007/04/09 01:05:53 nao-pon Exp $
+// $Id: ref.inc.php,v 1.10 2007/06/01 01:40:56 nao-pon Exp $
 /*
 
 	*プラグイン ref
@@ -631,6 +631,11 @@ _HTML_;
 				if ($matches[1] == '.' || $matches[1] == '..') {
 					$matches[1] .= '/'; // Restore relative paths
 				}
+				// ページIDでの指定
+				if (preg_match('/^#(\d+)$/', $matches[1], $arg)) {
+					$matches[1] = $this->func->get_name_by_pgid($arg[1]);
+				}
+				
 				$lvar['name'] = $matches[2];
 				$lvar['page'] = $this->func->get_fullname($this->func->strip_bracket($matches[1]), $lvar['page']); // strip is a compat
 				$lvar['file'] = $this->cont['UPLOAD_DIR'] . $this->func->encode($lvar['page']) . '_' . $this->func->encode($lvar['name']);
