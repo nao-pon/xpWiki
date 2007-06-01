@@ -28,7 +28,7 @@ class xpwiki_plugin_tag extends xpwiki_plugin {
 		return call_user_func_array(array($this->root->plugin_tag, 'convert'), $args);
 	}
 }
-	// $Id: tag.inc.php,v 1.7 2007/05/25 02:59:39 nao-pon Exp $
+	// $Id: tag.inc.php,v 1.8 2007/06/01 01:23:53 nao-pon Exp $
 	
 class XpWikiPluginTag
 {
@@ -117,7 +117,7 @@ class XpWikiPluginTag
 		// $tags = array_map('strtolower', $tags); // does not work for UTF-8
 		$tags = array_unique($tags);
 		
-		if ($this->root->rtf['is_init'] && 
+		if (@ $this->root->rtf['is_init'] && 
 			$this->is_page_new($page) && 
 			$this->check_tagnames($tags) &&
 			$this->root->rtf['convert_nest'] < 2
