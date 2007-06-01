@@ -1,4 +1,5 @@
 #freeze
+#pginfo(0			3	all	all	3	all	all	0			)
 #xoopsadmin
 
 * Admin tools list [#i95b71f6]
@@ -6,8 +7,10 @@
 ** Admin only [#kbcfbc57]
 
 -[[Page rename>[[cmd:rename]]]]
+-[[Delete any pages>[[cmd:deldel]]]]
 -[[Backup & Restore>[[cmd:dump]]]]
 -[[Synchronize Database>[[cmd:dbsync]]]]
+-[[Import>[[cmd:import]]]]
 
 ** Other tooles [#cf9cc793]
 
@@ -16,7 +19,9 @@
 --[[Yet list>[[cmd:yetlist]]]]
 --[[Deleted list>[[cmd:deleted]]]]
 --[[Page filename list>[[cmd:filelist]]]]
+--[[Config pages>:config]]
 --[[Version list>[[cmd:versionlist]]]]
+
 -Outputs
 --[[md5 hash>[[cmd:md5]]]]
 --[[Index for TouchGraphWikiBrowser>[[cmd:touchgraph]]]]
