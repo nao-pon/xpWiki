@@ -1,7 +1,7 @@
 <?php
 //
 // Created on 2006/10/02 by nao-pon http://hypweb.net/
-// $Id: pukiwiki_func.php,v 1.74 2007/05/28 07:57:42 nao-pon Exp $
+// $Id: pukiwiki_func.php,v 1.75 2007/06/01 01:34:22 nao-pon Exp $
 //
 class XpWikiPukiWikiFunc extends XpWikiBaseFunc {
 
@@ -776,7 +776,7 @@ class XpWikiPukiWikiFunc extends XpWikiBaseFunc {
 
 //----- Start convert_html.php -----//
 	// PukiWiki - Yet another WikiWikiWeb clone
-	// $Id: pukiwiki_func.php,v 1.74 2007/05/28 07:57:42 nao-pon Exp $
+	// $Id: pukiwiki_func.php,v 1.75 2007/06/01 01:34:22 nao-pon Exp $
 	// Copyright (C)
 	//   2002-2005 PukiWiki Developers Team
 	//   2001-2002 Originally written by yu-ji
@@ -973,7 +973,7 @@ class XpWikiPukiWikiFunc extends XpWikiBaseFunc {
 
 //----- Start func.php -----//
 	// PukiWiki - Yet another WikiWikiWeb clone.
-	// $Id: pukiwiki_func.php,v 1.74 2007/05/28 07:57:42 nao-pon Exp $
+	// $Id: pukiwiki_func.php,v 1.75 2007/06/01 01:34:22 nao-pon Exp $
 	// Copyright (C)
 	//   2002-2006 PukiWiki Developers Team
 	//   2001-2002 Originally written by yu-ji
@@ -1442,8 +1442,6 @@ EOD;
 	// Get the date
 	function get_date($format, $timestamp = NULL)
 	{
-		//$format = preg_replace('/(?<!\\\)T/',
-		//	preg_replace('/(.)/', '\\\$1', $this->cont['ZONE']), $format);
 		$format = preg_replace('/(?<!\\\)T/',	"_\\Z\\ONE_", $format);
 	
 		$time = ((preg_match('/(?<!\\\)(O|P|r)/', $format))? date('Z') : $this->cont['ZONETIME']) + (($timestamp !== NULL) ? $timestamp : $this->cont['UTIME']);
@@ -1454,10 +1452,8 @@ EOD;
 	// Format date string
 	function format_date($val, $paren = FALSE)
 	{
-		//$val += $this->cont['ZONETIME'];
-	
 		$date = $this->get_date($this->root->date_format, $val) .
-			' (' . $this->root->weeklabels[date('w', $val)] . ') ' .
+			' (' . $this->root->weeklabels[$this->get_date('w', $val)] . ') ' .
 			$this->get_date($this->root->time_format, $val);
 	
 		return $paren ? '(' . $date . ')' : $date;
@@ -1508,14 +1504,6 @@ EOD;
 		if (empty($auto_pages)) {
 			$result = $result_a = $this->root->nowikiname ? '(?!)' : $this->root->WikiName;
 		} else {
-			//$auto_pages = array_unique($auto_pages);
-			//sort($auto_pages, SORT_STRING);
-	
-			//$auto_pages_a = array_values(preg_grep('/^[A-Z]+$/i', $auto_pages));
-			//$auto_pages   = array_values(array_diff($auto_pages,  $auto_pages_a));
-	
-			//$result   = $this->get_matcher_regex($auto_pages);
-			//$result_a = $this->get_matcher_regex($auto_pages_a);
 			$result   = $this->get_matcher_regex_safe($auto_pages);
 			$result_a = '(?!)';
 		}
@@ -1718,58 +1706,6 @@ EOD;
 	{
 		// for compatibility
 		return $this->cont['HOME_URL'];
-		/*
-		static $script;
-	
-		if ($init_uri == '') {
-			// Get
-			if (isset($script[$this->xpwiki->pid])) return $script[$this->xpwiki->pid];
-	
-			// Set automatically
-			$msg     = 'get_script_uri() failed: Please set $script at $this->cont["INI_FILE"] manually';
-	
-			$script[$this->xpwiki->pid]  = (SERVER_PORT == 443 ? 'https://' : 'http://'); // scheme
-			$script[$this->xpwiki->pid] .= SERVER_NAME;	// host
-			$script[$this->xpwiki->pid] .= (SERVER_PORT == 80 ? '' : ':' . SERVER_PORT);  // port
-	
-			// SCRIPT_NAME が'/'で始まっていない場合(cgiなど) REQUEST_URIを使ってみる
-			$path    = SCRIPT_NAME;
-			if ($path{0} != '/') {
-				if (! isset($_SERVER['REQUEST_URI']) || $_SERVER['REQUEST_URI']{0} != '/')
-					$this->die_message($msg);
-	
-				// REQUEST_URIをパースし、path部分だけを取り出す
-				$parse_url = parse_url($script[$this->xpwiki->pid] . $_SERVER['REQUEST_URI']);
-				if (! isset($parse_url['path']) || $parse_url['path']{0} != '/')
-					$this->die_message($msg);
-	
-				$path = $parse_url['path'];
-			}
-			$script[$this->xpwiki->pid] .= $path;
-	
-			if (! $this->is_url($script[$this->xpwiki->pid], TRUE) && php_sapi_name() == 'cgi')
-				$this->die_message($msg);
-			unset($msg);
-	
-		} else {
-			// Set manually
-			if (isset($script[$this->xpwiki->pid])) $this->die_message('$script: Already init');
-			if (! $this->is_url($init_uri, TRUE)) $this->die_message('$script: Invalid URI');
-			$script[$this->xpwiki->pid] = $init_uri;
-		}
-	
-		// Cut filename or not
-		if (isset($this->root->script_directory_index)) {
-			if (! file_exists($this->root->script_directory_index))
-				$this->die_message('Directory index file not found: ' .
-					htmlspecialchars($this->root->script_directory_index));
-			$matches = array();
-			if (preg_match('#^(.+/)' . preg_quote($this->root->script_directory_index, '#') . '$#',
-				$script[$this->xpwiki->pid], $matches)) $script[$this->xpwiki->pid] = $matches[1];
-		}
-	
-		return $script[$this->xpwiki->pid];
-		*/
 	}
 	
 	// Remove null(\0) bytes from variables
@@ -1836,7 +1772,7 @@ EOD;
 
 //----- Start make_link.php -----//
 	// PukiWiki - Yet another WikiWikiWeb clone.
-	// $Id: pukiwiki_func.php,v 1.74 2007/05/28 07:57:42 nao-pon Exp $
+	// $Id: pukiwiki_func.php,v 1.75 2007/06/01 01:34:22 nao-pon Exp $
 	// Copyright (C)
 	//   2003-2005 PukiWiki Developers Team
 	//   2001-2002 Originally written by yu-ji
@@ -2575,6 +2511,7 @@ EOD;
 	{
 		$obj = new XpWikiline_diff();
 		$str = $obj->str_compare($strlines1, $strlines2);
+		$obj = null;
 		return $str;
 	}
 	
@@ -2604,6 +2541,8 @@ EOD;
 		$diff2 = $obj->toArray();
 	
 		$arr = $obj->arr_compare('all', $diff1, $diff2);
+
+		$obj = null;
 	
 		if ($this->cont['PKWK_DIFF_SHOW_CONFLICT_DETAIL']) {
 	
@@ -2640,14 +2579,14 @@ EOD;
 		}
 	
 		$auto = 1;
-	
+
 		return array(rtrim($body) . "\n", $auto);
 	}
 //----- End diff.php -----//
 
 //----- Start html.php -----//
 	// PukiWiki - Yet another WikiWikiWeb clone.
-	// $Id: pukiwiki_func.php,v 1.74 2007/05/28 07:57:42 nao-pon Exp $
+	// $Id: pukiwiki_func.php,v 1.75 2007/06/01 01:34:22 nao-pon Exp $
 	// Copyright (C)
 	//   2002-2006 PukiWiki Developers Team
 	//   2001-2002 Originally written by yu-ji
@@ -3243,7 +3182,7 @@ EOD;
 
 //----- Start mail.php -----//
 	// PukiWiki - Yet another WikiWikiWeb clone.
-	// $Id: pukiwiki_func.php,v 1.74 2007/05/28 07:57:42 nao-pon Exp $
+	// $Id: pukiwiki_func.php,v 1.75 2007/06/01 01:34:22 nao-pon Exp $
 	// Copyright (C)
 	//   2003-2005 PukiWiki Developers Team
 	//   2003      Originally written by upk
@@ -3546,7 +3485,7 @@ EOD;
 
 //----- Start link.php -----//
 	// PukiWiki - Yet another WikiWikiWeb clone
-	// $Id: pukiwiki_func.php,v 1.74 2007/05/28 07:57:42 nao-pon Exp $
+	// $Id: pukiwiki_func.php,v 1.75 2007/06/01 01:34:22 nao-pon Exp $
 	// Copyright (C) 2003-2006 PukiWiki Developers Team
 	// License: GPL v2 or (at your option) any later version
 	//
