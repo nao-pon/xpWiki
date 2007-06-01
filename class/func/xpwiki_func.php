@@ -1,7 +1,7 @@
 <?php
 //
 // Created on 2006/10/02 by nao-pon http://hypweb.net/
-// $Id: xpwiki_func.php,v 1.65 2007/05/29 23:23:04 nao-pon Exp $
+// $Id: xpwiki_func.php,v 1.66 2007/06/01 01:35:35 nao-pon Exp $
 //
 class XpWikiFunc extends XpWikiXoopsWrapper {
 
@@ -1101,11 +1101,11 @@ EOD;
 
 /*----- DB Functions -----*/ 
 	//ページ名からページIDを求める
-	function get_pgid_by_name ($page)
+	function get_pgid_by_name ($page, $cache = true)
 	{
 		//static $page_id = array();
 		$page = addslashes($page);
-		if (isset($this->root->pgids[$page])) return $this->root->pgids[$page];
+		if ($cache && isset($this->root->pgids[$page])) return $this->root->pgids[$page];
 		
 		$case = ($this->root->page_case_insensitive)? '_ci' : '';
 		$db =& $this->xpwiki->db;
@@ -1113,7 +1113,7 @@ EOD;
 		$res = $db->query($query);
 		if (!$res) return 0;
 		list($ret) = mysql_fetch_row($res);
-		$this->root->pgids[$page] = $ret;
+		if ($ret) $this->root->pgids[$page] = $ret;
 		return $ret;
 	}
 
@@ -1592,7 +1592,7 @@ EOD;
 				}
 				*/
 				// 検索実行
-				$pages = ($this->root->rtf['is_init'])? $this->do_source_search($lookup_page,'AND',TRUE) : $this->do_search($lookup_page,'AND',TRUE);
+				$pages = (@ $this->root->rtf['is_init'])? $this->do_source_search($lookup_page,'AND',TRUE) : $this->do_search($lookup_page,'AND',TRUE);
 				
 				foreach ($pages as $_page)
 				{
