@@ -1,7 +1,7 @@
 <?php
 /*
  * Created on 2007/05/22 by nao-pon http://hypweb.net/
- * $Id: import.inc.php,v 1.1 2007/05/25 03:06:51 nao-pon Exp $
+ * $Id: import.inc.php,v 1.2 2007/06/01 03:00:21 nao-pon Exp $
  */
 
 class xpwiki_plugin_import extends xpwiki_plugin {
@@ -216,8 +216,21 @@ EOD;
 			list($result, $data, $files) = $this->file_check($op);
 		}
 		if ($result === false) {
+			$form = <<<EOD
+<form action="{$this->root->script}" method="post">
+<input type="submit" value="{$this->msg['btn_do_check']}" />
+&nbsp;&nbsp;&nbsp;&nbsp;<input type="submit" name="go_first" value="{$this->msg['btn_go_first']}" />
+<input type="hidden" name="cmd" value="import" />
+<input type="hidden" name="dir" value="{$op['mdir']}#{$op['type']}" />
+<input type="hidden" name="target_page" value="{$op['target_page']}" />
+<input type="hidden" name="keep_pgid" value="{$op['keep_pgid']}" />
+<input type="hidden" name="keep_page" value="{$op['keep_page']}" />
+<input type="hidden" name="pmode" value="do_check" />
+</form>
+EOD;
 			$ret['msg'] = $this->msg['msg_error'];
-			$ret['body'] = $this->func->convert_html($data);
+			$ret['body'] = $this->func->convert_html($data) . '<hr />' . $form;
+
 			return $ret;
 		} else {
 			// コピーするファイルの情報
@@ -311,11 +324,11 @@ EOD;
 					$newfile = $matches[1].$matches[2];
 					$page = $this->func->decode($matches[1]);
 					if (!$this->func->is_pagename($page)) {
-						if ($is_datadir) $error['invalid'][] = array($page,$to,$newfile);
+						if ($is_datadir) $error['invalid'][] = array($page,$from,$newfile);
 						continue;
 					}
 				} else if (!$this->func->is_pagename($page)) 	{
-					if ($is_datadir) $error['invalid'][] = array($page,$to,$file);
+					if ($is_datadir) $error['invalid'][] = array($page,$from,$file);
 					continue;
 				} else 	{
 					$newfile = $file;
@@ -525,24 +538,35 @@ EOD;
 				}
 			}
 			if ($op['keep_pgid'] === 1) {
-				$pgid = array_merge($pgid_to, $pgid_from);
+				// インポート元のpgidにそろえる
+				// pgid 継続のページ
+				$id_nc = array_diff($pgid_from, $pgid_to);
+				// pgid が変わるページ
+				$id_def = array_diff($pgid_from, $id_nc);
+				// 登録処理するページ
+				$pgid = array_merge($pgid_to, $id_nc);
 			} else {
-				$pgid = array_merge($pgid_from, $pgid_to);
+				// インポート先のpgidにそろえる
+				$id_def = array();
+				$pgid = array_merge($pgid_from, array_diff($pgid_to, $pgid_from));
 			}
 			
 			// TRUNCATE TABLE `hyp_xc_xpwiki_import_pginfo` 
 			$query = 'TRUNCATE TABLE `'.$db->prefix($this->root->mydirname.'_pginfo').'`';
 			$res = $db->query($query);
 			if (!$res) return false;
+
+			foreach($id_def as $id => $name) {
+					$query = 'DELETE FROM `'.$db->prefix($this->root->mydirname.'_plain').'` WHERE `pgid`='.$id.' LIMIT 1';
+					$res = $db->query($query);
+			}
 			
 			foreach($pgid as $id => $name) {
 				$id = intval($id);
-				$query = 'INSERT INTO `'.$db->prefix($this->root->mydirname.'_pginfo').'` ( `pgid` , `name` ) VALUES ( \''.$id.'\', \''.addslashes($name).'\' )'; 
-				$res = $db->query($query);
-				if (!$res) return false;
-				$query = 'DELETE FROM `'.$db->prefix($this->root->mydirname.'_plain').'` WHERE `pgid`='.$id.' LIMIT 1';
-				$res = $db->query($query);
-				if (!$res) return false;
+				if ($id) {
+					$query = 'INSERT INTO `'.$db->prefix($this->root->mydirname.'_pginfo').'` ( `pgid` , `name` , `name_ci`) VALUES ( \''.$id.'\', \''.addslashes($name).'\', \''.addslashes($name).'\' )'; 
+					$res = $db->query($query);
+				}
 			}
 			
 			return true;
@@ -616,13 +640,16 @@ EOD;
 		$db =& $this->xpwiki->db;
 
 		// インポート元 pginfoDB 読み込み
-		preg_match( '/^(\D+)(\d*)$/' , $mdir , $regs );
-		$dir_num = ($regs[2] === '')? '' : intval( $regs[2] ) ;
+		$dir_num = '';
+		if (preg_match( '/^(\D+)(\d+)$/' , $mdir , $regs )) {
+			$dir_num = intval( $regs[2] );
+		}
 
 		$query = "SELECT `aids`,`gids`,`vaids`,`vgids`,`lastediter`,`uid`,`freeze`,`unvisible` FROM ".$db->prefix('pukiwikimod'.$dir_num.'_pginfo').' WHERE name="'.addslashes($page).'" LIMIT 1';
 		if ($res = $db->query($query)) {
 			list($aids, $gids, $vaids, $vgids, $lastediter, $uid, $freeze, $unvisible) = mysql_fetch_row($res);
 		}
+		
 		$uid = intval($uid);
 		$user = $this->func->get_userinfo_by_id ($uid);
 		$lastediter = intval($lastediter);
@@ -674,20 +701,27 @@ EOD;
 				$align = "\n";
 				foreach(explode(',', $args[1]) as $arg) {
 					$arg = str_replace(" ","",$arg);
-					if ($arg{0} == ":")	{
-						continue;
-					} else if ($arg{0} == "#")	{
-						$option = substr($arg,1);
-						if (preg_match("/(left|center|right)/i",substr($arg,1),$option))
-							$align = strtoupper($option[1]).":";
-					} else {
-						$cats[] = $arg;					
+					if ($arg) {
+						if ($arg{0} == ":")	{
+							continue;
+						} else if ($arg{0} == "#")	{
+							$option = substr($arg,1);
+							if (preg_match("/(left|center|right)/i",substr($arg,1),$option))
+								$align = strtoupper($option[1]).":";
+						} else {
+							$cats[] = $arg;					
+						}
 					}
 				}
 				$result[] = $align . '&tag(' . join(',',$cats) . ');' . "\n";
 				continue;
 			}
 			
+			// attachref を ref に変換
+			$line = preg_replace('/^#attachref/', '#ref', $line);
+			$line = preg_replace('/&attachref/', '&ref', $line);
+
+
 			//行頭書式をチェック
 			$head = substr($line,0,1);
 			$block = '';
@@ -735,7 +769,7 @@ EOD;
 			//定義リストの修正
 			if ($head == ':' and preg_match("/^:([^:]+):(.*)/",$line,$matches)) //マッチしなかったら無視
 			{
-				$line = ":{$matches[1]}|{$matches[2]}\n";
+				$line = ":{$matches[1]}|{$matches[2]}";
 				$modify['dl'] = '--modify dl.';
 			}
 			
@@ -751,6 +785,7 @@ EOD;
 		}
 		
 		$data = $pginfo . join('',$result);
+		$data = $this->func->make_str_rules($data);
 	}
 
 	function done_all () {

@@ -1,7 +1,7 @@
 <?php
 /*
  * Created on 2007/05/28 by nao-pon http://hypweb.net/
- * $Id: import.en.php,v 1.1 2007/05/28 07:28:24 nao-pon Exp $
+ * $Id: import.en.php,v 1.2 2007/06/01 03:00:21 nao-pon Exp $
  * Thanks bokanta :-D
  */
 
@@ -46,7 +46,9 @@ Inserting a blank line after a nestable block element to prevent the following e
 When a tilde \"~\" appears on the back of \"-/+\" at the begininng of a line,
 a space is inserted to prevent the tilde from being the format for a new line.
 :Converting plug-in s.|
-&#35;category() -> &#38;tag();
+--&#35;category() -> &#38;tag();
+--&#35;attacheref( -> &#35;ref(
+--&#38;attacheref( -> &#38;ref(
 :Converting the page contents|
 The page contenst of PukiWikiMod is converted to those in the xpWiki format.
  
