@@ -1,7 +1,7 @@
 <?php
 /*
  * Created on 2007/05/22 by nao-pon http://hypweb.net/
- * $Id: import.ja.php,v 1.1 2007/05/25 03:06:51 nao-pon Exp $
+ * $Id: import.ja.php,v 1.2 2007/06/01 03:00:21 nao-pon Exp $
  */
 
 $msg = array(
@@ -46,7 +46,9 @@ $msg = array(
 行頭-/+に続いてチルダ ''~'' が出現したときに、
 チルダが段落開始書式とならないよう、空白を挿入します。
 :プラグインの書き換え|
-&#35;category() -> &#38;tag();
+--&#35;category() -> &#38;tag();
+--&#35;attacheref( -> &#35;ref(
+--&#38;attacheref( -> &#38;ref(
 :ページ情報の書き換え|
 PukiWikiModのページ情報をxpWikiの形式に変換します。
 
