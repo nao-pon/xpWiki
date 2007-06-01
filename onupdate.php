@@ -124,7 +124,7 @@ function xpwiki_onupdate_base( $module , $mydirname )
 	include_once dirname(__FILE__).'/include/check.func.php';
 	$_ret = xpwikifunc_permission_check($mydirname);
 	if (!$_ret) {
-		$msgs = array_merge($msgs, xpwikifunc_defdata_check($mydirname));
+		$msgs = array_merge($msgs, xpwikifunc_defdata_check($mydirname, 'update'));
 	} else {
 		$msgs = array_merge($msgs, $_ret);
 		return false;
