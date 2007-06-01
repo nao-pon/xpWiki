@@ -1,7 +1,7 @@
 <?php
 //
 // Created on 2006/11/17 by nao-pon http://hypweb.net/
-// $Id: dbsync.inc.php,v 1.7 2007/05/29 23:23:04 nao-pon Exp $
+// $Id: dbsync.inc.php,v 1.8 2007/06/01 01:37:50 nao-pon Exp $
 //
 
 class xpwiki_plugin_dbsync extends xpwiki_plugin {
@@ -186,6 +186,50 @@ __EOD__;
 		if ($this->root->post['mode'] == 'all' || $this->root->post['attach']) $this->attach_db_init();
 		
 		//redirect_header("$script?plugin=dbsync",3,$_links_messages['msg_done']);
+		
+		// 各種キャッシュファイルの削除
+		// For AutoLink
+		// Get WHOLE page list (always as guest)
+		$temp[0] = $this->root->userinfo['admin'];
+		$temp[1] = $this->root->userinfo['uid'];
+		$this->root->userinfo['admin'] = FALSE;
+		$this->root->userinfo['uid'] = 0;
+		
+		$pages = $this->func->get_existpages();
+		
+		$this->root->userinfo['admin'] = $temp[0];
+		$this->root->userinfo['uid'] = $temp[1];
+		
+		$this->func->autolink_pattern_write($this->cont['CACHE_DIR'] . $this->cont['PKWK_AUTOLINK_REGEX_CACHE'],
+			$this->func->get_autolink_pattern($pages, $this->root->autolink));
+		
+		// Update autoalias.dat (AutoAliasName)
+		$aliases = $this->func->get_autoaliases();
+		if (empty($aliases)) {
+			// Remove
+			@unlink($this->cont['CACHE_DIR'] . $this->cont['PKWK_AUTOALIAS_REGEX_CACHE']);
+		} else {
+			// Create or Update
+			$this->func->autolink_pattern_write($this->cont['CACHE_DIR'] . $this->cont['PKWK_AUTOALIAS_REGEX_CACHE'],
+				$this->func->get_autolink_pattern(array_keys($aliases), $this->root->autoalias));
+		}
+		
+		// Clear cache *.autolink.api
+		$base = $this->cont['CACHE_DIR'];
+		if (function_exists('glob')) {
+			foreach (glob($base . "*.autolink.api") as $file) {
+				unlink($file);
+			}
+		} else {
+			if ($dir = @opendir($base))
+			{
+				while($file = readdir($dir))
+				{
+					if (substr($file, -13) === '.autolink.api') unlink($base . '/' . $file);
+				}
+			}
+		}
+		
 		echo $this->msg['msg_done'];
 		echo "<script>parent.xpwiki_dbsync_done();parent.xpwiki_dbsync_blink('stop');</script>";
 		echo "</body></html>";
@@ -199,13 +243,6 @@ __EOD__;
 		
 		if ($dir = @opendir($this->cont['DATA_DIR']))
 		{
-			//name テーブルの属性を BINARY にセット(検索で大文字・小文字を区別する)
-			//$query = 'ALTER TABLE `'.$this->xpwiki->db->prefix($this->root->mydirname."_pginfo").'` CHANGE `name` `name` VARCHAR( 255 ) BINARY NOT NULL ';
-			//$result=$this->xpwiki->db->queryF($query);
-			
-			// ページ閲覧権限のキャッシュをクリアー
-			//$this->func->get_pg_allow_viewer("",false,true);
-			
 			// 処理済ファイルデーター
 			$work = $this->cont['CACHE_DIR']."dbsync_i.dat";
 			$domix = $dones = array();
@@ -279,7 +316,7 @@ __EOD__;
 				}
 				
 				// pginfo
-				$pginfo = $this->func->get_pginfo($page);
+				$pginfo = $this->func->get_pginfo($page, false);
 				
 				foreach (array('uid', 'ucd', 'uname', 'einherit', 'vinherit', 'lastuid', 'lastucd', 'lastuname') as $key) {
 					$$key = addslashes($pginfo[$key]);
@@ -498,6 +535,7 @@ __EOD__;
 		
 		if ($dir = @opendir($this->cont['DATA_DIR']))
 		{
+			$this->root->rtf['is_init'] = true;
 			// 処理済ファイルリストデーター
 			$work = $this->cont['CACHE_DIR']."dbsync_p.dat";
 			$domix = $dones = array();
@@ -551,7 +589,7 @@ __EOD__;
 				$id = $this->func->get_pgid_by_name($page);
 				$query = "SELECT plain FROM `".$this->xpwiki->db->prefix($this->root->mydirname."_plain")."` WHERE `pgid` = ".$id.";";
 				$result = $this->xpwiki->db->query($query);
-				if (mysql_num_rows($result))
+				if ($result && mysql_num_rows($result))
 				{
 					list($text) = mysql_fetch_row ( $result );
 					if ($text && !$this->root->post['plain_all'])
