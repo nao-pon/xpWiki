@@ -1,7 +1,7 @@
 <?php
 //
 // Created on 2006/11/17 by nao-pon http://hypweb.net/
-// $Id: dbsync.inc.php,v 1.9 2007/06/03 05:25:34 nao-pon Exp $
+// $Id: dbsync.inc.php,v 1.10 2007/06/03 22:40:13 nao-pon Exp $
 //
 
 class xpwiki_plugin_dbsync extends xpwiki_plugin {
@@ -149,12 +149,12 @@ __EOD__;
 	}
 	
 	function do_dbupdate() {
-		//error_reporting(E_ALL);
+		
+		error_reporting(E_ALL ^ E_NOTICE);
+		
 		$this->root->post['start_time'] = time();
 		
 		header ("Content-Type: text/html; charset="._CHARSET);
-		// mod_gzip を無効にするオプション(要サーバー側設定)
-		header('X-NoGzip: 1');
 		
 		// 出力をバッファリングしない
 		while( ob_get_level() ) { ob_end_clean() ; }
