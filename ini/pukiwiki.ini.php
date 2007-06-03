@@ -1,6 +1,6 @@
 <?php
 // PukiWiki - Yet another WikiWikiWeb clone
-// $Id: pukiwiki.ini.php,v 1.38 2007/06/03 23:26:53 nao-pon Exp $
+// $Id: pukiwiki.ini.php,v 1.39 2007/06/03 23:45:17 nao-pon Exp $
 // Copyright (C)
 //   2002-2006 PukiWiki Developers Team
 //   2001-2002 Originally written by yu-ji
@@ -587,6 +587,16 @@ $root->always_clear_cache_pages = array (
 
 // 上位層のページもキャッシュをクリアする
 $root->clear_cache_parent = TRUE; // (TRUE or FASLE)
+
+
+/////////////////////////////////////////////////
+// レンダラーモード用設定
+//
+// レンダリングキャッシュを有効にする
+$root->render_use_cache = 0;
+// キャッシュの有効時間(分) 0: Wikiページが新規作成・削除されるまで
+$root->render_cache_min = 0;
+
 
 /////////////////////////////////////////////////
 // User-Agent settings
