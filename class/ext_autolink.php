@@ -1,7 +1,7 @@
 <?php
 /*
  * Created on 2007/04/23 by nao-pon http://hypweb.net/
- * $Id: ext_autolink.php,v 1.8 2007/05/29 23:23:04 nao-pon Exp $
+ * $Id: ext_autolink.php,v 1.9 2007/06/03 05:14:40 nao-pon Exp $
  */
 class XpWikiPukiExtAutoLink {
 	// External AutoLinks
@@ -81,10 +81,10 @@ class XpWikiPukiExtAutoLink {
 		static $done = array();
 		
 		// check valid pages.
-		if (is_string($valid) && $this->root->vars['page']) {
+		if (is_string($valid) && isset($this->root->vars['page'])) {
 			$_check = false;
 			foreach(explode('&', $valid) as $_valid) {
-				if (strpos($this->root->vars['page'], $_valid) === 0) {
+				if ($_valid && strpos($this->root->vars['page'], $_valid) === 0) {
 					$_check = true;
 					break;
 				}
