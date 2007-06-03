@@ -1,7 +1,7 @@
 <?php
 //
 // Created on 2006/11/17 by nao-pon http://hypweb.net/
-// $Id: dbsync.inc.php,v 1.11 2007/06/03 22:45:23 nao-pon Exp $
+// $Id: dbsync.inc.php,v 1.12 2007/06/03 22:57:41 nao-pon Exp $
 //
 
 class xpwiki_plugin_dbsync extends xpwiki_plugin {
@@ -163,12 +163,7 @@ __EOD__;
 		
 		echo <<<__EOD__
 <html>
-<head>
-</head>
-<script>
-var pukiwiki_root_url ="./";
-</script>
-<script type="text/javascript" src="skin/default.ja.js"></script>
+<head></head>
 <body>
 __EOD__;
 			
