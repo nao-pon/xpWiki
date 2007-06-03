@@ -357,7 +357,7 @@ EOD;
 		if (strpos($this->name, $this->cont['ROOT_URL']) === FALSE) {
 			$rel = ' rel="nofollow"';
 			$class = ' class="ext"';
-			$target = (@ $this->root->link_target)? ' target="' . $this->root->link_target . '"' : '';
+			$target = ($this->root->link_target)? ' target="' . $this->root->link_target . '"' : '';
 		} else {
 			$target = $rel = $class = '';
 		}
