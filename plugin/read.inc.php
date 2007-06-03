@@ -6,7 +6,7 @@ class xpwiki_plugin_read extends xpwiki_plugin {
 
 	}
 	// PukiWiki - Yet another WikiWikiWeb clone.
-	// $Id: read.inc.php,v 1.2 2007/05/28 07:57:42 nao-pon Exp $
+	// $Id: read.inc.php,v 1.3 2007/06/03 05:27:06 nao-pon Exp $
 	//
 	// Read plugin: Show a page and InterWiki
 	
@@ -28,8 +28,7 @@ class xpwiki_plugin_read extends xpwiki_plugin {
 		} else if ($this->func->is_pagename($page)) {
 			// Case insensitive ?
 			if (@ $this->root->page_case_insensitive) {
-				$page = $this->func->get_pagename_realcase($page);
-				if ($this->func->is_page($page)) {
+				if ($this->func->is_page($this->func->get_pagename_realcase($page))) {
 					$this->root->get['page'] = $this->root->post['page'] = $this->root->vars['page'] = $page;
 					// ページを表示
 					$this->func->check_readable($page, true, true);
