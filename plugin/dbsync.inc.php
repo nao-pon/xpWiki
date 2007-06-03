@@ -1,7 +1,7 @@
 <?php
 //
 // Created on 2006/11/17 by nao-pon http://hypweb.net/
-// $Id: dbsync.inc.php,v 1.8 2007/06/01 01:37:50 nao-pon Exp $
+// $Id: dbsync.inc.php,v 1.9 2007/06/03 05:25:34 nao-pon Exp $
 //
 
 class xpwiki_plugin_dbsync extends xpwiki_plugin {
@@ -624,8 +624,12 @@ __EOD__;
 					$dones[0][] = $file;
 				}
 				
-				// メモリーチェック マージン 1MB (1024 * 1024 = 1048576)
-				$memory_full = ($memory_limit && memory_get_usage() + 1048576 > $memory_limit);
+				if (function_exists('memory_get_usage')) {
+					// メモリーチェック マージン 1MB (1024 * 1024 = 1048576)
+					$memory_full = ($memory_limit && memory_get_usage() + 1048576 > $memory_limit);
+				} else {
+					$memory_full = false;
+				}
 				
 				if ($memory_full || $this->root->post['start_time'] + (ini_get('max_execution_time') - 5) < time())
 				{
