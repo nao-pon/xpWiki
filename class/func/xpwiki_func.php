@@ -1,7 +1,7 @@
 <?php
 //
 // Created on 2006/10/02 by nao-pon http://hypweb.net/
-// $Id: xpwiki_func.php,v 1.66 2007/06/01 01:35:35 nao-pon Exp $
+// $Id: xpwiki_func.php,v 1.67 2007/06/03 05:23:13 nao-pon Exp $
 //
 class XpWikiFunc extends XpWikiXoopsWrapper {
 
@@ -491,8 +491,9 @@ EOD;
 		// Tags will be inserted into <head></head>
 		$head_tag = ! empty($obj->root->head_tags) ? join("\n", $obj->root->head_tags) ."\n" : '';
 		
-		// WikiHelper JavaScript
-		$head_tag .= <<<EOD
+		if (empty($this->cont['PKWK_READONLY'])) {
+			// WikiHelper JavaScript
+			$head_tag .= <<<EOD
 <script type="text/javascript">
 <!--
 var wikihelper_root_url = "{$obj->cont['HOME_URL']}";
@@ -500,6 +501,8 @@ var wikihelper_root_url = "{$obj->cont['HOME_URL']}";
 </script>
 <script type="text/javascript" src="{$obj->cont['HOME_URL']}skin/loader.php?src=default.{$obj->cont['UI_LANG']}{$obj->cont['FILE_ENCORD_EXT']}.js"></script>
 EOD;
+		}
+		
 		// reformat
 		$obj->root->head_tags = array();
 		$obj->root->head_pre_tags = array();
@@ -2062,14 +2065,41 @@ EOD;
 	}
 	
 	// 大文字小文字を正しいページ名に矯正する
-	function get_pagename_realcase ($page) {
-		$query = 'SELECT `name` FROM `'.$this->xpwiki->db->prefix($this->root->mydirname.'_pginfo').'` WHERE `name_ci` = \''.addslashes($page).'\' LIMIT 1';
-		//echo $query;
-		if ($result = $this->xpwiki->db->query($query)) {
-			list($fixed_page) = $this->xpwiki->db->fetchRow($result);
-			if ($fixed_page) return $fixed_page;
+	function get_pagename_realcase (& $page) {
+		if ($this->is_page($page) || strpos($page, '/') === false) {
+			$query = 'SELECT `name` FROM `'.$this->xpwiki->db->prefix($this->root->mydirname.'_pginfo').'` WHERE `name_ci` = \''.addslashes($page).'\' LIMIT 1';
+			if ($result = $this->xpwiki->db->query($query)) {
+				list($fixed_page) = $this->xpwiki->db->fetchRow($result);
+				if ($fixed_page) $page = $fixed_page;
+			}
+		} else {
+			// ページがなくて多階層の場合は上層ページを検査する
+			$base = basename($page);
+			$dir = dirname($page);
+			$this->get_pagename_realcase($dir);
+			$page = $dir.'/'.$base;
 		}
 		return $page;
 	}
+	
+	/* やはり fstat(filemtime) のほうが早い模様
+	// Get last-modified filetime of the page (DB版)
+	function get_filetime($page) {
+		static $times;
+		
+		if (isset($times[$this->root->mydirname][$page])) return $times[$this->root->mydirname][$page];
+		
+		$name = (@ $this->root->page_case_insensitive) ? 'name_ci' : 'name';
+		$time = 0;
+		$query = 'SELECT `editedtime` FROM `'.$this->xpwiki->db->prefix($this->root->mydirname.'_pginfo').'` WHERE `'.$name.'` = \''.addslashes($page).'\' LIMIT 1';
+		if ($result = $this->xpwiki->db->query($query)) {
+			list($time) = $this->xpwiki->db->fetchRow($result);
+		}
+		$times[$this->root->mydirname][$page] = $time ? $time - $this->cont['LOCALZONE'] : 0;
+		
+		return $times[$this->root->mydirname][$page];
+	}
+	*/
+
 }
 ?>
