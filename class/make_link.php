@@ -357,11 +357,12 @@ EOD;
 		if (strpos($this->name, $this->cont['ROOT_URL']) === FALSE) {
 			$rel = ' rel="nofollow"';
 			$class = ' class="ext"';
+			$target = (@ $this->root->link_target)? ' target="' . $this->root->link_target . '"' : '';
 		} else {
-			$rel = $class = '';
+			$target = $rel = $class = '';
 		}
 		$img = ($this->is_image)? ' type="img"' : '';
-		return '<a href="'.$this->name.'" title="'.preg_replace('#^https?://#','',$this->name).'"'.$rel.$class.$img.'>'.$this->alias.'</a>';
+		return '<a href="'.$this->name.'" title="'.preg_replace('#^https?://#','',$this->name).'"'.$rel.$class.$img.$target.'>'.$this->alias.'</a>';
 	}
 }
 
