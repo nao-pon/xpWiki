@@ -1,7 +1,7 @@
 <?php
 //
 // Created on 2006/09/29 by nao-pon http://hypweb.net/
-// $Id: xpwiki.php,v 1.33 2007/05/29 23:23:04 nao-pon Exp $
+// $Id: xpwiki.php,v 1.34 2007/06/03 05:16:25 nao-pon Exp $
 //
 
 class XpWiki {
@@ -47,10 +47,14 @@ class XpWiki {
 		
 	}
 
-	function & getSingleton ($mddir) {
+	function & getSingleton ($mddir, $iniClear = true) {
 		static $obj;
 		if (! isset($obj[$mddir])) {
 			$obj[$mddir] = new XpWiki($mddir);
+		}
+		if ($iniClear) {
+			$obj[$mddir]->clearIniRoot();
+			$obj[$mddir]->clearIniConst();
 		}
 		return $obj[$mddir];
 	}
@@ -353,7 +357,30 @@ EOD;
 		$this->root->top = '';
 		$text = str_replace("\r", '', $text);
 		
-		$text = $this->func->convert_html($text);
+		if (@ $this->root->render_use_cache) {
+			$op = '';
+			if (!empty($this->iniVar['root'])) {
+				$op .= serialize($this->iniVar['root']);
+			}
+			if (!empty($this->iniVar['const'])) {
+				$op .= serialize($this->iniVar['const']);
+			}
+			$cache = $this->cont['CACHE_DIR'] . 'render_' . md5($text.$op);
+			if (file_exists($cache) && (empty($this->root->render_cache_min) || ((filemtime($cache) +  $this->root->render_cache_min * 60) > time()))) {
+				$text = join('', file($cache));
+			} else {
+				$text = $this->func->convert_html($text);
+				@ touch ($cache);
+				if (is_writable($cache)) {
+					if ($fp = fopen($cache, 'wb')) {
+						fwrite($fp, $text);
+						fclose($fp);
+					}
+				}
+			}
+		} else {
+			$text = $this->func->convert_html($text);
+		}
 		
 		list($head_pre_tag, $head_tag) = $this->func->get_additional_headtags($this);
 		$csstag = ($cssbase)? '<link rel="stylesheet" type="text/css" media="screen" href="'.$this->cont['HOME_URL'].$this->cont['SKIN_DIR'].'block.css.php?charset=Shift_JIS&amp;base='.$cssbase.'" charset="Shift_JIS" />' : '';
@@ -365,12 +392,20 @@ EOD;
 
 	}
 	
+	function clearIniRoot () {
+		$this->iniVar['root'] = array();
+	}
+	
 	function setIniRoot($key = '', $val = '') {
 		if (!$key) return;
 		$key = strval($key);
 		$this->iniVar['root'][$key] = $val;
 	}
-	
+
+	function clearIniConst () {
+		$this->iniVar['const'] = array();
+	}
+		
 	function setIniConst($key = '', $val = '') {
 		if (!$key) return;
 		$key = strval($key);
