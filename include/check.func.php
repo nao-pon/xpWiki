@@ -1,7 +1,7 @@
 <?php
 //
 // Created on 2006/11/07 by nao-pon http://hypweb.net/
-// $Id: check.func.php,v 1.5 2007/06/01 01:10:35 nao-pon Exp $
+// $Id: check.func.php,v 1.6 2007/06/03 05:18:50 nao-pon Exp $
 //
 
 // when onInstall & onUpdate
@@ -68,12 +68,20 @@ function xpwikifunc_defdata_check ($mydirname, $mode = 'install') {
 		'cache' => 'private/cache',
 		'wiki'  => 'private/wiki'
 	);
+	
+	$from_base = dirname(dirname(__FILE__)).'/InitialData/'.$lang.'/';
+	$timestamp = array();
+	
+	foreach(file($from_base.'wiki/.timestamp') as $line) {
+		list($file, $time) = explode("\t", $line);
+		$timestamp[$file] = intval(trim($time));
+	}
 
 	foreach ($dirs as $from=>$to) {
 		$dir = $from;
-		$from = dirname(dirname(__FILE__)).'/InitialData/'.$lang.'/'.$from;
+		$from = $from_base.$from;
 		$to   = XOOPS_ROOT_PATH.'/modules/'.$mydirname.'/'.$to;
-
+		
 		if ($handle = opendir($from)) {
 			while (false !== ($file = readdir($handle))) {
 				if ($file !== '.' && $file !== '..' && ! is_dir($from.'/'.$file)) {
@@ -83,18 +91,23 @@ function xpwikifunc_defdata_check ($mydirname, $mode = 'install') {
 							if ($utf8from) {
 								xpwikifunc_conv_utf($to.'/'.$file, $utf8from);
 							}
-							touch($to.'/'.$file, filemtime($from.'/'.$file));
+							if ($dir === 'wiki' && isset($timestamp[$file])) {
+								touch($to.'/'.$file, $timestamp[$file]);
+							}
 							$msg[] = "Copied a file '{$file}'.<br />";
 						}
 					} else {
 						// wiki¥Ú¡¼¥¸
-						if (! file_exists($to.'/'.$file) || filemtime($to.'/'.$file) < filemtime($from.'/'.$file)) {
+						if (! file_exists($to.'/'.$file) || filemtime($to.'/'.$file) < $timestamp[$file]) {
 							if (! isset($xpwiki)) {
 								include_once dirname(dirname(__FILE__)) . '/include.php';
 								$xpwiki = new XpWiki($mydirname);
 								$xpwiki->init();
 							}
 							$src = join('', file($from.'/'.$file));
+							if ($utf8from) {
+								$src = mb_convert_encoding($src, 'UTF-8', $utf8from);
+							}
 							$name = $xpwiki->func->decode(str_replace('.txt', '', $file));
 							$xpwiki->func->page_write($name, $src);
 						}
