@@ -1,7 +1,7 @@
 <?php
 //
 // Created on 2006/11/07 by nao-pon http://hypweb.net/
-// $Id: check.func.php,v 1.6 2007/06/03 05:18:50 nao-pon Exp $
+// $Id: check.func.php,v 1.7 2007/06/03 22:34:11 nao-pon Exp $
 //
 
 // when onInstall & onUpdate
@@ -74,7 +74,7 @@ function xpwikifunc_defdata_check ($mydirname, $mode = 'install') {
 	
 	foreach(file($from_base.'wiki/.timestamp') as $line) {
 		list($file, $time) = explode("\t", $line);
-		$timestamp[$file] = intval(trim($time));
+		$timestamp[$file] = intval(trim($time)) - 32400 + date('Z');
 	}
 
 	foreach ($dirs as $from=>$to) {
