@@ -1,6 +1,6 @@
 <?php
 // PukiWiki - Yet another WikiWikiWeb clone.
-// $Id: pukiwiki.css.php,v 1.19 2007/05/25 02:57:48 nao-pon Exp $
+// $Id: pukiwiki.css.php,v 1.20 2007/06/03 05:27:28 nao-pon Exp $
 // Copyright (C)
 //   2002-2005 PukiWiki Developers Team
 //   2001-2002 Originally written by yu-ji
@@ -55,6 +55,7 @@ div#wikihelper_base {
 }
 
 $class {
+	background-color:inherit;
 	width:100%;
 }
 
@@ -70,7 +71,7 @@ $class table { width: auto; }
 $class,
 $class td {
 	color:black;
-	background-color:white;
+	/*background-color:white;*/
 	font-size:100%;
 	font-family:verdana, arial, helvetica, Sans-Serif;
 }
