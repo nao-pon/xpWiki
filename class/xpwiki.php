@@ -1,7 +1,7 @@
 <?php
 //
 // Created on 2006/09/29 by nao-pon http://hypweb.net/
-// $Id: xpwiki.php,v 1.34 2007/06/03 05:16:25 nao-pon Exp $
+// $Id: xpwiki.php,v 1.35 2007/06/03 23:54:15 nao-pon Exp $
 //
 
 class XpWiki {
@@ -357,7 +357,7 @@ EOD;
 		$this->root->top = '';
 		$text = str_replace("\r", '', $text);
 		
-		if (@ $this->root->render_use_cache) {
+		if ($this->root->render_use_cache) {
 			$op = '';
 			if (!empty($this->iniVar['root'])) {
 				$op .= serialize($this->iniVar['root']);
