@@ -1,6 +1,6 @@
 <?php
 // PukiWiki - Yet another WikiWikiWeb clone
-// $Id: showrss.inc.php,v 1.2 2007/01/13 01:55:50 nao-pon Exp $
+// $Id: showrss.inc.php,v 1.3 2007/06/03 22:58:40 nao-pon Exp $
 //  Id:showrss.inc.php,v 1.40 2003/03/18 11:52:58 hiro Exp
 // Copyright (C):
 //     2002-2006 PukiWiki Developers Team
@@ -163,14 +163,16 @@ class XpWikiShowRSS_html
 		$this->root   =& $xpwiki->root;
 		$this->cont   =& $xpwiki->cont;
 		$this->func   =& $xpwiki->func;
-		foreach ($rss as $date=>$items) {
-			foreach ($items as $item) {
-				$link  = $item['LINK'];
-				$title = $item['TITLE'];
-				$passage = $this->func->get_passage($item['_TIMESTAMP']);
-				$link = '<a href="' . $link . '" title="' .  $title . ' ' .
-					$passage . '" rel="nofollow">' . $title . '</a>';
-				$this->items[$date][] = $this->format_link($link);
+		if ($rss && is_array($rss)) {
+			foreach ($rss as $date=>$items) {
+				foreach ($items as $item) {
+					$link  = $item['LINK'];
+					$title = $item['TITLE'];
+					$passage = $this->func->get_passage($item['_TIMESTAMP']);
+					$link = '<a href="' . $link . '" title="' .  $title . ' ' .
+						$passage . '" rel="nofollow">' . $title . '</a>';
+					$this->items[$date][] = $this->format_link($link);
+				}
 			}
 		}
 	}
