@@ -1,7 +1,7 @@
 <?php
 //
 // Created on 2006/11/17 by nao-pon http://hypweb.net/
-// $Id: dbsync.inc.php,v 1.12 2007/06/03 22:57:41 nao-pon Exp $
+// $Id: dbsync.inc.php,v 1.13 2007/06/03 23:08:19 nao-pon Exp $
 //
 
 class xpwiki_plugin_dbsync extends xpwiki_plugin {
@@ -163,7 +163,9 @@ __EOD__;
 		
 		echo <<<__EOD__
 <html>
-<head></head>
+<head>
+<meta http-equiv="content-type" content="text/html; charset={$this->cont['CONTENT_CHARSET']}" />
+</head>
 <body>
 __EOD__;
 			
