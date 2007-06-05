@@ -1,7 +1,7 @@
 <?php
 //
 // Created on 2006/11/17 by nao-pon http://hypweb.net/
-// $Id: dbsync.inc.php,v 1.14 2007/06/05 00:37:34 nao-pon Exp $
+// $Id: dbsync.inc.php,v 1.15 2007/06/05 23:41:02 nao-pon Exp $
 //
 
 class xpwiki_plugin_dbsync extends xpwiki_plugin {
@@ -127,7 +127,8 @@ function xpwiki_dbsync_setmsg(id,msg)
   &nbsp;&#9492;<input type="radio" name="title" value="on" />{$this->msg['msg_retitle']}<br />
   <input type="checkbox" name="count" value="on" checked="true" />{$this->msg['msg_count']}{$not['c']}<br />
   <input type="checkbox" name="attach" value="on" checked="true" />{$this->msg['msg_attach_init']}{$not['a']}<br />
-  <input type="checkbox" name="plain" value="on" checked="true" />{$this->msg['msg_plain_init']}{$not['p']}<br />
+  <input type="checkbox" name="plain" value="on" checked="true" />{$this->msg['msg_plain_init']}{$not['p']}
+  <input type="checkbox" name="p_info" value="on" />{$this->msg['msg_moreinfo']}<br />
   &nbsp;&#9500;<input type="radio" name="plain_all" value="" checked="true" />{$this->msg['msg_plain_init_notall']}<br />
   &nbsp;&#9492;<input type="radio" name="plain_all" value="on" />{$this->msg['msg_plain_init_all']}<br />
  </div>
@@ -173,6 +174,7 @@ __EOD__;
 		$this->root->post['plain'] = (!empty($this->root->post['plain']))? "on" : "";
 		$this->root->post['plain_all'] = (!empty($this->root->post['plain_all']))? "on" : "";
 		$this->root->post['attach'] = (!empty($this->root->post['attach']))? "on" : "";
+		$this->root->post['p_info'] = (!empty($this->root->post['p_info']))? "on" : "";
 		
 		if ($this->root->post['mode'] == 'all' || $this->root->post['init']) $this->pginfo_db_init();
 		if ($this->root->post['mode'] == 'all' || $this->root->post['count']) $this->count_db_init();
@@ -564,6 +566,8 @@ __EOD__;
 			// PHP の上限メモリーサイズ
 			$memory_limit = HypCommonFunc::return_bytes(ini_get('memory_limit'));
 			
+			$debug = array();
+			
 			foreach(array_diff($files,$domix) as $file)
 			{
 				if($file == ".." || $file == "." || strstr($file,".txt")===FALSE)
@@ -601,19 +605,21 @@ __EOD__;
 					$mode = "insert";
 				}
 				
+				$s_page = htmlspecialchars($page);
+				if ($this->root->post['p_info']) { echo 'Start: '. $s_page . '<br />'; }
 				if ($this->func->plain_db_write($page,$mode,TRUE))
 				{
 					$dones[1][] = $file;
 					$counter++;
-					if (($counter/10) == (floor($counter/10)))
-					{
-						echo "*";
-						
+					if ($this->root->post['p_info']) {
+						echo 'Finish: ' . $s_page . ((function_exists('memory_get_usage'))? ' - M: ' . number_format(memory_get_usage()) : '') . '<br />';
+					} else {
+						if (($counter/10) == (floor($counter/10))) {
+							echo "*";
+						}
 					}
-					if (($counter/100) == (floor($counter/100)))
-					{
+					if (($counter/100) == (floor($counter/100))) {
 						echo " ( Done ".$counter." Pages !)<br />";
-						
 					}
 				}
 				else
@@ -644,6 +650,9 @@ __EOD__;
 			$this->root->vars['page']=$this->root->get['page']=$this->root->post['page'] = "";
 			$this->root->post['plain'] = "";
 			echo " ( Done ".$counter." Pages !)<hr />";
+			if (!empty($debug['donepage']) && $this->root->post['p_info']) {
+				echo join('<br />', $debug['donepage']);
+			}
 			echo "</div>";
 			
 			@unlink ($work);
@@ -793,6 +802,7 @@ __EOD__;
   <input type="hidden" name="plain" value="{$this->root->post['plain']}" />
   <input type="hidden" name="plain_all" value="{$this->root->post['plain_all']}" />
   <input type="hidden" name="attach" value="{$this->root->post['attach']}" />
+  <input type="hidden" name="p_info" value="{$this->root->post['p_info']}" />
   <input type="submit" value="{$this->msg['btn_next_do']}" onClick="parent.xpwiki_dbsync_blink('start');return true;" />
  </div>
 </form>

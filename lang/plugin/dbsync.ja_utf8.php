@@ -1,7 +1,7 @@
 <?php
 //
 // Created on 2006/11/09 by nao-pon http://hypweb.net/
-// $Id: dbsync.ja_utf8.php,v 1.1 2007/05/22 02:32:54 nao-pon Exp $
+// $Id: dbsync.ja_utf8.php,v 1.2 2007/06/05 23:41:02 nao-pon Exp $
 //
 
 $msg = array(
@@ -21,6 +21,7 @@ $msg = array(
 	'msg_progress_report' => '進捗状況:',
 	'msg_now_doing' => '只今、サーバー側で処理中です。<br />下の進捗画面に「すべての処理が完了しました。」と表示されるまで<br />このページを開いたままにして置いてください。',
 	'msg_next_do' => '<span style="color:blue;">サーバーの実行時間制限により処理を中断しました。<br />下の進捗画面最下部の「続きの処理を実行」をクリックして<br />引き続き処理を行ってください。</span>',
+	'msg_moreinfo' => '詳細なレポート',
 	'btn_submit'    => '実行',
 	'btn_next_do'    => '続きの処理を実行',
 	'msg_done'      => 'すべての処理が完了しました。',
