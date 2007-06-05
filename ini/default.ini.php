@@ -1,6 +1,6 @@
 <?php
 // PukiWiki - Yet another WikiWikiWeb clone.
-// $Id: default.ini.php,v 1.3 2007/06/05 00:21:50 nao-pon Exp $
+// $Id: default.ini.php,v 1.4 2007/06/05 23:47:56 nao-pon Exp $
 // Copyright (C)
 //   2003-2005 PukiWiki Developers Team
 //   2001-2002 Originally written by yu-ji
@@ -189,4 +189,14 @@ $root->facemark_rules = array(
 	'&amp;(faxto);'	=> '[faxto]',
 );
 
+$root->wikihelper_facemarks = array(
+	':)'	=> $const['IMAGE_DIR'] . 'face/smile.png',
+	':D'	=> $const['IMAGE_DIR'] . 'face/bigsmile.png',
+	':p'	=> $const['IMAGE_DIR'] . 'face/huh.png',
+	'XD'	=> $const['IMAGE_DIR'] . 'face/oh.png',
+	';)'	=> $const['IMAGE_DIR'] . 'face/wink.png',
+	';('	=> $const['IMAGE_DIR'] . 'face/sad.png',
+	'&worried;'=> $const['IMAGE_DIR'] . 'face/worried.png',
+	'&heart;'	=> $const['IMAGE_DIR'] . 'face/heart.png',
+);
 ?>

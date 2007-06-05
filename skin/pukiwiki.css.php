@@ -1,6 +1,6 @@
 <?php
 // PukiWiki - Yet another WikiWikiWeb clone.
-// $Id: pukiwiki.css.php,v 1.21 2007/06/05 00:33:06 nao-pon Exp $
+// $Id: pukiwiki.css.php,v 1.22 2007/06/05 23:47:56 nao-pon Exp $
 // Copyright (C)
 //   2002-2005 PukiWiki Developers Team
 //   2001-2002 Originally written by yu-ji
@@ -42,17 +42,6 @@ ob_start();
 // Output CSS ----
 ?>
 @charset "<?php echo $charset ?>";
-
-/* pukiwiki helper */
-div#wikihelper_base {
-	position:absolute;
-	top:-1000px;
-	left:-1000px;
-	background-color:white;
-	filter:alpha(opacity=85);
-	-moz-opacity: 0.85;
-	opacity: 0.85;
-}
 
 $class {
 	background-color:inherit;

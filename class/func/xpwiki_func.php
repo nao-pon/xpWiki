@@ -1,7 +1,7 @@
 <?php
 //
 // Created on 2006/10/02 by nao-pon http://hypweb.net/
-// $Id: xpwiki_func.php,v 1.68 2007/06/05 00:16:41 nao-pon Exp $
+// $Id: xpwiki_func.php,v 1.69 2007/06/05 23:47:56 nao-pon Exp $
 //
 class XpWikiFunc extends XpWikiXoopsWrapper {
 
@@ -494,11 +494,6 @@ EOD;
 		if (empty($this->cont['PKWK_READONLY'])) {
 			// WikiHelper JavaScript
 			$head_tag .= <<<EOD
-<script type="text/javascript">
-<!--
-var wikihelper_root_url = "{$obj->cont['HOME_URL']}";
-//-->
-</script>
 <script type="text/javascript" src="{$obj->cont['HOME_URL']}skin/loader.php?src=default.{$obj->cont['UI_LANG']}{$obj->cont['FILE_ENCORD_EXT']}.js"></script>
 EOD;
 		}
@@ -1040,7 +1035,12 @@ EOD;
 	
 	// ページURIを得る
 	function get_page_uri($page, $full = false) {
-		return ($full ? $this->cont['HOME_URL'] : '' ) . (@ $this->root->static_url ? $this->get_pgid_by_name($page) . '.html' : '?' . rawurlencode($page));
+		if ($page === $this->root->defaultpage) {
+			$link = '';
+		} else {
+			$link = ($this->root->static_url) ? $this->get_pgid_by_name($page) . '.html' : '?' . rawurlencode($page);
+		}
+		return ($full ? $this->cont['HOME_URL'] : '' ) . $link;
 	}
 	
 	// SKIN Function

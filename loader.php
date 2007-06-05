@@ -1,7 +1,7 @@
 <?php
 //
 // Created on 2006/10/25 by nao-pon http://hypweb.net/
-// $Id: loader.php,v 1.6 2007/05/09 12:08:36 nao-pon Exp $
+// $Id: loader.php,v 1.7 2007/06/05 23:47:56 nao-pon Exp $
 //
 
 // 変数初期化
@@ -9,6 +9,10 @@
 $src   = preg_replace("/[^\w.-]+/","",@ $_GET['src']);
 $block = (isset($_GET['b']))? 'b_' : '';
 $addcss = $dir = $out = $type = $src_file = '';
+$face_tag = '';
+$root_path = dirname($skin_dirname);
+
+//wikihelper_root_url
 
 if (preg_match("/^(.+)\.([^.]+)$/",$src,$match)) {
 	$type = $match[2];
@@ -37,7 +41,7 @@ if (file_exists("{$skin_dirname}/{$basedir}{$type}/{$src}.{$type}")) {
 switch ($type) {
 	case 'css':
 		$c_type = 'text/css';
-		$dir = $block.basename(dirname($skin_dirname));
+		$dir = $block.basename($root_path);
 		break;
 	case 'js':
 		$c_type = 'application/x-javascript';
@@ -50,8 +54,8 @@ switch ($type) {
 		break;
 	case 'pagecss':
 		$c_type = 'text/css';
-		$dir = $block.basename(dirname($skin_dirname));
-		$src_file = $mydirname = dirname($skin_dirname) . '/private/cache/' . $src . '.css';
+		$dir = $block.basename($root_path);
+		$src_file = $mydirname = $root_path . '/private/cache/' . $src . '.css';
 		break;
 	case 'xml':
 		$c_type = 'application/xml; charset=utf-8';
@@ -72,7 +76,7 @@ if ($type === "js" && substr($src,0,7) === "default") {
 
 if (file_exists($src_file)) {
 	$filetime = filemtime($src_file);
-	$etag = md5($type.$dir.$src.$filetime.$addcss);
+	$etag = md5($type.$dir.$src.$filetime.$addcss.$face_tag);
 	/*
 	$notmod = ($etag == @$_SERVER["HTTP_IF_NONE_MATCH"]);
 	if ($notmod || isset($_SERVER["HTTP_IF_MODIFIED_SINCE"])) {
@@ -92,6 +96,19 @@ if (file_exists($src_file)) {
 	if ($dir) {
 		$out = str_replace('$dir', $dir, $out . "\n" . $addcss);
 	}
+	if ($type === 'js') {
+		if ($src === 'main') {
+			$face_cache = $root_path . '/private/cache/facemarks.js';
+			if (! file_exists($face_cache)) {
+				include XOOPS_ROOT_PATH.'/include/common.php';
+				$face_tag = xpwiki_make_facemarks ($skin_dirname, $face_cache);
+			} else {
+				$face_tag = join('',file($face_cache));
+			}
+			$out = str_replace('$face_tag', $face_tag, $out);
+		}
+		$out = str_replace('$wikihelper_root_url', str_replace(XOOPS_ROOT_PATH, XOOPS_URL, $root_path) , $out);
+	}
 	header( "Content-Type: " . $c_type );
 	header( "Last-Modified: " . gmdate( "D, d M Y H:i:s", $filetime ) . " GMT" );
 	header( "Etag: ". $etag );
@@ -103,4 +120,24 @@ if (file_exists($src_file)) {
 }
 echo $out;
 exit();
+
+function xpwiki_make_facemarks ($skin_dirname, $cache) {
+	//include XOOPS_ROOT_PATH.'/include/common.php';
+	include_once XOOPS_TRUST_PATH."/modules/xpwiki/include.php";
+	$wiki =& XpWiki::getSingleton( basename(dirname($skin_dirname)) );
+	$wiki->init();
+	//var_dump($wiki->root->wikihelper_facemarks);
+	$tags = array();
+	foreach($wiki->root->wikihelper_facemarks as $key => $img) {
+		$key = htmlspecialchars($key, ENT_QUOTES);
+		$q_key = str_replace("'", "\'", $key);
+		$tags[] = '\'<img src="'.$img.'" border="0" title="'.$key.'" alt="'.$key.'" onClick="javascript:wikihelper_face(\\\''.$q_key.'\\\');return false;" \'+\'/\'+\'>\'+';
+	}
+	$tag = join('', $tags);
+	if ($fp = fopen($cache, 'wb')) {
+		fwrite($fp, $tag);
+		fclose($fp);
+	}
+	return $tag;
+}
 ?>
