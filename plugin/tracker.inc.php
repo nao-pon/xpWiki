@@ -4,7 +4,7 @@ class xpwiki_plugin_tracker extends xpwiki_plugin {
 
 
 	// PukiWiki - Yet another WikiWikiWeb clone
-	// $Id: tracker.inc.php,v 1.8 2007/04/09 01:03:49 nao-pon Exp $
+	// $Id: tracker.inc.php,v 1.9 2007/06/05 00:26:03 nao-pon Exp $
 	//
 	// Issue tracker plugin (See Also bugtrack plugin)
 	
@@ -52,7 +52,7 @@ class xpwiki_plugin_tracker extends xpwiki_plugin {
 	{
 	//	global $script,$vars;
 	
-		if ($this->cont['PKWK_READONLY']) return ''; // Show nothing
+		if ($this->cont['PKWK_READONLY'] === 1) return ''; // Show nothing
 	
 		$base = $refer = $this->root->vars['page'];
 	
