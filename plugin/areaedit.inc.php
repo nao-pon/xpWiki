@@ -3,7 +3,7 @@ class xpwiki_plugin_areaedit extends xpwiki_plugin {
 /////////////////////////////////////////////////
 // PukiWiki - Yet another WikiWikiWeb clone.
 //
-// $Id: areaedit.inc.php,v 1.1 2007/06/05 00:33:06 nao-pon Exp $
+// $Id: areaedit.inc.php,v 1.2 2007/06/05 23:47:01 nao-pon Exp $
 //
 /* 
 *プラグイン areaedit
@@ -626,8 +626,8 @@ EOD;
 		$title = str_replace('$2',$this->root->vars['areaedit_start_no'],$title);
 		return array(
 			'msg'=> $title,
-		'body'=>$body,
-	);
+			'body'=>$body,
+		);
 	}
 	//========================================================
 	function plugin_areaedit_strip_link($str){
@@ -704,9 +704,9 @@ EOD;
 		
 		$block = (empty($this->root->vars['block']))? '' : '1';
 		$inline_plugin = (empty($this->root->vars['inline_plugin']))? '' : '1';
-		$inline_preview = (empty($this->root->vars['inline_preview']))? '' : intval($this->root->vars['inline_preview']);
-		$areaedit_no = (empty($this->root->vars['areaedit_no']))? '' : intval($this->root->vars['areaedit_no']);
-		$areaedit_start_no = (empty($this->root->vars['areaedit_start_no']))? '' : intval($this->root->vars['areaedit_start_no']);
+		$inline_preview = (isset($this->root->vars['inline_preview']))? intval($this->root->vars['inline_preview']) : '';
+		$areaedit_no = (isset($this->root->vars['areaedit_no']))? intval($this->root->vars['areaedit_no']) : '';
+		$areaedit_start_no = (isset($this->root->vars['areaedit_start_no']))? intval($this->root->vars['areaedit_start_no']) : '';
 		
 		$body = <<<EOD
 <form action="{$this->root->script}" method="post">
