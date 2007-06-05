@@ -48,8 +48,10 @@ class XpWikiElement {
 
 	function toString() {
 		$ret = array ();
-		foreach (array_keys($this->elements) as $key)
+		foreach (array_keys($this->elements) as $key) {
 			$ret[] = $this->elements[$key]->toString();
+			$this->elements[$key] = null;
+		}
 		return join("\n", $ret);
 	}
 
