@@ -1,7 +1,7 @@
 <?php
 //
 // Created on 2006/10/02 by nao-pon http://hypweb.net/
-// $Id: xpwiki_func.php,v 1.67 2007/06/03 05:23:13 nao-pon Exp $
+// $Id: xpwiki_func.php,v 1.68 2007/06/05 00:16:41 nao-pon Exp $
 //
 class XpWikiFunc extends XpWikiXoopsWrapper {
 
@@ -1677,7 +1677,7 @@ EOD;
 		// 新規作成
 		if ($action == "insert")
 		{
-			$query = "INSERT INTO ".$this->xpwiki->db->prefix($this->root->mydirname."_attach")." (pgid,name,type,mtime,size,mode,count,age,pass,freeze,copyright,owner) VALUES($pgid,'$name','$type',$mtime,$size,'$mode',$count,$age,'$pass',$freeze,$copyright,$owner);";
+			$query = "INSERT INTO ".$this->xpwiki->db->prefix($this->root->mydirname."_attach")." (`pgid`,`name`,`type`,`mtime`,`size`,`mode`,`count`,`age`,`pass`,`freeze`,`copyright`,`owner`) VALUES('$pgid','$name','$type','$mtime','$size','$mode','$count','$age','$pass','$freeze','$copyright','$owner');";
 			$result=$this->xpwiki->db->queryF($query);
 			//if (!$result) echo $query."<hr>";
 		}
@@ -1685,18 +1685,18 @@ EOD;
 		// 更新
 		elseif ($action == "update")
 		{
-			$value = "pgid=$pgid"
-			.",name='$name'"
-			.",type='$type'"
-			.",mtime=$mtime"
-			.",size=$size"
-			.",mode=$mode"
-			.",count=$count"
-			.",age=$age"
-			.",pass='$pass'"
-			.",freeze=$freeze"
-			.",copyright=$copyright"
-			.",owner=$owner";
+			$value = "`pgid`='$pgid'"
+			.",`name`='$name'"
+			.",`type`='$type'"
+			.",`mtime`='$mtime'"
+			.",`size`='$size'"
+			.",`mode`='$mode'"
+			.",`count`='$count'"
+			.",`age`='$age'"
+			.",`pass`='$pass'"
+			.",`freeze`='$freeze'"
+			.",`copyright`='$copyright'"
+			.",`owner`='$owner'";
 			$query = "UPDATE ".$this->xpwiki->db->prefix($this->root->mydirname."_attach")." SET $value WHERE `id`='$id' LIMIT 1";
 			$result=$this->xpwiki->db->queryF($query);
 			//if (!$result) echo $query."<hr>";
@@ -1708,7 +1708,7 @@ EOD;
 			$q_name = ($name)? " AND name='{$name}' LIMIT 1" : "";
 			
 			$ret = array();
-			$query = "SELECT name FROM ".$this->xpwiki->db->prefix($this->root->mydirname."_attach")." WHERE pgid = {$pgid}{$q_name};";
+			$query = "SELECT name FROM ".$this->xpwiki->db->prefix($this->root->mydirname."_attach")." WHERE `pgid` = {$pgid}{$q_name};";
 			if ($result=$this->xpwiki->db->query($query))
 			{
 				while($data = mysql_fetch_row($result))
@@ -1718,7 +1718,7 @@ EOD;
 			}
 			if (!$ret) $ret = TRUE;
 			
-			$query = "DELETE FROM ".$this->xpwiki->db->prefix($this->root->mydirname."_attach")." WHERE pgid = {$pgid}{$q_name};";
+			$query = "DELETE FROM ".$this->xpwiki->db->prefix($this->root->mydirname."_attach")." WHERE `pgid` = {$pgid}{$q_name};";
 			
 			$result=$this->xpwiki->db->queryF($query);
 			//if (!$result) echo $query."<hr>";
