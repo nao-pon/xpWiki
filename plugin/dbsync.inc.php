@@ -1,7 +1,7 @@
 <?php
 //
 // Created on 2006/11/17 by nao-pon http://hypweb.net/
-// $Id: dbsync.inc.php,v 1.13 2007/06/03 23:08:19 nao-pon Exp $
+// $Id: dbsync.inc.php,v 1.14 2007/06/05 00:37:34 nao-pon Exp $
 //
 
 class xpwiki_plugin_dbsync extends xpwiki_plugin {
@@ -66,7 +66,6 @@ var xpwiki_dbsync_timerID;
 function xpwiki_dbsync_done()
 {
 	document.getElementById('xpwiki_dbsync_submit').style.visibility = "visible";
-	document.getElementById('xpwiki_dbsync_submit').disabled = false;
 }
 function xpwiki_dbsync_blink(mode)
 {
@@ -74,7 +73,6 @@ function xpwiki_dbsync_blink(mode)
 	clearTimeout(xpwiki_dbsync_timerID);
 	
 	if (mode == 'start') {
-		document.getElementById('xpwiki_dbsync_submit').disabled = true;
 		document.getElementById('xpwiki_dbsync_submit').style.visibility = "hidden";
 	}
 	
@@ -126,12 +124,12 @@ function xpwiki_dbsync_setmsg(id,msg)
   <div style="margin-left:20px;">
   <input type="checkbox" name="init" value="on" checked="true" />{$this->msg['msg_init']}{$not['i']}<br />
   &nbsp;&#9500;<input type="radio" name="title" value="" checked="true" />{$this->msg['msg_noretitle']}<br />
-  &nbsp;&#9495;<input type="radio" name="title" value="on" />{$this->msg['msg_retitle']}<br />
+  &nbsp;&#9492;<input type="radio" name="title" value="on" />{$this->msg['msg_retitle']}<br />
   <input type="checkbox" name="count" value="on" checked="true" />{$this->msg['msg_count']}{$not['c']}<br />
+  <input type="checkbox" name="attach" value="on" checked="true" />{$this->msg['msg_attach_init']}{$not['a']}<br />
   <input type="checkbox" name="plain" value="on" checked="true" />{$this->msg['msg_plain_init']}{$not['p']}<br />
   &nbsp;&#9500;<input type="radio" name="plain_all" value="" checked="true" />{$this->msg['msg_plain_init_notall']}<br />
-  &nbsp;&#9495;<input type="radio" name="plain_all" value="on" />{$this->msg['msg_plain_init_all']}<br />
-  <input type="checkbox" name="attach" value="on" checked="true" />{$this->msg['msg_attach_init']}{$not['a']}<br />
+  &nbsp;&#9492;<input type="radio" name="plain_all" value="on" />{$this->msg['msg_plain_init_all']}<br />
  </div>
   <br />
   <input id="xpwiki_dbsync_submit" type="submit" value="{$this->msg['btn_submit']}" onClick="xpwiki_dbsync_blink('start');return true;" />
@@ -179,8 +177,8 @@ __EOD__;
 		if ($this->root->post['mode'] == 'all' || $this->root->post['init']) $this->pginfo_db_init();
 		if ($this->root->post['mode'] == 'all' || $this->root->post['count']) $this->count_db_init();
 		//if ($post['mode'] == 'all' || $post['title']) pginfo_db_retitle();
-		if ($this->root->post['mode'] == 'all' || $this->root->post['plain']) $this->plain_db_init();
 		if ($this->root->post['mode'] == 'all' || $this->root->post['attach']) $this->attach_db_init();
+		if ($this->root->post['mode'] == 'all' || $this->root->post['plain']) $this->plain_db_init();
 		
 		//redirect_header("$script?plugin=dbsync",3,$_links_messages['msg_done']);
 		
@@ -214,15 +212,17 @@ __EOD__;
 		// Clear cache *.autolink.api
 		$base = $this->cont['CACHE_DIR'];
 		if (function_exists('glob')) {
-			foreach (glob($base . "*.autolink.api") as $file) {
-				unlink($file);
+			chdir($base);
+			foreach (glob("*.autolink.api") as $file) {
+				unlink($base.$file);
 			}
+			chdir($this->cont['DATA_HOME']);
 		} else {
 			if ($dir = @opendir($base))
 			{
 				while($file = readdir($dir))
 				{
-					if (substr($file, -13) === '.autolink.api') unlink($base . '/' . $file);
+					if (substr($file, -13) === '.autolink.api') unlink($base . $file);
 				}
 			}
 		}
@@ -716,15 +716,25 @@ __EOD__;
 				$obj = &new XpWikiAttachFile($this->xpwiki, $page,$name,$age);
 				$obj->getstatus();
 				
+				$obj->status['md5'] = md5_file($obj->filename);
+				$obj->putstatus();
+				
 				$data['pgid'] = $this->func->get_pgid_by_name($page);
 				$data['name'] = $name;
 				$data['mtime'] = $obj->time;
 				$data['size'] = $obj->size;
 				$data['type'] = $obj->type;
 				$data['status'] = $obj->status;
+				
+				// ページが存在しない
+				if (! $data['pgid']) {
+					$dones[0][] = $file;
+					continue;
+				}
 	
 				if ($this->func->attach_db_write($data,"insert"))
 				{
+					//echo "$page::$name;:$age<br >";
 					$counter++;
 					$dones[1][] = $file;
 					if (($counter/10) == (floor($counter/10)))
