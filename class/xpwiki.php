@@ -1,7 +1,7 @@
 <?php
 //
 // Created on 2006/09/29 by nao-pon http://hypweb.net/
-// $Id: xpwiki.php,v 1.35 2007/06/03 23:54:15 nao-pon Exp $
+// $Id: xpwiki.php,v 1.36 2007/06/05 00:21:50 nao-pon Exp $
 //
 
 class XpWiki {
@@ -95,6 +95,12 @@ class XpWiki {
 				$this->cont[$key] = $val;
 			}
 		}
+		
+		// 追加フェイスマークの処理
+		if ($this->root->use_extra_facemark) {
+			$this->root->line_rules = array_merge($this->func->get_extra_facemark(), $this->root->line_rules);
+		}
+
 	}
 	
 	function execute() {

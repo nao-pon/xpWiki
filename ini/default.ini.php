@@ -1,6 +1,6 @@
 <?php
 // PukiWiki - Yet another WikiWikiWeb clone.
-// $Id: default.ini.php,v 1.2 2006/11/28 08:28:28 nao-pon Exp $
+// $Id: default.ini.php,v 1.3 2007/06/05 00:21:50 nao-pon Exp $
 // Copyright (C)
 //   2003-2005 PukiWiki Developers Team
 //   2001-2002 Originally written by yu-ji
@@ -101,6 +101,8 @@ $root->link_compact = 0;
 /////////////////////////////////////////////////
 // フェイスマークを使用する
 $root->usefacemark = 1;
+// 追加(XOOPS)のフェイスマークを使用する
+$root->use_extra_facemark = 1;
 
 /////////////////////////////////////////////////
 // メニューバーを表示する
