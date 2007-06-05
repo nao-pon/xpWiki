@@ -1,6 +1,6 @@
 <?php
 // PukiWiki - Yet another WikiWikiWeb clone.
-// $Id: pukiwiki.css.php,v 1.20 2007/06/03 05:27:28 nao-pon Exp $
+// $Id: pukiwiki.css.php,v 1.21 2007/06/05 00:33:06 nao-pon Exp $
 // Copyright (C)
 //   2002-2005 PukiWiki Developers Team
 //   2001-2002 Originally written by yu-ji
@@ -649,6 +649,16 @@ $class span.calendar_viewer_right {
 	color:inherit;
 	background-color:inherit;
 	float:right;
+}
+
+/* areaedit.inc.php */
+$class .area_on
+{
+	background-color: #ffe4e1;
+}
+$class .area_off
+{
+	background-color: transparent;
 }
 
 /* clear.inc.php */
