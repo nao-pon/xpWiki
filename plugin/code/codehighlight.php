@@ -1326,7 +1326,8 @@ class XpWikiCodeHighlight {
 		ob_end_clean(); //バッファクリア?
 		// phpタグを取り除く。
 		if ($phptagf) {
-			$html = preg_replace('/(?:<font[^>]*>)?&lt;\?php&nbsp;((?:&nbsp;)*)(?:<\/font>)?(.*)?(?:<font[^>]*>)?\?&gt;(?:<\/font>)?/m','$1$2',$html);
+			//$html = preg_replace('/(?:<font[^>]*>)?&lt;\?php&nbsp;((?:&nbsp;)*)(?:<\/font>)?(.*)?(?:<font[^>]*>)?\?&gt;(?:<\/font>)?/m','$1$2',$html);
+			$html = preg_replace('/(?:<(span|font)[^>]*>)?&lt;\?(?:<\/\\1><\\1[^>]*>)?php(?: |&nbsp;)((?: |&nbsp;)*)(?:<\/\\1>)?(.*)?(?:<\\1[^>]*>)?\?&gt;(?:<\/\\1>)?/m','$2$3',$html);
 		}
 		$html = str_replace('&nbsp;', ' ', $html);
 		$html = str_replace("\n", '', $html); //$html内の"\n"を''で置き換える
