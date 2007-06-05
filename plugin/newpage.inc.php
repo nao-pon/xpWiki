@@ -5,7 +5,7 @@ class xpwiki_plugin_newpage extends xpwiki_plugin {
 
 
 	}
-	// $Id: newpage.inc.php,v 1.1 2006/10/13 13:17:49 nao-pon Exp $
+	// $Id: newpage.inc.php,v 1.2 2007/06/05 00:25:17 nao-pon Exp $
 	//
 	// Newpage plugin
 	
@@ -16,23 +16,31 @@ class xpwiki_plugin_newpage extends xpwiki_plugin {
 		static $id = array();
 		if (!isset($id[$this->xpwiki->pid])) {$id[$this->xpwiki->pid] = 0;}
 	
-		if ($this->cont['PKWK_READONLY']) return ''; // Show nothing
+		if ($this->cont['PKWK_READONLY'] === 1) return ''; // Show nothing
 	
 		$newpage = '';
 		if (func_num_args()) list($newpage) = func_get_args();
+		if (strtolower($newpage) === 'this') {
+			$newpage = $this->root->vars['page'] . '/';
+		}
+		
 		if (! preg_match('/^' . $this->root->BracketName . '$/', $newpage)) $newpage = '';
+		
 	
 		$s_page    = htmlspecialchars(isset($this->root->vars['refer']) ? $this->root->vars['refer'] : $this->root->vars['page']);
 		$s_newpage = htmlspecialchars($newpage);
+		$base = (empty($s_newpage))? '' : $s_newpage ;
+		
 		++$id[$this->xpwiki->pid];
 	
 		$ret = <<<EOD
 <form action="{$this->root->script}" method="post">
  <div>
   <input type="hidden" name="plugin" value="newpage" />
-  <input type="hidden" name="refer"  value="$s_page" />
-  <label for="_p_newpage_{$id[$this->xpwiki->pid]}">{$this->root->_msg_newpage}:</label>
-  <input type="text"   name="page" id="_p_newpage_{$id[$this->xpwiki->pid]}" value="$s_newpage" size="30" />
+  <input type="hidden" name="refer" value="$s_page" />
+  <input type="hidden" name="base" value="$s_page" />
+  <label for="_p_newpage_{$id[$this->xpwiki->pid]}">{$this->root->_msg_newpage}: {$base}</label>
+  <input type="text"   name="page" id="_p_newpage_{$id[$this->xpwiki->pid]}" value="" size="30" />
   <input type="submit" value="{$this->root->_btn_edit}" />
  </div>
 </form>
@@ -52,7 +60,8 @@ EOD;
 			$retvars['body'] = $this->plugin_newpage_convert();
 			return $retvars;
 		} else {
-			$page    = $this->func->strip_bracket($this->root->vars['page']);
+			$base = (empty($this->root->vars['base']))? '' : $this->root->vars['base'] . '/';
+			$page    = $base . $this->func->strip_bracket($this->root->vars['page']);
 			$r_page  = rawurlencode(isset($this->root->vars['refer']) ?
 				$this->func->get_fullname($page, $this->root->vars['refer']) : $page);
 			$r_refer = rawurlencode($this->root->vars['refer']);
