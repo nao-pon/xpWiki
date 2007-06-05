@@ -1,6 +1,6 @@
 <?php
 // PukiWiki - Yet another WikiWikiWeb clone
-// $Id: topicpath.inc.php,v 1.2 2007/01/13 02:13:28 nao-pon Exp $
+// $Id: topicpath.inc.php,v 1.3 2007/06/05 23:40:04 nao-pon Exp $
 //
 // 'topicpath' plugin for PukiWiki, available under GPL
 
@@ -11,7 +11,7 @@ class xpwiki_plugin_topicpath extends xpwiki_plugin {
 		$this->cont['PLUGIN_TOPICPATH_TOP_DISPLAY'] =  1;
 		
 		// Label for $defaultpage
-		$this->cont['PLUGIN_TOPICPATH_TOP_LABEL'] =  'Top';
+		$this->cont['PLUGIN_TOPICPATH_TOP_LABEL'] = htmlspecialchars($this->root->module['title']);
 		
 		// Separetor / of / topic / path
 		$this->cont['PLUGIN_TOPICPATH_TOP_SEPARATOR'] =  ' / ';
