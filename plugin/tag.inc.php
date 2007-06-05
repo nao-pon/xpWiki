@@ -28,7 +28,7 @@ class xpwiki_plugin_tag extends xpwiki_plugin {
 		return call_user_func_array(array($this->root->plugin_tag, 'convert'), $args);
 	}
 }
-	// $Id: tag.inc.php,v 1.8 2007/06/01 01:23:53 nao-pon Exp $
+	// $Id: tag.inc.php,v 1.9 2007/06/05 00:26:49 nao-pon Exp $
 	
 class XpWikiPluginTag
 {
@@ -99,7 +99,7 @@ class XpWikiPluginTag
 		ksort($tagcloud);
 		foreach ($tagcloud as $key => $val) {
 			list($tag, $count) = $val;
-			if ($count == 0) continue;
+			if ($count == 0 || !$tag) continue;
 			$contents .= $tag . "\t" . $count . "\n";
 		}
 		return $this->file_put_contents($cache, $contents);
@@ -271,17 +271,21 @@ class XpWikiPluginTag
 		}
 		
 		$tagcloud = $this->read_tagcloud();
-		foreach ($dels as $tag) {
-			$count = $this->del_page($tag, $page);
-			if ($count === FALSE)
-				return "tag(): failed to delete $page from tag cache for $tag. ";
-			$tagcloud[$this->get_key($tag)] = array($tag, $count);
+		if ($dels) {
+			foreach ($dels as $tag) {
+				$count = $this->del_page($tag, $page);
+				if ($count === FALSE)
+					return "tag(): failed to delete $page from tag cache for $tag. ";
+				$tagcloud[$this->get_key($tag)] = array($tag, $count);
+			}
 		}
-		foreach ($adds as $tag) {
-			$count = $this->add_page($tag, $page);
-			if ($count === FALSE)
-				return "tag(): failed to add $page to tag cache for $tag. ";
-			$tagcloud[$this->get_key($tag)] = array($tag, $count);
+		if ($adds) {
+			foreach ($adds as $tag) {
+				$count = $this->add_page($tag, $page);
+				if ($count === FALSE)
+					return "tag(): failed to add $page to tag cache for $tag. ";
+				$tagcloud[$this->get_key($tag)] = array($tag, $count);
+			}
 		}
 		if ($this->write_tagcloud($tagcloud) === FALSE)
 			return "tag(): failed to write tag cloud cache. ";
