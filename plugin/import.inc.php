@@ -1,7 +1,7 @@
 <?php
 /*
  * Created on 2007/05/22 by nao-pon http://hypweb.net/
- * $Id: import.inc.php,v 1.2 2007/06/01 03:00:21 nao-pon Exp $
+ * $Id: import.inc.php,v 1.3 2007/06/05 00:34:52 nao-pon Exp $
  */
 
 class xpwiki_plugin_import extends xpwiki_plugin {
@@ -767,7 +767,7 @@ EOD;
 			}
 	*/		
 			//定義リストの修正
-			if ($head == ':' and preg_match("/^:([^:]+):(.*)/",$line,$matches)) //マッチしなかったら無視
+			if ($head == ':' and preg_match("/^:([^:]+):(.*)/s",$line,$matches)) //マッチしなかったら無視
 			{
 				$line = ":{$matches[1]}|{$matches[2]}";
 				$modify['dl'] = '--modify dl.';
