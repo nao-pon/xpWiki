@@ -1,7 +1,7 @@
 <?php
 //
 // Created on 2006/10/15 by nao-pon http://hypweb.net/
-// $Id: base_func.php,v 1.8 2007/05/10 08:41:18 nao-pon Exp $
+// $Id: base_func.php,v 1.9 2007/06/05 00:22:48 nao-pon Exp $
 //
 class XpWikiBaseFunc {
 	
@@ -48,6 +48,11 @@ class XpWikiBaseFunc {
 	
 	function get_lang ($default) {
 		return $default;
+	}
+	
+		// 追加 フェイスマーク 取得
+	function get_extra_facemark() {
+		return array();
 	}
 }
 ?>

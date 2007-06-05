@@ -1,6 +1,6 @@
 <?php
 // PukiWiki - Yet another WikiWikiWeb clone.
-// $Id: keitai.ini.php,v 1.4 2007/05/29 23:08:58 nao-pon Exp $
+// $Id: keitai.ini.php,v 1.5 2007/06/05 00:21:50 nao-pon Exp $
 // Copyright (C)
 //   2002-2005 PukiWiki Developers Team
 //   2001-2002 Originally written by yu-ji
@@ -96,6 +96,9 @@ $root->link_compact = 1;
 /////////////////////////////////////////////////
 // フェイスマークを絵文字に変換する (※i-mode, Vodafone, EzWebなど携帯電話限定)
 $root->usefacemark = 1;
+// 追加(XOOPS)のフェイスマークを使用する
+$root->use_extra_facemark = 0;
+
 
 /////////////////////////////////////////////////
 // accesskey (SKINで使用)
