@@ -1,7 +1,7 @@
 <?php
 //
 // Created on 2006/10/11 by nao-pon http://hypweb.net/
-// $Id: xoops_wrapper.php,v 1.29 2007/06/05 00:21:50 nao-pon Exp $
+// $Id: xoops_wrapper.php,v 1.30 2007/06/05 23:47:56 nao-pon Exp $
 //
 class XpWikiXoopsWrapper extends XpWikiBackupFunc {
 	
@@ -322,10 +322,11 @@ class XpWikiXoopsWrapper extends XpWikiBackupFunc {
 		$sql = 'SELECT * FROM ' . $this->xpwiki->db->prefix('smiles');
 		if ($result = $this->xpwiki->db->query($sql)) {
 			while( $row = $this->xpwiki->db->fetchArray($result) ) {
-				//$code = preg_replace('/(\:|\(|\)|\?)/', "\\\\\\1", $row['code']);
 				$code = preg_quote($row['code'], '/');
 				$code = '\s(' . $code . ')';
 				$facemarks[$code] = ' <img alt="$1" src="'.XOOPS_URL.'/uploads/' . $row['smile_url'] . '" />';
+				// for Wiki Helper
+				$this->root->wikihelper_facemarks[$row['code']] = XOOPS_URL.'/uploads/' . $row['smile_url'];
 			}
 		}
 		return $facemarks;

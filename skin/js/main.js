@@ -1,7 +1,6 @@
 // Init.
 var wikihelper_WinIE=(document.all&&!window.opera&&navigator.platform=="Win32");
 var wikihelper_Gecko=(navigator && navigator.userAgent && navigator.userAgent.indexOf("Gecko/") != -1);
-//var wikihelper_Is_pukiwikimod = (document.URL.indexOf(wikihelper_root_url,0) == 0);
 
 var wikihelper_elem;
 var wikihelper_mapLoad=0;
@@ -12,12 +11,25 @@ var wikihelper_adv = wikihelper_load_cookie("__whlp");
 if (wikihelper_adv) wikihelper_save_cookie("__whlp",wikihelper_adv,90,"/");
 
 // Common function.
-function open_mini(URL,width,height){
-	aWindow = window.open(URL, "mini", "toolbar=0,location=0,directories=0,status=0,menubar=0,scrollbars=yes,resizable=no,width="+width+",height="+height);
-}
+//function open_mini(URL,width,height){
+//	aWindow = window.open(URL, "mini", "toolbar=0,location=0,directories=0,status=0,menubar=0,scrollbars=yes,resizable=no,width="+width+",height="+height);
+//}
 
 function wikihelper_show_fontset_img()
 {
+	var str = '<small> [ <a href="#" onClick="javascript:wikihelper_show_hint(); return false;">' + wikihelper_msg_hint + '<'+'/'+'a> ]<'+'/'+'small>';
+	
+	if (wikihelper_adv == "on")
+	{
+		str = str + '<small> [ <a href="#" title="'+wikihelper_msg_to_easy_t+'" onClick="javascript:wikihelper_adv_swich(); return false;">' + 'Easy' + '<'+'/'+'a> ]<'+'/'+'small>';
+	}
+	else
+	{
+		str = str + '<small> [ <a href="#" title="'+wikihelper_msg_to_adv_t+'" onClick="javascript:wikihelper_adv_swich(); return false;">' + 'Adv.' + '<'+'/'+'a> ]<'+'/'+'small>';
+	}
+	
+	str += ' <a href="#" title="Close" onClick="javascript:wikihelper_hide_helper(); return false;"><span style="font-size:12px;font-weight:bold;color:white;background-color:red;padding:1px 4px;border:1px solid #EE6363;">X<'+'/'+'span><'+'/'+'a>';
+
 	if (!wikihelper_mapLoad)
 	{
 		wikihelper_mapLoad = 1;
@@ -46,7 +58,7 @@ function wikihelper_show_fontset_img()
 		'<area shape="rect" coords="48,8,56,16" title="Aqua" alt="Aqua" href="#" onClick="javascript:wikihelper_tag(\'Aqua\'); return false;" '+'/'+'>'+
 		'<area shape="rect" coords="56,8,64,16" title="White" alt="White" href="#" onClick="javascript:wikihelper_tag(\'White\'); return false;" '+'/'+'>'+
 		'<'+'/'+'map>'+
-		'<div id="wikihelper_base"><'+'/'+'div>';
+		'<div id="wikihelper_base" style="position:absolute;top:-1000px;left:-1000px;background-color:white;filter:alpha(opacity=85);-moz-opacity: 0.85;opacity: 0.85;"><'+'/'+'div>';
 
 		var src = document.createElement('div');
 		src.innerHTML = map;
@@ -61,44 +73,28 @@ function wikihelper_show_fontset_img()
 		wikihelper_adv_tag += '<span style="cursor:pointer;">';
 		
 	//	if (wikihelper_Is_pukiwikimod) wikihelper_adv_tag +=
-	//'<img src="'+wikihelper_root_url+'image/clip.png" width="18" height="16" border="0" title="'+wikihelper_msg_attach+'" alt="&amp;ref;" onClick="javascript:wikihelper_ins(\'&ref();\'); return false;" '+'/'+'>';
+	//'<img src="$wikihelper_root_url/image/clip.png" width="18" height="16" border="0" title="'+wikihelper_msg_attach+'" alt="&amp;ref;" onClick="javascript:wikihelper_ins(\'&ref();\'); return false;" '+'/'+'>';
 		
 		 wikihelper_adv_tag +=
-	'<img src="'+wikihelper_root_url+'image/clip.png" width="18" height="16" border="0" title="'+wikihelper_msg_attach+'" alt="&amp;ref;" onClick="javascript:wikihelper_ins(\'&ref();\'); return false;" '+'/'+'>'+
-	'<img src="'+wikihelper_root_url+'image/ncr.gif" width="22" height="16" border="0" title="'+wikihelper_msg_to_ncr+'" alt="'+wikihelper_msg_to_ncr+'" onClick="javascript:wikihelper_charcode(); return false;" '+'/'+'>'+
-	'<img src="'+wikihelper_root_url+'image/br.gif" width="18" height="16" border="0" title="&amp;br;" alt="&amp;br;" onClick="javascript:wikihelper_ins(\'&br;\'); return false;" '+'/'+'>'+
-	'<img src="'+wikihelper_root_url+'image/iplugin.gif" width="18" height="16" border="0" title="Inline Plugin" alt="Inline Plugin" onClick="javascript:wikihelper_ins(\'&(){};\'); return false;" '+'/'+'>'+
-	'<'+'/'+'span><br '+'/'+'>';
+	'<img src="$wikihelper_root_url/image/clip.png" width="18" height="16" border="0" title="'+wikihelper_msg_attach+'" alt="&amp;ref;" onClick="javascript:wikihelper_ins(\'&ref();\'); return false;" '+'/'+'>'+
+	'<img src="$wikihelper_root_url/image/ncr.gif" width="22" height="16" border="0" title="'+wikihelper_msg_to_ncr+'" alt="'+wikihelper_msg_to_ncr+'" onClick="javascript:wikihelper_charcode(); return false;" '+'/'+'>'+
+	'<img src="$wikihelper_root_url/image/br.gif" width="18" height="16" border="0" title="&amp;br;" alt="&amp;br;" onClick="javascript:wikihelper_ins(\'&br;\'); return false;" '+'/'+'>'+
+	'<img src="$wikihelper_root_url/image/iplugin.gif" width="18" height="16" border="0" title="Inline Plugin" alt="Inline Plugin" onClick="javascript:wikihelper_ins(\'&(){};\'); return false;" '+'/'+'>'+
+	'<'+'/'+'span>';
 	}
 
 	var wikihelper_helper_img = 
-	'<img src="'+wikihelper_root_url+'image/buttons.gif" width="103" height="16" border="0" usemap="#map_button" tabindex="-1" '+'/'+'>'+
+	'<img src="$wikihelper_root_url/image/buttons.gif" width="103" height="16" border="0" usemap="#map_button" tabindex="-1" '+'/'+'>'+
 	' '+
 	wikihelper_adv_tag +
-	'<img src="'+wikihelper_root_url+'image/colors.gif" width="64" height="16" border="0" usemap="#map_color" tabindex="-1" '+'/'+'> '+
-	'<span style="cursor:pointer;">'+
-	'<img src="'+wikihelper_root_url+'image/face/smile.png" width="15" height="15" border="0" title=":)" alt=":)" onClick="javascript:wikihelper_face(\':)\'); return false;" '+'/'+'>'+
-	'<img src="'+wikihelper_root_url+'image/face/bigsmile.png" width="15" height="15" border="0" title=":D" alt=":D" onClick="javascript:wikihelper_face(\':D\'); return false;" '+'/'+'>'+
-	'<img src="'+wikihelper_root_url+'image/face/huh.png" width="15" height="15" border="0" title=":p" alt=":p" onClick="javascript:wikihelper_face(\':p\'); return false;" '+'/'+'>'+
-	'<img src="'+wikihelper_root_url+'image/face/oh.png" width="15" height="15" border="0" title="XD" alt="XD" onClick="javascript:wikihelper_face(\'XD\'); return false;" '+'/'+'>'+
-	'<img src="'+wikihelper_root_url+'image/face/wink.png" width="15" height="15" border="0" title=";)" alt=";)" onClick="javascript:wikihelper_face(\';)\'); return false;" '+'/'+'>'+
-	'<img src="'+wikihelper_root_url+'image/face/sad.png" width="15" height="15" border="0" title=";(" alt=";(" onClick="javascript:wikihelper_face(\';(\'); return false;" '+'/'+'>'+
-	'<img src="'+wikihelper_root_url+'image/face/heart.png" width="15" height="15" border="0" title="&amp;heart;" alt="&amp;heart;" onClick="javascript:wikihelper_face(\'&amp;heart;\'); return false;" '+'/'+'>'+
+	' '+
+	'<img src="$wikihelper_root_url/image/colors.gif" width="64" height="16" border="0" usemap="#map_color" tabindex="-1" '+'/'+'> '+
+	str+
+	'<br '+'/'+'><span style="cursor:pointer;">'+
+	$face_tag
 	'<'+'/'+'span>';
 
-	var str =  wikihelper_helper_img + '<small> [ <a href="#" onClick="javascript:wikihelper_show_hint(); return false;">' + wikihelper_msg_hint + '<'+'/'+'a> ]<'+'/'+'small>';
-	
-	if (wikihelper_adv == "on")
-	{
-		str = str + '<small> [ <a href="#" title="'+wikihelper_msg_to_easy_t+'" onClick="javascript:wikihelper_adv_swich(); return false;">' + 'Easy' + '<'+'/'+'a> ]<'+'/'+'small>';
-	}
-	else
-	{
-		str = str + '<small> [ <a href="#" title="'+wikihelper_msg_to_adv_t+'" onClick="javascript:wikihelper_adv_swich(); return false;">' + 'Adv.' + '<'+'/'+'a> ]<'+'/'+'small>';
-	}
-	
-	str += '<small> [<a href="#" title="Close" onClick="javascript:wikihelper_hide_helper(); return false;">x</a>]<'+'/'+'small>';
-	document.getElementById("wikihelper_base").innerHTML = str;
+	document.getElementById("wikihelper_base").innerHTML = wikihelper_helper_img;
 }
 
 function wikihelper_adv_swich()
@@ -228,15 +224,15 @@ function wikihelper_hide_helper() {
 // Branch.
 if (wikihelper_WinIE)
 {
-	document.write ('<scr'+'ipt type="text/javascr'+'ipt" src="' + wikihelper_root_url + 'skin/loader.php?src=winie.js"></scr'+'ipt>');
+	document.write ('<scr'+'ipt type="text/javascr'+'ipt" src="$wikihelper_root_url/skin/loader.php?src=winie.js"></scr'+'ipt>');
 }
 else if (wikihelper_Gecko)
 {
-	document.write ('<scr'+'ipt type="text/javascr'+'ipt" src="' + wikihelper_root_url + 'skin/loader.php?src=gecko.js"></scr'+'ipt>');
+	document.write ('<scr'+'ipt type="text/javascr'+'ipt" src="$wikihelper_root_url/skin/loader.php?src=gecko.js"></scr'+'ipt>');
 }
 else
 {
-	document.write ('<scr'+'ipt type="text/javascr'+'ipt" src="' + wikihelper_root_url + 'skin/loader.php?src=other.js"></scr'+'ipt>');
+	document.write ('<scr'+'ipt type="text/javascr'+'ipt" src="$wikihelper_root_url/skin/loader.php?src=other.js"></scr'+'ipt>');
 }
 
 // Add function in 'window.onload' event.
