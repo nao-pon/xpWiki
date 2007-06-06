@@ -1,7 +1,7 @@
 <?php
 //
 // Created on 2006/09/29 by nao-pon http://hypweb.net/
-// $Id: xpwiki.php,v 1.36 2007/06/05 00:21:50 nao-pon Exp $
+// $Id: xpwiki.php,v 1.37 2007/06/06 09:18:39 nao-pon Exp $
 //
 
 class XpWiki {
@@ -358,6 +358,9 @@ EOD;
 	
 	// xpWiki render mode
 	function transform($text, $cssbase = '') {
+		
+		static $cssput;
+		
 		$this->init('#RenderMode');
 		$this->cont['PKWK_READONLY'] = 1;
 		$this->root->top = '';
@@ -389,7 +392,12 @@ EOD;
 		}
 		
 		list($head_pre_tag, $head_tag) = $this->func->get_additional_headtags($this);
-		$csstag = ($cssbase)? '<link rel="stylesheet" type="text/css" media="screen" href="'.$this->cont['HOME_URL'].$this->cont['SKIN_DIR'].'block.css.php?charset=Shift_JIS&amp;base='.$cssbase.'" charset="Shift_JIS" />' : '';
+		$csstag = '';
+		if ($cssbase && !isset($cssput[$cssbase])) {
+			$csstag = '<link rel="stylesheet" type="text/css" media="screen" href="'.$this->cont['HOME_URL'].$this->cont['SKIN_DIR'].'block.css.php?charset=Shift_JIS&amp;base='.$cssbase.'" charset="Shift_JIS" />';
+			$cssput[$cssbase] = true;
+		}
+		
 		if ($cssbase) {
 			$text = '<div class="xpwiki_'.$cssbase.'">'."\n".$text."\n".'</div>';
 		}
