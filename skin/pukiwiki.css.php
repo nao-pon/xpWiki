@@ -1,6 +1,6 @@
 <?php
 // PukiWiki - Yet another WikiWikiWeb clone.
-// $Id: pukiwiki.css.php,v 1.22 2007/06/05 23:47:56 nao-pon Exp $
+// $Id: pukiwiki.css.php,v 1.23 2007/06/06 09:16:48 nao-pon Exp $
 // Copyright (C)
 //   2002-2005 PukiWiki Developers Team
 //   2001-2002 Originally written by yu-ji
@@ -356,6 +356,19 @@ $class span.size7 {
 	line-height:130%;
 	text-indent:0px;
 	display:inline;
+}
+
+$class div.commentbody {
+	margin-left:30px;
+	margin-right:10px;
+}
+
+$class div.commentbody h2 {
+	background-color: transparent;
+}
+
+$class div.commentbody textarea {
+	height: 7em;
 }
 
 /* html.php/catbody() */
