@@ -1,6 +1,6 @@
 <?php
 // PukiWiki - Yet another WikiWikiWeb clone.
-// $Id: pukiwiki.css.php,v 1.23 2007/06/06 09:16:48 nao-pon Exp $
+// $Id: pukiwiki.css.php,v 1.24 2007/06/07 08:55:33 nao-pon Exp $
 // Copyright (C)
 //   2002-2005 PukiWiki Developers Team
 //   2001-2002 Originally written by yu-ji
@@ -23,11 +23,14 @@ if ($media != 'print') $media = 'screen';
 $base   = isset($_GET['base'])   ? "_".preg_replace("/[^\w-]+/","",$_GET['base'])    : '';
 $class = "div.xpwiki".$base;
 
+// Pre Width
+$pre_width = isset($_GET['pw']) ? $_GET['pw'] : 'auto';
+
 // Over write
 $overwrite = (empty($overwrite))? '' : $overwrite;
 
 // Etag
-$etag = md5($base.$charset.$media.$overwrite.filemtime(__FILE__));
+$etag = md5($base.$charset.$media.$overwrite.$pre_width.filemtime(__FILE__));
 
 // Not Modified?
 if ($etag === @$_SERVER["HTTP_IF_NONE_MATCH"]) {
@@ -184,6 +187,13 @@ $class dt {
 	margin-left:1em;
 }
 
+/* Pre base */
+$class div.pre {
+	max-height: 420px;
+	width: <?php echo $pre_width ?>;
+	overflow: auto;
+}
+
 $class pre {
 	border-top:#DDDDEE 1px solid;
 	border-bottom:#888899 1px solid;
@@ -194,7 +204,23 @@ $class pre {
 	margin-right:2em;
 	color:black;
 	background-color:#F0F8FF;
+	width: auto;
 
+	white-space: -moz-pre-wrap; /* Mozilla */
+	white-space: -pre-wrap;     /* Opera 4-6 */
+	white-space: -o-pre-wrap;   /* Opera 7 */
+	white-space: pre-wrap;      /* CSS3 */
+	word-wrap: break-word;      /* IE 5.5+ */
+}
+
+/* For renderer on XOOPS */
+$class div.xoopsCode pre {
+	border: none;
+	padding: 0px;
+	margin: 3px;
+	color:black;
+	background-color:transparent;
+	
 	white-space: -moz-pre-wrap; /* Mozilla */
 	white-space: -pre-wrap;     /* Opera 4-6 */
 	white-space: -o-pre-wrap;   /* Opera 7 */

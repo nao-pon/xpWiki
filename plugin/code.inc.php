@@ -1,7 +1,7 @@
 <?php
 //
 // Created on 2006/10/25 by nao-pon http://hypweb.net/
-// $Id: code.inc.php,v 1.6 2007/05/15 06:11:27 nao-pon Exp $
+// $Id: code.inc.php,v 1.7 2007/06/07 08:55:33 nao-pon Exp $
 //
 
 class xpwiki_plugin_code extends xpwiki_plugin {
@@ -165,8 +165,13 @@ class xpwiki_plugin_code extends xpwiki_plugin {
 		$highlight = new XpWikiCodeHighlight($this->xpwiki);
 		$lines = $highlight->highlight($lang, $lines, $option, $end, $begin);
 		error_reporting($_err);
-
-		$lines = '<div class="'.$lang.'">'.$lines.'</div>';
+		
+		$style = (true || $this->root->is_table_theme)? ' style=overflow:auto;' : '';
+		if ($lang === 'pre') {
+			$lines = '<div class="'.$lang.'">'.$lines.'</div>';
+		} else {
+			$lines = '<div class="pre"><div class="'.$lang.'">'.$lines.'</div></div>';
+		}
 
 		if ($option['outline']) {
 			$this->func->add_tag_head('code.js');
