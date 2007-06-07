@@ -1,7 +1,7 @@
 <?php
 //
 // Created on 2006/11/17 by nao-pon http://hypweb.net/
-// $Id: dbsync.inc.php,v 1.15 2007/06/05 23:41:02 nao-pon Exp $
+// $Id: dbsync.inc.php,v 1.16 2007/06/07 08:52:49 nao-pon Exp $
 //
 
 class xpwiki_plugin_dbsync extends xpwiki_plugin {
@@ -198,7 +198,7 @@ __EOD__;
 		$this->root->userinfo['uid'] = $temp[1];
 		
 		$this->func->autolink_pattern_write($this->cont['CACHE_DIR'] . $this->cont['PKWK_AUTOLINK_REGEX_CACHE'],
-			$this->func->get_autolink_pattern($pages, $this->root->autolink));
+			$this->func->get_autolink_pattern($pages, $this->root->autolink, false));
 		
 		// Update autoalias.dat (AutoAliasName)
 		$aliases = $this->func->get_autoaliases();
@@ -208,7 +208,7 @@ __EOD__;
 		} else {
 			// Create or Update
 			$this->func->autolink_pattern_write($this->cont['CACHE_DIR'] . $this->cont['PKWK_AUTOALIAS_REGEX_CACHE'],
-				$this->func->get_autolink_pattern(array_keys($aliases), $this->root->autoalias));
+				$this->func->get_autolink_pattern(array_keys($aliases), $this->root->autoalias, true));
 		}
 		
 		// Clear cache *.autolink.api
@@ -228,6 +228,9 @@ __EOD__;
 				}
 			}
 		}
+		
+		// Remove facemarks.js
+		@ unlink($this->cont['CACHE_DIR'] . 'facemarks.js');
 		
 		echo $this->msg['msg_done'];
 		echo "<script>parent.xpwiki_dbsync_done();parent.xpwiki_dbsync_blink('stop');</script>";
