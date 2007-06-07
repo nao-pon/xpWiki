@@ -1,6 +1,6 @@
 <?php
 // PukiWiki - Yet another WikiWikiWeb clone.
-// $Id: pukiwiki.skin.php,v 1.17 2007/01/15 08:58:28 nao-pon Exp $
+// $Id: pukiwiki.skin.php,v 1.18 2007/06/07 08:55:33 nao-pon Exp $
 // Copyright (C)
 //   2002-2006 PukiWiki Developers Team
 //   2001-2002 Originally written by yu-ji
@@ -54,7 +54,7 @@ $dirname = $this->root->mydirname;
 $this->root->html_header = <<<EOD
 $favicon
 $head_pre_tag
-<link rel="stylesheet" type="text/css" media="screen" href="{$this->cont['HOME_URL']}{$this->cont['SKIN_DIR']}pukiwiki.css.php?charset={$css_charset}&amp;base={$dirname}" charset="{$css_charset}" />
+<link rel="stylesheet" type="text/css" media="screen" href="{$this->cont['HOME_URL']}{$this->cont['SKIN_DIR']}pukiwiki.css.php?charset={$css_charset}&amp;base={$dirname}&amp;pw={$this->root->pre_width}" charset="{$css_charset}" />
 <link rel="stylesheet" type="text/css" media="print"  href="{$this->cont['HOME_URL']}{$this->cont['SKIN_DIR']}pukiwiki.css.php?charset={$css_charset}&amp;base={$dirname}&amp;media=print" charset="{$css_charset}" />
 <link rel="alternate" type="application/rss+xml" title="RSS" href="{$link['rss']}" />
 $head_tag

@@ -1,7 +1,7 @@
 <?php
 //
 // Created on 2006/09/29 by nao-pon http://hypweb.net/
-// $Id: xpwiki.php,v 1.37 2007/06/06 09:18:39 nao-pon Exp $
+// $Id: xpwiki.php,v 1.38 2007/06/07 08:55:33 nao-pon Exp $
 //
 
 class XpWiki {
@@ -100,7 +100,11 @@ class XpWiki {
 		if ($this->root->use_extra_facemark) {
 			$this->root->line_rules = array_merge($this->func->get_extra_facemark(), $this->root->line_rules);
 		}
-
+		
+		// <pre> ¤ÎÉı»ØÄê
+		if ( stristr($_SERVER['HTTP_USER_AGENT'],'msie')) {
+			$this->root->pre_width = rawurlencode($this->root->pre_width_ie);
+		}
 	}
 	
 	function execute() {
@@ -359,8 +363,6 @@ EOD;
 	// xpWiki render mode
 	function transform($text, $cssbase = '') {
 		
-		static $cssput;
-		
 		$this->init('#RenderMode');
 		$this->cont['PKWK_READONLY'] = 1;
 		$this->root->top = '';
@@ -393,12 +395,8 @@ EOD;
 		
 		list($head_pre_tag, $head_tag) = $this->func->get_additional_headtags($this);
 		$csstag = '';
-		if ($cssbase && !isset($cssput[$cssbase])) {
-			$csstag = '<link rel="stylesheet" type="text/css" media="screen" href="'.$this->cont['HOME_URL'].$this->cont['SKIN_DIR'].'block.css.php?charset=Shift_JIS&amp;base='.$cssbase.'" charset="Shift_JIS" />';
-			$cssput[$cssbase] = true;
-		}
-		
 		if ($cssbase) {
+			$csstag = '<link rel="stylesheet" type="text/css" media="screen" href="'.$this->cont['HOME_URL'].$this->cont['SKIN_DIR'].'pukiwiki.css.php?charset=Shift_JIS&amp;base='.$cssbase.'" charset="Shift_JIS" />';
 			$text = '<div class="xpwiki_'.$cssbase.'">'."\n".$text."\n".'</div>';
 		}
 		

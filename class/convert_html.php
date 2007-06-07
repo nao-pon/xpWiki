@@ -806,7 +806,7 @@ class XpWikiPre extends XpWikiElement {
 	}
 
 	function toString() {
-		return $this->wrap(join("\n", $this->elements), 'pre');
+		return $this->wrap($this->wrap(join("\n", $this->elements), 'pre'), 'div', ' class="pre"');
 	}
 }
 
