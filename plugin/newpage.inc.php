@@ -5,7 +5,7 @@ class xpwiki_plugin_newpage extends xpwiki_plugin {
 
 
 	}
-	// $Id: newpage.inc.php,v 1.2 2007/06/05 00:25:17 nao-pon Exp $
+	// $Id: newpage.inc.php,v 1.3 2007/06/07 04:15:09 nao-pon Exp $
 	//
 	// Newpage plugin
 	
@@ -38,7 +38,7 @@ class xpwiki_plugin_newpage extends xpwiki_plugin {
  <div>
   <input type="hidden" name="plugin" value="newpage" />
   <input type="hidden" name="refer" value="$s_page" />
-  <input type="hidden" name="base" value="$s_page" />
+  <input type="hidden" name="base" value="$s_newpage" />
   <label for="_p_newpage_{$id[$this->xpwiki->pid]}">{$this->root->_msg_newpage}: {$base}</label>
   <input type="text"   name="page" id="_p_newpage_{$id[$this->xpwiki->pid]}" value="" size="30" />
   <input type="submit" value="{$this->root->_btn_edit}" />
