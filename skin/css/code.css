@@ -64,10 +64,10 @@ div.xpwiki_$dir div.code_table pre.code,
 div.xpwiki_$dir table.code_table pre.pre_body,
 div.xpwiki_$dir div.code_src pre.pre_body
 {
-    background-color: #F8F8FF;
+    background-color: transparent;
     margin: 0;
     padding: 0;
-    padding-left: 0.5em;
+    margin-left: 0.5em;
     border: none;
     line-height: 120%;
     width: 100%;
@@ -111,6 +111,12 @@ div.xpwiki_$dir div.pre_table
     border-left:   #DDDDEE 1px solid;
     margin: 1em 2em 0.5em 1em;
     white-space: pre;
+    width: auto;
+}
+div.xpwiki_$dir table.code_table,
+div.xpwiki_$dir table.code_table td {
+    background-color: #F8F8F8;
+
 }
 
 /* 段組要素の設定無効化 */
