@@ -4,7 +4,7 @@ class xpwiki_plugin_navi extends xpwiki_plugin {
 
 
 	// PukiWiki - Yet another WikiWikiWeb clone.
-	// $Id: navi.inc.php,v 1.3 2006/11/28 23:25:29 nao-pon Exp $
+	// $Id: navi.inc.php,v 1.4 2007/06/08 08:51:41 nao-pon Exp $
 	//
 	// Navi plugin: Show DocBook-like navigation bar and contents
 	
@@ -176,7 +176,7 @@ class xpwiki_plugin_navi extends xpwiki_plugin {
  <li class="navi_right">{$navi[$this->xpwiki->pid][$home]['next1']}</li>
  <li class="navi_none">{$navi[$this->xpwiki->pid][$home]['home']}</li>
 </ul>
-<hr class="full_hr" />
+<hr class="full_hr" style="clear:both;" />
 EOD;
 	
 		} else {
@@ -188,6 +188,7 @@ EOD;
  <li class="navi_right">{$navi[$this->xpwiki->pid][$home]['next1']}<br />{$navi[$this->xpwiki->pid][$home]['next']}</li>
  <li class="navi_none">{$navi[$this->xpwiki->pid][$home]['home1']}<br />{$navi[$this->xpwiki->pid][$home]['up']}</li>
 </ul>
+<div style="clear:both;height:0px;"> </div>
 EOD;
 		}
 		return $ret;
