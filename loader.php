@@ -1,16 +1,18 @@
 <?php
 //
 // Created on 2006/10/25 by nao-pon http://hypweb.net/
-// $Id: loader.php,v 1.7 2007/06/05 23:47:56 nao-pon Exp $
+// $Id: loader.php,v 1.8 2007/06/08 08:58:17 nao-pon Exp $
 //
 
+error_reporting(0);
+
 // 変数初期化
-//$type  = preg_replace("/[^\w.-]+/","",@ $_GET['type']);
 $src   = preg_replace("/[^\w.-]+/","",@ $_GET['src']);
 $block = (isset($_GET['b']))? 'b_' : '';
 $addcss = $dir = $out = $type = $src_file = '';
-$face_tag = '';
 $root_path = dirname($skin_dirname);
+$face_cache = $root_path . '/private/cache/facemarks.js';
+$face_cache_time = @ filemtime($face_cache);
 
 //wikihelper_root_url
 
@@ -76,7 +78,7 @@ if ($type === "js" && substr($src,0,7) === "default") {
 
 if (file_exists($src_file)) {
 	$filetime = filemtime($src_file);
-	$etag = md5($type.$dir.$src.$filetime.$addcss.$face_tag);
+	$etag = md5($type.$dir.$src.$filetime.$addcss.$face_cache_time);
 	/*
 	$notmod = ($etag == @$_SERVER["HTTP_IF_NONE_MATCH"]);
 	if ($notmod || isset($_SERVER["HTTP_IF_MODIFIED_SINCE"])) {
@@ -98,14 +100,14 @@ if (file_exists($src_file)) {
 	}
 	if ($type === 'js') {
 		if ($src === 'main') {
-			$face_cache = $root_path . '/private/cache/facemarks.js';
 			if (! file_exists($face_cache)) {
 				include XOOPS_ROOT_PATH.'/include/common.php';
-				$face_tag = xpwiki_make_facemarks ($skin_dirname, $face_cache);
+				list($face_tag, $face_tag_full) = xpwiki_make_facemarks ($skin_dirname, $face_cache);
 			} else {
-				$face_tag = join('',file($face_cache));
+				list($face_tag, $face_tag_full) = array_pad(file($face_cache), 2, '');
+				if (!$face_tag_full) $face_tag_full = $face_tag;
 			}
-			$out = str_replace('$face_tag', $face_tag, $out);
+			$out = str_replace(array('$face_tag_full', '$face_tag'), array($face_tag_full, $face_tag), $out);
 		}
 		$out = str_replace('$wikihelper_root_url', str_replace(XOOPS_ROOT_PATH, XOOPS_URL, $root_path) , $out);
 	}
@@ -127,17 +129,23 @@ function xpwiki_make_facemarks ($skin_dirname, $cache) {
 	$wiki =& XpWiki::getSingleton( basename(dirname($skin_dirname)) );
 	$wiki->init();
 	//var_dump($wiki->root->wikihelper_facemarks);
-	$tags = array();
+	$tags_full = $tags = array();
 	foreach($wiki->root->wikihelper_facemarks as $key => $img) {
 		$key = htmlspecialchars($key, ENT_QUOTES);
 		$q_key = str_replace("'", "\'", $key);
+		if ($img{0} === '*') {
+			$img = substr($img, 1);
+			$tags_full[] = '\'<img src="'.$img.'" border="0" title="'.$key.'" alt="'.$key.'" onClick="javascript:wikihelper_face(\\\''.$q_key.'\\\');return false;" \'+\'/\'+\'>\'+';
+			continue;
+		}
 		$tags[] = '\'<img src="'.$img.'" border="0" title="'.$key.'" alt="'.$key.'" onClick="javascript:wikihelper_face(\\\''.$q_key.'\\\');return false;" \'+\'/\'+\'>\'+';
+		$tags_full[] = '\'<img src="'.$img.'" border="0" title="'.$key.'" alt="'.$key.'" onClick="javascript:wikihelper_face(\\\''.$q_key.'\\\');return false;" \'+\'/\'+\'>\'+';
 	}
-	$tag = join('', $tags);
+	$tags = array(join('', $tags) ,join('', $tags_full));
 	if ($fp = fopen($cache, 'wb')) {
-		fwrite($fp, $tag);
+		fwrite($fp, join("\n", $tags));
 		fclose($fp);
 	}
-	return $tag;
+	return $tags;
 }
 ?>
