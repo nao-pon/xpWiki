@@ -9,7 +9,7 @@ class xpwiki_plugin_attach extends xpwiki_plugin {
 	/////////////////////////////////////////////////
 	// PukiWiki - Yet another WikiWikiWeb clone.
 	//
-	//  $Id: attach.inc.php,v 1.12 2007/06/05 00:04:10 nao-pon Exp $
+	//  $Id: attach.inc.php,v 1.13 2007/06/08 08:50:54 nao-pon Exp $
 	//  ORG: attach.inc.php,v 1.31 2003/07/27 14:15:29 arino Exp $
 	//
 	
@@ -270,7 +270,7 @@ class xpwiki_plugin_attach extends xpwiki_plugin {
 			return '';
 		}
 		$_tmp = $obj->toString($this->root->vars['page'],TRUE);
-		if ($_tmp) $_tmp = '<a href="'.$this->root->script.'?plugin=attach&pcmd=list&refer='.rawurlencode($this->root->vars['page']).'" title="'.strip_tags($this->root->_attach_messages['msg_list']).'">' . $this->root->_attach_messages['msg_file'].'</a>: '.$_tmp."\n";
+		if ($_tmp) $_tmp = '<a href="'.$this->root->script.'?plugin=attach&amp;pcmd=list&amp;refer='.rawurlencode($this->root->vars['page']).'" title="'.strip_tags($this->root->_attach_messages['msg_list']).'">' . $this->root->_attach_messages['msg_file'].'</a>: '.$_tmp."\n";
 		return $_tmp;
 	}
 	//-------- ¼ÂÂÎ
