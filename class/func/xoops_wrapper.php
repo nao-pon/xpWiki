@@ -1,7 +1,7 @@
 <?php
 //
 // Created on 2006/10/11 by nao-pon http://hypweb.net/
-// $Id: xoops_wrapper.php,v 1.30 2007/06/05 23:47:56 nao-pon Exp $
+// $Id: xoops_wrapper.php,v 1.31 2007/06/08 08:58:17 nao-pon Exp $
 //
 class XpWikiXoopsWrapper extends XpWikiBackupFunc {
 	
@@ -326,7 +326,8 @@ class XpWikiXoopsWrapper extends XpWikiBackupFunc {
 				$code = '\s(' . $code . ')';
 				$facemarks[$code] = ' <img alt="$1" src="'.XOOPS_URL.'/uploads/' . $row['smile_url'] . '" />';
 				// for Wiki Helper
-				$this->root->wikihelper_facemarks[$row['code']] = XOOPS_URL.'/uploads/' . $row['smile_url'];
+				$full = ($row['display'])? '' : '*';
+				$this->root->wikihelper_facemarks[$row['code']] = $full . XOOPS_URL.'/uploads/' . $row['smile_url'];
 			}
 		}
 		return $facemarks;

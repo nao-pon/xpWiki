@@ -1,0 +1,19 @@
+#wikihelper_base {
+	padding: 2px;
+	border: 1px solid gray;
+	margin-right: 50px;
+	vertical-align: middle;
+	background-color: white;
+	filter: alpha(opacity=85);
+	-moz-opacity: 0.85;
+	opacity: 0.85;
+}
+
+#wikihelper_base img {
+	cursor: pointer;
+	margin: 1px;
+}
+
+#wikihelper_base a {
+	font-weight: normal;
+}
