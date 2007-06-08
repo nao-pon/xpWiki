@@ -5,6 +5,8 @@ class XpWikiElement {
 	var $parent;
 	var $elements; // References of childs
 	var $last; // Insert new one at the back of the $last
+	
+	var $flg; // Any flag
 
 	var $xpwiki;
 
@@ -974,8 +976,7 @@ class XpWikiBody extends XpWikiElement {
 			$id = & $autoid;
 			$anchor = '';
 		} else {
-			//$anchor = ' &aname('.$id.',super,full){'.$this->root->_symbol_anchor.'};';
-			$anchor = " &aname($id,super,full){{$this->root->_symbol_anchor}};";
+			$anchor = ' &aname(' . $id . ',noid,super,full){'. $this->root->_symbol_anchor . '};';
 			if ($this->root->fixed_heading_anchor_edit) $anchor .= " &edit(#$id,paraedit);";
 		}
 
@@ -983,9 +984,17 @@ class XpWikiBody extends XpWikiElement {
 
 		// Add 'page contents' link to its heading
 		$this->contents_last = & $this->contents_last->add(new XpWikiContents_UList($this->xpwiki, $text, $level, $id));
-
+		
+		// Area div id
+		$area_div = '';
+		if (!empty($this->flg['div_area_open'])) {
+			$area_div .= "</div>\n";
+		}
+		$area_div .= '<div id="'.$id.'">' . "\n";
+		$this->flg['div_area_open'] = true;
+		
 		// Add heding
-		return array ($text.$anchor, $this->count > 1 ? "\n".$this->root->top : '', $autoid);
+		return array ($text.$anchor, $area_div . ($this->count > 1 ? "\n".$this->root->top : ''), $autoid);
 	}
 
 	function & insert(& $obj) {
@@ -998,7 +1007,13 @@ class XpWikiBody extends XpWikiElement {
 		//		global $vars;
 
 		$text = parent :: toString();
-
+		
+		// Close area div
+		if (!empty($this->flg['div_area_open'])) {
+			$text .= "</div>\n";
+		}
+		$this->flg['div_area_open'] = false;
+		
 		// #contents
 		$text = preg_replace_callback('/<#_contents_>/', array (& $this, 'replace_contents'), $text);
 

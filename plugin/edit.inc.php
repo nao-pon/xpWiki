@@ -4,7 +4,7 @@ class xpwiki_plugin_edit extends xpwiki_plugin {
 
 
 	// PukiWiki - Yet another WikiWikiWeb clone.
-	// $Id: edit.inc.php,v 1.20 2007/06/03 05:27:05 nao-pon Exp $
+	// $Id: edit.inc.php,v 1.21 2007/06/08 08:53:52 nao-pon Exp $
 	// Copyright (C) 2001-2006 PukiWiki Developers Team
 	// License: GPL v2 or (at your option) any later version
 	//
@@ -155,11 +155,12 @@ class xpwiki_plugin_edit extends xpwiki_plugin {
 		$short = htmlspecialchars('Edit');
 		if ($this->root->fixed_heading_anchor_edit && $editable && $ispage && ! $isfreeze) {
 			// Paragraph editing
+			$js = ' onmouseover="wikihelper_area_highlite(\'' . htmlspecialchars($id) . '\',1);" onmouseout="wikihelper_area_highlite(\'' . htmlspecialchars($id) . '\',0);"';
 			$id    = rawurlencode($id);
-			$title = htmlspecialchars(sprintf('Edit %s', $page));
+			$title = htmlspecialchars(str_replace('$1', $s_page.$page, $this->root->_title_edit));
 			$icon = '<img src="' . $this->cont['IMAGE_DIR'] . 'paraedit.png' .
 			'" width="9" height="9" alt="' .
-			$short . '" title="' . $title . '" /> ';
+			$short . '" title="' . $title . '" ' . $js . '/> ';
 			$class = ' class="anchor_super"';
 		} else {
 			// Normal editing / unfreeze
