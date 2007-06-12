@@ -195,6 +195,7 @@ if (!empty($const['page_show'])) {
 		$const['page_show'] = '';
 	}
 	$root->get['page'] = $root->post['page'] = $root->vars['page'] = $const['page_show'];
+	$const['page_show'] = true;
 
 } else {
 
