@@ -1,7 +1,7 @@
 <?php
 //
 // Created on 2006/09/29 by nao-pon http://hypweb.net/
-// $Id: xpwiki.php,v 1.38 2007/06/07 08:55:33 nao-pon Exp $
+// $Id: xpwiki.php,v 1.39 2007/06/12 01:14:46 nao-pon Exp $
 //
 
 class XpWiki {
@@ -378,22 +378,26 @@ EOD;
 			}
 			$cache = $this->cont['CACHE_DIR'] . 'render_' . md5($text.$op);
 			if (file_exists($cache) && (empty($this->root->render_cache_min) || ((filemtime($cache) +  $this->root->render_cache_min * 60) > time()))) {
-				$text = join('', file($cache));
+				$texts = file($cache);
+				$head_pre_tag = array_shift($texts);
+				$head_tag = array_shift($texts);
+				$text = join('', $texts);
 			} else {
 				$text = $this->func->convert_html($text);
+				list($head_pre_tag, $head_tag) = $this->func->get_additional_headtags($this);
 				@ touch ($cache);
 				if (is_writable($cache)) {
 					if ($fp = fopen($cache, 'wb')) {
-						fwrite($fp, $text);
+						fwrite($fp, preg_replace('/[\r\n]+/', '', $head_pre_tag). "\n" . preg_replace('/[\r\n]+/', '', $head_tag). "\n" . $text);
 						fclose($fp);
 					}
 				}
 			}
 		} else {
 			$text = $this->func->convert_html($text);
+			list($head_pre_tag, $head_tag) = $this->func->get_additional_headtags($this);
 		}
 		
-		list($head_pre_tag, $head_tag) = $this->func->get_additional_headtags($this);
 		$csstag = '';
 		if ($cssbase) {
 			$csstag = '<link rel="stylesheet" type="text/css" media="screen" href="'.$this->cont['HOME_URL'].$this->cont['SKIN_DIR'].'pukiwiki.css.php?charset=Shift_JIS&amp;base='.$cssbase.'" charset="Shift_JIS" />';
