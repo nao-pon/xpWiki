@@ -63,6 +63,11 @@ if ($xpwiki->runmode == "xoops") {
 
 } else if ($xpwiki->runmode == "xoops_admin") {
 
+	// Check referer
+	if (! $xpwiki->func->refcheck()) {
+		exit('Invalid REFERER.');
+	}
+	
 	// environment
 	require_once XOOPS_ROOT_PATH.'/class/template.php' ;
 	$module_handler =& xoops_gethandler( 'module' ) ;
