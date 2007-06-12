@@ -1,6 +1,6 @@
 <?php
 // PukiWiki - Yet another WikiWikiWeb clone
-// $Id: rss.inc.php,v 1.14 2007/06/12 05:28:08 nao-pon Exp $
+// $Id: rss.inc.php,v 1.15 2007/06/12 07:44:11 nao-pon Exp $
 //
 // RSS plugin: Publishing RSS of RecentChanges
 //
@@ -50,8 +50,8 @@ class xpwiki_plugin_rss extends xpwiki_plugin {
 		$description = strip_tags(($added ? $added . '&#182;' : '') . $html);
 		$description = preg_replace('/(\s+|&'.$this->root->entity_pattern.';)/i', '', $description);
 		$description = mb_substr($description, 0, 250);
-		// 末尾に分断された実態参照があれば削除する
-		$description = preg_replace('/&([^;]+)?$/', '', $description);
+		// 末尾に分断された実態参照があれば削除->サニタイズ
+		$description = htmlspecialchars(preg_replace('/&([^;]+)?$/', '', $description));
 		
 		if ($added) $html = '<dl><dt>Changes</dt><dd>' . $added . '</dd></dl><hr />' . $html;
 		$userinfo = $this->func->get_userinfo_by_id($this->func->get_pg_auther($page));
@@ -68,7 +68,7 @@ class xpwiki_plugin_rss extends xpwiki_plugin {
 	{
 		$version = isset($this->root->vars['ver']) ? strtolower($this->root->vars['ver']) : '';
 		$base = isset($this->root->vars['p']) ? $this->root->vars['p'] : '';
-		$s_base = $base ? '/' . htmlspecialchars($base) : '';
+		$s_base = $base ? '/' . $base : '';
 		switch($version){
 		case '':  $version = '1.0';  break; // Default
 		case '1': $version = '1.0';  break; // Sugar
@@ -111,7 +111,7 @@ class xpwiki_plugin_rss extends xpwiki_plugin {
 			ob_start();
 					
 			$lang = $this->cont['LANG'];
-			$page_title = $this->root->siteinfo['sitename'] . '::' . $this->root->module_title . $s_base;
+			$page_title = htmlspecialchars($this->root->siteinfo['sitename'] . '::' . $this->root->module_title . $s_base);
 			$self = $this->func->get_script_uri();
 			$maketime = $date = substr_replace($this->func->get_date('Y-m-d\TH:i:sO'), ':', -2, 0);
 			$buildtime = $this->func->get_date('r');
@@ -137,7 +137,7 @@ class xpwiki_plugin_rss extends xpwiki_plugin {
 				list($time, $page) = explode("\t", rtrim($line));
 				$r_page = rawurlencode($page);
 				$link = $this->func->get_page_uri($page, true);
-				$title  = $page;
+				$title  = htmlspecialchars($page);
 				if (!$pubtime) $pubtime = $this->func->get_date('r', $time);
 		
 				switch ($version) {
