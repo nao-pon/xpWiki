@@ -1,7 +1,7 @@
 <?php
 //
 // Created on 2006/10/02 by nao-pon http://hypweb.net/
-// $Id: xpwiki_func.php,v 1.69 2007/06/05 23:47:56 nao-pon Exp $
+// $Id: xpwiki_func.php,v 1.70 2007/06/12 01:17:42 nao-pon Exp $
 //
 class XpWikiFunc extends XpWikiXoopsWrapper {
 
@@ -1481,6 +1481,7 @@ EOD;
 			$pobj->init($page);
 			$pobj->root->userinfo['admin'] = true;
 			$pobj->root->userinfo['uname_s'] = '';
+			$pobj->root->read_auth = 0;
 			$pobj->root->rtf['is_init'] = true;
 			$pobj->execute();
 			$data = $pobj->body;

@@ -6,7 +6,7 @@ class xpwiki_plugin_read extends xpwiki_plugin {
 
 	}
 	// PukiWiki - Yet another WikiWikiWeb clone.
-	// $Id: read.inc.php,v 1.3 2007/06/03 05:27:06 nao-pon Exp $
+	// $Id: read.inc.php,v 1.4 2007/06/12 01:17:42 nao-pon Exp $
 	//
 	// Read plugin: Show a page and InterWiki
 	
@@ -18,9 +18,12 @@ class xpwiki_plugin_read extends xpwiki_plugin {
 	
 		if ($this->func->is_page($page)) {
 			// ページを表示
-			$this->func->check_readable($page, true, true);
-			$this->func->header_lastmod($page);
-			return array('msg'=>'', 'body'=>'');
+			if ($this->func->check_readable($page, true, true)) {
+				$this->func->header_lastmod($page);
+				return array('msg'=>'', 'body'=>'');
+			} else {
+				return array('msg'=>'Not readable.', 'body'=>"\n");
+			}
 	
 		} else if (! $this->cont['PKWK_SAFE_MODE'] && $this->func->is_interwiki($page)) {
 			return $this->func->do_plugin_action('interwiki'); // InterWikiNameを処理
