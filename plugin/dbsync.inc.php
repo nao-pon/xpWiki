@@ -1,7 +1,7 @@
 <?php
 //
 // Created on 2006/11/17 by nao-pon http://hypweb.net/
-// $Id: dbsync.inc.php,v 1.16 2007/06/07 08:52:49 nao-pon Exp $
+// $Id: dbsync.inc.php,v 1.17 2007/06/12 01:19:03 nao-pon Exp $
 //
 
 class xpwiki_plugin_dbsync extends xpwiki_plugin {
@@ -23,7 +23,6 @@ class xpwiki_plugin_dbsync extends xpwiki_plugin {
 
 		if ($pmode === 'update') {
 			// DB Update
-			//exit('Do not work this version.'."<script>parent.xpwiki_dbsync_done();parent.xpwiki_dbsync_blink('stop');</script>");
 			return $this->do_dbupdate();
 		} else { 
 			// 管理画面モード指定
@@ -119,7 +118,6 @@ function xpwiki_dbsync_setmsg(id,msg)
  <div>
   <input type="hidden" name="plugin" value="dbsync" />
   <input type="hidden" name="pmode" value="update" />
-  <input type="hidden" name="mode" value="select" />
   {$this->msg['msg_hint']}
   <div style="margin-left:20px;">
   <input type="checkbox" name="init" value="on" checked="true" />{$this->msg['msg_init']}{$not['i']}<br />
@@ -149,7 +147,15 @@ __EOD__;
 	
 	function do_dbupdate() {
 		
-		error_reporting(E_ALL ^ E_NOTICE);
+		if (class_exists('XoopsErrorHandler')) {
+			$xoopsErrorHandler =& XoopsErrorHandler::getInstance();
+			$xoopsErrorHandler->activate(true);
+		}
+		error_reporting(E_ALL);
+		
+		if (! $this->func->refcheck()) {
+			exit('Invalid REFERER.');
+		}
 		
 		$this->root->post['start_time'] = time();
 		
@@ -157,8 +163,8 @@ __EOD__;
 		
 		// 出力をバッファリングしない
 		while( ob_get_level() ) { ob_end_clean() ; }
-		echo str_pad('',256); //for IE
 		ob_implicit_flush(true);
+		echo str_pad('',256); //for IE
 		
 		echo <<<__EOD__
 <html>
@@ -176,13 +182,10 @@ __EOD__;
 		$this->root->post['attach'] = (!empty($this->root->post['attach']))? "on" : "";
 		$this->root->post['p_info'] = (!empty($this->root->post['p_info']))? "on" : "";
 		
-		if ($this->root->post['mode'] == 'all' || $this->root->post['init']) $this->pginfo_db_init();
-		if ($this->root->post['mode'] == 'all' || $this->root->post['count']) $this->count_db_init();
-		//if ($post['mode'] == 'all' || $post['title']) pginfo_db_retitle();
-		if ($this->root->post['mode'] == 'all' || $this->root->post['attach']) $this->attach_db_init();
-		if ($this->root->post['mode'] == 'all' || $this->root->post['plain']) $this->plain_db_init();
-		
-		//redirect_header("$script?plugin=dbsync",3,$_links_messages['msg_done']);
+		if ($this->root->post['init']) $this->pginfo_db_init();
+		if ($this->root->post['count']) $this->count_db_init();
+		if ($this->root->post['attach']) $this->attach_db_init();
+		if ($this->root->post['plain']) $this->plain_db_init();
 		
 		// 各種キャッシュファイルの削除
 		// For AutoLink
@@ -783,6 +786,7 @@ __EOD__;
 			
 			@unlink ($work);
 		}
+		$this->root->post['atatch'] = "";
 	}
 	
 	function plugin_dbsync_next_do()
@@ -799,7 +803,6 @@ __EOD__;
   <input type="hidden" name="encode_hint" value="ぷ" />
   <input type="hidden" name="plugin" value="dbsync" />
   <input type="hidden" name="pmode" value="update" />
-  <input type="hidden" name="mode" value="select" />
   <input type="hidden" name="init" value="{$this->root->post['init']}" />
   <input type="hidden" name="title" value="{$this->root->post['title']}" />
   <input type="hidden" name="plain" value="{$this->root->post['plain']}" />
