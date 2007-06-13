@@ -444,10 +444,6 @@ require($const['DATA_HOME'] . 'private/ini/rules.ini.php');
 // 現在時刻
 $root->now = $this->format_date($const['UTIME']);
 
-// フェイスマークを$line_rulesに加える
-if ($root->usefacemark) $root->line_rules += $root->facemark_rules;
-//unset($facemark_rules);
-
 // 実体参照パターンおよびシステムで使用するパターンを$line_rulesに加える
 //$entity_pattern = '[a-zA-Z0-9]{2,8}';
 $root->entity_pattern = trim(join('', file($const['CACHE_DIR'] . 'entities.dat')));
