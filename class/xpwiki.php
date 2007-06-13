@@ -1,7 +1,7 @@
 <?php
 //
 // Created on 2006/09/29 by nao-pon http://hypweb.net/
-// $Id: xpwiki.php,v 1.39 2007/06/12 01:14:46 nao-pon Exp $
+// $Id: xpwiki.php,v 1.40 2007/06/13 23:10:41 nao-pon Exp $
 //
 
 class XpWiki {
@@ -95,10 +95,15 @@ class XpWiki {
 				$this->cont[$key] = $val;
 			}
 		}
-		
+
 		// 追加フェイスマークの処理
 		if ($this->root->use_extra_facemark) {
-			$this->root->line_rules = array_merge($this->func->get_extra_facemark(), $this->root->line_rules);
+			$this->root->facemark_rules = array_merge($this->func->get_extra_facemark(), $this->root->facemark_rules);
+		}
+
+		// フェイスマークを$line_rulesに加える
+		if ($this->root->usefacemark) {
+			$this->root->line_rules = array_merge($this->root->facemark_rules, $this->root->line_rules);
 		}
 		
 		// <pre> の幅指定
