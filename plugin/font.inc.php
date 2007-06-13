@@ -8,7 +8,7 @@ class xpwiki_plugin_font extends xpwiki_plugin {
 	/////////////////////////////////////////////////
 	// PukiWiki - Yet another WikiWikiWeb clone.
 	//
-	// $Id: font.inc.php,v 1.1 2006/10/18 03:00:57 nao-pon Exp $
+	// $Id: font.inc.php,v 1.2 2007/06/13 23:06:58 nao-pon Exp $
 	//
 	
 	function plugin_font_inline()
@@ -24,7 +24,7 @@ class xpwiki_plugin_font extends xpwiki_plugin {
 		$prms = func_get_args();
 		$body = array_pop($prms);
 	
-		$style = "";
+		$class = $style = "";
 		$color_type = true;
 		$decoration = array();
 		foreach ($prms as $prm)
@@ -60,13 +60,16 @@ class xpwiki_plugin_font extends xpwiki_plugin {
 			elseif (preg_match('/^(\d+(%|px|pt|em))$/',$prm,$size))
 				//$style .= "font-size:".htmlspecialchars($size[1]).";display:inline-block;line-height:130%;text-indent:0px;";
 				$style .= "font-size:".htmlspecialchars($size[1]).";line-height:130%;";
+			elseif (preg_match('/^class:(.+)$/',$prm,$arg))
+				$class = ' class="' . str_replace('"' , '', htmlspecialchars($arg[1])) . '"';
 			
 		}
 		if (count($decoration))
 			$style .= "text-decoration:".join(" ",$decoration).";";
 		
-		if ($style == "") return $body;
-		return "<span style=\"$style\">$body</span>";
+		if (! $style && ! $class) return $body;
+		
+		return '<span style="' . $style . '"' . $class . '>' . $body . '</span>';
 	}
 }
 ?>
