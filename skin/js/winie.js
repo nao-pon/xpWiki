@@ -101,11 +101,11 @@ function wikihelper_tag(v)
 	}
 	if (str.match(/^&font\([^\)]*\)\{.*\};$/))
 	{
-		str = str.replace(/^(&font\([^\)]*)(\)\{.*\};)$/,"$1," + v + "$2");
+		str = str.replace(/^(&font\([^\)]*)(\)\{.*\};)$/,"$1," + v.replace(/(\r\n|\r|\n)/g, "&br;") + "$2");
 	}
 	else
 	{
-		str = '&font(' + v + '){' + str + '};';
+		str = '&font(' + v + '){' + str.replace(/(\r\n|\r|\n)/g, "&br;") + '};';
 	}
 	
 	wikihelper_elem.caretPos.text = str;
