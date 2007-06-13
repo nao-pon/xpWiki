@@ -1,7 +1,7 @@
 <?php
 //
 // Created on 2006/10/02 by nao-pon http://hypweb.net/
-// $Id: pukiwiki_func.php,v 1.81 2007/06/12 01:17:42 nao-pon Exp $
+// $Id: pukiwiki_func.php,v 1.82 2007/06/13 23:13:26 nao-pon Exp $
 //
 class XpWikiPukiWikiFunc extends XpWikiBaseFunc {
 
@@ -777,7 +777,7 @@ class XpWikiPukiWikiFunc extends XpWikiBaseFunc {
 
 //----- Start convert_html.php -----//
 	// PukiWiki - Yet another WikiWikiWeb clone
-	// $Id: pukiwiki_func.php,v 1.81 2007/06/12 01:17:42 nao-pon Exp $
+	// $Id: pukiwiki_func.php,v 1.82 2007/06/13 23:13:26 nao-pon Exp $
 	// Copyright (C)
 	//   2002-2005 PukiWiki Developers Team
 	//   2001-2002 Originally written by yu-ji
@@ -976,7 +976,7 @@ class XpWikiPukiWikiFunc extends XpWikiBaseFunc {
 
 //----- Start func.php -----//
 	// PukiWiki - Yet another WikiWikiWeb clone.
-	// $Id: pukiwiki_func.php,v 1.81 2007/06/12 01:17:42 nao-pon Exp $
+	// $Id: pukiwiki_func.php,v 1.82 2007/06/13 23:13:26 nao-pon Exp $
 	// Copyright (C)
 	//   2002-2006 PukiWiki Developers Team
 	//   2001-2002 Originally written by yu-ji
@@ -1783,7 +1783,7 @@ EOD;
 
 //----- Start make_link.php -----//
 	// PukiWiki - Yet another WikiWikiWeb clone.
-	// $Id: pukiwiki_func.php,v 1.81 2007/06/12 01:17:42 nao-pon Exp $
+	// $Id: pukiwiki_func.php,v 1.82 2007/06/13 23:13:26 nao-pon Exp $
 	// Copyright (C)
 	//   2003-2005 PukiWiki Developers Team
 	//   2001-2002 Originally written by yu-ji
@@ -1807,12 +1807,20 @@ EOD;
 	function make_pagelink($page, $alias = '', $anchor = '', $refer = '', $class = 'pagelink')
 	{
 		$s_page = htmlspecialchars($this->strip_bracket($page));
+
+		if ($this->root->page_case_insensitive) {
+			$this->get_pagename_realcase ($page);
+		}
+		
 		if ($alias) {
 			$s_alias = $alias;
 		} else {
 			$s_alias = ($this->root->pagename_num2str && $this->is_page($page)) ? preg_replace('/\/(?:[0-9\-]+|[B0-9][A-Z0-9]{9})$/','/'.$this->get_heading($page),$s_page) : $s_page;
 			$s_alias = str_replace('/', '/<wbr />', $s_alias);
 		}
+		
+		// Remake
+		$s_page = htmlspecialchars($page);
 	
 		if ($page === '') return '<a href="' . $anchor . '" class="'.$class.'">' . $s_alias . '</a>';
 		
@@ -2599,7 +2607,7 @@ EOD;
 
 //----- Start html.php -----//
 	// PukiWiki - Yet another WikiWikiWeb clone.
-	// $Id: pukiwiki_func.php,v 1.81 2007/06/12 01:17:42 nao-pon Exp $
+	// $Id: pukiwiki_func.php,v 1.82 2007/06/13 23:13:26 nao-pon Exp $
 	// Copyright (C)
 	//   2002-2006 PukiWiki Developers Team
 	//   2001-2002 Originally written by yu-ji
@@ -3195,7 +3203,7 @@ EOD;
 
 //----- Start mail.php -----//
 	// PukiWiki - Yet another WikiWikiWeb clone.
-	// $Id: pukiwiki_func.php,v 1.81 2007/06/12 01:17:42 nao-pon Exp $
+	// $Id: pukiwiki_func.php,v 1.82 2007/06/13 23:13:26 nao-pon Exp $
 	// Copyright (C)
 	//   2003-2005 PukiWiki Developers Team
 	//   2003      Originally written by upk
@@ -3498,7 +3506,7 @@ EOD;
 
 //----- Start link.php -----//
 	// PukiWiki - Yet another WikiWikiWeb clone
-	// $Id: pukiwiki_func.php,v 1.81 2007/06/12 01:17:42 nao-pon Exp $
+	// $Id: pukiwiki_func.php,v 1.82 2007/06/13 23:13:26 nao-pon Exp $
 	// Copyright (C) 2003-2006 PukiWiki Developers Team
 	// License: GPL v2 or (at your option) any later version
 	//

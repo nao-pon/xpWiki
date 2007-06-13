@@ -1,7 +1,7 @@
 <?php
 //
 // Created on 2006/10/02 by nao-pon http://hypweb.net/
-// $Id: xpwiki_func.php,v 1.70 2007/06/12 01:17:42 nao-pon Exp $
+// $Id: xpwiki_func.php,v 1.71 2007/06/13 23:13:26 nao-pon Exp $
 //
 class XpWikiFunc extends XpWikiXoopsWrapper {
 
@@ -2067,19 +2067,26 @@ EOD;
 	
 	// 大文字小文字を正しいページ名に矯正する
 	function get_pagename_realcase (& $page) {
-		if ($this->is_page($page) || strpos($page, '/') === false) {
-			$query = 'SELECT `name` FROM `'.$this->xpwiki->db->prefix($this->root->mydirname.'_pginfo').'` WHERE `name_ci` = \''.addslashes($page).'\' LIMIT 1';
-			if ($result = $this->xpwiki->db->query($query)) {
-				list($fixed_page) = $this->xpwiki->db->fetchRow($result);
-				if ($fixed_page) $page = $fixed_page;
+		
+		if ($this->is_page($page)) return $page;
+		
+		$query = 'SELECT `name` FROM `'.$this->xpwiki->db->prefix($this->root->mydirname.'_pginfo').'` WHERE `name_ci` = \''.addslashes($page).'\' LIMIT 1';
+		if ($result = $this->xpwiki->db->query($query)) {
+			list($fixed_page) = $this->xpwiki->db->fetchRow($result);
+			if ($fixed_page) {
+				$page = $fixed_page;
+				return $page;
 			}
-		} else {
+		}
+
+		if (strpos($page, '/') !== false) {
 			// ページがなくて多階層の場合は上層ページを検査する
 			$base = basename($page);
 			$dir = dirname($page);
 			$this->get_pagename_realcase($dir);
 			$page = $dir.'/'.$base;
 		}
+		
 		return $page;
 	}
 	
