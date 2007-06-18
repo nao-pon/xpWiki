@@ -1,7 +1,7 @@
 <?php
 /*
  * Created on 2007/04/23 by nao-pon http://hypweb.net/
- * $Id: ext_autolink.php,v 1.10 2007/06/06 09:19:52 nao-pon Exp $
+ * $Id: ext_autolink.php,v 1.11 2007/06/18 05:37:11 nao-pon Exp $
  */
 class XpWikiPukiExtAutoLink {
 	// External AutoLinks
@@ -80,8 +80,7 @@ class XpWikiPukiExtAutoLink {
 		}
 	}
 	function get_ext_autolink($autolink, $valid) {
-		static $done = array();
-		
+
 		// check valid pages.
 		if (is_string($valid) && isset($this->root->vars['page'])) {
 			$_check = false;
@@ -115,6 +114,11 @@ class XpWikiPukiExtAutoLink {
 			$this->ext_autolink_own = $autolink['url'];
 		}
 		
+		// plain_db_write() から呼ばれている時自己Wiki以外はパス
+		if (!empty($this->root->rtf['is_init']) && $this->ext_autolink_own !== '') {
+			return '';
+		}
+		
 		$autolink['base'] = trim($autolink['base'],'/');
 		
 		$this->ext_autolink_enc_conv = (strtoupper($this->cont['CONTENT_CHARSET']) !== strtoupper($autolink['enc']));
@@ -129,8 +133,10 @@ class XpWikiPukiExtAutoLink {
 		$cache = $this->cont['CACHE_DIR'].md5($target).'.extautolink';
 		
 		// 重複登録チェック
-		if (isset($done[$this->xpwiki->pid][$target])) array('',0);
-		$done[$this->xpwiki->pid][$target] = true;
+		if (isset($this->root->rtf['get_ext_autolink_done'][$target])) {
+			return '';
+		}
+		$this->root->rtf['get_ext_autolink_done'][$target] = true;
 		
 		$cache_min = intval(max($autolink['cache'], 10));
 		// 自己xpWiki以外 & キャッシュあり & キャッシュが有効範囲
