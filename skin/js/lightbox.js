@@ -16,7 +16,7 @@
 // -----------------------------------------------------------------------------------
 //
 //  edited by nao-pon - http://hypweb.net/
-//  $Id: lightbox.js,v 1.6 2006/12/19 11:20:48 nao-pon Exp $
+//  $Id: lightbox.js,v 1.7 2007/06/18 05:28:05 nao-pon Exp $
 //
 // -----------------------------------------------------------------------------------
 
@@ -191,7 +191,7 @@ Lightbox.prototype = {
 		objLoading.appendChild(objLoadingLink);
 
 		var objLoadingImage = document.createElement("img");
-		objLoadingImage.setAttribute('src', './skin/loader.php?src=loading.gif');
+		objLoadingImage.setAttribute('src', '$wikihelper_root_url/skin/loader.php?src=loading.gif');
 		objLoadingLink.appendChild(objLoadingImage);
 
 		var objImageDataContainer = document.createElement("div");
@@ -335,7 +335,7 @@ Lightbox.prototype = {
 		}
 		
 		this.timer = setTimeout(function(){
-			this.imgPreloader.src = './skin/loader.php?src=timeout.gif';
+			this.imgPreloader.src = '$wikihelper_root_url/skin/loader.php?src=timeout.gif';
 		}.bind(this),lightbox_timeout);
 	},
 	
@@ -357,7 +357,7 @@ Lightbox.prototype = {
 		var rc = eval(Req.responseText);
 		if (rc != 200)
 		{
-			this.imgPreloader.src = './skin/loader.php?src=notfound.gif';
+			this.imgPreloader.src = '$wikihelper_root_url/skin/loader.php?src=notfound.gif';
 		}
 	},
 	
