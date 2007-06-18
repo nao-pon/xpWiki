@@ -1,7 +1,7 @@
 <?php
 //
 // Created on 2006/10/25 by nao-pon http://hypweb.net/
-// $Id: code.inc.php,v 1.7 2007/06/07 08:55:33 nao-pon Exp $
+// $Id: code.inc.php,v 1.8 2007/06/18 05:30:32 nao-pon Exp $
 //
 
 class xpwiki_plugin_code extends xpwiki_plugin {
@@ -65,14 +65,11 @@ class xpwiki_plugin_code extends xpwiki_plugin {
 
 		$this->cont['PLUGIN_CODE_CONFIG_PAGE_MIME'] =  'plugin/code/mimetype';
 		$this->cont['PLUGIN_CODE_CONFIG_PAGE_EXTENSION'] =  'plugin/code/extension';
-
+		
+		$this->cont['PLUGIN_CODE_LINE_MAX'] = 25; // Show max line count
+		$this->cont['PLUGIN_CODE_LINE_HEIGHT'] = 1.2; // style line-height: (em)
 	}
 
-	function pluing_code_init()
-	{
-	//	global $javascript;
-		$this->root->javascript = 1;
-	}
 	function plugin_code_action()
 	{
 	//	global $vars;
@@ -142,8 +139,12 @@ class xpwiki_plugin_code extends xpwiki_plugin {
 			if (! $this->_plugin_code_check_argment($args[$i], $option))
 				$this->_plugin_code_get_region($args[$i], $end, $begin);
 		}
+		$data = array();
 		$multiline = $this->_plugin_code_multiline_argment($arg, $data, $lang, $option, $end, $begin);
-
+		
+		$data['data'] = rtrim($data['data']) . "\n";
+		$line_cnt = count(explode("\n", $data['data']));
+		
 		if ($this->cont['PLUGIN_CODE_CACHE'] && ! $multiline) {
 			list($html, $option) = $this->_plugin_code_read_cache($arg);
 			if ($html != '' or $html != null)
@@ -160,17 +161,22 @@ class xpwiki_plugin_code extends xpwiki_plugin {
 		}
 		$lines = $data['data'];
 		$title = @$data['title'];
-
+		
 		$_err = error_reporting(E_ALL ^ E_NOTICE); // orz...
 		$highlight = new XpWikiCodeHighlight($this->xpwiki);
 		$lines = $highlight->highlight($lang, $lines, $option, $end, $begin);
 		error_reporting($_err);
+
+		if ($option['outline']) $line_cnt += 1 * $this->cont['PLUGIN_CODE_LINE_HEIGHT'];
+				
+		$styles = array();
+		$styles[] = 'height:' . (min($line_cnt, $this->cont['PLUGIN_CODE_LINE_MAX']) * $this->cont['PLUGIN_CODE_LINE_HEIGHT'] + 0.3) . 'em;';
+		$styles[] = 'overflow:auto;';
 		
-		$style = (true || $this->root->is_table_theme)? ' style=overflow:auto;' : '';
 		if ($lang === 'pre') {
-			$lines = '<div class="'.$lang.'">'.$lines.'</div>';
+			$lines = '<div class="'.$lang.'" style="'.join('',$styles).'">'.$lines.'</div>';
 		} else {
-			$lines = '<div class="pre"><div class="'.$lang.'">'.$lines.'</div></div>';
+			$lines = '<div class="pre" style="'.join('',$styles).'"><div class="'.$lang.'">'.$lines.'</div></div>';
 		}
 
 		if ($option['outline']) {
@@ -211,9 +217,9 @@ class xpwiki_plugin_code extends xpwiki_plugin {
 		list(,,,,,,,,$md5) = array_pad(@file($this->cont['UPLOAD_DIR'].$file.".log"),9,"");
 		$md5 = trim($md5);
 
-		$fp = fopen($this->cont['CACHE_DIR'].$file.'.code', 'w') or
+		$fp = fopen($this->cont['CACHE_DIR'].'plugin/'.$file.'.code', 'wb') or
 			$this->func->die_message('Cannot write cache file ' .
-					$this->cont['CACHE_DIR']. $file .'.code'.
+					$this->cont['CACHE_DIR'].'plugin/'. $file .'.code'.
 					'<br />Maybe permission is not writable or filename is too long');
 
 		set_file_buffer($fp, 0);
@@ -251,10 +257,10 @@ class xpwiki_plugin_code extends xpwiki_plugin {
 		/* Read file data */
 		//$fdata = '';
 		//$filelines = file($this->cont['CACHE_DIR'].'code_'.$file.'.html');
-		if (!file_exists($this->cont['CACHE_DIR'].$file.'.code')) {
+		if (!file_exists($this->cont['CACHE_DIR'].'plugin/'.$file.'.code')) {
 			return array("",array());
 		}
-		$fdata = join('', file($this->cont['CACHE_DIR'].$file.'.code'));
+		$fdata = join('', file($this->cont['CACHE_DIR'].'plugin/'.$file.'.code'));
 
 		//foreach ($filelines as $line)
 		//	$fdata .= $line;
@@ -633,21 +639,22 @@ class xpwiki_plugin_code extends xpwiki_plugin {
 	{
 		if ($number === null && $outline === null)
 			return $text;
-
+		
+		$html = '';
 		if ($this->cont['PLUGIN_CODE_TABLE']) {
-			@$html .= '<table class="'.$this->cont['PLUGIN_CODE_HEADER']
+			$html .= '<table class="'.$this->cont['PLUGIN_CODE_HEADER']
 				.'table" border="0" cellpadding="0" cellspacing="0"><tr>';
 			if ($number !== null)
-				$html .= '<td>'.$number.'</td>';
+				$html .= '<td style="line-height:'.$this->cont['PLUGIN_CODE_LINE_HEIGHT'].'em;">'.$number.'</td>';
 			if ($outline !== null)
-				$html .= '<td>'.$outline.'</td>';
-			$html .= '<td>'.$text.'</td></tr></table>';
+				$html .= '<td style="line-height:'.$this->cont['PLUGIN_CODE_LINE_HEIGHT'].'em;">'.$outline.'</td>';
+			$html .= '<td style="line-height:'.$this->cont['PLUGIN_CODE_LINE_HEIGHT'].'em;">'.$text.'</td></tr></table>';
 		} else {
 			if ($number !== null)
-				$html .= '<div class="'.$this->cont['PLUGIN_CODE_HEADER'].'number">'.$number.'</div>';
+				$html .= '<div class="'.$this->cont['PLUGIN_CODE_HEADER'].'number" style="line-height:'.$this->cont['PLUGIN_CODE_LINE_HEIGHT'].'em;">'.$number.'</div>';
 			if ($outline !== null)
-				$html .= '<div class="'.$this->cont['PLUGIN_CODE_HEADER'].'outline">'.$outline.'</div>';
-			$html .= '<div class="'.$this->cont['PLUGIN_CODE_HEADER'].'src">'.$text.'</div>'
+				$html .= '<div class="'.$this->cont['PLUGIN_CODE_HEADER'].'outline" style="line-height:'.$this->cont['PLUGIN_CODE_LINE_HEIGHT'].'em;">'.$outline.'</div>';
+			$html .= '<div class="'.$this->cont['PLUGIN_CODE_HEADER'].'src" style="line-height:'.$this->line_height.'em">'.$text.'</div>'
 			. '<div style="clear:both;"><br style="display:none;" /></div>';
 		}
 
