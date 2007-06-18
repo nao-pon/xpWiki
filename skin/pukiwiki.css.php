@@ -1,6 +1,6 @@
 <?php
 // PukiWiki - Yet another WikiWikiWeb clone.
-// $Id: pukiwiki.css.php,v 1.24 2007/06/07 08:55:33 nao-pon Exp $
+// $Id: pukiwiki.css.php,v 1.25 2007/06/18 05:31:12 nao-pon Exp $
 // Copyright (C)
 //   2002-2005 PukiWiki Developers Team
 //   2001-2002 Originally written by yu-ji
@@ -189,9 +189,9 @@ $class dt {
 
 /* Pre base */
 $class div.pre {
-	max-height: 420px;
 	width: <?php echo $pre_width ?>;
 	overflow: auto;
+	margin: 10px;
 }
 
 $class pre {
