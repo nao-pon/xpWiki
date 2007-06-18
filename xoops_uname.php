@@ -17,8 +17,9 @@ $use_utf8 = ($enc === 'UTF-8');
 if ($q !== "") {
 	
 	if ($use_mb) {
-		$q = addslashes(mb_convert_encoding($q, $enc, 'UTF-8'));
+		$q = mb_convert_encoding($q, $enc, 'UTF-8');
 	}
+	$q = addslashes($q);
 
 	$where1 = " WHERE `uname` LIKE '".$q."%'";
 	$where2 = " WHERE `uname` LIKE '%".$q."%' AND `uname` NOT LIKE '".$q."%'";
@@ -62,9 +63,9 @@ if ($q !== "") {
 $oq = '"'.str_replace('"','\"',$oq).'"';
 $ret = join(", ",$unames);
 if ($use_mb) {
-	$ret = addslashes(mb_convert_encoding($ret, 'UTF-8', $enc));
+	$ret = mb_convert_encoding($ret, 'UTF-8', $enc);
 }
-$ret = "this.setSuggest($oq,new Array(".$ret."));";
+$ret = 'this.setSuggest(' . $oq . ',new Array(' . $ret . '));';
 
 header ("Content-Type: text/html; charset=UTF-8");
 header ("Content-Length: ".strlen($ret));
