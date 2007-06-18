@@ -1,7 +1,7 @@
 <?php
 //
 // Created on 2006/10/02 by nao-pon http://hypweb.net/
-// $Id: xpwiki_func.php,v 1.71 2007/06/13 23:13:26 nao-pon Exp $
+// $Id: xpwiki_func.php,v 1.72 2007/06/18 05:43:47 nao-pon Exp $
 //
 class XpWikiFunc extends XpWikiXoopsWrapper {
 
@@ -484,23 +484,19 @@ EOD;
 		return ;
 	}
 	
-	function get_additional_headtags (& $obj) {
+	function get_additional_headtags () {
 		// Pre Tags
-		$head_pre_tag = ! empty($obj->root->head_pre_tags) ? join("\n", $obj->root->head_pre_tags) ."\n" : '';
+		$head_pre_tag = ! empty($this->root->head_pre_tags) ? join("\n", $this->root->head_pre_tags) ."\n" : '';
 		
 		// Tags will be inserted into <head></head>
-		$head_tag = ! empty($obj->root->head_tags) ? join("\n", $obj->root->head_tags) ."\n" : '';
+		$head_tag = ! empty($this->root->head_tags) ? join("\n", $this->root->head_tags) ."\n" : '';
 		
 		if (empty($this->cont['PKWK_READONLY'])) {
 			// WikiHelper JavaScript
 			$head_tag .= <<<EOD
-<script type="text/javascript" src="{$obj->cont['HOME_URL']}skin/loader.php?src=default.{$obj->cont['UI_LANG']}{$obj->cont['FILE_ENCORD_EXT']}.js"></script>
+<script type="text/javascript" src="{$this->cont['HOME_URL']}skin/loader.php?src=default.{$this->cont['UI_LANG']}{$this->cont['FILE_ENCORD_EXT']}.js"></script>
 EOD;
 		}
-		
-		// reformat
-		$obj->root->head_tags = array();
-		$obj->root->head_pre_tags = array();
 		
 		return array($head_pre_tag, $head_tag);
 	}
@@ -1338,7 +1334,7 @@ EOD;
 						" values('$s_name','$title','$buildtime','$editedtime','$uid','$ucd','$uname','0','$einherit','$eaids','$egids','$vinherit','$vaids','$vgids','$lastuid','$lastucd','$lastuname','0','$reading','$s_name')";
 			}
 
-			$result = $this->xpwiki->db->query($query);
+			$result = $this->xpwiki->db->queryF($query);
 			$this->need_update_plaindb($page,"insert");
 			
 			//投稿数カウントアップ
@@ -1359,7 +1355,7 @@ EOD;
 					"`lastuname`='$lastuname'";
 			if ($reading) $value .= " ,`reading`='$reading'";
 			$query = "UPDATE ".$this->xpwiki->db->prefix($this->root->mydirname."_pginfo")." SET $value WHERE pgid = '$id' LIMIT 1";
-			$result = $this->xpwiki->db->query($query);
+			$result = $this->xpwiki->db->queryF($query);
 			$this->need_update_plaindb($page,"update");
 		}
 		
@@ -1369,7 +1365,7 @@ EOD;
 	
 			$value = "editedtime=0";
 			$query = "UPDATE ".$this->xpwiki->db->prefix($this->root->mydirname."_pginfo")." SET $value WHERE pgid = '$id' LIMIT 1";
-			$result = $this->xpwiki->db->query($query);
+			$result = $this->xpwiki->db->queryF($query);
 			$this->plain_db_write($page,"delete");
 		}
 
@@ -1475,8 +1471,6 @@ EOD;
 				)
 			);
 
-//if ($init) echo memory_get_usage().':'.basename(__FILE__).'-'.__LINE__.'<br />';
-			//$pobj = new XpWiki($this->root->mydirname);
 			$pobj = & XpWiki::getSingleton($this->root->mydirname);
 			$pobj->init($page);
 			$pobj->root->userinfo['admin'] = true;
@@ -1485,7 +1479,6 @@ EOD;
 			$pobj->root->rtf['is_init'] = true;
 			$pobj->execute();
 			$data = $pobj->body;
-//if ($init) echo memory_get_usage().':'.basename(__FILE__).'-'.__LINE__.'<hr />';
 
 			// remove javascript
 			$data = preg_replace("#<script.+?/script>#i","",$data);
@@ -1552,7 +1545,7 @@ EOD;
 			}
 		}
 		$data = addslashes(preg_replace("/[\s]+/","",$data));
-		//echo $data."<hr>";
+
 		// 新規作成
 		if ($action == "insert")
 		{
@@ -1571,7 +1564,6 @@ EOD;
 			}
 			
 			//リンク元ページ
-			//global $WikiName,$autolink,$nowikiname,$search_non_list,$wiki_common_dirs;
 			// $pageがAutoLinkの対象となり得る場合
 			if ($this->root->autolink
 				and (preg_match('/^'.$this->root->WikiName.'$/',$page) ? $this->root->nowikiname : strlen($page) >= $this->root->autolink))
@@ -1580,21 +1572,18 @@ EOD;
 				$this->root->search_non_list = 1;
 				
 				$lookup_page = $page;
-				/*
+
 				// 検索ページ名の共通リンクディレクトリを省略
-				if (count($this->root->wiki_common_dirs))
-				{
-					foreach($this->root->wiki_common_dirs as $wiki_common_dir)
-					{
-						if (strpos($lookup_page,$wiki_common_dir) === 0)
-						{
-							$lookup_page = str_replace($wiki_common_dir,"",$lookup_page);
+				foreach($this->root->ext_autolinks as $valid => $autolink) {
+					if ($autolink['url'] === '') {
+						if (strpos($lookup_page, $autolink['url']) === 0) {
+							$lookup_page = str_replace($autolink['url'], '', $lookup_page);
 							if ($this->root->autolink > strlen($lookup_page)){$lookup_page = $page;}
-							break;
+							break;							
 						}
 					}
 				}
-				*/
+				
 				// 検索実行
 				$pages = (@ $this->root->rtf['is_init'])? $this->do_source_search($lookup_page,'AND',TRUE) : $this->do_search($lookup_page,'AND',TRUE);
 				
