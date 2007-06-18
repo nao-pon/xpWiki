@@ -109,7 +109,7 @@ div.xpwiki_$dir div.pre_table
     border-right:  #888899 1px solid;
     border-bottom: #888899 1px solid;
     border-left:   #DDDDEE 1px solid;
-    margin: 1em 2em 0.5em 1em;
+    margin: 0px;
     white-space: pre;
     width: auto;
 }
