@@ -24,8 +24,9 @@ foreach (array('SCRIPT_NAME', 'SERVER_ADMIN', 'SERVER_NAME',
 
 /////////////////////////////////////////////////
 // Init grobal variables
-
+$root->rtf          = array(); // Run time flag
 $root->foot_explain = array();	// Footnotes
+$root->rtf['note_id'] = 0;      // Footnotes id 
 $root->related      = array();	// Related pages
 $root->notyets      = array();	// Not yet pages
 $root->head_tags    = array();	// XHTML tags in <head></head>

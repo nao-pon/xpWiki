@@ -286,23 +286,25 @@ EOD;
 	}
 
 	function set($arr, $page) {
-		//		global $foot_explain, $vars;
-		static $note_id = 0;
-
+		
+		static $base_id;
+		
+		@ $base_id++;
+		
 		list (, $body) = $this->splice($arr);
 
 		if ($this->cont['PKWK_ALLOW_RELATIVE_FOOTNOTE_ANCHOR']) {
 			$script = '';
 		} else {
-			$script = $this->func->get_script_uri().'?'.rawurlencode($page);
+			$script = $this->func->get_page_uri($page, true);
 		}
 
-		$id = ++ $note_id;
+		$id = ++ $this->root->rtf['note_id'];
 		$note = $this->func->make_link($body);
 		$page = isset ($this->root->vars['page']) ? rawurlencode($this->root->vars['page']) : '';
 
 		// Footnote
-		$this->root->foot_explain[$id] = '<a id="notefoot_'.$id.'" name="notefoot_'.$id.'" href="'.$script.'#notetext_'.$id.'" class="note_super">*'.$id.'</a>'."\n".'<span class="small">'.$note.'</span><br />';
+		$this->root->foot_explain[$id] = '<a id="notefoot_'.$base_id.'_'.$id.'" name="notefoot_'.$base_id.'_'.$id.'" href="'.$script.'#notetext_'.$base_id.'_'.$id.'" class="note_super">*'.$id.'</a>'."\n".'<span class="small">'.$note.'</span><br />';
 
 		// A hyperlink, content-body to footnote
 		if (!is_numeric($this->cont['PKWK_FOOTNOTE_TITLE_MAX']) || $this->cont['PKWK_FOOTNOTE_TITLE_MAX'] <= 0) {
@@ -314,7 +316,7 @@ EOD;
 			$abbr = (mb_strlen($title) < $count) ? '...' : '';
 			$title = ' title="'.$title.$abbr.'"';
 		}
-		$name = '<a id="notetext_'.$id.'" name="notetext_'.$id.'" href="'.$script.'#notefoot_'.$id.'" class="note_super"'.$title.'>*'.$id.'</a>';
+		$name = '<a id="notetext_'.$base_id.'_'.$id.'" name="notetext_'.$base_id.'_'.$id.'" href="'.$script.'#notefoot_'.$base_id.'_'.$id.'" class="note_super"'.$title.'>*'.$id.'</a>';
 
 		return parent :: setParam($page, $name, $body);
 	}

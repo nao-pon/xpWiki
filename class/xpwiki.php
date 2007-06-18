@@ -1,7 +1,7 @@
 <?php
 //
 // Created on 2006/09/29 by nao-pon http://hypweb.net/
-// $Id: xpwiki.php,v 1.40 2007/06/13 23:10:41 nao-pon Exp $
+// $Id: xpwiki.php,v 1.41 2007/06/18 05:45:29 nao-pon Exp $
 //
 
 class XpWiki {
@@ -314,7 +314,7 @@ class XpWiki {
 			}
 		}
 		// Head Tags
-		list($head_pre_tag, $head_tag) = $this->func->get_additional_headtags($this);
+		list($head_pre_tag, $head_tag) = $this->func->get_additional_headtags();
 		
 		// ╫пно
 		$base = "b_".$this->root->mydirname;
@@ -389,7 +389,11 @@ EOD;
 				$text = join('', $texts);
 			} else {
 				$text = $this->func->convert_html($text);
-				list($head_pre_tag, $head_tag) = $this->func->get_additional_headtags($this);
+				// List of footnotes
+				ksort($this->root->foot_explain, SORT_NUMERIC);
+				$text .= ! empty($this->root->foot_explain) ? $this->root->note_hr . join("\n", $this->root->foot_explain) : '';
+
+				list($head_pre_tag, $head_tag) = $this->func->get_additional_headtags();
 				@ touch ($cache);
 				if (is_writable($cache)) {
 					if ($fp = fopen($cache, 'wb')) {
@@ -400,7 +404,11 @@ EOD;
 			}
 		} else {
 			$text = $this->func->convert_html($text);
-			list($head_pre_tag, $head_tag) = $this->func->get_additional_headtags($this);
+			// List of footnotes
+			ksort($this->root->foot_explain, SORT_NUMERIC);
+			$text .= ! empty($this->root->foot_explain) ? $this->root->note_hr . join("\n", $this->root->foot_explain) : '';
+
+			list($head_pre_tag, $head_tag) = $this->func->get_additional_headtags();
 		}
 		
 		$csstag = '';

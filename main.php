@@ -111,7 +111,7 @@ if ($xpwiki->runmode == "xoops") {
 	}
 	$dirname = $xpwiki->root->mydirname;
 	// Head Tags
-	list($head_pre_tag, $head_tag) = $xpwiki->func->get_additional_headtags($xpwiki->func);
+	list($head_pre_tag, $head_tag) = $xpwiki->func->get_additional_headtags();
 	
 	echo <<<EOD
 $head_pre_tag
