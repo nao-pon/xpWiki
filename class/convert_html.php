@@ -926,6 +926,11 @@ class XpWikiBody extends XpWikiElement {
 
 			// The first character
 			$head = $line {0};
+			
+			// <, <<, <<< only to escape blockquote.
+			if ($head === '<' and !preg_match('/^<{1,3}\s*$/', $line)) {
+				$head = '';
+			}
 
 			// Heading
 			if ($head === '*') {
