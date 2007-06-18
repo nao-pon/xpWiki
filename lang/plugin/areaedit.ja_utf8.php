@@ -1,7 +1,7 @@
 <?php
 /*
  * Created on 2007/06/05 by nao-pon http://hypweb.net/
- * $Id: areaedit.ja_utf8.php,v 1.1 2007/06/05 00:33:06 nao-pon Exp $
+ * $Id: areaedit.ja_utf8.php,v 1.2 2007/06/18 05:25:10 nao-pon Exp $
  */
 
 $msg = array(
