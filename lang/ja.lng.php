@@ -1,6 +1,6 @@
 <?php
 // PukiWiki - Yet another WikiWikiWeb clone.
-// $Id: ja.lng.php,v 1.14 2007/04/19 13:32:19 nao-pon Exp $
+// $Id: ja.lng.php,v 1.15 2007/06/21 22:43:53 nao-pon Exp $
 // Copyright (C)
 //   2002-2005 PukiWiki Developers Team
 //   2001-2002 Originally written by yu-ji
@@ -12,7 +12,7 @@
 //   している必要があります
 
 // Encoding hint
-$root->_LANG['encode_hint']['ja'] = 'ぷ';
+$_LANG['encode_hint']['ja'] = 'ぷ';
 
 // Q & A 認証
 $root->riddles = array(
