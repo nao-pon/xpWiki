@@ -1,6 +1,6 @@
 <?php
 // PukiWiki - Yet another WikiWikiWeb clone
-// $Id: pukiwiki.ini.php,v 1.40 2007/06/07 08:55:33 nao-pon Exp $
+// $Id: pukiwiki.ini.php,v 1.41 2007/06/21 01:22:36 nao-pon Exp $
 // Copyright (C)
 //   2002-2006 PukiWiki Developers Team
 //   2001-2002 Originally written by yu-ji
@@ -202,6 +202,10 @@ $root->allow_pagecomment = 1;
 /////////////////////////////////////////////////
 // _Disable_ WikiName auto-linking
 $root->nowikiname = 0;
+
+/////////////////////////////////////////////////
+// Disable slashes comment out
+$root->no_slashes_commentout = 0;
 
 /////////////////////////////////////////////////
 // 2階層以上で basename が 数字と- のみの場合

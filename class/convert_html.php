@@ -882,7 +882,7 @@ class XpWikiBody extends XpWikiElement {
 			$line = array_shift($lines);
 
 			// Escape comments
-			if (substr($line, 0, 2) === '//')
+			if (! $this->root->no_slashes_commentout && substr($line, 0, 2) === '//')
 				continue;
 
 			if (preg_match('/^(LEFT|CENTER|RIGHT):(.*)$/', $line, $matches)) {
