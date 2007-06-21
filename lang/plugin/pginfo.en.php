@@ -1,17 +1,18 @@
 <?php
 //
 // Created on 2006/11/09 by nao-pon http://hypweb.net/
-// $Id: pginfo.en.php,v 1.3 2007/04/20 06:50:17 nao-pon Exp $
+// $Id: pginfo.en.php,v 1.4 2007/06/21 01:30:21 nao-pon Exp $
 //
 
 $msg = array(
 	// for page permission
 	'title_permission' => 'Permission setting of $1',
+	'title_permission_default' => 'Default setting of permission',
 	'edit_permission' => 'Editable Permission',
 	'view_parmission' => 'Readable Permission',
 	'parmission_setting' => 'Detailed setting of permission(An administrator & administer group are always admitted.)',
 	'lower_page_inherit' => 'Inherit setting to a lower page.',
-	'inherit_forced' => 'Inherited forcibly. (cannot set it in a lower page)',
+	'inherit_forced' => 'Inherited forcibly. (cannot set it in a lower page)<br />&nbsp;&nbsp;&nbsp;* When you choose this option, it is overwritten the value that was already set in a page with a new value.',
 	'inherit_default' => 'Inherited as the default value. (can set it in a lower page)',
 	'inherit_onlythis' => 'Not Inherited. (Setting only for this page)',
 	'permission_none' => 'Not set permission. (Reset value)',
