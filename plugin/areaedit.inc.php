@@ -3,7 +3,7 @@ class xpwiki_plugin_areaedit extends xpwiki_plugin {
 /////////////////////////////////////////////////
 // PukiWiki - Yet another WikiWikiWeb clone.
 //
-// $Id: areaedit.inc.php,v 1.3 2007/06/21 01:28:43 nao-pon Exp $
+// $Id: areaedit.inc.php,v 1.4 2007/06/21 22:52:28 nao-pon Exp $
 //
 /* 
 *プラグイン areaedit
@@ -77,6 +77,7 @@ class xpwiki_plugin_areaedit extends xpwiki_plugin {
 <div style="margin:0px 0px 0px auto;text-align:right;" title="$areaedit_start_no">
 {$this->msg['msg_cannotedit']}
 </div>
+<div id="{$id}">
 EOD;
 		}
 		if ( $nofreeze == 0 and $this->func->is_freeze($page) ){
@@ -84,6 +85,7 @@ EOD;
 <div style="margin:0px 0px 0px auto;text-align:right;">
 [<a href="{$this->root->script}?cmd=unfreeze&amp;page=$f_page" title="$areaedit_start_no">{$this->root->_msg_unfreeze}</a>]
 </div>
+<div id="{$id}">
 EOD;
 		}
 		if ( $collect ) {
@@ -108,6 +110,7 @@ EOD;
 </div>
 </form>
 </div>
+<div id="{$id}">
 EOD;
 		} else {
 			$id = "area".substr(md5($page.$areaedit_no), mt_rand(0, 24), 7);
