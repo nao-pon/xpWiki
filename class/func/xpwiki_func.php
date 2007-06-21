@@ -1,7 +1,7 @@
 <?php
 //
 // Created on 2006/10/02 by nao-pon http://hypweb.net/
-// $Id: xpwiki_func.php,v 1.73 2007/06/21 01:24:33 nao-pon Exp $
+// $Id: xpwiki_func.php,v 1.74 2007/06/21 22:51:46 nao-pon Exp $
 //
 class XpWikiFunc extends XpWikiXoopsWrapper {
 
@@ -1871,6 +1871,7 @@ EOD;
 	{
 		if (!$db) return parent::do_search($words, $type, $non_format, $base);
 		
+		
 		$keywords = preg_split('/\s+/', $words, -1, PREG_SPLIT_NO_EMPTY);
 		
 		$fields = explode(',', $field);
@@ -1955,7 +1956,7 @@ EOD;
 		$retval .= '</ul>' . "\n";
 	
 		$retval .= str_replace('$1', $s_word, str_replace('$2', count($pages),
-			str_replace('$3', $count, $b_type ? $this->root->_msg_andresult : $this->root->_msg_orresult)));
+			str_replace('$3', $count, ($andor === 'AND') ? $this->root->_msg_andresult : $this->root->_msg_orresult)));
 	
 		return $retval;
 	}
