@@ -1,17 +1,18 @@
 <?php
 //
 // Created on 2006/11/09 by nao-pon http://hypweb.net/
-// $Id: pginfo.ja_utf8.php,v 1.1 2007/05/22 02:32:54 nao-pon Exp $
+// $Id: pginfo.ja_utf8.php,v 1.2 2007/06/21 01:30:21 nao-pon Exp $
 //
 
 $msg = array(
 	// for page permission
 	'title_permission' => '$1 の権限設定',
+	'title_permission_default' => '権限の規定値設定',
 	'edit_permission' => '編集権限の設定',
 	'view_parmission' => '閲覧権限の設定',
 	'parmission_setting' => '権限の詳細設定(管理者, 管理グループは常に許可されます)',
 	'lower_page_inherit' => '下層ページへの継承設定',
-	'inherit_forced' => '強制的に継承(下層ページで設定できません)',
+	'inherit_forced' => '強制的に継承(下層ページで設定できません)<br />&nbsp;&nbsp;&nbsp;※このオプションを選択すると現在独自に権限設定されているページも今回の値で書き換わります。',
 	'inherit_default' => '規定値として継承(下層ページで設定できます)',
 	'inherit_onlythis' => '継承させない(このページのみの設定)',
 	'permission_none' => '権限を設定しない(設定解除)',
