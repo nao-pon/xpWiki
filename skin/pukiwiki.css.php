@@ -1,6 +1,6 @@
 <?php
 // PukiWiki - Yet another WikiWikiWeb clone.
-// $Id: pukiwiki.css.php,v 1.25 2007/06/18 05:31:12 nao-pon Exp $
+// $Id: pukiwiki.css.php,v 1.26 2007/06/21 01:28:43 nao-pon Exp $
 // Copyright (C)
 //   2002-2005 PukiWiki Developers Team
 //   2001-2002 Originally written by yu-ji
@@ -450,13 +450,13 @@ $class .edit_form textarea {
 }
 
 /* pukiwiki.skin.php */
-$class div#header {
+$class div.header {
 	padding:0px;
 	margin:0px;
 	background-color: transparent;
 }
 
-$class div#navigator {
+$class div.navigator {
 <?php   if ($media === 'print') { ?>
 	display:none;
 <?php   } else { ?>
@@ -492,7 +492,7 @@ $class td.menubar {
 <?php   } ?>
 }
 
-$class div#menubar {
+$class div.menubar {
 <?php   if ($media === 'print') { ?>
 	display:none;
 <?php   } else { ?>
@@ -505,27 +505,27 @@ $class div#menubar {
 <?php   } ?>
 }
 
-$class div#menubar ul {
+$class div.menubar ul {
 	margin:0px 0px 0px .5em;
 	padding:0px 0px 0px .5em;
 }
 
-$class div#menubar ul li { line-height:110%; }
+$class div.menubar ul li { line-height:110%; }
 
-$class div#menubar h4 { font-size:110%; }
+$class div.menubar h4 { font-size:110%; }
 
-$class div#body {
+$class div.body {
 	padding:0px;
 	margin:0px 0px 0px .5em;
 }
 
-$class div#note {
+$class div.footnotes {
 	clear:both;
 	padding:0px;
 	margin:0px;
 }
 
-$class div#attach {
+$class div.attach {
 <?php   if ($media === 'print') { ?>
 	display:none;
 <?php   } else { ?>
@@ -536,7 +536,7 @@ $class div#attach {
 <?php   } ?>
 }
 
-$class div#toolbar {
+$class div.toolbar {
 <?php   if ($media === 'print') { ?>
         display:none;
 <?php   } else { ?>
@@ -547,13 +547,13 @@ $class div#toolbar {
 <?php   } ?>
 }
 
-$class div#lastmodified {
+$class div.lastmodified {
 	font-size:80%;
 	padding:0px;
 	margin:0px;
 }
 
-$class div#related {
+$class div.related {
 <?php   if ($media === 'print') { ?>
         display:none;
 <?php   } else { ?>
@@ -563,23 +563,23 @@ $class div#related {
 <?php   } ?>
 }
 
-$class div#footer {
+$class div.footer {
 	font-size:70%;
 	padding:0px;
 	margin:16px 0px 0px 0px;
 }
 
-$class div#banner {
+$class div.banner {
 	float:right;
 	margin-top:24px;
 }
 
-$class div#preview {
+$class div.preview {
 	color:inherit;
 	background-color:#F5F8FF;
 }
 
-$class img#logo {
+$class img.logo {
 <?php   if ($media === 'print') { ?>
 	display:none;
 <?php   } else { ?>

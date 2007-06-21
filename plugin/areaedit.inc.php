@@ -3,7 +3,7 @@ class xpwiki_plugin_areaedit extends xpwiki_plugin {
 /////////////////////////////////////////////////
 // PukiWiki - Yet another WikiWikiWeb clone.
 //
-// $Id: areaedit.inc.php,v 1.2 2007/06/05 23:47:01 nao-pon Exp $
+// $Id: areaedit.inc.php,v 1.3 2007/06/21 01:28:43 nao-pon Exp $
 //
 /* 
 *プラグイン areaedit
@@ -615,7 +615,7 @@ EOD;
 			$postdata_input = $this->func->drop_submit($this->func->convert_html($postdata_input));
 			
 			$body .= <<<EOD
-<div id="preview">
+<div class="preview">
   $postdata_input
 </div>
 EOD;

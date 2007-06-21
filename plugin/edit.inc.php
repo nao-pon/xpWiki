@@ -4,7 +4,7 @@ class xpwiki_plugin_edit extends xpwiki_plugin {
 
 
 	// PukiWiki - Yet another WikiWikiWeb clone.
-	// $Id: edit.inc.php,v 1.21 2007/06/08 08:53:52 nao-pon Exp $
+	// $Id: edit.inc.php,v 1.22 2007/06/21 01:28:43 nao-pon Exp $
 	// Copyright (C) 2001-2006 PukiWiki Developers Team
 	// License: GPL v2 or (at your option) any later version
 	//
@@ -95,7 +95,7 @@ class xpwiki_plugin_edit extends xpwiki_plugin {
 			$postdata = $this->func->make_str_rules($postdata);
 			$postdata = explode("\n", $postdata);
 			$postdata = $this->func->drop_submit($this->func->convert_html($postdata));
-			$body .= '<div id="preview">' . $postdata . '</div>' . "\n";
+			$body .= '<div class="preview">' . $postdata . '</div>' . "\n";
 		}
 		
 		// Q & A Ç§¾Ú
