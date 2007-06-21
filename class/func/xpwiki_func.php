@@ -1,7 +1,7 @@
 <?php
 //
 // Created on 2006/10/02 by nao-pon http://hypweb.net/
-// $Id: xpwiki_func.php,v 1.72 2007/06/18 05:43:47 nao-pon Exp $
+// $Id: xpwiki_func.php,v 1.73 2007/06/21 01:24:33 nao-pon Exp $
 //
 class XpWikiFunc extends XpWikiXoopsWrapper {
 
@@ -40,6 +40,9 @@ class XpWikiFunc extends XpWikiXoopsWrapper {
 			$die .= 'File is not found. (INI_FILE)' . "\n";
 		} else {
 			require($const['INI_FILE']);
+			if (file_exists($const['CACHE_DIR'] . 'pukiwiki.ini.php')) {
+				include ($const['CACHE_DIR'] . 'pukiwiki.ini.php');
+			}
 		}
 		if ($die) $this->die_message(nl2br("\n\n" . $die));
 	}
@@ -1096,6 +1099,30 @@ EOD;
 		
 		return array_reverse($ret);
 		
+	}
+	
+	// CACHE_DIR に Config ファイルを保存する
+	function save_config ($file = '', $section = '', $data = '') {
+		if (!$file || !$data || !$section) return;
+		$file = $this->cont['CACHE_DIR'].$file;
+		if (!file_exists($file)) {
+			touch($file);
+			$org = '';
+		} else {
+			$org = join('', file($file));
+			$org = preg_replace('/^<\?php\n(.*)\n\?>$/s', '$1', $org);
+		}
+		
+		$section_q = preg_quote($section,'#');
+		$org = preg_replace('#//<'.$section_q.'>.*?//<'.$section_q.'/>\n#s', '', $org);
+		$org .= '//<'.$section_q.'>'."\n".$data."\n".'//<'.$section_q.'/>'."\n";
+		
+		$org = '<?php' . "\n" . $org . "\n" . '?>';
+		
+		if ($fp = fopen($file, 'wb')) {
+			fwrite($fp, $org);
+			fclose($fp);
+		}
 	}
 
 /*----- DB Functions -----*/ 
