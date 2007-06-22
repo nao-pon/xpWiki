@@ -1,7 +1,7 @@
 <?php
 //
 // Created on 2006/10/02 by nao-pon http://hypweb.net/
-// $Id: xpwiki_func.php,v 1.74 2007/06/21 22:51:46 nao-pon Exp $
+// $Id: xpwiki_func.php,v 1.75 2007/06/22 08:04:46 nao-pon Exp $
 //
 class XpWikiFunc extends XpWikiXoopsWrapper {
 
@@ -675,12 +675,11 @@ EOD;
 			$vaids = explode('&', $pginfo['vaids']);
 			$_vg = array_merge($vgids, $this->root->userinfo['gids']);
 			$vgauth = (count($_vg) === count(array_unique($_vg)))? FALSE : TRUE;
-			
 			if (
 				$pginfo['vgids'] === 'all' || 
 				$pginfo['vaids'] === 'all' ||
 				$vgauth || 
-				in_array($this->root->userinfo['uid'], $vaids, true)
+				in_array((string)$this->root->userinfo['uid'], $vaids, true)
 			) {
 				$ret = TRUE;
 			}
@@ -724,7 +723,7 @@ EOD;
 				$pginfo['egids'] === 'all' || 
 				$pginfo['eaids'] === 'all' ||
 				$eauth || 
-				in_array($this->root->userinfo['uid'], $eaids, true)
+				in_array((string)$this->root->userinfo['uid'], $eaids, true)
 			) {
 				$ret = TRUE;
 			}
