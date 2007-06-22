@@ -1,7 +1,7 @@
 <?php
 /*
  * Created on 2007/06/01 by nao-pon http://hypweb.net/
- * $Id: inbn.en.php,v 1.1 2007/06/21 01:23:25 nao-pon Exp $
+ * $Id: isbn.en.php,v 1.1 2007/06/22 01:21:19 nao-pon Exp $
  * Thanks bokanta
  */
  
