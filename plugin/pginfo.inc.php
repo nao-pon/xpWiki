@@ -2,7 +2,7 @@
 /////////////////////////////////////////////////
 // PukiWiki - Yet another WikiWikiWeb clone.
 //
-// $Id: pginfo.inc.php,v 1.10 2007/06/21 01:30:21 nao-pon Exp $
+// $Id: pginfo.inc.php,v 1.11 2007/06/22 08:05:42 nao-pon Exp $
 //
 
 class xpwiki_plugin_pginfo extends xpwiki_plugin {
@@ -241,18 +241,18 @@ class xpwiki_plugin_pginfo extends xpwiki_plugin {
 			// pukiwiki.ini.php のデータ形式に変換
 			$dat = <<<EOD
 \$root->pginfo = array(
-	'uid'       => {$pginfo['uid']},
-	'ucd'       => '{$pginfo['ucd']}',
-	'uname'     => '{$pginfo['uname']}',
+	'uid'       => 0,
+	'ucd'       => '',
+	'uname'     => '',
 	'einherit'  => {$pginfo['einherit']},
 	'eaids'     => '{$pginfo['eaids']}',
 	'egids'     => '{$pginfo['egids']}',
 	'vinherit'  => {$pginfo['vinherit']},
 	'vaids'     => '{$pginfo['vaids']}',
 	'vgids'     => '{$pginfo['vgids']}',
-	'lastuid'   => {$pginfo['lastuid']},
-	'lastucd'   => '{$pginfo['lastucd']}',
-	'lastuname' => '{$pginfo['lastuname']}',
+	'lastuid'   => 0,
+	'lastucd'   => '',
+	'lastuname' => '',
 );
 EOD;
 			// Config保存
