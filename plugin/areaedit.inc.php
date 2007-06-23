@@ -3,7 +3,7 @@ class xpwiki_plugin_areaedit extends xpwiki_plugin {
 /////////////////////////////////////////////////
 // PukiWiki - Yet another WikiWikiWeb clone.
 //
-// $Id: areaedit.inc.php,v 1.4 2007/06/21 22:52:28 nao-pon Exp $
+// $Id: areaedit.inc.php,v 1.5 2007/06/23 10:02:11 nao-pon Exp $
 //
 /* 
 *プラグイン areaedit
@@ -70,8 +70,11 @@ class xpwiki_plugin_areaedit extends xpwiki_plugin {
 			$nofreeze = 0;
 			$noauth = 0;
 		}
-	
+		
+		$id = "area".substr(md5($page.$areaedit_no), mt_rand(0, 24), 7);
+		
 		$f_page	  = rawurlencode($page);
+		
 		if ( $noauth == 0 and  ! $this->func->edit_auth($page,FALSE,FALSE) ){
 			return <<<EOD
 <div style="margin:0px 0px 0px auto;text-align:right;" title="$areaedit_start_no">
@@ -113,7 +116,6 @@ EOD;
 <div id="{$id}">
 EOD;
 		} else {
-			$id = "area".substr(md5($page.$areaedit_no), mt_rand(0, 24), 7);
 			$js_tag = ' onmouseover="wikihelper_area_highlite(\''.$id.'\',1);" onmouseout="wikihelper_area_highlite(\''.$id.'\',0);"';
 
 			return <<<EOD
