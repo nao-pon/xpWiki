@@ -287,9 +287,7 @@ EOD;
 
 	function set($arr, $page) {
 		
-		static $base_id;
-		
-		@ $base_id++;
+		$base_id = $this->xpwiki->pid . '_' . $this->root->rtf['oid'];
 		
 		list (, $body) = $this->splice($arr);
 
