@@ -1,7 +1,7 @@
 <?php
 //
 // Created on 2006/09/29 by nao-pon http://hypweb.net/
-// $Id: xpwiki.php,v 1.41 2007/06/18 05:45:29 nao-pon Exp $
+// $Id: xpwiki.php,v 1.42 2007/06/23 10:05:00 nao-pon Exp $
 //
 
 class XpWiki {
@@ -21,7 +21,8 @@ class XpWiki {
 	var $breadcrumbs_array;
 	
 	var $iniVar;
-
+	
+	var $pid;
 
 	function XpWiki ($mydirname, $moddir='modules/') {
 		
@@ -30,11 +31,11 @@ class XpWiki {
 		$pid ++;
 		$this->pid = $pid;
 				
-		$this->root = new XpWikiRoot();
+		$this->root =& new XpWikiRoot();
 		$this->cont =& $this->root->c;
 		$this->root->mydirname = $mydirname;
 		
-		$this->func = new XpWikiFunc($this);
+		$this->func =& new XpWikiFunc($this);
 		$this->func->set_moduleinfo();
 
 		$this->root->mydirpath = $this->cont['ROOT_PATH'].$moddir.$mydirname;
@@ -60,7 +61,9 @@ class XpWiki {
 	}
 
 	function init($page = "") {
-
+		
+		static $oid;
+		
 		// GET, POST, COOKIE
 		// 基本的に直接操作しない
 		$this->root->get    = $_GET;
@@ -110,6 +113,15 @@ class XpWiki {
 		if ( stristr($_SERVER['HTTP_USER_AGENT'],'msie')) {
 			$this->root->pre_width = rawurlencode($this->root->pre_width_ie);
 		}
+
+		// Object id
+		if (isset($oid[$this->pid])) {
+			$oid[$this->pid]++;
+		} else {
+			$oid[$this->pid] = 1;
+		}
+		$this->root->rtf['oid'] = $oid[$this->pid];
+
 	}
 	
 	function execute() {
@@ -313,6 +325,9 @@ class XpWiki {
 				}
 			}
 		}
+		// List of footnotes
+		ksort($this->root->foot_explain, SORT_NUMERIC);
+		$this->body .= ! empty($this->root->foot_explain) ? $this->root->note_hr . join("\n", $this->root->foot_explain) : '';
 		// Head Tags
 		list($head_pre_tag, $head_tag) = $this->func->get_additional_headtags();
 		
