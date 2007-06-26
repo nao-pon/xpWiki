@@ -1,7 +1,7 @@
 <?php
 /*
  * Created on 2007/05/13 by nao-pon http://hypweb.net/
- * $Id: setup.php,v 1.2 2007/05/21 01:20:09 nao-pon Exp $
+ * $Id: setup.php,v 1.3 2007/06/26 03:08:01 nao-pon Exp $
  */
 
 $ng = $out = '';
@@ -30,6 +30,14 @@ if (! file_exists($mydirpath . '/.installed')) {
 			$ng  .= '- chmod( '. $mydirpath . '/include/hyp_common/image_magick.cgi, 0705 ) - NG.' . "\n";
 		}
 
+		$exec = array();
+		exec( "whereis -b kakasi" , $exec) ;
+		if ($exec)
+		{
+			$path = array_pad(explode(" ",$exec[0]),2,"");
+			$path = (preg_match("#^(/.+/)kakasi$#",$path[1],$match))? $match[1] : "";
+			$dat .= "define('HYP_KAKASI_PATH', '{$path}');\n";
+		}
 
 		$exec = array();
 		@ exec( "whereis -b convert" , $exec) ;
