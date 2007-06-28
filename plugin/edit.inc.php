@@ -4,7 +4,7 @@ class xpwiki_plugin_edit extends xpwiki_plugin {
 
 
 	// PukiWiki - Yet another WikiWikiWeb clone.
-	// $Id: edit.inc.php,v 1.22 2007/06/21 01:28:43 nao-pon Exp $
+	// $Id: edit.inc.php,v 1.23 2007/06/28 07:48:52 nao-pon Exp $
 	// Copyright (C) 2001-2006 PukiWiki Developers Team
 	// License: GPL v2 or (at your option) any later version
 	//
@@ -305,7 +305,7 @@ class xpwiki_plugin_edit extends xpwiki_plugin {
 
 		$this->func->page_write($page, $postdata, $this->root->notimeupdate != 0 && $notimestamp);
 		$this->func->pkwk_headers_sent();
-		header('Location: ' . $this->func->get_script_uri() . '?' . rawurlencode($page) . $hash);
+		header('Location: ' . $this->func->get_page_uri($page, true) . $hash);
 		exit;
 	}
 	
@@ -321,7 +321,7 @@ class xpwiki_plugin_edit extends xpwiki_plugin {
 		}
 		
 		$this->func->pkwk_headers_sent();
-		header('Location: ' . $this->func->get_script_uri() . '?' . rawurlencode($this->root->vars['page']) . $hash);
+		header('Location: ' . $this->func->get_page_uri($this->root->vars['page'], true) . $hash);
 		exit;
 	}
 	
