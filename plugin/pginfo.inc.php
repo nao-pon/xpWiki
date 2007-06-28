@@ -2,7 +2,7 @@
 /////////////////////////////////////////////////
 // PukiWiki - Yet another WikiWikiWeb clone.
 //
-// $Id: pginfo.inc.php,v 1.11 2007/06/22 08:05:42 nao-pon Exp $
+// $Id: pginfo.inc.php,v 1.12 2007/06/28 02:36:31 nao-pon Exp $
 //
 
 class xpwiki_plugin_pginfo extends xpwiki_plugin {
@@ -414,7 +414,7 @@ EOD;
 
 		$enc = $this->cont['CONTENT_CHARSET'];
 		
-		$title_permission_default = ($page && $this->root->userinfo['admin'])? '<hr /><p><a href="'.$script.'?cmd=pginfo">'.$this->msg['title_permission_default'].'</a></p>' : '';
+		$title_permission_default = ($page && $this->root->userinfo['admin'])? '<hr /><p><a href="'.$this->root->script.'?cmd=pginfo">'.$this->msg['title_permission_default'].'</a></p>' : '';
 
 		$form = <<<EOD
 <script>
