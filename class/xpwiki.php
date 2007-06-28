@@ -1,7 +1,7 @@
 <?php
 //
 // Created on 2006/09/29 by nao-pon http://hypweb.net/
-// $Id: xpwiki.php,v 1.42 2007/06/23 10:05:00 nao-pon Exp $
+// $Id: xpwiki.php,v 1.43 2007/06/28 07:33:58 nao-pon Exp $
 //
 
 class XpWiki {
@@ -177,7 +177,7 @@ class XpWiki {
 				
 				if (!empty($root->vars['cmd']) && $root->vars['cmd'] != 'read') {
 					$func->ref_save($base);
-					if (empty($retvars['redirect'])) $retvars['redirect'] = $root->script."?".rawurlencode($base);
+					if (empty($retvars['redirect'])) $retvars['redirect'] = $this->func->get_page_uri($base, true);
 					$func->redirect_header($retvars['redirect'], 0, $title);
 					exit();
 				} else {
