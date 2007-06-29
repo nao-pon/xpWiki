@@ -1,6 +1,6 @@
 <?php
 // PukiWiki - Yet another WikiWikiWeb clone.
-// $Id: pukiwiki.skin.php,v 1.5 2007/01/15 09:02:59 nao-pon Exp $
+// $Id: pukiwiki.skin.php,v 1.6 2007/06/29 08:38:36 nao-pon Exp $
 // Copyright (C)
 //   2002-2006 PukiWiki Developers Team
 //   2001-2002 Originally written by yu-ji
@@ -54,7 +54,7 @@ $dirname = $this->root->mydirname;
 $this->root->html_header = <<<EOD
 $favicon
 $head_pre_tag
-<link rel="stylesheet" type="text/css" media="screen" href="{$this->cont['HOME_URL']}{$this->cont['SKIN_DIR']}pukiwiki.css.php?charset={$css_charset}&amp;base={$dirname}" charset="{$css_charset}" />
+<link rel="stylesheet" type="text/css" media="screen" href="{$this->cont['HOME_URL']}{$this->cont['SKIN_DIR']}pukiwiki.css.php?charset={$css_charset}&amp;base={$dirname}&amp;pw={$this->root->pre_width}" charset="{$css_charset}" />
 <link rel="stylesheet" type="text/css" media="print"  href="{$this->cont['HOME_URL']}{$this->cont['SKIN_DIR']}pukiwiki.css.php?charset={$css_charset}&amp;base={$dirname}&amp;media=print" charset="{$css_charset}" />
 <link rel="alternate" type="application/rss+xml" title="RSS" href="{$link['rss']}" />
 $head_tag
@@ -63,7 +63,7 @@ EOD;
 
 <div class="xpwiki_<?php echo $dirname ?>">
 
-<div id="navigator">
+<div class="navigator">
 
 <?php if($this->cont['PKWK_SKIN_SHOW_NAVBAR']) { ?>
 
@@ -84,7 +84,7 @@ EOD;
  ]
 </div><!--/navigator_wiki-->
 
-<div id="header">
+<div class="header">
 
  <h1 class="title"><?php echo $page ?></h1>
 
@@ -144,30 +144,30 @@ EOD;
 </div><!--/navigator_info-->
 
 <?php } // PKWK_SKIN_SHOW_NAVBAR ?>
-</div><!--/#navigator-->
+</div><!--/navigator-->
 
 
 <?php if ($this->arg_check('read') && $this->exist_plugin_convert('menu') && $this->root->show_menu_bar) { ?>
 <table border="0" style="width:100%">
  <tr>
   <td class="menubar">
-   <div id="menubar"><?php echo $this->do_plugin_convert('menu') ?></div>
+   <div class="menubar"><?php echo $this->do_plugin_convert('menu') ?></div>
   </td>
   <td valign="top">
-   <div id="body"><?php echo $body ?></div>
+   <div class="body"><?php echo $body ?></div>
   </td>
  </tr>
 </table>
 <?php } else { ?>
-<div id="body"><?php echo $body ?></div>
+<div class="body"><?php echo $body ?></div>
 <?php } ?>
 
 <?php if ($notes != '') { ?>
-<div id="note"><?php echo $notes ?></div>
+<div class="footnotes"><?php echo $notes ?></div>
 <?php } ?>
 
 <?php if ($attaches != '') { ?>
-<div id="attach">
+<div class="attach">
 <?php echo $this->root->hr ?>
 <?php echo $attaches ?>
 </div>
@@ -178,11 +178,13 @@ EOD;
 <div class="commentbody"><?php echo $page_comments ?></div>
 <?php } ?>
 
+<?php echo $system_notification ?>
+
 <?php echo $this->root->hr ?>
 
 <?php if ($this->cont['PKWK_SKIN_SHOW$toolbar']) { ?>
 <!-- Toolbar -->
-<div id="toolbar">
+<div class="toolbar">
 <?php
 
 // Set toolbar-specific images
@@ -250,14 +252,13 @@ $this->root->_IMAGE['skin']['rdf']      = 'rdf.png';
 <?php if ($is_page) echo $this->do_plugin_convert('counter') ?>
 
 <?php if ($lastmodified != '') { ?>
-<div id="lastmodified">Last-modified: <?php echo $lastmodified ?> by <?php echo $pginfo['lastuname'] ?></div>
+<div class="lastmodified">Last-modified: <?php echo $lastmodified ?> by <?php echo $pginfo['lastuname'] ?></div>
 <?php } ?>
 
 <?php if ($related != '') { ?>
-<div id="related">Link: <?php echo $related ?></div>
+<div class="related">Link: <?php echo $related ?></div>
 <?php } ?>
-
-<div id="footer">
+<div class="footer">
  <div>Page owner: <?php echo $pginfo['uname'] ?></div>
  <div>Site admin: <a href="<?php echo $this->root->modifierlink ?>"><?php echo $this->root->modifier ?></a></div>
  <?php echo $this->cont['S_COPYRIGHT'] ?>.
