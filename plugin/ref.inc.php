@@ -1,5 +1,5 @@
 <?php
-// $Id: ref.inc.php,v 1.10 2007/06/01 01:40:56 nao-pon Exp $
+// $Id: ref.inc.php,v 1.11 2007/06/29 08:33:54 nao-pon Exp $
 /*
 
 	*プラグイン ref
@@ -137,6 +137,11 @@ class xpwiki_plugin_ref extends xpwiki_plugin {
 				$filename = mb_convert_encoding($filename, 'SJIS', 'auto');
 				break;
 			}
+		}
+		
+		// clear output buffer
+		while( ob_get_level() ) {
+			ob_end_clean() ;
 		}
 
 		$etag = filemtime($ref);
