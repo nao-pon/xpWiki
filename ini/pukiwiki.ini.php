@@ -1,6 +1,6 @@
 <?php
 // PukiWiki - Yet another WikiWikiWeb clone
-// $Id: pukiwiki.ini.php,v 1.41 2007/06/21 01:22:36 nao-pon Exp $
+// $Id: pukiwiki.ini.php,v 1.42 2007/06/29 08:46:21 nao-pon Exp $
 // Copyright (C)
 //   2002-2006 PukiWiki Developers Team
 //   2001-2002 Originally written by yu-ji
@@ -384,6 +384,9 @@ $root->riddle_auth = 1;
 // 編集権限をプラグインでの書き込みにも適用する
 $root->plugin_follow_editauth = 0;
 
+// 凍結をプラグインでの書き込みにも適用する
+$root->plugin_follow_freeze = 1;
+
 /////////////////////////////////////////////////
 // ページ情報のサイト規定値
 // inherit = 0:継承指定なし, 1:規定値継承指定, 2:強制継承指定, 3:規定値継承した値, 4:強制継承した値
@@ -493,6 +496,10 @@ $root->no_proxy = array(
 //	'192.168.0.0/16'	// private class C
 //	'no-proxy.com',
 );
+
+////////////////////////////////////////////////
+// Show system notification in SKIN
+$root->show_system_notification_skin = 0;
 
 ////////////////////////////////////////////////
 // Mail related settings
