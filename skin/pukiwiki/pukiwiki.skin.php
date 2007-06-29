@@ -3,7 +3,7 @@
 $this->root->runmode = "standalone";
 
 // PukiWiki - Yet another WikiWikiWeb clone.
-// $Id: pukiwiki.skin.php,v 1.7 2007/01/15 09:02:59 nao-pon Exp $
+// $Id: pukiwiki.skin.php,v 1.8 2007/06/29 08:38:36 nao-pon Exp $
 // Copyright (C)
 //   2002-2006 PukiWiki Developers Team
 //   2001-2002 Originally written by yu-ji
@@ -65,6 +65,8 @@ if ($this->arg_check('read') && $this->is_page($this->root->menubar) &&
 $head_tag .= ! empty($this->root->head_tags) ? "\n". join("\n", $this->root->head_tags) ."\n" : '';
 $head_pre_tag .= ! empty($this->root->head_pre_tags) ? "\n". join("\n", $this->root->head_pre_tags) ."\n" : '';
 
+$pre_width = 'auto';
+
 // ------------------------------------------------------------
 // Output
 
@@ -91,7 +93,7 @@ if (isset($this->root->pkwk_dtd)) {
 <?php echo $head_pre_tag?>
 <?php echo <<<EOD
  $favicon
- <link rel="stylesheet" type="text/css" media="screen" href="{$this->cont['HOME_URL']}{$this->cont['SKIN_DIR']}pukiwiki.css.php?charset={$css_charset}&amp;base={$dirname}" charset="{$css_charset}" />
+ <link rel="stylesheet" type="text/css" media="screen" href="{$this->cont['HOME_URL']}{$this->cont['SKIN_DIR']}pukiwiki.css.php?charset={$css_charset}&amp;base={$dirname}&amp;pw={$pre_width}" charset="{$css_charset}" />
  <link rel="stylesheet" type="text/css" media="print"  href="{$this->cont['HOME_URL']}{$this->cont['SKIN_DIR']}pukiwiki.css.php?charset={$css_charset}&amp;base={$dirname}&amp;media=print" charset="{$css_charset}" />
  <link rel="alternate" type="application/rss+xml" title="RSS" href="{$link['rss']}" />
 EOD;
@@ -100,7 +102,7 @@ EOD;
 </head>
 <body>
 <div class="xpwiki_<?php echo $dirname ?>">
-<div id="header">
+<div class="header">
  <a href="<?php echo $link['top']?>"><img id="logo" name="logo" src="<?php echo $this->cont['IMAGE_DIR'] . $image['logo']?>" width="80" height="80" alt="[PukiWiki]" title="[PukiWiki]" /></a>
 
  <h1 class="title"><?php echo $page?> :: <a href="<?php echo $this->root->siteinfo['rooturl'] ?>" title="Site Top"><?php echo $this->root->siteinfo['sitename'] ?></a></h1>
@@ -117,7 +119,7 @@ EOD;
 
 </div>
 
-<div id="navigator">
+<div class="navigator">
 <?php if($this->cont['PKWK_SKIN_SHOW_NAVBAR']) {?>
  [ <?php $navigator($this, 'top')?> ] &nbsp;
 <?php if ($is_page) {?>
@@ -176,23 +178,23 @@ EOD;
 <table border="0" style="width:100%">
  <tr>
   <td class="menubar">
-   <div id="menubar"><?php echo $menu_body?></div>
+   <div class="menubar"><?php echo $menu_body?></div>
   </td>
   <td valign="top">
-   <div id="body"><?php echo $body?></div>
+   <div class="body"><?php echo $body?></div>
   </td>
  </tr>
 </table>
 <?php } else {?>
-<div id="body"><?php echo $body?></div>
+<div class="body"><?php echo $body?></div>
 <?php }?>
 
 <?php if ($notes != '') {?>
-<div id="note"><?php echo $notes?></div>
+<div class="note"><?php echo $notes?></div>
 <?php }?>
 
 <?php if ($attaches != '') {?>
-<div id="attach">
+<div class="attach">
 <?php echo $this->root->hr?>
 <?php echo $attaches?>
 </div>
@@ -203,11 +205,13 @@ EOD;
 <div class="commentbody"><?php echo $page_comments ?></div>
 <?php } ?>
 
+<?php echo $system_notification ?>
+
 <?php echo $this->root->hr?>
 
 <?php if ($this->cont['PKWK_SKIN_SHOW$toolbar']) {?>
 <!-- Toolbar -->
-<div id="toolbar">
+<div class="toolbar">
 <?php
 
 // Set toolbar-specific images
@@ -274,14 +278,14 @@ $this->root->_IMAGE['skin']['rdf']      = 'rdf.png';
 <?php if ($is_page) echo $this->do_plugin_convert('counter') ?>
 
 <?php if ($lastmodified != '') { ?>
-<div id="lastmodified">Last-modified: <?php echo $lastmodified ?> by <?php echo $pginfo['lastuname'] ?></div>
+<div class="lastmodified">Last-modified: <?php echo $lastmodified ?> by <?php echo $pginfo['lastuname'] ?></div>
 <?php } ?>
 
 <?php if ($related != '') { ?>
-<div id="related">Link: <?php echo $related ?></div>
+<div class="related">Link: <?php echo $related ?></div>
 <?php } ?>
 
-<div id="footer">
+<div class="footer">
  <div>Page owner: <?php echo $pginfo['uname'] ?></div>
  <div>Site admin: <a href="<?php echo $this->root->modifierlink ?>"><?php echo $this->root->modifier ?></a></div>
  <?php echo $this->cont['S_COPYRIGHT'] ?>.
