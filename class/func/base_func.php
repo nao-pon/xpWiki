@@ -1,7 +1,7 @@
 <?php
 //
 // Created on 2006/10/15 by nao-pon http://hypweb.net/
-// $Id: base_func.php,v 1.9 2007/06/05 00:22:48 nao-pon Exp $
+// $Id: base_func.php,v 1.10 2007/06/29 08:54:28 nao-pon Exp $
 //
 class XpWikiBaseFunc {
 	
@@ -30,8 +30,9 @@ class XpWikiBaseFunc {
 	function set_userinfo () {
 		$this->root->userinfo['admin'] = FALSE;
 		$this->root->userinfo['uid'] = 0;
+		$this->root->userinfo['email'] = '';
 		$this->root->userinfo['uname'] = '';
-		$this->root->userinfo['uname_s'] = htmlspecialchars($this->root->userinfo['uname']);
+		$this->root->userinfo['uname_s'] = '';
 		$this->root->userinfo['gids'] = array();
 	}
 
@@ -40,8 +41,11 @@ class XpWikiBaseFunc {
 			$defname = $this->root->anonymous;
 		}
 		$result = array(
+			'admin' => FALSE,
+			'uid' => 0,
 			'uname' => $defname,
-			'email' => '' 
+			'email' => '',
+			'gids' => array(),
 			);
 		return $result;
 	}

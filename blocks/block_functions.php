@@ -1,4 +1,53 @@
 <?php
+function b_xpwiki_notification_show( $options )
+{
+	$mydirname = empty( $options[0] ) ? 'xpwiki' : $options[0] ;
+	if( preg_match( '/[^0-9a-zA-Z_-]/' , $mydirname ) ) die( 'Invalid mydirname' ) ;
+	
+	$pgid = (!empty($_GET['pgid']))? intval($_GET['pgid']) : 0;
+	
+	if (!isset($GLOBALS['Xpwiki_'.$mydirname]) || !$pgid) return false;
+	
+	$this_template = empty( $options[1] ) ? 'db:'.$mydirname.'_block_notification.html' : trim( $options[1] ) ;
+	
+	include_once XOOPS_TRUST_PATH."/modules/xpwiki/include.php";
+	$xw = XpWiki::getSingleton($mydirname);
+	$xw->init();
+	
+	$notification = $xw->func->get_notification_select($pgid);
+
+	if ($notification) {
+		$block = array( 
+			'mydirname' => $mydirname ,
+			'mod_url' => XOOPS_URL.'/modules/'.$mydirname ,
+			'content'  => $notification ,
+		) ;
+		require_once XOOPS_ROOT_PATH.'/class/template.php' ;
+		$tpl =& new XoopsTpl() ;
+		$tpl->assign( 'block' , $block ) ;
+		$ret['content'] = $tpl->fetch( $this_template ) ;
+	} else {
+		$ret = false;
+	}
+	return $ret;
+}
+
+function b_xpwiki_notification_edit( $options )
+{
+	$mydirname = empty( $options[0] ) ? 'xpwiki' : $options[0] ;
+	if( preg_match( '/[^0-9a-zA-Z_-]/' , $mydirname ) ) die( 'Invalid mydirname' ) ;
+
+	$this_template = empty( $options[1] ) ? 'db:'.$mydirname.'_block_notification.html' : trim( $options[3] ) ;
+
+	$form = "
+		<input type='hidden' name='options[0]' value='$mydirname' />
+		<label for='this_template'>"._MB_XPWIKI_THISTEMPLATE."</label>&nbsp;:
+		<input type='text' size='60' name='options[3]' id='this_template' value='".htmlspecialchars($this_template,ENT_QUOTES)."' />
+		<br />
+	\n" ;
+
+	return $form;
+}
 
 function b_xpwiki_a_page_show( $options )
 {
@@ -9,16 +58,16 @@ function b_xpwiki_a_page_show( $options )
 	
 	if( preg_match( '/[^0-9a-zA-Z_-]/' , $mydirname ) ) die( 'Invalid mydirname' ) ;
 	
-	// •K—v‚Èƒtƒ@ƒCƒ‹‚Ì“Ç‚Ýž‚Ý (ŒÅ’è’l:•ÏX‚Ì•K—v‚È‚µ)
+	// É¬Í×¤Ê¥Õ¥¡¥¤¥ë¤ÎÆÉ¤ß¹þ¤ß (¸ÇÄêÃÍ:ÊÑ¹¹¤ÎÉ¬Í×¤Ê¤·)
 	include_once XOOPS_TRUST_PATH."/modules/xpwiki/include.php";
 	 
-	// ƒCƒ“ƒXƒ^ƒ“ƒX‰» (ˆø”: ƒ‚ƒWƒ…[ƒ‹ƒfƒBƒŒƒNƒgƒŠ–¼)
+	// ¥¤¥ó¥¹¥¿¥ó¥¹²½ (°ú¿ô: ¥â¥¸¥å¡¼¥ë¥Ç¥£¥ì¥¯¥È¥êÌ¾)
 	$xw = new XpWiki($mydirname);
 	 
-	// ƒuƒƒbƒN—p‚Æ‚µ‚ÄŽæ“¾ (ˆø”: ƒy[ƒW–¼, •\Ž¦•)
+	// ¥Ö¥í¥Ã¥¯ÍÑ¤È¤·¤Æ¼èÆÀ (°ú¿ô: ¥Ú¡¼¥¸Ì¾, É½¼¨Éý)
 	$str = $xw->get_html_for_block ($page, $width);
 	 
-	// ƒIƒuƒWƒFƒNƒg‚ð”jŠü
+	// ¥ª¥Ö¥¸¥§¥¯¥È¤òÇË´þ
 	unset($xw); 
 
 	$constpref = '_MB_' . strtoupper( $mydirname ) ;
@@ -41,11 +90,11 @@ function b_xpwiki_a_page_show( $options )
 function b_xpwiki_a_page_edit( $options )
 {
 	$mydirname = empty( $options[0] ) ? 'xpwiki' : $options[0] ;
+	if( preg_match( '/[^0-9a-zA-Z_-]/' , $mydirname ) ) die( 'Invalid mydirname' ) ;
+
 	$page = empty( $options[1] ) ? '' : $options[1] ;
 	$width = empty( $options[2] ) ? '100%' : $options[2] ;
 	$this_template = empty( $options[3] ) ? 'db:'.$mydirname.'_block_a_page.html' : trim( $options[3] ) ;
-
-	if( preg_match( '/[^0-9a-zA-Z_-]/' , $mydirname ) ) die( 'Invalid mydirname' ) ;
 
 	$form = "
 		<input type='hidden' name='options[0]' value='$mydirname' />

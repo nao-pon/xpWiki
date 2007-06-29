@@ -1,7 +1,7 @@
 <?php
 //
 // Created on 2006/09/29 by nao-pon http://hypweb.net/
-// $Id: root.php,v 1.8 2006/12/11 04:23:35 nao-pon Exp $
+// $Id: root.php,v 1.9 2007/06/29 08:54:28 nao-pon Exp $
 //
 class XpWikiRoot {
 
@@ -131,6 +131,9 @@ class XpWikiRoot {
 	var $weeklabels;
 	var $whatsdeleted;
 	var $whatsnew;
+	var $is_main;
+	var $is_block;
+	var $render_mode;
 	
 	function xpwiki_root() {
 		

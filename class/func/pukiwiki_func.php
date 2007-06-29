@@ -1,7 +1,7 @@
 <?php
 //
 // Created on 2006/10/02 by nao-pon http://hypweb.net/
-// $Id: pukiwiki_func.php,v 1.84 2007/06/21 22:49:18 nao-pon Exp $
+// $Id: pukiwiki_func.php,v 1.85 2007/06/29 08:54:28 nao-pon Exp $
 //
 class XpWikiPukiWikiFunc extends XpWikiBaseFunc {
 
@@ -62,9 +62,13 @@ class XpWikiPukiWikiFunc extends XpWikiBaseFunc {
 	// Put a data(wiki text) into a physical file(diff, backup, text)
 	function page_write($page, $postdata, $notimestamp = FALSE)
 	{
-		if ($this->cont['PKWK_READONLY']) return; // Do nothing
-		
-		if (! empty($this->root->plugin_follow_editauth) && ! $this->edit_auth($page, FALSE, FALSE)) {
+		if (
+			($this->cont['PKWK_READONLY'])
+			||
+			(empty($this->root->rtf['freezefunc']) && $this->root->plugin_follow_freeze && $this->is_freeze($page))
+			||
+			(empty($this->root->rtf['freezefunc']) && $this->root->plugin_follow_editauth && ! $this->check_editable_page($page, FALSE, FALSE))
+		) {
 			return; // Do nothing
 		}
 		
@@ -120,14 +124,17 @@ class XpWikiPukiWikiFunc extends XpWikiBaseFunc {
 		}
 		
 		// Create and write diff
-		$diffdata    = $this->do_diff($oldpostdata, $postdata);
+		$diffdata = $this->do_diff($oldpostdata, $postdata);
 		$this->file_write($this->cont['DIFF_DIR'], $page, $diffdata);
 
-		// delete recent add data 
-		if ($mode === 'delete') {
+		// delete recent add data
+		if ($mode === 'delete') { 
 			$this->push_page_changes($page, '', TRUE);
+		} else {
+			// 追加履歴保存
+			$this->push_page_changes($page, preg_replace('/^[^+].*\n/m', '', $diffdata));
 		}
-			
+		
 		// Create backup
 		$this->make_backup($page, $postdata == ''); // Is $postdata null?
 	
@@ -152,6 +159,42 @@ class XpWikiPukiWikiFunc extends XpWikiBaseFunc {
 			$this->tb_send($page, $plus, $minus);
 		}
 		*/
+
+		// 更新通知メール
+		if ($this->root->notify) {
+			if ($this->root->notify_diff_only) $diffdata = preg_replace('/^[^-+].*\n/m', '', $diffdata);
+			$footer['ACTION'] = 'Page update';
+			$footer['PAGE']   = & $page;
+			//$footer['URI']    = $this->get_page_uri($page, true);
+			$footer['USER_AGENT']  = TRUE;
+			$footer['REMOTE_ADDR'] = TRUE;
+			$this->pkwk_mail_notify($this->root->notify_subject, $this->get_page_uri($page, true) . "\n\n" . $diffdata, $footer) or
+				die('pkwk_mail_notify(): Failed');
+		}
+		
+		// System notification
+		$tags['POST_URL'] = $this->get_page_uri($page, true);
+		$tags['PAGE_NAME'] = $page;
+		$tags['POST_DATA'] = $postdata;
+		$tags['POSTER_NAME'] = $this->root->userinfo['uname'];
+		$tags['POST_DIFF'] = $diffdata;
+		$tags['POST_DIFF'] = preg_replace('/^/m', ' ', $tags['POST_DIFF']);
+		if ($mode === 'insert') {
+			$tags['POST_DIFF'] = 'New page.';
+		} else if ($mode === 'update') {
+
+		} else	if ($mode === 'delete') {
+			$tags['POST_DATA'] = 'Page deleted.';
+		}
+		$this->system_notification($page, 'page', $this->get_pgid_by_name($page), 'page_update', $tags);
+		
+		list($pgid1, $pgid2) = $this->get_pgids_by_name($page);
+		$this->system_notification($page, 'page1', $pgid1, 'page_update', $tags);
+		if ($pgid2) $this->system_notification($page, 'page2', $pgid2, 'page_update', $tags);
+		
+		$this->system_notification($page, 'global', 0, 'page_update', $tags);
+
+
 	
 		// For AutoLink
 		if ($mode !== 'update' && $this->root->autolink){
@@ -298,9 +341,13 @@ class XpWikiPukiWikiFunc extends XpWikiBaseFunc {
 	// Output to a file
 	function file_write($dir, $page, $str, $notimestamp = FALSE)
 	{
-		if ($this->cont['PKWK_READONLY']) return; // Do nothing
-		
-		if (! empty($this->root->plugin_follow_editauth) && ! $this->edit_auth($page, FALSE, FALSE)) {
+		if (
+			($this->cont['PKWK_READONLY'])
+			||
+			(empty($this->root->rtf['freezefunc']) && $this->root->plugin_follow_freeze && $this->is_freeze($page))
+			||
+			(empty($this->root->rtf['freezefunc']) && $this->root->plugin_follow_editauth && ! $this->check_editable_page($page, FALSE, FALSE))
+		) {
 			return; // Do nothing
 		}
 		
@@ -369,23 +416,8 @@ class XpWikiPukiWikiFunc extends XpWikiBaseFunc {
 			if (isset($this->cont['PKWK_UPDATE_EXEC']) && $this->cont['PKWK_UPDATE_EXEC'])
 				system($this->cont['PKWK_UPDATE_EXEC'] . ' > /dev/null &');
 	
-		} else if ($dir == $this->cont['DIFF_DIR']) {
-			// 追加履歴保存
-			$this->push_page_changes($page, preg_replace('/^[^+].*\n/m', '', $str));
-			
-			// 更新通知メール
-			if ($this->root->notify) {
-				if ($this->root->notify_diff_only) $str = preg_replace('/^[^-+].*\n/m', '', $str);
-				$footer['ACTION'] = 'Page update';
-				$footer['PAGE']   = & $page;
-				$footer['URI']    = $this->get_script_uri() . '?' . rawurlencode($page);
-				$footer['USER_AGENT']  = TRUE;
-				$footer['REMOTE_ADDR'] = TRUE;
-				$this->pkwk_mail_notify($this->root->notify_subject, $str, $footer) or
-					die('pkwk_mail_notify(): Failed');
-			}
 		}
-	
+			
 		$this->is_page($page, TRUE); // Clear $this->is_page() cache
 	}
 	
@@ -685,15 +717,15 @@ class XpWikiPukiWikiFunc extends XpWikiBaseFunc {
 	{
 		static $links = array();
 	
-		if (isset($links[$this->xpwiki->pid][$page])) return $links[$this->xpwiki->pid][$page];
+		if (isset($links[$this->root->mydirname][$page])) return $links[$this->root->mydirname][$page];
 	
 		// If possible, merge related pages generated by make_link()
-		$links[$this->xpwiki->pid][$page] = ($page == $this->root->vars['page']) ? $this->root->related : array();
+		$links[$this->root->mydirname][$page] = ($page == $this->root->vars['page']) ? $this->root->related : array();
 	
 		// Get repated pages from DB
-		$links[$this->xpwiki->pid][$page] += $this->links_get_related_db($this->root->vars['page']);
+		$links[$this->root->mydirname][$page] += $this->links_get_related_db($this->root->vars['page']);
 	
-		return $links[$this->xpwiki->pid][$page];
+		return $links[$this->root->mydirname][$page];
 	}
 	
 	// _If needed_, re-create the file to change/correct ownership into PHP's
@@ -777,7 +809,7 @@ class XpWikiPukiWikiFunc extends XpWikiBaseFunc {
 
 //----- Start convert_html.php -----//
 	// PukiWiki - Yet another WikiWikiWeb clone
-	// $Id: pukiwiki_func.php,v 1.84 2007/06/21 22:49:18 nao-pon Exp $
+	// $Id: pukiwiki_func.php,v 1.85 2007/06/29 08:54:28 nao-pon Exp $
 	// Copyright (C)
 	//   2002-2005 PukiWiki Developers Team
 	//   2001-2002 Originally written by yu-ji
@@ -802,9 +834,16 @@ class XpWikiPukiWikiFunc extends XpWikiBaseFunc {
 		++$real_nest[$this->xpwiki->pid];
 		
 		// 編集権限がない場合の挙動指定
-		if ($this->root->rtf['convert_nest'] > 1) $_PKWK_READONLY = $this->cont['PKWK_READONLY'];
-		if (! $this->cont['PKWK_READONLY'] && $this->root->plugin_follow_editauth && $this->is_page($this->root->vars['page']) && ! $this->edit_auth($this->root->vars['page'], FALSE, FALSE)) {
-			$this->cont['PKWK_READONLY'] = 2;
+		//if ($this->root->rtf['convert_nest'] > 1) $_PKWK_READONLY = $this->cont['PKWK_READONLY'];
+		$_PKWK_READONLY = $this->cont['PKWK_READONLY'];
+		if (! $this->cont['PKWK_READONLY']) {
+			if (
+				($this->root->plugin_follow_freeze && $this->is_freeze($this->root->vars['page']))
+				||
+				($this->root->plugin_follow_editauth && ! $this->check_editable_page($this->root->vars['page'], FALSE, FALSE))
+			) {
+				$this->cont['PKWK_READONLY'] = 2;
+			}
 		}
 		
 		// Set digest
@@ -852,7 +891,8 @@ class XpWikiPukiWikiFunc extends XpWikiBaseFunc {
 			}
 		}
 		
-		if ($this->root->rtf['convert_nest'] > 1) $this->cont['PKWK_READONLY'] = $_PKWK_READONLY;
+		//if ($this->root->rtf['convert_nest'] > 1) $this->cont['PKWK_READONLY'] = $_PKWK_READONLY;
+		$this->cont['PKWK_READONLY'] = $_PKWK_READONLY;
 		
 		--$this->root->rtf['convert_nest'];
 		--$real_nest[$this->xpwiki->pid];
@@ -976,7 +1016,7 @@ class XpWikiPukiWikiFunc extends XpWikiBaseFunc {
 
 //----- Start func.php -----//
 	// PukiWiki - Yet another WikiWikiWeb clone.
-	// $Id: pukiwiki_func.php,v 1.84 2007/06/21 22:49:18 nao-pon Exp $
+	// $Id: pukiwiki_func.php,v 1.85 2007/06/29 08:54:28 nao-pon Exp $
 	// Copyright (C)
 	//   2002-2006 PukiWiki Developers Team
 	//   2001-2002 Originally written by yu-ji
@@ -1028,15 +1068,15 @@ class XpWikiPukiWikiFunc extends XpWikiBaseFunc {
 	{
 		static $is_editable = array();
 	
-		if (! isset($is_editable[$this->xpwiki->pid][$page])) {
-			$is_editable[$this->xpwiki->pid][$page] = (
+		if (! isset($is_editable[$this->root->mydirname][$page])) {
+			$is_editable[$this->root->mydirname][$page] = (
 				$this->is_pagename($page) &&
 				! $this->is_freeze($page) &&
 				! in_array($page, $this->root->cantedit)
 			);
 		}
 	
-		return $is_editable[$this->xpwiki->pid][$page];
+		return $is_editable[$this->root->mydirname][$page];
 	}
 	
 	function is_freeze($page, $clearcache = FALSE)
@@ -1044,10 +1084,10 @@ class XpWikiPukiWikiFunc extends XpWikiBaseFunc {
 		static $is_freeze = array();
 	
 		if ($clearcache === TRUE) $is_freeze = array();
-		if (isset($is_freeze[$this->xpwiki->pid][$page])) return $is_freeze[$this->xpwiki->pid][$page];
+		if (isset($is_freeze[$this->root->mydirname][$page])) return $is_freeze[$this->root->mydirname][$page];
 	
 			if (! $this->root->function_freeze || ! $this->is_page($page)) {
-			$is_freeze[$this->xpwiki->pid][$page] = FALSE;
+			$is_freeze[$this->root->mydirname][$page] = FALSE;
 			return FALSE;
 		} else {
 			$fp = fopen($this->get_filename($page), 'rb') or
@@ -1058,8 +1098,8 @@ class XpWikiPukiWikiFunc extends XpWikiBaseFunc {
 			flock($fp, LOCK_UN) or die('is_freeze(): flock() failed');
 			fclose($fp) or die('is_freeze(): fclose() failed: ' . htmlspecialchars($page));
 	
-				$is_freeze[$this->xpwiki->pid][$page] = ($buffer != FALSE && rtrim($buffer, "\r\n") == '#freeze');
-			return $is_freeze[$this->xpwiki->pid][$page];
+				$is_freeze[$this->root->mydirname][$page] = ($buffer != FALSE && rtrim($buffer, "\r\n") == '#freeze');
+			return $is_freeze[$this->root->mydirname][$page];
 		}
 	}
 	
@@ -1069,9 +1109,9 @@ class XpWikiPukiWikiFunc extends XpWikiBaseFunc {
 	{
 		static $regex;
 
-		if (! isset($regex[$this->xpwiki->pid])) $regex[$this->xpwiki->pid] = '/' . $this->root->non_list . '/';
+		if (! isset($regex[$this->root->mydirname])) $regex[$this->root->mydirname] = '/' . $this->root->non_list . '/';
 
-		return preg_match($regex[$this->xpwiki->pid], $page);
+		return preg_match($regex[$this->root->mydirname], $page);
 	}
 	
 	// Auto template
@@ -1674,8 +1714,8 @@ EOD;
 	{
 		static $pairs;
 	
-		if (! isset($pairs[$this->xpwiki->pid])) {
-			$pairs[$this->xpwiki->pid] = array();
+		if (! isset($pairs[$this->root->mydirname])) {
+			$pairs[$this->root->mydirname] = array();
 			$pattern = <<<EOD
 	\[\[                # open bracket
 	((?:(?!\]\]).)+)>   # (1) alias name
@@ -1690,9 +1730,9 @@ EOD;
 				foreach($matches as $key => $value) {
 					if ($count ==  $max) break;
 					$name = trim($value[1]);
-					if (! isset($pairs[$this->xpwiki->pid][$name])) {
+					if (! isset($pairs[$this->root->mydirname][$name])) {
 						++$count;
-						 $pairs[$this->xpwiki->pid][$name] = trim($value[2]);
+						 $pairs[$this->root->mydirname][$name] = trim($value[2]);
 					}
 					unset($matches[$key]);
 				}
@@ -1701,11 +1741,11 @@ EOD;
 	
 		if ($word === '') {
 			// An array(): All pairs
-			return $pairs[$this->xpwiki->pid];
+			return $pairs[$this->root->mydirname];
 		} else {
 			// A string: Seek the pair
-			if (isset($pairs[$this->xpwiki->pid][$word])) {
-				return $pairs[$this->xpwiki->pid][$word];
+			if (isset($pairs[$this->root->mydirname][$word])) {
+				return $pairs[$this->root->mydirname][$word];
 			} else {
 				return '';
 			}
@@ -1783,7 +1823,7 @@ EOD;
 
 //----- Start make_link.php -----//
 	// PukiWiki - Yet another WikiWikiWeb clone.
-	// $Id: pukiwiki_func.php,v 1.84 2007/06/21 22:49:18 nao-pon Exp $
+	// $Id: pukiwiki_func.php,v 1.85 2007/06/29 08:54:28 nao-pon Exp $
 	// Copyright (C)
 	//   2003-2005 PukiWiki Developers Team
 	//   2001-2002 Originally written by yu-ji
@@ -2607,7 +2647,7 @@ EOD;
 
 //----- Start html.php -----//
 	// PukiWiki - Yet another WikiWikiWeb clone.
-	// $Id: pukiwiki_func.php,v 1.84 2007/06/21 22:49:18 nao-pon Exp $
+	// $Id: pukiwiki_func.php,v 1.85 2007/06/29 08:54:28 nao-pon Exp $
 	// Copyright (C)
 	//   2002-2006 PukiWiki Developers Team
 	//   2001-2002 Originally written by yu-ji
@@ -2716,6 +2756,16 @@ EOD;
 		// Page Comments
 		$page_comments = ($is_read && $this->root->allow_pagecomment && $this->root->enable_pagecomment)? '<div id="pageComments">' . $this->get_page_comments($_page) . '</div>' : '';
 		$page_comments_count = ($page_comments)? '<a href="#pageComments">' . $this->root->_LANG['skin']['comments'] . '(' . $this->count_page_comments($_page) . ')</a>': '';
+		
+		// System notification
+		if ($this->root->show_system_notification_skin) {
+			$system_notification = $this->get_notification_select();
+			if ($system_notification) {
+				$system_notification = '<div class="system_notification"><hr class="notification" />'.$system_notification.'</div>';
+			}
+		} else {
+			$system_notification = '';
+		}
 		
 		// Countup counter
 		if ($is_page && $this->exist_plugin_convert('counter')) {
@@ -3203,7 +3253,7 @@ EOD;
 
 //----- Start mail.php -----//
 	// PukiWiki - Yet another WikiWikiWeb clone.
-	// $Id: pukiwiki_func.php,v 1.84 2007/06/21 22:49:18 nao-pon Exp $
+	// $Id: pukiwiki_func.php,v 1.85 2007/06/29 08:54:28 nao-pon Exp $
 	// Copyright (C)
 	//   2003-2005 PukiWiki Developers Team
 	//   2003      Originally written by upk
@@ -3506,7 +3556,7 @@ EOD;
 
 //----- Start link.php -----//
 	// PukiWiki - Yet another WikiWikiWeb clone
-	// $Id: pukiwiki_func.php,v 1.84 2007/06/21 22:49:18 nao-pon Exp $
+	// $Id: pukiwiki_func.php,v 1.85 2007/06/29 08:54:28 nao-pon Exp $
 	// Copyright (C) 2003-2006 PukiWiki Developers Team
 	// License: GPL v2 or (at your option) any later version
 	//

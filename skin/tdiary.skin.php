@@ -3,7 +3,7 @@
 $this->root->runmode = "standalone";
 
 // PukiWiki - Yet another WikiWikiWeb clone.
-// $Id: tdiary.skin.php,v 1.20 2007/01/15 08:59:55 nao-pon Exp $
+// $Id: tdiary.skin.php,v 1.21 2007/06/29 08:54:29 nao-pon Exp $
 // Copyright (C)
 //   2002-2006 PukiWiki Developers Team
 //   2001-2002 Originally written by yu-ji
@@ -781,7 +781,7 @@ default:
 		<?php if ($page_comments) { ?>
 			<?php echo $page_comments ?>
 		<?php } ?>
-
+		<?php echo $system_notification ?>
 	</div>
 </div>
 <?php } ?>
