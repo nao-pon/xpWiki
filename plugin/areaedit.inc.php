@@ -3,7 +3,7 @@ class xpwiki_plugin_areaedit extends xpwiki_plugin {
 /////////////////////////////////////////////////
 // PukiWiki - Yet another WikiWikiWeb clone.
 //
-// $Id: areaedit.inc.php,v 1.5 2007/06/23 10:02:11 nao-pon Exp $
+// $Id: areaedit.inc.php,v 1.6 2007/06/29 08:32:18 nao-pon Exp $
 //
 /* 
 *プラグイン areaedit
@@ -698,7 +698,6 @@ EOD;
 		$s_original = array_key_exists('original',$this->root->vars) ? htmlspecialchars($this->root->vars['original']) : $s_headdata . $s_postdata_input . $s_taildata;
 		$b_preview = array_key_exists('preview',$this->root->vars); // プレビュー中TRUE
 		$btn_preview = $b_preview ? $this->root->_btn_repreview : $this->root->_btn_preview;
-		$fontset_js_tag = $this->func->fontset_js_tag();
 		$timestamp_tag = ($this->root->userinfo['admin'] || (($this->root->userinfo['uid'] == $this->func->get_pg_auther($this->root->vars['page'])) && $this->root->userinfo['uid']))?
 			'<input type="checkbox" id="notimestamp" name="notimestamp" value="true"'.$checked_time.' /><label for="notimestamp"><span style="small">'.$this->root->_btn_notchangetimestamp.'</span></label>'
 		:'';
@@ -724,7 +723,6 @@ EOD;
   <input type="hidden" name="inline_preview" value="{$inline_preview}" />
   <input type="hidden" name="areaedit_no"	value="{$areaedit_no}" />
   <input type="hidden" name="areaedit_start_no" value="{$areaedit_start_no}" />
-  $fontset_js_tag
   <br />
   <textarea name="areaedit_msg" rows="{$this->root->rows}" cols="{$this->root->cols}" rel="wikihelper">$s_postdata_input</textarea>
   <br />
