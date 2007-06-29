@@ -1,7 +1,7 @@
 <?php
 //
 // Created on 2006/09/29 by nao-pon http://hypweb.net/
-// $Id: xpwiki.php,v 1.43 2007/06/28 07:33:58 nao-pon Exp $
+// $Id: xpwiki.php,v 1.44 2007/06/29 08:54:28 nao-pon Exp $
 //
 
 class XpWiki {
@@ -428,6 +428,7 @@ EOD;
 		
 		$csstag = '';
 		if ($cssbase) {
+			$cssbase = 'r_'.$cssbase;
 			$csstag = '<link rel="stylesheet" type="text/css" media="screen" href="'.$this->cont['HOME_URL'].$this->cont['SKIN_DIR'].'pukiwiki.css.php?charset=Shift_JIS&amp;base='.$cssbase.'" charset="Shift_JIS" />';
 			$text = '<div class="xpwiki_'.$cssbase.'">'."\n".$text."\n".'</div>';
 		}

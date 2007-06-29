@@ -11,6 +11,8 @@ define( $constpref.'_LOADED' , 1 ) ;
 // Names of blocks for this module (Not all module has blocks)
 define( $constpref."_BNAME_A_PAGE","Show page  ({$mydirname})");
 define( $constpref."_BDESC_A_PAGE","The content can be displayed in the block by specifying page name.");
+define( $constpref."_BNAME_NOTIFICATION","Notifications ({$mydirname})");
+define( $constpref."_BDESC_NOTIFICATION","Set up about notifications.");
 
 define( $constpref.'_MODULE_DESCRIPTION' , 'A wiki module based on PukiWiki.' ) ;
 
@@ -20,7 +22,31 @@ define( $constpref.'_ADMIN_TOOLS' , 'Admin Tools' ) ;
 
 define( $constpref.'_COM_DIRNAME','Comment-integration: dirname of d3forum');
 define( $constpref.'_COM_FORUM_ID','Comment-integration: forum ID');
-}
 
+// Notify Replaces
+define($constpref.'_NOTCAT_REPLASE2MODULENAME', 'this module');
+define($constpref.'_NOTCAT_REPLASE2FIRSTLEV', 'first hierarchy');
+define($constpref.'_NOTCAT_REPLASE2SECONDLEV', 'second hierarchy');
+//define($constpref.'_NOTCAT_REPLASE2PAGENAME', 'this page');
+
+// Notify Categories
+define($constpref.'_NOTCAT_PAGE', 'This page');
+define($constpref.'_NOTCAT_PAGEDSC', 'Notifications about this page.');
+define($constpref.'_NOTCAT_PAGE1', 'first hierarchy or under');
+define($constpref.'_NOTCAT_PAGE1DSC', 'Notifications about first hierarchy or under.');
+define($constpref.'_NOTCAT_PAGE2', 'second hierarchy or under');
+define($constpref.'_NOTCAT_PAGE2DSC', 'Notifications about second hierarchy or under.');
+define($constpref.'_NOTCAT_GLOBAL', 'this module');
+define($constpref.'_NOTCAT_GLOBALDSC', 'Notifications about whole of this module');
+
+// Each Notifications
+define($constpref.'_NOTIFY_PAGE_UPDATE', 'Page edit');
+define($constpref.'_NOTIFY_PAGE_UPDATECAP', 'Notify me of edited this page.');
+define($constpref.'_NOTIFY_PAGE1_UPDATECAP', 'Notify me of edited first hierarchy or under.');
+define($constpref.'_NOTIFY_PAGE2_UPDATECAP', 'Notify me of edited second hierarchy or under.');
+define($constpref.'_NOTIFY_PAGE_UPDATESBJ', '[{X_SITENAME}] {X_MODULE}:{PAGE_NAME} edited');
+define($constpref.'_NOTIFY_GLOBAL_UPDATECAP', 'Notify me of edited any page in this module.');
+
+}
 
 ?>

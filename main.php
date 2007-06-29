@@ -26,6 +26,8 @@ include_once "$mytrustdirpath/include.php";
 
 $xpwiki = new XpWiki($mydirname);
 
+$xpwiki->root->is_main = true;
+
 // initialize
 // $xpwiki->init("[Page name]"); (if show a page.)
 $xpwiki->init();

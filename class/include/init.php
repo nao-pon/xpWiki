@@ -193,6 +193,7 @@ if (!empty($const['page_show'])) {
 	
 	$root->get['cmd']  = $root->post['cmd']  = $root->vars['cmd']  = 'read';
 	if ($const['page_show'] === '#RenderMode') {
+		$root->render_mode = 1;
 		$const['page_show'] = '';
 	}
 	$root->get['page'] = $root->post['page'] = $root->vars['page'] = $const['page_show'];
@@ -378,7 +379,7 @@ if (!empty($const['page_show'])) {
 	}
 	
 	// PlainText DB 更新する？
-	if (@$root->vars['cmd'] === 'read') {
+	if (@$root->vars['cmd'] === 'read' && $root->is_main) {
 		$_udp_file = $const['CACHE_DIR'].$this->encode($root->vars['page']).".udp";
 		if (file_exists($_udp_file)) {
 			$_udp_mode = join('',file($_udp_file));
@@ -408,6 +409,7 @@ if (!empty($const['page_show'])) {
 		if (empty($_GET['pgid'])) {
 			$_GET['pgid'] = $root->get['pgid'] = $this->get_pgid_by_name($root->vars['page']);
 		}
+		list($_GET['pgid1'], $_GET['pgid2']) = $this->get_pgids_by_name($root->vars['page']);
 	}
 
 	// 入力チェック: 'cmd=' prohibits nasty 'plugin='

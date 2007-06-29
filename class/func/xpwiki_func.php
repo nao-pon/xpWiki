@@ -1,7 +1,7 @@
 <?php
 //
 // Created on 2006/10/02 by nao-pon http://hypweb.net/
-// $Id: xpwiki_func.php,v 1.75 2007/06/22 08:04:46 nao-pon Exp $
+// $Id: xpwiki_func.php,v 1.76 2007/06/29 08:54:28 nao-pon Exp $
 //
 class XpWikiFunc extends XpWikiXoopsWrapper {
 
@@ -387,17 +387,6 @@ class XpWikiFunc extends XpWikiXoopsWrapper {
 		$this->save_cookie();
 	}
 	
-	// フォント指定JavaScript
-	function fontset_js_tag() {
-		return <<<EOD
-<script type="text/javascript">
-<!--
-	pukiwiki_show_fontset_img();
--->
-</script>
-EOD;
-	}
-	
 	function get_body ($page) {
 
 		// キャッシュ判定
@@ -508,7 +497,7 @@ EOD;
 	function get_pginfo ($page, $src='') {
 		static $info = array();
 		
-		if (isset($info[$this->xpwiki->pid][$page])) { return $info[$this->xpwiki->pid][$page]; }
+		if (isset($info[$this->root->mydirname][$page])) { return $info[$this->root->mydirname][$page]; }
 		
 		if ($src) {
 			if (is_array($src)) {
@@ -554,7 +543,7 @@ EOD;
 
 		$pginfo['reading'] = '';
 		if ($page) {
-			$info[$this->xpwiki->pid][$page] = $pginfo;
+			$info[$this->root->mydirname][$page] = $pginfo;
 		}
 		return $pginfo;
 	}
@@ -654,16 +643,30 @@ EOD;
 	}
 	
 	// ページオーナー権限があるかどうか
-	function is_owner ($page) {
-		if ($this->root->userinfo['admin']) { return TRUE; }
+	function is_owner ($page, $uid = NULL) {
+		if (is_null($uid)) {
+			$userinfo = $this->root->userinfo;
+		} else {
+			$uid = intval($uid);
+			$userinfo = $this->get_userinfo_by_id($uid);
+		}
+
+		if ($userinfo['admin']) { return TRUE; }
 		$pginfo = $this->get_pginfo($page);
-		if ($this->is_page($page) && $pginfo['uid'] && ($pginfo['uid'] === $this->root->userinfo['uid'])) { return TRUE; }
+		if ($this->is_page($page) && $pginfo['uid'] && ($pginfo['uid'] === $userinfo['uid'])) { return TRUE; }
 		return FALSE;
 	}
 	
 	// ページ毎閲覧権限チェック
-	function check_readable_page ($page, $auth_flag = TRUE, $exit_flag = TRUE) {
-		if ($this->is_owner($page)) return TRUE;
+	function check_readable_page ($page, $auth_flag = TRUE, $exit_flag = TRUE, $uid = NULL) {
+		if ($this->is_owner($page, $uid)) return TRUE;
+		
+		if (is_null($uid)) {
+			$userinfo = $this->root->userinfo;
+		} else {
+			$uid = intval($uid);
+			$userinfo = $this->get_userinfo_by_id($uid);
+		}
 		
 		$ret = FALSE;
 		// #pginfo
@@ -673,13 +676,13 @@ EOD;
 		} else {
 			$vgids = explode('&', $pginfo['vgids']);
 			$vaids = explode('&', $pginfo['vaids']);
-			$_vg = array_merge($vgids, $this->root->userinfo['gids']);
+			$_vg = array_merge($vgids, $userinfo['gids']);
 			$vgauth = (count($_vg) === count(array_unique($_vg)))? FALSE : TRUE;
 			if (
 				$pginfo['vgids'] === 'all' || 
 				$pginfo['vaids'] === 'all' ||
 				$vgauth || 
-				in_array((string)$this->root->userinfo['uid'], $vaids, true)
+				in_array((string)$userinfo['uid'], $vaids, true)
 			) {
 				$ret = TRUE;
 			}
@@ -687,7 +690,7 @@ EOD;
 		if ($ret) return TRUE;
 		if ($exit_flag) {
 			$title = $this->root->_msg_not_readable;
-			if (!$this->root->userinfo['uid'] && $auth_flag) {
+			if (!$userinfo['uid'] && $auth_flag) {
 				// needs login
 				$this->redirect_header($this->root->siteinfo['loginurl'], 1, $title, true);
 			} else if ($page === $this->root->defaultpage) {
@@ -701,11 +704,18 @@ EOD;
 	}
 
 	// ページ毎編集権限チェック
-	function check_editable_page ($page, $auth_flag = TRUE, $exit_flag = TRUE) {
-		if ($this->is_owner($page)) return TRUE;
-		
-		if (!$this->check_readable_page ($page, $auth_flag, $exit_flag)) {
+	function check_editable_page ($page, $auth_flag = TRUE, $exit_flag = TRUE, $uid = NULL) {
+		if ($this->is_owner($page, $uid)) return TRUE;
+
+		if (!$this->check_readable_page ($page, $auth_flag, $exit_flag, $uid)) {
 			return FALSE;
+		}
+
+		if (is_null($uid)) {
+			$userinfo = $this->root->userinfo;
+		} else {
+			$uid = intval($uid);
+			$userinfo = $this->get_userinfo_by_id($uid);
 		}
 		
 		$ret = FALSE;
@@ -716,14 +726,14 @@ EOD;
 		} else {
 			$egids = explode('&', $pginfo['egids']);
 			$eaids = explode('&', $pginfo['eaids']);
-			$_eg = array_merge($egids, $this->root->userinfo['gids']);
+			$_eg = array_merge($egids, $userinfo['gids']);
 			$eauth = (count($_eg) === count(array_unique($_eg)))? FALSE : TRUE;
 			
 			if (
 				$pginfo['egids'] === 'all' || 
 				$pginfo['eaids'] === 'all' ||
 				$eauth || 
-				in_array((string)$this->root->userinfo['uid'], $eaids, true)
+				in_array((string)$userinfo['uid'], $eaids, true)
 			) {
 				$ret = TRUE;
 			}
@@ -731,7 +741,7 @@ EOD;
 		if ($ret) return TRUE;
 		if ($exit_flag) {
 			$title = $this->root->_msg_not_editable;
-			if (!$this->root->userinfo['uid'] && $auth_flag) {
+			if (!$userinfo['uid'] && $auth_flag) {
 				// needs login
 				$this->redirect_header($this->root->siteinfo['loginurl'], 1, $title, true);
 			} else if ($this->is_page($page)) {
@@ -769,14 +779,17 @@ EOD;
 	}
 	function add_tag_head ($file,$pre=TRUE) {
 		static $done = array();
-		if (isset($done[$this->xpwiki->pid][$file])) { return; }
-		$done[$this->xpwiki->pid][$file] = TRUE;
+		if (!$this->root->render_mode) {
+			if (isset($done[$this->xpwiki->pid][$file])) { return; }
+			$done[$this->xpwiki->pid][$file] = TRUE;
+		}
 		
 		if (preg_match("/^(.+)\.([^\.]+)$/",$file,$match)) {
 			$target = $pre? 'head_pre_tags' : 'head_tags';
-			$block = (isset($this->root->is_block))? 'b=1&amp;' : '';
+			$block = ($this->root->is_block)? 'b=1&amp;' : '';
+			$render = ($this->root->render_mode)? 'r=1&amp;' : '';
 			if ($match[2] === 'css') {
-				$this->root->{$target}[] = '<link rel="stylesheet" type="text/css" media="screen" href="'.$this->cont['HOME_URL'].'skin/loader.php?'.$block.'src='.$match[1].'.css" />';
+				$this->root->{$target}[] = '<link rel="stylesheet" type="text/css" media="screen" href="'.$this->cont['HOME_URL'].'skin/loader.php?'.$block.$render.'src='.$match[1].'.css" />';
 			} else if ($match[2] === 'js') {
 				$this->root->{$target}[] = '<script type="text/javascript" src="'.$this->cont['HOME_URL'].'skin/loader.php?src='.$match[1].'.js"></script>';
 			}
@@ -1141,12 +1154,20 @@ EOD;
 		if ($ret) $this->root->pgids[$page] = $ret;
 		return $ret;
 	}
-
+	
+	// トップ・セカンドレベルのページIDを求める
+	function get_pgids_by_name ($page) {
+		$pages = array_pad(explode('/', $page), 2, '');
+		$pgid1 = $this->get_pgid_by_name($pages[0]);
+		$pgid2 = ($pages[1])? $this->get_pgid_by_name($pages[0].'/'.$pages[1]) : 0;
+		return array($pgid1, $pgid2);
+	}
+	
 	//ページIDからページ名を求める
 	function get_name_by_pgid($id)
 	{
 		static $page_name = array();
-		if (isset($page_name[$this->xpwiki->pid][$id])) return $page_name[$this->xpwiki->pid][$id];
+		if (isset($page_name[$this->root->mydirname][$id])) return $page_name[$this->root->mydirname][$id];
 		
 		$db =& $this->xpwiki->db;
 		$query = "SELECT `name` FROM ".$db->prefix($this->root->mydirname."_pginfo")." WHERE pgid='$id' LIMIT 1";
@@ -1163,7 +1184,7 @@ EOD;
 		static $ret = array();
 		$page = $this->strip_bracket($page);
 		
-		if (isset($ret[$this->xpwiki->pid][$page])) return $ret[$this->xpwiki->pid][$page];
+		if (isset($ret[$this->root->mydirname][$page])) return $ret[$this->root->mydirname][$page];
 		
 		$page = addslashes($page);
 		$db =& $this->xpwiki->db;
@@ -1172,7 +1193,7 @@ EOD;
 		if (!$res) return "";
 		$_ret = mysql_fetch_row($res);
 		$_ret = htmlspecialchars($_ret[0], ENT_QUOTES);
-		return $ret[$this->xpwiki->pid][$page] = ($_ret || $init)? $_ret : htmlspecialchars($page,ENT_NOQUOTES);
+		return $ret[$this->root->mydirname][$page] = ($_ret || $init)? $_ret : htmlspecialchars($page,ENT_NOQUOTES);
 	}
 	
 	// 全ページ名を配列にDB版
@@ -1779,8 +1800,8 @@ EOD;
 	{
 		static $links = array();
 		
-		if (isset($links[$this->xpwiki->pid][$page])) {return $links[$this->xpwiki->pid][$page];}
-		$links[$this->xpwiki->pid][$page] = array();
+		if (isset($links[$this->root->mydirname][$page])) {return $links[$this->root->mydirname][$page];}
+		$links[$this->root->mydirname][$page] = array();
 		
 		$where = "`relid` = ".$this->get_pgid_by_name($page)." AND p.pgid = r.pgid";
 		$r_where = $this->get_readable_where('p.');
@@ -1797,11 +1818,11 @@ EOD;
 		{
 			while(list($name,$time) = mysql_fetch_row($result))
 			{
-				$links[$this->xpwiki->pid][$page][$name] = $time;
+				$links[$this->root->mydirname][$page][$name] = $time;
 			}
 		}
 		
-		return $links[$this->xpwiki->pid][$page];
+		return $links[$this->root->mydirname][$page];
 	}
 	
 	// 閲覧権限チェック用 WHERE句取得

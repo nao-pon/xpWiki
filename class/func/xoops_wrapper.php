@@ -1,7 +1,7 @@
 <?php
 //
 // Created on 2006/10/11 by nao-pon http://hypweb.net/
-// $Id: xoops_wrapper.php,v 1.31 2007/06/08 08:58:17 nao-pon Exp $
+// $Id: xoops_wrapper.php,v 1.32 2007/06/29 08:54:28 nao-pon Exp $
 //
 class XpWikiXoopsWrapper extends XpWikiBackupFunc {
 	
@@ -21,6 +21,7 @@ class XpWikiXoopsWrapper extends XpWikiBackupFunc {
 		
 		$this->root->module = $XoopsModule->getInfo();
 		$this->root->module['title'] = $XoopsModule->name();
+		$this->root->module['mid']   = $XoopsModule->mid();
 		$this->root->module['config'] =& $config_handler->getConfigsByCat(0, $XoopsModule->mid());
 		$this->root->module['platform'] = "xoops";
 		
@@ -53,7 +54,8 @@ class XpWikiXoopsWrapper extends XpWikiBackupFunc {
 		{
 			$this->root->userinfo['admin'] = $xoopsUser->isAdmin($XoopsModule->mid());
 			$this->root->userinfo['uid'] = (int)$xoopsUser->uid();
-			$this->root->userinfo['uname'] = $xoopsUser->uname();
+			$this->root->userinfo['email'] = $xoopsUser->email();
+			$this->root->userinfo['uname'] = $this->unhtmlspecialchars($xoopsUser->uname(), ENT_QUOTES);
 			$this->root->userinfo['uname_s'] = htmlspecialchars($this->root->userinfo['uname']);
 			$this->root->userinfo['gids'] = $xoopsUser->getGroups();
 		}
@@ -64,15 +66,22 @@ class XpWikiXoopsWrapper extends XpWikiBackupFunc {
 	}
 	
 	function get_userinfo_by_id ($uid) {
+		$uid = intval($uid);
 		$config_handler =& xoops_gethandler('config');
 		$xoopsConfig =& $config_handler->getConfigsByCat(XOOPS_CONF);
+
+		$module_handler =& xoops_gethandler('module');
+		$XoopsModule =& $module_handler->getByDirname($this->root->mydirname);
 
 		$result = parent::get_userinfo_by_id($uid, $xoopsConfig['anonymous']);
 		$user_handler =& xoops_gethandler('user');
 		$user =& $user_handler->get( $uid );
 		if (is_object($user)) {
-			$result['uname'] = $user->uname();
+			$result['admin'] = $user->isAdmin($XoopsModule->mid());
 			$result['email'] = $user->email();
+			$result['uname'] = $this->unhtmlspecialchars($user->uname(), ENT_QUOTES);
+			$result['uname_s'] = htmlspecialchars($result['uname']);
+			$result['gids'] = $user->getGroups();
 		}
 		return $result;
 	}
@@ -281,7 +290,7 @@ class XpWikiXoopsWrapper extends XpWikiBackupFunc {
 		if (!$pgid) return '';
 		
 		require_once XOOPS_ROOT_PATH.'/class/template.php';
-		$tpl = new XoopsTpl();
+		$tpl =& new XoopsTpl();
 		// assign
 		$tpl->assign(
 			array(
@@ -331,6 +340,139 @@ class XpWikiXoopsWrapper extends XpWikiBackupFunc {
 			}
 		}
 		return $facemarks;
+	}
+	
+	// 通知イベント
+	function system_notification( $page, $category , $item_id , $event , $extra_tags=array() , $user_list=array() , $omit_user_id=null )
+	{
+		//global $xoopsModule , $xoopsConfig , $mydirname , $mydirpath , $mytrustdirname , $mytrustdirpath ;
+		// RMV-NOTIFY
+		include_once XOOPS_ROOT_PATH . '/include/notification_constants.php';
+		include_once XOOPS_ROOT_PATH . '/include/notification_functions.php';
+
+		$config_handler =& xoops_gethandler('config');
+		$xoopsConfig =& $config_handler->getConfigsByCat(XOOPS_CONF);
+		$mid = $this->root->module['mid'];
+	
+		// Check if event is enabled
+		$config_handler =& xoops_gethandler('config');
+		$mod_config =& $config_handler->getConfigsByCat(0,$mid);
+		if (empty($mod_config['notification_enabled'])) {
+			return false;
+		}
+		$category_info =& notificationCategoryInfo ($category, $mid);
+		$event_info =& notificationEventInfo ($category, $event, $mid);
+		if (!in_array(notificationGenerateConfig($category_info,$event_info,'option_name'),$mod_config['notification_events']) && empty($event_info['invisible'])) {
+			return false;
+		}
+		if (is_null($omit_user_id)) {
+			$omit_user_id = $this->root->userinfo['uid'];
+		}
+		$criteria = new CriteriaCompo();
+		$criteria->add(new Criteria('not_modid', intval($mid)));
+		$criteria->add(new Criteria('not_category', $category));
+		$criteria->add(new Criteria('not_itemid', intval($item_id)));
+		$criteria->add(new Criteria('not_event', $event));
+		$mode_criteria = new CriteriaCompo();
+		$mode_criteria->add (new Criteria('not_mode', XOOPS_NOTIFICATION_MODE_SENDALWAYS), 'OR');
+		$mode_criteria->add (new Criteria('not_mode', XOOPS_NOTIFICATION_MODE_SENDONCETHENDELETE), 'OR');
+		$mode_criteria->add (new Criteria('not_mode', XOOPS_NOTIFICATION_MODE_SENDONCETHENWAIT), 'OR');
+		$criteria->add($mode_criteria);
+		if (!empty($user_list)) {
+			$user_criteria = new CriteriaCompo();
+			foreach ($user_list as $user) {
+				$user_criteria->add (new Criteria('not_uid', $user), 'OR');
+			}
+			$criteria->add($user_criteria);
+		}
+		$notification_handler =& xoops_gethandler('notification') ;
+		$notifications =& $notification_handler->getObjects($criteria);
+		if (empty($notifications)) {
+			return;
+		}
+
+		// language file
+		$language = empty( $xoopsConfig['language'] ) ? 'english' : $xoopsConfig['language'] ;
+		if( file_exists( $this->root->mydirpath."/language/$language/mail_template/" ) ) {
+			// user customized language file
+			$mail_template_dir = $this->root->mydirpath."/language/$language/mail_template/" ;
+		} else if( file_exists( $this->root->mytrustdirpath."/language/$language/mail_template/" ) ) {
+			// default language file
+			$mail_template_dir = $this->root->mytrustdirpath."/language/$language/mail_template/";
+		} else {
+			// fallback english
+			$mail_template_dir = $this->root->mytrustdirpath."/language/english/mail_template/";
+		}
+
+		// Add some tag substitutions here
+		$tags = array();
+		// {X_ITEM_NAME} {X_ITEM_URL} {X_ITEM_TYPE} from lookup_func are disabled
+		$tags['X_MODULE'] = $this->root->module['name'];
+		$tags['X_MODULE_URL'] = $this->root->script;
+		$tags['X_NOTIFY_CATEGORY'] = $category;
+		$tags['X_NOTIFY_EVENT'] = $event;
+	
+		$template = $event_info['mail_template'] . '.tpl';
+		$subject = $event_info['mail_subject'];
+
+		foreach ($notifications as $notification) {
+			if (empty($omit_user_id) || $notification->getVar('not_uid') != $omit_user_id) {
+				// 表示権限チェック
+				if ($this->check_readable_page($page, false, false, $notification->getVar('not_uid'))) {
+					// user-specific tags
+					//$tags['X_UNSUBSCRIBE_URL'] = 'TODO';
+					// TODO: don't show unsubscribe link if it is 'one-time' ??
+					$tags['X_UNSUBSCRIBE_URL'] = XOOPS_URL . '/notifications.php';
+					$tags = array_merge ($tags, $extra_tags);
+	
+					$notification->notifyUser($mail_template_dir, $template, $subject, $tags);
+				}
+			}
+		}
+	}
+
+	
+	function get_notification_select ($pgid = null) {
+		static $done;
+		
+		if (!$this->root->userinfo['uid'] || isset($done[$this->root->mydirname])) return '';
+		
+		$done[$this->root->mydirname] = true;
+		
+		require_once XOOPS_ROOT_PATH.'/class/template.php';
+		
+		$xoopsTpl =& new XoopsTpl();
+		
+		if (function_exists('LegacyRender_smartyfunction_notifications_select')) {
+			$xoopsTpl->register_function("legacy_notifications_select", "LegacyRender_smartyfunction_notifications_select");
+		} else {
+			$member_handler =& xoops_gethandler('member');
+			$xoopsUser =& $member_handler->getUser($this->root->userinfo['uid']);
+			$module_handler =& xoops_gethandler('module');
+			$xoopsModule =& $module_handler->getByDirname($this->root->mydirname);
+			$config_handler =& xoops_gethandler('config');
+			$xoopsConfig =& $config_handler->getConfigsByCat(XOOPS_CONF);
+			$xoopsTpl->assign('xoops_url', XOOPS_URL);
+			include XOOPS_ROOT_PATH . '/include/notification_select.php';
+		}
+		
+		$ret = $xoopsTpl->fetch( 'db:system_notification_select.html' );
+
+		$page = (is_null($pgid))? $this->root->vars['page'] : $this->get_name_by_pgid($pgid);
+		$pages = array_pad(explode('/', $page), 2, '');
+		$from = array(
+			constant('_MI_'.strtoupper($this->root->mydirname).'_NOTCAT_REPLASE2MODULENAME'),
+			constant('_MI_'.strtoupper($this->root->mydirname).'_NOTCAT_REPLASE2FIRSTLEV'),
+			constant('_MI_'.strtoupper($this->root->mydirname).'_NOTCAT_REPLASE2SECONDLEV'),
+			//constant('_MI_'.strtoupper($this->root->mydirname).'_NOTCAT_REPLASE2PAGENAME'),
+		);
+		$to = array(
+			$this->root->module['title'],
+			$pages[0],
+			$pages[0].' / '.$pages[1],
+			//$page,
+		);
+		return (empty($ret))? '' : str_replace($from, $to, $ret);
 	}
 }
 ?>
