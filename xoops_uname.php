@@ -67,7 +67,12 @@ if ($use_mb) {
 }
 $ret = 'this.setSuggest(' . $oq . ',new Array(' . $ret . '));';
 
-header ("Content-Type: text/html; charset=UTF-8");
+// clear output buffer
+while( ob_get_level() ) {
+	ob_end_clean() ;
+}
+
+header ("Content-Type: text/plain; charset=UTF-8");
 header ("Content-Length: ".strlen($ret));
 echo $ret;
 

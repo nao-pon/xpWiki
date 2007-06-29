@@ -9,7 +9,7 @@ class xpwiki_plugin_attach extends xpwiki_plugin {
 	/////////////////////////////////////////////////
 	// PukiWiki - Yet another WikiWikiWeb clone.
 	//
-	//  $Id: attach.inc.php,v 1.13 2007/06/08 08:50:54 nao-pon Exp $
+	//  $Id: attach.inc.php,v 1.14 2007/06/29 08:33:54 nao-pon Exp $
 	//  ORG: attach.inc.php,v 1.31 2003/07/27 14:15:29 arino Exp $
 	//
 	
@@ -1380,7 +1380,12 @@ EOD;
 			}
 		}
 		$filename = htmlspecialchars($filename);
-		
+
+		// clear output buffer
+		while( ob_get_level() ) {
+			ob_end_clean() ;
+		}
+
 		ini_set('default_charset','');
 		mb_http_output('pass');
 		
