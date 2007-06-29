@@ -1,14 +1,15 @@
 <?php
 //
 // Created on 2006/10/25 by nao-pon http://hypweb.net/
-// $Id: loader.php,v 1.8 2007/06/08 08:58:17 nao-pon Exp $
+// $Id: loader.php,v 1.9 2007/06/29 08:35:02 nao-pon Exp $
 //
 
 error_reporting(0);
 
 // 変数初期化
 $src   = preg_replace("/[^\w.-]+/","",@ $_GET['src']);
-$block = (isset($_GET['b']))? 'b_' : '';
+$prefix = (isset($_GET['b']))? 'b_' : '';
+$prefix = (isset($_GET['r']))? 'r_' : '';
 $addcss = $dir = $out = $type = $src_file = '';
 $root_path = dirname($skin_dirname);
 $face_cache = $root_path . '/private/cache/facemarks.js';
@@ -43,7 +44,7 @@ if (file_exists("{$skin_dirname}/{$basedir}{$type}/{$src}.{$type}")) {
 switch ($type) {
 	case 'css':
 		$c_type = 'text/css';
-		$dir = $block.basename($root_path);
+		$dir = $prefix.basename($root_path);
 		break;
 	case 'js':
 		$c_type = 'application/x-javascript';
@@ -56,7 +57,7 @@ switch ($type) {
 		break;
 	case 'pagecss':
 		$c_type = 'text/css';
-		$dir = $block.basename($root_path);
+		$dir = $prefix.basename($root_path);
 		$src_file = $mydirname = $root_path . '/private/cache/' . $src . '.css';
 		break;
 	case 'xml':
