@@ -4,7 +4,7 @@ class xpwiki_plugin_pcomment extends xpwiki_plugin {
 
 
 	// PukiWiki - Yet another WikiWikiWeb clone
-	// $Id: pcomment.inc.php,v 1.7 2007/06/21 22:53:48 nao-pon Exp $
+	// $Id: pcomment.inc.php,v 1.8 2007/06/29 08:52:37 nao-pon Exp $
 	//
 	// pcomment plugin - Show/Insert comments into specified (another) page
 	//
@@ -107,6 +107,8 @@ $this->cont['PLUGIN_PCOMMENT_DIRECTION_DEFAULT'] =  1; // 1: above 0: below
 		list($comments, $digest) = $this->plugin_pcomment_get_comments($_page, $count, $dir, $params['reply']);
 	
 		if ($this->cont['PKWK_READONLY'] === 1) {
+			$form_start = $form = $form_end = '';
+		} else if ($this->cont['PKWK_READONLY'] === 2 && ! $this->func->check_editable_page($_page, FALSE, FALSE)) {
 			$form_start = $form = $form_end = '';
 		} else {
 			// Show a form
