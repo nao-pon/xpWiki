@@ -5,7 +5,7 @@ class xpwiki_plugin_calendar extends xpwiki_plugin {
 
 
 	}
-	// $Id: calendar.inc.php,v 1.1 2006/10/13 13:17:49 nao-pon Exp $
+	// $Id: calendar.inc.php,v 1.2 2007/07/03 07:18:21 nao-pon Exp $
 	// Copyright (C)
 	//   2002-2003,2005 PukiWiki Developers Team
 	//   2001-2002 Originally written by yu-ji
@@ -42,6 +42,9 @@ class xpwiki_plugin_calendar extends xpwiki_plugin {
 		} else if (! $this->func->is_pagename($page)) {
 			return FALSE;
 		}
+		
+		$this->func->add_tag_head('calendar.css');
+		
 		$pre    = $page;
 		$prefix = $page . '/';
 	
