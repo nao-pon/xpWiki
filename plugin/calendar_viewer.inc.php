@@ -1,6 +1,6 @@
 <?php
 // PukiWiki - Yet another WikiWikiWeb clone
-// $Id: calendar_viewer.inc.php,v 1.7 2007/05/25 02:57:04 nao-pon Exp $
+// $Id: calendar_viewer.inc.php,v 1.8 2007/07/03 07:18:21 nao-pon Exp $
 //
 // Calendar viewer plugin - List pages that calendar/calnedar2 plugin created
 // (Based on calendar and recent plugin)
@@ -149,8 +149,8 @@ class xpwiki_plugin_calendar_viewer extends xpwiki_plugin {
 			// Past-mode hates the future, and
 			// Future-mode hates the past.
 			if (($this->plugin_calendar_viewer_isValidDate($page_date, $date_sep) == FALSE) || 
-				($page_date > $_date && ($mode == 'past')) ||
-				($page_date < $_date && ($mode == 'future')))
+				(!$page_YM && (($page_date > $_date && ($mode == 'past')) ||
+				($page_date < $_date && ($mode == 'future')))))
 					continue;
 
 			$pagelist[] = $page;
@@ -241,12 +241,12 @@ class xpwiki_plugin_calendar_viewer extends xpwiki_plugin {
 				//$right_text = $prev_YM . '&gt;&gt;'; // >>
 				//$left_YM    = $next_YM;
 				//$left_text  = '&lt;&lt;' . $next_YM; // <<
-				$left_YM    = $prev_YM;
+				$left_YM    = str_replace($date_sep, '', $prev_YM);
 				$left_text  = '&lt;&lt;' . $prev_YM; // <<
 				$right_YM   = $next_YM;
 				$right_text = $next_YM . '&gt;&gt;'; // >>
 			} else {
-				$left_YM    = $prev_YM;
+				$left_YM    = str_replace($date_sep, '', $prev_YM);
 				$left_text  = '&lt;&lt;' . $prev_YM; // <<
 				$right_YM   = $next_YM;
 				$right_text = $next_YM . '&gt;&gt;'; // >>
@@ -272,8 +272,13 @@ class xpwiki_plugin_calendar_viewer extends xpwiki_plugin {
 		if ($left_YM != '' || $right_YM != '') {
 			$s_date_sep = htmlspecialchars($date_sep);
 			$left_link = $right_link = '';
-			$link = $this->root->script . '?plugin=calendar_viewer&amp;mode=' . $mode .
-			'&amp;file=' . $enc_pagename . '&amp;date_sep=' . $s_date_sep . '&amp;';
+			if ($page_YM != '') {
+				$link = $this->root->script . '?plugin=calendar2&amp;file=' . $enc_pagename . '&amp;';				
+			} else {
+				$link = $this->root->script . '?plugin=calendar_viewer&amp;mode=' . $mode .
+				'&amp;file=' . $enc_pagename . '&amp;date_sep=' . $s_date_sep . '&amp;';				
+			}
+
 			if ($left_YM != '')
 				$left_link = '<a href="' . $link .
 				'date=' . $left_YM . '">' . $left_text . '</a>';

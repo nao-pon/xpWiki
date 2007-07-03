@@ -1,6 +1,6 @@
 <?php
 // PukiWiki - Yet another WikiWikiWeb clone.
-// $Id: pukiwiki.css.php,v 1.27 2007/06/29 08:54:13 nao-pon Exp $
+// $Id: pukiwiki.css.php,v 1.28 2007/07/03 07:18:30 nao-pon Exp $
 // Copyright (C)
 //   2002-2005 PukiWiki Developers Team
 //   2001-2002 Originally written by yu-ji
@@ -620,68 +620,6 @@ $class .anchor_super {
 
 /* br.inc.php */
 $class br.spacer {}
-
-/* calendar*.inc.php */
-$class .style_calendar {
-	padding:0px;
-	border:0px;
-	margin:3px;
-	color:inherit;
-	background-color:#CCD5DD;
-	text-align:center;
-}
-$class .style_td_caltop {
-	padding:5px;
-	margin:1px;
-	color:inherit;
-	background-color:#EEF5FF;
-	font-size:80%;
-	text-align:center;
-}
-$class .style_td_today {
-	padding:5px;
-	margin:1px;
-	color:inherit;
-	background-color:#FFFFDD;
-	text-align:center;
-}
-$class .style_td_sat {
-	padding:5px;
-	margin:1px;
-	color:inherit;
-	background-color:#DDE5FF;
-	text-align:center;
-}
-$class .style_td_sun {
-	padding:5px;
-	margin:1px;
-	color:inherit;
-	background-color:#FFEEEE;
-	text-align:center;
-}
-$class .style_td_blank {
-	padding:5px;
-	margin:1px;
-	color:inherit;
-	background-color:#EEF5FF;
-	text-align:center;
-}
-$class .style_td_day {
-	padding:5px;
-	margin:1px;
-	color:inherit;
-	background-color:#EEF5FF;
-	text-align:center;
-}
-$class .style_td_week {
-	padding:5px;
-	margin:1px;
-	color:inherit;
-	background-color:#DDE5EE;
-	font-size:80%;
-	font-weight:bold;
-	text-align:center;
-}
 
 /* calendar_viewer.inc.php */
 $class div.calendar_viewer {

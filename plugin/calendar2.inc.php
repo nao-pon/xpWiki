@@ -5,7 +5,7 @@ class xpwiki_plugin_calendar2 extends xpwiki_plugin {
 
 
 	}
-	// $Id: calendar2.inc.php,v 1.3 2007/05/25 02:57:04 nao-pon Exp $
+	// $Id: calendar2.inc.php,v 1.4 2007/07/03 07:18:21 nao-pon Exp $
 	//
 	// Calendar2 plugin
 	//
@@ -17,16 +17,20 @@ class xpwiki_plugin_calendar2 extends xpwiki_plugin {
 	{
 	//	global $script, $vars, $post, $get, $weeklabels, $WikiName, $BracketName;
 	//	global $_calendar2_plugin_edit, $_calendar2_plugin_empty;
-	
+		
+		$this->func->add_tag_head('calendar.css');
+		
 		$date_str = $this->func->get_date('Ym');
 		$base     = $this->func->strip_bracket($this->root->vars['page']);
 
 		$today_view = TRUE;
+		$date_view = false;
 		if (func_num_args()) {
 			$args = func_get_args();
 			foreach ($args as $arg) {
 				if (is_numeric($arg) && (strlen($arg) == 6 || strlen($arg) == 8)) {
 					$date_str = $arg;
+					$date_view = true;
 				} else if ($arg == 'off') {
 					$today_view = FALSE;
 				
@@ -76,11 +80,12 @@ class xpwiki_plugin_calendar2 extends xpwiki_plugin {
 		$f_today = getdate(mktime(0, 0, 0, $m_num, 1, $year) - $this->cont['LOCALZONE'] + $this->cont['ZONETIME']);
 		$wday = $f_today['wday'];
 		$day  = 1;
-	
-		$m_name = $year . '.' . $m_num;
-	
+
 		$y = substr($date_str, 0, 4) + 0;
 		$m = substr($date_str, 4, 2) + 0;
+		
+		$this_date_str = sprintf('%04d%02d', $y, $m);
+		$m_name = ($date_view)? $year . '.' . $m_num : '<a href="'.$this->root->script.'?plugin=calendar2&amp;file='.$r_base.'&amp;date='.$this_date_str.'">'. $year . '.' . $m_num . '</a>';
 	
 		$prev_date_str = ($m == 1) ?
 			sprintf('%04d%02d', $y - 1, 12) : sprintf('%04d%02d', $y, $m - 1);
@@ -95,7 +100,7 @@ class xpwiki_plugin_calendar2 extends xpwiki_plugin {
 			'  <td valign="top">' . "\n";
 		}
 		$ret .= <<<EOD
-   <table class="style_calendar" cellspacing="1" width="150" border="0" summary="calendar body">
+   <table class="style_calendar" cellspacing="1" summary="calendar body">
     <tr>
      <td class="style_td_caltop" colspan="7">
       <a href="{$this->root->script}?plugin=calendar2&amp;file=$r_base&amp;date=$prev_date_str">&lt;&lt;</a>
@@ -104,7 +109,7 @@ class xpwiki_plugin_calendar2 extends xpwiki_plugin {
 EOD;
 	
 		if ($prefix) $ret .= "\n" .
-		'      <br />[<a href="' . $this->root->script . '?' . $r_base . '">' . $s_base . '</a>]';
+		'      <br />[<a href="' . $this->func->get_page_uri($base, true) . '">' . $s_base . '</a>]';
 	
 		$ret .= "\n" .
 		'     </td>' . "\n" .
@@ -144,14 +149,14 @@ EOD;
 			$moblog_page = $page."-0";
 			
 			if ($this->func->is_page($page) || $this->func->is_page($moblog_page)) {
-				$link = '<a href="' . $this->root->script . '?' . $r_page . '" title="' . $s_page .
-				'"><strong>' . $day . '</strong></a>';
+				$link = '<div class="style_td_written"><a href="' . $this->func->get_page_uri($page, true) . '" title="' . $s_page .
+				'">' . $day . '</a></div>';
 			} else {
 				if ($this->cont['PKWK_READONLY']) {
-					$link = '<span class="small">' . $day . '</small>';
+					$link = $day;
 				} else {
 					$link = $this->root->script . '?cmd=edit&amp;page=' . $r_page . '&amp;refer=' . $r_base;
-					$link = '<a class="small" href="' . $link . '" title="' . $s_page . '">' . $day . '</a>';
+					$link = '<a href="' . $link . '" title="' . $s_page . '">' . $day . '</a>';
 				}
 			}
 	
@@ -220,7 +225,7 @@ EOD;
 		$ret['msg']  = 'calendar ' . $s_page . '/' . $yy;
 		$ret['body'] = call_user_func_array (array(& $this, "plugin_calendar2_convert"), $aryargs);
 
-		$args_array = array($this->root->vars['page'], str_replace('.', '-', $yy), 'past', '-');
+		$args_array = array($this->root->vars['page'], str_replace('.', '-', $yy), 'future', '-');
 		$plugin = & $this->func->get_plugin_instance('calendar_viewer');
 		$ret['body'] .= call_user_func_array (array(& $plugin, "plugin_calendar_viewer_convert"), $args_array);
 
