@@ -1,7 +1,7 @@
 <?php
 //
 // Created on 2006/10/02 by nao-pon http://hypweb.net/
-// $Id: pukiwiki_func.php,v 1.85 2007/06/29 08:54:28 nao-pon Exp $
+// $Id: pukiwiki_func.php,v 1.86 2007/07/03 05:01:17 nao-pon Exp $
 //
 class XpWikiPukiWikiFunc extends XpWikiBaseFunc {
 
@@ -809,7 +809,7 @@ class XpWikiPukiWikiFunc extends XpWikiBaseFunc {
 
 //----- Start convert_html.php -----//
 	// PukiWiki - Yet another WikiWikiWeb clone
-	// $Id: pukiwiki_func.php,v 1.85 2007/06/29 08:54:28 nao-pon Exp $
+	// $Id: pukiwiki_func.php,v 1.86 2007/07/03 05:01:17 nao-pon Exp $
 	// Copyright (C)
 	//   2002-2005 PukiWiki Developers Team
 	//   2001-2002 Originally written by yu-ji
@@ -1016,7 +1016,7 @@ class XpWikiPukiWikiFunc extends XpWikiBaseFunc {
 
 //----- Start func.php -----//
 	// PukiWiki - Yet another WikiWikiWeb clone.
-	// $Id: pukiwiki_func.php,v 1.85 2007/06/29 08:54:28 nao-pon Exp $
+	// $Id: pukiwiki_func.php,v 1.86 2007/07/03 05:01:17 nao-pon Exp $
 	// Copyright (C)
 	//   2002-2006 PukiWiki Developers Team
 	//   2001-2002 Originally written by yu-ji
@@ -1823,7 +1823,7 @@ EOD;
 
 //----- Start make_link.php -----//
 	// PukiWiki - Yet another WikiWikiWeb clone.
-	// $Id: pukiwiki_func.php,v 1.85 2007/06/29 08:54:28 nao-pon Exp $
+	// $Id: pukiwiki_func.php,v 1.86 2007/07/03 05:01:17 nao-pon Exp $
 	// Copyright (C)
 	//   2003-2005 PukiWiki Developers Team
 	//   2001-2002 Originally written by yu-ji
@@ -2647,7 +2647,7 @@ EOD;
 
 //----- Start html.php -----//
 	// PukiWiki - Yet another WikiWikiWeb clone.
-	// $Id: pukiwiki_func.php,v 1.85 2007/06/29 08:54:28 nao-pon Exp $
+	// $Id: pukiwiki_func.php,v 1.86 2007/07/03 05:01:17 nao-pon Exp $
 	// Copyright (C)
 	//   2002-2006 PukiWiki Developers Team
 	//   2001-2002 Originally written by yu-ji
@@ -2700,7 +2700,7 @@ EOD;
 		$_LINK['rss20']    = "{$this->root->script}?cmd=rss&amp;ver=2.0";
 		$_LINK['atom']     = "{$this->root->script}?cmd=rss&amp;ver=atom";
 		$_LINK['search']   = "{$this->root->script}?cmd=search#header";
-		$_LINK['top']      = "{$this->root->script}?" . rawurlencode($this->root->defaultpage);
+		$_LINK['top']      = $this->get_page_uri($this->root->defaultpage, true);
 		if ($this->root->trackback) {
 			$tb_id = $this->tb_get_id($_page);
 			$_LINK['trackback'] = "{$this->root->script}?plugin=tb&amp;__mode=view&amp;tb_id=$tb_id";
@@ -3253,7 +3253,7 @@ EOD;
 
 //----- Start mail.php -----//
 	// PukiWiki - Yet another WikiWikiWeb clone.
-	// $Id: pukiwiki_func.php,v 1.85 2007/06/29 08:54:28 nao-pon Exp $
+	// $Id: pukiwiki_func.php,v 1.86 2007/07/03 05:01:17 nao-pon Exp $
 	// Copyright (C)
 	//   2003-2005 PukiWiki Developers Team
 	//   2003      Originally written by upk
@@ -3556,7 +3556,7 @@ EOD;
 
 //----- Start link.php -----//
 	// PukiWiki - Yet another WikiWikiWeb clone
-	// $Id: pukiwiki_func.php,v 1.85 2007/06/29 08:54:28 nao-pon Exp $
+	// $Id: pukiwiki_func.php,v 1.86 2007/07/03 05:01:17 nao-pon Exp $
 	// Copyright (C) 2003-2006 PukiWiki Developers Team
 	// License: GPL v2 or (at your option) any later version
 	//
