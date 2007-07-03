@@ -1,7 +1,7 @@
 <?php
 //
 // Created on 2006/10/25 by nao-pon http://hypweb.net/
-// $Id: loader.php,v 1.9 2007/06/29 08:35:02 nao-pon Exp $
+// $Id: loader.php,v 1.10 2007/07/03 07:16:47 nao-pon Exp $
 //
 
 error_reporting(0);
@@ -98,6 +98,7 @@ if (file_exists($src_file)) {
 	$out = join("",file($src_file));
 	if ($dir) {
 		$out = str_replace('$dir', $dir, $out . "\n" . $addcss);
+		$out = str_replace('$class', 'div.xpwiki_'.$dir, $out);
 	}
 	if ($type === 'js') {
 		if ($src === 'main') {
