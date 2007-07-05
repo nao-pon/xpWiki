@@ -1,7 +1,7 @@
 <?php
 /*
  * Created on 2007/05/22 by nao-pon http://hypweb.net/
- * $Id: import.inc.php,v 1.3 2007/06/05 00:34:52 nao-pon Exp $
+ * $Id: import.inc.php,v 1.4 2007/07/05 04:59:16 nao-pon Exp $
  */
 
 class xpwiki_plugin_import extends xpwiki_plugin {
@@ -50,7 +50,7 @@ class xpwiki_plugin_import extends xpwiki_plugin {
 		if ($dh = opendir($dir)) {
 			while (($item = readdir($dh)) !== false) {
 				if (is_dir($dir.'/'.$item)) {
-					if (file_exists($dir.'/'.$item.'/wiki')) {
+					if (file_exists($dir.'/'.$item.'/pukiwiki.ini.php')) {
 						if (file_exists($dir.'/'.$item.'/db_func.php')) {
 							$items[$item] = 'pwm';
 						} else {
