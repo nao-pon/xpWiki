@@ -1,7 +1,7 @@
 <?php
 //
 // Created on 2006/10/02 by nao-pon http://hypweb.net/
-// $Id: pukiwiki_func.php,v 1.87 2007/07/05 05:06:58 nao-pon Exp $
+// $Id: pukiwiki_func.php,v 1.88 2007/07/05 23:27:08 nao-pon Exp $
 //
 class XpWikiPukiWikiFunc extends XpWikiBaseFunc {
 
@@ -505,7 +505,7 @@ class XpWikiPukiWikiFunc extends XpWikiBaseFunc {
 	function header_lastmod($page = NULL)
 	{
 		if ($this->root->lastmod && $this->is_page($page)) {
-			$this->pkwk_headers_sent();
+			$this->pkwk_headers_sent(false);
 			header('Last-Modified: ' .
 				date('D, d M Y H:i:s', $this->get_filetime($page)) . ' GMT');
 		}
@@ -809,7 +809,7 @@ class XpWikiPukiWikiFunc extends XpWikiBaseFunc {
 
 //----- Start convert_html.php -----//
 	// PukiWiki - Yet another WikiWikiWeb clone
-	// $Id: pukiwiki_func.php,v 1.87 2007/07/05 05:06:58 nao-pon Exp $
+	// $Id: pukiwiki_func.php,v 1.88 2007/07/05 23:27:08 nao-pon Exp $
 	// Copyright (C)
 	//   2002-2005 PukiWiki Developers Team
 	//   2001-2002 Originally written by yu-ji
@@ -1016,7 +1016,7 @@ class XpWikiPukiWikiFunc extends XpWikiBaseFunc {
 
 //----- Start func.php -----//
 	// PukiWiki - Yet another WikiWikiWeb clone.
-	// $Id: pukiwiki_func.php,v 1.87 2007/07/05 05:06:58 nao-pon Exp $
+	// $Id: pukiwiki_func.php,v 1.88 2007/07/05 23:27:08 nao-pon Exp $
 	// Copyright (C)
 	//   2002-2006 PukiWiki Developers Team
 	//   2001-2002 Originally written by yu-ji
@@ -1823,7 +1823,7 @@ EOD;
 
 //----- Start make_link.php -----//
 	// PukiWiki - Yet another WikiWikiWeb clone.
-	// $Id: pukiwiki_func.php,v 1.87 2007/07/05 05:06:58 nao-pon Exp $
+	// $Id: pukiwiki_func.php,v 1.88 2007/07/05 23:27:08 nao-pon Exp $
 	// Copyright (C)
 	//   2003-2005 PukiWiki Developers Team
 	//   2001-2002 Originally written by yu-ji
@@ -2647,7 +2647,7 @@ EOD;
 
 //----- Start html.php -----//
 	// PukiWiki - Yet another WikiWikiWeb clone.
-	// $Id: pukiwiki_func.php,v 1.87 2007/07/05 05:06:58 nao-pon Exp $
+	// $Id: pukiwiki_func.php,v 1.88 2007/07/05 23:27:08 nao-pon Exp $
 	// Copyright (C)
 	//   2002-2006 PukiWiki Developers Team
 	//   2001-2002 Originally written by yu-ji
@@ -3140,10 +3140,17 @@ EOD;
 	
 	// Check HTTP header()s were sent already, or
 	// there're blank lines or something out of php blocks
-	function pkwk_headers_sent()
+	function pkwk_headers_sent($buf_clear = true)
 	{
 		if ($this->cont['PKWK_OPTIMISE']) return;
-	
+		
+		if ($buf_clear) {
+			// clear output buffer
+			while( ob_get_level() ) {
+				ob_end_clean() ;
+			}
+		}
+			
 		$file = $line = '';
 		if (version_compare(PHP_VERSION, '4.3.0', '>=')) {
 			if (headers_sent($file, $line))
@@ -3159,7 +3166,7 @@ EOD;
 	// Output common HTTP headers
 	function pkwk_common_headers()
 	{
-		if (! $this->cont['PKWK_OPTIMISE']) $this->pkwk_headers_sent();
+		if (! $this->cont['PKWK_OPTIMISE']) $this->pkwk_headers_sent(false);
 	
 		if(isset($this->cont['PKWK_ZLIB_LOADABLE_MODULE'])) {
 			$matches = array();
@@ -3254,7 +3261,7 @@ EOD;
 
 //----- Start mail.php -----//
 	// PukiWiki - Yet another WikiWikiWeb clone.
-	// $Id: pukiwiki_func.php,v 1.87 2007/07/05 05:06:58 nao-pon Exp $
+	// $Id: pukiwiki_func.php,v 1.88 2007/07/05 23:27:08 nao-pon Exp $
 	// Copyright (C)
 	//   2003-2005 PukiWiki Developers Team
 	//   2003      Originally written by upk
@@ -3557,7 +3564,7 @@ EOD;
 
 //----- Start link.php -----//
 	// PukiWiki - Yet another WikiWikiWeb clone
-	// $Id: pukiwiki_func.php,v 1.87 2007/07/05 05:06:58 nao-pon Exp $
+	// $Id: pukiwiki_func.php,v 1.88 2007/07/05 23:27:08 nao-pon Exp $
 	// Copyright (C) 2003-2006 PukiWiki Developers Team
 	// License: GPL v2 or (at your option) any later version
 	//
