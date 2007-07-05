@@ -1,5 +1,5 @@
 <?php
-// $Id: dump.inc.php,v 1.2 2006/11/07 00:05:50 nao-pon Exp $
+// $Id: dump.inc.php,v 1.3 2007/07/05 05:01:19 nao-pon Exp $
 //
 // Remote dump / restore plugin
 // Originated as tarfile.inc.php by teanan / Interfair Laboratory 2004.
@@ -44,9 +44,18 @@ class xpwiki_plugin_dump extends xpwiki_plugin {
 		$this->root->_STORAGE['UPLOAD_DIR']['add_filter']     = '^[0-9A-F_]+';
 		$this->root->_STORAGE['UPLOAD_DIR']['extract_filter'] = '^' . preg_quote($this->cont['UPLOAD_DIR'], '/') . '((?:[0-9A-F]{2})+)_((?:[0-9A-F])+)';
 	
+		// COUNTER_DIR (counter/*.count)
+		$this->root->_STORAGE['COUNTER_DIR']['add_filter']     = '^[0-9A-F]+\.count';
+		$this->root->_STORAGE['COUNTER_DIR']['extract_filter'] = '^' . preg_quote($this->cont['COUNTER_DIR'], '/') . '((?:[0-9A-F])+)(\.count){0,1}';
+
 		// BACKUP_DIR (backup/*.gz)
 		$this->root->_STORAGE['BACKUP_DIR']['add_filter']     = '^[0-9A-F]+\.gz';
 		$this->root->_STORAGE['BACKUP_DIR']['extract_filter'] =  '^' . preg_quote($this->cont['BACKUP_DIR'], '/') . '((?:[0-9A-F])+)(\.gz){0,1}';
+
+		// DIFF_DIR (diff/*.(txt|add))
+		$this->root->_STORAGE['DIFF_DIR']['add_filter']     = '^[0-9A-F]+\.(txt|add)';
+		$this->root->_STORAGE['DIFF_DIR']['extract_filter'] = '^' . preg_quote($this->cont['DIFF_DIR'], '/') . '((?:[0-9A-F])+)(\.txt|add){0,1}';
+
 	
 		/////////////////////////////////////////////////
 		// tarlib: a class library for tar file creation and expansion
@@ -142,18 +151,18 @@ class xpwiki_plugin_dump extends xpwiki_plugin {
 	// ファイルのダウンロード
 	function plugin_dump_download()
 	{
-	//	global $vars, $_STORAGE;
-	
 		// アーカイブの種類
 		$arc_kind = ($this->root->vars['pcmd'] == 'tar') ? 'tar' : 'tgz';
-	
+
 		// ページ名に変換する
 		$namedecode = isset($this->root->vars['namedecode']) ? TRUE : FALSE;
 	
 		// バックアップディレクトリ
 		$bk_wiki   = isset($this->root->vars['bk_wiki'])   ? TRUE : FALSE;
 		$bk_attach = isset($this->root->vars['bk_attach']) ? TRUE : FALSE;
+		$bk_counter= isset($this->root->vars['bk_counter']) ? TRUE : FALSE;
 		$bk_backup = isset($this->root->vars['bk_backup']) ? TRUE : FALSE;
+		$bk_diff   = isset($this->root->vars['bk_diff']) ? TRUE : FALSE;
 	
 		$filecount = 0;
 		$tar = new XpWikitarlib($this->xpwiki);
@@ -162,7 +171,9 @@ class xpwiki_plugin_dump extends xpwiki_plugin {
 	
 		if ($bk_wiki)   $filecount += $tar->add_dir($this->cont['DATA_DIR'],   $this->root->_STORAGE['DATA_DIR']['add_filter'],   $namedecode);
 		if ($bk_attach) $filecount += $tar->add_dir($this->cont['UPLOAD_DIR'], $this->root->_STORAGE['UPLOAD_DIR']['add_filter'], $namedecode);
+		if ($bk_counter)$filecount += $tar->add_dir($this->cont['COUNTER_DIR'],$this->root->_STORAGE['COUNTER_DIR']['add_filter'], $namedecode);
 		if ($bk_backup) $filecount += $tar->add_dir($this->cont['BACKUP_DIR'], $this->root->_STORAGE['BACKUP_DIR']['add_filter'], $namedecode);
+		if ($bk_diff)   $filecount += $tar->add_dir($this->cont['DIFF_DIR'],   $this->root->_STORAGE['DIFF_DIR']['add_filter'], $namedecode);
 	
 		$tar->close();
 	
@@ -245,7 +256,15 @@ class xpwiki_plugin_dump extends xpwiki_plugin {
 		} else {
 			$filename .= '.tar';
 		}
-	
+		
+		// clear output buffer
+		while( ob_get_level() ) {
+			ob_end_clean() ;
+		}
+
+		ini_set('default_charset','');
+		mb_http_output('pass');
+		
 		$this->func->pkwk_common_headers();
 		header('Content-Disposition: attachment; filename="' . $filename . '"');
 		header('Content-Length: ' . $size);
@@ -294,8 +313,12 @@ class xpwiki_plugin_dump extends xpwiki_plugin {
   <label for="_p_dump_d_wiki">wiki</label><br />
   <input type="checkbox" name="bk_attach" id="_p_dump_d_attach" />
   <label for="_p_dump_d_attach">attach</label><br />
+  <input type="checkbox" name="bk_counter" id="_p_dump_d_counter" />
+  <label for="_p_dump_d_counter">counter</label><br />
   <input type="checkbox" name="bk_backup" id="_p_dump_d_backup" />
   <label for="_p_dump_d_backup">backup</label><br />
+  <input type="checkbox" name="bk_diff" id="_p_dump_d_diff" />
+  <label for="_p_dump_d_diff">diff</label><br />
 </p>
 <p><strong>{$this->msg['option']}</strong>
 <br />
@@ -368,7 +391,7 @@ class XpWikitarlib
 	{
 		$tempnam = tempnam(realpath($tempdir), 'tarlib_create_');
 		if ($tempnam === FALSE) return FALSE;
-
+		
 		if ($kind == 'tgz') {
 			$this->arc_kind = $this->cont['TARLIB_KIND_TGZ'];
 			$this->fp       = gzopen($tempnam, 'wb');
@@ -417,7 +440,7 @@ class XpWikitarlib
 				$files[] = $dir . $filename;
 		}
 		closedir($dp);
-		
+
 		sort($files);
 
 		$matches = array();
