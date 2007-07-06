@@ -1,7 +1,7 @@
 <?php
 //
 // Created on 2006/10/02 by nao-pon http://hypweb.net/
-// $Id: xpwiki_func.php,v 1.76 2007/06/29 08:54:28 nao-pon Exp $
+// $Id: xpwiki_func.php,v 1.77 2007/07/06 06:35:56 nao-pon Exp $
 //
 class XpWikiFunc extends XpWikiXoopsWrapper {
 
@@ -1834,10 +1834,10 @@ EOD;
 		
 		$key = ($is_admin)? ("-1".$table) : ("$uid".$table);
 		
-		if (!isset($where[$this->xpwiki->pid][$key]))
+		if (!isset($where[$this->root->mydirname][$key]))
 		{
 			if ($is_admin)
-				$where[$this->xpwiki->pid][$key] = '';
+				$where[$this->root->mydirname][$key] = '';
 			else
 			{
 				$_where = "";
@@ -1848,10 +1848,10 @@ EOD;
 				{
 					$_where .= " OR ({$table}`vgids` LIKE '%&{$gid}&%')";
 				}
-				$where[$this->xpwiki->pid][$key] = $_where.' ';
+				$where[$this->root->mydirname][$key] = $_where.' ';
 			}
 		}
-		return $where[$this->xpwiki->pid][$key];
+		return $where[$this->root->mydirname][$key];
 	}
 
 	// plain Text を取得する
