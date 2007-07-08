@@ -3,7 +3,7 @@
 $this->root->runmode = "standalone";
 
 // PukiWiki - Yet another WikiWikiWeb clone.
-// $Id: tdiary.skin.php,v 1.22 2007/07/05 05:06:58 nao-pon Exp $
+// $Id: tdiary.skin.php,v 1.23 2007/07/08 23:31:59 nao-pon Exp $
 // Copyright (C)
 //   2002-2006 PukiWiki Developers Team
 //   2001-2002 Originally written by yu-ji
@@ -614,7 +614,7 @@ $dirname = $this->root->mydirname;
 
 <!-- Navigation buttuns -->
 <?php if ($this->cont['PKWK_SKIN_SHOW_NAVBAR']) { ?>
-<div class="adminmenu"><div id="navigator">
+<div class="adminmenu"><div id="<?php echo $dirname ?>_navigator">
  <?php $navigator($this, 'top') ?> &nbsp;
 
 <?php if ($is_page) { ?>

@@ -1,12 +1,13 @@
 <?php
 // PukiWiki - Yet another WikiWikiWeb clone.
-// $Id: en.lng.php,v 1.15 2007/06/21 22:43:53 nao-pon Exp $
+// $Id: en.lng.php,v 1.16 2007/07/08 23:32:00 nao-pon Exp $
 // Copyright (C)
 //   2002-2005 PukiWiki Developers Team
 //   2001-2002 Originally written by yu-ji
 // License: GPL v2 or (at your option) any later version
 //
 // PukiWiki message file (English)
+
 
 // NOTE: Encoding of this file, must equal to encoding setting
 
@@ -49,6 +50,7 @@ $root->_msg_collided = 'It seems that someone has already updated this page whil
 $root->_msg_collided_auto = 'It seems that someone has already updated this page while you were editing it.<br /> The collision has been corrected automatically, but there may still be some problems with the page.<br />
  To confirm the changes to the page, press [Update].<br />';
 
+
 $root->_msg_invalidiwn  = ' $1 is not a valid $2.';
 $root->_msg_invalidpass = 'Invalid password.';
 $root->_msg_notfound    = 'The page was not found.';
@@ -62,7 +64,7 @@ $root->_msg_symbol      = 'Symbols';
 $root->_msg_other       = 'Others';
 $root->_msg_help        = 'View Text Formatting Rules';
 $root->_msg_week        = array('Sun','Mon','Tue','Wed','Thu','Fri','Sat');
-$root->_msg_content_back_to_top = '<div class="jumpmenu"><a href="#navigator">&uarr;</a></div>';
+$root->_msg_content_back_to_top = '<div class="jumpmenu"><a href="#'.$root->mydirname.'_navigator">&uarr;</a></div>';
 $root->_msg_word        = 'These search terms have been highlighted:';
 $root->_msg_not_readable   = 'You don\'t have enough permission for read.';
 $root->_msg_not_editable   = 'You don\'t have enough permission for edit.';
@@ -199,6 +201,7 @@ $root->_attach_messages = array(
 	'err_rename'   => 'Cannot rename this file',
 	'err_password' => 'Wrong password.',
 	'err_adminpass'=> 'Wrong administrator password',
+	'err_nopage'   => 'A page "$1" not found. Please make a page before.',
 	'btn_upload'   => 'Upload',
 	'btn_info'     => 'Information',
 	'btn_submit'   => 'Submit',
