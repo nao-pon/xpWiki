@@ -9,7 +9,7 @@ class xpwiki_plugin_attach extends xpwiki_plugin {
 	/////////////////////////////////////////////////
 	// PukiWiki - Yet another WikiWikiWeb clone.
 	//
-	//  $Id: attach.inc.php,v 1.14 2007/06/29 08:33:54 nao-pon Exp $
+	//  $Id: attach.inc.php,v 1.15 2007/07/08 23:25:56 nao-pon Exp $
 	//  ORG: attach.inc.php,v 1.31 2003/07/27 14:15:29 arino Exp $
 	//
 	
@@ -699,6 +699,15 @@ class xpwiki_plugin_attach extends xpwiki_plugin {
 	//	global $script,$vars;
 	//	global $_attach_messages,$X_admin,$X_uid;
 	//	static $load = array();
+		
+		if (!$this->func->is_page($page)) {
+			$this->func->redirect_header(
+				$this->root->script.'?cmd=edit&page='.rawurlencode($page),
+				2,
+				str_replace('$1', htmlspecialchars($page),$this->root->_attach_messages['err_nopage'])
+			);
+		}
+		
 		static $load = array();
 		if (!isset($load[$this->xpwiki->pid])) {$load[$this->xpwiki->pid] = array();}
 		
