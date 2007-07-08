@@ -1,7 +1,7 @@
 <?php
 //
 // Created on 2006/10/02 by nao-pon http://hypweb.net/
-// $Id: xpwiki_func.php,v 1.77 2007/07/06 06:35:56 nao-pon Exp $
+// $Id: xpwiki_func.php,v 1.78 2007/07/08 23:28:46 nao-pon Exp $
 //
 class XpWikiFunc extends XpWikiXoopsWrapper {
 
@@ -489,6 +489,9 @@ class XpWikiFunc extends XpWikiXoopsWrapper {
 <script type="text/javascript" src="{$this->cont['HOME_URL']}skin/loader.php?src=default.{$this->cont['UI_LANG']}{$this->cont['FILE_ENCORD_EXT']}.js"></script>
 EOD;
 		}
+		
+		// Clear
+		$this->root->head_pre_tags = $this->root->head_tags = array();
 		
 		return array($head_pre_tag, $head_tag);
 	}
