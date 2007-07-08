@@ -1,6 +1,6 @@
 <?php
 // PukiWiki - Yet another WikiWikiWeb clone.
-// $Id: ja_utf8.lng.php,v 1.2 2007/06/21 22:43:53 nao-pon Exp $
+// $Id: ja_utf8.lng.php,v 1.3 2007/07/08 23:32:00 nao-pon Exp $
 // Copyright (C)
 //   2002-2005 PukiWiki Developers Team
 //   2001-2002 Originally written by yu-ji
@@ -64,7 +64,7 @@ $root->_msg_symbol         = '記号';
 $root->_msg_other          = '日本語';
 $root->_msg_help           = 'テキスト整形のルールを表示する';
 $root->_msg_week           = array('日','月','火','水','木','金','土');
-$root->_msg_content_back_to_top = '<div class="jumpmenu"><a href="#navigator">&uarr;</a></div>';
+$root->_msg_content_back_to_top = '<div class="jumpmenu"><a href="#'.$root->mydirname.'_navigator">&uarr;</a></div>';
 $root->_msg_word           = 'これらのキーワードがハイライトされています：';
 $root->_msg_not_readable   = 'ページを表示する権限がありません。';
 $root->_msg_not_editable   = 'ページを編集する権限がありません。';
@@ -201,6 +201,7 @@ $root->_attach_messages = array(
 	'err_rename'   => 'ファイル名を変更できませんでした',
 	'err_password' => 'パスワードが一致しません。',
 	'err_adminpass'=> '管理者パスワードが一致しません。',
+	'err_nopage'   => 'ページ「$1」がありません。先にページを作成してください。',
 	'btn_upload'   => 'アップロード',
 	'btn_info'     => '詳細',
 	'btn_submit'   => '実行',

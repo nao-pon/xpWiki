@@ -1,6 +1,6 @@
 <?php
 // PukiWiki - Yet another WikiWikiWeb clone.
-// $Id: pukiwiki.skin.php,v 1.21 2007/07/05 05:06:58 nao-pon Exp $
+// $Id: pukiwiki.skin.php,v 1.22 2007/07/08 23:32:00 nao-pon Exp $
 // Copyright (C)
 //   2002-2006 PukiWiki Developers Team
 //   2001-2002 Originally written by yu-ji
@@ -63,7 +63,7 @@ EOD;
 
 <div class="xpwiki_<?php echo $dirname ?>">
 
-<div class="navigator">
+<div class="navigator" id="<?php echo $dirname ?>_navigator">
 
 <?php if($this->cont['PKWK_SKIN_SHOW_NAVBAR']) { ?>
 
@@ -84,7 +84,7 @@ EOD;
  ]
 </div><!--/navigator_wiki-->
 
-<div class="header">
+<div class="header" id="<?php echo $dirname ?>_header">
 
  <h1 class="title"><?php echo $page ?></h1>
 
@@ -118,10 +118,10 @@ EOD;
  <?php if ($this->root->do_backup) { ?>
 	| <?php $navigator($this,'backup') ?>
  <?php } ?>
- <?php if ($rw && (bool)ini_get('file_uploads')) { ?>
+ <?php if ($rw && $this->is_page($_page) &&(bool)ini_get('file_uploads')) { ?>
 	| <?php $navigator($this,'upload') ?>
  <?php } ?>
- | <?php $navigator($this,'reload') ?>
+ <?php if ($this->is_page($_page)) { ?> | <?php $navigator($this,'reload'); } ?>
  ] &nbsp;
 <?php } else { ?>
  [ <?php $navigator($this, 'top')?> ]
@@ -227,13 +227,13 @@ $this->root->_IMAGE['skin']['rdf']      = 'rdf.png';
 	<?php $toolbar($this, 'backup') ?>
 <?php } ?>
 <?php if ($rw) { ?>
-	<?php if ((bool)ini_get('file_uploads')) { ?>
+	<?php if ($this->is_page($_page) && (bool)ini_get('file_uploads')) { ?>
 		<?php $toolbar($this, 'upload') ?>
 	<?php } ?>
 	<?php $toolbar($this, 'copy') ?>
 	<?php $toolbar($this, 'rename') ?>
 <?php } ?>
- <?php $toolbar($this, 'reload') ?>
+ <?php if ($this->is_page($_page)) { $toolbar($this, 'reload'); } ?>
 <?php } ?>
  &nbsp;
 <?php if ($rw) { ?>
