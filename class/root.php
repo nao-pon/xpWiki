@@ -1,7 +1,7 @@
 <?php
 //
 // Created on 2006/09/29 by nao-pon http://hypweb.net/
-// $Id: root.php,v 1.9 2007/06/29 08:54:28 nao-pon Exp $
+// $Id: root.php,v 1.10 2007/07/09 08:04:59 nao-pon Exp $
 //
 class XpWikiRoot {
 
@@ -111,7 +111,7 @@ class XpWikiRoot {
 	var $related_link;
 	var $related_str;
 	var $rows;
-	var $rtf = array(); //RunTimeFlag
+	var $rtf; //RunTimeFlag
 	var $rule_page;
 	var $rule_related_str;
 	var $script;
@@ -131,12 +131,23 @@ class XpWikiRoot {
 	var $weeklabels;
 	var $whatsdeleted;
 	var $whatsnew;
-	var $is_main;
-	var $is_block;
+	//var $is_main;
+	//var $is_block;
 	var $render_mode;
 	
 	function xpwiki_root() {
 		
+	}
+	
+	function init() {
+		$this->rtf          = array(); // Run time flag
+		$this->foot_explain = array();	// Footnotes
+		$this->rtf['note_id'] = 0;      // Footnotes id 
+		$this->related      = array();	// Related pages
+		$this->notyets      = array();	// Not yet pages
+		$this->head_tags    = array();	// XHTML tags in <head></head>
+		$this->head_pre_tags= array();	// XHTML pre tags in <head></head> before skin's CSS.
+		$this->render_mode = 'main';
 	}
 }
 ?>

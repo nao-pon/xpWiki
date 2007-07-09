@@ -22,19 +22,7 @@ foreach (array('SCRIPT_NAME', 'SERVER_ADMIN', 'SERVER_NAME',
 	//unset(${$key}, $_SERVER[$key], $HTTP_SERVER_VARS[$key]);
 }
 
-/////////////////////////////////////////////////
-// Init grobal variables
-$root->rtf          = array(); // Run time flag
-$root->foot_explain = array();	// Footnotes
-$root->rtf['note_id'] = 0;      // Footnotes id 
-$root->related      = array();	// Related pages
-$root->notyets      = array();	// Not yet pages
-$root->head_tags    = array();	// XHTML tags in <head></head>
-$root->head_pre_tags= array();	// XHTML pre tags in <head></head> before skin's CSS.
-$root->rtf['convert_nest'] = 1; // convert_html nest level
-
 // UI_LANG - Content encoding for buttons, menus,  etc
-//$const['UI_LANG'] = $const['LANG']; // 'en' for Internationalized wikisite
 $const['UI_LANG'] = $this->get_accept_language();
 
 /////////////////////////////////////////////////
@@ -193,7 +181,7 @@ if (!empty($const['page_show'])) {
 	
 	$root->get['cmd']  = $root->post['cmd']  = $root->vars['cmd']  = 'read';
 	if ($const['page_show'] === '#RenderMode') {
-		$root->render_mode = 1;
+		$root->render_mode = 'render';
 		$const['page_show'] = '';
 	}
 	$root->get['page'] = $root->post['page'] = $root->vars['page'] = $const['page_show'];
@@ -379,7 +367,7 @@ if (!empty($const['page_show'])) {
 	}
 	
 	// PlainText DB 更新する？
-	if (@$root->vars['cmd'] === 'read' && $root->is_main) {
+	if (@$root->vars['cmd'] === 'read' && $root->render_mode === 'main') {
 		$_udp_file = $const['CACHE_DIR'].$this->encode($root->vars['page']).".udp";
 		if (file_exists($_udp_file)) {
 			$_udp_mode = join('',file($_udp_file));

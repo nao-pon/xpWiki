@@ -1,7 +1,7 @@
 <?php
 //
 // Created on 2006/09/29 by nao-pon http://hypweb.net/
-// $Id: xpwiki.php,v 1.44 2007/06/29 08:54:28 nao-pon Exp $
+// $Id: xpwiki.php,v 1.45 2007/07/09 08:04:59 nao-pon Exp $
 //
 
 class XpWiki {
@@ -63,6 +63,8 @@ class XpWiki {
 	function init($page = "") {
 		
 		static $oid;
+		
+		$this->root->init();
 		
 		// GET, POST, COOKIE
 		// 基本的に直接操作しない
@@ -303,7 +305,7 @@ class XpWiki {
 		$this->root->runmode = "xoops";
 		
 		// ブロック取得モード
-		$this->root->is_block = TRUE;
+		$this->root->render_mode = 'block';
 		
 		// 実行
 		$this->execute();
