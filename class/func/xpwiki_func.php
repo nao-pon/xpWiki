@@ -1,7 +1,7 @@
 <?php
 //
 // Created on 2006/10/02 by nao-pon http://hypweb.net/
-// $Id: xpwiki_func.php,v 1.78 2007/07/08 23:28:46 nao-pon Exp $
+// $Id: xpwiki_func.php,v 1.79 2007/07/09 08:04:59 nao-pon Exp $
 //
 class XpWikiFunc extends XpWikiXoopsWrapper {
 
@@ -390,7 +390,7 @@ class XpWikiFunc extends XpWikiXoopsWrapper {
 	function get_body ($page) {
 
 		// キャッシュ判定
-		$is_block = (isset($this->root->is_block))? 'b_' : '';
+		$is_block = ($this->root->render_mode === 'block')? 'b_' : '';
 		$cache_file = $this->cont['CACHE_DIR']."page/".$is_block.$this->encode($page).".".$this->cont['UI_LANG'];
 		$use_cache = ($this->root->userinfo['uid'] === 0 && $this->root->pagecache_min > 0 && file_exists($cache_file) && (filemtime($cache_file) + $this->root->pagecache_min * 60) > time());
 		
@@ -782,17 +782,25 @@ EOD;
 	}
 	function add_tag_head ($file,$pre=TRUE) {
 		static $done = array();
-		if (!$this->root->render_mode) {
+		if ($this->root->render_mode !== 'render') {
 			if (isset($done[$this->xpwiki->pid][$file])) { return; }
 			$done[$this->xpwiki->pid][$file] = TRUE;
 		}
 		
 		if (preg_match("/^(.+)\.([^\.]+)$/",$file,$match)) {
 			$target = $pre? 'head_pre_tags' : 'head_tags';
-			$block = ($this->root->is_block)? 'b=1&amp;' : '';
-			$render = ($this->root->render_mode)? 'r=1&amp;' : '';
+			if ($this->root->render_mode === 'main') {
+				$mode = '';
+			} else {
+				$mode = ($this->root->render_mode === 'block')?
+					'b=1&amp;' : 
+					(($this->root->render_mode === 'render')?
+						'r=1&amp;' :
+						''
+					);
+			}
 			if ($match[2] === 'css') {
-				$this->root->{$target}[] = '<link rel="stylesheet" type="text/css" media="screen" href="'.$this->cont['HOME_URL'].'skin/loader.php?'.$block.$render.'src='.$match[1].'.css" />';
+				$this->root->{$target}[] = '<link rel="stylesheet" type="text/css" media="screen" href="'.$this->cont['HOME_URL'].'skin/loader.php?'.$mode.'src='.$match[1].'.css" />';
 			} else if ($match[2] === 'js') {
 				$this->root->{$target}[] = '<script type="text/javascript" src="'.$this->cont['HOME_URL'].'skin/loader.php?src='.$match[1].'.js"></script>';
 			}
@@ -1024,7 +1032,7 @@ EOD;
 	function get_page_css_tag ($page) {
 		$ret = '';
 		$_page = '';
-		$block = (isset($this->root->is_block))? 'b=1&amp;' : '';
+		$block = ($this->root->render_mode === 'block')? 'b=1&amp;' : '';
 		
 		// トップページ
 		$pgid = $this->get_pgid_by_name($this->root->defaultpage);
