@@ -30,7 +30,7 @@ function xpwiki_global_search_base( $mydirname , $keywords , $andor , $limit , $
 	$xpwiki->load_extensions("xoopsSearch");
 	
 	// 初期化
-	$xpwiki->init();
+	$xpwiki->init('#RenderMode');
 	
 	// データ取得
 	$ret = $xpwiki->extension->xoopsSearch->get ( $keywords , $andor , $limit , $offset , $userid );

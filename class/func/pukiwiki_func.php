@@ -1,7 +1,7 @@
 <?php
 //
 // Created on 2006/10/02 by nao-pon http://hypweb.net/
-// $Id: pukiwiki_func.php,v 1.89 2007/07/08 23:32:00 nao-pon Exp $
+// $Id: pukiwiki_func.php,v 1.90 2007/07/11 06:18:08 nao-pon Exp $
 //
 class XpWikiPukiWikiFunc extends XpWikiBaseFunc {
 
@@ -809,7 +809,7 @@ class XpWikiPukiWikiFunc extends XpWikiBaseFunc {
 
 //----- Start convert_html.php -----//
 	// PukiWiki - Yet another WikiWikiWeb clone
-	// $Id: pukiwiki_func.php,v 1.89 2007/07/08 23:32:00 nao-pon Exp $
+	// $Id: pukiwiki_func.php,v 1.90 2007/07/11 06:18:08 nao-pon Exp $
 	// Copyright (C)
 	//   2002-2005 PukiWiki Developers Team
 	//   2001-2002 Originally written by yu-ji
@@ -1016,7 +1016,7 @@ class XpWikiPukiWikiFunc extends XpWikiBaseFunc {
 
 //----- Start func.php -----//
 	// PukiWiki - Yet another WikiWikiWeb clone.
-	// $Id: pukiwiki_func.php,v 1.89 2007/07/08 23:32:00 nao-pon Exp $
+	// $Id: pukiwiki_func.php,v 1.90 2007/07/11 06:18:08 nao-pon Exp $
 	// Copyright (C)
 	//   2002-2006 PukiWiki Developers Team
 	//   2001-2002 Originally written by yu-ji
@@ -1823,7 +1823,7 @@ EOD;
 
 //----- Start make_link.php -----//
 	// PukiWiki - Yet another WikiWikiWeb clone.
-	// $Id: pukiwiki_func.php,v 1.89 2007/07/08 23:32:00 nao-pon Exp $
+	// $Id: pukiwiki_func.php,v 1.90 2007/07/11 06:18:08 nao-pon Exp $
 	// Copyright (C)
 	//   2003-2005 PukiWiki Developers Team
 	//   2001-2002 Originally written by yu-ji
@@ -2647,7 +2647,7 @@ EOD;
 
 //----- Start html.php -----//
 	// PukiWiki - Yet another WikiWikiWeb clone.
-	// $Id: pukiwiki_func.php,v 1.89 2007/07/08 23:32:00 nao-pon Exp $
+	// $Id: pukiwiki_func.php,v 1.90 2007/07/11 06:18:08 nao-pon Exp $
 	// Copyright (C)
 	//   2002-2006 PukiWiki Developers Team
 	//   2001-2002 Originally written by yu-ji
@@ -2687,11 +2687,11 @@ EOD;
 		$_LINK['attaches'] = "{$this->root->script}?plugin=attach&pcmd=list#{$this->root->mydirname}_header";
 		$_LINK['freeze']   = "{$this->root->script}?cmd=freeze&amp;page=$r_page#{$this->root->mydirname}_header";
 		$_LINK['pginfo']   = "{$this->root->script}?cmd=pginfo&amp;page=$r_page#{$this->root->mydirname}_header";
-		$_LINK['help']     = "{$this->root->script}?" . rawurlencode($this->root->help_page) . '#{$this->root->mydirname}_header';
+		$_LINK['help']     = "{$this->root->script}?" . rawurlencode($this->root->help_page) . "#{$this->root->mydirname}_header";
 		$_LINK['list']     = "{$this->root->script}?cmd=list#{$this->root->mydirname}_header";
 		$_LINK['new']      = "{$this->root->script}?plugin=newpage&amp;refer=$r_page#{$this->root->mydirname}_header";
 		$_LINK['rdf']      = "{$this->root->script}?cmd=rss&amp;ver=1.0";
-		$_LINK['recent']   = "{$this->root->script}?" . rawurlencode($this->root->whatsnew) . '#{$this->root->mydirname}_header';
+		$_LINK['recent']   = "{$this->root->script}?" . rawurlencode($this->root->whatsnew) . "#{$this->root->mydirname}_header";
 		$_LINK['refer']    = "{$this->root->script}?plugin=referer&amp;page=$r_page#{$this->root->mydirname}_header";
 		$_LINK['reload']   = "{$this->root->script}" . $this->get_page_uri($_page);
 		$_LINK['rename']   = "{$this->root->script}?plugin=rename&amp;refer=$r_page#{$this->root->mydirname}_header";
@@ -3261,7 +3261,7 @@ EOD;
 
 //----- Start mail.php -----//
 	// PukiWiki - Yet another WikiWikiWeb clone.
-	// $Id: pukiwiki_func.php,v 1.89 2007/07/08 23:32:00 nao-pon Exp $
+	// $Id: pukiwiki_func.php,v 1.90 2007/07/11 06:18:08 nao-pon Exp $
 	// Copyright (C)
 	//   2003-2005 PukiWiki Developers Team
 	//   2003      Originally written by upk
@@ -3564,7 +3564,7 @@ EOD;
 
 //----- Start link.php -----//
 	// PukiWiki - Yet another WikiWikiWeb clone
-	// $Id: pukiwiki_func.php,v 1.89 2007/07/08 23:32:00 nao-pon Exp $
+	// $Id: pukiwiki_func.php,v 1.90 2007/07/11 06:18:08 nao-pon Exp $
 	// Copyright (C) 2003-2006 PukiWiki Developers Team
 	// License: GPL v2 or (at your option) any later version
 	//

@@ -12,7 +12,7 @@ function b_xpwiki_notification_show( $options )
 	
 	include_once XOOPS_TRUST_PATH."/modules/xpwiki/include.php";
 	$xw = XpWiki::getSingleton($mydirname);
-	$xw->init();
+	$xw->init('#RenderMode');
 	
 	$notification = $xw->func->get_notification_select($pgid);
 
