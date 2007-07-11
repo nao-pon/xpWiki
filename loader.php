@@ -1,7 +1,7 @@
 <?php
 //
 // Created on 2006/10/25 by nao-pon http://hypweb.net/
-// $Id: loader.php,v 1.10 2007/07/03 07:16:47 nao-pon Exp $
+// $Id: loader.php,v 1.11 2007/07/11 06:18:08 nao-pon Exp $
 //
 
 error_reporting(0);
@@ -129,7 +129,7 @@ function xpwiki_make_facemarks ($skin_dirname, $cache) {
 	//include XOOPS_ROOT_PATH.'/include/common.php';
 	include_once XOOPS_TRUST_PATH."/modules/xpwiki/include.php";
 	$wiki =& XpWiki::getSingleton( basename(dirname($skin_dirname)) );
-	$wiki->init();
+	$wiki->init('#RenderMode');
 	//var_dump($wiki->root->wikihelper_facemarks);
 	$tags_full = $tags = array();
 	foreach($wiki->root->wikihelper_facemarks as $key => $img) {

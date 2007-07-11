@@ -1,7 +1,7 @@
 <?php
 //
 // Created on 2006/11/07 by nao-pon http://hypweb.net/
-// $Id: check.func.php,v 1.7 2007/06/03 22:34:11 nao-pon Exp $
+// $Id: check.func.php,v 1.8 2007/07/11 06:18:08 nao-pon Exp $
 //
 
 // when onInstall & onUpdate
@@ -102,7 +102,7 @@ function xpwikifunc_defdata_check ($mydirname, $mode = 'install') {
 							if (! isset($xpwiki)) {
 								include_once dirname(dirname(__FILE__)) . '/include.php';
 								$xpwiki = new XpWiki($mydirname);
-								$xpwiki->init();
+								$xpwiki->init('#RenderMode');
 							}
 							$src = join('', file($from.'/'.$file));
 							if ($utf8from) {
