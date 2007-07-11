@@ -1,7 +1,7 @@
 <?php
 //
 // Created on 2006/11/19 by nao-pon http://hypweb.net/
-// $Id: recentchanges.inc.php,v 1.7 2007/01/30 01:58:49 nao-pon Exp $
+// $Id: recentchanges.inc.php,v 1.8 2007/07/11 23:53:38 nao-pon Exp $
 //
 class xpwiki_plugin_recentchanges extends xpwiki_plugin {
 	
@@ -30,7 +30,7 @@ class xpwiki_plugin_recentchanges extends xpwiki_plugin {
 		{
 			$date = $items = "";
 			$cnt = 0;
-			$items = '<ul class="list1" style="padding-left:16px;margin-left:16px">';
+			$items = '<ol class="list1" style="padding-left:16px;margin-left:16px">';
 			while($data = mysql_fetch_row($res))
 			{
 				$lastmod = $this->func->format_date($data[3]);
@@ -38,7 +38,8 @@ class xpwiki_plugin_recentchanges extends xpwiki_plugin {
 				$tb_tag = '';
 				$lasteditor = $this->func->get_lasteditor($this->func->get_pginfo($data[1]));
 				if ($lasteditor) $lasteditor = ' <small>by '.$lasteditor.'</small>';
-				$items .= "<li>$lastmod - ".$tb_tag.$this->func->make_pagelink($data[1]).$lasteditor;
+				$items .= '<li>'.$this->func->make_pagelink($data[1]).' '.$this->func->get_pg_passage($data[1]).$tb_tag;
+				$items .= '<ul class="list2"><li>'.$lastmod.$lasteditor;
 				$added = $this->func->get_page_changes($data[1]);
 				if ($this->show_recent && $added) {
 					list($added) = explode('&#182;<!--ADD_TEXT_SEP-->',$added);
@@ -46,9 +47,9 @@ class xpwiki_plugin_recentchanges extends xpwiki_plugin {
 					$added = preg_replace('/<a[^>]+>(.+?)<\/a>/', '$1', $added);
 					$items .= str_replace('$1', $added, $this->show_recent_format);
 				}
-				$items .="</li>\n";
+				$items .="</li></ul></li>\n";
 			}
-			$items .= '</ul>';
+			$items .= '</ol>';
 	
 		}
 		
