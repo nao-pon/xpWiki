@@ -1,7 +1,7 @@
 <?php
 //
 // Created on 2006/10/02 by nao-pon http://hypweb.net/
-// $Id: xpwiki_func.php,v 1.79 2007/07/09 08:04:59 nao-pon Exp $
+// $Id: xpwiki_func.php,v 1.80 2007/07/11 23:13:17 nao-pon Exp $
 //
 class XpWikiFunc extends XpWikiXoopsWrapper {
 
@@ -1216,7 +1216,7 @@ EOD;
 		}
 		
 		static $_aryret = array();
-		if (isset($_aryret[$this->xpwiki->pid]) && $nocheck === FALSE && $base === '' && !$options) return $_aryret[$this->xpwiki->pid];
+		if (isset($_aryret[$this->root->mydirname]) && $nocheck === FALSE && $base === '' && !$options) return $_aryret[$this->root->mydirname];
 		
 		$keys = array(
 			'where'     => '',
@@ -1318,7 +1318,7 @@ EOD;
 				}
 			}
 		}
-		if ($nocheck === FALSE && $base === '' && !$options) $_aryret[$this->xpwiki->pid] = $aryret;
+		if ($nocheck === FALSE && $base === '' && !$options) $_aryret[$this->root->mydirname] = $aryret;
 		return $aryret;
 	}
 
@@ -1887,7 +1887,7 @@ EOD;
 		if ($id = $this->get_pgid_by_name($page))
 		{
 			clearstatcache();
-			$editedtime = filemtime($this->cont['DATA_DIR'].$this->encode($page).".txt");
+			$editedtime = $this->get_filetime($page);
 			$value = "`editedtime` = '$editedtime' ,".
 					"`lastuid`='{$this->root->userinfo['uid']}' ," .
 					"`lastucd`='{$this->root->userinfo['ucd']}' ," .
