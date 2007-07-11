@@ -9,7 +9,7 @@ class xpwiki_plugin_attach extends xpwiki_plugin {
 	/////////////////////////////////////////////////
 	// PukiWiki - Yet another WikiWikiWeb clone.
 	//
-	//  $Id: attach.inc.php,v 1.15 2007/07/08 23:25:56 nao-pon Exp $
+	//  $Id: attach.inc.php,v 1.16 2007/07/11 23:08:13 nao-pon Exp $
 	//  ORG: attach.inc.php,v 1.31 2003/07/27 14:15:29 arino Exp $
 	//
 	
@@ -419,8 +419,9 @@ class xpwiki_plugin_attach extends xpwiki_plugin {
 		}
 		
 		if (!$notouch && $this->func->is_page($page)) {
-			$this->func->pkwk_touch_file($this->func->get_filename($this->func->encode($page)));
+			$this->func->pkwk_touch_file($this->func->get_filename($page));
 			$this->func->touch_db($page);
+			$this->func->push_page_changes($page, 'Attach file: '.$fname. ' by '.$this->root->userinfo['uname']);
 		}
 		
 		$obj->getstatus();
@@ -1243,7 +1244,7 @@ EOD;
 		}
 		if ($this->func->is_page($this->page))
 		{
-			$this->func->pkwk_touch_file($this->func->get_filename($this->func->encode($this->page)));
+			$this->func->pkwk_touch_file($this->func->get_filename($this->page));
 			$this->func->touch_db($this->page);
 		}
 		
