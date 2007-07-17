@@ -1,7 +1,7 @@
 <?php
 //
 // Created on 2006/09/29 by nao-pon http://hypweb.net/
-// $Id: xpwiki.php,v 1.45 2007/07/09 08:04:59 nao-pon Exp $
+// $Id: xpwiki.php,v 1.46 2007/07/17 02:28:33 nao-pon Exp $
 //
 
 class XpWiki {
@@ -37,6 +37,7 @@ class XpWiki {
 		
 		$this->func =& new XpWikiFunc($this);
 		$this->func->set_moduleinfo();
+		$this->func->set_siteinfo();
 
 		$this->root->mydirpath = $this->cont['ROOT_PATH'].$moddir.$mydirname;
 		$this->root->mytrustdirpath = dirname(dirname(__FILE__));
@@ -73,9 +74,6 @@ class XpWiki {
 		$this->root->cookie = $_COOKIE;
 		
 		if ($page) {$this->cont['page_show'] = $page;}
-		
-		// サイト情報読み込み
-		$this->func->set_siteinfo();
 		
 		// ini ファイル読み込み
 		$this->func->load_ini();
