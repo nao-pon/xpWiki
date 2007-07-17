@@ -1,7 +1,7 @@
 <?php
 //
 // Created on 2006/10/11 by nao-pon http://hypweb.net/
-// $Id: xoops_wrapper.php,v 1.32 2007/06/29 08:54:28 nao-pon Exp $
+// $Id: xoops_wrapper.php,v 1.33 2007/07/17 02:30:22 nao-pon Exp $
 //
 class XpWikiXoopsWrapper extends XpWikiBackupFunc {
 	
@@ -45,6 +45,12 @@ class XpWikiXoopsWrapper extends XpWikiBackupFunc {
 		
 	function set_userinfo () {
 		
+		static $cache; // cache for renderer
+		
+		if (isset($cache[$this->root->mydirname])) {
+			$this->root->userinfo = $cache[$this->root->mydirname];
+		}
+		
 		global $xoopsUser;
 		
 		$module_handler =& xoops_gethandler('module');
@@ -63,6 +69,8 @@ class XpWikiXoopsWrapper extends XpWikiBackupFunc {
 		{
 			parent::set_userinfo();
 		}
+		
+		$cache[$this->root->mydirname] = $this->root->userinfo;
 	}
 	
 	function get_userinfo_by_id ($uid) {
@@ -216,27 +224,19 @@ class XpWikiXoopsWrapper extends XpWikiBackupFunc {
 		$XM =& xoops_gethandler('member');
 		return $XM->getGroupsByUser($uid);
 	}
+
 	// グループ一覧を得る
 	function get_group_list()
 	{
 		$XM =& xoops_gethandler('member');
 		$ret = $XM->getGroupList();
-		unset($ret[1]);
-		return $ret;
-	}
-	
-	// 登録ユーザー一覧を得る
-	function get_allusers($sort=true)
-	{
-		$sort = $sort? 1 : 0;
-		static $users = array();
-		if (isset($users[$sort])) return $users[$sort];
-		
-		$X_M = xoops_gethandler('member');
-		$ret = $X_M->getUserList();
-
-		if ($sort) asort($ret);
-		$users[$sort] = $ret;
+		// 管理者グループを除外
+		$moduleperm_handler =& xoops_gethandler( 'groupperm' );
+		foreach (array_keys($ret) as $id) {
+			if($moduleperm_handler->checkRight('module_admin', $this->root->module['mid'], $id)) {
+				unset($ret[$id]);
+			}
+		}
 		return $ret;
 	}
 	
