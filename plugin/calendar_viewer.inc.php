@@ -1,6 +1,6 @@
 <?php
 // PukiWiki - Yet another WikiWikiWeb clone
-// $Id: calendar_viewer.inc.php,v 1.8 2007/07/03 07:18:21 nao-pon Exp $
+// $Id: calendar_viewer.inc.php,v 1.9 2007/07/17 02:26:59 nao-pon Exp $
 //
 // Calendar viewer plugin - List pages that calendar/calnedar2 plugin created
 // (Based on calendar and recent plugin)
@@ -143,8 +143,8 @@ class xpwiki_plugin_calendar_viewer extends xpwiki_plugin {
 		$_date = $this->func->get_date('Y' . $date_sep . 'm' . $date_sep . 'd');
 		$page_date  = '';
 		foreach($this->func->get_existpages(FALSE,$pagepattern) as $page) {
-			$page_date = substr($page, $pagepattern_len);
 
+			$page_date = substr($page, $pagepattern_len);
 			// Verify the $page_date pattern (Default: yyyy-mm-dd).
 			// Past-mode hates the future, and
 			// Future-mode hates the past.
@@ -313,9 +313,18 @@ class xpwiki_plugin_calendar_viewer extends xpwiki_plugin {
 		$page_YM = $this->root->vars['date'];
 		if ($page_YM == '') $page_YM = $this->func->get_date('Y' . $date_sep . 'm');
 		$mode = $this->root->vars['mode'];
-	
+		
+		// Set nest level
+		if (!isset($this->root->rtf['convert_nest'])) {
+			$this->root->rtf['convert_nest'] = 1;
+		} else {
+			++$this->root->rtf['convert_nest'];
+		}
+		
 		$args_array = array($this->root->vars['page'], $page_YM, $mode, $date_sep);
 		$return_vars_array['body'] = call_user_func_array (array(& $this, "plugin_calendar_viewer_convert"), $args_array);
+		
+		--$this->root->rtf['convert_nest'];
 		
 		//$return_vars_array['msg'] = 'calendar_viewer ' . $vars['page'] . '/' . $page_YM;
 		$return_vars_array['msg'] = 'calendar_viewer ' . htmlspecialchars($this->root->vars['page']);
@@ -330,14 +339,15 @@ class xpwiki_plugin_calendar_viewer extends xpwiki_plugin {
 		return $return_vars_array;
 	}
 	
-	function plugin_calendar_viewer_isValidDate($aStr, $aSepList = '-/ .')
+	function plugin_calendar_viewer_isValidDate(&$aStr, $aSepList = '-/ .')
 	{
 		$matches = array();
 		if ($aSepList == '') {
 			// yyymmddとしてチェック（手抜き(^^;）
 			return checkdate(substr($aStr, 4, 2), substr($aStr, 6, 2), substr($aStr, 0, 4));
-		} else if (preg_match("#^([0-9]{2,4})[$aSepList]([0-9]{1,2})[$aSepList]([0-9]{1,2})([$aSepList][0-9])?$#", $aStr, $matches) ) {
-			return checkdate($matches[2], $matches[3], $matches[1]);
+		} else if (preg_match("#^(([0-9]{2,4})[$aSepList]([0-9]{1,2})[$aSepList]([0-9]{1,2}))([$aSepList][0-9])?$#", $aStr, $matches) ) {
+			$aStr = $matches[1];
+			return checkdate($matches[3], $matches[4], $matches[2]);
 		} else {
 			return FALSE;
 		}

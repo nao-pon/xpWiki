@@ -5,7 +5,7 @@ class xpwiki_plugin_calendar2 extends xpwiki_plugin {
 
 
 	}
-	// $Id: calendar2.inc.php,v 1.4 2007/07/03 07:18:21 nao-pon Exp $
+	// $Id: calendar2.inc.php,v 1.5 2007/07/17 02:26:59 nao-pon Exp $
 	//
 	// Calendar2 plugin
 	//
@@ -221,14 +221,23 @@ EOD;
 	
 		//$aryargs = array($this->root->vars['page'], $date, 'off');
 		$s_page  = htmlspecialchars($this->root->vars['page']);
-	
+		
+		// Set nest level
+		if (!isset($this->root->rtf['convert_nest'])) {
+			$this->root->rtf['convert_nest'] = 1;
+		} else {
+			++$this->root->rtf['convert_nest'];
+		}
+		
 		$ret['msg']  = 'calendar ' . $s_page . '/' . $yy;
 		$ret['body'] = call_user_func_array (array(& $this, "plugin_calendar2_convert"), $aryargs);
 
 		$args_array = array($this->root->vars['page'], str_replace('.', '-', $yy), 'future', '-');
 		$plugin = & $this->func->get_plugin_instance('calendar_viewer');
 		$ret['body'] .= call_user_func_array (array(& $plugin, "plugin_calendar_viewer_convert"), $args_array);
-
+		
+		--$this->root->rtf['convert_nest'];
+		
 		$this->root->vars['page'] = $page;
 	
 		return $ret;
