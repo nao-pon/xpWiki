@@ -1,7 +1,7 @@
 <?php
 //
 // Created on 2006/10/02 by nao-pon http://hypweb.net/
-// $Id: xpwiki_func.php,v 1.80 2007/07/11 23:13:17 nao-pon Exp $
+// $Id: xpwiki_func.php,v 1.81 2007/07/17 02:30:46 nao-pon Exp $
 //
 class XpWikiFunc extends XpWikiXoopsWrapper {
 
@@ -624,25 +624,6 @@ EOD;
 		}
 		$ret .= '</select>';
 		return $ret;
-	}
-	
-	// ユーザー選択フォーム作成
-	function make_userlist_form ($tagname, $ids = array(), $disabled='') {
-		$allusers = $this->get_allusers();
-		
-		//$disabled = ($disabled)? ' disabled="disabled"' : '';
-		
-		$ret = '<select size="10" name="'.$tagname.'[]" id="'.$tagname.'[]" multiple="multiple"'.$disabled.'>';
-		$all = FALSE;
-		if ($ids === 'all' || $ids === 'none') {
-			$ids = array();
-		}
-		foreach ($allusers as $uid => $uname){
-				$sel = (in_array($uid,$ids))? ' selected="selected"' : '';
-				if ($uid !== $this->root->userinfo['uid']) $ret .= '<option value="'.$uid.'"'.$sel.'>'.$uname.'</option>';
-		}
-		$ret .= '</select>';
-		return $ret;		
 	}
 	
 	// ページオーナー権限があるかどうか
