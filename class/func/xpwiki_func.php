@@ -1,7 +1,7 @@
 <?php
 //
 // Created on 2006/10/02 by nao-pon http://hypweb.net/
-// $Id: xpwiki_func.php,v 1.81 2007/07/17 02:30:46 nao-pon Exp $
+// $Id: xpwiki_func.php,v 1.82 2007/07/22 08:00:23 nao-pon Exp $
 //
 class XpWikiFunc extends XpWikiXoopsWrapper {
 
@@ -395,8 +395,9 @@ class XpWikiFunc extends XpWikiXoopsWrapper {
 		$use_cache = ($this->root->userinfo['uid'] === 0 && $this->root->pagecache_min > 0 && file_exists($cache_file) && (filemtime($cache_file) + $this->root->pagecache_min * 60) > time());
 		
 		// 強制キャッシュ利用指定フラグ判定
-		if (isset($this->root->rtf['use_cache_always'])) {
+		if (!empty($this->root->rtf['use_cache_always'])) {
 			// ゲスト扱いに固定
+			$_userinfo = $this->root->userinfo; // Backup
 			$this->root->userinfo['admin'] = FALSE;
 			$this->root->userinfo['uid'] = 0;
 			$this->root->userinfo['uname'] = '';
@@ -424,7 +425,7 @@ class XpWikiFunc extends XpWikiXoopsWrapper {
 			$this->root->content_title = $this->get_heading($page);
 			
 			// キャッシュ保存
-			if (isset($this->root->rtf['use_cache_always']) || ($this->root->userinfo['uid'] === 0 && $this->root->pagecache_min > 0)) {
+			if (empty($this->root->rtf['use_cache_always']) || ($this->root->userinfo['uid'] === 0 && $this->root->pagecache_min > 0)) {
 				$fp = fopen($cache_file, "wb");
 				fwrite($fp, serialize(
 					array(
@@ -446,6 +447,9 @@ class XpWikiFunc extends XpWikiXoopsWrapper {
 				));
 				fclose($fp);
 			}
+		}
+		if (!empty($this->root->rtf['use_cache_always'])) {
+			$this->root->userinfo = $_userinfo; // Restore
 		}
 		return $body;
 	}
@@ -1128,6 +1132,29 @@ EOD;
 			fclose($fp);
 		}
 	}
+	
+	// ページの親階層を得る
+	function page_dirname ($page) {
+		return preg_replace("/(^|\/)[^\/]*$/","",$page);
+	}
+
+	//あるページの関連ページ数を得る
+	function links_get_related_count($page)
+	{
+		$links = $this->links_get_related_db($page);
+		$_links = array();
+		$count = 0;
+		foreach (array_keys($links) as $_page)
+		{
+			if (preg_match("/{$this->root->non_list}/",$_page))
+			{
+				continue;
+			}
+			$count++;
+		}
+		return $count;
+	}
+
 
 /*----- DB Functions -----*/ 
 	//ページ名からページIDを求める
@@ -2118,6 +2145,22 @@ EOD;
 		
 		return $page;
 	}
+
+	// 指定ページ以下のページ数をカウントする
+	function get_child_counts($page) {
+		$page = addslashes(rtrim($page, '/') . '/');
+		$where = $this->get_readable_where();
+		$where = ($where)? " WHERE editedtime != 0 AND (name LIKE '{$page}%') AND (".$this->get_readable_where().")" :  " WHERE editedtime != 0 AND (name LIKE '{$page}%')";
+		$query = 'SELECT count(*) FROM '.$this->xpwiki->db->prefix($this->root->mydirname."_pginfo").$where;
+		//echo $query;
+		if ($res = $this->xpwiki->db->query($query)) {
+			list($count) = mysql_fetch_row($res);
+		} else {
+			$count = 0;
+		}
+		return $count;
+	}
+
 	
 	/* やはり fstat(filemtime) のほうが早い模様
 	// Get last-modified filetime of the page (DB版)
