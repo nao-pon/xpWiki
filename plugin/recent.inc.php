@@ -1,52 +1,37 @@
 <?php
+// $Id: recent.inc.php,v 1.6 2007/07/22 08:12:41 nao-pon Exp $
+// Copyright (C)
+//   2002-2006 PukiWiki Developers Team
+//   2002      Y.MASUI http://masui.net/pukiwiki/ masui@masui.net
+// License: GPL version 2
+//
+// Recent plugin -- Show RecentChanges list
+//   * Usually used at 'MenuBar' page
+//   * Also used at special-page, without no #recnet at 'MenuBar'
+
 class xpwiki_plugin_recent extends xpwiki_plugin {
 	function plugin_recent_init () {
 
-
-	// $Id: recent.inc.php,v 1.5 2006/12/03 23:18:16 nao-pon Exp $
-	// Copyright (C)
-	//   2002-2006 PukiWiki Developers Team
-	//   2002      Y.MASUI http://masui.net/pukiwiki/ masui@masui.net
-	// License: GPL version 2
-	//
-	// Recent plugin -- Show RecentChanges list
-	//   * Usually used at 'MenuBar' page
-	//   * Also used at special-page, without no #recnet at 'MenuBar'
-	
-	// Default number of 'Show latest N changes'
+		// Default number of 'Show latest N changes'
 		$this->cont['PLUGIN_RECENT_DEFAULT_LINES'] =  10;
 	
-	// Limit number of executions
+		// Limit number of executions
 		$this->cont['PLUGIN_RECENT_EXEC_LIMIT'] =  2; // N times per one output
 	
-	// ----
+		// ----
+		$this->cont['PLUGIN_RECENT_USAGE'] =  '#recent([Base Page,][Number to show])';
 	
-		$this->cont['PLUGIN_RECENT_USAGE'] =  '#recent(number-to-show)';
-	
-	// Place of the cache of 'RecentChanges'
+		// Place of the cache of 'RecentChanges'
 		$this->cont['PLUGIN_RECENT_CACHE'] =  $this->cont['CACHE_DIR'] . $this->cont['PKWK_MAXSHOW_CACHE'];
 
 	}
 	
 	function plugin_recent_convert()
 	{
-	//	global $vars, $date_format, $_recent_plugin_frame, $show_passage;
-	//	static $exec_count = 1;
 		static $exec_count = array();
 
 		if (!isset($exec_count[$this->xpwiki->pid])) {$exec_count[$this->xpwiki->pid] = 1;}
 	
-		$recent_lines = $this->cont['PLUGIN_RECENT_DEFAULT_LINES'];
-		
-		//if (func_num_args()) {
-		//	$args = func_get_args();
-		//	if (! is_numeric($args[0]) || isset($args[1])) {
-		//		return $this->cont['PLUGIN_RECENT_USAGE'] . '<br />';
-		//	} else {
-		//		$recent_lines = $args[0];
-		//	}
-		//}
-
 		$prefix = "";
 		if(func_num_args()>0) {
 			$args = func_get_args();
@@ -62,7 +47,7 @@ class xpwiki_plugin_recent extends xpwiki_plugin {
 			{
 				$prefix = $args[1];
 				$prefix = preg_replace("/\/$/","",$prefix);
-				if (is_page($prefix))
+				if ($this->func->is_page($prefix))
 				{
 					if (isset($args[0]) && is_numeric($args[0]))
 						$recent_lines = $args[0];
@@ -74,6 +59,8 @@ class xpwiki_plugin_recent extends xpwiki_plugin {
 				$prefix = "";
 		}
 		$_prefix = ($prefix)? $prefix . '/' : '';
+		$prefix_page = ($prefix)? $this->func->make_pagelink($prefix).' ' : '';
+		if (!$recent_lines) $recent_lines = $this->cont['PLUGIN_RECENT_DEFAULT_LINES'];
 		
 		// Show only N times
 		if ($exec_count[$this->xpwiki->pid] > $this->cont['PLUGIN_RECENT_EXEC_LIMIT']) {
@@ -82,16 +69,9 @@ class xpwiki_plugin_recent extends xpwiki_plugin {
 			++$exec_count[$this->xpwiki->pid];
 		}
 	
-		//if (! file_exists($this->cont['PLUGIN_RECENT_CACHE']))
-		//	return '#recent(): Cache file of RecentChanges not found' . '<br />';
-	
 		// Get latest N changes
-		//$lines = $this->func->file_head($this->cont['PLUGIN_RECENT_CACHE'], $recent_lines);
-		//if ($lines == FALSE) return '#recent(): File can not open' . '<br />' . "\n";
 		$lines = $this->func->get_existpages(FALSE, $_prefix, array('limit' =>$recent_lines, 'order' => ' ORDER BY editedtime DESC', 'nolisting' => TRUE, 'withtime' =>TRUE));
 		
-		
-		$script = $this->func->get_script_uri();
 		$date = $items = '';
 		foreach ($lines as $line) {
 			list($time, $page) = explode("\t", rtrim($line));
@@ -114,16 +94,15 @@ class xpwiki_plugin_recent extends xpwiki_plugin {
 			} else {
 				$r_page = rawurlencode($page);
 				$passage = $this->root->show_passage ? ' ' . $this->func->get_passage($time) : '';
-				//$items .= ' <li><a href="' . $script . '?' . $r_page . '"' . 
-				//' title="' . $s_page . $passage . '">' . $s_page . '</a></li>' . "\n";
-				$items .= ' <li>'.$this->func->make_pagelink($page).'</li>' . "\n";
+				$compact = ($prefix)? '#compact:'.$prefix : '';
+				$items .= ' <li>'.$this->func->make_pagelink($page, $compact).'</li>' . "\n";
 
 			}
 		}
 		// End of the day
 		if ($date != '') $items .= '</ul>' . "\n";
 	
-		return sprintf($this->root->_recent_plugin_frame, count($lines), $items);
+		return sprintf($this->root->_recent_plugin_frame, $prefix_page, count($lines), $items);
 	}
 }
 ?>
