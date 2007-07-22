@@ -1,7 +1,7 @@
 <?php
 // PukiWiki - Yet another WikiWikiWeb clone.
 //
-// $Id: ls2.inc.php,v 1.4 2007/07/22 08:16:07 nao-pon Exp $
+// $Id: ls2.inc.php,v 1.5 2007/07/22 14:05:12 nao-pon Exp $
 //
 // List plugin 2
 
@@ -111,10 +111,10 @@ class xpwiki_plugin_ls2 extends xpwiki_plugin {
 		$tmp[] = 'plugin=ls2&amp;prefix=$prefix';
 		foreach (array_keys($params) as $key) {
 			if ($key === 'col') {
-				if ($params[$key] < 2) $tmp[] = $key.'='.intval($params[$key]);
+				if ($params[$key] > 1) $tmp[] = $key.'='.intval($params[$key]);
 			} else if ($key === 'depth') {
 				if ($params[$key]) $tmp[] = $key.'='.intval($params[$key]);
-			} else if ($key{0} === '_') {
+			} else if ($key{0} === '_' || $key === 'prefix') {
 				continue;
 			} else {
 				if ($params[$key]) $tmp[] = $key.'=1';
@@ -177,8 +177,7 @@ class xpwiki_plugin_ls2 extends xpwiki_plugin {
 				$now_parent = $this->func->page_dirname($page);
 				while (
 					$now_parent !== $last_page &&
-					$now_parent !== $this->func->page_dirname($last_page) && 
-					$now_parent !== $prefix_parent
+					$now_parent !== $this->func->page_dirname($last_page)
 				) {
 					$page_array = explode('/', $page);
 					$last_array = array_pad(explode('/',$last_page), count($page_array), '');
@@ -188,13 +187,15 @@ class xpwiki_plugin_ls2 extends xpwiki_plugin {
 						$_page .= $part;
 						$_last .= $last_array[$key];
 						if ($_page !== $_last) {
+							if ($page === $_page) {
+								break(2);
+							}
 							break;
 						} else {
 							$_page .= '/';
 							$_last .= '/';
 						}
 					}
-					if ($page === $_page) { break; }
 					
 					// 階層深さ指定チェック
 					if ($params['depth']) {
