@@ -1,7 +1,7 @@
 <?php
 //
 // Created on 2006/09/29 by nao-pon http://hypweb.net/
-// $Id: xpwiki.php,v 1.46 2007/07/17 02:28:33 nao-pon Exp $
+// $Id: xpwiki.php,v 1.47 2007/07/22 07:55:09 nao-pon Exp $
 //
 
 class XpWiki {
@@ -253,7 +253,7 @@ class XpWiki {
 		ob_start();
 		$this->func->catbody($this->title, $this->skin_title, $this->body);
 		$this->html = ob_get_contents();
-		ob_end_clean();
+		@ ob_end_clean();
 		if (!empty($this->root->runmode)) $this->runmode = $this->root->runmode;
 		
 		$this->breadcrumbs_array = $this->func->get_breadcrumbs_array($this->page);
