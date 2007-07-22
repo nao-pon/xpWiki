@@ -1,7 +1,7 @@
 <?php
 // PukiWiki - Yet another WikiWikiWeb clone.
 //
-// $Id: ls2.inc.php,v 1.5 2007/07/22 14:05:12 nao-pon Exp $
+// $Id: ls2.inc.php,v 1.6 2007/07/22 14:22:59 nao-pon Exp $
 //
 // List plugin 2
 
@@ -146,7 +146,7 @@ class xpwiki_plugin_ls2 extends xpwiki_plugin {
 	
 		natcasesort($pages);
 		
-		$parent_depth = count(explode('/',rtrim($prefix,'/')));
+		$params['_parent_depth'] = count(explode('/',rtrim($prefix,'/')));
 		$params['_child_counts'] = array();
 		
 		// テンプレートページの正規表現
@@ -199,7 +199,7 @@ class xpwiki_plugin_ls2 extends xpwiki_plugin {
 					
 					// 階層深さ指定チェック
 					if ($params['depth']) {
-						if (count(explode('/',$_page)) - $parent_depth > intval($params['depth'])) {
+						if (count(explode('/',$_page)) - $params['_parent_depth'] > intval($params['depth'])) {
 							$last_page = $_page;
 							continue;
 						}
@@ -213,7 +213,7 @@ class xpwiki_plugin_ls2 extends xpwiki_plugin {
 				
 				// 階層深さ指定チェック
 				if ($params['depth']) {
-					if (count(explode('/',$page)) - $parent_depth > intval($params['depth'])) {
+					if (count(explode('/',$page)) - $params['_parent_depth'] > intval($params['depth'])) {
 						$last_page = $page;
 						continue;
 					}
@@ -287,7 +287,7 @@ class xpwiki_plugin_ls2 extends xpwiki_plugin {
 			$new_mark = $this->func->do_plugin_inline("new","{$page},nolink",$_dum);
 		
 		// Child count
-		$child_count = (!empty($params['_child_counts'][$page]))? ' [<a href="' . $this->root->script .  str_replace('$prefix', rawurlencode($page.'/'), $params['_link_query']) . '">+' . $params['_child_counts'][$page] . '</a>]' : '';
+		$child_count = (!empty($params['_child_counts'][$page]) && $params['depth'] && (count(explode('/',$page)) - $params['_parent_depth']) === intval($params['depth']))? ' [<a href="' . $this->root->script .  str_replace('$prefix', rawurlencode($page.'/'), $params['_link_query']) . '">+' . $params['_child_counts'][$page] . '</a>]' : '';
 		
 		// Related count
 		$rel_count = ($params['relatedcount'])? ' ('.$this->func->links_get_related_count($page).')' : '';
