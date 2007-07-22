@@ -1,6 +1,6 @@
 <?php
 // PukiWiki - Yet another WikiWikiWeb clone.
-// $Id: en.lng.php,v 1.17 2007/07/17 02:37:35 nao-pon Exp $
+// $Id: en.lng.php,v 1.18 2007/07/22 08:12:41 nao-pon Exp $
 // Copyright (C)
 //   2002-2005 PukiWiki Developers Team
 //   2001-2002 Originally written by yu-ji
@@ -376,7 +376,7 @@ $root->_popular_plugin_yesterday_frame = '<h5>Yesterday\'s(%1$d)%3$s</h5><div>%2
 
 ///////////////////////////////////////
 // recent.inc.php
-$root->_recent_plugin_frame = '<h5>recent(%d)</h5>
+$root->_recent_plugin_frame = '<h5>%srecent(%d)</h5>
  <div>%s</div>';
 
 ///////////////////////////////////////
