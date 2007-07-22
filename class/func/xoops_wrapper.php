@@ -1,12 +1,13 @@
 <?php
 //
 // Created on 2006/10/11 by nao-pon http://hypweb.net/
-// $Id: xoops_wrapper.php,v 1.33 2007/07/17 02:30:22 nao-pon Exp $
+// $Id: xoops_wrapper.php,v 1.34 2007/07/22 07:58:13 nao-pon Exp $
 //
 class XpWikiXoopsWrapper extends XpWikiBackupFunc {
 	
 	function & get_db_connection () {
-		return XoopsDatabaseFactory::getDatabaseConnection();
+		$db =& Database::getInstance();
+		return $db;
 	}
 	
 	function set_moduleinfo () {
