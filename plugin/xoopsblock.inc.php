@@ -2,7 +2,7 @@
 class xpwiki_plugin_xoopsblock extends xpwiki_plugin {
 	
 	function plugin_xoopsblock_init() {
-	// $Id: xoopsblock.inc.php,v 1.4 2006/10/27 11:56:04 nao-pon Exp $
+	// $Id: xoopsblock.inc.php,v 1.5 2007/07/22 08:08:50 nao-pon Exp $
 	
 	/*
 	 * countdown.inc.php
@@ -79,7 +79,7 @@ class xpwiki_plugin_xoopsblock extends xpwiki_plugin {
 			foreach ( $arr as $myblock ) {
 				$block = array();
 				$block_type = (@$myblock->getVar("type"))? $myblock->getVar("type") : $myblock->getVar("block_type");
-				$name = ($block_type != "C") ? $myblock->getVar("name") : $myblock->getVar("title");
+				$name = (@$myblock->getVar("title")) ? $myblock->getVar("title") : $myblock->getVar("name");
 				$bid = $myblock->getVar('bid');
 				$ret .= "<li>(".$bid.")".$name."</li>";
 			}
