@@ -1,127 +1,266 @@
 <?php
+// PukiWiki - Yet another WikiWikiWeb clone.
+//
+// $Id: ls2.inc.php,v 1.4 2007/07/22 08:16:07 nao-pon Exp $
+//
+// List plugin 2
+
+/*
+ * 配下のページや、その見出し(*,**,***)の一覧を表示する
+ * Usage
+ *  #ls2(pattern[,title|include|link|reverse|compact, ...],heading title)
+ *
+ * pattern  : 省略するときもカンマが必要
+ * 'title'  : 見出しの一覧を表示する
+ * 'include': インクルードしているページの見出しを再帰的に列挙する
+ * 'link   ': actionプラグインを呼び出すリンクを表示
+ * 'reverse': ページの並び順を反転し、降順にする
+ * 'compact': 見出しレベルを調整する
+ *     PLUGIN_LS2_LIST_COMPACTがTRUEの時は無効(変化しない)
+ * heading title: 見出しのタイトルを指定する (linkを指定した時のみ)
+ */
+
 class xpwiki_plugin_ls2 extends xpwiki_plugin {
 	function plugin_ls2_init () {
-
-
-	// PukiWiki - Yet another WikiWikiWeb clone.
-	//
-	// $Id: ls2.inc.php,v 1.3 2006/11/28 08:24:36 nao-pon Exp $
-	//
-	// List plugin 2
 	
-	/*
-	 * 配下のページや、その見出し(*,**,***)の一覧を表示する
-	 * Usage
-	 *  #ls2(pattern[,title|include|link|reverse|compact, ...],heading title)
-	 *
-	 * pattern  : 省略するときもカンマが必要
-	 * 'title'  : 見出しの一覧を表示する
-	 * 'include': インクルードしているページの見出しを再帰的に列挙する
-	 * 'link   ': actionプラグインを呼び出すリンクを表示
-	 * 'reverse': ページの並び順を反転し、降順にする
-	 * 'compact': 見出しレベルを調整する
-	 *     PLUGIN_LS2_LIST_COMPACTがTRUEの時は無効(変化しない)
-	 * heading title: 見出しのタイトルを指定する (linkを指定した時のみ)
-		 */
-	
-	// 見出しアンカーの書式
+		// 見出しアンカーの書式
 		$this->cont['PLUGIN_LS2_ANCHOR_PREFIX'] =  '#content_1_';
 	
-	// 見出しアンカーの開始番号
+		// 見出しアンカーの開始番号
 		$this->cont['PLUGIN_LS2_ANCHOR_ORIGIN'] =  0;
 	
-	// 見出しレベルを調整する(デフォルト値)
+		// 見出しレベルを調整する(デフォルト値)
 		$this->cont['PLUGIN_LS2_LIST_COMPACT'] =  FALSE;
 
+		$this->params = array(
+			'link'        => FALSE,
+			'title'       => FALSE,
+			'include'     => FALSE,
+			'reverse'     => FALSE,
+			'compact'     => $this->cont['PLUGIN_LS2_LIST_COMPACT'],
+			'pagename'    => FALSE,
+			'notemplate'  => FALSE,
+			'relatedcount'=> FALSE,
+			'depth'       => FALSE,
+			'nonew'       => FALSE,
+			'col'         => 1,
+			'_args'       => array()
+		);
 	}
 	
-	function plugin_ls2_action()
-	{
-	//	global $vars, $_ls2_msg_title;
-	
-		$params = array();
-		foreach (array('title', 'include', 'reverse') as $key)
-			$params[$key] = isset($this->root->vars[$key]);
-	
+	function plugin_ls2_action() {
+		
+		$params = $this->params;
+
+		foreach (array_keys($params) as $key) {
+			if ($key === 'col') {
+				$params[$key] = (empty($this->root->vars[$key]))? 1 : max(1, intval($this->root->vars[$key]));
+			} else if ($key === 'depth') {
+				$params[$key] = (empty($this->root->vars[$key]))? FALSE : intval($this->root->vars[$key]);
+			} else if ($key === '_args') {
+				continue;
+			} else {
+				$params[$key] = isset($this->root->vars[$key]);
+			}
+		}
+
+		$tmp = array();
+		$tmp[] = 'plugin=ls2&amp;prefix=$prefix';
+		foreach (array_keys($params) as $key) {
+			if ($key === 'col') {
+				if ($params[$key] < 2) $tmp[] = $key.'='.intval($params[$key]);
+			} else if ($key === 'depth') {
+				if ($params[$key]) $tmp[] = $key.'='.intval($params[$key]);
+			} else if ($key{0} === '_') {
+				continue;
+			} else {
+				if ($params[$key]) $tmp[] = $key.'=1';
+			}
+		}
+		$params['_link_query'] = '?' . join('&amp;', $tmp);
+		
 		$prefix = isset($this->root->vars['prefix']) ? $this->root->vars['prefix'] : '';
+		
+		$params['_base_lev'] = count(explode('/', $prefix));
+		
 		$body = $this->plugin_ls2_show_lists($prefix, $params);
 	
 		return array('body'=>$body,
 		'msg'=>str_replace('$1', htmlspecialchars($prefix), $this->root->_ls2_msg_title));
 	}
 	
-	function plugin_ls2_convert()
-	{
-	//	global $script, $vars, $_ls2_msg_title;
-	
-		$params = array(
-			'link'    => FALSE,
-		'title'   => FALSE,
-		'include' => FALSE,
-		'reverse' => FALSE,
-		'compact' => $this->cont['PLUGIN_LS2_LIST_COMPACT'],
-		'_args'   => array(),
-		'_done'   => FALSE
-		);
+	function plugin_ls2_convert() {
+		$params = $this->params;
 	
 		$args = array();
-		$prefix = '';
 		if (func_num_args()) {
 			$args   = func_get_args();
-			$prefix = array_shift($args);
 		}
+		
+		$this->fetch_options($params, $args, array('prefix'));
+		
+		$prefix = ($params['prefix'])? $prefix = $params['prefix'] : '';
+		
 		if ($prefix == '') $prefix = $this->func->strip_bracket($this->root->vars['page']) . '/';
-	
-		foreach ($args as $key => $arg)
-			$this->plugin_ls2_check_arg($arg, $key, $params);
-	
-		$title = (! empty($params['_args'])) ? join(',', $params['_args']) :   // Manual
+		$params['_base_lev'] = count(explode('/', $prefix));
+		
+		$title = (! empty($params['_args'])) ? htmlspecialchars(join(',', $params['_args'])) :   // Manual
 			str_replace('$1', htmlspecialchars($prefix), $this->root->_ls2_msg_title); // Auto
-	
+
+		$tmp = array();
+		$tmp[] = 'plugin=ls2&amp;prefix=$prefix';
+		foreach (array_keys($params) as $key) {
+			if ($key === 'col') {
+				if ($params[$key] < 2) $tmp[] = $key.'='.intval($params[$key]);
+			} else if ($key === 'depth') {
+				if ($params[$key]) $tmp[] = $key.'='.intval($params[$key]);
+			} else if ($key{0} === '_') {
+				continue;
+			} else {
+				if ($params[$key]) $tmp[] = $key.'=1';
+			}
+		}
+		$params['_link_query'] = '?' . join('&amp;', $tmp);
+
 		if (! $params['link'])
 			return $this->plugin_ls2_show_lists($prefix, $params);
 	
 		$tmp = array();
 		$tmp[] = 'plugin=ls2&amp;prefix=' . rawurlencode($prefix);
-		if (isset($params['title']))   $tmp[] = 'title=1';
-		if (isset($params['include'])) $tmp[] = 'include=1';
+		if ($params['title'])   $tmp[] = 'title=1';
+		if ($params['include']) $tmp[] = 'include=1';
 	
-		return '<p><a href="' . $this->root->script . '?' . join('&amp;', $tmp) . '">' .
+		return '<p><a href="' . $this->root->script . str_replace('$prefix', rawurlencode($prefix), $params['_link_query']) . '">' .
 		$title . '</a></p>' . "\n";
 	}
 	
-	function plugin_ls2_show_lists($prefix, & $params)
-	{
-	//	global $_ls2_err_nopages;
-	
+	function plugin_ls2_show_lists($prefix, & $params) {
+		static $_auto_template_name;
+		
 		$pages = array();
 		if ($prefix != '') {
-			foreach ($this->func->get_existpages(FALSE, $prefix) as $_page)
-				//if (strpos($_page, $prefix) === 0)
-					$pages[] = $_page;
+			$pages = $this->func->get_existpages(FALSE, $prefix);
 		} else {
 			$pages = $this->func->get_existpages();
 		}
 	
 		natcasesort($pages);
+		
+		$parent_depth = count(explode('/',rtrim($prefix,'/')));
+		$params['_child_counts'] = array();
+		
+		// テンプレートページの正規表現
+		if (!isset($_auto_template_name[$this->root->mydirname])) {
+			$_temps = array();
+			foreach($this->root->auto_template_rules as $_temp) {
+				if (!is_array($_temp)) {
+					$_temp = array($_temp);
+				}
+				foreach($_temp as $__temp) {
+					if (preg_match('#/([^/\\\\]+)$#', $__temp, $match)) {
+						$_temps[] = preg_quote($match[1]);
+					}
+				}
+			}
+			$_auto_template_name[$this->root->mydirname] = ($_temps)? '/\/(?:'.join('|', $_temps).')(_m)?$/' : '/(?!)/';
+		}
+		
+		if ($params['pagename'] || $params['depth']) {
+			$prefix_parent = $this->func->page_dirname($prefix);
+			$last_page = $prefix;
+			$_pages = array();
+			foreach ($pages as $page) {
+				// テンプレートページは表示しない場合
+				if ($params['notemplate'] && preg_match($_auto_template_name[$this->root->mydirname], $page)) continue;
+				
+				// 抜けてる階層を補完
+				$now_parent = $this->func->page_dirname($page);
+				while (
+					$now_parent !== $last_page &&
+					$now_parent !== $this->func->page_dirname($last_page) && 
+					$now_parent !== $prefix_parent
+				) {
+					$page_array = explode('/', $page);
+					$last_array = array_pad(explode('/',$last_page), count($page_array), '');
+					$_last = '';
+					$_page = '';
+					foreach ($page_array as $key=>$part) {
+						$_page .= $part;
+						$_last .= $last_array[$key];
+						if ($_page !== $_last) {
+							break;
+						} else {
+							$_page .= '/';
+							$_last .= '/';
+						}
+					}
+					if ($page === $_page) { break; }
+					
+					// 階層深さ指定チェック
+					if ($params['depth']) {
+						if (count(explode('/',$_page)) - $parent_depth > intval($params['depth'])) {
+							$last_page = $_page;
+							continue;
+						}
+						$params['_child_counts'][$_page] = $this->func->get_child_counts($_page);
+					}
+					
+					$_pages[] = $_page;
+					$params["page_{$_page}"] = 0;
+					$last_page = $_page;
+				}
+				
+				// 階層深さ指定チェック
+				if ($params['depth']) {
+					if (count(explode('/',$page)) - $parent_depth > intval($params['depth'])) {
+						$last_page = $page;
+						continue;
+					}
+					$params['_child_counts'][$page] = $this->func->get_child_counts($page);
+				}
+				
+				$_pages[] = $page;
+				$params["page_{$page}"] = 0;
+				$last_page = $page;
+			}
+			$pages = $_pages;
+			unset($_pages);
+		} else {
+			foreach ($pages as $key => $page) {
+				// テンプレートページは表示しない場合
+				if ($params['notemplate'] && preg_match("/\/".$_auto_template_name."(_m)?$/",$page)) {
+					unset($pages[$key]);
+					continue;
+				}
+				$params["page_{$page}"] = 0;
+			}
+		}
+
 		if ($params['reverse']) $pages = array_reverse($pages);
-	
-		foreach ($pages as $page) $params["page_$page"] = 0;
-	
+
 		if (empty($pages)) {
 			return str_replace('$1', htmlspecialchars($prefix), $this->root->_ls2_err_nopages);
 		} else {
-			$params['result'] = $params['saved'] = array();
-			foreach ($pages as $page)
-				$this->plugin_ls2_get_headings($page, $params, 1);
-			return join("\n", $params['result']) . join("\n", $params['saved']);
+			$rows = ceil(count($pages) / $params['col']);
+			$pages_g = array_chunk($pages, $rows);
+			$ret = '';
+			$width = ($params['col'] > 1)? floor(100 / $params['col']).'%' : 'auto';
+			foreach ($pages_g as $pages) {
+				$params['result'] = $params['saved'] = array();
+				$last_page = $prefix;
+				foreach ($pages as $page) {
+					$this->plugin_ls2_get_headings($page, $params, 1);
+					$last_page = $page;
+				}
+				$ret .= '<div style="float:left;width:'.$width.'">'."\n";
+				$ret .= join("\n", $params['result']) . join("\n", $params['saved'])."\n";
+				$ret .= '</div>'."\n";
+			}
+			return $ret.'<div style="clear:left;"></div>';
 		}
 	}
 	
-	function plugin_ls2_get_headings($page, & $params, $level, $include = FALSE)
-	{
-	//	global $script;
-	//	static $_ls2_anchor = 0;
+	function plugin_ls2_get_headings($page, & $params, $level, $include = FALSE) {
 		static $_ls2_anchor = array();
 		if (!isset($_ls2_anchor[$this->xpwiki->pid])) {$_ls2_anchor[$this->xpwiki->pid] = 0;}
 	
@@ -132,10 +271,28 @@ class xpwiki_plugin_ls2 extends xpwiki_plugin {
 		$r_page = rawurlencode($page);
 		$s_page = htmlspecialchars($page);
 		$title  = $s_page . ' ' . $this->func->get_pg_passage($page, FALSE);
-		$href   = $this->root->script . '?cmd=read&amp;page=' . $r_page;
-	
+		if ($this->root->pagename_num2str && $this->func->is_page($page)) $s_page =  preg_replace('/\/(?:[0-9\-]+|[B0-9][A-Z0-9]{9})$/','/'.$this->func->get_heading($page),$s_page);
+		$margin_left = 0;
+		if ($params['pagename']) {
+			$s_page = basename($s_page);
+			$margin_left = (count(explode('/', $page)) - $params['_base_lev']) * $this->root->_ul_margin;
+		}
+		
+		$href = $this->func->get_page_uri($page, true);
+
+		// New!
+		$_dum = $new_mark = '';
+		if ($this->func->is_page($page) && !$params['nonew'] && $this->func->exist_plugin_inline("new"))
+			$new_mark = $this->func->do_plugin_inline("new","{$page},nolink",$_dum);
+		
+		// Child count
+		$child_count = (!empty($params['_child_counts'][$page]))? ' [<a href="' . $this->root->script .  str_replace('$prefix', rawurlencode($page.'/'), $params['_link_query']) . '">+' . $params['_child_counts'][$page] . '</a>]' : '';
+		
+		// Related count
+		$rel_count = ($params['relatedcount'])? ' ('.$this->func->links_get_related_count($page).')' : '';
+
 		$this->plugin_ls2_list_push($params, $level);
-		$ret = $include ? '<li>include ' : '<li>';
+		$ret = $include ? '<li style="margin-left:'.$margin_left.'px;">include ' : '<li style="margin-left:'.$margin_left.'px;">';
 	
 		if ($params['title'] && $is_done) {
 			$ret .= '<a href="' . $href . '" title="' . $title . '">' . $s_page . '</a> ';
@@ -143,9 +300,14 @@ class xpwiki_plugin_ls2 extends xpwiki_plugin {
 			array_push($params['result'], $ret);
 			return;
 		}
-	
-		$ret .= '<a id="list_' . $params["page_$page"] . '" href="' . $href .
-		'" title="' . $title . '">' . $s_page . '</a>';
+		
+		if ($this->func->is_page($page)) {
+			$ret .= '<a id="list_' . $params["page_$page"] . '" href="' . $href .
+				'" title="' . $title . '">' . $s_page . '</a>' . $rel_count . $child_count . $new_mark;
+		} else {
+			$ret .= '<span id="list_' . $params["page_$page"] . '">' . $this->func->make_pagelink($page, ($params['pagename']? '#compact:'.$this->func->page_dirname($page) : '')) . '</span>' . $rel_count . $child_count . $new_mark;
+		}
+		
 		array_push($params['result'], $ret);
 	
 		$anchor = $this->cont['PLUGIN_LS2_ANCHOR_ORIGIN'];
@@ -168,10 +330,8 @@ class xpwiki_plugin_ls2 extends xpwiki_plugin {
 	}
 	
 	//リスト構造を構築する
-	function plugin_ls2_list_push(& $params, $level)
-	{
-	//	global $_ul_left_margin, $_ul_margin, $_list_pad_str;
-	
+	function plugin_ls2_list_push(& $params, $level) {
+
 		$result = & $params['result'];
 		$saved  = & $params['saved'];
 		$cont   = TRUE;
@@ -203,27 +363,6 @@ class xpwiki_plugin_ls2 extends xpwiki_plugin {
 	
 		if ($cont) array_push($result, '</li>');
 	}
-	
-	// オプションを解析する
-	function plugin_ls2_check_arg($value, $key, & $params)
-	{
-		if ($value == '') {
-			$params['_done'] = TRUE;
-			return;
-		}
-	
-		if (! $params['_done']) {
-			foreach (array_keys($params) as $param) {
-				if (strtolower($value)  == $param &&
-				    preg_match('/^[a-z]/', $param)) {
-					$params[$param] = TRUE;
-					return;
-				}
-			}
-			$params['_done'] = TRUE;
-		}
-	
-		$params['_args'][] = htmlspecialchars($value); // Link title
-	}
+
 }
 ?>
