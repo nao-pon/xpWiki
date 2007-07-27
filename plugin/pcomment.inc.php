@@ -4,7 +4,7 @@ class xpwiki_plugin_pcomment extends xpwiki_plugin {
 
 
 	// PukiWiki - Yet another WikiWikiWeb clone
-	// $Id: pcomment.inc.php,v 1.8 2007/06/29 08:52:37 nao-pon Exp $
+	// $Id: pcomment.inc.php,v 1.9 2007/07/27 02:11:46 nao-pon Exp $
 	//
 	// pcomment plugin - Show/Insert comments into specified (another) page
 	//
@@ -64,7 +64,13 @@ $this->cont['PLUGIN_PCOMMENT_DIRECTION_DEFAULT'] =  1; // 1: above 0: below
 		}
 	
 		$this->func->pkwk_headers_sent();
-		header('Location: ' . $this->func->get_script_uri() . '?' . rawurlencode($refer));
+		
+		if ($this->root->render_mode !== 'render') {
+			$back = ($refer)? $this->func->get_page_uri($refer) : ($_SERVER['HTTP_REFERER'])? $_SERVER['HTTP_REFERER'] : $this->root->script;
+		} else {
+			$back = ($refer)? $this->root->siteinfo['host'].$refer : ($_SERVER['HTTP_REFERER'])? $_SERVER['HTTP_REFERER'] : $this->cont['ROOT_URL'];
+		}
+		header('Location: ' . $back);
 		exit;
 	}
 	
@@ -112,7 +118,10 @@ $this->cont['PLUGIN_PCOMMENT_DIRECTION_DEFAULT'] =  1; // 1: above 0: below
 			$form_start = $form = $form_end = '';
 		} else {
 			// Show a form
-	
+			$this->root->rtf['disable_render_cache'] = true;
+			if ($this->root->render_mode === 'render') {
+				$this->func->add_tag_head("default.{$this->cont['UI_LANG']}{$this->cont['FILE_ENCORD_EXT']}.js");
+			}
 			if ($params['noname']) {
 				$title = $this->root->_pcmt_messages['msg_comment'];
 				$name = '';
@@ -125,8 +134,12 @@ $this->cont['PLUGIN_PCOMMENT_DIRECTION_DEFAULT'] =  1; // 1: above 0: below
 				'<input type="radio" name="reply" value="0" tabindex="0" checked="checked" />' : '';
 			$comment = '<input type="text" name="msg" rel="wikihelper" size="' . $this->cont['PLUGIN_PCOMMENT_SIZE_MSG'] . '" />';
 	
-			$s_page   = htmlspecialchars($page);
-			$s_refer  = htmlspecialchars($vars_page);
+			$s_page   = htmlspecialchars($_page);
+			if ($this->root->render_mode !== 'render') {
+				$s_refer = htmlspecialchars($vars_page);
+			} else {
+				$s_refer = htmlspecialchars($_SERVER['REQUEST_URI']);
+			}
 			$s_nodate = htmlspecialchars($params['nodate']);
 	
 			$form_start = '<form action="' . $this->func->get_script_uri() . '" method="post">' . "\n";
@@ -186,8 +199,8 @@ EOD;
 		if (! $this->func->is_pagename($page))
 			return array(
 				'msg' =>'Invalid page name',
-			'body'=>'Cannot add comment' ,
-			'collided'=>TRUE
+				'body'=>'Cannot add comment' ,
+				'collided'=>TRUE
 			);
 		
 		$this->func->check_editable($page, true, true);
@@ -368,7 +381,7 @@ EOD;
 		while (! empty($data) && substr($data[0], 0, 1) != '-')
 			array_shift($data);
 	
-		$comments = $this->func->convert_html($data);
+		$comments = $this->func->convert_html($data, $page);
 		unset($data);
 	
 		// Add radio buttons

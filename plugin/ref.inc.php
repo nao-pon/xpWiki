@@ -1,5 +1,5 @@
 <?php
-// $Id: ref.inc.php,v 1.11 2007/06/29 08:33:54 nao-pon Exp $
+// $Id: ref.inc.php,v 1.12 2007/07/27 02:11:46 nao-pon Exp $
 /*
 
 	*プラグイン ref
@@ -62,6 +62,10 @@ class xpwiki_plugin_ref extends xpwiki_plugin {
 		// Usage (a part of)
 		$this->cont['PLUGIN_REF_USAGE'] =  "([pagename/]attached-file-name[,parameters, ... ][,title])";
 		
+		// サムネイルを作成せずに表示する最大サイズ
+		$this->cont['PLUGIN_REF_IMG_MAX_WIDTH'] = 640;
+		$this->cont['PLUGIN_REF_IMG_MAX_HEIGHT'] = 480;
+
 		// 著作権保護された画像の最大表示サイズ(px) かつ (%)以内
 		$this->cont['PLUGIN_REF_COPYRIGHT_IMG_MAX'] = 100;
 		$this->cont['PLUGIN_REF_COPYRIGHT_IMG_MAX%'] = 50;
@@ -248,7 +252,12 @@ class xpwiki_plugin_ref extends xpwiki_plugin {
 			'name'   => array_shift($args), // 添付ファイル名を取得(第一引数)
 		);
 		
+		if (!$lvar['page']) {
+			$lvar['page'] = $this->root->render_attach;
+		}
+		
 		// アップロードリンク指定
+		$this->root->rtf['disable_render_cache'] = true;
 		if (substr($lvar['name'],0,3) === 'ID$') {
 			$lvar['refid'] = substr($lvar['name'], 3);
 			$lvar['name'] = '';
@@ -259,10 +268,14 @@ class xpwiki_plugin_ref extends xpwiki_plugin {
 			$this->check_arg_ex ($params, $lvar);
 			$thumb = ($params['_size'])? '' :  '&amp;thumb=1';
 			
+			$returi = ($this->root->render_mode !== 'render')? '' :
+				'&amp;returi='.rawurlencode($_SERVER['REQUEST_URI']);
+
 			$params['_body'] = '<a href="'.$this->root->script.
 				'?plugin=attach&amp;pcmd=upload&amp;refid='.$lvar['refid'].
 				$thumb.
 				'&amp;page='.rawurlencode($lvar['page']).
+				$returi.
 				'" title="'.$this->root->_LANG['skin']['upload'].'">'.
 				'<img src="'.$this->cont['IMAGE_DIR'].'file.png" width="20" height="20" alt="'.$this->root->_LANG['skin']['upload'].'" title="'.$this->root->_LANG['skin']['upload'].'">'.
 				'['.$this->root->_LANG['skin']['upload'].']</a>';
@@ -274,6 +287,32 @@ class xpwiki_plugin_ref extends xpwiki_plugin {
 		
 		// エラーあり
 		if ($params['_error']) {
+			if ($params['_error'] === 'File not found') {
+				
+				$this->root->rtf['disable_render_cache'] = true;
+				
+				if (!$lvar['page']) {
+					$lvar['page'] = $this->root->render_attach;
+				}
+				
+				// サイズ指定子があるかチェック
+				$params['_args'] = $args;
+				$this->check_arg_ex ($params, $lvar);
+				$thumb = ($params['_size'])? '' :  '&amp;thumb=1';
+
+				$returi = ($this->root->render_mode !== 'render')? '' :
+					'&amp;returi='.rawurlencode($_SERVER['REQUEST_URI']);
+				
+				$params['_body'] = '<a href="'.$this->root->script.
+					'?plugin=attach&amp;pcmd=upload&amp;filename='.rawurlencode($lvar['name']).
+					$thumb.
+					'&amp;page='.rawurlencode($lvar['page']).
+					$returi.
+					'" title="'.$this->root->_LANG['skin']['upload'].'">'.
+					'<img src="'.$this->cont['IMAGE_DIR'].'file.png" width="20" height="20" alt="'.$this->root->_LANG['skin']['upload'].'" title="'.$this->root->_LANG['skin']['upload'].'">'.
+					'['.$this->root->_LANG['skin']['upload'].']</a>';
+				$params['_error'] = '';
+			}
 			return $params;
 		}
 
@@ -284,6 +323,15 @@ class xpwiki_plugin_ref extends xpwiki_plugin {
 		
 		// 拡張パラメーターの処理
 		$this->check_arg_ex ($params, $lvar);
+		
+		// サムネイルを作成せず表示する最大サイズ
+		if (!$params['_size']) {
+			$params['_size'] = true;
+			$params['zoom'] = true;
+			$params['_max'] = true;
+			$params['_w'] = $this->cont['PLUGIN_REF_IMG_MAX_WIDTH'];
+			$params['_h'] = $this->cont['PLUGIN_REF_IMG_MAX_HEIGHT'];
+		}
 		
 		if ($lvar['type'] > 2 ) {
 			// ファイル情報
@@ -340,7 +388,7 @@ class xpwiki_plugin_ref extends xpwiki_plugin {
 				}
 				
 				$lvar['link'] = '';
-				$lvar['title'][] = (preg_match('/([^\/]+)$/', $lvar['name'], $match))? $match[1] : '';
+				$lvar['title'][] = (preg_match('/([^\/]+)$/', $lvar['status']['org_fname']? $lvar['status']['org_fname'] : $lvar['name'], $match))? $match[1] : '';
 				
 				$copyright = $this->check_copyright($lvar['file']);
 				if ($copyright) {
@@ -425,13 +473,12 @@ class xpwiki_plugin_ref extends xpwiki_plugin {
 				$lvar['url'] = '';
 				$lvar['link'] = $this->root->script . '?plugin=attach' . '&amp;refer=' . rawurlencode($lvar['page']) .
 						'&amp;openfile=' . rawurlencode($lvar['name']); // Show its filename at the last
-				$lvar['text'] = htmlspecialchars($lvar['name']);
 				if (! empty($lvar['title'])) {
 					// タイトルが指定されている
 					$lvar['text'] = htmlspecialchars(join(', ', $lvar['title']));
-					$lvar['title'] = htmlspecialchars(preg_replace('/([^\/]+)$/', "$1", $lvar['name']) . ', ' . $lvar['info']);
+					$lvar['title'] = htmlspecialchars(preg_replace('/([^\/]+)$/', "$1", $lvar['status']['org_fname']? $lvar['status']['org_fname'] : $lvar['name']) . ', ' . $lvar['info']);
 				} else {
-					$lvar['text'] = preg_replace('/([^\/]+)$/', "$1", $lvar['name']);
+					$lvar['text'] = preg_replace('/([^\/]+)$/', "$1", $lvar['status']['org_fname']? $lvar['status']['org_fname'] : $lvar['name']);
 					$lvar['title'] = htmlspecialchars($lvar['info']);
 				}
 			}
@@ -684,9 +731,23 @@ _HTML_;
 				$is_file = is_file($lvar['file']);
 			}
 			if (! $is_file) {
-				$params['_error'] = htmlspecialchars('File not found: "' .
-				$lvar['name'] . '" at page "' . $lvar['page'] . '"');
+				//$params['_error'] = htmlspecialchars('File not found: "' .
+				//$lvar['name'] . '" at page "' . $lvar['page'] . '"');
+				$params['_error'] = 'File not found';
 				return;
+			}
+			
+			// ログファイル取得
+			$lvar['status'] = array('count'=>array(0),'age'=>'','pass'=>'','freeze'=>FALSE,'copyright'=>FALSE,'owner'=>0,'ucd'=>'','uname'=>'','md5'=>'','admins'=>0,'org_fname'=>'');
+			
+			if (file_exists($lvar['file'].'.log'))
+			{
+				$data = file($lvar['file'].'.log');
+				foreach ($lvar['status'] as $key=>$value)
+				{
+					$lvar['status'][$key] = chop(array_shift($data));
+				}
+				$lvar['status']['count'] = explode(',',$lvar['status']['count']);
 			}
 			
 			if ($this->is_flash($lvar['file'])) {
@@ -848,7 +909,7 @@ _HTML_;
 				$copyright = 0;
 				$dat['data'] = join('',file($this->cont['IMAGE_DIR'].'noimage.png'));
 			}
-			if ($this->cache_image_save($dat['data'], $filename, $name, $copyright)) {
+			if ($this->cache_image_save($dat['data'], $lvar['page'], $filename, $name, $copyright)) {
 				$cache = TRUE;
 			}
 		} else {
@@ -865,7 +926,7 @@ _HTML_;
 	}
 
 	// 画像キャッシュを保存
-	function cache_image_save(& $data, $filename, $name, $copyright)
+	function cache_image_save(& $data, $page, $filename, $name, $copyright)
 	{
 		$attach = $this->func->get_plugin_instance('attach');
 		if (!$attach || !method_exists($attach, 'do_upload')) {
@@ -884,7 +945,7 @@ _HTML_;
 		
 		$this->root->allow_extensions = "";
 
-		$attach->do_upload($this->root->vars['page'],$name,$filename.".tmp",$copyright,NULL,TRUE);
+		$attach->do_upload($page,$name,$filename.".tmp",$copyright,NULL,TRUE);
 		
 		$this->root->userinfo = $_userinfo;
 		$this->root->allow_extensions = $_allow_extensions;

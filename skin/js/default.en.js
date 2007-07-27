@@ -18,6 +18,7 @@ var wikihelper_msg_url = "Please input URL of a link place.";
 var wikihelper_msg_elem = "Please choose the object which processes.";
 var wikihelper_msg_submit = "Submit now?";
 var wikihelper_msg_attach = "File attach link";
+var wikihelper_msg_thumbsize = "If you want to make a thumbnail. Please input [Max Width(px)]x[Max Height(px)].\n(ex: \"240x120\" or \"240 120\" or \"240\" etc...)";
 
 if (!wikihelper_loaded) {
 	// Include main script.

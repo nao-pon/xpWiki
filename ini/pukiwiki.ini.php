@@ -1,6 +1,6 @@
 <?php
 // PukiWiki - Yet another WikiWikiWeb clone
-// $Id: pukiwiki.ini.php,v 1.42 2007/06/29 08:46:21 nao-pon Exp $
+// $Id: pukiwiki.ini.php,v 1.43 2007/07/27 02:11:46 nao-pon Exp $
 // Copyright (C)
 //   2002-2006 PukiWiki Developers Team
 //   2001-2002 Originally written by yu-ji
@@ -154,6 +154,7 @@ $root->whatsdeleted = 'RecentDeleted'; // Removeed page list
 $root->interwiki    = 'InterWikiName'; // Set InterWiki definition here
 $root->aliaspage    = 'AutoAliasName'; // Set AutoAlias definition here
 $root->menubar      = 'MenuBar';       // Menu
+$root->render_attach= ':RenderAttaches';
 
 $const['PLUGIN_RENAME_LOGPAGE'] = ':RenameLog'; // Rename Log page
 

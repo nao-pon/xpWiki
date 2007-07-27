@@ -18,6 +18,7 @@ var wikihelper_msg_url = "リンク先のURLを入力してください。";
 var wikihelper_msg_elem = "処理をする対象を選択してください。";
 var wikihelper_msg_submit = "このまま送信しますか？";
 var wikihelper_msg_attach = "ファイル添付リンク";
+var wikihelper_msg_thumbsize = "サムネイルを作成する場合は、[最大幅(px)]x[最大高(px)] を入力してください。\n(例: \"240x120\" or \"240 120\" or \"240\" etc...)";
 
 if (!wikihelper_loaded) {
 	// Include main script.

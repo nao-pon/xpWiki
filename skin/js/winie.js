@@ -49,6 +49,36 @@ function wikihelper_ins(v)
 		v = v + "{" + inp + "}";
 		v = v + ";";
 	}
+
+	if (v == "&ref();") {
+		var today = new Date();
+		var yy = today.getYear();
+		if (yy < 2000) {yy = yy+1900;}
+		var mm = today.getMonth() + 1;
+		if (mm < 10) {mm = "0" + mm;}
+		var dd = today.getDate();
+		if (dd < 10) {dd = "0" + mm;}
+		var h = today.getHours();
+		if (h < 10) {h = "0" + h;}
+		var m = today.getMinutes();
+		if (m < 10) {m = "0" + m;}
+		var s = today.getSeconds();
+		if (s < 10) {s = "0" + s;}
+		var ms = today.getMilliseconds();
+		if (ms < 10) {ms = "00" + ms;}
+		else if (ms < 100) {ms = "0" + ms;}
+		
+		inp = prompt(wikihelper_msg_thumbsize, '');
+		if (inp == null) { inp = "";}
+		var size = '';
+		if (inp.match(/[\d]{1,3}[^\d]+[\d]{1,3}/)) {
+			size = inp.replace(/([\d]{1,3})[^\d]+([\d]{1,3})/, ",mw:$1,mh:$2");
+		} else if (inp.match(/[\d]{1,3}/)) {
+			size = inp.replace(/([\d]{1,3})/, ",mw:$1,mh:$1");
+		}
+		
+		v = "&ref(UNQ_"+yy+mm+dd+h+m+s+ms+size+");";
+	}
 	
 	wikihelper_elem.caretPos.text = v;
 	wikihelper_elem.focus();
