@@ -9,7 +9,7 @@ class xpwiki_plugin_attach extends xpwiki_plugin {
 	/////////////////////////////////////////////////
 	// PukiWiki - Yet another WikiWikiWeb clone.
 	//
-	//  $Id: attach.inc.php,v 1.17 2007/07/17 02:26:07 nao-pon Exp $
+	//  $Id: attach.inc.php,v 1.18 2007/07/27 02:11:46 nao-pon Exp $
 	//  ORG: attach.inc.php,v 1.31 2003/07/27 14:15:29 arino Exp $
 	//
 	
@@ -29,11 +29,11 @@ class xpwiki_plugin_attach extends xpwiki_plugin {
 		$this->cont['ATTACH_UPLOAD_FLASH_ADMIN_ONLY'] = FALSE;
 
 		// ページ編集権限がある人のみ添付ファイルをアップロードできるようにする
-		$this->cont['ATTACH_UPLOAD_EDITER_ONLY'] = FALSE; // FALSE or TRUE
+		$this->cont['ATTACH_UPLOAD_EDITER_ONLY'] = TRUE; // FALSE or TRUE
 	
 		// ページオーナー権限がない場合にアップロードできる拡張子(カンマ区切り)
 		// ATTACH_UPLOAD_EDITER_ONLY = FALSE のときに使用
-		$this->cont['ATTACH_UPLOAD_EXTENSION'] = 'jpg, jpeg, gif, png, txt, spch, zip, lzh, tar, taz, tgz, gz, z';
+		$this->cont['ATTACH_UPLOAD_EXTENSION'] = 'jpg, jpeg, gif, png, txt, spch';
 
 		// 管理者とページ作成者だけが添付ファイルを削除できるようにする
 		$this->cont['ATTACH_DELETE_ADMIN_ONLY'] = FALSE; // FALSE or TRUE
@@ -95,7 +95,7 @@ class xpwiki_plugin_attach extends xpwiki_plugin {
 
 	
 		// 添付可能な拡張子を配列化
-		if (!$this->cont['ATTACH_UPLOAD_ADMIN_ONLY'] && !$this->cont['ATTACH_UPLOAD_EDITER_ONLY'] && $this->cont['ATTACH_UPLOAD_EXTENSION'])
+		if (!$this->cont['ATTACH_UPLOAD_ADMIN_ONLY'] && $this->cont['ATTACH_UPLOAD_EXTENSION'])
 		{
 			$this->root->allow_extensions = explode(",",str_replace(" ","",$this->cont['ATTACH_UPLOAD_EXTENSION']));
 		}
@@ -228,7 +228,11 @@ class xpwiki_plugin_attach extends xpwiki_plugin {
 			{
 				$pass = (!empty($this->root->vars['pass'])) ? md5($this->root->vars['pass']) : NULL;
 				$copyright = (isset($this->root->post['copyright']))? TRUE : FALSE;
-				return $this->attach_upload($_FILES['attach_file'],$this->root->vars['refer'],$pass,$copyright);
+				$ret = $this->attach_upload($_FILES['attach_file'],$this->root->vars['refer'],$pass,$copyright);
+				if ($this->root->post['returi']) {
+					$ret['redirect'] = $this->root->siteinfo['host'].$this->root->post['returi'];
+				}
+				return $ret;
 			}
 		}
 		
@@ -381,6 +385,14 @@ class xpwiki_plugin_attach extends xpwiki_plugin {
 			}
 		}
 		
+		// オリジナルファイル名
+		$org_fname = $fname;
+		
+		// ファイル名指定あり
+		if (!empty($this->root->post['filename'])) {
+			$fname = $this->root->post['filename'];
+		}
+		
 		// ファイル名が存在する場合は、数字を付け加える
 		$fi = 0;
 		if (preg_match("/^(.+)(\.[^.]*)$/",$fname,$match)) {
@@ -432,7 +444,11 @@ class xpwiki_plugin_attach extends xpwiki_plugin {
 		$obj->status['uname'] = $this->root->userinfo['uname'];
 		$obj->status['md5'] = md5_file($obj->filename);
 		$obj->status['admins'] = (int)$this->func->check_admin($this->root->userinfo['uid']);
-		
+		if ($fname !== $org_fname) {
+			$obj->status['org_fname'] = $org_fname;
+		} else {
+			$obj->status['org_fname'] = '';
+		}
 		$obj->action = $_action;
 		$obj->putstatus();
 		
@@ -642,7 +658,7 @@ class xpwiki_plugin_attach extends xpwiki_plugin {
 	
 	//-------- サービス
 	//mime-typeの決定
-	function attach_mime_content_type($filename)
+	function attach_mime_content_type($filename, $org_fname)
 	{
 		$type = 'application/octet-stream'; //default
 		
@@ -671,7 +687,8 @@ class xpwiki_plugin_attach extends xpwiki_plugin {
 		{
 			return $type;
 		}
-		$filename = $this->func->decode($matches[1]);
+		//$filename = $this->func->decode($matches[1]);
+		$filename = $org_fname;
 		
 		// mime-type一覧表を取得
 		$config = new XpWikiConfig($this->xpwiki, $this->cont['ATTACH_CONFIG_PAGE_MIME']);
@@ -695,18 +712,13 @@ class xpwiki_plugin_attach extends xpwiki_plugin {
 		return $type;
 	}
 	//アップロードフォーム
-	function attach_form($page)
-	{
-	//	global $script,$vars;
-	//	global $_attach_messages,$X_admin,$X_uid;
-	//	static $load = array();
+	function attach_form($page) {
 		
+		// ページが無ければ空ページを作成
 		if (!$this->func->is_page($page)) {
-			$this->func->redirect_header(
-				$this->root->script.'?cmd=edit&page='.rawurlencode($page),
-				2,
-				str_replace('$1', htmlspecialchars($page),$this->root->_attach_messages['err_nopage'])
-			);
+			if ($this->func->check_editable_page($page, true, true)) {
+				$this->func->page_write($page, "\n");
+			}
 		}
 		
 		static $load = array();
@@ -730,6 +742,8 @@ class xpwiki_plugin_attach extends xpwiki_plugin {
 			'&nbsp;&nbsp;<input type="text" name="thumb_r" size="3">% or ' .
 			'W:<input type="text" name="thumb_w" size="3" value="'.$thumb_px.'" /> x ' .
 			'H:<input type="text" name="thumb_h" size="3" value="'.$thumb_px.'" />(Max)</p>' : '';
+		$filename = (!empty($this->root->vars['filename']))? '<input type="hidden" name="filename" value="'.htmlspecialchars($this->root->vars['filename']).'" />' : '';
+		$returi = (!empty($this->root->vars['returi']))? '<input type="hidden" name="returi" value="'.htmlspecialchars($this->root->vars['returi']).'" />' : '';	
 		
 		$r_page = rawurlencode($page);
 		$s_page = htmlspecialchars($page);
@@ -809,6 +823,8 @@ EOD;
   <input type="hidden" name="refer" value="$s_page" />
   <input type="hidden" name="max_file_size" value="$maxsize" />
   $refid
+  $filename
+  $returi
   $navi
   <span class="small">
    $msg_maxsize
@@ -884,7 +900,7 @@ class XpWikiAttachFile
 	var $time_str = '';
 	var $size_str = '';
 	var $owner_str = '';
-	var $status = array('count'=>array(0),'age'=>'','pass'=>'','freeze'=>FALSE,'copyright'=>FALSE,'owner'=>0,'ucd'=>'','uname'=>'','md5'=>'','admins'=>0);
+	var $status = array('count'=>array(0),'age'=>'','pass'=>'','freeze'=>FALSE,'copyright'=>FALSE,'owner'=>0,'ucd'=>'','uname'=>'','md5'=>'','admins'=>0,'org_fname'=>'');
 	var $action = 'update';
 	
 	function XpWikiAttachFile(& $xpwiki, $page,$file,$age=0,$pgid=0)
@@ -923,11 +939,12 @@ class XpWikiAttachFile
 				$this->status[$key] = chop(array_shift($data));
 			}
 			$this->status['count'] = explode(',',$this->status['count']);
+			if (empty($this->status['org_fname'])) $this->status['org_fname'] = $this->file;
 		}
 		$this->time_str = $this->func->get_date('Y/m/d H:i:s',$this->time);
 		$this->size = filesize($this->filename);
 		$this->size_str = sprintf('%01.1f',round($this->size)/1024,1).'KB';
-		$this->type = xpwiki_plugin_attach::attach_mime_content_type($this->filename);
+		$this->type = xpwiki_plugin_attach::attach_mime_content_type($this->filename, $this->status['org_fname']);
 		$this->owner_id = $this->status['owner'];
 		$user = $this->func->get_userinfo_by_id($this->status['owner']);
 		$user = htmlspecialchars($user['uname']);
@@ -968,7 +985,7 @@ class XpWikiAttachFile
 		if ($this->action == "insert")
 		{
 			$this->size = filesize($this->filename);
-			$this->type = xpwiki_plugin_attach::attach_mime_content_type($this->filename);
+			$this->type = xpwiki_plugin_attach::attach_mime_content_type($this->filename, $this->status['org_fname']);
 			$this->time = filemtime($this->filename) - $this->cont['LOCALZONE'];
 		}
 		$data['id']   = $this->id;
@@ -996,7 +1013,8 @@ class XpWikiAttachFile
 		$param  = '&amp;file='.rawurlencode($this->file).'&amp;refer='.rawurlencode($this->page).
 			($this->age ? '&amp;age='.$this->age : '');
 		$title = $this->time_str.' '.$this->size_str;
-		$label = ($showicon ? $this->cont['FILE_ICON'] : '').htmlspecialchars($this->file);
+		//$label = ($showicon ? $this->cont['FILE_ICON'] : '').htmlspecialchars($this->file);
+		$label = ($showicon ? $this->cont['FILE_ICON'] : '').htmlspecialchars($this->status['org_fname']);
 		if ($this->age)
 		{
 			if ($mode == "imglist")
@@ -1033,7 +1051,8 @@ class XpWikiAttachFile
 		
 		$r_page = rawurlencode($this->page);
 		$s_page = htmlspecialchars($this->page);
-		$s_file = htmlspecialchars($this->file);
+		//$s_file = htmlspecialchars($this->file);
+		$s_file = htmlspecialchars($this->status['org_fname']);
 		$s_err = ($err == '') ? '' : '<p style="font-weight:bold">'.$this->root->_attach_messages[$err].'</p>';
 		$ref = "";
 		$img_info = "";
@@ -1375,7 +1394,7 @@ EOD;
 		$this->status['count'][$this->age]++;
 		$this->putstatus();
 		
-		$filename = $this->file;
+		$filename = $this->status['org_fname'];
 
 		// Care for Japanese-character-included file name
 		if ($this->cont['LANG'] == 'ja') {
@@ -1600,7 +1619,7 @@ class XpWikiAttachFiles
 		}
 		
 		$showall = ($fromall && $this->max < $this->count)? " [ <a href=\"{$this->root->script}?plugin=attach&amp;pcmd={$pcmd}&amp;refer=".rawurlencode($this->page)."\">Show All</a> ]" : "";
-		$allpages = ($fromall)? "" : " [ <a href=\"?plugin=attach&amp;pcmd={$pcmd}\" />All Pages</a> ]";
+		$allpages = ($fromall)? "" : " [ <a href=\"{$this->root->script}?plugin=attach&amp;pcmd={$pcmd}\" />All Pages</a> ]";
 		return $navi.($navi? "<hr />":"")."<div class=\"filelist_page\">".$this->func->make_pagelink($this->page)."<small> (".$this->count." file".(($this->count==1)?"":"s").")".$showall.$allpages."</small></div>\n<ul>\n$ret</ul>".($navi? "<hr />":"")."$navi\n";
 	}
 	// ファイル一覧を取得(inline)

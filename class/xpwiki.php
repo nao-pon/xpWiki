@@ -1,7 +1,7 @@
 <?php
 //
 // Created on 2006/09/29 by nao-pon http://hypweb.net/
-// $Id: xpwiki.php,v 1.47 2007/07/22 07:55:09 nao-pon Exp $
+// $Id: xpwiki.php,v 1.48 2007/07/27 02:11:46 nao-pon Exp $
 //
 
 class XpWiki {
@@ -384,7 +384,7 @@ EOD;
 	function transform($text, $cssbase = '') {
 		
 		$this->init('#RenderMode');
-		$this->cont['PKWK_READONLY'] = 1;
+		$this->cont['PKWK_READONLY'] = 2;
 		$this->root->top = '';
 		$text = str_replace("\r", '', $text);
 		
@@ -409,11 +409,14 @@ EOD;
 				$text .= ! empty($this->root->foot_explain) ? $this->root->note_hr . join("\n", $this->root->foot_explain) : '';
 
 				list($head_pre_tag, $head_tag) = $this->func->get_additional_headtags();
-				@ touch ($cache);
-				if (is_writable($cache)) {
-					if ($fp = fopen($cache, 'wb')) {
-						fwrite($fp, preg_replace('/[\r\n]+/', '', $head_pre_tag). "\n" . preg_replace('/[\r\n]+/', '', $head_tag). "\n" . $text);
-						fclose($fp);
+				
+				if (empty($this->root->rtf['disable_render_cache'])) {
+					@ touch ($cache);
+					if (is_writable($cache)) {
+						if ($fp = fopen($cache, 'wb')) {
+							fwrite($fp, preg_replace('/[\r\n]+/', '', $head_pre_tag). "\n" . preg_replace('/[\r\n]+/', '', $head_tag). "\n" . $text);
+							fclose($fp);
+						}
 					}
 				}
 			}
@@ -431,6 +434,13 @@ EOD;
 			$cssbase = 'r_'.$cssbase;
 			$csstag = '<link rel="stylesheet" type="text/css" media="screen" href="'.$this->cont['HOME_URL'].$this->cont['SKIN_DIR'].'pukiwiki.css.php?charset=Shift_JIS&amp;base='.$cssbase.'" charset="Shift_JIS" />';
 			$text = '<div class="xpwiki_'.$cssbase.'">'."\n".$text."\n".'</div>';
+		}
+
+		// cont['USER_NAME_REPLACE'] ¤ò ÃÖ´¹
+		$text  = str_replace($this->cont['USER_NAME_REPLACE'], $this->root->userinfo['uname_s'], $text);
+		// For Safari
+		if ($this->cont['UA_NAME'] === 'Safari') {
+			$text = preg_replace('/(<form)([^>]*>)/' , '$1 accept-charset="UTF-8"$2', $text);
 		}
 		
 		return $head_pre_tag."\n".$csstag."\n".$head_tag."\n".$text;
