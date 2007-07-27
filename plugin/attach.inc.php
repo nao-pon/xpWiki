@@ -9,7 +9,7 @@ class xpwiki_plugin_attach extends xpwiki_plugin {
 	/////////////////////////////////////////////////
 	// PukiWiki - Yet another WikiWikiWeb clone.
 	//
-	//  $Id: attach.inc.php,v 1.18 2007/07/27 02:11:46 nao-pon Exp $
+	//  $Id: attach.inc.php,v 1.19 2007/07/27 06:13:27 nao-pon Exp $
 	//  ORG: attach.inc.php,v 1.31 2003/07/27 14:15:29 arino Exp $
 	//
 	
@@ -229,7 +229,7 @@ class xpwiki_plugin_attach extends xpwiki_plugin {
 				$pass = (!empty($this->root->vars['pass'])) ? md5($this->root->vars['pass']) : NULL;
 				$copyright = (isset($this->root->post['copyright']))? TRUE : FALSE;
 				$ret = $this->attach_upload($_FILES['attach_file'],$this->root->vars['refer'],$pass,$copyright);
-				if ($this->root->post['returi']) {
+				if (!empty($this->root->post['returi'])) {
 					$ret['redirect'] = $this->root->siteinfo['host'].$this->root->post['returi'];
 				}
 				return $ret;
@@ -1045,14 +1045,11 @@ class XpWikiAttachFile
 			return "<a href=\"{$this->root->script}?plugin=attach&amp;pcmd=open$param\" title=\"$title\">$label</a>$count$info";
 	}
 	// 情報表示
-	function info($err)
-	{
-//		global $script,$_attach_messages,$X_admin,$X_uid;
+	function info($err) {
 		
 		$r_page = rawurlencode($this->page);
 		$s_page = htmlspecialchars($this->page);
-		//$s_file = htmlspecialchars($this->file);
-		$s_file = htmlspecialchars($this->status['org_fname']);
+		$s_file = htmlspecialchars($this->file);
 		$s_err = ($err == '') ? '' : '<p style="font-weight:bold">'.$this->root->_attach_messages[$err].'</p>';
 		$ref = "";
 		$img_info = "";
@@ -1159,7 +1156,12 @@ EOD;
 				if ($key != "title") $exif_tags .= "<br />$key: $value";
 			}
 		}
-		$v_filename = ($this->status['copyright'])? "<dd>{$this->root->_attach_messages['err_copyright']}</dd>" : "<dd>{$this->root->_attach_messages['msg_filename']}:".basename($this->filename)."</dd>";
+		$v_filename = "<dd>{$this->root->_attach_messages['msg_filename']}:".$s_file;
+		if ($this->root->userinfo['admin']) {
+			$v_filename .=  '<br />&nbsp;&nbsp;&nbsp;'.basename($this->filename).'</dd>';
+		} else {
+			$v_filename .=  '</dd>';
+		}
 		$v_md5hash  = ($this->status['copyright'])? "" : "<dd>{$this->root->_attach_messages['msg_md5hash']}:{$this->status['md5']}</dd>";
 		if ($img_info) $img_info = "<dd>{$img_info}</dd>";
 		if ($exif_tags) $exif_tags = "<dd>{$exif_tags}</dd>";
