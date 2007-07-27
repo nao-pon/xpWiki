@@ -16,17 +16,26 @@ function fetchSummary( $pgid )
 	if( preg_match( '/[^0-9a-zA-Z_-]/' , $mydirname ) ) die( 'Invalid mydirname' ) ;
 
 	// query
-	$data = $db->fetchArray( $db->query( "SELECT * FROM ".$db->prefix($mydirname."_pginfo")." WHERE `pgid`=$pgid LIMIT 1" ) ) ;
+	$data = $db->fetchArray( $db->query( "SELECT `name`, `title`, `editedtime` FROM ".$db->prefix($mydirname."_pginfo")." WHERE `pgid`=$pgid LIMIT 1" ) ) ;
 	
 	// get body
-	$body = '';
-	if (strpos(@$_SERVER['REQUEST_URI'], '/modules/'.$mydirname) === FALSE) {
-		include_once dirname(dirname(__FILE__))."/include.php";
-		//$page = new XpWiki($mydirname);
-		$page = & XpWiki::getSingleton($mydirname);
-		$page->init($data['name']);
-		$page->execute();
-		$body = $page->body;
+	$uri = $body = '';
+	if ($data['name']) {
+		if (strpos(@$_SERVER['REQUEST_URI'], '/modules/'.$mydirname) === FALSE) {
+			include_once dirname(dirname(__FILE__))."/include.php";
+			//$page = new XpWiki($mydirname);
+			$page = & XpWiki::getSingleton($mydirname);
+			$uri = $page->func->get_page_uri($data['name'], true);
+			if ($data['editedtime']) {
+				$page->init($data['name']);
+				$page->execute();
+				$body = $page->body;
+			} else {
+				$body = '"' . $data['name']. '" is deleted.';
+			}
+		}
+	} else {
+		$body = 'Page not found.';
 	}
 	
 	// make subject
@@ -39,7 +48,7 @@ function fetchSummary( $pgid )
 		'dirname' => $mydirname ,
 		'module_name' => $module->getVar( 'name' ) ,
 		'subject' => $myts->makeTboxData4Show( $subject ) ,
-		'uri' => XOOPS_URL.'/modules/'.$mydirname.'/?'.rawurlencode($data['name']) ,
+		'uri' => $uri ,
 		'summary' => xoops_substr( strip_tags( $body ) , 0 , 255 ) ,
 	) ;
 }
