@@ -1,7 +1,7 @@
 <?php
 //
 // Created on 2006/10/02 by nao-pon http://hypweb.net/
-// $Id: xpwiki_func.php,v 1.82 2007/07/22 08:00:23 nao-pon Exp $
+// $Id: xpwiki_func.php,v 1.83 2007/07/31 02:59:33 nao-pon Exp $
 //
 class XpWikiFunc extends XpWikiXoopsWrapper {
 
@@ -1155,6 +1155,35 @@ EOD;
 		return $count;
 	}
 
+	// Send Location heder
+	function send_location ($page='', $hash='', $url='', $title='', $buf_clear=true) {
+		if ($buf_clear) {
+			// clear output buffer
+			while( ob_get_level() ) {
+				ob_end_clean() ;
+			}
+		}
+		
+		if ($page) {
+			$url = $this->get_page_uri($page, true);
+			if (!$title) {	
+				$title = str_replace('$1', htmlspecialchars($page), $this->root->_title_updated);
+			}
+		}
+		if (!$url) {
+			$url = $this->cont['HOME_URL'];
+		}
+		if ($hash) {
+			$url .= (($hash{0} !== '#')? '#' : '') . $hash;
+		}
+
+		if (headers_sent()) {
+			$this->redirect_header($url, 0, $title);
+		} else {
+			header('Location: ' . $url);
+		}
+		exit;
+	}
 
 /*----- DB Functions -----*/ 
 	//ページ名からページIDを求める
