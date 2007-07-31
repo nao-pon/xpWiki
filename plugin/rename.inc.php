@@ -1,6 +1,6 @@
 <?php
 // PukiWiki - Yet another WikiWikiWeb clone
-// $Id: rename.inc.php,v 1.5 2007/04/02 23:29:17 nao-pon Exp $
+// $Id: rename.inc.php,v 1.6 2007/07/31 03:03:38 nao-pon Exp $
 //
 // Rename plugin: Rename page-name and related data
 //
@@ -398,9 +398,7 @@ EOD;
 		$page = $this->plugin_rename_getvar('page');
 		if ($page == '') $page = $this->cont['PLUGIN_RENAME_LOGPAGE'];
 	
-		$this->func->pkwk_headers_sent();
-		header('Location: ' . $this->func->get_script_uri() . '?' . rawurlencode($page));
-		exit;
+		$this->func->send_location($page);
 	}
 	
 	function plugin_rename_getrelated($page)

@@ -1,5 +1,5 @@
 <?php
-// $Id: bugtrack.inc.php,v 1.4 2006/12/15 01:06:17 nao-pon Exp $
+// $Id: bugtrack.inc.php,v 1.5 2007/07/31 03:03:38 nao-pon Exp $
 //
 // PukiWiki BugTrack plugin
 //
@@ -176,9 +176,7 @@ EOD;
 		$this->root->post['name'], $this->root->post['priority'], $this->root->post['state'], $this->root->post['category'],
 		$this->root->post['version'], $this->root->post['body']);
 	
-		$this->func->pkwk_headers_sent();
-		header('Location: ' . $this->func->get_script_uri() . '?' . rawurlencode($page));
-		exit;
+		$this->func->send_location($page);
 	}
 	
 	function plugin_bugtrack_write($base, $pagename, $summary, $name, $priority, $state, $category, $version, $body)

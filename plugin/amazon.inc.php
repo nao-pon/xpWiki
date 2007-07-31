@@ -7,7 +7,7 @@ class xpwiki_plugin_amazon extends xpwiki_plugin {
 	{
 
 	// PukiWiki - Yet another WikiWikiWeb clone.
-	// $Id: amazon.inc.php,v 1.3 2007/04/09 01:04:57 nao-pon Exp $
+	// $Id: amazon.inc.php,v 1.4 2007/07/31 03:03:38 nao-pon Exp $
 	// Id: amazon.inc.php,v 1.1 2003/07/24 13:00:00 ´×¼Ë
 	//
 	// Amazon plugin: Book-review maker via amazon.com/amazon.jp
@@ -208,25 +208,24 @@ EOD;
 	
 		} else {
 			$r_page     = $s_page . '/' . $this->root->asin;
-			$r_page_url = rawurlencode($r_page);
 			$auth_user = isset($_SERVER['PHP_AUTH_USER']) ? $_SERVER['PHP_AUTH_USER'] : '';
 	
 			$this->func->pkwk_headers_sent();
 			if ($this->root->edit_auth && ($auth_user == '' || ! isset($this->root->edit_auth_users[$auth_user]) ||
 			    $this->root->edit_auth_users[$auth_user] != $_SERVER['PHP_AUTH_PW'])) {
-			    	// Edit-auth failed. Just look the page
-				header('Location: ' . $this->func->get_script_uri() . '?' . $r_page_url);
+			   	// Edit-auth failed. Just look the page
+				$this->func->send_location($r_page);
 			} else {
 				$title = $this->plugin_amazon_get_asin_title();
 				if ($title == '' || preg_match('#^/#', $s_page)) {
 					// Invalid page name
-					header('Location: ' . $this->func->get_script_uri() . '?' . rawurlencode($s_page));
+					$this->func->send_location($s_page);
 				} else {
 					$body = '#amazon(' . $this->root->asin_all . ',,image)' . "\n" .
 					'*' . $title . "\n" . $this->root->amazon_body;
 					$this->plugin_amazon_review_save($r_page, $body);
-					header('Location: ' . $this->func->get_script_uri() .
-					'?cmd=edit&page=' . $r_page_url);
+					$this->func->send_location('', '', $this->func->get_script_uri() .
+					'?cmd=edit&page=' . rawurlencode($r_page));
 				}
 			}
 			exit;
