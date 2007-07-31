@@ -4,7 +4,7 @@ class xpwiki_plugin_edit extends xpwiki_plugin {
 
 
 	// PukiWiki - Yet another WikiWikiWeb clone.
-	// $Id: edit.inc.php,v 1.24 2007/07/31 03:03:38 nao-pon Exp $
+	// $Id: edit.inc.php,v 1.25 2007/07/31 11:32:28 nao-pon Exp $
 	// Copyright (C) 2001-2006 PukiWiki Developers Team
 	// License: GPL v2 or (at your option) any later version
 	//
@@ -286,12 +286,17 @@ class xpwiki_plugin_edit extends xpwiki_plugin {
 		// NULL POSTING, OR removing existing page
 		if ($postdata == '') {
 			$this->func->page_write($page, $postdata);
-			$retvars['msg' ] = $this->root->_title_deleted;
-			$retvars['body'] = str_replace('$1', htmlspecialchars($page), $this->root->_title_deleted);
 	
 			if ($this->root->trackback) $this->func->tb_delete($page);
-	
-			return $retvars;
+			
+			if ($this->root->maxshow_deleted) {
+				$url = $this->func->get_page_uri($this->root->whatsdeleted , true);
+			} else {
+				$url = $this->cont['HOME_URL'];
+			}
+			$title = str_replace('$1', htmlspecialchars($page), $this->root->_title_deleted);
+			
+			$this->func->redirect_header($url, 1, $title);
 		}
 	
 		// $notimeupdate: Checkbox 'Do not change timestamp'
