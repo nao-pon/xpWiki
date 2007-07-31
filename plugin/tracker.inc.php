@@ -4,7 +4,7 @@ class xpwiki_plugin_tracker extends xpwiki_plugin {
 
 
 	// PukiWiki - Yet another WikiWikiWeb clone
-	// $Id: tracker.inc.php,v 1.9 2007/06/05 00:26:03 nao-pon Exp $
+	// $Id: tracker.inc.php,v 1.10 2007/07/31 03:03:38 nao-pon Exp $
 	//
 	// Issue tracker plugin (See Also bugtrack plugin)
 	
@@ -207,11 +207,7 @@ EOD;
 		// Writing page data, without touch
 		$this->func->page_write($page, join('', $postdata));
 	
-		$r_page = rawurlencode($page);
-	
-		$this->func->pkwk_headers_sent();
-		header('Location: ' . $this->func->get_script_uri() . '?' . $r_page);
-		exit;
+		$this->func->send_location($page);
 	}
 	// フィールドオブジェクトを構築する
 	function plugin_tracker_get_fields($base,$refer,&$config)

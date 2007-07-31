@@ -4,7 +4,7 @@ class xpwiki_plugin_lookup extends xpwiki_plugin {
 
 
 	// PukiWiki - Yet another WikiWikiWeb clone.
-	// $Id: lookup.inc.php,v 1.1 2006/10/13 13:17:49 nao-pon Exp $
+	// $Id: lookup.inc.php,v 1.2 2007/07/31 03:03:38 nao-pon Exp $
 	// Copyright (C)
 	//   2002-2005 PukiWiki Developers Team
 	//   2001-2002 Originally written by yu-ji
@@ -66,9 +66,7 @@ EOD;
 			return array('msg'=>'Not found', 'body'=>$msg);
 		}
 	
-		$this->func->pkwk_headers_sent();
-		header('Location: ' . $url); // Publish as GET method
-		exit;
+		$this->func->send_location('', '', $url);
 	}
 }
 ?>

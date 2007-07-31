@@ -6,7 +6,7 @@ class xpwiki_plugin_interwiki extends xpwiki_plugin {
 
 	}
 	// PukiWiki - Yet another WikiWikiWeb clone.
-	// $Id: interwiki.inc.php,v 1.1 2006/10/13 13:17:49 nao-pon Exp $
+	// $Id: interwiki.inc.php,v 1.2 2007/07/31 03:03:38 nao-pon Exp $
 	//
 	// InterWiki redirection plugin (OBSOLETE)
 	
@@ -23,9 +23,7 @@ class xpwiki_plugin_interwiki extends xpwiki_plugin {
 		$url = $this->func->get_interwiki_url($match[2], $match[3]);
 		if ($url === FALSE) return $this->plugin_interwiki_invalid();
 	
-		$this->func->pkwk_headers_sent();
-		header('Location: ' . $url);
-		exit;
+		$this->func->send_location('', '', $url);
 	}
 	
 	function plugin_interwiki_invalid()

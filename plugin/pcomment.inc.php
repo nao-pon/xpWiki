@@ -4,7 +4,7 @@ class xpwiki_plugin_pcomment extends xpwiki_plugin {
 
 
 	// PukiWiki - Yet another WikiWikiWeb clone
-	// $Id: pcomment.inc.php,v 1.9 2007/07/27 02:11:46 nao-pon Exp $
+	// $Id: pcomment.inc.php,v 1.10 2007/07/31 03:03:38 nao-pon Exp $
 	//
 	// pcomment plugin - Show/Insert comments into specified (another) page
 	//
@@ -70,8 +70,8 @@ $this->cont['PLUGIN_PCOMMENT_DIRECTION_DEFAULT'] =  1; // 1: above 0: below
 		} else {
 			$back = ($refer)? $this->root->siteinfo['host'].$refer : ($_SERVER['HTTP_REFERER'])? $_SERVER['HTTP_REFERER'] : $this->cont['ROOT_URL'];
 		}
-		header('Location: ' . $back);
-		exit;
+
+		$this->func->send_location('', '', $back);
 	}
 	
 	function plugin_pcomment_convert()

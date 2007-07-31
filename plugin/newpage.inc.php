@@ -5,7 +5,7 @@ class xpwiki_plugin_newpage extends xpwiki_plugin {
 
 
 	}
-	// $Id: newpage.inc.php,v 1.3 2007/06/07 04:15:09 nao-pon Exp $
+	// $Id: newpage.inc.php,v 1.4 2007/07/31 03:03:38 nao-pon Exp $
 	//
 	// Newpage plugin
 	
@@ -66,10 +66,8 @@ EOD;
 				$this->func->get_fullname($page, $this->root->vars['refer']) : $page);
 			$r_refer = rawurlencode($this->root->vars['refer']);
 	
-			$this->func->pkwk_headers_sent();
-			header('Location: ' . $this->func->get_script_uri() .
+			$this->func->send_location('', '', $this->func->get_script_uri() .
 			'?cmd=read&page=' . $r_page . '&refer=' . $r_refer);
-			exit;
 		}
 	}
 }
