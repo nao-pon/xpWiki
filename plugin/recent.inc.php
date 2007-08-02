@@ -1,5 +1,5 @@
 <?php
-// $Id: recent.inc.php,v 1.6 2007/07/22 08:12:41 nao-pon Exp $
+// $Id: recent.inc.php,v 1.7 2007/08/02 07:36:25 nao-pon Exp $
 // Copyright (C)
 //   2002-2006 PukiWiki Developers Team
 //   2002      Y.MASUI http://masui.net/pukiwiki/ masui@masui.net
@@ -33,6 +33,7 @@ class xpwiki_plugin_recent extends xpwiki_plugin {
 		if (!isset($exec_count[$this->xpwiki->pid])) {$exec_count[$this->xpwiki->pid] = 1;}
 	
 		$prefix = "";
+		$recent_lines = 0;
 		if(func_num_args()>0) {
 			$args = func_get_args();
 			$recent_lines = (int)$args[0];
