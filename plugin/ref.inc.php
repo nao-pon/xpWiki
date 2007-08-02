@@ -1,5 +1,5 @@
 <?php
-// $Id: ref.inc.php,v 1.12 2007/07/27 02:11:46 nao-pon Exp $
+// $Id: ref.inc.php,v 1.13 2007/08/02 07:37:00 nao-pon Exp $
 /*
 
 	*プラグイン ref
@@ -919,6 +919,19 @@ _HTML_;
 		if ($cache) {
 			$lvar['name'] = $name;
 			$lvar['file'] = $filename;
+			
+			// ログファイル取得
+			$lvar['status'] = array('count'=>array(0),'age'=>'','pass'=>'','freeze'=>FALSE,'copyright'=>FALSE,'owner'=>0,'ucd'=>'','uname'=>'','md5'=>'','admins'=>0,'org_fname'=>'');
+			
+			if (file_exists($lvar['file'].'.log'))
+			{
+				$data = file($lvar['file'].'.log');
+				foreach ($lvar['status'] as $key=>$value)
+				{
+					$lvar['status'][$key] = chop(array_shift($data));
+				}
+				$lvar['status']['count'] = explode(',',$lvar['status']['count']);
+			}
 		} else {
 			$lvar['file'] = '';
 		}
