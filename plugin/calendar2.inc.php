@@ -1,28 +1,23 @@
 <?php
+// $Id: calendar2.inc.php,v 1.6 2007/08/04 06:29:46 nao-pon Exp $
+//
+// Calendar2 plugin
+//
+// Usage:
+//	#calendar2({[pagename|*],[yyyymm],[off]})
+//	off: Don't view today's
+
 class xpwiki_plugin_calendar2 extends xpwiki_plugin {
 	function plugin_calendar2_init () {
 
-
-
 	}
-	// $Id: calendar2.inc.php,v 1.5 2007/07/17 02:26:59 nao-pon Exp $
-	//
-	// Calendar2 plugin
-	//
-	// Usage:
-	//	#calendar2({[pagename|*],[yyyymm],[off]})
-	//	off: Don't view today's
 	
-	function plugin_calendar2_convert()
-	{
-	//	global $script, $vars, $post, $get, $weeklabels, $WikiName, $BracketName;
-	//	global $_calendar2_plugin_edit, $_calendar2_plugin_empty;
-		
+	function plugin_calendar2_convert() {		
 		$this->func->add_tag_head('calendar.css');
 		
 		$date_str = $this->func->get_date('Ym');
 		$base     = $this->func->strip_bracket($this->root->vars['page']);
-
+		
 		$today_view = TRUE;
 		$date_view = false;
 		if (func_num_args()) {
@@ -45,7 +40,7 @@ class xpwiki_plugin_calendar2 extends xpwiki_plugin {
 				}
 			}
 		}
-		if ($base == '*') {
+		if ($base === '*' || !$this->func->is_pagename($base)) {
 			$base   = '';
 			$prefix = '';
 		} else {
@@ -112,9 +107,9 @@ EOD;
 		'      <br />[<a href="' . $this->func->get_page_uri($base, true) . '">' . $s_base . '</a>]';
 	
 		$ret .= "\n" .
-		'     </td>' . "\n" .
-		'    </tr>'  . "\n" .
-		'    <tr>'   . "\n";
+			'     </td>' . "\n" .
+			'    </tr>'  . "\n" .
+			'    <tr>'   . "\n";
 	
 		foreach($this->root->weeklabels as $label)
 			$ret .= '     <td class="style_td_week">' . $label . '</td>' . "\n";
@@ -131,10 +126,11 @@ EOD;
 			$r_page = rawurlencode($page);
 			$s_page = htmlspecialchars($page);
 	
-			if ($wday == 0 && $day > 1)
+			if ($wday == 0 && $day > 1) {
 				$ret .=
-				'    </tr>' . "\n" .
-			'    <tr>' . "\n";
+					'    </tr>' . "\n" .
+					'    <tr>' . "\n";
+			}
 	
 			$style = 'style_td_day'; // Weekday
 			if (! $other_month && ($day == $today['mday']) && ($m_num == $today['mon']) && ($year == $today['year'])) { // Today
@@ -172,7 +168,7 @@ EOD;
 				$ret .= '     <td class="style_td_blank">&nbsp;</td>' . "\n";
 	
 		$ret .= '    </tr>'   . "\n" .
-		'   </table>' . "\n";
+			'   </table>' . "\n";
 	
 		if ($today_view) {
 			$tpage = $prefix . sprintf('%4d-%02d-%02d', $today['year'],	$today['mon'], $today['mday']);
@@ -190,17 +186,15 @@ EOD;
 				$this->func->make_pagelink($tpage));
 			}
 			$ret .= '  </td>' . "\n" .
-			'  <td valign="top">' . $str . '</td>' . "\n" .
-			' </tr>'   . "\n" .
-			'</table>' . "\n";
+				'  <td valign="top">' . $str . '</td>' . "\n" .
+				' </tr>'   . "\n" .
+				'</table>' . "\n";
 		}
 	
 		return $ret;
 	}
 	
-	function plugin_calendar2_action()
-	{
-	//	global $vars;
+	function plugin_calendar2_action() {
 	
 		$page = $this->func->strip_bracket($this->root->vars['page']);
 		$this->root->vars['page'] = '*';
