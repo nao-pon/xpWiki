@@ -1,7 +1,7 @@
 <?php
 //
 // Created on 2006/10/02 by nao-pon http://hypweb.net/
-// $Id: xpwiki_func.php,v 1.84 2007/08/04 06:28:23 nao-pon Exp $
+// $Id: xpwiki_func.php,v 1.85 2007/08/09 08:42:40 nao-pon Exp $
 //
 class XpWikiFunc extends XpWikiXoopsWrapper {
 
@@ -1671,8 +1671,8 @@ EOD;
 				// 検索ページ名の共通リンクディレクトリを省略
 				foreach($this->root->ext_autolinks as $valid => $autolink) {
 					if ($autolink['url'] === '') {
-						if (strpos($lookup_page, $autolink['url']) === 0) {
-							$lookup_page = str_replace($autolink['url'], '', $lookup_page);
+						if (strpos($lookup_page, $autolink['base']) === 0) {
+							$lookup_page = substr($lookup_page, strlen($autolink['base']) + 1);
 							if ($this->root->autolink > strlen($lookup_page)){$lookup_page = $page;}
 							break;							
 						}
