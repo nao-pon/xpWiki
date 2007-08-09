@@ -1,6 +1,6 @@
 <?php
 // PukiWiki - Yet another WikiWikiWeb clone.
-// $Id: keitai.ini.php,v 1.5 2007/06/05 00:21:50 nao-pon Exp $
+// $Id: keitai.ini.php,v 1.6 2007/08/09 08:43:55 nao-pon Exp $
 // Copyright (C)
 //   2002-2005 PukiWiki Developers Team
 //   2001-2002 Originally written by yu-ji
@@ -56,6 +56,8 @@ $root->attach_link = 0;
 // 関連するページのリンク一覧を常に表示する(負担がかかります)
 // ※keitaiスキンにはこの一覧を表示する機能がありません
 $root->related_link = 0;
+// 最大表示件数
+$root->related_show_max = 100;
 
 // リンク一覧の区切り文字
 // ※上同
