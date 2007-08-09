@@ -6,15 +6,20 @@ class xpwiki_plugin_related extends xpwiki_plugin {
 
 	}
 	// PukiWiki - Yet another WikiWikiWeb clone
-	// $Id: related.inc.php,v 1.1 2006/10/13 13:17:49 nao-pon Exp $
+	// $Id: related.inc.php,v 1.2 2007/08/09 08:43:56 nao-pon Exp $
 	//
 	// Related plugin: Show Backlinks for the page
 	
 	function plugin_related_convert()
 	{
-	//	global $vars;
+		$args[0] = 0;
+		if (func_num_args()) {
+			$args  = func_get_args();
+			$args[0] = intval($args[0]);
+		}
+		$max = ($args[0])? $args[0] : 0;
 	
-		return $this->func->make_related($this->root->vars['page'], 'p');
+		return $this->func->make_related($this->root->vars['page'], 'p', $max);
 	}
 	
 	// Show Backlinks: via related caches for the page
@@ -49,11 +54,12 @@ class xpwiki_plugin_related extends xpwiki_plugin {
 			ksort($data);
 			$retval .= '<ul>' . "\n";
 			foreach ($data as $page=>$time) {
-				$r_page  = rawurlencode($page);
-				$s_page  = htmlspecialchars($page);
-				$passage = $this->func->get_passage($time);
-				$retval .= ' <li><a href="' . $this->root->script . '?' . $r_page . '">' . $s_page .
-				'</a> ' . $passage . '</li>' . "\n";
+				//$r_page  = rawurlencode($page);
+				//$s_page  = htmlspecialchars($page);
+				//$passage = $this->func->get_passage($time);
+				//$retval .= ' <li><a href="' . $this->root->script . '?' . $r_page . '">' . $s_page .
+				//'</a> ' . $passage . '</li>' . "\n";
+				$retval .= ' <li>' . $this->func->make_pagelink($page) . '</li>' . "\n";
 			}
 			$retval .= '</ul>' . "\n";
 		}

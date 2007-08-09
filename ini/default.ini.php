@@ -1,6 +1,6 @@
 <?php
 // PukiWiki - Yet another WikiWikiWeb clone.
-// $Id: default.ini.php,v 1.4 2007/06/05 23:47:56 nao-pon Exp $
+// $Id: default.ini.php,v 1.5 2007/08/09 08:43:55 nao-pon Exp $
 // Copyright (C)
 //   2003-2005 PukiWiki Developers Team
 //   2001-2002 Originally written by yu-ji
@@ -62,6 +62,8 @@ $root->attach_link = 1;
 /////////////////////////////////////////////////
 // 関連するページのリンク一覧を常に表示する(負担がかかります)
 $root->related_link = 1;
+// 最大表示件数
+$root->related_show_max = 100;
 
 // リンク一覧の区切り文字
 $root->related_str = "\n ";
