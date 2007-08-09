@@ -1,7 +1,7 @@
 <?php
 //
 // Created on 2006/10/25 by nao-pon http://hypweb.net/
-// $Id: loader.php,v 1.11 2007/07/11 06:18:08 nao-pon Exp $
+// $Id: loader.php,v 1.12 2007/08/09 23:24:31 nao-pon Exp $
 //
 
 error_reporting(0);
@@ -12,10 +12,11 @@ $prefix = (isset($_GET['b']))? 'b_' : '';
 $prefix = (isset($_GET['r']))? 'r_' : '';
 $addcss = $dir = $out = $type = $src_file = '';
 $root_path = dirname($skin_dirname);
+if ( substr(PHP_OS, 0, 3) === 'WIN' ) {
+	$root_path = str_replace('\\', '/', $root_path);
+}
 $face_cache = $root_path . '/private/cache/facemarks.js';
 $face_cache_time = @ filemtime($face_cache);
-
-//wikihelper_root_url
 
 if (preg_match("/^(.+)\.([^.]+)$/",$src,$match)) {
 	$type = $match[2];
@@ -130,7 +131,6 @@ function xpwiki_make_facemarks ($skin_dirname, $cache) {
 	include_once XOOPS_TRUST_PATH."/modules/xpwiki/include.php";
 	$wiki =& XpWiki::getSingleton( basename(dirname($skin_dirname)) );
 	$wiki->init('#RenderMode');
-	//var_dump($wiki->root->wikihelper_facemarks);
 	$tags_full = $tags = array();
 	foreach($wiki->root->wikihelper_facemarks as $key => $img) {
 		$key = htmlspecialchars($key, ENT_QUOTES);
