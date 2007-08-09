@@ -1,7 +1,7 @@
 <?php
 //
 // Created on 2006/10/25 by nao-pon http://hypweb.net/
-// $Id: loader.php,v 1.12 2007/08/09 23:24:31 nao-pon Exp $
+// $Id: loader.php,v 1.13 2007/08/09 23:56:50 nao-pon Exp $
 //
 
 error_reporting(0);
@@ -12,11 +12,10 @@ $prefix = (isset($_GET['b']))? 'b_' : '';
 $prefix = (isset($_GET['r']))? 'r_' : '';
 $addcss = $dir = $out = $type = $src_file = '';
 $root_path = dirname($skin_dirname);
-if ( substr(PHP_OS, 0, 3) === 'WIN' ) {
-	$root_path = str_replace('\\', '/', $root_path);
-}
 $face_cache = $root_path . '/private/cache/facemarks.js';
 $face_cache_time = @ filemtime($face_cache);
+
+$js_replace = false;
 
 if (preg_match("/^(.+)\.([^.]+)$/",$src,$match)) {
 	$type = $match[2];
@@ -73,6 +72,7 @@ if (!$src_file)
 
 // default.LANG
 if ($type === "js" && substr($src,0,7) === "default") {
+	$js_replace = true;
 	if (!file_exists($src_file)) {
 		$src_file = dirname(__FILE__)."/skin/js/default.en.js";
 	}
@@ -103,6 +103,7 @@ if (file_exists($src_file)) {
 	}
 	if ($type === 'js') {
 		if ($src === 'main') {
+			$js_replace = true;
 			if (! file_exists($face_cache)) {
 				include XOOPS_ROOT_PATH.'/include/common.php';
 				list($face_tag, $face_tag_full) = xpwiki_make_facemarks ($skin_dirname, $face_cache);
@@ -112,7 +113,14 @@ if (file_exists($src_file)) {
 			}
 			$out = str_replace(array('$face_tag_full', '$face_tag'), array($face_tag_full, $face_tag), $out);
 		}
-		$out = str_replace('$wikihelper_root_url', str_replace(XOOPS_ROOT_PATH, XOOPS_URL, $root_path) , $out);
+		if ($js_replace || $src === 'lightbox') {
+			$xoops_root_path = XOOPS_ROOT_PATH;
+			if ( substr(PHP_OS, 0, 3) === 'WIN' ) {
+				$root_path = str_replace('\\', '/', $root_path);
+				$xoops_root_path = str_replace('\\', '/', $xoops_root_path);
+			}
+			$out = str_replace('$wikihelper_root_url', str_replace($xoops_root_path, XOOPS_URL, $root_path) , $out);
+		}
 	}
 	header( "Content-Type: " . $c_type );
 	header( "Last-Modified: " . gmdate( "D, d M Y H:i:s", $filetime ) . " GMT" );
