@@ -1,7 +1,7 @@
 <?php
 //
 // Created on 2006/10/02 by nao-pon http://hypweb.net/
-// $Id: xpwiki_func.php,v 1.85 2007/08/09 08:42:40 nao-pon Exp $
+// $Id: xpwiki_func.php,v 1.86 2007/08/10 08:28:48 nao-pon Exp $
 //
 class XpWikiFunc extends XpWikiXoopsWrapper {
 
@@ -1843,7 +1843,7 @@ EOD;
 		return;
 	}
 	
-	// データベースから関連ページを得る
+	// データベースからリンクされているページを得る
 	function links_get_related_db($page)
 	{
 		static $links = array();
@@ -1852,6 +1852,36 @@ EOD;
 		$links[$this->root->mydirname][$page] = array();
 		
 		$where = "`relid` = ".$this->get_pgid_by_name($page)." AND p.pgid = r.pgid";
+		$r_where = $this->get_readable_where('p.');
+		if ($r_where) {
+			$where = "($where AND ($r_where))";
+		}
+		$where = " WHERE " . $where;
+		
+		$query = "SELECT p.name, p.editedtime FROM `".$this->xpwiki->db->prefix($this->root->mydirname."_rel")."` AS r, `".$this->xpwiki->db->prefix($this->root->mydirname."_pginfo")."` AS p ".$where;
+		$result = $this->xpwiki->db->query($query);
+		//echo $query;
+		
+		if ($result)
+		{
+			while(list($name,$time) = mysql_fetch_row($result))
+			{
+				$links[$this->root->mydirname][$page][$name] = $time;
+			}
+		}
+		
+		return $links[$this->root->mydirname][$page];
+	}
+
+	// データベースからリンクしているページを得る
+	function links_get_linked_db($page)
+	{
+		static $links = array();
+		
+		if (isset($links[$this->root->mydirname][$page])) {return $links[$this->root->mydirname][$page];}
+		$links[$this->root->mydirname][$page] = array();
+		
+		$where = "r.pgid = ".$this->get_pgid_by_name($page)." AND p.pgid = r.relid";
 		$r_where = $this->get_readable_where('p.');
 		if ($r_where) {
 			$where = "($where AND ($r_where))";
