@@ -1,26 +1,25 @@
 <?php
+// PukiWiki - Yet another WikiWikiWeb clone.
+// $Id: map.inc.php,v 1.2 2007/08/10 08:28:47 nao-pon Exp $
+//
+// Site map plugin
+
+/*
+ * プラグイン map: サイトマップ(のようなもの)を表示
+ * Usage : http://.../pukiwiki.php?plugin=map
+ * パラメータ
+ *   &refer=ページ名
+ *     起点となるページを指定
+ *   &reverse=true
+ *     あるページがどこからリンクされているかを一覧。
+ */
+
 class xpwiki_plugin_map extends xpwiki_plugin {
+
 	function plugin_map_init () {
-
-
-	// PukiWiki - Yet another WikiWikiWeb clone.
-	// $Id: map.inc.php,v 1.1 2006/10/13 13:17:49 nao-pon Exp $
-	//
-	// Site map plugin
-	
-	/*
-	 * プラグイン map: サイトマップ(のようなもの)を表示
-	 * Usage : http://.../pukiwiki.php?plugin=map
-	 * パラメータ
-	 *   &refer=ページ名
-	 *     起点となるページを指定
-	 *   &reverse=true
-	 *     あるページがどこからリンクされているかを一覧。
-		*/
-	
-	// Show $non_list files
-		$this->cont['PLUGIN_MAP_SHOW_HIDDEN'] =  0; // 0, 1
-
+		// Show $non_list files
+		$this->show_hidden =  0; // 0, 1
+		$this->show_not_related = false;
 	}
 	
 	function plugin_map_action()
@@ -37,7 +36,7 @@ class xpwiki_plugin_map extends xpwiki_plugin {
 	
 		// Get pages
 		$pages = array_values(array_diff($this->func->get_existpages(), array($this->root->whatsnew)));
-		if (! $this->cont['PLUGIN_MAP_SHOW_HIDDEN'])
+		if (! $this->show_hidden)
 			$pages = array_diff($pages, preg_grep('/' . $this->root->non_list . '/', $pages));
 		if (empty($pages)) {
 			$retval['body'] = 'No pages.';
@@ -79,18 +78,21 @@ class xpwiki_plugin_map extends xpwiki_plugin {
 		} else {
 			$nodes[$refer]->chain($nodes);
 			$retval['body'] .= '<ul>' . "\n" . $nodes[$refer]->toString($nodes) . '</ul>' . "\n";
-			$retval['body'] .= '<hr />' . "\n" .
-			'<p>Not related from ' . htmlspecialchars($refer) . '</p>' . "\n";
-			$keys = array_keys($nodes);
-			sort($keys);
-			$retval['body'] .= '<ul>' . "\n";
-			foreach ($keys as $page) {
-				if (! $nodes[$page]->done) {
-					$nodes[$page]->chain($nodes);
-					$retval['body'] .= $nodes[$page]->toString($nodes, 1, $nodes[$page]->parent_id);
+			
+			if ($this->show_not_related) {
+				$retval['body'] .= '<hr />' . "\n" .
+				'<p>Not related from ' . htmlspecialchars($refer) . '</p>' . "\n";
+				$keys = array_keys($nodes);
+				sort($keys);
+				$retval['body'] .= '<ul>' . "\n";
+				foreach ($keys as $page) {
+					if (! $nodes[$page]->done) {
+						$nodes[$page]->chain($nodes);
+						$retval['body'] .= $nodes[$page]->toString($nodes, 1, $nodes[$page]->parent_id);
+					}
 				}
+				$retval['body'] .= '</ul>' . "\n";
 			}
-			$retval['body'] .= '</ul>' . "\n";
 		}
 	
 		// 終了
@@ -115,11 +117,25 @@ class XpWikiMapNode
 		$this->root   =& $xpwiki->root;
 		$this->cont   =& $xpwiki->cont;
 		$this->func   =& $xpwiki->func;
-//		global $script, $non_list;
 
-//		static $id = 0;
-			static $id = array();
-			if (!isset($id[$this->xpwiki->pid])) {$id[$this->xpwiki->pid] = 0;}
+		static $id = array();
+		if (!isset($id[$this->xpwiki->pid])) {$id[$this->xpwiki->pid] = 0;}
+		
+		static $yetlists = array();
+		if (isset($yetlists[$this->root->mydirname])) {
+			$this->yetlists = $yetlists[$this->root->mydirname];
+		} else {
+			$_yetlists = array();
+			if (file_exists($this->cont['CACHE_DIR']."yetlist.dat")) {
+				$_yetlists = unserialize(join("",file($this->cont['CACHE_DIR']."yetlist.dat")));
+			}
+			foreach($_yetlists as $notyet => $refs) {
+				foreach($refs as $ref) {
+					$this->yetlists[$ref][] = $notyet;
+				}
+			}
+			$yetlists[$this->root->mydirname] = $this->yetlists;
+		}
 
 		$this->page    = $page;
 		$this->is_page = $this->func->is_page($page);
@@ -134,40 +150,29 @@ class XpWikiMapNode
 		$this->mark = '<a id="rel_' . $this->id . '" href="' . $this->root->script .
 			'?plugin=map&amp;refer=' . rawurlencode($this->page) . '">' .
 			$mark . '</a>';
+
 	}
 
 	function hide(& $pages)
 	{
-		if (! $this->cont['PLUGIN_MAP_SHOW_HIDDEN'])
+		if (! $this->show_hidden)
 			$pages = array_diff($pages, preg_grep($this->hide_pattern, $pages));
 		return $pages;
 	}
 
 	function ref()
 	{
-		$refs = array();
-		$file = $this->cache . '.ref';
-		if (file_exists($file)) {
-			foreach (file($file) as $line) {
-				$ref = explode("\t", $line);
-				$refs[] = $ref[0];
-			}
-			$this->hide($refs);
-			sort($refs);
-		}
+		$refs = array_keys($this->func->links_get_related_db($this->page));
+		sort($refs);
 		return $refs;
 	}
 
 	function rel()
 	{
-		$rels = array();
-		$file = $this->cache . '.rel';
-		if (file_exists($file)) {
-			$data = file($file);
-			$rels = explode("\t", trim($data[0]));
-			$this->hide($rels);
-			sort($rels);
-		}
+		$rels = array_keys($this->func->links_get_linked_db($this->page));
+		$yetlists = isset($this->yetlists[$this->page])? $this->yetlists[$this->page] : array();
+		$rels = array_merge($rels, $yetlists);
+		sort($rels);
 		return $rels;
 	}
 
