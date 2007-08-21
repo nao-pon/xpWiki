@@ -1,7 +1,7 @@
 <?php
 //
 // Created on 2006/10/11 by nao-pon http://hypweb.net/
-// $Id: xoops_wrapper.php,v 1.35 2007/07/27 02:11:46 nao-pon Exp $
+// $Id: xoops_wrapper.php,v 1.36 2007/08/21 06:03:12 nao-pon Exp $
 //
 class XpWikiXoopsWrapper extends XpWikiBackupFunc {
 	
@@ -17,14 +17,22 @@ class XpWikiXoopsWrapper extends XpWikiBackupFunc {
 		$this->cont['TRUST_PATH']  = XOOPS_TRUST_PATH . "/";
 		
 		$module_handler =& xoops_gethandler('module');
-		$XoopsModule =& $module_handler->getByDirname($this->root->mydirname);
-		$config_handler =& xoops_gethandler('config');
-		
-		$this->root->module = $XoopsModule->getInfo();
-		$this->root->module['title'] = $XoopsModule->name();
-		$this->root->module['mid']   = $XoopsModule->mid();
-		$this->root->module['config'] =& $config_handler->getConfigsByCat(0, $XoopsModule->mid());
-		$this->root->module['platform'] = "xoops";
+		if ($XoopsModule =& $module_handler->getByDirname($this->root->mydirname)) {
+			$config_handler =& xoops_gethandler('config');
+			
+			$this->root->module = $XoopsModule->getInfo();
+			$this->root->module['title'] = $XoopsModule->name();
+			$this->root->module['mid']   = $XoopsModule->mid();
+			$this->root->module['config'] =& $config_handler->getConfigsByCat(0, $XoopsModule->mid());
+			$this->root->module['platform'] = "xoops";
+		} else {
+			// not installed
+			$this->root->module = array();
+			$this->root->module['title'] = $this->root->mydirname;
+			$this->root->module['mid']   = 0;
+			$this->root->module['config'] = NULL;
+			$this->root->module['platform'] = 'standalone';
+		}
 		
 		$this->root->enable_pagecomment = TRUE;
 		if (empty($this->root->module['config']['comment_forum_id']) ||
@@ -57,12 +65,9 @@ class XpWikiXoopsWrapper extends XpWikiBackupFunc {
 		
 		global $xoopsUser;
 		
-		$module_handler =& xoops_gethandler('module');
-		$XoopsModule =& $module_handler->getByDirname($this->root->mydirname);
-		
 		if (is_object($xoopsUser))
 		{
-			$this->root->userinfo['admin'] = $xoopsUser->isAdmin($XoopsModule->mid());
+			$this->root->userinfo['admin'] = $xoopsUser->isAdmin($this->root->module['mid']);
 			$this->root->userinfo['uid'] = (int)$xoopsUser->uid();
 			$this->root->userinfo['email'] = $xoopsUser->email();
 			$this->root->userinfo['uname'] = $this->unhtmlspecialchars($xoopsUser->uname(), ENT_QUOTES);
