@@ -2,7 +2,7 @@
 /////////////////////////////////////////////////
 // PukiWiki - Yet another WikiWikiWeb clone.
 //
-// $Id: popular.inc.php,v 1.7 2006/12/13 04:41:52 nao-pon Exp $
+// $Id: popular.inc.php,v 1.8 2007/08/21 06:22:10 nao-pon Exp $
 //
 
 /*
@@ -117,7 +117,7 @@ class xpwiki_plugin_popular extends xpwiki_plugin {
 		$res = $this->xpwiki->db->query($query);
 		if ($res)
 		{
-			while($data = mysql_fetch_row($res))
+			while($data = $this->xpwiki->db->fetchRow($res))
 			{
 				$counters[$data[0]] = $data[1];
 			}

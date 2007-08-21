@@ -1,7 +1,7 @@
 <?php
 //
 // Created on 2006/10/02 by nao-pon http://hypweb.net/
-// $Id: xpwiki_func.php,v 1.87 2007/08/21 06:03:12 nao-pon Exp $
+// $Id: xpwiki_func.php,v 1.88 2007/08/21 06:22:10 nao-pon Exp $
 //
 class XpWikiFunc extends XpWikiXoopsWrapper {
 
@@ -1197,7 +1197,7 @@ EOD;
 		$db =& $this->xpwiki->db;
 		$query = "SELECT `pgid` FROM ".$db->prefix($this->root->mydirname."_pginfo")." WHERE name".$case."='$s_page' LIMIT 1";
 		$res = $db->query($query);
-		list($ret) = mysql_fetch_row($res);
+		list($ret) = $db->fetchRow($res);
 		if (!$ret && $make) {
 			$query = "INSERT INTO ".$db->prefix($this->root->mydirname."_pginfo").
 						" (`name`,`name_ci`)" .
@@ -1227,7 +1227,7 @@ EOD;
 		$query = "SELECT `name` FROM ".$db->prefix($this->root->mydirname."_pginfo")." WHERE pgid='$id' LIMIT 1";
 		$res = $db->query($query);
 		if (!$res) return '';
-		list($ret) = mysql_fetch_row($res);
+		list($ret) = $db->fetchRow($res);
 		$page_name[$id] = $ret;
 		return $ret;
 	}
@@ -1245,7 +1245,7 @@ EOD;
 		$query = "SELECT `title` FROM ".$db->prefix($this->root->mydirname."_pginfo")." WHERE name='$page' LIMIT 1;";
 		$res = $db->query($query);
 		if (!$res) return "";
-		$_ret = mysql_fetch_row($res);
+		$_ret = $db->fetchRow($res);
 		$_ret = htmlspecialchars($_ret[0], ENT_QUOTES);
 		return $ret[$this->root->mydirname][$page] = ($_ret || $init)? $_ret : htmlspecialchars($page,ENT_NOQUOTES);
 	}
@@ -1350,12 +1350,12 @@ EOD;
 		if ($res)
 		{
 			if ($select) {
-				while($data = mysql_fetch_assoc($res)) {
+				while($data = $this->xpwiki->db->fetchArray($res)) {
 					$aryret[$data['name']] = $data;
 					$this->root->pgids[$data['name']] = $data['pgid'];
 				}
 			} else {
-				while($data = mysql_fetch_row($res)) {
+				while($data = $this->xpwiki->db->fetchRow($res)) {
 					$aryret[$this->encode($data[1]).'.txt'] = ($withtime)? $data[0]."\t".$data[1] : $data[1];
 					$this->root->pgids[$data[1]] = $data[2];
 				}
@@ -1802,7 +1802,7 @@ EOD;
 			$query = "SELECT name FROM ".$this->xpwiki->db->prefix($this->root->mydirname."_attach")." WHERE `pgid` = {$pgid}{$q_name};";
 			if ($result=$this->xpwiki->db->query($query))
 			{
-				while($data = mysql_fetch_row($result))
+				while($data = $this->xpwiki->db->fetchRow($result))
 				{
 					$ret[] = $data[0];
 				}
@@ -1826,7 +1826,7 @@ EOD;
 		$name = addslashes($name);
 		$query = "SELECT `id` FROM ".$this->xpwiki->db->prefix($this->root->mydirname."_attach")." WHERE `pgid`='{$pgid}' AND `name`='{$name}' AND age='{$age}' LIMIT 1";
 		if ($result=$this->xpwiki->db->query($query)) {
-			$data = mysql_fetch_row($result);
+			$data = $this->xpwiki->db->fetchRow($result);
 			$data = $data[0];
 		}
 		return $data;
@@ -1870,7 +1870,7 @@ EOD;
 		
 		if ($result)
 		{
-			while(list($name,$time) = mysql_fetch_row($result))
+			while(list($name,$time) = $this->xpwiki->db->fetchRow($result))
 			{
 				$links[$this->root->mydirname][$page][$name] = $time;
 			}
@@ -1900,7 +1900,7 @@ EOD;
 		
 		if ($result)
 		{
-			while(list($name,$time) = mysql_fetch_row($result))
+			while(list($name,$time) = $this->xpwiki->db->fetchRow($result))
 			{
 				$links[$this->root->mydirname][$page][$name] = $time;
 			}
@@ -1949,7 +1949,7 @@ EOD;
 		$text = '';
 		if ($result)
 		{
-			list($text) = mysql_fetch_row($result);
+			list($text) = $this->xpwiki->db->fetchRow($result);
 		}
 		return $text;
 	}
@@ -2084,7 +2084,7 @@ EOD;
 	
 			if ($result)
 			{
-				list($reading) = mysql_fetch_row($result);
+				list($reading) = $this->xpwiki->db->fetchRow($result);
 			}
 		}
 		
@@ -2219,7 +2219,7 @@ EOD;
 		$query = 'SELECT count(*) FROM '.$this->xpwiki->db->prefix($this->root->mydirname."_pginfo").$where;
 		//echo $query;
 		if ($res = $this->xpwiki->db->query($query)) {
-			list($count) = mysql_fetch_row($res);
+			list($count) = $this->xpwiki->db->fetchRow($res);
 		} else {
 			$count = 0;
 		}

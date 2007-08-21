@@ -9,7 +9,7 @@ class xpwiki_plugin_attach extends xpwiki_plugin {
 	/////////////////////////////////////////////////
 	// PukiWiki - Yet another WikiWikiWeb clone.
 	//
-	//  $Id: attach.inc.php,v 1.19 2007/07/27 06:13:27 nao-pon Exp $
+	//  $Id: attach.inc.php,v 1.20 2007/08/21 06:22:10 nao-pon Exp $
 	//  ORG: attach.inc.php,v 1.31 2003/07/27 14:15:29 arino Exp $
 	//
 	
@@ -1693,7 +1693,7 @@ class XpWikiAttachPages
 					$this->err = 1;
 					return;
 				}
-			list($_count) = mysql_fetch_row($result);
+			list($_count) = $this->xpwiki->db->fetchRow($result);
 			if (!$_count) return;
 			
 			$this->pages[$page]->count = $_count;
@@ -1706,7 +1706,7 @@ class XpWikiAttachPages
 			$limit = " LIMIT {$start},{$max}";
 			$query = "SELECT name,age FROM `".$this->xpwiki->db->prefix($this->root->mydirname."_attach")."`{$where}{$order}{$limit};";
 			$result = $this->xpwiki->db->query($query);
-			while($_row = mysql_fetch_row($result))
+			while($_row = $this->xpwiki->db->fetchRow($result))
 			{
 				$_file = $_row[0];
 				$_age = $_row[1];
@@ -1739,7 +1739,7 @@ class XpWikiAttachPages
 			
 			//if ($this->root->userinfo['admin']) echo $query;
 			
-			while($_row = mysql_fetch_row($result))
+			while($_row = $this->xpwiki->db->fetchRow($result))
 			{
 				$this->XpWikiAttachPages($this->xpwiki,$_row[0],$age,$isbn,20,0,TRUE,$f_order,$mode);
 			}

@@ -1,7 +1,7 @@
 <?php
 //
 // Created on 2006/11/19 by nao-pon http://hypweb.net/
-// $Id: recentchanges.inc.php,v 1.9 2007/07/12 00:05:46 nao-pon Exp $
+// $Id: recentchanges.inc.php,v 1.10 2007/08/21 06:22:10 nao-pon Exp $
 //
 class xpwiki_plugin_recentchanges extends xpwiki_plugin {
 	
@@ -31,7 +31,7 @@ class xpwiki_plugin_recentchanges extends xpwiki_plugin {
 			$date = $items = "";
 			$cnt = 0;
 			$items = '<ol class="list1" style="padding-left:16px;margin-left:16px">';
-			while(list($page, $editedtime) = mysql_fetch_row($res))
+			while(list($page, $editedtime) = $this->xpwiki->db->fetchRow($res))
 			{
 				$lastmod = $this->func->format_date($editedtime);
 				//$tb_tag = ($this->root->trackback)? "<a href=\"$script?plugin=tb&amp;__mode=view&amp;tb_id=".tb_get_id($data[1])."\" title=\"TrackBack\">TB(".$this->func->tb_count($data[1]).")</a> - " : "";

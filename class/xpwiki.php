@@ -1,7 +1,7 @@
 <?php
 //
 // Created on 2006/09/29 by nao-pon http://hypweb.net/
-// $Id: xpwiki.php,v 1.48 2007/07/27 02:11:46 nao-pon Exp $
+// $Id: xpwiki.php,v 1.49 2007/08/21 06:22:10 nao-pon Exp $
 //
 
 class XpWiki {
@@ -281,7 +281,7 @@ class XpWiki {
 		$sql = 'SELECT `count` FROM `'.$this->db->prefix($this->root->mydirname."_count").'` WHERE pgid = '.$pgid.' LIMIT 1';
 		$res = $this->db->query($sql);
 		if ($res) {
-			list($count) = mysql_fetch_row($res);	
+			list($count) = $this->db->fetchRow($res);	
 		}
 		return $count;
 	}
