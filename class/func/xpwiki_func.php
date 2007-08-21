@@ -1,7 +1,7 @@
 <?php
 //
 // Created on 2006/10/02 by nao-pon http://hypweb.net/
-// $Id: xpwiki_func.php,v 1.86 2007/08/10 08:28:48 nao-pon Exp $
+// $Id: xpwiki_func.php,v 1.87 2007/08/21 06:03:12 nao-pon Exp $
 //
 class XpWikiFunc extends XpWikiXoopsWrapper {
 
@@ -1187,18 +1187,24 @@ EOD;
 
 /*----- DB Functions -----*/ 
 	//ページ名からページIDを求める
-	function get_pgid_by_name ($page, $cache = true)
+	function get_pgid_by_name ($page, $cache = true, $make = false)
 	{
-		//static $page_id = array();
-		$page = addslashes($page);
 		if ($cache && isset($this->root->pgids[$page])) return $this->root->pgids[$page];
+		
+		$s_page = addslashes($page);
 		
 		$case = ($this->root->page_case_insensitive)? '_ci' : '';
 		$db =& $this->xpwiki->db;
-		$query = "SELECT `pgid` FROM ".$db->prefix($this->root->mydirname."_pginfo")." WHERE name".$case."='$page' LIMIT 1";
+		$query = "SELECT `pgid` FROM ".$db->prefix($this->root->mydirname."_pginfo")." WHERE name".$case."='$s_page' LIMIT 1";
 		$res = $db->query($query);
-		if (!$res) return 0;
 		list($ret) = mysql_fetch_row($res);
+		if (!$ret && $make) {
+			$query = "INSERT INTO ".$db->prefix($this->root->mydirname."_pginfo").
+						" (`name`,`name_ci`)" .
+						" values('$s_page','$s_page')";
+			$res = $db->queryF($query);
+			return ($res)? $this->get_pgid_by_name($page) : 0;
+		}
 		if ($ret) $this->root->pgids[$page] = $ret;
 		return $ret;
 	}

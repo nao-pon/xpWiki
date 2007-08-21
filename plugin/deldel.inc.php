@@ -1,6 +1,6 @@
 <?php
 /**
- * $Id: deldel.inc.php,v 1.1 2007/06/01 02:58:56 nao-pon Exp $
+ * $Id: deldel.inc.php,v 1.2 2007/08/21 06:03:12 nao-pon Exp $
  * ORG: deldel.inc.php 161 2005-06-28 12:58:13Z okkez $
  *
  * 色んなものを一括削除するプラグイン
@@ -120,8 +120,10 @@ class xpwiki_plugin_deldel extends xpwiki_plugin {
 		$status = array(0 => $this->msg['title_delete_error'],
 					1 => $this->msg['btn_exec']);
 		$is_cascade = (empty($this->root->vars['cascade'])) ? false : true;
+		$move_to = (empty($this->root->vars['move'])) ? '' : $this->root->vars['movedir'];
 		$this->root->vars['s_regxp'] = (empty($this->root->vars['regexp']))? "" : htmlspecialchars($this->root->vars['regexp']);
 		$body = '';
+		$moved = false;
 		
 		if(!isset($mode) || !$this->root->userinfo['admin'])
 		{
@@ -129,6 +131,7 @@ class xpwiki_plugin_deldel extends xpwiki_plugin {
 			{
 				$body .= "<p style=\"color:red;font-size:120%;font-weight:bold;\"><img src=\"image/alert.gif\" width=\"15\" height=\"15\" alt=\"alert\" /> ".$this->msg['msg_auth_error']."</p>";
 			}
+
 			//最初のページ
 			$body .= "<h2>".$this->msg['msg_selectlist']."</h2>";
 			$body .= "<form method='post' action=\"{$this->root->script}?cmd=deldel\">";
@@ -229,7 +232,7 @@ class xpwiki_plugin_deldel extends xpwiki_plugin {
 		}elseif(isset($mode) && $mode === 'confirm'){
 			//確認画面+もう一回認証要求？
 			if(array_key_exists('pages',$this->root->vars) and $this->root->vars['pages'] != ''){
-				return $this->make_confirm('deldel', $this->root->vars['dir'], $this->root->vars['pages'], $is_cascade);
+				return $this->make_confirm('deldel', $this->root->vars['dir'], $this->root->vars['pages'], $is_cascade, $move_to);
 			}else{
 				//選択がなければエラーメッセージを表示する
 				$error_msg = "<p>{$this->msg['msg_error']}</p><p><a href=\"{$this->root->script}?cmd=deldel\">".$this->msg['msg_back_word']."</a></p>";
@@ -249,7 +252,21 @@ class xpwiki_plugin_deldel extends xpwiki_plugin {
 					{
 						$i++;
 						if ($i == $count) $this->root->autolink = $_autolink;
+
 						$s_page = htmlspecialchars($page, ENT_QUOTES);
+						if (!empty($this->root->vars['move_to'])) {
+							static $to_obj;
+							if (!$to_obj) {
+								$to_obj = XpWiki::getSingleton($this->root->vars['move_to']);
+								$to_obj->init();
+							}
+							if (!$this->move_to($page, $to_obj)) {
+								$flag[$s_page.'(Move)'] = false;
+								continue;
+							}
+							$moved = true;
+						}
+						
 						$pgid = $this->func->get_pgid_by_name($page);
 						$target = $this->func->encode($page);
 						
@@ -396,7 +413,11 @@ class xpwiki_plugin_deldel extends xpwiki_plugin {
 						$body .= "$key =&gt; {$status[(($value)? 1 : 0)]}<br/>\n";
 					}
 					$body .= "<p>{$this->msg['msg_delete_error']}</p>";
-					$body .= "<p><a href=\"{$this->root->script}?cmd=deldel\">".$this->msg['msg_back_word']."</a></p>";
+					if ($moved) {
+						$body .= "<p><a href=\"{$to_obj->root->script}?cmd=dbsync\">".$this->msg['msg_back_dbsync']."</a></p>";
+					} else {
+						$body .= "<p><a href=\"{$this->root->script}?cmd=deldel\">".$this->msg['msg_back_word']."</a></p>";
+					}
 					return array('msg' => $this->msg['title_delete_error'],'body'=>$body);
 				}else{
 					//削除成功
@@ -405,7 +426,11 @@ class xpwiki_plugin_deldel extends xpwiki_plugin {
 					}
 					$body .= "<p>{$this->msg['msg_delete_success']}</p>";
 					$body .= $is_cascade ? "<p>{$this->msg['msg_together']}</p>" : "";
-					$body .= "<p><a href=\"{$this->root->script}?cmd=deldel\">".$this->msg['msg_back_word']."</a></p>";
+					if ($moved) {
+						$body .= "<p><a href=\"{$to_obj->root->script}?cmd=dbsync\">".$this->msg['msg_back_dbsync']."</a></p>";
+					} else {
+						$body .= "<p><a href=\"{$this->root->script}?cmd=deldel\">".$this->msg['msg_back_word']."</a></p>";
+					}
 					return array('msg' => $this->msg['title_delete_'.$mes] ,'body' => $body);
 				}
 			}
@@ -423,7 +448,7 @@ class xpwiki_plugin_deldel extends xpwiki_plugin {
 	
 		if($this->root->pagereading_enable) {
 			mb_regex_encoding($this->cont['SOURCE_ENCODING']);
-			$readings = $this->func->get_readings($pages);
+			list($readings, $titles) = $this->func->get_readings($pages);
 		}
 		//echo "Pages: ".count($pages);
 	
@@ -471,7 +496,7 @@ class xpwiki_plugin_deldel extends xpwiki_plugin {
 	
 		$cnt = 0;
 		$arr_index = array();
-		$retval .= '<ul>' . "\n";
+		$retval = '<ul>' . "\n";
 		foreach ($list as $head=>$pages) {
 			if ($head === $symbol) {
 				$head = $this->root->_msg_symbol;
@@ -506,8 +531,34 @@ class xpwiki_plugin_deldel extends xpwiki_plugin {
 	}
 	function make_body($cmd, $dir, $retry=false, $pages=array())
 	{
+		$select = '';
 		if($dir === $this->cont['DATA_DIR']) {
 			$ext = '.txt';
+			
+			$_dir = dirname($this->cont['DATA_HOME']);
+			$items = array();
+			if ($dh = opendir($_dir)) {
+				while (($item = readdir($dh)) !== false) {
+					if (is_dir($_dir.'/'.$item)) {
+						if ($this->root->mydirname !== $item && file_exists($_dir.'/'.$item.'/private/ini/pukiwiki.ini.php')) {
+							$obj =& XpWiki::getSingleton($item);
+							if ($obj->root->module['mid']) {
+								$items[] = $item;
+							}
+						}
+					}
+				}
+				closedir($dh);
+			}
+			if ($items) {
+				$select = '<div><input type="checkbox" name="move" value="1" /> ';
+				$select .= $this->msg['msg_move_flag'];
+				$select .= '<select name="movedir">';
+				foreach($items as $_dir) {
+					$select .= '<option value="'.$_dir.'">'.$_dir.'</option>'; 
+				}
+				$select .= '</select></div>';
+			}
 		}elseif($dir === $this->cont['BACKUP_DIR']) {
 			$ext = (function_exists('gzfile'))? ".gz" : ".txt";
 		}elseif($dir === $this->cont['DIFF_DIR']) {
@@ -562,7 +613,8 @@ class xpwiki_plugin_deldel extends xpwiki_plugin {
 			}
 			if($dir === $this->cont['DATA_DIR']) {
 				$dir = 'DATA';
-				$body .= ($cmd === 'deldel') ? "<input type=\"checkbox\" name=\"cascade\" value=\"1\"/><span>{$this->msg['msg_together_flag']}</span><br />\n" : "";
+				$body .= ($cmd === 'deldel') ? "<input type=\"checkbox\" name=\"cascade\" value=\"1\" checked=\"checked\"/> <span>{$this->msg['msg_together_flag']}</span><br />\n" : "";
+				$body .= $select;
 			}elseif($dir === $this->cont['BACKUP_DIR']) {
 				$dir = 'BACKUP';
 			}elseif($dir === $this->cont['DIFF_DIR']) {
@@ -580,7 +632,7 @@ class xpwiki_plugin_deldel extends xpwiki_plugin {
 	
 		return $body;
 	}
-	function make_confirm($cmd, $dir, $pages, $is_cascade=false)
+	function make_confirm($cmd, $dir, $pages, $is_cascade=false, $move_to = '')
 	{
 		$is_cascade = ($is_cascade)? "1" : "0";
 		
@@ -620,8 +672,14 @@ class xpwiki_plugin_deldel extends xpwiki_plugin {
 		$body .= "</ul>\n<div>";
 		$body .= '<input type="hidden" name="mode" value="exec"/><input type="hidden" name="dir" value="'.$dir.'"/>'."\n";
 		//$body .= '<input type="hidden" name="cascade" value="'.$is_cascade.'" />'."\n";
-		if ($dir === $this->cont['DATA_DIR']) {
-			$body .= "<input type=\"checkbox\" name=\"cascade\" value=\"1\"".(($is_cascade)? "checked=\"true\"" : "")." /><span>{$this->msg['msg_together_flag']}</span><br />\n";
+		if ($dir === 'DATA') {
+			$cascade_disabled = '';
+			if ($move_to) {
+				$is_cascade = '1';
+				$cascade_disabled = ' disabled="disabled"';
+			}
+			$body .= "<input type=\"checkbox\" name=\"cascade\" value=\"1\"".(($is_cascade)? " checked=\"true\"" : "").$cascade_disabled." /> <span>{$this->msg['msg_together_flag']}</span><br />\n";
+			$body .= ($move_to)? '<div>' . $this->msg['msg_move_flag'] . htmlspecialchars($move_to).'<input type="hidden" name="move_to" value="'.htmlspecialchars($move_to).'" /></div>' : '';
 		}
 		$body .= "<input type=\"submit\" value=\"{$this->msg['btn_exec']}\"/>\n</div></form>\n";
 		$body .= "<p>{$this->msg['msg_auth']}</p>";
@@ -643,19 +701,24 @@ class xpwiki_plugin_deldel extends xpwiki_plugin {
 	
 		return array('msg'=>$msg, 'body'=>$body);
 	}
-	function get_filename2($dir,$page)
+	function get_filename2($dir, $page, $obj=false)
 	{
-		$pgid = $this->func->get_pgid_by_name($page);
-		$page = $this->func->encode($page);
+		if (!$obj) {
+			$obj =& $this;
+		}
+		$pgid = $obj->func->get_pgid_by_name($page);
+		$page = $obj->func->encode($page);
 		switch($dir){
+		  case 'wiki' :
+			return $obj->cont['DATA_DIR'] . $page . '.txt' ;
 		  case 'backup' :
-			return $this->cont['BACKUP_DIR'] . $page . ((function_exists('gzfile'))? ".gz" : ".txt") ;
+			return $obj->cont['BACKUP_DIR'] . $page . ((function_exists('gzfile'))? ".gz" : ".txt") ;
 		  case 'counter' :
-			return $this->cont['COUNTER_DIR'] . $page . '.count' ;
+			return $obj->cont['COUNTER_DIR'] . $page . '.count' ;
 		  case 'diff' :
-			return $this->cont['DIFF_DIR'] . $page . '.txt' ;
+			return $obj->cont['DIFF_DIR'] . $page . '.txt' ;
 		  case 'referer' :
-			return $this->cont['TRACKBACK_DIR'] . $page . '.ref';
+			return $obj->cont['TRACKBACK_DIR'] . $page . '.ref';
 		}
 	}
 	function sweap_cache()
@@ -682,6 +745,70 @@ class xpwiki_plugin_deldel extends xpwiki_plugin {
 		natcasesort($delete_ref);
 		return array('rel' => $delete_rel,
 				 'ref' => $delete_ref);
+	}
+	
+	function move_to ($page, & $to_obj) {
+		if ($to_obj->func->is_page($page)) {
+			return false;
+		}
+		$move_files = array();
+		foreach(array('wiki', 'backup', 'counter', 'diff', 'referer') as $dir) {
+			$from = $this->get_filename2($dir, $page);
+			$to = $this->get_filename2($dir, $page, $to_obj);
+			if (file_exists($from)) {
+				$move_files[$from] = $to;
+			}
+		}
+		
+		$pgid = $this->func->get_pgid_by_name($page);
+		
+		// Add
+		$from = $this->cont['DIFF_DIR'] . $pgid . '.add' ;
+		if (file_exists($from)) {
+			$toid = $to_obj->func->get_pgid_by_name($page, true, true);
+			$to = $to_obj->cont['DIFF_DIR'] . $toid . '.add' ;
+			$move_files[$from] = $to;
+		}
+
+		// CSS
+		$from = $this->cont['CACHE_DIR'] . $pgid . '.css' ;
+		if (file_exists($from)) {
+			$toid = $to_obj->func->get_pgid_by_name($page, true, true);
+			$to = $to_obj->cont['CACHE_DIR'] . $toid . '.css' ;
+			$move_files[$from] = $to;
+		}
+
+		// Attach
+		$query = "SELECT name,age FROM `".$this->xpwiki->db->prefix($this->root->mydirname."_attach")."` WHERE `pgid` = {$pgid}";
+		$result = $this->xpwiki->db->query($query);
+		$_done = array();
+		while($_row = mysql_fetch_row($result))
+		{
+			$basename = $this->func->encode($page).'_'.$this->func->encode($_row[0]);
+			$filename = $basename . ($_row[1] ? '.'.$_row[1] : '');
+			$logname = $basename.'.log';
+			
+			$from = $this->cont['UPLOAD_DIR'].$filename;
+			$to = $to_obj->cont['UPLOAD_DIR'].$filename;
+			if (file_exists($from)) {
+				$move_files[$from] = $to;
+			}
+			
+			if (empty($_done[$basename])) {
+				$from = $this->cont['UPLOAD_DIR'].$logname;
+				$to = $to_obj->cont['UPLOAD_DIR'].$logname;
+				if (file_exists($from)) {
+					$move_files[$from] = $to;
+				}
+			}
+			$_done[$basename] = true;
+		}
+		$ret = true;
+		foreach($move_files as $from => $to) {
+			$ret = ($ret && copy($from, $to));
+			touch($to, filemtime($from));
+		}
+		return $ret;
 	}
 }
 class XpWikiAttachFile2 extends XpWikiAttachFile
