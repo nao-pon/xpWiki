@@ -1,7 +1,7 @@
 <?php
 //
 // Created on 2006/11/17 by nao-pon http://hypweb.net/
-// $Id: dbsync.inc.php,v 1.17 2007/06/12 01:19:03 nao-pon Exp $
+// $Id: dbsync.inc.php,v 1.18 2007/08/21 06:22:10 nao-pon Exp $
 //
 
 class xpwiki_plugin_dbsync extends xpwiki_plugin {
@@ -598,7 +598,7 @@ __EOD__;
 				$result = $this->xpwiki->db->query($query);
 				if ($result && mysql_num_rows($result))
 				{
-					list($text) = mysql_fetch_row ( $result );
+					list($text) = $this->xpwiki->db->fetchRow( $result );
 					if ($text && !$this->root->post['plain_all'])
 					{
 						$dones[0][] = $file;

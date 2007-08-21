@@ -1,6 +1,6 @@
 <?php
 /**
- * $Id: deldel.inc.php,v 1.2 2007/08/21 06:03:12 nao-pon Exp $
+ * $Id: deldel.inc.php,v 1.3 2007/08/21 06:22:10 nao-pon Exp $
  * ORG: deldel.inc.php 161 2005-06-28 12:58:13Z okkez $
  *
  * 色んなものを一括削除するプラグイン
@@ -782,7 +782,7 @@ class xpwiki_plugin_deldel extends xpwiki_plugin {
 		$query = "SELECT name,age FROM `".$this->xpwiki->db->prefix($this->root->mydirname."_attach")."` WHERE `pgid` = {$pgid}";
 		$result = $this->xpwiki->db->query($query);
 		$_done = array();
-		while($_row = mysql_fetch_row($result))
+		while($_row = $this->xpwiki->db->fetchRow($result))
 		{
 			$basename = $this->func->encode($page).'_'.$this->func->encode($_row[0]);
 			$filename = $basename . ($_row[1] ? '.'.$_row[1] : '');

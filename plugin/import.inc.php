@@ -1,7 +1,7 @@
 <?php
 /*
  * Created on 2007/05/22 by nao-pon http://hypweb.net/
- * $Id: import.inc.php,v 1.4 2007/07/05 04:59:16 nao-pon Exp $
+ * $Id: import.inc.php,v 1.5 2007/08/21 06:22:10 nao-pon Exp $
  */
 
 class xpwiki_plugin_import extends xpwiki_plugin {
@@ -518,7 +518,7 @@ EOD;
 			$res = $db->query($query);
 			$pgid_from = array();
 			if ($res) {
-				while($row = mysql_fetch_row($res)) {
+				while($row = $db->fetchRow($res)) {
 					if (in_array($row[1], $pages)) {
 						$pgid_from['0'.strval($row[0])] = $row[1];
 					}
@@ -533,7 +533,7 @@ EOD;
 			$res = $db->query($query);
 			$pgid_to = array();
 			if ($res) {
-				while($row = mysql_fetch_row($res)) {
+				while($row = $db->fetchRow($res)) {
 					$pgid_to['0'.strval($row[0])] = $row[1];
 				}
 			}
@@ -647,7 +647,7 @@ EOD;
 
 		$query = "SELECT `aids`,`gids`,`vaids`,`vgids`,`lastediter`,`uid`,`freeze`,`unvisible` FROM ".$db->prefix('pukiwikimod'.$dir_num.'_pginfo').' WHERE name="'.addslashes($page).'" LIMIT 1';
 		if ($res = $db->query($query)) {
-			list($aids, $gids, $vaids, $vgids, $lastediter, $uid, $freeze, $unvisible) = mysql_fetch_row($res);
+			list($aids, $gids, $vaids, $vgids, $lastediter, $uid, $freeze, $unvisible) = $db->fetchRow($res);
 		}
 		
 		$uid = intval($uid);
