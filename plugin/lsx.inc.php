@@ -1,38 +1,18 @@
 <?php
+// $Id: lsx.inc.php,v 1.7 2007/08/24 01:11:51 nao-pon Exp $
+
 class xpwiki_plugin_lsx extends xpwiki_plugin {
+	
+	var $plugin_lsx;
 	
 	//////////////////////////////////
 	function plugin_lsx_init()
 	{
-	//	global $plugin_lsx;
-		$this->root->plugin_lsx = new XpWikiPluginLsx($this->xpwiki);
-	}
-	
-	function plugin_lsx_convert()
-	{
-	//	global $plugin_lsx; // $plugin_lsx = new PluginLsx();
-		$args = func_get_args();
-		return call_user_func_array(array($this->root->plugin_lsx, 'convert'), $args);
-	}
-	
-	function plugin_lsx_action()
-	{
-	//	global $plugin_lsx;
-		return call_user_func(array($this->root->plugin_lsx, 'action'));
-	}
-}
-	
-class XpWikiPluginLsx
-{
-	function XpWikiPluginLsx(& $xpwiki)
-	{
-		$this->xpwiki =& $xpwiki;
-		$this->root   =& $xpwiki->root;
-		$this->cont   =& $xpwiki->cont;
-		$this->func   =& $xpwiki->func;
+
+		$this->plugin_lsx = new XpWikiPluginLsx($this->xpwiki);
 
 		// Modify here for default values
-		$this->options = array(
+		$this->plugin_lsx->options = array(
 			'hierarchy' => array('bool', true),
 			'non_list'	=> array('bool', true),
 			'reverse'	=> array('bool', false), 
@@ -52,10 +32,33 @@ class XpWikiPluginLsx
 			'tag'		=> array('string', ''),
 			'notitle'	=> array('bool', false),
 		);
+
 		// Modify here for external plugins
-		$this->plugin_contents = 'contentsx';
-		$this->plugin_include  = 'includex';
-		$this->plugin_new	   = 'new';
+		$this->plugin_lsx->plugin_contents = 'contentsx';
+		$this->plugin_lsx->plugin_include  = 'includex';
+		$this->plugin_lsx->plugin_new	   = 'new';
+	}
+	
+	function plugin_lsx_convert()
+	{
+		$args = func_get_args();
+		return call_user_func_array(array($this->plugin_lsx, 'convert'), $args);
+	}
+	
+	function plugin_lsx_action()
+	{
+		return call_user_func(array($this->plugin_lsx, 'action'));
+	}
+}
+	
+class XpWikiPluginLsx
+{
+	function XpWikiPluginLsx(& $xpwiki)
+	{
+		$this->xpwiki =& $xpwiki;
+		$this->root   =& $xpwiki->root;
+		$this->cont   =& $xpwiki->cont;
+		$this->func   =& $xpwiki->func;
 	}
 	
 	var $options;
@@ -81,7 +84,6 @@ class XpWikiPluginLsx
 
 	function action()
 	{
-//		global $vars;
 		$args = $this->root->vars;
 		$body = $this->body($args, TRUE);
 		if ($this->error != "") {
@@ -143,7 +145,6 @@ class XpWikiPluginLsx
 	
 	function check_options()
 	{
-//		global $vars;
 		if ($this->options['tag'][1] != '') {
 			if(! $this->func->exist_plugin($this->plugin_tag)) {
 				$this->error .= "The option, tag, requires #$this->plugin_tag plugin, but it does not exist. ";
@@ -206,8 +207,6 @@ class XpWikiPluginLsx
 	// refer lib/make_link.php#get_fullname
 	function get_fullname($name, $refer)
 	{
-//		global $defaultpage;
-		
 		// 'Here'
 		if ($name == '' || $name == './') return $refer;
 		
@@ -242,8 +241,6 @@ class XpWikiPluginLsx
 
 	function list_pages()
 	{
-//		global $script;
-
 		if (sizeof($this->metapages) == 0) {
 			return;
 		}
@@ -325,7 +322,6 @@ class XpWikiPluginLsx
 
 	function make_pagelink($page, $alias)
 	{
-//		global $show_passage;
 		$tmp = $this->root->show_passage; $this->root->show_passage = 0;
 		$link = $this->func->make_pagelink($page, htmlspecialchars($alias));
 		$this->root->show_passage = $tmp;
@@ -658,7 +654,6 @@ class XpWikiPluginLsx
 
 	function filter_pages()
 	{
-//		global $non_list;
 		$metapages = array();
 		foreach ($this->metapages as $i => $metapage) {
 			unset($this->metapages[$i]);
@@ -832,7 +827,7 @@ class XpWikiPluginLsxOptionParser
 		$args = $comma_exploded_args;
 		$result = array();
 		while (($arg = current($args)) !== false) {
-			list($key, $val) = explode("=", $arg, 2);
+			@list($key, $val) = explode("=", $arg, 2);
 			if (isset($val)) {
 				if ($val[0] === '(') {
 					while(true) {
