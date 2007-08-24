@@ -1,6 +1,6 @@
 <?php
 // PukiWiki - Yet another WikiWikiWeb clone
-// $Id: pukiwiki.ini.php,v 1.43 2007/07/27 02:11:46 nao-pon Exp $
+// $Id: pukiwiki.ini.php,v 1.44 2007/08/24 01:02:05 nao-pon Exp $
 // Copyright (C)
 //   2002-2006 PukiWiki Developers Team
 //   2001-2002 Originally written by yu-ji
@@ -422,7 +422,7 @@ $root->maxshow_deleted = 60;
 
 /////////////////////////////////////////////////
 // Page names can't be edit via PukiWiki
-$root->cantedit = array( $root->whatsnew, $root->whatsdeleted );
+$root->cantedit = array( $root->whatsnew );
 
 /////////////////////////////////////////////////
 // HTTP: Output Last-Modified header
