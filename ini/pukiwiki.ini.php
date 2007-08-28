@@ -1,6 +1,6 @@
 <?php
 // PukiWiki - Yet another WikiWikiWeb clone
-// $Id: pukiwiki.ini.php,v 1.44 2007/08/24 01:02:05 nao-pon Exp $
+// $Id: pukiwiki.ini.php,v 1.45 2007/08/28 23:42:31 nao-pon Exp $
 // Copyright (C)
 //   2002-2006 PukiWiki Developers Team
 //   2001-2002 Originally written by yu-ji
@@ -10,7 +10,8 @@
 
 /////////////////////////////////////////////////
 // Variable initialize
-$root->ext_autolinks= array();	// External AutoLink
+$root->ext_autolinks = array();	// External AutoLink
+$root->page_aliases = array(); // Pagename aliases
 
 /////////////////////////////////////////////////
 // Functionality settings

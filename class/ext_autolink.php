@@ -1,10 +1,11 @@
 <?php
 /*
  * Created on 2007/04/23 by nao-pon http://hypweb.net/
- * $Id: ext_autolink.php,v 1.12 2007/07/11 06:18:09 nao-pon Exp $
+ * $Id: ext_autolink.php,v 1.13 2007/08/28 23:42:31 nao-pon Exp $
  */
 class XpWikiPukiExtAutoLink {
 	// External AutoLinks
+	var $ext_autolinks;
 	
 	function XpWikiPukiExtAutoLink (& $xpwiki) {
 		ini_set('mbstring.substitute_character', 'none');
@@ -15,10 +16,9 @@ class XpWikiPukiExtAutoLink {
 	}
 	
 	function ext_autolink(& $str) {
-		if (empty($this->root->ext_autolinks)) return $str;
+		if (empty($this->ext_autolinks)) return $str;
 		
-		foreach($this->root->ext_autolinks as $valid => $autolink)
-		{
+		foreach($this->ext_autolinks as $valid => $autolink) {
 			$pat = $this->get_ext_autolink($autolink, $valid);
 			if ($pat) {
 				if ($this->ci) {
@@ -28,7 +28,7 @@ class XpWikiPukiExtAutoLink {
 					$pat_pre = '/(<(?:a|A).*?<\/(?:a|A)>|<(?:textarea|style|script).*?<\/(?:textarea|style|script)>|<[^>]*>|&(?:#[0-9]+|#x[0-9a-f]+|[0-9a-zA-Z]+);)|(';
 					$pat_aft = ')/sS';	
 				}
-				foreach(explode("\t", $pat) as $_pat){
+				foreach(explode("\t", $pat) as $_pat) {
 					$pattern = $pat_pre.$_pat.$pat_aft;
 					$str = preg_replace_callback($pattern,array(&$this,'ext_autolink_replace'),$str);
 				}
@@ -90,7 +90,7 @@ class XpWikiPukiExtAutoLink {
 					break;
 				}
 			}
-			if (! $_check ) return array('',0);
+			if (! $_check ) return '';
 		}
 		
 		// initialize
@@ -143,7 +143,6 @@ class XpWikiPukiExtAutoLink {
 		if ($this->ext_autolink_own !== '' && file_exists($cache) && filemtime($cache) + $cache_min * 60 > time()) {
 			$pat = join('',file($cache));
 			if ($this->ext_autolink_own !== false) {
-					//$obj = new XpWiki($this->ext_autolink_own);
 					$obj = & XpWiki::getSingleton($this->ext_autolink_own);
 					$obj->init('#RenderMode');
 					$this->ext_autolink_func = & $obj->func;	
@@ -152,7 +151,6 @@ class XpWikiPukiExtAutoLink {
 		} else {
 			if ($this->ext_autolink_own !== false) {
 				if ($this->ext_autolink_own) {
-					//$obj = new XpWiki($this->ext_autolink_own);
 					$obj = & XpWiki::getSingleton($this->ext_autolink_own);
 					$obj->init('#RenderMode');
 					$this->ext_autolink_func = & $obj->func;
@@ -161,6 +159,8 @@ class XpWikiPukiExtAutoLink {
 				} else {
 					$this->ci = $this->root->page_case_insensitive;
 					$plugin = & $this->func->get_plugin_instance('api');
+					// Cache ¤·¤Ê¤¤
+					$cache = false;
 				}
 				$pat = $plugin->autolink(true, $autolink['base']);
 			} else {
@@ -194,9 +194,11 @@ class XpWikiPukiExtAutoLink {
 					if ($pat2) { $pat .= "\t" . $pat2; }
 				}
 			}
-			$fp = fopen($cache, 'w');
-			fwrite($fp, $pat);
-			fclose($fp);
+			if ($cache) {
+				$fp = fopen($cache, 'w');
+				fwrite($fp, $pat);
+				fclose($fp);
+			}
 		}
 		$this->ext_autolink_url = $autolink['url'];
 		$this->ext_autolink_base = ($autolink['base'])? $autolink['base'] . '/' : '';

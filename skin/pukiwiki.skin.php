@@ -1,6 +1,6 @@
 <?php
 // PukiWiki - Yet another WikiWikiWeb clone.
-// $Id: pukiwiki.skin.php,v 1.22 2007/07/08 23:32:00 nao-pon Exp $
+// $Id: pukiwiki.skin.php,v 1.23 2007/08/28 23:42:31 nao-pon Exp $
 // Copyright (C)
 //   2002-2006 PukiWiki Developers Team
 //   2001-2002 Originally written by yu-ji
@@ -252,15 +252,16 @@ $this->root->_IMAGE['skin']['rdf']      = 'rdf.png';
 <?php if ($is_page) echo $this->do_plugin_convert('counter') ?>
 
 <?php if ($lastmodified != '') { ?>
-<div class="lastmodified">Last-modified: <?php echo $lastmodified ?> by <?php echo $pginfo['lastuname'] ?></div>
+<div class="lastmodified"><?php echo $lang['lastmodify'] ?>: <?php echo $lastmodified ?> by <?php echo $pginfo['lastuname'] ?></div>
 <?php } ?>
 
 <?php if ($related != '') { ?>
-<div class="related">Link: <?php echo $related ?></div>
+<div class="related"><?php echo $lang['linkpage'] ?>: <?php echo $related ?></div>
 <?php } ?>
 <div class="footer">
- <div>Page owner: <?php echo $pginfo['uname'] ?></div>
- <div>Site admin: <a href="<?php echo $this->root->modifierlink ?>"><?php echo $this->root->modifier ?></a></div>
+ <div><?php echo $lang['pagealias'] ?>: <?php echo $pginfo['alias'] ?></div>
+ <div><?php echo $lang['pageowner'] ?>: <?php echo $pginfo['uname'] ?></div>
+ <div><?php echo $lang['siteadmin'] ?>: <a href="<?php echo $this->root->modifierlink ?>"><?php echo $this->root->modifier ?></a></div>
 <?php if ($is_admin) { ?>
  <?php echo $this->cont['S_COPYRIGHT'] ?>.
  Powered by PHP <?php echo PHP_VERSION ?>. HTML convert time: <?php echo $taketime ?> sec.

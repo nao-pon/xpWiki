@@ -4,7 +4,7 @@ class xpwiki_plugin_edit extends xpwiki_plugin {
 
 
 	// PukiWiki - Yet another WikiWikiWeb clone.
-	// $Id: edit.inc.php,v 1.25 2007/07/31 11:32:28 nao-pon Exp $
+	// $Id: edit.inc.php,v 1.26 2007/08/28 23:42:31 nao-pon Exp $
 	// Copyright (C) 2001-2006 PukiWiki Developers Team
 	// License: GPL v2 or (at your option) any later version
 	//
@@ -19,6 +19,11 @@ class xpwiki_plugin_edit extends xpwiki_plugin {
 		if ($this->cont['PKWK_READONLY']) $this->func->die_message('PKWK_READONLY prohibits editing');
 	
 		$page = isset($this->root->vars['page']) ? $this->root->vars['page'] : '';
+
+		// check alias page
+		if (!$this->func->is_page($page) && isset($this->root->page_aliases[$page])) {
+			$page = $this->root->page_aliases[$page];
+		}
 
 		if ($page && $this->root->page_case_insensitive) {
 			$this->func->get_pagename_realcase($page);
@@ -307,7 +312,11 @@ class xpwiki_plugin_edit extends xpwiki_plugin {
 			$retvars['body'] .= $this->func->edit_form($page, $msg, $digest, FALSE);
 			return $retvars;
 		}
-
+		
+		if (isset($this->root->post['alias'])) {
+			$this->root->rtf['need_autolink_update'] = $this->func->put_page_alias($page, $this->root->post['alias']);
+		}
+		
 		$this->func->page_write($page, $postdata, $this->root->notimeupdate != 0 && $notimestamp);
 		$this->func->send_location($page, $hash);
 	}
