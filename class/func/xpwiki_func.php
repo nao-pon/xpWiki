@@ -1,7 +1,7 @@
 <?php
 //
 // Created on 2006/10/02 by nao-pon http://hypweb.net/
-// $Id: xpwiki_func.php,v 1.88 2007/08/21 06:22:10 nao-pon Exp $
+// $Id: xpwiki_func.php,v 1.89 2007/08/28 23:42:31 nao-pon Exp $
 //
 class XpWikiFunc extends XpWikiXoopsWrapper {
 
@@ -2184,6 +2184,73 @@ EOD;
 		}
 		
 		return $reading;
+	}
+
+	// ページ別名を取得
+	function get_page_alias ($page, $as_array = false, $clr = false) {
+		static $pg_ary;
+		
+		if ($clr || !isset($pg_ary[$this->xpwiki->pid])) {
+			$_tmp = $pg_ary[$this->xpwiki->pid] = array();
+			foreach($this->root->page_aliases as $_alias => $_page) {
+				$pg_ary[$this->xpwiki->pid][$_page][] = $_alias;
+			}
+			foreach($pg_ary[$this->xpwiki->pid] as $_page => $_ary) {
+				natcasesort($pg_ary[$this->xpwiki->pid][$_page]);
+			}
+		}
+		
+		$ret = (isset($pg_ary[$this->xpwiki->pid][$page]))? $pg_ary[$this->xpwiki->pid][$page] : array();
+		if ($as_array) return $ret;
+		return join(':', $ret);
+	}
+
+	// ページ別名を保存
+	function put_page_alias ($page, $alias) {
+		if (!$alias && in_array($page, $this->root->page_aliases) === false) return false;
+		
+		$aliases = explode(':', trim($alias));
+		$aliases = array_map('trim', $aliases);
+		natcasesort($aliases);
+		$aliases = array_slice($aliases, 0);
+		
+		$aliases_old = $this->get_page_alias($page, true);
+		$aliases_old = array_slice($aliases_old, 0);
+		
+		if ($aliases_old === $aliases) return false;
+		
+		$_tmp = array();
+		foreach($this->root->page_aliases as $_key => $_val) {
+			if ($page !== $_val) {
+				$_tmp[$_key] = $_val;
+			}
+		}
+		
+		if ($aliases) {
+			foreach($aliases as $_alias) {
+				$_check = ($this->root->page_case_insensitive)? $this->get_pagename_realcase($_alias) : $_alias;
+				if (!isset($_tmp[$_alias]) && !$this->is_page($_check)) {
+					$_tmp[$_alias] = $page;
+				}
+			}
+		}
+		
+		natcasesort($_tmp);
+		
+		$this->root->page_aliases = $_tmp;
+		
+		$dat = "\$root->page_aliases = array(\n";
+		foreach($this->root->page_aliases as $_alias => $_page) {
+			$dat .= "\t'{$_alias}' => '{$_page}',\n";
+		}
+		$dat.= ");";
+		
+		$this->save_config('pukiwiki.ini.php', 'page_aliases', $dat);
+		
+		// Cache remake of get_page_alias()
+		$this->get_page_alias('', true, true);
+		
+		return true;
 	}
 	
 	// 大文字小文字を正しいページ名に矯正する

@@ -1,6 +1,6 @@
 <?php
 // PukiWiki - Yet another WikiWikiWeb clone.
-// $Id: en.lng.php,v 1.18 2007/07/22 08:12:41 nao-pon Exp $
+// $Id: en.lng.php,v 1.19 2007/08/28 23:42:31 nao-pon Exp $
 // Copyright (C)
 //   2002-2005 PukiWiki Developers Team
 //   2001-2002 Originally written by yu-ji
@@ -87,6 +87,7 @@ $root->_btn_load      = 'Load';
 $root->_btn_edit      = 'Edit';
 $root->_btn_delete    = 'Delete';
 $root->_btn_reading   = 'Reading of a page initial';
+$root->_btn_alias     = 'Page aliases (Split with "<span style="color:red;font-weight:bold;font-size:120%;">:</span>"[Colon])';
 $root->_btn_riddle    = '<strong>Q & A Verification</strong>: Please answer next a question before page update. (needless at preview)';
 
 ///////////////////////////////////////
@@ -142,6 +143,11 @@ $root->_LANG['skin']['unfreeze']  = 'Unfreeze';
 $root->_LANG['skin']['upload']    = 'Upload';	// Attach a file
 $root->_LANG['skin']['pginfo']    = 'Permission';
 $root->_LANG['skin']['comments']  = 'Comments';
+$root->_LANG['skin']['lastmodify']= 'Last-modified';
+$root->_LANG['skin']['linkpage']  = 'Links';
+$root->_LANG['skin']['pagealias'] = 'Page aliases';
+$root->_LANG['skin']['pageowner'] = 'Page owner';
+$root->_LANG['skin']['siteadmin'] = 'Site admin';
 
 ///////////////////////////////////////
 // Plug-in message

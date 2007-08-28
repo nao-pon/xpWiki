@@ -1,6 +1,6 @@
 <?php
 // PukiWiki - Yet another WikiWikiWeb clone.
-// $Id: ja.lng.php,v 1.18 2007/07/22 08:12:41 nao-pon Exp $
+// $Id: ja.lng.php,v 1.19 2007/08/28 23:42:31 nao-pon Exp $
 // Copyright (C)
 //   2002-2005 PukiWiki Developers Team
 //   2001-2002 Originally written by yu-ji
@@ -87,6 +87,7 @@ $root->_btn_load      = '読込';
 $root->_btn_edit      = '編集';
 $root->_btn_delete    = '削除';
 $root->_btn_reading   = 'ページ頭文字読み';
+$root->_btn_alias     = 'ページ別名(複数は"<span style="color:red;font-weight:bold;font-size:120%;">:</span>"[コロン]で区切る)';
 $root->_btn_riddle    = '<strong>Q & A 認証</strong>: ページ更新時は次の質問にお答えください。(プレビュー時は必要ありません)';
 
 ///////////////////////////////////////
@@ -141,7 +142,12 @@ $root->_LANG['skin']['trackback'] = 'Trackback';	// Show list of trackback
 $root->_LANG['skin']['unfreeze']  = '凍結解除';
 $root->_LANG['skin']['upload']    = '添付';	// Attach a file
 $root->_LANG['skin']['pginfo']    = '権限';
-$root->_LANG['skin']['comments']  = 'コメント';
+$root->_LANG['skin']['comments']  = 'ページコメント';
+$root->_LANG['skin']['lastmodify']= '最終更新';
+$root->_LANG['skin']['linkpage']  = 'リンクページ';
+$root->_LANG['skin']['pagealias'] = 'ページ別名';
+$root->_LANG['skin']['pageowner'] = 'ページ作成';
+$root->_LANG['skin']['siteadmin'] = 'サイト管理';
 
 ///////////////////////////////////////
 // Plug-in message

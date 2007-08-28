@@ -3,7 +3,7 @@
 $this->root->runmode = "standalone";
 
 // PukiWiki - Yet another WikiWikiWeb clone.
-// $Id: tdiary.skin.php,v 1.23 2007/07/08 23:31:59 nao-pon Exp $
+// $Id: tdiary.skin.php,v 1.24 2007/08/28 23:42:31 nao-pon Exp $
 // Copyright (C)
 //   2002-2006 PukiWiki Developers Team
 //   2001-2002 Originally written by yu-ji
@@ -799,7 +799,7 @@ default:
 <div class="comment">
 	<div class="caption">&nbsp;</div>
 	<div class="commentshort">
-		Link: <?php echo $related ?>
+		<?php echo $lang['linkpage'] ?>: <?php echo $related ?>
 	</div>
 </div>
 <?php } ?>
@@ -808,7 +808,7 @@ default:
 
 <div class="referer">
 <?php if ($is_page) echo $this->do_plugin_convert('counter') ?>
-<?php if ($lastmodified != '') echo 'Last-modified: ' . $lastmodified; ?> by <?php echo $pginfo['lastuname'] ?>
+<?php if ($lastmodified != '') echo $lang['lastmodify'].': ' . $lastmodified; ?> by <?php echo $pginfo['lastuname'] ?>
 </div>
 
 </div><!-- class="day" -->
@@ -923,8 +923,9 @@ $this->root->_IMAGE['skin']['rdf']      = 'rdf.png';
 <?php } // $this->cont['PKWK_SKIN_SHOW$toolbar'] ?>
 
 <!-- Copyright etc -->
-<div>Page owner: <?php echo $pginfo['uname'] ?></div>
-<div>Site admin: <a href="<?php echo $this->root->modifierlink ?>"><?php echo $this->root->modifier ?></a></div>
+<div><?php echo $lang['pagealias'] ?>: <?php echo $pginfo['alias'] ?></div>
+<div><?php echo $lang['pageowner'] ?>: <?php echo $pginfo['uname'] ?></div>
+<div><?php echo $lang['siteadmin'] ?>: <a href="<?php echo $this->root->modifierlink ?>"><?php echo $this->root->modifier ?></a></div>
 <?php if ($is_admin) { ?>
  <?php echo $this->cont['S_COPYRIGHT'] ?>.
  Powered by PHP <?php echo PHP_VERSION ?><br />

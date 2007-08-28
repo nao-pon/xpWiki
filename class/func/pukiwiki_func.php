@@ -1,7 +1,7 @@
 <?php
 //
 // Created on 2006/10/02 by nao-pon http://hypweb.net/
-// $Id: pukiwiki_func.php,v 1.99 2007/08/21 06:11:05 nao-pon Exp $
+// $Id: pukiwiki_func.php,v 1.100 2007/08/28 23:42:31 nao-pon Exp $
 //
 class XpWikiPukiWikiFunc extends XpWikiBaseFunc {
 
@@ -103,7 +103,13 @@ class XpWikiPukiWikiFunc extends XpWikiBaseFunc {
 		if ($postdata) {
 			if ($mode === 'update') {
 				// ページの内容変更がない場合何もしない
-				if ($this->remove_pginfo($postdata) === $this->remove_pginfo($oldpostdata)) return;
+				if ($this->remove_pginfo($postdata) === $this->remove_pginfo($oldpostdata)) {
+					// For AutoLink
+					if (!empty($this->root->rtf['need_autolink_update'])){
+						$this->autolink_dat_update();
+					}
+					return;
+				}
 			}
 			// ページ情報
 			if (!($mode === 'insert' && !$this->remove_pginfo($postdata))) {
@@ -195,23 +201,9 @@ class XpWikiPukiWikiFunc extends XpWikiBaseFunc {
 		
 		$this->system_notification($page, 'global', 0, 'page_update', $tags);
 
-
-	
 		// For AutoLink
-		if ($mode !== 'update' && $this->root->autolink){
-			// Get WHOLE page list (always as guest)
-			$temp[0] = $this->root->userinfo['admin'];
-			$temp[1] = $this->root->userinfo['uid'];
-			$this->root->userinfo['admin'] = FALSE;
-			$this->root->userinfo['uid'] = 0;
-			
-			$pages = $this->get_existpages();
-			
-			$this->root->userinfo['admin'] = $temp[0];
-			$this->root->userinfo['uid'] = $temp[1];
-			
-			$this->autolink_pattern_write($this->cont['CACHE_DIR'] . $this->cont['PKWK_AUTOLINK_REGEX_CACHE'],
-				$this->get_autolink_pattern($pages, $this->root->autolink, false));
+		if (!empty($this->root->rtf['need_autolink_update']) || $mode !== 'update'){
+			$this->autolink_dat_update();
 		}
 		
 		// Update autoalias.dat (AutoAliasName)
@@ -242,6 +234,23 @@ class XpWikiPukiWikiFunc extends XpWikiBaseFunc {
 			closedir($handle);
 		}
 		$this->delete_caches();
+	}
+
+	function autolink_dat_update () {
+		if (!$this->root->autolink) return;
+		// Get WHOLE page list (always as guest)
+		$temp[0] = $this->root->userinfo['admin'];
+		$temp[1] = $this->root->userinfo['uid'];
+		$this->root->userinfo['admin'] = FALSE;
+		$this->root->userinfo['uid'] = 0;
+		
+		$pages = $this->get_existpages();
+		
+		$this->root->userinfo['admin'] = $temp[0];
+		$this->root->userinfo['uid'] = $temp[1];
+		
+		$this->autolink_pattern_write($this->cont['CACHE_DIR'] . $this->cont['PKWK_AUTOLINK_REGEX_CACHE'],
+			$this->get_autolink_pattern($pages, $this->root->autolink, false));
 	}
 	
 	function delete_caches () {
@@ -841,7 +850,7 @@ class XpWikiPukiWikiFunc extends XpWikiBaseFunc {
 
 //----- Start convert_html.php -----//
 	// PukiWiki - Yet another WikiWikiWeb clone
-	// $Id: pukiwiki_func.php,v 1.99 2007/08/21 06:11:05 nao-pon Exp $
+	// $Id: pukiwiki_func.php,v 1.100 2007/08/28 23:42:31 nao-pon Exp $
 	// Copyright (C)
 	//   2002-2005 PukiWiki Developers Team
 	//   2001-2002 Originally written by yu-ji
@@ -903,27 +912,33 @@ class XpWikiPukiWikiFunc extends XpWikiBaseFunc {
 		if ($real_nest[$this->xpwiki->pid] === 1) {
 			// Internal Autolink
 			if ($this->root->autolink) {
-				$this->int_autolink_proc($ret);
 				// Is upper directory hierarchy omissible?
 				if ($this->root->autolink_omissible_upper) {
 					$_omissible_upper = (empty($this->root->vars['page']))? '' : $this->root->vars['page'];
 					$_omissible_upper = preg_replace('#^(.*)/[^/]+$#', "$1", $_omissible_upper);
 					if ($_omissible_upper) {
-						if (empty($this->root->ext_autolinks)) $this->root->ext_autolinks = array();
-						array_unshift ($this->root->ext_autolinks ,
-							array(
-								'base' => $_omissible_upper,
-								'len'  => $this->root->autolink_omissible_upper,
-								'enc'  => $this->cont['CONTENT_CHARSET']
-							));
+						include_once(dirname(dirname(__FILE__)).'/ext_autolink.php');
+						$ext_autolink_obj = new XpWikiPukiExtAutoLink($this->xpwiki);
+						$ext_autolink_obj->ext_autolinks = array(array(
+							'base' => $_omissible_upper,
+							'len'  => $this->root->autolink_omissible_upper,
+							'enc'  => $this->cont['CONTENT_CHARSET']
+						));
+						$ext_autolink_obj->ext_autolink($ret);
 					}
 				}
+				
+				// Autolink
+				$this->int_autolink_proc($ret);
 			}
 			
 			// External AutoLink
 			if (! empty($this->root->ext_autolinks)) {
-				include_once(dirname(dirname(__FILE__)).'/ext_autolink.php');
-				$ext_autolink_obj = new XpWikiPukiExtAutoLink($this->xpwiki);
+				if (!is_object($ext_autolink_obj)) {
+					include_once(dirname(dirname(__FILE__)).'/ext_autolink.php');
+					$ext_autolink_obj = new XpWikiPukiExtAutoLink($this->xpwiki);
+				}
+				$ext_autolink_obj->ext_autolinks = $this->root->ext_autolinks;
 				$ext_autolink_obj->ext_autolink($ret);
 			}
 		}
@@ -1057,7 +1072,7 @@ class XpWikiPukiWikiFunc extends XpWikiBaseFunc {
 
 //----- Start func.php -----//
 	// PukiWiki - Yet another WikiWikiWeb clone.
-	// $Id: pukiwiki_func.php,v 1.99 2007/08/21 06:11:05 nao-pon Exp $
+	// $Id: pukiwiki_func.php,v 1.100 2007/08/28 23:42:31 nao-pon Exp $
 	// Copyright (C)
 	//   2002-2006 PukiWiki Developers Team
 	//   2001-2002 Originally written by yu-ji
@@ -1584,6 +1599,11 @@ EOD;
 			if (strlen($page) >= $min_len) {
 				$auto_pages[] = $page;
 			}
+			foreach($this->get_page_alias($page, true) as $_page) {
+				if (strlen($_page) >= $min_len) {
+					$auto_pages[] = $_page;
+				}
+			}
 		}
 		
 		if (empty($auto_pages)) {
@@ -1606,6 +1626,7 @@ EOD;
 		
 		if ($array_fix) {
 			$pages = array_map('trim', $pages);
+			if ($this->root->page_case_insensitive) $pages = array_map('strtolower', $pages);
 			$pages = array_unique($pages);
 			foreach(array_keys($pages, '') as $key) {
 				unset($pages[$key]);
@@ -1864,7 +1885,7 @@ EOD;
 
 //----- Start make_link.php -----//
 	// PukiWiki - Yet another WikiWikiWeb clone.
-	// $Id: pukiwiki_func.php,v 1.99 2007/08/21 06:11:05 nao-pon Exp $
+	// $Id: pukiwiki_func.php,v 1.100 2007/08/28 23:42:31 nao-pon Exp $
 	// Copyright (C)
 	//   2003-2005 PukiWiki Developers Team
 	//   2001-2002 Originally written by yu-ji
@@ -1887,6 +1908,11 @@ EOD;
 	// Make hyperlink for the page
 	function make_pagelink($page, $alias = '', $anchor = '', $refer = '', $class = 'pagelink')
 	{
+		// check alias page
+		if (!$this->is_page($page) && isset($this->root->page_aliases[$page])) {
+			$page = $this->root->page_aliases[$page];
+		}
+
 		$s_page = htmlspecialchars($this->strip_bracket($page));
 		
 		if (!$this->is_pagename($page)) {
@@ -2701,7 +2727,7 @@ EOD;
 
 //----- Start html.php -----//
 	// PukiWiki - Yet another WikiWikiWeb clone.
-	// $Id: pukiwiki_func.php,v 1.99 2007/08/21 06:11:05 nao-pon Exp $
+	// $Id: pukiwiki_func.php,v 1.100 2007/08/28 23:42:31 nao-pon Exp $
 	// Copyright (C)
 	//   2002-2006 PukiWiki Developers Team
 	//   2001-2002 Originally written by yu-ji
@@ -2726,6 +2752,9 @@ EOD;
 		
 		// Page infomation
 		$pginfo = $this->get_pginfo($_page);
+		
+		// Pagename alias
+		$pginfo['alias'] = join(', ',$this->get_page_alias($_page, true));
 		
 		// Set skin functions
 		$navigator = create_function('&$this, $key, $value = \'\', $javascript = \'\'', 'return XpWikiFunc::skin_navigator($this, $key, $value, $javascript);');
@@ -2953,15 +2982,20 @@ EOD;
 		
 		// ページ読み
 		if (!empty($this->root->rtf['preview'])) {
-			$reading_str = $this->root->vars['reading'];
+			$reading_str = htmlspecialchars($this->root->vars['reading']);
+			$alias_str = htmlspecialchars($this->root->vars['alias']);
 		} else {
 			$reading_str = htmlspecialchars($this->get_page_reading($page));
+			$alias_str = htmlspecialchars($this->get_page_alias($page));
 		}
 		if ($this->root->pagereading_enable) {
-			$reading = $this->root->_btn_reading . ': <input type="text" name="reading" size="15" value="'.$reading_str.'" /><br />';
+			$reading = $this->root->_btn_reading . ': <input type="text" name="reading" size="15" value="'.$reading_str.'" />&nbsp;&nbsp; ';
 		} else  {
 			$reading = '<input type="hidden" name="reading" size="15" value="'.$reading_str.'" />';
 		}
+		
+		// alias
+		$alias = $this->root->_btn_alias . ': <input type="text" name="alias" size="30" value="'.$alias_str.'" /><br />';
 		
 		// 添付ファイルリスト
 		$attaches = '';
@@ -3017,9 +3051,10 @@ EOD;
 		$body = <<<EOD
 	<div class="edit_form">
 	 <form action="{$this->root->script}" method="post" style="margin-bottom:0px;">
-	$template
+	  $template
 	  $addtag
 	  $reading
+	  $alias
 	  <input type="hidden" name="cmd"    value="edit" />
 	  <input type="hidden" name="page"   value="$s_page" />
 	  <input type="hidden" name="digest" value="$s_digest" />
@@ -3322,7 +3357,7 @@ EOD;
 
 //----- Start mail.php -----//
 	// PukiWiki - Yet another WikiWikiWeb clone.
-	// $Id: pukiwiki_func.php,v 1.99 2007/08/21 06:11:05 nao-pon Exp $
+	// $Id: pukiwiki_func.php,v 1.100 2007/08/28 23:42:31 nao-pon Exp $
 	// Copyright (C)
 	//   2003-2005 PukiWiki Developers Team
 	//   2003      Originally written by upk
@@ -3625,7 +3660,7 @@ EOD;
 
 //----- Start link.php -----//
 	// PukiWiki - Yet another WikiWikiWeb clone
-	// $Id: pukiwiki_func.php,v 1.99 2007/08/21 06:11:05 nao-pon Exp $
+	// $Id: pukiwiki_func.php,v 1.100 2007/08/28 23:42:31 nao-pon Exp $
 	// Copyright (C) 2003-2006 PukiWiki Developers Team
 	// License: GPL v2 or (at your option) any later version
 	//
