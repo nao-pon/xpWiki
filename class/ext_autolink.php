@@ -1,7 +1,7 @@
 <?php
 /*
  * Created on 2007/04/23 by nao-pon http://hypweb.net/
- * $Id: ext_autolink.php,v 1.13 2007/08/28 23:42:31 nao-pon Exp $
+ * $Id: ext_autolink.php,v 1.14 2007/08/29 04:58:10 nao-pon Exp $
  */
 class XpWikiPukiExtAutoLink {
 	// External AutoLinks
@@ -17,13 +17,18 @@ class XpWikiPukiExtAutoLink {
 	
 	function ext_autolink(& $str) {
 		if (empty($this->ext_autolinks)) return $str;
+
+		foreach($this->ext_autolinks as $key => $tmp) {
+			$sorter[$key] = $tmp['priority'];
+		}
+		array_multisort($this->ext_autolinks, SORT_NUMERIC, $sorter, SORT_NUMERIC);
 		
 		foreach($this->ext_autolinks as $valid => $autolink) {
 			$pat = $this->get_ext_autolink($autolink, $valid);
 			if ($pat) {
 				if ($this->ci) {
 					$pat_pre = '/(<a.*?<\/a>|<(?:textarea|style|script).*?<\/(?:textarea|style|script)>|<[^>]*>|&(?:#[0-9]+|#x[0-9a-f]+|[0-9a-z]+);)|(';
-					$pat_aft = ')/isS';	
+					$pat_aft = ')/isS';
 				} else {
 					$pat_pre = '/(<(?:a|A).*?<\/(?:a|A)>|<(?:textarea|style|script).*?<\/(?:textarea|style|script)>|<[^>]*>|&(?:#[0-9]+|#x[0-9a-f]+|[0-9a-zA-Z]+);)|(';
 					$pat_aft = ')/sS';	
@@ -95,6 +100,7 @@ class XpWikiPukiExtAutoLink {
 		
 		// initialize
 		$inits = array(
+			'priority'=> 40 ,
 			'url'   => '' ,
 			'urldat'=> 0 ,
 			'case_i'=> 0 ,
@@ -106,7 +112,6 @@ class XpWikiPukiExtAutoLink {
 			'pat'   => ''
 		);
 		$autolink = array_merge($inits, $autolink);
-		$this->ci = $autolink['case_i'];
 		
 		if (preg_match('#^https?://#', $autolink['url'])) {
 			$this->ext_autolink_own = false;
@@ -137,6 +142,8 @@ class XpWikiPukiExtAutoLink {
 			return '';
 		}
 		$this->root->rtf['get_ext_autolink_done'][$target] = true;
+
+		$this->ci = $autolink['case_i'];
 		
 		$cache_min = intval(max($autolink['cache'], 10));
 		// 自己xpWiki以外 & キャッシュあり & キャッシュが有効範囲

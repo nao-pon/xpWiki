@@ -1,7 +1,7 @@
 <?php
 //
 // Created on 2006/10/02 by nao-pon http://hypweb.net/
-// $Id: pukiwiki_func.php,v 1.100 2007/08/28 23:42:31 nao-pon Exp $
+// $Id: pukiwiki_func.php,v 1.101 2007/08/29 04:58:10 nao-pon Exp $
 //
 class XpWikiPukiWikiFunc extends XpWikiBaseFunc {
 
@@ -850,7 +850,7 @@ class XpWikiPukiWikiFunc extends XpWikiBaseFunc {
 
 //----- Start convert_html.php -----//
 	// PukiWiki - Yet another WikiWikiWeb clone
-	// $Id: pukiwiki_func.php,v 1.100 2007/08/28 23:42:31 nao-pon Exp $
+	// $Id: pukiwiki_func.php,v 1.101 2007/08/29 04:58:10 nao-pon Exp $
 	// Copyright (C)
 	//   2002-2005 PukiWiki Developers Team
 	//   2001-2002 Originally written by yu-ji
@@ -910,35 +910,63 @@ class XpWikiPukiWikiFunc extends XpWikiBaseFunc {
 		
 		// Auto link
 		if ($real_nest[$this->xpwiki->pid] === 1) {
-			// Internal Autolink
-			if ($this->root->autolink) {
-				// Is upper directory hierarchy omissible?
-				if ($this->root->autolink_omissible_upper) {
-					$_omissible_upper = (empty($this->root->vars['page']))? '' : $this->root->vars['page'];
-					$_omissible_upper = preg_replace('#^(.*)/[^/]+$#', "$1", $_omissible_upper);
-					if ($_omissible_upper) {
-						include_once(dirname(dirname(__FILE__)).'/ext_autolink.php');
-						$ext_autolink_obj = new XpWikiPukiExtAutoLink($this->xpwiki);
-						$ext_autolink_obj->ext_autolinks = array(array(
-							'base' => $_omissible_upper,
-							'len'  => $this->root->autolink_omissible_upper,
-							'enc'  => $this->cont['CONTENT_CHARSET']
-						));
-						$ext_autolink_obj->ext_autolink($ret);
-					}
-				}
-				
-				// Autolink
-				$this->int_autolink_proc($ret);
+
+			$ext_autolink_obj = null;
+			$ext_autolinks_pre = $ext_autolinks_aft = array();
+
+			if (!isset($this->root->ext_autolinks)) {
+				$this->root->ext_autolinks = array();
 			}
 			
-			// External AutoLink
-			if (! empty($this->root->ext_autolinks)) {
+			// Is upper directory hierarchy omissible?
+			if ($this->root->autolink && $this->root->autolink_omissible_upper) {
+				$_omissible_upper = (empty($this->root->vars['page']))? '' : $this->root->vars['page'];
+				$_omissible_upper = preg_replace('#^(.*)/[^/]+$#', "$1", $_omissible_upper);
+				if ($_omissible_upper) {
+					$this->root->ext_autolinks[] = array(
+						'priority' => $this->root->autolink_omissible_upper_priority,
+						'base' => $_omissible_upper,
+						'len'  => $this->root->autolink_omissible_upper,
+						'enc'  => $this->cont['CONTENT_CHARSET']
+					);
+				}
+			}
+			
+			if (!empty($this->root->ext_autolinks)) {
+				foreach($this->root->ext_autolinks as $_key => $_autos) {
+					if (empty($_autos['priority'])) {
+						$_autos['priority'] = 40;
+						$ext_autolinks_aft[$_key] = $_autos;
+					} else if ($_autos['priority'] <= 50) {
+						$ext_autolinks_aft[$_key] = $_autos;
+					} else {
+						$ext_autolinks_pre[$_key] = $_autos;
+					}
+				}
+			}
+			
+			// External AutoLink Pre
+			if ($ext_autolinks_pre) {
 				if (!is_object($ext_autolink_obj)) {
 					include_once(dirname(dirname(__FILE__)).'/ext_autolink.php');
 					$ext_autolink_obj = new XpWikiPukiExtAutoLink($this->xpwiki);
 				}
-				$ext_autolink_obj->ext_autolinks = $this->root->ext_autolinks;
+				$ext_autolink_obj->ext_autolinks = $ext_autolinks_pre;
+				$ext_autolink_obj->ext_autolink($ret);
+			}
+
+			// Internal Autolink
+			if ($this->root->autolink) {
+				$this->int_autolink_proc($ret);
+			}
+			
+			// External AutoLink After
+			if (! empty($ext_autolinks_aft)) {
+				if (!is_object($ext_autolink_obj)) {
+					include_once(dirname(dirname(__FILE__)).'/ext_autolink.php');
+					$ext_autolink_obj = new XpWikiPukiExtAutoLink($this->xpwiki);
+				}
+				$ext_autolink_obj->ext_autolinks = $ext_autolinks_aft;
 				$ext_autolink_obj->ext_autolink($ret);
 			}
 		}
@@ -1072,7 +1100,7 @@ class XpWikiPukiWikiFunc extends XpWikiBaseFunc {
 
 //----- Start func.php -----//
 	// PukiWiki - Yet another WikiWikiWeb clone.
-	// $Id: pukiwiki_func.php,v 1.100 2007/08/28 23:42:31 nao-pon Exp $
+	// $Id: pukiwiki_func.php,v 1.101 2007/08/29 04:58:10 nao-pon Exp $
 	// Copyright (C)
 	//   2002-2006 PukiWiki Developers Team
 	//   2001-2002 Originally written by yu-ji
@@ -1885,7 +1913,7 @@ EOD;
 
 //----- Start make_link.php -----//
 	// PukiWiki - Yet another WikiWikiWeb clone.
-	// $Id: pukiwiki_func.php,v 1.100 2007/08/28 23:42:31 nao-pon Exp $
+	// $Id: pukiwiki_func.php,v 1.101 2007/08/29 04:58:10 nao-pon Exp $
 	// Copyright (C)
 	//   2003-2005 PukiWiki Developers Team
 	//   2001-2002 Originally written by yu-ji
@@ -2727,7 +2755,7 @@ EOD;
 
 //----- Start html.php -----//
 	// PukiWiki - Yet another WikiWikiWeb clone.
-	// $Id: pukiwiki_func.php,v 1.100 2007/08/28 23:42:31 nao-pon Exp $
+	// $Id: pukiwiki_func.php,v 1.101 2007/08/29 04:58:10 nao-pon Exp $
 	// Copyright (C)
 	//   2002-2006 PukiWiki Developers Team
 	//   2001-2002 Originally written by yu-ji
@@ -3357,7 +3385,7 @@ EOD;
 
 //----- Start mail.php -----//
 	// PukiWiki - Yet another WikiWikiWeb clone.
-	// $Id: pukiwiki_func.php,v 1.100 2007/08/28 23:42:31 nao-pon Exp $
+	// $Id: pukiwiki_func.php,v 1.101 2007/08/29 04:58:10 nao-pon Exp $
 	// Copyright (C)
 	//   2003-2005 PukiWiki Developers Team
 	//   2003      Originally written by upk
@@ -3660,7 +3688,7 @@ EOD;
 
 //----- Start link.php -----//
 	// PukiWiki - Yet another WikiWikiWeb clone
-	// $Id: pukiwiki_func.php,v 1.100 2007/08/28 23:42:31 nao-pon Exp $
+	// $Id: pukiwiki_func.php,v 1.101 2007/08/29 04:58:10 nao-pon Exp $
 	// Copyright (C) 2003-2006 PukiWiki Developers Team
 	// License: GPL v2 or (at your option) any later version
 	//
