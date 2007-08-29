@@ -1,7 +1,7 @@
 <?php
 /*
  * Created on 2007/04/23 by nao-pon http://hypweb.net/
- * $Id: ext_autolink.php,v 1.14 2007/08/29 04:58:10 nao-pon Exp $
+ * $Id: ext_autolink.php,v 1.15 2007/08/29 05:21:48 nao-pon Exp $
  */
 class XpWikiPukiExtAutoLink {
 	// External AutoLinks
@@ -21,7 +21,7 @@ class XpWikiPukiExtAutoLink {
 		foreach($this->ext_autolinks as $key => $tmp) {
 			$sorter[$key] = $tmp['priority'];
 		}
-		array_multisort($this->ext_autolinks, SORT_NUMERIC, $sorter, SORT_NUMERIC);
+		array_multisort($this->ext_autolinks, SORT_NUMERIC, SORT_DESC,$sorter, SORT_NUMERIC, SORT_DESC);
 		
 		foreach($this->ext_autolinks as $valid => $autolink) {
 			$pat = $this->get_ext_autolink($autolink, $valid);
