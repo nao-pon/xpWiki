@@ -1,6 +1,6 @@
 <?php
 // PukiWiki - Yet another WikiWikiWeb clone.
-// $Id: en.lng.php,v 1.19 2007/08/28 23:42:31 nao-pon Exp $
+// $Id: en.lng.php,v 1.20 2007/08/30 05:42:49 nao-pon Exp $
 // Copyright (C)
 //   2002-2005 PukiWiki Developers Team
 //   2001-2002 Originally written by yu-ji
@@ -407,7 +407,7 @@ $root->_rename_messages  = array(
 	'err_adminpass'  => 'Incorrect administrator password.',
 	'err_notpage'    => '%s is not a valid pagename.',
 	'err_norename'   => 'cannot rename %s.',
-	'err_already'    => 'already exists :%s.',
+	'err_already'    => 'The following pages already exists.%s',
 	'err_already_below' => 'The following files already exist.',
 	'msg_title'      => 'Rename page',
 	'msg_page'       => 'specify source page name',

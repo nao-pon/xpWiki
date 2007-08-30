@@ -1,6 +1,6 @@
 <?php
 // PukiWiki - Yet another WikiWikiWeb clone
-// $Id: rename.inc.php,v 1.6 2007/07/31 03:03:38 nao-pon Exp $
+// $Id: rename.inc.php,v 1.7 2007/08/30 05:42:49 nao-pon Exp $
 //
 // Rename plugin: Rename page-name and related data
 //
@@ -83,10 +83,12 @@ class xpwiki_plugin_rename extends xpwiki_plugin {
 		$body = $this->root->_rename_messages['err_' . $err];
 		if (is_array($page)) {
 			$tmp = '';
-			foreach ($page as $_page) $tmp .= '<br />' . $_page;
+			foreach ($page as $_page) {
+				$tmp .= "- [[$_page]]\n";	
+			}
 			$page = $tmp;
 		}
-		if ($page != '') $body = sprintf($body, htmlspecialchars($page));
+		if ($page != '') $body = sprintf($body, $this->func->convert_html($page));
 	
 		$msg = sprintf($this->root->_rename_messages['err'], $body);
 		return $msg;
@@ -135,11 +137,11 @@ EOD;
 	}
 	
 	//第二段階:新しい名前の入力
-	function plugin_rename_phase2($err = '')
+	function plugin_rename_phase2($err = '', $page = '')
 	{
 	//	global $script, $_rename_messages;
 	
-		$msg   = $this->plugin_rename_err($err);
+		$msg   = $this->plugin_rename_err($err, $page);
 		$page  = $this->plugin_rename_getvar('page');
 		$refer = $this->plugin_rename_getvar('refer');
 		if ($page == '') $page = $refer;
@@ -185,13 +187,29 @@ EOD;
 	{
 		$page  = $this->plugin_rename_getvar('page');
 		$refer = $this->plugin_rename_getvar('refer');
-	
-		$pages[$this->func->encode($refer)] = $this->func->encode($page);
+		
+		//$pages[$this->func->encode($refer)] = $this->func->encode($page);
+		$pages[$this->func->encode($refer)] = $page;
+
 		if ($this->plugin_rename_getvar('related') != '') {
 			$from = $this->func->strip_bracket($refer);
 			$to   = $this->func->strip_bracket($page);
-			foreach ($this->plugin_rename_getrelated($refer) as $_page)
-				$pages[$this->func->encode($_page)] = $this->func->encode(str_replace($from, $to, $_page));
+			foreach ($this->plugin_rename_getrelated($refer) as $_page) {
+				//$pages[$this->func->encode($_page)] = $this->func->encode(str_replace($from, $to, $_page));
+				$pages[$this->func->encode($_page)] = str_replace($from, $to, $_page);
+			}
+		}
+		$exists = array();
+		foreach($pages as $_from => $_to) {
+			if ($this->func->is_page($page) || in_array($page, array_keys($this->root->page_aliases))) {
+				$exists[] = $page;
+			} else {
+				$pages[$_from] = $this->func->encode($_to);
+			}
+		}
+		
+		if ($exists) {
+			return $this->plugin_rename_phase2('already', $exists);
 		}
 		return $this->plugin_rename_phase3($pages);
 	}
@@ -201,7 +219,7 @@ EOD;
 	{
 		$exists = array();
 		foreach ($arr_to as $page)
-			if ($this->func->is_page($page))
+			if ($this->func->is_page($page) || in_array($page, array_keys($this->root->page_aliases)))
 				$exists[] = $page;
 	
 		if (! empty($exists)) {
@@ -338,7 +356,6 @@ EOD;
 	
 	function plugin_rename_proceed($pages, $files, $exists)
 	{
-	//	global $now, $_rename_messages;
 	
 		if ($this->plugin_rename_getvar('exist') == '')
 			foreach ($exists as $key=>$arr)
@@ -350,10 +367,6 @@ EOD;
 				if (isset($exists[$page][$old]) && $exists[$page][$old])
 					unlink($new);
 				rename($old, $new);
-				
-				// linkデータベースを更新する BugTrack/327 arino
-				//$this->func->links_update($old);
-				//$this->func->links_update($new);
 			}
 		}
 	
@@ -380,13 +393,27 @@ EOD;
 			}
 			$postdata[] = '----' . "\n";
 		}
-	
+		
+		$alias_up = false;
 		foreach ($pages as $old=>$new) {
-			$postdata[] = '-' . $this->func->decode($old) .
-			$this->root->_rename_messages['msg_arrow'] . $this->func->decode($new) . "\n";
+			$old = $this->func->decode($old);
+			$new = $this->func->decode($new);
+			$postdata[] = '-' . $old .
+			$this->root->_rename_messages['msg_arrow'] . $new . "\n";
 			
 			// pginfo DB 更新
-			$this->func->pginfo_rename_db_write($this->func->decode($old), $this->func->decode($new));
+			$this->func->pginfo_rename_db_write($old, $new);
+			
+			// Page alias
+			foreach($this->root->page_aliases as $alias => $page) {
+				if ($page === $old) {
+					$this->root->page_aliases[$alias] = $new;
+					$alias_up = true;
+				}
+			}
+		}
+		if ($alias_up) {
+			$this->func->save_page_alias();
 		}
 		
 		// 更新の衝突はチェックしない。
@@ -394,6 +421,9 @@ EOD;
 		// ファイルの書き込み
 		$this->func->page_write($this->cont['PLUGIN_RENAME_LOGPAGE'], join('', $postdata));
 	
+		// Update Autolink
+		$this->func->autolink_dat_update();
+		
 		//リダイレクト
 		$page = $this->plugin_rename_getvar('page');
 		if ($page == '') $page = $this->cont['PLUGIN_RENAME_LOGPAGE'];
