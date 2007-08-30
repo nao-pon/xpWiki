@@ -3,7 +3,7 @@
 $this->root->runmode = "standalone";
 
 // PukiWiki - Yet another WikiWikiWeb clone.
-// $Id: tdiary.skin.php,v 1.24 2007/08/28 23:42:31 nao-pon Exp $
+// $Id: tdiary.skin.php,v 1.25 2007/08/30 05:38:39 nao-pon Exp $
 // Copyright (C)
 //   2002-2006 PukiWiki Developers Team
 //   2001-2002 Originally written by yu-ji
@@ -923,7 +923,9 @@ $this->root->_IMAGE['skin']['rdf']      = 'rdf.png';
 <?php } // $this->cont['PKWK_SKIN_SHOW$toolbar'] ?>
 
 <!-- Copyright etc -->
+<?php if ($is_page) { ?>
 <div><?php echo $lang['pagealias'] ?>: <?php echo $pginfo['alias'] ?></div>
+<?php } ?>
 <div><?php echo $lang['pageowner'] ?>: <?php echo $pginfo['uname'] ?></div>
 <div><?php echo $lang['siteadmin'] ?>: <a href="<?php echo $this->root->modifierlink ?>"><?php echo $this->root->modifier ?></a></div>
 <?php if ($is_admin) { ?>

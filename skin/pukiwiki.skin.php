@@ -1,6 +1,6 @@
 <?php
 // PukiWiki - Yet another WikiWikiWeb clone.
-// $Id: pukiwiki.skin.php,v 1.23 2007/08/28 23:42:31 nao-pon Exp $
+// $Id: pukiwiki.skin.php,v 1.24 2007/08/30 05:38:39 nao-pon Exp $
 // Copyright (C)
 //   2002-2006 PukiWiki Developers Team
 //   2001-2002 Originally written by yu-ji
@@ -227,13 +227,13 @@ $this->root->_IMAGE['skin']['rdf']      = 'rdf.png';
 	<?php $toolbar($this, 'backup') ?>
 <?php } ?>
 <?php if ($rw) { ?>
-	<?php if ($this->is_page($_page) && (bool)ini_get('file_uploads')) { ?>
+	<?php if ($is_page && (bool)ini_get('file_uploads')) { ?>
 		<?php $toolbar($this, 'upload') ?>
 	<?php } ?>
 	<?php $toolbar($this, 'copy') ?>
 	<?php $toolbar($this, 'rename') ?>
 <?php } ?>
- <?php if ($this->is_page($_page)) { $toolbar($this, 'reload'); } ?>
+ <?php if ($is_page) { $toolbar($this, 'reload'); } ?>
 <?php } ?>
  &nbsp;
 <?php if ($rw) { ?>
@@ -259,7 +259,9 @@ $this->root->_IMAGE['skin']['rdf']      = 'rdf.png';
 <div class="related"><?php echo $lang['linkpage'] ?>: <?php echo $related ?></div>
 <?php } ?>
 <div class="footer">
+<?php if ($is_page) { ?>
  <div><?php echo $lang['pagealias'] ?>: <?php echo $pginfo['alias'] ?></div>
+<?php } ?>
  <div><?php echo $lang['pageowner'] ?>: <?php echo $pginfo['uname'] ?></div>
  <div><?php echo $lang['siteadmin'] ?>: <a href="<?php echo $this->root->modifierlink ?>"><?php echo $this->root->modifier ?></a></div>
 <?php if ($is_admin) { ?>
