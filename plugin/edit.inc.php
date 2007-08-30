@@ -4,7 +4,7 @@ class xpwiki_plugin_edit extends xpwiki_plugin {
 
 
 	// PukiWiki - Yet another WikiWikiWeb clone.
-	// $Id: edit.inc.php,v 1.26 2007/08/28 23:42:31 nao-pon Exp $
+	// $Id: edit.inc.php,v 1.27 2007/08/30 05:41:58 nao-pon Exp $
 	// Copyright (C) 2001-2006 PukiWiki Developers Team
 	// License: GPL v2 or (at your option) any later version
 	//
@@ -311,10 +311,6 @@ class xpwiki_plugin_edit extends xpwiki_plugin {
 			$retvars['body']  = '<p><strong>' . $this->root->_msg_invalidpass . '</strong></p>' . "\n";
 			$retvars['body'] .= $this->func->edit_form($page, $msg, $digest, FALSE);
 			return $retvars;
-		}
-		
-		if (isset($this->root->post['alias'])) {
-			$this->root->rtf['need_autolink_update'] = $this->func->put_page_alias($page, $this->root->post['alias']);
 		}
 		
 		$this->func->page_write($page, $postdata, $this->root->notimeupdate != 0 && $notimestamp);

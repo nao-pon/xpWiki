@@ -1,7 +1,7 @@
 <?php
 //
 // Created on 2006/10/02 by nao-pon http://hypweb.net/
-// $Id: xpwiki_func.php,v 1.89 2007/08/28 23:42:31 nao-pon Exp $
+// $Id: xpwiki_func.php,v 1.90 2007/08/30 05:41:58 nao-pon Exp $
 //
 class XpWikiFunc extends XpWikiXoopsWrapper {
 
@@ -2209,48 +2209,51 @@ EOD;
 	function put_page_alias ($page, $alias) {
 		if (!$alias && in_array($page, $this->root->page_aliases) === false) return false;
 		
-		$aliases = explode(':', trim($alias));
-		$aliases = array_map('trim', $aliases);
-		natcasesort($aliases);
-		$aliases = array_slice($aliases, 0);
+		$alias = trim($alias);
+		$aliases = explode(':', $alias);
+		if ($alias) {
+			$aliases = array_map('trim', $aliases);
+			natcasesort($aliases);
+			$aliases = array_slice($aliases, 0);
+		}
 		
 		$aliases_old = $this->get_page_alias($page, true);
 		$aliases_old = array_slice($aliases_old, 0);
 		
 		if ($aliases_old === $aliases) return false;
 		
-		$_tmp = array();
-		foreach($this->root->page_aliases as $_key => $_val) {
-			if ($page !== $_val) {
-				$_tmp[$_key] = $_val;
-			}
-		}
+		$this->root->page_aliases = array_diff($this->root->page_aliases, array($page));
 		
-		if ($aliases) {
+		if ($alias) {
 			foreach($aliases as $_alias) {
 				$_check = ($this->root->page_case_insensitive)? $this->get_pagename_realcase($_alias) : $_alias;
-				if (!isset($_tmp[$_alias]) && !$this->is_page($_check)) {
-					$_tmp[$_alias] = $page;
+				if (!isset($this->root->page_aliases[$_alias]) && !$this->is_page($_check)) {
+					$this->root->page_aliases[$_alias] = $page;
 				}
 			}
 		}
 		
-		natcasesort($_tmp);
-		
-		$this->root->page_aliases = $_tmp;
-		
-		$dat = "\$root->page_aliases = array(\n";
-		foreach($this->root->page_aliases as $_alias => $_page) {
-			$dat .= "\t'{$_alias}' => '{$_page}',\n";
-		}
-		$dat.= ");";
-		
-		$this->save_config('pukiwiki.ini.php', 'page_aliases', $dat);
+		// save
+		$this->save_page_alias();
 		
 		// Cache remake of get_page_alias()
 		$this->get_page_alias('', true, true);
 		
 		return true;
+	}
+
+	function save_page_alias () {
+		natcasesort($this->root->page_aliases);
+		
+		$dat = "\$root->page_aliases = array(\n";
+		foreach($this->root->page_aliases as $_alias => $_page) {
+			$_alias = str_replace("'", "\\'", $_alias);
+			$_page = str_replace("'", "\\'", $_page);
+			$dat .= "\t'{$_alias}' => '{$_page}',\n";
+		}
+		$dat.= ");";
+		
+		$this->save_config('pukiwiki.ini.php', 'page_aliases', $dat);
 	}
 	
 	// 大文字小文字を正しいページ名に矯正する

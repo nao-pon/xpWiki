@@ -1,7 +1,7 @@
 <?php
 //
 // Created on 2006/10/02 by nao-pon http://hypweb.net/
-// $Id: pukiwiki_func.php,v 1.102 2007/08/29 11:00:31 nao-pon Exp $
+// $Id: pukiwiki_func.php,v 1.103 2007/08/30 05:41:58 nao-pon Exp $
 //
 class XpWikiPukiWikiFunc extends XpWikiBaseFunc {
 
@@ -77,6 +77,7 @@ class XpWikiPukiWikiFunc extends XpWikiBaseFunc {
 			$mode = "insert";
 		} else if (!$postdata) {
 			$mode = "delete";
+			$this->root->post['alias'] = '';
 		} else {
 			$mode = "update";
 		}
@@ -100,12 +101,18 @@ class XpWikiPukiWikiFunc extends XpWikiBaseFunc {
 		$postdata = $this->make_str_rules($postdata);
 		$oldpostdata = $this->is_page($page) ? join('', $this->get_source($page)) : '';
 		
+		// Page aliases
+		$need_autolink_update = false;
+		if (isset($this->root->post['alias'])) {
+			$need_autolink_update = $this->put_page_alias($page, $this->root->post['alias']);
+		}
+		
 		if ($postdata) {
 			if ($mode === 'update') {
 				// ページの内容変更がない場合何もしない
 				if ($this->remove_pginfo($postdata) === $this->remove_pginfo($oldpostdata)) {
 					// For AutoLink
-					if (!empty($this->root->rtf['need_autolink_update'])){
+					if ($need_autolink_update){
 						$this->autolink_dat_update();
 					}
 					return;
@@ -202,7 +209,7 @@ class XpWikiPukiWikiFunc extends XpWikiBaseFunc {
 		$this->system_notification($page, 'global', 0, 'page_update', $tags);
 
 		// For AutoLink
-		if (!empty($this->root->rtf['need_autolink_update']) || $mode !== 'update'){
+		if ($need_autolink_update || $mode !== 'update'){
 			$this->autolink_dat_update();
 		}
 		
@@ -850,7 +857,7 @@ class XpWikiPukiWikiFunc extends XpWikiBaseFunc {
 
 //----- Start convert_html.php -----//
 	// PukiWiki - Yet another WikiWikiWeb clone
-	// $Id: pukiwiki_func.php,v 1.102 2007/08/29 11:00:31 nao-pon Exp $
+	// $Id: pukiwiki_func.php,v 1.103 2007/08/30 05:41:58 nao-pon Exp $
 	// Copyright (C)
 	//   2002-2005 PukiWiki Developers Team
 	//   2001-2002 Originally written by yu-ji
@@ -1100,7 +1107,7 @@ class XpWikiPukiWikiFunc extends XpWikiBaseFunc {
 
 //----- Start func.php -----//
 	// PukiWiki - Yet another WikiWikiWeb clone.
-	// $Id: pukiwiki_func.php,v 1.102 2007/08/29 11:00:31 nao-pon Exp $
+	// $Id: pukiwiki_func.php,v 1.103 2007/08/30 05:41:58 nao-pon Exp $
 	// Copyright (C)
 	//   2002-2006 PukiWiki Developers Team
 	//   2001-2002 Originally written by yu-ji
@@ -1623,14 +1630,10 @@ EOD;
 			$min_len = $this->root->autolink;	// set $this->root->autolink, when omitted.
 		}
 		
-		foreach ($pages as $page) {
+		$_aliases = array_keys(array_intersect($this->root->page_aliases, $pages));
+		foreach (array_merge($pages, $_aliases) as $page) {
 			if (strlen($page) >= $min_len) {
 				$auto_pages[] = $page;
-			}
-			foreach($this->get_page_alias($page, true) as $_page) {
-				if (strlen($_page) >= $min_len) {
-					$auto_pages[] = $_page;
-				}
 			}
 		}
 		
@@ -1913,7 +1916,7 @@ EOD;
 
 //----- Start make_link.php -----//
 	// PukiWiki - Yet another WikiWikiWeb clone.
-	// $Id: pukiwiki_func.php,v 1.102 2007/08/29 11:00:31 nao-pon Exp $
+	// $Id: pukiwiki_func.php,v 1.103 2007/08/30 05:41:58 nao-pon Exp $
 	// Copyright (C)
 	//   2003-2005 PukiWiki Developers Team
 	//   2001-2002 Originally written by yu-ji
@@ -2756,7 +2759,7 @@ EOD;
 
 //----- Start html.php -----//
 	// PukiWiki - Yet another WikiWikiWeb clone.
-	// $Id: pukiwiki_func.php,v 1.102 2007/08/29 11:00:31 nao-pon Exp $
+	// $Id: pukiwiki_func.php,v 1.103 2007/08/30 05:41:58 nao-pon Exp $
 	// Copyright (C)
 	//   2002-2006 PukiWiki Developers Team
 	//   2001-2002 Originally written by yu-ji
@@ -3386,7 +3389,7 @@ EOD;
 
 //----- Start mail.php -----//
 	// PukiWiki - Yet another WikiWikiWeb clone.
-	// $Id: pukiwiki_func.php,v 1.102 2007/08/29 11:00:31 nao-pon Exp $
+	// $Id: pukiwiki_func.php,v 1.103 2007/08/30 05:41:58 nao-pon Exp $
 	// Copyright (C)
 	//   2003-2005 PukiWiki Developers Team
 	//   2003      Originally written by upk
@@ -3689,7 +3692,7 @@ EOD;
 
 //----- Start link.php -----//
 	// PukiWiki - Yet another WikiWikiWeb clone
-	// $Id: pukiwiki_func.php,v 1.102 2007/08/29 11:00:31 nao-pon Exp $
+	// $Id: pukiwiki_func.php,v 1.103 2007/08/30 05:41:58 nao-pon Exp $
 	// Copyright (C) 2003-2006 PukiWiki Developers Team
 	// License: GPL v2 or (at your option) any later version
 	//
