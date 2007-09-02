@@ -7,6 +7,7 @@
 	filter: alpha(opacity=85);
 	-moz-opacity: 0.85;
 	opacity: 0.85;
+	z-index: 1000;
 }
 
 #wikihelper_base img {
