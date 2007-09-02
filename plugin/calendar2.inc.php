@@ -1,5 +1,5 @@
 <?php
-// $Id: calendar2.inc.php,v 1.6 2007/08/04 06:29:46 nao-pon Exp $
+// $Id: calendar2.inc.php,v 1.7 2007/09/02 14:54:39 nao-pon Exp $
 //
 // Calendar2 plugin
 //
@@ -148,7 +148,7 @@ EOD;
 				$link = '<div class="style_td_written"><a href="' . $this->func->get_page_uri($page, true) . '" title="' . $s_page .
 				'">' . $day . '</a></div>';
 			} else {
-				if ($this->cont['PKWK_READONLY']) {
+				if ($this->cont['PKWK_READONLY'] === 1) {
 					$link = $day;
 				} else {
 					$link = $this->root->script . '?cmd=edit&amp;page=' . $r_page . '&amp;refer=' . $r_base;
