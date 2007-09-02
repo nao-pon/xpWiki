@@ -1,7 +1,7 @@
 <?php
 //
 // Created on 2006/10/02 by nao-pon http://hypweb.net/
-// $Id: pukiwiki_func.php,v 1.103 2007/08/30 05:41:58 nao-pon Exp $
+// $Id: pukiwiki_func.php,v 1.104 2007/09/02 15:39:45 nao-pon Exp $
 //
 class XpWikiPukiWikiFunc extends XpWikiBaseFunc {
 
@@ -857,7 +857,7 @@ class XpWikiPukiWikiFunc extends XpWikiBaseFunc {
 
 //----- Start convert_html.php -----//
 	// PukiWiki - Yet another WikiWikiWeb clone
-	// $Id: pukiwiki_func.php,v 1.103 2007/08/30 05:41:58 nao-pon Exp $
+	// $Id: pukiwiki_func.php,v 1.104 2007/09/02 15:39:45 nao-pon Exp $
 	// Copyright (C)
 	//   2002-2005 PukiWiki Developers Team
 	//   2001-2002 Originally written by yu-ji
@@ -999,10 +999,10 @@ class XpWikiPukiWikiFunc extends XpWikiBaseFunc {
 		$this->rt_global['forceignorepages'] = explode("\t", trim($forceignorepages));
 		
 		if ($this->root->page_case_insensitive) {
-			$pat_pre = '/(<a.*?<\/a>|<(?:textarea|style|script).*?<\/(?:textarea|style|script)>|<[^>]*>|&(?:#[0-9]+|#x[0-9a-f]+|[0-9a-z]+);)|(';
+			$pat_pre = '/(<(script|a|textarea|style).*?<\/\\2>|<[^>]*>|&(?:#[0-9]+|#x[0-9a-f]+|[0-9a-z]+);)|(';
 			$pat_aft = ')/isS';	
 		} else {
-			$pat_pre = '/(<(?:a|A).*?<\/(?:a|A)>|<(?:textarea|style|script).*?<\/(?:textarea|style|script)>|<[^>]*>|&(?:#[0-9]+|#x[0-9a-f]+|[0-9a-zA-Z]+);)|(';
+			$pat_pre = '/(<((?:s|S)(?:c|C)(?:r|R)(?:i|I)(?:p|P)(?:t|T)|a|A|(?:t|T)(?:e|E)(?:x|X)(?:t|T)(?:a|A)(?:r|R)(?:e|E)(?:a|A)|(?:s|S)(?:t|T)(?:y|Y)(?:l|L)(?:e|E)).*?<\/\\2>|<[^>]*>|&(?:#[0-9]+|#x[0-9a-f]+|[0-9a-zA-Z]+);)|(';
 			$pat_aft = ')/sS';	
 		}
 		// ページ数が多い場合は、セパレータ \t で複数パターンに分割されている
@@ -1019,7 +1019,7 @@ class XpWikiPukiWikiFunc extends XpWikiBaseFunc {
 	function int_auto_link_replace($match)
 	{
 		if (!empty($match[1])) return $match[1];
-		$alias = $name = $match[2];
+		$alias = $name = $match[3];
 		
 		// 無視リストに含まれているページを捨てる
 		if (in_array(($this->root->page_case_insensitive ? strtolower($name) : $name), $this->rt_global['forceignorepages'])) { return $match[0]; }
@@ -1107,7 +1107,7 @@ class XpWikiPukiWikiFunc extends XpWikiBaseFunc {
 
 //----- Start func.php -----//
 	// PukiWiki - Yet another WikiWikiWeb clone.
-	// $Id: pukiwiki_func.php,v 1.103 2007/08/30 05:41:58 nao-pon Exp $
+	// $Id: pukiwiki_func.php,v 1.104 2007/09/02 15:39:45 nao-pon Exp $
 	// Copyright (C)
 	//   2002-2006 PukiWiki Developers Team
 	//   2001-2002 Originally written by yu-ji
@@ -1916,7 +1916,7 @@ EOD;
 
 //----- Start make_link.php -----//
 	// PukiWiki - Yet another WikiWikiWeb clone.
-	// $Id: pukiwiki_func.php,v 1.103 2007/08/30 05:41:58 nao-pon Exp $
+	// $Id: pukiwiki_func.php,v 1.104 2007/09/02 15:39:45 nao-pon Exp $
 	// Copyright (C)
 	//   2003-2005 PukiWiki Developers Team
 	//   2001-2002 Originally written by yu-ji
@@ -2759,7 +2759,7 @@ EOD;
 
 //----- Start html.php -----//
 	// PukiWiki - Yet another WikiWikiWeb clone.
-	// $Id: pukiwiki_func.php,v 1.103 2007/08/30 05:41:58 nao-pon Exp $
+	// $Id: pukiwiki_func.php,v 1.104 2007/09/02 15:39:45 nao-pon Exp $
 	// Copyright (C)
 	//   2002-2006 PukiWiki Developers Team
 	//   2001-2002 Originally written by yu-ji
@@ -2772,7 +2772,9 @@ EOD;
 	{
 		if (! file_exists($this->cont['SKIN_FILE']) || ! is_readable($this->cont['SKIN_FILE']))
 			$this->die_message('SKIN_FILE is not found'.$this->cont['SKIN_FILE']);
-	
+		
+		$body = '<div id="xpwiki_body">'.$body.'</div>';
+		
 		$_LINK = $this->root->_IMAGE = array();
 	
 		// Add JavaScript header when ...
@@ -2959,6 +2961,8 @@ EOD;
 	// Show 'edit' form
 	function edit_form($page, $postdata, $digest = FALSE, $b_template = TRUE, $options = array())
 	{
+		$ajax = (isset($this->root->vars['ajax']));
+		
 		// #pginfo 削除
 		$postdata = $this->remove_pginfo($postdata);
 		
@@ -3031,7 +3035,7 @@ EOD;
 		
 		// 添付ファイルリスト
 		$attaches = '';
-		if ($this->root->show_attachlist_editform && $this->is_page($page)) {
+		if (!$ajax && $this->root->show_attachlist_editform && $this->is_page($page)) {
 			$plugin = & $this->get_plugin_instance("attach");
 			$attaches = ($plugin) ? $plugin->attach_filelist() : '';
 			if ($attaches) $attaches = $this->root->hr . '<p>' . $attaches . '</p>';
@@ -3050,12 +3054,15 @@ EOD;
 								name=\'write\';
 								value=\''.$this->root->_btn_update.'\';
 								setAttribute(\'accesskey\',\'s\');
+								setAttribute(\'onclick\',\'xpwiki_area_edit_var[\\\'mode\\\']=\\\'write\\\'\');
 							}
 							with (document.getElementById(\'edit_write\')){
 								name=\'preview\';
 								value=\''.$btn_preview.'\';
 								setAttribute(\'accesskey\',\'p\');
+								setAttribute(\'onclick\',\'xpwiki_area_edit_var[\\\'mode\\\']=\\\'preview\\\'\');
 							}
+							xpwiki_area_edit_var[\'mode\'] = \'write\';
 						}
 					})(this)" /><br />' .
 				'</p>';	
@@ -3077,16 +3084,30 @@ EOD;
 				$add_notimestamp .
 				'&nbsp;';
 		}
-	
+		
+		if ($ajax) {
+			$ajax_submit = ' onSubmit="return xpwiki_area_edit_submit(\''.htmlspecialchars($this->root->script, ENT_QUOTES).'\')"';
+			$ajax_cancel = ' onSubmit="return xpwiki_area_edit_cancel()"';
+			$enc_hint = '<input type="hidden" name="encode_hint" value="' . $this->cont['PKWK_ENCODING_HINT'] . '" />';
+			$template = $reading = $alias = '';
+			$ajax_title = '<h3>'.str_replace('$1', '# '.$this->root->vars['paraid'], $this->root->_title_edit).'</h3>';
+			$form_class = 'edit_form_ajax';
+		} else {
+			$ajax_title = $ajax_submit = $ajax_cancel = $enc_hint = '';
+			$form_class = 'edit_form';
+		}
+		
+		
 		// 'margin-bottom', 'float:left', and 'margin-top'
 		// are for layout of 'cancel button'
 		$body = <<<EOD
-	<div class="edit_form">
-	 <form action="{$this->root->script}" method="post" style="margin-bottom:0px;">
+	<div class="{$form_class}">{$ajax_title}
+	 <form action="{$this->root->script}" method="post" style="margin-bottom:0px;" id="xpwiki_edit_form"{$ajax_submit}>
 	  $template
 	  $addtag
 	  $reading
 	  $alias
+	  $enc_hint
 	  <input type="hidden" name="cmd"    value="edit" />
 	  <input type="hidden" name="page"   value="$s_page" />
 	  <input type="hidden" name="digest" value="$s_digest" />
@@ -3095,14 +3116,14 @@ EOD;
 	  <br />
 	  $riddle
 	  <div style="float:left;">
-	   <input type="submit" name="preview" value="$btn_preview" accesskey="p" id="edit_preview" />
-	   <input type="submit" name="write"   value="{$this->root->_btn_update}" accesskey="s" id="edit_write" />
+	   <input type="submit" name="preview" value="$btn_preview" accesskey="p" id="edit_preview" onclick="xpwiki_area_edit_var['mode']='preview'" />
+	   <input type="submit" name="write"   value="{$this->root->_btn_update}" accesskey="s" id="edit_write" onclick="xpwiki_area_edit_var['mode']='write'" />
 	   $add_top
 	   $add_notimestamp
 	  </div>
 	  <textarea name="original" rows="1" cols="1" style="display:none">$s_original</textarea>
 	 </form>
-	 <form action="{$this->root->script}" method="post" style="margin-top:0px;">
+	 <form action="{$this->root->script}" method="post" style="margin-top:0px;"{$ajax_cancel}>
 	  <input type="hidden" name="cmd"    value="edit" />
 	  <input type="hidden" name="page"   value="$s_page" />
 	  <input type="hidden" name="paraid" value="$s_id" />
@@ -3114,7 +3135,7 @@ EOD;
 	
 		if (isset($this->root->vars['help'])) {
 			$body .= $this->root->hr . $this->catrule();
-		} else {
+		} else if (!$ajax) {
 			$body .= '<ul><li><a href="' .
 				$this->root->script . '?cmd=edit&amp;help=true&amp;page=' . $r_page .
 				'">' . $this->root->_msg_help . '</a></li></ul>';
@@ -3389,7 +3410,7 @@ EOD;
 
 //----- Start mail.php -----//
 	// PukiWiki - Yet another WikiWikiWeb clone.
-	// $Id: pukiwiki_func.php,v 1.103 2007/08/30 05:41:58 nao-pon Exp $
+	// $Id: pukiwiki_func.php,v 1.104 2007/09/02 15:39:45 nao-pon Exp $
 	// Copyright (C)
 	//   2003-2005 PukiWiki Developers Team
 	//   2003      Originally written by upk
@@ -3692,7 +3713,7 @@ EOD;
 
 //----- Start link.php -----//
 	// PukiWiki - Yet another WikiWikiWeb clone
-	// $Id: pukiwiki_func.php,v 1.103 2007/08/30 05:41:58 nao-pon Exp $
+	// $Id: pukiwiki_func.php,v 1.104 2007/09/02 15:39:45 nao-pon Exp $
 	// Copyright (C) 2003-2006 PukiWiki Developers Team
 	// License: GPL v2 or (at your option) any later version
 	//
