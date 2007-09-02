@@ -1,7 +1,7 @@
 <?php
 //
 // Created on 2006/10/02 by nao-pon http://hypweb.net/
-// $Id: pukiwiki_func.php,v 1.104 2007/09/02 15:39:45 nao-pon Exp $
+// $Id: pukiwiki_func.php,v 1.105 2007/09/02 15:47:36 nao-pon Exp $
 //
 class XpWikiPukiWikiFunc extends XpWikiBaseFunc {
 
@@ -857,7 +857,7 @@ class XpWikiPukiWikiFunc extends XpWikiBaseFunc {
 
 //----- Start convert_html.php -----//
 	// PukiWiki - Yet another WikiWikiWeb clone
-	// $Id: pukiwiki_func.php,v 1.104 2007/09/02 15:39:45 nao-pon Exp $
+	// $Id: pukiwiki_func.php,v 1.105 2007/09/02 15:47:36 nao-pon Exp $
 	// Copyright (C)
 	//   2002-2005 PukiWiki Developers Team
 	//   2001-2002 Originally written by yu-ji
@@ -1107,7 +1107,7 @@ class XpWikiPukiWikiFunc extends XpWikiBaseFunc {
 
 //----- Start func.php -----//
 	// PukiWiki - Yet another WikiWikiWeb clone.
-	// $Id: pukiwiki_func.php,v 1.104 2007/09/02 15:39:45 nao-pon Exp $
+	// $Id: pukiwiki_func.php,v 1.105 2007/09/02 15:47:36 nao-pon Exp $
 	// Copyright (C)
 	//   2002-2006 PukiWiki Developers Team
 	//   2001-2002 Originally written by yu-ji
@@ -1916,7 +1916,7 @@ EOD;
 
 //----- Start make_link.php -----//
 	// PukiWiki - Yet another WikiWikiWeb clone.
-	// $Id: pukiwiki_func.php,v 1.104 2007/09/02 15:39:45 nao-pon Exp $
+	// $Id: pukiwiki_func.php,v 1.105 2007/09/02 15:47:36 nao-pon Exp $
 	// Copyright (C)
 	//   2003-2005 PukiWiki Developers Team
 	//   2001-2002 Originally written by yu-ji
@@ -2759,7 +2759,7 @@ EOD;
 
 //----- Start html.php -----//
 	// PukiWiki - Yet another WikiWikiWeb clone.
-	// $Id: pukiwiki_func.php,v 1.104 2007/09/02 15:39:45 nao-pon Exp $
+	// $Id: pukiwiki_func.php,v 1.105 2007/09/02 15:47:36 nao-pon Exp $
 	// Copyright (C)
 	//   2002-2006 PukiWiki Developers Team
 	//   2001-2002 Originally written by yu-ji
@@ -3018,8 +3018,8 @@ EOD;
 		
 		// ページ読み
 		if (!empty($this->root->rtf['preview'])) {
-			$reading_str = htmlspecialchars($this->root->vars['reading']);
-			$alias_str = htmlspecialchars($this->root->vars['alias']);
+			$reading_str = htmlspecialchars(@$this->root->vars['reading']);
+			$alias_str = htmlspecialchars(@$this->root->vars['alias']);
 		} else {
 			$reading_str = htmlspecialchars($this->get_page_reading($page));
 			$alias_str = htmlspecialchars($this->get_page_alias($page));
@@ -3410,7 +3410,7 @@ EOD;
 
 //----- Start mail.php -----//
 	// PukiWiki - Yet another WikiWikiWeb clone.
-	// $Id: pukiwiki_func.php,v 1.104 2007/09/02 15:39:45 nao-pon Exp $
+	// $Id: pukiwiki_func.php,v 1.105 2007/09/02 15:47:36 nao-pon Exp $
 	// Copyright (C)
 	//   2003-2005 PukiWiki Developers Team
 	//   2003      Originally written by upk
@@ -3713,7 +3713,7 @@ EOD;
 
 //----- Start link.php -----//
 	// PukiWiki - Yet another WikiWikiWeb clone
-	// $Id: pukiwiki_func.php,v 1.104 2007/09/02 15:39:45 nao-pon Exp $
+	// $Id: pukiwiki_func.php,v 1.105 2007/09/02 15:47:36 nao-pon Exp $
 	// Copyright (C) 2003-2006 PukiWiki Developers Team
 	// License: GPL v2 or (at your option) any later version
 	//
