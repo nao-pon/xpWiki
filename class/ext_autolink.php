@@ -1,7 +1,7 @@
 <?php
 /*
  * Created on 2007/04/23 by nao-pon http://hypweb.net/
- * $Id: ext_autolink.php,v 1.15 2007/08/29 05:21:48 nao-pon Exp $
+ * $Id: ext_autolink.php,v 1.16 2007/09/02 15:36:44 nao-pon Exp $
  */
 class XpWikiPukiExtAutoLink {
 	// External AutoLinks
@@ -27,10 +27,10 @@ class XpWikiPukiExtAutoLink {
 			$pat = $this->get_ext_autolink($autolink, $valid);
 			if ($pat) {
 				if ($this->ci) {
-					$pat_pre = '/(<a.*?<\/a>|<(?:textarea|style|script).*?<\/(?:textarea|style|script)>|<[^>]*>|&(?:#[0-9]+|#x[0-9a-f]+|[0-9a-z]+);)|(';
+					$pat_pre = '/(<(script|a|textarea|style).*?<\/\\2>|<[^>]*>|&(?:#[0-9]+|#x[0-9a-f]+|[0-9a-z]+);)|(';
 					$pat_aft = ')/isS';
 				} else {
-					$pat_pre = '/(<(?:a|A).*?<\/(?:a|A)>|<(?:textarea|style|script).*?<\/(?:textarea|style|script)>|<[^>]*>|&(?:#[0-9]+|#x[0-9a-f]+|[0-9a-zA-Z]+);)|(';
+					$pat_pre = '/(<((?:s|S)(?:c|C)(?:r|R)(?:i|I)(?:p|P)(?:t|T)|a|A|(?:t|T)(?:e|E)(?:x|X)(?:t|T)(?:a|A)(?:r|R)(?:e|E)(?:a|A)|(?:s|S)(?:t|T)(?:y|Y)(?:l|L)(?:e|E)).*?<\/\\2>|<[^>]*>|&(?:#[0-9]+|#x[0-9a-f]+|[0-9a-zA-Z]+);)|(';
 					$pat_aft = ')/sS';	
 				}
 				foreach(explode("\t", $pat) as $_pat) {
@@ -43,7 +43,7 @@ class XpWikiPukiExtAutoLink {
 	function ext_autolink_replace($match) {
 		
 		if (!empty($match[1])) return $match[1];
-		$name = $match[2];
+		$name = $match[3];
 		
 		static $forceignorepages = array();
 		if (!isset($forceignorepages[$this->root->mydirname])) {
