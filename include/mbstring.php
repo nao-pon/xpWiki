@@ -1,6 +1,6 @@
 <?php
 // PukiWiki - Yet another WikiWikiWeb clone.
-// $Id: mbstring.php,v 1.1 2006/10/16 02:51:45 nao-pon Exp $
+// $Id: mbstring.php,v 1.2 2007/09/02 02:24:43 nao-pon Exp $
 // Copyright (C) 2003-2005 PukiWiki Developers Team
 // License: GPL v2 or (at your option) any later version
 //
@@ -33,6 +33,8 @@
 // jcodeの所在
 define('JCODE_DIR', './jcode_1.34/');
 define('JCODE_FILE', JCODE_DIR . 'jcode_wrapper.php');
+
+if (!defined('SOURCE_ENCODING')) define('SOURCE_ENCODING', (defined('_CHARSET')? _CHARSET : 'EUC-JP'));
 
 if (is_readable(JCODE_FILE)) {
 	require_once(JCODE_FILE);
@@ -85,6 +87,7 @@ if (! function_exists("mb_convert_variables")) {
 function mb_convert_variables($to_encoding, $from_encoding, &$vars)
 {
 	// 補助関数:配列を再帰的にjoinする
+	if (! function_exists("mb_convert_variables_join_array")) {
 	function mb_convert_variables_join_array($glue, $pieces)
 	{
 		$arr = array();
@@ -92,6 +95,7 @@ function mb_convert_variables($to_encoding, $from_encoding, &$vars)
 			$arr[] = is_array($piece) ? mb_convert_variables_join_array($glue, $piece) : $piece;
 		}
 		return join($glue, $arr);
+	}
 	}
 
 	// 注: 可変長引数ではない。init.phpから呼ばれる1引数のパターンのみをサポート
