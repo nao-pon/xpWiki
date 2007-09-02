@@ -199,12 +199,15 @@ function wikihelper_charcode()
 	wikihelper_elem.focus();
 }
 
-function wikihelper_initTexts()
+function wikihelper_initTexts(obj)
 {
-	if (wikihelper_initLoad) return;
+	if (!obj) {
+		if (wikihelper_initLoad) return;
+		obj = document;
+	}
 	wikihelper_initLoad = 1;
 	wikihelper_show_fontset_img();
-	var oElements = document.getElementsByTagName("form");
+	var oElements = obj.getElementsByTagName("form");
 	for (i = 0; i < oElements.length; i++)
 	{
 		oElement = oElements[i];
@@ -222,7 +225,7 @@ function wikihelper_initTexts()
 		};
 	}
 	
-	oElements = document.getElementsByTagName("input");
+	oElements = obj.getElementsByTagName("input");
 	for (i = 0; i < oElements.length; i++)
 	{
 		oElement = oElements[i];
@@ -246,7 +249,7 @@ function wikihelper_initTexts()
 			}
 		}
 	}
-	oElements = document.getElementsByTagName("textarea");
+	oElements = obj.getElementsByTagName("textarea");
 	for (i = 0; i < oElements.length; i++)
 	{
 		oElement = oElements[i];

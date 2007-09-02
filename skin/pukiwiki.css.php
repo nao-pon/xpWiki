@@ -1,6 +1,6 @@
 <?php
 // PukiWiki - Yet another WikiWikiWeb clone.
-// $Id: pukiwiki.css.php,v 1.28 2007/07/03 07:18:30 nao-pon Exp $
+// $Id: pukiwiki.css.php,v 1.29 2007/09/02 15:40:06 nao-pon Exp $
 // Copyright (C)
 //   2002-2005 PukiWiki Developers Team
 //   2001-2002 Originally written by yu-ji
@@ -471,6 +471,15 @@ $class .edit_form textarea {
 	width: 98%;
 	margin-right: 2%;
 }
+$class .edit_form_ajax {
+	border: 1px gray solid;
+	padding: 5px;
+}
+$class .edit_form_ajax textarea {
+	width: 98%;
+	margin-right: 2%;
+	height: 250px;
+}
 
 /* pukiwiki.skin.php */
 $class div.header {
@@ -600,6 +609,12 @@ $class div.banner {
 $class div.preview {
 	color:inherit;
 	background-color:#F5F8FF;
+}
+
+$class div.ajax_preview {
+	overflow: auto;
+	max-height: 250px;
+	border: 1px gray solid;
 }
 
 $class img.logo {

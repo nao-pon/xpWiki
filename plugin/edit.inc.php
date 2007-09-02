@@ -4,7 +4,7 @@ class xpwiki_plugin_edit extends xpwiki_plugin {
 
 
 	// PukiWiki - Yet another WikiWikiWeb clone.
-	// $Id: edit.inc.php,v 1.27 2007/08/30 05:41:58 nao-pon Exp $
+	// $Id: edit.inc.php,v 1.28 2007/09/02 15:40:06 nao-pon Exp $
 	// Copyright (C) 2001-2006 PukiWiki Developers Team
 	// License: GPL v2 or (at your option) any later version
 	//
@@ -58,8 +58,27 @@ class xpwiki_plugin_edit extends xpwiki_plugin {
 		
 		// Q & A 認証
 		$options = $this->get_riddle();
-
-		return array('msg'=>$this->root->_title_edit, 'body'=>$this->func->edit_form($page, $postdata, FALSE, TRUE, $options));
+		
+		$body = $this->func->edit_form($page, $postdata, FALSE, TRUE, $options);
+		
+		if (isset($this->root->vars['ajax'])) {
+			// xml special chars
+			// clear output buffer
+			while( ob_get_level() ) {
+				ob_end_clean() ;
+			}
+			$res = mb_convert_encoding($body, 'UTF-8', $this->cont['SOURCE_ENCODING']);
+			$xml = <<<EOD
+<?xml version="1.0" encoding="UTF-8"?>
+<editform><![CDATA[$res]]></editform>
+EOD;
+			header ('Content-type: application/xml') ;
+			header ('Content-Length: '. strlen($xml));
+			echo $xml;
+			exit;
+		}
+		
+		return array('msg'=>$this->root->_title_edit, 'body'=>$body);
 	}
 	
 	// Preview
@@ -91,23 +110,50 @@ class xpwiki_plugin_edit extends xpwiki_plugin {
 		}
 	
 		$body = $this->root->_msg_preview . '<br />' . "\n";
-		if ($postdata == '')
-			$body .= '<strong>' . $this->root->_msg_preview_delete . '</strong>';
-		$body .= '<br />' . "\n";
+		if ($postdata == '') {
+			$body .= '<strong>' . $this->root->_msg_preview_delete . '</strong><br />' . "\n";
+		}
 		
 		$this->root->rtf['preview'] = TRUE;
 		if ($postdata) {
 			$postdata = $this->func->make_str_rules($postdata);
 			$postdata = explode("\n", $postdata);
 			$postdata = $this->func->drop_submit($this->func->convert_html($postdata));
-			$body .= '<div class="preview">' . $postdata . '</div>' . "\n";
+			if (isset($this->root->vars['ajax'])) {
+				$postdata = preg_replace('/^<div[^>]+>(.*)<\/div>$/s', '$1', trim($postdata));
+			}
+			if (isset($this->root->vars['ajax'])) {
+				$body .= '<div class="ajax_preview">' . $postdata . '</div>' . "\n";
+			} else {
+				$body .= '<div class="preview">' . $postdata . '</div>' . "\n";
+			}
 		}
 		
 		// Q & A 認証
 		$options = $this->get_riddle();
 
 		$body .= $this->func->edit_form($page, $this->root->vars['msg'], $this->root->vars['digest'], TRUE, $options);
-	
+
+		if (isset($this->root->vars['ajax'])) {
+			// xml special chars
+			// clear output buffer
+			while( ob_get_level() ) {
+				ob_end_clean() ;
+			}
+			// cont['USER_NAME_REPLACE'] を 置換
+			$body  = str_replace($this->cont['USER_NAME_REPLACE'], $this->root->userinfo['uname_s'], $body);
+
+			$res = mb_convert_encoding($body, 'UTF-8', $this->cont['SOURCE_ENCODING']);
+			$xml = <<<EOD
+<?xml version="1.0" encoding="UTF-8"?>
+<content><![CDATA[$res]]></content>
+EOD;
+			header ('Content-type: application/xml') ;
+			header ('Content-Length: '. strlen($xml));
+			echo $xml;
+			exit;
+		}
+
 		return array('msg'=>(!$ng_riddle)? $this->root->_title_preview : $this->root->_title_ng_riddle, 'body'=>$body);
 	}
 	
@@ -116,7 +162,10 @@ class xpwiki_plugin_edit extends xpwiki_plugin {
 	{
 	//	static $usage = '&edit(pagename#anchor[[,noicon],nolabel])[{label}];';
 		static $usage = array();
-		if (!isset($usage[$this->xpwiki->pid])) {$usage[$this->xpwiki->pid] = '&edit(pagename#anchor[[,noicon],nolabel])[{label}];';}
+		if (!isset($usage[$this->xpwiki->pid])) {
+			$this->func->add_tag_head('prototype.js');
+			$usage[$this->xpwiki->pid] = '&edit(pagename#anchor[[,noicon],nolabel])[{label}];';
+		}
 	
 	//	global $script, $vars, $fixed_heading_anchor_edit;
 	
@@ -160,12 +209,15 @@ class xpwiki_plugin_edit extends xpwiki_plugin {
 		$short = htmlspecialchars('Edit');
 		if ($this->root->fixed_heading_anchor_edit && $editable && $ispage && ! $isfreeze) {
 			// Paragraph editing
-			$js = ' onmouseover="wikihelper_area_highlite(\'' . htmlspecialchars($id) . '\',1);" onmouseout="wikihelper_area_highlite(\'' . htmlspecialchars($id) . '\',0);"';
+			$ajaxurl = $this->root->script.'?page='.rawurlencode($s_page);
+			$js = ' onmouseover="wikihelper_area_highlite(\'' . htmlspecialchars($id) . '\',1);"' .
+					' onmouseout="wikihelper_area_highlite(\'' . htmlspecialchars($id) . '\',0);"';
+			$ajax = ($this->root->render_mode === 'main')? ' onclick="return xpwiki_area_edit(\''.htmlspecialchars($ajaxurl, ENT_QUOTES).'\',\'' . htmlspecialchars($id) . '\');"' : '';
 			$id    = rawurlencode($id);
 			$title = htmlspecialchars(str_replace('$1', $s_page.$page, $this->root->_title_edit));
 			$icon = '<img src="' . $this->cont['IMAGE_DIR'] . 'paraedit.png' .
 			'" width="9" height="9" alt="' .
-			$short . '" title="' . $title . '" ' . $js . '/> ';
+			$short . '" title="' . $title . '" ' . $js . $ajax . '/> ';
 			$class = ' class="anchor_super"';
 		} else {
 			// Normal editing / unfreeze
@@ -241,6 +293,7 @@ class xpwiki_plugin_edit extends xpwiki_plugin {
 				PREG_SPLIT_NO_EMPTY | PREG_SPLIT_DELIM_CAPTURE);
 			if ($this->plugin_edit_parts($paraid, $source, $msg) !== FALSE) {
 				$fullmsg = join('', $source);
+				$part_src = rtrim($msg)."\n";
 			} else {
 				// $this->root->vars['msg']だけがページに書き込まれてしまうのを防ぐ。
 				$fullmsg = rtrim($this->root->vars['original']) . "\n\n" . $msg;
@@ -314,6 +367,32 @@ class xpwiki_plugin_edit extends xpwiki_plugin {
 		}
 		
 		$this->func->page_write($page, $postdata, $this->root->notimeupdate != 0 && $notimestamp);
+
+		if (isset($this->root->vars['ajax'])) {
+			$obj =& XpWiki::getSingleton($this->root->mydirname);
+			$obj->init($page);
+			$obj->execute();
+
+			//preg_match('/<div id="'.$paraid.'">(.*)<!--'.$paraid.'-->/s', $obj->body, $match);
+			//$body = $match[1];
+			$body = $obj->body;
+			// cont['USER_NAME_REPLACE'] を 置換
+			//$body  = str_replace($this->cont['USER_NAME_REPLACE'], $this->root->userinfo['uname_s'], $body);
+			// clear output buffer
+			while( ob_get_level() ) {
+				ob_end_clean() ;
+			}
+			$res = mb_convert_encoding($body, 'UTF-8', $this->cont['SOURCE_ENCODING']);
+			$xml = <<<EOD
+<?xml version="1.0" encoding="UTF-8"?>
+<content><![CDATA[$res]]></content>
+EOD;
+			header ('Content-type: application/xml') ;
+			header ('Content-Length: '. strlen($xml));
+			echo $xml;
+			exit;
+		}
+
 		$this->func->send_location($page, $hash);
 	}
 	

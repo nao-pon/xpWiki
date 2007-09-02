@@ -993,10 +993,10 @@ class XpWikiBody extends XpWikiElement {
 		// Area div id
 		$area_div = '';
 		if (!empty($this->flg['div_area_open'])) {
-			$area_div .= "</div>\n";
+			$area_div .= "<!--{$this->flg['div_area_open']}--></div>\n";
 		}
 		$area_div .= '<div id="'.$id.'">' . "\n";
-		$this->flg['div_area_open'] = true;
+		$this->flg['div_area_open'] = $id;
 		
 		// Add heding
 		return array ($text.$anchor, $area_div . ($this->count > 1 ? "\n".$this->root->top : ''), $autoid);
@@ -1015,7 +1015,7 @@ class XpWikiBody extends XpWikiElement {
 		
 		// Close area div
 		if (!empty($this->flg['div_area_open'])) {
-			$text .= "</div>\n";
+			$text .= "<!--{$this->flg['div_area_open']}--></div>\n";
 		}
 		$this->flg['div_area_open'] = false;
 		
