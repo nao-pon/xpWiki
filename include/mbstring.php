@@ -1,6 +1,6 @@
 <?php
 // PukiWiki - Yet another WikiWikiWeb clone.
-// $Id: mbstring.php,v 1.2 2007/09/02 02:24:43 nao-pon Exp $
+// $Id: mbstring.php,v 1.3 2007/09/02 14:53:58 nao-pon Exp $
 // Copyright (C) 2003-2005 PukiWiki Developers Team
 // License: GPL v2 or (at your option) any later version
 //
@@ -10,34 +10,13 @@
 /*
  * mbstring extension がサーバー側に存在しない時の代替関数
  *
- * 注意事項
- *
- * 1. 実際に漢字コード変換を行わせるためには、別途 jcode.php
- *    (TOMO作)をインストールする必要があります。
- *
- *   http://www.spencernetwork.org/jcode/ よりjcodeを入手し、
- *   以下の様に展開してください。
- *
- *   -+--- mbstring.php          -r--
- *    +-+- jcode_1.34/           dr-x
- *      +--- readme.txt          -r--
- *      +--- jcode.phps          -r--
- *      +--- jcode_wrapper.php   -r--
- *      +--- code_table.ucs2jis  -r--
- *      +--- code_table.jis2ucs  -r--
- *
- * 2. EUC-JP専用です。(出力されるデータがEUC-JPである必要があります)
- *
  */
-
-// jcodeの所在
-define('JCODE_DIR', './jcode_1.34/');
-define('JCODE_FILE', JCODE_DIR . 'jcode_wrapper.php');
 
 if (!defined('SOURCE_ENCODING')) define('SOURCE_ENCODING', (defined('_CHARSET')? _CHARSET : 'EUC-JP'));
 
-if (is_readable(JCODE_FILE)) {
-	require_once(JCODE_FILE);
+// jcodeの所在
+if (is_readable(dirname(__FILE__).'/jcode/jcode_wrapper.php') && !function_exists('jcode_convert_encoding')) {
+	require_once(dirname(__FILE__).'/jcode/jcode_wrapper.php');
 }
 
 // jcodeが存在しない場合、マルチバイト文字や漢字コードを扱えない
