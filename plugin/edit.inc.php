@@ -1,6 +1,6 @@
 <?php
 // PukiWiki - Yet another WikiWikiWeb clone.
-// $Id: edit.inc.php,v 1.30 2007/09/03 01:10:39 nao-pon Exp $
+// $Id: edit.inc.php,v 1.31 2007/09/03 07:46:44 nao-pon Exp $
 // Copyright (C) 2001-2006 PukiWiki Developers Team
 // License: GPL v2 or (at your option) any later version
 //
@@ -199,6 +199,7 @@ EOD;
 	
 		// Paragraph edit enabled or not
 		$short = htmlspecialchars('Edit');
+		$js = $ajax = '';
 		if ($this->root->fixed_heading_anchor_edit && $editable && $ispage && ! $isfreeze) {
 			// Paragraph editing
 			$ajaxurl = htmlspecialchars($this->root->script.'?page='.rawurlencode($s_page), ENT_QUOTES);
@@ -209,7 +210,7 @@ EOD;
 			$title = htmlspecialchars(str_replace('$1', $s_page.$page, $this->root->_title_edit));
 			$icon = '<img src="' . $this->cont['IMAGE_DIR'] . 'paraedit.png' .
 			'" width="9" height="9" alt="' .
-			$short . '" title="' . $title . '" ' . $js . $ajax . '/> ';
+			$short . '" title="' . $title . '" /> ';
 			$class = ' class="anchor_super"';
 		} else {
 			// Normal editing / unfreeze
@@ -245,11 +246,14 @@ EOD;
 			$s_id = ($id == '') ? '' : '&amp;paraid=' . $id;
 			$url  = $this->root->script . '?cmd=edit&amp;page=' . rawurlencode($s_page) . $s_id;
 		}
-		$atag  = '<a' . $class . ' href="' . $url . '" title="' . $title . '">';
+		$atag  = '<a' . $class . ' href="' . $url . '" title="' . $title . '"' . $js . $ajax . '>';
 		static $atags = array();
 		if (!isset($atags[$this->xpwiki->pid])) {$atags[$this->xpwiki->pid] = '</a>';}
-	
-		if ($ispage) {
+		
+		if (!empty($this->root->rtf['preview'])) {
+			// Preview mode
+			return $icon . $s_label;
+		} else if ($ispage) {
 			// Normal edit link
 			return $atag . $icon . $s_label . $atags[$this->xpwiki->pid];
 		} else {
