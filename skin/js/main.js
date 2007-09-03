@@ -256,18 +256,23 @@ function xpwiki_now_loading(mode) {
 }
 
 function xpwiki_area_edit(url, id) {
-	if (xpwiki_area_edit_var["id"]) {
-		$(xpwiki_area_edit_var["id"]).innerHTML = xpwiki_area_edit_var["html"];
+	if (id) {
+		if (xpwiki_area_edit_var["id"]) {
+			$(xpwiki_area_edit_var["id"]).innerHTML = xpwiki_area_edit_var["html"];
+		}
+		wikihelper_area_highlite(id, 0);
+		xpwiki_area_edit_var["id"] = id;
+	} else {
+		xpwiki_area_edit_var["id"] = 'xpwiki_body';
+		id = '';
 	}
-	wikihelper_area_highlite(id, 0);
-	xpwiki_area_edit_var["id"] = id;
 
 	xpwiki_now_loading(true);
 	
 	// ページ情報を読込み反映する
 	var pars = '';
 	pars += 'cmd=edit';
-	pars += '&paraid=' + encodeURIComponent(id);
+	if (id) pars += '&paraid=' + encodeURIComponent(id);
 	pars += '&ajax=1';
 	
 	var myAjax = new Ajax.Request(
@@ -336,8 +341,10 @@ function xpwiki_area_edit_submit(url) {
 function xpwiki_area_edit_post(orgRequest) {
 	xpwiki_now_loading(false);
 	var xmlRes = orgRequest.responseXML;
-	if(xmlRes.getElementsByTagName("content")[0].firstChild) {
-		var str = xmlRes.getElementsByTagName("content")[0].firstChild.nodeValue;
+	if(xmlRes.getElementsByTagName("xpwiki")[0].firstChild) {
+		var item = xmlRes.getElementsByTagName("xpwiki")[0];
+		var str = item.getElementsByTagName("content")[0].firstChild.nodeValue;
+		xpwiki_area_edit_var['mode'] = item.getElementsByTagName("mode")[0].firstChild.nodeValue;
 		if (xpwiki_area_edit_var['mode'] == 'write') {
 			$('xpwiki_body').innerHTML = str;
 		} else {
