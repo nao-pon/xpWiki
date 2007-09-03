@@ -1,15 +1,13 @@
 <?php
+// PukiWiki - Yet another WikiWikiWeb clone.
+// $Id: edit.inc.php,v 1.30 2007/09/03 01:10:39 nao-pon Exp $
+// Copyright (C) 2001-2006 PukiWiki Developers Team
+// License: GPL v2 or (at your option) any later version
+//
+// Edit plugin (cmd=edit)
+	
 class xpwiki_plugin_edit extends xpwiki_plugin {
 	function plugin_edit_init () {
-
-
-	// PukiWiki - Yet another WikiWikiWeb clone.
-	// $Id: edit.inc.php,v 1.29 2007/09/03 00:47:18 nao-pon Exp $
-	// Copyright (C) 2001-2006 PukiWiki Developers Team
-	// License: GPL v2 or (at your option) any later version
-	//
-	// Edit plugin (cmd=edit)
-	
 		// Remove #freeze written by hand
 		$this->cont['PLUGIN_EDIT_FREEZE_REGEX'] = '/^(?:#freeze(?!\w)\s*)+/im';
 	}
@@ -84,9 +82,6 @@ EOD;
 	// Preview
 	function plugin_edit_preview($ng_riddle = FALSE)
 	{
-	//	global $vars;
-	//	global $_title_preview, $_msg_preview, $_msg_preview_delete;
-	
 		$page = isset($this->root->vars['page']) ? $this->root->vars['page'] : '';
 	
 		// Loading template
@@ -138,8 +133,8 @@ EOD;
 				ob_end_clean() ;
 			}
 			// cont['USER_NAME_REPLACE'] ¤ò ÃÖ´¹
-			$body  = str_replace($this->cont['USER_NAME_REPLACE'], $this->root->userinfo['uname_s'], $body);
-
+			$body = str_replace($this->cont['USER_NAME_REPLACE'], $this->root->userinfo['uname_s'], $body);
+			$body = preg_replace('/<div id="[^"]+"/', '<div ', $body);
 			$res = mb_convert_encoding($body, 'UTF-8', $this->cont['SOURCE_ENCODING']);
 			$xml = <<<EOD
 <?xml version="1.0" encoding="UTF-8"?>
@@ -160,14 +155,11 @@ EOD;
 	// Inline: Show edit (or unfreeze text) link
 	function plugin_edit_inline()
 	{
-	//	static $usage = '&edit(pagename#anchor[[,noicon],nolabel])[{label}];';
 		static $usage = array();
 		if (!isset($usage[$this->xpwiki->pid])) {
 			$this->func->add_tag_head('prototype.js');
 			$usage[$this->xpwiki->pid] = '&edit(pagename#anchor[[,noicon],nolabel])[{label}];';
 		}
-	
-	//	global $script, $vars, $fixed_heading_anchor_edit;
 	
 		if ($this->cont['PKWK_READONLY']) return ''; // Show nothing 
 	
@@ -254,7 +246,6 @@ EOD;
 			$url  = $this->root->script . '?cmd=edit&amp;page=' . rawurlencode($s_page) . $s_id;
 		}
 		$atag  = '<a' . $class . ' href="' . $url . '" title="' . $title . '">';
-	//	static $atags = '</a>';
 		static $atags = array();
 		if (!isset($atags[$this->xpwiki->pid])) {$atags[$this->xpwiki->pid] = '</a>';}
 	
@@ -271,10 +262,6 @@ EOD;
 	// Write, add, or insert new comment
 	function plugin_edit_write()
 	{
-	//	global $vars, $trackback;
-	//	global $_title_collided, $_msg_collided_auto, $_msg_collided, $_title_deleted;
-	//	global $notimeupdate, $_msg_invalidpass, $do_update_diff_table;
-	
 		$page   = isset($this->root->vars['page'])   ? $this->root->vars['page']   : '';
 		$add    = isset($this->root->vars['add'])    ? $this->root->vars['add']    : '';
 		$digest = isset($this->root->vars['digest']) ? $this->root->vars['digest'] : '';
@@ -419,7 +406,6 @@ EOD;
 	// Cancel (Back to the page / Escape edit page)
 	function plugin_edit_cancel()
 	{
-	//	global $vars;
 		// ParaEdit
 		$paraid = isset($this->root->vars['paraid']) ? $this->root->vars['paraid'] : '';
 		$hash = '';
