@@ -1,7 +1,7 @@
 <?php
 //
 // Created on 2006/10/02 by nao-pon http://hypweb.net/
-// $Id: pukiwiki_func.php,v 1.107 2007/09/02 15:58:25 nao-pon Exp $
+// $Id: pukiwiki_func.php,v 1.108 2007/09/03 00:47:18 nao-pon Exp $
 //
 class XpWikiPukiWikiFunc extends XpWikiBaseFunc {
 
@@ -108,9 +108,10 @@ class XpWikiPukiWikiFunc extends XpWikiBaseFunc {
 		}
 		
 		if ($postdata) {
+			$reading = (!empty($this->root->vars['reading']) && $this->get_page_reading($page) != $this->root->vars['reading'])? $this->root->vars['reading'] : '';
 			if ($mode === 'update') {
 				// ページの内容変更がない場合何もしない
-				if ($this->remove_pginfo($postdata) === $this->remove_pginfo($oldpostdata)) {
+				if (!$reading && $this->remove_pginfo($postdata) === $this->remove_pginfo($oldpostdata)) {
 					// For AutoLink
 					if ($need_autolink_update){
 						$this->autolink_dat_update();
@@ -131,8 +132,8 @@ class XpWikiPukiWikiFunc extends XpWikiBaseFunc {
 				$pginfo_str = '#pginfo('.join("\t",$pginfo).')'."\n";
 				$postdata = $pginfo_str . $this->remove_pginfo($postdata);
 				// ページ頭文字読み
-				if (!empty($this->root->vars['reading'])) {
-					$pginfo['reading'] = $this->root->vars['reading'];
+				if ($reading) {
+					$pginfo['reading'] = $reading;
 				}
 			}
 		}
@@ -857,7 +858,7 @@ class XpWikiPukiWikiFunc extends XpWikiBaseFunc {
 
 //----- Start convert_html.php -----//
 	// PukiWiki - Yet another WikiWikiWeb clone
-	// $Id: pukiwiki_func.php,v 1.107 2007/09/02 15:58:25 nao-pon Exp $
+	// $Id: pukiwiki_func.php,v 1.108 2007/09/03 00:47:18 nao-pon Exp $
 	// Copyright (C)
 	//   2002-2005 PukiWiki Developers Team
 	//   2001-2002 Originally written by yu-ji
@@ -1107,7 +1108,7 @@ class XpWikiPukiWikiFunc extends XpWikiBaseFunc {
 
 //----- Start func.php -----//
 	// PukiWiki - Yet another WikiWikiWeb clone.
-	// $Id: pukiwiki_func.php,v 1.107 2007/09/02 15:58:25 nao-pon Exp $
+	// $Id: pukiwiki_func.php,v 1.108 2007/09/03 00:47:18 nao-pon Exp $
 	// Copyright (C)
 	//   2002-2006 PukiWiki Developers Team
 	//   2001-2002 Originally written by yu-ji
@@ -1916,7 +1917,7 @@ EOD;
 
 //----- Start make_link.php -----//
 	// PukiWiki - Yet another WikiWikiWeb clone.
-	// $Id: pukiwiki_func.php,v 1.107 2007/09/02 15:58:25 nao-pon Exp $
+	// $Id: pukiwiki_func.php,v 1.108 2007/09/03 00:47:18 nao-pon Exp $
 	// Copyright (C)
 	//   2003-2005 PukiWiki Developers Team
 	//   2001-2002 Originally written by yu-ji
@@ -2759,7 +2760,7 @@ EOD;
 
 //----- Start html.php -----//
 	// PukiWiki - Yet another WikiWikiWeb clone.
-	// $Id: pukiwiki_func.php,v 1.107 2007/09/02 15:58:25 nao-pon Exp $
+	// $Id: pukiwiki_func.php,v 1.108 2007/09/03 00:47:18 nao-pon Exp $
 	// Copyright (C)
 	//   2002-2006 PukiWiki Developers Team
 	//   2001-2002 Originally written by yu-ji
@@ -2793,6 +2794,7 @@ EOD;
 		// Set skin functions
 		$navigator = create_function('&$this, $key, $value = \'\', $javascript = \'\'', 'return XpWikiFunc::skin_navigator($this, $key, $value, $javascript);');
 		$toolbar   = create_function('&$this, $key, $x = 20, $y = 20',                  'return XpWikiFunc::skin_toolbar($this, $key, $x, $y);');
+		$ajaxurl = htmlspecialchars($this->root->script.'?page='.$r_page, ENT_QUOTES);
 		
 		// Set $_LINK for skin
 		$_LINK['add']      = "{$this->root->script}?cmd=add&amp;page=$r_page#{$this->root->mydirname}_header";
@@ -3016,7 +3018,7 @@ EOD;
 		$b_preview   = isset($this->root->vars['preview']); // TRUE when preview
 		$btn_preview = $b_preview ? $this->root->_btn_repreview : $this->root->_btn_preview;
 		
-		if (!$ajax) {
+		if (!$ajax || !$s_id) {
 			// ページ読み & Alias
 			if (!empty($this->root->rtf['preview'])) {
 				$reading_str = htmlspecialchars($this->root->vars['reading']);
@@ -3090,9 +3092,15 @@ EOD;
 			$ajax_submit = ' onSubmit="return xpwiki_area_edit_submit(\''.htmlspecialchars($this->root->script, ENT_QUOTES).'\')"';
 			$ajax_cancel = ' onSubmit="return xpwiki_area_edit_cancel()"';
 			$enc_hint = '<input type="hidden" name="encode_hint" value="' . $this->cont['PKWK_ENCODING_HINT'] . '" />';
-			$attaches = $template = $reading = $alias = '';
-			$ajax_title = '<h3>'.str_replace('$1', '# '.$this->root->vars['paraid'], $this->root->_title_edit).'</h3>';
-			$form_class = 'edit_form_ajax';
+			$attaches = '';
+			if ($s_id) {
+				$template = $reading = $alias = '';
+				$ajax_title = '<h3>'.str_replace('$1', '# '.$this->root->vars['paraid'], $this->root->_title_edit).'</h3>';
+				$form_class = 'edit_form_ajax';
+			} else {
+				$ajax_title = '<h3>'.str_replace('$1', $s_page, $this->root->_title_edit).'</h3>';
+				$form_class = 'edit_form';
+			}
 		} else {
 			$ajax_title = $ajax_submit = $ajax_cancel = $enc_hint = '';
 			$form_class = 'edit_form';
@@ -3411,7 +3419,7 @@ EOD;
 
 //----- Start mail.php -----//
 	// PukiWiki - Yet another WikiWikiWeb clone.
-	// $Id: pukiwiki_func.php,v 1.107 2007/09/02 15:58:25 nao-pon Exp $
+	// $Id: pukiwiki_func.php,v 1.108 2007/09/03 00:47:18 nao-pon Exp $
 	// Copyright (C)
 	//   2003-2005 PukiWiki Developers Team
 	//   2003      Originally written by upk
@@ -3714,7 +3722,7 @@ EOD;
 
 //----- Start link.php -----//
 	// PukiWiki - Yet another WikiWikiWeb clone
-	// $Id: pukiwiki_func.php,v 1.107 2007/09/02 15:58:25 nao-pon Exp $
+	// $Id: pukiwiki_func.php,v 1.108 2007/09/03 00:47:18 nao-pon Exp $
 	// Copyright (C) 2003-2006 PukiWiki Developers Team
 	// License: GPL v2 or (at your option) any later version
 	//

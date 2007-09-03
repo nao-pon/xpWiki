@@ -4,7 +4,7 @@ class xpwiki_plugin_edit extends xpwiki_plugin {
 
 
 	// PukiWiki - Yet another WikiWikiWeb clone.
-	// $Id: edit.inc.php,v 1.28 2007/09/02 15:40:06 nao-pon Exp $
+	// $Id: edit.inc.php,v 1.29 2007/09/03 00:47:18 nao-pon Exp $
 	// Copyright (C) 2001-2006 PukiWiki Developers Team
 	// License: GPL v2 or (at your option) any later version
 	//
@@ -120,9 +120,6 @@ EOD;
 			$postdata = explode("\n", $postdata);
 			$postdata = $this->func->drop_submit($this->func->convert_html($postdata));
 			if (isset($this->root->vars['ajax'])) {
-				$postdata = preg_replace('/^<div[^>]+>(.*)<\/div>$/s', '$1', trim($postdata));
-			}
-			if (isset($this->root->vars['ajax'])) {
 				$body .= '<div class="ajax_preview">' . $postdata . '</div>' . "\n";
 			} else {
 				$body .= '<div class="preview">' . $postdata . '</div>' . "\n";
@@ -146,7 +143,10 @@ EOD;
 			$res = mb_convert_encoding($body, 'UTF-8', $this->cont['SOURCE_ENCODING']);
 			$xml = <<<EOD
 <?xml version="1.0" encoding="UTF-8"?>
+<xpwiki>
 <content><![CDATA[$res]]></content>
+<mode>preview</mode>
+</xpwiki>
 EOD;
 			header ('Content-type: application/xml') ;
 			header ('Content-Length: '. strlen($xml));
@@ -209,10 +209,10 @@ EOD;
 		$short = htmlspecialchars('Edit');
 		if ($this->root->fixed_heading_anchor_edit && $editable && $ispage && ! $isfreeze) {
 			// Paragraph editing
-			$ajaxurl = $this->root->script.'?page='.rawurlencode($s_page);
+			$ajaxurl = htmlspecialchars($this->root->script.'?page='.rawurlencode($s_page), ENT_QUOTES);
 			$js = ' onmouseover="wikihelper_area_highlite(\'' . htmlspecialchars($id) . '\',1);"' .
 					' onmouseout="wikihelper_area_highlite(\'' . htmlspecialchars($id) . '\',0);"';
-			$ajax = ($this->root->render_mode === 'main')? ' onclick="return xpwiki_area_edit(\''.htmlspecialchars($ajaxurl, ENT_QUOTES).'\',\'' . htmlspecialchars($id) . '\');"' : '';
+			$ajax = ($this->root->render_mode === 'main')? ' onclick="return xpwiki_area_edit(\'' . $ajaxurl . '\',\'' . htmlspecialchars($id) . '\');"' : '';
 			$id    = rawurlencode($id);
 			$title = htmlspecialchars(str_replace('$1', $s_page.$page, $this->root->_title_edit));
 			$icon = '<img src="' . $this->cont['IMAGE_DIR'] . 'paraedit.png' .
@@ -325,6 +325,27 @@ EOD;
 			$retvars['body'] = ($auto ? $this->root->_msg_collided_auto : $this->root->_msg_collided) . "\n";
 			$retvars['body'] .= $this->root->do_update_diff_table;
 			$retvars['body'] .= $this->func->edit_form($page, $postdata_input, $oldpagemd5, FALSE);
+
+			if (isset($this->root->vars['ajax'])) {
+				$body = $retvars['body'];
+				// clear output buffer
+				while( ob_get_level() ) {
+					ob_end_clean() ;
+				}
+				$res = mb_convert_encoding($body, 'UTF-8', $this->cont['SOURCE_ENCODING']);
+				$xml = <<<EOD
+<?xml version="1.0" encoding="UTF-8"?>
+<xpwiki>
+<content><![CDATA[$res]]></content>
+<mode>preview</mode>
+</xpwiki>
+EOD;
+				header ('Content-type: application/xml') ;
+				header ('Content-Length: '. strlen($xml));
+				echo $xml;
+				exit;
+			}
+
 			return $retvars;
 		}
 	
@@ -373,11 +394,7 @@ EOD;
 			$obj->init($page);
 			$obj->execute();
 
-			//preg_match('/<div id="'.$paraid.'">(.*)<!--'.$paraid.'-->/s', $obj->body, $match);
-			//$body = $match[1];
 			$body = $obj->body;
-			// cont['USER_NAME_REPLACE'] ¤ò ÃÖ´¹
-			//$body  = str_replace($this->cont['USER_NAME_REPLACE'], $this->root->userinfo['uname_s'], $body);
 			// clear output buffer
 			while( ob_get_level() ) {
 				ob_end_clean() ;
@@ -385,7 +402,10 @@ EOD;
 			$res = mb_convert_encoding($body, 'UTF-8', $this->cont['SOURCE_ENCODING']);
 			$xml = <<<EOD
 <?xml version="1.0" encoding="UTF-8"?>
+<xpwiki>
 <content><![CDATA[$res]]></content>
+<mode>write</mode>
+</xpwiki>
 EOD;
 			header ('Content-type: application/xml') ;
 			header ('Content-Length: '. strlen($xml));
