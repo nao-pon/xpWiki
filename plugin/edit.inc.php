@@ -1,6 +1,6 @@
 <?php
 // PukiWiki - Yet another WikiWikiWeb clone.
-// $Id: edit.inc.php,v 1.31 2007/09/03 07:46:44 nao-pon Exp $
+// $Id: edit.inc.php,v 1.32 2007/09/04 01:46:27 nao-pon Exp $
 // Copyright (C) 2001-2006 PukiWiki Developers Team
 // License: GPL v2 or (at your option) any later version
 //
@@ -365,6 +365,23 @@ EOD;
 				$url = $this->cont['HOME_URL'];
 			}
 			$title = str_replace('$1', htmlspecialchars($page), $this->root->_title_deleted);
+
+			if (isset($this->root->vars['ajax'])) {
+				$res = mb_convert_encoding($title, 'UTF-8', $this->cont['SOURCE_ENCODING']);
+				$url = htmlspecialchars($url, ENT_QUOTES);
+				$xml = <<<EOD
+<?xml version="1.0" encoding="UTF-8"?>
+<xpwiki>
+<content><![CDATA[$res]]></content>
+<mode>delete</mode>
+<url>$url</url>
+</xpwiki>
+EOD;
+				header ('Content-type: application/xml') ;
+				header ('Content-Length: '. strlen($xml));
+				echo $xml;
+				exit;
+			}
 			
 			$this->func->redirect_header($url, 1, $title);
 		}

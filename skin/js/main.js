@@ -347,7 +347,10 @@ function xpwiki_area_edit_post(orgRequest) {
 		xpwiki_area_edit_var['mode'] = item.getElementsByTagName("mode")[0].firstChild.nodeValue;
 		if (xpwiki_area_edit_var['mode'] == 'write') {
 			$('xpwiki_body').innerHTML = str;
-		} else {
+		} else if (xpwiki_area_edit_var['mode'] == 'delete') {
+			$('xpwiki_body').innerHTML = str;
+			location.href = item.getElementsByTagName("url")[0].firstChild.nodeValue;
+		}else {
 			$(xpwiki_area_edit_var['id']).innerHTML = str;
 		}
 		wikihelper_initTexts($(xpwiki_area_edit_var["id"]));
