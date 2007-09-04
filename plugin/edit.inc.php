@@ -1,6 +1,6 @@
 <?php
 // PukiWiki - Yet another WikiWikiWeb clone.
-// $Id: edit.inc.php,v 1.32 2007/09/04 01:46:27 nao-pon Exp $
+// $Id: edit.inc.php,v 1.33 2007/09/04 06:23:27 nao-pon Exp $
 // Copyright (C) 2001-2006 PukiWiki Developers Team
 // License: GPL v2 or (at your option) any later version
 //
@@ -135,6 +135,9 @@ EOD;
 			// cont['USER_NAME_REPLACE'] ¤ò ÃÖ´¹
 			$body = str_replace($this->cont['USER_NAME_REPLACE'], $this->root->userinfo['uname_s'], $body);
 			$body = preg_replace('/<div id="[^"]+"/', '<div ', $body);
+			$title = (!$ng_riddle)? $this->root->_title_preview : $this->root->_title_ng_riddle;
+			$title = '<h3>'.str_replace('$1', htmlspecialchars($page), $title).'</h3>';
+			$body = $title.$body;
 			$res = mb_convert_encoding($body, 'UTF-8', $this->cont['SOURCE_ENCODING']);
 			$xml = <<<EOD
 <?xml version="1.0" encoding="UTF-8"?>
@@ -202,10 +205,10 @@ EOD;
 		$js = $ajax = '';
 		if ($this->root->fixed_heading_anchor_edit && $editable && $ispage && ! $isfreeze) {
 			// Paragraph editing
-			$ajaxurl = htmlspecialchars($this->root->script.'?page='.rawurlencode($s_page), ENT_QUOTES);
+			$ajaxurl = htmlspecialchars(rawurlencode($s_page), ENT_QUOTES);
 			$js = ' onmouseover="wikihelper_area_highlite(\'' . htmlspecialchars($id) . '\',1);"' .
 					' onmouseout="wikihelper_area_highlite(\'' . htmlspecialchars($id) . '\',0);"';
-			$ajax = ($this->root->render_mode === 'main')? ' onclick="return xpwiki_area_edit(\'' . $ajaxurl . '\',\'' . htmlspecialchars($id) . '\');"' : '';
+			$ajax = ($this->root->render_mode === 'main')? ' onclick="return xpwiki_ajax_edit(\'' . $ajaxurl . '\',\'' . htmlspecialchars($id) . '\');"' : '';
 			$id    = rawurlencode($id);
 			$title = htmlspecialchars(str_replace('$1', $s_page.$page, $this->root->_title_edit));
 			$icon = '<img src="' . $this->cont['IMAGE_DIR'] . 'paraedit.png' .
