@@ -1,7 +1,7 @@
 <?php
 //
 // Created on 2006/10/02 by nao-pon http://hypweb.net/
-// $Id: xpwiki_func.php,v 1.91 2007/09/04 23:43:33 nao-pon Exp $
+// $Id: xpwiki_func.php,v 1.92 2007/09/04 23:49:24 nao-pon Exp $
 //
 class XpWikiFunc extends XpWikiXoopsWrapper {
 
@@ -1204,8 +1204,8 @@ EOD;
 		
 		// mbstring setting
 		if (extension_loaded('mbstring')) {
-			mb_language($const['MB_LANGUAGE']);
-			mb_internal_encoding($const['SOURCE_ENCODING']);
+			mb_language($this->cont['MB_LANGUAGE']);
+			mb_internal_encoding($this->cont['SOURCE_ENCODING']);
 			ini_set('mbstring.http_input', 'pass');
 			mb_http_output('pass');
 			mb_detect_order('auto');
