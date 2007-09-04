@@ -1,7 +1,7 @@
 <?php
 //
 // Created on 2006/10/02 by nao-pon http://hypweb.net/
-// $Id: pukiwiki_func.php,v 1.108 2007/09/03 00:47:18 nao-pon Exp $
+// $Id: pukiwiki_func.php,v 1.109 2007/09/04 01:49:06 nao-pon Exp $
 //
 class XpWikiPukiWikiFunc extends XpWikiBaseFunc {
 
@@ -858,7 +858,7 @@ class XpWikiPukiWikiFunc extends XpWikiBaseFunc {
 
 //----- Start convert_html.php -----//
 	// PukiWiki - Yet another WikiWikiWeb clone
-	// $Id: pukiwiki_func.php,v 1.108 2007/09/03 00:47:18 nao-pon Exp $
+	// $Id: pukiwiki_func.php,v 1.109 2007/09/04 01:49:06 nao-pon Exp $
 	// Copyright (C)
 	//   2002-2005 PukiWiki Developers Team
 	//   2001-2002 Originally written by yu-ji
@@ -941,14 +941,14 @@ class XpWikiPukiWikiFunc extends XpWikiBaseFunc {
 			}
 			
 			if (!empty($this->root->ext_autolinks)) {
-				foreach($this->root->ext_autolinks as $_key => $_autos) {
+				foreach($this->root->ext_autolinks as $_autos) {
 					if (empty($_autos['priority'])) {
 						$_autos['priority'] = 40;
-						$ext_autolinks_aft[$_key] = $_autos;
+						$ext_autolinks_aft[] = $_autos;
 					} else if ($_autos['priority'] <= 50) {
-						$ext_autolinks_aft[$_key] = $_autos;
+						$ext_autolinks_aft[] = $_autos;
 					} else {
-						$ext_autolinks_pre[$_key] = $_autos;
+						$ext_autolinks_pre[] = $_autos;
 					}
 				}
 			}
@@ -1108,7 +1108,7 @@ class XpWikiPukiWikiFunc extends XpWikiBaseFunc {
 
 //----- Start func.php -----//
 	// PukiWiki - Yet another WikiWikiWeb clone.
-	// $Id: pukiwiki_func.php,v 1.108 2007/09/03 00:47:18 nao-pon Exp $
+	// $Id: pukiwiki_func.php,v 1.109 2007/09/04 01:49:06 nao-pon Exp $
 	// Copyright (C)
 	//   2002-2006 PukiWiki Developers Team
 	//   2001-2002 Originally written by yu-ji
@@ -1917,7 +1917,7 @@ EOD;
 
 //----- Start make_link.php -----//
 	// PukiWiki - Yet another WikiWikiWeb clone.
-	// $Id: pukiwiki_func.php,v 1.108 2007/09/03 00:47:18 nao-pon Exp $
+	// $Id: pukiwiki_func.php,v 1.109 2007/09/04 01:49:06 nao-pon Exp $
 	// Copyright (C)
 	//   2003-2005 PukiWiki Developers Team
 	//   2001-2002 Originally written by yu-ji
@@ -2760,7 +2760,7 @@ EOD;
 
 //----- Start html.php -----//
 	// PukiWiki - Yet another WikiWikiWeb clone.
-	// $Id: pukiwiki_func.php,v 1.108 2007/09/03 00:47:18 nao-pon Exp $
+	// $Id: pukiwiki_func.php,v 1.109 2007/09/04 01:49:06 nao-pon Exp $
 	// Copyright (C)
 	//   2002-2006 PukiWiki Developers Team
 	//   2001-2002 Originally written by yu-ji
@@ -3073,7 +3073,7 @@ EOD;
 	
 		// Checkbox 'do not change timestamp'
 		$add_notimestamp = '';
-		if ($this->root->notimeupdate != 0) {
+		if ($this->root->notimeupdate != 0 && $this->is_page($page)) {
 			$checked_time = isset($this->root->vars['notimestamp']) ? ' checked="checked"' : '';
 			// Only for administrator
 			if ($this->root->notimeupdate == 2) {
@@ -3132,12 +3132,14 @@ EOD;
 	  </div>
 	  <textarea name="original" rows="1" cols="1" style="display:none">$s_original</textarea>
 	 </form>
+	 <div id="xpwiki_cancel_form">
 	 <form action="{$this->root->script}" method="post" style="margin-top:0px;"{$ajax_cancel}>
 	  <input type="hidden" name="cmd"    value="edit" />
 	  <input type="hidden" name="page"   value="$s_page" />
 	  <input type="hidden" name="paraid" value="$s_id" />
 	  <input type="submit" name="cancel" value="{$this->root->_btn_cancel}" accesskey="c" />
 	 </form>
+	 </div>
 	</div>
 	$attaches
 EOD;
@@ -3419,7 +3421,7 @@ EOD;
 
 //----- Start mail.php -----//
 	// PukiWiki - Yet another WikiWikiWeb clone.
-	// $Id: pukiwiki_func.php,v 1.108 2007/09/03 00:47:18 nao-pon Exp $
+	// $Id: pukiwiki_func.php,v 1.109 2007/09/04 01:49:06 nao-pon Exp $
 	// Copyright (C)
 	//   2003-2005 PukiWiki Developers Team
 	//   2003      Originally written by upk
@@ -3722,7 +3724,7 @@ EOD;
 
 //----- Start link.php -----//
 	// PukiWiki - Yet another WikiWikiWeb clone
-	// $Id: pukiwiki_func.php,v 1.108 2007/09/03 00:47:18 nao-pon Exp $
+	// $Id: pukiwiki_func.php,v 1.109 2007/09/04 01:49:06 nao-pon Exp $
 	// Copyright (C) 2003-2006 PukiWiki Developers Team
 	// License: GPL v2 or (at your option) any later version
 	//

@@ -1,7 +1,7 @@
 <?php
 /*
  * Created on 2007/04/23 by nao-pon http://hypweb.net/
- * $Id: ext_autolink.php,v 1.16 2007/09/02 15:36:44 nao-pon Exp $
+ * $Id: ext_autolink.php,v 1.17 2007/09/04 01:49:07 nao-pon Exp $
  */
 class XpWikiPukiExtAutoLink {
 	// External AutoLinks
@@ -23,8 +23,8 @@ class XpWikiPukiExtAutoLink {
 		}
 		array_multisort($this->ext_autolinks, SORT_NUMERIC, SORT_DESC,$sorter, SORT_NUMERIC, SORT_DESC);
 		
-		foreach($this->ext_autolinks as $valid => $autolink) {
-			$pat = $this->get_ext_autolink($autolink, $valid);
+		foreach($this->ext_autolinks as $autolink) {
+			$pat = $this->get_ext_autolink($autolink);
 			if ($pat) {
 				if ($this->ci) {
 					$pat_pre = '/(<(script|a|textarea|style).*?<\/\\2>|<[^>]*>|&(?:#[0-9]+|#x[0-9a-f]+|[0-9a-z]+);)|(';
@@ -84,10 +84,11 @@ class XpWikiPukiExtAutoLink {
 			}
 		}
 	}
-	function get_ext_autolink($autolink, $valid) {
+	function get_ext_autolink($autolink) {
 
 		// check valid pages.
-		if (is_string($valid) && isset($this->root->vars['page'])) {
+		$valid = (isset($autolink['target']))? (string)$autolink['target'] : false;
+		if ($valid && isset($this->root->vars['page'])) {
 			$_check = false;
 			foreach(explode('&', $valid) as $_valid) {
 				if ($_valid && strpos($this->root->vars['page'], $_valid) === 0) {
@@ -100,16 +101,17 @@ class XpWikiPukiExtAutoLink {
 		
 		// initialize
 		$inits = array(
+			'target'  => '' , 
 			'priority'=> 40 ,
-			'url'   => '' ,
-			'urldat'=> 0 ,
-			'case_i'=> 0 ,
-			'base'  => '' ,
-			'len'   => 3 ,
-			'enc'   => $this->cont['CONTENT_CHARSET'] ,
-			'cache' => 10 ,
-			'title' => 'Ext:[KEY]' ,
-			'pat'   => ''
+			'url'     => '' ,
+			'urldat'  => 0 ,
+			'case_i'  => 0 ,
+			'base'    => '' ,
+			'len'     => 3 ,
+			'enc'     => $this->cont['CONTENT_CHARSET'] ,
+			'cache'   => 10 ,
+			'title'   => 'Ext:[KEY]' ,
+			'pat'     => ''
 		);
 		$autolink = array_merge($inits, $autolink);
 		
