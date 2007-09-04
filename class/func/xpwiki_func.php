@@ -1,7 +1,7 @@
 <?php
 //
 // Created on 2006/10/02 by nao-pon http://hypweb.net/
-// $Id: xpwiki_func.php,v 1.90 2007/08/30 05:41:58 nao-pon Exp $
+// $Id: xpwiki_func.php,v 1.91 2007/09/04 23:43:33 nao-pon Exp $
 //
 class XpWikiFunc extends XpWikiXoopsWrapper {
 
@@ -1184,7 +1184,39 @@ EOD;
 		}
 		exit;
 	}
-
+	
+	function send_xml ($res, $encode = 'UTF-8', $version = '1.0') {
+		error_reporting(0);
+		if (strtoupper($encode) === 'UTF-8' && strtoupper($this->cont['SOURCE_ENCODING']) === 'ISO-8859-1') {
+			$res = utf8_encode($res);
+		} else {
+			$res = mb_convert_encoding($res, $encode, $this->cont['SOURCE_ENCODING']);
+		}
+		$xml = <<<EOD
+<?xml version="{$version}" encoding="{$encode}"?>
+$res
+EOD;
+		
+		// clear output buffer
+		while( ob_get_level() ) {
+			ob_end_clean() ;
+		}
+		
+		// mbstring setting
+		if (extension_loaded('mbstring')) {
+			mb_language($const['MB_LANGUAGE']);
+			mb_internal_encoding($const['SOURCE_ENCODING']);
+			ini_set('mbstring.http_input', 'pass');
+			mb_http_output('pass');
+			mb_detect_order('auto');
+		}
+		
+		header ('Content-type: application/xml; charset='.strtolower($encode)) ;
+		header ('Content-Length: '. strlen($xml));
+		echo $xml;
+		exit;
+	}
+	
 /*----- DB Functions -----*/ 
 	//ページ名からページIDを求める
 	function get_pgid_by_name ($page, $cache = true, $make = false)
