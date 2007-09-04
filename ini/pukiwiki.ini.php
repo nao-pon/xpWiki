@@ -1,6 +1,6 @@
 <?php
 // PukiWiki - Yet another WikiWikiWeb clone
-// $Id: pukiwiki.ini.php,v 1.46 2007/08/29 04:58:09 nao-pon Exp $
+// $Id: pukiwiki.ini.php,v 1.47 2007/09/04 01:49:06 nao-pon Exp $
 // Copyright (C)
 //   2002-2006 PukiWiki Developers Team
 //   2001-2002 Originally written by yu-ji
@@ -245,7 +245,8 @@ $root->autolink_omissible_upper_priority = 60; // 優先度(通常のAutolink=50)
 // AutoLink to external site's page.
 
 //// Auto link for hypweb's xpwiki/keyword/[ANY]
-//$root->ext_autolinks[] = array(	// Array key is valid pages split with '&' (prefix search)
+//$root->ext_autolinks[] = array(
+//	'target'  => '' , 				// Target pages split with '&' (prefix search)
 //	'priority'=> 40 ,				// Priority (Intenal AutoLink = 50)
 //	'url'     => 'http://xoops.hypweb.net/modules/xpwiki/' , // '' means own wiki, 'DirctoryName' for other xpWiki in this site.
 //	'urldat'  => 0 ,				// url is autolink's data.(0:No, 1:Yes)
@@ -259,7 +260,8 @@ $root->autolink_omissible_upper_priority = 60; // 優先度(通常のAutolink=50)
 //);
 
 //// Auto link for kaunet.biz
-//$root->ext_autolinks[] = array(	// Array key is valid pages split with '&' (prefix search)
+//$root->ext_autolinks[] = array(
+//	'target'  => '' , 				// Target pages split with '&' (prefix search)
 //	'priority'=> 40 ,				// Priority (Intenal AutoLink = 50)
 //	'url'   => 'http://www.kaunet.biz/dat/autolink.dat' , // '' means own wiki, 'DirctoryName' for other xpWiki in this site.
 //	'urldat'=> 1 ,					// url is autolink's data.(0:No, 1:Yes)
@@ -273,7 +275,8 @@ $root->autolink_omissible_upper_priority = 60; // 優先度(通常のAutolink=50)
 //);
 
 //// Auto link for e-words.jp
-//$root->ext_autolinks[] = array(	// Array key is valid pages split with '&' (prefix search)
+//$root->ext_autolinks[] = array(
+//	'target'  => '' , 				// Target pages split with '&' (prefix search)
 //	'priority'=> 40 ,				// Priority (Intenal AutoLink = 50)
 //	'url'   => 'http://xoops.hypweb.net/download/e-words.autolink.dat', // '' means own wiki, 'DirctoryName' for other xpWiki in this site.
 //	'urldat'=> 1 ,					// url is autolink's data.
