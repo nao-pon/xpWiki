@@ -1,7 +1,7 @@
 <?php
 /*
  * Created on 2007/08/30 by nao-pon http://hypweb.net/
- * $Id: calendar9.inc.php,v 1.2 2007/09/04 01:47:32 nao-pon Exp $
+ * $Id: calendar9.inc.php,v 1.3 2007/09/04 06:24:22 nao-pon Exp $
  */
 
 class xpwiki_plugin_calendar9 extends xpwiki_plugin {
@@ -147,9 +147,11 @@ var browserIE = document.all;             // IE
 function showResponse(orgRequest) {
 	var xmlRes = orgRequest.responseXML;
 	if(xmlRes.getElementsByTagName("editform")[0].firstChild) {
+		xpwiki_ajax_edit_var['func_update_post'] = thisreload;
+		xpwiki_ajax_edit_var['func_preview_pre'] = day_edit_close;
 		$('xpwiki_cal9_editarea').innerHTML = xmlRes.getElementsByTagName("editform")[0].firstChild.nodeValue;
-		Element.remove($('edit_preview'));
-		$('xpwiki_cancel_form').innerHTML = '&nbsp;&nbsp;<button id="c9cancel" onmousedown="day_edit_close()">{$this->root->_btn_cancel}</button>';
+		$('xpwiki_cancel_form').innerHTML = '<button id="c9cancel" onmousedown="day_edit_close()">{$this->root->_btn_cancel}</button>';
+		
 		wikihelper_initTexts($('xpwiki_cal9_editarea'));
 	} else {
 		$("editarea").value = "";
@@ -174,6 +176,9 @@ function day_edit(id,freeze) {
 		windowWidth = document.documentElement.scrollWidth || document.body.scrollWidth || 0;
 		windowHeight = document.documentElement.scrollHeight || document.body.scrollHeight || 0;
 	}
+
+	xpwiki_ajax_edit_var['id'] = 'xpwiki_body';
+	xpwiki_ajax_edit_var["html"] = $(xpwiki_ajax_edit_var["id"]).innerHTML;
 	
 	// HTML BODYオブジェクト取得
 	var objBody = document.getElementsByTagName("body").item(0);
@@ -202,9 +207,7 @@ function day_edit(id,freeze) {
 	var editHtml = 
 	    '<div id="xpwiki_cal9_editarea">'
 	  + '[ <span id="pagename">' + id + '</span> ]<br/>'
-	  + '<textarea rel="wikihelper" id="editarea" style="width:100%;border:1px solid" rows=20 disabled=true>Now loading...</textarea><br/>'
-	  + '<button id="c9update" onmousedown="day_update()">Update</button>'
-	  + '<button id="c9cancel" onmousedown="day_edit_close()">Cancel</button>'
+	  + '<textarea id="editarea" style="width:100%;border:1px solid" rows=20 disabled=true>Now loading...</textarea><br/>'
 	  + '</div>';
 	Element.update(objPopup, editHtml);
 	
@@ -285,7 +288,7 @@ function day_unfocus(id, orgstyle) {
 
 -->
 </script>
-   <table class="style_calendar" cellspacing="1" border="0" summary="calendar body" style="width:100%;">
+   <table class="style_calendar" cellspacing="1" border="0" summary="calendar body" style="width:98%;">
     <tr>
      <td class="style_td_caltop" colspan="7">
       <a href="{$this->root->script}?plugin=calendar9&amp;file=$r_base&amp;date=$prev_date_str">&lt;&lt;</a>
@@ -416,7 +419,7 @@ EOD;
 						$linkstr .= '<br />' . $subtitle;
 					}
 					
-					$strr .= '<div style="border-style:solid;border-width:1px 2px 1px 1px;border-color:#aaaaaa;margin-bottom:1px;padding:1px;background-color:white;">' . $linkstr . '</div>';
+					$strr .= '<div style="border:solid 1px #aaaaaa;margin:1px;padding:1px;background-color:white;font-weight:normal;">' . $linkstr . '</div>';
 				}
 				++$i;
 				$_page = $base.'/'.$dt.'-'.$i;
@@ -424,14 +427,14 @@ EOD;
 
 			if ($this->func->check_editable($_page, false, false) && $freeze !== 1) {
 				$r_page = rawurlencode($_page);
-				$link = "<a href=\"{$this->root->script}?cmd=edit&amp;page=$r_page\" title=\"$s_page\">$day</a>";
+				$link = "<a href=\"{$this->root->script}?cmd=edit&amp;page=$r_page\" title=\"$s_page\" style=\"font-weight:bold;\">$day</a>";
 				$js = " onmouseover=\"day_focus('$dt')\" onmouseout=\"day_unfocus('$dt', '$style')\" onmousedown=\"day_edit('$_page',".$freeze.")\"";
 			} else {
-				$link = $day;
+				$link = "<span style=\"font-weight:bold;\">$day</span>";
 				$js = '';
 			}
 			// 
-			$ret .= "     <td class=\"$style\" style=\"border:#eeeeee 1px solid;width:14.2%;height:100px;text-align:left;vertical-align:top;\" id=\"$dt\"{$js}>\n      $link <div class=\"related\" align=\"left\">$strr</div>\n     </td>\n";		//日付は上部に表示します。その日の内容は小さめのフォントで
+			$ret .= "     <td class=\"$style\" style=\"border:#eeeeee 1px solid;width:14.2%;height:50px;text-align:left;vertical-align:top;\" id=\"$dt\"{$js}>\n      $link <div class=\"related\" style=\"margin:3px 0px 0px 0px;text-align:left;\">$strr</div>\n     </td>\n";		//日付は上部に表示します。その日の内容は小さめのフォントで
 			$day++;
 			$wday = ++$wday % 7;
 		}
