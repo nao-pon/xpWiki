@@ -1,7 +1,7 @@
 <?php
 /*
  * Created on 2007/08/30 by nao-pon http://hypweb.net/
- * $Id: calendar9.inc.php,v 1.1 2007/09/02 15:34:45 nao-pon Exp $
+ * $Id: calendar9.inc.php,v 1.2 2007/09/04 01:47:32 nao-pon Exp $
  */
 
 class xpwiki_plugin_calendar9 extends xpwiki_plugin {
@@ -146,13 +146,15 @@ var browserIE = document.all;             // IE
 
 function showResponse(orgRequest) {
 	var xmlRes = orgRequest.responseXML;
-	if(xmlRes.getElementsByTagName("calendar9")[0].firstChild) {
-		$("editarea").value = xmlRes.getElementsByTagName("calendar9")[0].firstChild.nodeValue;
-	}
-	else {
+	if(xmlRes.getElementsByTagName("editform")[0].firstChild) {
+		$('xpwiki_cal9_editarea').innerHTML = xmlRes.getElementsByTagName("editform")[0].firstChild.nodeValue;
+		Element.remove($('edit_preview'));
+		$('xpwiki_cancel_form').innerHTML = '&nbsp;&nbsp;<button id="c9cancel" onmousedown="day_edit_close()">{$this->root->_btn_cancel}</button>';
+		wikihelper_initTexts($('xpwiki_cal9_editarea'));
+	} else {
 		$("editarea").value = "";
+		$("editarea").disabled = false;
 	}
-	$("editarea").disabled = false;
 }
 
 function day_edit(id,freeze) {
@@ -198,10 +200,12 @@ function day_edit(id,freeze) {
 	var objPopup = document.createElement("div");
 	objPopup.setAttribute('id', 'popupmain');
 	var editHtml = 
-	    '[ <span id="pagename">' + id + '</span> ]<br/>'
-	  + '<textarea rel="wikihelper" id="editarea" style="width:100%;border:1px solid" rows=20 disabled=true>データ読込み中です。</textarea><br/>'
-	  + '<button id="c9update" onmousedown="day_update()">更新</button>'
-	  + '<button id="c9cancel" onmousedown="day_edit_close()">キャンセル</button>';
+	    '<div id="xpwiki_cal9_editarea">'
+	  + '[ <span id="pagename">' + id + '</span> ]<br/>'
+	  + '<textarea rel="wikihelper" id="editarea" style="width:100%;border:1px solid" rows=20 disabled=true>Now loading...</textarea><br/>'
+	  + '<button id="c9update" onmousedown="day_update()">Update</button>'
+	  + '<button id="c9cancel" onmousedown="day_edit_close()">Cancel</button>'
+	  + '</div>';
 	Element.update(objPopup, editHtml);
 	
 	Element.setStyle(objPopup, {'display': 'none'});
@@ -211,22 +215,22 @@ function day_edit(id,freeze) {
 	Element.setStyle(objPopup, {'background-color': 'white'});
 	Element.setStyle(objPopup, {'padding': '20px'});
 	
-	objPopup.style.top = (windowTop + 60) + "px";
+	objPopup.style.top = (windowTop + 20) + "px";
 	objPopup.style.left = windowLeft + "px";
 	objPopup.style.width = "700px";
 	objPopup.style.left = ((windowWidth / 2) - 350) + "px";
-	objBody.appendChild(objPopup);
+	$('xpwiki_body').appendChild(objPopup);
 	
 	objBack.show();
 	objPopup.show();
 	
-	wikihelper_initTexts(objPopup);
-	
 	// ページ情報を読込み反映する
-	var url = location.pathname + '?cmd=calendar9';
+	var url = location.pathname + '?cmd=edit';
 	var pars = '';
-	pars +=  'mode=get'
-	pars += '&page=' + encodeURIComponent(id);
+	// pars +=  'mode=get'
+	pars += 'page=' + encodeURIComponent(id);
+	pars += '&ajax=1';
+	pars += 'encode_hint=' + encodeURIComponent("{$this->cont['PKWK_ENCODING_HINT']}");
 	
 	if(freeze == 1) {
 		$('c9update').disabled = true;
