@@ -1,6 +1,6 @@
 <?php
 // PukiWiki - Yet another WikiWikiWeb clone.
-// $Id: edit.inc.php,v 1.33 2007/09/04 06:23:27 nao-pon Exp $
+// $Id: edit.inc.php,v 1.34 2007/09/04 23:44:23 nao-pon Exp $
 // Copyright (C) 2001-2006 PukiWiki Developers Team
 // License: GPL v2 or (at your option) any later version
 //
@@ -60,20 +60,10 @@ class xpwiki_plugin_edit extends xpwiki_plugin {
 		$body = $this->func->edit_form($page, $postdata, FALSE, TRUE, $options);
 		
 		if (isset($this->root->vars['ajax'])) {
-			// xml special chars
-			// clear output buffer
-			while( ob_get_level() ) {
-				ob_end_clean() ;
-			}
-			$res = mb_convert_encoding($body, 'UTF-8', $this->cont['SOURCE_ENCODING']);
-			$xml = <<<EOD
-<?xml version="1.0" encoding="UTF-8"?>
-<editform><![CDATA[$res]]></editform>
+			$body = <<<EOD
+<editform><![CDATA[{$body}]]></editform>
 EOD;
-			header ('Content-type: application/xml') ;
-			header ('Content-Length: '. strlen($xml));
-			echo $xml;
-			exit;
+			$this->func->send_xml($body);
 		}
 		
 		return array('msg'=>$this->root->_title_edit, 'body'=>$body);
@@ -138,18 +128,13 @@ EOD;
 			$title = (!$ng_riddle)? $this->root->_title_preview : $this->root->_title_ng_riddle;
 			$title = '<h3>'.str_replace('$1', htmlspecialchars($page), $title).'</h3>';
 			$body = $title.$body;
-			$res = mb_convert_encoding($body, 'UTF-8', $this->cont['SOURCE_ENCODING']);
-			$xml = <<<EOD
-<?xml version="1.0" encoding="UTF-8"?>
+			$body = <<<EOD
 <xpwiki>
-<content><![CDATA[$res]]></content>
+<content><![CDATA[{$body}]]></content>
 <mode>preview</mode>
 </xpwiki>
 EOD;
-			header ('Content-type: application/xml') ;
-			header ('Content-Length: '. strlen($xml));
-			echo $xml;
-			exit;
+			$this->func->send_xml($body);
 		}
 
 		return array('msg'=>(!$ng_riddle)? $this->root->_title_preview : $this->root->_title_ng_riddle, 'body'=>$body);
@@ -208,7 +193,7 @@ EOD;
 			$ajaxurl = htmlspecialchars(rawurlencode($s_page), ENT_QUOTES);
 			$js = ' onmouseover="wikihelper_area_highlite(\'' . htmlspecialchars($id) . '\',1);"' .
 					' onmouseout="wikihelper_area_highlite(\'' . htmlspecialchars($id) . '\',0);"';
-			$ajax = ($this->root->render_mode === 'main')? ' onclick="return xpwiki_ajax_edit(\'' . $ajaxurl . '\',\'' . htmlspecialchars($id) . '\');"' : '';
+			$ajax = ($this->root->use_ajax_edit && $this->root->render_mode === 'main')? ' onclick="return xpwiki_ajax_edit(\'' . $ajaxurl . '\',\'' . htmlspecialchars($id) . '\');"' : '';
 			$id    = rawurlencode($id);
 			$title = htmlspecialchars(str_replace('$1', $s_page.$page, $this->root->_title_edit));
 			$icon = '<img src="' . $this->cont['IMAGE_DIR'] . 'paraedit.png' .
@@ -321,23 +306,13 @@ EOD;
 			$retvars['body'] .= $this->func->edit_form($page, $postdata_input, $oldpagemd5, FALSE);
 
 			if (isset($this->root->vars['ajax'])) {
-				$body = $retvars['body'];
-				// clear output buffer
-				while( ob_get_level() ) {
-					ob_end_clean() ;
-				}
-				$res = mb_convert_encoding($body, 'UTF-8', $this->cont['SOURCE_ENCODING']);
-				$xml = <<<EOD
-<?xml version="1.0" encoding="UTF-8"?>
+				$body = <<<EOD
 <xpwiki>
-<content><![CDATA[$res]]></content>
+<content><![CDATA[{$retvars['body']}]]></content>
 <mode>preview</mode>
 </xpwiki>
 EOD;
-				header ('Content-type: application/xml') ;
-				header ('Content-Length: '. strlen($xml));
-				echo $xml;
-				exit;
+				$this->func->send_xml($body);
 			}
 
 			return $retvars;
@@ -370,20 +345,15 @@ EOD;
 			$title = str_replace('$1', htmlspecialchars($page), $this->root->_title_deleted);
 
 			if (isset($this->root->vars['ajax'])) {
-				$res = mb_convert_encoding($title, 'UTF-8', $this->cont['SOURCE_ENCODING']);
 				$url = htmlspecialchars($url, ENT_QUOTES);
-				$xml = <<<EOD
-<?xml version="1.0" encoding="UTF-8"?>
+				$body = <<<EOD
 <xpwiki>
-<content><![CDATA[$res]]></content>
+<content><![CDATA[{$title}]]></content>
 <mode>delete</mode>
-<url>$url</url>
+<url>{$url}</url>
 </xpwiki>
 EOD;
-				header ('Content-type: application/xml') ;
-				header ('Content-Length: '. strlen($xml));
-				echo $xml;
-				exit;
+				$this->func->send_xml($body);
 			}
 			
 			$this->func->redirect_header($url, 1, $title);
@@ -404,24 +374,14 @@ EOD;
 			$obj =& XpWiki::getSingleton($this->root->mydirname);
 			$obj->init($page);
 			$obj->execute();
-
-			$body = $obj->body;
-			// clear output buffer
-			while( ob_get_level() ) {
-				ob_end_clean() ;
-			}
-			$res = mb_convert_encoding($body, 'UTF-8', $this->cont['SOURCE_ENCODING']);
-			$xml = <<<EOD
-<?xml version="1.0" encoding="UTF-8"?>
+			
+			$body = <<<EOD
 <xpwiki>
-<content><![CDATA[$res]]></content>
+<content><![CDATA[{$obj->body}]]></content>
 <mode>write</mode>
 </xpwiki>
 EOD;
-			header ('Content-type: application/xml') ;
-			header ('Content-Length: '. strlen($xml));
-			echo $xml;
-			exit;
+			$this->func->send_xml($body);
 		}
 
 		$this->func->send_location($page, $hash);
