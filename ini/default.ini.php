@@ -1,6 +1,6 @@
 <?php
 // PukiWiki - Yet another WikiWikiWeb clone.
-// $Id: default.ini.php,v 1.5 2007/08/09 08:43:55 nao-pon Exp $
+// $Id: default.ini.php,v 1.6 2007/09/04 23:46:53 nao-pon Exp $
 // Copyright (C)
 //   2003-2005 PukiWiki Developers Team
 //   2001-2002 Originally written by yu-ji
@@ -16,6 +16,10 @@ if (!empty($const['TDIARY_THEME'])) {
 } else {
 	$const['SKIN_FILE'] = $const['DATA_HOME'] . $const['SKIN_DIR'] . 'pukiwiki.skin.php';
 }
+
+/////////////////////////////////////////////////
+// Ajax edit
+$root->use_ajax_edit = 1;
 
 /////////////////////////////////////////////////
 // 雛形とするページの読み込みを可能にする

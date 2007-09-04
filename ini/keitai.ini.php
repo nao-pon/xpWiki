@@ -1,6 +1,6 @@
 <?php
 // PukiWiki - Yet another WikiWikiWeb clone.
-// $Id: keitai.ini.php,v 1.6 2007/08/09 08:43:55 nao-pon Exp $
+// $Id: keitai.ini.php,v 1.7 2007/09/04 23:46:53 nao-pon Exp $
 // Copyright (C)
 //   2002-2005 PukiWiki Developers Team
 //   2001-2002 Originally written by yu-ji
@@ -16,6 +16,10 @@
 /////////////////////////////////////////////////
 // スキンファイルの場所
 $const['SKIN_FILE'] = $const['DATA_HOME'] . $const['SKIN_DIR'] . 'keitai.skin.php';
+
+/////////////////////////////////////////////////
+// Ajax edit
+$root->use_ajax_edit = 0;
 
 /////////////////////////////////////////////////
 // 雛形とするページの読み込みを可能にする
