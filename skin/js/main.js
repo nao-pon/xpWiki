@@ -225,11 +225,11 @@ function xpwiki_now_loading(mode) {
 			objBack.setAttribute('id', 'xpwiki_loading');
 			Element.setStyle(objBack, {'display': 'none'});
 			Element.setStyle(objBack, {'position': 'absolute'});
-			Element.setStyle(objBack, {'z-index': 90});
-			Element.setStyle(objBack, {'text-align': 'center'});
-			Element.setStyle(objBack, {'background-color': 'black'});
+			Element.setStyle(objBack, {'zIndex': 90});
+			Element.setStyle(objBack, {'textAlign': 'center'});
+			Element.setStyle(objBack, {'backgroundColor': 'black'});
 			Element.setStyle(objBack, {'filter': 'alpha(opacity=50);'});		// IE
-			Element.setStyle(objBack, {'-moz-opacity': '0.5'});		// FF
+			Element.setStyle(objBack, {'MozOpacity': '0.5'});		// FF
 			Element.setStyle(objBack, {'opacity': '0.5'});		// Opera
 			objBody.appendChild(objBack);
 		}
@@ -431,11 +431,4 @@ if (wikihelper_WinIE) {
 	document.write ('<scr'+'ipt type="text/javascr'+'ipt" src="$wikihelper_root_url/skin/loader.php?src=other.js"></scr'+'ipt>');
 }
 
-// Add function in 'window.onload' event.
-void function() {
-	var onload = window.onload;
-	window.onload = function() {
-		if (onload) onload();
-		wikihelper_initTexts();
-	}
-} ();
+document.observe("contentloaded", function(){wikihelper_initTexts();});
