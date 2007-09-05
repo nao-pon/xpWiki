@@ -401,6 +401,27 @@ function xpwiki_ajax_edit_cancel() {
 	return false;
 }
 
+function xpwiki_getDateStr() {
+	var today = new Date();
+	var yy = parseInt(today.getYear());
+	if (yy < 2000) {yy = yy+1900;}
+	var mm = parseInt(today.getMonth()) + 1;
+	if (mm < 10) {mm = "0" + mm;}
+	var dd = parseInt(today.getDate());
+	if (dd < 10) {dd = "0" + dd;}
+	var h = parseInt(today.getHours());
+	if (h < 10) {h = "0" + h;}
+	var m = parseInt(today.getMinutes());
+	if (m < 10) {m = "0" + m;}
+	var s = parseInt(today.getSeconds());
+	if (s < 10) {s = "0" + s;}
+	var ms = parseInt(today.getMilliseconds());
+	if (ms < 10) {ms = "00" + ms;}
+	else if (ms < 100) {ms = "0" + ms;}
+	
+	return ''+yy+mm+dd+h+m+s+ms;
+}
+
 // Branch.
 if (wikihelper_WinIE) {
 	document.write ('<scr'+'ipt type="text/javascr'+'ipt" src="$wikihelper_root_url/skin/loader.php?src=winie.js"></scr'+'ipt>');
