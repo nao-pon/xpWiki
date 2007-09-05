@@ -1,7 +1,7 @@
 <?php
 //
 // Created on 2006/10/02 by nao-pon http://hypweb.net/
-// $Id: xpwiki_func.php,v 1.92 2007/09/04 23:49:24 nao-pon Exp $
+// $Id: xpwiki_func.php,v 1.93 2007/09/05 05:22:16 nao-pon Exp $
 //
 class XpWikiFunc extends XpWikiXoopsWrapper {
 
@@ -481,18 +481,17 @@ class XpWikiFunc extends XpWikiXoopsWrapper {
 	}
 	
 	function get_additional_headtags () {
+		// WikiHelper JavaScript
+		$head_pre_tag = <<<EOD
+<script type="text/javascript" src="{$this->cont['HOME_URL']}skin/loader.php?src=default.{$this->cont['UI_LANG']}{$this->cont['FILE_ENCORD_EXT']}.js"></script>
+
+EOD;
+
 		// Pre Tags
-		$head_pre_tag = ! empty($this->root->head_pre_tags) ? join("\n", $this->root->head_pre_tags) ."\n" : '';
+		$head_pre_tag .= ! empty($this->root->head_pre_tags) ? join("\n", $this->root->head_pre_tags) ."\n" : '';
 		
 		// Tags will be inserted into <head></head>
 		$head_tag = ! empty($this->root->head_tags) ? join("\n", $this->root->head_tags) ."\n" : '';
-		
-		if (empty($this->cont['PKWK_READONLY'])) {
-			// WikiHelper JavaScript
-			$head_tag .= <<<EOD
-<script type="text/javascript" src="{$this->cont['HOME_URL']}skin/loader.php?src=default.{$this->cont['UI_LANG']}{$this->cont['FILE_ENCORD_EXT']}.js"></script>
-EOD;
-		}
 		
 		// Clear
 		$this->root->head_pre_tags = $this->root->head_tags = array();

@@ -21,6 +21,8 @@ var wikihelper_msg_attach = "ファイル添付リンク";
 var wikihelper_msg_thumbsize = "サムネイルを作成する場合は、[最大幅(px)]x[最大高(px)] を入力してください。\n(例: \"240x120\" or \"240 120\" or \"240\" etc...)";
 
 if (!wikihelper_loaded) {
+	// prototype.js
+	document.write ('<scr'+'ipt type="text/javascr'+'ipt" src="$wikihelper_root_url/skin/loader.php?src=prototype.js"></scr'+'ipt>');
 	// Include main script.
 	document.write ('<scr'+'ipt type="text/javascr'+'ipt" src="$wikihelper_root_url/skin/loader.php?src=main.js"></scr'+'ipt>');
 }
