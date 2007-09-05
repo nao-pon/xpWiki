@@ -1,7 +1,7 @@
 <?php
 /*
  * Created on 2007/08/30 by nao-pon http://hypweb.net/
- * $Id: calendar9.inc.php,v 1.5 2007/09/05 05:22:16 nao-pon Exp $
+ * $Id: calendar9.inc.php,v 1.6 2007/09/05 08:25:23 nao-pon Exp $
  */
 
 class xpwiki_plugin_calendar9 extends xpwiki_plugin {
@@ -186,11 +186,11 @@ function day_edit(id,freeze) {
 	objBack.onclick = function() { day_edit_close(); }
 	Element.setStyle(objBack, {'display': 'none'});
 	Element.setStyle(objBack, {'position': 'absolute'});
-	Element.setStyle(objBack, {'z-index': 90});
-	Element.setStyle(objBack, {'text-align': 'center'});
-	Element.setStyle(objBack, {'background-color': 'black'});
-	Element.setStyle(objBack, {'filter': 'alpha(opacity=75);'});		// IE
-	Element.setStyle(objBack, {'-moz-opacity': '0.75'});		// FF
+	Element.setStyle(objBack, {'zIndex': 90});
+	Element.setStyle(objBack, {'textAlign': 'center'});
+	Element.setStyle(objBack, {'backgroundColor': 'black'});
+	Element.setStyle(objBack, {'filter': 'alpha(opacity=75)'});		// IE
+	Element.setStyle(objBack, {'-mozOpacity': '0.75'});		// FF
 	Element.setStyle(objBack, {'opacity': '0.75'});		// opera
 	
 	objBack.style.top = 0;
@@ -211,9 +211,9 @@ function day_edit(id,freeze) {
 	
 	Element.setStyle(objPopup, {'display': 'none'});
 	Element.setStyle(objPopup, {'position': 'absolute'});
-	Element.setStyle(objPopup, {'z-index': 100});
+	Element.setStyle(objPopup, {'zIndex': 100});
 	Element.setStyle(objPopup, {'border': '2px black solid'});
-	Element.setStyle(objPopup, {'background-color': 'white'});
+	Element.setStyle(objPopup, {'backgroundColor': 'white'});
 	Element.setStyle(objPopup, {'padding': '20px'});
 	
 	objPopup.style.top = (windowTop + 20) + "px";
@@ -231,7 +231,7 @@ function day_edit(id,freeze) {
 	// pars +=  'mode=get'
 	pars += 'page=' + encodeURIComponent(id);
 	pars += '&ajax=1';
-	pars += 'encode_hint=' + encodeURIComponent("{$this->cont['PKWK_ENCODING_HINT']}");
+	pars += '&encode_hint=' + encodeURIComponent("{$this->cont['PKWK_ENCODING_HINT']}");
 	
 	if(freeze == 1) {
 		$('c9update').disabled = true;
@@ -255,23 +255,6 @@ function day_edit_close() {
 
 function thisreload() {
 	window.location.reload();
-}
-
-// 内容の更新
-function day_update() {
-	var id = $('pagename').innerHTML;
-	var url = location.pathname + '?cmd=calendar9';
-	var pars = ''
-	pars +=  'mode=set';
-	pars += '&page=' + encodeURIComponent(id);
-	pars += '&text=' + encodeURIComponent($('editarea').value);
-	var myAjax = new Ajax.Request(
-		url, 
-		{
-			method: 'post',
-			parameters: pars,
-			onComplete: thisreload
-		});
 }
 
 function day_focus(id) {
@@ -334,8 +317,6 @@ EOD;
 			$page = $prefix.$dt;
 			$r_page = rawurlencode($page);
 			$s_page = htmlspecialchars($page);
-			//$href = $this->root->script . '?cmd=read&amp;page=' . $r_page;
-			//$href = $this->func->get_page_uri($page, true);
 			
 			if (($wday + $diffday) % 7 == 0 and $day > 1) {
 				$ret .= "    </tr>\n    <tr>\n";
@@ -443,55 +424,9 @@ EOD;
 		
 		return $ret;
 	}
-	
+
 	function plugin_calendar9_action()
 	{
-	//	global $vars;
-		
-		// Ajaxの処理
-		if($this->root->vars['mode'] == 'get') {
-			// 指定日のページデータを返す
-			$s_page = htmlspecialchars($this->root->vars['page']);
-			$res = join('', $this->func->get_source($s_page));
-			
-			if ($res == '') $res = $this->func->auto_template($this->root->vars['page']);
-			$res = trim($this->func->remove_pginfo($res));
-			
-			// xml special chars
-			$res = str_replace("&", "&amp;", $res);
-			$res = str_replace("<", "&lt;", $res);
-			$res = str_replace(">", "&gt;", $res);
-			$res = str_replace('"', "&quot;", $res);
-			$res = str_replace("'", "&apos;", $res);
-			ob_clean();
-			$res = mb_convert_encoding($res, 'UTF-8', $this->cont['SOURCE_ENCODING']);
-			$xml = <<<EOD
-<?xml version="1.0" encoding="UTF-8"?>
-<calendar9>$res</calendar9>
-EOD;
-			header ('Content-type: application/xml') ;
-			header ('Content-Length: '. strlen($xml));
-			echo $xml;
-			exit;
-		}
-		if($this->root->vars['mode'] == 'set') {
-			// 受け取ったデータを指定日に書き込む
-			$s_page = htmlspecialchars($this->root->vars['page']);
-			$source = htmlspecialchars($this->root->vars['text']);
-			// xml special chars
-			$source = str_replace("&apos;", "'", $source);
-			$source = str_replace("&quot;", '"', $source);
-			$source = str_replace("&lt;", "<", $source);
-			$source = str_replace("&lt;", "<", $source);
-			$source = str_replace("&gt;", ">", $source);
-			$source = str_replace("&amp;", "&", $source);
-			// 書き込み
-			$this->func->page_write($s_page, $source);
-			ob_clean();
-			exit;
-		}
-		
-		
 		$page = $this->func->strip_bracket($this->root->vars['page']);
 		$this->root->vars['page'] = '*';
 		if ($this->root->vars['file'])
