@@ -1,5 +1,5 @@
 <?php
-// $Id: ref.inc.php,v 1.13 2007/08/02 07:37:00 nao-pon Exp $
+// $Id: ref.inc.php,v 1.14 2007/09/05 05:22:16 nao-pon Exp $
 /*
 
 	*プラグイン ref
@@ -489,7 +489,6 @@ class xpwiki_plugin_ref extends xpwiki_plugin {
 				// lightbox
 				if ($this->root->ref_use_lightbox) {
 					$this->root->ref_use_lightbox = FALSE;
-					$this->func->add_tag_head('prototype.js');
 					$this->func->add_tag_head('effects.js');
 					$this->func->add_tag_head('lightbox.js');
 					$this->func->add_tag_head('lightbox.css');

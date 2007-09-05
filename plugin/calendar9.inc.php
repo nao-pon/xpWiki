@@ -1,7 +1,7 @@
 <?php
 /*
  * Created on 2007/08/30 by nao-pon http://hypweb.net/
- * $Id: calendar9.inc.php,v 1.4 2007/09/05 01:01:44 nao-pon Exp $
+ * $Id: calendar9.inc.php,v 1.5 2007/09/05 05:22:16 nao-pon Exp $
  */
 
 class xpwiki_plugin_calendar9 extends xpwiki_plugin {
@@ -42,9 +42,6 @@ class xpwiki_plugin_calendar9 extends xpwiki_plugin {
 	
 	function plugin_calendar9_convert()
 	{
-	//	global $script,$vars,$post,$get,$weeklabels,$WikiName,$BracketName;
-	//	global $_calendar9_plugin_edit, $_calendar9_plugin_empty;
-		$this->func->add_tag_head('prototype.js');
 		$this->func->add_tag_head('calendar.css');
 		
 		$date_str = $this->func->get_date('Ym');

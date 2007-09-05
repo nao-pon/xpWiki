@@ -21,6 +21,8 @@ var wikihelper_msg_attach = "File attach link";
 var wikihelper_msg_thumbsize = "If you want to make a thumbnail. Please input [Max Width(px)]x[Max Height(px)].\n(ex: \"240x120\" or \"240 120\" or \"240\" etc...)";
 
 if (!wikihelper_loaded) {
+	// prototype.js
+	document.write ('<scr'+'ipt type="text/javascr'+'ipt" src="$wikihelper_root_url/skin/loader.php?src=prototype.js"></scr'+'ipt>');
 	// Include main script.
 	document.write ('<scr'+'ipt type="text/javascr'+'ipt" src="$wikihelper_root_url/skin/loader.php?src=main.js"></scr'+'ipt>');
 }

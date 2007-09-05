@@ -1,6 +1,6 @@
 <?php
 // PukiWiki - Yet another WikiWikiWeb clone.
-// $Id: edit.inc.php,v 1.34 2007/09/04 23:44:23 nao-pon Exp $
+// $Id: edit.inc.php,v 1.35 2007/09/05 05:22:16 nao-pon Exp $
 // Copyright (C) 2001-2006 PukiWiki Developers Team
 // License: GPL v2 or (at your option) any later version
 //
@@ -85,7 +85,7 @@ EOD;
 	
 		$this->root->vars['msg'] = preg_replace($this->cont['PLUGIN_EDIT_FREEZE_REGEX'], '', $this->root->vars['msg']);
 		$postdata = $this->root->vars['msg'];
-	
+		
 		if (isset($this->root->vars['add']) && $this->root->vars['add']) {
 			if (isset($this->root->vars['add_top']) && $this->root->vars['add_top']) {
 				$postdata  = $postdata . "\n\n" . @join('', $this->func->get_source($page));
@@ -145,7 +145,6 @@ EOD;
 	{
 		static $usage = array();
 		if (!isset($usage[$this->xpwiki->pid])) {
-			$this->func->add_tag_head('prototype.js');
 			$usage[$this->xpwiki->pid] = '&edit(pagename#anchor[[,noicon],nolabel])[{label}];';
 		}
 	
