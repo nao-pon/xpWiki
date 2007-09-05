@@ -1,7 +1,7 @@
 <?php
 //
 // Created on 2006/10/25 by nao-pon http://hypweb.net/
-// $Id: loader.php,v 1.13 2007/08/09 23:56:50 nao-pon Exp $
+// $Id: loader.php,v 1.14 2007/09/05 08:27:36 nao-pon Exp $
 //
 
 error_reporting(0);
@@ -96,6 +96,18 @@ if (file_exists($src_file)) {
 		header( "Etag: ". $etag );
 		exit();
 	}
+	
+	// Ready gzip file?
+	$gzips = array('prototype.js', 'effects.js', 'lightbox.js');
+	$is_gz = false;
+	if (in_array($src.'.'.$type, $gzips)
+		&& strpos(strtolower($_SERVER['HTTP_ACCEPT_ENCODING']), 'gzip') !== false
+		&& strpos(strtolower($_SERVER['HTTP_USER_AGENT']), 'safari') === false
+	) {
+		$src_file .= '.gz';
+		$is_gz = true;
+	} 
+	
 	$out = join("",file($src_file));
 	if ($dir) {
 		$out = str_replace('$dir', $dir, $out . "\n" . $addcss);
@@ -126,6 +138,9 @@ if (file_exists($src_file)) {
 	header( "Last-Modified: " . gmdate( "D, d M Y H:i:s", $filetime ) . " GMT" );
 	header( "Etag: ". $etag );
 	header( "Content-length: ".strlen($out) );
+	if ($is_gz) {
+		header( 'Content-Encoding: gzip' );
+	}
 } else {
 	//$out = 'File not found.';
 	header( "HTTP/1.1 404 Not Found" );
