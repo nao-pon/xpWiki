@@ -16,7 +16,7 @@
 // -----------------------------------------------------------------------------------
 //
 //  edited by nao-pon - http://hypweb.net/
-//  $Id: lightbox.js,v 1.7 2007/06/18 05:28:05 nao-pon Exp $
+//  $Id: lightbox.js,v 1.8 2007/09/05 05:20:48 nao-pon Exp $
 //
 // -----------------------------------------------------------------------------------
 
@@ -321,22 +321,24 @@ Lightbox.prototype = {
 
 		// once image is preloaded, resize image container
 		this.imgPreloader.onload=function(){
+			if (this.timer) {clearTimeout(this.timer);this.timer=null;};
 			this.myAjax = null;
-			clearTimeout(this.timer);
 			Element.setSrc('lightboxImage', this.imgPreloader.src);
 			this.resizeImageContainer(this.imgPreloader.width, this.imgPreloader.height);
 		}.bind(this);
-		this.imgPreloader.src = imageArray[activeImage][0];
 		
-		// Check URL found or notfound?
-		if (this.imgPreloader.src.match(/^http/i) && !this.imgPreloader.src.match(this.myhost))
-		{
-			this.checkUrl(this.imgPreloader.src);
-		}
-		
-		this.timer = setTimeout(function(){
+		if (this.timer) {clearTimeout(this.timer);this.timer=null;}
+			this.timer = setTimeout(function(){
 			this.imgPreloader.src = '$wikihelper_root_url/skin/loader.php?src=timeout.gif';
 		}.bind(this),lightbox_timeout);
+		
+		// Check URL found or notfound?
+		//if (this.imgPreloader.src.match(/^http/i) && !this.imgPreloader.src.match(this.myhost))
+		//{
+		//	this.checkUrl(this.imgPreloader.src);
+		//}
+		
+		this.imgPreloader.src = imageArray[activeImage][0];
 	},
 	
 	
@@ -566,6 +568,7 @@ Lightbox.prototype = {
 	//	end()
 	//
 	end: function() {
+		if (this.timer) {clearTimeout(this.timer);this.timer=null;}
 		document.getElementById('bottomNavClose').style.display = 'none';
 		document.getElementById('originalLinkNew').style.display = 'none';
 		document.getElementById('originalLink').style.display = 'none';
