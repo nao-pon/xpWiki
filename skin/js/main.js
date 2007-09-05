@@ -1,6 +1,7 @@
 // Init.
-var wikihelper_WinIE=(document.all&&!window.opera&&navigator.platform=="Win32");
-var wikihelper_Gecko=(navigator && navigator.userAgent && navigator.userAgent.indexOf("Gecko/") != -1);
+var wikihelper_WinIE = (document.all&&!window.opera&&navigator.platform=="Win32");
+var wikihelper_Gecko = navigator.userAgent.indexOf('Gecko') > -1 && navigator.userAgent.indexOf('KHTML') == -1;
+var wikihelper_Opera = !!window.opera;
 
 var wikihelper_elem;
 var wikihelper_mapLoad=0;
@@ -199,14 +200,16 @@ function  wikihelper_cumulativeOffset(element) {
 
 function wikihelper_hide_helper() {
 	var helper = document.getElementById("wikihelper_base");
-	helper.style.left = "-1000px";
-	helper.style.top =  "-1000px";
-	if (wikihelper_WinIE) {
-		oElements = document.getElementsByTagName("select");
-		for (i = 0; i < oElements.length; i++)
-		{
-			oElement = oElements[i];
-			oElement.style.visibility = "";
+	if (helper) {
+		helper.style.left = "-1000px";
+		helper.style.top =  "-1000px";
+		if (wikihelper_WinIE) {
+			oElements = document.getElementsByTagName("select");
+			for (i = 0; i < oElements.length; i++)
+			{
+				oElement = oElements[i];
+				oElement.style.visibility = "";
+			}
 		}
 	}
 }
@@ -227,7 +230,7 @@ function xpwiki_now_loading(mode) {
 			Element.setStyle(objBack, {'background-color': 'black'});
 			Element.setStyle(objBack, {'filter': 'alpha(opacity=50);'});		// IE
 			Element.setStyle(objBack, {'-moz-opacity': '0.5'});		// FF
-			
+			Element.setStyle(objBack, {'opacity': '0.5'});		// Opera
 			objBody.appendChild(objBack);
 		}
 		

@@ -1,7 +1,7 @@
 <?php
 /*
  * Created on 2007/08/30 by nao-pon http://hypweb.net/
- * $Id: calendar9.inc.php,v 1.3 2007/09/04 06:24:22 nao-pon Exp $
+ * $Id: calendar9.inc.php,v 1.4 2007/09/05 01:01:44 nao-pon Exp $
  */
 
 class xpwiki_plugin_calendar9 extends xpwiki_plugin {
@@ -194,6 +194,7 @@ function day_edit(id,freeze) {
 	Element.setStyle(objBack, {'background-color': 'black'});
 	Element.setStyle(objBack, {'filter': 'alpha(opacity=75);'});		// IE
 	Element.setStyle(objBack, {'-moz-opacity': '0.75'});		// FF
+	Element.setStyle(objBack, {'opacity': '0.75'});		// opera
 	
 	objBack.style.top = 0;
 	objBack.style.left = 0;
@@ -277,13 +278,15 @@ function day_update() {
 }
 
 function day_focus(id) {
-	var tdobj = $(id);
-	tdobj.style.border = "red 1px solid";
+	//var tdobj = $(id);
+	//tdobj.style.border = "red 1px solid";
+	Element.setStyle($(id), {'border': 'red 1px solid'});
 }
 
 function day_unfocus(id, orgstyle) {
-	var tdobj = $(id);
-	tdobj.style.border = "#eeeeee 1px solid";
+	//var tdobj = $(id);
+	//tdobj.style.border = "#eeeeee 1px solid";
+	Element.setStyle($(id), {'border': '#eeeeee 1px solid'});
 }
 
 -->
