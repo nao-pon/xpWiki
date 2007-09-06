@@ -1,7 +1,7 @@
 <?php
 //
 // Created on 2006/10/25 by nao-pon http://hypweb.net/
-// $Id: loader.php,v 1.14 2007/09/05 08:27:36 nao-pon Exp $
+// $Id: loader.php,v 1.15 2007/09/06 09:09:39 nao-pon Exp $
 //
 
 error_reporting(0);
@@ -125,7 +125,7 @@ if (file_exists($src_file)) {
 			}
 			$out = str_replace(array('$face_tag_full', '$face_tag'), array($face_tag_full, $face_tag), $out);
 		}
-		if ($js_replace || $src === 'lightbox') {
+		if ($js_replace) {
 			$xoops_root_path = XOOPS_ROOT_PATH;
 			if ( substr(PHP_OS, 0, 3) === 'WIN' ) {
 				$root_path = str_replace('\\', '/', $root_path);
