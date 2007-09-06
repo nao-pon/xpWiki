@@ -16,7 +16,7 @@
 // -----------------------------------------------------------------------------------
 //
 //  edited by nao-pon - http://hypweb.net/
-//  $Id: lightbox.js,v 1.8 2007/09/05 05:20:48 nao-pon Exp $
+//  $Id: lightbox.js,v 1.9 2007/09/06 09:10:05 nao-pon Exp $
 //
 // -----------------------------------------------------------------------------------
 
@@ -191,7 +191,7 @@ Lightbox.prototype = {
 		objLoading.appendChild(objLoadingLink);
 
 		var objLoadingImage = document.createElement("img");
-		objLoadingImage.setAttribute('src', '$wikihelper_root_url/skin/loader.php?src=loading.gif');
+		objLoadingImage.setAttribute('src', wikihelper_root_url + '/skin/loader.php?src=loading.gif');
 		objLoadingLink.appendChild(objLoadingImage);
 
 		var objImageDataContainer = document.createElement("div");
@@ -329,7 +329,7 @@ Lightbox.prototype = {
 		
 		if (this.timer) {clearTimeout(this.timer);this.timer=null;}
 			this.timer = setTimeout(function(){
-			this.imgPreloader.src = '$wikihelper_root_url/skin/loader.php?src=timeout.gif';
+			this.imgPreloader.src = wikihelper_root_url + '/skin/loader.php?src=timeout.gif';
 		}.bind(this),lightbox_timeout);
 		
 		// Check URL found or notfound?
@@ -359,7 +359,7 @@ Lightbox.prototype = {
 		var rc = eval(Req.responseText);
 		if (rc != 200)
 		{
-			this.imgPreloader.src = '$wikihelper_root_url/skin/loader.php?src=notfound.gif';
+			this.imgPreloader.src = wikihelper_root_url + '/skin/loader.php?src=notfound.gif';
 		}
 	},
 	
@@ -733,6 +733,7 @@ function pause(numberMillis) {
 // ---------------------------------------------------
 
 function initLightbox() { myLightbox = new Lightbox(); }
-Event.observe(window, 'load', initLightbox, false);
+
+document.observe("contentloaded", initLightbox);
 
 }
