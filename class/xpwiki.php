@@ -1,7 +1,7 @@
 <?php
 //
 // Created on 2006/09/29 by nao-pon http://hypweb.net/
-// $Id: xpwiki.php,v 1.49 2007/08/21 06:22:10 nao-pon Exp $
+// $Id: xpwiki.php,v 1.50 2007/09/06 09:08:11 nao-pon Exp $
 //
 
 class XpWiki {
@@ -192,6 +192,7 @@ class XpWiki {
 					
 					// 各ページ用の .css
 					$root->head_tags[] = $func->get_page_css_tag($base);
+
 				}
 			}
 			// cont['USER_NAME_REPLACE'] を 置換
@@ -200,7 +201,20 @@ class XpWiki {
 			if ($this->cont['UA_NAME'] === 'Safari') {
 				$body = preg_replace('/(<form)([^>]*>)/' , '$1 accept-charset="UTF-8"$2', $body);
 			}
-			
+
+			if (!empty($this->root->vars['ajax'])) {
+				// Head Tags
+				list($head_pre_tag, $head_tag) = $this->func->get_additional_headtags();
+		
+				$xml = <<<EOD
+<xpwiki>
+<content><![CDATA[{$head_pre_tag}{$head_tag}{$body}]]></content>
+<mode>read</mode>
+</xpwiki>
+EOD;
+				$this->func->send_xml($xml);	
+			}
+
 			// Output
 			$page_title = strip_tags($title);
 			$content_title = (!empty($this->root->content_title) && $title !== $this->root->content_title)?
