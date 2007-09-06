@@ -1,7 +1,7 @@
 <?php
 /*
  * Created on 2007/08/30 by nao-pon http://hypweb.net/
- * $Id: calendar9.inc.php,v 1.6 2007/09/05 08:25:23 nao-pon Exp $
+ * $Id: calendar9.inc.php,v 1.7 2007/09/06 09:10:45 nao-pon Exp $
  */
 
 class xpwiki_plugin_calendar9 extends xpwiki_plugin {
@@ -143,20 +143,51 @@ var browserIE = document.all;             // IE
 
 function showResponse(orgRequest) {
 	var xmlRes = orgRequest.responseXML;
-	if(xmlRes.getElementsByTagName("editform")[0].firstChild) {
+	if (xmlRes.getElementsByTagName("editform").length) {
 		xpwiki_ajax_edit_var['func_update_post'] = thisreload;
 		xpwiki_ajax_edit_var['func_preview_pre'] = day_edit_close;
-		$('xpwiki_cal9_editarea').innerHTML = xmlRes.getElementsByTagName("editform")[0].firstChild.nodeValue;
-		$('xpwiki_cancel_form').innerHTML = '<button id="c9cancel" onmousedown="day_edit_close()">{$this->root->_btn_cancel}</button>';
+		//$('xpwiki_cal9_editarea').innerHTML = xmlRes.getElementsByTagName("editform")[0].firstChild.nodeValue;
+		Element.update($('xpwiki_cal9_editarea'), xmlRes.getElementsByTagName("editform")[0].firstChild.nodeValue);
+		//$('xpwiki_cancel_form').innerHTML = '<button id="c9cancel" onclick="return day_edit_close()">{$this->root->_btn_cancel}</button>';
+		Element.update($('xpwiki_cancel_form'), '<button id="c9cancel" onclick="return day_edit_close()">{$this->root->_btn_cancel}</button>');
 		
 		wikihelper_initTexts($('xpwiki_cal9_editarea'));
-	} else {
-		$("editarea").value = "";
-		$("editarea").disabled = false;
+	} else if (xmlRes.getElementsByTagName("xpwiki").length) {
+		var item = xmlRes.getElementsByTagName("xpwiki")[0];
+		var str = item.getElementsByTagName("content")[0].firstChild.nodeValue;
+
+		//$('xpwiki_cal9_editarea').innerHTML = str;
+		Element.update($('xpwiki_cal9_editarea'), str);
+		
+		var close = document.createElement("input");
+		close.type = 'button';
+		close.value = 'Close';
+		close.onclick = function() { day_edit_close(); }
+		
+		var obj = document.createElement("form");
+		obj.style.textAlign = 'center';
+		obj.appendChild(close);
+		
+		$('xpwiki_cal9_editarea').appendChild(obj);
+		
+		wikihelper_initTexts($('xpwiki_cal9_editarea'));
 	}
+	Element.remove($("loading_base"));
 }
 
-function day_edit(id,freeze) {
+function day_edit(id,mode,event) {
+
+	if (!!event) {
+		if (Prototype.Browser.IE) {
+			event.cancelBubble = true;
+			event.returnValue = false;
+		} else {
+			Event.stop(event);
+		}
+	}
+
+	if (!mode) mode = 'edit';
+	
 	var windowTop;
 	var windowLeft;
 	var windowWidht;
@@ -204,10 +235,26 @@ function day_edit(id,freeze) {
 	objPopup.setAttribute('id', 'popupmain');
 	var editHtml = 
 	    '<div id="xpwiki_cal9_editarea">'
-	  + '[ <span id="pagename">' + id + '</span> ]<br/>'
-	  + '<textarea id="editarea" style="width:100%;border:1px solid" rows=20 disabled=true>Now loading...</textarea><br/>'
+	  + '<div style="text-align:center;"> [ <span id="pagename">' + id + '</span> ] Now loading...</div>'
 	  + '</div>';
 	Element.update(objPopup, editHtml);
+
+	var objLoading = document.createElement("div");
+	objLoading.setAttribute('id','loading_base');
+	objLoading.style.height = '100px';
+	objLoading.style.padding = '50px';
+	objLoading.style.textAlign = 'center';
+	objPopup.appendChild(objLoading);
+
+	var objLoadingLink = document.createElement("a");
+	objLoadingLink.setAttribute('id','loadingLink');
+	objLoadingLink.setAttribute('href','#');
+	objLoadingLink.onclick = function() { day_edit_close(); }
+	objLoading.appendChild(objLoadingLink);
+
+	var objLoadingImage = document.createElement("img");
+	objLoadingImage.setAttribute('src', wikihelper_root_url + '/skin/loader.php?src=loading.gif');
+	objLoadingLink.appendChild(objLoadingImage);
 	
 	Element.setStyle(objPopup, {'display': 'none'});
 	Element.setStyle(objPopup, {'position': 'absolute'});
@@ -216,34 +263,36 @@ function day_edit(id,freeze) {
 	Element.setStyle(objPopup, {'backgroundColor': 'white'});
 	Element.setStyle(objPopup, {'padding': '20px'});
 	
+	var popupH = ((window.innerHeight || document.documentElement.clientHeight || document.body.clientHeight || 768) - 120);
+	var popupW = ((window.innerWidth || document.documentElement.clientWidth || document.body.clientWidth || 1024) - 300);
 	objPopup.style.top = (windowTop + 20) + "px";
 	objPopup.style.left = windowLeft + "px";
-	objPopup.style.width = "700px";
-	objPopup.style.left = ((windowWidth / 2) - 350) + "px";
+	objPopup.style.width = popupW + 'px';
+	objPopup.style.maxHeight = popupH + 'px';
+	objPopup.style.left = ((windowWidth / 2) - popupW/2) + "px";
+	objPopup.style.overflow = 'auto';
 	$('xpwiki_body').appendChild(objPopup);
 	
 	objBack.show();
 	objPopup.show();
 	
 	// ページ情報を読込み反映する
-	var url = location.pathname + '?cmd=edit';
+	var url = wikihelper_root_url + '?cmd=' + mode;
 	var pars = '';
 	// pars +=  'mode=get'
 	pars += 'page=' + encodeURIComponent(id);
 	pars += '&ajax=1';
 	pars += '&encode_hint=' + encodeURIComponent("{$this->cont['PKWK_ENCODING_HINT']}");
 	
-	if(freeze == 1) {
-		$('c9update').disabled = true;
-		$('c9update').hide();
-	}
 	var myAjax = new Ajax.Request(
 		url, 
 		{
-			method: 'post',
+			method: 'get',
 			parameters: pars,
 			onComplete: showResponse
 		});
+	
+	return false;
 }
 
 // ポップアップウィンドウを閉じる
@@ -251,6 +300,7 @@ function day_edit_close() {
 	wikihelper_hide_helper();
 	Element.remove($("popupback"));
 	Element.remove($("popupmain"));
+	return false;
 }
 
 function thisreload() {
@@ -395,7 +445,17 @@ EOD;
 				
 					// ボックスに入れるテキストを作成する。
 					$href = $this->func->get_page_uri($_page, true);
-					$linkstr = '<a href="' . $href . '" onmousedown="Event.stop(event||window.event)">' . $this->func->get_heading($_page) . '</a>'."\n";
+					$linkstr = '<a href="' . $href . '" onclick="return day_edit(\''.$_page.'\',\'read\',event);">' . $this->func->get_heading($_page) . '</a>'."\n";
+					if ($this->func->check_editable($_page, false, false)) {
+						$short = htmlspecialchars('Edit');
+						$title = htmlspecialchars(str_replace('$1', $s_page.$page, $this->root->_title_edit));
+						$icon = '<img src="' . $this->cont['IMAGE_DIR'] . 'paraedit.png' .
+							'" width="9" height="9" alt="' .
+							$short . '" title="' . $title . '" /> ';
+						$r_page = rawurlencode($_page);
+						$linkstr .= "<a href=\"{$this->root->script}?cmd=edit&amp;page=$r_page\" onclick=\"return day_edit('$_page','edit',event);\">$icon</a>";
+					}
+					
 					if($subtitle) {
 						$linkstr .= '<br />' . $subtitle;
 					}
@@ -409,7 +469,7 @@ EOD;
 			if ($this->func->check_editable($_page, false, false) && $freeze !== 1) {
 				$r_page = rawurlencode($_page);
 				$link = "<a href=\"{$this->root->script}?cmd=edit&amp;page=$r_page\" title=\"$s_page\" style=\"font-weight:bold;\">$day</a>";
-				$js = " onmouseover=\"day_focus('$dt')\" onmouseout=\"day_unfocus('$dt', '$style')\" onmousedown=\"day_edit('$_page',".$freeze.")\"";
+				$js = " onmouseover=\"day_focus('$dt')\" onmouseout=\"day_unfocus('$dt', '$style')\" onclick=\"return day_edit('$_page')\"";
 			} else {
 				$link = "<span style=\"font-weight:bold;\">$day</span>";
 				$js = '';
