@@ -6,6 +6,7 @@ var wikihelper_Opera = !!window.opera;
 var wikihelper_elem;
 var wikihelper_mapLoad=0;
 var wikihelper_initLoad=0;
+var wikihelper_root_url = '$wikihelper_root_url';
 
 var xpwiki_ajax_edit_var = new Object();
 xpwiki_ajax_edit_var["id"] = '';
