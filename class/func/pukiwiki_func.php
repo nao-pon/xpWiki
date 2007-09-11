@@ -1,7 +1,7 @@
 <?php
 //
 // Created on 2006/10/02 by nao-pon http://hypweb.net/
-// $Id: pukiwiki_func.php,v 1.111 2007/09/04 23:46:53 nao-pon Exp $
+// $Id: pukiwiki_func.php,v 1.112 2007/09/11 06:28:36 nao-pon Exp $
 //
 class XpWikiPukiWikiFunc extends XpWikiBaseFunc {
 
@@ -858,7 +858,7 @@ class XpWikiPukiWikiFunc extends XpWikiBaseFunc {
 
 //----- Start convert_html.php -----//
 	// PukiWiki - Yet another WikiWikiWeb clone
-	// $Id: pukiwiki_func.php,v 1.111 2007/09/04 23:46:53 nao-pon Exp $
+	// $Id: pukiwiki_func.php,v 1.112 2007/09/11 06:28:36 nao-pon Exp $
 	// Copyright (C)
 	//   2002-2005 PukiWiki Developers Team
 	//   2001-2002 Originally written by yu-ji
@@ -1108,7 +1108,7 @@ class XpWikiPukiWikiFunc extends XpWikiBaseFunc {
 
 //----- Start func.php -----//
 	// PukiWiki - Yet another WikiWikiWeb clone.
-	// $Id: pukiwiki_func.php,v 1.111 2007/09/04 23:46:53 nao-pon Exp $
+	// $Id: pukiwiki_func.php,v 1.112 2007/09/11 06:28:36 nao-pon Exp $
 	// Copyright (C)
 	//   2002-2006 PukiWiki Developers Team
 	//   2001-2002 Originally written by yu-ji
@@ -1917,7 +1917,7 @@ EOD;
 
 //----- Start make_link.php -----//
 	// PukiWiki - Yet another WikiWikiWeb clone.
-	// $Id: pukiwiki_func.php,v 1.111 2007/09/04 23:46:53 nao-pon Exp $
+	// $Id: pukiwiki_func.php,v 1.112 2007/09/11 06:28:36 nao-pon Exp $
 	// Copyright (C)
 	//   2003-2005 PukiWiki Developers Team
 	//   2001-2002 Originally written by yu-ji
@@ -2760,7 +2760,7 @@ EOD;
 
 //----- Start html.php -----//
 	// PukiWiki - Yet another WikiWikiWeb clone.
-	// $Id: pukiwiki_func.php,v 1.111 2007/09/04 23:46:53 nao-pon Exp $
+	// $Id: pukiwiki_func.php,v 1.112 2007/09/11 06:28:36 nao-pon Exp $
 	// Copyright (C)
 	//   2002-2006 PukiWiki Developers Team
 	//   2001-2002 Originally written by yu-ji
@@ -3052,19 +3052,19 @@ EOD;
 				'&nbsp;&nbsp;<strong>A:</strong> <input type="text" name="riddle'.md5($this->cont['HOME_URL'].$options['riddle']) .
 				'" size="30" value="" autocomplete="off" onkeyup="
 					(function (e){
-						if (e.value && document.getElementById(\'edit_write\').name === \'write\') {
+						if (e.value && $(\'edit_write\').name === \'write\') {
 							if ($(\'edit_preview\')) {
-								with (document.getElementById(\'edit_preview\')){
+								with ($(\'edit_preview\')){
 									name=\'write\';
 									value=\''.$this->root->_btn_update.'\';
 									setAttribute(\'accesskey\',\'s\');
-									setAttribute(\'onclick\',\'xpwiki_ajax_edit_var[\\\'mode\\\']=\\\'write\\\'\');
+									setAttribute(\'onmousedown\',\'xpwiki_ajax_edit_var[\\\'mode\\\']=\\\'write\\\'\');
 								}
-								with (document.getElementById(\'edit_write\')){
+								with ($(\'edit_write\')){
 									name=\'preview\';
 									value=\''.$btn_preview.'\';
 									setAttribute(\'accesskey\',\'p\');
-									setAttribute(\'onclick\',\'xpwiki_ajax_edit_var[\\\'mode\\\']=\\\'preview\\\'\');
+									setAttribute(\'onmousedown\',\'xpwiki_ajax_edit_var[\\\'mode\\\']=\\\'preview\\\'\');
 								}
 							}
 							xpwiki_ajax_edit_var[\'mode\'] = \'write\';
@@ -3093,6 +3093,7 @@ EOD;
 		if ($ajax) {
 			$ajax_submit = ' onSubmit="return xpwiki_ajax_edit_submit(\''.htmlspecialchars($this->root->script, ENT_QUOTES).'\')"';
 			$ajax_cancel = ' onSubmit="return xpwiki_ajax_edit_cancel()"';
+			$nonconvert = (empty($this->vars['nonconvert']))? '' : '<input type="hidden" name="nonconvert" value="1" />';
 			$enc_hint = '<input type="hidden" name="encode_hint" value="' . $this->cont['PKWK_ENCODING_HINT'] . '" />';
 			$attaches = '';
 			if ($s_id) {
@@ -3118,17 +3119,18 @@ EOD;
 	  $addtag
 	  $reading
 	  $alias
+	  $nonconvert
 	  $enc_hint
 	  <input type="hidden" name="cmd"    value="edit" />
 	  <input type="hidden" name="page"   value="$s_page" />
 	  <input type="hidden" name="digest" value="$s_digest" />
 	  <input type="hidden" name="paraid" value="$s_id" />
-	  <textarea name="msg" rel="wikihelper" rows="{$this->root->rows}" cols="{$this->root->cols}">$s_postdata</textarea>
+	  <textarea id="xpwiki_edit_textarea" name="msg" rel="wikihelper" rows="{$this->root->rows}" cols="{$this->root->cols}">$s_postdata</textarea>
 	  <br />
 	  $riddle
 	  <div style="float:left;">
-	   <input type="submit" name="preview" value="$btn_preview" accesskey="p" id="edit_preview" onclick="xpwiki_ajax_edit_var['mode']='preview'" />
-	   <input type="submit" name="write"   value="{$this->root->_btn_update}" accesskey="s" id="edit_write" onclick="xpwiki_ajax_edit_var['mode']='write'" />
+	   <input type="submit" name="preview" value="$btn_preview" accesskey="p" id="edit_preview" onmousedown="xpwiki_ajax_edit_var['mode']='preview'" />
+	   <input type="submit" name="write"   value="{$this->root->_btn_update}" accesskey="s" id="edit_write" onmousedown="xpwiki_ajax_edit_var['mode']='write'" />
 	   $add_top
 	   $add_notimestamp
 	  </div>
@@ -3423,7 +3425,7 @@ EOD;
 
 //----- Start mail.php -----//
 	// PukiWiki - Yet another WikiWikiWeb clone.
-	// $Id: pukiwiki_func.php,v 1.111 2007/09/04 23:46:53 nao-pon Exp $
+	// $Id: pukiwiki_func.php,v 1.112 2007/09/11 06:28:36 nao-pon Exp $
 	// Copyright (C)
 	//   2003-2005 PukiWiki Developers Team
 	//   2003      Originally written by upk
@@ -3726,7 +3728,7 @@ EOD;
 
 //----- Start link.php -----//
 	// PukiWiki - Yet another WikiWikiWeb clone
-	// $Id: pukiwiki_func.php,v 1.111 2007/09/04 23:46:53 nao-pon Exp $
+	// $Id: pukiwiki_func.php,v 1.112 2007/09/11 06:28:36 nao-pon Exp $
 	// Copyright (C) 2003-2006 PukiWiki Developers Team
 	// License: GPL v2 or (at your option) any later version
 	//

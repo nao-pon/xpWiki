@@ -1,6 +1,6 @@
 <?php
 // PukiWiki - Yet another WikiWikiWeb clone.
-// $Id: pukiwiki.css.php,v 1.29 2007/09/02 15:40:06 nao-pon Exp $
+// $Id: pukiwiki.css.php,v 1.30 2007/09/11 06:28:36 nao-pon Exp $
 // Copyright (C)
 //   2002-2005 PukiWiki Developers Team
 //   2001-2002 Originally written by yu-ji
@@ -45,6 +45,17 @@ ob_start();
 // Output CSS ----
 ?>
 @charset "<?php echo $charset ?>";
+
+#xpwiki_loading {
+	background-color: white;
+	position: absolute;
+	text-align: center;
+	z-index: 200;
+	filter:alpha(opacity=50);
+	-moz-opacity: 0.5;
+	opacity: 0.5;
+	cursor: wait;
+}
 
 $class {
 	background-color:inherit;
@@ -782,7 +793,10 @@ $class td.vote_td2 {
 echo $overwrite;
 
 $out = str_replace('$class', $class, ob_get_contents());
-ob_end_clean();
+
+while( ob_get_level() ) {
+	ob_end_clean() ;
+}
 
 // Send header
 header('Content-Type: text/css');
