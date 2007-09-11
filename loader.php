@@ -1,21 +1,24 @@
 <?php
 //
 // Created on 2006/10/25 by nao-pon http://hypweb.net/
-// $Id: loader.php,v 1.15 2007/09/06 09:09:39 nao-pon Exp $
+// $Id: loader.php,v 1.16 2007/09/11 06:24:44 nao-pon Exp $
 //
 
 error_reporting(0);
+
+// ブラウザキャッシュ有効時間(秒)
+$maxage = 86400; // 60*60*24 (1day)
 
 // 変数初期化
 $src   = preg_replace("/[^\w.-]+/","",@ $_GET['src']);
 $prefix = (isset($_GET['b']))? 'b_' : '';
 $prefix = (isset($_GET['r']))? 'r_' : '';
-$addcss = $dir = $out = $type = $src_file = '';
+$gzip_fname = $addcss = $dir = $out = $type = $src_file = '';
+$length = $addcsstime = $facetagtime = 0;
+$face_remake = $js_replace = $replace = false;
 $root_path = dirname($skin_dirname);
-$face_cache = $root_path . '/private/cache/facemarks.js';
-$face_cache_time = @ filemtime($face_cache);
-
-$js_replace = false;
+$cache_path = $root_path.'/private/cache/';
+$face_cache = $cache_path . 'facemarks.js';
 
 if (preg_match("/^(.+)\.([^.]+)$/",$src,$match)) {
 	$type = $match[2];
@@ -26,7 +29,10 @@ if (preg_match("/^(.+)\.([^.]+)$/",$src,$match)) {
 	}
 }
 
-if (!$type || !$src) { exit(); }
+if (!$type || !$src) {
+	header( 'HTTP/1.1 404 Not Found' );
+	exit();
+}
 
 $basedir = ($type === "png" || $type === "gif")? "image/" : "";
 
@@ -38,6 +44,7 @@ if (file_exists("{$skin_dirname}/{$basedir}{$type}/{$src}.{$type}")) {
 	} else {
 		// CSS は上書き
 		$addcss = join('', file("{$skin_dirname}/{$basedir}{$type}/{$src}.{$type}"));
+		$addcsstime = filemtime("{$skin_dirname}/{$basedir}{$type}/{$src}.{$type}");
 	}
 }
 
@@ -45,9 +52,28 @@ switch ($type) {
 	case 'css':
 		$c_type = 'text/css';
 		$dir = $prefix.basename($root_path);
+		$replace = true;
+		$gzip_fname = $cache_path.$src.'_'.$dir.'.'.$type.'.gz';
 		break;
 	case 'js':
+		if (substr($src,0,7) === "default") {
+			$js_replace = true;
+			$replace = true;
+			if (!file_exists(dirname(__FILE__).'/skin/js/'.$src.'.js')) {
+				$src = 'default.en';
+			}
+		} else 	if ($src === 'main') {
+			$face_remake = ! file_exists($face_cache);
+			if ($face_remake) {
+				$facetagtime = time();
+			} else {
+				$facetagtime = filemtime($face_cache);
+			}
+			$replace = true;
+			$js_replace = true;
+		}
 		$c_type = 'application/x-javascript';
+		$gzip_fname = $cache_path.$src.'.'.$type.'.gz';
 		break;
 	case 'png':
 		$c_type = 'image/png';
@@ -58,7 +84,9 @@ switch ($type) {
 	case 'pagecss':
 		$c_type = 'text/css';
 		$dir = $prefix.basename($root_path);
-		$src_file = $mydirname = $root_path . '/private/cache/' . $src . '.css';
+		$src_file = $root_path . '/private/cache/' . $src . '.css';
+		$replace = true;
+		$gzip_fname = $cache_path.$src.'_'.$dir.'.'.$type.'.gz';
 		break;
 	case 'xml':
 		$c_type = 'application/xml; charset=utf-8';
@@ -67,90 +95,118 @@ switch ($type) {
 		exit();
 }
 
-if (!$src_file)
+if (!$src_file) {
 	$src_file = dirname(__FILE__)."/skin/{$basedir}{$type}/".preg_replace("/[^\w.]/","",$src).".$type";
-
-// default.LANG
-if ($type === "js" && substr($src,0,7) === "default") {
-	$js_replace = true;
-	if (!file_exists($src_file)) {
-		$src_file = dirname(__FILE__)."/skin/js/default.en.js";
-	}
 }
 
 if (file_exists($src_file)) {
-	$filetime = filemtime($src_file);
-	$etag = md5($type.$dir.$src.$filetime.$addcss.$face_cache_time);
-	/*
-	$notmod = ($etag == @$_SERVER["HTTP_IF_NONE_MATCH"]);
-	if ($notmod || isset($_SERVER["HTTP_IF_MODIFIED_SINCE"])) {
-		if ($notmod || @strtotime($_SERVER["HTTP_IF_MODIFIED_SINCE"]) >= $filetime) {
-			header( "HTTP/1.1 304 Not Modified" );
-			header( "Etag: ". $etag );
-			exit();
-		}
+	
+	$filetime = max(filemtime($src_file), $addcsstime, $facetagtime);
+
+	$etag = md5($type.$dir.$src.$filetime);
+		
+	// ブラウザのキャッシュをチェック
+	if ($etag == @$_SERVER['HTTP_IF_NONE_MATCH']) {
+		header( 'HTTP/1.1 304 Not Modified' );
+		header( 'Cache-Control: max-age=' . $maxage );
+		header( 'Etag: '. $etag );
+		exit();
 	}
-	*/
-	if ($etag == @$_SERVER["HTTP_IF_NONE_MATCH"]) {
-		header( "HTTP/1.1 304 Not Modified" );
-		header( "Etag: ". $etag );
+
+	// gzip 受け入れ不可能?
+	if (! preg_match('/\b(gzip)\b/i', $_SERVER['HTTP_ACCEPT_ENCODING'])
+		|| strpos(strtolower($_SERVER['HTTP_USER_AGENT']), 'safari') !== false
+	) {
+		$gzip_fname = '';
+	}
+	
+	// html側/private/cache に 有効な gzip ファイルがある場合
+	if ($gzip_fname && file_exists($gzip_fname) && filemtime($gzip_fname) >= $filetime) {
+	
+		header( 'Content-Type: ' . $c_type );
+		header( 'Last-Modified: ' . gmdate( 'D, d M Y H:i:s', $filetime ) . ' GMT' );
+		header( 'Cache-Control: max-age=' . $maxage );
+		header( 'Etag: '. $etag );
+		header( 'Content-length: '.filesize($gzip_fname) );
+		header( 'Content-Encoding: gzip' );
+		header( 'Vary: Accept-Encoding' );
+		
+		readfile($gzip_fname);
 		exit();
 	}
 	
-	// Ready gzip file?
-	$gzips = array('prototype.js', 'effects.js', 'lightbox.js');
-	$is_gz = false;
-	if (in_array($src.'.'.$type, $gzips)
-		&& strpos(strtolower($_SERVER['HTTP_ACCEPT_ENCODING']), 'gzip') !== false
-		&& strpos(strtolower($_SERVER['HTTP_USER_AGENT']), 'safari') === false
-	) {
-		$src_file .= '.gz';
-		$is_gz = true;
-	} 
+	// 置換処理が必要?
+	if ($replace) {
+		$out = join("",file($src_file));
+		if ($dir) {
+			$out = str_replace('$dir', $dir, $out . "\n" . $addcss);
+			$out = str_replace('$class', 'div.xpwiki_'.$dir, $out);
+		}
+		if ($type === 'js') {
+			if ($src === 'main') {
+				if ($face_remake) {
+					include XOOPS_ROOT_PATH.'/include/common.php';
+					list($face_tag, $face_tag_full) = xpwiki_make_facemarks ($skin_dirname, $face_cache);
+				} else {
+					list($face_tag, $face_tag_full) = array_pad(file($face_cache), 2, '');
+					if (!$face_tag_full) $face_tag_full = $face_tag;
+				}
+				$out = str_replace(array('$face_tag_full', '$face_tag'), array($face_tag_full, $face_tag), $out);
+			}
+			if ($js_replace) {
+				$xoops_root_path = XOOPS_ROOT_PATH;
+				if ( substr(PHP_OS, 0, 3) === 'WIN' ) {
+					$root_path = str_replace('\\', '/', $root_path);
+					$xoops_root_path = str_replace('\\', '/', $xoops_root_path);
+				}
+				$out = str_replace('$wikihelper_root_url', str_replace($xoops_root_path, XOOPS_URL, $root_path) , $out);
+			}
+		}
+		$length = strlen($out);
+	}
 	
-	$out = join("",file($src_file));
-	if ($dir) {
-		$out = str_replace('$dir', $dir, $out . "\n" . $addcss);
-		$out = str_replace('$class', 'div.xpwiki_'.$dir, $out);
-	}
-	if ($type === 'js') {
-		if ($src === 'main') {
-			$js_replace = true;
-			if (! file_exists($face_cache)) {
-				include XOOPS_ROOT_PATH.'/include/common.php';
-				list($face_tag, $face_tag_full) = xpwiki_make_facemarks ($skin_dirname, $face_cache);
-			} else {
-				list($face_tag, $face_tag_full) = array_pad(file($face_cache), 2, '');
-				if (!$face_tag_full) $face_tag_full = $face_tag;
-			}
-			$out = str_replace(array('$face_tag_full', '$face_tag'), array($face_tag_full, $face_tag), $out);
+	// html側/private/cache に gzip 圧縮してキャッシュする
+	if ($gzip_fname && function_exists('gzencode')) {
+		if (!$replace) {
+			$out = join("",file($src_file));
 		}
-		if ($js_replace) {
-			$xoops_root_path = XOOPS_ROOT_PATH;
-			if ( substr(PHP_OS, 0, 3) === 'WIN' ) {
-				$root_path = str_replace('\\', '/', $root_path);
-				$xoops_root_path = str_replace('\\', '/', $xoops_root_path);
+		if ($gzip_out = gzencode($out)) {
+			if ($fp = fopen($gzip_fname, 'wb')) {
+				fwrite($fp, $gzip_out);
+				fclose($fp);
+				touch($gzip_fname, $filetime);
+				$is_gz = true;
+				$replace = true;
+				$out = $gzip_out;
+				$length = strlen($out);
 			}
-			$out = str_replace('$wikihelper_root_url', str_replace($xoops_root_path, XOOPS_URL, $root_path) , $out);
 		}
 	}
-	header( "Content-Type: " . $c_type );
-	header( "Last-Modified: " . gmdate( "D, d M Y H:i:s", $filetime ) . " GMT" );
-	header( "Etag: ". $etag );
-	header( "Content-length: ".strlen($out) );
+	
+	if (!$length) { $length = filesize($src_file); }
+	
+	header( 'Content-Type: ' . $c_type );
+	header( 'Last-Modified: ' . gmdate( 'D, d M Y H:i:s', $filetime ) . ' GMT' );
+	header( 'Cache-Control: max-age=' . $maxage );
+	header( 'Etag: '. $etag );
+	header( 'Content-length: '.$length );
 	if ($is_gz) {
 		header( 'Content-Encoding: gzip' );
+		header( 'Vary: Accept-Encoding' );
 	}
 } else {
-	//$out = 'File not found.';
-	header( "HTTP/1.1 404 Not Found" );
-	//header( "Content-length: ".strlen($out) );
+	header( 'HTTP/1.1 404 Not Found' );
+	exit();
 }
-echo $out;
+
+if ($replace) {
+	echo $out;
+} else {
+	readfile($src_file);
+}
 exit();
 
 function xpwiki_make_facemarks ($skin_dirname, $cache) {
-	//include XOOPS_ROOT_PATH.'/include/common.php';
 	include_once XOOPS_TRUST_PATH."/modules/xpwiki/include.php";
 	$wiki =& XpWiki::getSingleton( basename(dirname($skin_dirname)) );
 	$wiki->init('#RenderMode');
