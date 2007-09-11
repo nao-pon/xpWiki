@@ -1,7 +1,7 @@
 <?php
 //
 // Created on 2006/11/07 by nao-pon http://hypweb.net/
-// $Id: check.func.php,v 1.8 2007/07/11 06:18:08 nao-pon Exp $
+// $Id: check.func.php,v 1.9 2007/09/11 06:03:53 nao-pon Exp $
 //
 
 // when onInstall & onUpdate
@@ -119,6 +119,9 @@ function xpwikifunc_defdata_check ($mydirname, $mode = 'install') {
 	}
 	
 	if (isset($xpwiki)) { $xpwiki = null; }
+	
+	// Remove facemarks.js
+	@ unlink(XOOPS_ROOT_PATH.'/modules/'.$mydirname.'/private/cache/facemarks.js');
 	
 	return $msg;
 }
