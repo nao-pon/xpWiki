@@ -1,7 +1,7 @@
 <?php
 //
 // Created on 2006/10/02 by nao-pon http://hypweb.net/
-// $Id: xpwiki_func.php,v 1.93 2007/09/05 05:22:16 nao-pon Exp $
+// $Id: xpwiki_func.php,v 1.94 2007/09/11 06:03:05 nao-pon Exp $
 //
 class XpWikiFunc extends XpWikiXoopsWrapper {
 
@@ -425,7 +425,7 @@ class XpWikiFunc extends XpWikiXoopsWrapper {
 			$this->root->content_title = $this->get_heading($page);
 			
 			// キャッシュ保存
-			if (empty($this->root->rtf['use_cache_always']) || ($this->root->userinfo['uid'] === 0 && $this->root->pagecache_min > 0)) {
+			if ($this->root->userinfo['uid'] === 0 && $this->root->pagecache_min > 0 && empty($this->root->rtf['use_cache_always'])) {
 				$fp = fopen($cache_file, "wb");
 				fwrite($fp, serialize(
 					array(
