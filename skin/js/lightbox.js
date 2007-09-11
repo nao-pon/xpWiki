@@ -16,7 +16,7 @@
 // -----------------------------------------------------------------------------------
 //
 //  edited by nao-pon - http://hypweb.net/
-//  $Id: lightbox.js,v 1.9 2007/09/06 09:10:05 nao-pon Exp $
+//  $Id: lightbox.js,v 1.10 2007/09/11 06:25:55 nao-pon Exp $
 //
 // -----------------------------------------------------------------------------------
 
@@ -30,7 +30,7 @@ var resizeSpeed = 9;	// controls the speed of the image resizing (1=slowest and 
 
 var borderSize = 10;	//if you adjust the padding in the CSS, you will need to update this variable
 
-var lightbox_timeout = 5000; // Timeout for load a image.(ms)
+var lightbox_timeout = 10000; // Timeout for load a image.(ms)
 // -----------------------------------------------------------------------------------
 
 //
