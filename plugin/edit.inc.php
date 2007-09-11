@@ -1,6 +1,6 @@
 <?php
 // PukiWiki - Yet another WikiWikiWeb clone.
-// $Id: edit.inc.php,v 1.35 2007/09/05 05:22:16 nao-pon Exp $
+// $Id: edit.inc.php,v 1.36 2007/09/11 06:28:36 nao-pon Exp $
 // Copyright (C) 2001-2006 PukiWiki Developers Team
 // License: GPL v2 or (at your option) any later version
 //
@@ -114,8 +114,6 @@ EOD;
 		// Q & A 認証
 		$options = $this->get_riddle();
 
-		$body .= $this->func->edit_form($page, $this->root->vars['msg'], $this->root->vars['digest'], TRUE, $options);
-
 		if (isset($this->root->vars['ajax'])) {
 			// xml special chars
 			// clear output buffer
@@ -125,6 +123,7 @@ EOD;
 			// cont['USER_NAME_REPLACE'] を 置換
 			$body = str_replace($this->cont['USER_NAME_REPLACE'], $this->root->userinfo['uname_s'], $body);
 			$body = preg_replace('/<div id="[^"]+"/', '<div ', $body);
+			$body .= $this->func->edit_form($page, $this->root->vars['msg'], $this->root->vars['digest'], TRUE, $options);
 			$title = (!$ng_riddle)? $this->root->_title_preview : $this->root->_title_ng_riddle;
 			$title = '<h3>'.str_replace('$1', htmlspecialchars($page), $title).'</h3>';
 			$body = $title.$body;
@@ -135,6 +134,8 @@ EOD;
 </xpwiki>
 EOD;
 			$this->func->send_xml($body);
+		} else {
+			$body .= $this->func->edit_form($page, $this->root->vars['msg'], $this->root->vars['digest'], TRUE, $options);
 		}
 
 		return array('msg'=>(!$ng_riddle)? $this->root->_title_preview : $this->root->_title_ng_riddle, 'body'=>$body);
@@ -370,13 +371,18 @@ EOD;
 		$this->func->page_write($page, $postdata, $this->root->notimeupdate != 0 && $notimestamp);
 
 		if (isset($this->root->vars['ajax'])) {
-			$obj =& XpWiki::getSingleton($this->root->mydirname);
-			$obj->init($page);
-			$obj->execute();
+			if (!empty($this->root->vars['nonconvert'])) {
+				$body = '';
+			} else {
+				$obj =& XpWiki::getSingleton($this->root->mydirname);
+				$obj->init($page);
+				$obj->execute();
+				$body = $obj->body;
+			}
 			
 			$body = <<<EOD
 <xpwiki>
-<content><![CDATA[{$obj->body}]]></content>
+<content><![CDATA[{$body}]]></content>
 <mode>write</mode>
 </xpwiki>
 EOD;

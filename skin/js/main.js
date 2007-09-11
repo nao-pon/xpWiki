@@ -12,10 +12,7 @@ var xpwiki_ajax_edit_var = new Object();
 xpwiki_ajax_edit_var["id"] = '';
 xpwiki_ajax_edit_var["html"] = '';
 xpwiki_ajax_edit_var['mode'] = '';
-xpwiki_ajax_edit_var['func_update_pre'] = '';
-xpwiki_ajax_edit_var['func_update_post'] = '';
-xpwiki_ajax_edit_var['func_preview_pre'] = '';
-xpwiki_ajax_edit_var['func_preview_post'] = '';
+xpwiki_ajax_edit_var['func_post'] = '';
 
 // cookie
 var wikihelper_adv = wikihelper_load_cookie("__whlp");
@@ -188,16 +185,36 @@ function wikihelper_check(f) {
 
 }
 
-function  wikihelper_cumulativeOffset(element) {
+function wikihelper_cumulativeOffset(forElement) {
+
 	var valueT = 0, valueL = 0;
+	var base = document.body;
+	var element = forElement;
 	do {
+		if (Element.getStyle(element, 'position') == 'absolute') {
+			base = element;
+			parent = element
+			break;
+		}
 		valueT += element.offsetTop  || 0;
 		valueL += element.offsetLeft || 0;
-		element = element.offsetParent;
-	} while (element);
-	return [valueL, valueT];
-}
+	} while (element = element.offsetParent);
+	
+	element = forElement;
+	do {
+		if (element != forElement) {
+			valueT -= element.scrollTop  || 0;
+			valueL -= element.scrollLeft || 0;
+		}
+		if (element.parentNode == base) break;		
+	} while (element = element.parentNode);
+	
+	var helper = $('wikihelper_base');
+	Element.remove($('wikihelper_base'));
+	base.appendChild(helper);
 
+	return Element._returnOffset(valueL, valueT);
+}
 
 function wikihelper_hide_helper() {
 	var helper = document.getElementById("wikihelper_base");
@@ -217,21 +234,12 @@ function wikihelper_hide_helper() {
 
 function xpwiki_now_loading(mode) {
 	if (mode) {
+		wikihelper_hide_helper();
 		if (!$("xpwiki_loading")) {
-			// HTML BODYオブジェクト取得
 			var objBody = document.getElementsByTagName("body").item(0);
-			
-			// 背景半透明オブジェクト作成
 			var objBack = document.createElement("div");
 			objBack.setAttribute('id', 'xpwiki_loading');
 			Element.setStyle(objBack, {'display': 'none'});
-			Element.setStyle(objBack, {'position': 'absolute'});
-			Element.setStyle(objBack, {'zIndex': 90});
-			Element.setStyle(objBack, {'textAlign': 'center'});
-			Element.setStyle(objBack, {'backgroundColor': 'black'});
-			Element.setStyle(objBack, {'filter': 'alpha(opacity=50);'});		// IE
-			Element.setStyle(objBack, {'MozOpacity': '0.5'});		// FF
-			Element.setStyle(objBack, {'opacity': '0.5'});		// Opera
 			objBody.appendChild(objBack);
 		}
 		
@@ -278,7 +286,6 @@ function xpwiki_ajax_edit(url, id) {
 
 	xpwiki_now_loading(true);
 	
-	// ページ情報を読込み反映する
 	var pars = '';
 	pars += 'cmd=edit';
 	if (id) pars += '&paraid=' + encodeURIComponent(id);
@@ -295,14 +302,14 @@ function xpwiki_ajax_edit(url, id) {
 }
 
 function xpwiki_ajax_edit_show(orgRequest) {
+	xpwiki_now_loading(false);
 	xpwiki_ajax_edit_var["html"] = $(xpwiki_ajax_edit_var["id"]).innerHTML;
 	var xmlRes = orgRequest.responseXML;
-	if(xmlRes.getElementsByTagName("editform")[0].firstChild) {
+	if(xmlRes.getElementsByTagName("editform").length) {
 		$(xpwiki_ajax_edit_var['id']).innerHTML = xmlRes.getElementsByTagName("editform")[0].firstChild.nodeValue;
 		wikihelper_initTexts($(xpwiki_ajax_edit_var["id"]));
 		location.hash = xpwiki_ajax_edit_var["id"];
 	}
-	xpwiki_now_loading(false);
 }
 
 function xpwiki_ajax_edit_submit(url) {
@@ -350,44 +357,28 @@ function xpwiki_ajax_edit_submit(url) {
 
 function xpwiki_ajax_edit_post(orgRequest) {
 	xpwiki_now_loading(false);
-	var xmlRes = orgRequest.responseXML;
-	if(xmlRes.getElementsByTagName("xpwiki")[0].firstChild) {
-		var item = xmlRes.getElementsByTagName("xpwiki")[0];
-		var str = item.getElementsByTagName("content")[0].firstChild.nodeValue;
-		xpwiki_ajax_edit_var['mode'] = item.getElementsByTagName("mode")[0].firstChild.nodeValue;
-		if (xpwiki_ajax_edit_var['mode'] == 'write') {
-			if (xpwiki_ajax_edit_var['func_update_pre']) {
-				xpwiki_ajax_edit_var['func_update_pre']();
-				xpwiki_ajax_edit_var['func_update_pre'] = '';
+	if (xpwiki_ajax_edit_var['func_post']) {
+		xpwiki_ajax_edit_var['func_post'](orgRequest);
+	} else {
+		var xmlRes = orgRequest.responseXML;
+		if(xmlRes.getElementsByTagName("xpwiki").length) {
+			var item = xmlRes.getElementsByTagName("xpwiki")[0];
+			var str = item.getElementsByTagName("content")[0].firstChild.nodeValue;
+			xpwiki_ajax_edit_var['mode'] = item.getElementsByTagName("mode")[0].firstChild.nodeValue;
+			if (xpwiki_ajax_edit_var['mode'] == 'write') {
+				$('xpwiki_body').innerHTML = str;
+				wikihelper_initTexts($('xpwiki_body'));
+				xpwiki_ajax_edit_var["id"] = '';
+				xpwiki_ajax_edit_var['mode'] = '';
+			} else if (xpwiki_ajax_edit_var['mode'] == 'delete') {
+				$('xpwiki_body').innerHTML = str;
+				location.href = item.getElementsByTagName("url")[0].firstChild.nodeValue;
+			} else if (xpwiki_ajax_edit_var['mode'] == 'preview') {
+				$(xpwiki_ajax_edit_var['id']).innerHTML = str;
+				wikihelper_initTexts($(xpwiki_ajax_edit_var["id"]));
 			}
-			
-			$('xpwiki_body').innerHTML = str;
-			wikihelper_initTexts($('xpwiki_body'));
-			
-			if (xpwiki_ajax_edit_var['func_update_post']) {
-				xpwiki_ajax_edit_var['func_update_post']();
-				xpwiki_ajax_edit_var['func_update_post'] = '';
-			}
-			xpwiki_ajax_edit_var["id"] = '';
-			xpwiki_ajax_edit_var['mode'] = '';
-		} else if (xpwiki_ajax_edit_var['mode'] == 'delete') {
-			$('xpwiki_body').innerHTML = str;
-			location.href = item.getElementsByTagName("url")[0].firstChild.nodeValue;
-		} else if (xpwiki_ajax_edit_var['mode'] == 'preview') {
-			if (xpwiki_ajax_edit_var['func_preview_pre']) {
-				xpwiki_ajax_edit_var['func_preview_pre']();
-				xpwiki_ajax_edit_var['func_preview_pre'] = '';
-			}
-			
-			$(xpwiki_ajax_edit_var['id']).innerHTML = str;
-			wikihelper_initTexts($(xpwiki_ajax_edit_var["id"]));
-			
-			if (xpwiki_ajax_edit_var['func_preview_post']) {
-				xpwiki_ajax_edit_var['func_preview_post']();
-				xpwiki_ajax_edit_var['func_preview_post'] = '';
-			}
+			if (xpwiki_ajax_edit_var['id']) location.hash = xpwiki_ajax_edit_var["id"];
 		}
-		if (xpwiki_ajax_edit_var['id']) location.hash = xpwiki_ajax_edit_var["id"];
 	}
 }
 

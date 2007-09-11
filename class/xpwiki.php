@@ -1,7 +1,7 @@
 <?php
 //
 // Created on 2006/09/29 by nao-pon http://hypweb.net/
-// $Id: xpwiki.php,v 1.50 2007/09/06 09:08:11 nao-pon Exp $
+// $Id: xpwiki.php,v 1.51 2007/09/11 06:28:36 nao-pon Exp $
 //
 
 class XpWiki {
@@ -208,8 +208,10 @@ class XpWiki {
 		
 				$xml = <<<EOD
 <xpwiki>
-<content><![CDATA[{$head_pre_tag}{$head_tag}{$body}]]></content>
+<content><![CDATA[{$body}]]></content>
 <mode>read</mode>
+<headPreTag><![CDATA[{$head_pre_tag}]]></headPreTag>
+<headTag><![CDATA[{$head_tag}]]></headTag>
 </xpwiki>
 EOD;
 				$this->func->send_xml($xml);	
