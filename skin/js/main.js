@@ -232,9 +232,13 @@ function wikihelper_hide_helper() {
 	}
 }
 
-function xpwiki_now_loading(mode) {
+function xpwiki_now_loading(mode, id) {
 	if (mode) {
+		if (!id || !$(id)) {
+			id = 'xpwiki_body';
+		}
 		wikihelper_hide_helper();
+		
 		if (!$("xpwiki_loading")) {
 			var objBody = document.getElementsByTagName("body").item(0);
 			var objBack = document.createElement("div");
@@ -243,28 +247,8 @@ function xpwiki_now_loading(mode) {
 			objBody.appendChild(objBack);
 		}
 		
-		var windowTop;
-		var windowLeft;
-		var windowWidht;
-		var windowHeight;
+		Position.clone($(id), $('xpwiki_loading'));
 		
-		windowTop = document.documentElement.scrollTop || document.body.scrollTop || 0;
-		windowLeft = document.documentElement.scrollLeft || document.body.scrollLeft || 0;
-		if(wikihelper_WinIE) {
-			windowWidth = document.body.scrollWidth || document.documentElement.scrollWidth || 0;
-			windowHeight = document.body.scrollHeight || document.documentElement.scrollHeight || 0;
-		}
-		else {
-			windowWidth = document.documentElement.scrollWidth || document.body.scrollWidth || 0;
-			windowHeight = document.documentElement.scrollHeight || document.body.scrollHeight || 0;
-		}
-		
-		var objBack = $('xpwiki_loading');
-		objBack.style.top = 0;
-		objBack.style.left = 0;
-		objBack.style.width = windowWidth + "px";
-		objBack.style.height = windowHeight + "px";
-
 		Element.show('xpwiki_loading');
 	} else {
 		Element.hide('xpwiki_loading');
@@ -272,8 +256,10 @@ function xpwiki_now_loading(mode) {
 }
 
 function xpwiki_ajax_edit(url, id) {
+	xpwiki_now_loading(true, id);
+	
 	url = location.pathname.replace(/[^\/]+$/, '')+'?page='+url;
-	if (id) {
+	if ($(id)) {
 		if (xpwiki_ajax_edit_var["id"]) {
 			$(xpwiki_ajax_edit_var["id"]).innerHTML = xpwiki_ajax_edit_var["html"];
 		}
@@ -283,8 +269,6 @@ function xpwiki_ajax_edit(url, id) {
 		xpwiki_ajax_edit_var["id"] = 'xpwiki_body';
 		id = '';
 	}
-
-	xpwiki_now_loading(true);
 	
 	var pars = '';
 	pars += 'cmd=edit';
@@ -313,8 +297,8 @@ function xpwiki_ajax_edit_show(orgRequest) {
 }
 
 function xpwiki_ajax_edit_submit(url) {
+	xpwiki_now_loading(true, xpwiki_ajax_edit_var["id"]);
 	url = location.pathname.replace(/[^\/]+$/, '')+'?page='+url;
-	xpwiki_now_loading(true);
 	var frm = $('xpwiki_edit_form');
 	var re = /input|textarea|select/i;
 	var tag = '';
