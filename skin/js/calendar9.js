@@ -4,14 +4,12 @@ function xpwiki_cal9_showResponse(orgRequest) {
 	var xmlRes = orgRequest.responseXML;
 	if (xmlRes.getElementsByTagName('editform').length) {
 		xpwiki_ajax_edit_var['func_post'] = xpwiki_cal9_showResponse;
-		//Element.update($('xpwiki_cal9_editarea'), xmlRes.getElementsByTagName('editform')[0].firstChild.nodeValue);
 		$('xpwiki_cal9_editarea').innerHTML = xmlRes.getElementsByTagName('editform')[0].firstChild.nodeValue;
 		$('xpwiki_edit_textarea').style.height = '250px';
 		Element.update($('xpwiki_cancel_form'), '<button id="c9cancel" onclick="return xpwiki_cal9_day_edit_close()">'+xpwiki_calender9_cancel+'</button>');
 		wikihelper_initTexts($('xpwiki_cal9_editarea'));
 		Element.hide($('xpwiki_cal9_loading_base'));
 	} else if (xmlRes.getElementsByTagName('xpwiki').length) {
-		//var objHead = document.getElementsByTagName('head').item(0);
 		
 		Element.update('xpwiki_cal9_editarea', '');
 
@@ -22,21 +20,40 @@ function xpwiki_cal9_showResponse(orgRequest) {
 		
 		
 		if (mode == 'read') {
+			xpwiki_ajax_edit_var['func_post'] = xpwiki_cal9_showResponse;
+
+/*
+			var str = '';
+			var linkObj = ins.getElementsByTagName("link");
+			var add;
+			for (i = 0; i < linkObj.length; i++) {
+				if (linkObj[i].getAttribute('rel') == 'stylesheet') {
+					if (document.all && document.createStyleSheet) {
+  						document.createStyleSheet(linkObj[i].getAttribute('href'));
+  					} else {
+						add = document.createElement('link');
+						add.href = linkObj[i].getAttribute('href');
+						add.rel = linkObj[i].getAttribute('rel');
+						add.type = linkObj[i].getAttribute('type');
+						document.getElementsByTagName('head')[0].appendChild(add);
+					}
+				}
+			}
+*/
+
 			var ins;
 			ins = document.createElement('div');
 			Element.update(ins, item.getElementsByTagName('headPreTag')[0].firstChild.nodeValue);
 			$('xpwiki_cal9_editarea').appendChild(ins);
-			//new Insertion.Bottom(objHead, item.getElementsByTagName('headPreTag')[0].firstChild.nodeValue);
 
 			ins = document.createElement('div');
 			Element.update(ins, item.getElementsByTagName('headTag')[0].firstChild.nodeValue);
 			$('xpwiki_cal9_editarea').appendChild(ins);
-			//new Insertion.Bottom(objHead, item.getElementsByTagName('headTag')[0].firstChild.nodeValue);
 
 			ins = document.createElement('div');
-			Element.update(ins, item.getElementsByTagName('content')[0].firstChild.nodeValue);
+			ins.innerHTML = item.getElementsByTagName('content')[0].firstChild.nodeValue;
 			$('xpwiki_cal9_editarea').appendChild(ins);
-
+			
 			var close = document.createElement('input');
 			close.type = 'button';
 			close.value = 'Close';
@@ -49,16 +66,19 @@ function xpwiki_cal9_showResponse(orgRequest) {
 			$('xpwiki_cal9_editarea').appendChild(ins);
 			wikihelper_initTexts($('xpwiki_cal9_editarea'));
 			Element.hide($('xpwiki_cal9_loading_base'));
+			xpwiki_ajax_edit_var['id'] = '';
+			xpwiki_ajax_edit_var['html'] = '';
 		} else if (mode == 'write') {
+			xpwiki_ajax_edit_var['html'] = '';
 			xpwiki_cal9_thisreload();
 		} else if (mode == 'preview'){
 			xpwiki_ajax_edit_var['func_post'] = xpwiki_cal9_showResponse;
-			//Element.update($('xpwiki_cal9_editarea'), str);
 			$('xpwiki_cal9_editarea').innerHTML = str;
 			$('xpwiki_edit_textarea').style.height = '250px';
 			Element.update($('xpwiki_cancel_form'), '<button id="c9cancel" onclick="return xpwiki_cal9_day_edit_close()">'+xpwiki_calender9_cancel+'</button>');
 			wikihelper_initTexts($('xpwiki_cal9_editarea'));
 			Element.hide($('xpwiki_cal9_loading_base'));
+			xpwiki_ajax_edit_var['html'] = true;
 		}
 	}
 }
@@ -75,26 +95,8 @@ function xpwiki_cal9_day_edit(id,mode,event) {
 	}
 
 	if (!mode) mode = 'edit';
-	
-	var windowTop;
-	var windowLeft;
-	var windowWidht;
-	var windowHeight;
-	
-	
-	windowTop = document.documentElement.scrollTop || document.body.scrollTop || 0;
-	windowLeft = document.documentElement.scrollLeft || document.body.scrollLeft || 0;
-	if(Prototype.Browser.IE) {
-		windowWidth = document.body.scrollWidth || document.documentElement.scrollWidth || 0;
-		windowHeight = document.body.scrollHeight || document.documentElement.scrollHeight || 0;
-	}
-	else {
-		windowWidth = document.documentElement.scrollWidth || document.body.scrollWidth || 0;
-		windowHeight = document.documentElement.scrollHeight || document.body.scrollHeight || 0;
-	}
 
-	xpwiki_ajax_edit_var['id'] = 'xpwiki_body';
-	xpwiki_ajax_edit_var['html'] = $(xpwiki_ajax_edit_var['id']).innerHTML;
+	xpwiki_ajax_edit_var['id'] = 'xpwiki_cal9_popupmain';
 	
 	// HTML BODYオブジェクト取得
 	var objBody = document.getElementsByTagName('body').item(0);
@@ -104,14 +106,13 @@ function xpwiki_cal9_day_edit(id,mode,event) {
 		var objBack = document.createElement('div');
 		objBack.setAttribute('id', 'xpwiki_cal9_popupback');
 		objBack.onclick = function() { xpwiki_cal9_day_edit_close(); }
-		Element.setStyle(objBack, {'display': 'none'});
-		Element.setStyle(objBack, {'position': 'absolute'});
-		Element.setStyle(objBack, {'zIndex': 90});
-		Element.setStyle(objBack, {'textAlign': 'center'});
-		Element.setStyle(objBack, {'backgroundColor': 'black'});
-		Element.setStyle(objBack, {'filter': 'alpha(opacity=50)'});		// IE
-		Element.setStyle(objBack, {'MozOpacity': '0.5'});		// FF
-		Element.setStyle(objBack, {'opacity': '0.5'});		// opera
+		Element.setStyle(objBack, {display: 'none'});
+		Element.setStyle(objBack, {position: 'absolute'});
+		Element.setStyle(objBack, {zIndex: '90'});
+		Element.setStyle(objBack, {textAlign: 'center'});
+		Element.setStyle(objBack, {backgroundColor: 'black'});
+		Element.setStyle(objBack, {filter: 'alpha(opacity=50)'});
+		Element.setStyle(objBack, {opacity: '0.5'});
 		
 		objBack.style.top = 0;
 		objBack.style.left = 0;
@@ -119,8 +120,8 @@ function xpwiki_cal9_day_edit(id,mode,event) {
 	} else {
 		var objBack = $('xpwiki_cal9_popupback');
 	}
-	objBack.style.width = windowWidth + 'px';
-	objBack.style.height = windowHeight + 'px';
+	
+	Position.clone(objBody, objBack);
 
 	// 入力ボックスオブジェクト作成
 	if (!$('xpwiki_cal9_popupmain')) {
@@ -143,39 +144,46 @@ function xpwiki_cal9_day_edit(id,mode,event) {
 		
 		objPopup.appendChild(insobj);
 	
-		Element.setStyle(objPopup, {'display': 'none'});
-		Element.setStyle(objPopup, {'position': 'absolute'});
-		Element.setStyle(objPopup, {'zIndex': 100});
-		Element.setStyle(objPopup, {'border': '2px black solid'});
-		Element.setStyle(objPopup, {'backgroundColor': 'white'});
-		Element.setStyle(objPopup, {'padding': '20px'});
+		Element.setStyle(objPopup, {display: 'none'});
+		Element.setStyle(objPopup, {position: 'absolute'});
+		Element.setStyle(objPopup, {zIndex: '100'});
+		Element.setStyle(objPopup, {border: '2px #eee8aa solid'});
+		Element.setStyle(objPopup, {backgroundColor: 'white'});
+		Element.setStyle(objPopup, {padding: '20px'});
+		Element.setStyle(objPopup, {overflow: 'auto'});
 		
 		$('xpwiki_body').appendChild(objPopup);
-		//objBody.appendChild(objPopup);
+
 	} else {
 		var objPopup = $('xpwiki_cal9_popupmain');
 	}
-	var popupH = ((window.innerHeight || document.documentElement.clientHeight || document.body.clientHeight || 768) - 120);
-	var popupW = ((window.innerWidth || document.documentElement.clientWidth || document.body.clientWidth || 1024) - 300);
-	objPopup.style.top = (windowTop + 20) + 'px';
-	objPopup.style.left = windowLeft + 'px';
-	objPopup.style.width = popupW + 'px';
-	objPopup.style.maxHeight = popupH + 'px';
-	objPopup.style.left = ((windowWidth / 2) - popupW/2) + 'px';
-	objPopup.style.overflow = 'auto';
+	
+	var viewport = document.viewport.getDimensions();
+	var viewoffset = document.viewport.getScrollOffsets();
+	viewport.width  = (viewport.width || 1024);
+	viewport.height = (viewport.height || 768);
+
+	var popupW = (viewport.width - 300);
+	var popupH = (viewport.height - 80);
 
 	var editHtml = '<div style="text-align:center;"> [ <span id="pagename">' + id + '</span> ] Now loading...</div>';
 	Element.update($('xpwiki_cal9_editarea'), editHtml);
+
+	objPopup.style.top = (viewoffset.top + 20) + 'px';
+	objPopup.style.width = popupW + 'px';
+	objPopup.style.maxHeight = popupH + 'px';
+	objPopup.style.left = ((viewport.width - popupW) / 2) + 'px';
 	
 	wikihelper_hide_helper();
 	Element.show(objBack);
 	Element.show(objPopup);
 	Element.show($('xpwiki_cal9_loading_base'));
+
+	//Element.setStyle(objPopup, 'position: fixed');
 	
 	// ページ情報を読込み反映する
 	var url = wikihelper_root_url + '/?cmd=' + mode;
 	var pars = '';
-	// pars +=  'mode=get'
 	pars += 'page=' + encodeURIComponent(id);
 	pars += '&ajax=1';
 	pars += '&nonconvert=1';
@@ -195,6 +203,8 @@ function xpwiki_cal9_day_edit(id,mode,event) {
 function xpwiki_cal9_day_edit_close() {
 	wikihelper_hide_helper();
 	xpwiki_ajax_edit_var['func_post'] = '';
+	xpwiki_ajax_edit_var['html'] = '';
+	//Element.setStyle($('xpwiki_cal9_popupmain'), 'position: absolute');
 	Element.hide($('xpwiki_cal9_popupback'));
 	Element.hide($('xpwiki_cal9_popupmain'));
 	Element.hide($('xpwiki_cal9_loading_base'));
