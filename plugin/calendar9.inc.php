@@ -1,7 +1,7 @@
 <?php
 /*
  * Created on 2007/08/30 by nao-pon http://hypweb.net/
- * $Id: calendar9.inc.php,v 1.8 2007/09/11 06:28:08 nao-pon Exp $
+ * $Id: calendar9.inc.php,v 1.9 2007/09/17 04:31:26 nao-pon Exp $
  */
 
 class xpwiki_plugin_calendar9 extends xpwiki_plugin {
@@ -273,7 +273,7 @@ EOD;
 							'" width="9" height="9" alt="' .
 							$short . '" title="' . $title . '" /> ';
 						$r_page = rawurlencode($_page);
-						$onclick = ($this->root->rtf['preview'])? '' : " onclick=\"return xpwiki_cal9_day_edit('$_page','edit',event);\"";
+						$onclick = (!empty($this->root->rtf['preview']))? '' : " onclick=\"return xpwiki_cal9_day_edit('$_page','edit',event);\"";
 						$linkstr .= "<a href=\"{$this->root->script}?cmd=edit&amp;page=$r_page\"{$onclick}>$icon</a>";
 					}
 					
@@ -296,7 +296,7 @@ EOD;
 				$js = '';
 			}
 			
-			if ($this->root->rtf['preview']) $js = '';
+			if (!empty($this->root->rtf['preview'])) $js = '';
 
 			$ret .= "     <td class=\"$style\" style=\"border:#eeeeee 1px solid;width:14.2%;height:50px;text-align:left;vertical-align:top;\" id=\"$dt\"{$js}>\n      $link <div class=\"related\" style=\"margin:3px 0px 0px 0px;text-align:left;\">$strr</div>\n     </td>\n";		//日付は上部に表示します。その日の内容は小さめのフォントで
 			$day++;
