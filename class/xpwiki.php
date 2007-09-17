@@ -1,7 +1,7 @@
 <?php
 //
 // Created on 2006/09/29 by nao-pon http://hypweb.net/
-// $Id: xpwiki.php,v 1.51 2007/09/11 06:28:36 nao-pon Exp $
+// $Id: xpwiki.php,v 1.52 2007/09/17 04:53:32 nao-pon Exp $
 //
 
 class XpWiki {
@@ -240,11 +240,10 @@ EOD;
 	}
 	
 	function catbody () {
-		
 		// SKIN select from Cookie or Plugin.
-		if ($this->cont['SKIN_CHANGER']) {
-			if ($this->root->cookie['skin']) {$this->cont['SKIN_NAME'] = $this->root->cookie['skin']; }
-			if (isset($this->cont['SKIN_NAME']) && preg_match('/^[\w-]+$/', $this->cont['SKIN_NAME'])) {
+		if ($this->cont['SKIN_CHANGER'] && !empty($this->root->cookie['skin']) && $this->cont['UA_PROFILE'] !== 'keitai') {
+			$this->cont['SKIN_NAME'] = $this->root->cookie['skin'];
+			if (preg_match('/^[\w-]+$/', $this->cont['SKIN_NAME'])) {
 				if (substr($this->cont['SKIN_NAME'],0,3) === "tD-") {
 					//tDiary's theme
 					$theme_name = substr($this->cont['SKIN_NAME'],3);
@@ -264,7 +263,7 @@ EOD;
 				}
 			}
 		}
-		
+
 		// catbody
 		ob_start();
 		$this->func->catbody($this->title, $this->skin_title, $this->body);
@@ -327,7 +326,7 @@ EOD;
 		// SKIN select from Cookie or Plugin.
 		if ($this->cont['SKIN_CHANGER']) {
 			if ($this->root->cookie['skin']) {$this->cont['SKIN_NAME'] = $this->root->cookie['skin']; }
-			if (isset($this->cont['SKIN_NAME']) && preg_match('/^[\w-]+$/', $this->cont['SKIN_NAME'])) {
+			if (preg_match('/^[\w-]+$/', $this->cont['SKIN_NAME'])) {
 				if (substr($this->cont['SKIN_NAME'],0,3) === "tD-") {
 					//tDiary's theme
 					
@@ -341,6 +340,7 @@ EOD;
 				}
 			}
 		}
+
 		// List of footnotes
 		ksort($this->root->foot_explain, SORT_NUMERIC);
 		$this->body .= ! empty($this->root->foot_explain) ? $this->root->note_hr . join("\n", $this->root->foot_explain) : '';
@@ -351,7 +351,7 @@ EOD;
 		$base = "b_".$this->root->mydirname;
 		$block = <<<EOD
 $head_pre_tag
-<link rel="stylesheet" type="text/css" media="screen" href="{$this->cont['HOME_URL']}{$this->cont['SKIN_DIR']}block.css.php?charset=Shift_JIS&amp;base={$base}" charset="Shift_JIS" />
+<link rel="stylesheet" type="text/css" media="all" href="{$this->cont['HOME_URL']}skin/loader.php?charset={$this->cont['CSS_CHARSET']}&amp;skin={$this->cont['SKIN_NAME']}&amp;b=1&amp;src=main.css" charset="Shift_JIS" />
 $head_tag
 <div class="xpwiki_{$base}" style="width:{$width};overflow:hidden;">
 {$this->body}
@@ -412,7 +412,7 @@ EOD;
 			if (!empty($this->iniVar['const'])) {
 				$op .= serialize($this->iniVar['const']);
 			}
-			$cache = $this->cont['CACHE_DIR'] . 'render_' . md5($text.$op);
+			$cache = $this->cont['RENDER_CACHE_DIR'] . 'render_' . md5($text.$op);
 			if (file_exists($cache) && (empty($this->root->render_cache_min) || ((filemtime($cache) +  $this->root->render_cache_min * 60) > time()))) {
 				$texts = file($cache);
 				$head_pre_tag = array_shift($texts);
@@ -448,7 +448,7 @@ EOD;
 		$csstag = '';
 		if ($cssbase) {
 			$cssbase = 'r_'.$cssbase;
-			$csstag = '<link rel="stylesheet" type="text/css" media="screen" href="'.$this->cont['HOME_URL'].$this->cont['SKIN_DIR'].'pukiwiki.css.php?charset=Shift_JIS&amp;base='.$cssbase.'" charset="Shift_JIS" />';
+			$csstag = '<link rel="stylesheet" type="text/css" media="all" href="'.$this->cont['HOME_URL'].'skin/loader.php?charset='.$this->cont['CSS_CHARSET'].'&amp;skin='.$this->cont['SKIN_NAME'].'&amp;r=1&amp;src=main.css" charset="Shift_JIS" />';
 			$text = '<div class="xpwiki_'.$cssbase.'">'."\n".$text."\n".'</div>';
 		}
 

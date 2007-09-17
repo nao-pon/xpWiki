@@ -1,7 +1,7 @@
 <?php
 //
 // Created on 2006/10/02 by nao-pon http://hypweb.net/
-// $Id: xpwiki_func.php,v 1.94 2007/09/11 06:03:05 nao-pon Exp $
+// $Id: xpwiki_func.php,v 1.95 2007/09/17 04:53:32 nao-pon Exp $
 //
 class XpWikiFunc extends XpWikiXoopsWrapper {
 
@@ -784,7 +784,7 @@ EOD;
 					);
 			}
 			if ($match[2] === 'css') {
-				$this->root->{$target}[] = '<link rel="stylesheet" type="text/css" media="screen" href="'.$this->cont['HOME_URL'].'skin/loader.php?'.$mode.'src='.$match[1].'.css" />';
+				$this->root->{$target}[] = '<link rel="stylesheet" type="text/css" media="all" href="'.$this->cont['HOME_URL'].'skin/loader.php?skin='.$this->cont['SKIN_NAME'].'&amp;'.$mode.'src='.$match[1].'.css" />';
 			} else if ($match[2] === 'js') {
 				$this->root->{$target}[] = '<script type="text/javascript" src="'.$this->cont['HOME_URL'].'skin/loader.php?src='.$match[1].'.js"></script>';
 			}
@@ -1022,7 +1022,7 @@ EOD;
 		$pgid = $this->get_pgid_by_name($this->root->defaultpage);
 		if (file_exists($this->cont['CACHE_DIR'].$pgid.'.css'))
 		{
-			$ret .= '<link rel="stylesheet" type="text/css" media="screen" href="'.$this->cont['HOME_URL'].'skin/loader.php?'.$block.'src='.$pgid.'.page.css" />'."\n";
+			$ret .= '<link rel="stylesheet" type="text/css" media="all" href="'.$this->cont['HOME_URL'].'skin/loader.php?'.$block.'src='.$pgid.'.page.css" />'."\n";
 		}
 		
 		foreach(explode('/',$page) as $val)
@@ -1032,7 +1032,7 @@ EOD;
 				$pgid = $this->get_pgid_by_name($_page);
 				if (file_exists($this->cont['CACHE_DIR'].$pgid.'.css'))
 				{
-					$ret .= '<link rel="stylesheet" type="text/css" media="screen" href="'.$this->cont['HOME_URL'].'skin/loader.php?'.$block.'src='.$pgid.'.page.css" />'."\n";
+					$ret .= '<link rel="stylesheet" type="text/css" media="all" href="'.$this->cont['HOME_URL'].'skin/loader.php?'.$block.'src='.$pgid.'.page.css" />'."\n";
 				}
 			}
 		}

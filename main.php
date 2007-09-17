@@ -115,7 +115,7 @@ if ($xpwiki->runmode == "xoops") {
 	
 	echo <<<EOD
 $head_pre_tag
-<link rel="stylesheet" type="text/css" media="screen" href="{$xpwiki->cont['HOME_URL']}{$xpwiki->cont['SKIN_DIR']}pukiwiki.css.php?charset={$css_charset}&amp;base={$dirname}" charset="{$css_charset}" />	
+<link rel="stylesheet" type="text/css" media="screen" href="{$xpwiki->cont['HOME_URL']}skin/loader.php?skin={$xpwiki->cont['SKIN_NAME']}&amp;pw={$xpwiki->root->pre_width}&amp;charset={$css_charset}&amp;src=main.css" charset="{$css_charset}" />	
 $head_tag
 EOD;
 	
