@@ -1,7 +1,7 @@
 <?php
 //
 // Created on 2006/10/25 by nao-pon http://hypweb.net/
-// $Id: loader.php,v 1.16 2007/09/11 06:24:44 nao-pon Exp $
+// $Id: loader.php,v 1.17 2007/09/17 04:53:32 nao-pon Exp $
 //
 
 error_reporting(0);
@@ -12,8 +12,8 @@ $maxage = 86400; // 60*60*24 (1day)
 // 変数初期化
 $src   = preg_replace("/[^\w.-]+/","",@ $_GET['src']);
 $prefix = (isset($_GET['b']))? 'b_' : '';
-$prefix = (isset($_GET['r']))? 'r_' : '';
-$gzip_fname = $addcss = $dir = $out = $type = $src_file = '';
+$prefix = (isset($_GET['r']))? 'r_' : $prefix;
+$charset = $pre_width = $gzip_fname = $addcss = $dir = $out = $type = $src_file = '';
 $length = $addcsstime = $facetagtime = 0;
 $face_remake = $js_replace = $replace = false;
 $root_path = dirname($skin_dirname);
@@ -36,15 +36,11 @@ if (!$type || !$src) {
 
 $basedir = ($type === "png" || $type === "gif")? "image/" : "";
 
-if (file_exists("{$skin_dirname}/{$basedir}{$type}/{$src}.{$type}")) {
-	if ($type !== 'css') {
-		// html側に指定ファイルがあれば、それにリダイレクト
+// html側に指定ファイルがあれば、それにリダイレクト
+if ($type !== 'css') {
+	if (file_exists("{$skin_dirname}/{$basedir}{$type}/{$src}.{$type}")) {
 		header("Location: {$basedir}{$type}/{$src}.{$type}");
 		exit();
-	} else {
-		// CSS は上書き
-		$addcss = join('', file("{$skin_dirname}/{$basedir}{$type}/{$src}.{$type}"));
-		$addcsstime = filemtime("{$skin_dirname}/{$basedir}{$type}/{$src}.{$type}");
 	}
 }
 
@@ -52,8 +48,74 @@ switch ($type) {
 	case 'css':
 		$c_type = 'text/css';
 		$dir = $prefix.basename($root_path);
+		if ($src === 'main') {
+			// Default CSS
+			// Default charset
+			$charset = @ $_GET['charset'];
+			$_charset = strtolower($charset);
+			switch ($_charset) {
+				case 'shift_jis':
+				case 'iso-2022-jp':
+				case 'euc-jp':
+				case 'utf-8':
+					break; /* this @charset is for Mozilla's bug */
+				default: $_charset = $charset ='iso-8859-1';
+			}
+			$c_type = 'text/css; charset=' . $charset;
+			// Media
+			$media = isset($_GET['media'])? $_GET['media'] : '';
+			$media = ($media === 'print')? '_print' : '';
+			$src .= $media;
+			// Pre Width
+			$pre_width = (isset($_GET['pw']) && preg_match('/^([0-9]{2,4}(px|%)|auto)$/',$_GET['pw']))? $_GET['pw'] : 'auto';
+		}
+		// Skin dir
+		$skin = isset($_GET['skin']) ? preg_replace('/[^\w.-]+/','',$_GET['skin'])  : 'default';
+		
+		// CSS over write (css dir)
+		$addcss_file = "{$skin_dirname}/{$basedir}css/{$src}.css";
+		if (file_exists($addcss_file)) {
+			$addcss .= join('', file($addcss_file)) . "\n";
+			$addcsstime = filemtime($addcss_file);
+		}
+		// CSS over write (skin dir)
+		$addcss_file = "{$skin_dirname}/{$basedir}{$skin}/{$src}.css";
+		if (file_exists($addcss_file)) {
+			$addcss .= join('', file($addcss_file)) . "\n";
+			$addcsstime = max($addcsstime, filemtime($addcss_file));
+		}
+		if ($prefix === '') {
+			// Do nothing.
+		} else if ($prefix === 'r_') {
+			// CSS for render over write (css dir)
+			$addcss_file = "{$skin_dirname}/{$basedir}css/main_render.css";
+			if (file_exists($addcss_file)) {
+				$addcss .= join('', file($addcss_file)) . "\n";
+				$addcsstime = filemtime($addcss_file);
+			}
+			// CSS for render over write (skin dir)
+			$addcss_file = "{$skin_dirname}/{$basedir}{$skin}/main_render.css";
+			if (file_exists($addcss_file)) {
+				$addcss .= join('', file($addcss_file)) . "\n";
+				$addcsstime = max($addcsstime, filemtime($addcss_file));
+			}
+		} else if ($prefix === 'b_') {
+			// CSS for block over write (css dir)
+			$addcss_file = "{$skin_dirname}/{$basedir}css/main_block.css";
+			if (file_exists($addcss_file)) {
+				$addcss .= join('', file($addcss_file)) . "\n";
+				$addcsstime = filemtime($addcss_file);
+			}
+			// CSS for block over write (skin dir)
+			$addcss_file = "{$skin_dirname}/{$basedir}{$skin}/main_block.css";
+			if (file_exists($addcss_file)) {
+				$addcss .= join('', file($addcss_file)) . "\n";
+				$addcsstime = max($addcsstime, filemtime($addcss_file));
+			}
+		}
+		
 		$replace = true;
-		$gzip_fname = $cache_path.$src.'_'.$dir.'.'.$type.'.gz';
+		$gzip_fname = $cache_path.$skin.'_'.$src.'_'.$dir.($pre_width?'_'.$pre_width:'').($_charset?'_'.$_charset:'').'.'.$type.'.gz';
 		break;
 	case 'js':
 		if (substr($src,0,7) === "default") {
@@ -103,7 +165,7 @@ if (file_exists($src_file)) {
 	
 	$filetime = max(filemtime($src_file), $addcsstime, $facetagtime);
 
-	$etag = md5($type.$dir.$src.$filetime);
+	$etag = md5($type.$dir.$pre_width.$charset.$src.$filetime);
 		
 	// ブラウザのキャッシュをチェック
 	if ($etag == @$_SERVER['HTTP_IF_NONE_MATCH']) {
@@ -139,8 +201,9 @@ if (file_exists($src_file)) {
 	if ($replace) {
 		$out = join("",file($src_file));
 		if ($dir) {
-			$out = str_replace('$dir', $dir, $out . "\n" . $addcss);
-			$out = str_replace('$class', 'div.xpwiki_'.$dir, $out);
+			$out = str_replace(array('$dir', '$class', '$pre_width', '$charset'),
+								array($dir, 'div.xpwiki_'.$dir, $pre_width, $charset),
+								$out . "\n" . $addcss);
 		}
 		if ($type === 'js') {
 			if ($src === 'main') {

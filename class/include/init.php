@@ -52,6 +52,15 @@ case 'ja': // _CHARSET
 default:
 	$this->die_message('No such language "' . $const['LANG'] . '"'.memory_get_usage());
 }
+
+// Decide charset for CSS
+switch($this->cont['UI_LANG']){
+	case 'ja':
+		$const['CSS_CHARSET'] = 'Shift_JIS'; break;
+	default:
+		$const['CSS_CHARSET'] = 'iso-8859-1';
+}
+
 $const['FILE_ENCORD_EXT'] = ('utf-8' === strtolower(_CHARSET))? '_utf8' : '';
 
 mb_language($const['MB_LANGUAGE']);

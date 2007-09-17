@@ -1,6 +1,6 @@
 <?php
 // PukiWiki - Yet another WikiWikiWeb clone
-// $Id: pukiwiki.ini.php,v 1.47 2007/09/04 01:49:06 nao-pon Exp $
+// $Id: pukiwiki.ini.php,v 1.48 2007/09/17 04:53:32 nao-pon Exp $
 // Copyright (C)
 //   2002-2006 PukiWiki Developers Team
 //   2001-2002 Originally written by yu-ji
@@ -87,24 +87,25 @@ $const['SETLANG_C'] = $this->get_setlang_c('');
 // You may hide these directories (from web browsers)
 // by setting $const['DATA_HOME'] at index.php.
 
-$const['DATA_DIR'] = $const['DATA_HOME'] . 'private/wiki/'; // Latest wiki texts
-$const['DIFF_DIR'] = $const['DATA_HOME'] . 'private/diff/'; // Latest diffs
-$const['BACKUP_DIR'] = $const['DATA_HOME'] . 'private/backup/'; // Backups
-$const['CACHE_DIR'] = $const['DATA_HOME'] . 'private/cache/'; // Some sort of caches
-$const['UPLOAD_DIR'] = $const['DATA_HOME'] . 'attach/'; // Attached files and logs
-$const['COUNTER_DIR'] = $const['DATA_HOME'] . 'private/counter/'; // Counter plugin's counts
-$const['TRACKBACK_DIR'] = $const['DATA_HOME'] . 'private/trackback/'; // TrackBack logs
-$const['PLUGIN_DIR'] = $const['DATA_HOME'] . 'private/plugin/'; // Plugin directory
+$const['DATA_DIR']         = $const['DATA_HOME'] . 'private/wiki/';       // Latest wiki texts
+$const['DIFF_DIR']         = $const['DATA_HOME'] . 'private/diff/';       // Latest diffs
+$const['BACKUP_DIR']       = $const['DATA_HOME'] . 'private/backup/';     // Backups
+$const['CACHE_DIR']        = $const['DATA_HOME'] . 'private/cache/';      // Some sort of caches
+$const['UPLOAD_DIR']       = $const['DATA_HOME'] . 'attach/';             // Attached files and logs
+$const['COUNTER_DIR']      = $const['DATA_HOME'] . 'private/counter/';    // Counter plugin's counts
+$const['TRACKBACK_DIR']    = $const['DATA_HOME'] . 'private/trackback/';  // TrackBack logs
+$const['PLUGIN_DIR']       = $const['DATA_HOME'] . 'private/plugin/';     // Plugin directory
+$const['RENDER_CACHE_DIR'] = $const['DATA_HOME'] . 'private/cache/';      // Rander caches
 
 /////////////////////////////////////////////////
 // Directory settings II (ended with '/')
 
 // Skins / Stylesheets
-$const['SKIN_DIR'] = 'skin/default/';
-// Skin files (SKIN_DIR/*.skin.php) are needed at
-// ./DATAHOME/SKIN_DIR from index.php, but
-// CSSs(*.css) and JavaScripts(*.js) are needed at
-// ./SKIN_DIR from index.php.
+//default skin name
+$const['SKIN_NAME'] = 'default';
+// skin directory
+$const['SKIN_DIR'] = 'skin/' . $const['SKIN_NAME'] . '/';
+
 
 // Enable Skin changer by GET REQUEST or Plugin? (0: off, 1: on)
 $const['SKIN_CHANGER'] = 1;
