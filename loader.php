@@ -1,7 +1,7 @@
 <?php
 //
 // Created on 2006/10/25 by nao-pon http://hypweb.net/
-// $Id: loader.php,v 1.17 2007/09/17 04:53:32 nao-pon Exp $
+// $Id: loader.php,v 1.18 2007/09/18 05:33:00 nao-pon Exp $
 //
 
 error_reporting(0);
@@ -13,7 +13,7 @@ $maxage = 86400; // 60*60*24 (1day)
 $src   = preg_replace("/[^\w.-]+/","",@ $_GET['src']);
 $prefix = (isset($_GET['b']))? 'b_' : '';
 $prefix = (isset($_GET['r']))? 'r_' : $prefix;
-$charset = $pre_width = $gzip_fname = $addcss = $dir = $out = $type = $src_file = '';
+$charset = $pre_width = $cache_file = $gzip_fname = $addcss = $dir = $out = $type = $src_file = '';
 $length = $addcsstime = $facetagtime = 0;
 $face_remake = $js_replace = $replace = false;
 $root_path = dirname($skin_dirname);
@@ -36,7 +36,7 @@ if (!$type || !$src) {
 
 $basedir = ($type === "png" || $type === "gif")? "image/" : "";
 
-// html側に指定ファイルがあれば、それにリダイレクト
+// CSS 以外は html側に指定ファイルがあれば、それにリダイレクト
 if ($type !== 'css') {
 	if (file_exists("{$skin_dirname}/{$basedir}{$type}/{$src}.{$type}")) {
 		header("Location: {$basedir}{$type}/{$src}.{$type}");
@@ -115,7 +115,8 @@ switch ($type) {
 		}
 		
 		$replace = true;
-		$gzip_fname = $cache_path.$skin.'_'.$src.'_'.$dir.($pre_width?'_'.$pre_width:'').($_charset?'_'.$_charset:'').'.'.$type.'.gz';
+		$cache_file = $cache_path.$skin.'_'.$src.'_'.$dir.($pre_width?'_'.$pre_width:'').($_charset?'_'.$_charset:'').'.'.$type;
+		$gzip_fname = $cache_file.'.gz';
 		break;
 	case 'js':
 		if (substr($src,0,7) === "default") {
@@ -135,7 +136,8 @@ switch ($type) {
 			$js_replace = true;
 		}
 		$c_type = 'application/x-javascript';
-		$gzip_fname = $cache_path.$src.'.'.$type.'.gz';
+		$cache_file = $cache_path.$src.'.'.$type;
+		$gzip_fname = $cache_file.'.gz';
 		break;
 	case 'png':
 		$c_type = 'image/png';
@@ -148,7 +150,8 @@ switch ($type) {
 		$dir = $prefix.basename($root_path);
 		$src_file = $root_path . '/private/cache/' . $src . '.css';
 		$replace = true;
-		$gzip_fname = $cache_path.$src.'_'.$dir.'.'.$type.'.gz';
+		$cache_file = $cache_path.$src.'_'.$dir.'.'.$type;
+		$gzip_fname = $cache_file.'.gz';
 		break;
 	case 'xml':
 		$c_type = 'application/xml; charset=utf-8';
@@ -182,9 +185,9 @@ if (file_exists($src_file)) {
 		$gzip_fname = '';
 	}
 	
-	// html側/private/cache に 有効な gzip ファイルがある場合
+	// キャッシュ判定
 	if ($gzip_fname && file_exists($gzip_fname) && filemtime($gzip_fname) >= $filetime) {
-	
+		// html側/private/cache に 有効な gzip ファイルがある場合
 		header( 'Content-Type: ' . $c_type );
 		header( 'Last-Modified: ' . gmdate( 'D, d M Y H:i:s', $filetime ) . ' GMT' );
 		header( 'Cache-Control: max-age=' . $maxage );
@@ -194,6 +197,16 @@ if (file_exists($src_file)) {
 		header( 'Vary: Accept-Encoding' );
 		
 		readfile($gzip_fname);
+		exit();
+	} else if ($replace && file_exists($cache_file) && filemtime($cache_file) >= $filetime) {
+		// html側/private/cache に 有効なキャッシュファイルがある場合
+		header( 'Content-Type: ' . $c_type );
+		header( 'Last-Modified: ' . gmdate( 'D, d M Y H:i:s', $filetime ) . ' GMT' );
+		header( 'Cache-Control: max-age=' . $maxage );
+		header( 'Etag: '. $etag );
+		header( 'Content-length: '.filesize($cache_file) );
+		
+		readfile($cache_file);
 		exit();
 	}
 	
@@ -226,8 +239,15 @@ if (file_exists($src_file)) {
 			}
 		}
 		$length = strlen($out);
+		
+		// 置換処理した場合は、通常の形式でもキャッシュする
+		if ($fp = fopen($cache_file, 'wb')) {
+			fwrite($fp, $out);
+			fclose($fp);
+			touch($cache_file, $filetime);
+		}
 	}
-	
+
 	// html側/private/cache に gzip 圧縮してキャッシュする
 	if ($gzip_fname && function_exists('gzencode')) {
 		if (!$replace) {
@@ -257,17 +277,17 @@ if (file_exists($src_file)) {
 		header( 'Content-Encoding: gzip' );
 		header( 'Vary: Accept-Encoding' );
 	}
+	
+	if ($replace) {
+		echo $out;
+	} else {
+		readfile($src_file);
+	}
+	exit();
 } else {
 	header( 'HTTP/1.1 404 Not Found' );
 	exit();
 }
-
-if ($replace) {
-	echo $out;
-} else {
-	readfile($src_file);
-}
-exit();
 
 function xpwiki_make_facemarks ($skin_dirname, $cache) {
 	include_once XOOPS_TRUST_PATH."/modules/xpwiki/include.php";
