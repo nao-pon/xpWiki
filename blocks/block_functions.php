@@ -68,6 +68,7 @@ function b_xpwiki_a_page_show( $options )
 	$str = $xw->get_html_for_block ($page, $width);
 	 
 	// オブジェクトを破棄
+	$xw = null;
 	unset($xw); 
 
 	$constpref = '_MB_' . strtoupper( $mydirname ) ;
@@ -84,8 +85,6 @@ function b_xpwiki_a_page_show( $options )
 	$ret['content'] = $tpl->fetch( $this_template ) ;
 	return $ret ;
 }
-
-
 
 function b_xpwiki_a_page_edit( $options )
 {
