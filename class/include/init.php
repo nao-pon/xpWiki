@@ -328,16 +328,6 @@ if (isset($const['page_show'])) {
 		$root->vars = array_merge($root->get, $root->post); // Considered reliable than $_REQUEST
 	}
 
-	// page の正規化
-	if (isset($root->vars['page'])) {
-		$root->vars['page'] = strval($root->vars['page']);
-		if ($root->vars['page'] === '') {
-			unset($root->vars['page'],$root->get['page'],$root->post['page']);
-		} else {
-			$root->get['page'] = $root->post['page'] = $root->vars['page'];
-		}
-	}
-	
 	// 入力チェック: cmd, plugin の文字列は英数字以外ありえない
 	foreach(array('cmd', 'plugin') as $var) {
 		if (isset($root->vars[$var]) && ! preg_match('/^[a-zA-Z][a-zA-Z0-9_]*$/', $root->vars[$var]))
@@ -346,6 +336,7 @@ if (isset($const['page_show'])) {
 	
 	// 整形: page, strip_bracket()
 	if (isset($root->vars['page'])) {
+		$root->vars['page'] = strval($root->vars['page']);
 		$root->get['page'] = $root->post['page'] = $root->vars['page']  = $this->strip_bracket($root->vars['page']);
 	} else {
 		$root->get['page'] = $root->post['page'] = $root->vars['page'] = '';
