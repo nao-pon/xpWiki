@@ -9,7 +9,7 @@ class xpwiki_plugin_attach extends xpwiki_plugin {
 	/////////////////////////////////////////////////
 	// PukiWiki - Yet another WikiWikiWeb clone.
 	//
-	//  $Id: attach.inc.php,v 1.22 2007/09/19 11:27:15 nao-pon Exp $
+	//  $Id: attach.inc.php,v 1.23 2007/09/19 12:37:18 nao-pon Exp $
 	//  ORG: attach.inc.php,v 1.31 2003/07/27 14:15:29 arino Exp $
 	//
 	
@@ -151,10 +151,6 @@ class xpwiki_plugin_attach extends xpwiki_plugin {
 	//-------- action
 	function plugin_attach_action()
 	{
-	//	global $vars,$post,$_attach_messages;
-	//	global $X_admin;
-		
-		
 		// backward compatible
 		if (array_key_exists('openfile',$this->root->vars))
 		{
@@ -226,11 +222,6 @@ class xpwiki_plugin_attach extends xpwiki_plugin {
 			// Upload
 			if (array_key_exists('attach_file',$_FILES))
 			{
-				// ページが無ければ空ページを作成
-				if (!$this->func->is_page($this->root->vars['refer'])) {
-					$this->func->page_write($this->root->vars['refer'], "\n");
-				}
-
 				$pass = (!empty($this->root->vars['pass'])) ? md5($this->root->vars['pass']) : NULL;
 				$copyright = (isset($this->root->post['copyright']))? TRUE : FALSE;
 				$ret = $this->attach_upload($_FILES['attach_file'],$this->root->vars['refer'],$pass,$copyright);
@@ -286,9 +277,8 @@ class xpwiki_plugin_attach extends xpwiki_plugin {
 	//ファイルアップロード
 	function attach_upload($file,$page,$pass=NULL,$copyright=FALSE)
 	{
-	// $pass=NULL : パスワードが指定されていない
-	// $pass=TRUE : アップロード許可
-	//	global $adminpass,$_attach_messages,$post,$X_admin;
+		// $pass=NULL : パスワードが指定されていない
+		// $pass=TRUE : アップロード許可
 		
 		if ($file['tmp_name'] == '' or !is_uploaded_file($file['tmp_name']) or !$file['size'])
 		{
@@ -311,6 +301,11 @@ class xpwiki_plugin_attach extends xpwiki_plugin {
 			return array('result'=>FALSE,'msg'=>$this->root->_attach_messages['err_adminpass']);
 		}
 		//$copyright = (isset($post['copyright']))? TRUE : FALSE;
+
+		// ページが無ければ空ページを作成
+		if (!$this->func->is_page($page)) {
+			$this->func->page_write($page, "\n");
+		}
 
 		if ( strcasecmp(substr($file['name'],-4),".tar") == 0 && $this->root->post['untar_mode'] == "on" ) {
 			// UploadされたTarアーカイブを展開添付する
