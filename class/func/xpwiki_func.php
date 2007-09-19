@@ -1,7 +1,7 @@
 <?php
 //
 // Created on 2006/10/02 by nao-pon http://hypweb.net/
-// $Id: xpwiki_func.php,v 1.95 2007/09/17 04:53:32 nao-pon Exp $
+// $Id: xpwiki_func.php,v 1.96 2007/09/19 07:35:28 nao-pon Exp $
 //
 class XpWikiFunc extends XpWikiXoopsWrapper {
 
@@ -1163,7 +1163,7 @@ EOD;
 			}
 		}
 		
-		if ($page) {
+		if ($page !== '') {
 			$url = $this->get_page_uri($page, true);
 			if (!$title) {	
 				$title = str_replace('$1', htmlspecialchars($page), $this->root->_title_updated);
@@ -1259,7 +1259,7 @@ EOD;
 		$res = $db->query($query);
 		if (!$res) return '';
 		list($ret) = $db->fetchRow($res);
-		$page_name[$id] = $ret;
+		$page_name[$id] = strval($ret);
 		return $ret;
 	}
 
