@@ -296,9 +296,9 @@ function xpwiki_ajax_edit_show(orgRequest) {
 	}
 }
 
-function xpwiki_ajax_edit_submit(url) {
+function xpwiki_ajax_edit_submit() {
 	xpwiki_now_loading(true, xpwiki_ajax_edit_var["id"]);
-	url = location.pathname.replace(/[^\/]+$/, '')+'?page='+url;
+	url = location.pathname.replace(/[^\/]+$/, '');
 	var frm = $('xpwiki_edit_form');
 	var re = /input|textarea|select/i;
 	var tag = '';
