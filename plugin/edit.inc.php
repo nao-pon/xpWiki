@@ -1,6 +1,6 @@
 <?php
 // PukiWiki - Yet another WikiWikiWeb clone.
-// $Id: edit.inc.php,v 1.36 2007/09/11 06:28:36 nao-pon Exp $
+// $Id: edit.inc.php,v 1.37 2007/09/19 07:33:12 nao-pon Exp $
 // Copyright (C) 2001-2006 PukiWiki Developers Team
 // License: GPL v2 or (at your option) any later version
 //
@@ -290,7 +290,7 @@ EOD;
 		$retvars = array();
 	
 		// Collision Detection
-		$oldpagesrc = join('', $this->func->get_source($page));
+		$oldpagesrc = $this->func->get_source($page, TRUE, TRUE);
 		$oldpagemd5 = md5($oldpagesrc);
 		if ($digest != $oldpagemd5) {
 			$this->root->vars['digest'] = $oldpagemd5; // Reset
@@ -361,11 +361,8 @@ EOD;
 	
 		// $notimeupdate: Checkbox 'Do not change timestamp'
 		$notimestamp = isset($this->root->vars['notimestamp']) && $this->root->vars['notimestamp'] != '';
-		if ($this->root->notimeupdate > 1 && $notimestamp && ! $this->func->pkwk_login($this->root->vars['pass'])) {
-			// Enable only administrator & password error
-			$retvars['body']  = '<p><strong>' . $this->root->_msg_invalidpass . '</strong></p>' . "\n";
-			$retvars['body'] .= $this->func->edit_form($page, $msg, $digest, FALSE);
-			return $retvars;
+		if ($this->root->notimeupdate > 1 && ! $this->root->userinfo['admin']) {
+			$notimestamp = false;
 		}
 		
 		$this->func->page_write($page, $postdata, $this->root->notimeupdate != 0 && $notimestamp);
