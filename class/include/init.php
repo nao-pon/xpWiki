@@ -200,9 +200,10 @@ if (!empty($const['page_show'])) {
 
 	/////////////////////////////////////////////////
 	// 必須のページが存在しなければ、空のファイルを作成する
-	
-	foreach(array($root->defaultpage, $root->whatsnew, $root->interwiki) as $page){
-		if (! $this->is_page($page)) touch($this->get_filename($page));
+	if ($root->userinfo['admin']) {
+		foreach(array($root->defaultpage, $root->whatsnew, $root->interwiki) as $page){
+			if (! $this->is_page($page)) $this->pkwk_touch_file($this->get_filename($page));
+		}
 	}
 	
 	/////////////////////////////////////////////////
@@ -446,7 +447,7 @@ $root->now = $this->format_date($const['UTIME']);
 
 // 実体参照パターンおよびシステムで使用するパターンを$line_rulesに加える
 //$entity_pattern = '[a-zA-Z0-9]{2,8}';
-$root->entity_pattern = trim(join('', file($const['CACHE_DIR'] . 'entities.dat')));
+$root->entity_pattern = trim(join('', file($const['CACHE_DIR'] . $const['PKWK_ENTITIES_REGEX_CACHE'])));
 
 $root->line_rules = array_merge(array(
 	'&amp;(#[0-9]+|#x[0-9a-f]+|' . $root->entity_pattern . ');' => '&$1;',
