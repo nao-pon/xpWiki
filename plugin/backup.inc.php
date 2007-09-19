@@ -4,7 +4,7 @@ class xpwiki_plugin_backup extends xpwiki_plugin {
 
 
 	// PukiWiki - Yet another WikiWikiWeb clone.
-	// $Id: backup.inc.php,v 1.5 2007/09/19 11:27:15 nao-pon Exp $
+	// $Id: backup.inc.php,v 1.6 2007/09/19 12:10:10 nao-pon Exp $
 	// Copyright (C)
 	//   2002-2005 PukiWiki Developers Team
 	//   2001-2002 Originally written by yu-ji
@@ -110,7 +110,7 @@ class xpwiki_plugin_backup extends xpwiki_plugin {
 		} else if ($s_action == 'nowdiff') {
 			$title = & $this->root->_title_backupnowdiff;
 			$old = join('', $backups[$s_age]['data']);
-			$cur = join('', $this->func->get_source($page));
+			$cur = $this->func->get_source($page, TRUE, TRUE);
 			$body .= $this->plugin_backup_diff($this->func->do_diff($old, $cur));
 		} else if ($s_action == 'source') {
 			$title = & $this->root->_title_backupsource;

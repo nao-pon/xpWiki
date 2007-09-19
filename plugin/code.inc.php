@@ -1,7 +1,7 @@
 <?php
 //
 // Created on 2006/10/25 by nao-pon http://hypweb.net/
-// $Id: code.inc.php,v 1.8 2007/06/18 05:30:32 nao-pon Exp $
+// $Id: code.inc.php,v 1.9 2007/09/19 12:10:10 nao-pon Exp $
 //
 
 class xpwiki_plugin_code extends xpwiki_plugin {
@@ -85,7 +85,7 @@ class xpwiki_plugin_code extends xpwiki_plugin {
 		}
 		return array( 'msg' => $this->root->_source_messages['msg_title'],
 				  'body' => $this->plugin_code_convert('pukiwiki',
-												join('',$this->func->get_source($this->root->vars['page']))."\n"));
+												$this->func->get_source($this->root->vars['page'], TRUE, TRUE)."\n"));
 	}
 
 	function plugin_code_convert()

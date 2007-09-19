@@ -6,7 +6,7 @@ class xpwiki_plugin_vote extends xpwiki_plugin {
 
 	}
 	// PukiWiki - Yet another WikiWikiWeb clone.
-	// $Id: vote.inc.php,v 1.2 2006/10/18 03:02:08 nao-pon Exp $
+	// $Id: vote.inc.php,v 1.3 2007/09/19 12:10:10 nao-pon Exp $
 	//
 	// Vote box plugin
 	
@@ -51,7 +51,7 @@ class xpwiki_plugin_vote extends xpwiki_plugin {
 			$postdata      .= $vote_str;
 		}
 	
-		if (md5(@join('', $this->func->get_source($this->root->vars['refer']))) != $this->root->vars['digest']) {
+		if (md5($this->func->get_source($this->root->vars['refer'], TRUE, TRUE)) !== $this->root->vars['digest']) {
 			$title = $this->root->_title_collided;
 	
 			$s_refer          = htmlspecialchars($this->root->vars['refer']);

@@ -1,7 +1,7 @@
 <?php
 //
 // Created on 2006/10/02 by nao-pon http://hypweb.net/
-// $Id: xpwiki_func.php,v 1.97 2007/09/19 11:27:16 nao-pon Exp $
+// $Id: xpwiki_func.php,v 1.98 2007/09/19 12:10:10 nao-pon Exp $
 //
 class XpWikiFunc extends XpWikiXoopsWrapper {
 
@@ -897,7 +897,7 @@ EOD;
 	//ページ名から最初の見出しを得る(ファイルから)
 	function get_heading_init($page)
 	{
-		$_body = join('', $this->get_source($page));
+		$_body = $this->get_source($page, TRUE, TRUE);
 		if (!$_body) return '';
 		
 		$ret = '';
@@ -1570,7 +1570,7 @@ EOD;
 		if (!$pgid = $this->get_pgid_by_name($page)) return false;
 		
 		//ソースを取得
-		$data = join('',$this->get_source($page));
+		$data = $this->get_source($page, TRUE, TRUE);
 		//delete_page_info($data);
 		
 		//処理しないプラグインを削除

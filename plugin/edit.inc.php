@@ -1,6 +1,6 @@
 <?php
 // PukiWiki - Yet another WikiWikiWeb clone.
-// $Id: edit.inc.php,v 1.38 2007/09/19 11:27:15 nao-pon Exp $
+// $Id: edit.inc.php,v 1.39 2007/09/19 12:10:10 nao-pon Exp $
 // Copyright (C) 2001-2006 PukiWiki Developers Team
 // License: GPL v2 or (at your option) any later version
 //
@@ -77,7 +77,7 @@ EOD;
 		// Loading template
 		if (isset($this->root->vars['template_page']) && $this->func->is_page($this->root->vars['template_page'])) {
 	
-			$this->root->vars['msg'] = join('', $this->func->get_source($this->root->vars['template_page']));
+			$this->root->vars['msg'] = $this->func->get_source($this->root->vars['template_page'], TRUE, TRUE);
 	
 			// Cut fixed anchors
 			$this->root->vars['msg'] = preg_replace('/^(\*{1,6}.*)\[#[A-Za-z][\w-]+\](.*)$/m', '$1$2', $this->root->vars['msg']);
@@ -88,9 +88,9 @@ EOD;
 		
 		if (isset($this->root->vars['add']) && $this->root->vars['add']) {
 			if (isset($this->root->vars['add_top']) && $this->root->vars['add_top']) {
-				$postdata  = $postdata . "\n\n" . @join('', $this->func->get_source($page));
+				$postdata  = $postdata . "\n\n" . $this->func->get_source($page, TRUE, TRUE);
 			} else {
-				$postdata  = @join('', $this->func->get_source($page)) . "\n\n" . $postdata;
+				$postdata  = $this->func->get_source($page, TRUE, TRUE) . "\n\n" . $postdata;
 			}
 		}
 	
@@ -322,9 +322,9 @@ EOD;
 		if ($add) {
 			// Add
 			if (isset($this->root->vars['add_top']) && $this->root->vars['add_top']) {
-				$postdata  = $msg . "\n\n" . @join('', $this->func->get_source($page));
+				$postdata  = $msg . "\n\n" . $this->func->get_source($page, TRUE, TRUE);
 			} else {
-				$postdata  = @join('', $this->func->get_source($page)) . "\n\n" . $msg;
+				$postdata  = $this->func->get_source($page, TRUE, TRUE) . "\n\n" . $msg;
 			}
 		} else {
 			// Edit or Remove

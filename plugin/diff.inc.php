@@ -6,7 +6,7 @@ class xpwiki_plugin_diff extends xpwiki_plugin {
 
 	}
 	// PukiWiki - Yet another WikiWikiWeb clone.
-	// $Id: diff.inc.php,v 1.2 2007/01/30 01:58:49 nao-pon Exp $
+	// $Id: diff.inc.php,v 1.3 2007/09/19 12:10:10 nao-pon Exp $
 	// Copyright (C)
 	//   2002-2005 PukiWiki Developers Team
 	//   2002      Originally written by yu-ji
@@ -60,7 +60,7 @@ class xpwiki_plugin_diff extends xpwiki_plugin {
 			}
 			$msg = '<pre>' . $this->func->diff_style_to_css(htmlspecialchars(join('', file($filename)))) . '</pre>' . "\n";
 		} else if ($is_page) {
-			$diffdata = trim(htmlspecialchars(join('', $this->func->get_source($page))));
+			$diffdata = trim(htmlspecialchars($this->func->get_source($page, TRUE, TRUE)));
 			$msg = '<pre><span class="diff_added">' . $diffdata . '</span></pre>' . "\n";
 		} else {
 			return array('msg'=>$this->root->_title_diff, 'body'=>$this->root->_msg_notfound);

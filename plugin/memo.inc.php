@@ -3,7 +3,7 @@ class xpwiki_plugin_memo extends xpwiki_plugin {
 	function plugin_memo_init () {
 
 
-	// $Id: memo.inc.php,v 1.1 2006/10/13 13:17:49 nao-pon Exp $
+	// $Id: memo.inc.php,v 1.2 2007/09/19 12:10:10 nao-pon Exp $
 	//
 	// Memo box plugin
 	
@@ -42,7 +42,7 @@ class xpwiki_plugin_memo extends xpwiki_plugin {
 		$postdata_input = $memo_body . "\n";
 	
 		$body = '';
-		if (md5(@join('', $this->func->get_source($this->root->vars['refer']))) != $this->root->vars['digest']) {
+		if (md5($this->func->get_source($this->root->vars['refer'], TRUE, TRUE)) !== $this->root->vars['digest']) {
 			$title = $this->root->_title_collided;
 			$body  = $this->root->_msg_collided . "\n";
 	
