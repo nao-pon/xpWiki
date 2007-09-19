@@ -1,6 +1,6 @@
 <?php
 // PukiWiki - Yet another WikiWikiWeb clone
-// $Id: tracker.inc.php,v 1.11 2007/09/19 07:50:37 nao-pon Exp $
+// $Id: tracker.inc.php,v 1.12 2007/09/19 10:23:49 nao-pon Exp $
 // ORG: tracker.inc.php,v 1.56 2007/09/18 14:29:30 henoheno Exp $
 // Issue tracker plugin (See Also bugtrack plugin)
 
@@ -22,12 +22,12 @@ class xpwiki_plugin_tracker extends xpwiki_plugin
 		
 		// tracker_listで表示しないページ名(正規表現で)
 		// Excluding pattern
-		$this->cont['TRACKER_LIST_EXCLUDE_PATTERN'] = '#^SubMenu$|/#'; // 'SubMenu'ページ および '/'を含むページを除外する 'SubMenu' and using '/'
-		//define('TRACKER_LIST_EXCLUDE_PATTERN','#(?!)#'); // 制限しない場合はこちら Nothing excluded
+		$this->cont['PLUGIN_TRACKER_LIST_EXCLUDE_PATTERN'] = '#^SubMenu$|/#'; // 'SubMenu'ページ および '/'を含むページを除外する 'SubMenu' and using '/'
+		//define('PLUGIN_TRACKER_LIST_EXCLUDE_PATTERN','#(?!)#'); // 制限しない場合はこちら Nothing excluded
 	
 		// 項目の取り出しに失敗したページを一覧に表示する
 		// Show error rows (can't capture columns properly)
-		$this->cont['TRACKER_LIST_SHOW_ERROR_PAGE'] = TRUE;
+		$this->cont['PLUGIN_TRACKER_LIST_SHOW_ERROR_PAGE'] = TRUE;
 
 		// ----
 
