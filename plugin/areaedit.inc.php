@@ -3,7 +3,7 @@ class xpwiki_plugin_areaedit extends xpwiki_plugin {
 /////////////////////////////////////////////////
 // PukiWiki - Yet another WikiWikiWeb clone.
 //
-// $Id: areaedit.inc.php,v 1.7 2007/08/21 06:11:05 nao-pon Exp $
+// $Id: areaedit.inc.php,v 1.8 2007/09/19 12:10:10 nao-pon Exp $
 //
 /* 
 *プラグイン areaedit
@@ -251,7 +251,6 @@ EOD;
 			}
 			else {
 				$postdata_old = $this->func->get_source($page);	
-				//$postdata_old = str_replace("\r",'', $postdata_old);
 			}
 	
 		$ic = new XpWikiInlineConverter($this->xpwiki, array('plugin'));
@@ -646,7 +645,7 @@ EOD;
 
 		$retvars = array();
 		
-		$oldpagesrc = join('',$this->func->get_source($refer));
+		$oldpagesrc = $this->func->get_source($refer, TRUE, TRUE);
 		$oldpagemd5 = md5($oldpagesrc);
 		$this->func->remove_pginfo($oldpagesrc);
 		
@@ -684,7 +683,7 @@ EOD;
 	{
 		
 		if ($digest == 0) {
-			$digest = md5(join('',$this->func->get_source($page)));
+			$digest = md5($this->func->get_source($page, TRUE, TRUE));
 		}
 		$checked_time = array_key_exists('notimestamp',$this->root->vars) ? ' checked="checked"' : '';
 		

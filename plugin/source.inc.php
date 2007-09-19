@@ -6,7 +6,7 @@ class xpwiki_plugin_source extends xpwiki_plugin {
 
 	}
 	// PukiWiki - Yet another WikiWikiWeb clone
-	// $Id: source.inc.php,v 1.1 2006/10/13 13:17:49 nao-pon Exp $
+	// $Id: source.inc.php,v 1.2 2007/09/19 12:10:10 nao-pon Exp $
 	//
 	// Source plugin
 	
@@ -26,7 +26,7 @@ class xpwiki_plugin_source extends xpwiki_plugin {
 	
 		return array('msg' => $this->root->_source_messages['msg_title'],
 		'body' => '<pre id="source">' .
-		htmlspecialchars(join('', $this->func->get_source($page))) . '</pre>');
+		htmlspecialchars($this->func->get_source($page, TRUE, TRUE)) . '</pre>');
 	}
 }
 ?>

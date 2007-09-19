@@ -4,7 +4,7 @@ class xpwiki_plugin_comment extends xpwiki_plugin {
 
 
 	// PukiWiki - Yet another WikiWikiWeb clone
-	// $Id: comment.inc.php,v 1.4 2006/10/30 13:59:31 nao-pon Exp $
+	// $Id: comment.inc.php,v 1.5 2007/09/19 12:10:10 nao-pon Exp $
 	// Copyright (C)
 	//   2002-2005 PukiWiki Developers Team
 	//   2001-2002 Originally written by yu-ji
@@ -76,7 +76,7 @@ class xpwiki_plugin_comment extends xpwiki_plugin {
 	
 		$title = $this->root->_title_updated;
 		$body = '';
-		if (md5(@join('', $this->func->get_source($this->root->vars['refer']))) != $this->root->vars['digest']) {
+		if (md5($this->func->get_source($this->root->vars['refer'], TRUE, TRUE)) !== $this->root->vars['digest']) {
 			$title = $this->root->_title_comment_collided;
 			$body  = $this->root->_msg_comment_collided . $this->func->make_pagelink($this->root->vars['refer']);
 		}

@@ -1,7 +1,7 @@
 <?php
 //
 // Created on 2006/11/17 by nao-pon http://hypweb.net/
-// $Id: dbsync.inc.php,v 1.19 2007/09/19 11:27:15 nao-pon Exp $
+// $Id: dbsync.inc.php,v 1.20 2007/09/19 12:10:10 nao-pon Exp $
 //
 
 class xpwiki_plugin_dbsync extends xpwiki_plugin {
@@ -305,7 +305,7 @@ __EOD__;
 				$editedtime = filemtime($this->cont['DATA_DIR'].$file) - $this->cont['LOCALZONE'];
 				if (!$buildtime || $buildtime > $editedtime) $buildtime = $editedtime;
 				
-				$checkpostdata = join("",$this->func->get_source($page));
+				$checkpostdata = $this->func->get_source($page, TRUE, TRUE);
 				if (!$checkpostdata)
 				{
 					@unlink($this->cont['DATA_DIR'].$file);
