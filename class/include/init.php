@@ -186,12 +186,11 @@ if($die) $this->die_message(nl2br("\n\n" . $die));
 unset($die, $temp);
 
 // 指定ページ表示モード
-if (!empty($const['page_show'])) {
+if (isset($const['page_show'])) {
 	
 	$root->get['cmd']  = $root->post['cmd']  = $root->vars['cmd']  = 'read';
 	if ($const['page_show'] === '#RenderMode') {
 		$root->render_mode = 'render';
-		$const['page_show'] = '';
 	}
 	$root->get['page'] = $root->post['page'] = $root->vars['page'] = $const['page_show'];
 	$const['page_show'] = true;
@@ -310,7 +309,8 @@ if (!empty($const['page_show'])) {
 	
 	// pgid でのアクセス
 	if (!empty($root->get['pgid'])) {
-		if ($page = $this->get_name_by_pgid((int)$root->get['pgid'])) {
+		$page = $this->get_name_by_pgid((int)$root->get['pgid']);
+		if ($page !== '') {
 			if (empty($root->get['page'])) $root->get['page'] = $page;
 			$arg = $page;
 		} else {
@@ -326,6 +326,16 @@ if (!empty($const['page_show'])) {
 		$root->vars = $root->post; // Minor pattern: Write access via POST etc.
 	} else {
 		$root->vars = array_merge($root->get, $root->post); // Considered reliable than $_REQUEST
+	}
+
+	// page の正規化
+	if (isset($root->vars['page'])) {
+		$root->vars['page'] = strval($root->vars['page']);
+		if ($root->vars['page'] === '') {
+			unset($root->vars['page'],$root->get['page'],$root->post['page']);
+		} else {
+			$root->get['page'] = $root->post['page'] = $root->vars['page'];
+		}
 	}
 	
 	// 入力チェック: cmd, plugin の文字列は英数字以外ありえない

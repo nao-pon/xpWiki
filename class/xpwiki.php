@@ -1,7 +1,7 @@
 <?php
 //
 // Created on 2006/09/29 by nao-pon http://hypweb.net/
-// $Id: xpwiki.php,v 1.52 2007/09/17 04:53:32 nao-pon Exp $
+// $Id: xpwiki.php,v 1.53 2007/09/19 07:35:28 nao-pon Exp $
 //
 
 class XpWiki {
@@ -64,6 +64,7 @@ class XpWiki {
 	function init($page = "") {
 		
 		static $oid;
+		$page = strval($page);
 		
 		$this->root->init();
 		
@@ -73,7 +74,7 @@ class XpWiki {
 		$this->root->post   = $_POST;
 		$this->root->cookie = $_COOKIE;
 		
-		if ($page) {$this->cont['page_show'] = $page;}
+		if ($page !== '') {$this->cont['page_show'] = $page;}
 		
 		// ini ファイル読み込み
 		$this->func->load_ini();
