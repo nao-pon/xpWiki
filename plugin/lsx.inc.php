@@ -1,5 +1,5 @@
 <?php
-// $Id: lsx.inc.php,v 1.7 2007/08/24 01:11:51 nao-pon Exp $
+// $Id: lsx.inc.php,v 1.8 2007/09/19 11:27:15 nao-pon Exp $
 
 class xpwiki_plugin_lsx extends xpwiki_plugin {
 	
@@ -437,7 +437,7 @@ class XpWikiPluginLsx
 			}
 			while ($depth > 1) {
 				$page = $this->dirname($page);
-				if ($page == '') {
+				if ($page === '') {
 					break;
 				} if (($j = $this->array_search_by($page, $this->metapages, 'page')) !== false) {
 					// only for tree, though

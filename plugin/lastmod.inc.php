@@ -6,7 +6,7 @@ class xpwiki_plugin_lastmod extends xpwiki_plugin {
 
 	}
 	// PukiWiki - Yet another WikiWikiWeb clone
-	// $Id: lastmod.inc.php,v 1.1 2006/10/13 13:17:49 nao-pon Exp $
+	// $Id: lastmod.inc.php,v 1.2 2007/09/19 11:27:15 nao-pon Exp $
 	//
 	// Lastmod plugin - Show lastmodifled date of the page
 	// Originally written by Reimy, 2003
@@ -18,7 +18,7 @@ class xpwiki_plugin_lastmod extends xpwiki_plugin {
 		$args = func_get_args();
 		$page = $args[0];
 	
-		if ($page == ''){
+		if ($page === ''){
 			$page = $this->root->vars['page']; // Default: page itself
 		} else {
 			if (preg_match("/^({$this->root->WikiName}|{$this->root->BracketName})$/", $this->func->strip_bracket($page))) {

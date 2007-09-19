@@ -1,6 +1,6 @@
 <?php
 // PukiWiki - Yet another WikiWikiWeb clone
-// $Id: topicpath.inc.php,v 1.3 2007/06/05 23:40:04 nao-pon Exp $
+// $Id: topicpath.inc.php,v 1.4 2007/09/19 11:27:15 nao-pon Exp $
 //
 // 'topicpath' plugin for PukiWiki, available under GPL
 
@@ -40,7 +40,7 @@ class xpwiki_plugin_topicpath extends xpwiki_plugin {
 		}
 		
 		$page = isset($this->root->vars['page']) ? $this->root->vars['page'] : '';
-		if ($page == '' || $page == $this->root->defaultpage) return '';
+		if ($page === '' || $page === $this->root->defaultpage) return '';
 	
 		$parts = explode('/', $page);
 	

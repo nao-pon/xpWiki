@@ -3,7 +3,7 @@
 $this->root->runmode = "standalone";
 
 // PukiWiki - Yet another WikiWikiWeb clone.
-// $Id: tdiary.skin.php,v 1.25 2007/08/30 05:38:39 nao-pon Exp $
+// $Id: tdiary.skin.php,v 1.26 2007/09/19 11:27:16 nao-pon Exp $
 // Copyright (C)
 //   2002-2006 PukiWiki Developers Team
 //   2001-2002 Originally written by yu-ji
@@ -704,13 +704,13 @@ $dirname = $this->root->mydirname;
 // Page title (page name)
 $title = '';
 if ($disable_backlink) {
-	if ($_page != '') {
+	if ($_page !== '') {
 		$title = htmlspecialchars($_page);
 	} else {
 		$title = $page; // Search, or something message
 	}
 } else {
-	if ($page != '') {
+	if ($page !== '') {
 		$title = $page;
 	} else {
 		$title =  htmlspecialchars($_page);

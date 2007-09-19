@@ -4,7 +4,7 @@ class xpwiki_plugin_backup extends xpwiki_plugin {
 
 
 	// PukiWiki - Yet another WikiWikiWeb clone.
-	// $Id: backup.inc.php,v 1.4 2007/01/30 01:58:49 nao-pon Exp $
+	// $Id: backup.inc.php,v 1.5 2007/09/19 11:27:15 nao-pon Exp $
 	// Copyright (C)
 	//   2002-2005 PukiWiki Developers Team
 	//   2001-2002 Originally written by yu-ji
@@ -28,7 +28,7 @@ class xpwiki_plugin_backup extends xpwiki_plugin {
 		if (! $this->root->do_backup) return;
 	
 		$page = isset($this->root->vars['page']) ? $this->root->vars['page']  : '';
-		if ($page == '') return array('msg'=>$this->root->_title_backuplist, 'body'=>$this->plugin_backup_get_list_all());
+		if ($page === '') return array('msg'=>$this->root->_title_backuplist, 'body'=>$this->plugin_backup_get_list_all());
 	
 		$this->func->check_readable($page, true, true);
 		$s_page = htmlspecialchars($page);

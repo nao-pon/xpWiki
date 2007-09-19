@@ -9,7 +9,7 @@ class xpwiki_plugin_attach extends xpwiki_plugin {
 	/////////////////////////////////////////////////
 	// PukiWiki - Yet another WikiWikiWeb clone.
 	//
-	//  $Id: attach.inc.php,v 1.21 2007/08/24 01:03:59 nao-pon Exp $
+	//  $Id: attach.inc.php,v 1.22 2007/09/19 11:27:15 nao-pon Exp $
 	//  ORG: attach.inc.php,v 1.31 2003/07/27 14:15:29 arino Exp $
 	//
 	
@@ -631,7 +631,7 @@ class xpwiki_plugin_attach extends xpwiki_plugin {
 		
 		$this->root->noattach = 1;
 		
-		$msg = $this->root->_attach_messages[$refer == '' ? 'msg_listall' : 'msg_listpage'];
+		$msg = $this->root->_attach_messages[$refer === '' ? 'msg_listall' : 'msg_listpage'];
 		
 		$max = ($refer)? 50 : 20;
 		$max = (isset($this->root->vars['max']))? (int)$this->root->vars['max'] : $max;
@@ -645,7 +645,7 @@ class xpwiki_plugin_attach extends xpwiki_plugin {
 		if ($obj->err === 1) return array('msg'=>'DB ERROR!','body'=>'Please initialize an attach file database on an administrator screen.');
 		
 		
-		$body = ($refer == '' or array_key_exists($refer,$obj->pages)) ?
+		$body = ($refer === '' or array_key_exists($refer,$obj->pages)) ?
 			$obj->toString($refer,FALSE) :
 			"<p>".$this->func->make_pagelink($refer)."</p>\n".$this->root->_attach_messages['err_noexist'];
 		return array('msg'=>$msg,'body'=>$body);
@@ -1620,7 +1620,7 @@ class XpWikiAttachFiles
 		
 		$showall = ($fromall && $this->max < $this->count)? " [ <a href=\"{$this->root->script}?plugin=attach&amp;pcmd={$pcmd}&amp;refer=".rawurlencode($this->page)."\">Show All</a> ]" : "";
 		$allpages = ($fromall)? "" : " [ <a href=\"{$this->root->script}?plugin=attach&amp;pcmd={$pcmd}\" />All Pages</a> ]";
-		return $navi.($navi? "<hr />":"")."<div class=\"filelist_page\">".$this->func->make_pagelink($this->page)."<small> (".$this->count." file".(($this->count==1)?"":"s").")".$showall.$allpages."</small></div>\n<ul>\n$ret</ul>".($navi? "<hr />":"")."$navi\n";
+		return $navi.($navi? "<hr />":"")."<div class=\"filelist_page\">".$this->func->make_pagelink($this->page)."<small> (".$this->count." file".(($this->count===1)?"":"s").")".$showall.$allpages."</small></div>\n<ul>\n$ret</ul>".($navi? "<hr />":"")."$navi\n";
 	}
 	// ファイル一覧を取得(inline)
 	function to_flat()
@@ -1746,7 +1746,7 @@ class XpWikiAttachPages
 	function toString($page='',$flat=FALSE)
 	{
 //		global $script;
-		if ($page != '')
+		if ($page !== '')
 		{
 			if (!array_key_exists($page,$this->pages))
 			{

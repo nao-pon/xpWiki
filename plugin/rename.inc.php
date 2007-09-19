@@ -1,6 +1,6 @@
 <?php
 // PukiWiki - Yet another WikiWikiWeb clone
-// $Id: rename.inc.php,v 1.7 2007/08/30 05:42:49 nao-pon Exp $
+// $Id: rename.inc.php,v 1.8 2007/09/19 11:27:15 nao-pon Exp $
 //
 // Rename plugin: Rename page-name and related data
 //
@@ -45,16 +45,16 @@ class xpwiki_plugin_rename extends xpwiki_plugin {
 			$page  = $this->plugin_rename_getvar('page');
 			$refer = $this->plugin_rename_getvar('refer');
 	
-			if ($refer == '') {
+			if ($refer === '') {
 				return $this->plugin_rename_phase1();
 	
 			} else if (! $this->func->is_page($refer)) {
 				return $this->plugin_rename_phase1('notpage', $refer);
 	
-			} else if ($refer == $this->root->whatsnew) {
+			} else if ($refer === $this->root->whatsnew) {
 				return $this->plugin_rename_phase1('norename', $refer);
 	
-			} else if ($page == '' || $page == $refer) {
+			} else if ($page === '' || $page === $refer) {
 				return $this->plugin_rename_phase2();
 	
 			} else if (! $this->func->is_pagename($page)) {
@@ -88,7 +88,7 @@ class xpwiki_plugin_rename extends xpwiki_plugin {
 			}
 			$page = $tmp;
 		}
-		if ($page != '') $body = sprintf($body, $this->func->convert_html($page));
+		if ($page !== '') $body = sprintf($body, $this->func->convert_html($page));
 	
 		$msg = sprintf($this->root->_rename_messages['err'], $body);
 		return $msg;
@@ -144,7 +144,7 @@ EOD;
 		$msg   = $this->plugin_rename_err($err, $page);
 		$page  = $this->plugin_rename_getvar('page');
 		$refer = $this->plugin_rename_getvar('refer');
-		if ($page == '') $page = $refer;
+		if ($page === '') $page = $refer;
 	
 		$msg_related = '';
 		$related = $this->plugin_rename_getrelated($refer);
@@ -426,7 +426,7 @@ EOD;
 		
 		//リダイレクト
 		$page = $this->plugin_rename_getvar('page');
-		if ($page == '') $page = $this->cont['PLUGIN_RENAME_LOGPAGE'];
+		if ($page === '') $page = $this->cont['PLUGIN_RENAME_LOGPAGE'];
 	
 		$this->func->send_location($page);
 	}
@@ -449,9 +449,9 @@ EOD;
 	
 		$pages = array();
 		foreach ($this->func->get_existpages() as $_page) {
-			if ($_page == $this->root->whatsnew) continue;
+			if ($_page === $this->root->whatsnew) continue;
 	
-			$selected = ($_page == $page) ? ' selected' : '';
+			$selected = ($_page === $page) ? ' selected' : '';
 			$s_page = htmlspecialchars($_page);
 			$pages[$_page] = '<option value="' . $s_page . '"' . $selected . '>' .
 			$s_page . '</option>';
