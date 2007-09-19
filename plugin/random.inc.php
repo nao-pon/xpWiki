@@ -6,7 +6,7 @@ class xpwiki_plugin_random extends xpwiki_plugin {
 	/////////////////////////////////////////////////
 	// PukiWiki - Yet another WikiWikiWeb clone.
 	//
-	// $Id: random.inc.php,v 1.1 2006/10/13 13:17:49 nao-pon Exp $
+	// $Id: random.inc.php,v 1.2 2007/09/19 11:27:15 nao-pon Exp $
 	//
 	
 	/*
@@ -53,7 +53,7 @@ class xpwiki_plugin_random extends xpwiki_plugin {
 		srand((double)microtime() * 1000000);
 		$page = array_rand($pages);
 	
-		if ($page != '') $this->root->vars['refer'] = $page;
+		if ($page !== '') $this->root->vars['refer'] = $page;
 	
 		return array('body'=>'','msg'=>'');
 	}

@@ -4,7 +4,7 @@ class xpwiki_plugin_include extends xpwiki_plugin {
 
 
 	// PukiWiki - Yet another WikiWikiWeb clone.
-	// $Id: include.inc.php,v 1.1 2006/10/13 13:17:49 nao-pon Exp $
+	// $Id: include.inc.php,v 1.2 2007/09/19 11:27:15 nao-pon Exp $
 	//
 	// Include-once plugin
 	
@@ -118,7 +118,7 @@ class xpwiki_plugin_include extends xpwiki_plugin {
 		if ($with_title) {
 			$link = '<a href="' . $this->root->script . '?cmd=edit&amp;page=' . $r_page .
 			'">' . $s_page . '</a>';
-			if ($page == $this->root->menubar) {
+			if ($page === $this->root->menubar) {
 				$body = '<span align="center"><h5 class="side_label">' .
 				$link . '</h5></span><small>' . $body . '</small>';
 			} else {

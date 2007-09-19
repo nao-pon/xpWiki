@@ -3,7 +3,7 @@ class xpwiki_plugin_template extends xpwiki_plugin {
 	function plugin_template_init () {
 
 
-	// $Id: template.inc.php,v 1.1 2006/10/13 13:17:49 nao-pon Exp $
+	// $Id: template.inc.php,v 1.2 2007/09/19 11:27:15 nao-pon Exp $
 	//
 	// Load template plugin
 	
@@ -63,12 +63,12 @@ class xpwiki_plugin_template extends xpwiki_plugin {
 		if ($is_page) {
 			$msg = $this->root->_err_template_already;
 			$tag = '<input type="checkbox" name="force" value="1" />'.$this->root->_msg_template_force;
-		} else if ($page != '' && ! $is_pagename) {
+		} else if ($page !== '' && ! $is_pagename) {
 			$msg = str_replace('$1', $_page, $this->root->_err_template_invalid);
 		}
 	
 		$s_refer = htmlspecialchars($this->root->vars['refer']);
-		$s_page  = ($page == '') ? str_replace('$1', $s_refer, $this->root->_msg_template_page) : $_page;
+		$s_page  = ($page === '') ? str_replace('$1', $s_refer, $this->root->_msg_template_page) : $_page;
 		$ret     = <<<EOD
 <form action="{$this->root->script}" method="post">
  <div>

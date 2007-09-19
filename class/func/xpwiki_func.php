@@ -1,7 +1,7 @@
 <?php
 //
 // Created on 2006/10/02 by nao-pon http://hypweb.net/
-// $Id: xpwiki_func.php,v 1.96 2007/09/19 07:35:28 nao-pon Exp $
+// $Id: xpwiki_func.php,v 1.97 2007/09/19 11:27:16 nao-pon Exp $
 //
 class XpWikiFunc extends XpWikiXoopsWrapper {
 
@@ -1578,7 +1578,7 @@ EOD;
 		
 		$rel_pages = array();
 		// ページ読みのデータページはコンバート処理しない(過負荷対策)
-		if ($page != $this->root->pagereading_config_page)
+		if ($page !== $this->root->pagereading_config_page)
 		{
 			$spc = array
 			(
@@ -1621,7 +1621,7 @@ EOD;
 			$rel_pages = array_unique($rel_pages);
 			
 			// 未作成ページ
-			if ($page != $pobj->root->whatsdeleted && $page != $pobj->cont['PLUGIN_RENAME_LOGPAGE'])
+			if ($page !== $pobj->root->whatsdeleted && $page !== $pobj->cont['PLUGIN_RENAME_LOGPAGE'])
 			{	
 				$yetlists = array();
 				$notyets = array_keys($pobj->notyets);

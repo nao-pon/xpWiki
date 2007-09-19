@@ -4,7 +4,7 @@ class xpwiki_plugin_pcomment extends xpwiki_plugin {
 
 
 	// PukiWiki - Yet another WikiWikiWeb clone
-	// $Id: pcomment.inc.php,v 1.10 2007/07/31 03:03:38 nao-pon Exp $
+	// $Id: pcomment.inc.php,v 1.11 2007/09/19 11:27:15 nao-pon Exp $
 	//
 	// pcomment plugin - Show/Insert comments into specified (another) page
 	//
@@ -285,7 +285,7 @@ EOD;
 		$this->func->page_write($page, $postdata, $this->cont['PLUGIN_PCOMMENT_TIMESTAMP']);
 	
 		if ($this->cont['PLUGIN_PCOMMENT_TIMESTAMP']) {
-			if ($refer != '') $this->func->pkwk_touch_file($this->func->get_filename($refer));
+			if ($refer !== '') $this->func->pkwk_touch_file($this->func->get_filename($refer));
 			$this->func->put_lastmodified();
 		}
 	

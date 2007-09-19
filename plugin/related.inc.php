@@ -6,7 +6,7 @@ class xpwiki_plugin_related extends xpwiki_plugin {
 
 	}
 	// PukiWiki - Yet another WikiWikiWeb clone
-	// $Id: related.inc.php,v 1.2 2007/08/09 08:43:56 nao-pon Exp $
+	// $Id: related.inc.php,v 1.3 2007/09/19 11:27:15 nao-pon Exp $
 	//
 	// Related plugin: Show Backlinks for the page
 	
@@ -28,14 +28,14 @@ class xpwiki_plugin_related extends xpwiki_plugin {
 	//	global $vars, $script, $defaultpage, $whatsnew;
 	
 		$_page = isset($this->root->vars['page']) ? $this->root->vars['page'] : '';
-		if ($_page == '') $_page = $this->root->defaultpage;
+		if ($_page === '') $_page = $this->root->defaultpage;
 	
 		// Get related from cache
 		$data = $this->func->links_get_related_db($_page);
 		if (! empty($data)) {
 			// Hide by array keys (not values)
 			foreach(array_keys($data) as $page)
-				if ($page == $this->root->whatsnew ||
+				if ($page === $this->root->whatsnew ||
 				    $this->func->check_non_list($page))
 					unset($data[$page]);
 		}

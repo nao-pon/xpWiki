@@ -1,6 +1,6 @@
 <?php
 // PukiWiki - Yet another WikiWikiWeb clone.
-// $Id: edit.inc.php,v 1.37 2007/09/19 07:33:12 nao-pon Exp $
+// $Id: edit.inc.php,v 1.38 2007/09/19 11:27:15 nao-pon Exp $
 // Copyright (C) 2001-2006 PukiWiki Developers Team
 // License: GPL v2 or (at your option) any later version
 //
@@ -158,7 +158,7 @@ EOD;
 		$s_label = $this->func->strip_htmltag(array_pop($args), FALSE);
 	
 		$page    = array_shift($args);
-		if ($page == NULL) $page = '';
+		if ($page === NULL) $page = '';
 		$_noicon = $_nolabel = $_paraedit = FALSE;
 		foreach($args as $arg){
 			switch(strtolower($arg)){

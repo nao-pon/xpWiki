@@ -1,6 +1,6 @@
 <?php
 /**
- * $Id: deldel.inc.php,v 1.4 2007/08/28 23:41:24 nao-pon Exp $
+ * $Id: deldel.inc.php,v 1.5 2007/09/19 11:27:15 nao-pon Exp $
  * ORG: deldel.inc.php 161 2005-06-28 12:58:13Z okkez $
  *
  * 色んなものを一括削除するプラグイン
@@ -694,8 +694,8 @@ class xpwiki_plugin_deldel extends xpwiki_plugin {
 	
 		$obj = & new XpWikiAttachPages2($this->xpwiki, $refer);
 	
-		$msg = $this->root->_attach_messages[($refer == '') ? 'msg_listall' : 'msg_listpage'];
-		$body = ($refer == '' || isset($obj->pages[$refer])) ?
+		$msg = $this->root->_attach_messages[($refer === '') ? 'msg_listall' : 'msg_listpage'];
+		$body = ($refer === '' || isset($obj->pages[$refer])) ?
 		$obj->toString($refer, FALSE) :
 		$this->root->_attach_messages['err_noexist'];
 	
@@ -902,7 +902,7 @@ class XpWikiAttachPages2 extends XpWikiAttachPages
 		$dir = opendir($this->cont['UPLOAD_DIR']) or
 		die('directory ' . $this->cont['UPLOAD_DIR'] . ' is not exist or not readable.');
 
-		$page_pattern = ($page == '') ? '(?:[0-9A-F]{2})+' : preg_quote($this->func->encode($page), '/');
+		$page_pattern = ($page === '') ? '(?:[0-9A-F]{2})+' : preg_quote($this->func->encode($page), '/');
 		$age_pattern = ($age === NULL) ?
 		'(?:\.([0-9]+))?' : ($age ?	 "\.($age)" : '');
 		$pattern = "/^({$page_pattern})_((?:[0-9A-F]{2})+){$age_pattern}$/";
@@ -925,7 +925,7 @@ class XpWikiAttachPages2 extends XpWikiAttachPages
 	
 	function toString($page = '', $flat = FALSE)
 	{
-		if ($page != '') {
+		if ($page !== '') {
 			if (! isset($this->pages[$page])) {
 				return '';
 			} else {

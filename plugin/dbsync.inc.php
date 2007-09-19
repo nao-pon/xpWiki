@@ -1,7 +1,7 @@
 <?php
 //
 // Created on 2006/11/17 by nao-pon http://hypweb.net/
-// $Id: dbsync.inc.php,v 1.18 2007/08/21 06:22:10 nao-pon Exp $
+// $Id: dbsync.inc.php,v 1.19 2007/09/19 11:27:15 nao-pon Exp $
 //
 
 class xpwiki_plugin_dbsync extends xpwiki_plugin {
@@ -480,7 +480,7 @@ __EOD__;
 				
 				$page = $this->func->decode(trim(preg_replace("/\.count$/"," ",$file)));
 				// 存在しないページ
-				if ($page == $this->root->whatsnew || !file_exists($this->cont['DATA_DIR'].$this->func->encode($page).".txt"))
+				if ($page === $this->root->whatsnew || !file_exists($this->cont['DATA_DIR'].$this->func->encode($page).".txt"))
 				{
 					@unlink($this->cont['COUNTER_DIR'].$file);
 					$dones[0][] = $file;

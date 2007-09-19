@@ -1,5 +1,5 @@
 <?php
-// $Id: recent.inc.php,v 1.7 2007/08/02 07:36:25 nao-pon Exp $
+// $Id: recent.inc.php,v 1.8 2007/09/19 11:27:15 nao-pon Exp $
 // Copyright (C)
 //   2002-2006 PukiWiki Developers Team
 //   2002      Y.MASUI http://masui.net/pukiwiki/ masui@masui.net
@@ -89,7 +89,7 @@ class xpwiki_plugin_recent extends xpwiki_plugin {
 			}
 	
 			$s_page = htmlspecialchars($page);
-			if($page == $this->root->vars['page']) {
+			if($page === $this->root->vars['page']) {
 				// No need to link to the page you just read, or notify where you just read
 				$items .= ' <li>' . $s_page . '</li>' . "\n";
 			} else {

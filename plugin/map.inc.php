@@ -1,6 +1,6 @@
 <?php
 // PukiWiki - Yet another WikiWikiWeb clone.
-// $Id: map.inc.php,v 1.2 2007/08/10 08:28:47 nao-pon Exp $
+// $Id: map.inc.php,v 1.3 2007/09/19 11:27:15 nao-pon Exp $
 //
 // Site map plugin
 
@@ -28,7 +28,7 @@ class xpwiki_plugin_map extends xpwiki_plugin {
 	
 		$reverse = isset($this->root->vars['reverse']);
 		$refer   = isset($this->root->vars['refer']) ? $this->root->vars['refer'] : '';
-		if ($refer == '' || ! $this->func->is_page($refer))
+		if ($refer === '' || ! $this->func->is_page($refer))
 			$this->root->vars['refer'] = $refer = $this->root->defaultpage;
 	
 		$retval['msg']  = $reverse ? 'Relation map (link from)' : 'Relation map, from $1';

@@ -1,7 +1,7 @@
 <?php
 //
 // Created on 2006/10/02 by nao-pon http://hypweb.net/
-// $Id: pukiwiki_func.php,v 1.117 2007/09/19 08:20:30 nao-pon Exp $
+// $Id: pukiwiki_func.php,v 1.118 2007/09/19 11:27:16 nao-pon Exp $
 //
 class XpWikiPukiWikiFunc extends XpWikiBaseFunc {
 
@@ -231,7 +231,7 @@ class XpWikiPukiWikiFunc extends XpWikiBaseFunc {
 		}
 		
 		// Update autoalias.dat (AutoAliasName)
-		if ($this->root->autoalias && $page == $this->root->aliaspage) {
+		if ($this->root->autoalias && $page === $this->root->aliaspage) {
 			$aliases = $this->get_autoaliases();
 			if (empty($aliases)) {
 				// Remove
@@ -493,7 +493,7 @@ class XpWikiPukiWikiFunc extends XpWikiBaseFunc {
 	// Update RecentDeleted
 	function add_recent($page, $recentpage, $subject = '', $limit = 0)
 	{
-		if ($this->cont['PKWK_READONLY'] || $limit == 0 || $page == '' || $recentpage == '' ||
+		if ($this->cont['PKWK_READONLY'] || $limit === 0 || $page === '' || $recentpage === '' ||
 		    $this->check_non_list($page)) return;
 		
 		// set mode
@@ -878,7 +878,7 @@ class XpWikiPukiWikiFunc extends XpWikiBaseFunc {
 
 //----- Start convert_html.php -----//
 	// PukiWiki - Yet another WikiWikiWeb clone
-	// $Id: pukiwiki_func.php,v 1.117 2007/09/19 08:20:30 nao-pon Exp $
+	// $Id: pukiwiki_func.php,v 1.118 2007/09/19 11:27:16 nao-pon Exp $
 	// Copyright (C)
 	//   2002-2005 PukiWiki Developers Team
 	//   2001-2002 Originally written by yu-ji
@@ -1137,7 +1137,7 @@ class XpWikiPukiWikiFunc extends XpWikiBaseFunc {
 
 //----- Start func.php -----//
 	// PukiWiki - Yet another WikiWikiWeb clone.
-	// $Id: pukiwiki_func.php,v 1.117 2007/09/19 08:20:30 nao-pon Exp $
+	// $Id: pukiwiki_func.php,v 1.118 2007/09/19 11:27:16 nao-pon Exp $
 	// Copyright (C)
 	//   2002-2006 PukiWiki Developers Team
 	//   2001-2002 Originally written by yu-ji
@@ -1953,7 +1953,7 @@ EOD;
 
 //----- Start make_link.php -----//
 	// PukiWiki - Yet another WikiWikiWeb clone.
-	// $Id: pukiwiki_func.php,v 1.117 2007/09/19 08:20:30 nao-pon Exp $
+	// $Id: pukiwiki_func.php,v 1.118 2007/09/19 11:27:16 nao-pon Exp $
 	// Copyright (C)
 	//   2003-2005 PukiWiki Developers Team
 	//   2001-2002 Originally written by yu-ji
@@ -1970,7 +1970,7 @@ EOD;
 	
 		$clone = $converter[$this->xpwiki->pid]->get_clone($converter[$this->xpwiki->pid]);
 	
-		return $clone->convert($string, ($page != '') ? $page : $this->root->vars['page']);
+		return $clone->convert($string, ($page !== '') ? $page : $this->root->vars['page']);
 	}
 	
 	// Make hyperlink for the page
@@ -2017,7 +2017,7 @@ EOD;
 		}
 		
 		$r_page  = rawurlencode($page);
-		$r_refer = ($refer == '') ? '' : '&amp;refer=' . rawurlencode($refer);
+		$r_refer = ($refer === '') ? '' : '&amp;refer=' . rawurlencode($refer);
 	
 		if (! isset($this->root->related[$page]) && $page !== $this->root->vars['page'] && $this->is_page($page))
 			$this->root->related[$page] = $this->get_filetime($page);
@@ -2796,7 +2796,7 @@ EOD;
 
 //----- Start html.php -----//
 	// PukiWiki - Yet another WikiWikiWeb clone.
-	// $Id: pukiwiki_func.php,v 1.117 2007/09/19 08:20:30 nao-pon Exp $
+	// $Id: pukiwiki_func.php,v 1.118 2007/09/19 11:27:16 nao-pon Exp $
 	// Copyright (C)
 	//   2002-2006 PukiWiki Developers Team
 	//   2001-2002 Originally written by yu-ji
@@ -2892,13 +2892,13 @@ EOD;
 	
 		// Init flags
 		// ブロック用にglobal変数にも保存
-		$GLOBALS['Xpwiki_'.$this->root->mydirname]['is_page']     = $is_page = ($this->is_pagename($_page) && ! $this->arg_check('backup') && $_page != $this->root->whatsnew);
+		$GLOBALS['Xpwiki_'.$this->root->mydirname]['is_page']     = $is_page = ($this->is_pagename($_page) && ! $this->arg_check('backup') && $_page !== $this->root->whatsnew);
 		$GLOBALS['Xpwiki_'.$this->root->mydirname]['is_read']     = $is_read = ($this->arg_check('read') && $this->is_page($_page));
 		$GLOBALS['Xpwiki_'.$this->root->mydirname]['is_freeze']   = $is_freeze = $this->is_freeze($_page);
 		$GLOBALS['Xpwiki_'.$this->root->mydirname]['is_admin']    = $is_admin = $this->root->userinfo['admin'];
 		$GLOBALS['Xpwiki_'.$this->root->mydirname]['is_owner']    = $is_owner = $this->is_owner($_page);
 		$GLOBALS['Xpwiki_'.$this->root->mydirname]['is_editable'] = $is_editable = $this->check_editable($_page, FALSE, FALSE);
-		$GLOBALS['Xpwiki_'.$this->root->mydirname]['is_top']      = $is_top = ($_page == $this->root->defaultpage)? TRUE : FALSE;
+		$GLOBALS['Xpwiki_'.$this->root->mydirname]['is_top']      = $is_top = ($_page === $this->root->defaultpage)? TRUE : FALSE;
 		$GLOBALS['Xpwiki_'.$this->root->mydirname]['page']        = $_page;
 		$GLOBALS['Xpwiki_'.$this->root->mydirname]['pgid']        = (int)@$this->root->get['pgid'];
 		
@@ -3024,7 +3024,7 @@ EOD;
 		if($this->root->load_template_func && $b_template) {
 			$pages  = array();
 			foreach($this->get_existpages() as $_page) {
-				if ($_page == $this->root->whatsnew || $this->check_non_list($_page))
+				if ($_page === $this->root->whatsnew || $this->check_non_list($_page))
 					continue;
 				$s_page = htmlspecialchars($_page);
 				$pages[$_page] = '   <option value="' . $s_page . '">' .
@@ -3456,7 +3456,7 @@ EOD;
 
 //----- Start mail.php -----//
 	// PukiWiki - Yet another WikiWikiWeb clone.
-	// $Id: pukiwiki_func.php,v 1.117 2007/09/19 08:20:30 nao-pon Exp $
+	// $Id: pukiwiki_func.php,v 1.118 2007/09/19 11:27:16 nao-pon Exp $
 	// Copyright (C)
 	//   2003-2005 PukiWiki Developers Team
 	//   2003      Originally written by upk
@@ -3759,7 +3759,7 @@ EOD;
 
 //----- Start link.php -----//
 	// PukiWiki - Yet another WikiWikiWeb clone
-	// $Id: pukiwiki_func.php,v 1.117 2007/09/19 08:20:30 nao-pon Exp $
+	// $Id: pukiwiki_func.php,v 1.118 2007/09/19 11:27:16 nao-pon Exp $
 	// Copyright (C) 2003-2006 PukiWiki Developers Team
 	// License: GPL v2 or (at your option) any later version
 	//
@@ -3871,7 +3871,7 @@ EOD;
 			$this->root->search_non_list = 1;
 			$pages           = $this->do_search($page, 'AND', TRUE);
 			foreach ($pages as $_page) {
-				if ($_page != $page)
+				if ($_page !== $page)
 					$this->links_update($_page);
 			}
 		}
@@ -3903,7 +3903,7 @@ EOD;
 	
 		$ref   = array(); // 参照元
 		foreach ($this->get_existpages() as $page) {
-			if ($page == $this->root->whatsnew) continue;
+			if ($page === $this->root->whatsnew) continue;
 			
 			if (ini_get('safe_mode') == '0') set_time_limit(60);
 			

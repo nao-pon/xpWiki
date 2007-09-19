@@ -4,7 +4,7 @@ class xpwiki_plugin_navi extends xpwiki_plugin {
 
 
 	// PukiWiki - Yet another WikiWikiWeb clone.
-	// $Id: navi.inc.php,v 1.4 2007/06/08 08:51:41 nao-pon Exp $
+	// $Id: navi.inc.php,v 1.5 2007/09/19 11:27:15 nao-pon Exp $
 	//
 	// Navi plugin: Show DocBook-like navigation bar and contents
 	
@@ -109,7 +109,7 @@ class xpwiki_plugin_navi extends xpwiki_plugin {
 	
 			$prev = $home;
 			foreach ($pages as $page) {
-				if ($page == $current) break;
+				if ($page === $current) break;
 				$prev = $page;
 			}
 			$next = current($pages);
@@ -136,7 +136,7 @@ class xpwiki_plugin_navi extends xpwiki_plugin {
 			if ($this->cont['PLUGIN_NAVI_LINK_TAGS']) {
 				foreach (array('start'=>$home, 'next'=>$next,
 			    'prev'=>$prev, 'up'=>$up) as $rel=>$_page) {
-					if ($_page != '') {
+					if ($_page !== '') {
 						$s_page = htmlspecialchars($_page);
 						$r_page = rawurlencode($_page);
 						$this->root->head_tags[] = ' <link rel="' .
@@ -163,7 +163,7 @@ class xpwiki_plugin_navi extends xpwiki_plugin {
 			} else {
 				$ret .= '<ul>';
 				foreach ($pages as $page)
-					if ($page != $home)
+					if ($page !== $home)
 						$ret .= ' <li>' . $this->func->make_pagelink($page) . '</li>';
 				$ret .= '</ul>';
 			}
