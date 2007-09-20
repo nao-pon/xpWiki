@@ -1,7 +1,7 @@
 <?php
 //
 // Created on 2006/10/02 by nao-pon http://hypweb.net/
-// $Id: xpwiki_func.php,v 1.98 2007/09/19 12:10:10 nao-pon Exp $
+// $Id: xpwiki_func.php,v 1.99 2007/09/20 13:10:17 nao-pon Exp $
 //
 class XpWikiFunc extends XpWikiXoopsWrapper {
 
@@ -500,8 +500,13 @@ EOD;
 	}
 	
 	// ページ情報を得る
-	function get_pginfo ($page, $src='') {
+	function get_pginfo ($page = '', $src = '', $cache_clr = FALSE) {
 		static $info = array();
+
+		if ($cache_clr) {
+			$info[$this->root->mydirname] = array();
+			if ($page === '') { return; }
+		}
 		
 		if (isset($info[$this->root->mydirname][$page])) { return $info[$this->root->mydirname][$page]; }
 		

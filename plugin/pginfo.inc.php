@@ -2,7 +2,7 @@
 /////////////////////////////////////////////////
 // PukiWiki - Yet another WikiWikiWeb clone.
 //
-// $Id: pginfo.inc.php,v 1.13 2007/09/05 05:22:16 nao-pon Exp $
+// $Id: pginfo.inc.php,v 1.14 2007/09/20 13:10:17 nao-pon Exp $
 //
 
 class xpwiki_plugin_pginfo extends xpwiki_plugin {
@@ -16,10 +16,10 @@ class xpwiki_plugin_pginfo extends xpwiki_plugin {
 	function plugin_pginfo_action()
 	{
 		$pmode = (empty($this->root->post['pmode']))? '' : $this->root->post['pmode'];
-		$page = (empty($this->root->vars['page']))? '' : $this->root->vars['page'];
+		$page = (isset($this->root->vars['page']))? $this->root->vars['page'] : '';
 		
 		// 権限チェック
-		if ((!$page && !$this->root->userinfo['admin']) || !$this->func->is_owner($page)) {
+		if (($page === '' && !$this->root->userinfo['admin']) || !$this->func->is_owner($page)) {
 			$ret['msg'] = $this->msg['no_parmission_title'];
 			$ret['body'] = $this->msg['no_parmission'];
 			return $ret;
@@ -29,7 +29,7 @@ class xpwiki_plugin_pginfo extends xpwiki_plugin {
 			// 登録処理
 			return $this->save_parm($page);
 		} else {
-			if (!$page) {
+			if ($page === '') {
 				// 管理画面モード指定
 				if ($this->root->module['platform'] == "xoops") {
 					$this->root->runmode = "xoops_admin";
@@ -53,7 +53,7 @@ class xpwiki_plugin_pginfo extends xpwiki_plugin {
 		$do_child = FALSE;
 		$redirect = '';
 
-		if ($page) {
+		if ($page !== '') {
 			// ソース読み込み
 			$src = $this->func->get_source($page);
 			
@@ -171,6 +171,9 @@ class xpwiki_plugin_pginfo extends xpwiki_plugin {
 			// #pginfo 差し替え
 			$src = preg_replace("/^#pginfo\(.*\)[\r\n]*/m", '', join('', $src));
 			$src = $buf . $pginfo_str . $src;
+
+			// get_pginfo() のキャッシュを破棄
+			$this->func->get_pginfo('', '', TRUE);
 			
 			// ページ保存
 			if ($this->func->is_page($page)) {
@@ -262,7 +265,7 @@ EOD;
 		
 		// 下層ページ更新
 		$this->save_parm_child ($child_dat);
-		
+
 		$msg  = $this->msg['done_ok'];
 		$body = '';
 		return array('msg'=>$msg, 'body'=>$body, 'redirect'=>$redirect);
@@ -345,7 +348,7 @@ EOD;
 		$this->func->add_tag_head('suggest.css');
 		
 		$disabled = '';
-		if ($page) {
+		if ($page !== '') {
 			$pginfo = $this->func->get_pginfo($page);
 		} else {
 			$pginfo = $this->root->pginfo;
