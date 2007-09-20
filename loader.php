@@ -1,7 +1,7 @@
 <?php
 //
 // Created on 2006/10/25 by nao-pon http://hypweb.net/
-// $Id: loader.php,v 1.18 2007/09/18 05:33:00 nao-pon Exp $
+// $Id: loader.php,v 1.19 2007/09/20 13:06:22 nao-pon Exp $
 //
 
 error_reporting(0);
@@ -71,6 +71,12 @@ switch ($type) {
 		}
 		// Skin dir
 		$skin = isset($_GET['skin']) ? preg_replace('/[^\w.-]+/','',$_GET['skin'])  : 'default';
+		if (!$skin) $skin = 'default';
+		
+		// tDiary's Skin
+		if (substr($skin, 0, 3) === 'tD-') {
+			$skin = 'tdiary_theme';
+		}
 		
 		// CSS over write (css dir)
 		$addcss_file = "{$skin_dirname}/{$basedir}css/{$src}.css";
