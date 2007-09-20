@@ -1,7 +1,7 @@
 <?php
 //
 // Created on 2006/10/02 by nao-pon http://hypweb.net/
-// $Id: pukiwiki_func.php,v 1.119 2007/09/19 12:10:10 nao-pon Exp $
+// $Id: pukiwiki_func.php,v 1.120 2007/09/20 13:14:40 nao-pon Exp $
 //
 class XpWikiPukiWikiFunc extends XpWikiBaseFunc {
 
@@ -162,6 +162,8 @@ class XpWikiPukiWikiFunc extends XpWikiBaseFunc {
 		// delete recent add data
 		if ($mode === 'delete') { 
 			$this->push_page_changes($page, '', TRUE);
+			// Update RecentDeleted (Add the $page)
+			$this->add_recent($page, $this->root->whatsdeleted, '', $this->root->maxshow_deleted);
 		} else {
 			// ÄÉ²ÃÍúÎòÊÝÂ¸
 			$this->push_page_changes($page, preg_replace('/^[^+].*\n/m', '', $diffdata));
@@ -440,9 +442,6 @@ class XpWikiPukiWikiFunc extends XpWikiBaseFunc {
 			// Page deletion
 			if (! $file_exists) return; // Ignore null posting for $this->cont['DATA_DIR']
 	
-			// Update RecentDeleted (Add the $page)
-			$this->add_recent($page, $this->root->whatsdeleted, '', $this->root->maxshow_deleted);
-	
 			// Remove the page
 			unlink($file);
 	
@@ -495,7 +494,7 @@ class XpWikiPukiWikiFunc extends XpWikiBaseFunc {
 	function add_recent($page, $recentpage, $subject = '', $limit = 0)
 	{
 		if ($this->cont['PKWK_READONLY'] || $limit === 0 || $page === '' || $recentpage === '' ||
-		    $this->check_non_list($page)) return;
+		    $this->check_non_list($page) || !$this->check_readable_page($page, FALSE, FALSE, 0)) return;
 		
 		// set mode
 		$mode = ($this->is_page($recentpage))? 'update' : 'insert';
@@ -879,7 +878,7 @@ class XpWikiPukiWikiFunc extends XpWikiBaseFunc {
 
 //----- Start convert_html.php -----//
 	// PukiWiki - Yet another WikiWikiWeb clone
-	// $Id: pukiwiki_func.php,v 1.119 2007/09/19 12:10:10 nao-pon Exp $
+	// $Id: pukiwiki_func.php,v 1.120 2007/09/20 13:14:40 nao-pon Exp $
 	// Copyright (C)
 	//   2002-2005 PukiWiki Developers Team
 	//   2001-2002 Originally written by yu-ji
@@ -1138,7 +1137,7 @@ class XpWikiPukiWikiFunc extends XpWikiBaseFunc {
 
 //----- Start func.php -----//
 	// PukiWiki - Yet another WikiWikiWeb clone.
-	// $Id: pukiwiki_func.php,v 1.119 2007/09/19 12:10:10 nao-pon Exp $
+	// $Id: pukiwiki_func.php,v 1.120 2007/09/20 13:14:40 nao-pon Exp $
 	// Copyright (C)
 	//   2002-2006 PukiWiki Developers Team
 	//   2001-2002 Originally written by yu-ji
@@ -1954,7 +1953,7 @@ EOD;
 
 //----- Start make_link.php -----//
 	// PukiWiki - Yet another WikiWikiWeb clone.
-	// $Id: pukiwiki_func.php,v 1.119 2007/09/19 12:10:10 nao-pon Exp $
+	// $Id: pukiwiki_func.php,v 1.120 2007/09/20 13:14:40 nao-pon Exp $
 	// Copyright (C)
 	//   2003-2005 PukiWiki Developers Team
 	//   2001-2002 Originally written by yu-ji
@@ -2797,7 +2796,7 @@ EOD;
 
 //----- Start html.php -----//
 	// PukiWiki - Yet another WikiWikiWeb clone.
-	// $Id: pukiwiki_func.php,v 1.119 2007/09/19 12:10:10 nao-pon Exp $
+	// $Id: pukiwiki_func.php,v 1.120 2007/09/20 13:14:40 nao-pon Exp $
 	// Copyright (C)
 	//   2002-2006 PukiWiki Developers Team
 	//   2001-2002 Originally written by yu-ji
@@ -3457,7 +3456,7 @@ EOD;
 
 //----- Start mail.php -----//
 	// PukiWiki - Yet another WikiWikiWeb clone.
-	// $Id: pukiwiki_func.php,v 1.119 2007/09/19 12:10:10 nao-pon Exp $
+	// $Id: pukiwiki_func.php,v 1.120 2007/09/20 13:14:40 nao-pon Exp $
 	// Copyright (C)
 	//   2003-2005 PukiWiki Developers Team
 	//   2003      Originally written by upk
@@ -3760,7 +3759,7 @@ EOD;
 
 //----- Start link.php -----//
 	// PukiWiki - Yet another WikiWikiWeb clone
-	// $Id: pukiwiki_func.php,v 1.119 2007/09/19 12:10:10 nao-pon Exp $
+	// $Id: pukiwiki_func.php,v 1.120 2007/09/20 13:14:40 nao-pon Exp $
 	// Copyright (C) 2003-2006 PukiWiki Developers Team
 	// License: GPL v2 or (at your option) any later version
 	//
