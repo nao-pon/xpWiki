@@ -1,7 +1,7 @@
 <?php
 //
 // Created on 2006/10/15 by nao-pon http://hypweb.net/
-// $Id: base_func.php,v 1.10 2007/06/29 08:54:28 nao-pon Exp $
+// $Id: base_func.php,v 1.11 2007/09/20 13:08:10 nao-pon Exp $
 //
 class XpWikiBaseFunc {
 	
@@ -44,6 +44,7 @@ class XpWikiBaseFunc {
 			'admin' => FALSE,
 			'uid' => 0,
 			'uname' => $defname,
+			'uname_s' => htmlspecialchars($defname),
 			'email' => '',
 			'gids' => array(),
 			);
