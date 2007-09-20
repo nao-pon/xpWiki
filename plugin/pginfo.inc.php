@@ -2,7 +2,7 @@
 /////////////////////////////////////////////////
 // PukiWiki - Yet another WikiWikiWeb clone.
 //
-// $Id: pginfo.inc.php,v 1.14 2007/09/20 13:10:17 nao-pon Exp $
+// $Id: pginfo.inc.php,v 1.15 2007/09/20 14:25:59 nao-pon Exp $
 //
 
 class xpwiki_plugin_pginfo extends xpwiki_plugin {
@@ -365,16 +365,22 @@ EOD;
 		$s_['vinhelit'][$pginfo['vinherit']] = ' checked="checked"';
 		
 		$efor_remove = $vfor_remove = $this->msg['for_remove'];
-		$s_['edisable'] = $s_['vdisable'] = $s_['ecannot'] = $s_['vcannot'] = '';
+		$s_['edisable'] = $s_['edisable2'] = $s_['vdisable'] = $s_['vdisable2'] = $s_['ecannot'] = $s_['vcannot'] = '';
 		if ($pginfo['einherit'] === 4) {
 			$s_['edisable'] = ' disabled="disabled "';
+			$s_['edisable2'] = ' disabled="disabled "';
 			$s_['ecannot'] = $this->msg['can_not_set'].'<br />';
 			$efor_remove = '';
+		} else if ($pginfo['einherit'] === 3) {
+			$s_['edisable2'] = ' disabled="disabled "';
 		}
 		if ($pginfo['vinherit'] === 4) {
 			$s_['vdisable'] = ' disabled="disabled "';
+			$s_['vdisable2'] = ' disabled="disabled "';
 			$s_['vcannot'] = $this->msg['can_not_set'].'<br />';
 			$vfor_remove = '';
+		} else if ($pginfo['vinherit'] === 3) {
+			$s_['vdisable2'] = ' disabled="disabled "';
 		}
 		
 		foreach(array('eaids','egids','vaids','vgids') as $key) {
@@ -419,17 +425,22 @@ EOD;
 		$title_permission_default = ($page && $this->root->userinfo['admin'])? '<hr /><p><a href="'.$this->root->script.'?cmd=pginfo">'.$this->msg['title_permission_default'].'</a></p>' : '';
 
 		$form = <<<EOD
-<script>
+<script language="javascript">
+<!--
 var XpWikiSuggest1 = null;
-var onLoadHandler = function(){
+var XpWikiSuggest2 = null;
+document.observe("contentloaded", function(){
 	XpWikiSuggest1 = new XpWikiUnameSuggest('{$this->cont['HOME_URL']}','xpwiki_tag_input1','xpwiki_suggest_list1','xpwiki_tag_hidden1','xpwiki_tag_list1','{$enc}');
 	XpWikiSuggest2 = new XpWikiUnameSuggest('{$this->cont['HOME_URL']}','xpwiki_tag_input2','xpwiki_suggest_list2','xpwiki_tag_hidden2','xpwiki_tag_list2','{$enc}');
-};
-if (window.addEventListener) {
-    window.addEventListener("load", onLoadHandler, true);
-} else {
-    window.attachEvent("onload", onLoadHandler);
+});
+function xpwiki_parm_desc (id, mode) {
+	var base = $(id).getElementsByTagName("input");
+	mode = (mode)? false : true;
+	for (var i = 0; i < base.length; i++ ) {
+		base[i].disabled = mode;
+	}
 }
+//-->
 </script>
 <form action="{$this->root->script}" method="post">
 <p>
@@ -441,31 +452,31 @@ if (window.addEventListener) {
 <h2 id="xpwiki_edit_parmission">{$this->msg['edit_permission']}</h2>
 <p>
  {$s_['ecannot']}
- <input name="einherit" id="_edit_permission_none" type="radio" value="3"{$s_['einhelit'][3]}{$s_['edisable']}{$disabled} /><label for="_edit_permission_none"> {$this->msg['permission_none']}</label><br />
+ <input name="einherit" id="_edit_permission_none" type="radio" value="3" onclick="xpwiki_parm_desc('xpwiki_edit_parm_desc',0);"{$s_['einhelit'][3]}{$s_['edisable']}{$disabled} /><label for="_edit_permission_none"> {$this->msg['permission_none']}</label><br />
 </p>
 {$e_default}
-<h3>{$this->msg['lower_page_inherit']}</h3>
+<h4>{$this->msg['lower_page_inherit']}</h4>
 <p>
- <input name="einherit" id="_edit_inherit_default" type="radio" value="1"{$s_['einhelit'][1]}{$s_['edisable']} /><label for="_edit_inherit_default"> {$this->msg['inherit_default']}</label><br />
- <input name="einherit" id="_edit_inherit_forced" type="radio" value="2"{$s_['einhelit'][2]}{$s_['edisable']} /><label for="_edit_inherit_forced"> {$this->msg['inherit_forced']}</label><br />
- <input name="einherit" id="_edit_inherit_onlythis" type="radio" value="0"{$s_['einhelit'][0]}{$s_['edisable']}{$disabled} /><label for="_edit_inherit_onlythis"> {$this->msg['inherit_onlythis']}</label><br />
+ <input name="einherit" id="_edit_inherit_default" type="radio" value="1" onclick="xpwiki_parm_desc('xpwiki_edit_parm_desc',1);"{$s_['einhelit'][1]}{$s_['edisable']} /><label for="_edit_inherit_default"> {$this->msg['inherit_default']}</label><br />
+ <input name="einherit" id="_edit_inherit_forced" type="radio" value="2" onclick="xpwiki_parm_desc('xpwiki_edit_parm_desc',1);"{$s_['einhelit'][2]}{$s_['edisable']} /><label for="_edit_inherit_forced"> {$this->msg['inherit_forced']}</label><br />
+ <input name="einherit" id="_edit_inherit_onlythis" type="radio" value="0" onclick="xpwiki_parm_desc('xpwiki_edit_parm_desc',1);"{$s_['einhelit'][0]}{$s_['edisable']}{$disabled} /><label for="_edit_inherit_onlythis"> {$this->msg['inherit_onlythis']}</label><br />
 </p>
 <h4>{$this->msg['parmission_setting']}</h4>
-<table style="margin-left:2em;"><tr>
+<table style="margin-left:2em;" id="xpwiki_edit_parm_desc"><tr>
  <td>
-  <input name="egid" id="_egid1" type="radio" value="all"{$s_['egids']['all']}{$s_['edisable']} /><label for="_egid1"> {$this->msg['admit_all_group']}</label><br />
-  <input name="egid" id="_egid2" type="radio" value="none"{$s_['egids']['none']}{$s_['edisable']} /><label for="_egid2"> {$this->msg['not_admit_all_group']}</label><br />
-  <input name="egid" id="_egid3" type="radio" value="select"{$s_['egids']['select']}{$s_['edisable']} /><label for="_egid3"> {$this->msg['admit_select_group']}</label><br />
+  <input name="egid" id="_egid1" type="radio" value="all"{$s_['egids']['all']}{$s_['edisable2']} /><label for="_egid1"> {$this->msg['admit_all_group']}</label><br />
+  <input name="egid" id="_egid2" type="radio" value="none"{$s_['egids']['none']}{$s_['edisable2']} /><label for="_egid2"> {$this->msg['not_admit_all_group']}</label><br />
+  <input name="egid" id="_egid3" type="radio" value="select"{$s_['egids']['select']}{$s_['edisable2']} /><label for="_egid3"> {$this->msg['admit_select_group']}</label><br />
   <div style="margin-left:2em;">{$edit_group_list}</div>
  </td>
  <td>
-  <input name="eaid" id="_eaid1" type="radio" value="all"{$s_['eaids']['all']}{$s_['edisable']} /><label for="_eaid1"> {$this->msg['admit_all_user']}</label><br />
-  <input name="eaid" id="_eaid2" type="radio" value="none"{$s_['eaids']['none']}{$s_['edisable']} /><label for="_eaid2"> {$this->msg['not_admit_all_user']}</label><br />
-  <input name="eaid" id="_eaid3" type="radio" value="select"{$s_['eaids']['select']}{$s_['edisable']} /><label for="_eaid3"> {$this->msg['admit_select_user']}</label><br />
+  <input name="eaid" id="_eaid1" type="radio" value="all"{$s_['eaids']['all']}{$s_['edisable2']} /><label for="_eaid1"> {$this->msg['admit_all_user']}</label><br />
+  <input name="eaid" id="_eaid2" type="radio" value="none"{$s_['eaids']['none']}{$s_['edisable2']} /><label for="_eaid2"> {$this->msg['not_admit_all_user']}</label><br />
+  <input name="eaid" id="_eaid3" type="radio" value="select"{$s_['eaids']['select']}{$s_['edisable2']} /><label for="_eaid3"> {$this->msg['admit_select_user']}</label><br />
   <div style="margin-left:2em;">
     <div id="xpwiki_tag_list1" class="xpwiki_tag_list">{$edit_user_list}</div>
     <input type="hidden" name="eaids" id="xpwiki_tag_hidden1" value="" />
-    {$this->msg['search_user']}: <input type="text" size="25" id="xpwiki_tag_input1" name="xpwiki_tag_input1" autocomplete='off' class="form_text"{$s_['edisable']} /><br />
+    {$this->msg['search_user']}: <input type="text" size="25" id="xpwiki_tag_input1" name="xpwiki_tag_input1" autocomplete='off' class="form_text"{$s_['edisable2']} /><br />
     {$efor_remove}
     <div id='xpwiki_suggest_list1' class="auto_complete"></div>
   </div>
@@ -477,31 +488,31 @@ if (window.addEventListener) {
 <h2 id="xpwiki_view_parmission">{$this->msg['view_parmission']}</h2>
 <p>
  {$s_['vcannot']}
- <input name="vinherit" id="_view_permission_none" type="radio" value="3"{$s_['vinhelit'][3]}{$s_['vdisable']}{$disabled} /><label for="_view_permission_none"> {$this->msg['permission_none']}</label><br />
+ <input name="vinherit" id="_view_permission_none" type="radio" value="3" onclick="xpwiki_parm_desc('xpwiki_view_parm_desc',0);"{$s_['vinhelit'][3]}{$s_['vdisable']}{$disabled} /><label for="_view_permission_none"> {$this->msg['permission_none']}</label><br />
 </p>
 {$v_default}
-<h3>{$this->msg['lower_page_inherit']}</h3>
+<h4>{$this->msg['lower_page_inherit']}</h4>
 <p>
- <input name="vinherit" id="_view_inherit_default" type="radio" value="1"{$s_['vinhelit'][1]}{$s_['vdisable']} /><label for="_view_inherit_default"> {$this->msg['inherit_default']}</label><br />
- <input name="vinherit" id="_view_inherit_forced" type="radio" value="2"{$s_['vinhelit'][2]}{$s_['vdisable']} /><label for="_view_inherit_forced"> {$this->msg['inherit_forced']}</label><br />
- <input name="vinherit" id="_view_inherit_onlythis" type="radio" value="0"{$s_['vinhelit'][0]}{$s_['vdisable']}{$disabled} /><label for="_view_inherit_onlythis"> {$this->msg['inherit_onlythis']}</label><br />
+ <input name="vinherit" id="_view_inherit_default" type="radio" value="1" onclick="xpwiki_parm_desc('xpwiki_view_parm_desc',1);"{$s_['vinhelit'][1]}{$s_['vdisable']} /><label for="_view_inherit_default"> {$this->msg['inherit_default']}</label><br />
+ <input name="vinherit" id="_view_inherit_forced" type="radio" value="2" onclick="xpwiki_parm_desc('xpwiki_view_parm_desc',1);"{$s_['vinhelit'][2]}{$s_['vdisable']} /><label for="_view_inherit_forced"> {$this->msg['inherit_forced']}</label><br />
+ <input name="vinherit" id="_view_inherit_onlythis" type="radio" value="0" onclick="xpwiki_parm_desc('xpwiki_view_parm_desc',1);"{$s_['vinhelit'][0]}{$s_['vdisable']}{$disabled} /><label for="_view_inherit_onlythis"> {$this->msg['inherit_onlythis']}</label><br />
 </p>
 <h4>{$this->msg['parmission_setting']}</h4>
-<table style="margin-left:2em;"><tr>
+<table style="margin-left:2em;" id="xpwiki_view_parm_desc"><tr>
  <td>
-  <input name="vgid" id="_vgid1" type="radio" value="all"{$s_['vgids']['all']}{$s_['vdisable']} /><label for="_vgid1"> {$this->msg['admit_all_group']}</label><br />
-  <input name="vgid" id="_vgid2" type="radio" value="none"{$s_['vgids']['none']}{$s_['vdisable']} /><label for="_vgid2"> {$this->msg['not_admit_all_group']}</label><br />
-  <input name="vgid" id="_vgid3" type="radio" value="select"{$s_['vgids']['select']}{$s_['vdisable']} /><label for="_vgid3"> {$this->msg['admit_select_group']}</label><br />
+  <input name="vgid" id="_vgid1" type="radio" value="all"{$s_['vgids']['all']}{$s_['vdisable2']} /><label for="_vgid1"> {$this->msg['admit_all_group']}</label><br />
+  <input name="vgid" id="_vgid2" type="radio" value="none"{$s_['vgids']['none']}{$s_['vdisable2']} /><label for="_vgid2"> {$this->msg['not_admit_all_group']}</label><br />
+  <input name="vgid" id="_vgid3" type="radio" value="select"{$s_['vgids']['select']}{$s_['vdisable2']} /><label for="_vgid3"> {$this->msg['admit_select_group']}</label><br />
   <div style="margin-left:2em;">{$view_group_list}</div>
  </td>
  <td>
-  <input name="vaid" id="_vaid1" type="radio" value="all"{$s_['vaids']['all']}{$s_['vdisable']} /><label for="_vaid1"> {$this->msg['admit_all_user']}</label><br />
-  <input name="vaid" id="_vaid2" type="radio" value="none"{$s_['vaids']['none']}{$s_['vdisable']} /><label for="_vaid2"> {$this->msg['not_admit_all_user']}</label><br />
-  <input name="vaid" id="_vaid3" type="radio" value="select"{$s_['vaids']['select']}{$s_['vdisable']} /><label for="_vaid3"> {$this->msg['admit_select_user']}</label><br />
+  <input name="vaid" id="_vaid1" type="radio" value="all"{$s_['vaids']['all']}{$s_['vdisable2']} /><label for="_vaid1"> {$this->msg['admit_all_user']}</label><br />
+  <input name="vaid" id="_vaid2" type="radio" value="none"{$s_['vaids']['none']}{$s_['vdisable2']} /><label for="_vaid2"> {$this->msg['not_admit_all_user']}</label><br />
+  <input name="vaid" id="_vaid3" type="radio" value="select"{$s_['vaids']['select']}{$s_['vdisable2']} /><label for="_vaid3"> {$this->msg['admit_select_user']}</label><br />
   <div style="margin-left:2em;">
     <div id="xpwiki_tag_list2" class="xpwiki_tag_list">{$view_user_list}</div>
     <input type="hidden" name="vaids" id="xpwiki_tag_hidden2" value="" />
-    {$this->msg['search_user']}: <input type="text" size="25" id="xpwiki_tag_input2" name="xpwiki_tag_input2" autocomplete='off' class="form_text"{$s_['vdisable']} /><br />
+    {$this->msg['search_user']}: <input type="text" size="25" id="xpwiki_tag_input2" name="xpwiki_tag_input2" autocomplete='off' class="form_text"{$s_['vdisable2']} /><br />
     {$vfor_remove}
     <div id='xpwiki_suggest_list2' class="auto_complete"></div>
   </div>
