@@ -1,7 +1,7 @@
 <?php
 //
 // Created on 2006/11/17 by nao-pon http://hypweb.net/
-// $Id: dbsync.inc.php,v 1.20 2007/09/19 12:10:10 nao-pon Exp $
+// $Id: dbsync.inc.php,v 1.21 2007/09/21 05:47:46 nao-pon Exp $
 //
 
 class xpwiki_plugin_dbsync extends xpwiki_plugin {
@@ -380,8 +380,9 @@ __EOD__;
 						.",`name_ci`='$name'";
 					$query = "UPDATE ".$this->xpwiki->db->prefix($this->root->mydirname."_pginfo")." SET $value WHERE pgid = '$id' LIMIT 1;";
 				}
-				$result=$this->xpwiki->db->queryF($query);
-				//echo $query."<hr>";
+				if (! $result = $this->xpwiki->db->queryF($query)) {
+					echo 'SQL Error: ' . $query . '<br />';
+				}
 				
 				$counter++;
 				$dones[1][] = $file;
@@ -496,7 +497,9 @@ __EOD__;
 				$ip = rtrim($array[4]);
 				
 				$query = "insert into ".$this->xpwiki->db->prefix($this->root->mydirname."_count")." (pgid,count,today,today_count,yesterday_count,ip) values('$pgid',$count,'$today',$today_count,$yesterday_count,'$ip');";
-				$result=$this->xpwiki->db->queryF($query);
+				if (! $result = $this->xpwiki->db->queryF($query)) {
+					echo 'SQL Error: ' . $query . '<br />';
+				}
 				
 				$counter++;
 				if (($counter/10) == (floor($counter/10)))
@@ -630,6 +633,7 @@ __EOD__;
 				}
 				else
 				{
+					if ($this->root->post['p_info']) { echo 'Error: '. $s_page . '<br />'; }
 					$dones[0][] = $file;
 				}
 				
@@ -693,7 +697,9 @@ __EOD__;
 			else
 			{
 				$query = "DELETE FROM ".$this->xpwiki->db->prefix($this->root->mydirname."_attach");
-				$result=$this->xpwiki->db->queryF($query);
+				if (! $result = $this->xpwiki->db->queryF($query)) {
+					echo 'SQL Error: ' . $query . '<br />';
+				}
 			}
 			echo "<div style=\"font-size:14px;\"><b>DB '".$this->root->mydirname."_attach' Now converting... </b>( * = 10 Pages)<hr>";
 			
