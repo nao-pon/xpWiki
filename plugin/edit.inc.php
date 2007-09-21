@@ -1,6 +1,6 @@
 <?php
 // PukiWiki - Yet another WikiWikiWeb clone.
-// $Id: edit.inc.php,v 1.39 2007/09/19 12:10:10 nao-pon Exp $
+// $Id: edit.inc.php,v 1.40 2007/09/21 06:15:31 nao-pon Exp $
 // Copyright (C) 2001-2006 PukiWiki Developers Team
 // License: GPL v2 or (at your option) any later version
 //
@@ -371,7 +371,7 @@ EOD;
 			if (!empty($this->root->vars['nonconvert'])) {
 				$body = '';
 			} else {
-				$obj =& XpWiki::getSingleton($this->root->mydirname);
+				$obj = new XpWiki($this->root->mydirname);
 				$obj->init($page);
 				$obj->execute();
 				$body = $obj->body;
