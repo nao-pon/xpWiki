@@ -1,7 +1,7 @@
 <?php
 //
 // Created on 2006/09/29 by nao-pon http://hypweb.net/
-// $Id: xpwiki.php,v 1.53 2007/09/19 07:35:28 nao-pon Exp $
+// $Id: xpwiki.php,v 1.54 2007/09/21 06:18:40 nao-pon Exp $
 //
 
 class XpWiki {
@@ -193,7 +193,11 @@ class XpWiki {
 					
 					// 各ページ用の .css
 					$root->head_tags[] = $func->get_page_css_tag($base);
-
+					
+					// Background Run?
+					if (!empty($this->root->rtf['add_bgrun_img'])) {
+						$body .= '<div style="display:none;"><img src="'.$this->cont['HOME_URL'].'gate.php?way=bgrun&amp;t='.time().'&amp;page='.rawurlencode($root->vars['page']).'" width="1" height="1" /></div>';
+					}
 				}
 			}
 			// cont['USER_NAME_REPLACE'] を 置換
@@ -414,7 +418,10 @@ EOD;
 				$op .= serialize($this->iniVar['const']);
 			}
 			$cache = $this->cont['RENDER_CACHE_DIR'] . 'render_' . md5($text.$op);
-			if (file_exists($cache) && (empty($this->root->render_cache_min) || ((filemtime($cache) +  $this->root->render_cache_min * 60) > time()))) {
+			if (file_exists($cache) &&
+				filemtime($this->cont['CACHE_DIR'] . 'pagemove.time') < filemtime($cache) &&
+				(empty($this->root->render_cache_min) || ((filemtime($cache) +  $this->root->render_cache_min * 60) > time()))
+			) {
 				$texts = file($cache);
 				$head_pre_tag = array_shift($texts);
 				$head_tag = array_shift($texts);
