@@ -1,7 +1,7 @@
 <?php
 //
 // Created on 2006/10/02 by nao-pon http://hypweb.net/
-// $Id: xpwiki_func.php,v 1.99 2007/09/20 13:10:17 nao-pon Exp $
+// $Id: xpwiki_func.php,v 1.100 2007/09/21 06:11:27 nao-pon Exp $
 //
 class XpWikiFunc extends XpWikiXoopsWrapper {
 
@@ -1573,15 +1573,9 @@ EOD;
 	function plain_db_write($page, $action, $init = FALSE)
 	{
 		if (!$pgid = $this->get_pgid_by_name($page)) return false;
-		
-		//ソースを取得
-		$data = $this->get_source($page, TRUE, TRUE);
-		//delete_page_info($data);
-		
-		//処理しないプラグインを削除
-		$no_plugins = explode(',',@$this->root->noplain_plugin);
-		
+
 		$rel_pages = array();
+		$data = '';
 		// ページ読みのデータページはコンバート処理しない(過負荷対策)
 		if ($page !== $this->root->pagereading_config_page)
 		{
@@ -1746,7 +1740,6 @@ EOD;
 			$value = "plain='$data'";
 			$query = "UPDATE ".$this->xpwiki->db->prefix($this->root->mydirname."_plain")." SET $value WHERE pgid = $pgid;";
 			$result=$this->xpwiki->db->queryF($query);
-			//if (!$result) echo $query."<hr>";
 			
 			//リンク先ページ
 			$query = "DELETE FROM ".$this->xpwiki->db->prefix($this->root->mydirname."_rel")." WHERE pgid = ".$pgid.";";
