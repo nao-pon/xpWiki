@@ -1,7 +1,7 @@
 <?php
 // PukiWiki - Yet another WikiWikiWeb clone
-// $Id: tracker.inc.php,v 1.12 2007/09/19 10:23:49 nao-pon Exp $
-// ORG: tracker.inc.php,v 1.56 2007/09/18 14:29:30 henoheno Exp $
+// $Id: tracker.inc.php,v 1.13 2007/09/21 08:23:21 nao-pon Exp $
+// ORG: tracker.inc.php,v 1.57 2007/09/20 15:17:20 henoheno Exp $
 // Issue tracker plugin (See Also bugtrack plugin)
 
 class xpwiki_plugin_tracker extends xpwiki_plugin
@@ -423,7 +423,7 @@ class XpWikiTracker_field
 	
 	function format_cell($str)
 	{
-		return preg_replace('/[\r\n]+/', '', $str);
+		return $str;
 	}
 	
 	// Compare key for Tracker_list->sort()
@@ -482,7 +482,7 @@ class XpWikiTracker_field_title extends XpWikiTracker_field_text
 
 	function format_cell($str) {
 		$this->func->make_heading($str);
-		return parent::format_cell($str);
+		return $str;
 	}
 }
 
@@ -499,7 +499,7 @@ class XpWikiTracker_field_textarea extends XpWikiTracker_field
 	}
 	
 	function format_cell($str) {
-		$str = parent::format_cell($str);
+		$str = preg_replace('/[\r\n]+/', '', $str);
 		if (!empty($this->values[2]) && strlen($str) > ($this->values[2] + 3)) {
 			$str = mb_substr($str,0,$this->values[2]).'...';
 		}
