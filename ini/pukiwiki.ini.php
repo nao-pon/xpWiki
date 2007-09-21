@@ -1,6 +1,6 @@
 <?php
 // PukiWiki - Yet another WikiWikiWeb clone
-// $Id: pukiwiki.ini.php,v 1.48 2007/09/17 04:53:32 nao-pon Exp $
+// $Id: pukiwiki.ini.php,v 1.49 2007/09/21 06:18:41 nao-pon Exp $
 // Copyright (C)
 //   2002-2006 PukiWiki Developers Team
 //   2001-2002 Originally written by yu-ji
@@ -609,14 +609,17 @@ $root->always_clear_cache_pages = array (
 // 上位層のページもキャッシュをクリアする
 $root->clear_cache_parent = TRUE; // (TRUE or FASLE)
 
+// ページ更新時のバックグラウンドタスクを<img> タグによって実行する
+// 0 の場合は、リダイレクトによる実行 
+$root->bgrun_with_img = 1;
 
 /////////////////////////////////////////////////
 // <pre> の幅指定 (600px, auto など)
-$this->root->pre_width = 'auto';
+$root->pre_width = 'auto';
 
 // IE に指定する <pre> の幅 (600px, auto など)
 // xpWiki が Table 内に表示される場合(Table theme) px 指定したほうがよい
-$this->root->pre_width_ie = '700px';
+$root->pre_width_ie = '700px';
 
 
 /////////////////////////////////////////////////
