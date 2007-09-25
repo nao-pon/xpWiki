@@ -1,7 +1,7 @@
 <?php
 //
 // Created on 2006/10/02 by nao-pon http://hypweb.net/
-// $Id: xpwiki_func.php,v 1.100 2007/09/21 06:11:27 nao-pon Exp $
+// $Id: xpwiki_func.php,v 1.101 2007/09/25 23:52:13 nao-pon Exp $
 //
 class XpWikiFunc extends XpWikiXoopsWrapper {
 
@@ -1220,7 +1220,62 @@ EOD;
 		echo $xml;
 		exit;
 	}
+
+	function http_request
+		(
+			$url,
+			$method = 'GET',
+			$headers = '',
+			$post = array(),
+			$redirect_max = NULL,
+			$content_charset = '',
+			$blocking = TRUE,
+			$retry = 1,
+			$c_timeout = 15,
+			$r_timeout = 10
+		)
+	{
+		if (is_null($redirect_max)) {
+			$redirect_max = $this->cont['PKWK_HTTP_REQUEST_URL_REDIRECT_MAX'];
+		}
+		
+		$d = new Hyp_HTTP_Request();
 	
+		$d->url = $url;
+		$d->method = $method;
+		$d->headers = $headers;
+		$d->post = $post;
+		$d->redirect_max = $redirect_max;
+		$d->content_charset = $content_charset;
+		$d->blocking = $blocking;
+		$d->connect_try = $retry;
+		$d->connect_timeout = $c_timeout;
+		$d->read_timeout = $r_timeout;
+		
+		$d->use_proxy = $this->root->use_proxy;
+		$d->proxy_host = $this->root->proxy_host;
+		$d->proxy_port = $this->root->proxy_port;
+		
+		$d->need_proxy_auth = $this->root->need_proxy_auth;
+		$d->proxy_auth_user = $this->root->proxy_auth_user;
+		$d->proxy_auth_pass = $this->root->proxy_auth_pass;
+		
+		$d->no_proxy = $this->root->no_proxy;
+		
+		$d->get();
+		
+		$ret = array(
+			'query'  => $d->query,      // Query String
+			'rc'     => $d->rc,         // Result code
+			'header' => $d->header,     // Header
+			'data'   => $d->data        // Data or Error Msg
+		);
+		
+		$d = NULL;
+		
+		return $ret;
+	}
+
 /*----- DB Functions -----*/ 
 	//ページ名からページIDを求める
 	function get_pgid_by_name ($page, $cache = true, $make = false)
