@@ -1,6 +1,6 @@
 <?php
 // PukiWiki - Yet another WikiWikiWeb clone
-// $Id: pukiwiki.ini.php,v 1.49 2007/09/21 06:18:41 nao-pon Exp $
+// $Id: pukiwiki.ini.php,v 1.50 2007/09/26 02:11:30 nao-pon Exp $
 // Copyright (C)
 //   2002-2006 PukiWiki Developers Team
 //   2001-2002 Originally written by yu-ji
@@ -164,24 +164,10 @@ $const['PLUGIN_RENAME_LOGPAGE'] = ':RenameLog'; // Rename Log page
 $root->anonymous = 'anonymous';
 
 /////////////////////////////////////////////////
-// Change default Document Type Definition
-
-// Some web browser's bug, and / or Java apprets may needs not-Strict DTD.
-// Some plugin (e.g. paint) set this PKWK_DTD_XHTML_1_0_TRANSITIONAL.
-
-//$root->pkwk_dtd = PKWK_DTD_XHTML_1_1; // Default
-//$root->pkwk_dtd = PKWK_DTD_XHTML_1_0_STRICT;
-//$root->pkwk_dtd = PKWK_DTD_XHTML_1_0_TRANSITIONAL;
-//$root->pkwk_dtd = PKWK_DTD_HTML_4_01_STRICT;
-//$root->pkwk_dtd = PKWK_DTD_HTML_4_01_TRANSITIONAL;
-
-/////////////////////////////////////////////////
 // Always output "nofollow,noindex" attribute
-
 $root->nofollow = 0; // 1 = Try hiding from search engines
 
 /////////////////////////////////////////////////
-
 // PKWK_ALLOW_JAVASCRIPT - Allow / Prohibit using JavaScript
 $const['PKWK_ALLOW_JAVASCRIPT'] = 1;
 
@@ -482,6 +468,11 @@ $const['PKWK_UPDATE_EXEC'] = '';
 //define('PKWK_UPDATE_EXEC',
 //	$root->mknmz . ' --media-type=text/pukiwiki' .
 //	' -O ' . $root->output_dir . ' -L ja -c -K ' . $root->target);
+
+
+/////////////////////////////////////////////////
+// If this web server can't connect to WWW then set 1;
+$root->can_not_connect_www = 0;
 
 /////////////////////////////////////////////////
 // HTTP proxy setting (for TrackBack etc)
