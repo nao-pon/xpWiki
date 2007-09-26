@@ -1,7 +1,7 @@
 <?php
 //
 // Created on 2006/10/02 by nao-pon http://hypweb.net/
-// $Id: xpwiki_func.php,v 1.101 2007/09/25 23:52:13 nao-pon Exp $
+// $Id: xpwiki_func.php,v 1.102 2007/09/26 02:11:30 nao-pon Exp $
 //
 class XpWikiFunc extends XpWikiXoopsWrapper {
 
@@ -1235,6 +1235,15 @@ EOD;
 			$r_timeout = 10
 		)
 	{
+		if ($this->root->can_not_connect_www) {
+			return array(
+				'query'  => $d->query,
+				'rc'     => 400,
+				'header' => 'HTTP/1.x 400 Bad Request',
+				'data'   => ''
+			);
+		}
+		
 		if (is_null($redirect_max)) {
 			$redirect_max = $this->cont['PKWK_HTTP_REQUEST_URL_REDIRECT_MAX'];
 		}
