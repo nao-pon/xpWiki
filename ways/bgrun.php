@@ -1,7 +1,7 @@
 <?php
 /*
  * Created on 2007/09/21 by nao-pon http://hypweb.net/
- * $Id: bgrun.php,v 1.1 2007/09/21 06:18:40 nao-pon Exp $
+ * $Id: bgrun.php,v 1.2 2007/09/26 01:51:21 nao-pon Exp $
  */
 
 error_reporting(0);
@@ -9,6 +9,8 @@ error_reporting(0);
 $page = (isset($_GET['page']))? strval($_GET['page']) : '';
 
 if ($page === '') exit();
+
+ignore_user_abort(TRUE);
 
 include_once "$mytrustdirpath/include.php";
 
