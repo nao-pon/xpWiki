@@ -1,7 +1,7 @@
 <?php
 //
 // Created on 2006/10/03 by nao-pon http://hypweb.net/
-// $Id: include.php,v 1.7 2007/06/07 08:53:48 nao-pon Exp $
+// $Id: include.php,v 1.8 2007/09/26 02:10:00 nao-pon Exp $
 //
 
 // Load & check a class HypCommonFunc
@@ -9,7 +9,7 @@ if(!class_exists('HypCommonFunc')) {
 	include_once(dirname(dirname(dirname(__FILE__))).'/class/hyp_common/hyp_common_func.php');
 }
 $hyp_common_methods = get_class_methods('HypCommonFunc');
-if (is_null($hyp_common_methods) || ! in_array('get_version', $hyp_common_methods) || HypCommonFunc::get_version() < 20070530.1) {
+if (is_null($hyp_common_methods) || ! in_array('get_version', $hyp_common_methods) || HypCommonFunc::get_version() < 20070926) {
 	$xpwiki_error[] = '[Warning] Please install or update a newest HypCommonFunc into "XOOPS_TRUST_PATH/class/".';
 }
 
