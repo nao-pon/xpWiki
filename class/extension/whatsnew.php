@@ -1,7 +1,7 @@
 <?php
 //
 // Created on 2006/10/29 by nao-pon http://hypweb.net/
-// $Id: whatsnew.php,v 1.8 2007/05/29 23:23:03 nao-pon Exp $
+// $Id: whatsnew.php,v 1.9 2007/09/30 23:28:49 nao-pon Exp $
 //
 
 class XpWikiExtension_whatsnew extends XpWikiExtension {
@@ -24,7 +24,7 @@ class XpWikiExtension_whatsnew extends XpWikiExtension {
 		
 		foreach($recent_arr as $line) {
 			list($time, $base) = explode("\t", trim($line));
-			$localtime = $time + ($this->cont['ZONETIME']);
+			$localtime = $time + date('Z');
 			// 追加情報取得
 			$added = $this->func->get_page_changes($base);
 						
