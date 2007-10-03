@@ -1,3 +1,6 @@
+if (!wikihelper_loaded) {
+var wikihelper_loaded = true;
+
 // Set masseges.
 var wikihelper_msg_copyed = "クリップボードにコピーしました。";
 var wikihelper_msg_select = "対象範囲を選択してください。";
@@ -21,10 +24,10 @@ var wikihelper_msg_attach = "ファイル添付リンク";
 var wikihelper_msg_thumbsize = "サムネイルを作成する場合は、[最大幅(px)]x[最大高(px)] を入力してください。\n(例: \"240x120\" or \"240 120\" or \"240\" etc...)";
 var wikihelper_msg_notsave = "編集内容を保存していません。";
 
-if (!wikihelper_loaded) {
-	// prototype.js
-	document.write ('<scr'+'ipt type="text/javascr'+'ipt" src="$wikihelper_root_url/skin/loader.php?src=prototype.js"></scr'+'ipt>');
-	// Include main script.
-	document.write ('<scr'+'ipt type="text/javascr'+'ipt" src="$wikihelper_root_url/skin/loader.php?src=main.js"></scr'+'ipt>');
+// Set wikihelper_root_url
+var wikihelper_root_url = "$wikihelper_root_url";
+
+// JavaScripts loader
+document.write ('<script type="text/javascript" src="' + wikihelper_root_url + '/skin/loader.php?src=loader.js"></script>');
+
 }
-var wikihelper_loaded = true;

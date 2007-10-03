@@ -1,6 +1,6 @@
 <?php
 // PukiWiki - Yet another WikiWikiWeb clone.
-// $Id: edit.inc.php,v 1.40 2007/09/21 06:15:31 nao-pon Exp $
+// $Id: edit.inc.php,v 1.41 2007/10/03 12:43:10 nao-pon Exp $
 // Copyright (C) 2001-2006 PukiWiki Developers Team
 // License: GPL v2 or (at your option) any later version
 //
@@ -105,10 +105,12 @@ EOD;
 			$postdata = explode("\n", $postdata);
 			$postdata = $this->func->drop_submit($this->func->convert_html($postdata));
 			if (isset($this->root->vars['ajax'])) {
-				$body .= '<div class="ajax_preview">' . $postdata . '</div>' . "\n";
+				$class = 'ajax_preview';
 			} else {
-				$body .= '<div class="preview">' . $postdata . '</div>' . "\n";
+				$class = 'preview';
 			}
+			$body .= '<div id="xpwiki_preview_area" class="' . $class . '">' . $postdata . '</div>' . "\n";
+			if (empty($this->root->vars['ajax'])) $body .= '<script type="text/javascript"><!-- new Resizable(\'xpwiki_preview_area\', \'y\'); --></script>' . "\n";
 		}
 		
 		// Q & A 認証
@@ -122,7 +124,7 @@ EOD;
 			}
 			// cont['USER_NAME_REPLACE'] を 置換
 			$body = str_replace($this->cont['USER_NAME_REPLACE'], $this->root->userinfo['uname_s'], $body);
-			$body = preg_replace('/<div id="[^"]+"/', '<div ', $body);
+			$body = preg_replace('/<div id="(xpwiki_body|'.preg_quote($this->root->vars['paraid'], '/').')"/', '<div ', $body);
 			$body .= $this->func->edit_form($page, $this->root->vars['msg'], $this->root->vars['digest'], TRUE, $options);
 			$title = (!$ng_riddle)? $this->root->_title_preview : $this->root->_title_ng_riddle;
 			$title = '<h3>'.str_replace('$1', htmlspecialchars($page), $title).'</h3>';

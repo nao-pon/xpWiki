@@ -11,6 +11,42 @@
 	cursor: wait;
 }
 
+div.resizableResizeX {
+	position: absolute;
+	right: -4px;
+	width: 4px;
+	top: 0px;
+	height:100%;
+	border: none;
+	padding: 0px;
+	margin: 0px;
+	background-color: #b0c4de;
+}
+
+div.resizableResizeY {
+	position: absolute;
+	bottom: -4px;
+	height: 4px;
+	left: 0px;
+	width:100%;
+	border: none;
+	padding: 0px;
+	margin: 0px;
+	background-color: #b0c4de;
+}
+
+div.resizableResizeXY {
+	position: absolute;
+	bottom: -4px;
+	height: 4px;
+	right: -4px;
+	width: 4px;
+	border: none;
+	padding: 0px;
+	margin: 0px;
+	background-color: #b0c4de;
+}
+
 $class {
 	background-color:inherit;
 	width:100%;
@@ -426,7 +462,9 @@ $class div.commentbody table {
 $class .edit_form { clear:both; }
 $class .edit_form textarea {
 	width: 98%;
-	margin-right: 2%;
+	max-height: 350px;
+	margin: 0px;
+	padding: 0px;
 }
 $class .edit_form_ajax {
 	border: 1px gray solid;
@@ -434,8 +472,9 @@ $class .edit_form_ajax {
 }
 $class .edit_form_ajax textarea {
 	width: 98%;
-	margin-right: 2%;
-	height: 250px;
+	max-height: 250px;
+	margin: 0px;
+	padding: 0px;
 }
 
 /* pukiwiki.skin.php */
@@ -493,7 +532,7 @@ $class div.menubar h4 { font-size:110%; }
 
 $class div.body {
 	padding:0px;
-	margin:0px 0px 0px .5em;
+	margin:0px 0px 0px 0px;
 }
 
 $class div.footnotes {
