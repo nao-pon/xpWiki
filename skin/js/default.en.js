@@ -1,3 +1,6 @@
+if (!wikihelper_loaded) {
+var wikihelper_loaded = true;
+
 // Set masseges.
 var wikihelper_msg_copyed = "It copied to the clip board.";
 var wikihelper_msg_select = "Please choose the object range.";
@@ -21,10 +24,10 @@ var wikihelper_msg_attach = "File attach link";
 var wikihelper_msg_thumbsize = "If you want to make a thumbnail. Please input [Max Width(px)]x[Max Height(px)].\n(ex: \"240x120\" or \"240 120\" or \"240\" etc...)";
 var wikihelper_msg_notsave = "Do not save editing content.";
 
-if (!wikihelper_loaded) {
-	// prototype.js
-	document.write ('<scr'+'ipt type="text/javascr'+'ipt" src="$wikihelper_root_url/skin/loader.php?src=prototype.js"></scr'+'ipt>');
-	// Include main script.
-	document.write ('<scr'+'ipt type="text/javascr'+'ipt" src="$wikihelper_root_url/skin/loader.php?src=main.js"></scr'+'ipt>');
+// Set wikihelper_root_url
+var wikihelper_root_url = "$wikihelper_root_url";
+
+// JavaScripts loader
+document.write ('<script type="text/javascript" src="' + wikihelper_root_url + '/skin/loader.php?src=loader.js"></script>');
+
 }
-var wikihelper_loaded = true;

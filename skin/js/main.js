@@ -1,8 +1,4 @@
 // Init.
-var wikihelper_WinIE = (document.all&&!window.opera&&navigator.platform=="Win32");
-var wikihelper_Gecko = navigator.userAgent.indexOf('Gecko') > -1 && navigator.userAgent.indexOf('KHTML') == -1;
-var wikihelper_Opera = !!window.opera;
-
 var wikihelper_elem;
 var wikihelper_mapLoad=0;
 var wikihelper_initLoad=0;
@@ -58,7 +54,7 @@ function wikihelper_show_fontset_img()
 			'<area shape="rect" coords="48,8,56,16" title="Aqua" alt="Aqua" href="#" onClick="javascript:wikihelper_tag(\'Aqua\'); return false;" '+'/'+'>'+
 			'<area shape="rect" coords="56,8,64,16" title="White" alt="White" href="#" onClick="javascript:wikihelper_tag(\'White\'); return false;" '+'/'+'>'+
 			'<'+'/'+'map>'+
-			'<div id="wikihelper_base" style="position:absolute;top:-1000px;left:-1000px;"><'+'/'+'div>';
+			'<div id="wikihelper_base" style="position:absolute;display:none;"><'+'/'+'div>';
 		
 		var src;
 		
@@ -100,7 +96,10 @@ function wikihelper_show_fontset_img()
 		wikihelper_helper_img += $face_tag '';
 	}
 
-	document.getElementById("wikihelper_base").innerHTML = wikihelper_helper_img;
+	$("wikihelper_base").innerHTML = wikihelper_helper_img;
+
+	new Draggable('wikihelper_base');
+	new Resizable('wikihelper_base', 'x');
 }
 
 function wikihelper_adv_swich()
@@ -112,6 +111,9 @@ function wikihelper_adv_swich()
 	}
 	wikihelper_save_cookie("__whlp",wikihelper_adv,90,"/");
 	wikihelper_show_fontset_img();
+	$('wikihelper_base').style.width = 'auto';
+	$('wikihelper_base').style.height = 'auto';
+	$('wikihelper_base').style.width = $('wikihelper_base').getStyle('width');
 	wikihelper_elem.focus();
 }
 
@@ -159,9 +161,9 @@ function wikihelper_load_cookie(arg){ //arg=dataname
 
 function wikihelper_area_highlite(id,mode) {
 	if (mode) {
-		document.getElementById(id).className = "area_on";
+		$(id).className = "area_on";
 	} else {
-		document.getElementById(id).className = "area_off";
+		$(id).className = "area_off";
 	}
 	
 }
@@ -217,10 +219,11 @@ function wikihelper_cumulativeOffset(forElement) {
 }
 
 function wikihelper_hide_helper() {
-	var helper = document.getElementById("wikihelper_base");
+	var helper = $("wikihelper_base");
 	if (helper) {
-		helper.style.left = "-1000px";
-		helper.style.top =  "-1000px";
+		//helper.style.left = "-1000px";
+		//helper.style.top =  "-1000px";
+		Element.hide(helper);
 		if (wikihelper_WinIE) {
 			oElements = document.getElementsByTagName("select");
 			for (i = 0; i < oElements.length; i++)
@@ -291,7 +294,9 @@ function xpwiki_ajax_edit_show(orgRequest) {
 	var xmlRes = orgRequest.responseXML;
 	if(xmlRes.getElementsByTagName("editform").length) {
 		$(xpwiki_ajax_edit_var['id']).innerHTML = xmlRes.getElementsByTagName("editform")[0].firstChild.nodeValue;
+		new Resizable('xpwiki_edit_textarea', 'xy');
 		wikihelper_initTexts($(xpwiki_ajax_edit_var["id"]));
+
 		location.hash = xpwiki_ajax_edit_var["id"];
 	}
 }
@@ -363,6 +368,8 @@ function xpwiki_ajax_edit_post(orgRequest) {
 				location.href = item.getElementsByTagName("url")[0].firstChild.nodeValue;
 			} else if (xpwiki_ajax_edit_var['mode'] == 'preview') {
 				$(xpwiki_ajax_edit_var['id']).innerHTML = str;
+				new Resizable('xpwiki_preview_area', 'y');
+				new Resizable('xpwiki_edit_textarea', 'xy');
 				wikihelper_initTexts($(xpwiki_ajax_edit_var["id"]));
 			}
 			if (xpwiki_ajax_edit_var['id']) location.hash = xpwiki_ajax_edit_var["id"];
@@ -403,15 +410,6 @@ function xpwiki_getDateStr() {
 	return ''+yy+mm+dd+h+m+s+ms;
 }
 
-// Branch.
-if (wikihelper_WinIE) {
-	document.write ('<scr'+'ipt type="text/javascr'+'ipt" src="$wikihelper_root_url/skin/loader.php?src=winie.js"></scr'+'ipt>');
-} else if (wikihelper_Gecko) {
-	document.write ('<scr'+'ipt type="text/javascr'+'ipt" src="$wikihelper_root_url/skin/loader.php?src=gecko.js"></scr'+'ipt>');
-} else {
-	document.write ('<scr'+'ipt type="text/javascr'+'ipt" src="$wikihelper_root_url/skin/loader.php?src=other.js"></scr'+'ipt>');
-}
-
 _save = (window.onbeforeunload)? window.onbeforeunload : '';
 window.onbeforeunload = function(e) {
 	e = e || window.event;
@@ -421,4 +419,6 @@ window.onbeforeunload = function(e) {
 	}
 };
 
-document.observe("contentloaded", function(){wikihelper_initTexts();});
+document.observe("contentloaded", function(){
+	wikihelper_initTexts();
+});

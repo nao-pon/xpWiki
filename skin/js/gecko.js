@@ -208,12 +208,14 @@ function wikihelper_setActive(e)
 	}
 	else
 	{
-		wikihelper_elem = e.target;
-		//alert(wikihelper_elem.offsetTop);
-		var offset = wikihelper_cumulativeOffset(wikihelper_elem);
-		var helper = document.getElementById("wikihelper_base");
-		helper.style.left = offset[0] + "px";
-		helper.style.top = ( offset[1] - helper.offsetHeight - 1 ) + "px";
+		var helper = $("wikihelper_base");
+		if (helper.style.display == 'none' || wikihelper_elem != e.target) {
+			wikihelper_elem = e.target;
+			var offset = wikihelper_cumulativeOffset(wikihelper_elem);
+			Element.show(helper);
+			helper.style.left = offset[0] + "px";
+			helper.style.top = ( offset[1] - helper.offsetHeight - 1 ) + "px";
+		}
 	}
 }
 

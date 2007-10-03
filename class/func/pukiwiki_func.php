@@ -1,7 +1,7 @@
 <?php
 //
 // Created on 2006/10/02 by nao-pon http://hypweb.net/
-// $Id: pukiwiki_func.php,v 1.121 2007/09/27 00:02:36 nao-pon Exp $
+// $Id: pukiwiki_func.php,v 1.122 2007/10/03 12:43:10 nao-pon Exp $
 //
 class XpWikiPukiWikiFunc extends XpWikiBaseFunc {
 
@@ -881,7 +881,7 @@ class XpWikiPukiWikiFunc extends XpWikiBaseFunc {
 
 //----- Start convert_html.php -----//
 	// PukiWiki - Yet another WikiWikiWeb clone
-	// $Id: pukiwiki_func.php,v 1.121 2007/09/27 00:02:36 nao-pon Exp $
+	// $Id: pukiwiki_func.php,v 1.122 2007/10/03 12:43:10 nao-pon Exp $
 	// Copyright (C)
 	//   2002-2005 PukiWiki Developers Team
 	//   2001-2002 Originally written by yu-ji
@@ -1140,7 +1140,7 @@ class XpWikiPukiWikiFunc extends XpWikiBaseFunc {
 
 //----- Start func.php -----//
 	// PukiWiki - Yet another WikiWikiWeb clone.
-	// $Id: pukiwiki_func.php,v 1.121 2007/09/27 00:02:36 nao-pon Exp $
+	// $Id: pukiwiki_func.php,v 1.122 2007/10/03 12:43:10 nao-pon Exp $
 	// Copyright (C)
 	//   2002-2006 PukiWiki Developers Team
 	//   2001-2002 Originally written by yu-ji
@@ -1956,7 +1956,7 @@ EOD;
 
 //----- Start make_link.php -----//
 	// PukiWiki - Yet another WikiWikiWeb clone.
-	// $Id: pukiwiki_func.php,v 1.121 2007/09/27 00:02:36 nao-pon Exp $
+	// $Id: pukiwiki_func.php,v 1.122 2007/10/03 12:43:10 nao-pon Exp $
 	// Copyright (C)
 	//   2003-2005 PukiWiki Developers Team
 	//   2001-2002 Originally written by yu-ji
@@ -2799,7 +2799,7 @@ EOD;
 
 //----- Start html.php -----//
 	// PukiWiki - Yet another WikiWikiWeb clone.
-	// $Id: pukiwiki_func.php,v 1.121 2007/09/27 00:02:36 nao-pon Exp $
+	// $Id: pukiwiki_func.php,v 1.122 2007/10/03 12:43:10 nao-pon Exp $
 	// Copyright (C)
 	//   2002-2006 PukiWiki Developers Team
 	//   2001-2002 Originally written by yu-ji
@@ -3138,11 +3138,18 @@ EOD;
 				$ajax_title = '<h3>'.str_replace('$1', $s_page, $this->root->_title_edit).'</h3>';
 				$form_class = 'edit_form';
 			}
+			$resize_js = '';
 		} else {
 			$nonconvert = $ajax_title = $ajax_submit = $ajax_cancel = $enc_hint = '';
 			$form_class = 'edit_form';
+			$resize_js = <<<EOD
+<script type="text/javascript">
+<!--
+document.observe("contentloaded", function(){new Resizable('xpwiki_edit_textarea', 'xy');});
+-->
+</script>
+EOD;
 		}
-		
 		
 		// 'margin-bottom', 'float:left', and 'margin-top'
 		// are for layout of 'cancel button'
@@ -3160,7 +3167,6 @@ EOD;
 	  <input type="hidden" name="digest" value="$s_digest" />
 	  <input type="hidden" name="paraid" value="$s_id" />
 	  <textarea id="xpwiki_edit_textarea" name="msg" rel="wikihelper" rows="{$this->root->rows}" cols="{$this->root->cols}">$s_postdata</textarea>
-	  <br />
 	  $riddle
 	  <div style="float:left;">
 	   <input type="submit" name="preview" value="$btn_preview" accesskey="p" id="edit_preview" onmousedown="xpwiki_ajax_edit_var['mode']='preview'" />
@@ -3180,6 +3186,7 @@ EOD;
 	 </div>
 	</div>
 	$attaches
+	$resize_js
 EOD;
 	
 		if (isset($this->root->vars['help'])) {
@@ -3459,7 +3466,7 @@ EOD;
 
 //----- Start mail.php -----//
 	// PukiWiki - Yet another WikiWikiWeb clone.
-	// $Id: pukiwiki_func.php,v 1.121 2007/09/27 00:02:36 nao-pon Exp $
+	// $Id: pukiwiki_func.php,v 1.122 2007/10/03 12:43:10 nao-pon Exp $
 	// Copyright (C)
 	//   2003-2005 PukiWiki Developers Team
 	//   2003      Originally written by upk
@@ -3762,7 +3769,7 @@ EOD;
 
 //----- Start link.php -----//
 	// PukiWiki - Yet another WikiWikiWeb clone
-	// $Id: pukiwiki_func.php,v 1.121 2007/09/27 00:02:36 nao-pon Exp $
+	// $Id: pukiwiki_func.php,v 1.122 2007/10/03 12:43:10 nao-pon Exp $
 	// Copyright (C) 2003-2006 PukiWiki Developers Team
 	// License: GPL v2 or (at your option) any later version
 	//
