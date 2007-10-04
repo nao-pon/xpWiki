@@ -1,6 +1,6 @@
 <?php
 // PukiWiki - Yet another WikiWikiWeb clone.
-// $Id: edit.inc.php,v 1.41 2007/10/03 12:43:10 nao-pon Exp $
+// $Id: edit.inc.php,v 1.42 2007/10/04 08:35:01 nao-pon Exp $
 // Copyright (C) 2001-2006 PukiWiki Developers Team
 // License: GPL v2 or (at your option) any later version
 //
@@ -110,7 +110,13 @@ EOD;
 				$class = 'preview';
 			}
 			$body .= '<div id="xpwiki_preview_area" class="' . $class . '">' . $postdata . '</div>' . "\n";
-			if (empty($this->root->vars['ajax'])) $body .= '<script type="text/javascript"><!-- new Resizable(\'xpwiki_preview_area\', \'y\'); --></script>' . "\n";
+			if (empty($this->root->vars['ajax'])) $body .= <<<EOD
+<script type="text/javascript">
+<!--
+new Resizable('xpwiki_preview_area', 'y');
+-->
+</script>
+EOD;
 		}
 		
 		// Q & A Ç§¾Ú
