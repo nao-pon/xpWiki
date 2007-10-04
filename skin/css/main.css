@@ -581,6 +581,8 @@ $class div.banner {
 $class div.preview {
 	color:inherit;
 	background-color:#F5F8FF;
+	overflow: auto;
+	max-height: 300px;
 }
 
 $class div.ajax_preview {
