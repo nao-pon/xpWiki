@@ -13,7 +13,7 @@
 
 div.resizableResizeX {
 	position: absolute;
-	right: -4px;
+	right: -6px;
 	width: 4px;
 	top: 0px;
 	height:100%;
@@ -25,7 +25,7 @@ div.resizableResizeX {
 
 div.resizableResizeY {
 	position: absolute;
-	bottom: -4px;
+	bottom: -6px;
 	height: 4px;
 	left: 0px;
 	width:100%;
@@ -37,10 +37,10 @@ div.resizableResizeY {
 
 div.resizableResizeXY {
 	position: absolute;
-	bottom: -4px;
-	height: 4px;
-	right: -4px;
-	width: 4px;
+	bottom: -6px;
+	height: 6px;
+	right: -6px;
+	width: 6px;
 	border: none;
 	padding: 0px;
 	margin: 0px;
