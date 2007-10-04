@@ -1,6 +1,6 @@
 //
 // Created on 2007/10/03 by nao-pon http://hypweb.net/
-// $Id: resizable.js,v 1.1 2007/10/03 12:39:57 nao-pon Exp $
+// $Id: resizable.js,v 1.2 2007/10/04 08:41:49 nao-pon Exp $
 //
 
 var Resizable = Class.create();
@@ -40,12 +40,22 @@ Resizable.prototype = {
 			this.base.style.marginTop = target.style.marginTop;
 
 			this.elem = target;
-			var initH = this.elem.getStyle('maxHeight');
-			if (initH && initH != 'none') {
+			
+			if (!!this.elem.style.height) {
+				var initH = this.elem.style.height;
+			} else {
+				var initH = this.elem.getStyle('maxHeight');
+			}
+			if (!!initH && initH != 'none') {
 				this.initHeight = initH;
 			}
-			var initW = this.elem.getStyle('maxWidth');
-			if (initW && initW != 'none') {
+			
+			if (!!this.elem.style.width) {
+				var initW = this.elem.style.width;
+			} else {
+				var initW = this.elem.getStyle('maxWidth');
+			}
+			if (!!initW && initW != 'none') {
 				this.initWidth = initW;
 			}
 			
@@ -57,14 +67,25 @@ Resizable.prototype = {
 			
 		} else if (target.tagName == 'DIV') {
 			this.base = target;
-			var initH = this.base.getStyle('maxHeight');
-			if (initH && initH != 'none') {
+			
+			if (!!this.base.style.height) {
+				var initH = this.base.style.height;
+			} else {
+				var initH = this.base.getStyle('maxHeight');
+			}
+			if (!!initH && initH != 'none') {
 				this.initHeight = initH;
 			}
-			var initW = this.base.getStyle('maxWidth');
+			
+			if (!!this.base.style.width) {
+				var initW = this.base.style.width;
+			} else {
+				var initW = this.base.getStyle('maxWidth');
+			}
 			if (initW && initW != 'none') {
 				this.initWidth = initW;
 			}
+			
 			this.elem = document.createElement('div');
 			this.elem.innerHTML = this.base.innerHTML;
 			this.base.innerHTML = '';
