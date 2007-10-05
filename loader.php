@@ -1,13 +1,16 @@
 <?php
 //
 // Created on 2006/10/25 by nao-pon http://hypweb.net/
-// $Id: loader.php,v 1.19 2007/09/20 13:06:22 nao-pon Exp $
+// $Id: loader.php,v 1.20 2007/10/05 00:16:43 nao-pon Exp $
 //
 
 error_reporting(0);
 
 // ブラウザキャッシュ有効時間(秒)
 $maxage = 86400; // 60*60*24 (1day)
+
+// スマイリーキャッシュ有効時間(秒)
+$face_tag_maxage = 86400; // 60*60*24 (1day)
 
 // 変数初期化
 $src   = preg_replace("/[^\w.-]+/","",@ $_GET['src']);
@@ -19,6 +22,7 @@ $face_remake = $js_replace = $replace = false;
 $root_path = dirname($skin_dirname);
 $cache_path = $root_path.'/private/cache/';
 $face_cache = $cache_path . 'facemarks.js';
+$face_tag_ver = 1.0;
 
 if (preg_match("/^(.+)\.([^.]+)$/",$src,$match)) {
 	$type = $match[2];
@@ -132,7 +136,7 @@ switch ($type) {
 				$src = 'default.en';
 			}
 		} else 	if ($src === 'main') {
-			$face_remake = ! file_exists($face_cache);
+			$face_remake = (!file_exists($face_cache) || filemtime($face_cache) + $face_tag_maxage < time());
 			if ($face_remake) {
 				$facetagtime = time();
 			} else {
@@ -226,12 +230,16 @@ if (file_exists($src_file)) {
 		}
 		if ($type === 'js') {
 			if ($src === 'main') {
+				if (!$face_remake) {
+					list($face_tag, $face_tag_full, $_face_tag_ver) = array_pad(file($face_cache), 3, '');
+					if (!$face_tag_full) $face_tag_full = $face_tag;
+					if ($_face_tag_ver < $face_tag_ver) {
+						$face_remake = true;
+					}
+				}
 				if ($face_remake) {
 					include XOOPS_ROOT_PATH.'/include/common.php';
-					list($face_tag, $face_tag_full) = xpwiki_make_facemarks ($skin_dirname, $face_cache);
-				} else {
-					list($face_tag, $face_tag_full) = array_pad(file($face_cache), 2, '');
-					if (!$face_tag_full) $face_tag_full = $face_tag;
+					list($face_tag, $face_tag_full) = xpwiki_make_facemarks ($skin_dirname, $face_cache, $face_tag_ver);
 				}
 				$out = str_replace(array('$face_tag_full', '$face_tag'), array($face_tag_full, $face_tag), $out);
 			}
@@ -295,7 +303,7 @@ if (file_exists($src_file)) {
 	exit();
 }
 
-function xpwiki_make_facemarks ($skin_dirname, $cache) {
+function xpwiki_make_facemarks ($skin_dirname, $cache, $face_tag_ver) {
 	include_once XOOPS_TRUST_PATH."/modules/xpwiki/include.php";
 	$wiki =& XpWiki::getSingleton( basename(dirname($skin_dirname)) );
 	$wiki->init('#RenderMode');
@@ -305,13 +313,13 @@ function xpwiki_make_facemarks ($skin_dirname, $cache) {
 		$q_key = str_replace("'", "\'", $key);
 		if ($img{0} === '*') {
 			$img = substr($img, 1);
-			$tags_full[] = '\'<img src="'.$img.'" border="0" title="'.$key.'" alt="'.$key.'" onClick="javascript:wikihelper_face(\\\''.$q_key.'\\\');return false;" \'+\'/\'+\'>\'+';
+			$tags_full[] = '\'<img src="'.$img.'" border="0" title="'.$key.'" alt="'.$key.'" onClick="javascript:wikihelper_face(\\\''.$q_key.'\\\');return false;" />\'';
 			continue;
 		}
-		$tags[] = '\'<img src="'.$img.'" border="0" title="'.$key.'" alt="'.$key.'" onClick="javascript:wikihelper_face(\\\''.$q_key.'\\\');return false;" \'+\'/\'+\'>\'+';
-		$tags_full[] = '\'<img src="'.$img.'" border="0" title="'.$key.'" alt="'.$key.'" onClick="javascript:wikihelper_face(\\\''.$q_key.'\\\');return false;" \'+\'/\'+\'>\'+';
+		$tags[] = '\'<img src="'.$img.'" border="0" title="'.$key.'" alt="'.$key.'" onClick="javascript:wikihelper_face(\\\''.$q_key.'\\\');return false;" />\'';
+		$tags_full[] = '\'<img src="'.$img.'" border="0" title="'.$key.'" alt="'.$key.'" onClick="javascript:wikihelper_face(\\\''.$q_key.'\\\');return false;" />\'';
 	}
-	$tags = array(join('', $tags) ,join('', $tags_full));
+	$tags = array(join('+', $tags) ,join('+', $tags_full), $face_tag_ver);
 	if ($fp = fopen($cache, 'wb')) {
 		fwrite($fp, join("\n", $tags));
 		fclose($fp);

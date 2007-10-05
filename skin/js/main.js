@@ -91,9 +91,9 @@ function wikihelper_show_fontset_img()
 		'<br '+'/'+'>';
 	
 	if (wikihelper_adv == "on") {
-		wikihelper_helper_img += $face_tag_full '';
+		wikihelper_helper_img += $face_tag_full;
 	} else {
-		wikihelper_helper_img += $face_tag '';
+		wikihelper_helper_img += $face_tag;
 	}
 
 	$("wikihelper_base").innerHTML = wikihelper_helper_img;
