@@ -2,7 +2,7 @@
 /////////////////////////////////////////////////
 // PukiWiki - Yet another WikiWikiWeb clone.
 //
-// $Id: pginfo.inc.php,v 1.16 2007/09/21 06:17:11 nao-pon Exp $
+// $Id: pginfo.inc.php,v 1.17 2007/10/12 08:07:29 nao-pon Exp $
 //
 
 class xpwiki_plugin_pginfo extends xpwiki_plugin {
@@ -343,9 +343,9 @@ EOD;
 	
 	function get_form ($page = '') {
 	
+		$this->func->add_tag_head('suggest.css');
 		$this->func->add_tag_head('log.js');
 		$this->func->add_tag_head('suggest.js');
-		$this->func->add_tag_head('suggest.css');
 		
 		$disabled = '';
 		if ($page !== '') {
