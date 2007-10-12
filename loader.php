@@ -1,7 +1,7 @@
 <?php
 //
 // Created on 2006/10/25 by nao-pon http://hypweb.net/
-// $Id: loader.php,v 1.20 2007/10/05 00:16:43 nao-pon Exp $
+// $Id: loader.php,v 1.21 2007/10/12 08:10:43 nao-pon Exp $
 //
 
 error_reporting(0);
@@ -21,6 +21,7 @@ $length = $addcsstime = $facetagtime = 0;
 $face_remake = $js_replace = $replace = false;
 $root_path = dirname($skin_dirname);
 $cache_path = $root_path.'/private/cache/';
+$module_url = XOOPS_URL.'/'.basename(dirname($root_path));
 $face_cache = $cache_path . 'facemarks.js';
 $face_tag_ver = 1.0;
 
@@ -144,6 +145,9 @@ switch ($type) {
 			}
 			$replace = true;
 			$js_replace = true;
+		} else if (!is_null($encode_hint)) {
+			$replace = true;
+			$js_replace = true;
 		}
 		$c_type = 'application/x-javascript';
 		$cache_file = $cache_path.$src.'.'.$type;
@@ -241,7 +245,7 @@ if (file_exists($src_file)) {
 					include XOOPS_ROOT_PATH.'/include/common.php';
 					list($face_tag, $face_tag_full) = xpwiki_make_facemarks ($skin_dirname, $face_cache, $face_tag_ver);
 				}
-				$out = str_replace(array('$face_tag_full', '$face_tag'), array($face_tag_full, $face_tag), $out);
+				$out = str_replace(array('$face_tag_full', '$face_tag', '$module_url'), array($face_tag_full, $face_tag, $module_url), $out);
 			}
 			if ($js_replace) {
 				$xoops_root_path = XOOPS_ROOT_PATH;
