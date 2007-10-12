@@ -1,7 +1,7 @@
 <?php
 /*
  * Created on 2007/04/23 by nao-pon http://hypweb.net/
- * $Id: ext_autolink.php,v 1.17 2007/09/04 01:49:07 nao-pon Exp $
+ * $Id: ext_autolink.php,v 1.18 2007/10/12 07:58:30 nao-pon Exp $
  */
 class XpWikiPukiExtAutoLink {
 	// External AutoLinks
@@ -27,11 +27,11 @@ class XpWikiPukiExtAutoLink {
 			$pat = $this->get_ext_autolink($autolink);
 			if ($pat) {
 				if ($this->ci) {
-					$pat_pre = '/(<(script|a|textarea|style).*?<\/\\2>|<[^>]*>|&(?:#[0-9]+|#x[0-9a-f]+|[0-9a-z]+);)|(';
-					$pat_aft = ')/isS';
+					$pat_pre = '/(<(script|a|textarea|style).*?<\/\\2>|<[^>]*>|&(?:#[0-9]+|#x[0-9a-f]+|[0-9a-z]+);)|(?<=\W)(';
+					$pat_aft = ')(?=\W)/isS';
 				} else {
-					$pat_pre = '/(<((?:s|S)(?:c|C)(?:r|R)(?:i|I)(?:p|P)(?:t|T)|a|A|(?:t|T)(?:e|E)(?:x|X)(?:t|T)(?:a|A)(?:r|R)(?:e|E)(?:a|A)|(?:s|S)(?:t|T)(?:y|Y)(?:l|L)(?:e|E)).*?<\/\\2>|<[^>]*>|&(?:#[0-9]+|#x[0-9a-f]+|[0-9a-zA-Z]+);)|(';
-					$pat_aft = ')/sS';	
+					$pat_pre = '/(<((?:s|S)(?:c|C)(?:r|R)(?:i|I)(?:p|P)(?:t|T)|a|A|(?:t|T)(?:e|E)(?:x|X)(?:t|T)(?:a|A)(?:r|R)(?:e|E)(?:a|A)|(?:s|S)(?:t|T)(?:y|Y)(?:l|L)(?:e|E)).*?<\/\\2>|<[^>]*>|&(?:#[0-9]+|#x[0-9a-f]+|[0-9a-zA-Z]+);)|(?<=\W)(';
+					$pat_aft = ')(?=\W)/sS';	
 				}
 				foreach(explode("\t", $pat) as $_pat) {
 					$pattern = $pat_pre.$_pat.$pat_aft;
@@ -137,7 +137,7 @@ class XpWikiPukiExtAutoLink {
 				mb_convert_encoding($autolink['base'], $autolink['enc'], $this->cont['CONTENT_CHARSET']) : $autolink['base'];
 			$target = $autolink['url'].'?plugin=api&pcmd=autolink&base='.rawurlencode($target);
 		}
-		$cache = $this->cont['CACHE_DIR'].md5($target).'.extautolink';
+		$cache = $this->cont['CACHE_DIR'].sha1($target).'.extautolink';
 		
 		// 重複登録チェック
 		if (isset($this->root->rtf['get_ext_autolink_done'][$target])) {
