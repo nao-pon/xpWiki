@@ -31,22 +31,22 @@ $const['UI_LANG'] = $this->get_accept_language();
 switch ($const['LANG']){
 case 'en':
 	// Internal content encoding = Output content charset (for skin)
-	$const['CONTENT_CHARSET'] = _CHARSET;
+	$const['CONTENT_CHARSET'] = $this->get_content_charset();
 	// mb_language (for mbstring extension)
 	$const['MB_LANGUAGE'] = 'English';	// 'uni'(means UTF-8), 'English', or 'Japanese'
 	// Internal content encoding (for mbstring extension)
-	$const['SOURCE_ENCODING'] = _CHARSET;
+	$const['SOURCE_ENCODING'] = $const['CONTENT_CHARSET'];
 	
-	if ($const['UI_LANG'] === 'ja' && _CHARSET !== 'UTF-8') {
+	if ($const['UI_LANG'] === 'ja' && $const['CONTENT_CHARSET'] !== 'UTF-8') {
 		$const['UI_LANG'] = 'en';
 	}
 	
 	break;
 	
-case 'ja': // _CHARSET
-	$const['CONTENT_CHARSET'] = _CHARSET;
+case 'ja':
+	$const['CONTENT_CHARSET'] = $this->get_content_charset();
 	$const['MB_LANGUAGE'] = 'Japanese';
-	$const['SOURCE_ENCODING'] = _CHARSET;
+	$const['SOURCE_ENCODING'] = $const['CONTENT_CHARSET'];
 	break;
 
 default:
@@ -61,7 +61,7 @@ switch($this->cont['UI_LANG']){
 		$const['CSS_CHARSET'] = 'iso-8859-1';
 }
 
-$const['FILE_ENCORD_EXT'] = ('utf-8' === strtolower(_CHARSET))? '_utf8' : '';
+$const['FILE_ENCORD_EXT'] = ('UTF-8' === $const['CONTENT_CHARSET'])? '_utf8' : '';
 
 mb_language($const['MB_LANGUAGE']);
 mb_internal_encoding($const['SOURCE_ENCODING']);
@@ -72,12 +72,12 @@ mb_detect_order('auto');
 /////////////////////////////////////////////////
 // INI_FILE: Require LANG_FILE
 
-$lang_file_hint = $const['DATA_HOME'] . 'private/lang/' . $const['LANG'] . $const['FILE_ENCORD_EXT'] . '.lng.php';	// For encoding hint
+$lang_file_hint = $const['DATA_HOME'] . 'private/lang/' . $const['CONTENT_CHARSET'] . '.lng.php';	// For encoding hint
 $lang_file = $const['DATA_HOME'] . 'private/lang/' . $const['UI_LANG'] . $const['FILE_ENCORD_EXT'] . '.lng.php';	// For UI resource
 
 // html側になければtrust側
 if (! file_exists($lang_file_hint)) {
-	$lang_file_hint = $this->root->mytrustdirpath.'/lang/' . $const['LANG'] . $const['FILE_ENCORD_EXT'] . '.lng.php';
+	$lang_file_hint = $this->root->mytrustdirpath.'/lang/' . $const['CONTENT_CHARSET'] . '.lng.php';
 }
 if (! file_exists($lang_file)) {
 	$lang_file = $this->root->mytrustdirpath.'/lang/' . $const['UI_LANG'] . $const['FILE_ENCORD_EXT'] . '.lng.php';
@@ -85,10 +85,10 @@ if (! file_exists($lang_file)) {
 
 // それでもなければ 'en'
 if (! file_exists($lang_file_hint)) {
-	$lang_file_hint = $const['DATA_HOME'] . 'private/lang/en.lng.php';
+	$lang_file_hint = $this->root->mytrustdirpath.'/lang/ISO-8859-1.lng.php';
 }
 if (! file_exists($lang_file)) {
-	$lang_file = $const['DATA_HOME'] . 'private/lang/en.lng.php';
+	$lang_file = $this->root->mytrustdirpath.'/lang/en.lng.php';
 }
 
 $die = '';
@@ -107,7 +107,7 @@ if ($die) $this->die_message(nl2br("\n\n" . $die));
 /////////////////////////////////////////////////
 // LANG_FILE: Init encoding hint
 
-$const['PKWK_ENCODING_HINT'] = isset($_LANG['encode_hint'][$const['LANG']]) ? $_LANG['encode_hint'][$const['LANG']] : '';
+$const['PKWK_ENCODING_HINT'] = isset($_LANG['encode_hint']) ? $_LANG['encode_hint'] : '';
 //unset($_LANG['encode_hint']);
 
 /////////////////////////////////////////////////
@@ -153,37 +153,39 @@ $const['UA_NAME'] = isset($user_agent['name']) ? $user_agent['name'] : '';
 $const['UA_VERS'] = isset($user_agent['vers']) ? $user_agent['vers'] : '';
 unset($user_agent);	// Unset after reading UA_INI_FILE
 
-/////////////////////////////////////////////////
-// ディレクトリのチェック
-
-$die = '';
-foreach(array($const['DATA_DIR'], $const['DIFF_DIR'], $const['BACKUP_DIR'], $const['CACHE_DIR']) as $dir){
-	if (! is_writable($dir))
-		$die .= 'Directory is not found or not writable (' . $dir . ')' . "\n";
+if ($root->userinfo['admin']) {
+	/////////////////////////////////////////////////
+	// ディレクトリのチェック
+	
+	$die = '';
+	foreach(array($const['DATA_DIR'], $const['DIFF_DIR'], $const['BACKUP_DIR'], $const['CACHE_DIR']) as $dir){
+		if (! is_writable($dir))
+			$die .= 'Directory is not found or not writable (' . $dir . ')' . "\n";
+	}
+	
+	// 設定ファイルの変数チェック
+	$temp = '';
+	foreach(array('rss_max', 'note_hr', 'related_link', 'show_passage',
+		'rule_related_str', 'load_template_func') as $var){
+		if (! isset($root->{$var})) $temp .= '$' . $var . "\n";
+	}
+	if ($temp) {
+		if ($die) $die .= "\n";	// A breath
+		$die .= 'Variable(s) not found: (Maybe the old *.ini.php?)' . "\n" . $temp;
+	}
+	
+	$temp = '';
+	foreach(array($const['LANG'], $const['PLUGIN_DIR']) as $def){
+		if (! isset($def)) $temp .= $def . "\n";
+	}
+	if ($temp) {
+		if ($die) $die .= "\n";	// A breath
+		$die .= 'Define(s) not found: (Maybe the old *.ini.php?)' . "\n" . $temp;
+	}
+	
+	if($die) $this->die_message(nl2br("\n\n" . $die));
+	unset($die, $temp);
 }
-
-// 設定ファイルの変数チェック
-$temp = '';
-foreach(array('rss_max', 'note_hr', 'related_link', 'show_passage',
-	'rule_related_str', 'load_template_func') as $var){
-	if (! isset($root->{$var})) $temp .= '$' . $var . "\n";
-}
-if ($temp) {
-	if ($die) $die .= "\n";	// A breath
-	$die .= 'Variable(s) not found: (Maybe the old *.ini.php?)' . "\n" . $temp;
-}
-
-$temp = '';
-foreach(array($const['LANG'], $const['PLUGIN_DIR']) as $def){
-	if (! isset($def)) $temp .= $def . "\n";
-}
-if ($temp) {
-	if ($die) $die .= "\n";	// A breath
-	$die .= 'Define(s) not found: (Maybe the old *.ini.php?)' . "\n" . $temp;
-}
-
-if($die) $this->die_message(nl2br("\n\n" . $die));
-unset($die, $temp);
 
 // 指定ページ表示モード
 if (isset($const['page_show'])) {
@@ -362,12 +364,23 @@ if (isset($const['page_show'])) {
 		$root->get['cmd'] = $root->post['cmd'] = $root->vars['cmd'] = 'tb';
 	}
 	
+	// Special view mode
+	if (!empty($root->vars['ajax'])) {
+		$this->root->viewmode = 'ajax';
+		$arg = '';
+	} else if (!empty($root->vars['popup'])) {
+		$this->root->viewmode = 'popup';
+		$arg = '';
+	} else {
+		$this->root->viewmode = 'normal';
+	}
+	
 	// cmdもpluginも指定されていない場合は、QUERY_STRINGをページ名かInterWikiNameであるとみなす
 	if (! isset($root->vars['cmd']) && ! isset($root->vars['plugin'])) {
 	
 		$root->get['cmd']  = $root->post['cmd']  = $root->vars['cmd']  = 'read';
 	
-		if ($arg == '') $arg = $root->defaultpage;
+		if ($arg === '') $arg = $root->defaultpage;
 		$arg = rawurldecode($arg);
 		// XOOPS の redirect_header で付加されることがある &以降を削除
 		$arg = preg_replace("/&.*$/", "", $arg);
