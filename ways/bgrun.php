@@ -1,7 +1,7 @@
 <?php
 /*
  * Created on 2007/09/21 by nao-pon http://hypweb.net/
- * $Id: bgrun.php,v 1.2 2007/09/26 01:51:21 nao-pon Exp $
+ * $Id: bgrun.php,v 1.3 2007/10/12 08:49:01 nao-pon Exp $
  */
 
 error_reporting(0);
@@ -23,6 +23,26 @@ if ($xpwiki->func->is_page($page)) {
 		$_udp_mode = join('',file($_udp_file));
 		unlink($_udp_file);
 		$xpwiki->func->plain_db_write($page, $_udp_mode);
+	}
+}
+
+// 古いレンダーキャッシュファイルの削除 (1日1回程度)
+$pagemove_time = @ filemtime($xpwiki->cont['CACHE_DIR'] . 'pagemove.time');
+if ($pagemove_time) {
+	$render_cache_clr = @ filemtime($xpwiki->cont['CACHE_DIR'] . 'render_cache_clr.time');	
+	if ($render_cache_clr < time() - 86400) {
+		touch($xpwiki->cont['CACHE_DIR'] . 'render_cache_clr.time');
+		if ($handle = opendir($xpwiki->cont['RENDER_CACHE_DIR'])) {
+			while (false !== ($file = readdir($handle))) {
+				if ($file != "." && $file != ".." && substr($file, 0, 7) === 'render_') {
+					$file = $xpwiki->cont['RENDER_CACHE_DIR'] . $file;
+					if (filemtime($file) < $pagemove_time) {
+						unlink($file);
+					}
+				}
+			}
+			closedir($handle);
+		}
 	}
 }
 
