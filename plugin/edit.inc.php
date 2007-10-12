@@ -1,6 +1,6 @@
 <?php
 // PukiWiki - Yet another WikiWikiWeb clone.
-// $Id: edit.inc.php,v 1.42 2007/10/04 08:35:01 nao-pon Exp $
+// $Id: edit.inc.php,v 1.43 2007/10/12 08:06:48 nao-pon Exp $
 // Copyright (C) 2001-2006 PukiWiki Developers Team
 // License: GPL v2 or (at your option) any later version
 //
@@ -113,7 +113,7 @@ EOD;
 			if (empty($this->root->vars['ajax'])) $body .= <<<EOD
 <script type="text/javascript">
 <!--
-new Resizable('xpwiki_preview_area', 'y');
+new Resizable('xpwiki_preview_area', {mode:'y'});
 -->
 </script>
 EOD;
@@ -145,7 +145,7 @@ EOD;
 		} else {
 			$body .= $this->func->edit_form($page, $this->root->vars['msg'], $this->root->vars['digest'], TRUE, $options);
 		}
-
+		
 		return array('msg'=>(!$ng_riddle)? $this->root->_title_preview : $this->root->_title_ng_riddle, 'body'=>$body);
 	}
 	

@@ -1,13 +1,13 @@
 //
 // Created on 2007/10/03 by nao-pon http://hypweb.net/
-// $Id: resizable.js,v 1.2 2007/10/04 08:41:49 nao-pon Exp $
+// $Id: resizable.js,v 1.3 2007/10/12 08:06:48 nao-pon Exp $
 //
 
 var Resizable = Class.create();
 
 Resizable.prototype = {
 
-	initialize: function( name, mode ){
+	initialize: function( id, options ){
 		
 		this.sizeX = null;
 		this.sizeY = null;
@@ -26,13 +26,17 @@ Resizable.prototype = {
 		this.initHeight = '';
 		this.initWidth = '';
 		
-		var target = $(name);
+		this.options = options;
+		
+		var target = $(id);
 		if (!target) return false;
 		
-		if (target.tagName == 'TEXTAREA') {
+		this.tagName = target.tagName;
+		
+		if (this.tagName == 'TEXTAREA') {
 			var parent = target.parentNode;
 			this.base = document.createElement('div');
-			this.base.id = name + '_resize_base';
+			this.base.id = id + '_resize_base';
 			this.base.style.padding = '0px';
 			this.base.style.paddingLeft = target.style.paddingLeft;
 			this.base.style.marginLeft = target.style.marginLeft;
@@ -65,43 +69,50 @@ Resizable.prototype = {
 			
 			Element.makePositioned(parent);
 			
-		} else if (target.tagName == 'DIV') {
-			this.base = target;
-			
-			if (!!this.base.style.height) {
-				var initH = this.base.style.height;
+		} else if (this.tagName == 'DIV') {
+			if (!!options.element) {
+				this.base = target;
+				this.elem = $(options.element);
 			} else {
-				var initH = this.base.getStyle('maxHeight');
+				this.base = target;
+				
+				if (!!this.base.style.height) {
+					var initH = this.base.style.height;
+				} else {
+					var initH = this.base.getStyle('maxHeight');
+				}
+				if (!!initH && initH != 'none') {
+					this.initHeight = initH;
+				}
+				
+				if (!!this.base.style.width) {
+					var initW = this.base.style.width;
+				} else {
+					var initW = this.base.getStyle('maxWidth');
+				}
+				if (initW && initW != 'none') {
+					this.initWidth = initW;
+				}
+				
+				this.elem = document.createElement('div');
+				this.elem.innerHTML = this.base.innerHTML;
+				this.base.innerHTML = '';
+				this.base.appendChild(this.elem);
 			}
-			if (!!initH && initH != 'none') {
-				this.initHeight = initH;
-			}
-			
-			if (!!this.base.style.width) {
-				var initW = this.base.style.width;
-			} else {
-				var initW = this.base.getStyle('maxWidth');
-			}
-			if (initW && initW != 'none') {
-				this.initWidth = initW;
-			}
-			
-			this.elem = document.createElement('div');
-			this.elem.innerHTML = this.base.innerHTML;
-			this.base.innerHTML = '';
-			this.base.appendChild(this.elem);
-			
 		} else {
 			return false;
 		}
 		with(this.base.style) {
+			//position = 'absolute';
 			overflow = 'visible';
 			maxHeight = 'none';
 			maxWidth = 'none';
 			marginBottom = '10px';
+			marginRight = '5px';
 		}
 		Element.makePositioned(this.base);
-		this.makeResizeBox (mode);
+		//Element.makePositioned(this.elem);
+		this.makeResizeBox (options.mode);
 		return this;
 	},
 
@@ -122,16 +133,15 @@ Resizable.prototype = {
 	// make resize box
 	makeResizeBox: function (mode) {
 		if (!mode) mode = 'xy';
+
 		if (mode == 'x' ) {
-			//Element.show(this.base);
 			this.elem.style.maxWidth = 'none';
 			if (this.initWidth) {
-				this.base.style.width = this.elem.style.width = this.initWidth;
-				this.sizeY = parseInt(this.initWidth);
+				this.setWidth(this.initWidth);
 			} else {
-				this.sizeX = parseInt(this.elem.offsetWidth);
+				this.sizeX = parseInt(this.base.offsetWidth);
 				if (this.sizeX) {
-					this.base.style.width = this.elem.style.width = this.sizeX + 'px';
+					this.setWidth(this.sizeX);
 				}
 			}
 			var resize = document.createElement('div');
@@ -139,24 +149,36 @@ Resizable.prototype = {
 			resize.className = 'resizableResizeX';
 			resize.style.zIndex = this.base.style.zIndex + 1;
 			this.base.appendChild(resize);
-		} else if (mode == 'y') {
 
-			this.elem.style.maxHeight = 'none';
-			if (this.initHeight) {
-				this.base.style.height = this.elem.style.height = this.initHeight;
-				this.sizeY = parseInt(this.initHeight);
-			} else {
-				this.sizeY = parseInt(this.elem.offsetHeight);
-				if (this.sizeY) {
-					this.base.style.height = this.elem.style.height = this.sizeY + 'px';
-				}
+			if (this.tagName == 'DIV') {
+				resize.style.right = '0px';
+				this.elem.style.marginRight = '5px';
+				this.base.style.paddingRight = '5px';
 			}
 
+		} else if (mode == 'y') {
+			this.elem.style.maxHeight = 'none';
+			if (this.initHeight) {
+				this.setHeight(this.initHeight);
+			} else {
+				this.sizeY = parseInt(this.base.offsetHeight);
+				if (this.sizeY) {
+					this.setHeight(this.sizeY);
+				}
+			}
 			var resize = document.createElement('div');
 			resize.id = this.base.id + '_resizeY';
 			resize.className = 'resizableResizeY';
 			resize.style.zIndex = this.base.style.zIndex + 1;
 			this.base.appendChild(resize);
+			
+			if (this.tagName == 'DIV') {
+				resize.style.bottom = '0px';
+				this.elem.style.marginBottom = '5px';
+				//this.elem.style.paddingBottom = '5px';
+				this.base.style.paddingBottom = '5px';
+			}
+			
 		} else {
 			mode = 'xy';
 			this.makeResizeBox ('x');
@@ -166,6 +188,11 @@ Resizable.prototype = {
 			resize.className = 'resizableResizeXY';
 			resize.style.zIndex = this.base.style.zIndex + 1;
 			this.base.appendChild(resize);
+
+			if (this.tagName == 'DIV') {
+				resize.style.right = '0px';
+				resize.style.bottom = '0px';
+			}
 		}
 		this.setEdge( resize.id, mode );
 	},
@@ -196,8 +223,7 @@ Resizable.prototype = {
 	
 	dragStartX: function (event) {
 		if (!this.sizeX) {
-			this.sizeX = parseInt(this.elem.offsetWidth);
-			this.base.style.width = this.elem.style.width = this.sizeX + 'px';
+			this.setWidth(this.base.offsetWidth);
 		}
 		this.boolX = true;
 		this.boolY = false;
@@ -207,8 +233,7 @@ Resizable.prototype = {
 
 	dragStartY: function (event) {
 		if (!this.sizeY) {
-			this.sizeY = parseInt(this.elem.offsetWidth);
-			this.base.style.width = this.elem.style.width = this.sizeY + 'px';
+			this.setHeight(this.base.offsetHeight);
 		}
 		this.boolX = false;
 		this.boolY = true;
@@ -218,12 +243,10 @@ Resizable.prototype = {
 
 	dragStartXY: function (event) {
 		if (!this.sizeX) {
-			this.sizeX = parseInt(this.elem.offsetWidth);
-			this.base.style.width = this.elem.style.width = this.sizeX + 'px';
+			this.setWidth(this.base.offsetWidth);
 		}
 		if (!this.sizeY) {
-			this.sizeY = parseInt(this.elem.offsetWidth);
-			this.base.style.width = this.elem.style.width = this.sizeY + 'px';
+			this.setHeight(this.base.offsetHeight);
 		}
 		this.boolX = true;
 		this.boolY = true;
@@ -233,6 +256,7 @@ Resizable.prototype = {
 
 	dragStart: function (event) {
 		if ( this.onDrag ) return;
+		Event.stop(event);
 		this.onDrag = true;
 		this.backupCursor();
 	
@@ -242,34 +266,34 @@ Resizable.prototype = {
 		Event.observe(document, "mousemove", this.dragMove.bindAsEventListener(this));
 		Event.observe(document, "mouseup", this.dragFinish.bindAsEventListener(this));
 		
-		event.stop();
+		if(!!this.options.starteffect) this.options.starteffect(this.base);
+		return false;
 	},
 	
 	dragMove: function (event) {
 		if ( ! this.onDrag ) return;
-		//alert(this.sizeX);
+		//Event.stop(event);
 		var newX = this.sizeX + event.clientX - this.curX;
 		if ( this.boolX && newX > 0 ) {
-			this.base.style.width = this.elem.style.width = newX + "px";
-			this.sizeX = newX;
+			this.setWidth(newX);
 			this.curX = event.clientX;
 		}
 	
 		var newY = this.sizeY + event.clientY - this.curY;
 		if ( this.boolY && newY > 0 ) {
-			this.base.style.height = this.elem.style.height = newY + "px";
-			this.sizeY = newY;
+			this.setHeight(newY);
 			this.curY = event.clientY;
 		}
-		
-		event.stop();
+		return false;
 	},
 	
 	dragFinish: function (event) {
 		if ( ! this.onDrag ) return;
+		if (!!this.options.endeffect) this.options.endeffect(this.base);
+		//Event.stop(event);
 		this.restoreCursor();
 		this.onDrag = false;
-		event.stop();
+		return false;
 	},
 	
 	backupCursor: function () {
@@ -298,5 +322,21 @@ Resizable.prototype = {
 		if (!!$(this.base.id + '_resizeX')) { $(this.base.id + '_resizeX').style.cursor = this.saveCursor['resizeX']; }
 		if (!!$(this.base.id + '_resizeY')) { $(this.base.id + '_resizeY').style.cursor = this.saveCursor['resizeY']; }
 		if (!!$(this.base.id + '_resizeXY')) { $(this.base.id + '_resizeXY').style.cursor = this.saveCursor['resizeXY']; }
+	},
+	
+	setWidth: function (val) {
+		val = parseInt(val);
+		if (val > 0) {
+			this.base.style.width = this.elem.style.width = val + "px";
+			this.sizeX = val;
+		}
+	},
+	
+	setHeight: function (val) {
+		val = parseInt(val);
+		if (val > 0) {
+			this.base.style.height = this.elem.style.height = val + "px";
+			this.sizeY = val;
+		}
 	}
 }

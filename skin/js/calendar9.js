@@ -7,7 +7,7 @@ function xpwiki_cal9_showResponse(orgRequest) {
 		$('xpwiki_cal9_editarea').innerHTML = xmlRes.getElementsByTagName('editform')[0].firstChild.nodeValue;
 		$('xpwiki_edit_textarea').style.height = '250px';
 		Element.update($('xpwiki_cancel_form'), '<button id="c9cancel" onclick="return xpwiki_cal9_day_edit_close()">'+xpwiki_calender9_cancel+'</button>');
-		new Resizable('xpwiki_edit_textarea', 'xy');
+		new Resizable('xpwiki_edit_textarea', {mode:'xy'});
 		wikihelper_initTexts($('xpwiki_cal9_editarea'));
 		Element.hide($('xpwiki_cal9_loading_base'));
 	} else if (xmlRes.getElementsByTagName('xpwiki').length) {
@@ -77,8 +77,8 @@ function xpwiki_cal9_showResponse(orgRequest) {
 			$('xpwiki_cal9_editarea').innerHTML = str;
 			$('xpwiki_edit_textarea').style.height = '250px';
 			Element.update($('xpwiki_cancel_form'), '<button id="c9cancel" onclick="return xpwiki_cal9_day_edit_close()">'+xpwiki_calender9_cancel+'</button>');
-			new Resizable('xpwiki_preview_area', 'y');
-			new Resizable('xpwiki_edit_textarea', 'xy');
+			new Resizable('xpwiki_preview_area', {mode:'y'});
+			new Resizable('xpwiki_edit_textarea', {mode:'xy'});
 			wikihelper_initTexts($('xpwiki_cal9_editarea'));
 			Element.hide($('xpwiki_cal9_loading_base'));
 			xpwiki_ajax_edit_var['html'] = true;
