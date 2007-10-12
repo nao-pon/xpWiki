@@ -1,7 +1,7 @@
 <?php
 //
 // Created on 2006/10/02 by nao-pon http://hypweb.net/
-// $Id: xpwiki_func.php,v 1.102 2007/09/26 02:11:30 nao-pon Exp $
+// $Id: xpwiki_func.php,v 1.103 2007/10/12 08:04:38 nao-pon Exp $
 //
 class XpWikiFunc extends XpWikiXoopsWrapper {
 
@@ -481,17 +481,29 @@ class XpWikiFunc extends XpWikiXoopsWrapper {
 	}
 	
 	function get_additional_headtags () {
+		if ($this->root->render_mode === 'main') {
+			$enchint = <<<EOD
+<script type="text/javascript">var XpWikiEncHint = '{$this->cont['PKWK_ENCODING_HINT']}';</script>
+EOD;
+		} else {
+			$enchint = <<<EOD
+<script type="text/javascript"><!--
+var XpWikiEncHint = '{$this->cont['PKWK_ENCODING_HINT']}';
+//--></script>
+EOD;
+		}
 		// WikiHelper JavaScript
-		$head_pre_tag = <<<EOD
+		$head_tag = <<<EOD
+{$enchint}
 <script type="text/javascript" src="{$this->cont['HOME_URL']}skin/loader.php?src=default.{$this->cont['UI_LANG']}{$this->cont['FILE_ENCORD_EXT']}.js"></script>
-
+<script type="text/javascript" src="{$this->cont['HOME_URL']}skin/loader.php?src=xpwiki.js"></script>
 EOD;
 
 		// Pre Tags
-		$head_pre_tag .= ! empty($this->root->head_pre_tags) ? join("\n", $this->root->head_pre_tags) ."\n" : '';
+		$head_pre_tag = ! empty($this->root->head_pre_tags) ? join("\n", $this->root->head_pre_tags) ."\n" : '';
 		
 		// Tags will be inserted into <head></head>
-		$head_tag = ! empty($this->root->head_tags) ? join("\n", $this->root->head_tags) ."\n" : '';
+		$head_tag .= ! empty($this->root->head_tags) ? join("\n", $this->root->head_tags) ."\n" : '';
 		
 		// Clear
 		$this->root->head_pre_tags = $this->root->head_tags = array();
@@ -769,7 +781,7 @@ EOD;
 		}
 		return $ret;	
 	}
-	function add_tag_head ($file,$pre=TRUE) {
+	function add_tag_head ($file, $pre = FALSE) {
 		static $done = array();
 		if ($this->root->render_mode !== 'render') {
 			if (isset($done[$this->xpwiki->pid][$file])) { return; }
@@ -1219,6 +1231,61 @@ EOD;
 		header ('Content-Length: '. strlen($xml));
 		echo $xml;
 		exit;
+	}
+	
+	function output_ajax ($body) {
+		// Head Tags
+		list($head_pre_tag, $head_tag) = $this->get_additional_headtags();
+		$xml = <<<EOD
+<xpwiki>
+<content><![CDATA[{$body}]]></content>
+<mode>read</mode>
+<headPreTag><![CDATA[{$head_pre_tag}]]></headPreTag>
+<headTag><![CDATA[{$head_tag}]]></headTag>
+</xpwiki>
+EOD;
+		$this->send_xml($xml);	
+	}
+	
+	function output_popup ($body) {
+		// set target
+		$body = preg_replace('/(<a[^>]+)(href=(?:"|\')[^#])/isS', '$1target="_parent" $2', $body);
+		
+		// Head Tags
+		list($head_pre_tag, $head_tag) = $this->get_additional_headtags();
+		$css_charset = $this->cont['CSS_CHARSET'];
+		$class = 'xpwiki_' . $this->root->mydirname;
+		$navigator = $this->root->mydirname . '_navigator';
+		
+		header('Content-Type: text/html; charset=' . $this->cont['CONTENT_CHARSET']);
+		// HTML DTD, <html>, and receive content-type
+		if (isset($this->root->pkwk_dtd)) {
+			$meta_content_type = $this->pkwk_output_dtd($this->root->pkwk_dtd);
+		} else {
+			$meta_content_type = $this->pkwk_output_dtd();
+		}
+		$html = <<<EOD
+<head>
+$meta_content_type
+<meta http-equiv="content-style-type" content="text/css" />
+<meta http-equiv="Content-Script-Type" content="text/javascript" />
+$head_pre_tag
+<link rel="stylesheet" type="text/css" media="all" href="{$this->cont['HOME_URL']}skin/loader.php?skin={$this->cont['SKIN_NAME']}&amp;charset={$css_charset}&amp;pw={$this->root->pre_width}&amp;src=main.css" charset="{$css_charset}" />
+<link rel="stylesheet" type="text/css" media="print"  href="{$this->cont['HOME_URL']}skin/loader.php?skin={$this->cont['SKIN_NAME']}&amp;charset={$css_charset}&amp;pw={$this->root->pre_width}&amp;media=print&amp;src=main.css" charset="{$css_charset}" />
+$head_tag
+<title></title>
+</head>
+<body class="popup_body">
+<div class="{$class}" id="{$navigator}">
+<div class="body"><div id="xpwiki_body">
+$body
+</div></div>
+</div>
+</body>
+</html>
+EOD;
+		echo $html;
+		exit();	
 	}
 
 	function http_request
