@@ -1,5 +1,5 @@
 <?php
-// $Id: ref.inc.php,v 1.14 2007/09/05 05:22:16 nao-pon Exp $
+// $Id: ref.inc.php,v 1.15 2007/10/12 08:07:57 nao-pon Exp $
 /*
 
 	*プラグイン ref
@@ -32,10 +32,10 @@
 class xpwiki_plugin_ref extends xpwiki_plugin {
 	function plugin_ref_init () {
 		// File icon image
-			if (! isset($this->cont['FILE_ICON']))
-				$this->cont['FILE_ICON'] = 
-		'<img src="' . $this->cont['IMAGE_DIR'] . 'file.png" width="20" height="20"' .
-		' alt="file" style="border-width:0px" />';
+		if (! isset($this->cont['FILE_ICON']))
+			$this->cont['FILE_ICON'] = 
+				'<img src="' . $this->cont['IMAGE_DIR'] . 'file.png" width="20" height="20"' .
+				' alt="file" style="border-width:0px" />';
 	
 		// default alignment
 		$this->cont['PLUGIN_REF_DEFAULT_ALIGN'] = 'left'; // 'left','center','right'
@@ -252,7 +252,7 @@ class xpwiki_plugin_ref extends xpwiki_plugin {
 			'name'   => array_shift($args), // 添付ファイル名を取得(第一引数)
 		);
 		
-		if (!$lvar['page']) {
+		if ($this->root->render_mode === 'render') {
 			$lvar['page'] = $this->root->render_attach;
 		}
 		
@@ -489,9 +489,9 @@ class xpwiki_plugin_ref extends xpwiki_plugin {
 				// lightbox
 				if ($this->root->ref_use_lightbox) {
 					$this->root->ref_use_lightbox = FALSE;
+					$this->func->add_tag_head('lightbox.css');
 					$this->func->add_tag_head('effects.js');
 					$this->func->add_tag_head('lightbox.js');
-					$this->func->add_tag_head('lightbox.css');
 				}
 				// 画像ファイル
 				$params['_body'] = '<img src="' . $lvar['url'] . '" alt="' . $lvar['title'] . '" title="' . $lvar['title'] . '"' . $img['class'] . $img['info'] . '/>';
