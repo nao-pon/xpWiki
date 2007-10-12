@@ -1,6 +1,6 @@
 <?php
 // PukiWiki - Yet another WikiWikiWeb clone
-// $Id: pukiwiki.ini.php,v 1.50 2007/09/26 02:11:30 nao-pon Exp $
+// $Id: pukiwiki.ini.php,v 1.51 2007/10/12 08:05:12 nao-pon Exp $
 // Copyright (C)
 //   2002-2006 PukiWiki Developers Team
 //   2001-2002 Originally written by yu-ji
@@ -615,12 +615,29 @@ $root->pre_width_ie = '700px';
 
 /////////////////////////////////////////////////
 // レンダラーモード用設定
-//
+// For renderer mode.
+
 // レンダリングキャッシュを有効にする
+// Enable render cache.
 $root->render_use_cache = 0;
+
 // キャッシュの有効時間(分) 0: Wikiページが新規作成・削除されるまで
+// Render cache minutes. 0: Until make or delete a page.
 $root->render_cache_min = 0;
 
+// ページリンクをポップアップにする
+// All page link uses popup.
+$root->render_popuplink = 0;
+
+$root->render_popuplink_position = array(
+	// Array values are value of the CSS.
+	'top'    => '',
+	'bottom' => '',
+	'left'   => '',
+	'right'  => '',
+	'width'  => '',
+	'height' => ''
+);
 
 /////////////////////////////////////////////////
 // User-Agent settings
