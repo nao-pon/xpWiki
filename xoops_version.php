@@ -1,6 +1,4 @@
 <?php
-// check dirctory name.
-if( preg_match("/^[a-zA-Z_][a-zA-Z0-9_]*$/", $mydirname) ) {
 
 // language file (modinfo.php)
 if( file_exists( dirname(__FILE__).'/language/'.@$xoopsConfig['language'].'/modinfo.php' ) ) {
@@ -10,9 +8,8 @@ if( file_exists( dirname(__FILE__).'/language/'.@$xoopsConfig['language'].'/modi
 }
 $constpref = '_MI_' . strtoupper( $mydirname ) ;
 
-
 $modversion['name'] = $mydirname ;
-$modversion['version'] = '3.27.3' ;
+$modversion['version'] = '3.28' ;
 $modversion['description'] = constant($constpref.'_MODULE_DESCRIPTION') ;
 $modversion['credits'] = '&copy; 2006-2007 hypweb.net.';
 $modversion['author'] = 'nao-pon' ;
@@ -171,5 +168,4 @@ $modversion['onInstall'] = 'oninstall.php' ;
 $modversion['onUpdate'] = 'onupdate.php' ;
 $modversion['onUninstall'] = 'onuninstall.php' ;
 
-}
 ?>
