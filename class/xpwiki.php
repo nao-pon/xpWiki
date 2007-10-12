@@ -1,7 +1,7 @@
 <?php
 //
 // Created on 2006/09/29 by nao-pon http://hypweb.net/
-// $Id: xpwiki.php,v 1.55 2007/09/25 23:50:57 nao-pon Exp $
+// $Id: xpwiki.php,v 1.56 2007/10/12 08:00:21 nao-pon Exp $
 //
 
 class XpWiki {
@@ -184,7 +184,7 @@ class XpWiki {
 				} else {
 					$root->vars['cmd']  = 'read';
 					$root->vars['page'] = $base;
-					$body  = $func->get_body($base);
+					$body = $func->get_body($base);
 					
 					if ($root->trackback) {
 						$body .= $func->tb_get_rdf($base);
@@ -200,47 +200,48 @@ class XpWiki {
 					}
 				}
 			}
+			
 			// cont['USER_NAME_REPLACE'] ¤ò ÃÖ´¹
-			$body  = str_replace($this->cont['USER_NAME_REPLACE'], $this->root->userinfo['uname_s'], $body);
+			$body = str_replace($this->cont['USER_NAME_REPLACE'], $this->root->userinfo['uname_s'], $body);
+			
 			// For Safari
 			if ($this->cont['UA_NAME'] === 'Safari') {
 				$body = preg_replace('/(<form)([^>]*>)/' , '$1 accept-charset="UTF-8"$2', $body);
 			}
 
-			if (!empty($this->root->vars['ajax'])) {
-				// Head Tags
-				list($head_pre_tag, $head_tag) = $this->func->get_additional_headtags();
-		
-				$xml = <<<EOD
-<xpwiki>
-<content><![CDATA[{$body}]]></content>
-<mode>read</mode>
-<headPreTag><![CDATA[{$head_pre_tag}]]></headPreTag>
-<headTag><![CDATA[{$head_tag}]]></headTag>
-</xpwiki>
-EOD;
-				$this->func->send_xml($xml);	
+			// Outputas normal
+			if ($this->root->viewmode === 'normal') {
+				$page_title = strip_tags($title);
+				$content_title = (!empty($this->root->content_title) && $title !== $this->root->content_title)?
+					' ['.$this->func->unhtmlspecialchars($this->root->content_title, ENT_QUOTES).']' : '';
+				
+				$root->pagetitle = str_replace(
+										array('$page_title', '$content_title', '$module_title'),
+										array($page_title, $content_title, $this->root->module_title),
+										$root->html_head_title);
+	
+				$this->title         = $title;
+				$this->page          = $base;
+				$this->skin_title    = $page;
+				$this->body          = $body;
+				$this->foot_explain  = $root->foot_explain;
+				$this->head_pre_tags = $root->head_pre_tags;
+				$this->head_tags     = $root->head_tags;
+				$this->related       = $root->related;
+				$this->notyets       = $root->notyets;
+				
+				return;
+			}
+			
+			// Output as Ajax -> exit
+			if ($this->root->viewmode === 'ajax') {
+				$func->output_ajax($body);
 			}
 
-			// Output
-			$page_title = strip_tags($title);
-			$content_title = (!empty($this->root->content_title) && $title !== $this->root->content_title)?
-				' ['.$this->func->unhtmlspecialchars($this->root->content_title, ENT_QUOTES).']' : '';
-			
-			$root->pagetitle = str_replace(
-									array('$page_title', '$content_title', '$module_title'),
-									array($page_title, $content_title, $this->root->module_title),
-									$root->html_head_title);
-
-			$this->title         = $title;
-			$this->page          = $base;
-			$this->skin_title    = $page;
-			$this->body          = $body;
-			$this->foot_explain  = $root->foot_explain;
-			$this->head_pre_tags = $root->head_pre_tags;
-			$this->head_tags     = $root->head_tags;
-			$this->related       = $root->related;
-			$this->notyets       = $root->notyets;
+			// Output as Popup -> exit
+			if ($this->root->viewmode === 'popup') {
+				$func->output_popup($body);
+			}
 		}
 	}
 	
@@ -417,7 +418,7 @@ EOD;
 			if (!empty($this->iniVar['const'])) {
 				$op .= serialize($this->iniVar['const']);
 			}
-			$cache = $this->cont['RENDER_CACHE_DIR'] . 'render_' . md5($text.$op);
+			$cache = $this->cont['RENDER_CACHE_DIR'] . 'render_' . sha1($text.$op);
 			if (file_exists($cache) &&
 				@ filemtime($this->cont['CACHE_DIR'] . 'pagemove.time') < filemtime($cache) &&
 				(empty($this->root->render_cache_min) || ((filemtime($cache) +  $this->root->render_cache_min * 60) > time()))
@@ -425,6 +426,10 @@ EOD;
 				$texts = file($cache);
 				$head_pre_tag = array_shift($texts);
 				$head_tag = array_shift($texts);
+
+				$head_pre_tag = str_replace("\x08", "\n", $head_pre_tag);
+				$head_tag = str_replace("\x08", "\n", $head_tag);
+
 				$text = join('', $texts);
 			} else {
 				$text = $this->func->convert_html($text);
@@ -438,7 +443,9 @@ EOD;
 					@ touch ($cache);
 					if (is_writable($cache)) {
 						if ($fp = fopen($cache, 'wb')) {
-							fwrite($fp, preg_replace('/[\r\n]+/', '', $head_pre_tag). "\n" . preg_replace('/[\r\n]+/', '', $head_tag). "\n" . $text);
+							$_head_pre_tag = str_replace(array("\r\n","\r","\n"), "\x08", $head_pre_tag);
+							$_head_tag = str_replace(array("\r\n","\r","\n"), "\x08", $head_tag);
+							fwrite($fp, $_head_pre_tag . "\n" . $_head_tag . "\n" . $text);
 							fclose($fp);
 						}
 					}
