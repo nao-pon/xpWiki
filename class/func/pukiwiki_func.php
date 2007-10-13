@@ -1,7 +1,7 @@
 <?php
 //
 // Created on 2006/10/02 by nao-pon http://hypweb.net/
-// $Id: pukiwiki_func.php,v 1.123 2007/10/12 08:02:13 nao-pon Exp $
+// $Id: pukiwiki_func.php,v 1.124 2007/10/13 05:46:59 nao-pon Exp $
 //
 class XpWikiPukiWikiFunc extends XpWikiBaseFunc {
 
@@ -881,7 +881,7 @@ class XpWikiPukiWikiFunc extends XpWikiBaseFunc {
 
 //----- Start convert_html.php -----//
 	// PukiWiki - Yet another WikiWikiWeb clone
-	// $Id: pukiwiki_func.php,v 1.123 2007/10/12 08:02:13 nao-pon Exp $
+	// $Id: pukiwiki_func.php,v 1.124 2007/10/13 05:46:59 nao-pon Exp $
 	// Copyright (C)
 	//   2002-2005 PukiWiki Developers Team
 	//   2001-2002 Originally written by yu-ji
@@ -1140,7 +1140,7 @@ class XpWikiPukiWikiFunc extends XpWikiBaseFunc {
 
 //----- Start func.php -----//
 	// PukiWiki - Yet another WikiWikiWeb clone.
-	// $Id: pukiwiki_func.php,v 1.123 2007/10/12 08:02:13 nao-pon Exp $
+	// $Id: pukiwiki_func.php,v 1.124 2007/10/13 05:46:59 nao-pon Exp $
 	// Copyright (C)
 	//   2002-2006 PukiWiki Developers Team
 	//   2001-2002 Originally written by yu-ji
@@ -1956,7 +1956,7 @@ EOD;
 
 //----- Start make_link.php -----//
 	// PukiWiki - Yet another WikiWikiWeb clone.
-	// $Id: pukiwiki_func.php,v 1.123 2007/10/12 08:02:13 nao-pon Exp $
+	// $Id: pukiwiki_func.php,v 1.124 2007/10/13 05:46:59 nao-pon Exp $
 	// Copyright (C)
 	//   2003-2005 PukiWiki Developers Team
 	//   2001-2002 Originally written by yu-ji
@@ -2069,6 +2069,7 @@ EOD;
 				'\',page:\'' . htmlspecialchars($page, ENT_QUOTES) . '\'' .
 				(isset($options['popup']['position'])? $options['popup']['position'] : '' ) .
 				'});return false;"';
+				$class .= '_popup';
 			}
 			
 			$link = $this->get_page_uri($page);
@@ -2827,7 +2828,7 @@ EOD;
 
 //----- Start html.php -----//
 	// PukiWiki - Yet another WikiWikiWeb clone.
-	// $Id: pukiwiki_func.php,v 1.123 2007/10/12 08:02:13 nao-pon Exp $
+	// $Id: pukiwiki_func.php,v 1.124 2007/10/13 05:46:59 nao-pon Exp $
 	// Copyright (C)
 	//   2002-2006 PukiWiki Developers Team
 	//   2001-2002 Originally written by yu-ji
@@ -3223,7 +3224,7 @@ EOD;
 			$body .= $this->root->hr . $this->catrule();
 		} else {
 			$sdir = htmlspecialchars($this->root->mydirname, ENT_QUOTES);
-			$body .= '<ul><li><a href="' .
+			$body .= '<ul><li><a class="pagelink_popup" href="' .
 				$this->root->script . '?cmd=edit&amp;help=true&amp;page=' . $r_page .
 				'" onclick="XpWiki.pagePopup({dir:\''.$sdir.'\',page:\'FormattingRules\'});return false;">' . $this->root->_msg_help . '</a></li></ul>';
 		}
@@ -3497,7 +3498,7 @@ EOD;
 
 //----- Start mail.php -----//
 	// PukiWiki - Yet another WikiWikiWeb clone.
-	// $Id: pukiwiki_func.php,v 1.123 2007/10/12 08:02:13 nao-pon Exp $
+	// $Id: pukiwiki_func.php,v 1.124 2007/10/13 05:46:59 nao-pon Exp $
 	// Copyright (C)
 	//   2003-2005 PukiWiki Developers Team
 	//   2003      Originally written by upk
@@ -3800,7 +3801,7 @@ EOD;
 
 //----- Start link.php -----//
 	// PukiWiki - Yet another WikiWikiWeb clone
-	// $Id: pukiwiki_func.php,v 1.123 2007/10/12 08:02:13 nao-pon Exp $
+	// $Id: pukiwiki_func.php,v 1.124 2007/10/13 05:46:59 nao-pon Exp $
 	// Copyright (C) 2003-2006 PukiWiki Developers Team
 	// License: GPL v2 or (at your option) any later version
 	//

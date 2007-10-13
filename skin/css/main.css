@@ -127,9 +127,16 @@ $class a.ext {
 $class a.pagelink {
 	/*border-bottom: 1px silver dotted;*/
 }
-
+$class a.pagelink_popup {
+	/*border-bottom: 1px silver dotted;*/
+	cursor: help;
+}
 $class a.autolink {
 	/*border-bottom: 1px silver dotted;*/
+}
+$class a.autolink_popup {
+	/*border-bottom: 1px silver dotted;*/
+	cursor: help;
 }
 
 $class a.ext_autolink {
