@@ -1,6 +1,6 @@
 <?php
 // PukiWiki - Yet another WikiWikiWeb clone.
-// $Id: tdiary.css.php,v 1.5 2006/12/11 04:24:15 nao-pon Exp $
+// $Id: tdiary.css.php,v 1.6 2007/10/13 05:47:32 nao-pon Exp $
 // Copyright (C)
 //   2002-2005 PukiWiki Developers Team
 //   2001-2002 Originally written by yu-ji
@@ -115,6 +115,87 @@ div#wikihelper_base {
 
 div#pukiwiki_helper_base small {
 	background-color:white;
+}
+
+#xpwiki_loading {
+	background-color: white;
+	position: absolute;
+	text-align: center;
+	z-index: 200;
+	filter:alpha(opacity=50);
+	-moz-opacity: 0.5;
+	opacity: 0.5;
+	cursor: wait;
+}
+
+#XpWikiPopup {
+	border-left: solid gray 1px;
+}
+
+#XpWikiPopupHeader {
+	background-color: #9C9C9C;
+	color: white;
+	font-weight:bold;
+}
+
+#XpWikiPopupBody {
+	background-color: white;
+}
+
+body.popup_body {
+	padding-top:25px;
+	font-size:75%;
+}
+
+a.pagelink {
+	/*border-bottom: 1px silver dotted;*/
+}
+a.pagelink_popup {
+	/*border-bottom: 1px silver dotted;*/
+	cursor: help;
+}
+a.autolink {
+	/*border-bottom: 1px silver dotted;*/
+}
+a.autolink_popup {
+	/*border-bottom: 1px silver dotted;*/
+	cursor: help;
+}
+
+div.resizableResizeX {
+	position: absolute;
+	right: -5px;
+	width: 4px;
+	top: 0px;
+	height:100%;
+	border: none;
+	padding: 0px;
+	margin: 0px;
+	background-color: #b0c4de;
+}
+
+div.resizableResizeY {
+	position: absolute;
+	bottom: -5px;
+	height: 4px;
+	left: 0px;
+	width:100%;
+	border: none;
+	padding: 0px;
+	margin: 0px;
+	background-color: #b0c4de;
+}
+
+div.resizableResizeXY {
+	position: absolute;
+	bottom: -5px;
+	height: 6px;
+	right: -5px;
+	width: 6px;
+	border: none;
+	padding: 0px;
+	margin: 0px;
+	background-color: #b0c4de;
 }
 
 pre {
