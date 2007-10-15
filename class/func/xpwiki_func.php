@@ -1,7 +1,7 @@
 <?php
 //
 // Created on 2006/10/02 by nao-pon http://hypweb.net/
-// $Id: xpwiki_func.php,v 1.103 2007/10/12 08:04:38 nao-pon Exp $
+// $Id: xpwiki_func.php,v 1.104 2007/10/15 05:32:10 nao-pon Exp $
 //
 class XpWikiFunc extends XpWikiXoopsWrapper {
 
@@ -481,22 +481,9 @@ class XpWikiFunc extends XpWikiXoopsWrapper {
 	}
 	
 	function get_additional_headtags () {
-		if ($this->root->render_mode === 'main') {
-			$enchint = <<<EOD
-<script type="text/javascript">var XpWikiEncHint = '{$this->cont['PKWK_ENCODING_HINT']}';</script>
-EOD;
-		} else {
-			$enchint = <<<EOD
-<script type="text/javascript"><!--
-var XpWikiEncHint = '{$this->cont['PKWK_ENCODING_HINT']}';
-//--></script>
-EOD;
-		}
 		// WikiHelper JavaScript
 		$head_tag = <<<EOD
-{$enchint}
 <script type="text/javascript" src="{$this->cont['HOME_URL']}skin/loader.php?src=default.{$this->cont['UI_LANG']}{$this->cont['FILE_ENCORD_EXT']}.js"></script>
-<script type="text/javascript" src="{$this->cont['HOME_URL']}skin/loader.php?src=xpwiki.js"></script>
 EOD;
 
 		// Pre Tags
