@@ -1,7 +1,7 @@
 <?php
 /*
  * Created on 2007/09/21 by nao-pon http://hypweb.net/
- * $Id: bgrun.php,v 1.3 2007/10/12 08:49:01 nao-pon Exp $
+ * $Id: bgrun.php,v 1.4 2007/10/15 08:27:24 nao-pon Exp $
  */
 
 error_reporting(0);
@@ -34,7 +34,7 @@ if ($pagemove_time) {
 		touch($xpwiki->cont['CACHE_DIR'] . 'render_cache_clr.time');
 		if ($handle = opendir($xpwiki->cont['RENDER_CACHE_DIR'])) {
 			while (false !== ($file = readdir($handle))) {
-				if ($file != "." && $file != ".." && substr($file, 0, 7) === 'render_') {
+				if (substr($file, 0, 7) === 'render_') {
 					$file = $xpwiki->cont['RENDER_CACHE_DIR'] . $file;
 					if (filemtime($file) < $pagemove_time) {
 						unlink($file);
