@@ -1,6 +1,6 @@
 //
 // Created on 2007/10/03 by nao-pon http://hypweb.net/
-// $Id: loader.js,v 1.1 2007/10/03 12:43:10 nao-pon Exp $
+// $Id: loader.js,v 1.2 2007/10/15 05:31:17 nao-pon Exp $
 //
 
 // Init.
@@ -29,3 +29,6 @@ if (wikihelper_WinIE) {
 } else {
 	document.write ('<script type="text/javascript" src="' + wikihelper_root_url + '/skin/loader.php?src=other.js"></script>');
 }
+
+// xpwiki.js
+document.write ('<script type="text/javascript" src="' + wikihelper_root_url + '/skin/loader.php?src=xpwiki.js"></script>');
