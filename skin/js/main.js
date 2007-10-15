@@ -4,10 +4,11 @@ var wikihelper_mapLoad=0;
 var wikihelper_initLoad=0;
 var wikihelper_root_url = '$wikihelper_root_url';
 var XpWikiModuleUrl = '$module_url';
+var XpWikiEncHint = '$encode_hint';
 
 var xpwiki_ajax_edit_var = new Object();
-xpwiki_ajax_edit_var["id"] = '';
-xpwiki_ajax_edit_var["html"] = '';
+xpwiki_ajax_edit_var['id'] = '';
+xpwiki_ajax_edit_var['html'] = '';
 xpwiki_ajax_edit_var['mode'] = '';
 xpwiki_ajax_edit_var['func_post'] = '';
 
