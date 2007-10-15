@@ -1,7 +1,7 @@
 <?php
 //
 // Created on 2006/10/25 by nao-pon http://hypweb.net/
-// $Id: loader.php,v 1.21 2007/10/12 08:10:43 nao-pon Exp $
+// $Id: loader.php,v 1.22 2007/10/15 05:30:20 nao-pon Exp $
 //
 
 error_reporting(0);
@@ -22,6 +22,7 @@ $face_remake = $js_replace = $replace = false;
 $root_path = dirname($skin_dirname);
 $cache_path = $root_path.'/private/cache/';
 $module_url = XOOPS_URL.'/'.basename(dirname($root_path));
+$wikihelper_root_url = $module_url . '/' . basename($root_path);
 $face_cache = $cache_path . 'facemarks.js';
 $face_tag_ver = 1.0;
 
@@ -51,6 +52,7 @@ if ($type !== 'css') {
 
 switch ($type) {
 	case 'css':
+		$_charset = '';
 		$c_type = 'text/css';
 		$dir = $prefix.basename($root_path);
 		if ($src === 'main') {
@@ -145,9 +147,6 @@ switch ($type) {
 			}
 			$replace = true;
 			$js_replace = true;
-		} else if (!is_null($encode_hint)) {
-			$replace = true;
-			$js_replace = true;
 		}
 		$c_type = 'application/x-javascript';
 		$cache_file = $cache_path.$src.'.'.$type;
@@ -234,6 +233,11 @@ if (file_exists($src_file)) {
 		}
 		if ($type === 'js') {
 			if ($src === 'main') {
+				include_once XOOPS_ROOT_PATH.'/include/common.php';
+				include_once dirname( __FILE__ ) . '/include.php';
+				$xpwiki = new XpWiki(basename($root_path));
+				$xpwiki->init('#RenderMode');
+				$encode_hint = $xpwiki->cont['PKWK_ENCODING_HINT'];
 				if (!$face_remake) {
 					list($face_tag, $face_tag_full, $_face_tag_ver) = array_pad(file($face_cache), 3, '');
 					if (!$face_tag_full) $face_tag_full = $face_tag;
@@ -242,18 +246,15 @@ if (file_exists($src_file)) {
 					}
 				}
 				if ($face_remake) {
-					include XOOPS_ROOT_PATH.'/include/common.php';
 					list($face_tag, $face_tag_full) = xpwiki_make_facemarks ($skin_dirname, $face_cache, $face_tag_ver);
 				}
-				$out = str_replace(array('$face_tag_full', '$face_tag', '$module_url'), array($face_tag_full, $face_tag, $module_url), $out);
+				$out = str_replace(
+					array('$face_tag_full', '$face_tag', '$module_url', '$encode_hint'),
+					array($face_tag_full, $face_tag, $module_url, $encode_hint),
+				$out);
 			}
 			if ($js_replace) {
-				$xoops_root_path = XOOPS_ROOT_PATH;
-				if ( substr(PHP_OS, 0, 3) === 'WIN' ) {
-					$root_path = str_replace('\\', '/', $root_path);
-					$xoops_root_path = str_replace('\\', '/', $xoops_root_path);
-				}
-				$out = str_replace('$wikihelper_root_url', str_replace($xoops_root_path, XOOPS_URL, $root_path) , $out);
+				$out = str_replace('$wikihelper_root_url', $wikihelper_root_url, $out);
 			}
 		}
 		$length = strlen($out);
@@ -267,6 +268,7 @@ if (file_exists($src_file)) {
 	}
 
 	// html側/private/cache に gzip 圧縮してキャッシュする
+	$is_gz = false;
 	if ($gzip_fname && function_exists('gzencode')) {
 		if (!$replace) {
 			$out = join("",file($src_file));
