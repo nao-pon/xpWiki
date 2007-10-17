@@ -1,7 +1,7 @@
 <?php
 //
 // Created on 2006/10/25 by nao-pon http://hypweb.net/
-// $Id: loader.php,v 1.22 2007/10/15 05:30:20 nao-pon Exp $
+// $Id: loader.php,v 1.23 2007/10/17 23:06:46 nao-pon Exp $
 //
 
 error_reporting(0);
@@ -269,7 +269,7 @@ if (file_exists($src_file)) {
 
 	// html側/private/cache に gzip 圧縮してキャッシュする
 	$is_gz = false;
-	if ($gzip_fname && function_exists('gzencode')) {
+	if ($gzip_fname && extension_loaded('zlib')) {
 		if (!$replace) {
 			$out = join("",file($src_file));
 		}
