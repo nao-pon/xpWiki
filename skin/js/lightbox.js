@@ -16,7 +16,7 @@
 // -----------------------------------------------------------------------------------
 //
 //  edited by nao-pon - http://hypweb.net/
-//  $Id: lightbox.js,v 1.10 2007/09/11 06:25:55 nao-pon Exp $
+//  $Id: lightbox.js,v 1.11 2007/10/17 23:07:27 nao-pon Exp $
 //
 // -----------------------------------------------------------------------------------
 
@@ -734,6 +734,6 @@ function pause(numberMillis) {
 
 function initLightbox() { myLightbox = new Lightbox(); }
 
-document.observe("contentloaded", initLightbox);
+document.observe("dom:loaded", initLightbox);
 
 }
