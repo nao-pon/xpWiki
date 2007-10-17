@@ -422,6 +422,6 @@ window.onbeforeunload = function(e) {
 	}
 };
 
-document.observe("contentloaded", function(){
+document.observe("dom:loaded", function(){
 	wikihelper_initTexts();
 });
