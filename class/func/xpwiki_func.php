@@ -1,7 +1,7 @@
 <?php
 //
 // Created on 2006/10/02 by nao-pon http://hypweb.net/
-// $Id: xpwiki_func.php,v 1.104 2007/10/15 05:32:10 nao-pon Exp $
+// $Id: xpwiki_func.php,v 1.105 2007/10/17 02:59:06 nao-pon Exp $
 //
 class XpWikiFunc extends XpWikiXoopsWrapper {
 
@@ -1193,7 +1193,7 @@ EOD;
 		if (strtoupper($encode) === 'UTF-8' && strtoupper($this->cont['SOURCE_ENCODING']) === 'ISO-8859-1') {
 			$res = utf8_encode($res);
 		} else {
-			$res = mb_convert_encoding($res, $encode, $this->cont['SOURCE_ENCODING']);
+			$res = mb_convert_encoding($res, $encode, ($this->cont['SOURCE_ENCODING'] === 'EUC-JP')? 'eucJP-win' : $this->cont['SOURCE_ENCODING']);
 		}
 		$xml = <<<EOD
 <?xml version="{$version}" encoding="{$encode}"?>
