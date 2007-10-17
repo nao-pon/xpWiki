@@ -1,7 +1,7 @@
 <?php
 //
 // Created on 2006/11/06 by nao-pon http://hypweb.net/
-// $Id: dump.ja_utf8.php,v 1.1 2007/05/22 02:32:54 nao-pon Exp $
+// $Id: dump.ja_utf8.php,v 1.2 2007/10/17 02:59:45 nao-pon Exp $
 //
 $msg = array(
 'upload_ok'        => 'アップロードが完了しました',
@@ -13,8 +13,8 @@ $msg = array(
 'data_download'    => 'データのダウンロード',
 'file'             => 'ファイル:',
 'tar_type'         => 'アーカイブの形式',
-'tar.gz'           => '～.tar.gz 形式',
-'tar'              => '～.tar 形式',
+'tar.gz'           => '&#65374;.tar.gz 形式',
+'tar'              => '&#65374;.tar 形式',
 'backup_dir'       => 'バックアップディレクトリ',
 'option'           => 'オプション',
 'decode_pagename'  => 'エンコードされているページ名をディレクトリ階層つきのファイルにデコード

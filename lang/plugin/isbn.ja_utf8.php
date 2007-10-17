@@ -1,7 +1,7 @@
 <?php
 /*
  * Created on 2007/06/01 by nao-pon http://hypweb.net/
- * $Id: isbn.ja_utf8.php,v 1.1 2007/06/01 02:58:56 nao-pon Exp $
+ * $Id: isbn.ja_utf8.php,v 1.2 2007/10/17 02:59:45 nao-pon Exp $
  */
 
 $msg = array(
@@ -9,7 +9,7 @@ $msg = array(
 	'price_down' => '価格: $1円 ⇒ $2円<br />$3% Off',
 	'used' => 'USED: $1円',
 	'currency' => '$1円',
-	'currency_from' => '$1円～',
+	'currency_from' => '$1円&#65374;',
 	'info_category' => 'カテゴリー: ',
 	'info_title' => 'タイトル: ',
 	'info_price' => '価格: ',

@@ -1,7 +1,7 @@
 <?php
 /*
  * Created on 2007/06/01 by nao-pon http://hypweb.net/
- * $Id: isbn.ja.php,v 1.1 2007/06/01 02:58:56 nao-pon Exp $
+ * $Id: isbn.ja.php,v 1.2 2007/10/17 02:59:45 nao-pon Exp $
  */
 
 $msg = array(
@@ -9,7 +9,7 @@ $msg = array(
 	'price_down' => '²Á³Ê: $1±ß ¢Í $2±ß<br />$3% Off',
 	'used' => 'USED: $1±ß',
 	'currency' => '$1±ß',
-	'currency_from' => '$1±ß¢·',
+	'currency_from' => '$1±ß&#65374;',
 	'info_category' => '¥«¥Æ¥´¥ê¡¼: ',
 	'info_title' => '¥¿¥¤¥È¥ë: ',
 	'info_price' => '²Á³Ê: ',
