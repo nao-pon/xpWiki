@@ -1,7 +1,7 @@
 <?php
 //
 // Created on 2006/10/29 by nao-pon http://hypweb.net/
-// $Id: whatsnew.php,v 1.9 2007/09/30 23:28:49 nao-pon Exp $
+// $Id: whatsnew.php,v 1.10 2007/10/18 05:16:16 nao-pon Exp $
 //
 
 class XpWikiExtension_whatsnew extends XpWikiExtension {
@@ -29,6 +29,12 @@ class XpWikiExtension_whatsnew extends XpWikiExtension {
 			$added = $this->func->get_page_changes($base);
 						
 			$uppage = dirname($base);
+			while(strpos($uppage, '/') && ! $this->func->is_page($uppage)) {
+				$uppage = dirname($uppage);
+			}
+			if (!$this->func->is_page($uppage)) {
+				$uppage = $this->root->defaultpage;
+			}
 			if ($uppage === $base || $uppage === '.') {
 				$ret[$i]['cat_link'] = '';
 				$ret[$i]['cat_name'] = '';
