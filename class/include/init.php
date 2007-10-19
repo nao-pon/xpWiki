@@ -318,8 +318,8 @@ if (isset($const['page_show'])) {
 	if (!empty($root->get['pgid'])) {
 		$page = $this->get_name_by_pgid((int)$root->get['pgid']);
 		if ($page !== '') {
-			if (empty($root->get['page'])) $root->get['page'] = $page;
-			$root->get['cmd'] = 'read';
+			if (!isset($root->get['page'])) $root->get['page'] = $page;
+			if (!isset($root->get['cmd']) && !isset($root->get['plugin'])) $root->get['cmd'] = 'read';
 		} else {
 			header("HTTP/1.0 404 Not Found");
 			$arg = '';
