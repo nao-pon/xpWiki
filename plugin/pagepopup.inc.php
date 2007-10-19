@@ -1,7 +1,7 @@
 <?php
 /*
  * Created on 2007/10/05 by nao-pon http://hypweb.net/
- * $Id: pagepopup.inc.php,v 1.1 2007/10/12 08:07:08 nao-pon Exp $
+ * $Id: pagepopup.inc.php,v 1.2 2007/10/19 04:20:58 nao-pon Exp $
  */
 
 class xpwiki_plugin_pagepopup extends xpwiki_plugin {
@@ -20,9 +20,17 @@ class xpwiki_plugin_pagepopup extends xpwiki_plugin {
 	{
 		$op = func_get_args();
 		
-		$page = $op[0];
+		$alias = array_pop($op);
 		
-		if ($this->func->is_page($page) || isset($this->root->page_aliases[$page])) {
+		$page = (isset($op[0]))? $op[0] : '';
+		$nocheck = (empty($op[1]))? FALSE : TRUE;
+		
+		if (strpos($page, '$page') !== FALSE) {
+			$page = str_replace('$page', $this->root->vars['page'], $page);
+		}
+		
+		if ($nocheck || ($this->func->is_page($page) || isset($this->root->page_aliases[$page]))) {
+			if ($nocheck) $options['nocheck'] = TRUE;
 			$options['popup']['use'] = 1;
 			$options['popup']['position'] = '';
 			foreach(array('top', 'left', 'bottom', 'right', 'width', 'height') as $_prm) {
@@ -37,7 +45,7 @@ class xpwiki_plugin_pagepopup extends xpwiki_plugin {
 			$options = array();
 		}
 		
-		return $this->func->make_pagelink($page, '', '', '', 'pagelink', $options);
+		return $this->func->make_pagelink($page, $alias, '', '', 'pagelink', $options);
 	}
 }
 ?>
