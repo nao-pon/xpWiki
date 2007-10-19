@@ -1,7 +1,7 @@
 <?php
 //
 // Created on 2006/10/02 by nao-pon http://hypweb.net/
-// $Id: xpwiki_func.php,v 1.105 2007/10/17 02:59:06 nao-pon Exp $
+// $Id: xpwiki_func.php,v 1.106 2007/10/19 04:14:37 nao-pon Exp $
 //
 class XpWikiFunc extends XpWikiXoopsWrapper {
 
@@ -1176,6 +1176,11 @@ EOD;
 		if (!$url) {
 			$url = $this->cont['HOME_URL'];
 		}
+		
+		if ($this->root->viewmode === 'popup') {
+			$url .= ((strpos($url, '?') === FALSE)? '?' : '&') . 'popup=1';
+		}
+		
 		if ($hash) {
 			$url .= (($hash{0} !== '#')? '#' : '') . $hash;
 		}

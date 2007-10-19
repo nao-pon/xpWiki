@@ -319,7 +319,7 @@ if (isset($const['page_show'])) {
 		$page = $this->get_name_by_pgid((int)$root->get['pgid']);
 		if ($page !== '') {
 			if (empty($root->get['page'])) $root->get['page'] = $page;
-			$arg = $page;
+			$root->get['cmd'] = 'read';
 		} else {
 			header("HTTP/1.0 404 Not Found");
 			$arg = '';
