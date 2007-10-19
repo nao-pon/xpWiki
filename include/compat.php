@@ -1,7 +1,7 @@
 <?php
 //
 // Created on 2006/10/16 by nao-pon http://hypweb.net/
-// $Id: compat.php,v 1.2 2006/10/18 23:26:43 nao-pon Exp $
+// $Id: compat.php,v 1.3 2007/10/19 04:15:22 nao-pon Exp $
 //
 
 //// mbstring ////
@@ -60,10 +60,11 @@ if (! function_exists('md5_file')) {
 // (PHP 4 >= 4.3.0, PHP5)
 if (! function_exists('sha1')) {
 	if (extension_loaded('mhash')) {
-		function sha1($str)
-		{
+		function sha1($str) {
 			return bin2hex(mhash(MHASH_SHA1, $str));
 		}
+	} else {
+		include_once dirname(__FILE__) . '/compat_sha1.php';
 	}
 }
 
