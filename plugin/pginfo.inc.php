@@ -2,7 +2,7 @@
 /////////////////////////////////////////////////
 // PukiWiki - Yet another WikiWikiWeb clone.
 //
-// $Id: pginfo.inc.php,v 1.17 2007/10/12 08:07:29 nao-pon Exp $
+// $Id: pginfo.inc.php,v 1.18 2007/10/21 23:15:05 nao-pon Exp $
 //
 
 class xpwiki_plugin_pginfo extends xpwiki_plugin {
@@ -429,7 +429,7 @@ EOD;
 <!--
 var XpWikiSuggest1 = null;
 var XpWikiSuggest2 = null;
-document.observe("contentloaded", function(){
+document.observe("dom:loaded", function(){
 	XpWikiSuggest1 = new XpWikiUnameSuggest('{$this->cont['HOME_URL']}','xpwiki_tag_input1','xpwiki_suggest_list1','xpwiki_tag_hidden1','xpwiki_tag_list1','{$enc}');
 	XpWikiSuggest2 = new XpWikiUnameSuggest('{$this->cont['HOME_URL']}','xpwiki_tag_input2','xpwiki_suggest_list2','xpwiki_tag_hidden2','xpwiki_tag_list2','{$enc}');
 });
