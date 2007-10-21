@@ -113,6 +113,8 @@ class xpwiki_plugin_iframe extends xpwiki_plugin {
 		);
 		array_walk($args, 'iframe_check_arg', $params);
 		
+		$style = '';		
+		
 		// USER_AGENT が IE の場合は iframe タグを使用
 		// コンテンツがheight,widthの値よりも小さい場合でもダミーのscrollbarが表示されてしまうため
 		// iframe を使用するには XHTML1.1 のままだと XHTML 構文エラー
@@ -130,7 +132,7 @@ class xpwiki_plugin_iframe extends xpwiki_plugin {
 				$style = " style=".$params['style'];
 			}
 			
-	return <<<HTML
+			return <<<HTML
 <iframe frameborder="0"${class}${style} src="$url">
 Please see here by browsers dealing with iframe tag.<br />
 Go to <a href="$url">$url</a>
@@ -141,13 +143,13 @@ HTML;
 		else
 		// その他のブラウザは object タグを使用
 		{
-			$class=" class=\"iframe_others\"";
+			$class = ' class="iframe_others"';
 			if ( $params['style'] != FALSE )
 			{
 				$style = " style=".$params['style'];
 			}
 	
-	return <<<HTML
+			return <<<HTML
 <object${class}${style} data="$url" type="text/html">
 Please see here by browsers dealing with object tag.<br />
 Go to <a href="$url">$url</a>
