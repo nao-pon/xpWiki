@@ -1,7 +1,7 @@
 <?php
 //
 // Created on 2006/10/02 by nao-pon http://hypweb.net/
-// $Id: pukiwiki_func.php,v 1.127 2007/10/21 04:29:26 nao-pon Exp $
+// $Id: pukiwiki_func.php,v 1.128 2007/10/21 23:15:04 nao-pon Exp $
 //
 class XpWikiPukiWikiFunc extends XpWikiBaseFunc {
 
@@ -881,7 +881,7 @@ class XpWikiPukiWikiFunc extends XpWikiBaseFunc {
 
 //----- Start convert_html.php -----//
 	// PukiWiki - Yet another WikiWikiWeb clone
-	// $Id: pukiwiki_func.php,v 1.127 2007/10/21 04:29:26 nao-pon Exp $
+	// $Id: pukiwiki_func.php,v 1.128 2007/10/21 23:15:04 nao-pon Exp $
 	// Copyright (C)
 	//   2002-2005 PukiWiki Developers Team
 	//   2001-2002 Originally written by yu-ji
@@ -1140,7 +1140,7 @@ class XpWikiPukiWikiFunc extends XpWikiBaseFunc {
 
 //----- Start func.php -----//
 	// PukiWiki - Yet another WikiWikiWeb clone.
-	// $Id: pukiwiki_func.php,v 1.127 2007/10/21 04:29:26 nao-pon Exp $
+	// $Id: pukiwiki_func.php,v 1.128 2007/10/21 23:15:04 nao-pon Exp $
 	// Copyright (C)
 	//   2002-2006 PukiWiki Developers Team
 	//   2001-2002 Originally written by yu-ji
@@ -1956,7 +1956,7 @@ EOD;
 
 //----- Start make_link.php -----//
 	// PukiWiki - Yet another WikiWikiWeb clone.
-	// $Id: pukiwiki_func.php,v 1.127 2007/10/21 04:29:26 nao-pon Exp $
+	// $Id: pukiwiki_func.php,v 1.128 2007/10/21 23:15:04 nao-pon Exp $
 	// Copyright (C)
 	//   2003-2005 PukiWiki Developers Team
 	//   2001-2002 Originally written by yu-ji
@@ -2828,7 +2828,7 @@ EOD;
 
 //----- Start html.php -----//
 	// PukiWiki - Yet another WikiWikiWeb clone.
-	// $Id: pukiwiki_func.php,v 1.127 2007/10/21 04:29:26 nao-pon Exp $
+	// $Id: pukiwiki_func.php,v 1.128 2007/10/21 23:15:04 nao-pon Exp $
 	// Copyright (C)
 	//   2002-2006 PukiWiki Developers Team
 	//   2001-2002 Originally written by yu-ji
@@ -3178,7 +3178,7 @@ EOD;
 			$resize_js = <<<EOD
 <script type="text/javascript">
 <!--
-document.observe("contentloaded", function(){new Resizable('xpwiki_edit_textarea', {mode:'xy'});});
+document.observe("dom:loaded", function(){new Resizable('xpwiki_edit_textarea', {mode:'xy'});});
 -->
 </script>
 EOD;
@@ -3502,7 +3502,7 @@ EOD;
 
 //----- Start mail.php -----//
 	// PukiWiki - Yet another WikiWikiWeb clone.
-	// $Id: pukiwiki_func.php,v 1.127 2007/10/21 04:29:26 nao-pon Exp $
+	// $Id: pukiwiki_func.php,v 1.128 2007/10/21 23:15:04 nao-pon Exp $
 	// Copyright (C)
 	//   2003-2005 PukiWiki Developers Team
 	//   2003      Originally written by upk
@@ -3805,7 +3805,7 @@ EOD;
 
 //----- Start link.php -----//
 	// PukiWiki - Yet another WikiWikiWeb clone
-	// $Id: pukiwiki_func.php,v 1.127 2007/10/21 04:29:26 nao-pon Exp $
+	// $Id: pukiwiki_func.php,v 1.128 2007/10/21 23:15:04 nao-pon Exp $
 	// Copyright (C) 2003-2006 PukiWiki Developers Team
 	// License: GPL v2 or (at your option) any later version
 	//
