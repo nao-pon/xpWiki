@@ -162,16 +162,19 @@ var XpWiki = {
 		}
 		
 		this.dir = arg.dir;
-		this.page = arg.page;
-		this.title = this.htmlspecialchars(arg.page);
+		this.page = arg.page.replace(/(#[^#]+)?$/, '');
+		var hash = arg.page.replace(/^[^#]+/, '');
+		
+		this.title = this.htmlspecialchars(this.page);
 		
 		this.initPopupDiv(arg);
 		$('XpWikiPopupHeaderTitle').innerHTML = 'Now loading...';
 
 		var url = this.MyUrl + '/' + this.dir + '/?cmd=read';
-		url += '&page=' + encodeURIComponent(arg.page);
+		url += '&page=' + encodeURIComponent(this.page);
 		url += '&popup=1';
 		url += '&encode_hint=' + encodeURIComponent(this.EncHint);
+		url += hash;
 		
 		$('XpWikiPopupBody').src = url;
 		Element.show(this.PopupDiv);
