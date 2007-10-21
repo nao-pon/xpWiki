@@ -76,6 +76,8 @@ $class dl,
 $class p,
 $class blockquote { line-height:130%; }
 
+$class p { margin-left: 1em; }
+
 $class blockquote { margin-left:32px; }
 
 $class table { width: auto; }
@@ -143,6 +145,39 @@ $class a.ext_autolink {
 	border-bottom: 1px silver dotted;
 	color: inherit;
 	font-weight: inherit;
+}
+
+$class div.level1 {}
+$class div.level2 {
+	margin-left: 1em;
+}
+$class div.level3 {
+	margin-left: 2em;
+}
+$class div.level4 {
+	margin-left: 3em;
+}
+$class div.level5 {
+	margin-left: 4em;
+}
+$class div.level1_highlight {
+	background-color: #ffe4e1;
+}
+$class div.level2_highlight {
+	background-color: #ffe4e1;
+	margin-left: 1em;
+}
+$class div.level3_highlight {
+	background-color: #ffe4e1;
+	margin-left: 2em;
+}
+$class div.level4_highlight {
+	background-color: #ffe4e1;
+	margin-left: 3em;
+}
+$class div.level5_highlight {
+	background-color: #ffe4e1;
+	margin-left: 4em;
 }
 
 $class h1,
@@ -652,14 +687,16 @@ $class span.calendar_viewer_right {
 }
 
 /* areaedit.inc.php */
-$class .area_on
+$class .highlight
 {
 	background-color: #ffe4e1;
 }
+/*
 $class .area_off
 {
 	background-color: transparent;
 }
+*/
 
 /* clear.inc.php */
 $class .clear {

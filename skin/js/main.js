@@ -164,9 +164,9 @@ function wikihelper_load_cookie(arg){ //arg=dataname
 
 function wikihelper_area_highlite(id,mode) {
 	if (mode) {
-		$(id).className = "area_on";
+		$(id).className += '_highlight';
 	} else {
-		$(id).className = "area_off";
+		$(id).className = $(id).className.replace(/_highlight$/, '');
 	}
 	
 }
