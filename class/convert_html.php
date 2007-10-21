@@ -1016,7 +1016,7 @@ class XpWikiBody extends XpWikiElement {
 		if (!empty($this->flg['div_area_open'])) {
 			$area_div .= "<!--{$this->flg['div_area_open']}--></div>\n";
 		}
-		$area_div .= '<div id="'.$id.'">' . "\n";
+		$area_div .= '<div id="'.$id.'" class="level'.$level.'">' . "\n";
 		$this->flg['div_area_open'] = $id;
 		
 		// Add heding
