@@ -1,7 +1,7 @@
 <?php
 /*
  * Created on 2007/10/05 by nao-pon http://hypweb.net/
- * $Id: pagepopup.inc.php,v 1.2 2007/10/19 04:20:58 nao-pon Exp $
+ * $Id: pagepopup.inc.php,v 1.3 2007/10/21 04:29:26 nao-pon Exp $
  */
 
 class xpwiki_plugin_pagepopup extends xpwiki_plugin {
@@ -23,6 +23,8 @@ class xpwiki_plugin_pagepopup extends xpwiki_plugin {
 		$alias = array_pop($op);
 		
 		$page = (isset($op[0]))? $op[0] : '';
+		list($page, $anchor) = array_pad(explode('#', $page), 2, '');
+		if ($anchor) $anchor = '#' . $anchor;
 		$nocheck = (empty($op[1]))? FALSE : TRUE;
 		
 		if (strpos($page, '$page') !== FALSE) {
@@ -45,7 +47,7 @@ class xpwiki_plugin_pagepopup extends xpwiki_plugin {
 			$options = array();
 		}
 		
-		return $this->func->make_pagelink($page, $alias, '', '', 'pagelink', $options);
+		return $this->func->make_pagelink($page, $alias, $anchor, '', 'pagelink', $options);
 	}
 }
 ?>
