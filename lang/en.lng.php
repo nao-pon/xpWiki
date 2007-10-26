@@ -1,6 +1,6 @@
 <?php
 // PukiWiki - Yet another WikiWikiWeb clone.
-// $Id: en.lng.php,v 1.22 2007/10/26 02:00:58 nao-pon Exp $
+// $Id: en.lng.php,v 1.23 2007/10/26 02:42:21 nao-pon Exp $
 // Copyright (C)
 //   2002-2005 PukiWiki Developers Team
 //   2001-2002 Originally written by yu-ji
@@ -259,7 +259,7 @@ $root->_msg_source           = 'source';
 $root->_msg_backup           = 'backup';
 $root->_msg_view             = 'View the $1.';
 $root->_msg_deleted          = ' $1 has been deleted.';
-$root->_msg_backupedit       = 'Edit the $1 as current.';
+$root->_msg_backupedit       = 'Edit Backup No.$1 as current.';
 $root->_msg_current          = 'Cur';
 
 ///////////////////////////////////////
