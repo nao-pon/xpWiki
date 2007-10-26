@@ -1,6 +1,6 @@
 <?php
 // PukiWiki - Yet another WikiWikiWeb clone.
-// $Id: backup.inc.php,v 1.7 2007/10/26 02:00:58 nao-pon Exp $
+// $Id: backup.inc.php,v 1.8 2007/10/26 07:30:21 nao-pon Exp $
 // Copyright (C)
 //   2002-2005 PukiWiki Developers Team
 //   2001-2002 Originally written by yu-ji
@@ -12,6 +12,14 @@ class xpwiki_plugin_backup extends xpwiki_plugin {
 	function plugin_backup_init () {
 		// Prohibit rendering old wiki texts (suppresses load, transfer rate, and security risk)
 		$this->cont['PLUGIN_BACKUP_DISABLE_BACKUP_RENDERING'] =  $this->cont['PKWK_SAFE_MODE'] || $this->cont['PKWK_OPTIMISE'];
+
+		$this->icons['edit']['url']      = $this->cont['HOME_URL'] . 'skin/loader.php?src=page_white_edit.png';
+		$this->icons['edit']['width']    = '16';
+		$this->icons['edit']['height']   = '16';
+
+		$this->icons['source']['url']    = $this->cont['HOME_URL'] . 'skin/loader.php?src=page_white_text.png';
+		$this->icons['source']['width']  = '16';
+		$this->icons['source']['height'] = '16';
 	}
 	
 	function plugin_backup_action() {
@@ -38,8 +46,8 @@ class xpwiki_plugin_backup extends xpwiki_plugin {
 		
 		$view_now = ($action === 'diff' || $action === 'source');
 		
-		$edit_icon = '<a href="' . $script . '?cmd=edit&amp;pgid=' . $pgid . '&amp;backup=$1" title="' . htmlspecialchars($this->root->_msg_backupedit) . '"><img src="' . $this->cont['IMAGE_DIR'] . 'edit.png" alt="' . htmlspecialchars($this->root->_msg_backupedit) . '" width="20" height="20" /></a>';
-
+		$edit_icon = '<a href="' . $script . '?cmd=edit&amp;pgid=' . $pgid . '&amp;backup=$1" title="' . htmlspecialchars($this->root->_msg_backupedit) . '"><img src="' . $this->icons['edit']['url'] . '" alt="' . htmlspecialchars($this->root->_msg_backupedit) . '" width="' . $this->icons['edit']['width'] . '" height="' . $this->icons['edit']['height'] . '" /></a>';
+		$source_icon = '<a href="' . $script . '?cmd=backup&amp;pgid=' . $pgid . '&amp;action=source&amp;age=$1" title="' . htmlspecialchars($this->root->_msg_source) . '"><img src="' . $this->icons['source']['url'] . '" alt="' . htmlspecialchars($this->root->_msg_source) . '" width="' . $this->icons['source']['width'] . '" height="' . $this->icons['source']['height'] . '" /></a>';
 		
 		$s_age = (isset($this->root->vars['age'])) ? $this->root->vars['age'] : 0;
 		if ($view_now && ($s_age === 'Cur' || !$s_age)) {
@@ -120,6 +128,7 @@ class xpwiki_plugin_backup extends xpwiki_plugin {
 					'" title="' . $s_title . '">' . $age . ': ' . $date . '</a> ' . $lasteditor . '</li>' . "\n";
 				if ($age == $s_age) {
 					$header[1] = $this->make_age_label($age, $date, $lasteditor);
+					$header[1] .= ' ' . str_replace('$1', $age, $source_icon);
 					if ($editable) $header[1] .= ' ' . str_replace('$1', $age, $edit_icon);
 				}
 			}
@@ -142,6 +151,8 @@ class xpwiki_plugin_backup extends xpwiki_plugin {
 				$list .= '  </ul>' . "\n";
 				if ($is_now) {
 					$header[1] = $this->make_age_label($this->root->_msg_current, $date, $lasteditor);
+					$header[1] .= ' ' . str_replace('$1', 'Cur', $source_icon);
+					if ($editable) $header[1] .= ' ' . str_replace('$1', '0', str_replace($this->root->_msg_backupedit, $this->root->_btn_edit, $edit_icon));
 				}
 			}
 			
@@ -182,6 +193,7 @@ class xpwiki_plugin_backup extends xpwiki_plugin {
 				$lasteditor = $this->func->get_lasteditor($this->func->get_pginfo('',$val['data']));
 				$age = $is_now? $backups_count : ($s_age - 1);
 				$header[0] = $this->make_age_label($age, $date, $lasteditor);
+				$header[0] .= ' ' . str_replace('$1', $age, $source_icon);
 				if ($editable) $header[0] .= ' ' . str_replace('$1', $age, $edit_icon);
 			} else {
 				$header[0] = '';
@@ -203,6 +215,8 @@ class xpwiki_plugin_backup extends xpwiki_plugin {
 			$cur = $this->func->get_source($page);
 			$header[0] = $header[1];
 			$header[1] = $this->make_age_label($this->root->_msg_current, $this->func->format_date($this->func->get_filetime($page)), $this->func->get_lasteditor($this->func->get_pginfo($page)));
+			$header[1] .= ' ' . str_replace('$1', 'Cur', $source_icon);
+			if ($editable) $header[1] .= ' ' . str_replace('$1', '0', str_replace($this->root->_msg_backupedit, $this->root->_btn_edit, $edit_icon));
 			$old = $this->func->remove_pginfo($old);
 			$cur = $this->func->remove_pginfo($cur);
 			$body .= $this->func->compare_diff($old, $cur, $header);
