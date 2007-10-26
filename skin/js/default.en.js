@@ -23,6 +23,8 @@ var wikihelper_msg_submit = "Submit now?";
 var wikihelper_msg_attach = "File attach link";
 var wikihelper_msg_thumbsize = "If you want to make a thumbnail. Please input [Max Width(px)]x[Max Height(px)].\n(ex: \"240x120\" or \"240 120\" or \"240\" etc...)";
 var wikihelper_msg_notsave = "Do not save editing content.";
+var wikihelper_msg_wrap = "to Wrap text";
+var wikihelper_msg_nowrap = "to Nowrap text";
 
 // Set wikihelper_root_url
 var wikihelper_root_url = "$wikihelper_root_url";

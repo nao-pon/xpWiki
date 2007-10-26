@@ -23,6 +23,8 @@ var wikihelper_msg_submit = "このまま送信しますか？";
 var wikihelper_msg_attach = "ファイル添付リンク";
 var wikihelper_msg_thumbsize = "サムネイルを作成する場合は、[最大幅(px)]x[最大高(px)] を入力してください。\n(例: \"240x120\" or \"240 120\" or \"240\" etc...)";
 var wikihelper_msg_notsave = "編集内容を保存していません。";
+var wikihelper_msg_wrap = "テキストを折り返す";
+var wikihelper_msg_nowrap = "テキストを折り返さない";
 
 // Set wikihelper_root_url
 var wikihelper_root_url = "$wikihelper_root_url";
