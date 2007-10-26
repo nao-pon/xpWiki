@@ -1,6 +1,6 @@
 <?php
 // PukiWiki - Yet another WikiWikiWeb clone
-// $Id: pukiwiki.ini.php,v 1.51 2007/10/12 08:05:12 nao-pon Exp $
+// $Id: pukiwiki.ini.php,v 1.52 2007/10/26 02:00:58 nao-pon Exp $
 // Copyright (C)
 //   2002-2006 PukiWiki Developers Team
 //   2001-2002 Originally written by yu-ji
@@ -449,6 +449,9 @@ $root->maxage = 120; // Stock latest N backups
 
 // NOTE: $cycle x $root->maxage / 24 = Minimum days to lost your data
 //          3   x   120   / 24 = 15
+
+// Make backup every time if different user at last time.
+$root->backup_everytime_others = 1;
 
 // Splitter of backup data (NOTE: Too dangerous to change)
 $const['PKWK_SPLITTER'] = '>>>>>>>>>>';

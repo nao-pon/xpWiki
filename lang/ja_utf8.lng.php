@@ -1,6 +1,6 @@
 <?php
 // PukiWiki - Yet another WikiWikiWeb clone.
-// $Id: ja_utf8.lng.php,v 1.8 2007/10/12 08:03:55 nao-pon Exp $
+// $Id: ja_utf8.lng.php,v 1.9 2007/10/26 02:00:58 nao-pon Exp $
 // Copyright (C)
 //   2002-2005 PukiWiki Developers Team
 //   2001-2002 Originally written by yu-ji
@@ -260,6 +260,8 @@ $root->_msg_source           = 'ソース';
 $root->_msg_backup           = 'バックアップ';
 $root->_msg_view             = '$1 を表示';
 $root->_msg_deleted          = '$1 は削除されています。';
+$root->_msg_backupedit       = 'バックアップ No.$1 を復元して編集';
+$root->_msg_current          = '現';
 
 ///////////////////////////////////////
 // calendar_viewer.inc.php
