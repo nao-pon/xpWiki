@@ -1,6 +1,6 @@
 <?php
 // PukiWiki - Yet another WikiWikiWeb clone.
-// $Id: edit.inc.php,v 1.44 2007/10/26 02:01:31 nao-pon Exp $
+// $Id: edit.inc.php,v 1.45 2007/10/26 07:29:41 nao-pon Exp $
 // Copyright (C) 2001-2006 PukiWiki Developers Team
 // License: GPL v2 or (at your option) any later version
 //
@@ -44,7 +44,7 @@ class xpwiki_plugin_edit extends xpwiki_plugin {
 	
 		$title = $source = '';
 		
-		if (isset($this->root->get['backup'])) {
+		if (!empty($this->root->get['backup'])) {
 			$backup_age = intval($this->root->get['backup']);
 			$backup = $this->func->get_backup($page, $backup_age);
 			$source = $backup['data'];
