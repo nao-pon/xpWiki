@@ -1,6 +1,6 @@
 <?php
 // PukiWiki - Yet another WikiWikiWeb clone.
-// $Id: edit.inc.php,v 1.43 2007/10/12 08:06:48 nao-pon Exp $
+// $Id: edit.inc.php,v 1.44 2007/10/26 02:01:31 nao-pon Exp $
 // Copyright (C) 2001-2006 PukiWiki Developers Team
 // License: GPL v2 or (at your option) any later version
 //
@@ -42,7 +42,18 @@ class xpwiki_plugin_edit extends xpwiki_plugin {
 			return $this->plugin_edit_cancel();
 		}
 	
-		$source = $this->func->get_source($page);
+		$title = $source = '';
+		
+		if (isset($this->root->get['backup'])) {
+			$backup_age = intval($this->root->get['backup']);
+			$backup = $this->func->get_backup($page, $backup_age);
+			$source = $backup['data'];
+			$title = '$1 - ' . str_replace('$1', $backup_age, $this->root->_msg_backupedit);
+		}
+		
+		if (!$source) {
+			$source = $this->func->get_source($page);
+		}
 		$postdata = $this->root->vars['original'] = @join('', $source);
 		if (! empty($this->root->vars['paraid'])) {
 			$postdata = $this->plugin_edit_parts($this->root->vars['paraid'], $source);
@@ -66,7 +77,7 @@ EOD;
 			$this->func->send_xml($body);
 		}
 		
-		return array('msg'=>$this->root->_title_edit, 'body'=>$body);
+		return array('msg' => ($title ? $title : $this->root->_title_edit), 'body' => $body);
 	}
 	
 	// Preview
