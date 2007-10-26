@@ -296,7 +296,9 @@ function xpwiki_ajax_edit_show(orgRequest) {
 	xpwiki_ajax_edit_var["html"] = $(xpwiki_ajax_edit_var["id"]).innerHTML;
 	var xmlRes = orgRequest.responseXML;
 	if(xmlRes.getElementsByTagName("editform").length) {
-		$(xpwiki_ajax_edit_var['id']).innerHTML = xmlRes.getElementsByTagName("editform")[0].firstChild.nodeValue;
+		var str = xmlRes.getElementsByTagName("editform")[0].firstChild.nodeValue;
+		str = str.replace(/wikihelper_msg_nowrap/, wikihelper_msg_nowrap);
+		$(xpwiki_ajax_edit_var['id']).innerHTML = str;
 		new Resizable('xpwiki_edit_textarea', {mode:'xy'});
 		wikihelper_initTexts($(xpwiki_ajax_edit_var["id"]));
 
@@ -370,6 +372,7 @@ function xpwiki_ajax_edit_post(orgRequest) {
 				xpwiki_ajax_edit_var['html'] = '';
 				location.href = item.getElementsByTagName("url")[0].firstChild.nodeValue;
 			} else if (xpwiki_ajax_edit_var['mode'] == 'preview') {
+				str = str.replace(/wikihelper_msg_nowrap/, wikihelper_msg_nowrap);
 				$(xpwiki_ajax_edit_var['id']).innerHTML = str;
 				new Resizable('xpwiki_preview_area', {mode:'y'});
 				new Resizable('xpwiki_edit_textarea', {mode:'xy'});

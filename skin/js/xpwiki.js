@@ -257,6 +257,24 @@ var XpWiki = {
 		Element.show(this.PopupDiv);
 	},
 	
+	textaraWrap: function (id) {
+	    var txtarea = $(id);
+	    var wrap = txtarea.getAttribute('wrap');
+	    if(wrap && wrap.toLowerCase() == 'off'){
+	        txtarea.setAttribute('wrap', 'soft');
+	        var ret = wikihelper_msg_nowrap;
+	    }else{
+	        txtarea.setAttribute('wrap', 'off');
+	        var ret = wikihelper_msg_wrap;
+	    }
+	    // Fix display for mozilla
+	    var parNod = txtarea.parentNode;
+	    var nxtSib = txtarea.nextSibling;
+	    parNod.removeChild(txtarea);
+	    parNod.insertBefore(txtarea, nxtSib);
+	    return ret;
+	},
+	
 	htmlspecialchars: function (str) {
 		return str.
 		replace(/&/g,"&amp;").
