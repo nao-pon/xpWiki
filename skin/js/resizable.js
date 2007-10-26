@@ -1,6 +1,6 @@
 //
 // Created on 2007/10/03 by nao-pon http://hypweb.net/
-// $Id: resizable.js,v 1.3 2007/10/12 08:06:48 nao-pon Exp $
+// $Id: resizable.js,v 1.4 2007/10/26 01:31:07 nao-pon Exp $
 //
 
 var Resizable = Class.create();
@@ -65,7 +65,17 @@ Resizable.prototype = {
 			
 			this.elem.style.margin = '0px';
 			parent.replaceChild(this.base, target);
-			this.base.appendChild(this.elem);
+
+			if (Prototype.Browser.IE) {
+				// for IE CSS bug.
+				// See http://blog.netscraps.com/internet-explorer-bugs/ie6-ie7-margin-inheritance-bug.html
+				var fake = document.createElement('div');
+				fake.appendChild(this.elem);
+				fake.style.display = 'inline';
+				this.base.appendChild(fake);
+			} else {
+				this.base.appendChild(this.elem);
+			}
 			
 			Element.makePositioned(parent);
 			
@@ -272,7 +282,7 @@ Resizable.prototype = {
 	
 	dragMove: function (event) {
 		if ( ! this.onDrag ) return;
-		//Event.stop(event);
+		Event.stop(event);
 		var newX = this.sizeX + event.clientX - this.curX;
 		if ( this.boolX && newX > 0 ) {
 			this.setWidth(newX);
