@@ -1,7 +1,7 @@
 <?php
 //
 // Created on 2006/10/02 by nao-pon http://hypweb.net/
-// $Id: xpwiki_func.php,v 1.107 2007/10/26 02:00:58 nao-pon Exp $
+// $Id: xpwiki_func.php,v 1.108 2007/10/26 07:28:42 nao-pon Exp $
 //
 class XpWikiFunc extends XpWikiXoopsWrapper {
 
@@ -1368,7 +1368,7 @@ EOD;
 	
 	function compare_diff_pre (& $str ,$tab = 4) {
 		if (is_array($str)) $str = join('', $str);
-		$str = htmlspecialchars(rtrim(str_replace("\r", '', $str)));
+		$str = str_replace(array('<', '>'), array('&lt;', '&gt;'), rtrim(str_replace("\r", '', $str)));
 		$str = str_replace(array("\n\t", "\n "), array("\n".str_repeat('&nbsp;', $tab), "\n&nbsp;"), $str);
 		$str = explode("\n", $str);
 		$str = array_map('rtrim', $str);
