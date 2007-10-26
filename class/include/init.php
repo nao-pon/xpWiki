@@ -380,10 +380,16 @@ if (isset($const['page_show'])) {
 	
 		$root->get['cmd']  = $root->post['cmd']  = $root->vars['cmd']  = 'read';
 	
-		if ($arg === '') $arg = $root->defaultpage;
 		$arg = rawurldecode($arg);
+		
+		// 特定のキーを除外
+		$arg = preg_replace('/&?word=[^&]+/', '', $arg);
+		
 		// XOOPS の redirect_header で付加されることがある &以降を削除
-		$arg = preg_replace("/&.*$/", "", $arg);
+		$arg = preg_replace('/&.*$/', '', $arg);
+		
+		if ($arg === '') $arg = $root->defaultpage;
+		
 		$arg = $this->strip_bracket($arg);
 		$arg = $this->input_filter($arg);
 		
