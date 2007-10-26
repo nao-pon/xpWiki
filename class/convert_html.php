@@ -445,7 +445,7 @@ class XpWikiTableCell extends XpWikiElement {
 		}
 		if (preg_match("/K:([0-9]+),?([0-9]*)(one|two|boko|deko|in|out|dash|dott)?/i",$cells[0],$tmp)) {
 			if (array_key_exists (3,$tmp)) {
-				switch (strtolower($reg[3])) {
+				switch (strtolower($tmp[3])) {
 					case 'one':
 				 		$border_type = "solid";
 				 		break;
