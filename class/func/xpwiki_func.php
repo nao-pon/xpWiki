@@ -1,7 +1,7 @@
 <?php
 //
 // Created on 2006/10/02 by nao-pon http://hypweb.net/
-// $Id: xpwiki_func.php,v 1.106 2007/10/19 04:14:37 nao-pon Exp $
+// $Id: xpwiki_func.php,v 1.107 2007/10/26 02:00:58 nao-pon Exp $
 //
 class XpWikiFunc extends XpWikiXoopsWrapper {
 
@@ -1342,6 +1342,36 @@ EOD;
 		$d = NULL;
 		
 		return $ret;
+	}
+
+	function compare_diff ($old, $cur, $title) {
+		$this->add_tag_head('compare_diff.css');
+		include_once $this->root->mytrustdirpath . '/include/DifferenceEngine.php';
+		
+		$this->compare_diff_pre($old);
+		$this->compare_diff_pre($cur);
+
+		$df  = new Diff($old, $cur);
+		$tdf = new TableDiffFormatter();
+		$html = $tdf->format($df);
+
+		return <<<EOD
+<table class="diff">
+<tr>
+<th colspan="2">{$title[0]}</th>
+<th colspan="2">{$title[1]}</th>
+</tr>
+$html
+</table>
+EOD;
+	}
+	
+	function compare_diff_pre (& $str ,$tab = 4) {
+		if (is_array($str)) $str = join('', $str);
+		$str = htmlspecialchars(rtrim(str_replace("\r", '', $str)));
+		$str = str_replace(array("\n\t", "\n "), array("\n".str_repeat('&nbsp;', $tab), "\n&nbsp;"), $str);
+		$str = explode("\n", $str);
+		$str = array_map('rtrim', $str);
 	}
 
 /*----- DB Functions -----*/ 

@@ -1,7 +1,7 @@
 <?php
 //
 // Created on 2006/10/02 by nao-pon http://hypweb.net/
-// $Id: pukiwiki_func.php,v 1.128 2007/10/21 23:15:04 nao-pon Exp $
+// $Id: pukiwiki_func.php,v 1.129 2007/10/26 02:00:58 nao-pon Exp $
 //
 class XpWikiPukiWikiFunc extends XpWikiBaseFunc {
 
@@ -881,7 +881,7 @@ class XpWikiPukiWikiFunc extends XpWikiBaseFunc {
 
 //----- Start convert_html.php -----//
 	// PukiWiki - Yet another WikiWikiWeb clone
-	// $Id: pukiwiki_func.php,v 1.128 2007/10/21 23:15:04 nao-pon Exp $
+	// $Id: pukiwiki_func.php,v 1.129 2007/10/26 02:00:58 nao-pon Exp $
 	// Copyright (C)
 	//   2002-2005 PukiWiki Developers Team
 	//   2001-2002 Originally written by yu-ji
@@ -1140,7 +1140,7 @@ class XpWikiPukiWikiFunc extends XpWikiBaseFunc {
 
 //----- Start func.php -----//
 	// PukiWiki - Yet another WikiWikiWeb clone.
-	// $Id: pukiwiki_func.php,v 1.128 2007/10/21 23:15:04 nao-pon Exp $
+	// $Id: pukiwiki_func.php,v 1.129 2007/10/26 02:00:58 nao-pon Exp $
 	// Copyright (C)
 	//   2002-2006 PukiWiki Developers Team
 	//   2001-2002 Originally written by yu-ji
@@ -1956,7 +1956,7 @@ EOD;
 
 //----- Start make_link.php -----//
 	// PukiWiki - Yet another WikiWikiWeb clone.
-	// $Id: pukiwiki_func.php,v 1.128 2007/10/21 23:15:04 nao-pon Exp $
+	// $Id: pukiwiki_func.php,v 1.129 2007/10/26 02:00:58 nao-pon Exp $
 	// Copyright (C)
 	//   2003-2005 PukiWiki Developers Team
 	//   2001-2002 Originally written by yu-ji
@@ -2667,63 +2667,95 @@ EOD;
 		}
 	
 		if (! $this->is_page($page)) return;
-	
+		
 		$lastmod = $this->_backup_get_filetime($page);
-		if ($lastmod == 0 || $this->cont['UTIME'] - $lastmod > 60 * 60 * $this->root->cycle)
-		{
-			$backups = $this->get_backup($page);
-			$count   = count($backups) + 1;
-	
+		$rotate = ($lastmod == 0 || $this->cont['UTIME'] - $lastmod > 60 * 60 * $this->root->cycle);
+
+		$backups = $this->get_backup($page);
+		$count   = count($backups);
+		
+		if ($this->root->backup_everytime_others) {
+			// get pginfo
+			if ($backups) {
+				$pginfo_last = $this->get_pginfo('', $backups[$count]['data']);
+			} else {
+				$pginfo_last = array('lastuid' => 0, 'lastucd' => '');
+			}
+			// check pginfo
+			$diff_user = ! (($this->root->userinfo['uid'] && $pginfo_last['lastuid'] === $this->root->userinfo['uid']) || $pginfo_last['lastucd'] === $this->root->userinfo['ucd']);		
+		} else {
+			$diff_user = FALSE;
+		}
+		
+		if ($rotate || $diff_user) {
+			$count++;
 			// 直後に1件追加するので、(最大件数 - 1)を超える要素を捨てる
 			if ($count > $this->root->maxage)
 				array_splice($backups, 0, $count - $this->root->maxage);
-	
-			$strout = '';
-			foreach($backups as $age=>$data) {
-				$strout .= $this->cont['PKWK_SPLITTER'] . ' ' . $data['time'] . "\n"; // Splitter format
-				$strout .= join('', $data['data']);
-				unset($backups[$age]);
-			}
-			$strout = preg_replace("/([^\n])\n*$/", "$1\n", $strout);
-	
-			// Escape 'lines equal to PKWK_SPLITTER', by inserting a space
-			$body = preg_replace('/^(' . preg_quote($this->cont['PKWK_SPLITTER']) . "\s\d+)$/", '$1 ', $this->get_source($page));
-			//$body = $this->cont['PKWK_SPLITTER'] . ' ' . $this->get_filetime($page) . "\n" . join('', $body);
-			$body = $this->cont['PKWK_SPLITTER'] . ' ' . $this->cont['UTIME'] . "\n" . join('', $body);
-			$body = preg_replace("/\n*$/", "\n", $body);
-	
-			$fp = $this->_backup_fopen($page, 'wb')
-				or $this->die_message('Cannot open ' . htmlspecialchars($this->_backup_get_filename($page)) .
-				'<br />Maybe permission is not writable or filename is too long');
-			$this->_backup_fputs($fp, $strout);
-			$this->_backup_fputs($fp, $body);
-			$this->_backup_fclose($fp);
+		} else {
+			// 最終更新分を入れ替える
+			array_pop($backups);
+		}
+		
+		$strout = '';
+		foreach($backups as $age=>$data) {
+			$strout .= $this->cont['PKWK_SPLITTER'] . ' ' . $data['time'] . "\n"; // Splitter format
+			$strout .= join('', $data['data']);
+			unset($backups[$age]);
+		}
+		$strout = preg_replace("/([^\n])\n*$/", "$1\n", $strout);
+
+		// Escape 'lines equal to PKWK_SPLITTER', by inserting a space
+		$body = preg_replace('/^(' . preg_quote($this->cont['PKWK_SPLITTER']) . "\s\d+)$/", '$1 ', $this->get_source($page));
+		$body = $this->cont['PKWK_SPLITTER'] . ' ' . $this->get_filetime($page) . "\n" . join('', $body);
+		//$body = $this->cont['PKWK_SPLITTER'] . ' ' . $this->cont['UTIME'] . "\n" . join('', $body);
+		$body = preg_replace("/\n*$/", "\n", $body);
+
+		$fp = $this->_backup_fopen($page, 'wb')
+			or $this->die_message('Cannot open ' . htmlspecialchars($this->_backup_get_filename($page)) .
+			'<br />Maybe permission is not writable or filename is too long');
+		$this->_backup_fputs($fp, $strout);
+		$this->_backup_fputs($fp, $body);
+		$this->_backup_fclose($fp);
+		if (!$rotate) {
+			$this->pkwk_touch_file($this->_backup_get_filename($page), $lastmod + $this->cont['LOCALZONE']);
 		}
 	}
-	function get_backup($page, $age = 0)
+	function get_backup($page, $age = 0, $data_age = '')
 	{
 		$lines = $this->_backup_file($page);
 		if (! is_array($lines)) return array();
-	
+		
+		$data_ages = explode(',', $data_age);
+
 		$_age = 0;
 		$retvars = $match = array();
 		$regex_splitter = '/^' . preg_quote($this->cont['PKWK_SPLITTER']) . '\s(\d+)$/';
+		$linecnt = 0;
+		$temp_last = array();
 		foreach($lines as $index => $line) {
+			$line = rtrim($line) . "\n";
 			if (preg_match($regex_splitter, $line, $match)) {
+				$linecnt = 0;
 				// A splitter, tells new data of backup will come
 				++$_age;
-				if ($age > 0 && $_age > $age)
-					return $retvars[$age];
+				if ($age > 0 && $_age > $age) return $retvars[$age];
 	
 				// Allocate
-				$retvars[$_age] = array('time'=>$match[1], 'data'=>array());
+				$temp_last = $retvars[$_age] = array('time'=>$match[1], 'data'=>array());
 			} else {
 				// The first ... the last line of the data
-				$retvars[$_age]['data'][] = $line;
+				$linecnt++;
+				if (!$data_age || in_array($_age, $data_ages) || $linecnt < 3) {
+					$retvars[$_age]['data'][] = $line;
+				}
+				$temp_last['data'][] = $line;
 			}
 			unset($lines[$index]);
 		}
-	
+		if ($temp_last && in_array('last', $data_ages)) {
+			$retvars[$_age] = $temp_last;
+		}
 		return $retvars;
 	}
 	function _backup_get_filename($page)
@@ -2828,7 +2860,7 @@ EOD;
 
 //----- Start html.php -----//
 	// PukiWiki - Yet another WikiWikiWeb clone.
-	// $Id: pukiwiki_func.php,v 1.128 2007/10/21 23:15:04 nao-pon Exp $
+	// $Id: pukiwiki_func.php,v 1.129 2007/10/26 02:00:58 nao-pon Exp $
 	// Copyright (C)
 	//   2002-2006 PukiWiki Developers Team
 	//   2001-2002 Originally written by yu-ji
@@ -2868,7 +2900,7 @@ EOD;
 		$_LINK['add']      = "{$this->root->script}?cmd=add&amp;page=$r_page#{$this->root->mydirname}_header";
 		$_LINK['backup']   = "{$this->root->script}?cmd=backup&amp;page=$r_page#{$this->root->mydirname}_header";
 		$_LINK['copy']     = "{$this->root->script}?plugin=template&amp;refer=$r_page#{$this->root->mydirname}_header";
-		$_LINK['diff']     = "{$this->root->script}?cmd=diff&amp;page=$r_page#{$this->root->mydirname}_header";
+		$_LINK['diff']     = "{$this->root->script}?cmd=backup&amp;page=$r_page&amp;action=diff#{$this->root->mydirname}_header";
 		$_LINK['edit']     = "{$this->root->script}?cmd=edit&amp;page=$r_page#{$this->root->mydirname}_header";
 		$_LINK['filelist'] = "{$this->root->script}?cmd=filelist#{$this->root->mydirname}_header";
 		$_LINK['attaches'] = "{$this->root->script}?plugin=attach&pcmd=list#{$this->root->mydirname}_header";
@@ -3171,57 +3203,63 @@ EOD;
 				$title = '<h3>'.str_replace('$1', $s_page, $this->root->_title_edit).'</h3>';
 			}
 			$resize_js = '';
+			$wrap_js = '<div style="float:right;font-size:80%;padding:3px;border:1px solid gray;cursor:pointer;" onmousedown="this.innerHTML=XpWiki.textaraWrap(\'xpwiki_edit_textarea\');">wikihelper_msg_nowrap</div>';
 		} else {
 			$nonconvert = $ajax_submit = $ajax_cancel = $enc_hint = '';
 			$form_class = 'edit_form';
 			$title = '<div style="height:0px;">&nbsp;</div>'; // for IE CSS bug.
 			$resize_js = <<<EOD
-<script type="text/javascript">
-<!--
+<script type="text/javascript"><!--
 document.observe("dom:loaded", function(){new Resizable('xpwiki_edit_textarea', {mode:'xy'});});
--->
-</script>
+//--></script>
 EOD;
-		}
+			$wrap_js = <<<EOD
+<script type="text/javascript"><!--
+document.write('<div style="float:right;font-size:80%;padding:3px;border:1px solid gray;cursor:pointer;" onmousedown="this.innerHTML=XpWiki.textaraWrap(\'xpwiki_edit_textarea\');">'+wikihelper_msg_nowrap+'</div>');
+//--></script>
+EOD;
 
+		}
+		
 		// 'margin-bottom', 'float:left', and 'margin-top'
 		// are for layout of 'cancel button'
 		$body = <<<EOD
-	<div class="{$form_class}">
-	 $title
-	 <form action="{$this->root->script}" method="post" style="margin-bottom:0px;" id="xpwiki_edit_form"{$ajax_submit}>
-	  $template
-	  $addtag
-	  $reading
-	  $alias
-	  $nonconvert
-	  $enc_hint
-	  $popup
-	  <input type="hidden" name="cmd"    value="edit" />
-	  <input type="hidden" name="page"   value="$s_page" />
-	  <input type="hidden" name="digest" value="$s_digest" />
-	  <input type="hidden" name="paraid" value="$s_id" />
-	  <textarea id="xpwiki_edit_textarea" name="msg" rel="wikihelper" rows="{$this->root->rows}" cols="{$this->root->cols}">$s_postdata</textarea>
-	  $riddle
-	  <div style="float:left;">
-	   <input type="submit" name="preview" value="$btn_preview" accesskey="p" id="edit_preview" onmousedown="xpwiki_ajax_edit_var['mode']='preview'" />
-	   <input type="submit" name="write"   value="{$this->root->_btn_update}" accesskey="s" id="edit_write" onmousedown="xpwiki_ajax_edit_var['mode']='write'" />
-	   $add_top
-	   $add_notimestamp
-	  </div>
-	  <textarea name="original" rows="1" cols="1" style="display:none">$s_original</textarea>
-	 </form>
-	 <div id="xpwiki_cancel_form">
-	 <form action="{$this->root->script}" method="post" style="margin-top:0px;"{$ajax_cancel}>
-	  <input type="hidden" name="cmd"    value="edit" />
-	  <input type="hidden" name="page"   value="$s_page" />
-	  <input type="hidden" name="paraid" value="$s_id" />
-	  <input type="submit" name="cancel" value="{$this->root->_btn_cancel}" accesskey="c" />
-	 </form>
-	 </div>
-	</div>
-	$attaches
-	$resize_js
+<div class="{$form_class}">
+ $title
+ <form action="{$this->root->script}" method="post" style="margin-bottom:0px;" id="xpwiki_edit_form"{$ajax_submit}>
+  $template
+  $addtag
+  $reading
+  $alias
+  $nonconvert
+  $enc_hint
+  $popup
+  <input type="hidden" name="cmd"    value="edit" />
+  <input type="hidden" name="page"   value="$s_page" />
+  <input type="hidden" name="digest" value="$s_digest" />
+  <input type="hidden" name="paraid" value="$s_id" />
+  <textarea id="xpwiki_edit_textarea" name="msg" rel="wikihelper" rows="{$this->root->rows}" cols="{$this->root->cols}">$s_postdata</textarea>
+  $wrap_js
+  $riddle
+  <div style="float:left;">
+   <input type="submit" name="preview" value="$btn_preview" accesskey="p" id="edit_preview" onmousedown="xpwiki_ajax_edit_var['mode']='preview'" />
+   <input type="submit" name="write"   value="{$this->root->_btn_update}" accesskey="s" id="edit_write" onmousedown="xpwiki_ajax_edit_var['mode']='write'" />
+   $add_top
+   $add_notimestamp
+  </div>
+  <textarea name="original" rows="1" cols="1" style="display:none">$s_original</textarea>
+ </form>
+ <div id="xpwiki_cancel_form">
+ <form action="{$this->root->script}" method="post" style="margin-top:0px;"{$ajax_cancel}>
+  <input type="hidden" name="cmd"    value="edit" />
+  <input type="hidden" name="page"   value="$s_page" />
+  <input type="hidden" name="paraid" value="$s_id" />
+  <input type="submit" name="cancel" value="{$this->root->_btn_cancel}" accesskey="c" />
+ </form>
+ </div>
+</div>
+$attaches
+$resize_js
 EOD;
 	
 		if (isset($this->root->vars['help'])) {
@@ -3502,7 +3540,7 @@ EOD;
 
 //----- Start mail.php -----//
 	// PukiWiki - Yet another WikiWikiWeb clone.
-	// $Id: pukiwiki_func.php,v 1.128 2007/10/21 23:15:04 nao-pon Exp $
+	// $Id: pukiwiki_func.php,v 1.129 2007/10/26 02:00:58 nao-pon Exp $
 	// Copyright (C)
 	//   2003-2005 PukiWiki Developers Team
 	//   2003      Originally written by upk
@@ -3805,7 +3843,7 @@ EOD;
 
 //----- Start link.php -----//
 	// PukiWiki - Yet another WikiWikiWeb clone
-	// $Id: pukiwiki_func.php,v 1.128 2007/10/21 23:15:04 nao-pon Exp $
+	// $Id: pukiwiki_func.php,v 1.129 2007/10/26 02:00:58 nao-pon Exp $
 	// Copyright (C) 2003-2006 PukiWiki Developers Team
 	// License: GPL v2 or (at your option) any later version
 	//

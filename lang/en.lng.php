@@ -1,6 +1,6 @@
 <?php
 // PukiWiki - Yet another WikiWikiWeb clone.
-// $Id: en.lng.php,v 1.21 2007/10/12 08:03:55 nao-pon Exp $
+// $Id: en.lng.php,v 1.22 2007/10/26 02:00:58 nao-pon Exp $
 // Copyright (C)
 //   2002-2005 PukiWiki Developers Team
 //   2001-2002 Originally written by yu-ji
@@ -249,7 +249,7 @@ $root->_title_backupsource   = 'Backup source of  $1(No. $2)';
 $root->_title_backup         = 'Backup of  $1(No. $2)';
 $root->_title_pagebackuplist = 'Backup list of  $1';
 $root->_title_backuplist     = 'Backup list';
-$root->_msg_backup_deleted   = 'Backup of  $1 has been deleted.';
+$root->_msg_backup_deleted   = 'Backup of $1 has been deleted.';
 $root->_msg_backup_adminpass = 'Please input the password for deleting.';
 $root->_msg_backuplist       = 'List of Backups';
 $root->_msg_nobackup         = 'There are no backup(s) of  $1.';
@@ -257,8 +257,10 @@ $root->_msg_diff             = 'diff';
 $root->_msg_nowdiff          = 'diff current';
 $root->_msg_source           = 'source';
 $root->_msg_backup           = 'backup';
-$root->_msg_view             = 'View the  $1.';
+$root->_msg_view             = 'View the $1.';
 $root->_msg_deleted          = ' $1 has been deleted.';
+$root->_msg_backupedit       = 'Edit the $1 as current.';
+$root->_msg_current          = 'Cur';
 
 ///////////////////////////////////////
 // calendar_viewer.inc.php
