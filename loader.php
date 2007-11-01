@@ -1,7 +1,7 @@
 <?php
 //
 // Created on 2006/10/25 by nao-pon http://hypweb.net/
-// $Id: loader.php,v 1.23 2007/10/17 23:06:46 nao-pon Exp $
+// $Id: loader.php,v 1.24 2007/11/01 11:47:28 nao-pon Exp $
 //
 
 error_reporting(0);
@@ -147,6 +147,9 @@ switch ($type) {
 			}
 			$replace = true;
 			$js_replace = true;
+		} else if ($src === 'wikihelper_loader') {
+			$replace = true;
+			$js_replace = true;			
 		}
 		$c_type = 'application/x-javascript';
 		$cache_file = $cache_path.$src.'.'.$type;
