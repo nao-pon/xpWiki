@@ -425,6 +425,14 @@ window.onbeforeunload = function(e) {
 	}
 };
 
-document.observe("dom:loaded", function(){
+document.observe("dom:loaded", function() {
+	if (typeof(wikihelper_textarea_findup) != 'undefined' && wikihelper_textarea_findup) {
+		var tareas = document.getElementsByTagName('body')[0].getElementsByTagName('textarea');
+		for (var i=0; i<tareas.length; i++){
+			if (! tareas[i].getAttribute('rel')) {
+				tareas[i].setAttribute("rel", "wikihelper");
+			}
+		}
+	}
 	wikihelper_initTexts();
 });
