@@ -19,7 +19,7 @@ if ($q !== "") {
 	if ($use_mb) {
 		$q = mb_convert_encoding($q, $enc, 'UTF-8');
 	}
-	$q = addslashes($q);
+	$q = addslashesGPC($q);
 
 	$where1 = " WHERE `uname` LIKE '".$q."%'";
 	$where2 = " WHERE `uname` LIKE '%".$q."%' AND `uname` NOT LIKE '".$q."%'";
@@ -75,5 +75,17 @@ while( ob_get_level() ) {
 header ("Content-Type: text/plain; charset=UTF-8");
 header ("Content-Length: ".strlen($ret));
 echo $ret;
+exit;
 
+// magic_quotes_gpc checked addslashes()
+function addslashesGPC($str) {
+	if (! get_magic_quotes_gpc()) {
+		$str = addslashes($str);
+	} else {
+		if (ini_get('magic_quotes_sybase')) {
+			$str = addslashes(str_replace("''", "'", $str));
+		}
+	}
+	return $str;
+}
 ?>
