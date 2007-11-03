@@ -154,31 +154,60 @@ var XpWiki = {
 		Element.hide('XpWikiPopupCover');
 	},
 	pagePopup: function (arg) {
-		if (!arg.dir || !arg.page) return;
+		if (!arg.dir || !arg.page) return true;
 		
-		if (!!$('XpWikiPopup') && this.dir == arg.dir && this.page == arg.page) {
+		if (typeof(document.body.style.maxHeight) != 'undefined') {
+			if (!!$('XpWikiPopup') && this.dir == arg.dir && this.page == arg.page) {
+				Element.show(this.PopupDiv);
+				return false;
+			}
+			
+			this.dir = arg.dir;
+			this.page = arg.page.replace(/(#[^#]+)?$/, '');
+			var hash = arg.page.replace(/^[^#]+/, '');
+			
+			this.title = this.htmlspecialchars(this.page);
+			
+			this.initPopupDiv(arg);
+			$('XpWikiPopupHeaderTitle').innerHTML = 'Now loading...';
+	
+			var url = this.MyUrl + '/' + this.dir + '/?cmd=read';
+			url += '&page=' + encodeURIComponent(this.page);
+			url += '&popup=1';
+			url += '&encode_hint=' + encodeURIComponent(this.EncHint);
+			url += hash;
+			
+			$('XpWikiPopupBody').src = url;
 			Element.show(this.PopupDiv);
-			return;
-		}
-		
-		this.dir = arg.dir;
-		this.page = arg.page.replace(/(#[^#]+)?$/, '');
-		var hash = arg.page.replace(/^[^#]+/, '');
-		
-		this.title = this.htmlspecialchars(this.page);
-		
-		this.initPopupDiv(arg);
-		$('XpWikiPopupHeaderTitle').innerHTML = 'Now loading...';
+		} else {
+			this.dir = arg.dir;
+			this.page = arg.page.replace(/(#[^#]+)?$/, '');
+			var hash = arg.page.replace(/^[^#]+/, '');
+			
+			this.title = this.htmlspecialchars(this.page);
+			
+			if (!window.self.name) {
+				window.self.name = "xpwiki_opener";
+			}
+			this.window_name = window.self.name;
+			
+			var url = this.MyUrl + '/' + this.dir + '/?cmd=read';
+			url += '&page=' + encodeURIComponent(this.page);
+			url += '&popup=' + encodeURIComponent(this.window_name);
+			url += '&encode_hint=' + encodeURIComponent(this.EncHint);
+			url += hash;
+			
+			var width = '250';
+			var height = '400';
+			var top = '10';
+			var left = '10';
+		    var options = "width=" + width + ",height=" + height + ",top=" + top + ",left=" + left + "toolbar=no,location=no,directories=no,status=no,menubar=no,scrollbars=yes,resizable=yes,copyhistory=no";
 
-		var url = this.MyUrl + '/' + this.dir + '/?cmd=read';
-		url += '&page=' + encodeURIComponent(this.page);
-		url += '&popup=1';
-		url += '&encode_hint=' + encodeURIComponent(this.EncHint);
-		url += hash;
-		
-		$('XpWikiPopupBody').src = url;
-		Element.show(this.PopupDiv);
-		
+		    this.new_window = window.open(url, 'xpwiki_popup', options);
+		    //this.new_window.document.title = this.title;
+		    this.new_window.focus();
+		}
+		return false;
 	},
 	
 	pagePopupAjax: function (arg) {
@@ -273,6 +302,33 @@ var XpWiki = {
 	    parNod.removeChild(txtarea);
 	    parNod.insertBefore(txtarea, nxtSib);
 	    return ret;
+	},
+	
+	addWrapButton: function (id) {
+		var txtarea = $(id);
+		var btn = document.createElement('div');
+		Element.setStyle (btn, {
+			'float' : 'right',
+			'fontSize' : '80%',
+			'padding' : '3px',
+			'border' : '1px solid gray',
+			'cursor' : 'pointer'	
+		});
+		btn.innerHTML = wikihelper_msg_nowrap;
+		Event.observe(btn, 'mousedown', function(){
+			this.innerHTML = XpWiki.textaraWrap(id);
+		});
+		var parNod = txtarea.parentNode;
+		var nxtSib = txtarea.nextSibling;
+		parNod.insertBefore(btn, nxtSib);
+	},
+	
+	addCssInHead: function (filename) {
+		var css = document.createElement('link');
+		css.href = wikihelper_root_url + '/skin/loader.php?src=' + filename;
+		css.rel  = 'stylesheet';
+		css.type = 'text/css';
+		document.getElementsByTagName('head')[0].appendChild(css);
 	},
 	
 	htmlspecialchars: function (str) {

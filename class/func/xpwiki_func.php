@@ -1,7 +1,7 @@
 <?php
 //
 // Created on 2006/10/02 by nao-pon http://hypweb.net/
-// $Id: xpwiki_func.php,v 1.108 2007/10/26 07:28:42 nao-pon Exp $
+// $Id: xpwiki_func.php,v 1.109 2007/11/03 03:19:38 nao-pon Exp $
 //
 class XpWikiFunc extends XpWikiXoopsWrapper {
 
@@ -1241,7 +1241,7 @@ EOD;
 	
 	function output_popup ($body) {
 		// set target
-		$body = preg_replace('/(<a[^>]+)(href=(?:"|\')[^#])/isS', '$1target="_parent" $2', $body);
+		$body = preg_replace('/(<a[^>]+)(href=(?:"|\')[^#])/isS', '$1target="' . ((intval($this->root->get['popup']) === 1)? '_parent' : htmlspecialchars(substr($this->root->get['popup'],0,30))) . '" $2', $body);
 		
 		// Head Tags
 		list($head_pre_tag, $head_tag) = $this->get_additional_headtags();
