@@ -1,6 +1,6 @@
 //
 // Created on 2007/10/03 by nao-pon http://hypweb.net/
-// $Id: resizable.js,v 1.4 2007/10/26 01:31:07 nao-pon Exp $
+// $Id: resizable.js,v 1.5 2007/11/03 03:15:44 nao-pon Exp $
 //
 
 var Resizable = Class.create();
@@ -64,6 +64,7 @@ Resizable.prototype = {
 			}
 			
 			this.elem.style.margin = '0px';
+			this.elem.style.padding = '0px';
 			parent.replaceChild(this.base, target);
 
 			if (Prototype.Browser.IE) {
