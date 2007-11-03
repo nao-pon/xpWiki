@@ -40,6 +40,9 @@ div.resizableResizeX {
 	padding: 0px;
 	margin: 0px;
 	background-color: #b0c4de;
+	filter:alpha(opacity=60);
+	-moz-opacity: 0.6;
+	opacity: 0.6;
 }
 
 div.resizableResizeY {
@@ -52,6 +55,9 @@ div.resizableResizeY {
 	padding: 0px;
 	margin: 0px;
 	background-color: #b0c4de;
+	filter:alpha(opacity=60);
+	-moz-opacity: 0.6;
+	opacity: 0.6;
 }
 
 div.resizableResizeXY {
@@ -64,6 +70,9 @@ div.resizableResizeXY {
 	padding: 0px;
 	margin: 0px;
 	background-color: #b0c4de;
+	filter:alpha(opacity=60);
+	-moz-opacity: 0.6;
+	opacity: 0.6;
 }
 
 $class {
