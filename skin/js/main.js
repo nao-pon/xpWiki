@@ -427,11 +427,17 @@ window.onbeforeunload = function(e) {
 
 document.observe("dom:loaded", function() {
 	if (typeof(wikihelper_textarea_findup) != 'undefined' && wikihelper_textarea_findup) {
+		XpWiki.addCssInHead('main.css');
 		var tareas = document.getElementsByTagName('body')[0].getElementsByTagName('textarea');
 		for (var i=0; i<tareas.length; i++){
 			if (! tareas[i].getAttribute('rel')) {
 				tareas[i].setAttribute("rel", "wikihelper");
 			}
+			if (!tareas[i].id) {
+				tareas[i].id = 'textarea_autoid_' + i;
+			}
+			new Resizable(tareas[i].id, {mode:'xy'});
+			XpWiki.addWrapButton(tareas[i].id);
 		}
 	}
 	wikihelper_initTexts();
