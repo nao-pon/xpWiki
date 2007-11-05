@@ -2,7 +2,7 @@
 /////////////////////////////////////////////////
 // PukiWiki - Yet another WikiWikiWeb clone.
 //
-// $Id: region.inc.php,v 1.1 2007/01/12 00:43:55 nao-pon Exp $
+// $Id: region.inc.php,v 1.2 2007/11/05 06:32:11 nao-pon Exp $
 //
 
 class xpwiki_plugin_region extends xpwiki_plugin {
@@ -99,11 +99,11 @@ class XpWikiRegionPluginHTMLBuilder
 	onclick="
 	if(document.getElementById('rgn_summary$this->callcount').style.display!='none'){
 		document.getElementById('rgn_summary$this->callcount').style.display='none';
-		document.getElementById('rgn_content$this->callcount').style.display='block';
+		document.getElementById('rgn_content$this->callcount').style.display='';
 		document.getElementById('rgn_bracket$this->callcount').style.borderStyle='solid none solid solid';
 		document.getElementById('rgn_button$this->callcount').innerHTML='-';
 	}else{
-		document.getElementById('rgn_summary$this->callcount').style.display='block';
+		document.getElementById('rgn_summary$this->callcount').style.display='';
 		document.getElementById('rgn_content$this->callcount').style.display='none';
 		document.getElementById('rgn_bracket$this->callcount').style.borderStyle='none';
 		document.getElementById('rgn_button$this->callcount').innerHTML='+';
