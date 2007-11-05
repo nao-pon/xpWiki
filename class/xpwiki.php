@@ -1,7 +1,7 @@
 <?php
 //
 // Created on 2006/09/29 by nao-pon http://hypweb.net/
-// $Id: xpwiki.php,v 1.56 2007/10/12 08:00:21 nao-pon Exp $
+// $Id: xpwiki.php,v 1.57 2007/11/05 06:33:24 nao-pon Exp $
 //
 
 class XpWiki {
@@ -418,7 +418,7 @@ EOD;
 			if (!empty($this->iniVar['const'])) {
 				$op .= serialize($this->iniVar['const']);
 			}
-			$cache = $this->cont['RENDER_CACHE_DIR'] . 'render_' . sha1($text.$op);
+			$cache = $this->cont['RENDER_CACHE_DIR'] . 'render_' . sha1($text.$op) . '.' .  $this->cont['UI_LANG'];
 			if (file_exists($cache) &&
 				@ filemtime($this->cont['CACHE_DIR'] . 'pagemove.time') < filemtime($cache) &&
 				(empty($this->root->render_cache_min) || ((filemtime($cache) +  $this->root->render_cache_min * 60) > time()))
