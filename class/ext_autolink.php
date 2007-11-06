@@ -1,7 +1,7 @@
 <?php
 /*
  * Created on 2007/04/23 by nao-pon http://hypweb.net/
- * $Id: ext_autolink.php,v 1.18 2007/10/12 07:58:30 nao-pon Exp $
+ * $Id: ext_autolink.php,v 1.19 2007/11/06 02:05:41 nao-pon Exp $
  */
 class XpWikiPukiExtAutoLink {
 	// External AutoLinks
@@ -30,7 +30,7 @@ class XpWikiPukiExtAutoLink {
 					$pat_pre = '/(<(script|a|textarea|style).*?<\/\\2>|<[^>]*>|&(?:#[0-9]+|#x[0-9a-f]+|[0-9a-z]+);)|(?<=\W)(';
 					$pat_aft = ')(?=\W)/isS';
 				} else {
-					$pat_pre = '/(<((?:s|S)(?:c|C)(?:r|R)(?:i|I)(?:p|P)(?:t|T)|a|A|(?:t|T)(?:e|E)(?:x|X)(?:t|T)(?:a|A)(?:r|R)(?:e|E)(?:a|A)|(?:s|S)(?:t|T)(?:y|Y)(?:l|L)(?:e|E)).*?<\/\\2>|<[^>]*>|&(?:#[0-9]+|#x[0-9a-f]+|[0-9a-zA-Z]+);)|(?<=\W)(';
+					$pat_pre = '/(<([sS][cC][rR][iI][pP][tT]|[a|A]|[tT][eE][xX][tT][aA][rR][eE][aA]|[sS][tT][yY][lL][eE]).*?<\/\\2>|<[^>]*>|&(?:#[0-9]+|#x[0-9a-fA-F]+|[0-9a-zA-Z]+);)|(?<=\W)(';
 					$pat_aft = ')(?=\W)/sS';	
 				}
 				foreach(explode("\t", $pat) as $_pat) {
