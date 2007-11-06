@@ -9,7 +9,7 @@ class xpwiki_plugin_attach extends xpwiki_plugin {
 	/////////////////////////////////////////////////
 	// PukiWiki - Yet another WikiWikiWeb clone.
 	//
-	//  $Id: attach.inc.php,v 1.23 2007/09/19 12:37:18 nao-pon Exp $
+	//  $Id: attach.inc.php,v 1.24 2007/11/06 02:12:41 nao-pon Exp $
 	//  ORG: attach.inc.php,v 1.31 2003/07/27 14:15:29 arino Exp $
 	//
 	
@@ -392,6 +392,15 @@ class xpwiki_plugin_attach extends xpwiki_plugin {
 		// ファイル名指定あり
 		if (!empty($this->root->post['filename'])) {
 			$fname = $this->root->post['filename'];
+		}
+		
+		// ファイル名 文字数のチェック
+		$page_enc = $this->func->encode($page) . '_';
+		$fnlen = strlen($page_enc . $this->func->encode($fname));
+		$maxlen = 255 - 12; // 12 = x_yy + .log (strlen(encode(A string as x . '_' . age as yy) . '.log'))
+		while (strlen($fname) > 2 && $fnlen > $maxlen) {
+			$fname = preg_replace('/\W+$/', '', substr($fname, 0, -1));
+			$fnlen = strlen($page_enc . $this->func->encode($fname));
 		}
 		
 		// ファイル名が存在する場合は、数字を付け加える
