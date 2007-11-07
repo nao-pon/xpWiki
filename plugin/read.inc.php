@@ -6,7 +6,7 @@ class xpwiki_plugin_read extends xpwiki_plugin {
 
 	}
 	// PukiWiki - Yet another WikiWikiWeb clone.
-	// $Id: read.inc.php,v 1.7 2007/09/05 05:22:16 nao-pon Exp $
+	// $Id: read.inc.php,v 1.8 2007/11/07 23:20:07 nao-pon Exp $
 	//
 	// Read plugin: Show a page and InterWiki
 	
@@ -20,6 +20,11 @@ class xpwiki_plugin_read extends xpwiki_plugin {
 		if (!$this->func->is_page($page) && isset($this->root->page_aliases[$page])) {
 			$page = $this->root->vars['page'] = $this->root->get['page'] = $this->root->post['page'] = $this->root->page_aliases[$page];
 		}
+		
+		// check acepted lang
+		//if ($this->cont['LANG'] !== $this->cont['UI_LANG'] && substr($page, -3, 1) !== ';' && $this->func->is_page($page . ';' . $this->cont['UI_LANG'])) {
+		//	$page = $this->root->vars['page'] = $this->root->get['page'] = $this->root->post['page'] = $page . ';' . $this->cont['UI_LANG'];
+		//}
 	
 		if ($this->func->is_page($page)) {
 			// ページを表示
