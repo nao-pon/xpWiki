@@ -1,6 +1,6 @@
 <?php
 // PukiWiki - Yet another WikiWikiWeb clone.
-// $Id: ja.lng.php,v 1.22 2007/10/26 02:00:58 nao-pon Exp $
+// $Id: ja.lng.php,v 1.23 2007/11/07 23:39:25 nao-pon Exp $
 // Copyright (C)
 //   2002-2005 PukiWiki Developers Team
 //   2001-2002 Originally written by yu-ji
@@ -108,6 +108,10 @@ $root->_no_subject = '無題';
 /////////////////////////////////////////////////
 // 名前が未記入の場合の表記 (article, comment, pcomment)
 $root->_no_name = '';
+
+/////////////////////////////////////////////////
+// Title of the page contents list
+$root->contents_title = '<h2>ページ内コンテンツ</h2>' . "\n";
 
 /////////////////////////////////////////////////
 // Skin
