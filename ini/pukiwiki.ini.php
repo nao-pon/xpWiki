@@ -1,6 +1,6 @@
 <?php
 // PukiWiki - Yet another WikiWikiWeb clone
-// $Id: pukiwiki.ini.php,v 1.52 2007/10/26 02:00:58 nao-pon Exp $
+// $Id: pukiwiki.ini.php,v 1.53 2007/11/07 23:25:05 nao-pon Exp $
 // Copyright (C)
 //   2002-2006 PukiWiki Developers Team
 //   2001-2002 Originally written by yu-ji
@@ -211,9 +211,17 @@ RewriteRule ^([0-9]+)\.html$ index.php?pgid=$1 [qsappend,L]
 $root->static_url = 0;
 
 /////////////////////////////////////////////////
-// 外部リンクのリンクターゲット (<a> の target 属性)
+// 外部リンクの追加属性
+// Attributes for external link tag <a>.
+// target
 // ※ HTML4.01, XHTML1.0で非推奨、HTML4.01Strict, XHTML1.1では使えません
 $root->link_target = '';
+
+// class
+$root->class_extlink = 'ext';
+
+// Add rel="nofollow"? (0 or 1)
+$root->nofollow_extlink = 0;
 
 /////////////////////////////////////////////////
 // AutoLink feature
