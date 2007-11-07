@@ -3,7 +3,7 @@ class xpwiki_plugin_block extends xpwiki_plugin {
 	function plugin_block_init () {
 
 
-	// $Id: block.inc.php,v 1.2 2006/11/15 01:13:46 nao-pon Exp $
+	// $Id: block.inc.php,v 1.3 2007/11/07 23:49:20 nao-pon Exp $
 	
 	/*
 	 * countdown.inc.php
@@ -48,17 +48,14 @@ class xpwiki_plugin_block extends xpwiki_plugin {
 			'_args'=>array(),
 			'_done'=>FALSE,
 		);
-		//array_walk(func_get_args(), 'block_check_arg', &$params);
-		//なぜか $args のメンバー数が多い時 array_walk ではPHPが落ちることがある
-		foreach(func_get_args() as $key=>$val)
-		{
-			$this->block_check_arg($val, $key, $params);
-		}
-	
+		// オプション解析
+		$args = func_get_args();
+		$this->fetch_options($params, $args);
+		
 		// end
 		if ($params['end'])
 		{
-			$ret = '';
+			$ret = $this->func->get_areadiv_closer();
 			if (isset($b_round[$this->xpwiki->pid][$b_count[$this->xpwiki->pid]])) {
 				$ret .= '<div class="round_bb"><div></div></div>';
 			}
@@ -148,36 +145,27 @@ class xpwiki_plugin_block extends xpwiki_plugin {
 			$b_tag[$this->xpwiki->pid][$b_count[$this->xpwiki->pid]] += 3;
 			$this->func->add_tag_head('block.css');
 		}
-		return "{$ie5_div}<div{$style} class=\"{$block_class}\">{$tate_div}{$tate_js}{$round}";
-	}
-	
-	//オプションを解析する
-	function block_check_arg($val, $key, &$params)
-	{
-		if ($val == '') { $params['_done'] = TRUE; return; }
-	
-		if (!$params['_done']) {
-			foreach (array_keys($params) as $key)
-			{
-				if (strpos($val,':')) // PHP4.3.4＋Apache2 環境で何故かApacheが落ちるとの報告があったので
-					list($_val,$thisval) = explode(":",$val);
-				else
-				{
-					$_val = $val;
-					$thisval = null;
-				}
-				if (strtolower($_val) == $key)
-				{
-					if (!empty($thisval))
-						$params[$key] = $thisval;
-					else
-						$params[$key] = TRUE;
-					return;
-				}
-			}
-			$params['_done'] = TRUE;
+
+		$body = '';
+		if ($params['_args']) {
+			$body = array_pop($params['_args']);
+			$body = str_replace("\r", "\n", $body);
 		}
-		$params['_args'][] = $val;
+		
+		if ($body) {
+			$body = $this->func->convert_html($body);
+			if (isset($b_round[$this->xpwiki->pid][$b_count[$this->xpwiki->pid]])) {
+				$body .= '<div class="round_bb"><div></div></div>';
+			}
+			$body .= str_repeat("</div>",$b_tag[$this->xpwiki->pid][$b_count[$this->xpwiki->pid]])."\n";
+			$b_count[$this->xpwiki->pid]--;
+			$areadiv_closer = '';
+		} else {
+			$areadiv_closer = $this->func->get_areadiv_closer();
+		}
+
+		return "{$areadiv_closer}{$ie5_div}<div{$style} class=\"{$block_class}\">{$tate_div}{$tate_js}{$round}{$body}";
+
 	}
 }
 ?>
