@@ -1,7 +1,7 @@
 <?php
 //
 // Created on 2006/10/25 by nao-pon http://hypweb.net/
-// $Id: code.inc.php,v 1.9 2007/09/19 12:10:10 nao-pon Exp $
+// $Id: code.inc.php,v 1.10 2007/11/07 23:49:53 nao-pon Exp $
 //
 
 class xpwiki_plugin_code extends xpwiki_plugin {
@@ -17,7 +17,7 @@ class xpwiki_plugin_code extends xpwiki_plugin {
 		 * r 0.6.0_pr3
 		 */
 
-		$this->cont['PLUGIN_CODE_LANGUAGE'] =  'pre';  // 標準言語 全て小文字で指定
+		$this->cont['PLUGIN_CODE_LANGUAGE'] =  'php';  // 標準言語 全て小文字で指定
 		// 標準設定
 		$this->cont['PLUGIN_CODE_NUMBER'] =     1;  // 行番号
 		$this->cont['PLUGIN_CODE_OUTLINE'] =    1;  // アウトライン
