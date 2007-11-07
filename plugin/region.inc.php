@@ -2,7 +2,7 @@
 /////////////////////////////////////////////////
 // PukiWiki - Yet another WikiWikiWeb clone.
 //
-// $Id: region.inc.php,v 1.2 2007/11/05 06:32:11 nao-pon Exp $
+// $Id: region.inc.php,v 1.3 2007/11/07 23:48:13 nao-pon Exp $
 //
 
 class xpwiki_plugin_region extends xpwiki_plugin {
@@ -24,7 +24,8 @@ class xpwiki_plugin_region extends xpwiki_plugin {
 			$args = func_get_args();
 			// end 指定?
 			if ($args[0] === 'end') {
-				return '</td></tr></table>' . "\n";
+				// Close area div
+				return $this->func->get_areadiv_closer() . '</td></tr></table>' . "\n";
 			} else {
 				$builder[$this->xpwiki->pid]->setDescription( array_shift($args) );
 				foreach( $args as $value ){
@@ -74,8 +75,8 @@ class XpWikiRegionPluginHTMLBuilder
 		//$this->description = convert_html($description);
 		$this->description = $this->func->make_link($description);
 		// convert_htmlを使うと <p>タグで囲まれてしまう。Mozzilaだと表示がずれるので<p>タグを消す。
-		$this->description = preg_replace( "/^<p>/i", "", $this->description);
-		$this->description = preg_replace( "/<\/p>$/i", "", $this->description);
+		//$this->description = preg_replace( "/^<p>/i", "", $this->description);
+		//$this->description = preg_replace( "/<\/p>$/i", "", $this->description);
 	}
 	function build(){
 		$this->callcount++;
@@ -90,10 +91,14 @@ class XpWikiRegionPluginHTMLBuilder
 
 	// ■ ボタンの部分。
 	function buildButtonHtml(){
+		
+		// Close area div
+		$areadiv_closer = $this->func->get_areadiv_closer();
+
 		$button = ($this->isopened) ? "-" : "+";
 		// JavaScriptでsummaryrgn1、contentrgn1などといった感じのユニークな変数名を使用。かぶったら一巻の終わりです。万事休す。id指定せずオブジェクト取れるような、なんかよい方法があればいいんだけど。
 		return <<<EOD
-<table cellpadding=1 cellspacing=2 style="width:auto;"><tr>
+{$areadiv_closer}<table cellpadding=1 cellspacing=2 style="width:auto;"><tr>
 <td valign=top>
 	<span id=rgn_button$this->callcount style="cursor:pointer;font:normal 10px ＭＳ Ｐゴシック;border:gray 1px solid;"
 	onclick="
