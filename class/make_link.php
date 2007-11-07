@@ -368,8 +368,8 @@ EOD;
 
 	function toString() {
 		if (strpos($this->name, $this->cont['ROOT_URL']) === FALSE) {
-			$rel = ' rel="nofollow"';
-			$class = ' class="ext"';
+			$rel = ($this->root->nofollow_extlink)? ' rel="nofollow"' : '';
+			$class = ($this->root->class_extlink)? ' class="' . $this->root->class_extlink . '"' : '';
 			$target = ($this->root->link_target)? ' target="' . $this->root->link_target . '"' : '';
 		} else {
 			$target = $rel = $class = '';
