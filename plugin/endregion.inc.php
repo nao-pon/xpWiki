@@ -2,7 +2,7 @@
 /////////////////////////////////////////////////
 // PukiWiki - Yet another WikiWikiWeb clone.
 //
-// $Id: endregion.inc.php,v 1.1 2007/01/12 00:43:55 nao-pon Exp $
+// $Id: endregion.inc.php,v 1.2 2007/11/07 23:48:13 nao-pon Exp $
 //
 class xpwiki_plugin_endregion extends xpwiki_plugin {
 	function plugin_endregion_init () {
@@ -11,8 +11,10 @@ class xpwiki_plugin_endregion extends xpwiki_plugin {
 	
 	function plugin_endregion_convert()
 	{
+		// Close area div
+		$areadiv_closer = $this->func->get_areadiv_closer();
 		return <<<EOD
-</td></tr></table>
+{$areadiv_closer}</td></tr></table>
 EOD;
 	}
 }
