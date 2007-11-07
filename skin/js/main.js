@@ -304,6 +304,7 @@ function xpwiki_ajax_edit_show(orgRequest) {
 
 		location.hash = xpwiki_ajax_edit_var["id"];
 	}
+	orgRequest = null;
 }
 
 function xpwiki_ajax_edit_submit() {
@@ -381,6 +382,7 @@ function xpwiki_ajax_edit_post(orgRequest) {
 			if (xpwiki_ajax_edit_var['id']) location.hash = xpwiki_ajax_edit_var["id"];
 		}
 	}
+	orgRequest = null;
 }
 
 function xpwiki_ajax_edit_cancel() {
