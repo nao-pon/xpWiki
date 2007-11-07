@@ -85,7 +85,6 @@ class XpWikiInline extends XpWikiElement {
 	}
 
 	function toString() {
-		//		global $line_break;
 		return join(($this->root->line_break ? '<br />'."\n" : "\n"), $this->elements);
 	}
 
@@ -126,13 +125,14 @@ class XpWikiParagraph extends XpWikiElement {
 class XpWikiHeading extends XpWikiElement {
 	var $level;
 	var $id;
+	var $paraid;
 	var $msg_top;
 
 	function XpWikiHeading(& $root, $text) {
 		parent :: XpWikiElement($root->xpwiki);
 
 		$this->level = min(5, strspn($text, '*'));
-		list ($text, $this->msg_top, $this->id) = $root->getAnchor($text, $this->level);
+		list ($text, $this->msg_top, $this->id, $this->paraid) = $root->getAnchor($text, $this->level);
 		$this->insert($root->func->Factory_Inline($text));
 		$this->level++; // h2,h3,h4
 	}
@@ -147,7 +147,15 @@ class XpWikiHeading extends XpWikiElement {
 	}
 
 	function toString() {
-		return $this->msg_top.$this->wrap(parent :: toString(), 'h'.$this->level, ' id="'.$this->id.'"');
+		// Area div id
+		$area_div = '';
+		if (!empty($this->root->rtf['div_area_open'][$this->root->rtf['convert_nest']])) {
+			$area_div .= "<!--{$this->root->rtf['div_area_open'][$this->root->rtf['convert_nest']]}--></div>";
+		}
+		$area_div .= "\n" . '<div id="'.$this->paraid.'" class="level'.$this->level.'">' . "\n";
+		$this->root->rtf['div_area_open'][$this->root->rtf['convert_nest']] = $this->paraid;
+
+		return $area_div . $this->msg_top . $this->wrap(parent :: toString(), 'h'.$this->level, ' id="'.$this->id.'"');
 	}
 }
 
@@ -163,7 +171,6 @@ class XpWikiHRule extends XpWikiElement {
 	}
 
 	function toString() {
-		//		global $hr;
 		return $this->root->hr;
 	}
 }
@@ -182,7 +189,6 @@ class XpWikiListContainer extends XpWikiElement {
 
 		$var_margin = '_'.$tag.'_margin';
 		$var_left_margin = '_'.$tag.'_left_margin';
-		//		global $$var_margin, $$var_left_margin;
 
 		$this->margin = $this->root-> $var_margin;
 		$this->left_margin = $this->root-> $var_left_margin;
@@ -193,7 +199,6 @@ class XpWikiListContainer extends XpWikiElement {
 		$text = ltrim(substr($text, $this->level));
 
 		parent :: insert(new XpWikiListElement($this->xpwiki, $this->level, $tag2));
-		//print_r($this->func->Factory_Inline);exit;
 		if ($text != '')
 			$this->last = & $this->last->insert($this->func->Factory_Inline($text));
 	}
@@ -203,8 +208,6 @@ class XpWikiListContainer extends XpWikiElement {
 	}
 
 	function setParent(& $parent) {
-		//		global $_list_pad_str;
-
 		parent :: setParent($parent);
 
 		$step = $this->level;
@@ -812,7 +815,6 @@ class XpWikiYTable extends XpWikiElement {
 // ' 'Space-beginning sentence
 class XpWikiPre extends XpWikiElement {
 	function XpWikiPre(& $root, $text) {
-		//		global $preformat_ltrim;
 		parent :: XpWikiElement($root->xpwiki);
 		$this->elements[] = htmlspecialchars((!$this->root->preformat_ltrim || $text == '' || $text {
 			0}
@@ -989,8 +991,6 @@ class XpWikiBody extends XpWikiElement {
 	}
 
 	function getAnchor($text, $level) {
-		//		global $top, $_symbol_anchor;
-
 		// Heading id (auto-generated)
 		$autoid = 'content_'.$this->id.'_'.$this->count;
 		$this->count++;
@@ -1011,16 +1011,8 @@ class XpWikiBody extends XpWikiElement {
 		// Add 'page contents' link to its heading
 		$this->contents_last = & $this->contents_last->add(new XpWikiContents_UList($this->xpwiki, $text, $level, $id));
 		
-		// Area div id
-		$area_div = '';
-		if (!empty($this->flg['div_area_open'])) {
-			$area_div .= "<!--{$this->flg['div_area_open']}--></div>\n";
-		}
-		$area_div .= '<div id="'.$id.'" class="level'.$level.'">' . "\n";
-		$this->flg['div_area_open'] = $id;
-		
 		// Add heding
-		return array ($text.$anchor, $area_div . ($this->count > 1 ? "\n".$this->root->top : ''), $autoid);
+		return array ($text.$anchor, ($this->count > 1 ? $this->root->top : ''), $autoid, $id);
 	}
 
 	function & insert(& $obj) {
@@ -1030,15 +1022,10 @@ class XpWikiBody extends XpWikiElement {
 	}
 
 	function toString() {
-		//		global $vars;
-
 		$text = parent :: toString();
 		
 		// Close area div
-		if (!empty($this->flg['div_area_open'])) {
-			$text .= "<!--{$this->flg['div_area_open']}--></div>\n";
-		}
-		$this->flg['div_area_open'] = false;
+		$text .= $this->func->get_areadiv_closer();
 		
 		// #contents
 		$text = preg_replace_callback('/<#_contents_>/', array (& $this, 'replace_contents'), $text);
@@ -1047,7 +1034,8 @@ class XpWikiBody extends XpWikiElement {
 	}
 
 	function replace_contents($arr) {
-		$contents = '<div class="contents">'."\n".'<a id="contents_'.$this->id.'"></a>'."\n".$this->contents->toString()."\n".'</div>'."\n";
+		$contents = '<div class="contents">' . "\n" . '<a id="contents_' . $this->id . '"></a>' . "\n"
+					. $this->root->contents_title . $this->contents->toString() . "\n" . '</div>' . "\n";
 		return $contents;
 	}
 }
@@ -1064,8 +1052,6 @@ class XpWikiContents_UList extends XpWikiListContainer {
 	}
 
 	function setParent(& $parent) {
-		//		global $_list_pad_str;
-
 		parent :: setParent($parent);
 		$step = $this->level;
 		$margin = $this->left_margin;
