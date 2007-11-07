@@ -80,6 +80,12 @@ $class {
 	width:100%;
 }
 
+$class h1,
+$class h2,
+$class h3,
+$class h4,
+$class h5,
+$class h6,
 $class pre,
 $class dl,
 $class p,
@@ -337,6 +343,8 @@ $class .style_td {
 
 $class ul,
 $class ol {
+	margin-left: 1em;
+	padding-left: 1em;
 	margin-top:.5em;
 	margin-bottom:.5em;
 	line-height:130%;

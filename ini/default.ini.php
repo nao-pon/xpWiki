@@ -1,6 +1,6 @@
 <?php
 // PukiWiki - Yet another WikiWikiWeb clone.
-// $Id: default.ini.php,v 1.6 2007/09/04 23:46:53 nao-pon Exp $
+// $Id: default.ini.php,v 1.7 2007/11/07 23:47:17 nao-pon Exp $
 // Copyright (C)
 //   2003-2005 PukiWiki Developers Team
 //   2001-2002 Originally written by yu-ji
@@ -45,7 +45,8 @@ $root->_ol_left_margin = 0;   // リストと画面左端との間隔(px)
 $root->_ol_margin = 16;       // リストの階層間の間隔(px)
 $root->_dl_left_margin = 0;   // リストと画面左端との間隔(px)
 $root->_dl_margin = 16;        // リストの階層間の間隔(px)
-$root->_list_pad_str = ' class="list%d" style="padding-left:%dpx;margin-left:%dpx"';
+//$root->_list_pad_str = ' class="list%d" style="padding-left:%dpx;margin-left:%dpx"';
+$root->_list_pad_str = ' class="list%d"';
 
 /////////////////////////////////////////////////
 // テキストエリアのカラム数
