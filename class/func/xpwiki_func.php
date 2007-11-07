@@ -1,7 +1,7 @@
 <?php
 //
 // Created on 2006/10/02 by nao-pon http://hypweb.net/
-// $Id: xpwiki_func.php,v 1.109 2007/11/03 03:19:38 nao-pon Exp $
+// $Id: xpwiki_func.php,v 1.110 2007/11/07 23:37:24 nao-pon Exp $
 //
 class XpWikiFunc extends XpWikiXoopsWrapper {
 
@@ -1372,6 +1372,15 @@ EOD;
 		$str = str_replace(array("\n\t", "\n "), array("\n".str_repeat('&nbsp;', $tab), "\n&nbsp;"), $str);
 		$str = explode("\n", $str);
 		$str = array_map('rtrim', $str);
+	}
+
+	function get_areadiv_closer () {
+		$areadiv_closer = '';
+		if (!empty($this->root->rtf['div_area_open'][$this->root->rtf['convert_nest']])) {
+			$areadiv_closer = "\n" . '<!--' . $this->root->rtf['div_area_open'][$this->root->rtf['convert_nest']] . '--></div>' . "\n";
+			$this->root->rtf['div_area_open'][$this->root->rtf['convert_nest']] = false;
+		}
+		return $areadiv_closer;
 	}
 
 /*----- DB Functions -----*/ 
