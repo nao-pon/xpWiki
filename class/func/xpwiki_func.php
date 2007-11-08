@@ -1,7 +1,7 @@
 <?php
 //
 // Created on 2006/10/02 by nao-pon http://hypweb.net/
-// $Id: xpwiki_func.php,v 1.110 2007/11/07 23:37:24 nao-pon Exp $
+// $Id: xpwiki_func.php,v 1.111 2007/11/08 08:45:45 nao-pon Exp $
 //
 class XpWikiFunc extends XpWikiXoopsWrapper {
 
@@ -483,7 +483,7 @@ class XpWikiFunc extends XpWikiXoopsWrapper {
 	function get_additional_headtags () {
 		// WikiHelper JavaScript
 		$head_tag = <<<EOD
-<script type="text/javascript" src="{$this->cont['HOME_URL']}skin/loader.php?src=default.{$this->cont['UI_LANG']}{$this->cont['FILE_ENCORD_EXT']}.js"></script>
+<script type="text/javascript" src="{$this->cont['LOADER_URL']}?src=default.{$this->cont['UI_LANG']}{$this->cont['FILE_ENCORD_EXT']}.js"></script>
 EOD;
 
 		// Pre Tags
@@ -788,9 +788,9 @@ EOD;
 					);
 			}
 			if ($match[2] === 'css') {
-				$this->root->{$target}[] = '<link rel="stylesheet" type="text/css" media="all" href="'.$this->cont['HOME_URL'].'skin/loader.php?skin='.$this->cont['SKIN_NAME'].'&amp;'.$mode.'src='.$match[1].'.css" />';
+				$this->root->{$target}[] = '<link rel="stylesheet" type="text/css" media="all" href="'.$this->cont['LOADER_URL'].'?skin='.$this->cont['SKIN_NAME'].'&amp;'.$mode.'src='.$match[1].'.css" />';
 			} else if ($match[2] === 'js') {
-				$this->root->{$target}[] = '<script type="text/javascript" src="'.$this->cont['HOME_URL'].'skin/loader.php?src='.$match[1].'.js"></script>';
+				$this->root->{$target}[] = '<script type="text/javascript" src="'.$this->cont['LOADER_URL'].'?src='.$match[1].'.js"></script>';
 			}
 		}	
 	}
@@ -1026,7 +1026,7 @@ EOD;
 		$pgid = $this->get_pgid_by_name($this->root->defaultpage);
 		if (file_exists($this->cont['CACHE_DIR'].$pgid.'.css'))
 		{
-			$ret .= '<link rel="stylesheet" type="text/css" media="all" href="'.$this->cont['HOME_URL'].'skin/loader.php?'.$block.'src='.$pgid.'.page.css" />'."\n";
+			$ret .= '<link rel="stylesheet" type="text/css" media="all" href="'.$this->cont['LOADER_URL'].'?'.$block.'src='.$pgid.'.page.css" />'."\n";
 		}
 		
 		foreach(explode('/',$page) as $val)
@@ -1036,7 +1036,7 @@ EOD;
 				$pgid = $this->get_pgid_by_name($_page);
 				if (file_exists($this->cont['CACHE_DIR'].$pgid.'.css'))
 				{
-					$ret .= '<link rel="stylesheet" type="text/css" media="all" href="'.$this->cont['HOME_URL'].'skin/loader.php?'.$block.'src='.$pgid.'.page.css" />'."\n";
+					$ret .= '<link rel="stylesheet" type="text/css" media="all" href="'.$this->cont['LOADER_URL'].'?'.$block.'src='.$pgid.'.page.css" />'."\n";
 				}
 			}
 		}
@@ -1262,8 +1262,8 @@ $meta_content_type
 <meta http-equiv="content-style-type" content="text/css" />
 <meta http-equiv="Content-Script-Type" content="text/javascript" />
 $head_pre_tag
-<link rel="stylesheet" type="text/css" media="all" href="{$this->cont['HOME_URL']}skin/loader.php?skin={$this->cont['SKIN_NAME']}&amp;charset={$css_charset}&amp;pw={$this->root->pre_width}&amp;src=main.css" charset="{$css_charset}" />
-<link rel="stylesheet" type="text/css" media="print"  href="{$this->cont['HOME_URL']}skin/loader.php?skin={$this->cont['SKIN_NAME']}&amp;charset={$css_charset}&amp;pw={$this->root->pre_width}&amp;media=print&amp;src=main.css" charset="{$css_charset}" />
+<link rel="stylesheet" type="text/css" media="all" href="{$this->cont['LOADER_URL']}?skin={$this->cont['SKIN_NAME']}&amp;charset={$css_charset}&amp;pw={$this->root->pre_width}&amp;src=main.css" charset="{$css_charset}" />
+<link rel="stylesheet" type="text/css" media="print"  href="{$this->cont['LOADER_URL']}?skin={$this->cont['SKIN_NAME']}&amp;charset={$css_charset}&amp;pw={$this->root->pre_width}&amp;media=print&amp;src=main.css" charset="{$css_charset}" />
 $head_tag
 <title></title>
 </head>
