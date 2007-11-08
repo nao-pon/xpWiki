@@ -1,6 +1,6 @@
 <?php
 // PukiWiki - Yet another WikiWikiWeb clone.
-// $Id: ja_utf8.lng.php,v 1.10 2007/11/07 23:39:25 nao-pon Exp $
+// $Id: ja_utf8.lng.php,v 1.11 2007/11/08 08:32:06 nao-pon Exp $
 // Copyright (C)
 //   2002-2005 PukiWiki Developers Team
 //   2001-2002 Originally written by yu-ji
@@ -61,14 +61,14 @@ $root->_msg_symbol         = '記号';
 $root->_msg_other          = '日本語';
 $root->_msg_help           = 'テキスト整形のルールを表示する';
 $root->_msg_week           = array('日','月','火','水','木','金','土');
-$root->_msg_content_back_to_top = '<div class="jumpmenu"><a href="#'.$root->mydirname.'_navigator">&uarr;</a></div>';
+$root->_msg_content_back_to_top = '<div class="jumpmenu"><a href="#'.$root->mydirname.'_navigator" title="Page Top"><img src="'.$const['LOADER_URL'].'?src=arrow_up.png" alt="Page Top" width="16" height="16"></a></div>';
 $root->_msg_word           = 'これらのキーワードがハイライトされています：';
 $root->_msg_not_readable   = 'ページを表示する権限がありません。';
 $root->_msg_not_editable   = 'ページを編集する権限がありません。';
 
 ///////////////////////////////////////
 // Symbols
-$root->_symbol_anchor   = '&dagger;';
+$root->_symbol_anchor   = 'src:anchor.png,width:12,height:12';
 $root->_symbol_noexists = '<img src="'.$const['IMAGE_DIR'].'paraedit.png" alt="" height="9" width="9">';
 
 ///////////////////////////////////////
