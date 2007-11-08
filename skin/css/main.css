@@ -254,6 +254,27 @@ $class dt {
 	margin-left:1em;
 }
 
+/* contents */
+$class div.contents {
+	float: right;
+	width: 30%;
+	font-size:80%;
+	background-color: #F5F8FF;
+	border: gray 1px solid;
+	margin: 10px 5px 10px 20px;
+	padding: 5px;
+}
+$class div.contents h2 {
+	font-size: 120%;
+	font-weight: normal;
+	background-color:#DDEEFF;
+}
+$class div.contents ul,
+$class div.contents ol {
+	margin-left: 0.5em;
+	padding-left: 0.5em;
+}
+
 /* Pre base */
 $class div.pre {
 	width: $pre_width;
