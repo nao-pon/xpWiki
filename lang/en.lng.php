@@ -1,6 +1,6 @@
 <?php
 // PukiWiki - Yet another WikiWikiWeb clone.
-// $Id: en.lng.php,v 1.24 2007/11/07 23:39:25 nao-pon Exp $
+// $Id: en.lng.php,v 1.25 2007/11/08 08:32:06 nao-pon Exp $
 // Copyright (C)
 //   2002-2005 PukiWiki Developers Team
 //   2001-2002 Originally written by yu-ji
@@ -61,14 +61,14 @@ $root->_msg_symbol      = 'Symbols';
 $root->_msg_other       = 'Others';
 $root->_msg_help        = 'View Text Formatting Rules';
 $root->_msg_week        = array('Sun','Mon','Tue','Wed','Thu','Fri','Sat');
-$root->_msg_content_back_to_top = '<div class="jumpmenu"><a href="#'.$root->mydirname.'_navigator">&uarr;</a></div>';
+$root->_msg_content_back_to_top = '<div class="jumpmenu"><a href="#'.$root->mydirname.'_navigator" title="Page Top"><img src="'.$const['LOADER_URL'].'?src=arrow_up.png" alt="Page Top" width="16" height="16"></a></div>';
 $root->_msg_word        = 'These search terms have been highlighted:';
 $root->_msg_not_readable   = 'You don\'t have enough permission for read.';
 $root->_msg_not_editable   = 'You don\'t have enough permission for edit.';
 
 ///////////////////////////////////////
 // Symbols
-$root->_symbol_anchor   = '&dagger;';
+$root->_symbol_anchor   = 'src:anchor.png,width:12,height:12';
 $root->_symbol_noexists = '<img src="'.$const['IMAGE_DIR'].'paraedit.png" alt="" height="9" width="9">';
 
 ///////////////////////////////////////
