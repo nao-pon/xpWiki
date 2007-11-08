@@ -399,8 +399,8 @@ $class a.note_super {
 }
 
 $class div.jumpmenu {
-	font-size:60%;
-	text-align:right;
+	font-size: 60%;
+	float: right;
 }
 
 $class hr.full_hr {
