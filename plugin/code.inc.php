@@ -1,7 +1,7 @@
 <?php
 //
 // Created on 2006/10/25 by nao-pon http://hypweb.net/
-// $Id: code.inc.php,v 1.10 2007/11/07 23:49:53 nao-pon Exp $
+// $Id: code.inc.php,v 1.11 2007/11/08 08:45:45 nao-pon Exp $
 //
 
 class xpwiki_plugin_code extends xpwiki_plugin {
@@ -39,10 +39,10 @@ class xpwiki_plugin_code extends xpwiki_plugin {
 		// TAB幅
 		$this->cont['PLUGIN_CODE_WIDTHOFTAB'] =  '    ';
 		// 画像ファイルの設定
-		$this->cont['PLUGIN_CODE_IMAGE_FILE'] =  $this->cont['HOME_URL'].'skin/loader.php?src=code_dot.png';
+		$this->cont['PLUGIN_CODE_IMAGE_FILE'] =  $this->cont['LOADER_URL'] . '?src=code_dot.png';
 
-		$this->cont['PLUGIN_CODE_OUTLINE_OPEN_FILE'] =   $this->cont['HOME_URL'].'skin/loader.php?src=code_outline_open.png';
-		$this->cont['PLUGIN_CODE_OUTLINE_CLOSE_FILE'] =  $this->cont['HOME_URL'].'skin/loader.php?src=code_outline_close.png';
+		$this->cont['PLUGIN_CODE_OUTLINE_OPEN_FILE'] =   $this->cont['LOADER_URL'].'?src=code_outline_open.png';
+		$this->cont['PLUGIN_CODE_OUTLINE_CLOSE_FILE'] =  $this->cont['LOADER_URL'].'?src=code_outline_close.png';
 
 		// plugin pre
 		$this->cont['PLUGIN_PRE_NUMBER'] =         0;  // 行番号

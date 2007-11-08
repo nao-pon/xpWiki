@@ -1,6 +1,6 @@
 <?php
 // PukiWiki - Yet another WikiWikiWeb clone.
-// $Id: backup.inc.php,v 1.8 2007/10/26 07:30:21 nao-pon Exp $
+// $Id: backup.inc.php,v 1.9 2007/11/08 08:45:45 nao-pon Exp $
 // Copyright (C)
 //   2002-2005 PukiWiki Developers Team
 //   2001-2002 Originally written by yu-ji
@@ -13,11 +13,11 @@ class xpwiki_plugin_backup extends xpwiki_plugin {
 		// Prohibit rendering old wiki texts (suppresses load, transfer rate, and security risk)
 		$this->cont['PLUGIN_BACKUP_DISABLE_BACKUP_RENDERING'] =  $this->cont['PKWK_SAFE_MODE'] || $this->cont['PKWK_OPTIMISE'];
 
-		$this->icons['edit']['url']      = $this->cont['HOME_URL'] . 'skin/loader.php?src=page_white_edit.png';
+		$this->icons['edit']['url']      = $this->cont['LOADER_URL'] . '?src=page_white_edit.png';
 		$this->icons['edit']['width']    = '16';
 		$this->icons['edit']['height']   = '16';
 
-		$this->icons['source']['url']    = $this->cont['HOME_URL'] . 'skin/loader.php?src=page_white_text.png';
+		$this->icons['source']['url']    = $this->cont['LOADER_URL'] . '?src=page_white_text.png';
 		$this->icons['source']['width']  = '16';
 		$this->icons['source']['height'] = '16';
 	}

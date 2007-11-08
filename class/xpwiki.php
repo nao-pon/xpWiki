@@ -1,7 +1,7 @@
 <?php
 //
 // Created on 2006/09/29 by nao-pon http://hypweb.net/
-// $Id: xpwiki.php,v 1.57 2007/11/05 06:33:24 nao-pon Exp $
+// $Id: xpwiki.php,v 1.58 2007/11/08 08:45:45 nao-pon Exp $
 //
 
 class XpWiki {
@@ -357,7 +357,7 @@ class XpWiki {
 		$base = "b_".$this->root->mydirname;
 		$block = <<<EOD
 $head_pre_tag
-<link rel="stylesheet" type="text/css" media="all" href="{$this->cont['HOME_URL']}skin/loader.php?charset={$this->cont['CSS_CHARSET']}&amp;skin={$this->cont['SKIN_NAME']}&amp;b=1&amp;src=main.css" charset="Shift_JIS" />
+<link rel="stylesheet" type="text/css" media="all" href="{$this->cont['LOADER_URL']}?charset={$this->cont['CSS_CHARSET']}&amp;skin={$this->cont['SKIN_NAME']}&amp;b=1&amp;src=main.css" charset="Shift_JIS" />
 $head_tag
 <div class="xpwiki_{$base}" style="width:{$width};overflow:hidden;">
 {$this->body}
@@ -463,7 +463,7 @@ EOD;
 		$csstag = '';
 		if ($cssbase) {
 			$cssbase = 'r_'.$cssbase;
-			$csstag = '<link rel="stylesheet" type="text/css" media="all" href="'.$this->cont['HOME_URL'].'skin/loader.php?charset='.$this->cont['CSS_CHARSET'].'&amp;skin='.$this->cont['SKIN_NAME'].'&amp;r=1&amp;src=main.css" charset="Shift_JIS" />';
+			$csstag = '<link rel="stylesheet" type="text/css" media="all" href="'.$this->cont['LOADER_URL'].'?charset='.$this->cont['CSS_CHARSET'].'&amp;skin='.$this->cont['SKIN_NAME'].'&amp;r=1&amp;src=main.css" charset="Shift_JIS" />';
 			$text = '<div class="xpwiki_'.$cssbase.'">'."\n".$text."\n".'</div>';
 		}
 
