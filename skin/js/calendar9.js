@@ -4,7 +4,9 @@ function xpwiki_cal9_showResponse(orgRequest) {
 	var xmlRes = orgRequest.responseXML;
 	if (xmlRes.getElementsByTagName('editform').length) {
 		xpwiki_ajax_edit_var['func_post'] = xpwiki_cal9_showResponse;
-		$('xpwiki_cal9_editarea').innerHTML = xmlRes.getElementsByTagName('editform')[0].firstChild.nodeValue;
+		var str = xmlRes.getElementsByTagName('editform')[0].firstChild.nodeValue;
+		str = str.replace(/wikihelper_msg_nowrap/, wikihelper_msg_nowrap);
+		$('xpwiki_cal9_editarea').innerHTML = str;
 		$('xpwiki_edit_textarea').style.height = '250px';
 		Element.update($('xpwiki_cancel_form'), '<button id="c9cancel" onclick="return xpwiki_cal9_day_edit_close()">'+xpwiki_calender9_cancel+'</button>');
 		new Resizable('xpwiki_edit_textarea', {mode:'xy'});
@@ -69,11 +71,12 @@ function xpwiki_cal9_showResponse(orgRequest) {
 			Element.hide($('xpwiki_cal9_loading_base'));
 			xpwiki_ajax_edit_var['id'] = '';
 			xpwiki_ajax_edit_var['html'] = '';
-		} else if (mode == 'write') {
+		} else if (mode == 'write' || mode == 'delete') {
 			xpwiki_ajax_edit_var['html'] = '';
 			xpwiki_cal9_thisreload();
 		} else if (mode == 'preview'){
 			xpwiki_ajax_edit_var['func_post'] = xpwiki_cal9_showResponse;
+			str = str.replace(/wikihelper_msg_nowrap/, wikihelper_msg_nowrap);
 			$('xpwiki_cal9_editarea').innerHTML = str;
 			$('xpwiki_edit_textarea').style.height = '250px';
 			Element.update($('xpwiki_cancel_form'), '<button id="c9cancel" onclick="return xpwiki_cal9_day_edit_close()">'+xpwiki_calender9_cancel+'</button>');
@@ -223,7 +226,7 @@ function xpwiki_cal9_thisreload() {
 	xpwiki_cal9_day_edit_close();
 
 	// ページ情報を読込み反映する
-	var url = window.location.pathname;
+	var url = window.location.pathname + window.location.search;
 	var pars = 'ajax=1';
 	var myAjax = new Ajax.Request(
 		url, 
