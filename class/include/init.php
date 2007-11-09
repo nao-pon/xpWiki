@@ -367,10 +367,10 @@ if (isset($const['page_show'])) {
 	// Special view mode
 	if (!empty($root->vars['ajax'])) {
 		$this->root->viewmode = 'ajax';
-		$arg = '';
+		$arg = preg_replace('/[&?]ajax=?[^&]*/', '', $arg);
 	} else if (!empty($root->vars['popup'])) {
 		$this->root->viewmode = 'popup';
-		$arg = '';
+		$arg = preg_replace('/[&?]popup=?[^&]*/', '', $arg);
 	} else {
 		$this->root->viewmode = 'normal';
 	}
