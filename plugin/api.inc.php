@@ -1,7 +1,7 @@
 <?php
 /*
  * Created on 2007/04/11 by nao-pon http://hypweb.net/
- * $Id: api.inc.php,v 1.4 2007/10/12 08:05:32 nao-pon Exp $
+ * $Id: api.inc.php,v 1.5 2007/11/09 07:11:15 nao-pon Exp $
  */
 
 class xpwiki_plugin_api extends xpwiki_plugin {
@@ -46,6 +46,9 @@ class xpwiki_plugin_api extends xpwiki_plugin {
 				
 				$this->root->userinfo['admin'] = $temp[0];
 				$this->root->userinfo['uid'] = $temp[1];
+				
+				$_aliases = array_keys(array_intersect($this->root->page_aliases, $pages));
+				$pages = array_merge($pages, $_aliases);
 				
 				if ($base) {
 					$pages = array_diff($pages, array($base));
