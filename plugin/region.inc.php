@@ -2,7 +2,7 @@
 /////////////////////////////////////////////////
 // PukiWiki - Yet another WikiWikiWeb clone.
 //
-// $Id: region.inc.php,v 1.3 2007/11/07 23:48:13 nao-pon Exp $
+// $Id: region.inc.php,v 1.4 2007/11/09 07:10:30 nao-pon Exp $
 //
 
 class xpwiki_plugin_region extends xpwiki_plugin {
@@ -18,10 +18,19 @@ class xpwiki_plugin_region extends xpwiki_plugin {
 	
 		// static で宣言してしまったので２回目呼ばれたとき、前の情報が残っていて変な動作になるので初期化。
 		$builder[$this->xpwiki->pid]->setDefaultSettings();
-	
+		
 		// 引数が指定されているようなので解析
-		if (func_num_args() >= 1){
+		if (func_num_args() > 0){
 			$args = func_get_args();
+			
+			// multi line body?
+			$body = array_pop($args);
+			if (strpos($body, "\r") !== FALSE) {
+				$builder[$this->xpwiki->pid]->body = $body;
+			} else {
+				array_push($args, $body);
+			}
+
 			// end 指定?
 			if ($args[0] === 'end') {
 				// Close area div
@@ -54,6 +63,7 @@ class XpWikiRegionPluginHTMLBuilder
 	//↓ buildメソッドを呼んだ回数をカウントする。
 	//↓ これは、このプラグインが生成するJavaScript内でユニークな変数名（被らない変数名）を生成するために使います
 	var $callcount;
+	var $body;
 
 	function XpWikiRegionPluginHTMLBuilder(& $xpwiki) {
 		$this->xpwiki =& $xpwiki;
@@ -86,6 +96,10 @@ class XpWikiRegionPluginHTMLBuilder
 		array_push( $html, $this->buildBracketHtml() );
 		array_push( $html, $this->buildSummaryHtml() );
 		array_push( $html, $this->buildContentHtml() );
+		if ($this->body) {
+			array_push( $html, $this->buildBody() );
+			array_push( $html, $this->buildClose() );
+		}
 		return join($html);
 	}
 
@@ -93,7 +107,7 @@ class XpWikiRegionPluginHTMLBuilder
 	function buildButtonHtml(){
 		
 		// Close area div
-		$areadiv_closer = $this->func->get_areadiv_closer();
+		$areadiv_closer = $this->body? '' : $this->func->get_areadiv_closer();
 
 		$button = ($this->isopened) ? "-" : "+";
 		// JavaScriptでsummaryrgn1、contentrgn1などといった感じのユニークな変数名を使用。かぶったら一巻の終わりです。万事休す。id指定せずオブジェクト取れるような、なんかよい方法があればいいんだけど。
@@ -140,6 +154,14 @@ EOD;
 		return <<<EOD
 <td valign=top id=rgn_content$this->callcount style="$contentstyle">
 EOD;
+	}
+
+	function buildBody() {
+		return $this->func->convert_html(str_replace("\r", "\n", $this->body));
+	}
+	
+	function buildClose() {
+		return '</td></tr></table>' . "\n";
 	}
 
 }// end class XpWikiRegionPluginHTMLBuilder
