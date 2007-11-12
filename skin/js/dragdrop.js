@@ -1,3 +1,5 @@
+// script.aculo.us dragdrop.js v1.8.0, Tue Nov 06 15:01:40 +0300 2007
+
 // Copyright (c) 2005-2007 Thomas Fuchs (http://script.aculo.us, http://mir.aculo.us)
 //           (c) 2005-2007 Sammi Williams (http://www.oriontransfer.co.nz, sammi@oriontransfer.co.nz)
 // 
@@ -298,7 +300,6 @@ var Draggable = Class.create({
   },
   
   initDrag: function(event) {
-
     if(!Object.isUndefined(Draggable._dragging[this.element]) &&
       Draggable._dragging[this.element]) return;
     if(Event.isLeftClick(event)) {    
