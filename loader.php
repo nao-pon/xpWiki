@@ -1,7 +1,7 @@
 <?php
 //
 // Created on 2006/10/25 by nao-pon http://hypweb.net/
-// $Id: loader.php,v 1.24 2007/11/01 11:47:28 nao-pon Exp $
+// $Id: loader.php,v 1.25 2007/11/13 08:05:13 nao-pon Exp $
 //
 
 error_reporting(0);
@@ -11,6 +11,11 @@ $maxage = 86400; // 60*60*24 (1day)
 
 // スマイリーキャッシュ有効時間(秒)
 $face_tag_maxage = 86400; // 60*60*24 (1day)
+
+// clear output buffer
+while( ob_get_level() ) {
+	ob_end_clean() ;
+}
 
 // 変数初期化
 $src   = preg_replace("/[^\w.-]+/","",@ $_GET['src']);
