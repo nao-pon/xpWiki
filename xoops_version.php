@@ -9,7 +9,7 @@ if( file_exists( dirname(__FILE__).'/language/'.@$xoopsConfig['language'].'/modi
 $constpref = '_MI_' . strtoupper( $mydirname ) ;
 
 $modversion['name'] = $mydirname ;
-$modversion['version'] = '3.35.2' ;
+$modversion['version'] = '3.35.3' ;
 $modversion['description'] = constant($constpref.'_MODULE_DESCRIPTION') ;
 $modversion['credits'] = '&copy; 2006-2007 hypweb.net.';
 $modversion['author'] = 'nao-pon' ;
