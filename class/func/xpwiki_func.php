@@ -1,7 +1,7 @@
 <?php
 //
 // Created on 2006/10/02 by nao-pon http://hypweb.net/
-// $Id: xpwiki_func.php,v 1.111 2007/11/08 08:45:45 nao-pon Exp $
+// $Id: xpwiki_func.php,v 1.112 2007/11/15 00:02:34 nao-pon Exp $
 //
 class XpWikiFunc extends XpWikiXoopsWrapper {
 
@@ -2294,7 +2294,7 @@ EOD;
 					$this->root->pagereading_kanji2kana_encoding, $this->cont['SOURCE_ENCODING']));
 			fclose($fp);
 
-			$chasen = "{$this->root->pagereading_chasen_path} -F %y $tmpfname";
+			$chasen = "{$this->root->pagereading_chasen_path} -F %y \"$tmpfname\"";
 			$fp     = popen($chasen, 'r');
 			if($fp === FALSE) {
 				unlink($tmpfname);
@@ -2323,7 +2323,7 @@ EOD;
 				$this->root->pagereading_kanji2kana_encoding, $this->cont['SOURCE_ENCODING']));
 			fclose($fp);
 
-			$kakasi = "{$this->root->pagereading_kakasi_path} -kK -HK -JK < $tmpfname";
+			$kakasi = "{$this->root->pagereading_kakasi_path} -kK -HK -JK < \"$tmpfname\"";
 			$fp     = popen($kakasi, 'r');
 			if($fp === FALSE) {
 				unlink($tmpfname);
