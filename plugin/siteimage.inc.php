@@ -1,7 +1,7 @@
 <?php
 /*
  * Created on 2007/11/16 by nao-pon http://hypweb.net/
- * $Id: siteimage.inc.php,v 1.1 2007/11/16 09:14:30 nao-pon Exp $
+ * $Id: siteimage.inc.php,v 1.2 2007/11/19 01:56:18 nao-pon Exp $
  */
 
 class xpwiki_plugin_siteimage extends xpwiki_plugin {
@@ -142,7 +142,7 @@ class xpwiki_plugin_siteimage extends xpwiki_plugin {
 				fwrite($fp, $image);
 				fclose($fp);
 				foreach(array('s', 'm', 'l') as $_size) {
-					@ unlink($this->cont['CACHE_DIR'] . 'ASIN' . $sha1 . '_' . $_size . '.jpg');
+					@ unlink($this->cont['CACHE_DIR'] . 'ASIN_SITEIMAGE_' . $sha1 . '_' . $_size . '.jpg');
 				}
 			}
 			if ($is_new) {
