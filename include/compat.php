@@ -1,11 +1,11 @@
 <?php
 //
 // Created on 2006/10/16 by nao-pon http://hypweb.net/
-// $Id: compat.php,v 1.3 2007/10/19 04:15:22 nao-pon Exp $
+// $Id: compat.php,v 1.4 2007/11/20 09:02:44 nao-pon Exp $
 //
 
 //// mbstring ////
-if (! extension_loaded('mbstring')) {
+if (! extension_loaded('mbstring') && ! class_exists('HypMBString')) {
 	require(dirname(__FILE__) . '/mbstring.php');
 }
 
