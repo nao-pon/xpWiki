@@ -9,7 +9,7 @@ class xpwiki_plugin_attach extends xpwiki_plugin {
 	/////////////////////////////////////////////////
 	// PukiWiki - Yet another WikiWikiWeb clone.
 	//
-	//  $Id: attach.inc.php,v 1.24 2007/11/06 02:12:41 nao-pon Exp $
+	//  $Id: attach.inc.php,v 1.25 2007/11/20 07:08:21 nao-pon Exp $
 	//  ORG: attach.inc.php,v 1.31 2003/07/27 14:15:29 arino Exp $
 	//
 	
@@ -395,13 +395,7 @@ class xpwiki_plugin_attach extends xpwiki_plugin {
 		}
 		
 		// ファイル名 文字数のチェック
-		$page_enc = $this->func->encode($page) . '_';
-		$fnlen = strlen($page_enc . $this->func->encode($fname));
-		$maxlen = 255 - 12; // 12 = x_yy + .log (strlen(encode(A string as x . '_' . age as yy) . '.log'))
-		while (strlen($fname) > 2 && $fnlen > $maxlen) {
-			$fname = preg_replace('/\W+$/', '', substr($fname, 0, -1));
-			$fnlen = strlen($page_enc . $this->func->encode($fname));
-		}
+		$fname = $this->regularize_fname($fname, $page);
 		
 		// ファイル名が存在する場合は、数字を付け加える
 		$fi = 0;
@@ -890,6 +884,21 @@ EOD;
 	
 		return $files;	
 	}
+	
+	function regularize_fname ($fname, $page) {
+		// ファイル名 文字数のチェック
+		$page_enc = $this->func->encode($page) . '_';
+		$fnlen = strlen($page_enc . $this->func->encode($fname));
+		$maxlen = 255 - 14; // 14 = xxx_yyy + .log (strlen(encode(A string as x . '_' . age as yy) . '.log'))
+		if (DIRECTORY_SEPARATOR == '\\') {
+			$maxlen -= strlen($this->cont['UPLOAD_DIR']);
+		}
+		while (mb_strlen($fname) > 1 && $fnlen > $maxlen) {
+			$fname = mb_substr($fname, 0, mb_strlen($fname) - 1);
+			$fnlen = strlen($page_enc . $this->func->encode($fname));
+		}
+		return $fname;
+	}
 }
 	//-------- クラス
 	//ファイル
@@ -905,7 +914,7 @@ class XpWikiAttachFile
 	var $status = array('count'=>array(0),'age'=>'','pass'=>'','freeze'=>FALSE,'copyright'=>FALSE,'owner'=>0,'ucd'=>'','uname'=>'','md5'=>'','admins'=>0,'org_fname'=>'');
 	var $action = 'update';
 	
-	function XpWikiAttachFile(& $xpwiki, $page,$file,$age=0,$pgid=0)
+	function XpWikiAttachFile(& $xpwiki, $page, $file, $age=0, $pgid=0)
 	{
 		$this->xpwiki =& $xpwiki;
 		$this->root   =& $xpwiki->root;
@@ -1133,7 +1142,7 @@ EOD;
 						'<label for="_p_attach_newname">' . $this->root->_attach_messages['msg_newname'] .
 						':</label> ' .
 						'<input type="text" name="newname" id="_p_attach_newname" size="40" value="' .
-						$this->file . '" /><br />';
+						(htmlspecialchars(empty($this->status['org_fname'])? $this->file : $this->status['org_fname'])) . '" /><br />';
 				}
 				if ($this->status['copyright']) {
 					$msg_copyright  = '<input type="radio" id="pcmd_c" name="pcmd" value="copyright0" /><label for="pcmd_c">'.$this->root->_attach_messages['msg_copyright0'].'</label>';
@@ -1288,7 +1297,15 @@ EOD;
 				return xpwiki_plugin_attach::attach_info('err_password');
 			}
 		}
-		$newbase = $this->cont['UPLOAD_DIR'] . $this->func->encode($this->page) . '_' . $this->func->encode($newname);
+
+		$fname = xpwiki_plugin_attach::regularize_fname ($newname, $this->page);
+		if ($fname !== $newname) {
+			$this->status['org_fname'] = $newname;
+		} else {
+			$this->status['org_fname'] = '';
+		}
+
+		$newbase = $this->cont['UPLOAD_DIR'] . $this->func->encode($this->page) . '_' . $this->func->encode($fname);
 		if (file_exists($newbase)) {
 			return array('msg'=>$this->root->_attach_messages['err_exists']);
 		}
@@ -1298,9 +1315,9 @@ EOD;
 		
 		@unlink($this->logname);
 		
-		$this->rename_thumb_files($newname);
+		$this->rename_thumb_files($fname);
 		
-		$this->file = $newname;
+		$this->file = $fname;
 		$this->basename = $newbase;
 		$this->filename = $this->basename;
 		$this->logname  = $this->basename . '.log';
