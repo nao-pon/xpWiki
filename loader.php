@@ -1,7 +1,7 @@
 <?php
 //
 // Created on 2006/10/25 by nao-pon http://hypweb.net/
-// $Id: loader.php,v 1.25 2007/11/13 08:05:13 nao-pon Exp $
+// $Id: loader.php,v 1.26 2007/11/25 03:19:37 nao-pon Exp $
 //
 
 error_reporting(0);
@@ -241,7 +241,9 @@ if (file_exists($src_file)) {
 		}
 		if ($type === 'js') {
 			if ($src === 'main') {
+				chdir($root_path);
 				include_once XOOPS_ROOT_PATH.'/include/common.php';
+				chdir($skin_dirname);
 				include_once dirname( __FILE__ ) . '/include.php';
 				$xpwiki = new XpWiki(basename($root_path));
 				$xpwiki->init('#RenderMode');
