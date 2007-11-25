@@ -9,7 +9,7 @@ class xpwiki_plugin_attach extends xpwiki_plugin {
 	/////////////////////////////////////////////////
 	// PukiWiki - Yet another WikiWikiWeb clone.
 	//
-	//  $Id: attach.inc.php,v 1.25 2007/11/20 07:08:21 nao-pon Exp $
+	//  $Id: attach.inc.php,v 1.26 2007/11/25 03:18:03 nao-pon Exp $
 	//  ORG: attach.inc.php,v 1.31 2003/07/27 14:15:29 arino Exp $
 	//
 	
@@ -1501,7 +1501,7 @@ EOD;
 	function is_owner() {
 		if ($this->func->is_owner($this->page)) return TRUE;
 		if ($this->status['owner']) {
-			if ($this->root->userinfo['uid'] === $owner) return TRUE;
+			if ($this->root->userinfo['uid'] === $this->status['owner']) return TRUE;
 		} else {
 			if ($this->root->userinfo['ucd'] === $this->status['ucd']) return TRUE;
 		}
