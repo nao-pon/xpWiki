@@ -1,12 +1,16 @@
 <?php
 //
 // Created on 2006/10/16 by nao-pon http://hypweb.net/
-// $Id: compat.php,v 1.4 2007/11/20 09:02:44 nao-pon Exp $
+// $Id: compat.php,v 1.5 2007/11/26 08:30:34 nao-pon Exp $
 //
 
 //// mbstring ////
 if (! extension_loaded('mbstring') && ! class_exists('HypMBString')) {
-	require(dirname(__FILE__) . '/mbstring.php');
+	if (file_exists(XOOPS_TRUST_PATH . '/class/hyp_common/mbemulator/mb-emulator.php')) {
+		require_once(XOOPS_TRUST_PATH . '/class/hyp_common/mbemulator/mb-emulator.php');
+	} else {
+		require_once(dirname(__FILE__) . '/mbstring.php');
+	}
 }
 
 //// Compat ////
