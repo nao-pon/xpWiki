@@ -383,7 +383,7 @@ if (isset($const['page_show'])) {
 		$arg = rawurldecode($arg);
 		
 		// 特定のキーを除外
-		$arg = preg_replace('/&?word=[^&]+/', '', $arg);
+		$arg = preg_replace('/&?(word|'.preg_quote(session_name(), '/').')=[^&]+/', '', $arg);
 		
 		// XOOPS の redirect_header で付加されることがある &以降を削除
 		$arg = preg_replace('/&.*$/', '', $arg);
