@@ -9,7 +9,7 @@ class xpwiki_plugin_attach extends xpwiki_plugin {
 	/////////////////////////////////////////////////
 	// PukiWiki - Yet another WikiWikiWeb clone.
 	//
-	//  $Id: attach.inc.php,v 1.26 2007/11/25 03:18:03 nao-pon Exp $
+	//  $Id: attach.inc.php,v 1.27 2007/11/26 08:00:57 nao-pon Exp $
 	//  ORG: attach.inc.php,v 1.31 2003/07/27 14:15:29 arino Exp $
 	//
 	
@@ -398,16 +398,20 @@ class xpwiki_plugin_attach extends xpwiki_plugin {
 		$fname = $this->regularize_fname($fname, $page);
 		
 		// ファイル名が存在する場合は、数字を付け加える
-		$fi = 0;
-		if (preg_match("/^(.+)(\.[^.]*)$/",$fname,$match)) {
+		$fname = mb_convert_encoding($fname, 'UTF-8', $this->cont['SOURCE_ENCODING']);
+		if (preg_match("/^(.+)(\.[^.]*)$/u",$fname,$match)) {
 			$_fname = $match[1];
 			$_ext = $match[2];
 		} else {
 			$_fname = $fname;
 			$_ext = '';
 		}
+		$fname = mb_convert_encoding($fname, $this->cont['SOURCE_ENCODING'], 'UTF-8');
+		$_fname = mb_convert_encoding($_fname, $this->cont['SOURCE_ENCODING'], 'UTF-8');
+		
+		$fi = 0;
 		do {
-			$obj = &new XpWikiAttachFile($this->xpwiki, $page, $fname);
+			$obj = & new XpWikiAttachFile($this->xpwiki, $page, $fname);
 			$fname = $_fname.'_'.($fi++).$_ext;
 		} while ($obj->exist);
 		
