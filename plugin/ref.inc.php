@@ -1,5 +1,5 @@
 <?php
-// $Id: ref.inc.php,v 1.16 2007/11/27 01:32:07 nao-pon Exp $
+// $Id: ref.inc.php,v 1.17 2007/11/27 02:26:43 nao-pon Exp $
 /*
 
 	*プラグイン ref
@@ -287,7 +287,7 @@ class xpwiki_plugin_ref extends xpwiki_plugin {
 		
 		// エラーあり
 		if ($params['_error']) {
-			if ($params['_error'] === 'File not found') {
+			if ($params['_error'] === 'File not found.') {
 				
 				$this->root->rtf['disable_render_cache'] = true;
 				
@@ -732,7 +732,11 @@ _HTML_;
 			if (! $is_file) {
 				//$params['_error'] = htmlspecialchars('File not found: "' .
 				//$lvar['name'] . '" at page "' . $lvar['page'] . '"');
-				$params['_error'] = 'File not found';
+				if (strlen($lvar['name']) < 252) {
+					$params['_error'] = 'File not found.';
+				} else {
+					$params['_error'] = 'File name is too long.';
+				}
 				return;
 			}
 			
