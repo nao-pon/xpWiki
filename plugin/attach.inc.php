@@ -9,7 +9,7 @@ class xpwiki_plugin_attach extends xpwiki_plugin {
 	/////////////////////////////////////////////////
 	// PukiWiki - Yet another WikiWikiWeb clone.
 	//
-	//  $Id: attach.inc.php,v 1.27 2007/11/26 08:00:57 nao-pon Exp $
+	//  $Id: attach.inc.php,v 1.28 2007/11/27 01:51:08 nao-pon Exp $
 	//  ORG: attach.inc.php,v 1.31 2003/07/27 14:15:29 arino Exp $
 	//
 	
@@ -333,11 +333,9 @@ class xpwiki_plugin_attach extends xpwiki_plugin {
 	
 	function do_upload($page,$fname,$tmpname,$copyright=FALSE,$pass=NULL,$notouch=FALSE)
 	{
-	//	global $_attach_messages,$X_uid,$X_admin;
-		
-		$_action = "insert";
+		$_action = 'insert';
 		// style.css
-		if ($fname == "style.css" && $this->func->is_owner($page))
+		if ($fname === 'style.css' && $this->func->is_owner($page))
 		{
 			if ( is_uploaded_file($tmpname) )
 			{
@@ -386,29 +384,31 @@ class xpwiki_plugin_attach extends xpwiki_plugin {
 			}
 		}
 		
+		// ファイル名の正規化
+		$fname = preg_replace('/[[:cntrl:]]+/', '', $fname);
+		
 		// オリジナルファイル名
 		$org_fname = $fname;
-		
-		// ファイル名指定あり
+
+		// 格納ファイル名指定あり
 		if (!empty($this->root->post['filename'])) {
 			$fname = $this->root->post['filename'];
 		}
+
+		// 格納ファイル名文字数チェック(SQL varchar(255) - strlen('_\d\d\d'))
+		$fname = mb_strcut($fname, 0, 251);
 		
 		// ファイル名 文字数のチェック
 		$fname = $this->regularize_fname($fname, $page);
 		
 		// ファイル名が存在する場合は、数字を付け加える
-		$fname = mb_convert_encoding($fname, 'UTF-8', $this->cont['SOURCE_ENCODING']);
-		if (preg_match("/^(.+)(\.[^.]*)$/u",$fname,$match)) {
+		if (preg_match('/^(.+?)(\.[^.]+)?$/', $fname, $match)) {
 			$_fname = $match[1];
-			$_ext = $match[2];
+			$_ext = isset($match[2])? $match[2] : '';
 		} else {
 			$_fname = $fname;
 			$_ext = '';
 		}
-		$fname = mb_convert_encoding($fname, $this->cont['SOURCE_ENCODING'], 'UTF-8');
-		$_fname = mb_convert_encoding($_fname, $this->cont['SOURCE_ENCODING'], 'UTF-8');
-		
 		$fi = 0;
 		do {
 			$obj = & new XpWikiAttachFile($this->xpwiki, $page, $fname);
