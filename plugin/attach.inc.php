@@ -9,7 +9,7 @@ class xpwiki_plugin_attach extends xpwiki_plugin {
 	/////////////////////////////////////////////////
 	// PukiWiki - Yet another WikiWikiWeb clone.
 	//
-	//  $Id: attach.inc.php,v 1.28 2007/11/27 01:51:08 nao-pon Exp $
+	//  $Id: attach.inc.php,v 1.29 2007/11/27 06:16:38 nao-pon Exp $
 	//  ORG: attach.inc.php,v 1.31 2003/07/27 14:15:29 arino Exp $
 	//
 	
@@ -333,7 +333,12 @@ class xpwiki_plugin_attach extends xpwiki_plugin {
 	
 	function do_upload($page,$fname,$tmpname,$copyright=FALSE,$pass=NULL,$notouch=FALSE)
 	{
+		// ファイル名の正規化
+		$fname = preg_replace('/[[:cntrl:]]+/', '', $fname);
+		$fname = basename(str_replace("\\","/",$fname));
+		
 		$_action = 'insert';
+		
 		// style.css
 		if ($fname === 'style.css' && $this->func->is_owner($page))
 		{
@@ -384,9 +389,6 @@ class xpwiki_plugin_attach extends xpwiki_plugin {
 			}
 		}
 		
-		// ファイル名の正規化
-		$fname = preg_replace('/[[:cntrl:]]+/', '', $fname);
-		
 		// オリジナルファイル名
 		$org_fname = $fname;
 
@@ -396,7 +398,7 @@ class xpwiki_plugin_attach extends xpwiki_plugin {
 		}
 
 		// 格納ファイル名文字数チェック(SQL varchar(255) - strlen('_\d\d\d'))
-		$fname = mb_strcut($fname, 0, 251);
+		$fname = (function_exists('mb_strcut'))? mb_strcut($fname, 0, 251) : substr($fname, 0, 251);
 		
 		// ファイル名 文字数のチェック
 		$fname = $this->regularize_fname($fname, $page);
