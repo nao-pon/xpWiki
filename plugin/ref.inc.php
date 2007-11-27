@@ -1,5 +1,5 @@
 <?php
-// $Id: ref.inc.php,v 1.15 2007/10/12 08:07:57 nao-pon Exp $
+// $Id: ref.inc.php,v 1.16 2007/11/27 01:32:07 nao-pon Exp $
 /*
 
 	*プラグイン ref
@@ -690,7 +690,7 @@ _HTML_;
 				$lvar['name'] = $matches[2];
 				$lvar['page'] = $this->func->get_fullname($this->func->strip_bracket($matches[1]), $lvar['page']); // strip is a compat
 				$lvar['file'] = $this->cont['UPLOAD_DIR'] . $this->func->encode($lvar['page']) . '_' . $this->func->encode($lvar['name']);
-				$is_file = is_file($lvar['file']);
+				$is_file = @ is_file($lvar['file']);
 	
 			// 第二引数以降が存在し、それはページ名
 			} else if (!empty($args[0]) && $this->func->is_page($_page)) {
@@ -698,7 +698,7 @@ _HTML_;
 
 				// Try the second argument, as a page-name or a path-name
 				$lvar['file'] = $this->cont['UPLOAD_DIR'] .  $this->func->encode($_page) . '_' . $e_name;
-				$is_file_second = is_file($lvar['file']);
+				$is_file_second = @ is_file($lvar['file']);
 	
 				//if ($is_file_second && $is_bracket_bracket) {
 				if ($is_file_second) {
@@ -708,7 +708,7 @@ _HTML_;
 					$is_file = TRUE;
 				} else {
 					// Try default page, with default params
-					$is_file_default = is_file($this->cont['UPLOAD_DIR'] . $this->func->encode($lvar['page']) . '_' . $e_name);
+					$is_file_default = @ is_file($this->cont['UPLOAD_DIR'] . $this->func->encode($lvar['page']) . '_' . $e_name);
 	
 					// Promote new design
 					if ($is_file_default && $is_file_second) {
@@ -727,7 +727,7 @@ _HTML_;
 			} else {
 				// Simple single argument
 				$lvar['file'] = $this->cont['UPLOAD_DIR'] . $this->func->encode($lvar['page']) . '_' . $this->func->encode($lvar['name']);
-				$is_file = is_file($lvar['file']);
+				$is_file = @ is_file($lvar['file']);
 			}
 			if (! $is_file) {
 				//$params['_error'] = htmlspecialchars('File not found: "' .
