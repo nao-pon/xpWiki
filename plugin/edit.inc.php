@@ -1,6 +1,6 @@
 <?php
 // PukiWiki - Yet another WikiWikiWeb clone.
-// $Id: edit.inc.php,v 1.45 2007/10/26 07:29:41 nao-pon Exp $
+// $Id: edit.inc.php,v 1.46 2007/11/27 01:50:41 nao-pon Exp $
 // Copyright (C) 2001-2006 PukiWiki Developers Team
 // License: GPL v2 or (at your option) any later version
 //
@@ -423,6 +423,7 @@ EOD;
 	// ソースの一部を抽出/置換する
 	function plugin_edit_parts($id, & $source, $postdata = '')
 	{
+		$id = preg_quote($id, '/');
 		$postdata = rtrim($postdata)."\n\n";
 		
 		// 改行・TAB・スペースのみだったら削除とみなす
@@ -432,7 +433,7 @@ EOD;
 		$heads[count($source)] = ''; // Sentinel
 	
 		while (list($start, $line) = each($heads)) {
-			if (preg_match("/\[#$id\]/", $line)) {
+			if (preg_match('/\[#' . $id . '\]/', $line)) {
 				list($end, $line) = each($heads);
 				return join('', array_splice($source, $start, $end - $start, $postdata));
 			}
