@@ -1,7 +1,7 @@
 <?php
 //
 // Created on 2006/10/25 by nao-pon http://hypweb.net/
-// $Id: loader.php,v 1.26 2007/11/25 03:19:37 nao-pon Exp $
+// $Id: loader.php,v 1.27 2007/11/28 05:56:38 nao-pon Exp $
 //
 
 error_reporting(0);
@@ -21,7 +21,7 @@ while( ob_get_level() ) {
 $src   = preg_replace("/[^\w.-]+/","",@ $_GET['src']);
 $prefix = (isset($_GET['b']))? 'b_' : '';
 $prefix = (isset($_GET['r']))? 'r_' : $prefix;
-$charset = $pre_width = $cache_file = $gzip_fname = $addcss = $dir = $out = $type = $src_file = '';
+$js_lang = $charset = $pre_width = $cache_file = $gzip_fname = $addcss = $dir = $out = $type = $src_file = '';
 $length = $addcsstime = $facetagtime = 0;
 $face_remake = $js_replace = $replace = false;
 $root_path = dirname($skin_dirname);
@@ -137,11 +137,18 @@ switch ($type) {
 		$gzip_fname = $cache_file.'.gz';
 		break;
 	case 'js':
-		if (substr($src,0,7) === "default") {
+		if (substr($src, 0, 7) === "default") {
 			$js_replace = true;
 			$replace = true;
-			if (!file_exists(dirname(__FILE__).'/skin/js/'.$src.'.js')) {
-				$src = 'default.en';
+			$js_lang = substr($src, 7);
+			$src_file = $root_path . '/language/xpwiki/' . $js_lang . '/' . 'default.js';
+			// Check Trust
+			if (! file_exists($src_file)) {
+				$src_file = dirname(__FILE__) . '/language/xpwiki/' . $js_lang . '/' . 'default.js';
+			}
+			// none
+			if (! file_exists($src_file)) {
+				$src_file = dirname(__FILE__) . '/language/xpwiki/en/default.js';
 			}
 		} else 	if ($src === 'main') {
 			$face_remake = (!file_exists($face_cache) || filemtime($face_cache) + $face_tag_maxage < time());
