@@ -1,7 +1,7 @@
 <?php
 //
 // Created on 2006/10/02 by nao-pon http://hypweb.net/
-// $Id: xpwiki_func.php,v 1.113 2007/11/27 01:52:05 nao-pon Exp $
+// $Id: xpwiki_func.php,v 1.114 2007/11/28 05:56:38 nao-pon Exp $
 //
 class XpWikiFunc extends XpWikiXoopsWrapper {
 
@@ -267,22 +267,34 @@ class XpWikiFunc extends XpWikiXoopsWrapper {
 	
 	// Get HTTP_ACCEPT_LANGUAGE
 	function get_accept_language () {
-		$lang = $this->cont['LANG']; // 規定値
 		$accept = @ $_SERVER["HTTP_ACCEPT_LANGUAGE"];
+		$allows = explode(',', $this->cont['ACCEPT_UILANG']);
+		$allows = array_map('trim', $allows);
+		$allowall = (in_array('all', $allows));
 		// cookie に指定があればそれを優先
 		if (!empty($this->root->cookie['lang'])) {
 			$accept = $this->root->cookie['lang'] . "," . $accept;
 		}
 		if (!empty($accept))
 		{
-			if (preg_match_all("/([\w]+)/i",$accept,$match,PREG_PATTERN_ORDER)) {
+			if (preg_match_all("/([\w\-]+)/i",$accept,$match,PREG_PATTERN_ORDER)) {
 				foreach($match[1] as $lang) {
-					if (file_exists($this->cont['DATA_HOME']."private/lang/{$lang}.lng.php")) { break; }
-					else { $lang = "en"; }
+					$lang = strtolower($lang);
+					if ($allowall || in_array(substr($lang, 0, 2), $allows)) {
+						if (file_exists($this->root->mytrustdirpath."/language/xpwiki/{$lang}/lng.php")) { 
+							return $lang;
+						}
+						if (strpos($lang, '-') !== FALSE) {
+							$lang = preg_replace('/-.+$/', '', $lang);
+							if (file_exists($this->root->mytrustdirpath."/language/xpwiki/{$lang}/lng.php")) { 
+								return $lang;
+							}
+						}
+					}
 				}
 			}
 		}
-		return $lang;
+		return $this->cont['LANG']; // 規定値
 	}
 	
 	function get_zone_by_time ($time) {
@@ -455,7 +467,7 @@ class XpWikiFunc extends XpWikiXoopsWrapper {
 	}
 	
 	function clear_page_cache ($page) {
-		$base = $this->root->mytrustdirpath."/lang";
+		$base = $this->root->mytrustdirpath."/language/xpwiki";
 		if ($handle = opendir($base)) {
 			$clr_pages = $this->root->always_clear_cache_pages;
 			$clr_pages[] = $page;
@@ -468,10 +480,10 @@ class XpWikiFunc extends XpWikiXoopsWrapper {
 				}
 			}
 			while (false !== ($file = readdir($handle))) {
-				if (preg_match("/^([\w-]+)\.lng\.php$/", $file, $match)) {
+				if ($file[0] !== '.' && is_dir($file)) {
 					foreach ($clr_pages as $_page) {
-						@unlink ($this->cont['CACHE_DIR']."page/".$this->encode($_page).".".$match[1]);
-						@unlink ($this->cont['CACHE_DIR']."page/b_".$this->encode($_page).".".$match[1]);
+						@unlink ($this->cont['CACHE_DIR']."page/".$this->encode($_page).".".$file);
+						@unlink ($this->cont['CACHE_DIR']."page/b_".$this->encode($_page).".".$file);
 					}
 				}
 			}

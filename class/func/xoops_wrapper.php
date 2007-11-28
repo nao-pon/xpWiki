@@ -1,7 +1,7 @@
 <?php
 //
 // Created on 2006/10/11 by nao-pon http://hypweb.net/
-// $Id: xoops_wrapper.php,v 1.39 2007/11/01 11:43:37 nao-pon Exp $
+// $Id: xoops_wrapper.php,v 1.40 2007/11/28 05:56:38 nao-pon Exp $
 //
 class XpWikiXoopsWrapper extends XpWikiBackupFunc {
 	
@@ -136,16 +136,35 @@ class XpWikiXoopsWrapper extends XpWikiBackupFunc {
 	}
 	
 	function get_lang ($default) {
+		if (defined('_LANGCODE')) {
+			return _LANGCODE;
+		}
 		$config_handler =& xoops_gethandler('config');
 		$xoopsConfig =& $config_handler->getConfigsByCat(XOOPS_CONF);
 		$language = (empty($xoopsConfig['language_origin']))? $xoopsConfig['language'] : $xoopsConfig['language_origin'];
-		$language = preg_replace('/^(.*)(?:utf|_utf8)$/i', '$1', $language);
-		switch (strtolower($language)) {
-			case "japanese" :
-			case "ja" :
-				return "ja";
-			case "english" :
-				return "en";
+		$_language = preg_replace('/^(.*)(?:utf|_utf8)$/i', '$1', $language);
+		switch (strtolower($_language)) {
+			case 'japanese' :
+			case 'ja' :
+				return 'ja';
+			case 'danish':
+				return 'da';
+			case 'english' :
+				return 'en';
+			case 'french':
+				return 'fr';
+			case 'german':
+				return 'de';
+			case 'italian':
+				return 'it';
+			case 'nederlands':
+				return 'nl';
+			case 'schinese':
+				return 'zh-ch';
+			case 'spanish':
+				return 'es';
+			case 'tchinese':
+				return 'zh-tw';
 			default:
 				return $default;
 		}

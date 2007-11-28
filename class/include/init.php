@@ -22,93 +22,77 @@ foreach (array('SCRIPT_NAME', 'SERVER_ADMIN', 'SERVER_NAME',
 	//unset(${$key}, $_SERVER[$key], $HTTP_SERVER_VARS[$key]);
 }
 
+/////////////////////////////////////////////////
+// Language / Encoding settings
+
+// LANG - Internal content language ('en', 'ja', or ...)
+$const['LANG'] = $this->get_lang('en');
+
+
+// Internal content encoding = Output content charset (for skin)
+$const['CONTENT_CHARSET'] = $this->get_content_charset();
+
+// Internal content encoding (for mbstring extension)
+$const['SOURCE_ENCODING'] = $const['CONTENT_CHARSET'];
+
+// Is this site UTF-8?
+$this->cont['FILE_ENCORD_EXT'] = ($const['CONTENT_CHARSET'] === 'UTF-8')? '_utf8' : '';
+
+/////////////////////////////////////////////////
+// INI_FILE: Require Lang Conf
+
+$_lang = $this->root->mytrustdirpath.'/language/xpwiki/' . $const['LANG'] . $const['FILE_ENCORD_EXT'] . '/' . 'conf.php';
+// None
+if (! file_exists($_lang)) {
+	$_lang = $this->root->mytrustdirpath.'/language/xpwiki/en/conf.php';
+	$const['LANG'] = 'en';
+}
+require($_lang);
+
+/////////////////////////////////////////////////
+// INI_FILE: Encode Hint & Accept lang
+
+$_lang = $this->root->mytrustdirpath.'/language/xpwiki/Conf_' . strtoupper($const['CONTENT_CHARSET']) . '.php';
+// none
+if (! file_exists($_lang)) {
+	$_lang = $this->root->mytrustdirpath.'/language/xpwiki/Conf_ISO-8859-1.php';
+}
+require($_lang);
+
 // UI_LANG - Content encoding for buttons, menus,  etc
 $const['UI_LANG'] = $this->get_accept_language();
 
 /////////////////////////////////////////////////
-// INI_FILE: LANG に基づくエンコーディング設定
+// INI_FILE: Require UI Lang file
 
-switch ($const['LANG']){
-case 'en':
-	// Internal content encoding = Output content charset (for skin)
-	$const['CONTENT_CHARSET'] = $this->get_content_charset();
-	// mb_language (for mbstring extension)
-	$const['MB_LANGUAGE'] = 'English';	// 'uni'(means UTF-8), 'English', or 'Japanese'
-	// Internal content encoding (for mbstring extension)
-	$const['SOURCE_ENCODING'] = $const['CONTENT_CHARSET'];
-	
-	if ($const['UI_LANG'] === 'ja' && $const['CONTENT_CHARSET'] !== 'UTF-8') {
-		$const['UI_LANG'] = 'en';
-	}
-	
-	break;
-	
-case 'ja':
-	$const['CONTENT_CHARSET'] = $this->get_content_charset();
-	$const['MB_LANGUAGE'] = 'Japanese';
-	$const['SOURCE_ENCODING'] = $const['CONTENT_CHARSET'];
-	break;
+$_lng = $const['UI_LANG'];
+$_lang = $this->root->mytrustdirpath.'/language/xpwiki/' . $const['UI_LANG'] . $const['FILE_ENCORD_EXT'] . '/' . 'lng.php';
+// none
+if (! file_exists($_lang)) {
+	$_lang = $this->root->mytrustdirpath.'/language/xpwiki/en/lng.php';
+	$_lng = 'en';
+}
+require($_lang);
 
-default:
-	$this->die_message('No such language "' . $const['LANG'] . '"'.memory_get_usage());
+// It overwrites if it is on the HTML side.
+$_lang = $const['DATA_HOME'] . 'language/xpwiki/' . $_lng . $const['FILE_ENCORD_EXT'] . '/' . 'lng.php';
+if (file_exists($_lang)) {
+	require($_lang);
 }
 
-// Decide charset for CSS
-switch($this->cont['UI_LANG']){
-	case 'ja':
-		$const['CSS_CHARSET'] = 'Shift_JIS'; break;
-	default:
-		$const['CSS_CHARSET'] = 'iso-8859-1';
-}
-
-$const['FILE_ENCORD_EXT'] = ('UTF-8' === $const['CONTENT_CHARSET'])? '_utf8' : '';
+/////////////////////////////////////////////////
+// mbstring setting
 
 mb_language($const['MB_LANGUAGE']);
 mb_internal_encoding($const['SOURCE_ENCODING']);
 ini_set('mbstring.http_input', 'pass');
 mb_http_output('pass');
-mb_detect_order('auto');
-
-/////////////////////////////////////////////////
-// INI_FILE: Require LANG_FILE
-
-$lang_file_hint = $const['DATA_HOME'] . 'private/lang/' . $const['CONTENT_CHARSET'] . '.lng.php';	// For encoding hint
-$lang_file = $const['DATA_HOME'] . 'private/lang/' . $const['UI_LANG'] . $const['FILE_ENCORD_EXT'] . '.lng.php';	// For UI resource
-
-// html側になければtrust側
-if (! file_exists($lang_file_hint)) {
-	$lang_file_hint = $this->root->mytrustdirpath.'/lang/' . $const['CONTENT_CHARSET'] . '.lng.php';
-}
-if (! file_exists($lang_file)) {
-	$lang_file = $this->root->mytrustdirpath.'/lang/' . $const['UI_LANG'] . $const['FILE_ENCORD_EXT'] . '.lng.php';
-}
-
-// それでもなければ 'en'
-if (! file_exists($lang_file_hint)) {
-	$lang_file_hint = $this->root->mytrustdirpath.'/lang/ISO-8859-1.lng.php';
-}
-if (! file_exists($lang_file)) {
-	$lang_file = $this->root->mytrustdirpath.'/lang/en.lng.php';
-}
-
-$die = '';
-
-$langfiles = array($lang_file_hint, $lang_file);
-array_unique($langfiles);
-foreach ($langfiles as $langfile) {
-	if (! file_exists($langfile) || ! is_readable($langfile)) {
-		$die .= 'File is not found or not readable. (' . $langfile . ')' . "\n";
-	} else {
-		require($langfile);
-	}
-}
-if ($die) $this->die_message(nl2br("\n\n" . $die));
+mb_detect_order($const['DETECT_ORDER']);
 
 /////////////////////////////////////////////////
 // LANG_FILE: Init encoding hint
 
 $const['PKWK_ENCODING_HINT'] = isset($_LANG['encode_hint']) ? $_LANG['encode_hint'] : '';
-//unset($_LANG['encode_hint']);
 
 /////////////////////////////////////////////////
 // LANG_FILE: Init severn days of the week
