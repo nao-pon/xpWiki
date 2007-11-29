@@ -223,11 +223,13 @@ if (isset($const['page_show'])) {
 		// 全体を見てコード検出すると、機種依存文字や、妙なバイナリ
 		// コードが混入した場合に、コード検出に失敗する恐れがある。
 		$encode = mb_detect_encoding($root->post['encode_hint']);
+		$this->encode_numericentity($root->post, $const['SOURCE_ENCODING'], $encode, array('msg'));
 		mb_convert_variables($const['SOURCE_ENCODING'], $encode, $root->post);
 	
 	} else if (isset($root->post['charset']) && $root->post['charset'] != '') {
 		// TrackBack Ping で指定されていることがある
 		// うまくいかない場合は自動検出に切り替え
+		$this->encode_numericentity($root->post, $const['SOURCE_ENCODING'], $root->post['charset'], array('msg'));
 		if (mb_convert_variables($const['SOURCE_ENCODING'],
 		    $root->post['charset'], $root->post) !== $root->post['charset']) {
 			mb_convert_variables($const['SOURCE_ENCODING'], 'auto', $root->post);

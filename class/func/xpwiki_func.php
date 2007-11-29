@@ -1,7 +1,7 @@
 <?php
 //
 // Created on 2006/10/02 by nao-pon http://hypweb.net/
-// $Id: xpwiki_func.php,v 1.114 2007/11/28 05:56:38 nao-pon Exp $
+// $Id: xpwiki_func.php,v 1.115 2007/11/29 23:27:05 nao-pon Exp $
 //
 class XpWikiFunc extends XpWikiXoopsWrapper {
 
@@ -479,8 +479,8 @@ class XpWikiFunc extends XpWikiXoopsWrapper {
 					$clr_pages[] = $page;
 				}
 			}
-			while (false !== ($file = readdir($handle))) {
-				if ($file[0] !== '.' && is_dir($file)) {
+			while ($file = readdir($handle)) {
+				if (preg_match('/^[\w]{2}(-[\w]+)?(_utf8)?$/',$file)) {
 					foreach ($clr_pages as $_page) {
 						@unlink ($this->cont['CACHE_DIR']."page/".$this->encode($_page).".".$file);
 						@unlink ($this->cont['CACHE_DIR']."page/b_".$this->encode($_page).".".$file);
@@ -1393,6 +1393,35 @@ EOD;
 			$this->root->rtf['div_area_open'][$this->root->rtf['convert_nest']] = false;
 		}
 		return $areadiv_closer;
+	}
+
+	// 文字エンコード変換前に範囲外の文字を実体参照値に変換する
+	function encode_numericentity(& $arg, $toencode, $fromencode, $keys = array()) {
+		if (strtoupper($fromencode) === strtoupper($toencode)) return;
+		if (is_array($arg)) {
+			foreach (array_keys($arg) as $key) {
+				if (!$keys || in_array($key, $keys)) {
+					$this->encode_numericentity($arg[$key], $toencode, $fromencode, $keys);
+				}
+			}
+		} else {
+			if ($arg === mb_convert_encoding(mb_convert_encoding($arg, $toencode, $fromencode), $fromencode, $toencode)) {
+				return;
+			}
+			$str = '';
+			$max = mb_strlen($arg, $fromencode);
+			$convmap = array(0x0080, 0x10FFFF, 0, 0xFFFFFF);
+			for ($i = 0; $i < $max; $i++) {
+				$org = mb_substr($arg, $i, 1, $fromencode);
+				if ($org === mb_convert_encoding(mb_convert_encoding($org, $toencode, $fromencode), $fromencode, $toencode)) {
+					$str .= $org;
+				} else {
+					$str .= mb_encode_numericentity($org, $convmap, $fromencode);
+				} 
+			}
+			$arg = $str;
+		}
+		return;
 	}
 
 /*----- DB Functions -----*/ 
