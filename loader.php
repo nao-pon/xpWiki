@@ -1,7 +1,7 @@
 <?php
 //
 // Created on 2006/10/25 by nao-pon http://hypweb.net/
-// $Id: loader.php,v 1.27 2007/11/28 05:56:38 nao-pon Exp $
+// $Id: loader.php,v 1.28 2007/11/29 23:24:27 nao-pon Exp $
 //
 
 error_reporting(0);
@@ -140,7 +140,7 @@ switch ($type) {
 		if (substr($src, 0, 7) === "default") {
 			$js_replace = true;
 			$replace = true;
-			$js_lang = substr($src, 7);
+			$js_lang = substr($src, 8);
 			$src_file = $root_path . '/language/xpwiki/' . $js_lang . '/' . 'default.js';
 			// Check Trust
 			if (! file_exists($src_file)) {
