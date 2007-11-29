@@ -1,6 +1,6 @@
 //
 // Created on 2007/10/03 by nao-pon http://hypweb.net/
-// $Id: resizable.js,v 1.5 2007/11/03 03:15:44 nao-pon Exp $
+// $Id: resizable.js,v 1.6 2007/11/29 23:23:57 nao-pon Exp $
 //
 
 var Resizable = Class.create();
@@ -27,6 +27,8 @@ Resizable.prototype = {
 		this.initWidth = '';
 		
 		this.options = options;
+		
+		if (Prototype.Browser.MobileSafari) return false;
 		
 		var target = $(id);
 		if (!target) return false;
