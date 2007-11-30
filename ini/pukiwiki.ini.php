@@ -1,6 +1,6 @@
 <?php
 // PukiWiki - Yet another WikiWikiWeb clone
-// $Id: pukiwiki.ini.php,v 1.55 2007/11/28 05:56:38 nao-pon Exp $
+// $Id: pukiwiki.ini.php,v 1.56 2007/11/30 05:01:50 nao-pon Exp $
 // Copyright (C)
 //   2002-2006 PukiWiki Developers Team
 //   2001-2002 Originally written by yu-ji
@@ -206,6 +206,11 @@ RewriteEngine on
 RewriteRule ^([0-9]+)\.html$ index.php?pgid=$1 [qsappend,L]
  */
 $root->static_url = 0;
+
+/////////////////////////////////////////////////
+// URLエンコードされていないGETクエリを受け入れる
+// URL encoding is not GET queries to accept
+$root->accept_not_encoded_query = 0;
 
 /////////////////////////////////////////////////
 // 外部リンクの追加属性
