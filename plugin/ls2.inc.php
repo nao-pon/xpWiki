@@ -1,7 +1,7 @@
 <?php
 // PukiWiki - Yet another WikiWikiWeb clone.
 //
-// $Id: ls2.inc.php,v 1.6 2007/07/22 14:22:59 nao-pon Exp $
+// $Id: ls2.inc.php,v 1.7 2007/11/30 02:13:45 nao-pon Exp $
 //
 // List plugin 2
 
@@ -275,7 +275,7 @@ class xpwiki_plugin_ls2 extends xpwiki_plugin {
 		if ($this->root->pagename_num2str && $this->func->is_page($page)) $s_page =  preg_replace('/\/(?:[0-9\-]+|[B0-9][A-Z0-9]{9})$/','/'.$this->func->get_heading($page),$s_page);
 		$margin_left = 0;
 		if ($params['pagename']) {
-			$s_page = basename($s_page);
+			$s_page = $this->func->basename($s_page);
 			$margin_left = (count(explode('/', $page)) - $params['_base_lev']) * $this->root->_ul_margin;
 		}
 		

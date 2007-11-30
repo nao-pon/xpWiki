@@ -1,7 +1,7 @@
 <?php
 //
 // Created on 2006/10/29 by nao-pon http://hypweb.net/
-// $Id: whatsnew.php,v 1.10 2007/10/18 05:16:16 nao-pon Exp $
+// $Id: whatsnew.php,v 1.11 2007/11/30 02:13:45 nao-pon Exp $
 //
 
 class XpWikiExtension_whatsnew extends XpWikiExtension {
@@ -44,7 +44,7 @@ class XpWikiExtension_whatsnew extends XpWikiExtension {
 			}
 			
 			$ret[$i]['link']  = $this->func->get_page_uri($base, true);
-			$ret[$i]['title'] = preg_replace('/^[0-9-]+$/', $this->func->get_heading($base), basename($base));
+			$ret[$i]['title'] = preg_replace('/^[0-9-]+$/', $this->func->get_heading($base), $this->func->basename($base));
 			$ret[$i]['time']  = $localtime;
 			
 			// 指定ページの本文などを取得
