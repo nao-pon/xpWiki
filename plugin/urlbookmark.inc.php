@@ -1,5 +1,5 @@
 <?php
-// $Id: urlbookmark.inc.php,v 1.1 2007/11/16 09:14:30 nao-pon Exp $
+// $Id: urlbookmark.inc.php,v 1.2 2007/11/30 23:46:37 nao-pon Exp $
 
 /*
  * PukiWiki urlbookmark プラグイン
@@ -217,7 +217,7 @@ EOD;
 			$title = rawurldecode($url);
 		}
 		$title = str_replace(array('<', '>'), array('&lt;', '&gt;'), $title);
-		
+		/*
 		if (extension_loaded('mbstring')) {
 			$enc = $this->get_encoding($buf);
 			
@@ -236,7 +236,31 @@ EOD;
 				mb_substitute_character($_sub);
 			}
 		}
+		*/
 		
+		$enc = $this->get_encoding($buf);
+		if ($enc !== 'auto') {
+			$this->func->encode_numericentity($title, $this->cont['SOURCE_ENCODING'], $enc);
+		} else {
+			if (extension_loaded('mbstring')) {
+				$enc = $this->get_encoding($buf);
+				
+				if (strtoupper($this->cont['SOURCE_ENCODING']) === 'UTF-8') {
+					$title = mb_convert_encoding($title, $this->cont['SOURCE_ENCODING'], $enc);
+				} else {
+					$_sub = mb_substitute_character();
+					mb_substitute_character(0x003c);
+					$_title = @ mb_convert_encoding($title, $this->cont['SOURCE_ENCODING'], $enc);
+					if (strpos($_title, '<') !== FALSE) {
+						$title = @ mb_convert_encoding($title, 'UTF-8', $enc);
+						$title = mb_convert_encoding($title, 'HTML-ENTITIES', 'UTF-8');
+					} else {
+						$title = $_title;
+					}
+					mb_substitute_character($_sub);
+				}
+			}
+		}
 		return trim($title);
 	}
 
