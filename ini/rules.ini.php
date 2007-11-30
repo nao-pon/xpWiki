@@ -1,6 +1,6 @@
 <?php
 // PukiWiki - Yet another WikiWikiWeb clone.
-// $Id: rules.ini.php,v 1.1 2006/10/13 13:17:49 nao-pon Exp $
+// $Id: rules.ini.php,v 1.2 2007/11/30 05:04:22 nao-pon Exp $
 // Copyright (C)
 //   2003-2005 PukiWiki Developers Team
 //   2001-2002 Originally written by yu-ji
@@ -39,6 +39,7 @@ $root->str_rules = array(
 	'&page;'	=> array_pop($page_array),
 	'&fpage;'	=> $root->vars['page'],
 	'&t;'   	=> "\t",
+	'&ua;'      => htmlspecialchars($root->ua),
 );
 
 unset($page_array);
