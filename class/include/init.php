@@ -1,4 +1,8 @@
 <?php
+//
+// Created on 2006/10/13 by nao-pon http://hypweb.net/
+// $Id: init.php,v 1.38 2007/11/30 05:02:35 nao-pon Exp $
+//
 
 $root = & $this->root;
 $const = & $this->cont;
@@ -12,22 +16,10 @@ $const['S_COPYRIGHT'] =
 	' Based on "PukiWiki" 1.4.8_alpha';
 
 /////////////////////////////////////////////////
-// Init server variables
-
-foreach (array('SCRIPT_NAME', 'SERVER_ADMIN', 'SERVER_NAME',
-	'SERVER_PORT', 'SERVER_SOFTWARE') as $key) {
-	if (!defined($key)) {
-		define($key, isset($_SERVER[$key]) ? $_SERVER[$key] : '');
-	}
-	//unset(${$key}, $_SERVER[$key], $HTTP_SERVER_VARS[$key]);
-}
-
-/////////////////////////////////////////////////
 // Language / Encoding settings
 
 // LANG - Internal content language ('en', 'ja', or ...)
 $const['LANG'] = $this->get_lang('en');
-
 
 // Internal content encoding = Output content charset (for skin)
 $const['CONTENT_CHARSET'] = $this->get_content_charset();
@@ -107,11 +99,10 @@ $root->script = $const['HOME_URL'];
 /////////////////////////////////////////////////
 // INI_FILE: $agents:  UserAgentの識別
 
-$root->ua = 'HTTP_USER_AGENT';
+$root->ua = empty($_SERVER['HTTP_USER_AGENT'])? '' : $_SERVER['HTTP_USER_AGENT'];
 $user_agent = $matches = array();
 
 $user_agent['agent'] = isset($_SERVER['HTTP_USER_AGENT']) ? $_SERVER['HTTP_USER_AGENT'] : '';
-//unset(${$ua}, $_SERVER[$ua], $HTTP_SERVER_VARS[$ua], $ua);	// safety
 
 foreach ($root->agents as $agent) {
 	if (preg_match($agent['pattern'], $user_agent['agent'], $matches)) {
@@ -204,40 +195,38 @@ if (isset($const['page_show'])) {
 		if (isset($root->get[$key])) $this->die_message('Sorry, already reserved: ' . $key . '=');
 	}
 	
-	// Expire risk
-	//unset($HTTP_GET_VARS, $HTTP_POST_VARS);	//, 'SERVER', 'ENV', 'SESSION', ...
-	//unset($_REQUEST);	// Considered harmful
-	
 	// Remove null character etc.
 	$root->get    = $this->input_filter($root->get);
 	$root->post   = $this->input_filter($root->post);
 	$root->cookie = $this->input_filter($root->cookie);
 	
-	// 文字コード変換 ($root->post)
-	// <form> で送信された文字 (ブラウザがエンコードしたデータ) のコードを変換
-	// POST method は常に form 経由なので、必ず変換する
-	//
-	if (isset($root->post['encode_hint']) && $root->post['encode_hint'] != '') {
-		// do_plugin_xxx() の中で、<form> に encode_hint を仕込んでいるので、
-		// encode_hint を用いてコード検出する。
-		// 全体を見てコード検出すると、機種依存文字や、妙なバイナリ
-		// コードが混入した場合に、コード検出に失敗する恐れがある。
-		$encode = mb_detect_encoding($root->post['encode_hint']);
-		$this->encode_numericentity($root->post, $const['SOURCE_ENCODING'], $encode, array('msg'));
-		mb_convert_variables($const['SOURCE_ENCODING'], $encode, $root->post);
-	
-	} else if (isset($root->post['charset']) && $root->post['charset'] != '') {
-		// TrackBack Ping で指定されていることがある
-		// うまくいかない場合は自動検出に切り替え
-		$this->encode_numericentity($root->post, $const['SOURCE_ENCODING'], $root->post['charset'], array('msg'));
-		if (mb_convert_variables($const['SOURCE_ENCODING'],
-		    $root->post['charset'], $root->post) !== $root->post['charset']) {
+	if ($root->post) {
+		// 文字コード変換 ($root->post)
+		// <form> で送信された文字 (ブラウザがエンコードしたデータ) のコードを変換
+		// POST method は常に form 経由なので、必ず変換する
+		//
+		if (isset($root->post['encode_hint']) && $root->post['encode_hint'] != '') {
+			// do_plugin_xxx() の中で、<form> に encode_hint を仕込んでいるので、
+			// encode_hint を用いてコード検出する。
+			// 全体を見てコード検出すると、機種依存文字や、妙なバイナリ
+			// コードが混入した場合に、コード検出に失敗する恐れがある。
+			$encode = mb_detect_encoding($root->post['encode_hint']);
+			$this->encode_numericentity($root->post, $const['SOURCE_ENCODING'], $encode, array('msg'));
+			mb_convert_variables($const['SOURCE_ENCODING'], $encode, $root->post);
+		
+		} else if (isset($root->post['charset']) && $root->post['charset'] != '') {
+			// TrackBack Ping で指定されていることがある
+			// うまくいかない場合は自動検出に切り替え
+			$this->encode_numericentity($root->post, $const['SOURCE_ENCODING'], $root->post['charset'], array('msg'));
+			if (mb_convert_variables($const['SOURCE_ENCODING'],
+			    $root->post['charset'], $root->post) !== $root->post['charset']) {
+				mb_convert_variables($const['SOURCE_ENCODING'], 'auto', $root->post);
+			}
+		
+		} else if (! empty($root->post)) {
+			// 全部まとめて、自動検出／変換
 			mb_convert_variables($const['SOURCE_ENCODING'], 'auto', $root->post);
 		}
-	
-	} else if (! empty($root->post)) {
-		// 全部まとめて、自動検出／変換
-		mb_convert_variables($const['SOURCE_ENCODING'], 'auto', $root->post);
 	}
 	
 	// 文字コード変換 ($root->get)
@@ -273,15 +262,6 @@ if (isset($const['page_show'])) {
 	}
 	$arg = $this->input_filter($arg); // \0 除去
 	
-	// unset QUERY_STRINGs
-	// Now use plugin or xoops. 
-	//foreach (array('QUERY_STRING', 'argv', 'argc') as $key) {
-	////	unset(${$key}, $_SERVER[$key], $HTTP_SERVER_VARS[$key]);
-	//	unset(${$key}, $_SERVER[$key]);
-	//}
-	// $_SERVER['REQUEST_URI'] is used at func.php NOW
-	//unset($REQUEST_URI, $HTTP_SERVER_VARS['REQUEST_URI']);
-	
 	// mb_convert_variablesのバグ(?)対策: 配列で渡さないと落ちる
 	$arg = array($arg);
 	mb_convert_variables($const['SOURCE_ENCODING'], 'auto', $arg);
@@ -289,16 +269,17 @@ if (isset($const['page_show'])) {
 	
 	/////////////////////////////////////////////////
 	// QUERY_STRINGを分解してコード変換し、$root->get に上書き
-	
-	// URI を urlencode せずに入力した場合に対処する
-	$matches = array();
-	foreach (explode('&', $arg) as $key_and_value) {
-		if (preg_match('/^([^=]+)=(.+)/', $key_and_value, $matches) &&
-		    mb_detect_encoding($matches[2]) != 'ASCII') {
-			$root->get[$matches[1]] = $matches[2];
+	if ($this->root->accept_not_encoded_query) {
+		// URI を urlencode せずに入力した場合に対処する
+		$matches = array();
+		foreach (explode('&', $arg) as $key_and_value) {
+			if (preg_match('/^([^=]+)=(.+)/', $key_and_value, $matches) &&
+			    mb_detect_encoding($matches[2]) != 'ASCII') {
+				$root->get[$matches[1]] = $matches[2];
+			}
 		}
+		unset($matches);
 	}
-	unset($matches);
 	
 	// pgid でのアクセス
 	if (!empty($root->get['pgid'])) {

@@ -1,14 +1,17 @@
 <?php
+// $Id: server.inc.php,v 1.2 2007/11/30 05:02:35 nao-pon Exp $
+//
+// Server information plugin
+// by Reimy http://pukiwiki.reimy.com/
+
 class xpwiki_plugin_server extends xpwiki_plugin {
 	function plugin_server_init () {
 
-
-
+		foreach (array('SERVER_ADMIN', 'SERVER_NAME',
+			'SERVER_PORT', 'SERVER_SOFTWARE') as $key) {
+			$this->$key = isset($_SERVER[$key]) ? $_SERVER[$key] : '';
+		}
 	}
-	// $Id: server.inc.php,v 1.1 2006/10/13 13:17:49 nao-pon Exp $
-	//
-	// Server information plugin
-	// by Reimy http://pukiwiki.reimy.com/
 	
 	function plugin_server_convert()
 	{
@@ -16,11 +19,11 @@ class xpwiki_plugin_server extends xpwiki_plugin {
 		if ($this->cont['PKWK_SAFE_MODE']) return ''; // Show nothing
 	
 		return '<dl>' . "\n" .
-		'<dt>Server Name</dt>'     . '<dd>' . SERVER_NAME . '</dd>' . "\n" .
-		'<dt>Server Software</dt>' . '<dd>' . SERVER_SOFTWARE . '</dd>' . "\n" .
+		'<dt>Server Name</dt>'     . '<dd>' . $this->SERVER_NAME . '</dd>' . "\n" .
+		'<dt>Server Software</dt>' . '<dd>' . $this->SERVER_SOFTWARE . '</dd>' . "\n" .
 		'<dt>Server Admin</dt>'    . '<dd>' .
-			'<a href="mailto:' . SERVER_ADMIN . '">' .
-			SERVER_ADMIN . '</a></dd>' . "\n" .
+			'<a href="mailto:' . $this->SERVER_ADMIN . '">' .
+			$this->SERVER_ADMIN . '</a></dd>' . "\n" .
 		'</dl>' . "\n";
 	}
 }
