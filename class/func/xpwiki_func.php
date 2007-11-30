@@ -1,7 +1,7 @@
 <?php
 //
 // Created on 2006/10/02 by nao-pon http://hypweb.net/
-// $Id: xpwiki_func.php,v 1.116 2007/11/30 02:13:45 nao-pon Exp $
+// $Id: xpwiki_func.php,v 1.117 2007/11/30 08:43:00 nao-pon Exp $
 //
 class XpWikiFunc extends XpWikiXoopsWrapper {
 
@@ -1398,6 +1398,7 @@ EOD;
 	// 文字エンコード変換前に範囲外の文字を実体参照値に変換する
 	function encode_numericentity(& $arg, $toencode, $fromencode, $keys = array()) {
 		if (strtoupper($fromencode) === strtoupper($toencode)) return;
+		if ($toencode === 'EUC-JP') $toencode = 'eucJP-win';
 		if (is_array($arg)) {
 			foreach (array_keys($arg) as $key) {
 				if (!$keys || in_array($key, $keys)) {
