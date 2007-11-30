@@ -1,7 +1,7 @@
 <?php
 //
 // Created on 2006/09/29 by nao-pon http://hypweb.net/
-// $Id: xpwiki.php,v 1.58 2007/11/08 08:45:45 nao-pon Exp $
+// $Id: xpwiki.php,v 1.59 2007/11/30 23:36:38 nao-pon Exp $
 //
 
 class XpWiki {
@@ -247,8 +247,8 @@ class XpWiki {
 	
 	function catbody () {
 		// SKIN select from Cookie or Plugin.
-		if ($this->cont['SKIN_CHANGER'] && !empty($this->root->cookie['skin']) && $this->cont['UA_PROFILE'] !== 'keitai') {
-			$this->cont['SKIN_NAME'] = $this->root->cookie['skin'];
+		if ($this->cont['SKIN_CHANGER'] && $this->cont['UA_PROFILE'] !== 'keitai' && (!empty($this->root->cookie['skin']) || is_string($this->cont['SKIN_CHANGER']))) {
+			$this->cont['SKIN_NAME'] = empty($this->root->cookie['skin'])? $this->cont['SKIN_CHANGER'] : $this->root->cookie['skin'];
 			if (preg_match('/^[\w-]+$/', $this->cont['SKIN_NAME'])) {
 				if (substr($this->cont['SKIN_NAME'],0,3) === "tD-") {
 					//tDiary's theme
