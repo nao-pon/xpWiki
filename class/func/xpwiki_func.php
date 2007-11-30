@@ -1,7 +1,7 @@
 <?php
 //
 // Created on 2006/10/02 by nao-pon http://hypweb.net/
-// $Id: xpwiki_func.php,v 1.117 2007/11/30 08:43:00 nao-pon Exp $
+// $Id: xpwiki_func.php,v 1.118 2007/11/30 23:36:38 nao-pon Exp $
 //
 class XpWikiFunc extends XpWikiXoopsWrapper {
 
@@ -453,7 +453,7 @@ class XpWikiFunc extends XpWikiXoopsWrapper {
 							'allow_pagecomment'=> $this->root->allow_pagecomment
 						),
 						'cont'          => array(
-							'SKIN_NAME'     => @$this->cont['SKIN_NAME']
+							'SKIN_CHANGER'  => $this->cont['SKIN_CHANGER']
 						)
 					)
 				));

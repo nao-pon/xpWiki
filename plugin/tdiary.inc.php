@@ -23,7 +23,7 @@ class xpwiki_plugin_tdiary extends xpwiki_plugin {
 		$argv = func_get_args();
 		$theme_name = $argv[0];
 		if(preg_match('/^([0-9A-Za-z-_])+$/', $theme_name)) {
-			$this->cont['SKIN_NAME'] = "tD-".$theme_name;
+			$this->cont['SKIN_CHANGER'] = "tD-".$theme_name;
 		}
 		else {
 			return '<p>#tdiary(): Usage:' . $this->cont['PLUGIN_TDIARY_USAGE'] . "</p>\n";

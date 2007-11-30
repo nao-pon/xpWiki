@@ -1,7 +1,7 @@
 <?php
 //
 // Created on 2006/10/20 by nao-pon http://hypweb.net/
-// $Id: skin_changer.inc.php,v 1.4 2006/11/28 14:27:34 nao-pon Exp $
+// $Id: skin_changer.inc.php,v 1.5 2007/11/30 23:36:38 nao-pon Exp $
 //
 class xpwiki_plugin_skin_changer extends xpwiki_plugin {
 	function plugin_skin_changer_init () {
@@ -43,6 +43,8 @@ class xpwiki_plugin_skin_changer extends xpwiki_plugin {
 		$ret = '<p><ul class="list1" style="padding-left:'.$this->root->_ul_margin.'px;margin-left:'.$this->root->_ul_margin.'px;">'."\n";
 		
 		$now_query = @ $_SERVER['QUERY_STRING'];
+		// 特定のキーを除外
+		$now_query = preg_replace('/&?(word|'.preg_quote(session_name(), '/').')=[^&]+/', '', $now_query);
 		$now_query = preg_replace("/&+$/", "", $now_query);
 		
 		$link = (empty($now_query))? "setskin=" : "{$now_query}&setskin="; 
