@@ -9,7 +9,7 @@ class xpwiki_plugin_attach extends xpwiki_plugin {
 	/////////////////////////////////////////////////
 	// PukiWiki - Yet another WikiWikiWeb clone.
 	//
-	//  $Id: attach.inc.php,v 1.29 2007/11/27 06:16:38 nao-pon Exp $
+	//  $Id: attach.inc.php,v 1.30 2007/11/30 02:13:45 nao-pon Exp $
 	//  ORG: attach.inc.php,v 1.31 2003/07/27 14:15:29 arino Exp $
 	//
 	
@@ -335,7 +335,7 @@ class xpwiki_plugin_attach extends xpwiki_plugin {
 	{
 		// ファイル名の正規化
 		$fname = preg_replace('/[[:cntrl:]]+/', '', $fname);
-		$fname = basename(str_replace("\\","/",$fname));
+		$fname = $this->func->basename(str_replace("\\","/",$fname));
 		
 		$_action = 'insert';
 		
@@ -404,13 +404,14 @@ class xpwiki_plugin_attach extends xpwiki_plugin {
 		$fname = $this->regularize_fname($fname, $page);
 		
 		// ファイル名が存在する場合は、数字を付け加える
-		if (preg_match('/^(.+?)(\.[^.]+)?$/', $fname, $match)) {
+		if (preg_match("/^(.+)(\.[^.]*)$/",$fname,$match)) {
 			$_fname = $match[1];
-			$_ext = isset($match[2])? $match[2] : '';
+			$_ext = $match[2];
 		} else {
 			$_fname = $fname;
 			$_ext = '';
 		}
+
 		$fi = 0;
 		do {
 			$obj = & new XpWikiAttachFile($this->xpwiki, $page, $fname);
@@ -454,11 +455,7 @@ class xpwiki_plugin_attach extends xpwiki_plugin {
 		$obj->status['uname'] = $this->root->userinfo['uname'];
 		$obj->status['md5'] = md5_file($obj->filename);
 		$obj->status['admins'] = (int)$this->func->check_admin($this->root->userinfo['uid']);
-		if ($fname !== $org_fname) {
-			$obj->status['org_fname'] = $org_fname;
-		} else {
-			$obj->status['org_fname'] = '';
-		}
+		$obj->status['org_fname'] = $org_fname;
 		$obj->action = $_action;
 		$obj->putstatus();
 		
@@ -862,7 +859,7 @@ EOD;
 				$i++) {
 				$name .= $buff[$i];
 			}
-			$name = basename(trim($name)); //ディレクトリお構い無し
+			$name = $this->func->basename(trim($name)); //ディレクトリお構い無し
 	
 			for ( $i=$this->cont['TAR_HDR_SIZE_OFFSET'],$size="";
 					$i<$this->cont['TAR_HDR_SIZE_OFFSET']+$this->cont['TAR_HDR_SIZE_LEN']; $i++ ) {
@@ -929,7 +926,7 @@ class XpWikiAttachFile
 
 		$this->page = $page;
 		$this->pgid = ($pgid)? $pgid : $this->func->get_pgid_by_name($page);
-		$this->file = basename(str_replace("\\","/",$file));
+		$this->file = $this->func->basename($file);
 		$this->age  = is_numeric($age) ? $age : 0;
 		$this->id   = $this->get_id();
 		

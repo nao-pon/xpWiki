@@ -2,7 +2,7 @@
 /////////////////////////////////////////////////
 // PukiWiki - Yet another WikiWikiWeb clone.
 //
-// $Id: popular.inc.php,v 1.8 2007/08/21 06:22:10 nao-pon Exp $
+// $Id: popular.inc.php,v 1.9 2007/11/30 02:13:45 nao-pon Exp $
 //
 
 /*
@@ -147,7 +147,7 @@ class xpwiki_plugin_popular extends xpwiki_plugin {
 					$new_mark = $this->func->do_plugin_inline("new","{$page},nolink",$_dum);
 				
 				if ($compact)
-					$page = $this->func->make_pagelink($page,basename($page));
+					$page = $this->func->make_pagelink($page,$this->func->basename($page));
 				else
 				{
 					if ($prefix)

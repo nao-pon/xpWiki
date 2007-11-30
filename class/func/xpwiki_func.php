@@ -1,7 +1,7 @@
 <?php
 //
 // Created on 2006/10/02 by nao-pon http://hypweb.net/
-// $Id: xpwiki_func.php,v 1.115 2007/11/29 23:27:05 nao-pon Exp $
+// $Id: xpwiki_func.php,v 1.116 2007/11/30 02:13:45 nao-pon Exp $
 //
 class XpWikiFunc extends XpWikiXoopsWrapper {
 
@@ -1423,7 +1423,12 @@ EOD;
 		}
 		return;
 	}
-
+	
+	function basename($path) {
+		$path = rtrim(str_replace("\\", '/', $path), '/');
+		return preg_replace('#.*/([^/]+)$#', '$1', $path);
+	}
+	
 /*----- DB Functions -----*/ 
 	//ページ名からページIDを求める
 	function get_pgid_by_name ($page, $cache = true, $make = false)
@@ -2504,7 +2509,7 @@ EOD;
 
 		if (strpos($page, '/') !== false) {
 			// ページがなくて多階層の場合は上層ページを検査する
-			$base = basename($page);
+			$base = $this->basename($page);
 			$dir = dirname($page);
 			$this->get_pagename_realcase($dir);
 			$page = $dir.'/'.$base;

@@ -4,7 +4,7 @@ class xpwiki_plugin_navi extends xpwiki_plugin {
 
 
 	// PukiWiki - Yet another WikiWikiWeb clone.
-	// $Id: navi.inc.php,v 1.5 2007/09/19 11:27:15 nao-pon Exp $
+	// $Id: navi.inc.php,v 1.6 2007/11/30 02:13:45 nao-pon Exp $
 	//
 	// Navi plugin: Show DocBook-like navigation bar and contents
 	
@@ -72,7 +72,7 @@ class xpwiki_plugin_navi extends xpwiki_plugin {
 			    ! preg_match('/^' . preg_quote($home, '/') . '/', $current)) {
 				return '#navi(' . htmlspecialchars($home) .
 				'): Not a child page like: ' .
-				htmlspecialchars($home . '/' . basename($current)) .
+				htmlspecialchars($home . '/' . $this->func->basename($current)) .
 				'<br />';
 			}
 			$reverse = (strtolower($reverse) == 'reverse');
