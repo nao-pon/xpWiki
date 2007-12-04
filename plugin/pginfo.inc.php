@@ -2,7 +2,7 @@
 /////////////////////////////////////////////////
 // PukiWiki - Yet another WikiWikiWeb clone.
 //
-// $Id: pginfo.inc.php,v 1.18 2007/10/21 23:15:05 nao-pon Exp $
+// $Id: pginfo.inc.php,v 1.19 2007/12/04 06:45:35 nao-pon Exp $
 //
 
 class xpwiki_plugin_pginfo extends xpwiki_plugin {
@@ -65,6 +65,9 @@ class xpwiki_plugin_pginfo extends xpwiki_plugin {
 			sort($cpages, SORT_STRING);
 						
 			// #pginfo 再構築
+			if ($this->root->userinfo['admin']) {
+				$pginfo['uid'] = intval($this->root->post['uid']);
+			}
 			if ($pginfo['einherit'] !== 4)
 			{
 				// 元々このページのみの設定値だった？
@@ -397,10 +400,13 @@ EOD;
 		$edit_user_list = '';
 		if ($eaids && is_array($eaids)) {
 			foreach($eaids as $eaid) {
-				if ($pginfo['einherit'] === 4) {
-					$edit_user_list .= htmlspecialchars($this->func->getUnameFromId($eaid)).'['.$eaid.'] '; 
-				} else {
-					$edit_user_list .= '<span class="exist">'.htmlspecialchars($this->func->getUnameFromId($eaid)).'['.$eaid.'] </span>'; 
+				$eaid = intval($eaid);
+				if ($eaid) {
+					if ($pginfo['einherit'] === 4) {
+						$edit_user_list .= htmlspecialchars($this->func->getUnameFromId($eaid)).'['.$eaid.'] '; 
+					} else {
+						$edit_user_list .= '<span class="exist">'.htmlspecialchars($this->func->getUnameFromId($eaid)).'['.$eaid.'] </span>'; 
+					}
 				}
 			}
 		}
@@ -409,10 +415,13 @@ EOD;
 		$view_user_list = '';
 		if ($eaids && is_array($vaids)) {
 			foreach($vaids as $vaid) {
-				if ($pginfo['vinherit'] === 4) {
-					$view_user_list .= htmlspecialchars($this->func->getUnameFromId($vaid)).'['.$vaid.'] '; 
-				} else {
-					$view_user_list .= '<span class="exist">'.htmlspecialchars($this->func->getUnameFromId($vaid)).'['.$vaid.'] </span>'; 
+				$vaid = intval($vaid);
+				if ($vaid) {
+					if ($pginfo['vinherit'] === 4) {
+						$view_user_list .= htmlspecialchars($this->func->getUnameFromId($vaid)).'['.$vaid.'] '; 
+					} else {
+						$view_user_list .= '<span class="exist">'.htmlspecialchars($this->func->getUnameFromId($vaid)).'['.$vaid.'] </span>'; 
+					}
 				}
 			}
 		}
@@ -423,7 +432,9 @@ EOD;
 		$enc = $this->cont['CONTENT_CHARSET'];
 		
 		$title_permission_default = ($page && $this->root->userinfo['admin'])? '<hr /><p><a href="'.$this->root->script.'?cmd=pginfo">'.$this->msg['title_permission_default'].'</a></p>' : '';
-
+		
+		$uid_form = ($this->root->userinfo['admin'])? '&nbsp;&nbsp;' . $this->root->_LANG['skin']['pageowner'] . ' User ID: <input type="text" name="uid" size="4" value="' . htmlspecialchars($pginfo['uid']) . '" />' : '';
+		
 		$form = <<<EOD
 <script language="javascript">
 <!--
@@ -524,6 +535,7 @@ function xpwiki_parm_desc (id, mode) {
 <input type="hidden" name="page" value="{$spage}" />
 <input type="hidden" name="pmode" value="setparm" />
 <input id="xpwiki_parmission_submit" type="submit" value="{$this->msg['submit']}" />
+{$uid_form}
 </form>
 {$title_permission_default}
 EOD;
