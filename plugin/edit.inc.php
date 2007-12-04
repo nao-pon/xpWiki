@@ -1,6 +1,6 @@
 <?php
 // PukiWiki - Yet another WikiWikiWeb clone.
-// $Id: edit.inc.php,v 1.46 2007/11/27 01:50:41 nao-pon Exp $
+// $Id: edit.inc.php,v 1.47 2007/12/04 01:38:55 nao-pon Exp $
 // Copyright (C) 2001-2006 PukiWiki Developers Team
 // License: GPL v2 or (at your option) any later version
 //
@@ -356,7 +356,7 @@ EOD;
 	
 			if ($this->root->trackback) $this->func->tb_delete($page);
 			
-			if ($this->root->maxshow_deleted) {
+			if ($this->root->maxshow_deleted && $this->func->is_page($this->root->whatsdeleted)) {
 				$url = $this->func->get_page_uri($this->root->whatsdeleted , true);
 			} else {
 				$url = $this->cont['HOME_URL'];
