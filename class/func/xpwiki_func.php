@@ -1,7 +1,7 @@
 <?php
 //
 // Created on 2006/10/02 by nao-pon http://hypweb.net/
-// $Id: xpwiki_func.php,v 1.118 2007/11/30 23:36:38 nao-pon Exp $
+// $Id: xpwiki_func.php,v 1.119 2007/12/04 06:45:59 nao-pon Exp $
 //
 class XpWikiFunc extends XpWikiXoopsWrapper {
 
@@ -402,9 +402,8 @@ class XpWikiFunc extends XpWikiXoopsWrapper {
 	function get_body ($page) {
 
 		// キャッシュ判定
-		$is_block = ($this->root->render_mode === 'block')? 'b_' : '';
-		$cache_file = $this->cont['CACHE_DIR']."page/".$is_block.$this->encode($page).".".$this->cont['UI_LANG'];
-		$use_cache = ($this->root->userinfo['uid'] === 0 && $this->root->pagecache_min > 0 && file_exists($cache_file) && (filemtime($cache_file) + $this->root->pagecache_min * 60) > time());
+		$r_mode = ($this->root->render_mode === 'block')? 'b_' : (($this->root->render_mode === 'render')? 'r_' : '');
+		$cache_file = $this->cont['CACHE_DIR']."page/".$r_mode.$this->encode($page).".".$this->cont['UI_LANG'];
 		
 		// 強制キャッシュ利用指定フラグ判定
 		if (!empty($this->root->rtf['use_cache_always'])) {
@@ -418,6 +417,8 @@ class XpWikiFunc extends XpWikiXoopsWrapper {
 			if (file_exists($cache_file)) {
 				$use_cache = TRUE;
 			}
+		} else {
+			$use_cache = ($this->root->userinfo['uid'] === 0 && $this->root->pagecache_min > 0 && file_exists($cache_file) && (filemtime($cache_file) + $this->root->pagecache_min * 60) > time());
 		}
 		
 		if ($use_cache) {
@@ -437,7 +438,7 @@ class XpWikiFunc extends XpWikiXoopsWrapper {
 			$this->root->content_title = $this->get_heading($page);
 			
 			// キャッシュ保存
-			if ($this->root->userinfo['uid'] === 0 && $this->root->pagecache_min > 0 && empty($this->root->rtf['use_cache_always'])) {
+			if (!empty($this->root->rtf['use_cache_always']) || ($this->root->userinfo['uid'] === 0 && $this->root->pagecache_min > 0)) {
 				$fp = fopen($cache_file, "wb");
 				fwrite($fp, serialize(
 					array(
@@ -484,7 +485,7 @@ class XpWikiFunc extends XpWikiXoopsWrapper {
 					foreach ($clr_pages as $_page) {
 						@unlink ($this->cont['CACHE_DIR']."page/".$this->encode($_page).".".$file);
 						@unlink ($this->cont['CACHE_DIR']."page/b_".$this->encode($_page).".".$file);
-					}
+						@unlink ($this->cont['CACHE_DIR']."page/r_".$this->encode($_page).".".$file);					}
 				}
 			}
 			closedir($handle);
@@ -572,6 +573,8 @@ EOD;
 	
 	// ページ情報の継承を受ける(指定があれば)
 	function pageinfo_inherit ($page) {
+		$is_page = $this->is_page($page);
+		
 		// サイト規定値読み込み
 		$pginfo = $this->root->pginfo;
 		
@@ -585,13 +588,21 @@ EOD;
 				if ($done['edit'] < 2) {
 					if ($_pginfo['einherit'] === 2 || $_pginfo['einherit'] === 4) {
 						$pginfo['einherit'] = 4;
-						$pginfo['eaids'] = $_pginfo['eaids'];
+						if ($_pginfo['eaids'] === 'none' && $_pginfo['uid'] && !$is_page) {
+							$pginfo['eaids'] = $_pginfo['uid'];
+						} else {
+							$pginfo['eaids'] = $_pginfo['eaids'];
+						}
 						$pginfo['egids'] = $_pginfo['egids'];
 						$done['edit'] = 2;
 					}
 					if (!$done['edit'] && ($_pginfo['einherit'] === 1 || $_pginfo['einherit'] === 3)) {
 						$pginfo['einherit'] = 3;
-						$pginfo['eaids'] = $_pginfo['eaids'];
+						if ($_pginfo['eaids'] === 'none' && $_pginfo['uid'] && !$is_page) {
+							$pginfo['eaids'] = $_pginfo['uid'];
+						} else {
+							$pginfo['eaids'] = $_pginfo['eaids'];
+						}
 						$pginfo['egids'] = $_pginfo['egids'];
 						$done['edit'] = 1;
 					}
@@ -600,13 +611,21 @@ EOD;
 				if ($done['view'] < 2) {
 					if ($_pginfo['vinherit'] === 2 || $_pginfo['vinherit'] === 4) {
 						$pginfo['vinherit'] = 4;
-						$pginfo['vaids'] = $_pginfo['vaids'];
+						if ($_pginfo['vaids'] === 'none' && $_pginfo['uid'] && !$is_page) {
+							$pginfo['vaids'] = $_pginfo['uid'];
+						} else {
+							$pginfo['vaids'] = $_pginfo['vaids'];
+						}
 						$pginfo['vgids'] = $_pginfo['vgids'];
 						$done['view'] = 2;
 					}
 					if (!$done['view'] && ($_pginfo['vinherit'] === 1 || $_pginfo['vinherit'] === 3)) {
 						$pginfo['vinherit'] = 3;
-						$pginfo['vaids'] = $_pginfo['vaids'];
+						if ($_pginfo['vaids'] === 'none' && $_pginfo['uid'] && !$is_page) {
+							$pginfo['vaids'] = $_pginfo['uid'];
+						} else {
+							$pginfo['vaids'] = $_pginfo['vaids'];
+						}
 						$pginfo['vgids'] = $_pginfo['vgids'];
 						$done['view'] = 1;
 					}
