@@ -1,7 +1,7 @@
 <?php
 //
 // Created on 2006/10/02 by nao-pon http://hypweb.net/
-// $Id: xpwiki_func.php,v 1.119 2007/12/04 06:45:59 nao-pon Exp $
+// $Id: xpwiki_func.php,v 1.120 2007/12/05 08:06:04 nao-pon Exp $
 //
 class XpWikiFunc extends XpWikiXoopsWrapper {
 
@@ -696,8 +696,8 @@ EOD;
 		if ($pginfo['vgids'] === 'none' && $pginfo['vaids'] === 'none') {
 			$ret = FALSE;
 		} else {
-			$vgids = explode('&', $pginfo['vgids']);
-			$vaids = explode('&', $pginfo['vaids']);
+			$vgids = explode('&', trim($pginfo['vgids'], '&'));
+			$vaids = explode('&', trim($pginfo['vaids'], '&'));
 			$_vg = array_merge($vgids, $userinfo['gids']);
 			$vgauth = (count($_vg) === count(array_unique($_vg)))? FALSE : TRUE;
 			if (
@@ -746,8 +746,8 @@ EOD;
 		if ($pginfo['egids'] === 'none' && $pginfo['eaids'] === 'none') {
 			$ret = FALSE;
 		} else {
-			$egids = explode('&', $pginfo['egids']);
-			$eaids = explode('&', $pginfo['eaids']);
+			$egids = explode('&', trim($pginfo['egids'], '&'));
+			$eaids = explode('&', trim($pginfo['eaids'], '&'));
 			$_eg = array_merge($egids, $userinfo['gids']);
 			$eauth = (count($_eg) === count(array_unique($_eg)))? FALSE : TRUE;
 			

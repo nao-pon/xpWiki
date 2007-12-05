@@ -1,7 +1,7 @@
 <?php
 /*
  * Created on 2007/05/22 by nao-pon http://hypweb.net/
- * $Id: import.inc.php,v 1.5 2007/08/21 06:22:10 nao-pon Exp $
+ * $Id: import.inc.php,v 1.6 2007/12/05 08:06:04 nao-pon Exp $
  */
 
 class xpwiki_plugin_import extends xpwiki_plugin {
@@ -659,11 +659,11 @@ EOD;
 		$pginfo['ucd']       = '';
 		$pginfo['uname']     = $user['uname'];
 		$pginfo['einherit']  = ($freeze)? $newfreeze : 3;
-		$pginfo['eaids']     = (!$aids || $aids === '&0&')? 'none' : ((strpos($aids,'all') !== false)? 'all' : $aids);
-		$pginfo['egids']     = (!$gids || $gids === '&0&')? 'none' : ((strpos($gids,'all') !== false || strpos($gids,'&3&') !== false)? 'all' : $gids);
+		$pginfo['eaids']     = (!$aids || $aids === '&0&')? 'none' : ((strpos($aids,'all') !== false)? 'all' : trim($aids, '&'));
+		$pginfo['egids']     = (!$gids || $gids === '&0&')? 'none' : ((strpos($gids,'all') !== false || strpos($gids,'&3&') !== false)? 'all' : trim($gids, '&'));
 		$pginfo['vinherit']  = ($unvisible)? 1 : 3;
-		$pginfo['vaids']     = (!$vaids || $vaids === '&0&')? 'none' : ((strpos($vaids,'all') !== false)? 'all' : $vaids);
-		$pginfo['vgids']     = (!$vgids || $vgids === '&0&')? 'none' : ((strpos($vgids,'all') !== false || strpos($vgids,'&3&') !== false)? 'all' : $vgids);
+		$pginfo['vaids']     = (!$vaids || $vaids === '&0&')? 'none' : ((strpos($vaids,'all') !== false)? 'all' : trim($vaids, '&'));
+		$pginfo['vgids']     = (!$vgids || $vgids === '&0&')? 'none' : ((strpos($vgids,'all') !== false || strpos($vgids,'&3&') !== false)? 'all' : trim($vgids, '&'));
 		$pginfo['lastuid']   = $lastediter;
 		$pginfo['lastucd']   = '';
 		$pginfo['lastuname'] = $lastuser['uname'];
