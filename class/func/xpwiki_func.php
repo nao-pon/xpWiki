@@ -1,7 +1,7 @@
 <?php
 //
 // Created on 2006/10/02 by nao-pon http://hypweb.net/
-// $Id: xpwiki_func.php,v 1.121 2007/12/05 12:01:59 nao-pon Exp $
+// $Id: xpwiki_func.php,v 1.122 2007/12/05 23:25:22 nao-pon Exp $
 //
 class XpWikiFunc extends XpWikiXoopsWrapper {
 
@@ -402,7 +402,7 @@ class XpWikiFunc extends XpWikiXoopsWrapper {
 	function get_body ($page) {
 
 		// キャッシュ判定
-		$r_mode = ($this->root->render_mode === 'block')? 'b_' : (($this->root->render_mode === 'render')? 'r_' : '');
+		$r_mode = ($this->root->render_mode === 'block')? 'b_' : '';
 		$cache_file = $this->cont['CACHE_DIR']."page/".$r_mode.$this->encode($page).".".$this->cont['UI_LANG'];
 		
 		// 強制キャッシュ利用指定フラグ判定
@@ -1841,6 +1841,7 @@ EOD;
 			$pobj->root->userinfo['uname_s'] = '';
 			$pobj->root->read_auth = 0;
 			$pobj->root->rtf['is_init'] = true;
+			$pobj->root->pagecache_min = 0;
 			$pobj->execute();
 			$data = $pobj->body;
 
