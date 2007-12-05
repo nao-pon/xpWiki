@@ -2,7 +2,7 @@
 /////////////////////////////////////////////////
 // PukiWiki - Yet another WikiWikiWeb clone.
 //
-// $Id: pginfo.inc.php,v 1.19 2007/12/04 06:45:35 nao-pon Exp $
+// $Id: pginfo.inc.php,v 1.20 2007/12/05 12:01:59 nao-pon Exp $
 //
 
 class xpwiki_plugin_pginfo extends xpwiki_plugin {
@@ -65,8 +65,17 @@ class xpwiki_plugin_pginfo extends xpwiki_plugin {
 			sort($cpages, SORT_STRING);
 						
 			// #pginfo 再構築
+			$change_uid = FALSE;
 			if ($this->root->userinfo['admin']) {
-				$pginfo['uid'] = intval($this->root->post['uid']);
+				$uid = intval($this->root->post['uid']);
+				if ($pginfo['uid'] !== $uid) {
+					$userinfo = $this->func->get_userinfo_by_id($uid);
+					if ($userinfo['uid']) {
+						$pginfo['uid'] = $uid;
+						$pginfo['uname'] = $userinfo['uname'];
+						$change_uid = TRUE;
+					}
+				}
 			}
 			if ($pginfo['einherit'] !== 4)
 			{
@@ -188,7 +197,7 @@ class xpwiki_plugin_pginfo extends xpwiki_plugin {
 			}
 			
 			// pginfo DB 更新
-			$this->func->pginfo_perm_db_write($page, $pginfo);
+			$this->func->pginfo_perm_db_write($page, $pginfo, $change_uid);
 			
 		} else {
 			
@@ -433,7 +442,7 @@ EOD;
 		
 		$title_permission_default = ($page && $this->root->userinfo['admin'])? '<hr /><p><a href="'.$this->root->script.'?cmd=pginfo">'.$this->msg['title_permission_default'].'</a></p>' : '';
 		
-		$uid_form = ($this->root->userinfo['admin'])? '&nbsp;&nbsp;' . $this->root->_LANG['skin']['pageowner'] . ' User ID: <input type="text" name="uid" size="4" value="' . htmlspecialchars($pginfo['uid']) . '" />' : '';
+		$uid_form = ($this->root->userinfo['admin'])? '&nbsp;&nbsp;' . $this->root->_LANG['skin']['pageowner'] . ' User ID: <input type="text" name="uid" size="5" value="' . htmlspecialchars($pginfo['uid']) . '" />' : '';
 		
 		$form = <<<EOD
 <script language="javascript">
