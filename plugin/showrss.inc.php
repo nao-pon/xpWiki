@@ -1,6 +1,6 @@
 <?php
 // PukiWiki - Yet another WikiWikiWeb clone
-// $Id: showrss.inc.php,v 1.4 2007/12/05 00:04:16 nao-pon Exp $
+// $Id: showrss.inc.php,v 1.5 2007/12/05 01:45:30 nao-pon Exp $
 //  Id:showrss.inc.php,v 1.40 2003/03/18 11:52:58 hiro Exp
 // Copyright (C):
 //     2002-2006 PukiWiki Developers Team
@@ -179,7 +179,9 @@ class XpWikiShowRSS_html
 					if ($count > $max) break;
 					$count++;
 					$link  = $item['LINK'];
-					$linkstr = $item['TITLE'];
+					
+					$this->func->encode_numericentity($item['TITLE'], $this->cont['SOURCE_ENCODING'], 'UTF-8');
+					$linkstr = mb_convert_encoding($item['TITLE'], $this->cont['SOURCE_ENCODING'], 'UTF-8');
 					$title = $this->func->format_date($item['_TIMESTAMP']);
 					$passage = $this->func->get_passage($item['_TIMESTAMP']);
 					$link = '<a href="' . $link . '" title="' .  $title . ' ' .
@@ -190,8 +192,10 @@ class XpWikiShowRSS_html
 							if (!isset($item['DESCRIPTION'])) {
 								$item['DESCRIPTION'] = $item['CONTENT'];
 							}
-							$item['DESCRIPTION'] = htmlspecialchars(strip_tags(str_replace(array('&lt;', '&gt;'), array('<', '>'), $item['DESCRIPTION'])));
-							$item['DESCRIPTION'] = mb_substr($item['DESCRIPTION'], 0, 255);
+							$item['DESCRIPTION'] = strip_tags(str_replace(array('&lt;', '&gt;'), array('<', '>'), $item['DESCRIPTION']));
+							$item['DESCRIPTION'] = mb_substr($item['DESCRIPTION'], 0, 255, 'UTF-8');
+							$this->func->encode_numericentity($item['DESCRIPTION'], $this->cont['SOURCE_ENCODING'], 'UTF-8');
+							$item['DESCRIPTION'] = mb_convert_encoding($item['DESCRIPTION'], $this->cont['SOURCE_ENCODING'], 'UTF-8');
 							$link .= '<br />' . '<div class="quotation">' . $item['DESCRIPTION'] . '</div>';
 						}
 					}
@@ -330,7 +334,8 @@ class XpWikiShowRSS_XML
 		// Unescape
 		$str = str_replace('&amp;', '&', $str);
 		// Encoding conversion
-		$str = mb_convert_encoding($str, $this->cont['SOURCE_ENCODING'], $this->encoding);
+		//$this->func->encode_numericentity($str, $this->cont['SOURCE_ENCODING'], $this->encoding);
+		$str = mb_convert_encoding($str, 'UTF-8', $this->encoding);
 		return trim($str);
 	}
 
