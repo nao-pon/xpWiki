@@ -1,7 +1,7 @@
 <?php
 //
 // Created on 2006/10/02 by nao-pon http://hypweb.net/
-// $Id: xpwiki_func.php,v 1.120 2007/12/05 08:06:04 nao-pon Exp $
+// $Id: xpwiki_func.php,v 1.121 2007/12/05 12:01:59 nao-pon Exp $
 //
 class XpWikiFunc extends XpWikiXoopsWrapper {
 
@@ -1750,7 +1750,7 @@ EOD;
 	}
 	
 	// 権限情報更新
-	function pginfo_perm_db_write ($page, $pginfo) {
+	function pginfo_perm_db_write ($page, $pginfo, $change_uid = FALSE) {
 
 		// pgid
 		$id = $this->get_pgid_by_name($page);
@@ -1772,6 +1772,11 @@ EOD;
 					"`vinherit`='$vinherit' ," .
 					"`vaids`='$vaids' ," .
 					"`vgids`='$vgids'";		
+			if ($change_uid) {
+				$uname = addslashes($pginfo['uname']);
+				$value .= ",`uid`='{$pginfo['uid']}'";
+				$value .= ",`uname`='{$uname}'";
+			}
 			$query = "UPDATE ".$this->xpwiki->db->prefix($this->root->mydirname."_pginfo")." SET $value WHERE pgid = '$id' LIMIT 1";
 			$result = $this->xpwiki->db->query($query);
 		}
