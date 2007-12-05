@@ -1,6 +1,6 @@
 <?php
 // PukiWiki - Yet another WikiWikiWeb clone
-// $Id: showrss.inc.php,v 1.5 2007/12/05 01:45:30 nao-pon Exp $
+// $Id: showrss.inc.php,v 1.6 2007/12/05 03:04:11 nao-pon Exp $
 //  Id:showrss.inc.php,v 1.40 2003/03/18 11:52:58 hiro Exp
 // Copyright (C):
 //     2002-2006 PukiWiki Developers Team
@@ -87,18 +87,19 @@ class xpwiki_plugin_showrss extends xpwiki_plugin {
 		$data  = '';
 		$time = NULL;
 		if ($cachehour) {
-			// Remove expired cache
-			$this->plugin_showrss_cache_expire($cachehour);
-	
 			// Get the cache not expired
 			$filename = $this->cont['CACHE_DIR'] . 'plugin/' . $this->func->encode($target) . '.showrss';
-			if (is_readable($filename)) {
+			
+			if (is_readable($filename) && (filemtime($filename) + $cachehour * 60 * 60) > time()) {
 				$data  = unserialize(join('', file($filename)));
 				$time = filemtime($filename) - $this->cont['LOCALZONE'];
 			}
 		}
 	
 		if ($time === NULL) {
+			// Remove expired cache
+			$this->plugin_showrss_cache_expire($cachehour);
+
 			// Newly get RSS
 			$data = $this->func->http_request($target);
 			if ($data['rc'] !== 200)
@@ -126,10 +127,10 @@ class xpwiki_plugin_showrss extends xpwiki_plugin {
 	function plugin_showrss_cache_expire($cachehour)
 	{
 		$expire = $cachehour * 60 * 60; // Hour
-		$dh = dir($this->cont['CACHE_DIR']);
+		$dh = dir($this->cont['CACHE_DIR'] . 'plugin/');
 		while (($file = $dh->read()) !== FALSE) {
-			if (substr($file, -4) != '.tmp') continue;
-			$file = $this->cont['CACHE_DIR'] . $file;
+			if (substr($file, -8) != '.showrss') continue;
+			$file = $this->cont['CACHE_DIR'] . 'plugin/' . $file;
 			$last = time() - filemtime($file);
 			if ($last > $expire) unlink($file);
 		}
