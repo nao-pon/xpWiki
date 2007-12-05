@@ -1,6 +1,6 @@
 <?php
 // PukiWiki - Yet another WikiWikiWeb clone.
-// $Id: pukiwiki.skin.php,v 1.29 2007/11/08 08:45:45 nao-pon Exp $
+// $Id: pukiwiki.skin.php,v 1.30 2007/12/05 08:07:29 nao-pon Exp $
 // Copyright (C)
 //   2002-2006 PukiWiki Developers Team
 //   2001-2002 Originally written by yu-ji
@@ -38,6 +38,7 @@ $lang  = & $_LANG['skin'];
 $link  = & $_LINK;
 $image = & $_IMAGE['skin'];
 $rw    = ! $this->cont['PKWK_READONLY'];
+$can_attach = ($rw && $this->is_page($_page) && (!$this->cont['ATTACH_UPLOAD_EDITER_ONLY'] || $is_editable) && (bool)ini_get('file_uploads'));
 
 // Decide charset for CSS
 $css_charset = $this->cont['CSS_CHARSET'];
@@ -104,7 +105,7 @@ EOD;
 	<?php if (!$is_freeze && $is_editable) { ?>
 		<?php $navigator($this,'edit','',$ajax_edit_js) ?> |
 	<?php } ?>
-	<?php if ($is_read && $this->root->function_freeze) { ?>
+	<?php if ($is_editable && $this->root->function_freeze) { ?>
 		<?php (! $is_freeze) ? $navigator($this,'freeze') : $navigator($this,'unfreeze') ?> |
 	<?php } ?>
 	<?php if ($is_owner) { ?>
@@ -115,7 +116,7 @@ EOD;
  <?php if ($this->root->do_backup) { ?>
 	| <?php $navigator($this,'backup') ?>
  <?php } ?>
- <?php if ($rw && $this->is_page($_page) &&(bool)ini_get('file_uploads')) { ?>
+ <?php if ($can_attach) { ?>
 	| <?php $navigator($this,'upload') ?>
  <?php } ?>
  <?php if ($this->is_page($_page)) { ?> | <?php $navigator($this,'reload'); } ?>
@@ -215,7 +216,7 @@ $this->root->_IMAGE['skin']['rdf']      = 'rdf.png';
  	<?php if (!$is_freeze && $is_editable) { ?>
 		<?php $toolbar($this, 'edit') ?>
 	<?php } ?>
-	<?php if ($is_read && $this->root->function_freeze) { ?>
+	<?php if ($is_editable && $this->root->function_freeze) { ?>
 		<?php if (! $is_freeze) { $toolbar($this, 'freeze'); } else { $toolbar($this, 'unfreeze'); } ?>
 	<?php } ?>
  <?php } ?>
@@ -224,7 +225,7 @@ $this->root->_IMAGE['skin']['rdf']      = 'rdf.png';
 	<?php $toolbar($this, 'backup') ?>
 <?php } ?>
 <?php if ($rw) { ?>
-	<?php if ($is_page && (bool)ini_get('file_uploads')) { ?>
+	<?php if ($can_attach) { ?>
 		<?php $toolbar($this, 'upload') ?>
 	<?php } ?>
 	<?php $toolbar($this, 'copy') ?>
