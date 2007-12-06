@@ -1,6 +1,6 @@
 <?php
 // PukiWiki - Yet another WikiWikiWeb clone.
-// $Id: edit.inc.php,v 1.47 2007/12/04 01:38:55 nao-pon Exp $
+// $Id: edit.inc.php,v 1.48 2007/12/06 23:28:52 nao-pon Exp $
 // Copyright (C) 2001-2006 PukiWiki Developers Team
 // License: GPL v2 or (at your option) any later version
 //
@@ -194,7 +194,7 @@ EOD;
 		list($s_page, $id, $editable) = $this->func->anchor_explode($page, TRUE);
 		
 		// Default: This one
-		if ($s_page == '') $s_page = isset($this->root->vars['page']) ? $this->root->vars['page'] : '';
+		if ($s_page === '') $s_page = isset($this->root->vars['page']) ? $this->root->vars['page'] : '';
 
 		// 編集権限チェック
 		$is_editable = $this->func->check_editable($s_page,FALSE,FALSE);
