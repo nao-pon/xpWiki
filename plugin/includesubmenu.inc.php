@@ -5,7 +5,7 @@ class xpwiki_plugin_includesubmenu extends xpwiki_plugin {
 
 
 	}
-	// $Id: includesubmenu.inc.php,v 1.1 2006/10/13 13:17:49 nao-pon Exp $
+	// $Id: includesubmenu.inc.php,v 1.2 2007/12/06 23:31:31 nao-pon Exp $
 	
 	function plugin_includesubmenu_convert()
 	{
@@ -22,7 +22,11 @@ class xpwiki_plugin_includesubmenu extends xpwiki_plugin {
 	
 	  $SubMenuPageName = '';
 	
-	  $tmppage = $this->func->strip_bracket($this->root->vars['page']);
+	  if ($root->render_mode === 'block') {
+	  	$tmppage = $GLOBALS['Xpwiki_'.$this->root->mydirname]['page'];
+	  } else {
+	  	$tmppage = $this->func->strip_bracket($this->root->vars['page']);
+	  }
 	  //下階層のSubMenuページ名
 	  $SubMenuPageName1 = $tmppage . '/SubMenu';
 	
