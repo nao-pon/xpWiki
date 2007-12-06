@@ -1,7 +1,7 @@
 <?php
 //
 // Created on 2006/10/02 by nao-pon http://hypweb.net/
-// $Id: pukiwiki_func.php,v 1.135 2007/12/04 06:45:35 nao-pon Exp $
+// $Id: pukiwiki_func.php,v 1.136 2007/12/06 23:33:10 nao-pon Exp $
 //
 class XpWikiPukiWikiFunc extends XpWikiBaseFunc {
 
@@ -889,7 +889,7 @@ class XpWikiPukiWikiFunc extends XpWikiBaseFunc {
 
 //----- Start convert_html.php -----//
 	// PukiWiki - Yet another WikiWikiWeb clone
-	// $Id: pukiwiki_func.php,v 1.135 2007/12/04 06:45:35 nao-pon Exp $
+	// $Id: pukiwiki_func.php,v 1.136 2007/12/06 23:33:10 nao-pon Exp $
 	// Copyright (C)
 	//   2002-2005 PukiWiki Developers Team
 	//   2001-2002 Originally written by yu-ji
@@ -1148,7 +1148,7 @@ class XpWikiPukiWikiFunc extends XpWikiBaseFunc {
 
 //----- Start func.php -----//
 	// PukiWiki - Yet another WikiWikiWeb clone.
-	// $Id: pukiwiki_func.php,v 1.135 2007/12/04 06:45:35 nao-pon Exp $
+	// $Id: pukiwiki_func.php,v 1.136 2007/12/06 23:33:10 nao-pon Exp $
 	// Copyright (C)
 	//   2002-2006 PukiWiki Developers Team
 	//   2001-2002 Originally written by yu-ji
@@ -1964,7 +1964,7 @@ EOD;
 
 //----- Start make_link.php -----//
 	// PukiWiki - Yet another WikiWikiWeb clone.
-	// $Id: pukiwiki_func.php,v 1.135 2007/12/04 06:45:35 nao-pon Exp $
+	// $Id: pukiwiki_func.php,v 1.136 2007/12/06 23:33:10 nao-pon Exp $
 	// Copyright (C)
 	//   2003-2005 PukiWiki Developers Team
 	//   2001-2002 Originally written by yu-ji
@@ -2869,7 +2869,7 @@ EOD;
 
 //----- Start html.php -----//
 	// PukiWiki - Yet another WikiWikiWeb clone.
-	// $Id: pukiwiki_func.php,v 1.135 2007/12/04 06:45:35 nao-pon Exp $
+	// $Id: pukiwiki_func.php,v 1.136 2007/12/06 23:33:10 nao-pon Exp $
 	// Copyright (C)
 	//   2002-2006 PukiWiki Developers Team
 	//   2001-2002 Originally written by yu-ji
@@ -3201,7 +3201,8 @@ EOD;
 			$ajax_submit = ' onSubmit="return xpwiki_ajax_edit_submit()"';
 			$ajax_cancel = ' onSubmit="return xpwiki_ajax_edit_cancel()"';
 			$nonconvert = (empty($this->vars['nonconvert']))? '' : '<input type="hidden" name="nonconvert" value="1" />';
-			$enc_hint = '<input type="hidden" name="charset" value="UTF-8" />';
+			$enc_hint = '<input type="hidden" name="encode_hint" value="' . $this->cont['PKWK_ENCODING_HINT'] . '" />'
+			          . '<input type="hidden" name="charset" value="UTF-8" />';
 			$attaches = '';
 			if ($s_id) {
 				$template = $reading = $alias = '';
@@ -3549,7 +3550,7 @@ EOD;
 
 //----- Start mail.php -----//
 	// PukiWiki - Yet another WikiWikiWeb clone.
-	// $Id: pukiwiki_func.php,v 1.135 2007/12/04 06:45:35 nao-pon Exp $
+	// $Id: pukiwiki_func.php,v 1.136 2007/12/06 23:33:10 nao-pon Exp $
 	// Copyright (C)
 	//   2003-2005 PukiWiki Developers Team
 	//   2003      Originally written by upk
@@ -3852,7 +3853,7 @@ EOD;
 
 //----- Start link.php -----//
 	// PukiWiki - Yet another WikiWikiWeb clone
-	// $Id: pukiwiki_func.php,v 1.135 2007/12/04 06:45:35 nao-pon Exp $
+	// $Id: pukiwiki_func.php,v 1.136 2007/12/06 23:33:10 nao-pon Exp $
 	// Copyright (C) 2003-2006 PukiWiki Developers Team
 	// License: GPL v2 or (at your option) any later version
 	//
