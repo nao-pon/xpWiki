@@ -1,7 +1,7 @@
 <?php
 //
 // Created on 2006/09/29 by nao-pon http://hypweb.net/
-// $Id: xpwiki.php,v 1.59 2007/11/30 23:36:38 nao-pon Exp $
+// $Id: xpwiki.php,v 1.60 2007/12/06 23:32:14 nao-pon Exp $
 //
 
 class XpWiki {
@@ -57,6 +57,7 @@ class XpWiki {
 		if ($iniClear) {
 			$obj[$mddir]->clearIniRoot();
 			$obj[$mddir]->clearIniConst();
+			clearstatcache();
 		}
 		return $obj[$mddir];
 	}
