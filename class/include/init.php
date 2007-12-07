@@ -1,7 +1,7 @@
 <?php
 //
 // Created on 2006/10/13 by nao-pon http://hypweb.net/
-// $Id: init.php,v 1.39 2007/12/06 23:33:53 nao-pon Exp $
+// $Id: init.php,v 1.40 2007/12/07 13:09:08 nao-pon Exp $
 //
 
 $root = & $this->root;
@@ -80,6 +80,7 @@ mb_internal_encoding($const['SOURCE_ENCODING']);
 ini_set('mbstring.http_input', 'pass');
 mb_http_output('pass');
 mb_detect_order($const['DETECT_ORDER']);
+mb_substitute_character(0x003F);
 
 /////////////////////////////////////////////////
 // LANG_FILE: Init encoding hint
