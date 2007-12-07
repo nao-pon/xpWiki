@@ -1,7 +1,7 @@
 <?php
 //
 // Created on 2006/10/02 by nao-pon http://hypweb.net/
-// $Id: xpwiki_func.php,v 1.122 2007/12/05 23:25:22 nao-pon Exp $
+// $Id: xpwiki_func.php,v 1.123 2007/12/07 02:49:20 nao-pon Exp $
 //
 class XpWikiFunc extends XpWikiXoopsWrapper {
 
@@ -1416,7 +1416,9 @@ EOD;
 
 	// 文字エンコード変換前に範囲外の文字を実体参照値に変換する
 	function encode_numericentity(& $arg, $toencode, $fromencode, $keys = array()) {
-		if (strtoupper($fromencode) === strtoupper($toencode)) return;
+		$fromencode = strtoupper($fromencode);
+		$toencode = strtoupper($toencode);
+		if ($fromencode === $toencode) return;
 		if ($toencode === 'EUC-JP') $toencode = 'eucJP-win';
 		if (is_array($arg)) {
 			foreach (array_keys($arg) as $key) {
@@ -1428,18 +1430,30 @@ EOD;
 			if ($arg === mb_convert_encoding(mb_convert_encoding($arg, $toencode, $fromencode), $fromencode, $toencode)) {
 				return;
 			}
-			$str = '';
-			$max = mb_strlen($arg, $fromencode);
-			$convmap = array(0x0080, 0x10FFFF, 0, 0xFFFFFF);
-			for ($i = 0; $i < $max; $i++) {
-				$org = mb_substr($arg, $i, 1, $fromencode);
-				if ($org === mb_convert_encoding(mb_convert_encoding($org, $toencode, $fromencode), $fromencode, $toencode)) {
-					$str .= $org;
-				} else {
-					$str .= mb_encode_numericentity($org, $convmap, $fromencode);
-				} 
+			if (extension_loaded('mbstring')) {
+				$_sub = mb_substitute_character();
+				mb_substitute_character('long');
+				$arg = preg_replace('/U\+([0-9A-F]{4})/', "\x08$1", $arg);
+				if ($fromencode !== 'UTF-8') $arg = mb_convert_encoding($arg, 'UTF-8', $fromencode);
+				$arg = mb_convert_encoding($arg, $toencode, 'UTF-8');
+				$arg = preg_replace('/U\+([0-9A-F]{4})/e', '"&#".base_convert("$1",16,10).";"', $arg);
+				$arg = preg_replace('/\x08([0-9A-F]{4})/', 'U+$1', $arg);
+				mb_substitute_character($_sub);
+				$arg = mb_convert_encoding($arg, $fromencode, $toencode);
+			} else {
+				$str = '';
+				$max = mb_strlen($arg, $fromencode);
+				$convmap = array(0x0080, 0x10FFFF, 0, 0xFFFFFF);
+				for ($i = 0; $i < $max; $i++) {
+					$org = mb_substr($arg, $i, 1, $fromencode);
+					if ($org === mb_convert_encoding(mb_convert_encoding($org, $toencode, $fromencode), $fromencode, $toencode)) {
+						$str .= $org;
+					} else {
+						$str .= mb_encode_numericentity($org, $convmap, $fromencode);
+					} 
+				}
+				$arg = $str;
 			}
-			$arg = $str;
 		}
 		return;
 	}
