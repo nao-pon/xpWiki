@@ -1,6 +1,6 @@
 <?php
 // PukiWiki - Yet another WikiWikiWeb clone.
-// $Id: edit.inc.php,v 1.48 2007/12/06 23:28:52 nao-pon Exp $
+// $Id: edit.inc.php,v 1.49 2007/12/07 13:10:24 nao-pon Exp $
 // Copyright (C) 2001-2006 PukiWiki Developers Team
 // License: GPL v2 or (at your option) any later version
 //
@@ -411,13 +411,22 @@ EOD;
 	// Cancel (Back to the page / Escape edit page)
 	function plugin_edit_cancel()
 	{
+		if ($this->func->is_page($this->root->vars['page'])) {
+			$ret = $this->root->vars['page'];
+		} else {
+			if (empty($this->root->vars['refer'])) {
+				$ret = $this->root->defaultpage;
+			} else {
+				$ret = $this->root->vars['refer'];
+			}
+		}
 		// ParaEdit
 		$paraid = isset($this->root->vars['paraid']) ? $this->root->vars['paraid'] : '';
 		$hash = '';
 		if ($paraid) {
 			$hash = '#' . $paraid;
 		}
-		$this->func->send_location($this->root->vars['page'], $hash);
+		$this->func->send_location($ret, $hash);
 	}
 	
 	// ソースの一部を抽出/置換する
