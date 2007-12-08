@@ -1,5 +1,5 @@
 #freeze
-#pginfo(0			3	all	all	3	all	all	0			)
+#pginfo(0			3	all	all	3	all	all	1	jq33qDkZyYM	web-master	)
 #xoopsadmin
 
 * 管理用ツール一覧 [#i95b71f6]
@@ -11,6 +11,7 @@
 -[[バックアップ・リストア>[[cmd:dump]]]]
 -[[データーベースシンクロ>[[cmd:dbsync]]]]
 -[[データーインポート>[[cmd:import]]]]
+-[[エンティティデータ更新>[[cmd:update_entities]]]]
 
 ** その他のツール [#cf9cc793]
 

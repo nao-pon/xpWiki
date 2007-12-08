@@ -1,5 +1,5 @@
 #freeze
-#pginfo(0			3	all	all	3	all	all	0			)
+#pginfo(0			3	all	all	3	all	all	1	sS3IcTah32w	web-master	)
 #xoopsadmin
 
 * Admin tools list [#i95b71f6]
@@ -11,6 +11,7 @@
 -[[Backup & Restore>[[cmd:dump]]]]
 -[[Synchronize Database>[[cmd:dbsync]]]]
 -[[Import>[[cmd:import]]]]
+-[[Update entities data>[[cmd:update_entities]]]]
 
 ** Other tooles [#cf9cc793]
 
