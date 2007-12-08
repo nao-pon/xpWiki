@@ -1,7 +1,7 @@
 <?php
 /*
  * Created on 2007/06/03 by nao-pon http://hypweb.net/
- * $Id: timestamp.inc.php,v 1.1 2007/06/03 05:18:50 nao-pon Exp $
+ * $Id: timestamp.inc.php,v 1.2 2007/12/08 12:11:14 nao-pon Exp $
  */
 
 class xpwiki_plugin_timestamp extends xpwiki_plugin {
@@ -24,7 +24,7 @@ class xpwiki_plugin_timestamp extends xpwiki_plugin {
 		$dat = '';
 		if ($dir = @opendir($this->cont['DATA_DIR'])) {
 			while($file = readdir($dir)) {
-				if (substr($file, -4) === '.txt') {
+				if (substr($file, -4) === '.txt' && $file !== '526563656E744368616E676573.txt') {
 					$time = filemtime($this->cont['DATA_DIR'].$file);
 					$dat .= $file."\t".$time."\n";
 				}
