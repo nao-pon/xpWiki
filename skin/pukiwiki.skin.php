@@ -1,6 +1,6 @@
 <?php
 // PukiWiki - Yet another WikiWikiWeb clone.
-// $Id: pukiwiki.skin.php,v 1.30 2007/12/05 08:07:29 nao-pon Exp $
+// $Id: pukiwiki.skin.php,v 1.31 2007/12/08 12:13:25 nao-pon Exp $
 // Copyright (C)
 //   2002-2006 PukiWiki Developers Team
 //   2001-2002 Originally written by yu-ji
@@ -105,7 +105,7 @@ EOD;
 	<?php if (!$is_freeze && $is_editable) { ?>
 		<?php $navigator($this,'edit','',$ajax_edit_js) ?> |
 	<?php } ?>
-	<?php if ($is_editable && $this->root->function_freeze) { ?>
+	<?php if ($is_page && $this->root->function_freeze) { ?>
 		<?php (! $is_freeze) ? $navigator($this,'freeze') : $navigator($this,'unfreeze') ?> |
 	<?php } ?>
 	<?php if ($is_owner) { ?>
@@ -216,7 +216,7 @@ $this->root->_IMAGE['skin']['rdf']      = 'rdf.png';
  	<?php if (!$is_freeze && $is_editable) { ?>
 		<?php $toolbar($this, 'edit') ?>
 	<?php } ?>
-	<?php if ($is_editable && $this->root->function_freeze) { ?>
+	<?php if ($is_page && $this->root->function_freeze) { ?>
 		<?php if (! $is_freeze) { $toolbar($this, 'freeze'); } else { $toolbar($this, 'unfreeze'); } ?>
 	<?php } ?>
  <?php } ?>
