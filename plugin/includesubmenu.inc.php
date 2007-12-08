@@ -5,7 +5,7 @@ class xpwiki_plugin_includesubmenu extends xpwiki_plugin {
 
 
 	}
-	// $Id: includesubmenu.inc.php,v 1.2 2007/12/06 23:31:31 nao-pon Exp $
+	// $Id: includesubmenu.inc.php,v 1.3 2007/12/08 11:31:14 nao-pon Exp $
 	
 	function plugin_includesubmenu_convert()
 	{
@@ -54,7 +54,7 @@ class xpwiki_plugin_includesubmenu extends xpwiki_plugin {
 	    return "";
 	  }
 	
-	  $body = $this->func->convert_html($this->func->get_source($SubMenuPageName));
+	  $body = $this->func->convert_html($this->func->get_source($SubMenuPageName), $tmppage);
 	
 	  if ($ShowPageName) {
 	    $r_page = rawurlencode($SubMenuPageName);
