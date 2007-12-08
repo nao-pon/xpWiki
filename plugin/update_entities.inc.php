@@ -1,72 +1,52 @@
 <?php
+// PukiWiki - Yet another WikiWikiWeb clone
+// $Id: update_entities.inc.php,v 1.3 2007/12/08 11:30:22 nao-pon Exp $
+//
+// Update entities plugin - Update XHTML entities from DTD
+// (for admin)
+
 class xpwiki_plugin_update_entities extends xpwiki_plugin {
 	
 	// メッセージ設定
 	function plugin_update_entities_init()
 	{
-
-	// PukiWiki - Yet another WikiWikiWeb clone
-	// $Id: update_entities.inc.php,v 1.2 2006/10/16 02:18:09 nao-pon Exp $
-	//
-	// Update entities plugin - Update XHTML entities from DTD
-	// (for admin)
-	
-	// DTDの場所
+		// DTDの場所
 		$this->cont['W3C_XHTML_DTD_LOCATION'] =  'http://www.w3.org/TR/xhtml1/DTD/';
 
-		$messages = array(
-			'_entities_messages'=>array(
-				'title_update'  => 'キャッシュ更新',
-			'msg_adminpass' => '管理者パスワード',
-			'btn_submit'    => '実行',
-			'msg_done'      => 'キャッシュの更新が完了しました。',
-			'msg_usage'     => '
-* 処理内容
-	
-	:文字実体参照にマッチする正規表現パターンのキャッシュを更新|
-	PHPの持つテーブルおよびW3CのDTDをスキャンして、キャッシュに記録します。
-	
-	* 処理対象
-	$this->func->「COLOR(red){not found.}」と表示されたファイルは処理されません。
-	-%s
-	
-	* 実行
-	管理者パスワードを入力して、[実行]ボタンをクリックしてください。
-	'
-		));
-		$this->func->set_plugin_messages($messages);
+		// 言語ファイルの読み込み
+		$this->load_language();
 	}
 	
 	function plugin_update_entities_action()
 	{
-	//	global $script, $vars;
-	//	global $_entities_messages;
-	
-		if ($this->cont['PKWK_READONLY']) $this->func->die_message('PKWK_READONLY prohibits this');
+		// 管理画面モード指定
+		if ($this->root->module['platform'] == "xoops") {
+			$this->root->runmode = "xoops_admin";
+		}
+
+		if (! $this->root->userinfo['admin']) $this->func->die_message('Only admin can access this area.');
 	
 		$msg = $body = '';
-		if (empty($this->root->vars['action']) || empty($this->root->vars['adminpass']) || ! $this->func->pkwk_login($this->root->vars['adminpass'])) {
-			$msg   = & $this->root->_entities_messages['title_update'];
+		if (empty($this->root->vars['action'])) {
+			$msg   = & $this->msg['title_update'];
 			$items = $this->plugin_update_entities_create();
-			$body  = $this->func->convert_html(sprintf($this->root->_entities_messages['msg_usage'], join("\n" . '-', $items)));
+			$body  = $this->func->convert_html(sprintf($this->msg['msg_usage'], join("\n" . '-', $items)));
 			$body .= <<<EOD
 <form method="POST" action="{$this->root->script}">
  <div>
   <input type="hidden" name="plugin" value="update_entities" />
   <input type="hidden" name="action" value="update" />
-  <label for="_p_update_entities_adminpass">{$this->root->_entities_messages['msg_adminpass']}</label>
-  <input type="password" name="adminpass" id="_p_update_entities_adminpass" size="20" value="" />
-  <input type="submit" value="{$this->root->_entities_messages['btn_submit']}" />
+  <input type="submit" value="{$this->msg['btn_submit']}" />
  </div>
 </form>
 EOD;
 		} else if ($this->root->vars['action'] == 'update') {
 			$this->plugin_update_entities_create(TRUE);
-			$msg  = & $this->root->_entities_messages['title_update'];
-			$body = & $this->root->_entities_messages['msg_done'    ];
+			$msg  = & $this->msg['title_update'];
+			$body = & $this->msg['msg_done'    ];
 		} else {
-			$msg  = & $this->root->_entities_messages['title_update'];
-			$body = & $this->root->_entities_messages['err_invalid' ];
+			$msg  = & $this->msg['title_update'];
+			$body = & $this->msg['err_invalid' ];
 		}
 		return array('msg'=>$msg, 'body'=>$body);
 	}
@@ -80,8 +60,8 @@ EOD;
 	{
 		$files = array('xhtml-lat1.ent', 'xhtml-special.ent', 'xhtml-symbol.ent');
 		
-		$entities = array_map('plugin_update_entities_strtr',
-		array_values(get_html_translation_table(HTML_ENTITIES)));
+		$entities = array_values(get_html_translation_table(HTML_ENTITIES));
+		$entities = array_map(array(&$this, 'plugin_update_entities_strtr'), $entities);
 		$items   = array('php:html_translation_table');
 		$matches = array();
 		foreach ($files as $file) {
