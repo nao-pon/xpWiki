@@ -1,5 +1,5 @@
 <?php
-// $Id: calendar2.inc.php,v 1.7 2007/09/02 14:54:39 nao-pon Exp $
+// $Id: calendar2.inc.php,v 1.8 2007/12/08 11:31:14 nao-pon Exp $
 //
 // Calendar2 plugin
 //
@@ -175,12 +175,10 @@ EOD;
 			$r_tpage = rawurlencode($tpage);
 			if ($this->func->is_page($tpage)) {
 				$_page = $this->root->vars['page'];
-				$this->root->get['page'] = $this->root->post['page'] = $this->root->vars['page'] = $tpage;
-				$str = $this->func->convert_html($this->func->get_source($tpage));
+				$str = $this->func->convert_html($this->func->get_source($tpage), $tpage);
 				$str .= '<hr /><a class="small" href="' . $this->root->script .
 				'?cmd=edit&amp;page=' . $r_tpage . '">' .
 				$this->root->_calendar2_plugin_edit . '</a>';
-				$this->root->get['page'] = $this->root->post['page'] = $this->root->vars['page'] = $_page;
 			} else {
 				$str = sprintf($this->root->_calendar2_plugin_empty,
 				$this->func->make_pagelink($tpage));

@@ -4,7 +4,7 @@ class xpwiki_plugin_include extends xpwiki_plugin {
 
 
 	// PukiWiki - Yet another WikiWikiWeb clone.
-	// $Id: include.inc.php,v 1.2 2007/09/19 11:27:15 nao-pon Exp $
+	// $Id: include.inc.php,v 1.3 2007/12/08 11:31:14 nao-pon Exp $
 	//
 	// Include-once plugin
 	
@@ -106,13 +106,11 @@ class xpwiki_plugin_include extends xpwiki_plugin {
 		$included[$this->xpwiki->pid][$page] = TRUE;
 	
 		// Include A page, that probably includes another pages
-		$this->root->get['page'] = $this->root->post['page'] = $this->root->vars['page'] = $page;
 		if ($this->func->check_readable($page, false, false)) {
-			$body = $this->func->convert_html($this->func->get_source($page));
+			$body = $this->func->convert_html($this->func->get_source($page), $page);
 		} else {
 			$body = str_replace('$1', $page, $this->root->_msg_include_restrict);
 		}
-		$this->root->get['page'] = $this->root->post['page'] = $this->root->vars['page'] = $root;
 	
 		// Put a title-with-edit-link, before including document
 		if ($with_title) {
