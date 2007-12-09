@@ -1,7 +1,7 @@
 <?php
 //
 // Created on 2006/09/29 by nao-pon http://hypweb.net/
-// $Id: xpwiki.php,v 1.60 2007/12/06 23:32:14 nao-pon Exp $
+// $Id: xpwiki.php,v 1.61 2007/12/09 13:51:40 nao-pon Exp $
 //
 
 class XpWiki {
@@ -316,10 +316,11 @@ class XpWiki {
 		return $this->func->get_pginfo($this->page);
 	}
 	
-	function get_html_for_block ($page, $width = "100%") {
+	function get_html_for_block ($page, $width = "100%", $div_class = 'xpwiki_b_$mydirname', $css_tag = 'main.css') {
 		
 		// 初期化
 		$this->init($page);
+		$div_class = str_replace('$mydirname', $this->root->mydirname, $div_class);
 		
 		// for menu plugin etc..
 		$this->root->runmode = "xoops";
@@ -356,11 +357,13 @@ class XpWiki {
 		
 		// 出力
 		$base = "b_".$this->root->mydirname;
+		$css_tag = ($css_tag)? '<link rel="stylesheet" type="text/css" media="all" href="' . $this->cont['LOADER_URL'] . '?charset=' . $this->cont['CSS_CHARSET'] . '&amp;skin=' . $this->cont['SKIN_NAME'] . '&amp;b=1&amp;src=' . $css_tag . '" charset="' . $this->cont['CSS_CHARSET'] . '" />'
+		             : '';
 		$block = <<<EOD
 $head_pre_tag
-<link rel="stylesheet" type="text/css" media="all" href="{$this->cont['LOADER_URL']}?charset={$this->cont['CSS_CHARSET']}&amp;skin={$this->cont['SKIN_NAME']}&amp;b=1&amp;src=main.css" charset="Shift_JIS" />
+$css_tag
 $head_tag
-<div class="xpwiki_{$base}" style="width:{$width};overflow:hidden;">
+<div class="{$div_class}" style="width:{$width};overflow:hidden;">
 {$this->body}
 </div>
 EOD;

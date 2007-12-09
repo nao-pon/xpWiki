@@ -55,6 +55,8 @@ function b_xpwiki_a_page_show( $options )
 	$page = empty( $options[1] ) ? '' : $options[1] ;
 	$width = empty( $options[2] ) ? '100%' : $options[2] ;
 	$this_template = empty( $options[3] ) ? 'db:'.$mydirname.'_block_a_page.html' : trim( $options[3] ) ;
+	$div_class = empty( $options[4] ) ? 'xpwiki_b_' . $mydirname : $options[4];
+	$css = isset( $options[5] ) ? $options[5] : 'main.css';
 	
 	if( preg_match( '/[^0-9a-zA-Z_-]/' , $mydirname ) ) die( 'Invalid mydirname' ) ;
 	
@@ -65,7 +67,7 @@ function b_xpwiki_a_page_show( $options )
 	$xw = new XpWiki($mydirname);
 	 
 	// ブロック用として取得 (引数: ページ名, 表示幅)
-	$str = $xw->get_html_for_block ($page, $width);
+	$str = $xw->get_html_for_block ($page, $width, $div_class, $css);
 	 
 	// オブジェクトを破棄
 	$xw = null;
@@ -94,6 +96,8 @@ function b_xpwiki_a_page_edit( $options )
 	$page = empty( $options[1] ) ? '' : $options[1] ;
 	$width = empty( $options[2] ) ? '100%' : $options[2] ;
 	$this_template = empty( $options[3] ) ? 'db:'.$mydirname.'_block_a_page.html' : trim( $options[3] ) ;
+	$div_class = empty( $options[4] ) ? 'xpwiki_b_' . $mydirname : trim( $options[4] );
+	$css = isset( $options[5] ) ? trim( $options[5] ) : 'main.css';
 
 	$form = "
 		<input type='hidden' name='options[0]' value='$mydirname' />
@@ -106,7 +110,13 @@ function b_xpwiki_a_page_edit( $options )
 		<label for='this_template'>"._MB_XPWIKI_THISTEMPLATE."</label>&nbsp;:
 		<input type='text' size='60' name='options[3]' id='this_template' value='".htmlspecialchars($this_template,ENT_QUOTES)."' />
 		<br />
-	\n" ;
+		<label for='divclass'>"._MB_XPWIKI_DIVCLASS."</label>&nbsp;:
+		<input type='text' size='30' name='options[4]' id='divclass' value='".htmlspecialchars($div_class,ENT_QUOTES)."' />
+		<br />
+		<label for='this_css'>"._MB_XPWIKI_THISCSS."</label>&nbsp;:
+		<input type='text' size='30' name='options[5]' id='this_css' value='".htmlspecialchars($css,ENT_QUOTES)."' />
+		<br />
+		\n" ;
 
 	return $form;
 }
