@@ -324,11 +324,26 @@ var XpWiki = {
 	},
 	
 	addCssInHead: function (filename) {
-		var css = document.createElement('link');
-		css.href = wikihelper_root_url + '/skin/loader.php?src=' + filename;
-		css.rel  = 'stylesheet';
-		css.type = 'text/css';
-		document.getElementsByTagName('head')[0].appendChild(css);
+		var doload = true;
+		var links = document.getElementsByTagName('link');
+		for (var i=0; i<links.length; i++){
+			var link = links[i];
+			if (link.getAttribute('href')) {
+				var href = String(link.getAttribute('href')).toLowerCase();
+				if (href.match(wikihelper_root_url + '/skin/loader.php')
+					&& href.match(filename)) {
+					doload = false;
+					break;
+				}
+			}
+		}
+		if (doload) {
+			var css = document.createElement('link');
+			css.href = wikihelper_root_url + '/skin/loader.php?src=' + filename;
+			css.rel  = 'stylesheet';
+			css.type = 'text/css';
+			document.getElementsByTagName('head')[0].appendChild(css);
+		}
 	},
 	
 	htmlspecialchars: function (str) {
