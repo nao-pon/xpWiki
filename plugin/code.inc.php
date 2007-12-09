@@ -1,7 +1,7 @@
 <?php
 //
 // Created on 2006/10/25 by nao-pon http://hypweb.net/
-// $Id: code.inc.php,v 1.11 2007/11/08 08:45:45 nao-pon Exp $
+// $Id: code.inc.php,v 1.12 2007/12/09 08:02:19 nao-pon Exp $
 //
 
 class xpwiki_plugin_code extends xpwiki_plugin {
@@ -370,7 +370,7 @@ class xpwiki_plugin_code extends xpwiki_plugin {
 			.$this->_plugin_code_column($this->cont, $html, $number, null). '</div>';
 		}
 
-		return $title.$html;
+		return '<div class="pre">' . $title.$html . '</div>';
 	}
 
 	/* pre.inc.php ¤È¶¦ÍÑ */
