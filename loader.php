@@ -1,7 +1,7 @@
 <?php
 //
 // Created on 2006/10/25 by nao-pon http://hypweb.net/
-// $Id: loader.php,v 1.30 2007/12/09 23:35:17 nao-pon Exp $
+// $Id: loader.php,v 1.31 2007/12/09 23:39:55 nao-pon Exp $
 //
 
 error_reporting(0);
@@ -90,28 +90,20 @@ switch ($type) {
 			$skin = 'tdiary_theme';
 		}
 		
-		// CSS over write
-		$css_src = $src;
 		// CSS over write (css dir)
-		$addcss_file = "{$skin_dirname}/{$basedir}css/{$css_src}.css";
+		$addcss_file = "{$skin_dirname}/{$basedir}css/{$src}.css";
 		if (file_exists($addcss_file)) {
 			$addcss .= join('', file($addcss_file)) . "\n";
 			$addcsstime = filemtime($addcss_file);
 		}
 		// CSS over write (skin dir)
-		$addcss_file = "{$skin_dirname}/{$basedir}{$skin}/{$css_src}.css";
+		$addcss_file = "{$skin_dirname}/{$basedir}{$skin}/{$src}.css";
 		if (file_exists($addcss_file)) {
 			$addcss .= join('', file($addcss_file)) . "\n";
 			$addcsstime = max($addcsstime, filemtime($addcss_file));
 		}
-		if ($prefix === '') {
-			$css_src = '';
-		} else if ($prefix === 'r_') {
-			$css_src = $src . '_render';
-		} else if ($prefix === 'b_') {
-			$css_src = $src . '_block';
-		}
-		if ($css_src) {
+		if ($prefix) {
+			$css_src = ($prefix === 'b_') ? $src . '_block' : $src . '_render';
 			// CSS over write (css dir)
 			$addcss_file = "{$skin_dirname}/{$basedir}css/{$css_src}.css";
 			if (file_exists($addcss_file)) {
