@@ -1,7 +1,7 @@
 <?php
 //
 // Created on 2006/10/02 by nao-pon http://hypweb.net/
-// $Id: xpwiki_func.php,v 1.123 2007/12/07 02:49:20 nao-pon Exp $
+// $Id: xpwiki_func.php,v 1.124 2007/12/09 08:01:25 nao-pon Exp $
 //
 class XpWikiFunc extends XpWikiXoopsWrapper {
 
@@ -364,13 +364,25 @@ class XpWikiFunc extends XpWikiXoopsWrapper {
 		
 		// スキン指定をcookieにセット
 		if (isset($this->root->get['setskin'])) {
-			$this->root->cookie['skin'] = ($this->root->get['setskin'] === "none")? "" : preg_replace("/[^\w-]+/","",$this->root->get['setskin']);
+			$this->root->cookie['skin'] = $this->root->get['setskin'];
 			if (isset($_SERVER['QUERY_STRING'])) {
 				$_SERVER['QUERY_STRING'] = preg_replace("/(^|&)setskin=.*?(?:&|$)/","$1",$_SERVER['QUERY_STRING']);
 			}
 			if (isset($_SERVER['argv'][0])) {
 				$_SERVER['argv'][0] = preg_replace("/(^|&)setskin=.*?(?:&|$)/","$1",$_SERVER['argv'][0]);
 			}
+		}
+		// 正規化
+		$skin = preg_replace('#([\w-]+)#', '$1', $this->root->cookie['skin']);
+		if (substr($skin, 0, 3) === 'tD-') {
+			$skin_dir = $this->cont['DATA_HOME'] . 'skin/tdiary_theme/' . substr($skin, 3);
+		} else {
+			$skin_dir = $this->cont['DATA_HOME'] . 'skin/' . $skin;
+		}
+		if (file_exists($skin_dir)) {
+			$this->root->cookie['skin'] = $skin;
+		} else {
+			$this->root->cookie['skin'] = '';
 		}
 		
 		// 言語指定をcookieにセット
