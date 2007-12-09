@@ -1,7 +1,7 @@
 <?php
 //
 // Created on 2006/10/25 by nao-pon http://hypweb.net/
-// $Id: loader.php,v 1.28 2007/11/29 23:24:27 nao-pon Exp $
+// $Id: loader.php,v 1.29 2007/12/09 08:07:20 nao-pon Exp $
 //
 
 error_reporting(0);
@@ -90,48 +90,28 @@ switch ($type) {
 			$skin = 'tdiary_theme';
 		}
 		
+		// CSS over write
+		$addcss = '';
+		if ($prefix === '') {
+			$css_src = $src;
+		} else if ($prefix === 'r_') {
+			$css_src = $src . '_render';
+		} else if ($prefix === 'b_') {
+			$css_src = $src . '_block';
+		}
 		// CSS over write (css dir)
-		$addcss_file = "{$skin_dirname}/{$basedir}css/{$src}.css";
+		$addcss_file = "{$skin_dirname}/{$basedir}css/{$css_src}.css";
 		if (file_exists($addcss_file)) {
 			$addcss .= join('', file($addcss_file)) . "\n";
 			$addcsstime = filemtime($addcss_file);
 		}
 		// CSS over write (skin dir)
-		$addcss_file = "{$skin_dirname}/{$basedir}{$skin}/{$src}.css";
+		$addcss_file = "{$skin_dirname}/{$basedir}{$skin}/{$css_src}.css";
 		if (file_exists($addcss_file)) {
 			$addcss .= join('', file($addcss_file)) . "\n";
 			$addcsstime = max($addcsstime, filemtime($addcss_file));
 		}
-		if ($prefix === '') {
-			// Do nothing.
-		} else if ($prefix === 'r_') {
-			// CSS for render over write (css dir)
-			$addcss_file = "{$skin_dirname}/{$basedir}css/main_render.css";
-			if (file_exists($addcss_file)) {
-				$addcss .= join('', file($addcss_file)) . "\n";
-				$addcsstime = filemtime($addcss_file);
-			}
-			// CSS for render over write (skin dir)
-			$addcss_file = "{$skin_dirname}/{$basedir}{$skin}/main_render.css";
-			if (file_exists($addcss_file)) {
-				$addcss .= join('', file($addcss_file)) . "\n";
-				$addcsstime = max($addcsstime, filemtime($addcss_file));
-			}
-		} else if ($prefix === 'b_') {
-			// CSS for block over write (css dir)
-			$addcss_file = "{$skin_dirname}/{$basedir}css/main_block.css";
-			if (file_exists($addcss_file)) {
-				$addcss .= join('', file($addcss_file)) . "\n";
-				$addcsstime = filemtime($addcss_file);
-			}
-			// CSS for block over write (skin dir)
-			$addcss_file = "{$skin_dirname}/{$basedir}{$skin}/main_block.css";
-			if (file_exists($addcss_file)) {
-				$addcss .= join('', file($addcss_file)) . "\n";
-				$addcsstime = max($addcsstime, filemtime($addcss_file));
-			}
-		}
-		
+
 		$replace = true;
 		$cache_file = $cache_path.$skin.'_'.$src.'_'.$dir.($pre_width?'_'.$pre_width:'').($_charset?'_'.$_charset:'').'.'.$type;
 		$gzip_fname = $cache_file.'.gz';
@@ -194,7 +174,7 @@ if (!$src_file) {
 
 if (file_exists($src_file)) {
 	
-	$filetime = max(filemtime($src_file), $addcsstime, $facetagtime);
+	$filetime = max(filemtime(__FILE__), filemtime($src_file), $addcsstime, $facetagtime);
 
 	$etag = md5($type.$dir.$pre_width.$charset.$src.$filetime);
 		
