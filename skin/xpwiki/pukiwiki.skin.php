@@ -1,6 +1,6 @@
 <?php
 // PukiWiki - Yet another WikiWikiWeb clone.
-// $Id: pukiwiki.skin.php,v 1.6 2007/06/29 08:38:36 nao-pon Exp $
+// $Id: pukiwiki.skin.php,v 1.7 2007/12/10 00:17:49 nao-pon Exp $
 // Copyright (C)
 //   2002-2006 PukiWiki Developers Team
 //   2001-2002 Originally written by yu-ji
@@ -38,12 +38,10 @@ $lang  = & $_LANG['skin'];
 $link  = & $_LINK;
 $image = & $_IMAGE['skin'];
 $rw    = ! $this->cont['PKWK_READONLY'];
+$can_attach = ($rw && $this->is_page($_page) && (!$this->cont['ATTACH_UPLOAD_EDITER_ONLY'] || $is_editable) && (bool)ini_get('file_uploads'));
 
 // Decide charset for CSS
-$css_charset = 'iso-8859-1';
-switch($this->cont['UI_LANG']){
-	case 'ja': $css_charset = 'Shift_JIS'; break;
-}
+$css_charset = $this->cont['CSS_CHARSET'];
 
 // ------------------------------------------------------------
 // Output
@@ -54,8 +52,8 @@ $dirname = $this->root->mydirname;
 $this->root->html_header = <<<EOD
 $favicon
 $head_pre_tag
-<link rel="stylesheet" type="text/css" media="screen" href="{$this->cont['HOME_URL']}{$this->cont['SKIN_DIR']}pukiwiki.css.php?charset={$css_charset}&amp;base={$dirname}&amp;pw={$this->root->pre_width}" charset="{$css_charset}" />
-<link rel="stylesheet" type="text/css" media="print"  href="{$this->cont['HOME_URL']}{$this->cont['SKIN_DIR']}pukiwiki.css.php?charset={$css_charset}&amp;base={$dirname}&amp;media=print" charset="{$css_charset}" />
+<link rel="stylesheet" type="text/css" media="all" href="{$this->cont['LOADER_URL']}?skin={$this->cont['SKIN_NAME']}&amp;charset={$css_charset}&amp;pw={$this->root->pre_width}&amp;src=main.css" charset="{$css_charset}" />
+<link rel="stylesheet" type="text/css" media="print"  href="{$this->cont['LOADER_URL']}?skin={$this->cont['SKIN_NAME']}&amp;charset={$css_charset}&amp;pw={$this->root->pre_width}&amp;media=print&amp;src=main.css" charset="{$css_charset}" />
 <link rel="alternate" type="application/rss+xml" title="RSS" href="{$link['rss']}" />
 $head_tag
 EOD;
@@ -63,7 +61,7 @@ EOD;
 
 <div class="xpwiki_<?php echo $dirname ?>">
 
-<div class="navigator">
+<div class="navigator" id="<?php echo $dirname ?>_navigator">
 
 <?php if($this->cont['PKWK_SKIN_SHOW_NAVBAR']) { ?>
 
@@ -84,7 +82,7 @@ EOD;
  ]
 </div><!--/navigator_wiki-->
 
-<div class="header">
+<div class="header" id="<?php echo $dirname ?>_header">
 
  <h1 class="title"><?php echo $page ?></h1>
 
@@ -105,7 +103,7 @@ EOD;
  [
  <?php if ($rw) { ?>
 	<?php if (!$is_freeze && $is_editable) { ?>
-		<?php $navigator($this,'edit') ?> |
+		<?php $navigator($this,'edit','',$ajax_edit_js) ?> |
 	<?php } ?>
 	<?php if ($is_read && $this->root->function_freeze) { ?>
 		<?php (! $is_freeze) ? $navigator($this,'freeze') : $navigator($this,'unfreeze') ?> |
@@ -118,10 +116,10 @@ EOD;
  <?php if ($this->root->do_backup) { ?>
 	| <?php $navigator($this,'backup') ?>
  <?php } ?>
- <?php if ($rw && (bool)ini_get('file_uploads')) { ?>
+ <?php if ($can_attach) { ?>
 	| <?php $navigator($this,'upload') ?>
  <?php } ?>
- | <?php $navigator($this,'reload') ?>
+ <?php if ($this->is_page($_page)) { ?> | <?php $navigator($this,'reload'); } ?>
  ] &nbsp;
 <?php } else { ?>
  [ <?php $navigator($this, 'top')?> ]
@@ -227,13 +225,13 @@ $this->root->_IMAGE['skin']['rdf']      = 'rdf.png';
 	<?php $toolbar($this, 'backup') ?>
 <?php } ?>
 <?php if ($rw) { ?>
-	<?php if ((bool)ini_get('file_uploads')) { ?>
+	<?php if ($can_attach) { ?>
 		<?php $toolbar($this, 'upload') ?>
 	<?php } ?>
 	<?php $toolbar($this, 'copy') ?>
 	<?php $toolbar($this, 'rename') ?>
 <?php } ?>
- <?php $toolbar($this, 'reload') ?>
+ <?php if ($is_page) { $toolbar($this, 'reload'); } ?>
 <?php } ?>
  &nbsp;
 <?php if ($rw) { ?>
@@ -252,16 +250,21 @@ $this->root->_IMAGE['skin']['rdf']      = 'rdf.png';
 <?php if ($is_page) echo $this->do_plugin_convert('counter') ?>
 
 <?php if ($lastmodified != '') { ?>
-<div class="lastmodified">Last-modified: <?php echo $lastmodified ?> by <?php echo $pginfo['lastuname'] ?></div>
+<div class="lastmodified"><?php echo $lang['lastmodify'] ?>: <?php echo $lastmodified ?> by <?php echo $pginfo['lastuname'] ?></div>
 <?php } ?>
 
 <?php if ($related != '') { ?>
-<div class="related">Link: <?php echo $related ?></div>
+<div class="related"><?php echo $lang['linkpage'] ?>: <?php echo $related ?></div>
 <?php } ?>
 <div class="footer">
- <div>Page owner: <?php echo $pginfo['uname'] ?></div>
- <div>Site admin: <a href="<?php echo $this->root->modifierlink ?>"><?php echo $this->root->modifier ?></a></div>
+<?php if ($is_page) { ?>
+ <div><?php echo $lang['pagealias'] ?>: <?php echo $pginfo['alias'] ?></div>
+<?php } ?>
+ <div><?php echo $lang['pageowner'] ?>: <?php echo $pginfo['uname'] ?></div>
+ <div><?php echo $lang['siteadmin'] ?>: <a href="<?php echo $this->root->modifierlink ?>"><?php echo $this->root->modifier ?></a></div>
+<?php if ($is_admin) { ?>
  <?php echo $this->cont['S_COPYRIGHT'] ?>.
  Powered by PHP <?php echo PHP_VERSION ?>. HTML convert time: <?php echo $taketime ?> sec.
+<?php } // $is_admin ?>
 </div>
 </div>
