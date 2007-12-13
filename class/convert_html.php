@@ -839,10 +839,13 @@ class XpWikiPre extends XpWikiElement {
 class XpWikiDiv extends XpWikiElement {
 	var $name;
 	var $param;
+	var $body;
 
 	function XpWikiDiv(& $xpwiki, $out) {
 		parent :: XpWikiElement($xpwiki);
 		list (, $this->name, $this->param) = array_pad($out, 3, '');
+		// Call #plugin
+		$this->body = $this->func->do_plugin_convert($this->name, $this->param);
 	}
 
 	function canContain(& $obj) {
@@ -850,8 +853,7 @@ class XpWikiDiv extends XpWikiElement {
 	}
 
 	function toString() {
-		// Call #plugin
-		return $this->func->do_plugin_convert($this->name, $this->param);
+		return $this->body;
 	}
 }
 
