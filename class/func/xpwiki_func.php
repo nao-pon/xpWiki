@@ -1,7 +1,7 @@
 <?php
 //
 // Created on 2006/10/02 by nao-pon http://hypweb.net/
-// $Id: xpwiki_func.php,v 1.124 2007/12/09 08:01:25 nao-pon Exp $
+// $Id: xpwiki_func.php,v 1.125 2007/12/13 23:55:42 nao-pon Exp $
 //
 class XpWikiFunc extends XpWikiXoopsWrapper {
 
@@ -57,7 +57,7 @@ class XpWikiFunc extends XpWikiXoopsWrapper {
 		
 		if (!isset($instance[$this->xpwiki->pid][$name])) {
 			if ($class = $this->exist_plugin($name)) {
-				$instance[$this->xpwiki->pid][$name] = new $class($this);
+				$instance[$this->xpwiki->pid][$name] =& new $class($this);
 				$instance[$this->xpwiki->pid][$name]->name = $name;
 				if ($this->plugin_init($name, $instance[$this->xpwiki->pid][$name]) === FALSE) {
 					$this->die_message('Plugin init failed: ' . $name);
@@ -428,6 +428,8 @@ class XpWikiFunc extends XpWikiXoopsWrapper {
 			$this->root->userinfo['gids'] = array();
 			if (file_exists($cache_file)) {
 				$use_cache = TRUE;
+			} else {
+				$use_cache = FALSE;
 			}
 		} else {
 			$use_cache = ($this->root->userinfo['uid'] === 0 && $this->root->pagecache_min > 0 && file_exists($cache_file) && (filemtime($cache_file) + $this->root->pagecache_min * 60) > time());
@@ -811,15 +813,29 @@ EOD;
 		}
 		return $ret;	
 	}
-	function add_tag_head ($file, $pre = FALSE) {
+	
+	function add_js_var_head ($name, $var) {
+		if (is_numeric($var)) {
+			// Do nothing
+		} else if (is_bool($var)) {
+			$var = ($var)? 'true' : 'false';
+		} else {
+			$var = '"' . htmlspecialchars($var) . '"';
+		}
+		array_unshift($this->root->head_pre_tags, '<script type="text/javascript">' . $name . ' = ' . $var . ';</script>');
+	}
+	
+	function add_tag_head ($file, $pre = FALSE, $charset = '') {
 		static $done = array();
 		if ($this->root->render_mode !== 'render') {
 			if (isset($done[$this->xpwiki->pid][$file])) { return; }
 			$done[$this->xpwiki->pid][$file] = TRUE;
 		}
 		
+		if ($charset) $charset = ' charset="' . $charset . '"';
+		$target = $pre? 'head_pre_tags' : 'head_tags';
+		
 		if (preg_match("/^(.+)\.([^\.]+)$/",$file,$match)) {
-			$target = $pre? 'head_pre_tags' : 'head_tags';
 			if ($this->root->render_mode === 'main') {
 				$mode = '';
 			} else {
@@ -831,11 +847,24 @@ EOD;
 					);
 			}
 			if ($match[2] === 'css') {
-				$this->root->{$target}[] = '<link rel="stylesheet" type="text/css" media="all" href="'.$this->cont['LOADER_URL'].'?skin='.$this->cont['SKIN_NAME'].'&amp;'.$mode.'src='.$match[1].'.css" />';
+				$this->root->{$target}[] = '<link rel="stylesheet" type="text/css" media="all" href="'.$this->cont['LOADER_URL'].'?skin='.$this->cont['SKIN_NAME'].'&amp;'.$mode.'src='.$match[1].'.css"' . $charset . ' />';
 			} else if ($match[2] === 'js') {
-				$this->root->{$target}[] = '<script type="text/javascript" src="'.$this->cont['LOADER_URL'].'?src='.$match[1].'.js"></script>';
+				$this->root->{$target}[] = '<script type="text/javascript" src="'.$this->cont['LOADER_URL'].'?src='.$match[1].'.js"' . $charset . '></script>';
 			}
 		}	
+	}
+
+	function add_js_head ($file, $pre = FALSE, $charset = '') {
+		static $done = array();
+		if ($this->root->render_mode !== 'render') {
+			if (isset($done[$this->xpwiki->pid][$file])) { return; }
+			$done[$this->xpwiki->pid][$file] = TRUE;
+		}
+		
+		if ($charset) $charset = ' charset="' . $charset . '"';
+		$target = $pre? 'head_pre_tags' : 'head_tags';
+		
+		$this->root->{$target}[] = '<script type="text/javascript" src="' . $file . '"' . $charset . '></script>';
 	}
 
 	// リファラチェック $blank = 1 で未設定も不許可(デフォルトで未設定は許可)
