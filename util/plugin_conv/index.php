@@ -280,20 +280,22 @@ foreach($files as $input) {
 				
 				//関数名書き換え
 				//echo htmlspecialchars($_line)."<br>";
-				preg_match_all($funcname_reg,$_line,$match,PREG_PATTERN_ORDER);
-				$funcs = array_unique($match[0]);
-				foreach ($funcs as $func_name) {
-					if (!function_exists($func_name) && !preg_match($keys_reg,$func_name)) {
-						$line_old = $line;
-						// 自己関数？
-						if (array_search($func_name,$my_funcs) !== FALSE) {
-							$prefix = ($st_class)? "xpwiki_plugin_{$plugin_name}::" : '$this->';
-						} else {
-							$prefix = '$this->func->';
-						}
-						$line = preg_replace("/(?<!\->|new |::|\\\$)(".preg_quote($func_name,"/").")([ \t]*\()/i", "$prefix$1$2", $line);
-						if ($line_old != $line) {
-							$func_all[] = $func_name;
+				if (!$here) {
+					preg_match_all($funcname_reg,$_line,$match,PREG_PATTERN_ORDER);
+					$funcs = array_unique($match[0]);
+					foreach ($funcs as $func_name) {
+						if (!function_exists($func_name) && !preg_match($keys_reg,$func_name)) {
+							$line_old = $line;
+							// 自己関数？
+							if (array_search($func_name,$my_funcs) !== FALSE) {
+								$prefix = ($st_class)? "xpwiki_plugin_{$plugin_name}::" : '$this->';
+							} else {
+								$prefix = '$this->func->';
+							}
+							$line = preg_replace("/(?<!\->|new |::|\\\$)(".preg_quote($func_name,"/").")([ \t]*\()/i", "$prefix$1$2", $line);
+							if ($line_old != $line) {
+								$func_all[] = $func_name;
+							}
 						}
 					}
 				}
