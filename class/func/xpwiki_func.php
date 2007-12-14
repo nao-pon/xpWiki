@@ -1,7 +1,7 @@
 <?php
 //
 // Created on 2006/10/02 by nao-pon http://hypweb.net/
-// $Id: xpwiki_func.php,v 1.125 2007/12/13 23:55:42 nao-pon Exp $
+// $Id: xpwiki_func.php,v 1.126 2007/12/14 11:58:52 nao-pon Exp $
 //
 class XpWikiFunc extends XpWikiXoopsWrapper {
 
@@ -122,7 +122,7 @@ class XpWikiFunc extends XpWikiXoopsWrapper {
 					$ret = $class_name;
 					if (isset($plugin_files['user'])) {
 						require_once($plugin_files['user']);
-						$class_name = "xpwiki_user_plugin_{$name}";
+						$class_name = "xpwiki_".$this->root->mydirname."_plugin_{$name}";
 						if (class_exists($class_name)) {
 							$ret = $class_name;
 						}
