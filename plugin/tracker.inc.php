@@ -1,6 +1,6 @@
 <?php
 // PukiWiki - Yet another WikiWikiWeb clone
-// $Id: tracker.inc.php,v 1.13 2007/09/21 08:23:21 nao-pon Exp $
+// $Id: tracker.inc.php,v 1.14 2007/12/14 00:02:08 nao-pon Exp $
 // ORG: tracker.inc.php,v 1.57 2007/09/20 15:17:20 henoheno Exp $
 // Issue tracker plugin (See Also bugtrack plugin)
 
@@ -495,7 +495,7 @@ class XpWikiTracker_field_textarea extends XpWikiTracker_field
 		$s_cols = htmlspecialchars($this->values[0]);
 		$s_rows = htmlspecialchars($this->values[1]);
 		$s_value = htmlspecialchars($this->default_value);
-		return "<textarea name=\"$s_name\" rel=\"wikihelper\" cols=\"$s_cols\" rows=\"$s_rows\">$s_value</textarea>";
+		return "<textarea name=\"$s_name\" cols=\"$s_cols\" rows=\"$s_rows\">$s_value</textarea>";
 	}
 	
 	function format_cell($str) {

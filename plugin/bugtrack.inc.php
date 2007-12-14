@@ -1,5 +1,5 @@
 <?php
-// $Id: bugtrack.inc.php,v 1.5 2007/07/31 03:03:38 nao-pon Exp $
+// $Id: bugtrack.inc.php,v 1.6 2007/12/14 00:02:08 nao-pon Exp $
 //
 // PukiWiki BugTrack plugin
 //
@@ -148,7 +148,7 @@ class xpwiki_plugin_bugtrack extends xpwiki_plugin {
   </tr>
   <tr>
    <th><label   for="_p_bugtrack_body_{$id[$this->xpwiki->pid]}">$s_body</label></th>
-   <td><textarea id="_p_bugtrack_body_{$id[$this->xpwiki->pid]}" name="body" cols="60" rows="6" rel="wikihelper"></textarea></td>
+   <td><textarea id="_p_bugtrack_body_{$id[$this->xpwiki->pid]}" name="body" cols="60" rows="6"></textarea></td>
   </tr>
   <tr>
    <td colspan="2" align="center">

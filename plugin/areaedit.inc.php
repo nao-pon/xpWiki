@@ -3,7 +3,7 @@ class xpwiki_plugin_areaedit extends xpwiki_plugin {
 /////////////////////////////////////////////////
 // PukiWiki - Yet another WikiWikiWeb clone.
 //
-// $Id: areaedit.inc.php,v 1.8 2007/09/19 12:10:10 nao-pon Exp $
+// $Id: areaedit.inc.php,v 1.9 2007/12/14 00:02:08 nao-pon Exp $
 //
 /* 
 *プラグイン areaedit
@@ -723,7 +723,7 @@ EOD;
   <input type="hidden" name="areaedit_no"	value="{$areaedit_no}" />
   <input type="hidden" name="areaedit_start_no" value="{$areaedit_start_no}" />
   <br />
-  <textarea name="areaedit_msg" rows="{$this->root->rows}" cols="{$this->root->cols}" rel="wikihelper">$s_postdata_input</textarea>
+  <textarea name="areaedit_msg" rows="{$this->root->rows}" cols="{$this->root->cols}">$s_postdata_input</textarea>
   <br />
   <input type="submit" name="preview" value="$btn_preview" accesskey="p" />
   <input type="submit"				  value="{$this->root->_btn_update}" accesskey="s" />

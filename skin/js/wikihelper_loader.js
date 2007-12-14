@@ -16,4 +16,3 @@ wikihelper_easy_loader = function () {
 	document.write ('<script type="text/javascript" src="$wikihelper_root_url/skin/loader.php?src=default.'+lang+'.js"></script>');
 }
 wikihelper_easy_loader();
-var wikihelper_textarea_findup = 1;

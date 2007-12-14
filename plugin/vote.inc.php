@@ -6,7 +6,7 @@ class xpwiki_plugin_vote extends xpwiki_plugin {
 
 	}
 	// PukiWiki - Yet another WikiWikiWeb clone.
-	// $Id: vote.inc.php,v 1.3 2007/09/19 12:10:10 nao-pon Exp $
+	// $Id: vote.inc.php,v 1.4 2007/12/14 00:02:08 nao-pon Exp $
 	//
 	// Vote box plugin
 	
@@ -63,7 +63,7 @@ class xpwiki_plugin_vote extends xpwiki_plugin {
  <div>
   <input type="hidden" name="refer"  value="$s_refer" />
   <input type="hidden" name="digest" value="$s_digest" />
-  <textarea name="msg" rel="wikihelper" rows="{$this->root->rows}" cols="{$this->root->cols}" id="textarea">$s_postdata_input</textarea><br />
+  <textarea name="msg" rows="{$this->root->rows}" cols="{$this->root->cols}" id="textarea">$s_postdata_input</textarea><br />
  </div>
 </form>
 
