@@ -306,6 +306,10 @@ var XpWiki = {
 	
 	addWrapButton: function (id) {
 		var txtarea = $(id);
+		
+		if (typeof(txtarea.XpWiki_addWrap_done) != 'undefined') return false;
+		txtarea.XpWiki_addWrap_done = true;
+
 		var btn = document.createElement('div');
 		Element.setStyle (btn, {
 			'float' : 'right',

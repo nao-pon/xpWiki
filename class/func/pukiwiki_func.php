@@ -1,7 +1,7 @@
 <?php
 //
 // Created on 2006/10/02 by nao-pon http://hypweb.net/
-// $Id: pukiwiki_func.php,v 1.136 2007/12/06 23:33:10 nao-pon Exp $
+// $Id: pukiwiki_func.php,v 1.137 2007/12/14 00:02:08 nao-pon Exp $
 //
 class XpWikiPukiWikiFunc extends XpWikiBaseFunc {
 
@@ -889,7 +889,7 @@ class XpWikiPukiWikiFunc extends XpWikiBaseFunc {
 
 //----- Start convert_html.php -----//
 	// PukiWiki - Yet another WikiWikiWeb clone
-	// $Id: pukiwiki_func.php,v 1.136 2007/12/06 23:33:10 nao-pon Exp $
+	// $Id: pukiwiki_func.php,v 1.137 2007/12/14 00:02:08 nao-pon Exp $
 	// Copyright (C)
 	//   2002-2005 PukiWiki Developers Team
 	//   2001-2002 Originally written by yu-ji
@@ -1148,7 +1148,7 @@ class XpWikiPukiWikiFunc extends XpWikiBaseFunc {
 
 //----- Start func.php -----//
 	// PukiWiki - Yet another WikiWikiWeb clone.
-	// $Id: pukiwiki_func.php,v 1.136 2007/12/06 23:33:10 nao-pon Exp $
+	// $Id: pukiwiki_func.php,v 1.137 2007/12/14 00:02:08 nao-pon Exp $
 	// Copyright (C)
 	//   2002-2006 PukiWiki Developers Team
 	//   2001-2002 Originally written by yu-ji
@@ -1964,7 +1964,7 @@ EOD;
 
 //----- Start make_link.php -----//
 	// PukiWiki - Yet another WikiWikiWeb clone.
-	// $Id: pukiwiki_func.php,v 1.136 2007/12/06 23:33:10 nao-pon Exp $
+	// $Id: pukiwiki_func.php,v 1.137 2007/12/14 00:02:08 nao-pon Exp $
 	// Copyright (C)
 	//   2003-2005 PukiWiki Developers Team
 	//   2001-2002 Originally written by yu-ji
@@ -2869,7 +2869,7 @@ EOD;
 
 //----- Start html.php -----//
 	// PukiWiki - Yet another WikiWikiWeb clone.
-	// $Id: pukiwiki_func.php,v 1.136 2007/12/06 23:33:10 nao-pon Exp $
+	// $Id: pukiwiki_func.php,v 1.137 2007/12/14 00:02:08 nao-pon Exp $
 	// Copyright (C)
 	//   2002-2006 PukiWiki Developers Team
 	//   2001-2002 Originally written by yu-ji
@@ -3127,7 +3127,7 @@ EOD;
 		$b_preview   = isset($this->root->vars['preview']); // TRUE when preview
 		$btn_preview = $b_preview ? $this->root->_btn_repreview : $this->root->_btn_preview;
 		
-		if (!$ajax || !$s_id) {
+		if (!$s_id) {
 			// ページ読み & Alias
 			if (!empty($this->root->rtf['preview'])) {
 				$reading_str = htmlspecialchars($this->root->vars['reading']);
@@ -3151,6 +3151,10 @@ EOD;
 				$attaches = ($plugin) ? $plugin->attach_filelist() : '';
 				if ($attaches) $attaches = $this->root->hr . '<p>' . $attaches . '</p>';
 			}
+			$title = '<h3>'.str_replace('$1', $s_page, $this->root->_title_edit).'</h3>';
+		} else {
+			$reading = $attaches = $alias = '';
+			$title = '<h3>'.str_replace('$1', '# '.$this->root->vars['paraid'], $this->root->_title_edit).'</h3>';
 		}
 		
 		// Q & A 認証
@@ -3207,28 +3211,12 @@ EOD;
 			if ($s_id) {
 				$template = $reading = $alias = '';
 				$form_class = 'edit_form_ajax';
-				$title = '<h3>'.str_replace('$1', '# '.$this->root->vars['paraid'], $this->root->_title_edit).'</h3>';
 			} else {
 				$form_class = 'edit_form';
-				$title = '<h3>'.str_replace('$1', $s_page, $this->root->_title_edit).'</h3>';
 			}
-			$resize_js = '';
-			$wrap_js = '<div style="float:right;font-size:80%;padding:3px;border:1px solid gray;cursor:pointer;" onmousedown="this.innerHTML=XpWiki.textaraWrap(\'xpwiki_edit_textarea\');">wikihelper_msg_nowrap</div>';
 		} else {
 			$nonconvert = $ajax_submit = $ajax_cancel = $enc_hint = '';
 			$form_class = 'edit_form';
-			$title = '<div style="height:0px;">&nbsp;</div>'; // for IE CSS bug.
-			$resize_js = <<<EOD
-<script type="text/javascript"><!--
-document.observe("dom:loaded", function(){new Resizable('xpwiki_edit_textarea', {mode:'xy'});});
-//--></script>
-EOD;
-			$wrap_js = <<<EOD
-<script type="text/javascript"><!--
-document.write('<div style="float:right;font-size:80%;padding:3px;border:1px solid gray;cursor:pointer;" onmousedown="this.innerHTML=XpWiki.textaraWrap(\'xpwiki_edit_textarea\');">'+wikihelper_msg_nowrap+'</div>');
-//--></script>
-EOD;
-
 		}
 		
 		// 'margin-bottom', 'float:left', and 'margin-top'
@@ -3248,8 +3236,7 @@ EOD;
   <input type="hidden" name="page"   value="$s_page" />
   <input type="hidden" name="digest" value="$s_digest" />
   <input type="hidden" name="paraid" value="$s_id" />
-  <textarea id="xpwiki_edit_textarea" name="msg" rel="wikihelper" rows="{$this->root->rows}" cols="{$this->root->cols}">$s_postdata</textarea>
-  $wrap_js
+  <textarea id="xpwiki_edit_textarea" name="msg" rows="{$this->root->rows}" cols="{$this->root->cols}">$s_postdata</textarea>
   $riddle
   <div style="float:left;">
    <input type="submit" name="preview" value="$btn_preview" accesskey="p" id="edit_preview" onmousedown="xpwiki_ajax_edit_var['mode']='preview'" />
@@ -3269,7 +3256,6 @@ EOD;
  </div>
 </div>
 $attaches
-$resize_js
 EOD;
 	
 		if (isset($this->root->vars['help'])) {
@@ -3550,7 +3536,7 @@ EOD;
 
 //----- Start mail.php -----//
 	// PukiWiki - Yet another WikiWikiWeb clone.
-	// $Id: pukiwiki_func.php,v 1.136 2007/12/06 23:33:10 nao-pon Exp $
+	// $Id: pukiwiki_func.php,v 1.137 2007/12/14 00:02:08 nao-pon Exp $
 	// Copyright (C)
 	//   2003-2005 PukiWiki Developers Team
 	//   2003      Originally written by upk
@@ -3853,7 +3839,7 @@ EOD;
 
 //----- Start link.php -----//
 	// PukiWiki - Yet another WikiWikiWeb clone
-	// $Id: pukiwiki_func.php,v 1.136 2007/12/06 23:33:10 nao-pon Exp $
+	// $Id: pukiwiki_func.php,v 1.137 2007/12/14 00:02:08 nao-pon Exp $
 	// Copyright (C) 2003-2006 PukiWiki Developers Team
 	// License: GPL v2 or (at your option) any later version
 	//

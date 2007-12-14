@@ -1,7 +1,7 @@
 <?php
 //
 // Created on 2006/11/19 by nao-pon http://hypweb.net/
-// $Id: recentchanges.inc.php,v 1.12 2007/11/08 08:45:45 nao-pon Exp $
+// $Id: recentchanges.inc.php,v 1.13 2007/12/14 00:02:08 nao-pon Exp $
 //
 class xpwiki_plugin_recentchanges extends xpwiki_plugin {
 	
@@ -38,7 +38,7 @@ class xpwiki_plugin_recentchanges extends xpwiki_plugin {
 				$tb_tag = '';
 				$lasteditor = $this->func->get_lasteditor($this->func->get_pginfo($page));
 				if ($lasteditor) $lasteditor = ' <small>by '.$lasteditor.'</small>';
-				$items .= '<li>'.$this->func->make_pagelink($page).' '.$this->func->get_pg_passage($page).$tb_tag;
+				$items .= '<li style="clear:both;">'.$this->func->make_pagelink($page).' '.$this->func->get_pg_passage($page).$tb_tag;
 				$items .= '<ul class="list2"><li>'.$lastmod.$lasteditor.' <a href="'.$this->root->script.'?cmd=backup&amp;page='.rawurlencode($page).'&amp;action=diff" title="'.htmlspecialchars($this->root->_msg_diff).'"><img src="'.$this->cont['LOADER_URL'].'?src=compare_diff.png" alt="'.htmlspecialchars($this->root->_msg_diff).'" width="16" height="16"></a>';
 				$added = $this->func->get_page_changes($page);
 				if ($this->show_recent && $added) {

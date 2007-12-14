@@ -1,6 +1,6 @@
 <?php
 // PukiWiki - Yet another WikiWikiWeb clone.
-// $Id: backup.inc.php,v 1.9 2007/11/08 08:45:45 nao-pon Exp $
+// $Id: backup.inc.php,v 1.10 2007/12/14 00:02:08 nao-pon Exp $
 // Copyright (C)
 //   2002-2005 PukiWiki Developers Team
 //   2001-2002 Originally written by yu-ji
@@ -234,10 +234,6 @@ class xpwiki_plugin_backup extends xpwiki_plugin {
  <form>
   <textarea id="xpwiki_backup_textarea" readonly="readonly" rows="{$this->root->rows}" cols="{$this->root->cols}">{$sorce}</textarea>
  </form>
- <script type="text/javascript"><!--
- document.observe("dom:loaded", function(){new Resizable('xpwiki_backup_textarea', {mode:'xy'});});
- document.write('<div style="float:right;font-size:80%;padding:3px;border:1px solid gray;cursor:pointer;" onmousedown="this.innerHTML=XpWiki.textaraWrap(\'xpwiki_backup_textarea\');">'+wikihelper_msg_nowrap+'</div>');
- //--></script>
 </div>
 EOD;
 		} else {

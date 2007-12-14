@@ -1,6 +1,6 @@
 <?php
 // PukiWiki - Yet another WikiWikiWeb clone.
-// $Id: edit.inc.php,v 1.49 2007/12/07 13:10:24 nao-pon Exp $
+// $Id: edit.inc.php,v 1.50 2007/12/14 00:02:08 nao-pon Exp $
 // Copyright (C) 2001-2006 PukiWiki Developers Team
 // License: GPL v2 or (at your option) any later version
 //
@@ -117,6 +117,7 @@ EOD;
 			$postdata = $this->func->drop_submit($this->func->convert_html($postdata));
 			if (isset($this->root->vars['ajax'])) {
 				$class = 'ajax_preview';
+				$postdata = str_replace(array('<![CDATA[', ']]>'), '', $postdata);
 			} else {
 				$class = 'preview';
 			}
@@ -394,8 +395,8 @@ EOD;
 				$obj->init($page);
 				$obj->execute();
 				$body = $obj->body;
+				$body = str_replace(array('<![CDATA[', ']]>'), '', $body);
 			}
-			
 			$body = <<<EOD
 <xpwiki>
 <content><![CDATA[{$body}]]></content>
