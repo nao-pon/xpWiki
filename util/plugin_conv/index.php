@@ -73,7 +73,7 @@ EOD;
 
 $mode = (empty($_GET['mode']))? "" : $_GET['mode'];
 if ($mode == "s2u") {
-	convert_s2u ($files);
+	convert_s2u ($files, $mydirname);
 	exit;
 }
 
@@ -546,13 +546,13 @@ function _global_replace($global,$str) {
 	return $str;
 }
 
-function convert_s2u ($files) {
+function convert_s2u ($files, $mydirname) {
 	$input = $files[0];
 	
 	$org_file = $_FILES['userfile']['tmp_name'];
 	$dat = join("",file($org_file));
 	
-	$dat = preg_replace("/((?:^|\n|\r)\s*class\s+xpwiki_)(plugin(_\w+)\s+extends\s+xpwiki_plugin)/","$1user_$2$3",$dat);
+	$dat = preg_replace("/((?:^|\n|\r)\s*class\s+xpwiki_)(plugin(_\w+)\s+extends\s+xpwiki_plugin)/","$1".$mydirname."_$2$3",$dat);
 	
 	unlink($org_file);
 
