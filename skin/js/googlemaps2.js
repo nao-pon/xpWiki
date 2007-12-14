@@ -505,9 +505,14 @@ function p_googlemaps_regist_marker (page, mapname, center, key, option) {
 		page = mapname.match(/(^.*?)_/)[1];
 		mapname = mapname.replace(/^.*?_/, "");
 		alert("googlemaps2: '" + option.title + "' It failed in the marker's registration." + 
-		"Page¡§" + page + ", Not found map name '" + mapname + "'.");
+		"Pageï¿½ï¿½" + page + ", Not found map name '" + mapname + "'.");
 		return;
 	}
+	option.title = option.title.replace(/&lt;/g, '<');
+	option.title = option.title.replace(/&gt;/g, '>');
+	option.title = option.title.replace(/&quot;/g, '"');
+	option.title = option.title.replace(/&#039;/g, '\'');
+	option.title = option.title.replace(/&amp;/g, '&');
 	var m = new PGMarker(center, option.icon, page, mapname, option.noicon, true, option.title, option.maxtitle, option.maxcontent, option.minzoom, option.maxzoom);
 	m.setHtml(option.infohtml);
 	if (!option.zoom) {
