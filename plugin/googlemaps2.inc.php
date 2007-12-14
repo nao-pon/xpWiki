@@ -57,7 +57,7 @@ class xpwiki_plugin_googlemaps2 extends xpwiki_plugin {
 
 		$this->cont['PLUGIN_GOOGLEMAPS2_DEF_KEY'] =  'ABQIAAAAv2QINn0BFSDyNh38h-ot6RR7mgPdW6gOZV_PvH6uKxrQxi_kMxQdnrNUwY6bBhsUf_q-K_RFktoHsg';
 	
-		$this->cont['PLUGIN_GOOGLEMAPS2_DEF_MAPNAME'] =  'googlemaps2';	  //Map名
+		$this->cont['PLUGIN_GOOGLEMAPS2_DEF_MAPNAME'] =  'map';	  //Map名
 		$this->cont['PLUGIN_GOOGLEMAPS2_DEF_WIDTH'] =  '400px';			  //横幅
 		$this->cont['PLUGIN_GOOGLEMAPS2_DEF_HEIGHT'] =  '400px';			  //縦幅
 		$this->cont['PLUGIN_GOOGLEMAPS2_DEF_LAT'] =   35.036198;		  //経度
@@ -80,6 +80,8 @@ class xpwiki_plugin_googlemaps2 extends xpwiki_plugin {
 		$this->cont['PLUGIN_GOOGLEMAPS2_DEF_GOOGLEBAR'] =  false;		   //GoogleBarの表示
 		$this->cont['PLUGIN_GOOGLEMAPS2_DEF_IMPORTICON'] =  '';		   //アイコンを取得するPukiwikiページ
 		$this->cont['PLUGIN_GOOGLEMAPS2_DEF_BACKLINKMARKER'] =  false;	//バックリンクでマーカーを集める
+		
+		$this->cont['PLUGIN_GOOGLEMAPS2_DEF_WIKITAG'] = 'hide';	//このマップのWiki記法 (none, hide, show)
 	
 		//Pukiwikiは1.4.5から携帯電話などのデバイスごとにプロファイルを用意して
 		//UAでスキンを切り替えて表示できるようになったが、この定数ではGoogleMapsを
@@ -128,6 +130,7 @@ class xpwiki_plugin_googlemaps2 extends xpwiki_plugin {
 			'googlebar'		 => $this->cont['PLUGIN_GOOGLEMAPS2_DEF_GOOGLEBAR'],
 			'importicon'	 => $this->cont['PLUGIN_GOOGLEMAPS2_DEF_IMPORTICON'],
 			'backlinkmarker' => $this->cont['PLUGIN_GOOGLEMAPS2_DEF_BACKLINKMARKER'],
+			'wikitag'        => $this->cont['PLUGIN_GOOGLEMAPS2_DEF_WIKITAG'],
 		);
 	}
 	
@@ -197,7 +200,7 @@ EOD;
 				$this->map_count[$page] = 0;
 			}
 			$this->map_count[$page]++;
-			$name .= '_' . $this->map_count[$page];
+			$name .= strval($this->map_count[$page]);
 		}
 		$this->lastmap_name = 'pukiwikigooglemaps2_'.$page.'_'.$name;
 		return $this->lastmap_name;
@@ -219,7 +222,7 @@ EOD;
 			$pos = strpos($param, '=');
 			if ($pos === false) continue;
 			$index = trim(substr($param, 0, $pos));
-			$value = htmlspecialchars(trim(substr($param, $pos+1)));
+			$value = htmlspecialchars(trim(substr($param, $pos+1)), ENT_QUOTES);
 			$inoptions[$index] = $value;
 			if ($index == 'cx') {$cx = (float)$value;}//for old api
 			if ($index == 'cy') {$cy = (float)$value;}//for old api
@@ -265,7 +268,8 @@ EOD;
 		$geoxml			= preg_replace("/&amp;/i", '&', $options['geoxml']);
 		$importicon		= $options['importicon'];
 		$backlinkmarker = $this->plugin_googlemaps2_getbool($options['backlinkmarker']);
-	
+		$wikitag        = $options['wikitag'];
+		
 		$page = $this->get_pgid($this->root->vars['page']);
 		//apiのチェック
 		if ( ! (is_numeric($api) && $api >= 0 && $api <= 2) ) {
@@ -307,11 +311,24 @@ EOD;
 		$pukiwikiname = $options['mapname'];
 		$output .= <<<EOD
 <div id="$mapname" style="width: $width; height: $height;"></div>
+EOD;
+		if ($wikitag !== 'none') {
+			if ($wikitag === 'show') {
+				$_display = '';
+				$_icon = '-';
+			} else {
+				$_display = 'display:none;';
+				$_icon = '+';
+			}
+			$output .= <<<EOD
 <div class="googlemaps2_tag_base" style="width: $width;">
-<span id="{$mapname}_handle" class="googlemaps2_handle" onclick="this.innerHTML = (this.innerHTML == '+')? '-' : '+';$('{$mapname}_info').toggle();">+</span>
+<span id="{$mapname}_handle" class="googlemaps2_handle" onclick="this.innerHTML = (this.innerHTML == '+')? '-' : '+';$('{$mapname}_info').toggle();">{$_icon}</span>
  {$this->msg['wikitag_thismap']}
+<div id="{$mapname}_info" class="googlemaps2_tag_info" style="width: $width;{$_display}">&nbsp;</div>
 </div>
-<div id="{$mapname}_info" class="googlemaps2_tag_info" style="width: $width;display:none;">&nbsp;</div>
+EOD;
+		}
+		$output .= <<<EOD
 <script type="text/javascript">
 //<![CDATA[
 onloadfunc.push( function () {
@@ -450,32 +467,35 @@ EOD;
 		$output .= "googlemaps_marker_mgrs['$page']['$mapname'] = marker_mgr;\n";
 
 		// Map tag
-		$maptag  = " + ', zoom=' + googlemaps_maps['$page']['$mapname'].getZoom()";
-		$maptag .= " + ', type=' + ((googlemaps_maps['$page']['$mapname'].getCurrentMapType() == G_SATELLITE_MAP)? 'satellite' : ((googlemaps_maps['$page']['$mapname'].getCurrentMapType() == G_HYBRID_MAP)? 'hybrid' : 'normal'))";
+		if ($wikitag !== 'none') {
+			$maptag  = " + ', zoom=' + googlemaps_maps['$page']['$mapname'].getZoom()";
+			$maptag .= " + ', type=' + ((googlemaps_maps['$page']['$mapname'].getCurrentMapType() == G_SATELLITE_MAP)? 'satellite' : ((googlemaps_maps['$page']['$mapname'].getCurrentMapType() == G_HYBRID_MAP)? 'hybrid' : 'normal'))";
+	
+			$mapBlock  = "'#googlemaps2(lat=' + PGTool.fmtNum(googlemaps_maps['$page']['$mapname'].getCenter().lat()) + ', lng=' + PGTool.fmtNum(googlemaps_maps['$page']['$mapname'].getCenter().lng())";
+			$mapBlock .= " + ', width=$width'";
+			$mapBlock .= " + ', height=$height'";
+			$mapBlock .= $maptag;
+	
+			$mapBlock .= " + ', mapctrl=$mapctrl'";
+			$mapBlock .= " + ', typectrl=$typectrl'";
+			$mapBlock .= " + ', scalectrl=$scalectrl'";
+			$mapBlock .= " + ', overviewctrl=$overviewctrl'";
+			$mapBlock .= " + ', crossctrl=$crossctrl'";
+			$mapBlock .= " + ', togglemarker=$togglemarker'";
+			$mapBlock .= " + ', googlebar=$googlebar'";
+			$mapBlock .= " + ', wikitag=$wikitag'";
+	
+			$mapBlock .= " + ')'";
+			
+			$mapMark  = "'&googlemaps2_mark(' + PGTool.fmtNum(googlemaps_maps['$page']['$mapname'].getCenter().lat()) + ', ' + PGTool.fmtNum(googlemaps_maps['$page']['$mapname'].getCenter().lng())";
+			$mapMark .= $maptag;
+			$mapMark .= " + ', title=Here Title){Here Caption};'";
+			
+			$output .= "GEvent.addListener(googlemaps_maps['$page']['$mapname'], 'moveend', function(){\$('$mapname' + '_info').innerHTML = '<p>' + $mapBlock + '</p><p>' + $mapMark;});\n";
+			$output .= "\$('$mapname' + '_info').innerHTML = '<p>' + $mapBlock + '</p><p>' + $mapMark;\n";
+		}
 
-		$mapBlock  = "'#googlemaps2(lat=' + PGTool.fmtNum(googlemaps_maps['$page']['$mapname'].getCenter().lat()) + ', lng=' + PGTool.fmtNum(googlemaps_maps['$page']['$mapname'].getCenter().lng())";
-		$mapBlock .= " + ', width=$width'";
-		$mapBlock .= " + ', height=$height'";
-		$mapBlock .= $maptag;
-
-		$mapBlock .= " + ', mapctrl=$mapctrl'";
-		$mapBlock .= " + ', typectrl=$typectrl'";
-		$mapBlock .= " + ', scalectrl=$scalectrl'";
-		$mapBlock .= " + ', overviewctrl=$overviewctrl'";
-		$mapBlock .= " + ', crossctrl=$crossctrl'";
-		$mapBlock .= " + ', togglemarker=$togglemarker'";
-		$mapBlock .= " + ', googlebar=$googlebar'";
-
-		$mapBlock .= " + ')'";
-		
-		$mapMark  = "'&googlemaps2_mark(' + PGTool.fmtNum(googlemaps_maps['$page']['$mapname'].getCenter().lat()) + ', ' + PGTool.fmtNum(googlemaps_maps['$page']['$mapname'].getCenter().lng())";
-		$mapMark .= $maptag;
-		$mapMark .= " + ', title=Here Title){Here Caption};'";
-		
-		$output .= "GEvent.addListener(googlemaps_maps['$page']['$mapname'], 'moveend', function(){\$('$mapname' + '_info').innerHTML = '<p>' + $mapBlock + '</p><p>' + $mapMark;});\n";
-		$output .= "\$('$mapname' + '_info').innerHTML = '<p>' + $mapBlock + '</p><p>' + $mapMark;\n";
 		$output .= "});\n";
-		
 		$output .= "//]]>\n";
 		$output .= "</script>\n";
 		
