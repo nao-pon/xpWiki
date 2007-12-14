@@ -103,7 +103,7 @@ class xpwiki_plugin_googlemaps2_draw extends xpwiki_plugin {
 				continue;
 			}
 			$index = trim(substr($param, 0, $pos));
-			$value = htmlspecialchars(trim(substr($param, $pos+1)));
+			$value = htmlspecialchars(trim(substr($param, $pos+1)), ENT_QUOTES);
 	
 			$inoptions[$index] = $value;
 		}

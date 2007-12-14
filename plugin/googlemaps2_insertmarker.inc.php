@@ -137,7 +137,7 @@ class xpwiki_plugin_googlemaps2_insertmarker extends xpwiki_plugin {
 			$pos = strpos($param, '=');
 			if ($pos == false) continue;
 			$index = trim(substr($param, 0, $pos));
-			$value = htmlspecialchars(trim(substr($param, $pos+1)));
+			$value = htmlspecialchars(trim(substr($param, $pos+1)), ENT_QUOTES);
 			$inoptions[$index] = $value;
 		}
 	
