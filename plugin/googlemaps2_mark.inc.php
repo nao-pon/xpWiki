@@ -12,11 +12,14 @@
  */
 
 class xpwiki_plugin_googlemaps2_mark extends xpwiki_plugin {
+	var $marker_count;
+	
 	function plugin_googlemaps2_mark_init () {
 
+		// 言語ファイルの読み込み
+		$this->load_language();
 
-	
-		$this->cont['PLUGIN_GOOGLEMAPS2_MK_DEF_TITLE'] =  '名称未設定'; //マーカーの名前
+		$this->cont['PLUGIN_GOOGLEMAPS2_MK_DEF_TITLE'] = $this->msg['nontitle']; //マーカーの名前
 		$this->cont['PLUGIN_GOOGLEMAPS2_MK_DEF_CAPTION'] =  '';         //マーカーのキャプション
 		$this->cont['PLUGIN_GOOGLEMAPS2_MK_DEF_MAXCONTENT'] =  '';      //吹き出しを最大時にしたときに表示するPukiwikiのページ名かURL
 		$this->cont['PLUGIN_GOOGLEMAPS2_MK_DEF_MAXTITLE'] =  '';        //吹き出しを最大時にしたときのタイトル
@@ -28,7 +31,7 @@ class xpwiki_plugin_googlemaps2_mark extends xpwiki_plugin {
 		$this->cont['PLUGIN_GOOGLEMAPS2_MK_DEF_MAXZOOM'] =  17;         //マーカーが表示される最大ズームレベル
 		$this->cont['PLUGIN_GOOGLEMAPS2_MK_DEF_ICON'] =  '';        //アイコン。空の時はデフォルト
 		$this->cont['PLUGIN_GOOGLEMAPS2_MK_DEF_NOICON'] =  false;   //アイコンを表示しない。
-		$this->cont['PLUGIN_GOOGLEMAPS2_MK_DEF_AJUMP'] =  '[LIST]'; //infoWindowから本文中へのリンク文字
+		$this->cont['PLUGIN_GOOGLEMAPS2_MK_DEF_AJUMP'] = $this->msg['back2list']; //infoWindowから本文中へのリンク文字
 		$this->cont['PLUGIN_GOOGLEMAPS2_MK_DEF_TITLEISPAGENAME'] =  false; //title省略時にページ名を使う。
 	
 		//FORMATLISTはhtmlに出力されるマーカーのリストの雛型
@@ -102,7 +105,7 @@ class xpwiki_plugin_googlemaps2_mark extends xpwiki_plugin {
 		foreach ($params as $param) {
 			list($index, $value) = split('=', $param, 2);
 			$index = trim($index);
-			if ($index !== 'caption2') $value = htmlspecialchars(trim($value));
+			if ($index !== 'caption2') $value = htmlspecialchars(trim($value), ENT_QUOTES);
 			$inoptions[$index] = $value;
 			if ($index == 'zoom') {$isSetZoom = true;}//for old api
 		}
@@ -159,6 +162,14 @@ class xpwiki_plugin_googlemaps2_mark extends xpwiki_plugin {
 		$titleispagename = $p_googlemaps2->plugin_googlemaps2_getbool($options['titleispagename']);
 		$api = isset($this->root->vars['googlemaps2_info'][$map]['api'])? $this->root->vars['googlemaps2_info'][$map]['api'] : 2;
 		
+		$page = $p_googlemaps2->get_pgid($this->root->vars['page']);
+
+		if (isset($this->marker_count[$this->root->mydirname][$page][$map])) {
+			$this->marker_count[$this->root->mydirname][$page][$map]++;
+		} else {
+			$this->marker_count[$this->root->mydirname][$page][$map] = 1;
+		}
+		
 		if ($nolist) {
 			$alink = false;
 		}
@@ -177,13 +188,13 @@ class xpwiki_plugin_googlemaps2_mark extends xpwiki_plugin {
 	    }
 	
 	    if ($titleispagename) {
-	        $title = $this->root->vars['page'];
+	        $title = htmlspecialchars($this->root->vars['page'], ENT_QUOTES);
 	    }
 	
 	    if ($maxtitle == '') {
 	        $maxtitle = $title;
 	    }
-	
+		
 		//携帯デバイス用リスト出力
 		if (!$p_googlemaps2->plugin_googlemaps2_is_supported_profile()) {
 			if ($nolist == false) {
@@ -192,8 +203,6 @@ class xpwiki_plugin_googlemaps2_mark extends xpwiki_plugin {
 			}
 			return '';
 		}
-	
-		$page = $p_googlemaps2->get_pgid($this->root->vars['page']);
 	
 		if ($api < 2 && $isSetZoom) $zoom = 19 - $zoom;
 		if ($zoom == null) $zoom = 'null';
@@ -210,7 +219,7 @@ class xpwiki_plugin_googlemaps2_mark extends xpwiki_plugin {
 		}
 		if ($noinfowindow == false) {
 			$infohtml = $this->plugin_googlemaps_mark_format_infohtml(
-				$map, $formatinfo, $alink,
+				$page, $map, $formatinfo, $alink,
 			$title, $caption, $image);
 		} else {
 			$infohtml = null;
@@ -268,7 +277,7 @@ EOD;
 	$key, $infohtml, $title, $caption, $image, $zoomstr, $maxcontentfull) {
 	
 		if ($alink == true) {
-			$atag = "<a id=\"".$map."_%title%\"></a>";
+			$atag = "<a id=\"".$map."_mark".$this->marker_count[$this->root->mydirname][$page][$map]."\"></a>";
 			$atag .= "<a href=\"#$map\"";
 		}
 		
@@ -289,11 +298,11 @@ EOD;
 		return $html;
 	}
 	
-	function plugin_googlemaps_mark_format_infohtml($map, $format, $alink, $title, $caption, $image) {
+	function plugin_googlemaps_mark_format_infohtml($page, $map, $format, $alink, $title, $caption, $image) {
 	
 		$html = str_replace('\'', '\\\'', $format);
 		if ($alink == true) {
-			$atag = "%title% <a href=\\'#".$map."_%title%\\'>"
+			$atag = "%title% <a href=\\'#".$map."_mark".$this->marker_count[$this->root->mydirname][$page][$map]."\\'>"
 			.$this->cont['PLUGIN_GOOGLEMAPS2_MK_DEF_AJUMP'].'</a>';
 			$html = str_replace('%title%', $atag , $html);
 		}
