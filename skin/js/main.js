@@ -349,8 +349,7 @@ function xpwiki_ajax_edit_submit() {
 		{
 			asynchronous: false,
 			method: 'post',
-			parameters: postdata,
-			onComplete: xpwiki_ajax_edit_post
+			parameters: postdata
 		});
 
 	return xpwiki_ajax_edit_post(myAjax.transport);
