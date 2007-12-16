@@ -1,7 +1,7 @@
 /*
  * easy wikihelper loader for any form.
  */
-wikihelper_easy_loader = function () {
+(function () {
 	var lang;
 	if(document.all) {
 		lang = navigator.browserLanguage;
@@ -14,5 +14,4 @@ wikihelper_easy_loader = function () {
 	}
 	// load default.*.js
 	document.write ('<script type="text/javascript" src="$wikihelper_root_url/skin/loader.php?src=default.'+lang+'.js"></script>');
-}
-wikihelper_easy_loader();
+})();
