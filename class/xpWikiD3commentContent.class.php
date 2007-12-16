@@ -21,13 +21,14 @@ function fetchSummary( $pgid )
 	// get body
 	$uri = $body = '';
 	if ($data['name']) {
+		
 		if (strpos(@$_SERVER['REQUEST_URI'], '/modules/'.$mydirname) === FALSE) {
 			include_once dirname(dirname(__FILE__))."/include.php";
-			//$page = new XpWiki($mydirname);
 			$page = & XpWiki::getSingleton($mydirname);
 			$uri = $page->func->get_page_uri($data['name'], true);
 			if ($data['editedtime']) {
 				$page->init($data['name']);
+				$page->root->rtf['use_cache_always'] = TRUE;
 				$page->execute();
 				$body = $page->body;
 			} else {
@@ -53,6 +54,29 @@ function fetchSummary( $pgid )
 	) ;
 }
 
+function validate_id( $link_id )
+{
+	static $check;
+	
+	if (isset($check[$this->mydirname][$link_id])) {
+		return $check[$this->mydirname][$link_id];
+	}
+	
+	$ret = intval( $link_id ) ;
+	if( $ret <= 0 ) {
+		$ret = false;
+	} else {
+		include_once dirname(dirname(__FILE__))."/include.php";
+		$xpwiki = & XpWiki::getSingleton($this->mydirname);
+		$xpwiki->init('#render');
+		$page = $xpwiki->func->get_name_by_pgid($ret);
+		if (!$xpwiki->func->is_page($page) || !$xpwiki->func->check_readable($page, false, false)) {
+			$ret = false;
+		}
+	}
+	$check[$this->mydirname][$link_id] = $ret;
+	return $ret;
+}
 
 }
 
