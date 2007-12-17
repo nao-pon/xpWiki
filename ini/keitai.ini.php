@@ -1,12 +1,19 @@
 <?php
 // PukiWiki - Yet another WikiWikiWeb clone.
-// $Id: keitai.ini.php,v 1.7 2007/09/04 23:46:53 nao-pon Exp $
+// $Id: keitai.ini.php,v 1.8 2007/12/17 07:52:28 nao-pon Exp $
 // Copyright (C)
 //   2002-2005 PukiWiki Developers Team
 //   2001-2002 Originally written by yu-ji
 // License: GPL v2 or (at your option) any later version
 //
 // PukiWiki setting file (Cell phones, PDAs and other thin clients)
+
+/////////////////////////////////////////////////
+// Over write
+// page cache
+$root->pagecache_min = 0;
+// symbol_anchor
+$root->_symbol_anchor = '_';
 
 /////////////////////////////////////////////////
 // 携帯・PDA専用のページを初期ページとして指定する
