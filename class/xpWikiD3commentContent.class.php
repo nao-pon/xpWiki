@@ -28,7 +28,6 @@ function fetchSummary( $pgid )
 			$uri = $page->func->get_page_uri($data['name'], true);
 			if ($data['editedtime']) {
 				$page->init($data['name']);
-				$page->root->rtf['use_cache_always'] = TRUE;
 				$page->execute();
 				$body = $page->body;
 			} else {
