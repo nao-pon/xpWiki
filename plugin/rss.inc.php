@@ -1,6 +1,6 @@
 <?php
 // PukiWiki - Yet another WikiWikiWeb clone
-// $Id: rss.inc.php,v 1.19 2007/12/05 01:44:27 nao-pon Exp $
+// $Id: rss.inc.php,v 1.20 2007/12/19 09:15:22 nao-pon Exp $
 //
 // RSS plugin: Publishing RSS of RecentChanges
 //
@@ -23,43 +23,44 @@ class xpwiki_plugin_rss extends xpwiki_plugin {
 	function get_content ($page) {
 		// 追加情報取得
 		$added = $this->func->get_page_changes($page);
-		// form script embed object 削除
-		$added = preg_replace('#<(form|script|embed|object).+?/\\1>#is', '',$added);
-		// タグ中の class, id, name 属性を指定を削除
-		$added = preg_replace('/(<[^>]*)\s+(?:class|id|name)=[^\s>]+([^>]*>)/', '$1$2', $added);
-		
+
 		// 指定ページの本文取得
-		//$a_page = new XpWiki($this->root->mydirname);
 		$a_page = & XpWiki::getSingleton($this->root->mydirname);
 		$a_page->init($page);
 		$a_page->root->rtf['use_cache_always'] = TRUE;
 		$a_page->execute();
 		$html = $a_page->body;
 		
-		// form script embed object 削除
-		$html = preg_replace('#<(form|script|embed|object).+?/\\1>#is', '',$html);
-		
-		// アンカーリンクを削除
-		$html = preg_replace('#<a href="\#[^"]+">(.*?)</a>#', '$1', $html);
-		
-		// タグ中の class, id, name 属性を指定を削除
-		$html = preg_replace('/(<[^>]*)\s+class=[^\s>]+([^>]*>)/', '$1$2', $html);
-		$html = preg_replace('/(<[^>]*)\s+id=[^\s>]+([^>]*>)/', '$1$2', $html);
-		$html = preg_replace('/(<[^>]*)\s+name=[^\s>]+([^>]*>)/', '$1$2', $html);
-
 		$description = strip_tags(($added ? $added . '&#182;' : '') . $html);
 		$description = preg_replace('/(\s+|&'.$this->root->entity_pattern.';)/i', ' ', $description);
 		$description = mb_substr($description, 0, 250);
 		// 末尾に分断された実態参照があれば削除->サニタイズ
 		$description = htmlspecialchars(preg_replace('/&([^;]+)?$/', '', $description));
 		
-		if ($added) $html = '<dl><dt>Changes</dt><dd>' . $added . '</dd></dl><hr />' . $html;
-		$userinfo = $this->func->get_userinfo_by_id($this->func->get_pg_auther($page));
-
 		$tags = array();
 		if (file_exists($this->cont['CACHE_DIR'] . $this->func->encode($page) . '_page.tag')) {
 			$tags = file($this->cont['CACHE_DIR'] . $this->func->encode($page) . '_page.tag');
 		}
+
+		if ($added) $html = '<dl><dt>Changes</dt><dd>' . $added . '</dd></dl><hr />' . $html;
+		$userinfo = $this->func->get_userinfo_by_id($this->func->get_pg_auther($page));
+		
+		// ]]> をクォート
+		$html = str_replace(']]>', ']]&gt;', $html);
+
+		// 無効なタグを削除
+		$html = preg_replace('#<(script|form|embed|object).+?/\\1>#is', '',$html);
+		$html = preg_replace('#<(link|wbr).*?>#is', '',$html);
+
+		// 相対指定リンクを削除
+		$html = preg_replace('#<a[^>]+href=(?!(?:"|\')?\w+://)[^>]+>(.*?)</a>#is', '$1', $html);
+		
+		// タグ中の無効な属性を削除
+		$_reg = '/(<[^>]*)\s+(?:id|class|name|on[^=]+)=("|\').*?\\2([^>]*>)/s';
+		while(preg_match($_reg, $html)) {
+			$html = preg_replace($_reg, '$1$3', $html);
+		}
+		
 		return array($description, $html, $userinfo, $tags);
 
 	}
