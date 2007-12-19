@@ -4,7 +4,7 @@
 //
 //
 // ref.inc.php,v 1.20をベースに作成
-// $Id: exifshowcase.inc.php,v 1.1 2007/12/18 23:49:32 nao-pon Exp $
+// $Id: exifshowcase.inc.php,v 1.2 2007/12/19 09:13:29 nao-pon Exp $
 //
 
 /*
@@ -374,7 +374,7 @@ EOD;
 			(( $params['noimg'] ) ? 
 					"{$aname}</a>" :
 					( $this->config['THUMB_USE'] ?
-					$img  :
+					$img . '</a>' :
 					"<img {$sztype}=\"".$this->config['THUMB_WSIDE_LEN']."\" src=\"{$url}\" /></a>" ));
 	
 			$params['_body'] .= 
