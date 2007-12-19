@@ -1,7 +1,7 @@
 <?php
 //
 // Created on 2006/10/02 by nao-pon http://hypweb.net/
-// $Id: xpwiki_func.php,v 1.126 2007/12/14 11:58:52 nao-pon Exp $
+// $Id: xpwiki_func.php,v 1.127 2007/12/19 09:09:09 nao-pon Exp $
 //
 class XpWikiFunc extends XpWikiXoopsWrapper {
 
@@ -1300,6 +1300,7 @@ EOD;
 	function output_ajax ($body) {
 		// Head Tags
 		list($head_pre_tag, $head_tag) = $this->get_additional_headtags();
+		$body = str_replace(']]>', ']]&gt;', $body);
 		$xml = <<<EOD
 <xpwiki>
 <content><![CDATA[{$body}]]></content>
