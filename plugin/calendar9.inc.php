@@ -1,7 +1,7 @@
 <?php
 /*
  * Created on 2007/08/30 by nao-pon http://hypweb.net/
- * $Id: calendar9.inc.php,v 1.9 2007/09/17 04:31:26 nao-pon Exp $
+ * $Id: calendar9.inc.php,v 1.10 2007/12/19 09:12:59 nao-pon Exp $
  */
 
 class xpwiki_plugin_calendar9 extends xpwiki_plugin {
@@ -258,7 +258,7 @@ EOD;
 							continue;
 						}
 						else {
-							$subtitle = strip_tags($this->func->convert_html($line));
+							$subtitle = strip_tags($this->func->convert_html($line, $_page));
 							break;
 						}
 					}
