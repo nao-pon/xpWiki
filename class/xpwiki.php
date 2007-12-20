@@ -1,7 +1,7 @@
 <?php
 //
 // Created on 2006/09/29 by nao-pon http://hypweb.net/
-// $Id: xpwiki.php,v 1.61 2007/12/09 13:51:40 nao-pon Exp $
+// $Id: xpwiki.php,v 1.62 2007/12/20 07:25:18 nao-pon Exp $
 //
 
 class XpWiki {
@@ -294,18 +294,8 @@ class XpWiki {
 		return (isset($this->$var))? $this->$var : null;
 	}
 	
-	function get_page_count () {
-		if (!$this->page || !$this->func->is_page($this->page)) return 0;
-		$pgid = $this->func->get_pgid_by_name($this->page);
-		
-		$count = 0;
-		
-		$sql = 'SELECT `count` FROM `'.$this->db->prefix($this->root->mydirname."_count").'` WHERE pgid = '.$pgid.' LIMIT 1';
-		$res = $this->db->query($sql);
-		if ($res) {
-			list($count) = $this->db->fetchRow($res);	
-		}
-		return $count;
+	function get_page_views () {
+		return $this->func->get_page_views($this->page);
 	}
 	
 	function get_comment_count () {

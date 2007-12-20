@@ -1,7 +1,7 @@
 <?php
 //
 // Created on 2006/10/29 by nao-pon http://hypweb.net/
-// $Id: whatsnew.php,v 1.12 2007/12/04 06:22:41 nao-pon Exp $
+// $Id: whatsnew.php,v 1.13 2007/12/20 07:25:18 nao-pon Exp $
 //
 
 class XpWikiExtension_whatsnew extends XpWikiExtension {
@@ -56,7 +56,7 @@ class XpWikiExtension_whatsnew extends XpWikiExtension {
 			$pginfo = $page->get_pginfo();
 
 			$ret[$i]['description'] = strip_tags(($added ? $added . '&#182;' : '') .$page->body);
-			$ret[$i]['hits']        = $page->get_page_count();
+			$ret[$i]['hits']        = $page->get_page_views();
 			$ret[$i]['replies']     = $page->get_comment_count();
 			$ret[$i]['uid']         = $pginfo['lastuid'];
 			

@@ -1,7 +1,7 @@
 <?php
 //
 // Created on 2006/10/02 by nao-pon http://hypweb.net/
-// $Id: xpwiki_func.php,v 1.127 2007/12/19 09:09:09 nao-pon Exp $
+// $Id: xpwiki_func.php,v 1.128 2007/12/20 07:25:17 nao-pon Exp $
 //
 class XpWikiFunc extends XpWikiXoopsWrapper {
 
@@ -2615,6 +2615,17 @@ EOD;
 		return $count;
 	}
 
+	function get_page_views($page = '') {
+		if (!$page || !$this->is_page($page)) return 0;
+		$pgid = $this->get_pgid_by_name($page);
+		$count = 0;
+		$sql = 'SELECT `count` FROM `'.$this->xpwiki->db->prefix($this->root->mydirname."_count").'` WHERE pgid = '.$pgid.' LIMIT 1';
+		$res = $this->xpwiki->db->query($sql);
+		if ($res) {
+			list($count) = $this->xpwiki->db->fetchRow($res);	
+		}
+		return $count;
+	}
 	
 	/* やはり fstat(filemtime) のほうが早い模様
 	// Get last-modified filetime of the page (DB版)
