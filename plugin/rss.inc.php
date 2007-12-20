@@ -1,6 +1,6 @@
 <?php
 // PukiWiki - Yet another WikiWikiWeb clone
-// $Id: rss.inc.php,v 1.21 2007/12/20 05:54:54 nao-pon Exp $
+// $Id: rss.inc.php,v 1.22 2007/12/20 07:23:53 nao-pon Exp $
 //
 // RSS plugin: Publishing RSS of RecentChanges
 //
@@ -44,7 +44,7 @@ class xpwiki_plugin_rss extends xpwiki_plugin {
 		}
 
 		if ($added) $html = '<dl><dt>Changes</dt><dd>' . $added . '</dd></dl><hr />' . $html;
-		$userinfo = $this->func->get_userinfo_by_id($this->func->get_pg_auther($page));
+		$pginfo = $this->func->get_pginfo($page);
 		
 		// ]]> をクォート
 		$html = str_replace(']]>', ']]&gt;', $html);
@@ -62,7 +62,7 @@ class xpwiki_plugin_rss extends xpwiki_plugin {
 			$html = preg_replace($_reg, '$1$3', $html);
 		}
 		
-		return array($description, $html, $userinfo, $tags);
+		return array($description, $html, $pginfo, $tags);
 
 	}
 	
@@ -158,8 +158,8 @@ EOD;
 					break;
 				
 				case '2.0':
-					list($description, $html, $userinfo) = $this->get_content($page);
-					$author = htmlspecialchars($userinfo['uname']);
+					list($description, $html, $pginfo) = $this->get_content($page);
+					$author = htmlspecialchars($pginfo['uname']);
 					$date = $this->func->get_date('r', $time);
 					$items .= <<<EOD
 <item>
@@ -178,8 +178,8 @@ EOD;
 		
 				case '1.0':
 					// Add <item> into <items>
-					list($description, $html, $userinfo, $tags) = $this->get_content($page);
-					$author = htmlspecialchars($userinfo['uname']);
+					list($description, $html, $pginfo, $tags) = $this->get_content($page);
+					$author = htmlspecialchars($pginfo['uname']);
 					
 					$tag = '';
 					if ($tags) {
@@ -217,8 +217,8 @@ $trackback_ping
 EOD;
 					break;
 				case 'atom':
-					list($description, $html, $userinfo, $tags) = $this->get_content($page);
-					$author = htmlspecialchars($userinfo['uname']);
+					list($description, $html, $pginfo, $tags) = $this->get_content($page);
+					$author = htmlspecialchars($pginfo['uname']);
 					
 					$tag = '';
 					if ($tags) {
