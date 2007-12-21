@@ -1,8 +1,10 @@
 <?php
 /*
  * Created on 2007/12/20 by nao-pon http://hypweb.net/
- * $Id: stand_alone_functions.php,v 1.1 2007/12/20 08:09:28 nao-pon Exp $
+ * $Id: stand_alone_functions.php,v 1.2 2007/12/21 01:08:39 nao-pon Exp $
  */
+
+if (! function_exists('xpwiki_saf_build_function')) {
 
 // Build a function
 function xpwiki_saf_build_function ($mydirname, $funcname) {
@@ -18,7 +20,6 @@ function xpwiki_saf_build_function ($mydirname, $funcname) {
 	}
 }
 
-if (! function_exists('xpwiki_saf_getRecentPages_base')) {
 function xpwiki_saf_getRecentPages_base( $options ) {
 
 	$mydirname = preg_replace( '/[^0-9a-zA-Z_-]/', '', $options[0]);
@@ -84,5 +85,6 @@ function xpwiki_saf_getRecentPages_base( $options ) {
 	// As for all the values, it is not escaped in HTML. 
 	return $ret;
 }
+
 }
 ?>
