@@ -1,7 +1,7 @@
 <?php
 //
 // Created on 2006/10/02 by nao-pon http://hypweb.net/
-// $Id: xpwiki_func.php,v 1.128 2007/12/20 07:25:17 nao-pon Exp $
+// $Id: xpwiki_func.php,v 1.129 2007/12/30 02:39:46 nao-pon Exp $
 //
 class XpWikiFunc extends XpWikiXoopsWrapper {
 
@@ -695,6 +695,9 @@ EOD;
 	
 	// ページ毎閲覧権限チェック
 	function check_readable_page ($page, $auth_flag = TRUE, $exit_flag = TRUE, $uid = NULL) {
+		// for renderer mode
+		$this->root->rtf['disable_render_cache'] = TRUE;
+		
 		if ($this->is_owner($page, $uid)) return TRUE;
 		
 		if (is_null($uid)) {
