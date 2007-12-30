@@ -1,5 +1,5 @@
 <?php
-// $Id: urlbookmark.inc.php,v 1.3 2007/12/07 13:08:45 nao-pon Exp $
+// $Id: urlbookmark.inc.php,v 1.4 2007/12/30 14:22:36 nao-pon Exp $
 
 /*
  * PukiWiki urlbookmark プラグイン
@@ -220,6 +220,7 @@ EOD;
 		$enc = $this->get_encoding($buf);
 		if ($enc !== 'auto') {
 			$this->func->encode_numericentity($title, $this->cont['SOURCE_ENCODING'], $enc);
+			$title = mb_convert_encoding($title, $this->cont['SOURCE_ENCODING'], $enc);
 		} else {
 			if (extension_loaded('mbstring')) {
 				$enc = $this->get_encoding($buf);
