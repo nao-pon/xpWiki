@@ -1,7 +1,7 @@
 <?php
 //
 // Created on 2006/10/25 by nao-pon http://hypweb.net/
-// $Id: loader.php,v 1.31 2007/12/09 23:39:55 nao-pon Exp $
+// $Id: loader.php,v 1.32 2007/12/30 02:37:07 nao-pon Exp $
 //
 
 error_reporting(0);
@@ -59,6 +59,13 @@ switch ($type) {
 	case 'css':
 		$_charset = '';
 		$c_type = 'text/css';
+
+		// Skin dir
+		$skin = isset($_GET['skin']) ? preg_replace('/[^\w.-]+/','',$_GET['skin'])  : 'default';
+		if (!$skin) $skin = 'default';
+
+		$_is_tdiary = (substr($skin, 0, 3) === 'tD-');
+
 		$dir = $prefix.basename($root_path);
 		if ($src === 'main') {
 			// Default CSS
@@ -74,6 +81,10 @@ switch ($type) {
 				default: $_charset = $charset ='iso-8859-1';
 			}
 			$c_type = 'text/css; charset=' . $charset;
+			// tDiary
+			if ($_is_tdiary) {
+				$src .= '_tdiary';
+			}
 			// Media
 			$media = isset($_GET['media'])? $_GET['media'] : '';
 			$media = ($media === 'print')? '_print' : '';
@@ -81,12 +92,9 @@ switch ($type) {
 			// Pre Width
 			$pre_width = (isset($_GET['pw']) && preg_match('/^([0-9]{2,4}(px|%)|auto)$/',$_GET['pw']))? $_GET['pw'] : 'auto';
 		}
-		// Skin dir
-		$skin = isset($_GET['skin']) ? preg_replace('/[^\w.-]+/','',$_GET['skin'])  : 'default';
-		if (!$skin) $skin = 'default';
 		
 		// tDiary's Skin
-		if (substr($skin, 0, 3) === 'tD-') {
+		if ($_is_tdiary) {
 			$skin = 'tdiary_theme';
 		}
 		
