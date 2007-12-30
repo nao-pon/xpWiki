@@ -8,9 +8,9 @@ if( ! function_exists( 'xpwiki_oninstall_base' ) ) {
 function xpwiki_oninstall_base( $module , $mydirname )
 {
 	// transations on module install
-
+	
 	global $ret ; // TODO :-D
-
+	
 	// for Cube 2.1
 	if( defined( 'XOOPS_CUBE_LEGACY' ) ) {
 		$root =& XCube_Root::getSingleton();
@@ -114,9 +114,10 @@ function xpwiki_oninstall_base( $module , $mydirname )
 	include_once dirname(__FILE__).'/include/check.func.php';
 	$_ret = xpwikifunc_permission_check($mydirname);
 	if (!$_ret) {
-		$ret += xpwikifunc_defdata_check($mydirname);
+		$ret = array_merge($ret, xpwikifunc_defdata_check($mydirname));
 	} else {
-		$ret += $_ret;
+		$GLOBALS['XpWikiMsg'] = $_ret;
+		$ret = array_merge($ret, $_ret);
 		return false;
 	}
 
@@ -127,6 +128,11 @@ function xpwiki_message_append_oninstall( &$module_obj , &$log )
 {
 	if( is_array( @$GLOBALS['ret'] ) ) {
 		foreach( $GLOBALS['ret'] as $message ) {
+			$log->add( strip_tags( $message ) ) ;
+		}
+	}
+	if( is_array( @$GLOBALS['XpWikiMsg'] ) ) {
+		foreach( $GLOBALS['XpWikiMsg'] as $message ) {
 			$log->add( strip_tags( $message ) ) ;
 		}
 	}
