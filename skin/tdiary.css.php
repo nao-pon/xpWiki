@@ -1,6 +1,6 @@
 <?php
 // PukiWiki - Yet another WikiWikiWeb clone.
-// $Id: tdiary.css.php,v 1.6 2007/10/13 05:47:32 nao-pon Exp $
+// $Id: tdiary.css.php,v 1.7 2007/12/30 02:37:47 nao-pon Exp $
 // Copyright (C)
 //   2002-2005 PukiWiki Developers Team
 //   2001-2002 Originally written by yu-ji
@@ -101,51 +101,6 @@ default:
 // Output CSS ----
 ?>
 @charset "<?php echo $charset ?>";
-
-/* pukiwiki helper */
-div#wikihelper_base {
-	position:absolute;
-	top:-1000px;
-	left:-1000px;
-	/*background-color:white;*/
-	filter:alpha(opacity=85);
-	-moz-opacity: 0.85;
-	opacity: 0.85;
-}
-
-div#pukiwiki_helper_base small {
-	background-color:white;
-}
-
-#xpwiki_loading {
-	background-color: white;
-	position: absolute;
-	text-align: center;
-	z-index: 200;
-	filter:alpha(opacity=50);
-	-moz-opacity: 0.5;
-	opacity: 0.5;
-	cursor: wait;
-}
-
-#XpWikiPopup {
-	border-left: solid gray 1px;
-}
-
-#XpWikiPopupHeader {
-	background-color: #9C9C9C;
-	color: white;
-	font-weight:bold;
-}
-
-#XpWikiPopupBody {
-	background-color: white;
-}
-
-body.popup_body {
-	padding-top:25px;
-	font-size:75%;
-}
 
 a.pagelink {
 	/*border-bottom: 1px silver dotted;*/
