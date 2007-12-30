@@ -1,5 +1,5 @@
 <?php
-// $Id: ref.inc.php,v 1.17 2007/11/27 02:26:43 nao-pon Exp $
+// $Id: ref.inc.php,v 1.18 2007/12/30 14:22:10 nao-pon Exp $
 /*
 
 	*プラグイン ref
@@ -91,6 +91,10 @@ class xpwiki_plugin_ref extends xpwiki_plugin {
 		
 		$page     = $this->root->vars['page'];
 		$filename = $this->root->vars['src'] ;
+		
+		if (!$this->func->check_readable($page, true, true)) {
+			return array('msg'=>'Not readable.', 'body'=>"\n");
+		}
 		
 		$ref = $this->cont['UPLOAD_DIR'] . $this->func->encode($page) . '_' . $this->func->encode(preg_replace('#^.*/#', '', $filename));
 		if(! file_exists($ref))
@@ -251,9 +255,14 @@ class xpwiki_plugin_ref extends xpwiki_plugin {
 			'page'   => $this->root->vars['page'], // ページ名
 			'name'   => array_shift($args), // 添付ファイル名を取得(第一引数)
 		);
-		
+
 		if ($this->root->render_mode === 'render') {
 			$lvar['page'] = $this->root->render_attach;
+		}
+
+		if (!$this->func->check_readable($lvar['page'], false, false)) {
+			$params['_error'] = '<small>[File display right none]</small>';
+			return $params;
 		}
 		
 		// アップロードリンク指定
