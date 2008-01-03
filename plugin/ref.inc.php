@@ -1,5 +1,5 @@
 <?php
-// $Id: ref.inc.php,v 1.18 2007/12/30 14:22:10 nao-pon Exp $
+// $Id: ref.inc.php,v 1.19 2008/01/03 12:34:52 nao-pon Exp $
 /*
 
 	*プラグイン ref
@@ -260,11 +260,6 @@ class xpwiki_plugin_ref extends xpwiki_plugin {
 			$lvar['page'] = $this->root->render_attach;
 		}
 
-		if (!$this->func->check_readable($lvar['page'], false, false)) {
-			$params['_error'] = '<small>[File display right none]</small>';
-			return $params;
-		}
-		
 		// アップロードリンク指定
 		$this->root->rtf['disable_render_cache'] = true;
 		if (substr($lvar['name'],0,3) === 'ID$') {
@@ -293,6 +288,11 @@ class xpwiki_plugin_ref extends xpwiki_plugin {
 
 		// ファイルタイプの設定
 		$this->get_type($lvar, $args, $params);
+
+		// Check readable
+		if (!$this->func->check_readable($lvar['page'], false, false)) {
+			$params['_error'] = '<small>[File display right none]</small>';
+		}
 		
 		// エラーあり
 		if ($params['_error']) {
@@ -739,12 +739,14 @@ _HTML_;
 				$is_file = @ is_file($lvar['file']);
 			}
 			if (! $is_file) {
-				//$params['_error'] = htmlspecialchars('File not found: "' .
-				//$lvar['name'] . '" at page "' . $lvar['page'] . '"');
-				if (strlen($lvar['name']) < 252) {
-					$params['_error'] = 'File not found.';
+				if ($this->root->render_mode !== 'render' && !$this->func->is_page($lvar['page'])) {
+					$params['_error'] = $this->root->_msg_notfound . '(' . htmlspecialchars($lvar['page']) .  ')';
 				} else {
-					$params['_error'] = 'File name is too long.';
+					if (strlen($lvar['name']) < 252) {
+						$params['_error'] = 'File not found.';
+					} else {
+						$params['_error'] = 'File name is too long.';
+					}
 				}
 				return;
 			}
