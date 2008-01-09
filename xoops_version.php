@@ -63,6 +63,16 @@ $modversion['blocks'][2] = array(
 	'template'		=> '' , // use "module" template instead
 	'can_clone'		=> true ,
 ) ;
+$modversion['blocks'][3] = array(
+	'file'			=> 'blocks.php' ,
+	'name'			=> constant($constpref.'_BNAME_FUSEN') ,
+	'description'	=> constant($constpref.'_BDESC_FUSEN') ,
+	'show_func'		=> 'b_xpwiki_fusen_show' ,
+	'edit_func'		=> 'b_xpwiki_fusen_edit' ,
+	'options'		=> $mydirname . '|100%|' ,
+	'template'		=> '' , // use "module" template instead
+	'can_clone'		=> true ,
+) ;
 
 // Comments
 $modversion['hasComments'] = 0 ;

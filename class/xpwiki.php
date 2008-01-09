@@ -1,7 +1,7 @@
 <?php
 //
 // Created on 2006/09/29 by nao-pon http://hypweb.net/
-// $Id: xpwiki.php,v 1.63 2008/01/09 02:31:31 nao-pon Exp $
+// $Id: xpwiki.php,v 1.64 2008/01/09 04:25:07 nao-pon Exp $
 //
 
 class XpWiki {
@@ -312,7 +312,13 @@ class XpWiki {
 	function get_html_for_block ($page, $width = "100%", $div_class = 'xpwiki_b_$mydirname', $css_tag = 'main.css', $configs = array()) {
 		
 		// 初期化
-		$this->init($page);
+		$src = '';
+		if (is_array($page) && !empty($page['source'])) {
+			$src = $page['source'];
+			$this->init('#render');
+		} else {
+			$this->init($page);
+		}
 		
 		// configs
 		if (!empty($configs['root'])) {
@@ -335,7 +341,20 @@ class XpWiki {
 		$this->root->render_mode = 'block';
 		
 		// 実行
-		$this->execute();
+		if ($src) {
+			$this->body = $this->func->convert_html($src);
+			// cont['USER_NAME_REPLACE'] などを 置換
+			$this->body = str_replace(
+					array($this->cont['USER_NAME_REPLACE'], $this->cont['USER_CODE_REPLACE']) ,
+					array($this->root->userinfo['uname_s'], $this->root->userinfo['ucd']) ,
+			        $this->body);
+			// For Safari
+			if ($this->cont['UA_NAME'] === 'Safari') {
+				$this->body = preg_replace('/(<form)([^>]*>)/' , '$1 accept-charset="UTF-8"$2', $text);
+			}
+		} else {
+			$this->execute();
+		}
 		
 		if (!trim($this->body)) return '';
 		

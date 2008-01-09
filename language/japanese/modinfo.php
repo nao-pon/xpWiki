@@ -13,6 +13,8 @@ define( $constpref."_BNAME_A_PAGE","ページ表示 ({$mydirname})");
 define( $constpref."_BDESC_A_PAGE","ページ名を指定してその内容をブロックに表示することができます");
 define( $constpref."_BNAME_NOTIFICATION","イベント通知 ({$mydirname})");
 define( $constpref."_BDESC_NOTIFICATION","イベント通知オプションを設定します");
+define( $constpref."_BNAME_FUSEN","付箋機能 ({$mydirname})");
+define( $constpref."_BDESC_FUSEN","付箋プラグインのコントロールメニューを表示します。");
 
 define( $constpref.'_MODULE_DESCRIPTION' , 'PukiWikiベースのWikiモジュール' ) ;
 
