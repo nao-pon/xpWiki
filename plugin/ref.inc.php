@@ -1,5 +1,5 @@
 <?php
-// $Id: ref.inc.php,v 1.19 2008/01/03 12:34:52 nao-pon Exp $
+// $Id: ref.inc.php,v 1.20 2008/01/09 02:37:47 nao-pon Exp $
 /*
 
 	*プラグイン ref
@@ -914,8 +914,15 @@ _HTML_;
 		$cache = FALSE;
 		$size = array();
 		if (!file_exists($filename)) {
-			$dat = $this->func->http_request($lvar['name']);
-			if ($dat['rc'] == 200 && $dat['data']) {
+			//$dat = $this->func->http_request($lvar['name']);
+			$ht = new Hyp_HTTP_Request();
+			$ht->init();
+			$ht->ua = 'Mozilla/5.0';
+			$ht->url = $lvar['name'];
+			$ht->get();
+
+			if ($ht->rc == 200 && $ht->data) {
+				$dat['data'] = $ht->data;
 				// 自サイト外のファイルは著作権保護する
 				$copyright = ! $this->func->refcheck(0,$lvar['name']);
 			} else {
