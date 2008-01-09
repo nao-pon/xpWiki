@@ -31,7 +31,7 @@
 //
 // fusen.inc.php for xpWiki by nao-pon
 // http://xoops.hypweb.net
-// $Id: fusen.inc.php,v 1.1 2008/01/09 02:39:24 nao-pon Exp $
+// $Id: fusen.inc.php,v 1.2 2008/01/09 11:57:15 nao-pon Exp $
 // 
 
 class xpwiki_plugin_fusen extends xpwiki_plugin {
@@ -559,7 +559,10 @@ EOD;
 			$str .= "###fusen_data_convert###{$k}\n\n".$dat['txt']."\n\n";
 		}
 		
+		$_PKWK_READONLY = $this->cont['PKWK_READONLY'];
+		$this->cont['PKWK_READONLY'] = 2;
 		$this->fusen_convert_html($str,$page);
+		$this->cont['PKWK_READONLY'] = $_PKWK_READONLY;
 		
 		$str = trim(str_replace("\r","",$str));
 		
