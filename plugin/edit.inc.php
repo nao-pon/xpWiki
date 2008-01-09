@@ -1,6 +1,6 @@
 <?php
 // PukiWiki - Yet another WikiWikiWeb clone.
-// $Id: edit.inc.php,v 1.50 2007/12/14 00:02:08 nao-pon Exp $
+// $Id: edit.inc.php,v 1.51 2008/01/09 02:36:50 nao-pon Exp $
 // Copyright (C) 2001-2006 PukiWiki Developers Team
 // License: GPL v2 or (at your option) any later version
 //
@@ -141,7 +141,10 @@ EOD;
 				ob_end_clean() ;
 			}
 			// cont['USER_NAME_REPLACE'] ¤ò ÃÖ´¹
-			$body = str_replace($this->cont['USER_NAME_REPLACE'], $this->root->userinfo['uname_s'], $body);
+			$body = str_replace(
+					array($this->cont['USER_NAME_REPLACE'], $this->cont['USER_CODE_REPLACE']) ,
+					array($this->root->userinfo['uname_s'], $this->root->userinfo['ucd']) ,
+					$body);
 			$body = preg_replace('/<div id="(xpwiki_body|'.preg_quote($this->root->vars['paraid'], '/').')"/', '<div ', $body);
 			$body .= $this->func->edit_form($page, $this->root->vars['msg'], $this->root->vars['digest'], TRUE, $options);
 			$title = (!$ng_riddle)? $this->root->_title_preview : $this->root->_title_ng_riddle;
