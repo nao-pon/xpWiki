@@ -1,7 +1,7 @@
 <?php
 //
 // Created on 2006/09/29 by nao-pon http://hypweb.net/
-// $Id: xpwiki.php,v 1.64 2008/01/09 04:25:07 nao-pon Exp $
+// $Id: xpwiki.php,v 1.65 2008/01/09 11:56:09 nao-pon Exp $
 //
 
 class XpWiki {
@@ -79,6 +79,9 @@ class XpWiki {
 		
 		// ini ファイル読み込み
 		$this->func->load_ini();
+
+		// 元の値を記憶
+		$this->root->rtf['PKWK_READONLY'] = $this->cont['PKWK_READONLY'];
 
 		// アクセスユーザーの情報読み込み
 		$this->func->set_userinfo();
@@ -311,6 +314,9 @@ class XpWiki {
 	
 	function get_html_for_block ($page, $width = "100%", $div_class = 'xpwiki_b_$mydirname', $css_tag = 'main.css', $configs = array()) {
 		
+		// configs
+		$this->iniVar = $configs;
+		
 		// 初期化
 		$src = '';
 		if (is_array($page) && !empty($page['source'])) {
@@ -318,18 +324,6 @@ class XpWiki {
 			$this->init('#render');
 		} else {
 			$this->init($page);
-		}
-		
-		// configs
-		if (!empty($configs['root'])) {
-			foreach ($configs['root'] as $_key => $_val) {
-				$this->root->$_key = $_val;
-			}
-		}
-		if (!empty($configs['const'])) {
-			foreach ($configs['const'] as $_key => $_val) {
-				$this->cont[$_key] = $_val;
-			}
 		}
 		
 		$div_class = str_replace('$mydirname', $this->root->mydirname, $div_class);
@@ -350,7 +344,7 @@ class XpWiki {
 			        $this->body);
 			// For Safari
 			if ($this->cont['UA_NAME'] === 'Safari') {
-				$this->body = preg_replace('/(<form)([^>]*>)/' , '$1 accept-charset="UTF-8"$2', $text);
+				$this->body = preg_replace('/(<form)([^>]*>)/' , '$1 accept-charset="UTF-8"$2', $this->body);
 			}
 		} else {
 			$this->execute();
