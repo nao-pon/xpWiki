@@ -13,6 +13,8 @@ define( $constpref."_BNAME_A_PAGE","Show page  ({$mydirname})");
 define( $constpref."_BDESC_A_PAGE","The content can be displayed in the block by specifying page name.");
 define( $constpref."_BNAME_NOTIFICATION","Notifications ({$mydirname})");
 define( $constpref."_BDESC_NOTIFICATION","Set up about notifications.");
+define( $constpref."_BNAME_FUSEN","Fusen(Tag) ({$mydirname})");
+define( $constpref."_BDESC_FUSEN","The control menu of the Fusen(Tag) plugin is displayed.");
 
 define( $constpref.'_MODULE_DESCRIPTION' , 'A wiki module based on PukiWiki.' ) ;
 

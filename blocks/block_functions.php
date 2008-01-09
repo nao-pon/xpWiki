@@ -133,4 +133,79 @@ function b_xpwiki_a_page_edit( $options )
 	return $form;
 }
 
+function b_xpwiki_fusen_show( $options )
+{
+	$mydirname = empty( $options[0] ) ? 'xpwiki' : $options[0] ;
+	$width = empty( $options[1] ) ? '100%' : $options[1] ;
+	$this_template = empty( $options[2] ) ? 'db:'.$mydirname.'_block_a_page.html' : trim( $options[2] ) ;
+	$div_class = empty( $options[3] ) ? 'xpwiki_b_' . $mydirname : $options[3];
+	$css = isset( $options[4] ) ? $options[4] : 'main.css';
+	$configs = array();
+	
+	if( preg_match( '/[^0-9a-zA-Z_-]/' , $mydirname ) ) die( 'Invalid mydirname' ) ;
+	
+	// 必要なファイルの読み込み (固定値:変更の必要なし)
+	include_once XOOPS_TRUST_PATH."/modules/xpwiki/include.php";
+	 
+	// インスタンス化 (引数: モジュールディレクトリ名)
+	$xw = new XpWiki($mydirname);
+	
+	// ページキャッシュを常に無効にする
+	$configs['root']['pagecache_min'] = 0;
+	
+	// Wikiソース
+	$src = <<<EOD
+#fusen
+EOD;
+	$arg = array('source' => $src);
+	
+	// ブロック用として取得 (引数: Wikiソース, 表示幅)
+	$str = $xw->get_html_for_block($arg, $width, $div_class, $css, $configs);
+	 
+	// オブジェクトを破棄
+	$xw = null;
+	unset($xw); 
+
+	$block = array( 
+		'mydirname' => $mydirname ,
+		'mod_url' => XOOPS_URL.'/modules/'.$mydirname ,
+		'pagename' => '' ,
+		'content'  => $str ,
+	) ;
+
+	$tpl =& new XoopsTpl() ;
+	$tpl->assign( 'block' , $block ) ;
+	$ret['content'] = $tpl->fetch( $this_template ) ;
+	return $ret ;
+}
+
+function b_xpwiki_fusen_edit( $options )
+{
+	$mydirname = empty( $options[0] ) ? 'xpwiki' : $options[0] ;
+	if( preg_match( '/[^0-9a-zA-Z_-]/' , $mydirname ) ) die( 'Invalid mydirname' ) ;
+
+	$width = empty( $options[1] ) ? '100%' : $options[1] ;
+	$this_template = empty( $options[2] ) ? 'db:'.$mydirname.'_block_a_page.html' : trim( $options[2] ) ;
+	$div_class = empty( $options[3] ) ? 'xpwiki_b_' . $mydirname : trim( $options[3] );
+	$css = isset( $options[4] ) ? trim( $options[4] ) : 'main.css';
+	
+	$form = "
+		<input type='hidden' name='options[0]' value='$mydirname' />
+		<label for='blockwidth'>"._MB_XPWIKI_WIDTH."</label>&nbsp;:
+		<input type='text' size='20' name='options[1]' id='blockwidth' value='".$width."' />
+		<br />
+		<label for='this_template'>"._MB_XPWIKI_THISTEMPLATE."</label>&nbsp;:
+		<input type='text' size='60' name='options[2]' id='this_template' value='".htmlspecialchars($this_template,ENT_QUOTES)."' />
+		<br />
+		<label for='divclass'>"._MB_XPWIKI_DIVCLASS."</label>&nbsp;:
+		<input type='text' size='30' name='options[3]' id='divclass' value='".htmlspecialchars($div_class,ENT_QUOTES)."' />
+		<br />
+		<label for='this_css'>"._MB_XPWIKI_THISCSS."</label>&nbsp;:
+		<input type='text' size='30' name='options[4]' id='this_css' value='".htmlspecialchars($css,ENT_QUOTES)."' />
+		<br />
+		\n" ;
+	return $form;
+}
+
+
 ?>
