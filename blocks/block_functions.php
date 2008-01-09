@@ -57,6 +57,8 @@ function b_xpwiki_a_page_show( $options )
 	$this_template = empty( $options[3] ) ? 'db:'.$mydirname.'_block_a_page.html' : trim( $options[3] ) ;
 	$div_class = empty( $options[4] ) ? 'xpwiki_b_' . $mydirname : $options[4];
 	$css = isset( $options[5] ) ? $options[5] : 'main.css';
+	$disabled_pagecache = empty($options[6])? false : true;
+	$configs = array();
 	
 	if( preg_match( '/[^0-9a-zA-Z_-]/' , $mydirname ) ) die( 'Invalid mydirname' ) ;
 	
@@ -65,9 +67,14 @@ function b_xpwiki_a_page_show( $options )
 	 
 	// インスタンス化 (引数: モジュールディレクトリ名)
 	$xw = new XpWiki($mydirname);
-	 
+	
+	// ページキャッシュを常に無効にする?
+	if ($disabled_pagecache) {
+		$configs['root']['pagecache_min'] = 0;
+	}
+	
 	// ブロック用として取得 (引数: ページ名, 表示幅)
-	$str = $xw->get_html_for_block ($page, $width, $div_class, $css);
+	$str = $xw->get_html_for_block($page, $width, $div_class, $css, $configs);
 	 
 	// オブジェクトを破棄
 	$xw = null;
@@ -98,7 +105,10 @@ function b_xpwiki_a_page_edit( $options )
 	$this_template = empty( $options[3] ) ? 'db:'.$mydirname.'_block_a_page.html' : trim( $options[3] ) ;
 	$div_class = empty( $options[4] ) ? 'xpwiki_b_' . $mydirname : trim( $options[4] );
 	$css = isset( $options[5] ) ? trim( $options[5] ) : 'main.css';
-
+	$disabled_pagecache = empty($options[6])? 1 : 0;
+	$check_pagecache = array('', '');
+	$check_pagecache[$disabled_pagecache] = ' checked="checked"';
+	
 	$form = "
 		<input type='hidden' name='options[0]' value='$mydirname' />
 		<label for='pagename'>"._MB_XPWIKI_PAGENAME."</label>&nbsp;:
@@ -116,8 +126,10 @@ function b_xpwiki_a_page_edit( $options )
 		<label for='this_css'>"._MB_XPWIKI_THISCSS."</label>&nbsp;:
 		<input type='text' size='30' name='options[5]' id='this_css' value='".htmlspecialchars($css,ENT_QUOTES)."' />
 		<br />
+		<label>"._MB_XPWIKI_DISABLEDPAGECACHE."</label>&nbsp;:
+		<input type='radio' name='options[6]' value='1'{$check_pagecache[0]} />Yes &nbsp; <input type='radio' name='options[6]' value='0'{$check_pagecache[1]} />No
+		<br />
 		\n" ;
-
 	return $form;
 }
 
