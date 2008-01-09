@@ -31,7 +31,7 @@
 //
 // fusen.inc.php for xpWiki by nao-pon
 // http://xoops.hypweb.net
-// $Id: fusen.inc.php,v 1.2 2008/01/09 11:57:15 nao-pon Exp $
+// $Id: fusen.inc.php,v 1.3 2008/01/09 12:59:03 nao-pon Exp $
 // 
 
 class xpwiki_plugin_fusen extends xpwiki_plugin {
@@ -401,7 +401,7 @@ EOD;
 					$uid = $this->root->userinfo['uid'];
 					$ucd = $this->root->userinfo['ucd'];
 					$name = $this->root->vars['name'];
-					//$this->func->make_user_link($name);
+					if ($name) { $this->func->save_name2cookie($name); }
 				}
 				else
 				{
