@@ -1,7 +1,7 @@
 <?php
 //
 // Created on 2006/09/29 by nao-pon http://hypweb.net/
-// $Id: xpwiki.php,v 1.62 2007/12/20 07:25:18 nao-pon Exp $
+// $Id: xpwiki.php,v 1.63 2008/01/09 02:31:31 nao-pon Exp $
 //
 
 class XpWiki {
@@ -202,8 +202,11 @@ class XpWiki {
 				}
 			}
 			
-			// cont['USER_NAME_REPLACE'] を 置換
-			$body = str_replace($this->cont['USER_NAME_REPLACE'], $this->root->userinfo['uname_s'], $body);
+			// cont['USER_NAME_REPLACE'] などを 置換
+			$body = str_replace(
+					array($this->cont['USER_NAME_REPLACE'], $this->cont['USER_CODE_REPLACE']) ,
+					array($this->root->userinfo['uname_s'], $this->root->userinfo['ucd']) ,
+					$body);
 			
 			// For Safari
 			if ($this->cont['UA_NAME'] === 'Safari') {
@@ -306,10 +309,23 @@ class XpWiki {
 		return $this->func->get_pginfo($this->page);
 	}
 	
-	function get_html_for_block ($page, $width = "100%", $div_class = 'xpwiki_b_$mydirname', $css_tag = 'main.css') {
+	function get_html_for_block ($page, $width = "100%", $div_class = 'xpwiki_b_$mydirname', $css_tag = 'main.css', $configs = array()) {
 		
 		// 初期化
 		$this->init($page);
+		
+		// configs
+		if (!empty($configs['root'])) {
+			foreach ($configs['root'] as $_key => $_val) {
+				$this->root->$_key = $_val;
+			}
+		}
+		if (!empty($configs['const'])) {
+			foreach ($configs['const'] as $_key => $_val) {
+				$this->cont[$_key] = $_val;
+			}
+		}
+		
 		$div_class = str_replace('$mydirname', $this->root->mydirname, $div_class);
 		
 		// for menu plugin etc..
@@ -320,7 +336,9 @@ class XpWiki {
 		
 		// 実行
 		$this->execute();
-
+		
+		if (!trim($this->body)) return '';
+		
 		// SKIN select from Cookie or Plugin.
 		if ($this->cont['SKIN_CHANGER']) {
 			if ($this->root->cookie['skin']) {$this->cont['SKIN_NAME'] = $this->root->cookie['skin']; }
@@ -462,7 +480,10 @@ EOD;
 		}
 
 		// cont['USER_NAME_REPLACE'] を 置換
-		$text  = str_replace($this->cont['USER_NAME_REPLACE'], $this->root->userinfo['uname_s'], $text);
+		$text = str_replace(
+				array($this->cont['USER_NAME_REPLACE'], $this->cont['USER_CODE_REPLACE']) ,
+				array($this->root->userinfo['uname_s'], $this->root->userinfo['ucd']) ,
+		        $text);
 		// For Safari
 		if ($this->cont['UA_NAME'] === 'Safari') {
 			$text = preg_replace('/(<form)([^>]*>)/' , '$1 accept-charset="UTF-8"$2', $text);
