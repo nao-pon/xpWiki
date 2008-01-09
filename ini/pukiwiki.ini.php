@@ -1,6 +1,6 @@
 <?php
 // PukiWiki - Yet another WikiWikiWeb clone
-// $Id: pukiwiki.ini.php,v 1.57 2008/01/09 02:31:50 nao-pon Exp $
+// $Id: pukiwiki.ini.php,v 1.58 2008/01/09 11:56:28 nao-pon Exp $
 // Copyright (C)
 //   2002-2006 PukiWiki Developers Team
 //   2001-2002 Originally written by yu-ji
@@ -19,27 +19,24 @@ $root->page_aliases = array(); // Pagename aliases
 // PKWK_OPTIMISE - Ignore verbose but understandable checking and warning
 //   If you end testing this PukiWiki, set '1'.
 //   If you feel in trouble about this PukiWiki, set '0'.
-if (! isset($const['PKWK_OPTIMISE']))
-	$const['PKWK_OPTIMISE'] = 0;
+$const['PKWK_OPTIMISE'] = 0;
 
 /////////////////////////////////////////////////
 // Security settings
 
 // PKWK_READONLY - Prohibits editing and maintain via WWW
 //   NOTE: Counter-related functions will work now (counter, attach count, etc)
-if (! isset($const['PKWK_READONLY']))
-	$const['PKWK_READONLY'] = 0; // 0 or 1
+$const['PKWK_READONLY'] = 0; // 0 or 1
 
 // PKWK_SAFE_MODE - Prohibits some unsafe(but compatible) functions 
-if (! isset($const['PKWK_SAFE_MODE']))
-	$const['PKWK_SAFE_MODE'] = 0;
+$const['PKWK_SAFE_MODE'] = 0;
 
 // PKWK_DISABLE_INLINE_IMAGE_FROM_URI - Disallow using inline-image-tag for URIs
 //   Inline-image-tag for URIs may allow leakage of Wiki readers' information
 //   (in short, 'Web bug') or external malicious CGI (looks like an image's URL)
 //   attack to Wiki readers, but easy way to show images.
-if (! isset($const['PKWK_DISABLE_INLINE_IMAGE_FROM_URI']))
-	$const['PKWK_DISABLE_INLINE_IMAGE_FROM_URI'] = 0;
+$const['PKWK_DISABLE_INLINE_IMAGE_FROM_URI'] = 0;
+
 // $const['PKWK_DISABLE_INLINE_IMAGE_FROM_URI'] = 0 の時、
 // 外部サイトのファイルは ref プラグインを使用して表示する
 $const['SHOW_EXTIMG_BY_REF'] = TRUE;
