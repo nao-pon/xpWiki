@@ -1,7 +1,7 @@
 <?php
 //
 // Created on 2006/10/02 by nao-pon http://hypweb.net/
-// $Id: xpwiki_func.php,v 1.129 2007/12/30 02:39:46 nao-pon Exp $
+// $Id: xpwiki_func.php,v 1.130 2008/01/09 02:39:24 nao-pon Exp $
 //
 class XpWikiFunc extends XpWikiXoopsWrapper {
 
@@ -439,6 +439,7 @@ class XpWikiFunc extends XpWikiXoopsWrapper {
 			// キャッシュ利用
 			$cache_dat = unserialize(join('',file($cache_file)));
 			$body = array_shift($cache_dat);
+			$GLOBALS['Xpwiki_'.$this->root->mydirname]['cache'] = @ $cache_dat['globals'];
 			foreach ($cache_dat['root'] as $_key=>$_val) {
 				$this->root->$_key = $_val;
 			}
@@ -469,7 +470,8 @@ class XpWikiFunc extends XpWikiXoopsWrapper {
 						),
 						'cont'          => array(
 							'SKIN_CHANGER'  => $this->cont['SKIN_CHANGER']
-						)
+						),
+						'globals'       => @ $GLOBALS['Xpwiki_'.$this->root->mydirname]['cache']
 					)
 				));
 				fclose($fp);
@@ -1508,6 +1510,10 @@ EOD;
 		return preg_replace('#.*/([^/]+)$#', '$1', $path);
 	}
 	
+	function set_current_page($page) {
+		$this->root->get['page'] = $this->root->post['page'] = $this->root->vars['page'] = $page;
+	}
+	
 /*----- DB Functions -----*/ 
 	//ページ名からページIDを求める
 	function get_pgid_by_name ($page, $cache = true, $make = false)
@@ -1896,6 +1902,7 @@ EOD;
 
 			$pobj = & XpWiki::getSingleton($this->root->mydirname);
 			$pobj->init($page);
+			$GLOBALS['Xpwiki_'.$this->root->mydirname]['cache'] = null;
 			$pobj->root->userinfo['admin'] = true;
 			$pobj->root->userinfo['uname_s'] = '';
 			$pobj->root->read_auth = 0;
@@ -1949,16 +1956,16 @@ EOD;
 				}
 			}
 			
-/*
 			// 付箋
-			if ($fusen_enable_allpage && empty($pwm_plugin_flg['fusen']['convert']))
-			{
-				require_once(PLUGIN_DIR."fusen.inc.php");
-				$fusen_tag = do_plugin_convert("fusen");
-				$fusen_tag = str_replace(array(WIKI_NAME_DEF,WIKI_UCD_DEF,'_XOOPS_WIKI_HOST_'),array("","",XOOPS_WIKI_HOST),$fusen_tag);
-				$data .= $fusen_tag;
+			if (empty($GLOBALS['Xpwiki_'.$this->root->mydirname]['cache']['fusen']['loaded'])){
+				if ($fusen = $this->get_plugin_instance('fusen')) {
+					if ($fusen_data = $fusen->plugin_fusen_data($page)) {
+						$fusen_tag = $fusen->plugin_fusen_gethtml($fusen_data, '');
+						$data .= $fusen_tag;
+					}
+				}
 			}
-*/
+
 			$data = preg_replace("/".preg_quote("<a href=\"{$this->root->script}?cmd=edit&amp;page=","/")."[^\"]+".preg_quote("\">{$this->root->_symbol_noexists}</a>","/")."/","",$data);
 			$data = str_replace($spc[0],$spc[1],strip_tags($data)).join(',',$rel_pages);
 			

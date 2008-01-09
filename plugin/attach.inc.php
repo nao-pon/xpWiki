@@ -9,7 +9,7 @@ class xpwiki_plugin_attach extends xpwiki_plugin {
 	/////////////////////////////////////////////////
 	// PukiWiki - Yet another WikiWikiWeb clone.
 	//
-	//  $Id: attach.inc.php,v 1.30 2007/11/30 02:13:45 nao-pon Exp $
+	//  $Id: attach.inc.php,v 1.31 2008/01/09 02:39:24 nao-pon Exp $
 	//  ORG: attach.inc.php,v 1.31 2003/07/27 14:15:29 arino Exp $
 	//
 	
@@ -331,8 +331,11 @@ class xpwiki_plugin_attach extends xpwiki_plugin {
 		}
 	}
 	
-	function do_upload($page,$fname,$tmpname,$copyright=FALSE,$pass=NULL,$notouch=FALSE)
+	function do_upload($page,$fname,$tmpname,$copyright=FALSE,$pass=NULL,$notouch=FALSE,$options=NULL)
 	{
+		$overwrite = (!empty($options['overwrite']));
+		$changelog = (isset($options['changelog']))? $options['changelog'] : '';
+		
 		// ファイル名の正規化
 		$fname = preg_replace('/[[:cntrl:]]+/', '', $fname);
 		$fname = $this->func->basename(str_replace("\\","/",$fname));
@@ -376,7 +379,7 @@ class xpwiki_plugin_attach extends xpwiki_plugin {
 		}
 		
 		// ページオーナー権限がない場合は拡張子をチェック
-		if ($this->root->allow_extensions && !$this->func->is_owner($page)
+		if (!$overwrite && $this->root->allow_extensions && !$this->func->is_owner($page)
 			 && !preg_match("/\.(".join("|",$this->root->allow_extensions).")$/i",$fname)) {
 			return array('result'=>FALSE,'msg'=>str_replace('$1',preg_replace('/.*\.([^.]*)$/',"$1",$fname),$this->root->_attach_messages['err_extension']));
 		}
@@ -403,20 +406,24 @@ class xpwiki_plugin_attach extends xpwiki_plugin {
 		// ファイル名 文字数のチェック
 		$fname = $this->regularize_fname($fname, $page);
 		
-		// ファイル名が存在する場合は、数字を付け加える
-		if (preg_match("/^(.+)(\.[^.]*)$/",$fname,$match)) {
-			$_fname = $match[1];
-			$_ext = $match[2];
+		if (!$overwrite) {
+			// ファイル名が存在する場合は、数字を付け加える
+			if (preg_match("/^(.+)(\.[^.]*)$/",$fname,$match)) {
+				$_fname = $match[1];
+				$_ext = $match[2];
+			} else {
+				$_fname = $fname;
+				$_ext = '';
+			}
+	
+			$fi = 0;
+			do {
+				$obj = & new XpWikiAttachFile($this->xpwiki, $page, $fname);
+				$fname = $_fname.'_'.($fi++).$_ext;
+			} while ($obj->exist);
 		} else {
-			$_fname = $fname;
-			$_ext = '';
-		}
-
-		$fi = 0;
-		do {
 			$obj = & new XpWikiAttachFile($this->xpwiki, $page, $fname);
-			$fname = $_fname.'_'.($fi++).$_ext;
-		} while ($obj->exist);
+		}
 		
 		if ( is_uploaded_file($tmpname) ) {
 			if ($obj->exist)
@@ -444,7 +451,8 @@ class xpwiki_plugin_attach extends xpwiki_plugin {
 		if (!$notouch && $this->func->is_page($page)) {
 			$this->func->pkwk_touch_file($this->func->get_filename($page));
 			$this->func->touch_db($page);
-			$this->func->push_page_changes($page, 'Attach file: '.htmlspecialchars($obj->file). ' by '.$this->root->userinfo['uname_s']);
+			if (!$changelog) $changelog = 'Attach file: '.htmlspecialchars($obj->file). ' by '.$this->root->userinfo['uname_s'];
+			$this->func->push_page_changes($page, $changelog);
 		}
 		
 		$obj->getstatus();

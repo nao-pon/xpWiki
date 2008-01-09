@@ -1,7 +1,7 @@
 <?php
 //
 // Created on 2006/11/27 by nao-pon http://hypweb.net/
-// $Id: xoopsSearch.php,v 1.4 2007/05/29 23:23:03 nao-pon Exp $
+// $Id: xoopsSearch.php,v 1.5 2008/01/09 02:39:24 nao-pon Exp $
 //
 class XpWikiExtension_xoopsSearch extends XpWikiExtension {
 
@@ -63,9 +63,21 @@ class XpWikiExtension_xoopsSearch extends XpWikiExtension {
 				//$pobj = new XpWiki($this->root->mydirname);
 				$pobj = & XpWiki::getSingleton($this->root->mydirname);
 				$pobj->init($myrow['name']);
+				$GLOBALS['Xpwiki_'.$this->root->mydirname]['cache'] = null;
 				$pobj->root->rtf['use_cache_always'] = TRUE;
 				$pobj->execute();
 				$text = $pobj->body;
+
+				// ÉÕäµ
+				if (empty($GLOBALS['Xpwiki_'.$this->root->mydirname]['cache']['fusen']['loaded'])){
+					if ($fusen = $this->func->get_plugin_instance('fusen')) {
+						if ($fusen_data = $fusen->plugin_fusen_data($myrow['name'])) {
+							if ($fusen_tag = $fusen->plugin_fusen_gethtml($fusen_data, '')) {
+								$text .= '<fieldset><legend> fusen.dat </legend>' . $fusen_tag . '</fieldset>';					
+							}
+						}
+					}
+				}
 	
 				$full_context = strip_tags( $text ) ;
 				if( function_exists( 'easiestml' ) ) $full_context = easiestml( $full_context ) ;
