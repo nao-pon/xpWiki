@@ -9,7 +9,7 @@
 //
 // fusen.js for xpWiki by nao-pon
 // http://hypweb.net
-// $Id: fusen.js,v 1.1 2008/01/09 02:39:24 nao-pon Exp $
+// $Id: fusen.js,v 1.2 2008/01/09 04:48:26 nao-pon Exp $
 // 
 var fusenVar = new Array();
 var fusenMsgs = new Array();
@@ -172,8 +172,8 @@ function fusen_postdata(mode) {
 					'=' + encodeURIComponent(child.value);
 			}
 		}
-		if (postdata) postdata += '&charset=UTF-8';
 	}
+	if (postdata) postdata += '&charset=UTF-8';
 	
 	try {
 		var xmlhttp = fusen_httprequest();
