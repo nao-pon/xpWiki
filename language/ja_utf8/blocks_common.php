@@ -6,4 +6,5 @@ define("_MB_XPWIKI_WIDTH","ページ内容の表示幅");
 define("_MB_XPWIKI_THISTEMPLATE","このブロックのテンプレート");
 define("_MB_XPWIKI_DIVCLASS","このブロックのDIV Class名");
 define("_MB_XPWIKI_THISCSS","このブロックのCSSファイル");
+define("_MB_XPWIKI_DISABLEDPAGECACHE","常にページキャッシュ無効にする");
 ?>
