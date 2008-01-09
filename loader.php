@@ -1,7 +1,7 @@
 <?php
 //
 // Created on 2006/10/25 by nao-pon http://hypweb.net/
-// $Id: loader.php,v 1.32 2007/12/30 02:37:07 nao-pon Exp $
+// $Id: loader.php,v 1.33 2008/01/09 02:39:24 nao-pon Exp $
 //
 
 error_reporting(0);
@@ -37,6 +37,10 @@ if (preg_match("/^(.+)\.([^.]+)$/",$src,$match)) {
 	if (substr($src, -5) === '.page') {
 		$type = 'pagecss';
 		$src = substr($src, 0, strlen($src) - 5);
+	}
+	if (substr($src, -7) === '.pcache') {
+		//$src = substr($src, 0, strlen($src) - 7);
+		$src_file = $cache_path . 'plugin/' . $src . '.' . $type;
 	}
 }
 
@@ -187,7 +191,6 @@ if (!$src_file) {
 }
 
 if (file_exists($src_file)) {
-	
 	$filetime = max(filemtime(__FILE__), filemtime($src_file), $addcsstime, $facetagtime);
 
 	$etag = md5($type.$dir.$pre_width.$charset.$src.$filetime);

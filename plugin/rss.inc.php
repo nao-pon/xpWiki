@@ -1,6 +1,6 @@
 <?php
 // PukiWiki - Yet another WikiWikiWeb clone
-// $Id: rss.inc.php,v 1.22 2007/12/20 07:23:53 nao-pon Exp $
+// $Id: rss.inc.php,v 1.23 2008/01/09 02:39:24 nao-pon Exp $
 //
 // RSS plugin: Publishing RSS of RecentChanges
 //
@@ -27,9 +27,21 @@ class xpwiki_plugin_rss extends xpwiki_plugin {
 		// 指定ページの本文取得
 		$a_page = & XpWiki::getSingleton($this->root->mydirname);
 		$a_page->init($page);
+		$GLOBALS['Xpwiki_'.$this->root->mydirname]['cache'] = null;
 		$a_page->root->rtf['use_cache_always'] = TRUE;
 		$a_page->execute();
 		$html = $a_page->body;
+		
+		// 付箋
+		if (empty($GLOBALS['Xpwiki_'.$this->root->mydirname]['cache']['fusen']['loaded'])){
+			if ($fusen = $this->func->get_plugin_instance('fusen')) {
+				if ($fusen_data = $fusen->plugin_fusen_data($page)) {
+					if ($fusen_tag = $fusen->plugin_fusen_gethtml($fusen_data, '')) {
+						$html .= '<fieldset><legend> fusen.dat </legend>' . $fusen_tag . '</fieldset>';					
+					}
+				}
+			}
+		}
 		
 		$description = strip_tags(($added ? $added . '&#182;' : '') . $html);
 		//$description = preg_replace('/(\s+|&'.$this->root->entity_pattern.';)/i', ' ', $description);

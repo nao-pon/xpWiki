@@ -198,7 +198,7 @@ function wikihelper_cumulativeOffset(forElement) {
 	do {
 		if (Element.getStyle(element, 'position') == 'absolute') {
 			base = element;
-			parent = element
+			//parent = element
 			break;
 		}
 		valueT += element.offsetTop  || 0;
