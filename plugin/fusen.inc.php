@@ -31,7 +31,7 @@
 //
 // fusen.inc.php for xpWiki by nao-pon
 // http://xoops.hypweb.net
-// $Id: fusen.inc.php,v 1.3 2008/01/09 12:59:03 nao-pon Exp $
+// $Id: fusen.inc.php,v 1.4 2008/01/10 07:53:31 nao-pon Exp $
 // 
 
 class xpwiki_plugin_fusen extends xpwiki_plugin {
@@ -397,11 +397,9 @@ EOD;
 				{
 					krsort($dat);
 					$id = array_shift(array_keys($dat)) + 1;
-					$mt = date("ymdHis");
+					$mt = $this->func->get_date("ymdHis");
 					$uid = $this->root->userinfo['uid'];
 					$ucd = $this->root->userinfo['ucd'];
-					$name = $this->root->vars['name'];
-					if ($name) { $this->func->save_name2cookie($name); }
 				}
 				else
 				{
@@ -410,10 +408,11 @@ EOD;
 					$mt = $dat[$id]['mt'];
 					$uid = $dat[$id]['uid'];
 					$ucd = $dat[$id]['ucd'];
-					$name = $dat[$id]['name'];
 				}
 				if ($auth)
 				{
+					$name = $this->root->vars['name'];
+					if ($name) { $this->func->save_name2cookie($name); }
 					$txt = str_replace(array("\r\n","\r"),"\n",$this->root->vars['body']);
 					
 					// SPAM判定(ゲストのみ)
@@ -446,25 +445,25 @@ EOD;
 					$ma = array();
 					$dat[$id] = array(
 						'ln' => (preg_match('/^(id)?(\d+)$/', $this->root->vars['ln'], $ma) ? $ma[2] : ''),
-					'x' => (preg_match('/^\d+$/', $this->root->vars['l']) ? $this->root->vars['l'] : 100),
-					'y' => (preg_match('/^\d+$/', $this->root->vars['t']) ? $this->root->vars['t'] : 100),
-					'bx' => (preg_match('/^\d+$/', $this->root->vars['bx']) ? $this->root->vars['bx'] : 0),
-					'by' => (preg_match('/^\d+$/', $this->root->vars['by']) ? $this->root->vars['by'] : 0),
-					'z' => 1,
-					'tc' => (preg_match('/^#[\dA-F]{6}$/i', $this->root->vars['tc']) ? $this->root->vars['tc'] : '#000000'),
-					'bg' => (preg_match('/^(#[\dA-F]{6}|transparent)$/i', $this->root->vars['bg']) ? $this->root->vars['bg'] : '#ffffff'),
-					'lk' => false,
-					'txt' => $txt,
-					'name' => $name,
-					'mt' => $mt,
-					'et' => $et,
-					'tt' => time(),
-					'uid' => $uid,
-					'ucd' => $ucd,
-					'fix' => $fix,
-					'w' => $w,
-					'h' => $h,
-				);
+						'x' => (preg_match('/^\d+$/', $this->root->vars['l']) ? $this->root->vars['l'] : 100),
+						'y' => (preg_match('/^\d+$/', $this->root->vars['t']) ? $this->root->vars['t'] : 100),
+						'bx' => (preg_match('/^\d+$/', $this->root->vars['bx']) ? $this->root->vars['bx'] : 0),
+						'by' => (preg_match('/^\d+$/', $this->root->vars['by']) ? $this->root->vars['by'] : 0),
+						'z' => 1,
+						'tc' => (preg_match('/^#[\dA-F]{6}$/i', $this->root->vars['tc']) ? $this->root->vars['tc'] : '#000000'),
+						'bg' => (preg_match('/^(#[\dA-F]{6}|transparent)$/i', $this->root->vars['bg']) ? $this->root->vars['bg'] : '#ffffff'),
+						'lk' => false,
+						'txt' => $txt,
+						'name' => $name,
+						'mt' => $mt,
+						'et' => $et,
+						'tt' => time(),
+						'uid' => $uid,
+						'ucd' => $ucd,
+						'fix' => $fix,
+						'w' => $w,
+						'h' => $h,
+					);
 					
 					ksort($dat);
 					
