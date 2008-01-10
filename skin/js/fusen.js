@@ -9,7 +9,7 @@
 //
 // fusen.js for xpWiki by nao-pon
 // http://hypweb.net
-// $Id: fusen.js,v 1.3 2008/01/10 07:53:31 nao-pon Exp $
+// $Id: fusen.js,v 1.4 2008/01/10 12:01:10 nao-pon Exp $
 // 
 var fusenVar = new Array();
 var fusenMsgs = new Array();
@@ -574,7 +574,7 @@ function fusen_new(dblclick)
 
 function fusen_editbox_hide() {
 	fusenMovingObj = null;
-	$('edit_name').style.visibility = "hidden";
+	//$('edit_name').style.visibility = "hidden";
 	fusen_hide('fusen_editbox');
 	fusen_set_timer();
 }
@@ -667,6 +667,7 @@ function fusen_edit(id)
 	$('edit_t').value = parseInt(obj.style.top.replace("px",""));
 	$('edit_ln').value = (fusenObj[id].ln) ? 'id' + fusenObj[id].ln : '';
 	//$('edit_name').style.visibility = "hidden";
+	$('edit_name').value = fusenObj[id].name;
 	$('edit_body').value = text_body;
 	$('edit_mode').value = 'edit';
 	$('edit_w').value = fusenObj[id].w;
@@ -967,7 +968,7 @@ function fusen_hide(id)
 	fusenMovingObj = null;
 	$("edit_body").blur();
 	$("edit_ln").blur();
-	$('edit_name').style.visibility = "hidden";
+	//$('edit_name').style.visibility = "hidden";
 	fusen_set_timer();
 }
 
