@@ -1,7 +1,7 @@
 <?php
 //
 // Created on 2006/10/02 by nao-pon http://hypweb.net/
-// $Id: xpwiki_func.php,v 1.130 2008/01/09 02:39:24 nao-pon Exp $
+// $Id: xpwiki_func.php,v 1.131 2008/01/11 08:29:54 nao-pon Exp $
 //
 class XpWikiFunc extends XpWikiXoopsWrapper {
 
@@ -1511,9 +1511,33 @@ EOD;
 	}
 	
 	function set_current_page($page) {
+		// カレントページ
+		$_page = $this->root->vars['page'];
 		$this->root->get['page'] = $this->root->post['page'] = $this->root->vars['page'] = $page;
+		
+		// 編集権限がない場合の挙動指定
+		$_PKWK_READONLY = $this->set_readonly_by_editauth($page);
+
+		return array(
+			'page'     => $_page,
+			'readonly' => $_PKWK_READONLY, 
+		);
 	}
 	
+	function set_readonly_by_editauth ($page) {
+		// 編集権限がない場合の挙動指定
+		$_PKWK_READONLY = $this->cont['PKWK_READONLY'];
+		if (! $this->cont['PKWK_READONLY']) {
+			if (
+				($this->root->plugin_follow_freeze && $this->is_freeze($page))
+				||
+				($this->root->plugin_follow_editauth && ! $this->check_editable_page($page, FALSE, FALSE))
+			) {
+				$this->cont['PKWK_READONLY'] = 2;
+			}
+		}
+		return $_PKWK_READONLY;
+	}
 /*----- DB Functions -----*/ 
 	//ページ名からページIDを求める
 	function get_pgid_by_name ($page, $cache = true, $make = false)
