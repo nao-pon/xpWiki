@@ -1,7 +1,7 @@
 <?php
 //
 // Created on 2006/10/25 by nao-pon http://hypweb.net/
-// $Id: loader.php,v 1.33 2008/01/09 02:39:24 nao-pon Exp $
+// $Id: loader.php,v 1.34 2008/01/11 08:28:56 nao-pon Exp $
 //
 
 error_reporting(0);
@@ -30,6 +30,7 @@ $module_url = XOOPS_URL.'/'.basename(dirname($root_path));
 $wikihelper_root_url = $module_url . '/' . basename($root_path);
 $face_cache = $cache_path . 'facemarks.js';
 $face_tag_ver = 1.0;
+$method = empty($_SERVER['REQUEST_METHOD'])? 'GET' : strtoupper($_SERVER['REQUEST_METHOD']);
 
 if (preg_match("/^(.+)\.([^.]+)$/",$src,$match)) {
 	$type = $match[2];
@@ -221,7 +222,7 @@ if (file_exists($src_file)) {
 		header( 'Content-Encoding: gzip' );
 		header( 'Vary: Accept-Encoding' );
 		
-		readfile($gzip_fname);
+		if ($method !== 'HEAD') readfile($gzip_fname);
 		exit();
 	} else if ($replace && file_exists($cache_file) && filemtime($cache_file) >= $filetime) {
 		// html側/private/cache に 有効なキャッシュファイルがある場合
@@ -231,7 +232,7 @@ if (file_exists($src_file)) {
 		header( 'Etag: '. $etag );
 		header( 'Content-length: '.filesize($cache_file) );
 		
-		readfile($cache_file);
+		if ($method !== 'HEAD') readfile($cache_file);
 		exit();
 	}
 	
@@ -312,10 +313,12 @@ if (file_exists($src_file)) {
 		header( 'Vary: Accept-Encoding' );
 	}
 	
-	if ($replace) {
-		echo $out;
-	} else {
-		readfile($src_file);
+	if ($method !== 'HEAD') {
+		if ($replace) {
+			echo $out;
+		} else {
+			readfile($src_file);
+		}
 	}
 	exit();
 } else {
