@@ -9,7 +9,7 @@
 //
 // fusen.js for xpWiki by nao-pon
 // http://hypweb.net
-// $Id: fusen.js,v 1.4 2008/01/10 12:01:10 nao-pon Exp $
+// $Id: fusen.js,v 1.5 2008/01/11 08:33:11 nao-pon Exp $
 // 
 var fusenVar = new Array();
 var fusenMsgs = new Array();
@@ -56,13 +56,12 @@ function fusen_debugobj(objref) {
 	var str = '';
 	if (typeof(objref) == 'string') obj = $(objref);
 	else obj = objref;
-	if (obj) 
-		for(i in obj)
-			try {
-				str += i + "=" + obj[i] + "\n";
-			} catch (e) {
-				alert(e);
-			}
+	if (obj) {
+		for(i in obj) {
+			if (!obj.hasOwnProperty(i)) continue;
+			str += i + "=" + obj[i] + "\n";
+		}
+	}
 	else str = objref;
 	debugWin = window.open('', '');
 	window.debugWin.document.write('<html>\n<body>\n<pre>\n' + str + '\n</pre>\n</body>\n</html>');
@@ -141,9 +140,7 @@ function fusen_httprequest(){
 		for (var i in MSXML_XMLHTTP_PROGIDS) {
 			try {
 				return new ActiveXObject(MSXML_XMLHTTP_PROGIDS[i]);
-			} catch (e) {
-				alert(e);
-			}
+			} catch (e) {}
 		}
 	}
 	throw 'Unable to create HTTP request object.';
@@ -285,7 +282,7 @@ function fusen_getdata(mod)
 			window.status = w_starus;
 			try
 			{
-				if (xmlhttp.status == 200)
+				if (xmlhttp.status == 200 || xmlhttp.status == 404)
 				{
 					fusen_busy(0);
 					//alert(xmlhttp.getAllResponseHeaders());
@@ -294,7 +291,7 @@ function fusen_getdata(mod)
 					{
 						//window.status = dtNow.getSeconds() + ' : ' + lm;
 						xmlhttp = null;
-						if (fusenLastModified == lm)
+						if (fusenLastModified == lm || xmlhttp.status == 404)
 						{
 							fusen_set_timer();
 						}
@@ -305,9 +302,8 @@ function fusen_getdata(mod)
 						return;
 					}
 					fusenLastModified = lm;
-					//var txt = xmlhttp.responseText;
-					if (! xmlhttp.responseXML.getElementsByTagName('fusen').length) {
-						var txt = '';
+					if (xmlhttp.status == 404 || ! xmlhttp.responseXML.getElementsByTagName('fusen').length) {
+						var txt = '{}';
 					} else {
 						var txt = xmlhttp.responseXML.getElementsByTagName('fusen')[0].firstChild.nodeValue;
 					}
@@ -922,22 +918,21 @@ function fusen_unlock(id)
 
 function fusen_show(id)
 {
+	if (fusenVar['ReadOnly'] && id == 'fusen_editbox') {
+		return;
+	}
+	
 	fusenShowFlg[id] = true;
 	if (fusenTimerID) clearTimeout(fusenTimerID);
-	//window.status = parseInt($('edit_bx').value);
-	//var left = Math.max(getWinXOffset() + 5,parseInt($('edit_bx').value));
-	//var top = Math.max(getWinYOffset() + 5,(fusenVar['mouseY'] - 150));
-	if (id == 'fusen_editbox')
-	{
+	
+	if (id == 'fusen_editbox') {
 		var top = $('edit_t').value;
 		var left = $('edit_l').value;
-	}
-	else
-	{
+	} else {
 		var top = fusenVar['mouseY'];
 		var left = fusenVar['mouseX'];
 	}
-	window.status = left+":"+top;
+
 	$(id).style.left = left + "px";
 	$(id).style.top = top + "px";
 	
@@ -959,8 +954,8 @@ function fusen_hide(id)
 	with($(id).style)
 	{
 		visibility = "hidden";
-		left = "0px";
-		top = "0px";
+		left = "-1000px";
+		top = "-1000px";
 	}
 	document.onmouseup = fusen_onmouseup;
 	document.onmousemove = fusen_onmousemove;
@@ -1435,9 +1430,8 @@ function fusen_setline2(fromid, toid)
 	var obj = fusen_drawLine2(lx, ly, lw, lh, '#000000', lineid, border);
 	document.getElementById('fusen_area').appendChild(obj);
 	}
-	catch(e)
-	{
-		alert(e);
+	catch(e) {
+		//alert(e);
 	}
 }
 
