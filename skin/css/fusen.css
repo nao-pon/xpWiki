@@ -151,8 +151,8 @@ $class img.fusen_wresize
 $class div.fusen_editbox
 {
 	position: absolute;
-	left: 100px;
-	top: 100px;
+	left: -1000px;
+	top: -1000px;
 	width: 360px;
 	border: black 2px solid;
 	color: #000000;
@@ -160,7 +160,7 @@ $class div.fusen_editbox
 	padding: 4px;
 	visibility: hidden;
 	cursor: move;
-	z-index: 100000;
+	z-index: 1000;
 }
 
 $class div.fusen_editbox div.wiki_helper
