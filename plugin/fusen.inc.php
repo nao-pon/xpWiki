@@ -31,7 +31,7 @@
 //
 // fusen.inc.php for xpWiki by nao-pon
 // http://xoops.hypweb.net
-// $Id: fusen.inc.php,v 1.8 2008/01/16 13:21:24 nao-pon Exp $
+// $Id: fusen.inc.php,v 1.9 2008/01/16 14:55:10 nao-pon Exp $
 // 
 
 class xpwiki_plugin_fusen extends xpwiki_plugin {
@@ -98,9 +98,6 @@ class xpwiki_plugin_fusen extends xpwiki_plugin {
 		if (!empty($GLOBALS['Xpwiki_'.$this->root->mydirname]['cache']['fusen']['loaded'])) {
 			return '';
 		}
-		
-		// $pwm_plugin_flg ¥»¥Ã¥È
-		$this->root->pwm_plugin_flg['fusen']['convert'] = true;
 		
 		$GLOBALS['Xpwiki_'.$this->root->mydirname]['cache']['fusen']['loaded'] = true;
 		if ($off) return '';
