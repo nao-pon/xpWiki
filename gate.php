@@ -1,7 +1,7 @@
 <?php
 /*
  * Created on 2007/06/29 by nao-pon http://hypweb.net/
- * $Id: gate.php,v 1.1 2007/06/29 08:44:45 nao-pon Exp $
+ * $Id: gate.php,v 1.2 2008/01/16 05:17:54 nao-pon Exp $
  */
 
 /*
@@ -11,8 +11,8 @@
  */
 
 $xwGateOption['nocommonAllowWays'] = array();
-$xwGateOption['nodosAllowWays'] = array();
-$xwGateOption['noumbAllowWays'] = array();
+$xwGateOption['nodosAllowWays'] = array('ref', 'fusen');
+$xwGateOption['noumbAllowWays'] = array('ref', 'attach');
 
 $mytrustdirpath = dirname( __FILE__ ) ;
 
@@ -20,25 +20,25 @@ $way = (isset($_GET['way']))? $_GET['way'] : ((isset($_POST['way']))? $_POST['wa
 $way = preg_replace( '/[^a-zA-Z0-9_-]/' , '' , $way);
 
 if ($xwGateOption['xmode']) {
-	if (!in_array($way, $xwGateOption['nocommonAllowWays'])) goOut('Bad request.');
+	if (!in_array($way, $xwGateOption['nocommonAllowWays'])) xpWikiGate_goOut('Bad request.');
 }
 
 if ($xwGateOption['nodos']) {
-	if (!in_array($way, $xwGateOption['nodosAllowWays'])) goOut('Bad request.');
+	if (!in_array($way, $xwGateOption['nodosAllowWays'])) xpWikiGate_goOut('Bad request.');
 }
 
 if ($xwGateOption['noumb']) {
-	if (!in_array($way, $xwGateOption['noumbAllowWays'])) goOut('Bad request.');
+	if (!in_array($way, $xwGateOption['noumbAllowWays'])) xpWikiGate_goOut('Bad request.');
 }
 
 $file_php = $mytrustdirpath . '/ways/' . $way . '.php';
 if (file_exists($file_php)) {
 	include $file_php;
 } else {
-	goOut('File not found.');
+	xpWikiGate_goOut('File not found.');
 }
 
-function goOut($str = '') {
+function xpWikiGate_goOut($str = '') {
 	error_reporting(0);
 	while( ob_get_level() ) {
 		ob_end_clean() ;
