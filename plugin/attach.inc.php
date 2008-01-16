@@ -9,7 +9,7 @@ class xpwiki_plugin_attach extends xpwiki_plugin {
 	/////////////////////////////////////////////////
 	// PukiWiki - Yet another WikiWikiWeb clone.
 	//
-	//  $Id: attach.inc.php,v 1.31 2008/01/09 02:39:24 nao-pon Exp $
+	//  $Id: attach.inc.php,v 1.32 2008/01/16 05:28:47 nao-pon Exp $
 	//  ORG: attach.inc.php,v 1.31 2003/07/27 14:15:29 arino Exp $
 	//
 	
@@ -1032,39 +1032,40 @@ class XpWikiAttachFile
 //		global $_attach_messages;
 		
 		$this->getstatus();
-		$param  = '&amp;file='.rawurlencode($this->file).'&amp;refer='.rawurlencode($this->page).
-			($this->age ? '&amp;age='.$this->age : '');
+		$param = '&amp;refer='.rawurlencode($this->page)
+		       . ($this->age ? '&amp;age='.$this->age : '')
+		       . '&amp;';
+		$param2 = 'file='.rawurlencode($this->file);
 		$title = $this->time_str.' '.$this->size_str;
-		//$label = ($showicon ? $this->cont['FILE_ICON'] : '').htmlspecialchars($this->file);
 		$label = ($showicon ? $this->cont['FILE_ICON'] : '').htmlspecialchars($this->status['org_fname']);
-		if ($this->age)
-		{
-			if ($mode == "imglist")
+		if ($this->age) {
+			if ($mode == "imglist"){
 				$label = 'backup No.'.$this->age;
-			else
+			} else {
 				$label .= ' (backup No.'.$this->age.')';
+			}
 		}
 		
 		$info = $count = '';
-		if ($showinfo)
-		{
+		if ($showinfo) {
 			$_title = str_replace('$1',rawurlencode($this->file),$this->root->_attach_messages['msg_info']);
-			if ($mode == "imglist")
-				$info = "[ [[{$this->root->_attach_messages['btn_info']}:{$this->root->script}?plugin=attach&pcmd=info".str_replace("&amp;","&",$param)."]] ]";
-			else
-				$info = "\n<span class=\"small\">[<a href=\"{$this->root->script}?plugin=attach&amp;pcmd=info$param\" title=\"$_title\">{$this->root->_attach_messages['btn_info']}</a>]</span>";
+			if ($mode == "imglist") {
+				$info = "[ [[{$this->root->_attach_messages['btn_info']}:{$this->root->script}?plugin=attach&pcmd=info".str_replace("&amp;","&", ($param . $param2))."]] ]";
+			} else {
+				$info = "\n<span class=\"small\">[<a href=\"{$this->root->script}?plugin=attach&amp;pcmd=info{$param}{$param2}\" title=\"$_title\">{$this->root->_attach_messages['btn_info']}</a>]</span>";
+			}
 			$count = ($showicon and !empty($this->status['count'][$this->age])) ?
 				sprintf($this->root->_attach_messages['msg_count'],$this->status['count'][$this->age]) : '';
 		}
-		if ($mode == "imglist")
-		{
-			if ($this->age)
+		if ($mode == "imglist") {
+			if ($this->age) {
 				return "&size(12){".$label.$info."};";
-			else
+			} else {
 				return "&size(12){&ref(\"".$this->func->strip_bracket($this->page)."/".$this->file."\"".$this->cont['ATTACH_CONFIG_REF_OPTION'].");&br();".$info."};";
+			}
+		} else {
+			return "<a href=\"{$this->cont['HOME_URL']}gate.php?way=attach&amp;_noumb{$param}open{$param2}\" title=\"{$title}\">{$label}</a>{$count}{$info}";
 		}
-		else
-			return "<a href=\"{$this->root->script}?plugin=attach&amp;pcmd=open$param\" title=\"$title\">$label</a>$count$info";
 	}
 	// 情報表示
 	function info($err) {
