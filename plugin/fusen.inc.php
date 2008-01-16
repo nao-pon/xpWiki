@@ -31,7 +31,7 @@
 //
 // fusen.inc.php for xpWiki by nao-pon
 // http://xoops.hypweb.net
-// $Id: fusen.inc.php,v 1.7 2008/01/16 07:18:51 nao-pon Exp $
+// $Id: fusen.inc.php,v 1.8 2008/01/16 13:21:24 nao-pon Exp $
 // 
 
 class xpwiki_plugin_fusen extends xpwiki_plugin {
@@ -145,8 +145,8 @@ class xpwiki_plugin_fusen extends xpwiki_plugin {
 		$html = $this->plugin_fusen_gethtml($fusen_data, $refer);
 		//if (!$html) $html = '<p></p>';
 		
-		$fusen_post = $this->cont['HOME_URL'];
-		$fusen_url = $this->cont['LOADER_URL'] . '?src=fusen_' . $this->func->get_pgid_by_name($refer) . '.pcache.xml';
+		$fusen_post = '/' . $this->root->mydirname . '/';
+		$fusen_url = '/' . $this->root->mydirname . '/skin/loader.php?src=fusen_' . $this->func->get_pgid_by_name($refer) . '.pcache.xml';
 		$X_ucd = ''; //WIKI_UCD_DEF;
 		$js_refer = $this->plugin_fusen_jsencode($refer);
 		$auth = $this->func->is_owner($refer)? 1 : 0;
@@ -165,8 +165,8 @@ class xpwiki_plugin_fusen extends xpwiki_plugin {
 //<![CDATA[
 fusenVar['base'] = "{$base}";
 fusenVar['BorderObj'] = {"normal":"{$border_normal}", "lock":"{$border_lock}", "del":"{$border_del}", "select":"{$border_select}"};
-fusenVar['JsonUrl'] = "{$fusen_url}";
-fusenVar['PostUrl'] = "{$fusen_post}";
+fusenVar['PostUrl'] = XpWikiModuleUrl + "{$fusen_post}";
+fusenVar['JsonUrl'] = XpWikiModuleUrl + "{$fusen_url}";
 fusenVar['Interval'] = {$refresh};
 fusenVar['admin'] = {$auth};
 fusenVar['uid'] = {$this->root->userinfo['uid']};
