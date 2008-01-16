@@ -1,7 +1,7 @@
 <?php
 /*
  * Created on 2007/06/29 by nao-pon http://hypweb.net/
- * $Id: gate.php,v 1.2 2008/01/16 05:17:54 nao-pon Exp $
+ * $Id: gate.php,v 1.3 2008/01/16 07:18:11 nao-pon Exp $
  */
 
 /*
@@ -9,6 +9,8 @@
  * $mydirpath      : Module dirpath
  * $mytrustdirname : Trust dirname (xpwiki)
  */
+
+@ ignore_user_abort(FALSE);
 
 $xwGateOption['nocommonAllowWays'] = array();
 $xwGateOption['nodosAllowWays'] = array('ref', 'fusen');
