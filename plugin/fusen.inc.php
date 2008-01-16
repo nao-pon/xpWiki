@@ -31,7 +31,7 @@
 //
 // fusen.inc.php for xpWiki by nao-pon
 // http://xoops.hypweb.net
-// $Id: fusen.inc.php,v 1.6 2008/01/16 05:30:32 nao-pon Exp $
+// $Id: fusen.inc.php,v 1.7 2008/01/16 07:18:51 nao-pon Exp $
 // 
 
 class xpwiki_plugin_fusen extends xpwiki_plugin {
@@ -102,13 +102,13 @@ class xpwiki_plugin_fusen extends xpwiki_plugin {
 		// $pwm_plugin_flg セット
 		$this->root->pwm_plugin_flg['fusen']['convert'] = true;
 		
+		$GLOBALS['Xpwiki_'.$this->root->mydirname]['cache']['fusen']['loaded'] = true;
 		if ($off) return '';
 		
 		// 初期化
 		$this->func->add_tag_head('fusen.css');
 		$this->func->add_tag_head('fusen.js');
 
-		$GLOBALS['Xpwiki_'.$this->root->mydirname]['cache']['fusen']['loaded'] = true;
 		$border_normal = $this->cont['FUSEN_STYLE_BORDER_NORMAL'];
 		$border_lock = $this->cont['FUSEN_STYLE_BORDER_LOCK'];
 		$border_del = $this->cont['FUSEN_STYLE_BORDER_DEL'];
