@@ -1,7 +1,7 @@
 <?php
 //
 // Created on 2006/10/02 by nao-pon http://hypweb.net/
-// $Id: xpwiki_func.php,v 1.132 2008/01/16 07:59:50 nao-pon Exp $
+// $Id: xpwiki_func.php,v 1.133 2008/01/16 14:55:45 nao-pon Exp $
 //
 class XpWikiFunc extends XpWikiXoopsWrapper {
 
@@ -438,7 +438,10 @@ class XpWikiFunc extends XpWikiXoopsWrapper {
 		if ($use_cache) {
 			// キャッシュ利用
 			$cache_dat = unserialize(join('',file($cache_file)));
-			$GLOBALS['Xpwiki_'.$this->root->mydirname]['cache'] = $cache_dat['globals'];
+			if (!is_array($GLOBALS['Xpwiki_'.$this->root->mydirname]['cache'])) {
+				$GLOBALS['Xpwiki_'.$this->root->mydirname]['cache'] = array();
+			}
+			$GLOBALS['Xpwiki_'.$this->root->mydirname]['cache'] = array_merge_recursive($GLOBALS['Xpwiki_'.$this->root->mydirname]['cache'], is_array($cache_dat['globals'])? $cache_dat['globals'] : array());
 			$body = $cache_dat['body'];
 			foreach ($cache_dat['root'] as $_key=>$_val) {
 				$this->root->$_key = $_val;
@@ -451,7 +454,6 @@ class XpWikiFunc extends XpWikiXoopsWrapper {
 			$this->root->rtf['convert_nest'] = 0;
 			$body  = $this->convert_html($this->get_source($page));
 			$this->root->content_title = $this->get_heading($page);
-			
 			// キャッシュ保存
 			if (!empty($this->root->rtf['use_cache_always']) || ($this->root->userinfo['uid'] === 0 && $this->root->pagecache_min > 0)) {
 				$fp = fopen($cache_file, "wb");
@@ -471,7 +473,7 @@ class XpWikiFunc extends XpWikiXoopsWrapper {
 						'cont'          => array(
 							'SKIN_CHANGER'  => $this->cont['SKIN_CHANGER']
 						),
-						'globals'       => @ $GLOBALS['Xpwiki_'.$this->root->mydirname]['cache']
+						'globals'       => (is_array($GLOBALS['Xpwiki_'.$this->root->mydirname]['cache'])? $GLOBALS['Xpwiki_'.$this->root->mydirname]['cache'] : array())
 					)
 				));
 				fclose($fp);
