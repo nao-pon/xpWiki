@@ -3,7 +3,7 @@
 $this->root->runmode = "standalone";
 
 // PukiWiki - Yet another WikiWikiWeb clone.
-// $Id: tdiary.skin.php,v 1.27 2007/12/30 02:37:47 nao-pon Exp $
+// $Id: tdiary.skin.php,v 1.28 2008/01/16 05:32:28 nao-pon Exp $
 // Copyright (C)
 //   2002-2006 PukiWiki Developers Team
 //   2001-2002 Originally written by yu-ji
@@ -653,7 +653,7 @@ $dirname = $this->root->mydirname;
    <?php $navigator($this, 'search') ?>
    <?php $navigator($this, 'recent') ?>
    <?php $navigator($this, 'help')   ?>
-
+   <span id="xpwiki_fusenlist" style="display:none;">&nbsp;<!--FU--><!--SEN--></span>
 <?php if ($this->root->trackback) { ?> &nbsp;
    <?php $navigator($this, 'trackback', $lang['trackback'] . '(' . $this->tb_count($_page) . ')',
  	($this->root->trackback_javascript == 1) ? 'onclick="OpenTrackback(this.href); return false"' : '') ?>
