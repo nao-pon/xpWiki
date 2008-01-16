@@ -1,6 +1,6 @@
 <?php
 // PukiWiki - Yet another WikiWikiWeb clone
-// $Id: pukiwiki.ini.php,v 1.58 2008/01/09 11:56:28 nao-pon Exp $
+// $Id: pukiwiki.ini.php,v 1.59 2008/01/16 05:26:09 nao-pon Exp $
 // Copyright (C)
 //   2002-2006 PukiWiki Developers Team
 //   2001-2002 Originally written by yu-ji
@@ -251,36 +251,42 @@ $root->autolink_omissible_upper_priority = 60; // 優先度(通常のAutolink=50)
 //	'cache'   => 180 ,				// cache minutes (minimum: 10min)
 //	'title'   => 'hypweb:[KEY]' ,	// title attr ([KEY] replaced a target word)
 //	'pat'     => '' ,				// Link pattern. (can use [URL_ENCODE], [WIKI_ENCODE], [EWORDS_ENCODE])
+//	'a_target'=> '' ,				// <A> attribute 'target'.
+//	'a_class' => '' ,				// <A> attribute 'class'.
 //);
 
 //// Auto link for kaunet.biz
 //$root->ext_autolinks[] = array(
 //	'target'  => '' , 				// Target pages split with '&' (prefix search)
 //	'priority'=> 40 ,				// Priority (Intenal AutoLink = 50)
-//	'url'   => 'http://www.kaunet.biz/dat/autolink.dat' , // '' means own wiki, 'DirctoryName' for other xpWiki in this site.
-//	'urldat'=> 1 ,					// url is autolink's data.(0:No, 1:Yes)
-//	'case_i'=> 1 ,					// Case insensitive
-//	'base'  => '' ,					// base directory ('' means all pages)
-//	'len'   => 3 ,					// minimum length of link text
-//	'enc'   => 'UTF-8' ,			// character encoding
-//	'cache' => 180 ,				// cache minutes (minimum: 10min)
-//	'title' => 'Kaunet:[KEY]' ,		// title attr ([KEY] replaced a target word)
-//	'pat'   => 'http://www.kaunet.biz/[WIKI_ENCODE].html' ,// Link pattern. (can use [URL_ENCODE], [WIKI_ENCODE], [EWORDS_ENCODE])
+//	'url'     => 'http://www.kaunet.biz/dat/autolink.dat' , // '' means own wiki, 'DirctoryName' for other xpWiki in this site.
+//	'urldat'  => 1 ,				// url is autolink's data.(0:No, 1:Yes)
+//	'case_i'  => 1 ,				// Case insensitive
+//	'base'    => '' ,				// base directory ('' means all pages)
+//	'len'     => 3 ,				// minimum length of link text
+//	'enc'     => 'UTF-8' ,			// character encoding
+//	'cache'   => 180 ,				// cache minutes (minimum: 10min)
+//	'title'   => 'Kaunet:[KEY]' ,	// title attr ([KEY] replaced a target word)
+//	'pat'     => 'http://www.kaunet.biz/[WIKI_ENCODE].html' ,// Link pattern. (can use [URL_ENCODE], [WIKI_ENCODE], [EWORDS_ENCODE])
+//	'a_target'=> '' ,				// <A> attribute 'target'.
+//	'a_class' => '' ,				// <A> attribute 'class'.
 //);
 
 //// Auto link for e-words.jp
 //$root->ext_autolinks[] = array(
 //	'target'  => '' , 				// Target pages split with '&' (prefix search)
 //	'priority'=> 40 ,				// Priority (Intenal AutoLink = 50)
-//	'url'   => 'http://xoops.hypweb.net/download/e-words.autolink.dat', // '' means own wiki, 'DirctoryName' for other xpWiki in this site.
-//	'urldat'=> 1 ,					// url is autolink's data.
-//	'case_i'=> 1 ,					// Case insensitive
-//	'base'  => '' ,					// base directory ('' means all pages)
-//	'len'   => 3 ,					// minimum length of page name
-//	'enc'   => 'UTF-8',				// character encoding
-//	'cache' => 10 ,					// cache minutes (minimum: 10min)
-//	'title' => 'e-Words:[KEY]' ,	// title attr ([KEY] replaced a target word)
-//	'pat'   => 'http://e-words.jp/w/[EWORDS_ENCODE].html' ,	// Link pattern. (can use [URL_ENCODE], [WIKI_ENCODE], [EWORDS_ENCODE])
+//	'url'     => 'http://xoops.hypweb.net/download/e-words.autolink.dat', // '' means own wiki, 'DirctoryName' for other xpWiki in this site.
+//	'urldat'  => 1 ,				// url is autolink's data.
+//	'case_i'  => 1 ,				// Case insensitive
+//	'base'    => '' ,				// base directory ('' means all pages)
+//	'len'     => 3 ,				// minimum length of page name
+//	'enc'     => 'UTF-8',			// character encoding
+//	'cache'   => 10 ,				// cache minutes (minimum: 10min)
+//	'title'   => 'e-Words:[KEY]' ,	// title attr ([KEY] replaced a target word)
+//	'pat'     => 'http://e-words.jp/w/[EWORDS_ENCODE].html' ,	// Link pattern. (can use [URL_ENCODE], [WIKI_ENCODE], [EWORDS_ENCODE])
+//	'a_target'=> '' ,				// <A> attribute 'target'.
+//	'a_class' => '' ,				// <A> attribute 'class'.
 //);
 
 /////////////////////////////////////////////////

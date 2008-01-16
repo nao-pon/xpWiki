@@ -1,7 +1,7 @@
 <?php
 /*
  * Created on 2007/04/23 by nao-pon http://hypweb.net/
- * $Id: ext_autolink.php,v 1.19 2007/11/06 02:05:41 nao-pon Exp $
+ * $Id: ext_autolink.php,v 1.20 2008/01/16 05:26:09 nao-pon Exp $
  */
 class XpWikiPukiExtAutoLink {
 	// External AutoLinks
@@ -64,13 +64,13 @@ class XpWikiPukiExtAutoLink {
 			// own site
 			if ($this->ext_autolink_own) {
 				// other xpWiki
-				return $this->ext_autolink_func->make_pagelink($page, $name, '', '', 'ext_autolink');
+				return $this->ext_autolink_func->make_pagelink($page, $name, '', '', $this->ext_autolink_a_class);
 			} else {
 				// own xpWiki
 				return $this->func->make_pagelink($page, $name, '', '', 'autolink');
 			}
 		} else {
-			$target = ($this->root->link_target)? ' target="' . $this->root->link_target . '"' : '';
+			$target = ($this->ext_autolink_a_target)? ' target="' . $this->ext_autolink_a_target . '"' : '';
 			if ($this->ext_autolink_enc_conv) {
 				$page = mb_convert_encoding($page, $this->ext_autolink_enc, $this->cont['CONTENT_CHARSET']);
 			}
@@ -78,9 +78,9 @@ class XpWikiPukiExtAutoLink {
 				if (isset($this->ext_autolink_replace['from'])) {
 					$_url = str_replace($this->ext_autolink_replace['from'], $this->ext_autolink_replace['func']($page), $this->ext_autolink_pat); 
 				}
-				return '<a href="'.$_url.'" title="'.$title.'" class="ext_autolink"' . $target . '>'.htmlspecialchars($name).'</a>';
+				return '<a href="'.$_url.'" title="'.$title.'" class="' . $this->ext_autolink_a_class . '"' . $target . '>'.htmlspecialchars($name).'</a>';
 			} else {
-				return '<a href="'.$this->ext_autolink_url.'?'.rawurlencode($page).'" title="'.$title.'" class="ext_autolink"' . $target . '>'.htmlspecialchars($name).'</a>';
+				return '<a href="'.$this->ext_autolink_url.'?'.rawurlencode($page).'" title="'.$title.'" class="' . $this->ext_autolink_a_class . '"' . $target . '>'.htmlspecialchars($name).'</a>';
 			}
 		}
 	}
@@ -111,7 +111,9 @@ class XpWikiPukiExtAutoLink {
 			'enc'     => $this->cont['CONTENT_CHARSET'] ,
 			'cache'   => 10 ,
 			'title'   => 'Ext:[KEY]' ,
-			'pat'     => ''
+			'pat'     => '',
+			'a_target'=> '',
+			'a_class' => ''
 		);
 		$autolink = array_merge($inits, $autolink);
 		
@@ -212,9 +214,11 @@ class XpWikiPukiExtAutoLink {
 		$this->ext_autolink_url = $autolink['url'];
 		$this->ext_autolink_base = ($autolink['base'])? $autolink['base'] . '/' : '';
 		$this->ext_autolink_len = intval($autolink['len']);
-		$this->ext_autolink_enc = (isset($autolink['enc']))? $autolink['enc'] : '';
-		$this->ext_autolink_pat = (isset($autolink['pat']))? $autolink['pat'] : '';
-		$this->ext_autolink_title = (isset($autolink['title']))? $autolink['title'] : 'Ext: [KEY]';
+		$this->ext_autolink_enc = $autolink['enc'];
+		$this->ext_autolink_pat = $autolink['pat'];
+		$this->ext_autolink_title = $autolink['title'];
+		$this->ext_autolink_a_target = ($autolink['a_target'])? $autolink['a_target'] : $this->root->link_target ;
+		$this->ext_autolink_a_class = ($autolink['a_class'])? $autolink['a_class'] : 'ext_autolink';
 		
 		if ($this->ext_autolink_pat) {
 			if (strpos($this->ext_autolink_pat, '[URL_ENCODE]') !== false) {
