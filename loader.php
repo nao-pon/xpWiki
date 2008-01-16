@@ -1,7 +1,7 @@
 <?php
 //
 // Created on 2006/10/25 by nao-pon http://hypweb.net/
-// $Id: loader.php,v 1.34 2008/01/11 08:28:56 nao-pon Exp $
+// $Id: loader.php,v 1.35 2008/01/16 05:15:56 nao-pon Exp $
 //
 
 error_reporting(0);
@@ -163,8 +163,8 @@ switch ($type) {
 			$js_replace = true;			
 		}
 		$c_type = 'application/x-javascript';
-		$cache_file = $cache_path.$src.'.'.$type;
-		$gzip_fname = $cache_file.'.gz';
+		$cache_file = $cache_path . $src . ($js_replace? '_' . md5($wikihelper_root_url) : '') . '.' . $type;
+		$gzip_fname = $cache_file . '.gz';
 		break;
 	case 'png':
 		$c_type = 'image/png';
