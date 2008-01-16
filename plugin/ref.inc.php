@@ -1,5 +1,5 @@
 <?php
-// $Id: ref.inc.php,v 1.21 2008/01/09 11:58:49 nao-pon Exp $
+// $Id: ref.inc.php,v 1.22 2008/01/16 05:28:47 nao-pon Exp $
 /*
 
 	*プラグイン ref
@@ -448,7 +448,7 @@ class xpwiki_plugin_ref extends xpwiki_plugin {
 					// URI for in-line image output
 					if (! $this->cont['PLUGIN_REF_DIRECT_ACCESS']) {
 						// With ref plugin (faster than attach)
-						$lvar['url'] = $this->root->script . '?plugin=ref' . '&amp;page=' . rawurlencode($lvar['page']) .
+						$lvar['url'] = $this->cont['DATA_HOME'] . 'gate.php?way=ref&amp;_nodos&amp;_noumb&amp;page=' . rawurlencode($lvar['page']) .
 						'&amp;src=' . rawurlencode($lvar['name']); // Show its filename at the last
 					} else {
 						// Try direct-access, if possible
@@ -459,9 +459,7 @@ class xpwiki_plugin_ref extends xpwiki_plugin {
 					// URI for in-line image output
 					if (! $this->cont['PLUGIN_REF_DIRECT_ACCESS']) {
 						// With ref plugin (faster than attach)
-						//$lvar['link'] = $this->root->script . '?plugin=attach' . '&amp;refer=' . rawurlencode($lvar['page']) .
-						//'&amp;openfile=' . rawurlencode($lvar['name']); // Show its filename at the last
-						$lvar['link'] = $this->root->script . '?plugin=ref' . '&amp;page=' . rawurlencode($lvar['page']) .
+						$lvar['link'] = $this->cont['DATA_HOME'] . 'gate.php?way=ref&amp;_nodos&amp;_noumb&amp;page=' . rawurlencode($lvar['page']) .
 						'&amp;src=' . rawurlencode($lvar['name']); // Show its filename at the last
 					} else {
 						// Try direct-access, if possible
@@ -480,7 +478,7 @@ class xpwiki_plugin_ref extends xpwiki_plugin {
 			} else if ($lvar['type'] === 5) {
 				// 添付その他
 				$lvar['url'] = '';
-				$lvar['link'] = $this->root->script . '?plugin=attach' . '&amp;refer=' . rawurlencode($lvar['page']) .
+				$lvar['link'] = $this->cont['HOME_URL'] . 'gate.php?way=attach&amp;_noumb' . '&amp;refer=' . rawurlencode($lvar['page']) .
 						'&amp;openfile=' . rawurlencode($lvar['name']); // Show its filename at the last
 				if (! empty($lvar['title'])) {
 					// タイトルが指定されている
