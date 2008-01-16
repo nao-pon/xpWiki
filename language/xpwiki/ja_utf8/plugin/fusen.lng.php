@@ -1,7 +1,7 @@
 <?php
 /*
  * Created on 2008/01/07 by nao-pon http://hypweb.net/
- * $Id: fusen.lng.php,v 1.2 2008/01/09 02:48:59 nao-pon Exp $
+ * $Id: fusen.lng.php,v 1.3 2008/01/16 05:30:32 nao-pon Exp $
  */
 
 $msg = array(
@@ -26,6 +26,7 @@ $msg = array(
 	'btn_menu_help' => 'ヘルプ',
 	'cap_menu_search' => '付箋検索',
 	'msg_not_work' => '<strong>JavaScript未動作</strong>: 付箋を編集できません。また、付箋の表示位置がずれている場合があります。',
+	'msg_show_fusen' => '$1 の付箋を表示',
 	'cap_fusen_edit' => '付箋の編集',
 	'cap_fore_color' => '文字色',
 	'cap_black' => '黒',

@@ -1,7 +1,7 @@
 <?php
 /*
  * Created on 2008/01/07 by nao-pon http://hypweb.net/
- * $Id: fusen.lng.php,v 1.1 2008/01/09 02:39:25 nao-pon Exp $
+ * $Id: fusen.lng.php,v 1.2 2008/01/16 05:30:32 nao-pon Exp $
  */
 
 $msg = array(
@@ -26,6 +26,7 @@ $msg = array(
 	'btn_menu_help' => 'Help',
 	'cap_menu_search' => 'Search',
 	'msg_not_work' => '<strong>JavaScript unoperation</strong>: Tag cannot be edited. And, the position where tag is displayed might shift.',
+	'msg_show_fusen' => 'Show Tag of "$1".',
 	'cap_fusen_edit' => 'Tag Editor',
 	'cap_fore_color' => 'Color',
 	'cap_black' => 'Black',

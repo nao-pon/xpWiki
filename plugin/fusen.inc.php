@@ -31,7 +31,7 @@
 //
 // fusen.inc.php for xpWiki by nao-pon
 // http://xoops.hypweb.net
-// $Id: fusen.inc.php,v 1.5 2008/01/11 08:33:11 nao-pon Exp $
+// $Id: fusen.inc.php,v 1.6 2008/01/16 05:30:32 nao-pon Exp $
 // 
 
 class xpwiki_plugin_fusen extends xpwiki_plugin {
@@ -86,10 +86,14 @@ class xpwiki_plugin_fusen extends xpwiki_plugin {
 				$off = 1;
 		}
 		
+		$refer = $this->root->vars['page'];
+		
 		//読み込みチェック
 		if ($this->root->rtf['convert_nest'] > 1) {
 			if ($off) return '';
-			return "<p>".$this->func->make_pagelink($this->root->vars['page'],$this->func->strip_bracket($this->root->vars['page'])."の付箋を表示")."</p>";
+			return '<p>'
+					 . $this->func->make_pagelink($refer, str_replace('$1', $refer, $this->msg['msg_show_fusen']))
+					 . '</p>';
 		}
 		if (!empty($GLOBALS['Xpwiki_'.$this->root->mydirname]['cache']['fusen']['loaded'])) {
 			return '';
@@ -105,7 +109,6 @@ class xpwiki_plugin_fusen extends xpwiki_plugin {
 		$this->func->add_tag_head('fusen.js');
 
 		$GLOBALS['Xpwiki_'.$this->root->mydirname]['cache']['fusen']['loaded'] = true;
-		$refer = $this->root->vars['page'];
 		$border_normal = $this->cont['FUSEN_STYLE_BORDER_NORMAL'];
 		$border_lock = $this->cont['FUSEN_STYLE_BORDER_LOCK'];
 		$border_del = $this->cont['FUSEN_STYLE_BORDER_DEL'];
@@ -139,14 +142,15 @@ class xpwiki_plugin_fusen extends xpwiki_plugin {
 		$refresh_str .= '</select>';
 		$refresh = $selected * 1000;
 		
-		$html = $this->plugin_fusen_gethtml($fusen_data);
+		$html = $this->plugin_fusen_gethtml($fusen_data, $refer);
 		//if (!$html) $html = '<p></p>';
 		
 		$fusen_post = $this->cont['HOME_URL'];
-		$fusen_url = $this->cont['LOADER_URL'] . '?src=fusen_' . $this->func->get_pgid_by_name($this->root->vars['page']) . '.pcache.xml';
+		$fusen_url = $this->cont['LOADER_URL'] . '?src=fusen_' . $this->func->get_pgid_by_name($refer) . '.pcache.xml';
 		$X_ucd = ''; //WIKI_UCD_DEF;
 		$js_refer = $this->plugin_fusen_jsencode($refer);
 		$auth = $this->func->is_owner($refer)? 1 : 0;
+		$s_refer = htmlspecialchars($refer);
 		
 		$burn = ($auth)? "(<a href=\"JavaScript:fusen_burn()\" title=\"{$this->msg['cap_dustbox_empty']}\">{$this->msg['cap_empty']}</a>)" : "";
 		$js_massages = '';
@@ -154,6 +158,7 @@ class xpwiki_plugin_fusen extends xpwiki_plugin {
 			$js_massages .= 'fusenMsgs[\'' . $key . '\'] = "' . str_replace('"', '&quot;' ,preg_replace('/[\r\n]/', '', $val)) . '";' . "\n";
 		}
 		$readonly = intval($this->cont['PKWK_READONLY']);
+		$mene_new = ($readonly)? '' : '[<a href="JavaScript:fusen_new()" title="' . $this->msg['cap_menu_new'] . '">' . $this->msg['btn_menu_new'] . '</a>]';
 		
 		return <<<EOD
 <script type="text/javascript">
@@ -176,7 +181,7 @@ fusenVar['ReadOnly'] = {$readonly};
 <div id="fusen_top_menu" class="fusen_top_menu" style="visibility: hidden;">
 <form action="" onsubmit="return false;" style="padding:0px;margin:0px;">
   <img src="{$this->cont['LOADER_URL']}?src=fusen.gif" width="20" height="20" alt="{$this->msg['cap_fusen_func']}" title="{$this->msg['cap_fusen_func']}" />
-  [<a href="JavaScript:fusen_new()" title="{$this->msg['cap_menu_new']}">{$this->msg['btn_menu_new']}</a>]
+  {$mene_new}
   [<a href="JavaScript:fusen_dustbox()" title="{$this->msg['cap_menu_dust']}">{$this->msg['btn_menu_dust']}</a>{$burn}]
   [<a href="JavaScript:fusen_transparent()" title="{$this->msg['cap_menu_transparent']}">{$this->msg['btn_menu_transparent']}</a>]
   [<a href="JavaScript:fusen_init(1)" title="{$this->msg['cap_menu_refresh']}">{$this->msg['btn_menu_refresh']}</a>]
@@ -225,8 +230,7 @@ fusenVar['ReadOnly'] = {$readonly};
 	      <input type="hidden" name="by" id="edit_by" value="0" />
 	      <input type="hidden" name="mode" id="edit_mode" value="edit" />
 	      <input type="hidden" name="plugin" value="fusen" />
-	      <input type="hidden" name="refer" value="{$refer}" />
-	      <input type="hidden" name="page" value="{$refer}" />
+	      <input type="hidden" name="refer" value="{$s_refer}" />
 	  </form>
 	  <div class="fusen_editbox_footer">
 	  <form action="" onsubmit="return false;" style="width:auto;padding:0px;margin:0px;">
@@ -250,12 +254,14 @@ EOD;
 	function plugin_fusen_action() {
 		
 		$id = preg_replace('/id/', '', $this->root->vars['id']);
+		$refer = $this->root->vars['page'] = $this->root->vars['refer'];
 
 		// 編集権限がない場合の挙動指定
-		$_PKWK_READONLY = $this->func->set_readonly_by_editauth($this->root->vars['refer']);
+		$_PKWK_READONLY = $this->func->set_readonly_by_editauth($refer);
 		
 		// 規定外のモード
-		if ($this->cont['PKWK_READONLY']
+		if (!$this->func->is_page($refer)
+			|| $this->cont['PKWK_READONLY']
 			|| $id < 0
 			|| !in_array($this->root->vars['mode'],array('set','del','lock','unlock','recover','edit','burn','del_m'))
 		) {
@@ -269,8 +275,6 @@ EOD;
 		$plugin_fusen_setting['max_chr'] = 500; // 最大文字数
 		$plugin_fusen_setting['max_link'] = 3;  // http:// の最大個数
 		$plugin_fusen_setting['max_a_tag'] = 0; // <a>タグの最大個数
-		
-		$refer = $this->root->vars['page'] = $this->root->vars['page'] = $this->root->vars['refer'];
 		
 		// コンバートしないでファイル読み込み
 		$dat = $this->plugin_fusen_data($refer,false);
@@ -616,11 +620,6 @@ EOD;
 
 		if (is_null($page)) {
 			$page = @ $this->root->vars['page'];
-		}
-		
-		if ($page) {
-			//JSONファイル書き込み
-			$this->plugin_fusen_putjson($fusen_data, $page);
 		}
 		
 		// 付箋・線データ作成

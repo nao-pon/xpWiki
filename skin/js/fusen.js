@@ -9,7 +9,7 @@
 //
 // fusen.js for xpWiki by nao-pon
 // http://hypweb.net
-// $Id: fusen.js,v 1.5 2008/01/11 08:33:11 nao-pon Exp $
+// $Id: fusen.js,v 1.6 2008/01/16 05:30:32 nao-pon Exp $
 // 
 var fusenVar = new Array();
 var fusenMsgs = new Array();
@@ -37,7 +37,7 @@ var fusenDblClick = false;
 var fusenBodyStyle = 'fusen_body_trans';
 var fusenLastModified = '';
 var fusenTimerID;		//Interval Timer ID
-var fusenRetTimerID;	//リトライ用タイマー
+var fusenRetTimerID;	//Retry Timer ID
 var fusenFullTimerID = new Array();;
 var fusenClickX = 0;
 var fusenClickY = 0;
@@ -54,8 +54,11 @@ var fusenLines = new Array();
 function fusen_debugobj(objref) {
 	var obj = null;
 	var str = '';
-	if (typeof(objref) == 'string') obj = $(objref);
-	else obj = objref;
+	if (typeof(objref) == 'string') {
+		obj = $(objref);
+	} else {
+		obj = objref;
+	}
 	if (obj) {
 		for(i in obj) {
 			if (!obj.hasOwnProperty(i)) continue;
@@ -77,20 +80,16 @@ function fusen_set_timer()
 {
 	if (fusenTimerID) clearTimeout(fusenTimerID);
 	//window.status = fusenVar['Interval'];
-	if (fusenVar['Interval'] > 5000)
-	{
+	if (fusenVar['Interval'] > 5000) {
 		fusenTimerID = setInterval("fusen_init(0)", fusenVar['Interval']);
 	}
 }
 
 function fusen_busy(busy)
 {
-	if (busy)
-	{
+	if (busy) {
 		fusenBusyFlg = true;
-	}
-	else
-	{
+	} else {
 		fusenBusyFlg = false;
 	}
 	
@@ -104,18 +103,14 @@ function fusen_busy(busy)
 	
 	for(var id in fusenObj)
 	{
-		if (!isNaN(id))
-		{
+		if (!isNaN(id)) {
 			obj = $('fusen_id' + id);
 			set_cursor = (fusenObj[id].lk)? 'auto' : 'move';
 			set_cursor = (busy)? 'wait' : set_cursor;
 			obj.style.cursor = set_cursor;
-			if (busy)
-			{
+			if (busy) {
 				obj.onmousedown = null;
-			}
-			else
-			{
+			} else {
 				fusen_set_onmousedown(obj,id);
 			}
 
@@ -158,6 +153,7 @@ function fusen_postdata(mode) {
 	var w_starus = (fusenVar['Interval'])? (fusenMsgs['fusen_func'] + ": " + fusenMsgs['com_comp'] + " [" + fusenMsgs['refreshing'] + "(" + (fusenVar['Interval']/1000) + "s)" + fusenMsgs['waiting'] + "]") : (fusenMsgs['fusen_func'] + ": " + fusenMsgs['com_comp'] + " [" + fusenMsgs['refreshing'] + " " + fusenMsgs['stopping'] + "]");
 	window.status = fusenMsgs['connecting'];
 	fusen_busy(1);
+	var s_mode = '';
 	
 	for (var i = 0; i < frm.length; i++ ) {
 		var child = frm[i];
@@ -168,19 +164,28 @@ function fusen_postdata(mode) {
 				postdata += encodeURIComponent(child.name) +
 					'=' + encodeURIComponent(child.value);
 			}
+			if (child.name == 'mode') {
+				s_mode = child.value;
+			}
 		}
 	}
 	if (postdata) postdata += '&charset=UTF-8';
+	if (s_mode == 'set') {
+		fusenVar['PostUrl'];
+	}
 	
 	try {
 		var xmlhttp = fusen_httprequest();
 		//var url = location.href;
 		//if (url.indexOf('?') > 0) url.substr(0, url.indexOf('?'));
-		if (mode)
-		{
+		if (mode) {
 			xmlhttp.onreadystatechange = readyStateChangeHandler;
 		}
-		xmlhttp.open('POST', fusenVar['PostUrl'], mode);
+		if (s_mode == 'set') {
+			xmlhttp.open('POST', fusenVar['PostUrl'] + 'gate.php?way=fusen&_nodos', mode);
+		} else {
+			xmlhttp.open('POST', fusenVar['PostUrl'], mode);
+		}
 		xmlhttp.setRequestHeader('Content-Type','application/x-www-form-urlencoded;');
 		xmlhttp.send(postdata);
 	} catch(e) {
@@ -189,19 +194,15 @@ function fusen_postdata(mode) {
 		alert(e);
 		throw 'Unable to post fusen data.';
 	}
-	if (!mode)
-	{
+	if (!mode) {
 		window.status = w_starus;
 		fusen_busy(0);
-		if(xmlhttp.status == 200 || xmlhttp.status == 0)
-		{
+		if(xmlhttp.status == 200 || xmlhttp.status == 0) {
 			var ret = xmlhttp.responseText;
 			xmlhttp = null;
 			fusen_set_timer();
 			return ret;
-		}
-		else
-		{
+		} else {
 			xmlhttp = null;
 			fusenLastModified = '';
 			alert (fusenMsgs['err_posting']);
@@ -210,24 +211,17 @@ function fusen_postdata(mode) {
 	function readyStateChangeHandler()
 	{
 		window.status = fusenMsgs['communicating'];
-		if (xmlhttp.readyState == 4)
-		{
+		if (xmlhttp.readyState == 4) {
 			fusen_busy(0);
 			window.status = w_starus;
-			try
-			{
-				if (xmlhttp.status == 200)
-				{
+			try {
+				if (xmlhttp.status == 200) {
 					fusen_set_timer();
-				}
-				else
-				{
+				} else {
 					fusenLastModified = '';
 					alert(fusenMsgs['err_posting']);
 				}
-			}
-			catch(e)
-			{
+			} catch(e) {
 				fusenLastModified = '';
 				alert(fusenMsgs['err_posting']);
 			}
@@ -246,8 +240,7 @@ function fusen_getdata(mod)
 	var w_starus = (fusenVar['Interval'])? (fusenMsgs['fusen_func'] + ": " + fusenMsgs['com_comp'] + " [" + fusenMsgs['refreshing'] + "(" + (fusenVar['Interval']/1000) + "s)" + fusenMsgs['waiting'] + "]") : (fusenMsgs['fusen_func'] + ": " + fusenMsgs['com_comp'] + " [" + fusenMsgs['refreshing'] + " " + fusenMsgs['stopping'] + "]");
 	window.status = fusenMsgs['connecting'];
 
-	try
-	{
+	try {
 		var dtNow = new Date;
 		var xmlhttp = fusen_httprequest();
 		var url = fusenVar['JsonUrl']+"&t="+dtNow.getHours()+dtNow.getMinutes()+dtNow.getSeconds();
@@ -255,17 +248,12 @@ function fusen_getdata(mod)
 		//xmlhttp.abort();
 		xmlhttp.open(mod, url, true);
 		xmlhttp.send(null);
-	}
-	catch(e)
-	{
+	} catch(e) {
 		fusen_busy(0);
-		if (confirm(fusenMsgs['err_notconnect']))
-		{
+		if (confirm(fusenMsgs['err_notconnect'])) {
 			if (fusenRetTimerID)  clearTimeout(fusenRetTimerID);
 			fusenRetTimerID = setInterval("fusen_init(0)", 2000);
-		}
-		else
-		{
+		} else {
 			fusenVar['Interval'] = 0;
 		}
 		xmlhttp = null;
@@ -277,26 +265,19 @@ function fusen_getdata(mod)
 	{
 		window.status = fusenMsgs['communicating'];
 		var er = "";
-		if (xmlhttp.readyState == 4)
-		{
+		if (xmlhttp.readyState == 4) {
 			window.status = w_starus;
-			try
-			{
-				if (xmlhttp.status == 200 || xmlhttp.status == 404)
-				{
+			try {
+				if (xmlhttp.status == 200 || xmlhttp.status == 404) {
 					fusen_busy(0);
 					//alert(xmlhttp.getAllResponseHeaders());
 					var lm = xmlhttp.getResponseHeader("Last-Modified");
-					if (mod == 'HEAD')
-					{
+					if (mod == 'HEAD') {
 						//window.status = dtNow.getSeconds() + ' : ' + lm;
 						xmlhttp = null;
-						if (fusenLastModified == lm || xmlhttp.status == 404)
-						{
+						if (fusenLastModified == lm || xmlhttp.status == 404) {
 							fusen_set_timer();
-						}
-						else
-						{
+						} else {
 							fusen_getdata('GET');
 						}
 						return;
@@ -335,8 +316,7 @@ function fusen_getdata(mod)
 						var frm = $('edit_frm');
 						var re = /input|textarea|select/i;
 						var tag = '';
-						for (var i = 0; i < frm.length; i++ )
-						{
+						for (var i = 0; i < frm.length; i++ ) {
 							var child = frm[i];
 							tag = String(child.tagName);
 						}
@@ -344,21 +324,16 @@ function fusen_getdata(mod)
 						var edit_item = new Array();
 						var change_status = false;
 						
-						if (fusenObj)
-						{
+						if (fusenObj) {
 							eval( 'var fusenObj_N = ' + txt );
 							
 							// New or Edited Tags
-							for (var id in fusenObj_N)
-							{
-								if (!isNaN(id))
-								{
-									if (!fusenObj[id] || fusenObj[id].tt < fusenObj_N[id].tt)
-									{
+							for (var id in fusenObj_N) {
+								if (!isNaN(id)) {
+									if (!fusenObj[id] || fusenObj[id].tt < fusenObj_N[id].tt) {
 										change_status = true;
 										edit_item[id] = true;
-										if (fusenObj[id])
-										{
+										if (fusenObj[id]) {
 											$('fusen_id' + id).id = 'fusen_id_remove' + id;
 										}
 										fusenObj[id] = fusenObj_N[id];
@@ -366,12 +341,9 @@ function fusen_getdata(mod)
 								}
 							}
 							// Deleted Tags
-							for (var id in fusenObj)
-							{
-								if (!isNaN(id))
-								{
-									if (!fusenObj_N[id])
-									{
+							for (var id in fusenObj) {
+								if (!isNaN(id)) {
+									if (!fusenObj_N[id]) {
 										change_status = true;
 										fusen_removelines(id);
 										obj.removeChild($('fusen_id' + id));
@@ -379,23 +351,18 @@ function fusen_getdata(mod)
 									}
 								}
 							}
-						}
-						else
-						{
+						} else {
 							eval( 'fusenObj = ' + txt );
 							edit_item = fusenObj;
 							while (obj.childNodes.length > 0) obj.removeChild(obj.firstChild);
 						}
 						
-						if (edit_item)
-						{
+						if (edit_item) {
 							// Remove line connect info
 							fusenLines = new Array();
 							
-							for(var id in edit_item)
-							{
-								if (!isNaN(id))
-								{
+							for(var id in edit_item) {
+								if (!isNaN(id)) {
 									// Edit auth
 									fusenObj[id].auth = false;
 									if (fusenVar['admin']) fusenObj[id].auth = true;
@@ -410,13 +377,11 @@ function fusen_getdata(mod)
 									fusenFullFlg[id] = false;
 									
 									// Resize
-									if (!fusenObj[id].fix)
-									{
+									if (!fusenObj[id].fix) {
 										fusen_size_init(cobj);
 									}
 									
-									if (change_status && $('fusen_id_remove' + id))
-									{
+									if (change_status && $('fusen_id_remove' + id)) {
 										obj.removeChild($('fusen_id_remove' + id));
 									}
 									
@@ -424,21 +389,16 @@ function fusen_getdata(mod)
 								}
 							}
 							
-							if (fusenDustboxFlg)
-							{
+							if (fusenDustboxFlg) {
 								fusenDustboxFlg = false;
 								fusen_dustbox();
-							}
-							else
-							{
+							} else {
 								if (!change_status) {fusen_setlines();}
 							}
 							
-							if (!fusenLoaded)
-							{
+							if (!fusenLoaded) {
 								var jump_id = (!location.hash)? '' : location.hash.replace(/^#fusen([\d]+)$/,"$1");
-								if (!(!jump_id))
-								{
+								if (!(!jump_id)) {
 									fusen_select(jump_id,true);
 									setInterval("fusen_select_clear()", 5000);
 								}
@@ -453,48 +413,33 @@ function fusen_getdata(mod)
 						}
 						if (change_status) fusen_list_make();
 						fusen_set_timer();
-					}
-					catch(e)
-					{
+					} catch(e) {
 						er = fusenMsgs['err_baddata'];
 						fusenLastModified = '';
 					}
-				}
-				else
-				{
+				} else {
 					er = fusenMsgs['err_notcommunicating'];
 				}
-			}
-			catch(e)
-			{
+			} catch(e) {
 				er = fusenMsgs['err_notcommunicating'];
 			}
 			
-			if (er)
-			{
-				if (fusenGetRetry++ >= 60/(fusenVar['Interval']/1000))
-				{
+			if (er) {
+				if (fusenGetRetry++ >= 60/(fusenVar['Interval']/1000)) {
 					fusenGetRetry = 0;
-					fusen_busy(0)
-					if (confirm(er + ' ' + fusenMsgs['msg_retryto'] + ' ' + url.replace(/^https?:\/\/([^\/]+).*$/,"$1")))
-					{
+					fusen_busy(0);
+					if (confirm(er + ' ' + fusenMsgs['msg_retryto'] + ' ' + url.replace(/^https?:\/\/([^\/]+).*$/,"$1"))) {
 						if (fusenRetTimerID)  clearTimeout(fusenRetTimerID);
 						fusenRetTimerID = setInterval("fusen_init(0)", 1000);
-					}
-					else
-					{
+					} else {
 						fusenVar['Interval'] = 0;
 						window.status = fusenMsgs['fusen_func']+": "+fusenMsgs['com_comp']+" ["+fusenMsgs['refreshing']+" "+fusenMsgs['stopping']+"]";
 						$('fusen_menu_interval').selectedIndex = 0;
 					}
-				}
-				else
-				{
+				} else {
 					fusen_set_timer();
 				}
-			}
-			else
-			{
+			} else {
 				fusenGetRetry = 0;
 			}
 			er = '';
@@ -523,8 +468,7 @@ function fusen_grep(pat) {
 	fusenMovingObj = null;
 	var re = new RegExp(pat, 'im');
 	for(var id in fusenObj) {
-		if (!isNaN(id))
-		{
+		if (!isNaN(id)) {
 			if (!fusenDustboxFlg && (fusenObj[id].del)) continue;
 			if (fusenDustboxFlg && !(fusenObj[id].del)) continue;
 			if (fusenObj[id].disp.match(re) || fusenObj[id].name.match(re)) {
@@ -541,8 +485,7 @@ function fusen_new(dblclick)
 {
 	if (!fusenLoaded) return;
 	
-	if (fusenDustboxFlg)
-	{
+	if (fusenDustboxFlg) {
 		fusen_dustbox();
 		if (dblclick) return;
 	}
@@ -577,8 +520,7 @@ function fusen_editbox_hide() {
 
 function fusen_save()
 {
-	if ($('edit_mode').value == 'edit' && !$('edit_body').value)
-	{
+	if ($('edit_mode').value == 'edit' && !$('edit_body').value) {
 		alert(fusenMsgs['err_nottext']);
 		return;
 	}
@@ -590,8 +532,7 @@ function fusen_save()
 
 function fusen_setpos(id,auto)
 {
-	if (fusenBusyFlg)
-	{
+	if (fusenBusyFlg) {
 		alert(fusenMsgs['now_communicating']);
 		return;
 	}
@@ -603,8 +544,7 @@ function fusen_setpos(id,auto)
 	$('edit_id').value = id;
 	$('edit_l').value = parseInt(obj.style.left.replace("px",""));
 	$('edit_t').value = parseInt(obj.style.top.replace("px",""));
-	if (auto)
-	{
+	if (auto) {
 		$('edit_fix').value = 0;
 		fusenObj[id].fix = 0;
 		fusen_set_menu_html($('fusen_id' + id + 'menu'),id,'');
@@ -614,18 +554,13 @@ function fusen_setpos(id,auto)
 		obj.style.height = 'auto';
 		fusen_size_init(obj);
 		fusen_setlines(id);
-	}
-	else
-	{
+	} else {
 		$('edit_fix').value = fusenObj[id].fix;
 	}
-	if (fusenObj[id].fix)
-	{
+	if (fusenObj[id].fix) {
 		$('edit_w').value = fusenObj[id].w = parseInt(obj.style.width.replace("px",""));
 		$('edit_h').value = fusenObj[id].h = parseInt(obj.style.height.replace("px",""));
-	}
-	else
-	{
+	} else {
 		$('edit_w').value = fusenObj[id].w;
 		$('edit_h').value = fusenObj[id].h;
 	}
@@ -708,25 +643,20 @@ function fusen_del(id)
 	var ok;
 	var mode;
 	
-	if (fusenDustboxFlg)
-	{
+	if (fusenDustboxFlg) {
 		ok = confirm(fusenMsgs['msg_burn']);
 		mode = false;
-	}
-	else
-	{
+	} else {
 		ok = confirm(fusenMsgs['msg_dustbox']);
 		mode = true;
 	}
 	
-	if (fusenBusyFlg)
-	{
+	if (fusenBusyFlg) {
 		alert(fusenMsgs['now_communicating']);
 		return;
 	}
 	
-	if (ok)
-	{
+	if (ok) {
 		$('edit_id').value = id;
 		$('edit_mode').value = 'del';
 		//$('edit_ln').value = (fusenObj[id].ln) ? 'id' + fusenObj[id].ln : '';
@@ -737,8 +667,7 @@ function fusen_del(id)
 		$('fusen_id' + id).style.border = fusenVar['BorderObj']['del'];
 		fusenObj[id].del = true;
 		
-		if (!fusenDustboxFlg)
-		{
+		if (!fusenDustboxFlg) {
 			//fusen_dustbox();
 			fusen_list_make();
 			fusen_removelines(id);
@@ -747,8 +676,7 @@ function fusen_del(id)
 		
 		// Server side update
 		fusen_postdata(true);
-		if (!mode) 
-		{
+		if (!mode) {
 			$('fusen_area').removeChild($('fusen_id' + id));
 			delete fusenObj[id];
 			fusen_list_make();
@@ -763,41 +691,33 @@ function fusen_del_multi()
 	
 	ok = confirm(fusenMsgs['msg_dustall']);
 	
-	if (fusenBusyFlg)
-	{
+	if (fusenBusyFlg) {
 		alert(fusenMsgs['now_communicating']);
 		return;
 	}
 	
-	if (ok)
-	{
+	if (ok) {
 		var ids = new Array();
 		var elm;
-		for(var id in fusenObj)
-		{
-			if (!isNaN(id))
-			{
+		for(var id in fusenObj) {
+			if (!isNaN(id)) {
 				elm = $('list_delbox_'+id);
-				if(elm && elm.checked == true)
-				{
+				if(elm && elm.checked == true) {
 					ids[id] = id;
 				}
 			}
 		}
 		$('edit_id').value = ids.join(",");
 		$('edit_mode').value = 'del_m';
-		for(var id in ids)
-		{
-			if (!isNaN(id))
-			{
+		for(var id in ids) {
+			if (!isNaN(id)) {
 				// Reload
 				$('fusen_id' + id).style.visibility = "hidden";
 				fusen_set_menu_html($('fusen_id' + id + 'menu'),id,'del');
 				$('fusen_id' + id).style.border = fusenVar['BorderObj']['del'];
 				fusenObj[id].del = true;
 				
-				if (!fusenDustboxFlg)
-				{
+				if (!fusenDustboxFlg) {
 					fusen_removelines(id);
 					fusen_setlines(id);
 				}
@@ -812,8 +732,7 @@ function fusen_del_multi()
 
 function fusen_recover(id)
 {
-	if (fusenBusyFlg)
-	{
+	if (fusenBusyFlg) {
 		alert(fusenMsgs['now_communicating']);
 		return;
 	}
@@ -846,8 +765,7 @@ function fusen_burn()
 	ok = confirm(fusenMsgs['msg_emptydustbox']);
 	if (!ok) return;
 	
-	if (fusenBusyFlg)
-	{
+	if (fusenBusyFlg) {
 		alert(fusenMsgs['now_communicating']);
 		return;
 	}
@@ -865,8 +783,7 @@ function fusen_burn()
 
 function fusen_lock(id)
 {
-	if (fusenBusyFlg)
-	{
+	if (fusenBusyFlg) {
 		alert(fusenMsgs['now_communicating']);
 		return;
 	}
@@ -892,8 +809,7 @@ function fusen_lock(id)
 
 function fusen_unlock(id)
 {
-	if (fusenBusyFlg)
-	{
+	if (fusenBusyFlg) {
 		alert(fusenMsgs['now_communicating']);
 		return;
 	}
@@ -980,8 +896,7 @@ function fusen_dustbox()
 	fusenMovingObj = null;
 	fusenDustboxFlg = !fusenDustboxFlg;
 	for(var id in fusenObj) {
-		if (!isNaN(id))
-		{
+		if (!isNaN(id)) {
 			var obj = $('fusen_id' + id);
 			if (fusenObj[id].del) {
 				if (fusenDustboxFlg) obj.style.visibility = 'visible';
@@ -992,13 +907,10 @@ function fusen_dustbox()
 			}
 		}
 	}
-	if (fusenDustboxFlg)
-	{
+	if (fusenDustboxFlg) {
 		fusen_removelines();
 		if (fusenTimerID) clearTimeout(fusenTimerID);
-	}
-	else
-	{
+	} else {
 		fusen_setlines();
 		fusen_set_timer();
 	}
@@ -1006,18 +918,15 @@ function fusen_dustbox()
 
 function fusen_transparent()
 {
-	if (fusenBodyStyle != 'fusen_body')
-	{
+	if (fusenBodyStyle != 'fusen_body') {
 		fusenBodyStyle = 'fusen_body';
-	}
-	else
-	{
+	} else {
 		fusenBodyStyle = 'fusen_body_trans';
 	}
-	for (var i = 0; i < $('fusen_area').childNodes.length; i++ )
-	{
-		if ($('fusen_area').childNodes[i].id.indexOf('fusen_id') == 0)
+	for (var i = 0; i < $('fusen_area').childNodes.length; i++ ) {
+		if ($('fusen_area').childNodes[i].id.indexOf('fusen_id') == 0) {
 			$('fusen_area').childNodes[i].className = fusenBodyStyle;
+		}
 	}
 
 }
@@ -1026,46 +935,37 @@ function fusen_set_menu_html(tobj,id,mode)
 {
 	//tobj.innerHTML = '<a name="fusenid' + id + '"></a>id.' + id + ': ';
 	tobj.innerHTML = 'id.' + id + ': ';
-	//alert(id + ':' + fusenObj[id].auth);
-	if (mode == 'del')
-	{
-		if (fusenObj[id].auth)
-		{
+	if (!fusenVar['ReadOnly']) {
+		if (mode == 'del') {
+			if (fusenObj[id].auth) {
+				tobj.innerHTML +=
+					' <a href="javascript:fusen_recover(' + id + ')" title="' + fusenMsgs['recover'] + '">recover</a>' +
+					' <a href="javascript:fusen_del(' + id + ')" title="' + fusenMsgs['burn'] + '">del</a>';
+			}
+		} else if (mode == 'lock') {
+			if (fusenObj[id].auth) {
+				tobj.innerHTML +=
+					' <a href="javascript:fusen_unlock(' + id + ')" title="' + fusenMsgs['unlock'] + '">unlock</a>';
+			}
 			tobj.innerHTML +=
-				' <a href="javascript:fusen_recover(' + id + ')" title="' + fusenMsgs['recover'] + '">recover</a>' +
-				' <a href="javascript:fusen_del(' + id + ')" title="' + fusenMsgs['burn'] + '">del</a>';
-		}
-	}
-	else if (mode == 'lock')
-	{
-		if (fusenObj[id].auth)
-		{
+				' <a href="javascript:fusen_link(' + id + ')" title="' + fusenMsgs['new_with_line'] + '">line</a>';
+		} else {
+			if (fusenObj[id].auth) {
+				tobj.innerHTML +=
+					' <a href="javascript:fusen_edit(' + id + ')" title="' + fusenMsgs['edit'] + '">edit</a>';
+				tobj.innerHTML +=
+					' <a href="javascript:fusen_lock(' + id + ')" title="' + fusenMsgs['lock'] + '">lock</a>';
+			}
 			tobj.innerHTML +=
-				' <a href="javascript:fusen_unlock(' + id + ')" title="' + fusenMsgs['unlock'] + '">unlock</a>';
-		}
-		tobj.innerHTML +=
-			' <a href="javascript:fusen_link(' + id + ')" title="' + fusenMsgs['new_with_line'] + '">line</a>';
-	}
-	else 
-	{
-		if (fusenObj[id].auth)
-		{
-			tobj.innerHTML +=
-				' <a href="javascript:fusen_edit(' + id + ')" title="' + fusenMsgs['edit'] + '">edit</a>';
-			tobj.innerHTML +=
-				' <a href="javascript:fusen_lock(' + id + ')" title="' + fusenMsgs['lock'] + '">lock</a>';
-		}
-		tobj.innerHTML +=
-			' <a href="javascript:fusen_link(' + id + ')" title="' + fusenMsgs['new_with_line'] + '">line</a>';
-		if (fusenObj[id].auth)
-		{	
-			tobj.innerHTML +=
-				' <a href="javascript:fusen_del(' + id + ')" title="' + fusenMsgs['to_dustbox'] + '">del</a>';
-		}
-		if (fusenObj[id].fix)
-		{
-			tobj.innerHTML +=
-				' <a href="javascript:fusen_setpos(' + id + ',1)" title="' + fusenMsgs['auto_resize'] + '">auto</a>';
+				' <a href="javascript:fusen_link(' + id + ')" title="' + fusenMsgs['new_with_line'] + '">line</a>';
+			if (fusenObj[id].auth) {	
+				tobj.innerHTML +=
+					' <a href="javascript:fusen_del(' + id + ')" title="' + fusenMsgs['to_dustbox'] + '">del</a>';
+			}
+			if (fusenObj[id].fix) {
+				tobj.innerHTML +=
+					' <a href="javascript:fusen_setpos(' + id + ',1)" title="' + fusenMsgs['auto_resize'] + '">auto</a>';
+			}
 		}
 	}
 	return;
@@ -1112,8 +1012,7 @@ function fusen_create_resizeobj(id,obj) {
 	cobj.src = './skin/loader.php?src=resize.gif';
 	cobj.title = cobj.alt = 'Resize';
 	cobj.onmousedown = function(){fusenResizeFlg=1;return true;};
-	if (obj.lk)
-	{
+	if (obj.lk) {
 		cobj.style.visibility = 'hidden';
 	}
 	return cobj;
@@ -1158,21 +1057,22 @@ function fusen_create(id, obj) {
 	} else {
 		menuobj =  fusen_create_menuobj(id, 'normal', obj);
 		border = fusenVar['BorderObj']['normal'];
-		if (fusenObj[id].auth)
+		if (fusenObj[id].auth) {
 			fusenobj.title = fusenMsgs['dbc2edit'];
-		else
+		} else {
 			fusenobj.title = "";
+		}
 	}
 	
 	// Locked?
-	if (obj.lk)
+	if (obj.lk) {
 		fusenobj.style.cursor = 'auto';
-	else
+	} else {
 		fusenobj.style.cursor = 'move';
+	}
 	
 	// Fixed？
-	if (obj.fix)
-	{
+	if (obj.fix) {
 		fusenobj.style.overflow = 'hidden';
 		fusenobj.style.whiteSpace = 'normal';
 		fusenobj.style.width = obj.w + 'px';
@@ -1211,12 +1111,9 @@ function fusen_create(id, obj) {
 function fusen_removelines(t_id) {
 	var id, lineid, obj;
 	for(id in fusenObj) {
-		if (!isNaN(id))
-		{
-			if (fusenObj[id].ln)
-			{
-				if (!t_id || t_id == id || t_id == fusenObj[id].ln)
-				{
+		if (!isNaN(id)) {
+			if (fusenObj[id].ln) {
+				if (!t_id || t_id == id || t_id == fusenObj[id].ln) {
 					lineid = 'line' + id + '_' + fusenObj[id].ln;
 					obj = $(lineid);
 					if (obj) obj.parentNode.removeChild(obj);
@@ -1228,30 +1125,20 @@ function fusen_removelines(t_id) {
 
 function fusen_setlines(t_id)
 {
-	if (fusenLines[t_id] instanceof Array)
-	{
-		if (fusenLines[t_id])
-		{
-			for (var id in fusenLines[t_id])
-			{
-				if (!isNaN(id))
-				{
+	if (fusenLines[t_id] instanceof Array) {
+		if (fusenLines[t_id]) {
+			for (var id in fusenLines[t_id]) {
+				if (!isNaN(id)) {
 					fusen_setline2(id, fusenObj[id].ln);
 				}
 			}
 		}
-	}
-	else
-	{
+	} else {
 		if (!!t_id) fusenLines[t_id] = new Array();
-		for(var id in fusenObj)
-		{
-			if (!isNaN(id))
-			{
-				if (fusenObj[id].ln && !fusenObj[id].del && fusenObj[fusenObj[id].ln] && !fusenObj[fusenObj[id].ln].del)
-				{
-					if (!t_id || t_id == id || t_id == fusenObj[id].ln)
-					{
+		for(var id in fusenObj) {
+			if (!isNaN(id)) {
+				if (fusenObj[id].ln && !fusenObj[id].del && fusenObj[fusenObj[id].ln] && !fusenObj[fusenObj[id].ln].del) {
+					if (!t_id || t_id == id || t_id == fusenObj[id].ln) {
 						fusen_setline2(id, fusenObj[id].ln);
 						if (!!t_id) {fusenLines[t_id][id] = true;}
 					}
@@ -1304,8 +1191,7 @@ function fusen_setline2(fromid, toid)
 	var tl = parseInt(tobj.style.left.replace("px","")) - 1;
 	var tr = tl + tobj.offsetWidth;
 
-	if (!fusenVar['IE'])
-	{
+	if (!fusenVar['IE']) {
 //		fb += 2;
 //		fr += 2;
 //		tb += 2;
@@ -1317,109 +1203,86 @@ function fusen_setline2(fromid, toid)
 	var lh;
 	var lw;
 	
-	if (fx < tr && fb  < ty )
-	{
+	if (fx < tr && fb  < ty ) {
 		// Left Top
 		lx = fx;
 		ly = fb + 1;
 		lw = tl - lx;
 		lh = ty - ly;
-		if (!fusenVar['IE'])
-		{
+		if (!fusenVar['IE']) {
 			lw += 2;
 			lh += 2;
 		}
 		border = 4;
-		if (tl < fx)
-		{
+		if (tl < fx) {
 			lh = tt - ly;
 			if (!fusenVar['IE']) lh ++;
 			lw = 0;
-		}
-		else if (fb > ty)
-		{
+		} else if (fb > ty) {
 			lx = fr + 2;
 			lh = 0;
 			lw = lw - fw - 2;
 		}
-	}
-	else if (fx >= tr && fb < ty)
-	{
+	} else if (fx >= tr && fb < ty) {
 		// Right Top
 		lx = tr + 1;
 		ly = fb + 1;
 		lw = fx - lx - 1;
 		lh = ty - ly;
-		if (!fusenVar['IE'])
-		{
+		if (!fusenVar['IE']) {
 			lw += 2;
 			lh += 2;
 		}
 		border = 3;
-		if (fx <= tr)
-		{
+		if (fx <= tr) {
 			lx = fx;
 			lh = tt - ly;
 			lw = 0;
-		}
-		else if (fb > ty)
-		{
+		} else if (fb > ty) {
 			lw = lw - fw - 1;
 			if (!fusenVar['IE']) lw ++;
 			lh = 0;
 		}
-	}
-	else if (fx >= tr && fb >= ty)
-	{
+	} else if (fx >= tr && fb >= ty) {
 		// Right Bottom
 		lx = tr + 1;
 		ly = ty;
 		lw = fx - lx - 1;
 		lh = ft - ly;
-		if (!fusenVar['IE'])
-		{
+		if (!fusenVar['IE']) {
 			ly ++;
 			lw += 2;
 			lh += 1;
 		}
 		border = 2;
-		if (fx <= tr)
-		{
+		if (fx <= tr) {
 			lx = fx + 1;
 			ly = tb;
 			lw = 0;
-		}
-		else if (ft < ly)
-		{
+		} else if (ft < ly) {
 			lw = fl - tr - 1;
 			if (!fusenVar['IE']) lw ++;
 			lh = 0;
 		}
-	}
-	else
-	{
+	} else {
 		// Left Bottom
 		lx = fx;
 		ly = ty;
 		lw = tl - lx;
 		lh = ft - ly;
-		if (!fusenVar['IE'])
-		{
+		if (!fusenVar['IE']) {
 			ly ++;
 			lw += 2;
 			lh += 1;
 		}
 		border = 1;
-		if (tl < fx)
-		{
+		if (tl < fx) {
 			lx = fx + 1;
 			ly = tb + 1;
 			lw = 0;
 			lh = ft - tb - 1;
 			if (!fusenVar['IE']) lh += 2;
-		}
-		else if (ft < ly)
-		{
+		} else if (ft < ly) {
 			lx = fr + 1;
 			lw = tl - fr - 1;
 			if (!fusenVar['IE']) lw ++;
@@ -1473,13 +1336,10 @@ function fusen_drawLine2(x, y, w, h, color, nid, border){
 		obj.src = "./skin/loader.php?src=connect.gif";
 		obj.style.zIndex = 0;
 		obj.style.position  = "absolute";
-		if (fusenVar['IE'])
-		{
+		if (fusenVar['IE']) {
 			var ox = 3;
 			var oy = 3;
-		}
-		else
-		{
+		} else {
 			var ox = 4;
 			var oy = 4;
 		}
@@ -1495,13 +1355,10 @@ function fusen_drawLine2(x, y, w, h, color, nid, border){
 		obj.src = "./skin/loader.php?src=connect.gif";
 		obj.style.zIndex = 0;
 		obj.style.position  = "absolute";
-		if (fusenVar['IE'])
-		{
+		if (fusenVar['IE']) {
 			var ox = 3;
 			var oy = 3;
-		}
-		else
-		{
+		} else {
 			var ox = 4;
 			var oy = 4;
 		}
@@ -1525,19 +1382,15 @@ function fusen_drawLine2(x, y, w, h, color, nid, border){
 
 function fusen_onmousedown(e) {
 
-	if (fusenVar['IE'])
-	{
+	if (fusenVar['IE']) {
 		if (event.button != 1) return;
 		var tag = String(event.srcElement.tagName);
-	}
-	else
-	{
+	} else {
 		if (e.which != 1) return;
 		var tag = String(e.target.tagName);
 	}
 	
-	if (!tag.match(/div|img|form|ul|li|dl|dd|dt/i))
-	{
+	if (!tag.match(/div|img|form|ul|li|dl|dd|dt/i)) {
 		this.cancelBubble = true;
 		return;
 	}
@@ -1563,8 +1416,7 @@ function fusen_onmousedown(e) {
 
 	}
 	for(var id in fusenObj) {
-		if (!isNaN(id))
-		{
+		if (!isNaN(id)) {
 			$('fusen_id' + id).style.zIndex = 1;
 		}
 	}
@@ -1578,21 +1430,18 @@ function fusen_onmousemove(e)
 	if (!fusenMovingObj) return;
 
 	var nowpos;
-	if(fusenVar['IE'])
-	{
+	if(fusenVar['IE']) {
 		nowpos = event.clientX + "," + event.clientY;
 	} else {
 		nowpos = e.pageX + "," + e.pageY;
 	}
 	
-	if (fusenMovingObj && nowpos != (fusenClickX + "," + fusenClickY))
-	{
+	if (fusenMovingObj && nowpos != (fusenClickX + "," + fusenClickY)) {
 		this.cancelBubble = true;
 		fusenMovingFlg = true;
 
 		var id = fusenMovingObj.id.replace('fusen_id','');
-		if (fusenResizeFlg)
-		{
+		if (fusenResizeFlg) {
 			if (fusenVar['IE']) {
 				var x = Math.max(fusenMinWidth,fusenClickW + (event.clientX - fusenClickX));
 				var y = Math.max(fusenMinHeight,fusenClickH + (event.clientY - fusenClickY));
@@ -1604,22 +1453,17 @@ function fusen_onmousemove(e)
 				fusenMovingObj.style.width = x + "px";
 				if (fusenResizeFlg == 1) fusenMovingObj.style.height = y + "px";
 			}
-			if (fusenResizeFlg == 1)
-			{
+			if (fusenResizeFlg == 1) {
 				$('fusen_id' + id).style.overflow = "hidden";
 				$('fusen_id' + id).style.whiteSpace = 'normal';
-			}
-			else
-			{
+			} else {
 				$('fusen_id' + id).style.overflow = "hidden";
 				$('fusen_id' + id).style.whiteSpace = 'normal';
 				$('fusen_id' + id).style.height = 'auto';
 			}
 			fusenObj[id].fix = fusenResizeFlg;
 			window.status = fusenMsgs['fusen']+" "+id+" "+fusenMsgs['resizing']+"[ W:"+x+", H:"+y+" ]";
-		}
-		else
-		{
+		} else {
 			if (fusenVar['IE']) {
 				var x = event.clientX + document.body.scrollLeft - fusenVar['offsetX'];
 				var y = event.clientY + document.body.scrollTop - fusenVar['offsetY'];
@@ -1637,11 +1481,9 @@ function fusen_onmousemove(e)
 }
 
 function fusen_onmouseup(e) {
-	if (!fusenDustboxFlg && fusenMovingFlg && fusenMovingObj && fusenMovingObj.id.indexOf('fusen_id') == 0)
-	{
+	if (!fusenDustboxFlg && fusenMovingFlg && fusenMovingObj && fusenMovingObj.id.indexOf('fusen_id') == 0) {
 		var id = fusenMovingObj.id.replace('fusen_id','');
-		if (!fusenResizeFlg && fusenObj[id].fix)
-		{
+		if (!fusenResizeFlg && fusenObj[id].fix) {
 			fusenMovingObj = null;
 			fusen_show_full(id,'close');
 		}
@@ -1658,15 +1500,11 @@ function fusen_ondblclick(e)
 {
 	var id = parseInt(this.id.replace('fusen_id',''));
 	
-	if (id)
-	{
-		if (!fusenFullFlg[id]  && fusenObj[id].fix == 1)
-		{
+	if (id) {
+		if (!fusenFullFlg[id]  && fusenObj[id].fix == 1) {
 			fusenDblClick = true;
 			fusen_show_full(id,'open');
-		}
-		else if (!fusenObj[id].lk)
-		{
+		} else if (!fusenObj[id].lk) {
 			fusenMovingObj = null;
 			fusenDblClick = true;
 			fusen_edit(id);
@@ -1692,12 +1530,9 @@ function fusen_set_onmousedown(obj,id)
 {
 	if (!id) return;
 	
-	if (fusenObj[id].lk)
-	{
+	if (fusenObj[id].lk) {
 		obj.onmousedown = null;
-	}
-	else
-	{
+	} else {
 		obj.onmousedown = fusen_onmousedown;
 	}
 
@@ -1706,14 +1541,10 @@ function fusen_onmouseover(e)
 {
 	var id = parseInt(this.id.replace('fusen_id',''));
 	if (fusenFullTimerID[id]) clearTimeout(fusenFullTimerID[id]);
-	if (fusenFullFlg[id])
-	{
+	if (fusenFullFlg[id]) {
 		//if (fusenFullTimerID[id]) clearTimeout(fusenFullTimerID[id]);
-	}
-	else
-	{
-		if (fusenObj[id].fix && (fusenObj[id].w == fusenMinWidth || fusenObj[id].h == fusenMinHeight))
-		{
+	} else {
+		if (fusenObj[id].fix && (fusenObj[id].w == fusenMinWidth || fusenObj[id].h == fusenMinHeight)) {
 			eval('fusenFullTimerID[' + id + ']=setInterval("fusen_show_full(' + id + ',\'open\')", 500);');
 		}
 	}
@@ -1724,14 +1555,10 @@ function fusen_onmouseout(e)
 {
 	var id = parseInt(this.id.replace('fusen_id',''));
 
-	if (id && !fusenMovingObj)
-	{
-		if (fusenObj[id].fix)
-		{
+	if (id && !fusenMovingObj) {
+		if (fusenObj[id].fix) {
 			if (fusenFullTimerID[id]) clearTimeout(fusenFullTimerID[id]);
-			//if (this.style.overflow != "hidden")
-			if (fusenFullFlg[id])
-			{
+			if (fusenFullFlg[id]) {
 				eval('fusenFullTimerID[' + id + ']=setInterval("fusen_show_full(' + id + ',\'close\')", 500);');
 			}
 		}
@@ -1749,21 +1576,16 @@ function fusen_show_full(id,mode)
 	
 	if (fusenObj[id].fix)
 	{
-		if (mode == 'open')
-		{
+		if (mode == 'open') {
 			fusenFullFlg[id] = true;
 			obj.style.height = 'auto';
 			obj.style.zIndex = 90;
  			obj.title = (!fusenObj[id].auth || fusenObj[id].lk)? '' : fusenMsgs['dbc2edit'];
-			if (fusenObj[id].w < 50)
-			{
+			if (fusenObj[id].w < 50) {
 				fusen_size_init(obj);
 			}
-		}
-		else
-		{
-			if (fusenObj[id].w && fusenObj[id].h)
-			{
+		} else {
+			if (fusenObj[id].w && fusenObj[id].h) {
 				obj.style.overflow = 'hidden';
 				obj.style.whiteSpace = 'normal';
 				obj.style.width = fusenObj[id].w + 'px';
@@ -1787,8 +1609,7 @@ function fusen_select(selectid,nolist)
 	
 	var dustbox = fusenObj[selectid].del;
 	
-	if (fusenObj[selectid].fix && (fusenObj[selectid].w <= fusenMinWidth || fusenObj[selectid].h <= fusenMinHeight))
-	{
+	if (fusenObj[selectid].fix && (fusenObj[selectid].w <= fusenMinWidth || fusenObj[selectid].h <= fusenMinHeight)) {
 		fusen_show_full(selectid,'open');
 		eval('fusenFullTimerID[' + selectid + ']=setInterval("fusen_show_full(' + selectid + ',\'close\')", 10000);');
 	}
@@ -1801,8 +1622,7 @@ function fusen_select(selectid,nolist)
 		className = 'fusen_body';
 		style.zIndex = 150;
 	}
-	if (!nolist)
-	{
+	if (!nolist) {
 		$('fusen_list').style.top = top + 'px';
 		$('fusen_list').style.left = (left + $('fusen_id' + selectid).offsetWidth + 1) + 'px';left + 'px';
 	}
@@ -1814,20 +1634,15 @@ function fusen_select(selectid,nolist)
 
 function fusen_select_clear(mode)
 {
-	if (mode == 'on')
-	{
+	if (mode == 'on') {
 		fusenBodyStyle = 'fusen_body';
-	}
-	else
-	{
+	} else {
 		fusenBodyStyle = 'fusen_body_trans';
 	}
 	fusen_transparent();
 	
-	for(var id in fusenObj)
-	{
-		if (!isNaN(id))
-		{
+	for(var id in fusenObj) {
+		if (!isNaN(id)) {
 			if (fusenObj[id].del) {
 				border = fusenVar['BorderObj']['del'];
 			} else  if (fusenObj[id].lk) {
@@ -1857,12 +1672,9 @@ function fusen_winScroll(x,y)
 function fusen_init(mode)
 {
 	if (fusenRetTimerID) clearTimeout(fusenRetTimerID);
-	if (mode) 
-	{
+	if (mode) {
 		fusen_getdata('GET');
-	}
-	else
-	{
+	} else {
 		fusen_getdata('HEAD');
 	}
 }
@@ -1870,7 +1682,7 @@ function fusen_init(mode)
 function fusen_set_elements()
 {
 	var html;
-	html = '[<a href="javascript:fusen_hide(\'fusen_help\')" title="' + fusenMsgs['close'] + '">×</a>]'
+	html = '[<a href="javascript:fusen_hide(\'fusen_help\')" title="' + fusenMsgs['close'] + '">&#215;</a>]'
 + fusenMsgs['help_html'];
 	var hobj = $('fusen_help');
 	hobj.innerHTML = html;
@@ -1911,8 +1723,7 @@ function fusen_list_make()
 	tmp = '<ul><form>';
 	for(var id in fusenObj)
 	{
-		if (!isNaN(id))
-		{
+		if (!isNaN(id)) {
 			listcount ++;
 			
 			// Add list
@@ -1922,15 +1733,11 @@ function fusen_list_make()
 			
 			dustbox = 0;
 			delbox = '';
-			if (fusenObj[id].del)
-			{
+			if (fusenObj[id].del) {
 				addtxt = '(' + fusenMsgs['dustbox'] + ')' + addtxt;
 				//dustbox = 1;
-			}
-			else
-			{
-				if (fusenObj[id].auth)
-				{
+			} else {
+				if (!fusenVar['ReadOnly'] && fusenObj[id].auth) {
 					delbox = '<input type="checkbox" id="list_delbox_'+id+'" style="cursor:auto;" />';
 					flg_delbox = true;
 				}
@@ -1942,12 +1749,18 @@ function fusen_list_make()
 	if (flg_delbox) burn += " [ <a href=\"JavaScript:fusen_del_multi()\" title=\"" + fusenMsgs['burn_checked'] + "\">" + fusenMsgs['dust_checked'] + "</a> ]";
 	if (fusenVar['admin']) burn += " [ <a href=\"JavaScript:fusen_burn()\" title=\"" + fusenMsgs['empty'] + "\">" + fusenMsgs['empty'] + "</a> ]";
 	
-	tmp = '[<a href="javascript:fusen_hide(\'fusen_list\');" title="' + fusenMsgs['close'] + '">×</a>] [ <a href="javascript:fusen_hide(\'fusen_list\');JavaScript:fusen_new();" title="' + fusenMsgs['newtag'] + '">' + fusenMsgs['new'] + '</a> ]' + burn + ' [ <a href="JavaScript:fusen_show(\'fusen_help\');" title="' + fusenMsgs['howto'] + '">' + fusenMsgs['help'] + '</a> ]' + tmp;
+	var menu = '[<a href="javascript:fusen_hide(\'fusen_list\');" title="' + fusenMsgs['close'] + '">&#215;</a>]';
+	if (!fusenVar['ReadOnly']) {
+		menu += ' [ <a href="javascript:fusen_hide(\'fusen_list\');JavaScript:fusen_new();" title="' + fusenMsgs['newtag'] + '">' + fusenMsgs['new'] + '</a> ]';
+	}
+	menu += burn + ' [ <a href="JavaScript:fusen_show(\'fusen_help\');" title="' + fusenMsgs['howto'] + '">' + fusenMsgs['help'] + '</a> ]';
+	
+	tmp = menu + tmp;
 	
 	if (!listcount) tmp += '<li>' + fusenMsgs['notag'] + '</li>';
-	if ($('pukiwiki_fusenlist'))
-	{
-		$('pukiwiki_fusenlist').innerHTML = '&nbsp;[ <a href="JavaScript:fusen_show(\'fusen_list\')">' + fusenMsgs['fusen'] + '(' + listcount + ')</a> ]';
+	if (listcount && $('xpwiki_fusenlist')) {
+		$('xpwiki_fusenlist').style.display = '';
+		$('xpwiki_fusenlist').innerHTML = $('xpwiki_fusenlist').innerHTML.replace(/(<!--FU-->).*(<!--SEN-->)/, '$1<a href="JavaScript:fusen_show(\'fusen_list\')">' + fusenMsgs['fusen'] + '(' + listcount + ')</a>$2');
 	}
 	tmp += '</form></ul>';
 	
