@@ -1,7 +1,7 @@
 <?php
 //
 // Created on 2006/10/02 by nao-pon http://hypweb.net/
-// $Id: xpwiki_func.php,v 1.131 2008/01/11 08:29:54 nao-pon Exp $
+// $Id: xpwiki_func.php,v 1.132 2008/01/16 07:59:50 nao-pon Exp $
 //
 class XpWikiFunc extends XpWikiXoopsWrapper {
 
@@ -438,8 +438,8 @@ class XpWikiFunc extends XpWikiXoopsWrapper {
 		if ($use_cache) {
 			// キャッシュ利用
 			$cache_dat = unserialize(join('',file($cache_file)));
-			$body = array_shift($cache_dat);
-			$GLOBALS['Xpwiki_'.$this->root->mydirname]['cache'] = @ $cache_dat['globals'];
+			$GLOBALS['Xpwiki_'.$this->root->mydirname]['cache'] = $cache_dat['globals'];
+			$body = $cache_dat['body'];
 			foreach ($cache_dat['root'] as $_key=>$_val) {
 				$this->root->$_key = $_val;
 			}
