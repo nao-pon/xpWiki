@@ -31,7 +31,7 @@
 //
 // fusen.inc.php for xpWiki by nao-pon
 // http://xoops.hypweb.net
-// $Id: fusen.inc.php,v 1.9 2008/01/16 14:55:10 nao-pon Exp $
+// $Id: fusen.inc.php,v 1.10 2008/01/17 11:49:21 nao-pon Exp $
 // 
 
 class xpwiki_plugin_fusen extends xpwiki_plugin {
@@ -143,7 +143,7 @@ class xpwiki_plugin_fusen extends xpwiki_plugin {
 		//if (!$html) $html = '<p></p>';
 		
 		$fusen_post = '/' . $this->root->mydirname . '/';
-		$fusen_url = '/' . $this->root->mydirname . '/skin/loader.php?src=fusen_' . $this->func->get_pgid_by_name($refer) . '.pcache.xml';
+		$fusen_url = '/' . $this->root->mydirname . '/skin/loader.php?nc&src=fusen_' . $this->func->get_pgid_by_name($refer) . '.pcache.xml';
 		$X_ucd = ''; //WIKI_UCD_DEF;
 		$js_refer = $this->plugin_fusen_jsencode($refer);
 		$auth = $this->func->is_owner($refer)? 1 : 0;
@@ -476,12 +476,10 @@ EOD;
 				fputs($fp, serialize($dat));
 				fclose($fp);
 				$this->root->pukiwiki_allow_extensions = "";
-				$options = array(
-							'overwrite' => TRUE,
-							'changelog' => '[Fusen:' . $id . ' by ' . htmlspecialchars($name) . ']' . htmlspecialchars($txt),
-							);
+				$options = array('overwrite' => TRUE);
 				if ($this->root->vars['mode'] == 'edit') {
 					// 編集時はタイムスタンプを更新する
+					$options['changelog'] = '[Fusen:' . $id . ' by ' . htmlspecialchars($name) . ']' . htmlspecialchars($txt);
 					$ret = $atatch_obj->do_upload($refer, $this->cont['FUSEN_ATTACH_FILENAME'], $fname.".tmp",FALSE,NULL,FALSE,$options);
 				} else {
 					// その他はタイムスタンプを更新しない
