@@ -9,7 +9,7 @@
 //
 // fusen.js for xpWiki by nao-pon
 // http://hypweb.net
-// $Id: fusen.js,v 1.7 2008/01/17 11:51:12 nao-pon Exp $
+// $Id: fusen.js,v 1.8 2008/01/17 23:47:34 nao-pon Exp $
 // 
 var fusenVar = new Array();
 var fusenMsgs = new Array();
@@ -1301,8 +1301,8 @@ function fusen_drawLine2(x, y, w, h, color, nid, border){
 	{
 		x = Math.max(0,parseInt(x));
 		y = Math.max(0,parseInt(y));
-		w = Math.max(0,parseInt(w));
-		h = Math.max(0,parseInt(h));
+		w = Math.max(1,parseInt(w));
+		h = Math.max(1,parseInt(h));
 		//window.status = x+','+y+','+w+','+h+','+color+','+b;
 		var objLine = document.createElement("DIV");
 		var strColor = color;
@@ -1768,7 +1768,7 @@ function fusen_list_make()
 	listobj.style.visibility = 'hidden';
 	listobj.style.left = '0px';
 	listobj.style.width = 'auto';
-	listobj.style.width = listobj.offsetWidth + 'px';
+	listobj.style.width = listobj.getWidth() + 'px';
 	listobj.style.left = list_left;
 	listobj.style.visibility = list_visibility;
 	listobj.style.zIndex = 100;
