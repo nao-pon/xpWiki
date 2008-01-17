@@ -1,7 +1,7 @@
 <?php
 //
 // Created on 2006/10/13 by nao-pon http://hypweb.net/
-// $Id: init.php,v 1.41 2008/01/09 11:53:35 nao-pon Exp $
+// $Id: init.php,v 1.42 2008/01/17 11:47:55 nao-pon Exp $
 //
 
 $root = & $this->root;
@@ -212,7 +212,6 @@ if (isset($const['page_show'])) {
 			// 全体を見てコード検出すると、機種依存文字や、妙なバイナリ
 			// コードが混入した場合に、コード検出に失敗する恐れがある。
 			$encode = mb_detect_encoding($root->post['encode_hint']);
-			//$this->encode_numericentity($root->post, $const['SOURCE_ENCODING'], $encode, array('msg'));
 			if (strtoupper($const['SOURCE_ENCODING']) !== strtoupper($encode)) {
 				$this->encode_numericentity($root->post, $const['SOURCE_ENCODING'], $encode);
 			}
@@ -221,8 +220,9 @@ if (isset($const['page_show'])) {
 		} else if (!empty($root->post['charset'])) {
 			// TrackBack Ping で指定されていることがある
 			// うまくいかない場合は自動検出に切り替え
-			//$this->encode_numericentity($root->post, $const['SOURCE_ENCODING'], $root->post['charset'], array('msg'));
-			if (strtoupper($const['SOURCE_ENCODING']) !== strtoupper($encode)) {
+			$_dum = $root->post;
+			if (mb_convert_variables($const['SOURCE_ENCODING'], $root->post['charset'], $_dum) === $root->post['charset']
+			    && strtoupper($const['SOURCE_ENCODING']) !== strtoupper($root->post['charset'])) {
 				$this->encode_numericentity($root->post, $const['SOURCE_ENCODING'], $root->post['charset']);
 			}
 			if (mb_convert_variables($const['SOURCE_ENCODING'],
@@ -235,7 +235,7 @@ if (isset($const['page_show'])) {
 			mb_convert_variables($const['SOURCE_ENCODING'], 'auto', $root->post);
 		}
 	}
-	
+
 	// 文字コード変換 ($root->get)
 	// GET method は form からの場合と、<a href="http://script/?key=value> の場合がある
 	// <a href...> の場合は、サーバーが rawurlencode しているので、コード変換は不要
@@ -247,7 +247,6 @@ if (isset($const['page_show'])) {
 		$encode = mb_detect_encoding($root->get['encode_hint']);
 		mb_convert_variables($const['SOURCE_ENCODING'], $encode, $root->get);
 	}
-	
 	
 	/////////////////////////////////////////////////
 	// QUERY_STRINGを取得
