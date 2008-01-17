@@ -1,7 +1,7 @@
 <?php
 //
 // Created on 2006/10/25 by nao-pon http://hypweb.net/
-// $Id: loader.php,v 1.35 2008/01/16 05:15:56 nao-pon Exp $
+// $Id: loader.php,v 1.36 2008/01/17 11:46:14 nao-pon Exp $
 //
 
 error_reporting(0);
@@ -21,14 +21,12 @@ while( ob_get_level() ) {
 $src   = preg_replace("/[^\w.-]+/","",@ $_GET['src']);
 $prefix = (isset($_GET['b']))? 'b_' : '';
 $prefix = (isset($_GET['r']))? 'r_' : $prefix;
+$nocache = (isset($_GET['nc']));
 $js_lang = $charset = $pre_width = $cache_file = $gzip_fname = $addcss = $dir = $out = $type = $src_file = '';
 $length = $addcsstime = $facetagtime = 0;
 $face_remake = $js_replace = $replace = false;
 $root_path = dirname($skin_dirname);
 $cache_path = $root_path.'/private/cache/';
-$module_url = XOOPS_URL.'/'.basename(dirname($root_path));
-$wikihelper_root_url = $module_url . '/' . basename($root_path);
-$face_cache = $cache_path . 'facemarks.js';
 $face_tag_ver = 1.0;
 $method = empty($_SERVER['REQUEST_METHOD'])? 'GET' : strtoupper($_SERVER['REQUEST_METHOD']);
 
@@ -136,6 +134,10 @@ switch ($type) {
 		$gzip_fname = $cache_file.'.gz';
 		break;
 	case 'js':
+		$module_url = XOOPS_URL.'/'.basename(dirname($root_path));
+		$wikihelper_root_url = $module_url . '/' . basename($root_path);
+		$wikihelper_root_url_md5 = md5($wikihelper_root_url);
+		$face_cache = $cache_path . $wikihelper_root_url_md5 .'_facemarks.js';
 		if (substr($src, 0, 7) === "default") {
 			$js_replace = true;
 			$replace = true;
@@ -163,7 +165,7 @@ switch ($type) {
 			$js_replace = true;			
 		}
 		$c_type = 'application/x-javascript';
-		$cache_file = $cache_path . $src . ($js_replace? '_' . md5($wikihelper_root_url) : '') . '.' . $type;
+		$cache_file = $cache_path . $src . ($js_replace? '_' . $wikihelper_root_url_md5 : '') . '.' . $type;
 		$gzip_fname = $cache_file . '.gz';
 		break;
 	case 'png':
@@ -199,7 +201,14 @@ if (file_exists($src_file)) {
 	// ブラウザのキャッシュをチェック
 	if ($etag == @$_SERVER['HTTP_IF_NONE_MATCH']) {
 		header( 'HTTP/1.1 304 Not Modified' );
-		header( 'Cache-Control: max-age=' . $maxage );
+		if ($nocache) {
+			header( 'Expires: Thu, 01 Dec 1994 16:00:00 GMT' );
+			header( 'Cache-Control: no-cache, must-revalidate' );
+			header( 'Cache-Control: post-check=0, pre-check=0', false );
+			header( 'Pragma: no-cache' );
+		} else {
+			header( 'Cache-Control: max-age=' . $maxage );
+		}
 		header( 'Etag: '. $etag );
 		exit();
 	}
@@ -305,7 +314,14 @@ if (file_exists($src_file)) {
 	
 	header( 'Content-Type: ' . $c_type );
 	header( 'Last-Modified: ' . gmdate( 'D, d M Y H:i:s', $filetime ) . ' GMT' );
-	header( 'Cache-Control: max-age=' . $maxage );
+	if ($nocache) {
+		header( 'Expires: Thu, 01 Dec 1994 16:00:00 GMT' );
+		header( 'Cache-Control: no-cache, must-revalidate' );
+		header( 'Cache-Control: post-check=0, pre-check=0', false );
+		header( 'Pragma: no-cache' );
+	} else {
+		header( 'Cache-Control: max-age=' . $maxage );
+	}
 	header( 'Etag: '. $etag );
 	header( 'Content-length: '.$length );
 	if ($is_gz) {
