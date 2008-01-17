@@ -1,7 +1,7 @@
 <?php
 //
 // Created on 2006/11/17 by nao-pon http://hypweb.net/
-// $Id: dbsync.inc.php,v 1.22 2007/09/25 01:58:05 nao-pon Exp $
+// $Id: dbsync.inc.php,v 1.23 2008/01/17 11:48:34 nao-pon Exp $
 //
 
 class xpwiki_plugin_dbsync extends xpwiki_plugin {
@@ -233,7 +233,7 @@ __EOD__;
 		}
 		
 		// Remove facemarks.js
-		@ unlink($this->cont['CACHE_DIR'] . 'facemarks.js');
+		@ unlink($this->cont['CACHE_DIR'] . md5(rtrim($this->cont['HOME_URL'], '/')) . '_facemarks.js');
 		
 		echo $this->msg['msg_done'];
 		echo "<script>parent.xpwiki_dbsync_done();parent.xpwiki_dbsync_blink('stop');</script>";
