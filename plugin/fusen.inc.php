@@ -31,7 +31,7 @@
 //
 // fusen.inc.php for xpWiki by nao-pon
 // http://xoops.hypweb.net
-// $Id: fusen.inc.php,v 1.10 2008/01/17 11:49:21 nao-pon Exp $
+// $Id: fusen.inc.php,v 1.11 2008/01/17 23:55:45 nao-pon Exp $
 // 
 
 class xpwiki_plugin_fusen extends xpwiki_plugin {
@@ -250,8 +250,8 @@ EOD;
 	
 	function plugin_fusen_action() {
 		
-		$id = preg_replace('/id/', '', $this->root->vars['id']);
-		$refer = $this->root->vars['page'] = $this->root->vars['refer'];
+		$id = preg_replace('/id/', '', $this->root->post['id']);
+		$refer = $this->root->vars['page'] = $this->root->post['refer'];
 
 		// 編集権限がない場合の挙動指定
 		$_PKWK_READONLY = $this->func->set_readonly_by_editauth($refer);
