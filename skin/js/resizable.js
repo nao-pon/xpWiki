@@ -1,6 +1,6 @@
 //
 // Created on 2007/10/03 by nao-pon http://hypweb.net/
-// $Id: resizable.js,v 1.7 2007/12/14 00:02:08 nao-pon Exp $
+// $Id: resizable.js,v 1.8 2008/01/17 23:47:34 nao-pon Exp $
 //
 
 var Resizable = Class.create();
@@ -50,20 +50,12 @@ Resizable.prototype = {
 
 			this.elem = target;
 			
-			if (!!this.elem.style.height) {
-				var initH = this.elem.style.height;
-			} else {
-				var initH = this.elem.getStyle('maxHeight');
-			}
+			var initH = this.elem.getHeight();
 			if (!!initH && initH != 'none') {
 				this.initHeight = initH;
 			}
 			
-			if (!!this.elem.style.width) {
-				var initW = this.elem.style.width;
-			} else {
-				var initW = this.elem.getStyle('maxWidth');
-			}
+			var initW = this.elem.getWidth();
 			if (!!initW && initW != 'none') {
 				this.initWidth = initW;
 			}
