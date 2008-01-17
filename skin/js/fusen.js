@@ -9,7 +9,7 @@
 //
 // fusen.js for xpWiki by nao-pon
 // http://hypweb.net
-// $Id: fusen.js,v 1.6 2008/01/16 05:30:32 nao-pon Exp $
+// $Id: fusen.js,v 1.7 2008/01/17 11:51:12 nao-pon Exp $
 // 
 var fusenVar = new Array();
 var fusenMsgs = new Array();
@@ -79,7 +79,6 @@ function fusen_setInterval(msec)
 function fusen_set_timer()
 {
 	if (fusenTimerID) clearTimeout(fusenTimerID);
-	//window.status = fusenVar['Interval'];
 	if (fusenVar['Interval'] > 5000) {
 		fusenTimerID = setInterval("fusen_init(0)", fusenVar['Interval']);
 	}
@@ -159,11 +158,10 @@ function fusen_postdata(mode) {
 		var child = frm[i];
 		tag = String(child.tagName);
 		if (tag.match(re)) {
-			if (child.name != 'encode_hint') {
-				if (postdata != '') postdata += '&';
-				postdata += encodeURIComponent(child.name) +
-					'=' + encodeURIComponent(child.value);
+			if (postdata != '') {
+				postdata += '&';
 			}
+			postdata += encodeURIComponent(child.name) + '=' + encodeURIComponent(child.value);
 			if (child.name == 'mode') {
 				s_mode = child.value;
 			}
@@ -176,8 +174,6 @@ function fusen_postdata(mode) {
 	
 	try {
 		var xmlhttp = fusen_httprequest();
-		//var url = location.href;
-		//if (url.indexOf('?') > 0) url.substr(0, url.indexOf('?'));
 		if (mode) {
 			xmlhttp.onreadystatechange = readyStateChangeHandler;
 		}
@@ -241,11 +237,12 @@ function fusen_getdata(mod)
 	window.status = fusenMsgs['connecting'];
 
 	try {
-		var dtNow = new Date;
 		var xmlhttp = fusen_httprequest();
-		var url = fusenVar['JsonUrl']+"&t="+dtNow.getHours()+dtNow.getMinutes()+dtNow.getSeconds();
+		var url = fusenVar['JsonUrl'];
+		if (Prototype.Browser.Opera) {
+			url += "&t=" + (new Date).getTime();
+		}
 		xmlhttp.onreadystatechange = readyStateChangeHandler;
-		//xmlhttp.abort();
 		xmlhttp.open(mod, url, true);
 		xmlhttp.send(null);
 	} catch(e) {
@@ -268,23 +265,25 @@ function fusen_getdata(mod)
 		if (xmlhttp.readyState == 4) {
 			window.status = w_starus;
 			try {
-				if (xmlhttp.status == 200 || xmlhttp.status == 404) {
+				if (xmlhttp.status == 200 || xmlhttp.status == 304 || xmlhttp.status == 404) {
 					fusen_busy(0);
-					//alert(xmlhttp.getAllResponseHeaders());
 					var lm = xmlhttp.getResponseHeader("Last-Modified");
 					if (mod == 'HEAD') {
-						//window.status = dtNow.getSeconds() + ' : ' + lm;
-						xmlhttp = null;
-						if (fusenLastModified == lm || xmlhttp.status == 404) {
+						if (xmlhttp.status == 304 || (lm && fusenLastModified == lm) || xmlhttp.status == 404) {
 							fusen_set_timer();
 						} else {
-							fusen_getdata('GET');
+							setTimeout("fusen_getdata('GET')", 100);
 						}
+						xmlhttp = null;
 						return;
 					}
 					fusenLastModified = lm;
-					if (xmlhttp.status == 404 || ! xmlhttp.responseXML.getElementsByTagName('fusen').length) {
+					if (xmlhttp.status == 404 || (xmlhttp.status == 200 && !xmlhttp.responseXML.getElementsByTagName('fusen').length)) {
 						var txt = '{}';
+					} else if (xmlhttp.status == 304) {
+						fusen_set_timer();
+						xmlhttp = null;
+						return;
 					} else {
 						var txt = xmlhttp.responseXML.getElementsByTagName('fusen')[0].firstChild.nodeValue;
 					}
@@ -311,7 +310,6 @@ function fusen_getdata(mod)
 						}
 						$('edit_bx').value = o_left;
 						$('edit_by').value = o_top;
-						//$('edit_pass').value = "";
 						
 						var frm = $('edit_frm');
 						var re = /input|textarea|select/i;
