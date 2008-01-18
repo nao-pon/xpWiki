@@ -3,7 +3,7 @@
 $this->root->runmode = "standalone";
 
 // PukiWiki - Yet another WikiWikiWeb clone.
-// $Id: pukiwiki.skin.php,v 1.9 2007/12/10 00:17:49 nao-pon Exp $
+// $Id: pukiwiki.skin.php,v 1.10 2008/01/18 05:55:55 nao-pon Exp $
 // Copyright (C)
 //   2002-2006 PukiWiki Developers Team
 //   2001-2002 Originally written by yu-ji
@@ -156,7 +156,7 @@ EOD;
  | <?php $navigator($this, 'recent')?>
  | <?php $navigator($this, 'help')?>
  ]
-
+ <span id="xpwiki_fusenlist" style="display:none;">[ <!--FU--><!--SEN--> ]</span>
 <?php if ($this->root->trackback) {?> &nbsp;
  [ <?php $navigator($this, 'trackback', $lang['trackback'] . '(' . $this->tb_count($_page) . ')',
  	($this->root->trackback_javascript == 1) ? 'onclick="OpenTrackback(this.href); return false"' : '')?> ]
