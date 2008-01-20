@@ -1,7 +1,7 @@
 <?php
 //
 // Created on 2006/10/02 by nao-pon http://hypweb.net/
-// $Id: xpwiki_func.php,v 1.133 2008/01/16 14:55:45 nao-pon Exp $
+// $Id: xpwiki_func.php,v 1.134 2008/01/20 06:49:44 nao-pon Exp $
 //
 class XpWikiFunc extends XpWikiXoopsWrapper {
 
@@ -44,7 +44,11 @@ class XpWikiFunc extends XpWikiXoopsWrapper {
 				include ($const['CACHE_DIR'] . 'pukiwiki.ini.php');
 			}
 		}
+
 		if ($die) $this->die_message(nl2br("\n\n" . $die));
+		
+		// Skin directory set
+		$const['SKIN_DIR'] = 'skin/' . $const['SKIN_NAME'] . '/';
 	}
 
 	function init() {
@@ -459,11 +463,11 @@ class XpWikiFunc extends XpWikiXoopsWrapper {
 				$fp = fopen($cache_file, "wb");
 				fwrite($fp, serialize(
 					array(
-						'body'          => $body,
+						'body'          => $this->strip_MyHostUrl($body),
 						'root'          => array(
-							'foot_explain'  => $this->root->foot_explain,
-							'head_pre_tags' => $this->root->head_pre_tags,
-							'head_tags'     => $this->root->head_tags,
+							'foot_explain'  => $this->strip_MyHostUrl($this->root->foot_explain),
+							'head_pre_tags' => $this->strip_MyHostUrl($this->root->head_pre_tags),
+							'head_tags'     => $this->strip_MyHostUrl($this->root->head_tags),
 							'related'       => $this->root->related,
 							'runmode'       => $this->root->runmode,
 							'related_link'  => $this->root->related_link,
@@ -1540,6 +1544,19 @@ EOD;
 		}
 		return $_PKWK_READONLY;
 	}
+	
+	function strip_MyHostUrl ($html) {
+		if (is_array($html)) {
+			foreach($html as $_key => $_val) {
+				$html[$_key] = $this->strip_MyHostUrl($_val);
+			}
+		} else {
+			$_my_hosturl = preg_quote($this->cont['MY_HOST_URL'], '#');
+			$html = preg_replace('#(<[^>]+(?:href|src|code(?:base)?|data)=["\'])' . $_my_hosturl . '#iS', '$1', $html);
+		}
+		return $html;
+	}
+	
 /*----- DB Functions -----*/ 
 	//ページ名からページIDを求める
 	function get_pgid_by_name ($page, $cache = true, $make = false)
