@@ -1,7 +1,7 @@
 <?php
 //
 // Created on 2006/10/02 by nao-pon http://hypweb.net/
-// $Id: xpwiki_func.php,v 1.136 2008/01/20 14:34:16 nao-pon Exp $
+// $Id: xpwiki_func.php,v 1.137 2008/01/20 14:42:38 nao-pon Exp $
 //
 class XpWikiFunc extends XpWikiXoopsWrapper {
 
@@ -477,7 +477,7 @@ class XpWikiFunc extends XpWikiXoopsWrapper {
 						'cont'          => array(
 							'SKIN_CHANGER'  => $this->cont['SKIN_CHANGER']
 						),
-						'globals'       => (is_array($GLOBALS['Xpwiki_'.$this->root->mydirname]['cache'])? $GLOBALS['Xpwiki_'.$this->root->mydirname]['cache'] : array())
+						'globals'       => (is_array(@ $GLOBALS['Xpwiki_'.$this->root->mydirname]['cache'])? $GLOBALS['Xpwiki_'.$this->root->mydirname]['cache'] : array())
 					)
 				));
 				fclose($fp);
