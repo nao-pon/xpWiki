@@ -1,6 +1,6 @@
 <?php
 // PukiWiki - Yet another WikiWikiWeb clone
-// $Id: pukiwiki.ini.php,v 1.59 2008/01/16 05:26:09 nao-pon Exp $
+// $Id: pukiwiki.ini.php,v 1.60 2008/01/20 06:50:44 nao-pon Exp $
 // Copyright (C)
 //   2002-2006 PukiWiki Developers Team
 //   2001-2002 Originally written by yu-ji
@@ -92,11 +92,8 @@ $const['RENDER_CACHE_DIR'] = $const['DATA_HOME'] . 'private/cache/';      // Ran
 // Directory settings II (ended with '/')
 
 // Skins / Stylesheets
-//default skin name
+// Default skin name
 $const['SKIN_NAME'] = 'default';
-// skin directory
-$const['SKIN_DIR'] = 'skin/' . $const['SKIN_NAME'] . '/';
-
 
 // Enable Skin changer by GET REQUEST or Plugin? (0: off, 1: on)
 $const['SKIN_CHANGER'] = 1;
@@ -116,9 +113,9 @@ $const['LOADER_URL'] = $const['HOME_URL'].'skin/loader.php';
 // Local time setting
 
 //$const['ZONETIME'] = 9 * 3600; // JST = GMT + 9
-if (!isset($const['ZONETIME'])) { $const['ZONETIME'] = $this->get_zonetime(); }
+$const['ZONETIME'] = $this->get_zonetime();
 //$const['ZONE'] = 'JST';
-if (!isset($const['ZONE'])) { $const['ZONE'] = $this->get_zone_by_time($const['ZONETIME'] / 3600); }
+$const['ZONE'] = $this->get_zone_by_time($const['ZONETIME'] / 3600);
 
 /////////////////////////////////////////////////
 // Title of your Wikisite (Name this)
@@ -527,12 +524,14 @@ $root->notify = 0;
 // Send diff only
 $root->notify_diff_only = 1;
 
+//// These settings are not used on XOOPS.
 // SMTP server (Windows only. Usually specified at php.ini)
 $root->smtp_server = 'localhost';
 
 // Mail recipient (To:) and sender (From:)
 $root->notify_to   = 'to@example.com';	// To:
 $root->notify_from = 'from@example.com';	// From:
+//// The above-mentioned setting is not used on XOOPS.
 
 // Subject: ($root->page = Page name wll be replaced)
 $root->notify_subject = '['.$this->root->module['name'].'] $page';
@@ -543,6 +542,7 @@ $root->notify_header = '';
 
 /////////////////////////////////////////////////
 // Mail: POP / APOP Before SMTP
+// These settings are not used on XOOPS.
 
 // Do POP/APOP authentication before send mail
 $root->smtp_auth = 0;
