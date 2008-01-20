@@ -31,7 +31,7 @@
 //
 // fusen.inc.php for xpWiki by nao-pon
 // http://xoops.hypweb.net
-// $Id: fusen.inc.php,v 1.11 2008/01/17 23:55:45 nao-pon Exp $
+// $Id: fusen.inc.php,v 1.12 2008/01/20 06:49:57 nao-pon Exp $
 // 
 
 class xpwiki_plugin_fusen extends xpwiki_plugin {
@@ -708,6 +708,7 @@ EOD;
 		$this->cont['UI_LANG'] = $this->cont['LANG']; // LANGサイト規定値
 		
 		$str = $this->func->convert_html($str, $page);
+		$str = $this->func->strip_MyHostUrl($str);
 		
 		// グローバル変数戻し
 		$this->root->userinfo = $_userinfo;
