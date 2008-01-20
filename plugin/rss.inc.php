@@ -1,6 +1,6 @@
 <?php
 // PukiWiki - Yet another WikiWikiWeb clone
-// $Id: rss.inc.php,v 1.24 2008/01/20 06:49:57 nao-pon Exp $
+// $Id: rss.inc.php,v 1.25 2008/01/20 07:27:09 nao-pon Exp $
 //
 // RSS plugin: Publishing RSS of RecentChanges
 //
@@ -42,6 +42,8 @@ class xpwiki_plugin_rss extends xpwiki_plugin {
 				}
 			}
 		}
+		
+		$html = $this->func->add_MyHostUrl($html);
 		
 		$description = strip_tags(($added ? $added . '&#182;' : '') . $html);
 		//$description = preg_replace('/(\s+|&'.$this->root->entity_pattern.';)/i', ' ', $description);
