@@ -1,7 +1,7 @@
 <?php
 //
 // Created on 2006/10/02 by nao-pon http://hypweb.net/
-// $Id: xpwiki_func.php,v 1.135 2008/01/20 07:25:49 nao-pon Exp $
+// $Id: xpwiki_func.php,v 1.136 2008/01/20 14:34:16 nao-pon Exp $
 //
 class XpWikiFunc extends XpWikiXoopsWrapper {
 
@@ -442,7 +442,7 @@ class XpWikiFunc extends XpWikiXoopsWrapper {
 		if ($use_cache) {
 			// キャッシュ利用
 			$cache_dat = unserialize(join('',file($cache_file)));
-			if (!is_array($GLOBALS['Xpwiki_'.$this->root->mydirname]['cache'])) {
+			if (!is_array(@ $GLOBALS['Xpwiki_'.$this->root->mydirname]['cache'])) {
 				$GLOBALS['Xpwiki_'.$this->root->mydirname]['cache'] = array();
 			}
 			$GLOBALS['Xpwiki_'.$this->root->mydirname]['cache'] = array_merge_recursive($GLOBALS['Xpwiki_'.$this->root->mydirname]['cache'], is_array($cache_dat['globals'])? $cache_dat['globals'] : array());
@@ -490,6 +490,7 @@ class XpWikiFunc extends XpWikiXoopsWrapper {
 	}
 	
 	function clear_page_cache ($page) {
+		// page render html cache
 		$base = $this->root->mytrustdirpath."/language/xpwiki";
 		if ($handle = opendir($base)) {
 			$clr_pages = $this->root->always_clear_cache_pages;
@@ -511,6 +512,13 @@ class XpWikiFunc extends XpWikiXoopsWrapper {
 				}
 			}
 			closedir($handle);
+		}
+		// fusen xml cache
+		if ($fusen = $this->get_plugin_instance('fusen')) {
+			@ unlink($this->cont['CACHE_DIR'] . "plugin/fusen_". $this->get_pgid_by_name($page) . ".pcache.xml");
+			if ($fusen_data = $fusen->plugin_fusen_data($page)) {
+				$fusen->plugin_fusen_putjson($fusen_data, $page);
+			}
 		}
 		return ;
 	}
