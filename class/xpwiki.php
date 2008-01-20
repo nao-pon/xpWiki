@@ -1,7 +1,7 @@
 <?php
 //
 // Created on 2006/09/29 by nao-pon http://hypweb.net/
-// $Id: xpwiki.php,v 1.65 2008/01/09 11:56:09 nao-pon Exp $
+// $Id: xpwiki.php,v 1.66 2008/01/20 06:46:53 nao-pon Exp $
 //
 
 class XpWiki {
@@ -44,6 +44,9 @@ class XpWiki {
 
 		$this->cont['DATA_HOME'] = $this->root->mydirpath."/";
 		$this->cont['HOME_URL'] = $this->cont['ROOT_URL'].$moddir.$mydirname."/";
+		
+		$_urls = parse_url($this->cont['ROOT_URL']);
+		$this->cont['MY_HOST_URL'] = $_urls['scheme'] . '://' . $_urls['host'] . (isset($_urls['port'])? ':' . $_urls['port'] : '');
 		
 		$this->db =& $this->func->get_db_connection(); 
 		
@@ -470,7 +473,7 @@ EOD;
 						if ($fp = fopen($cache, 'wb')) {
 							$_head_pre_tag = str_replace(array("\r\n","\r","\n"), "\x08", $head_pre_tag);
 							$_head_tag = str_replace(array("\r\n","\r","\n"), "\x08", $head_tag);
-							fwrite($fp, $_head_pre_tag . "\n" . $_head_tag . "\n" . $text);
+							fwrite($fp, $this->func->strip_MyHostUrl($_head_pre_tag . "\n" . $_head_tag . "\n" . $text));
 							fclose($fp);
 						}
 					}
