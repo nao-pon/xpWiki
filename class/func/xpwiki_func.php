@@ -1,7 +1,7 @@
 <?php
 //
 // Created on 2006/10/02 by nao-pon http://hypweb.net/
-// $Id: xpwiki_func.php,v 1.134 2008/01/20 06:49:44 nao-pon Exp $
+// $Id: xpwiki_func.php,v 1.135 2008/01/20 07:25:49 nao-pon Exp $
 //
 class XpWikiFunc extends XpWikiXoopsWrapper {
 
@@ -1553,6 +1553,17 @@ EOD;
 		} else {
 			$_my_hosturl = preg_quote($this->cont['MY_HOST_URL'], '#');
 			$html = preg_replace('#(<[^>]+(?:href|src|code(?:base)?|data)=["\'])' . $_my_hosturl . '#iS', '$1', $html);
+		}
+		return $html;
+	}
+
+	function add_MyHostUrl ($html) {
+		if (is_array($html)) {
+			foreach($html as $_key => $_val) {
+				$html[$_key] = $this->add_MyHostUrl($_val);
+			}
+		} else {
+			$html = preg_replace('#(<[^>]+(?:href|src|code(?:base)?|data)=["\'])/#iS', '$1'. $this->cont['MY_HOST_URL'] . '/', $html);
 		}
 		return $html;
 	}
