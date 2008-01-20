@@ -1,6 +1,6 @@
 <?php
 // PukiWiki - Yet another WikiWikiWeb clone
-// $Id: rss.inc.php,v 1.23 2008/01/09 02:39:24 nao-pon Exp $
+// $Id: rss.inc.php,v 1.24 2008/01/20 06:49:57 nao-pon Exp $
 //
 // RSS plugin: Publishing RSS of RecentChanges
 //
@@ -100,7 +100,7 @@ class xpwiki_plugin_rss extends xpwiki_plugin {
 		$count = min($count, $this->maxcount);
 			
 		// キャッシュファイル名
-		$c_file = $this->cont['CACHE_DIR'] . 'plugin/' . md5($version.$base.$count) . $this->cont['UI_LANG'] . '.rss';
+		$c_file = $this->cont['CACHE_DIR'] . 'plugin/' . md5($version.$base.$count.$this->cont['ROOT_URL']) . $this->cont['UI_LANG'] . '.rss';
 
 		// 念のためバッファをクリア
 		while( ob_get_level() ) { ob_end_clean() ; }

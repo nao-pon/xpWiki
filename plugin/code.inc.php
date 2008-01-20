@@ -1,7 +1,7 @@
 <?php
 //
 // Created on 2006/10/25 by nao-pon http://hypweb.net/
-// $Id: code.inc.php,v 1.12 2007/12/09 08:02:19 nao-pon Exp $
+// $Id: code.inc.php,v 1.13 2008/01/20 06:49:57 nao-pon Exp $
 //
 
 class xpwiki_plugin_code extends xpwiki_plugin {
@@ -222,6 +222,8 @@ class xpwiki_plugin_code extends xpwiki_plugin {
 					$this->cont['CACHE_DIR'].'plugin/'. $file .'.code'.
 					'<br />Maybe permission is not writable or filename is too long');
 
+		$html = $this->func->strip_MyHostUrl($html);
+		
 		set_file_buffer($fp, 0);
 		flock($fp, LOCK_EX);
 		rewind($fp);
