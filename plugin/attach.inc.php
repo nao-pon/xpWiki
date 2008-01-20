@@ -9,7 +9,7 @@ class xpwiki_plugin_attach extends xpwiki_plugin {
 	/////////////////////////////////////////////////
 	// PukiWiki - Yet another WikiWikiWeb clone.
 	//
-	//  $Id: attach.inc.php,v 1.32 2008/01/16 05:28:47 nao-pon Exp $
+	//  $Id: attach.inc.php,v 1.33 2008/01/20 14:28:35 nao-pon Exp $
 	//  ORG: attach.inc.php,v 1.31 2003/07/27 14:15:29 arino Exp $
 	//
 	
@@ -448,11 +448,14 @@ class xpwiki_plugin_attach extends xpwiki_plugin {
 			}
 		}
 		
-		if (!$notouch && $this->func->is_page($page)) {
-			$this->func->pkwk_touch_file($this->func->get_filename($page));
-			$this->func->touch_db($page);
-			if (!$changelog) $changelog = 'Attach file: '.htmlspecialchars($obj->file). ' by '.$this->root->userinfo['uname_s'];
-			$this->func->push_page_changes($page, $changelog);
+		if ($this->func->is_page($page)) {
+			if (!$notouch) {
+				$this->func->pkwk_touch_file($this->func->get_filename($page));
+				$this->func->touch_db($page);
+				if (!$changelog) $changelog = 'Attach file: '.htmlspecialchars($obj->file). ' by '.$this->root->userinfo['uname_s'];
+				$this->func->push_page_changes($page, $changelog);
+			}
+			$this->func->clear_page_cache($page);
 		}
 		
 		$obj->getstatus();
