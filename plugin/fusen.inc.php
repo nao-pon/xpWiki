@@ -31,7 +31,7 @@
 //
 // fusen.inc.php for xpWiki by nao-pon
 // http://xoops.hypweb.net
-// $Id: fusen.inc.php,v 1.12 2008/01/20 06:49:57 nao-pon Exp $
+// $Id: fusen.inc.php,v 1.13 2008/01/21 23:49:17 nao-pon Exp $
 // 
 
 class xpwiki_plugin_fusen extends xpwiki_plugin {
@@ -561,7 +561,7 @@ EOD;
 			if (!preg_match('/^\d+$/', $dat['et'])) $dat['et'] = 0;
 			
 			// ~\n -> \n
-			$dat['txt'] = preg_replace("/~$/m","",$dat['txt']);
+			//$dat['txt'] = preg_replace("/~$/m","",$dat['txt']);
 			
 			// 改行文字等除去
 			//$dat['disp'] = str_replace(array("\r","\n","\t"),'',$dat['disp']);
