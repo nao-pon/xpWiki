@@ -1,6 +1,6 @@
 <?php
 // PukiWiki - Yet another WikiWikiWeb clone.
-// $Id: edit.inc.php,v 1.51 2008/01/09 02:36:50 nao-pon Exp $
+// $Id: edit.inc.php,v 1.52 2008/01/21 23:43:47 nao-pon Exp $
 // Copyright (C) 2001-2006 PukiWiki Developers Team
 // License: GPL v2 or (at your option) any later version
 //
@@ -91,7 +91,7 @@ EOD;
 			$this->root->vars['msg'] = $this->func->get_source($this->root->vars['template_page'], TRUE, TRUE);
 	
 			// Cut fixed anchors
-			$this->root->vars['msg'] = preg_replace('/^(\*{1,6}.*)\[#[A-Za-z][\w-]+\](.*)$/m', '$1$2', $this->root->vars['msg']);
+			$this->root->vars['msg'] = preg_replace('/^(\*{1,5}.*)\[#[A-Za-z][\w-]+\](.*)$/m', '$1$2', $this->root->vars['msg']);
 		}
 	
 		$this->root->vars['msg'] = preg_replace($this->cont['PLUGIN_EDIT_FREEZE_REGEX'], '', $this->root->vars['msg']);
@@ -441,15 +441,54 @@ EOD;
 		
 		// 改行・TAB・スペースのみだったら削除とみなす
 		$postdata = preg_replace('/^[ \s]+$/', '', $postdata);
-		
-		$heads = preg_grep('/^\*{1,6}.+\[#[A-Za-z][\w-]+\].*$/', $source);
-		$heads[count($source)] = ''; // Sentinel
-	
-		while (list($start, $line) = each($heads)) {
-			if (preg_match('/\[#' . $id . '\]/', $line)) {
-				list($end, $line) = each($heads);
-				return join('', array_splice($source, $start, $end - $start, $postdata));
+
+		if ($this->root->paraedit_partarea === 'level') {
+			$start = -1;
+			$final = count($source);
+			$multiline = 0;
+			$matches = array();
+			foreach ($source as $i => $line) {
+				// multiline plugin. refer lib/convert_html
+				if(empty($this->cont['PKWKEXP_DISABLE_MULTILINE_PLUGIN_HACK'])) {
+					if ($multiline < 2) {
+						if (preg_match('/^#([^\(\{]+)(?:\(([^\r]*)\))?(\{*)/', $line, $matches)) {
+							$multiline  = strlen($matches[3]);
+						}
+					} else {
+						if (preg_match('/^\}{' . $multiline . '}/', $line, $matches)) {
+							$multiline = 0;
+						}
+						continue;
+					}
+				}
+
+				if ($start === -1) {
+					if (preg_match('/^(\*{1,5})(.*?)\[#(' . $id . ')\](.*?)$/m', $line, $matches)) {
+						$start = $i;
+						$hlen = strlen($matches[1]);
+					}
+				} else {
+					if (preg_match('/^(\*{1,5})/m', $line, $matches) && strlen($matches[1]) <= $hlen) {
+						$final = $i;
+						break;
+					}
+				}
 			}
+			if ($start !== -1) {
+				return join('', array_splice($source, $start, $final - $start, $postdata));
+			}
+		} else {
+		
+			$heads = preg_grep('/^\*{1,5}.+\[#[A-Za-z][\w-]+\].*$/', $source);
+			$heads[count($source)] = ''; // Sentinel
+		
+			while (list($start, $line) = each($heads)) {
+				if (preg_match('/\[#' . $id . '\]/', $line)) {
+					list($end, $line) = each($heads);
+					return join('', array_splice($source, $start, $end - $start, $postdata));
+				}
+			}
+			
 		}
 		return FALSE;
 	}

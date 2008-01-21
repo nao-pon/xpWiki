@@ -163,16 +163,17 @@ $class a.ext_autolink {
 }
 
 $class div.level1 {}
-$class div.level2 {
+$class div.level2 {}
+$class div.level3 {
 	margin-left: 1em;
 }
-$class div.level3 {
+$class div.level4 {
 	margin-left: 2em;
 }
-$class div.level4 {
+$class div.level5 {
 	margin-left: 3em;
 }
-$class div.level5 {
+$class div.level6 {
 	margin-left: 4em;
 }
 $class div.level1_highlight {
@@ -180,17 +181,20 @@ $class div.level1_highlight {
 }
 $class div.level2_highlight {
 	background-color: #ffe4e1;
-	margin-left: 1em;
 }
 $class div.level3_highlight {
 	background-color: #ffe4e1;
-	margin-left: 2em;
+	margin-left: 1em;
 }
 $class div.level4_highlight {
 	background-color: #ffe4e1;
-	margin-left: 3em;
+	margin-left: 2em;
 }
 $class div.level5_highlight {
+	background-color: #ffe4e1;
+	margin-left: 3em;
+}
+$class div.level6_highlight {
 	background-color: #ffe4e1;
 	margin-left: 4em;
 }

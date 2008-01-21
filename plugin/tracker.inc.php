@@ -1,6 +1,6 @@
 <?php
 // PukiWiki - Yet another WikiWikiWeb clone
-// $Id: tracker.inc.php,v 1.14 2007/12/14 00:02:08 nao-pon Exp $
+// $Id: tracker.inc.php,v 1.15 2008/01/21 23:43:47 nao-pon Exp $
 // ORG: tracker.inc.php,v 1.57 2007/09/20 15:17:20 henoheno Exp $
 // Issue tracker plugin (See Also bugtrack plugin)
 
@@ -358,7 +358,7 @@ EOD;
 		$source = $this->func->get_source($page, TRUE, $join);
 		// 見出しの固有ID部を削除
 		// Remove fixed-heading anchors
-		$source = preg_replace('/^(\*{1,6}.*)\[#[A-Za-z][\w-]+\](.*)$/m','$1$2',$source);
+		$source = preg_replace('/^(\*{1,5}.*)\[#[A-Za-z][\w-]+\](.*)$/m','$1$2',$source);
 		// #freeze #info を削除
 		// Remove #freeze-es
 		return $this->func->remove_pginfo(preg_replace('/^#freeze\s*$/im', '', $source));
