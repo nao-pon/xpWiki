@@ -16,7 +16,7 @@
 // -----------------------------------------------------------------------------------
 //
 //  edited by nao-pon - http://hypweb.net/
-//  $Id: lightbox.js,v 1.11 2007/10/17 23:07:27 nao-pon Exp $
+//  $Id: lightbox.js,v 1.12 2008/01/21 23:49:46 nao-pon Exp $
 //
 // -----------------------------------------------------------------------------------
 
@@ -140,9 +140,13 @@ Lightbox.prototype = {
 				anchor.onclick = function () {myLightbox.start(this); return false;}
 			}
 		}
-
+		
 		var objBody = document.getElementsByTagName("body").item(0);
-
+		
+		if ($('lightbox')) {
+			Element.remove($('lightbox'));
+		}
+		
 		var objOverlay = document.createElement("div");
 		objOverlay.setAttribute('id','overlay');
 		objOverlay.style.display = 'none';
