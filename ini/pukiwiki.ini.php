@@ -1,6 +1,6 @@
 <?php
 // PukiWiki - Yet another WikiWikiWeb clone
-// $Id: pukiwiki.ini.php,v 1.60 2008/01/20 06:50:44 nao-pon Exp $
+// $Id: pukiwiki.ini.php,v 1.61 2008/01/21 23:47:22 nao-pon Exp $
 // Copyright (C)
 //   2002-2006 PukiWiki Developers Team
 //   2001-2002 Originally written by yu-ji
@@ -585,6 +585,8 @@ $root->fixed_heading_anchor = 1;
 /////////////////////////////////////////////////
 // enable paraedit 
 $root->fixed_heading_anchor_edit = 1;
+// part-edit area - 'compat':PukiWiki 1.4.4 compat, 'level':level
+$root->paraedit_partarea = 'compat';
 
 /////////////////////////////////////////////////
 // Remove the first spaces from Preformatted text
