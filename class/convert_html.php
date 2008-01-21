@@ -147,13 +147,12 @@ class XpWikiHeading extends XpWikiElement {
 	}
 
 	function toString() {
-		// Area div id
-		$area_div = '';
-		if (!empty($this->root->rtf['div_area_open'][$this->root->rtf['convert_nest']])) {
-			$area_div .= "<!--{$this->root->rtf['div_area_open'][$this->root->rtf['convert_nest']]}--></div>";
-		}
-		$area_div .= "\n" . '<div id="'.$this->paraid.'" class="level'.$this->level.'">' . "\n";
-		$this->root->rtf['div_area_open'][$this->root->rtf['convert_nest']] = $this->paraid;
+		// Area div id Close & Open
+		$area_div = $this->func->get_areadiv_closer($this->level);
+		$area_div .= '<div id="'.$this->paraid.'" class="level'.$this->level.'">' . "\n";
+		
+		// Area div id 
+		$this->root->rtf['div_area_open'][$this->root->rtf['convert_nest']][$this->level][] = $this->paraid;
 
 		return $area_div . $this->msg_top . $this->wrap(parent :: toString(), 'h'.$this->level, ' id="'.$this->id.'"');
 	}

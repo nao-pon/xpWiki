@@ -1,7 +1,7 @@
 <?php
 //
 // Created on 2006/10/02 by nao-pon http://hypweb.net/
-// $Id: xpwiki_func.php,v 1.137 2008/01/20 14:42:38 nao-pon Exp $
+// $Id: xpwiki_func.php,v 1.138 2008/01/21 23:47:22 nao-pon Exp $
 //
 class XpWikiFunc extends XpWikiXoopsWrapper {
 
@@ -1466,12 +1466,24 @@ EOD;
 		$str = array_map('rtrim', $str);
 	}
 
-	function get_areadiv_closer () {
+	function get_areadiv_closer ($level = 0) {
 		$areadiv_closer = '';
-		if (!empty($this->root->rtf['div_area_open'][$this->root->rtf['convert_nest']])) {
-			$areadiv_closer = "\n" . '<!--' . $this->root->rtf['div_area_open'][$this->root->rtf['convert_nest']] . '--></div>' . "\n";
-			$this->root->rtf['div_area_open'][$this->root->rtf['convert_nest']] = false;
+
+		if ($this->root->paraedit_partarea !== 'level') {
+			$level = 0;
 		}
+		
+		for ($_lev = 6; $_lev > 1; $_lev--) {
+			if ($level <= $_lev) {
+				if (!empty($this->root->rtf['div_area_open'][$this->root->rtf['convert_nest']][$_lev])) {
+					foreach ($this->root->rtf['div_area_open'][$this->root->rtf['convert_nest']][$_lev] as $_id) {
+						$areadiv_closer .= '<!--' . $_id . '--></div>' . "\n";
+					}
+					unset($this->root->rtf['div_area_open'][$this->root->rtf['convert_nest']][$_lev]);
+				}
+			}
+		}
+		
 		return $areadiv_closer;
 	}
 
