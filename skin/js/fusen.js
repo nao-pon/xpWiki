@@ -9,7 +9,7 @@
 //
 // fusen.js for xpWiki by nao-pon
 // http://hypweb.net
-// $Id: fusen.js,v 1.8 2008/01/17 23:47:34 nao-pon Exp $
+// $Id: fusen.js,v 1.9 2008/01/21 23:49:46 nao-pon Exp $
 // 
 var fusenVar = new Array();
 var fusenMsgs = new Array();
@@ -406,6 +406,7 @@ function fusen_getdata(mod)
 								$("fusen_top_menu").style.visibility = 'visible';
 								fusen_transparent();
 							}
+							
 							change_status = true;
 							fusenLoaded = true;
 						}
@@ -439,6 +440,9 @@ function fusen_getdata(mod)
 				}
 			} else {
 				fusenGetRetry = 0;
+			}
+			if (typeof(initLightbox) == 'function' && change_status) {
+				initLightbox();
 			}
 			er = '';
 			xmlhttp = null;
