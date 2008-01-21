@@ -1,7 +1,7 @@
 <?php
 //
 // Created on 2006/10/02 by nao-pon http://hypweb.net/
-// $Id: pukiwiki_func.php,v 1.139 2008/01/11 08:29:54 nao-pon Exp $
+// $Id: pukiwiki_func.php,v 1.140 2008/01/21 23:43:47 nao-pon Exp $
 //
 class XpWikiPukiWikiFunc extends XpWikiBaseFunc {
 
@@ -362,7 +362,7 @@ class XpWikiPukiWikiFunc extends XpWikiBaseFunc {
 			
 			// Adding fixed anchor into headings
 			if ($this->root->fixed_heading_anchor &&
-			    preg_match('/^(\*{1,6}.*?)(?:\[#([A-Za-z][\w-]*)\]\s*)?$/', $line, $matches) &&
+			    preg_match('/^(\*{1,5}.*?)(?:\[#([A-Za-z][\w-]*)\]\s*)?$/', $line, $matches) &&
 			    (! isset($matches[2]) || $matches[2] == '')) {
 				// Generate unique id
 				$anchor = $this->generate_fixed_heading_anchor_id($matches[1]);
@@ -889,7 +889,7 @@ class XpWikiPukiWikiFunc extends XpWikiBaseFunc {
 
 //----- Start convert_html.php -----//
 	// PukiWiki - Yet another WikiWikiWeb clone
-	// $Id: pukiwiki_func.php,v 1.139 2008/01/11 08:29:54 nao-pon Exp $
+	// $Id: pukiwiki_func.php,v 1.140 2008/01/21 23:43:47 nao-pon Exp $
 	// Copyright (C)
 	//   2002-2005 PukiWiki Developers Team
 	//   2001-2002 Originally written by yu-ji
@@ -1138,7 +1138,7 @@ class XpWikiPukiWikiFunc extends XpWikiBaseFunc {
 
 //----- Start func.php -----//
 	// PukiWiki - Yet another WikiWikiWeb clone.
-	// $Id: pukiwiki_func.php,v 1.139 2008/01/11 08:29:54 nao-pon Exp $
+	// $Id: pukiwiki_func.php,v 1.140 2008/01/21 23:43:47 nao-pon Exp $
 	// Copyright (C)
 	//   2002-2006 PukiWiki Developers Team
 	//   2001-2002 Originally written by yu-ji
@@ -1261,7 +1261,7 @@ class XpWikiPukiWikiFunc extends XpWikiBaseFunc {
 			$body = $this->get_source($template_page, TRUE, TRUE);
 	
 			// Remove fixed-heading anchors
-			$body = preg_replace('/^(\*{1,6}.*)\[#[A-Za-z][\w-]+\](.*)$/m', '$1$2', $body);
+			$body = preg_replace('/^(\*{1,5}.*)\[#[A-Za-z][\w-]+\](.*)$/m', '$1$2', $body);
 	
 			// Remove '#freeze'
 			$body = preg_replace('/^#freeze\s*$/m', '', $body);
@@ -1954,7 +1954,7 @@ EOD;
 
 //----- Start make_link.php -----//
 	// PukiWiki - Yet another WikiWikiWeb clone.
-	// $Id: pukiwiki_func.php,v 1.139 2008/01/11 08:29:54 nao-pon Exp $
+	// $Id: pukiwiki_func.php,v 1.140 2008/01/21 23:43:47 nao-pon Exp $
 	// Copyright (C)
 	//   2003-2005 PukiWiki Developers Team
 	//   2001-2002 Originally written by yu-ji
@@ -2859,7 +2859,7 @@ EOD;
 
 //----- Start html.php -----//
 	// PukiWiki - Yet another WikiWikiWeb clone.
-	// $Id: pukiwiki_func.php,v 1.139 2008/01/11 08:29:54 nao-pon Exp $
+	// $Id: pukiwiki_func.php,v 1.140 2008/01/21 23:43:47 nao-pon Exp $
 	// Copyright (C)
 	//   2002-2006 PukiWiki Developers Team
 	//   2001-2002 Originally written by yu-ji
@@ -3366,11 +3366,11 @@ EOD;
 		// Cut fixed-heading anchors
 		$id = '';
 		$matches = array();
-		if (preg_match('/^(\*{0,6})(.*?)\[#([A-Za-z][\w-]+)\](.*?)$/m', $str, $matches)) {
+		if (preg_match('/^(\*{0,5})(.*?)\[#([A-Za-z][\w-]+)\](.*?)$/m', $str, $matches)) {
 			$str = $matches[2] . $matches[4];
 			$id  = & $matches[3];
 		} else {
-			$str = preg_replace('/^\*{0,6}/', '', $str);
+			$str = preg_replace('/^\*{0,5}/', '', $str);
 		}
 	
 		// Cut footnotes and tags
@@ -3526,7 +3526,7 @@ EOD;
 
 //----- Start mail.php -----//
 	// PukiWiki - Yet another WikiWikiWeb clone.
-	// $Id: pukiwiki_func.php,v 1.139 2008/01/11 08:29:54 nao-pon Exp $
+	// $Id: pukiwiki_func.php,v 1.140 2008/01/21 23:43:47 nao-pon Exp $
 	// Copyright (C)
 	//   2003-2005 PukiWiki Developers Team
 	//   2003      Originally written by upk
@@ -3829,7 +3829,7 @@ EOD;
 
 //----- Start link.php -----//
 	// PukiWiki - Yet another WikiWikiWeb clone
-	// $Id: pukiwiki_func.php,v 1.139 2008/01/11 08:29:54 nao-pon Exp $
+	// $Id: pukiwiki_func.php,v 1.140 2008/01/21 23:43:47 nao-pon Exp $
 	// Copyright (C) 2003-2006 PukiWiki Developers Team
 	// License: GPL v2 or (at your option) any later version
 	//

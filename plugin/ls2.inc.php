@@ -1,7 +1,7 @@
 <?php
 // PukiWiki - Yet another WikiWikiWeb clone.
 //
-// $Id: ls2.inc.php,v 1.8 2007/12/04 06:21:44 nao-pon Exp $
+// $Id: ls2.inc.php,v 1.9 2008/01/21 23:43:47 nao-pon Exp $
 //
 // List plugin 2
 
@@ -316,7 +316,7 @@ class xpwiki_plugin_ls2 extends xpwiki_plugin {
 		$anchor = $this->cont['PLUGIN_LS2_ANCHOR_ORIGIN'];
 		$matches = array();
 		foreach ($this->func->get_source($page) as $line) {
-			if ($params['title'] && preg_match('/^(\*{1,6})/', $line, $matches)) {
+			if ($params['title'] && preg_match('/^(\*{1,5})/', $line, $matches)) {
 				$id    = $this->func->make_heading($line);
 				$level = strlen($matches[1]);
 				$id    = $this->cont['PLUGIN_LS2_ANCHOR_PREFIX'] . $anchor++;
