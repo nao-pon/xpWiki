@@ -901,13 +901,22 @@ class XpWikiBody extends XpWikiElement {
 	function parse(& $lines) {
 		$this->last = & $this;
 		$matches = array ();
-
+		$ext_title_find = (false || $this->root->render_mode === 'render');
+		
 		while (!empty ($lines)) {
 			$line = array_shift($lines);
 
 			// Escape comments
 			if (! $this->root->no_slashes_commentout && substr($line, 0, 2) === '//')
 				continue;
+
+			// Extend TITLE
+			if (!$ext_title_find && $this->root->title_setting_regex) {
+				if (preg_match($this->root->title_setting_regex , $line)) {
+					$ext_title_find = true;
+					continue;	
+				}
+			}
 
 			if (preg_match('/^(LEFT|CENTER|RIGHT):(.*)$/', $line, $matches)) {
 				// <div style="text-align:...">

@@ -1,6 +1,6 @@
 <?php
 // PukiWiki - Yet another WikiWikiWeb clone
-// $Id: pukiwiki.ini.php,v 1.61 2008/01/21 23:47:22 nao-pon Exp $
+// $Id: pukiwiki.ini.php,v 1.62 2008/01/22 10:07:42 nao-pon Exp $
 // Copyright (C)
 //   2002-2006 PukiWiki Developers Team
 //   2001-2002 Originally written by yu-ji
@@ -124,6 +124,10 @@ $root->module_title = $root->module['title'] ;
 
 // HTML HEAD Title
 $root->html_head_title = '$page_title$content_title - $module_title';
+
+// Specifies title formatting rule. (Regex)
+// The first pattern match part is used.
+$root->title_setting_regex = '/^TITLE:(.*)$/m';
 
 // Specify PukiWiki URL (default: auto)
 //$root->script = 'http://example.com/pukiwiki/';
