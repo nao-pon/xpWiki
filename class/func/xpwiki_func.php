@@ -1,7 +1,7 @@
 <?php
 //
 // Created on 2006/10/02 by nao-pon http://hypweb.net/
-// $Id: xpwiki_func.php,v 1.138 2008/01/21 23:47:22 nao-pon Exp $
+// $Id: xpwiki_func.php,v 1.139 2008/01/22 10:07:41 nao-pon Exp $
 //
 class XpWikiFunc extends XpWikiXoopsWrapper {
 
@@ -996,7 +996,9 @@ EOD;
 		if (!$_body) return '';
 		
 		$ret = '';
-		if (preg_match('/^\*+.+\s*$/m',$_body,$match)) {
+		if ($this->root->title_setting_regex && preg_match($this->root->title_setting_regex,$_body,$match)) {
+			$ret = $match[1];
+		} else if (preg_match('/^\*+.+\s*$/m',$_body,$match)) {
 			$ret = $match[0];
 		} else if (preg_match('/^(?! |\s|#|\/\/).+\s*$/m',$_body,$match)) {
 			$ret = $match[0];
