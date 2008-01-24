@@ -363,6 +363,8 @@ EOD;
 
 	function set($arr, $page) {
 		list (,, $alias, $name) = $this->splice($arr);
+		// https?:/// -> $this->cont['ROOT_URL']
+		$name = preg_replace('#^https?:///#', $this->cont['ROOT_URL'], $name);
 		return parent :: setParam($page, htmlspecialchars($name), '', 'url', $alias == '' ? $name : $alias);
 	}
 
