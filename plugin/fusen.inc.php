@@ -31,7 +31,7 @@
 //
 // fusen.inc.php for xpWiki by nao-pon
 // http://xoops.hypweb.net
-// $Id: fusen.inc.php,v 1.13 2008/01/21 23:49:17 nao-pon Exp $
+// $Id: fusen.inc.php,v 1.14 2008/01/24 23:27:07 nao-pon Exp $
 // 
 
 class xpwiki_plugin_fusen extends xpwiki_plugin {
@@ -123,7 +123,7 @@ class xpwiki_plugin_fusen extends xpwiki_plugin {
 		$wiki_helper = '';
 		
 		$selected = 0;
-		$refresh_str = $this->msg['cap_refresh'] . ':<select name="fusen_menu_interval" id="fusen_menu_interval" size="1" onchange="fusen_setInterval(this.value);window.focus();">';
+		$refresh_str = '<span class="nowrap">' . $this->msg['cap_refresh'] . ':<select name="fusen_menu_interval" id="fusen_menu_interval" size="1" onchange="fusen_setInterval(this.value);window.focus();">';
 		$refresh_str .= '<option value="0">' . $this->msg['cap_none'];
 		foreach(array(10,20,30,60) as $sec)
 		{
@@ -136,11 +136,10 @@ class xpwiki_plugin_fusen extends xpwiki_plugin {
 			$msec = $sec * 1000;
 			$refresh_str .= '<option value="'.$msec.'"'.$select.'>'.$sec.$this->msg['cap_second'];
 		}
-		$refresh_str .= '</select>';
+		$refresh_str .= '</select></span>';
 		$refresh = $selected * 1000;
 		
 		$html = $this->plugin_fusen_gethtml($fusen_data, $refer);
-		//if (!$html) $html = '<p></p>';
 		
 		$fusen_post = '/' . $this->root->mydirname . '/';
 		$fusen_url = '/' . $this->root->mydirname . '/skin/loader.php?nc&src=fusen_' . $this->func->get_pgid_by_name($refer) . '.pcache.xml';
@@ -155,7 +154,7 @@ class xpwiki_plugin_fusen extends xpwiki_plugin {
 			$js_massages .= 'fusenMsgs[\'' . $key . '\'] = "' . str_replace('"', '&quot;' ,preg_replace('/[\r\n]/', '', $val)) . '";' . "\n";
 		}
 		$readonly = intval($this->cont['PKWK_READONLY']);
-		$mene_new = ($readonly)? '' : '[<a href="JavaScript:fusen_new()" title="' . $this->msg['cap_menu_new'] . '">' . $this->msg['btn_menu_new'] . '</a>]';
+		$menu_new = ($readonly)? '' : '<span class="nowrap">[<a href="JavaScript:fusen_new()" title="' . $this->msg['cap_menu_new'] . '">' . $this->msg['btn_menu_new'] . '</a>]</span>';
 		
 		return <<<EOD
 <script type="text/javascript">
@@ -178,13 +177,13 @@ fusenVar['ReadOnly'] = {$readonly};
 <div id="fusen_top_menu" class="fusen_top_menu" style="visibility: hidden;">
 <form action="" onsubmit="return false;" style="padding:0px;margin:0px;">
   <img src="{$this->cont['LOADER_URL']}?src=fusen.gif" width="20" height="20" alt="{$this->msg['cap_fusen_func']}" title="{$this->msg['cap_fusen_func']}" />
-  {$mene_new}
-  [<a href="JavaScript:fusen_dustbox()" title="{$this->msg['cap_menu_dust']}">{$this->msg['btn_menu_dust']}</a>{$burn}]
-  [<a href="JavaScript:fusen_transparent()" title="{$this->msg['cap_menu_transparent']}">{$this->msg['btn_menu_transparent']}</a>]
-  [<a href="JavaScript:fusen_init(1)" title="{$this->msg['cap_menu_refresh']}">{$this->msg['btn_menu_refresh']}</a>]
-  [<a href="JavaScript:fusen_show('fusen_list')" title="{$this->msg['cap_menu_list']}">{$this->msg['btn_menu_list']}</a>]
-  [<a href="JavaScript:fusen_show('fusen_help')" title="{$this->msg['cap_menu_help']}">{$this->msg['btn_menu_help']}</a>]&nbsp;
-  {$this->msg['cap_menu_search']}:<input type="text" onkeyup="JavaScript:fusen_grep(this.value)" />
+  {$menu_new}
+  <span class="nowrap">[<a href="JavaScript:fusen_dustbox()" title="{$this->msg['cap_menu_dust']}">{$this->msg['btn_menu_dust']}</a>{$burn}]</span>
+  <span class="nowrap">[<a href="JavaScript:fusen_transparent()" title="{$this->msg['cap_menu_transparent']}">{$this->msg['btn_menu_transparent']}</a>]</span>
+  <span class="nowrap">[<a href="JavaScript:fusen_init(1)" title="{$this->msg['cap_menu_refresh']}">{$this->msg['btn_menu_refresh']}</a>]</span>
+  <span class="nowrap">[<a href="JavaScript:fusen_show('fusen_list')" title="{$this->msg['cap_menu_list']}">{$this->msg['btn_menu_list']}</a>]</span>
+  <span class="nowrap">[<a href="JavaScript:fusen_show('fusen_help')" title="{$this->msg['cap_menu_help']}">{$this->msg['btn_menu_help']}</a>]</span>
+  <span class="nowrap">{$this->msg['cap_menu_search']}:</span><input type="text" onkeyup="JavaScript:fusen_grep(this.value)" />
   {$refresh_str}
 </form>
 </div>
