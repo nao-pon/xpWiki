@@ -162,6 +162,10 @@ $class a.ext_autolink {
 	font-weight: inherit;
 }
 
+$class .nowrap {
+	white-space: nowrap;
+}
+
 $class div.level1 {}
 $class div.level2 {}
 $class div.level3 {
