@@ -1,7 +1,7 @@
 <?php
 //
 // Created on 2006/10/11 by nao-pon http://hypweb.net/
-// $Id: xoops_wrapper.php,v 1.40 2007/11/28 05:56:38 nao-pon Exp $
+// $Id: xoops_wrapper.php,v 1.41 2008/01/29 23:43:53 nao-pon Exp $
 //
 class XpWikiXoopsWrapper extends XpWikiBackupFunc {
 	
@@ -25,6 +25,11 @@ class XpWikiXoopsWrapper extends XpWikiBackupFunc {
 			$this->root->module['mid']   = $XoopsModule->mid();
 			$this->root->module['config'] =& $config_handler->getConfigsByCat(0, $XoopsModule->mid());
 			$this->root->module['platform'] = "xoops";
+			
+			$moduleperm_handler =& xoops_gethandler('groupperm');
+			global $xoopsUser;
+			$this->root->module['checkRight'] = ($moduleperm_handler->checkRight('module_read', $this->root->module['mid'], (is_object($xoopsUser)? $xoopsUser->getGroups() : XOOPS_GROUP_ANONYMOUS)));
+			
 		} else {
 			// not installed
 			$this->root->module = array();
