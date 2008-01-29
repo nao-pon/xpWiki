@@ -20,8 +20,7 @@ function xpwiki_notify_base( $mydirname , $category , $item_id )
 
 	include_once dirname(__FILE__).'/include.php' ;
 
-	$xpwiki =& XpWiki::getSingleton($mydirname) ;
-	$xpwiki->init('#RenderMode');
+	$xpwiki =& XpWiki::getInitedSingleton($mydirname) ;
 
 	if( substr($category, 0, 4) === 'page' ) {
 		// Assume we have a valid $item_id

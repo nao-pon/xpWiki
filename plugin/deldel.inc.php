@@ -1,6 +1,6 @@
 <?php
 /**
- * $Id: deldel.inc.php,v 1.5 2007/09/19 11:27:15 nao-pon Exp $
+ * $Id: deldel.inc.php,v 1.6 2008/01/29 23:40:40 nao-pon Exp $
  * ORG: deldel.inc.php 161 2005-06-28 12:58:13Z okkez $
  *
  * 色んなものを一括削除するプラグイン
@@ -257,8 +257,7 @@ class xpwiki_plugin_deldel extends xpwiki_plugin {
 						if (!empty($this->root->vars['move_to'])) {
 							static $to_obj;
 							if (!$to_obj) {
-								$to_obj = XpWiki::getSingleton($this->root->vars['move_to']);
-								$to_obj->init('#RenderMode');
+								$to_obj = XpWiki::getInitedSingleton($this->root->vars['move_to']);
 							}
 							if (!$this->move_to($page, $to_obj)) {
 								$flag[$s_page.'(Move)'] = false;
@@ -541,7 +540,7 @@ class xpwiki_plugin_deldel extends xpwiki_plugin {
 				while (($item = readdir($dh)) !== false) {
 					if (is_dir($_dir.'/'.$item)) {
 						if ($this->root->mydirname !== $item && file_exists($_dir.'/'.$item.'/private/ini/pukiwiki.ini.php')) {
-							$obj =& XpWiki::getSingleton($item);
+							$obj =& XpWiki::getInitedSingleton($item);
 							if ($obj->root->module['mid']) {
 								$items[] = $item;
 							}
