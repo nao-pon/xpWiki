@@ -1,7 +1,7 @@
 <?php
 //
 // Created on 2006/10/13 by nao-pon http://hypweb.net/
-// $Id: init.php,v 1.42 2008/01/17 11:47:55 nao-pon Exp $
+// $Id: init.php,v 1.43 2008/01/29 23:45:25 nao-pon Exp $
 //
 
 $root = & $this->root;
@@ -113,7 +113,6 @@ foreach ($root->agents as $agent) {
 		break;
 	}
 }
-unset($root->agents);
 
 // Profile-related init and setting
 $const['UA_PROFILE'] = isset($user_agent['profile']) ? $user_agent['profile'] : '';
