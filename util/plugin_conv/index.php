@@ -71,6 +71,8 @@ EOD;
 	return;
 }
 
+error_reporting(E_ALL ^ E_NOTICE);
+
 $mode = (empty($_GET['mode']))? "" : $_GET['mode'];
 if ($mode == "s2u") {
 	convert_s2u ($files, $mydirname);
@@ -78,7 +80,7 @@ if ($mode == "s2u") {
 }
 
 foreach($files as $input) {
-	set_time_limit(60);
+	@ set_time_limit(60);
 	$output = $outdir . $input;
 	//echo $output;
 	$output_other = $outdir ."other_{$input}";
