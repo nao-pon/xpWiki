@@ -1,7 +1,7 @@
 <?php
 //
 // Created on 2006/09/29 by nao-pon http://hypweb.net/
-// $Id: xpwiki.php,v 1.66 2008/01/20 06:46:53 nao-pon Exp $
+// $Id: xpwiki.php,v 1.67 2008/01/29 23:37:36 nao-pon Exp $
 //
 
 class XpWiki {
@@ -23,6 +23,8 @@ class XpWiki {
 	var $iniVar;
 	
 	var $pid;
+	
+	var $isXpWiki = TRUE;
 
 	function XpWiki ($mydirname, $moddir='modules/') {
 		
@@ -34,6 +36,7 @@ class XpWiki {
 		$this->root =& new XpWikiRoot();
 		$this->cont =& $this->root->c;
 		$this->root->mydirname = $mydirname;
+		$this->cont['MOD_DIR_NAME'] = $moddir;
 		
 		$this->func =& new XpWikiFunc($this);
 		$this->func->set_moduleinfo();
@@ -43,13 +46,19 @@ class XpWiki {
 		$this->root->mytrustdirpath = dirname(dirname(__FILE__));
 
 		$this->cont['DATA_HOME'] = $this->root->mydirpath."/";
+		
 		$this->cont['HOME_URL'] = $this->cont['ROOT_URL'].$moddir.$mydirname."/";
 		
 		$_urls = parse_url($this->cont['ROOT_URL']);
 		$this->cont['MY_HOST_URL'] = $_urls['scheme'] . '://' . $_urls['host'] . (isset($_urls['port'])? ':' . $_urls['port'] : '');
 		
 		$this->db =& $this->func->get_db_connection(); 
-		
+
+		// Check pukiwiki.ini.php
+		if (! $this->root->module['checkRight'] || ! file_exists($this->cont['DATA_HOME'] . 'private/ini/pukiwiki.ini.php')) {
+			$this->isXpWiki = FALSE;
+		}
+
 	}
 
 	function & getSingleton ($mddir, $iniClear = true) {
@@ -61,6 +70,17 @@ class XpWiki {
 			$obj[$mddir]->clearIniRoot();
 			$obj[$mddir]->clearIniConst();
 			clearstatcache();
+		}
+		return $obj[$mddir];
+	}
+
+	function & getInitedSingleton ($mddir) {
+		static $obj;
+		if (! isset($obj[$mddir])) {
+			$obj[$mddir] = new XpWiki($mddir);
+			if ($obj[$mddir]->isXpWiki) {
+				$obj[$mddir]->init('#RenderMode');
+			}
 		}
 		return $obj[$mddir];
 	}
