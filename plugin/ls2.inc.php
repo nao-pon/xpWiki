@@ -1,7 +1,7 @@
 <?php
 // PukiWiki - Yet another WikiWikiWeb clone.
 //
-// $Id: ls2.inc.php,v 1.9 2008/01/21 23:43:47 nao-pon Exp $
+// $Id: ls2.inc.php,v 1.10 2008/01/29 23:54:36 nao-pon Exp $
 //
 // List plugin 2
 
@@ -101,6 +101,19 @@ class xpwiki_plugin_ls2 extends xpwiki_plugin {
 		$this->fetch_options($params, $args, array('prefix'));
 		
 		$prefix = ($params['prefix'])? $prefix = $params['prefix'] : '';
+
+		// Other xpWiki dir
+		if (strpos($prefix, ':') !== FALSE) {
+			list($dir, $_prefix) = explode(':', $prefix);
+			if ($_prefix && $this->func->isXpWikiDirname($dir)) {
+				$args[0] = $_prefix;
+				$otherObj = & XpWiki::getSingleton($dir);
+				if ($otherObj->isXpWiki) {
+					$otherObj->init('#RenderMode');
+					return $otherObj->func->do_plugin_convert('ls2', $this->func->csv_implode(',', $args));
+				}
+			}
+		}
 		
 		if ($prefix === '') $prefix = $this->func->strip_bracket($this->root->vars['page']) . '/';
 		if ($prefix === '/') $prefix = '';

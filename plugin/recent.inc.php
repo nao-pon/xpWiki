@@ -1,5 +1,5 @@
 <?php
-// $Id: recent.inc.php,v 1.8 2007/09/19 11:27:15 nao-pon Exp $
+// $Id: recent.inc.php,v 1.9 2008/01/29 23:54:36 nao-pon Exp $
 // Copyright (C)
 //   2002-2006 PukiWiki Developers Team
 //   2002      Y.MASUI http://masui.net/pukiwiki/ masui@masui.net
@@ -38,6 +38,22 @@ class xpwiki_plugin_recent extends xpwiki_plugin {
 			$args = func_get_args();
 			$recent_lines = (int)$args[0];
 			$prefix = $args[0];
+			
+			// Other xpWiki dir
+			if (strpos($prefix, ':') !== FALSE) {
+				list($dir, $_prefix) = explode(':', $prefix);
+				if ($this->func->isXpWikiDirname($dir)) {
+					$args[0] = $_prefix;
+					$otherObj = & XpWiki::getSingleton($dir);
+					if ($otherObj->isXpWiki) {
+						$otherObj->init('#RenderMode');
+						return $otherObj->func->do_plugin_convert('recent', $this->func->csv_implode(',', $args));
+					} else {
+						return sprintf($this->root->_recent_plugin_frame, $prefix, 0, '');
+					}
+				}
+			}
+			
 			$prefix = preg_replace("/\/$/","",$prefix);
 			if ($this->func->is_page($prefix))
 			{

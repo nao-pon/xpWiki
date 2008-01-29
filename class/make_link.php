@@ -397,6 +397,7 @@ class XpWikiLink_url_interwiki extends XpWikiLink {
 ([^\]]+) # (2) alias
 \]       # close bracket
 EOD;
+//'
 	}
 
 	function get_count() {
@@ -405,6 +406,8 @@ EOD;
 
 	function set($arr, $page) {
 		list (, $name, $alias) = $this->splice($arr);
+		// https?:/// -> $this->cont['ROOT_URL']
+		$name = preg_replace('#^https?:///#', $this->cont['ROOT_URL'], $name);
 		return parent :: setParam($page, htmlspecialchars($name), '', 'url', $alias);
 	}
 
@@ -452,6 +455,8 @@ class XpWikiLink_interwikiname extends XpWikiLink {
 	var $url = '';
 	var $param = '';
 	var $anchor = '';
+	
+	var $otherObj = NULL;
 
 	function XpWikiLink_interwikiname(& $xpwiki, $start) {
 		parent :: XpWikiLink($xpwiki, $start);
@@ -484,7 +489,6 @@ EOD;
 	}
 
 	function set($arr, $page) {
-		//		global $script;
 
 		list (, $alias,, $name, $this->param) = $this->splice($arr);
 
@@ -492,14 +496,25 @@ EOD;
 		if (preg_match('/^([^#]+)(#[A-Za-z][\w-]*)$/', $this->param, $matches))
 			list (, $this->param, $this->anchor) = $matches;
 
-		$url = $this->func->get_interwiki_url($name, $this->param);
-		$this->url = ($url === FALSE) ? $this->root->script.'?'.rawurlencode('[['.$name.':'.$this->param.']]') : htmlspecialchars($url);
+		$url =& $this->func->get_interwiki_url($name, $this->param);
+		
+		if (is_object($url)) {
+			$this->otherObj =& $url;
+			return parent :: setParam($page, htmlspecialchars($this->param), '', 'pagename', $alias == '' ? $name.':'.$this->param : $alias);
+		}
+
+		if (!$url) return false;
+		$this->url = htmlspecialchars($url);
 
 		return parent :: setParam($page, htmlspecialchars($name.':'.$this->param), '', 'InterWikiName', $alias == '' ? $name.':'.$this->param : $alias);
 	}
 
 	function toString() {
-		return '<a href="'.$this->url.$this->anchor.'" title="'.$this->name.'" rel="nofollow">'.$this->alias.'</a>';
+		if (is_object($this->otherObj)) {
+			return $this->otherObj->func->make_pagelink($this->name, $this->alias, $this->anchor, $this->page);
+		} else {
+			return '<a href="'.$this->url.$this->anchor.'" title="'.$this->name.'" rel="nofollow">'.$this->alias.'</a>';
+		}
 	}
 }
 
