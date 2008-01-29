@@ -1,7 +1,7 @@
 <?php
 //
 // Created on 2006/10/02 by nao-pon http://hypweb.net/
-// $Id: xpwiki_func.php,v 1.139 2008/01/22 10:07:41 nao-pon Exp $
+// $Id: xpwiki_func.php,v 1.140 2008/01/29 23:44:28 nao-pon Exp $
 //
 class XpWikiFunc extends XpWikiXoopsWrapper {
 
@@ -1588,6 +1588,10 @@ EOD;
 			$html = preg_replace('#(<[^>]+(?:href|src|code(?:base)?|data)=["\'])/#iS', '$1'. $this->cont['MY_HOST_URL'] . '/', $html);
 		}
 		return $html;
+	}
+	
+	function isXpWikiDirname ($dirname) {
+		return (file_exists($this->cont['ROOT_PATH'].$this->cont['MOD_DIR_NAME'].$dirname.'/private/ini/pukiwiki.ini.php'));
 	}
 	
 /*----- DB Functions -----*/ 
