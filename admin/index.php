@@ -1,8 +1,7 @@
 <?php
 
 include_once XOOPS_TRUST_PATH."/modules/xpwiki/include.php";
-$xw =& XpWiki::getSingleton($mydirname);
-$xw->init('#RenderMode');
+$xw =& XpWiki::getInitedSingleton($mydirname);
 
 if (!$xw->func->get_pgid_by_name($xw->root->defaultpage)) {
 	$xw->func->send_location('', '', $xw->cont['HOME_URL'] . '?cmd=dbsync');

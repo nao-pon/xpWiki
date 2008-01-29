@@ -11,8 +11,7 @@ function b_xpwiki_notification_show( $options )
 	$this_template = empty( $options[1] ) ? 'db:'.$mydirname.'_block_notification.html' : trim( $options[1] ) ;
 	
 	include_once XOOPS_TRUST_PATH."/modules/xpwiki/include.php";
-	$xw = XpWiki::getSingleton($mydirname);
-	$xw->init('#RenderMode');
+	$xw =& XpWiki::getInitedSingleton($mydirname);
 	
 	$notification = $xw->func->get_notification_select($pgid);
 

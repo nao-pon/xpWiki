@@ -1,7 +1,7 @@
 <?php
 /*
  * Created on 2007/07/11 by nao-pon http://hypweb.net/
- * $Id: sitemap.plugin.php,v 1.1 2007/07/11 06:14:53 nao-pon Exp $
+ * $Id: sitemap.plugin.php,v 1.2 2008/01/29 23:40:40 nao-pon Exp $
  */
 
 function b_sitemap_xpwiki( $mydirname ) {
@@ -13,8 +13,7 @@ function b_sitemap_xpwiki( $mydirname ) {
 
 	include_once dirname(dirname(__FILE__)).'/include.php';
 
-	$xpwiki =& XpWiki::getSingleton($mydirname);
-	$xpwiki->init('#RenderMode');
+	$xpwiki =& XpWiki::getInitedSingleton($mydirname);
 
 	$where = $xpwiki->func->get_readable_where();
 	$where = ($where)? " WHERE (editedtime!=0) AND (name NOT LIKE ':%') AND ($where)" : " WHERE (editedtime!=0) AND (name NOT LIKE ':%')";

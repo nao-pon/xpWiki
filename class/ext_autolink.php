@@ -1,7 +1,7 @@
 <?php
 /*
  * Created on 2007/04/23 by nao-pon http://hypweb.net/
- * $Id: ext_autolink.php,v 1.20 2008/01/16 05:26:09 nao-pon Exp $
+ * $Id: ext_autolink.php,v 1.21 2008/01/29 23:40:40 nao-pon Exp $
  */
 class XpWikiPukiExtAutoLink {
 	// External AutoLinks
@@ -154,16 +154,16 @@ class XpWikiPukiExtAutoLink {
 		if ($this->ext_autolink_own !== '' && file_exists($cache) && filemtime($cache) + $cache_min * 60 > time()) {
 			$pat = join('',file($cache));
 			if ($this->ext_autolink_own !== false) {
-					$obj = & XpWiki::getSingleton($this->ext_autolink_own);
-					$obj->init('#RenderMode');
+					$obj = & XpWiki::getInitedSingleton($this->ext_autolink_own);
+					if (!$obj->isXpWiki) return;
 					$this->ext_autolink_func = & $obj->func;	
 					$this->ci = $obj->root->page_case_insensitive;			
 			}
 		} else {
 			if ($this->ext_autolink_own !== false) {
 				if ($this->ext_autolink_own) {
-					$obj = & XpWiki::getSingleton($this->ext_autolink_own);
-					$obj->init('#RenderMode');
+					$obj = & XpWiki::getInitedSingleton($this->ext_autolink_own);
+					if (!$obj->isXpWiki) return;
 					$this->ext_autolink_func = & $obj->func;
 					$this->ci = $obj->root->page_case_insensitive;
 					$plugin = & $obj->func->get_plugin_instance('api');

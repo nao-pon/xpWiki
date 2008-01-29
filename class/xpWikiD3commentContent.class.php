@@ -66,8 +66,7 @@ function validate_id( $link_id )
 		$ret = false;
 	} else {
 		include_once dirname(dirname(__FILE__))."/include.php";
-		$xpwiki = & XpWiki::getSingleton($this->mydirname);
-		$xpwiki->init('#render');
+		$xpwiki = & XpWiki::getInitedSingleton($this->mydirname);
 		$page = $xpwiki->func->get_name_by_pgid($ret);
 		if (!$xpwiki->func->is_page($page) || !$xpwiki->func->check_readable($page, false, false)) {
 			$ret = false;
