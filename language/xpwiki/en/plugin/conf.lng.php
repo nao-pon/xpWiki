@@ -1,7 +1,7 @@
 <?php
 /*
  * Created on 2008/01/24 by nao-pon http://hypweb.net/
- * $Id: conf.lng.php,v 1.1 2008/01/25 06:19:16 nao-pon Exp $
+ * $Id: conf.lng.php,v 1.2 2008/01/30 07:29:40 nao-pon Exp $
  */
 
 $msg = array(
@@ -21,6 +21,11 @@ $msg = array(
 	'PKWK_READONLY' => array(
 		'caption'     => 'Only for reading?',
 		'description' => 'When it does only for reading, it is not possible to administer and every inclusion edit it.',
+	),
+
+	'function_freeze' => array(
+		'caption'     => 'Is freeze function effective?',
+		'description' => '',
 	),
 
 	'adminpass' => array(
