@@ -134,6 +134,22 @@ function b_xpwiki_a_page_edit( $options )
 
 function b_xpwiki_fusen_show( $options )
 {
+	$src = <<<EOD
+#fusen
+EOD;
+	return b_xpwiki_block_show( $options, $src, true );
+}
+
+function b_xpwiki_menubar_show( $options )
+{
+	$src = <<<EOD
+#menu
+EOD;
+	return b_xpwiki_block_show( $options, $src, true );
+}
+
+function b_xpwiki_block_show( $options, $src, $nocache = false )
+{
 	$mydirname = empty( $options[0] ) ? 'xpwiki' : $options[0] ;
 	$width = empty( $options[1] ) ? '100%' : $options[1] ;
 	$this_template = empty( $options[2] ) ? 'db:'.$mydirname.'_block_a_page.html' : trim( $options[2] ) ;
@@ -150,12 +166,9 @@ function b_xpwiki_fusen_show( $options )
 	$xw = new XpWiki($mydirname);
 	
 	// ページキャッシュを常に無効にする
-	$configs['root']['pagecache_min'] = 0;
+	if ($nocache) $configs['root']['pagecache_min'] = 0;
 	
 	// Wikiソース
-	$src = <<<EOD
-#fusen
-EOD;
 	$arg = array('source' => $src);
 	
 	// ブロック用として取得 (引数: Wikiソース, 表示幅)
@@ -178,7 +191,7 @@ EOD;
 	return $ret ;
 }
 
-function b_xpwiki_fusen_edit( $options )
+function b_xpwiki_block_edit( $options )
 {
 	$mydirname = empty( $options[0] ) ? 'xpwiki' : $options[0] ;
 	if( preg_match( '/[^0-9a-zA-Z_-]/' , $mydirname ) ) die( 'Invalid mydirname' ) ;
@@ -205,6 +218,4 @@ function b_xpwiki_fusen_edit( $options )
 		\n" ;
 	return $form;
 }
-
-
 ?>

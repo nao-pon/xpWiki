@@ -15,6 +15,8 @@ define( $constpref."_BNAME_NOTIFICATION","イベント通知 ({$mydirname})");
 define( $constpref."_BDESC_NOTIFICATION","イベント通知オプションを設定します");
 define( $constpref."_BNAME_FUSEN","付箋機能 ({$mydirname})");
 define( $constpref."_BDESC_FUSEN","付箋プラグインのコントロールメニューを表示します。");
+define( $constpref."_BNAME_MENUBAR","MenuBar ({$mydirname})");
+define( $constpref."_BDESC_MENUBAR","MenuBar を表示します。");
 
 define( $constpref.'_MODULE_DESCRIPTION' , 'PukiWikiベースのWikiモジュール' ) ;
 

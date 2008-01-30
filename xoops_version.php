@@ -68,12 +68,21 @@ $modversion['blocks'][3] = array(
 	'name'			=> constant($constpref.'_BNAME_FUSEN') ,
 	'description'	=> constant($constpref.'_BDESC_FUSEN') ,
 	'show_func'		=> 'b_xpwiki_fusen_show' ,
-	'edit_func'		=> 'b_xpwiki_fusen_edit' ,
+	'edit_func'		=> 'b_xpwiki_block_edit' ,
 	'options'		=> $mydirname . '|100%|' ,
 	'template'		=> '' , // use "module" template instead
 	'can_clone'		=> true ,
 ) ;
-
+$modversion['blocks'][4] = array(
+	'file'			=> 'blocks.php' ,
+	'name'			=> constant($constpref.'_BNAME_MENUBAR') ,
+	'description'	=> constant($constpref.'_BDESC_MENUBAR') ,
+	'show_func'		=> 'b_xpwiki_menubar_show' ,
+	'edit_func'		=> 'b_xpwiki_block_edit' ,
+	'options'		=> $mydirname . '|100%|' ,
+	'template'		=> '' , // use "module" template instead
+	'can_clone'		=> true ,
+) ;
 // Comments
 $modversion['hasComments'] = 0 ;
 
