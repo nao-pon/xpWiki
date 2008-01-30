@@ -1,7 +1,7 @@
 <?php
 /*
  * Created on 2008/01/24 by nao-pon http://hypweb.net/
- * $Id: conf.lng.php,v 1.1 2008/01/25 06:19:16 nao-pon Exp $
+ * $Id: conf.lng.php,v 1.2 2008/01/30 07:29:41 nao-pon Exp $
  */
 
 $msg = array(
@@ -21,6 +21,11 @@ $msg = array(
 	'PKWK_READONLY' => array(
 		'caption'     => '読み取り専用にする',
 		'description' => '読み取り専用にすると、管理者も含め誰も編集することができません。',
+	),
+
+	'function_freeze' => array(
+		'caption'     => '凍結機能を有効にする',
+		'description' => '',
 	),
 
 	'adminpass' => array(

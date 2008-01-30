@@ -1,7 +1,7 @@
 <?php
 /*
  * Created on 2008/01/24 by nao-pon http://hypweb.net/
- * $Id: conf.inc.php,v 1.1 2008/01/25 06:19:16 nao-pon Exp $
+ * $Id: conf.inc.php,v 1.2 2008/01/30 07:29:41 nao-pon Exp $
  */
 
 class xpwiki_plugin_conf extends xpwiki_plugin {
@@ -11,6 +11,11 @@ class xpwiki_plugin_conf extends xpwiki_plugin {
 		$this->conf = array(
 			'PKWK_READONLY' => array(
 				'kind' => 'const',
+				'type' => 'integer',
+				'form' => 'yesno',
+			),
+			'function_freeze' => array(
+				'kind' => 'root',
 				'type' => 'integer',
 				'form' => 'yesno',
 			),
