@@ -44,9 +44,9 @@
 :Parameters|
 ~'''image_url''' - the URL of the image to be displayed. The supported image formats are jpeg(jpg), gif, and png.
 ~right,r,left,l,clear,c - specifies the alignment of the image, and text wraparound. The default value is left.
---right,r ¡Ý right-align the image
---left,l ¡Ý left-align the image
---clear,c ¡Ý disable the text wraparound. Unless right,r,left, or l is specified, the plugin assumes the clear option is selected.
+--right,r - right-align the image
+--left,l - left-align the image
+--clear,c - disable the text wraparound. Unless right,r,left, or l is specified, the plugin assumes the clear option is selected.
 :Constants|~
 --PLUGIN_IMG_CLEAR - the tag used to realize 'clear' setting
 --PLUGIN_IMG_USAGE - the usage message to be displayed when no parameters are given

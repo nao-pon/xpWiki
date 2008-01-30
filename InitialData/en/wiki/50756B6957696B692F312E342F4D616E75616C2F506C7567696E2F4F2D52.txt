@@ -82,11 +82,11 @@
 ~'''num_items''' - the number of top-level items to be displayed. If omitted, the default value specified by the PLUGIN_PCOMMENT_NUM_COMMENTS constant is used.~
 This parameter must be placed after the comment page name. If you don't want to specify '''CommentPage''', just put a camma before '''num_items''' (e.g., #pcomment(,15))
 ~noname,nodate,above,below,reply - parameters to specify how to enter/display the comments
---noname ¡Ý Do not display the name input form
---nodate ¡Ý Do not display the timestamp
---above ¡Ý Display the comments above the form, in the chronological order (the oldest at the top)
---below ¡Ý Display the comments below the form, in the reverse chronological order (the newest at the top)
---reply ¡Ý Display radio buttons to specify which comment to reply to
+--noname - Do not display the name input form
+--nodate - Do not display the timestamp
+--above - Display the comments above the form, in the chronological order (the oldest at the top)
+--below - Display the comments below the form, in the reverse chronological order (the newest at the top)
+--reply - Display radio buttons to specify which comment to reply to
 :Constants|~
 --PLUGIN_PCOMMENT_PAGE - the default comment page name (%s is replaced by the value of $vars['page'])
 --PLUGIN_PCOMMENT_NUM_COMMENTS - the default number of recent comments to be displayed
@@ -124,8 +124,8 @@ This parameter must be placed after the comment page name. If you don't want to 
 ~'''num_pages''' - the number of pages to be displayed. The default value is defined as the PLUGIN_POPULAR_DEFAULT constant.
 ~'''ExcludedPage''' - the regular expression that definees the pages which should be excluded from the list. The typical examples are FrontPage, MenuBar, etc.
 ~true, false - whether to use the number of today's visitors only. The default is false.
---true ¡Ý use the number of visitors of today only
---false ¡Ý use the total number of visitors
+--true - use the number of visitors of today only
+--false - use the total number of visitors
 :Constants|~
 --PLUGIN_POPULAR_DEFAULT - the default number of pages to be displayed
 :Note|
@@ -173,11 +173,15 @@ This parameter must be placed after the comment page name. If you don't want to 
 ~*****
 :Synopsis|
 ''#recent(''
-[&color(blue){num_pages};]
+[&color(blue){pattern};]
+[,&color(blue){num_pages};]
 '')''
 :Description|
-~show an updated page recently.
+~show an updated page recently of page name that starts by the specified pattern.
 :Parameters|
+~A common part of displayed PageName is specified for the pattern. When omitting it, it means "All Pages".&br;
+And, It is possible also to do list up of another xpWiki on
+the same system, with "&font(Blue,b){Dirctory Name};&font(Red,b){:};&font(Blue,b){Page Pattern};".
 ~num_pages - the number of pages to be displayed. The default value is defined as the PLUGIN_POPULAR_DEFAULT constant.
 :Constants|~
 --PLUGIN_POPULAR_DEFAULT - the default number of pages to be displayed.
@@ -288,13 +292,13 @@ Because Synopsis of (6) is a description method of (2) in this The purpose is to
 :Parameters|
 ~PageName that displays Referer is specified for PageName. It is necessary to encode PageName. When omitting it, the list of the page where Referer is recorded is displayed. 
 ~The order of sorting of the Referer list is specified with &font(b){sort};. 
---0d ¡Ý Last updated date and time(newly arrived the order)
---0a ¡Ý Last updated date and time(date the order)
---1d ¡Ý Registration first time date(newly arrived the order)
---1a ¡Ý Registration first time date(date the order)
---2d ¡Ý Counter(large the order)
---2a ¡Ý Counter(small the order)
---3 ¡Ý Referer
+--0d - Last updated date and time(newly arrived the order)
+--0a - Last updated date and time(date the order)
+--1d - Registration first time date(newly arrived the order)
+--1a - Registration first time date(date the order)
+--2d - Counter(large the order)
+--2a - Counter(small the order)
+--3 - Referer
 :Constants|~
 --&font(b){CONFIG_REFERER}; Page that specifies disregarded URI
 :Note|

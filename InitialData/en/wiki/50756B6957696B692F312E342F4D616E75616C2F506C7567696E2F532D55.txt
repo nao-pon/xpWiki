@@ -23,7 +23,7 @@
 :Parameters|
 ~The parameters control the search conditions
 --word - the search string is specified by '''search_string'''. If this parameter is omitted, a query form page is displayed.
---type ¡Ý If 'OR' is specified, OR search (querying the pages containing one of the keywords) is performed. The default is AND search (querying the pages containing all keywords).
+--type - If 'OR' is specified, OR search (querying the pages containing one of the keywords) is performed. The default is AND search (querying the pages containing all keywords).
 :Constants|~
 --PLUGIN_SEARCH_DISABLE_GET_ACCESS - deny the query with the GET method (to prevent DoS attacks, SPAMbot, or worm)
 --PLUGIN_SEARCH_MAX_LENGTH - the maximum length of the search string
@@ -57,7 +57,7 @@
 ~The parameter sets the the treatment of line breaks.
 If the parameters is omitted, the plugin toggles the current setting.
 --on - Display the line breaks in the subsquent texts as line breaks ($line_break=1).
---off ¡Ý Ignore the line breaks in the subsquent texts ($line_break=0).
+--off - Ignore the line breaks in the subsquent texts ($line_break=0).
 To explicitly make line breaks, write a tilde at the end of the line, or use the [[br pluging>../A-D#g693034c]].
 --default - Set the line break setting to the default (i.e., the value of the $line_break)
 
@@ -81,8 +81,8 @@ To explicitly make line breaks, write a tilde at the end of the line, or use the
 ~'''RSS_location''' - the file path or the URL of the RSS feed
 ~The template parameter determines the display format of the RSS. The default value is 'default'.
 --default - simple list of pages
---menubar ¡Ý display a bullet before the page name (useful in a page like MenuBar, which has a limit in page width)
---recent ¡Ý display the timestamp of the pages name like the recent plugin
+--menubar - display a bullet before the page name (useful in a page like MenuBar, which has a limit in page width)
+--recent - display the timestamp of the pages name like the recent plugin
 :|
 ~'''cache_timeout''' - the cache expiration time (in hours). The default is to disable caches.
 ~The last parameter determines whether the plugin displays the timestamp of the RSS feed. The timestamp is displayed if 1 is set. The default is not to display the RSS timestamp.
@@ -161,7 +161,7 @@ It does not do anything other than displaying a simple text.
 ~&tb_id - the trackback ID of the target page
 ~&__mode - the format of the trackback list
 --view - display the list in the human-readable format
---rss ¡Ý display the list in the RSS format
+--rss - display the list in the RSS format
 :Constants|~
 --PLUGIN_TB_LANGUAGE - the language of the trackback RSS
 --PLUGIN_TB_ERROR - the return code for error

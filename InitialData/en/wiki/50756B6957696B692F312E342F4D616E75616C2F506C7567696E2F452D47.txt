@@ -31,7 +31,7 @@
 ~nolabel, noicon, and '''label''' are the parameters to specify the format of the link.
 --nolabel - Do not display the label for the edit link. When used with noicon, the label is displayed in an abbreviated form.
 --noicon - Do not display the image for the edit link
---'''label''' ¡Ý Display the specified label string for the edit link
+--'''label''' - Display the specified label string for the edit link
 :Constants|~
 --PLUGIN_EDIT_FREEZE_REGEX - the regular expression to prevent a direct 'freeze' operation other than the freeze plugin
 
