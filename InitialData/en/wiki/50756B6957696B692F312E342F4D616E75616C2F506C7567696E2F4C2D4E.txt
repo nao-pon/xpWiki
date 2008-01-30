@@ -108,13 +108,15 @@
 :Description|
 ~PageName that starts by the specified pattern is having a look displayed.
 :Parameters|
-~A common part of displayed PageName is specified for the pattern. When omitting it, it becomes "Current PageName/". 
+~A common part of displayed PageName is specified for the pattern. When omitting it, it becomes "Current PageName/".&br;
+And, It is possible also to do list up of another xpWiki on
+the same system, with "&font(Blue,b){Dirctory Name};&font(Red,b){:};&font(Blue,b){Page Pattern};".
 ~The method of the display is specified with title, include, reverse, compact, and link. 
---title ¡Ý The list of finding (*,**,***) of the inclusion in the page is described in parallel.
---include ¡Ý When the page in the subordinate position layer uses # include, the list of the page to which include is done is displayed. 
---reverse ¡Ý The order of the row on the page is reversed, and it displays it in the descending order of the name. It is displayed in ascending order of the name when omitting it. 
---compact ¡Ý The finding level is adjusted. 
---link ¡Ý The link is displayed instead of displaying the list at the position in which #ls2 was written. When this link is selected, the list of the page is displayed on another screen. 
+--title - The list of finding (*,**,***) of the inclusion in the page is described in parallel.
+--include - When the page in the subordinate position layer uses # include, the list of the page to which include is done is displayed. 
+--reverse - The order of the row on the page is reversed, and it displays it in the descending order of the name. It is displayed in ascending order of the name when omitting it. 
+--compact - The finding level is adjusted. 
+--link - The link is displayed instead of displaying the list at the position in which #ls2 was written. When this link is selected, the list of the page is displayed on another screen. 
 :|~The character string of taking the place of the character string displayed when parameter link is specified is specified for the display of the alias of link. When omitting it, it becomes ''List of pages which begin with '...' ''. 
 :Constants|~
 --PLUGIN_LS2_ANCHOR_PREFIX¡¡Finding anchor's Synopsis.
@@ -145,8 +147,8 @@
 ~The specified page is displayed and all pages that can be traced by the link are displayed in the starting point like the tree. 
 :Parameters|
 ~The option of the method of displaying the list to Parameters is specified.
---&refer=PageName ¡Ý The page that becomes a starting point is specified. The top page of the site (It is FrontPage usually) becomes a starting point when omitting it.  
---&reverse=true ¡Ý Having a look it doesn't link with where, and where it is linked is displayed. Pages that have not been linked are displayed collectively in the latter half of the screen where. 
+--&refer=PageName - The page that becomes a starting point is specified. The top page of the site (It is FrontPage usually) becomes a starting point when omitting it.  
+--&reverse=true - Having a look it doesn't link with where, and where it is linked is displayed. Pages that have not been linked are displayed collectively in the latter half of the screen where. 
 :Constants|~
 --PLUGIN_MAP_SHOW_HIDDEN¡¡Whether a page off the subject for the display is listed or not?
 
@@ -269,12 +271,12 @@ customization possible with the installer.
 :Parameters|
 ~'''Synopsis1:'''
 ~Date string is specified, the date is within the prescribed period, when highlighted. If it is time to check the page is updated description be considered.
---nodate ¡Ý Date string will not be shown. Default is displayed.
+--nodate - Date string will not be shown. Default is displayed.
 :|
 ~'''Synopsis2:'''
 ~PageName to specify when the page is updated when the prescribed period, when highlighted. If it is not a plug-in that describes the page specified assumed.
 ~PageName end is / was the case, the page that starts with PageName group in the last modified date within the prescribed time, when highlighted.
---nolink ¡Ý PageName is not displayed. When omitting it, PageName (PageName renewed at the end when specifying it in page group) is displayed. 
+--nolink - PageName is not displayed. When omitting it, PageName (PageName renewed at the end when specifying it in page group) is displayed. 
 :Constants|~
 --PLUGIN_NEW_DATE_FORMAT¡¡Display format
 :Note|

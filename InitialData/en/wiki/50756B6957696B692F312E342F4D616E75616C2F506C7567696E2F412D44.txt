@@ -48,15 +48,15 @@
 :Parameters|
 ~If no options are given, the plugin displays a review input form. For example, if you place this plugin without no options in the page "BookReview", the subpages named "BookReview/ASIN" (where ASIN is the ASIN number).
 ~The options left,right, and clear specify the output format of the product image and title.
---left|right ¡Ý Alignment of the output. The default value is right.
---clear ¡Ý Disables the text wraparound when specified.
+--left|right - Alignment of the output. The default value is right.
+--clear - Disables the text wraparound when specified.
 :|Title,image options specify what is displayed.
---Title ¡Ý The title of the product as a string. If the title is not specified, it is automatically obtained from the Amazon website.
---image ¡Ý Displays the image only. By default, both the image and the title are displayed.
+--Title - The title of the product as a string. If the title is not specified, it is automatically obtained from the Amazon website.
+--image - Displays the image only. By default, both the image and the title are displayed.
 :|delimage,deltitle, and delete options controls the cache.
---delimage ¡Ý Delete the corresponding image cache.
---deltitle ¡Ý Delete the corresponding title cache.
---delete ¡Ý Delete both the image cache and the title cache.
+--delimage - Delete the corresponding image cache.
+--deltitle - Delete the corresponding title cache.
+--delete - Delete both the image cache and the title cache.
 :Constants|
 --PLUGIN_AMAZON_AID¡¡Amazon affiliate ID (anonymous user when not specified)
 --PLUGIN_AMAZON_EXPIRE_IMAGECACHE expire Valid period of the image cache in days
@@ -98,9 +98,9 @@
 :Parameters|
 ~The '''anchor_name''' is used as a URL fragment idetifier. It can't be omitted. The anchor name must consist of alphabets (uppercase/lowercase).
 ~super,full,noid defines how the anchor is displayed.
---super ¡Ý The anchor string is displayed as superscript. By default, the anchor string is displayed as a normal string.
---full ¡Ý The anchor is displayed with the full URL. By default, only the fragment identifier is displayed.
---noid ¡Ý The fragment identifier is not displayed.
+--super - The anchor string is displayed as superscript. By default, the anchor string is displayed as a normal string.
+--full - The anchor is displayed with the full URL. By default, only the fragment identifier is displayed.
+--noid - The fragment identifier is not displayed.
 :|~If the '''anchor_string''' is specified, the anchor is set for that string, so that the existence of the anchor is visible to users. By default, the anchor is set with an empty string.
 :Constants|~
 --PLUGIN_ANAME_ID_MAX - The maximum length of the anchor name
@@ -151,8 +151,8 @@
 ~Displays the list of the files attached on the page, and the file upload form.
 :Parameters|
 ~nolist, noform - parameters to specify the display format
---nolist ¡Ý Hide the list of the file attachments. The default is to display the list.
---noform ¡Ý Hide the upload form. The default is to display the form.
+--nolist - Hide the list of the file attachments. The default is to display the list.
+--noform - Hide the upload form. The default is to display the form.
 :Constants|~
 --PLUGIN_ATTACH_MAX_FILESIZE - The maximum file size that can be uploaded
 --PLUGIN_ATTACH_UPLOAD_ADMIN_ONLY - Whether to restrict file uploads to the administrator only
@@ -191,12 +191,12 @@
 :Parameters|
 ~'''string''' - the link string to be displayed. The default is 'Back'.
 ~left, center, right - the alignment of the link. The default is center.
---left ¡Ý Left-alignment of the link
---center ¡Ý Centering of the link
---right ¡Ý Right-alighment of the link
+--left - Left-alignment of the link
+--center - Centering of the link
+--right - Right-alighment of the link
 :|~0, 1 - Whether to display the horizontal rule. The default is 1.
---0 ¡Ý Do not display the horizontal rule
---1 ¡Ý Display the horizontal rule
+--0 - Do not display the horizontal rule
+--1 - Display the horizontal rule
 :|~'''Back_link''' - The URL or PageName displayed as alink. The PageName, or an anchor in the form of 'PageName#anchor', can be used only if PLUGIN_BACK_ALLOW_PAGELINK is set to TRUE. If PLUGIN_BACK_ALLOW_JAVASCRIPT is set  to TRUE, this parameter can be omitted and the link to go back to the previous page is displayed (the link works only if JavaScript is enabled on a browser).
 :Constants|~
 --PLUGIN_BACK_ALLOW_PAGELINK - Whether to allow the PageName (+ anchor) in the '''Back_link''' parameter
@@ -334,9 +334,9 @@ If the page name is omitted, the current page is used.
 ~x*y - display y pages starting from the page x (the first page is 0).
 ~this - display the pages for this month
 ~past¡¢future¡¢view - select the pages to be displayed. The default is past.
---past ¡Ý Display the past pages including today
---future ¡Ý Display the future pages including today
---view ¡Ý Display all pages
+--past - Display the past pages including today
+--future - Display the future pages including today
+--view - Display all pages
 :|~'''separator_char''' is the separator of year, month and day, such as '-' and '/'. The default is '-'.
 :Constants|~
 --PLUGIN_CALENDAR_VIEWER_USAGE - the usage message displayed upon an error
@@ -434,10 +434,10 @@ Yellow = "#FFFF00"
 ~Display a form for entering comments
 :Parameters|
 ~The parameters specify how the comments are displayed
---above ¡Ý comments are displayed above the input form (this is default)
---below ¡Ý comments are displayed below the input form
---nodate ¡Ý do not display date and time the comment is entered (the default is to display date and time)
---noname ¡Ý do not display the name form (the default is to display the form for entering the name)
+--above - comments are displayed above the input form (this is default)
+--below - comments are displayed below the input form
+--nodate - do not display date and time the comment is entered (the default is to display date and time)
+--noname - do not display the name form (the default is to display the form for entering the name)
 :Constants|~
 --PLUGIN_COMMENT_DIRECTION_DEFAULT - the default location of the comments (above the input form or below the form)
 --PLUGIN_COMMENT_SIZE_MSG - the width of the comment input form
@@ -474,9 +474,9 @@ Yellow = "#FFFF00"
 ~Display the counter to show the number of visitors to the page
 :Parameters|
 ~The parameter (total, today or yesterday) specified the type of the counter. The default is total. If the plugin is used as the block type, 'total' is used.
---total ¡Ý the total (cumulative) number of visitors
---today ¡Ý the number of visitors of today
---yesterday ¡Ý the number of visitors of yesterday
+--total - the total (cumulative) number of visitors
+--today - the number of visitors of today
+--yesterday - the number of visitors of yesterday
 :Constants|~
 --PLUGIN_COUNTER_SUFFIX - the suffix of the files storing the number of visitors
 :Note|
@@ -500,8 +500,8 @@ Yellow = "#FFFF00"
 :Parameters|
 ~If file=on is specified, it displays the file names for backups (or diffs). The default is not to display them.
 ~The dir parameter specified how to find deleted pages. The default is backup.
---backup ¡Ý find the pages that do not exist but have backups.
---diff ¡Ý find the pages that do not exist but have diffs.
+--backup - find the pages that do not exist but have backups.
+--diff - find the pages that do not exist but have diffs.
 :Note|
 ~This plugin is useful for an administrator to check erroneous or malicious page deletions.
 

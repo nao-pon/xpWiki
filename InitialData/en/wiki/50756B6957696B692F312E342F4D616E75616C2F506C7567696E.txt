@@ -13,17 +13,17 @@ In this plugin manual, we have followed the conventions in notation below.
 
 :Plugin type|
 ~The context(s) in which the plugin can be used. Some plugins can be used in more than one context type.
---Command type ¡Ý The plugin can be called as a command. Marked with parentheses if it is only used internally.
---Block type ¡Ý The plugin can be called as a block type plugin.
---Inline type ¡Ý The plugin can be called as an inline type plugin.
---Pseudo-block type ¡Ý The functionality implemented in the PukiWiki core. It can be called as if it were a block type plugin.
+--Command type - The plugin can be called as a command. Marked with parentheses if it is only used internally.
+--Block type - The plugin can be called as a block type plugin.
+--Inline type - The plugin can be called as an inline type plugin.
+--Pseudo-block type - The functionality implemented in the PukiWiki core. It can be called as if it were a block type plugin.
 :Importance|
 ~Rating of general use frequency and usefulness, from "*" (least important) to "*****" (most important)
 :Synopsis|
 ~How to call the plugin, with the types of the parameters.
---[] ¡Ý Optional parameter, can be omitted
---| ¡Ý One of the options separated by | can be used
---{} ¡Ý Parameters that can be given in an arbitrary order.
+--[] - Optional parameter, can be omitted
+--| - One of the options separated by | can be used
+--{} - Parameters that can be given in an arbitrary order.
 :Description|
 ~Description of the plugin's functionality
 :Parameters|
