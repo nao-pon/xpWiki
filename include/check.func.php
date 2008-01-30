@@ -1,7 +1,7 @@
 <?php
 //
 // Created on 2006/11/07 by nao-pon http://hypweb.net/
-// $Id: check.func.php,v 1.11 2008/01/17 11:48:33 nao-pon Exp $
+// $Id: check.func.php,v 1.12 2008/01/30 13:47:48 nao-pon Exp $
 //
 
 // when onInstall & onUpdate
@@ -97,20 +97,54 @@ function xpwikifunc_defdata_check ($mydirname, $mode = 'install') {
 							$msg[] = "Copied a file '{$file}'.<br />";
 						}
 					} else {
-						// wiki¥Ú¡¼¥¸
-						if (! file_exists($to.'/'.$file) || filemtime($to.'/'.$file) < $timestamp[$file]) {
+						// wiki pages
+						$_file_exist = file_exists($to.'/'.$file);
+						if (! $_file_exist || filemtime($to.'/'.$file) < $timestamp[$file]) {
 							if (! isset($xpwiki)) {
 								include_once dirname(dirname(__FILE__)) . '/include.php';
 								$xpwiki = new XpWiki($mydirname);
 								$xpwiki->init('#RenderMode');
 							}
+							
+							$page = $xpwiki->func->decode(str_replace('.txt', '', $file));
+							
+							if (! $_file_exist && $xpwiki->func->get_pgid_by_name($page)) {
+								// The user has intentionally deleted it.
+								continue;
+							}
+							
+							// Reformat source
 							$src = join('', file($from.'/'.$file));
+							$src = $xpwiki->func->remove_pginfo($src);
+							$src_freeze = false;
+							if (!$_file_exist) {
+								$src_freeze = preg_match('/^#freeze\s*$/m', $src);
+							}
+							// Remove '#freeze'
+							$src = preg_replace('/^#freeze\s*$/m', '', $src);
+							$src = ltrim($src);
+							
+							// UTF-8?
 							if ($utf8from) {
 								$src = mb_convert_encoding($src, 'UTF-8', $utf8from);
 							}
-							$name = $xpwiki->func->decode(str_replace('.txt', '', $file));
-							$xpwiki->func->page_write($name, $src);
-							$msg[] = "Updated a page '" . htmlspecialchars($name) . "'.<br />";
+							
+							// Was it frozen?
+							$is_freeze = $xpwiki->func->is_freeze($page);
+							$xpwiki->root->rtf['freezefunc'] = true;
+							$xpwiki->func->page_write($page, $src);
+							if ($is_freeze || $src_freeze) {
+								// Freeze
+								$postdata = $xpwiki->func->get_source($page);
+								array_unshift($postdata, "#freeze\n");
+								$xpwiki->func->file_write($xpwiki->cont['DATA_DIR'], $page, join('', $postdata), TRUE);
+								// Update
+								$xpwiki->func->is_freeze($page, TRUE);
+								// pginfo DB write
+								$xpwiki->func->pginfo_freeze_db_write($page, 1);
+							}
+							
+							$msg[] = "Updated a page '" . htmlspecialchars($page) . "'.<br />";
 						}
 					}
 				}
