@@ -1,7 +1,7 @@
 <?php
 //
 // Created on 2006/10/02 by nao-pon http://hypweb.net/
-// $Id: xpwiki_func.php,v 1.140 2008/01/29 23:44:28 nao-pon Exp $
+// $Id: xpwiki_func.php,v 1.141 2008/01/31 01:06:21 nao-pon Exp $
 //
 class XpWikiFunc extends XpWikiXoopsWrapper {
 
@@ -536,7 +536,7 @@ EOD;
 		$head_tag .= ! empty($this->root->head_tags) ? join("\n", $this->root->head_tags) ."\n" : '';
 		
 		// Clear
-		$this->root->head_pre_tags = $this->root->head_tags = array();
+		//$this->root->head_pre_tags = $this->root->head_tags = array();
 		
 		return array($head_pre_tag, $head_tag);
 	}
