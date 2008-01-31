@@ -31,7 +31,7 @@
 //
 // fusen.inc.php for xpWiki by nao-pon
 // http://xoops.hypweb.net
-// $Id: fusen.inc.php,v 1.14 2008/01/24 23:27:07 nao-pon Exp $
+// $Id: fusen.inc.php,v 1.15 2008/01/31 09:00:14 nao-pon Exp $
 // 
 
 class xpwiki_plugin_fusen extends xpwiki_plugin {
@@ -195,7 +195,7 @@ fusenVar['ReadOnly'] = {$readonly};
 	<div id="fusen_editbox" class="fusen_editbox">
 	  <div class="fusen_editbox_title">{$this->msg['cap_fusen_edit']}</div>
 	  <form id="edit_frm" method="post" action="" style="padding:0px; margin:0px" onsubmit="fusen_save(); return false;">
-	      <textarea name="body" id="edit_body" cols="50" rows="5"></textarea>
+	      <textarea name="body" id="edit_body" cols="50" rows="5" style="width:98%;"></textarea>
 	      {$this->msg['cap_fore_color']}:<select id="edit_tc" name="tc" size="1">
 	        <option id="tc000000" value="#000000" style="color: #000000" selected>&#9632;{$this->msg['cap_black']}</option>
 	        <option id="tc999999" value="#999999" style="color: #999999">&#9632;{$this->msg['cap_gray']}</option>
