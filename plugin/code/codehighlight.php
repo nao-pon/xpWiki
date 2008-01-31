@@ -121,7 +121,7 @@ class XpWikiCodeHighlight {
 		}
 
 		if ($option['number'])
-			$data['number'] = '<pre class="'.$this->cont['PLUGIN_CODE_HEADER'].'number" style="width:'.max(1.5,strlen(''.count(explode("\n",$data['number'])))+0.5).'ex;">'.$data['number'].'</pre>';
+			$data['number'] = '<pre class="'.$this->cont['PLUGIN_CODE_HEADER'].'number" style="width:auto;">'.$data['number'].'</pre>';
 		else
 			$data['number'] = null;
 
