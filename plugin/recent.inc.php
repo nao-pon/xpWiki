@@ -1,5 +1,5 @@
 <?php
-// $Id: recent.inc.php,v 1.10 2008/01/30 08:07:49 nao-pon Exp $
+// $Id: recent.inc.php,v 1.11 2008/01/31 01:15:24 nao-pon Exp $
 // Copyright (C)
 //   2002-2006 PukiWiki Developers Team
 //   2002      Y.MASUI http://masui.net/pukiwiki/ masui@masui.net
@@ -46,7 +46,7 @@ class xpwiki_plugin_recent extends xpwiki_plugin {
 			
 			// Other xpWiki dir
 			if (strpos($prefix, ':') !== FALSE) {
-				list($dir, $_prefix) = explode(':', $prefix);
+				list($dir, $_prefix) = explode(':', $prefix, 2);
 				if ($this->func->isXpWikiDirname($dir)) {
 					$args[0] = $_prefix;
 					$otherObj = & XpWiki::getSingleton($dir);
