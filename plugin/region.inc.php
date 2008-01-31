@@ -2,7 +2,7 @@
 /////////////////////////////////////////////////
 // PukiWiki - Yet another WikiWikiWeb clone.
 //
-// $Id: region.inc.php,v 1.4 2007/11/09 07:10:30 nao-pon Exp $
+// $Id: region.inc.php,v 1.5 2008/01/31 01:12:45 nao-pon Exp $
 //
 
 class xpwiki_plugin_region extends xpwiki_plugin {
@@ -150,7 +150,7 @@ EOD;
 
 	// ■ 展開表示しているときの表示内容ヘッダ部分。ここの<td>の閉じタグは endregion 側にある。
 	function buildContentHtml(){
-		$contentstyle = ($this->isopened) ? "display:block;" : "display:none;";
+		$contentstyle = ($this->isopened || $this->body) ? "display:block;" : "display:none;";
 		return <<<EOD
 <td valign=top id=rgn_content$this->callcount style="$contentstyle">
 EOD;
@@ -161,7 +161,15 @@ EOD;
 	}
 	
 	function buildClose() {
-		return '</td></tr></table>' . "\n";
+		$js = '';
+		if (!$this->isopened && $this->body) {
+			$js = <<<EOD
+<script>
+document.getElementById('rgn_content{$this->callcount}').style.display='none';
+</script>
+EOD;
+		}
+		return '</td></tr></table>' . "\n" . $js;
 	}
 
 }// end class XpWikiRegionPluginHTMLBuilder
