@@ -312,7 +312,7 @@ function xpwiki_ajax_edit_show(orgRequest) {
 	orgRequest = null;
 }
 
-function xpwiki_ajax_edit_submit() {
+function xpwiki_ajax_edit_submit(IsTemplate) {
 	xpwiki_now_loading(true, xpwiki_ajax_edit_var["id"]);
 	url = location.pathname.replace(/[^\/]+$/, '');
 	var frm = $('xpwiki_edit_form');
@@ -336,6 +336,9 @@ function xpwiki_ajax_edit_submit() {
 					'=' + encodeURIComponent(child.value);
 			}
 		}
+	}
+	if (!IsTemplate) {
+		postdata = postdata.replace(/&template=[^&]+/,'');
 	}
 	if (xpwiki_ajax_edit_var['mode'] == 'preview') {
 		postdata = postdata.replace(/&write=[^&]+/,'');
