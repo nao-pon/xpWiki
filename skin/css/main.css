@@ -374,8 +374,8 @@ $class ul,
 $class ol {
 	margin-left: 1em;
 	padding-left: 1em;
-	margin-top:.5em;
-	margin-bottom:.5em;
+/*	margin-top:.5em;
+	margin-bottom:.5em;*/
 	line-height:130%;
 	
 	list-style-type:inherit;
@@ -391,6 +391,15 @@ $class li {
 	list-style-image:none;
 	marker-offset:auto;
 	color: inherit;
+}
+
+$class li.list_none {
+	list-style: none none inside !important;
+	margin: 0px !important;
+	padding: 0px !important;
+	display: inline;
+	height: 0px;
+	width: 0px;
 }
 
 $class ul.list1 li { list-style-type:disc; }
@@ -568,6 +577,7 @@ $class div.commentbody table {
 /* html.php/edit_form() */
 $class .edit_form {	clear: both; }
 $class .edit_form textarea {
+	font-size: 100%;
 	width: 98%;
 	max-height: 350px;
 	margin: 0px;
@@ -578,6 +588,7 @@ $class .edit_form_ajax {
 	padding: 5px;
 }
 $class .edit_form_ajax textarea {
+	font-size: 100%;
 	width: 98%;
 	max-height: 250px;
 	margin: 0px;

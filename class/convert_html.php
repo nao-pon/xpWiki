@@ -45,7 +45,7 @@ class XpWikiElement {
 	}
 
 	function wrap($string, $tag, $param = '', $canomit = TRUE) {
-		return ($canomit && $string == '') ? '' : '<'.$tag.$param.'>'.$string.'</'.$tag.'>';
+		return ($canomit && $string === '') ? '' : '<'.$tag.$param.'>'.$string.'</'.$tag.'>';
 	}
 
 	function toString() {
@@ -72,7 +72,7 @@ class XpWikiElement {
 class XpWikiInline extends XpWikiElement {
 	function XpWikiInline(& $xpwiki, $text) {
 		parent :: XpWikiElement($xpwiki);
-		$this->elements[] = trim((substr($text, 0, 1) == "\n") ? $text : $this->func->make_link($text));
+		$this->elements[] = trim((substr($text, 0, 1) === "\n") ? $text : $this->func->make_link($text));
 	}
 
 	function & insert(& $obj) {
@@ -102,10 +102,10 @@ class XpWikiParagraph extends XpWikiElement {
 	function XpWikiParagraph(& $xpwiki, $text, $param = '') {
 		parent :: XpWikiElement($xpwiki);
 		$this->param = $param;
-		if ($text == '')
+		if ($text === '')
 			return;
 
-		if (substr($text, 0, 1) == '~')
+		if (substr($text, 0, 1) === '~')
 			$text = ' '.substr($text, 1);
 		$this->insert($this->func->Factory_Inline($text));
 	}
@@ -197,13 +197,20 @@ class XpWikiListContainer extends XpWikiElement {
 		$this->level = strspn($text, $head);
 		$text = ltrim(substr($text, $this->level));
 
-		parent :: insert(new XpWikiListElement($this->xpwiki, $this->level, $tag2));
-		if ($text != '')
+		$style = '';
+		if (substr($text, -1) === "\x08") {
+			$style = ' class="list_none"';
+			$text = '';
+		}
+		
+		parent :: insert(new XpWikiListElement($this->xpwiki, $this->level, $tag2, $style));
+		if ($text !== '') {
 			$this->last = & $this->last->insert($this->func->Factory_Inline($text));
+		}
 	}
 
 	function canContain(& $obj) {
-		return (!is_a($obj, 'XpWikiListContainer') || ($this->tag == $obj->tag && $this->level == $obj->level));
+		return (!is_a($obj, 'XpWikiListContainer') || ($this->tag === $obj->tag && $this->level === $obj->level));
 	}
 
 	function setParent(& $parent) {
@@ -214,7 +221,7 @@ class XpWikiListContainer extends XpWikiElement {
 			$step -= $parent->parent->level;
 
 		$margin = $this->margin * $step;
-		if ($step == $this->level)
+		if ($step === $this->level)
 			$margin += $this->left_margin;
 
 		$this->style = sprintf($this->root->_list_pad_str, $this->level, $margin, $margin);
@@ -225,12 +232,13 @@ class XpWikiListContainer extends XpWikiElement {
 			return $this->last = & $this->last->insert($obj);
 
 		// Break if no elements found (BugTrack/524)
-		if (count($obj->elements) == 1 && empty ($obj->elements[0]->elements))
+		if (count($obj->elements) === 1 && empty ($obj->elements[0]->elements))
 			return $this->last->parent; // up to ListElement
 
 		// Move elements
-		foreach (array_keys($obj->elements) as $key)
+		foreach (array_keys($obj->elements) as $key) {
 			parent :: insert($obj->elements[$key]);
+		}
 
 		return $this->last;
 	}
@@ -241,10 +249,11 @@ class XpWikiListContainer extends XpWikiElement {
 }
 
 class XpWikiListElement extends XpWikiElement {
-	function XpWikiListElement(& $xpwiki, $level, $head) {
+	function XpWikiListElement(& $xpwiki, $level, $head, $style='') {
 		parent :: XpWikiElement($xpwiki);
 		$this->level = $level;
 		$this->head = $head;
+		$this->style = $style;
 	}
 
 	function canContain(& $obj) {
@@ -252,7 +261,7 @@ class XpWikiListElement extends XpWikiElement {
 	}
 
 	function toString() {
-		return $this->wrap(parent :: toString(), $this->head);
+		return $this->wrap(parent :: toString(), $this->head, $this->style);
 	}
 }
 
@@ -298,7 +307,7 @@ class XpWikiBQuote extends XpWikiElement {
 		$this->level = min(3, strspn($text, $head));
 		$text = ltrim(substr($text, $this->level));
 
-		if ($head == '<') { // Blockquote close
+		if ($head === '<') { // Blockquote close
 			$level = $this->level;
 			$this->level = 0;
 			$this->last = & $this->end($root, $level);
@@ -318,7 +327,7 @@ class XpWikiBQuote extends XpWikiElement {
 		if (is_a($obj, 'XpWikiinline'))
 			return parent :: insert($obj->toPara(' class="quotation"'));
 
-		if (is_a($obj, 'XpWikiBQuote') && $obj->level == $this->level && count($obj->elements)) {
+		if (is_a($obj, 'XpWikiBQuote') && $obj->level === $this->level && count($obj->elements)) {
 			$obj = & $obj->elements[0];
 			if (is_a($this->last, 'XpWikiParagraph') && count($obj->elements))
 				$obj = & $obj->elements[0];
@@ -334,7 +343,7 @@ class XpWikiBQuote extends XpWikiElement {
 		$parent = & $root->last;
 
 		while (is_object($parent)) {
-			if (is_a($parent, 'XpWikiBQuote') && $parent->level == $level)
+			if (is_a($parent, 'XpWikiBQuote') && $parent->level === $level)
 				return $parent->parent;
 			$parent = & $parent->parent;
 		}
@@ -374,18 +383,18 @@ class XpWikiTableCell extends XpWikiElement {
 		if ($is_template && is_numeric($text))
 			$this->style['width'] = 'width:'.$text.'px;';
 
-		if ($text == '>') {
+		if ($text === '>') {
 			$this->colspan = 0;
 		} else
-			if ($text == '~') {
+			if ($text === '~') {
 				$this->rowspan = 0;
 			} else
-				if (substr($text, 0, 1) == '~') {
+				if (substr($text, 0, 1) === '~') {
 					$this->tag = 'th';
 					$text = substr($text, 1);
 				}
 
-		if ($text != '' && $text { 0 } == '#') {
+		if ($text != '' && $text { 0 } === '#') {
 			// Try using Div class for this $text
 			$obj = & $this->func->Factory_Div($text);
 			if (is_a($obj, 'XpWikiParagraph'))
@@ -404,7 +413,7 @@ class XpWikiTableCell extends XpWikiElement {
 	}
 
 	function toString() {
-		if ($this->rowspan == 0 || $this->colspan == 0)
+		if ($this->rowspan === 0 || $this->colspan === 0)
 			return '';
 
 		$param = ' class="style_'.$this->tag.'"';
@@ -537,7 +546,7 @@ class XpWikiTable extends XpWikiElement {
 		$this->col = count($cells);
 		$this->type = strtolower($out[2]);
 		$this->types = array ($this->type);
-		$is_template = ($this->type == 'c');
+		$is_template = ($this->type === 'c');
 		
 		if ($this->root->extended_table_format && $is_template) {
 			$cells[0] = $this->get_table_style($cells[0]);
@@ -550,7 +559,7 @@ class XpWikiTable extends XpWikiElement {
 	}
 
 	function canContain(& $obj) {
-		return is_a($obj, 'XpWikiTable') && ($obj->col == $this->col);
+		return is_a($obj, 'XpWikiTable') && ($obj->col === $this->col);
 	}
 
 	function & insert(& $obj) {
@@ -567,7 +576,7 @@ class XpWikiTable extends XpWikiElement {
 			$rowspan = 1;
 			foreach (array_reverse(array_keys($this->elements)) as $nrow) {
 				$row = & $this->elements[$nrow];
-				if ($row[$ncol]->rowspan == 0) {
+				if ($row[$ncol]->rowspan === 0) {
 					++ $rowspan;
 					continue;
 				}
@@ -583,11 +592,11 @@ class XpWikiTable extends XpWikiElement {
 		$stylerow = NULL;
 		foreach (array_keys($this->elements) as $nrow) {
 			$row = & $this->elements[$nrow];
-			if ($this->types[$nrow] == 'c')
+			if ($this->types[$nrow] === 'c')
 				$stylerow = & $row;
 			$colspan = 1;
 			foreach (array_keys($row) as $ncol) {
-				if ($row[$ncol]->colspan == 0) {
+				if ($row[$ncol]->colspan === 0) {
 					++ $colspan;
 					continue;
 				}
@@ -714,7 +723,7 @@ class XpWikiTable extends XpWikiElement {
 			$this->table_align = strtolower($reg[1]);
 			$this->table_style .= " align=\"".$this->table_align."\"";
 			$this->div_style = " style=\"text-align:".$this->table_align."\"";
-			if ($this->table_align == "left"){
+			if ($this->table_align === "left"){
 				$this->table_sheet .= "margin-left:10px;margin-right:auto;";
 			} else {
 				$this->table_sheet .= "margin-left:auto;margin-right:10px;";
@@ -754,13 +763,13 @@ class XpWikiYTable extends XpWikiElement {
 		$matches = $_value = $_align = array();
 		foreach($row as $cell) {
 			if (preg_match('/^(\s+)?(.+?)(\s+)?$/', $cell, $matches)) {
-				if ($matches[2] == '==') {
+				if ($matches[2] === '==') {
 					// Colspan
 					$_value[] = FALSE;
 					$_align[] = FALSE;
 				} else {
 					$_value[] = $matches[2];
-					if ($matches[1] == '') {
+					if ($matches[1] === '') {
 						$_align[] = '';	// left
 					} else if (isset($matches[3])) {
 						$_align[] = 'center';
@@ -791,7 +800,7 @@ class XpWikiYTable extends XpWikiElement {
 	}
 
 	function canContain(& $obj) {
-		return is_a($obj, 'XpWikiYTable') && ($obj->col == $this->col);
+		return is_a($obj, 'XpWikiYTable') && ($obj->col === $this->col);
 	}
 
 	function & insert(& $obj) {
@@ -815,7 +824,7 @@ class XpWikiYTable extends XpWikiElement {
 class XpWikiPre extends XpWikiElement {
 	function XpWikiPre(& $root, $text) {
 		parent :: XpWikiElement($root->xpwiki);
-		$this->elements[] = htmlspecialchars((!$this->root->preformat_ltrim || $text == '' || $text {
+		$this->elements[] = htmlspecialchars((!$this->root->preformat_ltrim || $text === '' || $text {
 			0}
 		!= ' ') ? $text : substr($text, 1));
 	}
@@ -894,6 +903,7 @@ class XpWikiBody extends XpWikiElement {
 	function XpWikiBody(& $xpwiki, $id) {
 		$this->id = $id;
 		$this->contents = & new XpWikiElement($xpwiki);
+		$this->contents->last_level = 0;
 		$this->contents_last = & $this->contents;
 		parent :: XpWikiElement($xpwiki);
 	}
@@ -902,13 +912,15 @@ class XpWikiBody extends XpWikiElement {
 		$this->last = & $this;
 		$matches = array ();
 		$ext_title_find = (false || $this->root->render_mode === 'render');
+		$last_level = 0;
 		
 		while (!empty ($lines)) {
 			$line = array_shift($lines);
 
 			// Escape comments
-			if (! $this->root->no_slashes_commentout && substr($line, 0, 2) === '//')
+			if (! $this->root->no_slashes_commentout && substr($line, 0, 2) === '//') {
 				continue;
+			}
 
 			// Extend TITLE
 			if (!$ext_title_find && $this->root->title_setting_regex) {
@@ -921,8 +933,10 @@ class XpWikiBody extends XpWikiElement {
 			if (preg_match('/^(LEFT|CENTER|RIGHT):(.*)$/', $line, $matches)) {
 				// <div style="text-align:...">
 				$this->last = & $this->last->add(new XpWikiAlign($this->xpwiki, strtolower($matches[1])));
-				if ($matches[2] == '')
+				if ($matches[2] === '') {
+					$last_level = 0;
 					continue;
+				}
 				$line = $matches[2];
 			}
 
@@ -931,14 +945,14 @@ class XpWikiBody extends XpWikiElement {
 			// Empty
 			if ($line === '') {
 				$this->last = & $this;
+				$last_level = 0;
 				continue;
 			}
 
 			// Horizontal Rule
-			//if (substr($line, 0, 4) === '----') {
-			if (preg_match('/^\-+$/', $line)) {
-			
+			if (preg_match('/^\-{4,}$/', $line)) {
 				$this->insert(new XpWikiHRule($this, $line));
+				$last_level = 0;
 				continue;
 			}
 
@@ -968,12 +982,14 @@ class XpWikiBody extends XpWikiElement {
 			// Heading
 			if ($head === '*') {
 				$this->insert(new XpWikiHeading($this, $line));
+				$last_level = 0;
 				continue;
 			}
 
 			// Pre
 			if ($head === ' ' || $head === "\t") {
 				$this->last = & $this->last->add(new XpWikiPre($this, $line));
+				$last_level = 0;
 				continue;
 			}
 
@@ -984,6 +1000,16 @@ class XpWikiBody extends XpWikiElement {
 			// Other Character
 			if (isset ($this->classes[$head])) {
 				$classname = $this->classes[$head];
+				
+				$this_level = strspn($line, $head);
+				if ($this_level - $last_level > 1) {
+					for($_lev = $last_level+1; $_lev < $this_level; $_lev++ ) {
+						$this->last = & $this->last->add(new $classname ($this, str_repeat($head, $_lev)."\x08"));
+						//$this->last->add(new $classname ($this, str_repeat($head, $_lev)."\x08"));
+					}
+				}
+				$last_level = $this_level;
+
 				$this->last = & $this->last->add(new $classname ($this, $line));
 				continue;
 			}
@@ -992,11 +1018,13 @@ class XpWikiBody extends XpWikiElement {
 			if (isset ($this->factories[$head])) {
 				$factoryname = 'Factory_'.$this->factories[$head];
 				$this->last = & $this->last->add($this->func->$factoryname($line));
+				$last_level = 0;
 				continue;
 			}
 
 			// Default
 			$this->last = & $this->last->add($this->func->Factory_Inline($line));
+			$last_level = 0;
 		}
 	}
 
@@ -1007,7 +1035,7 @@ class XpWikiBody extends XpWikiElement {
 
 		// Heading id (specified by users)
 		$id = $this->func->make_heading($text, FALSE); // Cut fixed-anchor from $text
-		if ($id == '') {
+		if ($id === '') {
 			// Not specified
 			$id = & $autoid;
 			$anchor = '';
@@ -1019,6 +1047,13 @@ class XpWikiBody extends XpWikiElement {
 		$text = ' '.$text;
 
 		// Add 'page contents' link to its heading
+		if ($level - $this->contents->last_level > 1) {
+			for($_lev = $this->contents->last_level+1; $_lev < $level; $_lev++ ) {
+				$this->contents_last = & $this->contents_last->add(new XpWikiContents_UList($this->xpwiki, '', $_lev, NULL));
+			}
+		}
+		$this->contents->last_level = $level;
+
 		$this->contents_last = & $this->contents_last->add(new XpWikiContents_UList($this->xpwiki, $text, $level, $id));
 		
 		// Add heding
@@ -1052,13 +1087,18 @@ class XpWikiBody extends XpWikiElement {
 
 class XpWikiContents_UList extends XpWikiListContainer {
 	function XpWikiContents_UList(& $xpwiki, $text, $level, $id) {
-		parent :: XpWikiListContainer($xpwiki, 'ul', 'li', '-', str_repeat('-', $level));
-		// Reformatting $text
-		// A line started with "\n" means "preformatted" ... X(
-		$this->func->make_heading($text);
-		$text = "\n".'<a href="#'.$id.'">'.$text.'</a>'."\n";
-		//parent::XpWikiListContainer('ul', 'li', '-', str_repeat('-', $level));
-		$this->insert($this->func->Factory_Inline($text));
+		parent :: XpWikiListContainer($xpwiki, 'ul', 'li', '-', str_repeat('-', $level).(is_null($id)? "\x08" : ''));
+		if (!is_null($id)) {
+			// Reformatting $text
+			// A line started with "\n" means "preformatted" ... X(
+			$this->func->make_heading($text);
+			if (!trim($text)) {
+				$text .= '_';
+			}
+			$text = "\n".'<a href="#'.$id.'">'.$text.'</a>'."\n";
+			//parent::XpWikiListContainer('ul', 'li', '-', str_repeat('-', $level));
+			$this->insert($this->func->Factory_Inline($text));
+		}
 	}
 
 	function setParent(& $parent) {
@@ -1069,7 +1109,7 @@ class XpWikiContents_UList extends XpWikiListContainer {
 			$step -= $parent->parent->level;
 			$margin = 0;
 		}
-		$margin += $this->margin * ($step == $this->level ? 1 : $step);
+		$margin += $this->margin * ($step === $this->level ? 1 : $step);
 		$this->style = sprintf($this->root->_list_pad_str, $this->level, $margin, $margin);
 	}
 }
