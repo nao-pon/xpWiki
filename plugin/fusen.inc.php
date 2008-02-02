@@ -31,7 +31,7 @@
 //
 // fusen.inc.php for xpWiki by nao-pon
 // http://xoops.hypweb.net
-// $Id: fusen.inc.php,v 1.15 2008/01/31 09:00:14 nao-pon Exp $
+// $Id: fusen.inc.php,v 1.16 2008/02/02 01:49:11 nao-pon Exp $
 // 
 
 class xpwiki_plugin_fusen extends xpwiki_plugin {
@@ -134,7 +134,7 @@ class xpwiki_plugin_fusen extends xpwiki_plugin {
 				$select = '';
 			}
 			$msec = $sec * 1000;
-			$refresh_str .= '<option value="'.$msec.'"'.$select.'>'.$sec.$this->msg['cap_second'];
+			$refresh_str .= '<option value="'.$msec.'"'.$select.'>'.$sec.$this->msg['cap_second'].'</option>';
 		}
 		$refresh_str .= '</select></span>';
 		$refresh = $selected * 1000;
