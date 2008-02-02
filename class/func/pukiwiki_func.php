@@ -1,7 +1,7 @@
 <?php
 //
 // Created on 2006/10/02 by nao-pon http://hypweb.net/
-// $Id: pukiwiki_func.php,v 1.141 2008/01/29 23:54:36 nao-pon Exp $
+// $Id: pukiwiki_func.php,v 1.142 2008/02/02 01:52:06 nao-pon Exp $
 //
 class XpWikiPukiWikiFunc extends XpWikiBaseFunc {
 
@@ -889,7 +889,7 @@ class XpWikiPukiWikiFunc extends XpWikiBaseFunc {
 
 //----- Start convert_html.php -----//
 	// PukiWiki - Yet another WikiWikiWeb clone
-	// $Id: pukiwiki_func.php,v 1.141 2008/01/29 23:54:36 nao-pon Exp $
+	// $Id: pukiwiki_func.php,v 1.142 2008/02/02 01:52:06 nao-pon Exp $
 	// Copyright (C)
 	//   2002-2005 PukiWiki Developers Team
 	//   2001-2002 Originally written by yu-ji
@@ -1138,7 +1138,7 @@ class XpWikiPukiWikiFunc extends XpWikiBaseFunc {
 
 //----- Start func.php -----//
 	// PukiWiki - Yet another WikiWikiWeb clone.
-	// $Id: pukiwiki_func.php,v 1.141 2008/01/29 23:54:36 nao-pon Exp $
+	// $Id: pukiwiki_func.php,v 1.142 2008/02/02 01:52:06 nao-pon Exp $
 	// Copyright (C)
 	//   2002-2006 PukiWiki Developers Team
 	//   2001-2002 Originally written by yu-ji
@@ -1954,7 +1954,7 @@ EOD;
 
 //----- Start make_link.php -----//
 	// PukiWiki - Yet another WikiWikiWeb clone.
-	// $Id: pukiwiki_func.php,v 1.141 2008/01/29 23:54:36 nao-pon Exp $
+	// $Id: pukiwiki_func.php,v 1.142 2008/02/02 01:52:06 nao-pon Exp $
 	// Copyright (C)
 	//   2003-2005 PukiWiki Developers Team
 	//   2001-2002 Originally written by yu-ji
@@ -2883,7 +2883,7 @@ EOD;
 
 //----- Start html.php -----//
 	// PukiWiki - Yet another WikiWikiWeb clone.
-	// $Id: pukiwiki_func.php,v 1.141 2008/01/29 23:54:36 nao-pon Exp $
+	// $Id: pukiwiki_func.php,v 1.142 2008/02/02 01:52:06 nao-pon Exp $
 	// Copyright (C)
 	//   2002-2006 PukiWiki Developers Team
 	//   2001-2002 Originally written by yu-ji
@@ -3119,12 +3119,13 @@ EOD;
 			}
 			ksort($pages);
 			$s_pages  = join("\n", $pages);
+			$ajax_template = $ajax? ' onClick="return xpwiki_ajax_edit_submit(1)"' : '';
 			$template = <<<EOD
 	  <select name="template_page">
 	   <option value="">-- {$this->root->_btn_template} --</option>
 	$s_pages
 	  </select>
-	  <input type="submit" name="template" value="{$this->root->_btn_load}" accesskey="r" />
+	  <input type="submit" name="template" value="{$this->root->_btn_load}" accesskey="r"{$ajax_template} />
 	  <br />
 EOD;
 	
@@ -3550,7 +3551,7 @@ EOD;
 
 //----- Start mail.php -----//
 	// PukiWiki - Yet another WikiWikiWeb clone.
-	// $Id: pukiwiki_func.php,v 1.141 2008/01/29 23:54:36 nao-pon Exp $
+	// $Id: pukiwiki_func.php,v 1.142 2008/02/02 01:52:06 nao-pon Exp $
 	// Copyright (C)
 	//   2003-2005 PukiWiki Developers Team
 	//   2003      Originally written by upk
@@ -3853,7 +3854,7 @@ EOD;
 
 //----- Start link.php -----//
 	// PukiWiki - Yet another WikiWikiWeb clone
-	// $Id: pukiwiki_func.php,v 1.141 2008/01/29 23:54:36 nao-pon Exp $
+	// $Id: pukiwiki_func.php,v 1.142 2008/02/02 01:52:06 nao-pon Exp $
 	// Copyright (C) 2003-2006 PukiWiki Developers Team
 	// License: GPL v2 or (at your option) any later version
 	//
