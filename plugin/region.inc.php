@@ -2,7 +2,7 @@
 /////////////////////////////////////////////////
 // PukiWiki - Yet another WikiWikiWeb clone.
 //
-// $Id: region.inc.php,v 1.5 2008/01/31 01:12:45 nao-pon Exp $
+// $Id: region.inc.php,v 1.6 2008/02/02 01:49:56 nao-pon Exp $
 //
 
 class xpwiki_plugin_region extends xpwiki_plugin {
@@ -32,7 +32,7 @@ class xpwiki_plugin_region extends xpwiki_plugin {
 			}
 
 			// end »ØÄê?
-			if ($args[0] === 'end') {
+			if (@ $args[0] === 'end') {
 				// Close area div
 				return $this->func->get_areadiv_closer() . '</td></tr></table>' . "\n";
 			} else {
@@ -116,16 +116,16 @@ class XpWikiRegionPluginHTMLBuilder
 <td valign=top>
 	<span id=rgn_button$this->callcount style="cursor:pointer;font:normal 10px £Í£Ó £Ð¥´¥·¥Ã¥¯;border:gray 1px solid;"
 	onclick="
-	if(document.getElementById('rgn_summary$this->callcount').style.display!='none'){
-		document.getElementById('rgn_summary$this->callcount').style.display='none';
-		document.getElementById('rgn_content$this->callcount').style.display='';
-		document.getElementById('rgn_bracket$this->callcount').style.borderStyle='solid none solid solid';
-		document.getElementById('rgn_button$this->callcount').innerHTML='-';
+	if(\$('rgn_summary$this->callcount').style.display!='none'){
+		\$('rgn_summary$this->callcount').style.display='none';
+		\$('rgn_content$this->callcount').style.display='';
+		\$('rgn_bracket$this->callcount').style.borderStyle='solid none solid solid';
+		\$('rgn_button$this->callcount').innerHTML='-';
 	}else{
-		document.getElementById('rgn_summary$this->callcount').style.display='';
-		document.getElementById('rgn_content$this->callcount').style.display='none';
-		document.getElementById('rgn_bracket$this->callcount').style.borderStyle='none';
-		document.getElementById('rgn_button$this->callcount').innerHTML='+';
+		\$('rgn_summary$this->callcount').style.display='';
+		\$('rgn_content$this->callcount').style.display='none';
+		\$('rgn_bracket$this->callcount').style.borderStyle='none';
+		\$('rgn_button$this->callcount').innerHTML='+';
 	}
 	">$button</span>
 </td>
@@ -164,8 +164,10 @@ EOD;
 		$js = '';
 		if (!$this->isopened && $this->body) {
 			$js = <<<EOD
-<script>
-document.getElementById('rgn_content{$this->callcount}').style.display='none';
+<script type="text/javascript">
+//<![CDATA[
+\$('rgn_content{$this->callcount}').style.display='none';
+//]]>
 </script>
 EOD;
 		}
