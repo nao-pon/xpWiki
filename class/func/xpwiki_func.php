@@ -1,7 +1,7 @@
 <?php
 //
 // Created on 2006/10/02 by nao-pon http://hypweb.net/
-// $Id: xpwiki_func.php,v 1.141 2008/01/31 01:06:21 nao-pon Exp $
+// $Id: xpwiki_func.php,v 1.142 2008/02/04 23:50:12 nao-pon Exp $
 //
 class XpWikiFunc extends XpWikiXoopsWrapper {
 
@@ -527,6 +527,7 @@ class XpWikiFunc extends XpWikiXoopsWrapper {
 		// WikiHelper JavaScript
 		$head_tag = <<<EOD
 <script type="text/javascript" src="{$this->cont['LOADER_URL']}?src=default.{$this->cont['UI_LANG']}{$this->cont['FILE_ENCORD_EXT']}.js"></script>
+
 EOD;
 
 		// Pre Tags

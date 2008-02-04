@@ -359,7 +359,7 @@ class XpWikiCodeHighlight {
 					$html .= $src;
 				// outline
 				++$this->blockno;
-				$html .= '<span id="'.$this->cont['PLUGIN_CODE_HEADER'].$this->id_number._.$this->blockno.'_img" display="none"></span>'
+				$html .= '<span id="'.$this->cont['PLUGIN_CODE_HEADER'].$this->id_number._.$this->blockno.'_img" style="display:none;"></span>'
 					."\n"
 					.'<span id="'.$this->cont['PLUGIN_CODE_HEADER'].$this->id_number._.$this->blockno.'">';
 
@@ -422,7 +422,7 @@ class XpWikiCodeHighlight {
 					$terminate[$this->nestlevel] = strlen($r_result) - strpos($r_result,'{');
 					$html .= $r_result;
 					// アウトラインが閉じた時に表示する画像を埋め込む場所
-					$html .= '<span id="'.$this->cont['PLUGIN_CODE_HEADER'].$this->id_number._.$this->blockno.'_img" display="none"></span>';
+					$html .= '<span id="'.$this->cont['PLUGIN_CODE_HEADER'].$this->id_number._.$this->blockno.'_img" style="display:none;"></span>';
 					$html .= '<span id="'.$this->cont['PLUGIN_CODE_HEADER'].$this->id_number._.$this->blockno.'" style="display:'.$display.'" class="'.$this->cont['PLUGIN_CODE_HEADER'].'block">'."\n";
 				} else 
 					$html .= $r_result."\n";
@@ -808,8 +808,9 @@ class XpWikiCodeHighlight {
 												   '<a href="$0">$0</a>',$result);
 						// アウトラインが閉じた時に表示する画像を埋め込む場所
 						//$html .= '<span id="'.$this->cont['PLUGIN_CODE_HEADER'].$this->id_number._.$this->blockno.'_img" display="none"></span>';
-						$html .= '<span id="'.$this->cont['PLUGIN_CODE_HEADER'].$this->id_number._.$this->blockno.'" class="'.$this->cont['PLUGIN_CODE_HEADER'].'comment">'
-							.$result.'</span>';
+						$_id = $commentlines ? ' id="'.$this->cont['PLUGIN_CODE_HEADER'].$this->id_number._.$this->blockno.'"' : '';
+						$html .= '<span'.$_id.' class="'.$this->cont['PLUGIN_CODE_HEADER'].'comment">'.$result.'</span>';
+
 						// 次の検索用に読み込み
 						if ($str_len == $str_pos) $code = false; else $code = $string[$str_pos++]; // getc
 						continue 3;
@@ -899,7 +900,7 @@ class XpWikiCodeHighlight {
 						$this->beginRegion($num_of_line, $state);
 						$terminate[$this->nestlevel] = $status[0];
 						$html .= '<span class="'.$this->cont['PLUGIN_CODE_HEADER'].$code_css[$index-1].'">'.$result.'</span>'
-							.'<span id="'.$this->cont['PLUGIN_CODE_HEADER'].$this->id_number._.$this->blockno.'_img" display="none"></span>'
+							.'<span id="'.$this->cont['PLUGIN_CODE_HEADER'].$this->id_number._.$this->blockno.'_img" style="display:none;"></span>'
 							.'<span id="'.$this->cont['PLUGIN_CODE_HEADER'].$this->id_number._.$this->blockno.'" class="'.$this->cont['PLUGIN_CODE_HEADER'].'block" style="display:'.$diplay.'">';
 					} else {
 						$html .= '<span class="'.$this->cont['PLUGIN_CODE_HEADER'].$code_css[$index-1].'">'.$result.'</span>';
@@ -953,7 +954,7 @@ class XpWikiCodeHighlight {
 					$terminate[$this->nestlevel] = $status[0];
 
 					$html .= '<span class="'.$this->cont['PLUGIN_CODE_HEADER'].$code_css[$index-1].'">'.$result.'</span>'
-						.'<span id="'.$this->cont['PLUGIN_CODE_HEADER'].$this->id_number._.$this->blockno.'_img" display="none"></span>'
+						.'<span id="'.$this->cont['PLUGIN_CODE_HEADER'].$this->id_number._.$this->blockno.'_img" style="display:none;"></span>'
 						.'<span id="'.$this->cont['PLUGIN_CODE_HEADER'].$this->id_number._.$this->blockno.'" class="'.$this->cont['PLUGIN_CODE_HEADER'].'block" style="display:'.$display.'">';
 				} else if ($result == $terminate[$this->nestlevel]) {
 					$result2 = substr($string, $str_pos);
@@ -1142,7 +1143,7 @@ class XpWikiCodeHighlight {
 					// outline 表示用開始文字 {, (
 					$this->beginRegion($num_of_line);
 					// アウトラインが閉じた時に表示する画像を埋め込む場所
-					$html .= '<span id="'.$this->cont['PLUGIN_CODE_HEADER'].$this->id_number._.$this->blockno.'_img" display="none"></span>'
+					$html .= '<span id="'.$this->cont['PLUGIN_CODE_HEADER'].$this->id_number._.$this->blockno.'_img" style="display:none;"></span>'
 						.'<span id="'.$this->cont['PLUGIN_CODE_HEADER'].$this->id_number._.$this->blockno.'" class="'.$this->cont['PLUGIN_CODE_HEADER'].'block">';
 				}
 				if ($str_len == $str_pos)
@@ -1273,7 +1274,7 @@ class XpWikiCodeHighlight {
 						//$letter = $array['state'] ? '<img src="'.$this->cont['IMAGE_DIR'].'treemenu_triangle_open.png"  width="9" height="9" alt="-" title="close"  class="treemenu" />' : '<img src="'.$this->cont['IMAGE_DIR'].'treemenu_triangle_close.png" width="9" height="9" alt="+" title="open" class="treemenu" />';
 						if($plus == '')
 							$plus = '<a class="'.$this->cont['PLUGIN_CODE_HEADER'].'outline" href="javascript:code_outline(\''
-								.$this->cont['PLUGIN_CODE_HEADER'].$id.'\')" id="'.$this->cont['PLUGIN_CODE_HEADER'].$id.'a">'.$letter.'</a>';
+								.$this->cont['PLUGIN_CODE_HEADER'].$id.'\')" id="'.$this->cont['PLUGIN_CODE_HEADER'].$id.'a" name="'.$this->cont['PLUGIN_CODE_HEADER'].$id.'a">'.$letter.'</a>';
 						$plus1 .= '<span id="'.$this->cont['PLUGIN_CODE_HEADER'].$id.'o" style="display:'.$display.'">';
 						$plus2 .= '<span id="'.$this->cont['PLUGIN_CODE_HEADER'].$id.'n" style="display:'.$display.'">';
 						$this->nestlevel = $array['nest'];
@@ -1318,7 +1319,7 @@ class XpWikiCodeHighlight {
 		$phptagf = 0;
 		if(! strstr($src,'<?php')) {
 			$phptagf = 1;
-			$src='<'.'?php '.$src.' ?'.'>';
+			$src='<'.'?php '.$src;
 		}
 		ob_start(); //出力のバッファリングを有効に
 		highlight_string($src); //phpは標準関数でハイライト
@@ -1326,8 +1327,8 @@ class XpWikiCodeHighlight {
 		ob_end_clean(); //バッファクリア?
 		// phpタグを取り除く。
 		if ($phptagf) {
-			//$html = preg_replace('/(?:<font[^>]*>)?&lt;\?php&nbsp;((?:&nbsp;)*)(?:<\/font>)?(.*)?(?:<font[^>]*>)?\?&gt;(?:<\/font>)?/m','$1$2',$html);
-			$html = preg_replace('/(?:<(span|font)[^>]*>)?&lt;\?(?:<\/\\1><\\1[^>]*>)?php(?: |&nbsp;)((?: |&nbsp;)*)(?:<\/\\1>)?(.*)?(?:<\\1[^>]*>)?\?&gt;(?:<\/\\1>)?/m','$2$3',$html);
+			$html = preg_replace('/(<(span|font)[^>]*>)?&lt;\?(?:<\/\\2><\\2[^>]*>)?php(?: |&nbsp;)(<\/\\2>)?/','$1$3',$html);
+			$html = preg_replace('/<(span|font)[^>]*><\/\\1>/', '', $html);
 		}
 		$html = str_replace('&nbsp;', ' ', $html);
 		$html = str_replace("\n", '', $html); //$html内の"\n"を''で置き換える

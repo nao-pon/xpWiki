@@ -10,14 +10,17 @@ function code_outline(id)
 	var vis = document.getElementById(id).style.display;
 	if (vis=="none") {
 		disp = '';
+		disp2 = 'none';
 		ch = '-';
 	} else {
 		disp = 'none';
+		disp2 = '';
 		ch = '+';
 	}
 	if (document.getElementById(id)) document.getElementById(id).style.display = disp;
 	if (document.getElementById(id+"n")) document.getElementById(id+"n").style.display = disp;
 	if (document.getElementById(id+"o")) document.getElementById(id+"o").style.display = disp;
+	if (document.getElementById(id+"_img")) document.getElementById(id+"_img").style.display = disp2;
 	if (document.getElementById(id+"a")) document.getElementById(id+"a").innerHTML = ch;
 	if (vis=="none") {
 		if (document.getElementById(id+"_img")) document.getElementById(id+"_img").innerHTML = '';

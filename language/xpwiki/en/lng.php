@@ -1,6 +1,6 @@
 <?php
 // PukiWiki - Yet another WikiWikiWeb clone.
-// $Id: lng.php,v 1.2 2007/12/18 23:48:20 nao-pon Exp $
+// $Id: lng.php,v 1.3 2008/02/04 23:50:12 nao-pon Exp $
 // Copyright (C)
 //   2002-2005 PukiWiki Developers Team
 //   2001-2002 Originally written by yu-ji
@@ -61,7 +61,7 @@ $root->_msg_symbol      = 'Symbols';
 $root->_msg_other       = 'Others';
 $root->_msg_help        = 'View Text Formatting Rules';
 $root->_msg_week        = array('Sun','Mon','Tue','Wed','Thu','Fri','Sat');
-$root->_msg_content_back_to_top = '<div class="jumpmenu"><a href="#'.$root->mydirname.'_navigator" title="Page Top"><img src="'.$const['LOADER_URL'].'?src=arrow_up.png" alt="Page Top" width="16" height="16"></a></div>';
+$root->_msg_content_back_to_top = '<div class="jumpmenu"><a href="#'.$root->mydirname.'_navigator" title="Page Top"><img src="'.$const['LOADER_URL'].'?src=arrow_up.png" alt="Page Top" width="16" height="16" /></a></div>';
 $root->_msg_word        = 'These search terms have been highlighted:';
 $root->_msg_not_readable   = 'You don\'t have enough permission for read.';
 $root->_msg_not_editable   = 'You don\'t have enough permission for edit.';

@@ -3,7 +3,7 @@ class xpwiki_plugin_referer extends xpwiki_plugin {
 	function plugin_referer_init () {
 
 
-	// $Id: referer.inc.php,v 1.6 2007/10/12 08:08:19 nao-pon Exp $
+	// $Id: referer.inc.php,v 1.7 2008/02/04 23:50:09 nao-pon Exp $
 	/*
 	 * PukiWiki Referer プラグイン(リンク元表示プラグイン)
 	 * (C) 2003, Katsumi Saito <katsumi@jo1upk.ymt.prug.or.jp>
@@ -121,8 +121,7 @@ class xpwiki_plugin_referer extends xpwiki_plugin {
 			// 長い英数を折り返す
 			$s_url = str_replace('&amp;amp;', '&amp;', $s_url);
 			$s_url = preg_replace('#^https?://#i', '', $s_url);
-			//$s_url = preg_replace('/[\x20-\x7e\s]{36}/', "$0<wbr />", $s_url);
-			$s_url = preg_replace('#([\/\+:\#]|%[0-9a-f]{2}|%u[0-9a-f]{4}|_|&amp;)#i', '$1<wbr />', $s_url);
+			$s_url = preg_replace('#([\/\+:\#]|%[0-9a-f]{2}|%u[0-9a-f]{4}|_|&amp;)#i', '$1&#8203;', $s_url);
 			
 			$lpass = $this->func->get_passage($ltime, FALSE); // 最終更新日時からの経過時間
 			$spass = $this->func->get_passage($stime, FALSE); // 初回登録日時からの経過時間

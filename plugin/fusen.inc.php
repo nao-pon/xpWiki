@@ -31,7 +31,7 @@
 //
 // fusen.inc.php for xpWiki by nao-pon
 // http://xoops.hypweb.net
-// $Id: fusen.inc.php,v 1.16 2008/02/02 01:49:11 nao-pon Exp $
+// $Id: fusen.inc.php,v 1.17 2008/02/04 23:50:09 nao-pon Exp $
 // 
 
 class xpwiki_plugin_fusen extends xpwiki_plugin {
@@ -124,11 +124,11 @@ class xpwiki_plugin_fusen extends xpwiki_plugin {
 		
 		$selected = 0;
 		$refresh_str = '<span class="nowrap">' . $this->msg['cap_refresh'] . ':<select name="fusen_menu_interval" id="fusen_menu_interval" size="1" onchange="fusen_setInterval(this.value);window.focus();">';
-		$refresh_str .= '<option value="0">' . $this->msg['cap_none'];
+		$refresh_str .= '<option value="0">' . $this->msg['cap_none'] . '</option>';
 		foreach(array(10,20,30,60) as $sec)
 		{
 			if (!$selected && $refresh && $sec >= $refresh) {
-				$select = ' selected="true"';
+				$select = ' selected="selected"';
 				$selected = $sec;
 			} else {
 				$select = '';
@@ -148,13 +148,13 @@ class xpwiki_plugin_fusen extends xpwiki_plugin {
 		$auth = $this->func->is_owner($refer)? 1 : 0;
 		$s_refer = htmlspecialchars($refer);
 		
-		$burn = ($auth)? "(<a href=\"JavaScript:fusen_burn()\" title=\"{$this->msg['cap_dustbox_empty']}\">{$this->msg['cap_empty']}</a>)" : "";
+		$burn = ($auth)? "(<a href=\"javascript:fusen_burn()\" title=\"{$this->msg['cap_dustbox_empty']}\">{$this->msg['cap_empty']}</a>)" : "";
 		$js_massages = '';
 		foreach($this->msg['js_messages'] as $key => $val) {
 			$js_massages .= 'fusenMsgs[\'' . $key . '\'] = "' . str_replace('"', '&quot;' ,preg_replace('/[\r\n]/', '', $val)) . '";' . "\n";
 		}
 		$readonly = intval($this->cont['PKWK_READONLY']);
-		$menu_new = ($readonly)? '' : '<span class="nowrap">[<a href="JavaScript:fusen_new()" title="' . $this->msg['cap_menu_new'] . '">' . $this->msg['btn_menu_new'] . '</a>]</span>';
+		$menu_new = ($readonly)? '' : '<span class="nowrap">[<a href="javascript:fusen_new()" title="' . $this->msg['cap_menu_new'] . '">' . $this->msg['btn_menu_new'] . '</a>]</span>';
 		
 		return <<<EOD
 <script type="text/javascript">
@@ -175,15 +175,15 @@ fusenVar['ReadOnly'] = {$readonly};
 <fieldset class="fusen_fieldset">
 <legend>{$this->msg['cap_fusen_menu']}&nbsp;</legend>
 <div id="fusen_top_menu" class="fusen_top_menu" style="visibility: hidden;">
-<form action="" onsubmit="return false;" style="padding:0px;margin:0px;">
+<form action="./" onsubmit="return false;" style="padding:0px;margin:0px;">
   <img src="{$this->cont['LOADER_URL']}?src=fusen.gif" width="20" height="20" alt="{$this->msg['cap_fusen_func']}" title="{$this->msg['cap_fusen_func']}" />
   {$menu_new}
-  <span class="nowrap">[<a href="JavaScript:fusen_dustbox()" title="{$this->msg['cap_menu_dust']}">{$this->msg['btn_menu_dust']}</a>{$burn}]</span>
-  <span class="nowrap">[<a href="JavaScript:fusen_transparent()" title="{$this->msg['cap_menu_transparent']}">{$this->msg['btn_menu_transparent']}</a>]</span>
-  <span class="nowrap">[<a href="JavaScript:fusen_init(1)" title="{$this->msg['cap_menu_refresh']}">{$this->msg['btn_menu_refresh']}</a>]</span>
-  <span class="nowrap">[<a href="JavaScript:fusen_show('fusen_list')" title="{$this->msg['cap_menu_list']}">{$this->msg['btn_menu_list']}</a>]</span>
-  <span class="nowrap">[<a href="JavaScript:fusen_show('fusen_help')" title="{$this->msg['cap_menu_help']}">{$this->msg['btn_menu_help']}</a>]</span>
-  <span class="nowrap">{$this->msg['cap_menu_search']}:</span><input type="text" onkeyup="JavaScript:fusen_grep(this.value)" />
+  <span class="nowrap">[<a href="javascript:fusen_dustbox()" title="{$this->msg['cap_menu_dust']}">{$this->msg['btn_menu_dust']}</a>{$burn}]</span>
+  <span class="nowrap">[<a href="javascript:fusen_transparent()" title="{$this->msg['cap_menu_transparent']}">{$this->msg['btn_menu_transparent']}</a>]</span>
+  <span class="nowrap">[<a href="javascript:fusen_init(1)" title="{$this->msg['cap_menu_refresh']}">{$this->msg['btn_menu_refresh']}</a>]</span>
+  <span class="nowrap">[<a href="javascript:fusen_show('fusen_list')" title="{$this->msg['cap_menu_list']}">{$this->msg['btn_menu_list']}</a>]</span>
+  <span class="nowrap">[<a href="javascript:fusen_show('fusen_help')" title="{$this->msg['cap_menu_help']}">{$this->msg['btn_menu_help']}</a>]</span>
+  <span class="nowrap">{$this->msg['cap_menu_search']}:</span><input type="text" onkeyup="javascript:fusen_grep(this.value)" />
   {$refresh_str}
 </form>
 </div>
@@ -194,17 +194,17 @@ fusenVar['ReadOnly'] = {$readonly};
 <div class="{$divclass}" id="fusen_container">
 	<div id="fusen_editbox" class="fusen_editbox">
 	  <div class="fusen_editbox_title">{$this->msg['cap_fusen_edit']}</div>
-	  <form id="edit_frm" method="post" action="" style="padding:0px; margin:0px" onsubmit="fusen_save(); return false;">
+	  <form id="edit_frm" method="post" action="./" style="padding:0px; margin:0px" onsubmit="fusen_save(); return false;">
 	      <textarea name="body" id="edit_body" cols="50" rows="5" style="width:98%;"></textarea>
 	      {$this->msg['cap_fore_color']}:<select id="edit_tc" name="tc" size="1">
-	        <option id="tc000000" value="#000000" style="color: #000000" selected>&#9632;{$this->msg['cap_black']}</option>
+	        <option id="tc000000" value="#000000" style="color: #000000" selected="selected">&#9632;{$this->msg['cap_black']}</option>
 	        <option id="tc999999" value="#999999" style="color: #999999">&#9632;{$this->msg['cap_gray']}</option>
 	        <option id="tcff0000" value="#ff0000" style="color: #ff0000">&#9632;{$this->msg['cap_red']}</option>
 	        <option id="tc00ff00" value="#00ff00" style="color: #00ff00">&#9632;{$this->msg['cap_green']}</option>
 	        <option id="tc0000ff" value="#0000ff" style="color: #0000ff">&#9632;{$this->msg['cap_blue']}</option>
 	      </select>
 	      {$this->msg['cap_back_color']}:<select id="edit_bg" name="bg" size="1">
-	        <option id="bgffffff" value="#ffffff" style="background-color: #ffffff" selected>{$this->msg['cap_white']}</option>
+	        <option id="bgffffff" value="#ffffff" style="background-color: #ffffff" selected="selected">{$this->msg['cap_white']}</option>
 	        <option id="bgffaaaa" value="#ffaaaa" style="background-color: #ffaaaa">{$this->msg['cap_lightred']}</option>
 	        <option id="bgaaffaa" value="#aaffaa" style="background-color: #aaffaa">{$this->msg['cap_lightgreen']}</option>
 	        <option id="bgaaaaff" value="#aaaaff" style="background-color: #aaaaff">{$this->msg['cap_lightblue']}</option>
@@ -229,12 +229,12 @@ fusenVar['ReadOnly'] = {$readonly};
 	      <input type="hidden" name="refer" value="{$s_refer}" />
 	  </form>
 	  <div class="fusen_editbox_footer">
-	  <form action="" onsubmit="return false;" style="width:auto;padding:0px;margin:0px;">
-	    [<a href="JavaScript:fusen_dustbox()" title="{$this->msg['cap_menu_dust']}">{$this->msg['btn_menu_dust']}</a>]
-	    [<a href="JavaScript:fusen_transparent()" title="{$this->msg['cap_menu_transparent']}">{$this->msg['btn_menu_transparent']}</a>]
-	    [<a href="JavaScript:fusen_show('fusen_list')" title="{$this->msg['cap_menu_list']}">{$this->msg['btn_menu_list']}</a>]
-	    [<a href="JavaScript:fusen_show('fusen_help')" title="{$this->msg['cap_menu_help']}">{$this->msg['btn_menu_help']}</a>]&nbsp;
-	    {$this->msg['cap_menu_search']}:<input type="text" size="20" onkeyup="JavaScript:fusen_grep(this.value)" />
+	  <form action="./" onsubmit="return false;" style="width:auto;padding:0px;margin:0px;">
+	    [<a href="javascript:fusen_dustbox()" title="{$this->msg['cap_menu_dust']}">{$this->msg['btn_menu_dust']}</a>]
+	    [<a href="javascript:fusen_transparent()" title="{$this->msg['cap_menu_transparent']}">{$this->msg['btn_menu_transparent']}</a>]
+	    [<a href="javascript:fusen_show('fusen_list')" title="{$this->msg['cap_menu_list']}">{$this->msg['btn_menu_list']}</a>]
+	    [<a href="javascript:fusen_show('fusen_help')" title="{$this->msg['cap_menu_help']}">{$this->msg['btn_menu_help']}</a>]&nbsp;
+	    {$this->msg['cap_menu_search']}:<input type="text" size="20" onkeyup="javascript:fusen_grep(this.value)" />
 	  </form>
 	  </div>
 	</div>

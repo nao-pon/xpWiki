@@ -2,7 +2,7 @@
 /////////////////////////////////////////////////
 // PukiWiki - Yet another WikiWikiWeb clone.
 //
-// $Id: region.inc.php,v 1.6 2008/02/02 01:49:56 nao-pon Exp $
+// $Id: region.inc.php,v 1.7 2008/02/04 23:50:09 nao-pon Exp $
 //
 
 class xpwiki_plugin_region extends xpwiki_plugin {
@@ -112,9 +112,9 @@ class XpWikiRegionPluginHTMLBuilder
 		$button = ($this->isopened) ? "-" : "+";
 		// JavaScriptでsummaryrgn1、contentrgn1などといった感じのユニークな変数名を使用。かぶったら一巻の終わりです。万事休す。id指定せずオブジェクト取れるような、なんかよい方法があればいいんだけど。
 		return <<<EOD
-{$areadiv_closer}<table cellpadding=1 cellspacing=2 style="width:auto;"><tr>
-<td valign=top>
-	<span id=rgn_button$this->callcount style="cursor:pointer;font:normal 10px ＭＳ Ｐゴシック;border:gray 1px solid;"
+{$areadiv_closer}<table cellpadding="1" cellspacing="2" style="width:auto;"><tr>
+<td valign="top">
+	<span id="rgn_button{$this->callcount}" style="cursor:pointer;font:normal 10px ＭＳ Ｐゴシック;border:gray 1px solid;"
 	onclick="
 	if(\$('rgn_summary$this->callcount').style.display!='none'){
 		\$('rgn_summary$this->callcount').style.display='none';
@@ -136,7 +136,7 @@ EOD;
 	function buildBracketHtml(){
 		$bracketstyle = ($this->isopened) ? "border-style: solid none solid solid;" : "border-style:none;";
 		return <<<EOD
-<td id=rgn_bracket$this->callcount style="font-size:1pt;border:gray 1px;$bracketstyle">&nbsp;</td>
+<td id="rgn_bracket{$this->callcount}" style="font-size:1pt;border:gray 1px;{$bracketstyle}">&nbsp;</td>
 EOD;
 	}
 
@@ -144,7 +144,7 @@ EOD;
 	function buildSummaryHtml(){
 		$summarystyle = ($this->isopened) ? "display:none;" : "display:block;";
 		return <<<EOD
-<td id=rgn_summary$this->callcount style="color:gray;border:gray 1px solid;$summarystyle">$this->description</td>
+<td id="rgn_summary{$this->callcount}" style="color:gray;border:gray 1px solid;{$summarystyle}">$this->description</td>
 EOD;
 	}
 
@@ -152,7 +152,7 @@ EOD;
 	function buildContentHtml(){
 		$contentstyle = ($this->isopened || $this->body) ? "display:block;" : "display:none;";
 		return <<<EOD
-<td valign=top id=rgn_content$this->callcount style="$contentstyle">
+<td valign="top" id="rgn_content{$this->callcount}" style="{$contentstyle}">
 EOD;
 	}
 
