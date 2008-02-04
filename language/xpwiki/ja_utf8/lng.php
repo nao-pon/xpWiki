@@ -1,6 +1,6 @@
 <?php
 // PukiWiki - Yet another WikiWikiWeb clone.
-// $Id: lng.php,v 1.1 2007/11/28 05:56:38 nao-pon Exp $
+// $Id: lng.php,v 1.2 2008/02/04 23:50:12 nao-pon Exp $
 // Copyright (C)
 //   2002-2005 PukiWiki Developers Team
 //   2001-2002 Originally written by yu-ji
@@ -61,7 +61,7 @@ $root->_msg_symbol         = '記号';
 $root->_msg_other          = '日本語';
 $root->_msg_help           = 'テキスト整形のルールを表示する';
 $root->_msg_week           = array('日','月','火','水','木','金','土');
-$root->_msg_content_back_to_top = '<div class="jumpmenu"><a href="#'.$root->mydirname.'_navigator" title="Page Top"><img src="'.$const['LOADER_URL'].'?src=arrow_up.png" alt="Page Top" width="16" height="16"></a></div>';
+$root->_msg_content_back_to_top = '<div class="jumpmenu"><a href="#'.$root->mydirname.'_navigator" title="Page Top"><img src="'.$const['LOADER_URL'].'?src=arrow_up.png" alt="Page Top" width="16" height="16" /></a></div>';
 $root->_msg_word           = 'これらのキーワードがハイライトされています：';
 $root->_msg_not_readable   = 'ページを表示する権限がありません。';
 $root->_msg_not_editable   = 'ページを編集する権限がありません。';
