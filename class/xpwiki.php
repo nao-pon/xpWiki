@@ -1,7 +1,7 @@
 <?php
 //
 // Created on 2006/09/29 by nao-pon http://hypweb.net/
-// $Id: xpwiki.php,v 1.67 2008/01/29 23:37:36 nao-pon Exp $
+// $Id: xpwiki.php,v 1.68 2008/02/05 00:14:21 nao-pon Exp $
 //
 
 class XpWiki {
@@ -335,7 +335,7 @@ class XpWiki {
 		return $this->func->get_pginfo($this->page);
 	}
 	
-	function get_html_for_block ($page, $width = "100%", $div_class = 'xpwiki_b_$mydirname', $css_tag = 'main.css', $configs = array()) {
+	function get_html_for_block ($page, $width = "100%", $div_class = 'xpwiki_b_$mydirname', $css_tag = 'main.css', $configs = array(), $byArray = FALSE) {
 		
 		// configs
 		$this->iniVar = $configs;
@@ -373,7 +373,9 @@ class XpWiki {
 			$this->execute();
 		}
 		
-		if (!trim($this->body)) return '';
+		if (!trim($this->body)) {
+			return $byArray? array('', '') : '';
+		}
 		
 		// SKIN select from Cookie or Plugin.
 		if ($this->cont['SKIN_CHANGER']) {
@@ -404,15 +406,15 @@ class XpWiki {
 		$css_tag = ($css_tag)? '<link rel="stylesheet" type="text/css" media="all" href="' . $this->cont['LOADER_URL'] . '?charset=' . $this->cont['CSS_CHARSET'] . '&amp;skin=' . $this->cont['SKIN_NAME'] . '&amp;b=1&amp;src=' . $css_tag . '" charset="' . $this->cont['CSS_CHARSET'] . '" />'
 		             : '';
 		$block = <<<EOD
-$head_pre_tag
-$css_tag
-$head_tag
 <div class="{$div_class}" style="width:{$width};overflow:hidden;">
 {$this->body}
 </div>
 EOD;
-
-		return $block;
+		if ($byArray) {
+			return array($block, $head_pre_tag."\n".$css_tag."\n".$head_tag);
+		} else {
+			return $head_pre_tag."\n".$css_tag."\n".$head_tag."\n".$block;
+		}
 	}
 /*
 	// すべてのExtensionを読み込む

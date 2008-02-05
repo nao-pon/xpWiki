@@ -57,6 +57,7 @@ function b_xpwiki_a_page_show( $options )
 	$div_class = empty( $options[4] ) ? 'xpwiki_b_' . $mydirname : $options[4];
 	$css = isset( $options[5] ) ? $options[5] : 'main.css';
 	$disabled_pagecache = empty($options[6])? false : true;
+	$head_tag_place = empty($options[7])? 'body' : trim($options[7]);
 	$configs = array();
 	
 	if( preg_match( '/[^0-9a-zA-Z_-]/' , $mydirname ) ) die( 'Invalid mydirname' ) ;
@@ -73,11 +74,15 @@ function b_xpwiki_a_page_show( $options )
 	}
 	
 	// ブロック用として取得 (引数: ページ名, 表示幅)
-	$str = $xw->get_html_for_block($page, $width, $div_class, $css, $configs);
+	list($str, $head) = $xw->get_html_for_block($page, $width, $div_class, $css, $configs, TRUE);
 	 
 	// オブジェクトを破棄
 	$xw = null;
 	unset($xw); 
+
+	if ($head_tag_place === 'body' || !b_xpwiki_insert_headtag($head, $head_tag_place)) {
+		$str = $head . $str;
+	} 
 
 	$constpref = '_MB_' . strtoupper( $mydirname ) ;
 
@@ -107,6 +112,9 @@ function b_xpwiki_a_page_edit( $options )
 	$disabled_pagecache = empty($options[6])? 1 : 0;
 	$check_pagecache = array('', '');
 	$check_pagecache[$disabled_pagecache] = ' checked="checked"';
+	$head_tag_place = empty($options[7])? 'body' : trim($options[7]);
+	$check_headtag = array('module' => '', 'block' => '', 'body' => '');
+	$check_headtag[$head_tag_place] = ' checked="checked"';
 	
 	$form = "
 		<input type='hidden' name='options[0]' value='$mydirname' />
@@ -128,6 +136,10 @@ function b_xpwiki_a_page_edit( $options )
 		<label>"._MB_XPWIKI_DISABLEDPAGECACHE."</label>&nbsp;:
 		<input type='radio' name='options[6]' value='1'{$check_pagecache[0]} />Yes &nbsp; <input type='radio' name='options[6]' value='0'{$check_pagecache[1]} />No
 		<br />
+		<label>"._MB_XPWIKI_HEAD_TAG_PLACE."</label>&nbsp;:
+		<input type='radio' name='options[7]' value='module'{$check_headtag['module']} id='headtag_module' /><label for='headtag_module'>xoops_module_header</label> &nbsp; <input type='radio' name='options[7]' value='block'{$check_headtag['block']} id='headtag_block' /><label for='headtag_block'>xoops_block_header</label> &nbsp; <input type='radio' name='options[7]' value='body'{$check_headtag['body']} id='headtag_body' /><label for='headtag_body'>&lt;body&gt;(Inline)</label>
+		<br />
+
 		\n" ;
 	return $form;
 }
@@ -155,6 +167,8 @@ function b_xpwiki_block_show( $options, $src, $nocache = false )
 	$this_template = empty( $options[2] ) ? 'db:'.$mydirname.'_block_a_page.html' : trim( $options[2] ) ;
 	$div_class = empty( $options[3] ) ? 'xpwiki_b_' . $mydirname : $options[3];
 	$css = isset( $options[4] ) ? $options[4] : 'main.css';
+	$head_tag_place = empty($options[5])? 'module' : trim($options[5]);
+
 	$configs = array();
 	
 	if( preg_match( '/[^0-9a-zA-Z_-]/' , $mydirname ) ) die( 'Invalid mydirname' ) ;
@@ -172,11 +186,15 @@ function b_xpwiki_block_show( $options, $src, $nocache = false )
 	$arg = array('source' => $src);
 	
 	// ブロック用として取得 (引数: Wikiソース, 表示幅)
-	$str = $xw->get_html_for_block($arg, $width, $div_class, $css, $configs);
+	list($str, $head) = $xw->get_html_for_block($arg, $width, $div_class, $css, $configs, TRUE);
 	 
 	// オブジェクトを破棄
 	$xw = null;
 	unset($xw); 
+
+	if ($head_tag_place === 'body' || !b_xpwiki_insert_headtag($head, $head_tag_place)) {
+		$str = $head . $str;
+	} 
 
 	$block = array( 
 		'mydirname' => $mydirname ,
@@ -200,6 +218,10 @@ function b_xpwiki_block_edit( $options )
 	$this_template = empty( $options[2] ) ? 'db:'.$mydirname.'_block_a_page.html' : trim( $options[2] ) ;
 	$div_class = empty( $options[3] ) ? 'xpwiki_b_' . $mydirname : trim( $options[3] );
 	$css = isset( $options[4] ) ? trim( $options[4] ) : 'main.css';
+	$head_tag_place = empty($options[5])? 'module' : trim($options[5]);
+	$check_headtag = array('module' => '', 'block' => '', 'body' => '');
+	$check_headtag[$head_tag_place] = ' checked="checked"';
+
 	
 	$form = "
 		<input type='hidden' name='options[0]' value='$mydirname' />
@@ -215,7 +237,31 @@ function b_xpwiki_block_edit( $options )
 		<label for='this_css'>"._MB_XPWIKI_THISCSS."</label>&nbsp;:
 		<input type='text' size='30' name='options[4]' id='this_css' value='".htmlspecialchars($css,ENT_QUOTES)."' />
 		<br />
+		<label>"._MB_XPWIKI_HEAD_TAG_PLACE."</label>&nbsp;:
+		<input type='radio' name='options[5]' value='module'{$check_headtag['module']} id='headtag_module' /><label for='headtag_module'>xoops_module_header</label> &nbsp; <input type='radio' name='options[5]' value='block'{$check_headtag['block']} id='headtag_block' /><label for='headtag_block'>xoops_block_header</label> &nbsp; <input type='radio' name='options[5]' value='body'{$check_headtag['body']} id='headtag_body' /><label for='headtag_body'>&lt;body&gt;(Inline)</label>
+		<br />
+
 		\n" ;
 	return $form;
 }
+
+function b_xpwiki_insert_headtag($heads, $head_tag_place)
+{
+	if( is_object( $GLOBALS['xoopsTpl'] ) ) {
+		if ($head_tag_place === 'module' || $head_tag_place === 'block') {
+			$xoops_header = $GLOBALS['xoopsTpl']->get_template_vars( 'xoops_'.$head_tag_place.'_header' );
+			$head = '';
+			foreach(explode("\n", $heads) as $_head) {
+				$_head = trim($_head);
+				if ($_head && strpos($xoops_header, $_head) === FALSE) {
+					$head .= $_head . "\n";
+				}
+			}
+			$GLOBALS['xoopsTpl']->assign( 'xoops_'.$head_tag_place.'_header' , $head . $xoops_header );
+			return TRUE;
+		}
+	}
+	return FALSE;
+}
+
 ?>
