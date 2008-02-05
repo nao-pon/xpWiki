@@ -45,25 +45,15 @@ $modversion['templates'] = array() ;
 // Blocks
 $modversion['blocks'][1] = array(
 	'file'			=> 'blocks.php' ,
-	'name'			=> constant($constpref.'_BNAME_A_PAGE') ,
-	'description'	=> constant($constpref.'_BDESC_A_PAGE') ,
-	'show_func'		=> 'b_xpwiki_a_page_show' ,
-	'edit_func'		=> 'b_xpwiki_a_page_edit' ,
-	'options'		=> $mydirname . '||100%|' ,
+	'name'			=> constant($constpref.'_BNAME_MENUBAR') ,
+	'description'	=> constant($constpref.'_BDESC_MENUBAR') ,
+	'show_func'		=> 'b_xpwiki_menubar_show' ,
+	'edit_func'		=> 'b_xpwiki_block_edit' ,
+	'options'		=> $mydirname . '|100%|' ,
 	'template'		=> '' , // use "module" template instead
 	'can_clone'		=> true ,
 ) ;
 $modversion['blocks'][2] = array(
-	'file'			=> 'blocks.php' ,
-	'name'			=> constant($constpref.'_BNAME_NOTIFICATION') ,
-	'description'	=> constant($constpref.'_BDESC_NOTIFICATION') ,
-	'show_func'		=> 'b_xpwiki_notification_show' ,
-	'edit_func'		=> 'b_xpwiki_notification_edit' ,
-	'options'		=> $mydirname. '|',
-	'template'		=> '' , // use "module" template instead
-	'can_clone'		=> true ,
-) ;
-$modversion['blocks'][3] = array(
 	'file'			=> 'blocks.php' ,
 	'name'			=> constant($constpref.'_BNAME_FUSEN') ,
 	'description'	=> constant($constpref.'_BDESC_FUSEN') ,
@@ -73,16 +63,27 @@ $modversion['blocks'][3] = array(
 	'template'		=> '' , // use "module" template instead
 	'can_clone'		=> true ,
 ) ;
-$modversion['blocks'][4] = array(
+$modversion['blocks'][3] = array(
 	'file'			=> 'blocks.php' ,
-	'name'			=> constant($constpref.'_BNAME_MENUBAR') ,
-	'description'	=> constant($constpref.'_BDESC_MENUBAR') ,
-	'show_func'		=> 'b_xpwiki_menubar_show' ,
-	'edit_func'		=> 'b_xpwiki_block_edit' ,
-	'options'		=> $mydirname . '|100%|' ,
+	'name'			=> constant($constpref.'_BNAME_NOTIFICATION') ,
+	'description'	=> constant($constpref.'_BDESC_NOTIFICATION') ,
+	'show_func'		=> 'b_xpwiki_notification_show' ,
+	'edit_func'		=> 'b_xpwiki_notification_edit' ,
+	'options'		=> $mydirname. '|',
 	'template'		=> '' , // use "module" template instead
 	'can_clone'		=> true ,
 ) ;
+$modversion['blocks'][4] = array(
+	'file'			=> 'blocks.php' ,
+	'name'			=> constant($constpref.'_BNAME_A_PAGE') ,
+	'description'	=> constant($constpref.'_BDESC_A_PAGE') ,
+	'show_func'		=> 'b_xpwiki_a_page_show' ,
+	'edit_func'		=> 'b_xpwiki_a_page_edit' ,
+	'options'		=> $mydirname . '||100%|' ,
+	'template'		=> '' , // use "module" template instead
+	'can_clone'		=> true ,
+) ;
+
 // Comments
 $modversion['hasComments'] = 0 ;
 
@@ -186,5 +187,10 @@ $modversion['notification'] = array(
 $modversion['onInstall'] = 'oninstall.php' ;
 $modversion['onUpdate'] = 'onupdate.php' ;
 $modversion['onUninstall'] = 'onuninstall.php' ;
+
+// keep block's options
+if( ! defined( 'XOOPS_CUBE_LEGACY' ) && substr( XOOPS_VERSION , 6 , 3 ) < 2.1 && ! empty( $_POST['fct'] ) && ! empty( $_POST['op'] ) && $_POST['fct'] == 'modulesadmin' && $_POST['op'] == 'update_ok' && $_POST['dirname'] == $modversion['dirname'] ) {
+	include dirname(__FILE__).'/include/x20_keepblockoptions.inc.php' ;
+}
 
 ?>
