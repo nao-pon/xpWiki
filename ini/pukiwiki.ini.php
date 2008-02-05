@@ -1,6 +1,6 @@
 <?php
 // PukiWiki - Yet another WikiWikiWeb clone
-// $Id: pukiwiki.ini.php,v 1.62 2008/01/22 10:07:42 nao-pon Exp $
+// $Id: pukiwiki.ini.php,v 1.63 2008/02/05 02:10:42 nao-pon Exp $
 // Copyright (C)
 //   2002-2006 PukiWiki Developers Team
 //   2001-2002 Originally written by yu-ji
@@ -648,7 +648,7 @@ $root->render_use_cache = 0;
 $root->render_cache_min = 0;
 
 // ページリンクをポップアップにする
-// All page link uses popup.
+// All page link uses popup. (1=All, 2=AutoLink only)
 $root->render_popuplink = 0;
 
 $root->render_popuplink_position = array(
