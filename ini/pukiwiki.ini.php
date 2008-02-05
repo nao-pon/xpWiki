@@ -1,6 +1,6 @@
 <?php
 // PukiWiki - Yet another WikiWikiWeb clone
-// $Id: pukiwiki.ini.php,v 1.63 2008/02/05 02:10:42 nao-pon Exp $
+// $Id: pukiwiki.ini.php,v 1.64 2008/02/05 08:49:50 nao-pon Exp $
 // Copyright (C)
 //   2002-2006 PukiWiki Developers Team
 //   2001-2002 Originally written by yu-ji
@@ -29,7 +29,10 @@ $const['PKWK_OPTIMISE'] = 0;
 $const['PKWK_READONLY'] = 0; // 0 or 1
 
 // PKWK_SAFE_MODE - Prohibits some unsafe(but compatible) functions 
-$const['PKWK_SAFE_MODE'] = 0;
+// 'auto': Safe mode( The administer is excluded. )
+//     1 : Safe mode
+//     0 : Normal mode
+$const['PKWK_SAFE_MODE'] = 'auto';
 
 // PKWK_DISABLE_INLINE_IMAGE_FROM_URI - Disallow using inline-image-tag for URIs
 //   Inline-image-tag for URIs may allow leakage of Wiki readers' information

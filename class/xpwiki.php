@@ -1,7 +1,7 @@
 <?php
 //
 // Created on 2006/09/29 by nao-pon http://hypweb.net/
-// $Id: xpwiki.php,v 1.68 2008/02/05 00:14:21 nao-pon Exp $
+// $Id: xpwiki.php,v 1.69 2008/02/05 08:49:49 nao-pon Exp $
 //
 
 class XpWiki {
@@ -141,7 +141,12 @@ class XpWiki {
 		if ( stristr($_SERVER['HTTP_USER_AGENT'],'msie')) {
 			$this->root->pre_width = rawurlencode($this->root->pre_width_ie);
 		}
-
+		
+		// Re-setting
+		if (strtolower($this->cont['PKWK_SAFE_MODE']) === 'auto') {
+			$this->cont['PKWK_SAFE_MODE'] = (! $this->root->userinfo['admin']);
+		}
+		
 		// Object id
 		if (isset($oid[$this->pid])) {
 			$oid[$this->pid]++;
