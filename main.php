@@ -45,11 +45,21 @@ if ($xpwiki->runmode == "xoops") {
 	
 	// xoops header
 	include XOOPS_ROOT_PATH.'/header.php';
+
+	$_xoops_header = $xoopsTpl->get_template_vars("xoops_module_header");
+	$xpwiki_head = '';
+	foreach(explode("\n", $_xoops_header) as $_head) {
+		$_head = trim($_head);
+		if ($_head && strpos($xpwiki->root->html_header, $_head) === FALSE) {
+			$xpwiki_head .= $_head . "\n";
+		}
+	}
+	$xpwiki->root->html_header .= $xpwiki_head;
 	
 	$xoopsTpl->assign(
 		array(
 			'xoops_pagetitle' => $xpwiki->root->pagetitle,
-			'xoops_module_header' => $xpwiki->root->html_header . $xoopsTpl->get_template_vars("xoops_module_header"),
+			'xoops_module_header' => $xpwiki->root->html_header,
 			'xoops_breadcrumbs' => $xpwiki->get_var('breadcrumbs_array'),
 			'xpwiki_pagename' => $xpwiki->get_var('page'),
  			'xpwiki_pginfo' => $xpwiki->get_pginfo(),
