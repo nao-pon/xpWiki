@@ -1,32 +1,32 @@
 /* CSS for the box starts here */  
-div.xpwiki_$dir .round_box {  
+$class .round_box {  
     padding:0 12px 0 0;  
     background:#fff url(loader.php?src=borders.gif) 100% 0 repeat-y;  
 }
-div.xpwiki_$dir .round_content {  
+$class .round_content {  
 	margin:0; 
 	background:#fff;
 }    
-div.xpwiki_$dir .round_bi {  
+$class .round_bi {  
     padding:0 0 0 12px;  
     background:#fff url(loader.php?src=borders.gif) 0 0 repeat-y;  
 }  
-div.xpwiki_$dir .round_bt {  
+$class .round_bt {  
     height:17px;  
     margin:0 -12px;  
     background:url(loader.php?src=box.gif) 100% 0 no-repeat;  
 }  
-div.xpwiki_$dir .round_bt div {  
+$class .round_bt div {  
     width:18px;  
     height:17px;  
     background:url(loader.php?src=box.gif) 0 0 no-repeat;  
 }  
-div.xpwiki_$dir .round_bb {  
+$class .round_bb {  
     height:17px;  
     margin:0 -12px;  
     background:url(loader.php?src=box.gif) 100% 100% no-repeat;  
 }  
-div.xpwiki_$dir .round_bb div {  
+$class .round_bb div {  
     width:18px;  
     height:17px;  
     background:url(loader.php?src=box.gif) 0 100% no-repeat;  

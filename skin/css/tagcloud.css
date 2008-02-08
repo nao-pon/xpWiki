@@ -1,36 +1,36 @@
-div.xpwiki_$dir .htmltagcloud{
+$class .htmltagcloud{
   font-size: 12px;
 }
-div.xpwiki_$dir .menubar .htmltagcloud{ 
+$class .menubar .htmltagcloud{ 
   font-size: 6px;
 }
 
-div.xpwiki_$dir .menubar .htmltagcloud span{
+$class .menubar .htmltagcloud span{
   display: block;
 }
 
-div.xpwiki_$dir .tagcloud0  { font-size: 100%;} 
-div.xpwiki_$dir .tagcloud1  { font-size: 110%;} 
-div.xpwiki_$dir .tagcloud2  { font-size: 120%;} 
-div.xpwiki_$dir .tagcloud3  { font-size: 130%;} 
-div.xpwiki_$dir .tagcloud4  { font-size: 140%;} 
-div.xpwiki_$dir .tagcloud5  { font-size: 150%;} 
-div.xpwiki_$dir .tagcloud6  { font-size: 160%;} 
-div.xpwiki_$dir .tagcloud7  { font-size: 170%;} 
-div.xpwiki_$dir .tagcloud8  { font-size: 180%;} 
-div.xpwiki_$dir .tagcloud9  { font-size: 190%;} 
-div.xpwiki_$dir .tagcloud10 { font-size: 200%;} 
-div.xpwiki_$dir .tagcloud11 { font-size: 210%;} 
-div.xpwiki_$dir .tagcloud12 { font-size: 220%;} 
-div.xpwiki_$dir .tagcloud13 { font-size: 230%;} 
-div.xpwiki_$dir .tagcloud14 { font-size: 240%;} 
-div.xpwiki_$dir .tagcloud15 { font-size: 250%;} 
-div.xpwiki_$dir .tagcloud16 { font-size: 260%;} 
-div.xpwiki_$dir .tagcloud17 { font-size: 270%;} 
-div.xpwiki_$dir .tagcloud18 { font-size: 280%;} 
-div.xpwiki_$dir .tagcloud19 { font-size: 290%;} 
-div.xpwiki_$dir .tagcloud20 { font-size: 300%;} 
-div.xpwiki_$dir .tagcloud21 { font-size: 310%;} 
-div.xpwiki_$dir .tagcloud22 { font-size: 320%;} 
-div.xpwiki_$dir .tagcloud23 { font-size: 330%;} 
-div.xpwiki_$dir .tagcloud24 { font-size: 340%;} 
+$class .tagcloud0  { font-size: 100%;} 
+$class .tagcloud1  { font-size: 110%;} 
+$class .tagcloud2  { font-size: 120%;} 
+$class .tagcloud3  { font-size: 130%;} 
+$class .tagcloud4  { font-size: 140%;} 
+$class .tagcloud5  { font-size: 150%;} 
+$class .tagcloud6  { font-size: 160%;} 
+$class .tagcloud7  { font-size: 170%;} 
+$class .tagcloud8  { font-size: 180%;} 
+$class .tagcloud9  { font-size: 190%;} 
+$class .tagcloud10 { font-size: 200%;} 
+$class .tagcloud11 { font-size: 210%;} 
+$class .tagcloud12 { font-size: 220%;} 
+$class .tagcloud13 { font-size: 230%;} 
+$class .tagcloud14 { font-size: 240%;} 
+$class .tagcloud15 { font-size: 250%;} 
+$class .tagcloud16 { font-size: 260%;} 
+$class .tagcloud17 { font-size: 270%;} 
+$class .tagcloud18 { font-size: 280%;} 
+$class .tagcloud19 { font-size: 290%;} 
+$class .tagcloud20 { font-size: 300%;} 
+$class .tagcloud21 { font-size: 310%;} 
+$class .tagcloud22 { font-size: 320%;} 
+$class .tagcloud23 { font-size: 330%;} 
+$class .tagcloud24 { font-size: 340%;} 
