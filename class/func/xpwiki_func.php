@@ -1,7 +1,7 @@
 <?php
 //
 // Created on 2006/10/02 by nao-pon http://hypweb.net/
-// $Id: xpwiki_func.php,v 1.142 2008/02/04 23:50:12 nao-pon Exp $
+// $Id: xpwiki_func.php,v 1.143 2008/02/08 02:55:51 nao-pon Exp $
 //
 class XpWikiFunc extends XpWikiXoopsWrapper {
 
@@ -470,9 +470,8 @@ class XpWikiFunc extends XpWikiXoopsWrapper {
 							'head_tags'     => $this->strip_MyHostUrl($this->root->head_tags),
 							'related'       => $this->root->related,
 							'runmode'       => $this->root->runmode,
-							'related_link'  => $this->root->related_link,
 							'content_title' => $this->root->content_title,
-							'allow_pagecomment'=> $this->root->allow_pagecomment
+							'nonflag'       => $this->root->nonflag
 						),
 						'cont'          => array(
 							'SKIN_CHANGER'  => $this->cont['SKIN_CHANGER']
@@ -856,18 +855,19 @@ EOD;
 		$target = $pre? 'head_pre_tags' : 'head_tags';
 		
 		if (preg_match("/^(.+)\.([^\.]+)$/",$file,$match)) {
-			if ($this->root->render_mode === 'main') {
-				$mode = '';
-			} else {
-				$mode = ($this->root->render_mode === 'block')?
-					'b=1&amp;' : 
-					(($this->root->render_mode === 'render')?
-						'r=1&amp;' :
-						''
-					);
-			}
 			if ($match[2] === 'css') {
-				$this->root->{$target}[] = '<link rel="stylesheet" type="text/css" media="all" href="'.$this->cont['LOADER_URL'].'?skin='.$this->cont['SKIN_NAME'].'&amp;'.$mode.'src='.$match[1].'.css"' . $charset . ' />';
+				if ($this->root->render_mode === 'main') {
+					$mode = '';
+				} else {
+					$mode = ($this->root->render_mode === 'block')?
+						'b=1&amp;' : 
+						(($this->root->render_mode === 'render')?
+							'r=1&amp;' :
+							''
+						);
+				}
+				$cssprefix = $this->root->css_prefix ? 'pre=' . rawurlencode($this->root->css_prefix) . '&amp;' : '';
+				$this->root->{$target}[] = '<link rel="stylesheet" type="text/css" media="all" href="'.$this->cont['LOADER_URL'].'?skin='.$this->cont['SKIN_NAME'].'&amp;'.$mode.$cssprefix.'src='.$match[1].'.css"' . $charset . ' />';
 			} else if ($match[2] === 'js') {
 				$this->root->{$target}[] = '<script type="text/javascript" src="'.$this->cont['LOADER_URL'].'?src='.$match[1].'.js"' . $charset . '></script>';
 			}
@@ -1343,6 +1343,7 @@ EOD;
 		$css_charset = $this->cont['CSS_CHARSET'];
 		$class = 'xpwiki_' . $this->root->mydirname;
 		$navigator = $this->root->mydirname . '_navigator';
+		$cssprefix = $this->root->css_prefix ? 'pre=' . rawurlencode($this->root->css_prefix) . '&amp;' : '';
 		
 		header('Content-Type: text/html; charset=' . $this->cont['CONTENT_CHARSET']);
 		// HTML DTD, <html>, and receive content-type
@@ -1357,8 +1358,8 @@ $meta_content_type
 <meta http-equiv="content-style-type" content="text/css" />
 <meta http-equiv="Content-Script-Type" content="text/javascript" />
 $head_pre_tag
-<link rel="stylesheet" type="text/css" media="all" href="{$this->cont['LOADER_URL']}?skin={$this->cont['SKIN_NAME']}&amp;charset={$css_charset}&amp;pw={$this->root->pre_width}&amp;src=main.css" charset="{$css_charset}" />
-<link rel="stylesheet" type="text/css" media="print"  href="{$this->cont['LOADER_URL']}?skin={$this->cont['SKIN_NAME']}&amp;charset={$css_charset}&amp;pw={$this->root->pre_width}&amp;media=print&amp;src=main.css" charset="{$css_charset}" />
+<link rel="stylesheet" type="text/css" media="all" href="{$this->cont['LOADER_URL']}?skin={$this->cont['SKIN_NAME']}&amp;charset={$css_charset}&amp;pw={$this->root->pre_width}&amp;{$cssprefix}src=main.css" charset="{$css_charset}" />
+<link rel="stylesheet" type="text/css" media="print"  href="{$this->cont['LOADER_URL']}?skin={$this->cont['SKIN_NAME']}&amp;charset={$css_charset}&amp;pw={$this->root->pre_width}&amp;media=print&amp;{$cssprefix}src=main.css" charset="{$css_charset}" />
 $head_tag
 <title></title>
 </head>

@@ -1,6 +1,6 @@
 <?php
 // PukiWiki - Yet another WikiWikiWeb clone
-// $Id: pukiwiki.ini.php,v 1.64 2008/02/05 08:49:50 nao-pon Exp $
+// $Id: pukiwiki.ini.php,v 1.65 2008/02/08 02:55:52 nao-pon Exp $
 // Copyright (C)
 //   2002-2006 PukiWiki Developers Team
 //   2001-2002 Originally written by yu-ji
@@ -637,6 +637,8 @@ $root->pre_width = 'auto';
 // xpWiki が Table 内に表示される場合(Table theme) px 指定したほうがよい
 $root->pre_width_ie = '700px';
 
+// CSS ID prefix ( ex. #xo-canvas )
+$root->css_prefix = '';
 
 /////////////////////////////////////////////////
 // レンダラーモード用設定

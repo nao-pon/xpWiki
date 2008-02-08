@@ -1,7 +1,7 @@
 <?php
 //
 // Created on 2006/10/25 by nao-pon http://hypweb.net/
-// $Id: loader.php,v 1.37 2008/01/29 23:40:40 nao-pon Exp $
+// $Id: loader.php,v 1.38 2008/02/08 02:55:51 nao-pon Exp $
 //
 
 error_reporting(0);
@@ -18,7 +18,7 @@ while( ob_get_level() ) {
 }
 
 // 変数初期化
-$src   = preg_replace("/[^\w.-]+/","",@ $_GET['src']);
+$src   = preg_replace("/[^\w.\-%]+/","",@ $_GET['src']);
 $prefix = (isset($_GET['b']))? 'b_' : '';
 $prefix = (isset($_GET['r']))? 'r_' : $prefix;
 $nocache = (isset($_GET['nc']));
@@ -29,6 +29,7 @@ $root_path = dirname($skin_dirname);
 $cache_path = $root_path.'/private/cache/';
 $face_tag_ver = 1.0;
 $method = empty($_SERVER['REQUEST_METHOD'])? 'GET' : strtoupper($_SERVER['REQUEST_METHOD']);
+$pre_id = '';
 
 if (preg_match("/^(.+)\.([^.]+)$/",$src,$match)) {
 	$type = $match[2];
@@ -62,7 +63,9 @@ switch ($type) {
 	case 'css':
 		$_charset = '';
 		$c_type = 'text/css';
-
+		
+		$pre_id = preg_replace('/[^\w_\-#]+/', '', @ $_GET['pre']);
+		
 		// Skin dir
 		$skin = isset($_GET['skin']) ? preg_replace('/[^\w.-]+/','',$_GET['skin'])  : 'default';
 		if (!$skin) $skin = 'default';
@@ -185,6 +188,10 @@ switch ($type) {
 	case 'xml':
 		$c_type = 'application/xml; charset=utf-8';
 		break;
+	case 'html':
+		$charset = strtolower(preg_replace("/[^\w_\-]+/","",@ $_GET['charset']));
+		$c_type = 'text/html; charset=' . $charset;
+		break;
 	default:
 		exit();
 }
@@ -196,7 +203,7 @@ if (!$src_file) {
 if (file_exists($src_file)) {
 	$filetime = max(filemtime(__FILE__), filemtime($src_file), $addcsstime, $facetagtime);
 
-	$etag = md5($type.$dir.$pre_width.$charset.$src.$filetime);
+	$etag = md5($type.$dir.$pre_width.$charset.$src.$filetime.$pre_id);
 		
 	// ブラウザのキャッシュをチェック
 	if ($etag == @$_SERVER['HTTP_IF_NONE_MATCH']) {
@@ -249,8 +256,9 @@ if (file_exists($src_file)) {
 	if ($replace) {
 		$out = join("",file($src_file));
 		if ($dir) {
+			if ($pre_id) $pre_id .= ' ';
 			$out = str_replace(array('$dir', '$class', '$pre_width', '$charset'),
-								array($dir, 'div.xpwiki_'.$dir, $pre_width, $charset),
+								array($dir, $pre_id.'div.xpwiki_'.$dir, $pre_width, $charset),
 								$out . "\n" . $addcss);
 		}
 		if ($type === 'js') {
@@ -273,8 +281,8 @@ if (file_exists($src_file)) {
 					list($face_tag, $face_tag_full) = xpwiki_make_facemarks ($skin_dirname, $face_cache, $face_tag_ver);
 				}
 				$out = str_replace(
-					array('$face_tag_full', '$face_tag', '$module_url', '$encode_hint'),
-					array($face_tag_full, $face_tag, $module_url, $encode_hint),
+					array('$face_tag_full', '$face_tag', '$module_url', '$encode_hint', '$charset'),
+					array($face_tag_full, $face_tag, $module_url, $encode_hint, $xpwiki->cont['SOURCE_ENCODING']),
 				$out);
 			}
 			if ($js_replace) {
