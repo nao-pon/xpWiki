@@ -35,13 +35,14 @@ function b_xpwiki_notification_edit( $options )
 {
 	$mydirname = empty( $options[0] ) ? 'xpwiki' : $options[0] ;
 	if( preg_match( '/[^0-9a-zA-Z_-]/' , $mydirname ) ) die( 'Invalid mydirname' ) ;
-
-	$this_template = empty( $options[1] ) ? 'db:'.$mydirname.'_block_notification.html' : trim( $options[3] ) ;
+	
+	$defs[1] = 'db:'.$mydirname.'_block_notification.html';
+	$this_template = empty( $options[1] ) ? $defs[1] : trim( $options[1] ) ;
 
 	$form = "
 		<input type='hidden' name='options[0]' value='$mydirname' />
 		<label for='this_template'>"._MB_XPWIKI_THISTEMPLATE."</label>&nbsp;:
-		<input type='text' size='60' name='options[3]' id='this_template' value='".htmlspecialchars($this_template,ENT_QUOTES)."' />
+		<input type='text' size='40' name='options[1]' id='this_template' value='".htmlspecialchars($this_template,ENT_QUOTES)."' /> ( {$defs[1]} )
 		<br />
 	\n" ;
 
@@ -104,15 +105,22 @@ function b_xpwiki_a_page_edit( $options )
 	$mydirname = empty( $options[0] ) ? 'xpwiki' : $options[0] ;
 	if( preg_match( '/[^0-9a-zA-Z_-]/' , $mydirname ) ) die( 'Invalid mydirname' ) ;
 
+	$defs[2] = '100%';
+	$defs[3] = 'db:'.$mydirname.'_block_a_page.html';
+	$defs[4] = 'xpwiki_b_' . $mydirname;
+	$defs[5] = 'main.css';
+	$defs[6] = 'No';
+	$defs[7] = 'body';
+	
 	$page = empty( $options[1] ) ? '' : $options[1] ;
-	$width = empty( $options[2] ) ? '100%' : $options[2] ;
-	$this_template = empty( $options[3] ) ? 'db:'.$mydirname.'_block_a_page.html' : trim( $options[3] ) ;
-	$div_class = empty( $options[4] ) ? 'xpwiki_b_' . $mydirname : trim( $options[4] );
-	$css = isset( $options[5] ) ? trim( $options[5] ) : 'main.css';
+	$width = empty( $options[2] ) ? $defs[2] : $options[2] ;
+	$this_template = empty( $options[3] ) ? $defs[3] : trim( $options[3] ) ;
+	$div_class = empty( $options[4] ) ? $defs[4] : trim( $options[4] );
+	$css = isset( $options[5] ) ? trim( $options[5] ) : $defs[5];
 	$disabled_pagecache = empty($options[6])? 1 : 0;
 	$check_pagecache = array('', '');
 	$check_pagecache[$disabled_pagecache] = ' checked="checked"';
-	$head_tag_place = empty($options[7])? 'body' : trim($options[7]);
+	$head_tag_place = empty($options[7])? $defs[7] : trim($options[7]);
 	$check_headtag = array('module' => '', 'block' => '', 'body' => '');
 	$check_headtag[$head_tag_place] = ' checked="checked"';
 	
@@ -122,24 +130,23 @@ function b_xpwiki_a_page_edit( $options )
 		<input type='text' size='20' name='options[1]' id='pagename' value='".$page."' />
 		<br />
 		<label for='blockwidth'>"._MB_XPWIKI_WIDTH."</label>&nbsp;:
-		<input type='text' size='20' name='options[2]' id='blockwidth' value='".$width."' />
+		<input type='text' size='20' name='options[2]' id='blockwidth' value='".$width."' /> ( {$defs[2]} )
 		<br />
 		<label for='this_template'>"._MB_XPWIKI_THISTEMPLATE."</label>&nbsp;:
-		<input type='text' size='60' name='options[3]' id='this_template' value='".htmlspecialchars($this_template,ENT_QUOTES)."' />
+		<input type='text' size='40' name='options[3]' id='this_template' value='".htmlspecialchars($this_template,ENT_QUOTES)."' /> ( {$defs[3]} )
 		<br />
 		<label for='divclass'>"._MB_XPWIKI_DIVCLASS."</label>&nbsp;:
-		<input type='text' size='30' name='options[4]' id='divclass' value='".htmlspecialchars($div_class,ENT_QUOTES)."' />
+		<input type='text' size='30' name='options[4]' id='divclass' value='".htmlspecialchars($div_class,ENT_QUOTES)."' /> ( {$defs[4]} )
 		<br />
 		<label for='this_css'>"._MB_XPWIKI_THISCSS."</label>&nbsp;:
-		<input type='text' size='30' name='options[5]' id='this_css' value='".htmlspecialchars($css,ENT_QUOTES)."' />
+		<input type='text' size='30' name='options[5]' id='this_css' value='".htmlspecialchars($css,ENT_QUOTES)."' /> ( {$defs[5]} )
 		<br />
 		<label>"._MB_XPWIKI_DISABLEDPAGECACHE."</label>&nbsp;:
-		<input type='radio' name='options[6]' value='1'{$check_pagecache[0]} />Yes &nbsp; <input type='radio' name='options[6]' value='0'{$check_pagecache[1]} />No
+		<input type='radio' name='options[6]' value='1'{$check_pagecache[0]} />Yes &nbsp; <input type='radio' name='options[6]' value='0'{$check_pagecache[1]} />No &nbsp; ( {$defs[6]} )
 		<br />
 		<label>"._MB_XPWIKI_HEAD_TAG_PLACE."</label>&nbsp;:
 		<input type='radio' name='options[7]' value='module'{$check_headtag['module']} id='headtag_module' /><label for='headtag_module'>xoops_module_header</label> &nbsp; <input type='radio' name='options[7]' value='block'{$check_headtag['block']} id='headtag_block' /><label for='headtag_block'>xoops_block_header</label> &nbsp; <input type='radio' name='options[7]' value='body'{$check_headtag['body']} id='headtag_body' /><label for='headtag_body'>&lt;body&gt;(Inline)</label>
-		<br />
-
+		<br />( {$defs[7]} )<br />
 		\n" ;
 	return $form;
 }
@@ -214,11 +221,17 @@ function b_xpwiki_block_edit( $options )
 	$mydirname = empty( $options[0] ) ? 'xpwiki' : $options[0] ;
 	if( preg_match( '/[^0-9a-zA-Z_-]/' , $mydirname ) ) die( 'Invalid mydirname' ) ;
 
-	$width = empty( $options[1] ) ? '100%' : $options[1] ;
-	$this_template = empty( $options[2] ) ? 'db:'.$mydirname.'_block_a_page.html' : trim( $options[2] ) ;
-	$div_class = empty( $options[3] ) ? 'xpwiki_b_' . $mydirname : trim( $options[3] );
-	$css = isset( $options[4] ) ? trim( $options[4] ) : 'main.css';
-	$head_tag_place = empty($options[5])? 'module' : trim($options[5]);
+	$defs[1] = '100%';
+	$defs[2] = 'db:'.$mydirname.'_block_a_page.html';
+	$defs[3] = 'xpwiki_b_' . $mydirname;
+	$defs[4] = 'main.css';
+	$defs[5] = 'module';
+	
+	$width = empty( $options[1] ) ? $defs[1] : $options[1] ;
+	$this_template = empty( $options[2] ) ? $defs[2] : trim( $options[2] ) ;
+	$div_class = empty( $options[3] ) ? $defs[3] : trim( $options[3] );
+	$css = isset( $options[4] ) ? trim( $options[4] ) : $defs[4];
+	$head_tag_place = empty($options[5])? $defs[5] : trim($options[5]);
 	$check_headtag = array('module' => '', 'block' => '', 'body' => '');
 	$check_headtag[$head_tag_place] = ' checked="checked"';
 
@@ -226,21 +239,20 @@ function b_xpwiki_block_edit( $options )
 	$form = "
 		<input type='hidden' name='options[0]' value='$mydirname' />
 		<label for='blockwidth'>"._MB_XPWIKI_WIDTH."</label>&nbsp;:
-		<input type='text' size='20' name='options[1]' id='blockwidth' value='".$width."' />
+		<input type='text' size='20' name='options[1]' id='blockwidth' value='".$width."' /> ( {$defs[1]} )
 		<br />
 		<label for='this_template'>"._MB_XPWIKI_THISTEMPLATE."</label>&nbsp;:
-		<input type='text' size='60' name='options[2]' id='this_template' value='".htmlspecialchars($this_template,ENT_QUOTES)."' />
+		<input type='text' size='40' name='options[2]' id='this_template' value='".htmlspecialchars($this_template,ENT_QUOTES)."' /> ( {$defs[2]} )
 		<br />
 		<label for='divclass'>"._MB_XPWIKI_DIVCLASS."</label>&nbsp;:
-		<input type='text' size='30' name='options[3]' id='divclass' value='".htmlspecialchars($div_class,ENT_QUOTES)."' />
+		<input type='text' size='30' name='options[3]' id='divclass' value='".htmlspecialchars($div_class,ENT_QUOTES)."' /> ( {$defs[3]} )
 		<br />
 		<label for='this_css'>"._MB_XPWIKI_THISCSS."</label>&nbsp;:
-		<input type='text' size='30' name='options[4]' id='this_css' value='".htmlspecialchars($css,ENT_QUOTES)."' />
+		<input type='text' size='30' name='options[4]' id='this_css' value='".htmlspecialchars($css,ENT_QUOTES)."' /> ( {$defs[4]} )
 		<br />
 		<label>"._MB_XPWIKI_HEAD_TAG_PLACE."</label>&nbsp;:
 		<input type='radio' name='options[5]' value='module'{$check_headtag['module']} id='headtag_module' /><label for='headtag_module'>xoops_module_header</label> &nbsp; <input type='radio' name='options[5]' value='block'{$check_headtag['block']} id='headtag_block' /><label for='headtag_block'>xoops_block_header</label> &nbsp; <input type='radio' name='options[5]' value='body'{$check_headtag['body']} id='headtag_body' /><label for='headtag_body'>&lt;body&gt;(Inline)</label>
-		<br />
-
+		<br />( {$defs[5]} )<br />
 		\n" ;
 	return $form;
 }
