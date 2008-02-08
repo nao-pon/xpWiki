@@ -1,7 +1,7 @@
 <?php
 //
 // Created on 2006/10/25 by nao-pon http://hypweb.net/
-// $Id: code.inc.php,v 1.13 2008/01/20 06:49:57 nao-pon Exp $
+// $Id: code.inc.php,v 1.14 2008/02/08 03:03:08 nao-pon Exp $
 //
 
 class xpwiki_plugin_code extends xpwiki_plugin {
@@ -161,6 +161,9 @@ class xpwiki_plugin_code extends xpwiki_plugin {
 		}
 		$lines = $data['data'];
 		$title = @$data['title'];
+		
+		if (is_null($end))
+			$end = substr_count($lines, "\n") + $begin - 1;
 		
 		$_err = error_reporting(E_ALL ^ E_NOTICE); // orz...
 		$highlight = new XpWikiCodeHighlight($this->xpwiki);
