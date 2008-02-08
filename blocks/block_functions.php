@@ -257,7 +257,7 @@ function b_xpwiki_insert_headtag($heads, $head_tag_place)
 					$head .= $_head . "\n";
 				}
 			}
-			$GLOBALS['xoopsTpl']->assign( 'xoops_'.$head_tag_place.'_header' , $head . $xoops_header );
+			$GLOBALS['xoopsTpl']->assign( 'xoops_'.$head_tag_place.'_header' , $xoops_header . $head);
 			return TRUE;
 		}
 	}
