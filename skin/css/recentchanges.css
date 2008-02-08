@@ -1,4 +1,4 @@
-div.xpwiki_$dir div.recent_add {
+$class div.recent_add {
 	font-size: 80%;
 	padding: 5px;
 	margin-left: 16px;

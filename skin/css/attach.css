@@ -1,4 +1,4 @@
-div.xpwiki_$dir div.page_navi
+$class div.page_navi
 {
 	text-align:center;
 	background-color:white;
@@ -8,7 +8,7 @@ div.xpwiki_$dir div.page_navi
 	margin-top:     5px;
 }
 
-div.xpwiki_$dir div.filelist_page {
+$class div.filelist_page {
 	border-top:1px solid maroon;
 	border-bottom:1px dotted;
 	padding: 5px;

@@ -4,49 +4,49 @@
  */
 
 /* オペレータ */
-div.xpwiki_$dir span.code_operator {color: blue;}
+$class span.code_operator {color: blue;}
 /* 識別子 */
-div.xpwiki_$dir span.code_identifier {color: darkblue;}
+$class span.code_identifier {color: darkblue;}
 
 /* 制御構文 */
-div.xpwiki_$dir span.code_control  {color: navy;}
+$class span.code_control  {color: navy;}
 /* 標準関数 */
-div.xpwiki_$dir span.code_function {color: blue;}
+$class span.code_function {color: blue;}
 /* 定数 */
-div.xpwiki_$dir span.code_constant {color: teal;}
+$class span.code_constant {color: teal;}
 
 /* module, import, 将来対応する pragma */
-div.xpwiki_$dir span.code_pragma {color: #008080;}
+$class span.code_pragma {color: #008080;}
 /* __stdcall などの処理系専用の奴とか */
-div.xpwiki_$dir span.code_system {color: #5f0000;}
+$class span.code_system {color: #5f0000;}
 /* 環境変数  */
-div.xpwiki_$dir span.code_environment {color: #777777;}
+$class span.code_environment {color: #777777;}
 /* 文字列 */
-div.xpwiki_$dir span.code_string {color: green;}
+$class span.code_string {color: green;}
 /* コメント */
-div.xpwiki_$dir span.code_comment {color: darkorange;}
+$class span.code_comment {color: darkorange;}
 
 /* 個々のハイライト専用 */
 /* for TeX */
-div.xpwiki_$dir span.code_formula {color: teal;}
+$class span.code_formula {color: teal;}
 /* for diff*/
-div.xpwiki_$dir span.code_changed {color: green;}
-div.xpwiki_$dir span.code_added   {color: blue;}
-div.xpwiki_$dir span.code_removed {color: red;}
+$class span.code_changed {color: green;}
+$class span.code_added   {color: blue;}
+$class span.code_removed {color: red;}
 /* for make*/
-div.xpwiki_$dir span.code_execute {color: teal;}
-div.xpwiki_$dir span.code_target  {color: darkblue;}
-div.xpwiki_$dir span.code_src     {color: darkgreen;}
+$class span.code_execute {color: teal;}
+$class span.code_target  {color: darkblue;}
+$class span.code_src     {color: darkgreen;}
 /* for PukiWiki */
-div.xpwiki_$dir span.code_header{color: blue;}
-div.xpwiki_$dir span.code_table {color: darkgreen;}
-div.xpwiki_$dir span.code_list  {color: navy;}
-div.xpwiki_$dir span.code_pre   {color: teal;}
-div.xpwiki_$dir span.code_quote {color: #777700;}
+$class span.code_header{color: blue;}
+$class span.code_table {color: darkgreen;}
+$class span.code_list  {color: navy;}
+$class span.code_pre   {color: teal;}
+$class span.code_quote {color: #777700;}
 
 /* ソースコード表示部分の設定 */
 /* 段組をしない場合の設定 */
-div.xpwiki_$dir pre.code {
+$class pre.code {
     background: #EEFFFF;
     margin: 1em 2em 0.5em 1em;
     padding: 0.5em;
@@ -59,10 +59,10 @@ div.xpwiki_$dir pre.code {
     line-height: 120%;
 }
 /* 段組をした場合の設定 */
-div.xpwiki_$dir table.code_table pre.code,
-div.xpwiki_$dir div.code_table pre.code,
-div.xpwiki_$dir table.code_table pre.pre_body,
-div.xpwiki_$dir div.code_src pre.pre_body
+$class table.code_table pre.code,
+$class div.code_table pre.code,
+$class table.code_table pre.pre_body,
+$class div.code_src pre.pre_body
 {
     background-color: transparent;
     margin: 0;
@@ -74,8 +74,8 @@ div.xpwiki_$dir div.code_src pre.pre_body
 }
 
 /* 行番号表示 */
-div.xpwiki_$dir table.code_table pre.code_number,
-div.xpwiki_$dir table.code_table pre.pre_number
+$class table.code_table pre.code_number,
+$class table.code_table pre.pre_number
 {
     background: #F0F8FF;
     margin: 0;
@@ -88,7 +88,7 @@ div.xpwiki_$dir table.code_table pre.pre_number
 }
 
 /* アウトライン表示 */
-div.xpwiki_$dir table.code_table pre.code_outline {
+$class table.code_table pre.code_outline {
     margin:  0;
     padding: 0;
     border: none;
@@ -100,8 +100,8 @@ div.xpwiki_$dir table.code_table pre.code_outline {
 }
 
 /* 枠組 */
-div.xpwiki_$dir div.code_table,
-div.xpwiki_$dir div.pre_table
+$class div.code_table,
+$class div.pre_table
 {
     color: black;
     background-color: #F8F8FF;
@@ -113,20 +113,20 @@ div.xpwiki_$dir div.pre_table
     white-space: pre;
     width: auto;
 }
-div.xpwiki_$dir table.code_table,
-div.xpwiki_$dir table.code_table td {
+$class table.code_table,
+$class table.code_table td {
     background-color: #F8F8F8;
 
 }
 
 /* 段組要素の設定無効化 */
-div.xpwiki_$dir table.code_table,
-div.xpwiki_$dir table.code_table td,
-div.xpwiki_$dir div.code_number pre,
-div.xpwiki_$dir div.code_outline pre,
-div.xpwiki_$dir div.code_src pre,
-div.xpwiki_$dir div.pre_number pre,
-div.xpwiki_$dir div.pre_body pre
+$class table.code_table,
+$class table.code_table td,
+$class div.code_number pre,
+$class div.code_outline pre,
+$class div.code_src pre,
+$class div.pre_number pre,
+$class div.pre_body pre
 {
     margin:  0;
     padding: 0;
@@ -139,11 +139,11 @@ td.pre_body
 {width:100%;}
 
 /* divによる分割の定義  */
-div.xpwiki_$dir div.code_number,
-div.xpwiki_$dir div.code_outline,
-div.xpwiki_$dir div.code_src,
-div.xpwiki_$dir div.pre_number,
-div.xpwiki_$dir div.pre_body
+$class div.code_number,
+$class div.code_outline,
+$class div.code_src,
+$class div.pre_number,
+$class div.pre_body
 {
     position: relative;
     margin: 0;
@@ -157,7 +157,7 @@ div.xpwiki_$dir div.pre_body
  */
 
 /* icon */ 
-div.xpwiki_$dir div.code_menu {
+$class div.code_menu {
     background-color: #d4d0c8;
 }
 
@@ -165,34 +165,34 @@ div.xpwiki_$dir div.code_menu {
 img.code_dotimage {width:20px;height:8px;margin:0;padding:0;}
 
 /* アウトラインの設定 */
-div.xpwiki_$dir a.code_outline{
+$class a.code_outline{
     background-color: #FFFFFF;
     color: black;
     border: 1px solid #888888;
     text-decoration: none;
 }
-div.xpwiki_$dir a.code_outline:link
+$class a.code_outline:link
 {
     background-color: #FFFFFF;
     color: black;
     border: 1px solid #888888;
     text-decoration: none;
 }
-div.xpwiki_$dir a.code_outline:visited
+$class a.code_outline:visited
 {
     background-color: #FFFFFF;
     color: black;
     border: 1px solid #888888;
     text-decoration: none;
 }
-div.xpwiki_$dir a.code_outline:hover
+$class a.code_outline:hover
 {
     background-color: #FFFFFF;
     color: black;
     border: 1px solid #888888;
     text-decoration: none;
 }
-div.xpwiki_$dir a.code_outline:active
+$class a.code_outline:active
 {
     background-color: #FFFFFF;
     color: black;
