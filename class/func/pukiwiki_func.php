@@ -1,7 +1,7 @@
 <?php
 //
 // Created on 2006/10/02 by nao-pon http://hypweb.net/
-// $Id: pukiwiki_func.php,v 1.145 2008/02/08 02:55:51 nao-pon Exp $
+// $Id: pukiwiki_func.php,v 1.146 2008/02/08 08:22:25 nao-pon Exp $
 //
 class XpWikiPukiWikiFunc extends XpWikiBaseFunc {
 
@@ -917,7 +917,7 @@ class XpWikiPukiWikiFunc extends XpWikiBaseFunc {
 
 //----- Start convert_html.php -----//
 	// PukiWiki - Yet another WikiWikiWeb clone
-	// $Id: pukiwiki_func.php,v 1.145 2008/02/08 02:55:51 nao-pon Exp $
+	// $Id: pukiwiki_func.php,v 1.146 2008/02/08 08:22:25 nao-pon Exp $
 	// Copyright (C)
 	//   2002-2005 PukiWiki Developers Team
 	//   2001-2002 Originally written by yu-ji
@@ -1035,6 +1035,7 @@ class XpWikiPukiWikiFunc extends XpWikiBaseFunc {
 				$ext_autolink_obj->ext_autolinks = $ext_autolinks_aft;
 				$ext_autolink_obj->ext_autolink($ret);
 			}
+
 		}
 		
 		//if ($this->root->rtf['convert_nest'] > 1) $this->cont['PKWK_READONLY'] = $_PKWK_READONLY;
@@ -1058,10 +1059,10 @@ class XpWikiPukiWikiFunc extends XpWikiBaseFunc {
 		$this->rt_global['forceignorepages'] = explode("\t", trim($forceignorepages));
 		
 		if ($this->root->page_case_insensitive) {
-			$pat_pre = '/(<(script|a|textarea|style|option).*?<\/\\2>|<[^>]*>|&(?:#[0-9]+|#x[0-9a-f]+|[0-9a-z]+);)|(?<=\W)(';
+			$pat_pre = '/(<(script|a|textarea|style|option).*?<\/\\2>|<!--NA-->.+?<!--\/NA-->|<[^>]*>|&(?:#[0-9]+|#x[0-9a-f]+|[0-9a-z]+);)|(?<=\W)(';
 			$pat_aft = ')(?=\W)/isS';
 		} else {
-			$pat_pre = '/(<([sS][cC][rR][iI][pP][tT]|[a|A]|[tT][eE][xX][tT][aA][rR][eE][aA]|[sS][tT][yY][lL][eE]|[oO][pP][tT][iI][oO][nN]).*?<\/\\2>|<[^>]*>|&(?:#[0-9]+|#x[0-9a-fA-F]+|[0-9a-zA-Z]+);)|(?<=\W)(';
+			$pat_pre = '/(<([sS][cC][rR][iI][pP][tT]|[a|A]|[tT][eE][xX][tT][aA][rR][eE][aA]|[sS][tT][yY][lL][eE]|[oO][pP][tT][iI][oO][nN]).*?<\/\\2>|<!--NA-->.+?<!--\/NA-->|<[^>]*>|&(?:#[0-9]+|#x[0-9a-fA-F]+|[0-9a-zA-Z]+);)|(?<=\W)(';
 			$pat_aft = ')(?=\W)/sS';
 		}
 		// ページ数が多い場合は、セパレータ \t で複数パターンに分割されている
@@ -1166,7 +1167,7 @@ class XpWikiPukiWikiFunc extends XpWikiBaseFunc {
 
 //----- Start func.php -----//
 	// PukiWiki - Yet another WikiWikiWeb clone.
-	// $Id: pukiwiki_func.php,v 1.145 2008/02/08 02:55:51 nao-pon Exp $
+	// $Id: pukiwiki_func.php,v 1.146 2008/02/08 08:22:25 nao-pon Exp $
 	// Copyright (C)
 	//   2002-2006 PukiWiki Developers Team
 	//   2001-2002 Originally written by yu-ji
@@ -1982,7 +1983,7 @@ EOD;
 
 //----- Start make_link.php -----//
 	// PukiWiki - Yet another WikiWikiWeb clone.
-	// $Id: pukiwiki_func.php,v 1.145 2008/02/08 02:55:51 nao-pon Exp $
+	// $Id: pukiwiki_func.php,v 1.146 2008/02/08 08:22:25 nao-pon Exp $
 	// Copyright (C)
 	//   2003-2005 PukiWiki Developers Team
 	//   2001-2002 Originally written by yu-ji
@@ -2907,7 +2908,7 @@ EOD;
 
 //----- Start html.php -----//
 	// PukiWiki - Yet another WikiWikiWeb clone.
-	// $Id: pukiwiki_func.php,v 1.145 2008/02/08 02:55:51 nao-pon Exp $
+	// $Id: pukiwiki_func.php,v 1.146 2008/02/08 08:22:25 nao-pon Exp $
 	// Copyright (C)
 	//   2002-2006 PukiWiki Developers Team
 	//   2001-2002 Originally written by yu-ji
@@ -3592,7 +3593,7 @@ EOD;
 
 //----- Start mail.php -----//
 	// PukiWiki - Yet another WikiWikiWeb clone.
-	// $Id: pukiwiki_func.php,v 1.145 2008/02/08 02:55:51 nao-pon Exp $
+	// $Id: pukiwiki_func.php,v 1.146 2008/02/08 08:22:25 nao-pon Exp $
 	// Copyright (C)
 	//   2003-2005 PukiWiki Developers Team
 	//   2003      Originally written by upk
@@ -3895,7 +3896,7 @@ EOD;
 
 //----- Start link.php -----//
 	// PukiWiki - Yet another WikiWikiWeb clone
-	// $Id: pukiwiki_func.php,v 1.145 2008/02/08 02:55:51 nao-pon Exp $
+	// $Id: pukiwiki_func.php,v 1.146 2008/02/08 08:22:25 nao-pon Exp $
 	// Copyright (C) 2003-2006 PukiWiki Developers Team
 	// License: GPL v2 or (at your option) any later version
 	//
