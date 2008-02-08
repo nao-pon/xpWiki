@@ -1,7 +1,7 @@
 <?php
 /*
  * Created on 2008/02/08 by nao-pon http://hypweb.net/
- * $Id: block_reg_funcnum.inc.php,v 1.1 2008/02/08 02:44:32 nao-pon Exp $
+ * $Id: block_reg_funcnum.inc.php,v 1.2 2008/02/08 03:12:06 nao-pon Exp $
  */
 
 $db =& Database::getInstance() ;
@@ -24,30 +24,30 @@ if ($record) {
 						// not useing -> delete
 						$sql = 'DELETE FROM `'.$db->prefix('newblocks').'` WHERE `bid` = '.$fblock['bid'].' LIMIT 1';
 						if ($db->query($sql)) {
-							$local_msgs[] = 'Deleted ( '.$fblock['bid'].' ) from "newblocks"';
+							//$local_msgs[] = 'Deleted ( '.$fblock['bid'].' ) from "newblocks"';
 						} else {
-							$local_msgs[] = 'mysql Error: '.$sql;
+							//$local_msgs[] = 'mysql Error: '.$sql;
 						}
 						$sql = 'DELETE FROM `'.$db->prefix('block_module_link').'` WHERE `bid` = '.$fblock['bid'].' LIMIT 1';
 						if ($db->query($sql)) {
-							$local_msgs[] = 'Deleted ( '.$fblock['bid'].' ) from "block_module_link"';
+							//$local_msgs[] = 'Deleted ( '.$fblock['bid'].' ) from "block_module_link"';
 						} else {
-							$local_msgs[] = 'mysql Error: '.$sql;
+							//$local_msgs[] = 'mysql Error: '.$sql;
 						}
 						$sql = 'DELETE FROM `'.$db->prefix('group_permission').'` WHERE `gperm_itemid` = '.$fblock['bid'].' AND `gperm_name` = \'block_read\' LIMIT 1';
 						if ($db->query($sql)) {
-							$local_msgs[] = 'Deleted ( '.$fblock['bid'].' ) from "group_permission"';
+							//$local_msgs[] = 'Deleted ( '.$fblock['bid'].' ) from "group_permission"';
 						} else {
-							$local_msgs[] = 'mysql Error: '.$sql;
+							//$local_msgs[] = 'mysql Error: '.$sql;
 						}
 					}
 					if ($i !== $fblock['func_num']) {
 						// using -> change to type "D"
 						$sql = 'UPDATE `'.$db->prefix('newblocks').'` SET `func_num` = \'255\', `block_type` = \'D\' WHERE `bid` = '.$fblock['bid'].' LIMIT 1';
 						if ($db->query($sql)) {
-							$local_msgs[] = 'Changed block type to "D" ( '.$fblock['bid'].' )';
+							//$local_msgs[] = 'Changed block type to "D" ( '.$fblock['bid'].' )';
 						} else {
-							$local_msgs[] = 'mysql Error: '.$sql;
+							//$local_msgs[] = 'mysql Error: '.$sql;
 						}
 					}
 				} else {
@@ -55,9 +55,9 @@ if ($record) {
 					if ($i !== $fblock['func_num']) {
 						$sql = 'UPDATE `'.$db->prefix('newblocks').'` SET `func_num` = '.$i.' WHERE `bid` = '.$fblock['bid'].' LIMIT 1';
 						if ($db->query($sql)) {
-							$local_msgs[] = 'Changed block "func_num" to "'.$i.'" ( '.$fblock['bid'].' )';
+							//$local_msgs[] = 'Changed block "func_num" to "'.$i.'" ( '.$fblock['bid'].' )';
 						} else {
-							$local_msgs[] = 'mysql Error: '.$sql;
+							//$local_msgs[] = 'mysql Error: '.$sql;
 						}
 					}
 				}
@@ -68,7 +68,7 @@ if ($record) {
 	}
 }
 
-global $msgs;
-if( isset( $msgs ) && ! empty( $local_msgs ) ) {
-	$msgs = array_merge( $msgs , $local_msgs ) ;
-}
+//global $msgs;
+//if( isset( $msgs ) && ! empty( $local_msgs ) ) {
+//	$msgs = array_merge( $msgs , $local_msgs ) ;
+//}
