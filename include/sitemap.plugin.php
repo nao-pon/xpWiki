@@ -1,7 +1,7 @@
 <?php
 /*
  * Created on 2007/07/11 by nao-pon http://hypweb.net/
- * $Id: sitemap.plugin.php,v 1.2 2008/01/29 23:40:40 nao-pon Exp $
+ * $Id: sitemap.plugin.php,v 1.3 2008/02/08 02:56:31 nao-pon Exp $
  */
 
 function b_sitemap_xpwiki( $mydirname ) {
@@ -53,7 +53,7 @@ function b_sitemap_xpwiki( $mydirname ) {
 	$ret['parent'][] = array(
 		'id' => 0 ,	
 		'title' => $xpwiki->root->_attach_messages['msg_list'],
-		'url' => '?plugin=attach&pcmd=list' ,
+		'url' => '?plugin=attach&amp;pcmd=list' ,
 	);
 
 	$ret['parent'][] = array(
