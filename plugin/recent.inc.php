@@ -1,5 +1,5 @@
 <?php
-// $Id: recent.inc.php,v 1.11 2008/01/31 01:15:24 nao-pon Exp $
+// $Id: recent.inc.php,v 1.12 2008/02/08 08:25:21 nao-pon Exp $
 // Copyright (C)
 //   2002-2006 PukiWiki Developers Team
 //   2002      Y.MASUI http://masui.net/pukiwiki/ masui@masui.net
@@ -32,11 +32,6 @@ class xpwiki_plugin_recent extends xpwiki_plugin {
 
 		if (!isset($exec_count[$this->xpwiki->pid])) {$exec_count[$this->xpwiki->pid] = 1;}
 
-		if ($this->root->render_mode === 'block' && isset($GLOBALS['Xpwiki_'.$this->root->mydirname]['page'])) {
-			$this->func->set_current_page($GLOBALS['Xpwiki_'.$this->root->mydirname]['page']);
-			$this->root->pagecache_min = 0;
-		}
-	
 		$prefix = "";
 		$recent_lines = 0;
 		if(func_num_args()>0) {
@@ -90,6 +85,12 @@ class xpwiki_plugin_recent extends xpwiki_plugin {
 		} else {
 			++$exec_count[$this->xpwiki->pid];
 		}
+		
+		$res = array();
+		if ($this->root->render_mode === 'block' && isset($GLOBALS['Xpwiki_'.$this->root->mydirname]['page'])) {
+			$res = $this->func->set_current_page($GLOBALS['Xpwiki_'.$this->root->mydirname]['page']);
+			$this->root->pagecache_min = 0;
+		}
 	
 		// Get latest N changes
 		$lines = $this->func->get_existpages(FALSE, $_prefix, array('limit' =>$recent_lines, 'order' => ' ORDER BY editedtime DESC', 'nolisting' => TRUE, 'withtime' =>TRUE));
@@ -112,7 +113,7 @@ class xpwiki_plugin_recent extends xpwiki_plugin {
 			$s_page = htmlspecialchars($page);
 			if($page === $this->root->vars['page']) {
 				// No need to link to the page you just read, or notify where you just read
-				$items .= ' <li>' . $s_page . '</li>' . "\n";
+				$items .= ' <li><!--NA-->' . str_replace('/', '/&#8203;', $s_page) . '<!--/NA--></li>' . "\n";
 			} else {
 				$r_page = rawurlencode($page);
 				$passage = $this->root->show_passage ? ' ' . $this->func->get_passage($time) : '';
@@ -123,7 +124,9 @@ class xpwiki_plugin_recent extends xpwiki_plugin {
 		}
 		// End of the day
 		if ($date != '') $items .= '</ul>' . "\n";
-	
+		
+		if ($res) $this->func->set_current_page($res['page']);
+		
 		return sprintf($this->root->_recent_plugin_frame, $prefix_page, count($lines), $items);
 	}
 }

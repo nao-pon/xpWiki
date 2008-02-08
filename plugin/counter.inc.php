@@ -1,6 +1,6 @@
 <?php
 // PukiWiki - Yet another WikiWikiWeb clone
-// $Id: counter.inc.php,v 1.3 2008/01/30 08:07:49 nao-pon Exp $
+// $Id: counter.inc.php,v 1.4 2008/02/08 08:25:21 nao-pon Exp $
 // Copyright (C)
 //   2002-2005 PukiWiki Developers Team
 //   2002 Y.MASUI GPL2 http://masui.net/pukiwiki/ masui@masui.net
@@ -19,11 +19,6 @@ class xpwiki_plugin_counter extends xpwiki_plugin {
 	// Report one
 	function plugin_counter_inline()
 	{
-		if ($this->root->render_mode === 'block' && isset($GLOBALS['Xpwiki_'.$this->root->mydirname]['page'])) {
-			$this->func->set_current_page($GLOBALS['Xpwiki_'.$this->root->mydirname]['page']);
-			$this->root->pagecache_min = 0;
-		}
-
 		// BugTrack2/106: Only variables can be passed by reference from PHP 5.0.5
 		$args = func_get_args(); // with array_shift()
 	
@@ -33,7 +28,13 @@ class xpwiki_plugin_counter extends xpwiki_plugin {
 		case 'total': /*FALLTHROUGH*/
 		case 'today': /*FALLTHROUGH*/
 		case 'yesterday':
+			$res = array();
+			if ($this->root->render_mode === 'block' && isset($GLOBALS['Xpwiki_'.$this->root->mydirname]['page'])) {
+				$res = $this->func->set_current_page($GLOBALS['Xpwiki_'.$this->root->mydirname]['page']);
+				$this->root->pagecache_min = 0;
+			}
 			$counter = $this->plugin_counter_get_count($this->root->vars['page']);
+			if ($res) $this->func->set_current_page($res['page']);
 			return $counter[$arg];
 		default:
 			return '&counter([total|today|yesterday]);';
@@ -43,12 +44,16 @@ class xpwiki_plugin_counter extends xpwiki_plugin {
 	// Report all
 	function plugin_counter_convert()
 	{
+		$res = array();
 		if ($this->root->render_mode === 'block' && isset($GLOBALS['Xpwiki_'.$this->root->mydirname]['page'])) {
-			$this->func->set_current_page($GLOBALS['Xpwiki_'.$this->root->mydirname]['page']);
+			$res = $this->func->set_current_page($GLOBALS['Xpwiki_'.$this->root->mydirname]['page']);
 			$this->root->pagecache_min = 0;
 		}
 
 		$counter = $this->plugin_counter_get_count($this->root->vars['page']);
+		
+		if ($res) $this->func->set_current_page($res['page']);
+		
 		return <<<EOD
 <div class="counter">
 Counter:   {$counter['total']},
