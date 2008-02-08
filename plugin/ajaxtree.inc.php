@@ -10,7 +10,7 @@
 
 /*
  * Created on 2008/02/07 by nao-pon http://hypweb.net/
- * $Id: ajaxtree.inc.php,v 1.1 2008/02/08 03:04:24 nao-pon Exp $
+ * $Id: ajaxtree.inc.php,v 1.2 2008/02/08 08:25:21 nao-pon Exp $
  */
 
 class xpwiki_plugin_ajaxtree extends xpwiki_plugin {
@@ -188,12 +188,16 @@ class xpwiki_plugin_ajaxtree extends xpwiki_plugin {
 			$this->root->_ajaxtree_messages['title'] = $args[0];
 		}
 		
+		$res = array();
 		if ($this->root->render_mode === 'block' && isset($GLOBALS['Xpwiki_'.$this->root->mydirname]['page'])) {
-			$this->func->set_current_page($GLOBALS['Xpwiki_'.$this->root->mydirname]['page']);
+			$res = $this->func->set_current_page($GLOBALS['Xpwiki_'.$this->root->mydirname]['page']);
 		}
 
 		$html = $this->plugin_ajaxtree_get_html();
 		$this->plugin_ajaxtree_modify_html($html, $this->root->vars['page']);
+		
+		if ($res) $this->func->set_current_page($res['page']);
+		
 		return $html;
 	}
 	
@@ -240,7 +244,7 @@ class xpwiki_plugin_ajaxtree extends xpwiki_plugin {
 				$search	 = '</a>';
 				$pos3	 = strpos($html, $search, $pos2);
 				$str	 = substr($html, $pos2, $pos3 - $pos2);
-				$replace = '<span class="current">' . $str . '</span>';
+				$replace = '<span class="current"><!--NA-->' . $str . '<!--/NA--></span>';
 				$length	 = $pos3 - $pos + strlen($search);
 				$html	 = substr_replace($html, $replace, $pos, $length);
 			}

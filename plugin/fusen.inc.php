@@ -31,7 +31,7 @@
 //
 // fusen.inc.php for xpWiki by nao-pon
 // http://xoops.hypweb.net
-// $Id: fusen.inc.php,v 1.17 2008/02/04 23:50:09 nao-pon Exp $
+// $Id: fusen.inc.php,v 1.18 2008/02/08 08:25:21 nao-pon Exp $
 // 
 
 class xpwiki_plugin_fusen extends xpwiki_plugin {
@@ -57,6 +57,7 @@ class xpwiki_plugin_fusen extends xpwiki_plugin {
 
 		$base = '';
 		$divclass = 'xpwiki_' . $this->root->mydirname;
+		$res = array();
 		if ($this->root->render_mode === 'render') {
 			return '';
 		} else if ($this->root->render_mode === 'block') {
@@ -65,16 +66,25 @@ class xpwiki_plugin_fusen extends xpwiki_plugin {
 				!empty($GLOBALS['Xpwiki_'.$this->root->mydirname]['cache']['fusen']['loaded'])) {
 				return '';
 			}
-			$this->func->set_current_page($GLOBALS['Xpwiki_'.$this->root->mydirname]['page']);
+			$res = $this->func->set_current_page($GLOBALS['Xpwiki_'.$this->root->mydirname]['page']);
 			$base = 'xpwiki_body';
 			$divclass = 'xpwiki_b_' . $this->root->mydirname;
 			$this->root->pagecache_min = 0;
 		}
 		
+		$html = $this->get_html(func_get_args(), $base, $divclass);
+		
+		if ($res) $this->func->set_current_page($res['page']);
+		
+		return $html;
+		
+	}
+	
+	function get_html($args, $base, $divclass) {	
 		// パラメータ
 		$off = $from_skin = $refresh = 0;
 		$background = $height = '';
-		foreach(func_get_args() as $prm) {
+		foreach($args as $prm) {
 			$arg = array();
 			if (preg_match("/^r(efresh)?:([\d]+)/",$prm,$arg))
 				$refresh =($arg[2])? $arg[2] : 0;
