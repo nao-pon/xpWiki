@@ -1321,10 +1321,14 @@ class XpWikiCodeHighlight {
 			$phptagf = 1;
 			$src='<'.'?php '.$src;
 		}
-		ob_start(); //出力のバッファリングを有効に
-		highlight_string($src); //phpは標準関数でハイライト
-		$html = ob_get_contents(); //バッファの内容を得る
-		ob_end_clean(); //バッファクリア?
+		if (version_compare(PHP_VERSION, '4.2.0', '>=')) {
+			$html = highlight_string($src, TRUE);
+		} else {
+			ob_start(); //出力のバッファリングを有効に
+			highlight_string($src); //phpは標準関数でハイライト
+			$html = ob_get_contents(); //バッファの内容を得る
+			ob_end_clean(); //バッファクリア?
+		}
 		// phpタグを取り除く。
 		if ($phptagf) {
 			$html = preg_replace('/(<(span|font)[^>]*>)?&lt;\?(?:<\/\\2><\\2[^>]*>)?php(?: |&nbsp;)(<\/\\2>)?/','$1$3',$html);
