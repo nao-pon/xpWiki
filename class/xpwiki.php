@@ -1,7 +1,7 @@
 <?php
 //
 // Created on 2006/09/29 by nao-pon http://hypweb.net/
-// $Id: xpwiki.php,v 1.69 2008/02/05 08:49:49 nao-pon Exp $
+// $Id: xpwiki.php,v 1.70 2008/02/08 02:55:51 nao-pon Exp $
 //
 
 class XpWiki {
@@ -405,10 +405,11 @@ class XpWiki {
 		$this->body .= ! empty($this->root->foot_explain) ? $this->root->note_hr . join("\n", $this->root->foot_explain) : '';
 		// Head Tags
 		list($head_pre_tag, $head_tag) = $this->func->get_additional_headtags();
+		$cssprefix = $this->root->css_prefix ? 'pre=' . rawurlencode($this->root->css_prefix) . '&amp;' : '';
 		
 		// ╫пно
 		$base = "b_".$this->root->mydirname;
-		$css_tag = ($css_tag)? '<link rel="stylesheet" type="text/css" media="all" href="' . $this->cont['LOADER_URL'] . '?charset=' . $this->cont['CSS_CHARSET'] . '&amp;skin=' . $this->cont['SKIN_NAME'] . '&amp;b=1&amp;src=' . $css_tag . '" charset="' . $this->cont['CSS_CHARSET'] . '" />'
+		$css_tag = ($css_tag)? '<link rel="stylesheet" type="text/css" media="all" href="' . $this->cont['LOADER_URL'] . '?charset=' . $this->cont['CSS_CHARSET'] . '&amp;skin=' . $this->cont['SKIN_NAME'] . '&amp;b=1&amp;' . $cssprefix . 'src=' . $css_tag . '" charset="' . $this->cont['CSS_CHARSET'] . '" />'
 		             : '';
 		$block = <<<EOD
 <div class="{$div_class}" style="width:{$width};overflow:hidden;">
@@ -518,7 +519,8 @@ EOD;
 		$csstag = '';
 		if ($cssbase) {
 			$cssbase = 'r_'.$cssbase;
-			$csstag = '<link rel="stylesheet" type="text/css" media="all" href="'.$this->cont['LOADER_URL'].'?charset='.$this->cont['CSS_CHARSET'].'&amp;skin='.$this->cont['SKIN_NAME'].'&amp;r=1&amp;src=main.css" charset="Shift_JIS" />';
+			$cssprefix = $this->root->css_prefix ? 'pre=' . rawurlencode($this->root->css_prefix) . '&amp;' : '';
+			$csstag = '<link rel="stylesheet" type="text/css" media="all" href="'.$this->cont['LOADER_URL'].'?charset='.$this->cont['CSS_CHARSET'].'&amp;skin='.$this->cont['SKIN_NAME'].'&amp;r=1&amp;'.$cssprefix.'src=main.css" charset="' . $this->cont['CSS_CHARSET'] . '" />';
 			$text = '<div class="xpwiki_'.$cssbase.'">'."\n".$text."\n".'</div>';
 		}
 

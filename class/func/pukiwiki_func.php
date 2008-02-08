@@ -1,7 +1,7 @@
 <?php
 //
 // Created on 2006/10/02 by nao-pon http://hypweb.net/
-// $Id: pukiwiki_func.php,v 1.144 2008/02/05 00:24:08 nao-pon Exp $
+// $Id: pukiwiki_func.php,v 1.145 2008/02/08 02:55:51 nao-pon Exp $
 //
 class XpWikiPukiWikiFunc extends XpWikiBaseFunc {
 
@@ -254,6 +254,11 @@ class XpWikiPukiWikiFunc extends XpWikiBaseFunc {
 			}
 		}
 		
+		// Update interwiki.dat
+		if ($this->root->interwiki && $page === $this->root->interwiki) {
+			$this->interwiki_dat_update(explode("\n", $postdata));
+		}		
+		
 		// onPageWriteAfter
 		$base = $this->root->mytrustdirpath."/events/onPageWriteAfter";
 		if ($handle = opendir($base)) {
@@ -286,6 +291,29 @@ class XpWikiPukiWikiFunc extends XpWikiBaseFunc {
 		
 		$this->autolink_pattern_write($this->cont['CACHE_DIR'] . $this->cont['PKWK_AUTOLINK_REGEX_CACHE'],
 			$this->get_autolink_pattern($pages, $this->root->autolink, false));
+	}
+
+	function interwiki_dat_update ($lines) {
+		// Set default item
+		$interwikinames['cmd'] = array('./?cmd=', '');
+		foreach ($lines as $line) {
+			if (preg_match('/\[(' . '(?:(?:https?|ftp|news):\/\/|\.\.?\/)' .
+			 '[!~*\'();\/?:\@&=+\$,%#\w.-]*)\s([^\]]+)\]\s?([^\s]*)/',
+			 $line, $matches)) {
+				$interwikinames[$matches[2]] = array($matches[1], $matches[3]);
+			}
+		}
+		// Update
+		$fp = fopen($this->cont['CACHE_DIR'] . 'interwiki.dat', 'wb') or
+				$this->die_message('Cannot open ' . 'interwiki.dat');
+		stream_set_write_buffer($fp, 0);
+		flock($fp, LOCK_EX);
+		rewind($fp);
+		fwrite($fp, serialize($interwikinames));
+		flock($fp, LOCK_UN);
+		fclose($fp);
+		
+		return $interwikinames;
 	}
 	
 	function delete_caches () {
@@ -889,7 +917,7 @@ class XpWikiPukiWikiFunc extends XpWikiBaseFunc {
 
 //----- Start convert_html.php -----//
 	// PukiWiki - Yet another WikiWikiWeb clone
-	// $Id: pukiwiki_func.php,v 1.144 2008/02/05 00:24:08 nao-pon Exp $
+	// $Id: pukiwiki_func.php,v 1.145 2008/02/08 02:55:51 nao-pon Exp $
 	// Copyright (C)
 	//   2002-2005 PukiWiki Developers Team
 	//   2001-2002 Originally written by yu-ji
@@ -1138,7 +1166,7 @@ class XpWikiPukiWikiFunc extends XpWikiBaseFunc {
 
 //----- Start func.php -----//
 	// PukiWiki - Yet another WikiWikiWeb clone.
-	// $Id: pukiwiki_func.php,v 1.144 2008/02/05 00:24:08 nao-pon Exp $
+	// $Id: pukiwiki_func.php,v 1.145 2008/02/08 02:55:51 nao-pon Exp $
 	// Copyright (C)
 	//   2002-2006 PukiWiki Developers Team
 	//   2001-2002 Originally written by yu-ji
@@ -1954,7 +1982,7 @@ EOD;
 
 //----- Start make_link.php -----//
 	// PukiWiki - Yet another WikiWikiWeb clone.
-	// $Id: pukiwiki_func.php,v 1.144 2008/02/05 00:24:08 nao-pon Exp $
+	// $Id: pukiwiki_func.php,v 1.145 2008/02/08 02:55:51 nao-pon Exp $
 	// Copyright (C)
 	//   2003-2005 PukiWiki Developers Team
 	//   2001-2002 Originally written by yu-ji
@@ -2133,16 +2161,12 @@ EOD;
 		$false = FALSE;
 		
 		if (! isset($interwikinames[$this->root->mydirname])) {
-			$interwikinames[$this->root->mydirname] = $matches = array();
-			
-			// Set default item
-			$interwikinames[$this->root->mydirname]['cmd'] = array('./?cmd=', '');
-			
-			foreach ($this->get_source($this->root->interwiki) as $line)
-				if (preg_match('/\[(' . '(?:(?:https?|ftp|news):\/\/|\.\.?\/)' .
-				    '[!~*\'();\/?:\@&=+\$,%#\w.-]*)\s([^\]]+)\]\s?([^\s]*)/',
-				    $line, $matches))
-					$interwikinames[$this->root->mydirname][$matches[2]] = array($matches[1], $matches[3]);
+			$interwiki_dat = $this->cont['CACHE_DIR'] . 'interwiki.dat';
+			if (file_exists($interwiki_dat)) {
+				$interwikinames[$this->root->mydirname] = unserialize(join('', file($interwiki_dat)));
+			} else {
+				$interwikinames[$this->root->mydirname] = $this->interwiki_dat_update($this->get_source($this->root->interwiki));
+			}
 		}
 	
 		if (! isset($interwikinames[$this->root->mydirname][$name])) {
@@ -2883,7 +2907,7 @@ EOD;
 
 //----- Start html.php -----//
 	// PukiWiki - Yet another WikiWikiWeb clone.
-	// $Id: pukiwiki_func.php,v 1.144 2008/02/05 00:24:08 nao-pon Exp $
+	// $Id: pukiwiki_func.php,v 1.145 2008/02/08 02:55:51 nao-pon Exp $
 	// Copyright (C)
 	//   2002-2006 PukiWiki Developers Team
 	//   2001-2002 Originally written by yu-ji
@@ -2894,6 +2918,22 @@ EOD;
 	// Show page-content
 	function catbody($title, $page, $body)
 	{
+		// #noattach
+		if (isset($this->root->nonflag['attach'])) {
+			$attach =& $this->get_plugin_instance('attach');
+			$attach->listed = TRUE;	
+		}
+
+		// #norelated
+		if (isset($this->root->nonflag['related'])) {
+			$this->root->related_link = 0;
+		}
+
+		// #nopagecomment
+		if (isset($this->root->nonflag['pagecomment'])) {
+			$this->root->allow_pagecomment = FALSE;
+		}
+
 		if (! file_exists($this->cont['SKIN_FILE']) || ! is_readable($this->cont['SKIN_FILE']))
 			$this->die_message('SKIN_FILE is not found'.$this->cont['SKIN_FILE']);
 		
@@ -3034,6 +3074,7 @@ EOD;
 		
 		// Head Tags
 		list($head_pre_tag, $head_tag) = $this->get_additional_headtags();
+		$cssprefix = $this->root->css_prefix ? 'pre=' . rawurlencode($this->root->css_prefix) . '&amp;' : '';
 		
 		// 1.3.x compat
 		// Last modification date (UNIX timestamp) of the page
@@ -3551,7 +3592,7 @@ EOD;
 
 //----- Start mail.php -----//
 	// PukiWiki - Yet another WikiWikiWeb clone.
-	// $Id: pukiwiki_func.php,v 1.144 2008/02/05 00:24:08 nao-pon Exp $
+	// $Id: pukiwiki_func.php,v 1.145 2008/02/08 02:55:51 nao-pon Exp $
 	// Copyright (C)
 	//   2003-2005 PukiWiki Developers Team
 	//   2003      Originally written by upk
@@ -3854,7 +3895,7 @@ EOD;
 
 //----- Start link.php -----//
 	// PukiWiki - Yet another WikiWikiWeb clone
-	// $Id: pukiwiki_func.php,v 1.144 2008/02/05 00:24:08 nao-pon Exp $
+	// $Id: pukiwiki_func.php,v 1.145 2008/02/08 02:55:51 nao-pon Exp $
 	// Copyright (C) 2003-2006 PukiWiki Developers Team
 	// License: GPL v2 or (at your option) any later version
 	//

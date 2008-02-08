@@ -1,7 +1,7 @@
 <?php
 //
 // Created on 2006/09/29 by nao-pon http://hypweb.net/
-// $Id: root.php,v 1.11 2007/10/12 07:59:02 nao-pon Exp $
+// $Id: root.php,v 1.12 2008/02/08 02:55:51 nao-pon Exp $
 //
 class XpWikiRoot {
 
@@ -148,6 +148,7 @@ class XpWikiRoot {
 		$this->head_pre_tags= array();	// XHTML pre tags in <head></head> before skin's CSS.
 		$this->render_mode  = 'main';
 		$this->viewmode     = 'normal'; // View mode ( normal, popup or ajax )
+		$this->nonflag      = array(); // non-Plugin flag
 	}
 }
 ?>

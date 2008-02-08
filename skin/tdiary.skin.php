@@ -3,7 +3,7 @@
 $this->root->runmode = "standalone";
 
 // PukiWiki - Yet another WikiWikiWeb clone.
-// $Id: tdiary.skin.php,v 1.28 2008/01/16 05:32:28 nao-pon Exp $
+// $Id: tdiary.skin.php,v 1.29 2008/02/08 02:55:51 nao-pon Exp $
 // Copyright (C)
 //   2002-2006 PukiWiki Developers Team
 //   2001-2002 Originally written by yu-ji
@@ -579,6 +579,8 @@ if (isset($this->root->pkwk_dtd)) {
 $favicon = ($image['favicon'])? "<link rel=\"SHORTCUT ICON\" href=\"{$image['favicon']}\" />" : "";
 $dirname = $this->root->mydirname;
 
+$css_prefix_id = $this->root->css_prefix ? ' id="' . ltrim($this->root->css_prefix, '#') . '"' : '';
+
 ?>
 <head>
  <?php echo $meta_content_type ?>
@@ -592,13 +594,13 @@ $dirname = $this->root->mydirname;
  <?php echo $favicon ?>
  <link rel="stylesheet" type="text/css" media="all" href="<?php echo "{$this->cont['HOME_URL']}{$this->cont['TDIARY_DIR']}" ?>base.css" />
  <link rel="stylesheet" type="text/css" media="all" href="<?php echo "{$this->cont['HOME_URL']}{$this->cont['TDIARY_DIR']}" ?><?php echo $theme ?>/<?php echo $theme ?>.css" />
- <link rel="stylesheet" type="text/css" media="print"  href="<?php echo "{$this->cont['LOADER_URL']}" ?>?skin=<?php echo "{$this->cont['SKIN_NAME']}" ?>&amp;charset=<?php echo $css_charset ?>&amp;src=main.css" charset="<?php echo $css_charset ?>" />
+ <link rel="stylesheet" type="text/css" media="print"  href="<?php echo "{$this->cont['LOADER_URL']}" ?>?skin=<?php echo "{$this->cont['SKIN_NAME']}" ?>&amp;charset=<?php echo $css_charset ?>&amp;<?php echo $cssprefix ?>src=main.css" charset="<?php echo $css_charset ?>" />
  <link rel="stylesheet" type="text/css" media="screen" href="<?php echo "{$this->cont['HOME_URL']}{$this->cont['TDIARY_DIR']}" ?>tdiary.css.php?charset=<?php echo $css_charset ?>&amp;color=<?php echo $css_theme ?>" charset="<?php echo $css_charset ?>" />
  <link rel="stylesheet" type="text/css" media="print"  href="<?php echo "{$this->cont['HOME_URL']}{$this->cont['TDIARY_DIR']}" ?>tdiary.css.php?charset=<?php echo $css_charset ?>&amp;color=<?php echo $css_theme ?>&amp;media=print" charset="<?php echo $css_charset ?>" />
  <link rel="alternate" type="application/rss+xml" title="RSS" href="<?php echo $link['rss'] ?>" /><?php // RSS auto-discovery ?>
 <?php echo $head_tag ?>
 </head>
-<body><!-- Theme:<?php echo htmlspecialchars($theme) . ' Sidebar:' . $sidebar ?> -->
+<body<?php echo $css_prefix_id ?>><!-- Theme:<?php echo htmlspecialchars($theme) . ' Sidebar:' . $sidebar ?> -->
 <div class="xpwiki_<?php echo $dirname ?>" style="position:relative;">
 
 <?php if ($menu && $sidebar == 'strict') { ?>
