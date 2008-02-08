@@ -188,8 +188,15 @@ $modversion['onInstall'] = 'oninstall.php' ;
 $modversion['onUpdate'] = 'onupdate.php' ;
 $modversion['onUninstall'] = 'onuninstall.php' ;
 
-// keep block's options
-if( ! defined( 'XOOPS_CUBE_LEGACY' ) && substr( XOOPS_VERSION , 6 , 3 ) < 2.1 && ! empty( $_POST['fct'] ) && ! empty( $_POST['op'] ) && $_POST['fct'] == 'modulesadmin' && $_POST['op'] == 'update_ok' && $_POST['dirname'] == $modversion['dirname'] ) {
+// Regularization of func_num
+if ( defined( 'XOOPS_CUBE_LEGACY' ) && isset( $_GET['action'] ) && $_GET['action'] == 'ModuleUpdate' && isset( $_POST['dirname'] ) && $_POST['dirname'] == $modversion['dirname'] ) {
+	include dirname(__FILE__).'/include/block_reg_funcnum.inc.php';
+}
+
+if ( ! defined( 'XOOPS_CUBE_LEGACY' ) && substr( XOOPS_VERSION , 6 , 3 ) < 2.1 && ! empty( $_POST['fct'] ) && ! empty( $_POST['op'] ) && $_POST['fct'] == 'modulesadmin' && $_POST['op'] == 'update_ok' && $_POST['dirname'] == $modversion['dirname'] ) {
+	// Regularization of func_num
+	include dirname(__FILE__).'/include/block_reg_funcnum.inc.php';
+	// keep block's options
 	include dirname(__FILE__).'/include/x20_keepblockoptions.inc.php' ;
 }
 
