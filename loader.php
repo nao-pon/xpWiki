@@ -1,7 +1,7 @@
 <?php
 //
 // Created on 2006/10/25 by nao-pon http://hypweb.net/
-// $Id: loader.php,v 1.38 2008/02/08 02:55:51 nao-pon Exp $
+// $Id: loader.php,v 1.39 2008/02/11 01:02:41 nao-pon Exp $
 //
 
 error_reporting(0);
@@ -107,13 +107,13 @@ switch ($type) {
 		// CSS over write (css dir)
 		$addcss_file = "{$skin_dirname}/{$basedir}css/{$src}.css";
 		if (file_exists($addcss_file)) {
-			$addcss .= join('', file($addcss_file)) . "\n";
+			$addcss .= file_get_contents($addcss_file) . "\n";
 			$addcsstime = filemtime($addcss_file);
 		}
 		// CSS over write (skin dir)
 		$addcss_file = "{$skin_dirname}/{$basedir}{$skin}/{$src}.css";
 		if (file_exists($addcss_file)) {
-			$addcss .= join('', file($addcss_file)) . "\n";
+			$addcss .= file_get_contents($addcss_file) . "\n";
 			$addcsstime = max($addcsstime, filemtime($addcss_file));
 		}
 		if ($prefix) {
@@ -121,13 +121,13 @@ switch ($type) {
 			// CSS over write (css dir)
 			$addcss_file = "{$skin_dirname}/{$basedir}css/{$css_src}.css";
 			if (file_exists($addcss_file)) {
-				$addcss .= join('', file($addcss_file)) . "\n";
+				$addcss .= file_get_contents($addcss_file) . "\n";
 				$addcsstime = filemtime($addcss_file);
 			}
 			// CSS over write (skin dir)
 			$addcss_file = "{$skin_dirname}/{$basedir}{$skin}/{$css_src}.css";
 			if (file_exists($addcss_file)) {
-				$addcss .= join('', file($addcss_file)) . "\n";
+				$addcss .= file_get_contents($addcss_file) . "\n";
 				$addcsstime = max($addcsstime, filemtime($addcss_file));
 			}
 		}
@@ -254,7 +254,7 @@ if (file_exists($src_file)) {
 	
 	// 置換処理が必要?
 	if ($replace) {
-		$out = join("",file($src_file));
+		$out = file_get_contents($src_file);
 		if ($dir) {
 			if ($pre_id) $pre_id .= ' ';
 			$out = str_replace(array('$dir', '$class', '$pre_width', '$charset'),
@@ -303,7 +303,7 @@ if (file_exists($src_file)) {
 	$is_gz = false;
 	if ($gzip_fname && extension_loaded('zlib')) {
 		if (!$replace) {
-			$out = join("",file($src_file));
+			$out = file_get_contents($src_file);
 		}
 		if ($gzip_out = gzencode($out)) {
 			if ($fp = fopen($gzip_fname, 'wb')) {
@@ -371,5 +371,30 @@ function xpwiki_make_facemarks ($skin_dirname, $cache, $face_tag_ver) {
 		fclose($fp);
 	}
 	return $tags;
+}
+
+// file_get_contents -- Reads entire file into a string
+// (PHP 4 >= 4.3.0, PHP 5)
+if (! function_exists('file_get_contents')) {
+	function file_get_contents($filename, $incpath = false, $resource_context = null)
+	{
+		if (false === $fh = fopen($filename, 'rb', $incpath)) {
+			trigger_error('file_get_contents() failed to open stream: No such file or directory', E_USER_WARNING);
+			return false;
+		}
+ 
+		clearstatcache();
+		if ($fsize = @filesize($filename)) {
+			$data = fread($fh, $fsize);
+		} else {
+			$data = '';
+			while (!feof($fh)) {
+				$data .= fread($fh, 8192);
+			}
+		}
+ 
+		fclose($fh);
+		return $data;
+	}
 }
 ?>

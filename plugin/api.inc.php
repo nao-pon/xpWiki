@@ -1,7 +1,7 @@
 <?php
 /*
  * Created on 2007/04/11 by nao-pon http://hypweb.net/
- * $Id: api.inc.php,v 1.6 2008/02/11 00:21:27 nao-pon Exp $
+ * $Id: api.inc.php,v 1.7 2008/02/11 01:02:41 nao-pon Exp $
  */
 
 class xpwiki_plugin_api extends xpwiki_plugin {
@@ -31,7 +31,7 @@ class xpwiki_plugin_api extends xpwiki_plugin {
 		$cache = $this->cont['CACHE_DIR'].sha1($base).'.autolink.api';
 		
 		if (file_exists($cache)) {
-			$out = join('',file($cache));
+			$out = file_get_contents($cache);
 		} else {
 			$pages = array();
 			if (!$base || $this->func->is_page($base)) {

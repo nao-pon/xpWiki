@@ -1,7 +1,7 @@
 <?php
 /*
  * Created on 2007/09/21 by nao-pon http://hypweb.net/
- * $Id: bgrun.php,v 1.4 2007/10/15 08:27:24 nao-pon Exp $
+ * $Id: bgrun.php,v 1.5 2008/02/11 01:02:41 nao-pon Exp $
  */
 
 error_reporting(0);
@@ -20,7 +20,7 @@ $xpwiki->init('#RenderMode');
 if ($xpwiki->func->is_page($page)) {
 	$_udp_file = $xpwiki->cont['CACHE_DIR'].$xpwiki->func->encode($page).".udp";
 	if (file_exists($_udp_file)) {
-		$_udp_mode = join('',file($_udp_file));
+		$_udp_mode = file_get_contents($_udp_file);
 		unlink($_udp_file);
 		$xpwiki->func->plain_db_write($page, $_udp_mode);
 	}

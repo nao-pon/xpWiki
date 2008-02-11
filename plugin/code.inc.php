@@ -1,7 +1,7 @@
 <?php
 //
 // Created on 2006/10/25 by nao-pon http://hypweb.net/
-// $Id: code.inc.php,v 1.14 2008/02/08 03:03:08 nao-pon Exp $
+// $Id: code.inc.php,v 1.15 2008/02/11 01:02:41 nao-pon Exp $
 //
 
 class xpwiki_plugin_code extends xpwiki_plugin {
@@ -265,7 +265,7 @@ class xpwiki_plugin_code extends xpwiki_plugin {
 		if (!file_exists($this->cont['CACHE_DIR'].'plugin/'.$file.'.code')) {
 			return array("",array());
 		}
-		$fdata = join('', file($this->cont['CACHE_DIR'].'plugin/'.$file.'.code'));
+		$fdata = file_get_contents($this->cont['CACHE_DIR'].'plugin/'.$file.'.code');
 
 		//foreach ($filelines as $line)
 		//	$fdata .= $line;

@@ -552,7 +552,7 @@ function convert_s2u ($files, $mydirname) {
 	$input = $files[0];
 	
 	$org_file = $_FILES['userfile']['tmp_name'];
-	$dat = join("",file($org_file));
+	$dat = file_get_contents($org_file);
 	
 	$dat = preg_replace("/((?:^|\n|\r)\s*class\s+xpwiki_)(plugin(_\w+)\s+extends\s+xpwiki_plugin)/","$1".$mydirname."_$2$3",$dat);
 	
@@ -569,5 +569,30 @@ function convert_s2u ($files, $mydirname) {
 	echo $dat;
 	exit;
 
+}
+
+// file_get_contents -- Reads entire file into a string
+// (PHP 4 >= 4.3.0, PHP 5)
+if (! function_exists('file_get_contents')) {
+	function file_get_contents($filename, $incpath = false, $resource_context = null)
+	{
+		if (false === $fh = fopen($filename, 'rb', $incpath)) {
+			trigger_error('file_get_contents() failed to open stream: No such file or directory', E_USER_WARNING);
+			return false;
+		}
+ 
+		clearstatcache();
+		if ($fsize = @filesize($filename)) {
+			$data = fread($fh, $fsize);
+		} else {
+			$data = '';
+			while (!feof($fh)) {
+				$data .= fread($fh, 8192);
+			}
+		}
+ 
+		fclose($fh);
+		return $data;
+	}
 }
 ?>

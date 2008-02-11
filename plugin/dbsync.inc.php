@@ -1,7 +1,7 @@
 <?php
 //
 // Created on 2006/11/17 by nao-pon http://hypweb.net/
-// $Id: dbsync.inc.php,v 1.23 2008/01/17 11:48:34 nao-pon Exp $
+// $Id: dbsync.inc.php,v 1.24 2008/02/11 01:02:41 nao-pon Exp $
 //
 
 class xpwiki_plugin_dbsync extends xpwiki_plugin {
@@ -254,7 +254,7 @@ __EOD__;
 			$done = 0;
 			if (file_exists($work))
 			{
-				$dones = unserialize(join('',file($work)));
+				$dones = unserialize(file_get_contents($work));
 				if (!isset($dones[1])) $dones[1] = array();
 				$docnt = count($dones[1]);
 				$domix = array_merge($dones[0],$dones[1]);
@@ -440,7 +440,7 @@ __EOD__;
 			$done = 0;
 			if (file_exists($work))
 			{
-				$dones = unserialize(join('',file($work)));
+				$dones = unserialize(file_get_contents($work));
 				if (!isset($dones[1])) $dones[1] = array();
 				$docnt = count($dones[1]);
 				$domix = array_merge($dones[0],$dones[1]);
@@ -549,7 +549,7 @@ __EOD__;
 			$done = 0;
 			if (file_exists($work))
 			{
-				$dones = unserialize(join('',file($work)));
+				$dones = unserialize(file_get_contents($work));
 				if (!isset($dones[1])) $dones[1] = array();
 				$docnt = count($dones[1]);
 				$domix = array_merge($dones[0],$dones[1]);
@@ -683,7 +683,7 @@ __EOD__;
 			$done = 0;
 			if (file_exists($work))
 			{
-				$dones = unserialize(join('',file($work)));
+				$dones = unserialize(file_get_contents($work));
 				if (!isset($dones[1])) $dones[1] = array();
 				$docnt = count($dones[1]);
 				$domix = array_merge($dones[0],$dones[1]);

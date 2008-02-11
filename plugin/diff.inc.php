@@ -6,7 +6,7 @@ class xpwiki_plugin_diff extends xpwiki_plugin {
 
 	}
 	// PukiWiki - Yet another WikiWikiWeb clone.
-	// $Id: diff.inc.php,v 1.3 2007/09/19 12:10:10 nao-pon Exp $
+	// $Id: diff.inc.php,v 1.4 2008/02/11 01:02:41 nao-pon Exp $
 	// Copyright (C)
 	//   2002-2005 PukiWiki Developers Team
 	//   2002      Originally written by yu-ji
@@ -58,7 +58,7 @@ class xpwiki_plugin_diff extends xpwiki_plugin {
 				$menu[] = '<li><a href="' . $this->root->script . '?cmd=diff&amp;action=delete&amp;page=' .
 				$r_page . '">' . str_replace('$1', $s_page, $this->root->_title_diff_delete) . '</a></li>';
 			}
-			$msg = '<pre>' . $this->func->diff_style_to_css(htmlspecialchars(join('', file($filename)))) . '</pre>' . "\n";
+			$msg = '<pre>' . $this->func->diff_style_to_css(htmlspecialchars(file_get_contents($filename))) . '</pre>' . "\n";
 		} else if ($is_page) {
 			$diffdata = trim(htmlspecialchars($this->func->get_source($page, TRUE, TRUE)));
 			$msg = '<pre><span class="diff_added">' . $diffdata . '</span></pre>' . "\n";

@@ -6,7 +6,7 @@ class xpwiki_plugin_yetlist extends xpwiki_plugin {
 
 	}
 	// PukiWiki - Yet another WikiWikiWeb clone
-	// $Id: yetlist.inc.php,v 1.2 2006/11/19 11:22:15 nao-pon Exp $
+	// $Id: yetlist.inc.php,v 1.3 2008/02/11 01:02:41 nao-pon Exp $
 	// Copyright (C) 2001-2006 PukiWiki Developers Team
 	// License: GPL v2 or (at your option) any later version
 	//
@@ -22,7 +22,7 @@ class xpwiki_plugin_yetlist extends xpwiki_plugin {
 		$yetlists = array();
 		if (file_exists($this->cont['CACHE_DIR']."yetlist.dat"))
 		{
-			$yetlists = unserialize(join("",file($this->cont['CACHE_DIR']."yetlist.dat")));
+			$yetlists = unserialize(file_get_contents($this->cont['CACHE_DIR']."yetlist.dat"));
 		}
 
 		if (empty($yetlists)) {
