@@ -6,7 +6,7 @@ class xpwiki_plugin_menu extends xpwiki_plugin {
 	/////////////////////////////////////////////////
 	// PukiWiki - Yet another WikiWikiWeb clone.
 	//
-	// $Id: menu.inc.php,v 1.6 2008/02/08 03:02:18 nao-pon Exp $
+	// $Id: menu.inc.php,v 1.7 2008/02/11 00:23:04 nao-pon Exp $
 	//
 	
 	// サブメニューを使用する
@@ -64,7 +64,7 @@ class xpwiki_plugin_menu extends xpwiki_plugin {
 				if ($this->root->render_mode === 'block' && $this->root->runmode === "xoops") {
 					$menutext = preg_replace("/^#xoopsblock.*$/m","",$menutext);
 				}
-				return '<div class="menuber">' . preg_replace('/<ul[^>]*>/', '<ul>', $this->func->convert_html($menutext)) . '</div>';  
+				return '<div class="menuber">' . $this->func->convert_html($menutext) . '</div>';  
 			}
 		}
 	}
