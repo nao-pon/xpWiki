@@ -10,7 +10,7 @@
 
 /*
  * Created on 2008/02/07 by nao-pon http://hypweb.net/
- * $Id: ajaxtree.inc.php,v 1.2 2008/02/08 08:25:21 nao-pon Exp $
+ * $Id: ajaxtree.inc.php,v 1.3 2008/02/11 00:19:22 nao-pon Exp $
  */
 
 class xpwiki_plugin_ajaxtree extends xpwiki_plugin {
@@ -389,7 +389,7 @@ class xpwiki_plugin_ajaxtree extends xpwiki_plugin {
 			$offset = strrpos($pages[0], '/') + 1;
 		}
 
-		$html = '<ul>';
+		$html = '<ul class="depth_'.$depth.'">';
 		foreach ($pages as $page) {
 			$indents = str_repeat(' ', $depth);
 			$title	 = htmlspecialchars($page);
