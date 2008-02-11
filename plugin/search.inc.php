@@ -4,7 +4,7 @@ class xpwiki_plugin_search extends xpwiki_plugin {
 
 
 	// PukiWiki - Yet another WikiWikiWeb clone.
-	// $Id: search.inc.php,v 1.4 2007/05/28 07:57:42 nao-pon Exp $
+	// $Id: search.inc.php,v 1.5 2008/02/11 00:24:59 nao-pon Exp $
 	//
 	// Search plugin
 	
@@ -57,6 +57,11 @@ class xpwiki_plugin_search extends xpwiki_plugin {
 			if (!empty($this->root->vars['search_text'])) $fields[] = 'text';
 			if (!empty($this->root->vars['search_source'])) $fields[] = 'source';
 			$filed = join(',', $fields);
+			if (!$filed) {
+				$this->root->vars['search_name'] = 1;
+				$this->root->vars['search_text'] = 1;
+				$filed = 'name,text';
+			}
 			
 			$msg  = str_replace('$1', $s_word, $this->root->_title_result);
 			$body = $this->func->do_search($this->root->vars['word'], $type, FALSE, $base, TRUE, $filed);
