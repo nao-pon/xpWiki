@@ -1,7 +1,7 @@
 <?php
 /*
  * Created on 2007/04/11 by nao-pon http://hypweb.net/
- * $Id: api.inc.php,v 1.5 2007/11/09 07:11:15 nao-pon Exp $
+ * $Id: api.inc.php,v 1.6 2008/02/11 00:21:27 nao-pon Exp $
  */
 
 class xpwiki_plugin_api extends xpwiki_plugin {
@@ -42,17 +42,25 @@ class xpwiki_plugin_api extends xpwiki_plugin {
 				$this->root->userinfo['uid'] = 0;
 				
 				$options['where'] = '`name` NOT LIKE ":%"';
-				$pages = $this->func->get_existpages(FALSE, $base, $options);
+				$pages = $this->func->get_existpages(FALSE, ($base ? ($base . '/') : ''), $options);
 				
 				$this->root->userinfo['admin'] = $temp[0];
 				$this->root->userinfo['uid'] = $temp[1];
 				
-				$_aliases = array_keys(array_intersect($this->root->page_aliases, $pages));
-				$pages = array_merge($pages, $_aliases);
-				
+				// Get all aliases
+				$all_aliases = array_keys(array_intersect($this->root->page_aliases,  $this->func->get_existpages()));
 				if ($base) {
-					$pages = array_diff($pages, array($base));
+					// Extract from all aliases
+					foreach($all_aliases as $_aliase) {
+						if (strpos($_aliase, $base . '/') === 0) {
+							$pages[] = $_aliase;
+						}
+					}
+					// Strip $base
 					$pages = array_map(create_function('$page','return substr($page,'.(strlen($base)+1).');'), $pages);
+				} else {
+					// Merge with all aliases
+					$pages = array_merge($pages, $all_aliases);
 				}
 			}
 			
