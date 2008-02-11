@@ -1,6 +1,6 @@
 <?php
 // PukiWiki - Yet another WikiWikiWeb clone
-// $Id: showrss.inc.php,v 1.6 2007/12/05 03:04:11 nao-pon Exp $
+// $Id: showrss.inc.php,v 1.7 2008/02/11 01:02:41 nao-pon Exp $
 //  Id:showrss.inc.php,v 1.40 2003/03/18 11:52:58 hiro Exp
 // Copyright (C):
 //     2002-2006 PukiWiki Developers Team
@@ -91,7 +91,7 @@ class xpwiki_plugin_showrss extends xpwiki_plugin {
 			$filename = $this->cont['CACHE_DIR'] . 'plugin/' . $this->func->encode($target) . '.showrss';
 			
 			if (is_readable($filename) && (filemtime($filename) + $cachehour * 60 * 60) > time()) {
-				$data  = unserialize(join('', file($filename)));
+				$data  = unserialize(file_get_contents($filename));
 				$time = filemtime($filename) - $this->cont['LOCALZONE'];
 			}
 		}

@@ -1,7 +1,7 @@
 <?php
 //
 // Created on 2006/10/02 by nao-pon http://hypweb.net/
-// $Id: xpwiki_func.php,v 1.144 2008/02/11 00:17:09 nao-pon Exp $
+// $Id: xpwiki_func.php,v 1.145 2008/02/11 01:02:41 nao-pon Exp $
 //
 class XpWikiFunc extends XpWikiXoopsWrapper {
 
@@ -441,7 +441,7 @@ class XpWikiFunc extends XpWikiXoopsWrapper {
 		
 		if ($use_cache) {
 			// キャッシュ利用
-			$cache_dat = unserialize(join('',file($cache_file)));
+			$cache_dat = unserialize(file_get_contents($cache_file));
 			if (!is_array(@ $GLOBALS['Xpwiki_'.$this->root->mydirname]['cache'])) {
 				$GLOBALS['Xpwiki_'.$this->root->mydirname]['cache'] = array();
 			}
@@ -1084,7 +1084,7 @@ EOD;
 		$sep = "&#182;<!--ADD_TEXT_SEP-->\n";
 		$limit = 5;
 		
-		$data = @join('',@file($add_file));
+		$data = @file_get_contents($add_file);
 		if ($data) {
 			$adds = preg_split("/".preg_quote($sep,"/")."/",$data);
 			$adds = array_slice($adds,0,$limit-1);
@@ -1107,7 +1107,7 @@ EOD;
 		$id = $this->get_pgid_by_name($page);
 		$add_file = $this->cont['DIFF_DIR'].$id.".add";
 		if (file_exists($add_file)) {
-			return join('', file($add_file));
+			return file_get_contents($add_file);
 		} else {
 			return '';
 		}
@@ -1217,7 +1217,7 @@ EOD;
 			touch($file);
 			$org = '';
 		} else {
-			$org = join('', file($file));
+			$org = file_get_contents($file);
 			$org = preg_replace('/^<\?php\n(.*)\n\?>$/s', '$1', $org);
 		}
 		
@@ -2012,7 +2012,7 @@ EOD;
 				
 				if (file_exists($this->cont['CACHE_DIR']."yetlist.dat"))
 				{
-					$yetlists = unserialize(join("",file($this->cont['CACHE_DIR']."yetlist.dat")));
+					$yetlists = unserialize(file_get_contents($this->cont['CACHE_DIR']."yetlist.dat"));
 				}
 				
 				// ページ新規作成されたらリストから除外

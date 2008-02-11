@@ -1,7 +1,7 @@
 <?php
 //
 // Created on 2006/10/16 by nao-pon http://hypweb.net/
-// $Id: compat.php,v 1.5 2007/11/26 08:30:34 nao-pon Exp $
+// $Id: compat.php,v 1.6 2008/02/11 01:02:41 nao-pon Exp $
 //
 
 //// mbstring ////
@@ -72,4 +72,28 @@ if (! function_exists('sha1')) {
 	}
 }
 
+// file_get_contents -- Reads entire file into a string
+// (PHP 4 >= 4.3.0, PHP 5)
+if (! function_exists('file_get_contents')) {
+	function file_get_contents($filename, $incpath = false, $resource_context = null)
+	{
+		if (false === $fh = fopen($filename, 'rb', $incpath)) {
+			trigger_error('file_get_contents() failed to open stream: No such file or directory', E_USER_WARNING);
+			return false;
+		}
+ 
+		clearstatcache();
+		if ($fsize = @filesize($filename)) {
+			$data = fread($fh, $fsize);
+		} else {
+			$data = '';
+			while (!feof($fh)) {
+				$data .= fread($fh, 8192);
+			}
+		}
+ 
+		fclose($fh);
+		return $data;
+	}
+}
 ?>

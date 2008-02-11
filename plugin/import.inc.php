@@ -1,7 +1,7 @@
 <?php
 /*
  * Created on 2007/05/22 by nao-pon http://hypweb.net/
- * $Id: import.inc.php,v 1.6 2007/12/05 08:06:04 nao-pon Exp $
+ * $Id: import.inc.php,v 1.7 2008/02/11 01:02:41 nao-pon Exp $
  */
 
 class xpwiki_plugin_import extends xpwiki_plugin {
@@ -388,7 +388,7 @@ EOD;
 		@ set_time_limit($this->timelimit);
 		$timelimit = time() + (min(ini_get('max_execution_time'),$this->timelimit)) - 5;
 
-		list($op, $files) = unserialize(join('',file($this->cont['CACHE_DIR'].'copy.import')));
+		list($op, $files) = unserialize(file_get_contents($this->cont['CACHE_DIR'].'copy.import'));
 		// proceed
 		$umask = umask(0777 xor $this->FILEMODE);
 		

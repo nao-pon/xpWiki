@@ -1,5 +1,5 @@
 <?php
-// $Id: ref.inc.php,v 1.22 2008/01/16 05:28:47 nao-pon Exp $
+// $Id: ref.inc.php,v 1.23 2008/02/11 01:02:41 nao-pon Exp $
 /*
 
 	*プラグイン ref
@@ -926,7 +926,7 @@ _HTML_;
 			} else {
 				// ファイルが取得できないので noimage とする
 				$copyright = 0;
-				$dat['data'] = join('',file($this->cont['IMAGE_DIR'].'noimage.png'));
+				$dat['data'] = file_get_contents($this->cont['IMAGE_DIR'].'noimage.png');
 			}
 			if ($this->cache_image_save($dat['data'], $lvar['page'], $filename, $name, $copyright)) {
 				$cache = TRUE;

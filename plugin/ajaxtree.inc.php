@@ -10,7 +10,7 @@
 
 /*
  * Created on 2008/02/07 by nao-pon http://hypweb.net/
- * $Id: ajaxtree.inc.php,v 1.3 2008/02/11 00:19:22 nao-pon Exp $
+ * $Id: ajaxtree.inc.php,v 1.4 2008/02/11 01:02:41 nao-pon Exp $
  */
 
 class xpwiki_plugin_ajaxtree extends xpwiki_plugin {
@@ -450,7 +450,7 @@ class xpwiki_plugin_ajaxtree extends xpwiki_plugin {
 	
 	function plugin_ajaxtree_read_file($filename)
 	{
-		return join('', file($filename));
+		return file_get_contents($filename);
 	}
 	
 	function plugin_ajaxtree_write_file($filename, $data)

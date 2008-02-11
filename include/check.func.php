@@ -1,7 +1,7 @@
 <?php
 //
 // Created on 2006/11/07 by nao-pon http://hypweb.net/
-// $Id: check.func.php,v 1.12 2008/01/30 13:47:48 nao-pon Exp $
+// $Id: check.func.php,v 1.13 2008/02/11 01:02:41 nao-pon Exp $
 //
 
 // when onInstall & onUpdate
@@ -114,7 +114,7 @@ function xpwikifunc_defdata_check ($mydirname, $mode = 'install') {
 							}
 							
 							// Reformat source
-							$src = join('', file($from.'/'.$file));
+							$src = file_get_contents($from.'/'.$file);
 							$src = $xpwiki->func->remove_pginfo($src);
 							$src_freeze = false;
 							if (!$_file_exist) {
@@ -162,7 +162,7 @@ function xpwikifunc_defdata_check ($mydirname, $mode = 'install') {
 }
 
 function xpwikifunc_conv_utf($file, $utf8from) {
-	$dat = join('', file($file));
+	$dat = file_get_contents($file);
 	$dat = mb_convert_encoding($dat, 'UTF-8', $utf8from);
 	if ($fp = fopen($file, 'wb')) {
 		fwrite($fp, $dat);

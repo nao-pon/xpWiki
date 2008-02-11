@@ -9,7 +9,7 @@ class xpwiki_plugin_attach extends xpwiki_plugin {
 	/////////////////////////////////////////////////
 	// PukiWiki - Yet another WikiWikiWeb clone.
 	//
-	//  $Id: attach.inc.php,v 1.33 2008/01/20 14:28:35 nao-pon Exp $
+	//  $Id: attach.inc.php,v 1.34 2008/02/11 01:02:41 nao-pon Exp $
 	//  ORG: attach.inc.php,v 1.31 2003/07/27 14:15:29 arino Exp $
 	//
 	
@@ -353,7 +353,7 @@ class xpwiki_plugin_attach extends xpwiki_plugin {
 				{
 					$this->attach_chmod($_pagecss_file);
 					// 空のファイルの場合はファイル削除
-					if (!trim(join('',file($_pagecss_file))))
+					if (!trim(file_get_contents($_pagecss_file)))
 					{
 						unlink($_pagecss_file);
 						return array('result'=>TRUE,'msg'=>$this->root->_attach_messages['msg_unset_css']);
@@ -361,7 +361,7 @@ class xpwiki_plugin_attach extends xpwiki_plugin {
 					else
 					{
 						// 外部ファイルの参照を禁止するための書き換え
-						$_data = join('',file($_pagecss_file));
+						$_data = file_get_contents($_pagecss_file);
 						$_data = preg_replace("#(ht|f)tps?://#","",$_data);
 						if ($fp = fopen($_pagecss_file,"wb"))
 						{

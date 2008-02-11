@@ -1,5 +1,5 @@
 <?php
-// $Id: versionlist.inc.php,v 1.2 2006/11/06 08:07:09 nao-pon Exp $
+// $Id: versionlist.inc.php,v 1.3 2008/02/11 01:02:41 nao-pon Exp $
 /*
  * PukiWiki versionlist plugin
  *
@@ -80,7 +80,7 @@ EOD;
 			{
 				continue;
 			}
-			$data = join('',file($sdir.'/'.$file));
+			$data = file_get_contents($sdir.'/'.$file);
 			$comment = array('file'=>htmlspecialchars(str_replace($this->root->mytrustdirpath,'TRUST',$sdir.'/'.$file)),'rev'=>'','date'=>'');
 			if (preg_match('/\$'.'Id: (.+),v (\d+\.\d+) (\d{4}\/\d{2}\/\d{2} \d{2}:\d{2}:\d{2})/',$data,$matches))
 			{

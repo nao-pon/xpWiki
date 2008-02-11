@@ -31,7 +31,7 @@
 //
 // fusen.inc.php for xpWiki by nao-pon
 // http://xoops.hypweb.net
-// $Id: fusen.inc.php,v 1.18 2008/02/08 08:25:21 nao-pon Exp $
+// $Id: fusen.inc.php,v 1.19 2008/02/11 01:02:41 nao-pon Exp $
 // 
 
 class xpwiki_plugin_fusen extends xpwiki_plugin {
@@ -688,7 +688,7 @@ EOD;
 		$json = '<?xml version="1.0" encoding="UTF-8"?'.'>'."\n".'<fusen><![CDATA[' . str_replace("\0","",mb_convert_encoding($json, $to, $this->cont['SOURCE_ENCODING'])) . ']]></fusen>';
 		
 		// 変更チェック
-		$old = @join('',@file($fname));
+		$old = @file_get_contents($fname);
 		if ($json == $old) return;
 		
 		$fp = false;

@@ -1,7 +1,7 @@
 <?php
 //
 // Created on 2006/10/13 by nao-pon http://hypweb.net/
-// $Id: init.php,v 1.43 2008/01/29 23:45:25 nao-pon Exp $
+// $Id: init.php,v 1.44 2008/02/11 01:02:41 nao-pon Exp $
 //
 
 $root = & $this->root;
@@ -378,7 +378,7 @@ if (isset($const['page_show'])) {
 		$_udp_file = $const['CACHE_DIR'].$this->encode($root->vars['page']).".udp";
 		if (file_exists($_udp_file)) {
 			if (@$root->vars['cmd'] === 'read' && empty($this->root->bgrun_with_img)) {
-				$_udp_mode = join('',file($_udp_file));
+				$_udp_mode = file_get_contents($_udp_file);
 				unlink($_udp_file);
 
 				// ブラウザとのコネクションが切れても実行し続ける
@@ -448,7 +448,7 @@ $root->now = $this->format_date($const['UTIME']);
 
 // 実体参照パターンおよびシステムで使用するパターンを$line_rulesに加える
 //$entity_pattern = '[a-zA-Z0-9]{2,8}';
-$root->entity_pattern = trim(join('', file($const['CACHE_DIR'] . $const['PKWK_ENTITIES_REGEX_CACHE'])));
+$root->entity_pattern = trim(file_get_contents($const['CACHE_DIR'] . $const['PKWK_ENTITIES_REGEX_CACHE']));
 
 $root->line_rules = array_merge(array(
 	'&amp;(#[0-9]+|#x[0-9a-f]+|' . $root->entity_pattern . ');' => '&$1;',
