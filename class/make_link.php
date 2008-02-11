@@ -496,11 +496,12 @@ EOD;
 		if (preg_match('/^([^#]+)(#[A-Za-z][\w-]*)$/', $this->param, $matches))
 			list (, $this->param, $this->anchor) = $matches;
 
-		$url =& $this->func->get_interwiki_url($name, $this->param);
+		$_param = $this->param;
+		$url =& $this->func->get_interwiki_url($name, $_param);
 		
 		if (is_object($url)) {
 			$this->otherObj =& $url;
-			return parent :: setParam($page, htmlspecialchars($this->param), '', 'pagename', $alias == '' ? $name.':'.$this->param : $alias);
+			return parent :: setParam($page, htmlspecialchars($_param), '', 'pagename', $alias == '' ? $name.':'.$this->param : $alias);
 		}
 
 		if (!$url) return false;
