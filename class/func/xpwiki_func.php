@@ -1,7 +1,7 @@
 <?php
 //
 // Created on 2006/10/02 by nao-pon http://hypweb.net/
-// $Id: xpwiki_func.php,v 1.143 2008/02/08 02:55:51 nao-pon Exp $
+// $Id: xpwiki_func.php,v 1.144 2008/02/11 00:17:09 nao-pon Exp $
 //
 class XpWikiFunc extends XpWikiXoopsWrapper {
 
@@ -842,6 +842,7 @@ EOD;
 			$var = '"' . htmlspecialchars($var) . '"';
 		}
 		array_unshift($this->root->head_pre_tags, '<script type="text/javascript">' . $name . ' = ' . $var . ';</script>');
+		$this->root->rtf['useJavascriptInHead'] = TRUE;
 	}
 	
 	function add_tag_head ($file, $pre = FALSE, $charset = '') {
@@ -870,6 +871,7 @@ EOD;
 				$this->root->{$target}[] = '<link rel="stylesheet" type="text/css" media="all" href="'.$this->cont['LOADER_URL'].'?skin='.$this->cont['SKIN_NAME'].'&amp;'.$mode.$cssprefix.'src='.$match[1].'.css"' . $charset . ' />';
 			} else if ($match[2] === 'js') {
 				$this->root->{$target}[] = '<script type="text/javascript" src="'.$this->cont['LOADER_URL'].'?src='.$match[1].'.js"' . $charset . '></script>';
+				$this->root->rtf['useJavascriptInHead'] = TRUE;
 			}
 		}	
 	}
@@ -885,6 +887,7 @@ EOD;
 		$target = $pre? 'head_pre_tags' : 'head_tags';
 		
 		$this->root->{$target}[] = '<script type="text/javascript" src="' . $file . '"' . $charset . '></script>';
+		$this->root->rtf['useJavascriptInHead'] = TRUE;
 	}
 
 	// リファラチェック $blank = 1 で未設定も不許可(デフォルトで未設定は許可)

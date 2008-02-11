@@ -411,7 +411,7 @@ function xpwiki_ajax_edit_post(orgRequest) {
 
 function xpwiki_ajax_edit_cancel() {
 	if (xpwiki_ajax_edit_var["id"]) {
-		if (xpwiki_ajax_edit_var["html"].match('<script')) {
+		if (xpwiki_ajax_edit_var["html"].match(/<script[^>]+src=/)) {
 			xpwiki_ajax_edit_var["html"] = '';
 			location.reload();
 			return false;
