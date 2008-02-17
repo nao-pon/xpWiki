@@ -1,6 +1,6 @@
 <?php
 // PukiWiki - Yet another WikiWikiWeb clone.
-// $Id: default.ini.php,v 1.7 2007/11/07 23:47:17 nao-pon Exp $
+// $Id: default.ini.php,v 1.8 2008/02/17 14:25:49 nao-pon Exp $
 // Copyright (C)
 //   2003-2005 PukiWiki Developers Team
 //   2001-2002 Originally written by yu-ji
@@ -113,7 +113,21 @@ $root->use_extra_facemark = 1;
 
 /////////////////////////////////////////////////
 // メニューバーを表示する
-$this->root->show_menu_bar = 0;
+$root->show_menu_bar = 0;
+
+/////////////////////////////////////////////////
+// 長い英数文字列を表示域に合わせて改行する設定
+// Setting to which long character string is set
+// to display region and it changes line.
+
+// Insert to after '/' of pagename.
+$root->hierarchy_insert = '&#8203;';
+
+// Long word break limit
+$root->word_break_limit = 40;
+
+// WordBeark ('&#8203;' or '<wbr>' or '' etc.)
+$root->word_breaker = '&#8203;';
 
 /////////////////////////////////////////////////
 // ユーザ定義ルール
