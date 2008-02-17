@@ -75,6 +75,12 @@ div.resizableResizeXY {
 	opacity: 0.6;
 }
 
+img.xpwikiFavicon {
+	border: none;
+	padding: 0px 1px 0px 0px;
+	margin: 0px;
+}
+
 $class {
 	background-color:inherit;
 	width:100%;
@@ -139,6 +145,10 @@ $class a.ext {
 	background-repeat: no-repeat;
 	background-position: left 3px;
 	padding-left: 12px;
+}
+
+$class a.extWithFavicon {
+	border-bottom: 1px blue dotted;
 }
 
 $class a.pagelink {

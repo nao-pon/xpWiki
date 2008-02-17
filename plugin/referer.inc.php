@@ -3,7 +3,7 @@ class xpwiki_plugin_referer extends xpwiki_plugin {
 	function plugin_referer_init () {
 
 
-	// $Id: referer.inc.php,v 1.7 2008/02/04 23:50:09 nao-pon Exp $
+	// $Id: referer.inc.php,v 1.8 2008/02/17 14:27:06 nao-pon Exp $
 	/*
 	 * PukiWiki Referer プラグイン(リンク元表示プラグイン)
 	 * (C) 2003, Katsumi Saito <katsumi@jo1upk.ymt.prug.or.jp>
@@ -118,10 +118,7 @@ class xpwiki_plugin_referer extends xpwiki_plugin {
 			$s_url = htmlspecialchars(mb_convert_encoding(rawurldecode($url), $this->cont['SOURCE_ENCODING'], 'auto'));
 			$s_url = str_replace('&amp;amp;', '&amp;', $s_url);
 			
-			// 長い英数を折り返す
-			$s_url = str_replace('&amp;amp;', '&amp;', $s_url);
 			$s_url = preg_replace('#^https?://#i', '', $s_url);
-			$s_url = preg_replace('#([\/\+:\#]|%[0-9a-f]{2}|%u[0-9a-f]{4}|_|&amp;)#i', '$1&#8203;', $s_url);
 			
 			$lpass = $this->func->get_passage($ltime, FALSE); // 最終更新日時からの経過時間
 			$spass = $this->func->get_passage($stime, FALSE); // 初回登録日時からの経過時間
@@ -132,19 +129,19 @@ class xpwiki_plugin_referer extends xpwiki_plugin {
 			$body .=
 				' <tr'.$class.'>' . "\n" .
 			'  <td nowrap="nowrap">' . $ldate . '</td>' . "\n" .
-			'  <td><small>(' . $lpass . ')</small></td>' . "\n";
+			'  <td nowrap="nowrap"><small>(' . $lpass . ')</small></td>' . "\n";
 	
 			$body .= ($count == 1) ?
 				'  <td colspan="2">&nbsp;&#8656;</td>' . "\n" :
 				'  <td nowrap="nowrap">' . $sdate . '</td>' . "\n" .
-			'  <td><small>(' . $spass . ')</small></td>' . "\n";
+			'  <td nowrap="nowrap"><small>(' . $spass . ')</small></td>' . "\n";
 	
 			$body .= '  <td style="text-align:right;font-weight:bold;">' . $count . '</td>' . "\n";
 	
 			// 適用不可データのときはアンカーをつけない
 			$body .= $this->plugin_referer_ignore_check($url) ?
 				'  <td>' . $s_url . '</td>' . "\n" :
-				'  <td><a href="' . $e_url . '" rel="nofollow">' . $s_url . '</a></td>' . "\n";
+				'  <td><a href="' . $e_url . '" rel="nofollow" class="referer">' . $this->func->get_favicon_img($e_url) . ' ' . $s_url . '</a></td>' . "\n";
 	
 			$body .= ' </tr>' . "\n";
 		}

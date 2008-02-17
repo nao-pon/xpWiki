@@ -1,7 +1,7 @@
 <?php
 //
 // Created on 2006/10/25 by nao-pon http://hypweb.net/
-// $Id: loader.php,v 1.39 2008/02/11 01:02:41 nao-pon Exp $
+// $Id: loader.php,v 1.40 2008/02/17 14:27:06 nao-pon Exp $
 //
 
 error_reporting(0);
@@ -30,6 +30,11 @@ $cache_path = $root_path.'/private/cache/';
 $face_tag_ver = 1.0;
 $method = empty($_SERVER['REQUEST_METHOD'])? 'GET' : strtoupper($_SERVER['REQUEST_METHOD']);
 $pre_id = '';
+
+if ($src === 'favicon') {
+	require XOOPS_TRUST_PATH.'/class/hyp_common/favicon/favicon.php';
+	exit();
+}
 
 if (preg_match("/^(.+)\.([^.]+)$/",$src,$match)) {
 	$type = $match[2];

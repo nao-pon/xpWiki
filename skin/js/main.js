@@ -250,11 +250,13 @@ function xpwiki_now_loading(mode, id) {
 			var objBody = document.getElementsByTagName("body").item(0);
 			var objBack = document.createElement("div");
 			objBack.setAttribute('id', 'xpwiki_loading');
-			Element.setStyle(objBack, {'display': 'none'});
+			Element.setStyle(objBack, {display : 'none'});
+			Element.setStyle(objBack, {position: 'absolute'});
 			objBody.appendChild(objBack);
 		}
-		
-		Position.clone($(id), $('xpwiki_loading'));
+	
+		//Position.clone($(id), $('xpwiki_loading'));
+		Element.clonePosition('xpwiki_loading', id);
 		
 		Element.show('xpwiki_loading');
 	} else {
@@ -282,7 +284,6 @@ function xpwiki_ajax_edit(url, id) {
 	pars += 'cmd=edit';
 	if (id) pars += '&paraid=' + encodeURIComponent(id);
 	pars += '&ajax=1';
-	
 	var myAjax = new Ajax.Request(
 		url, 
 		{
@@ -472,4 +473,5 @@ document.observe("dom:loaded", function() {
 		XpWiki.addWrapButton(tareas[i].id);
 	}
 	wikihelper_initTexts();
+	XpWiki.faviconSet();
 });
