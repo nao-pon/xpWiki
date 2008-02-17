@@ -1,7 +1,7 @@
 <?php
 /*
  * Created on 2007/05/13 by nao-pon http://hypweb.net/
- * $Id: setup.php,v 1.4 2007/06/29 08:54:29 nao-pon Exp $
+ * $Id: setup.php,v 1.5 2008/02/17 15:52:20 nao-pon Exp $
  */
 
 $ng = $out = '';
@@ -98,7 +98,11 @@ if (! file_exists($mydirpath . '/.installed')) {
 			$ng  .= '- chmod( '.$mydirpath .'/'.$dir.', 0707 ) - NG.' . "\n";
 		}
 	}
-
+	if (chmod(XOOPS_TRUST_PATH . '/class/hyp_common/favicon/cache', 0707)){
+		$out .= '- chmod( '.XOOPS_TRUST_PATH . '/class/hyp_common/favicon/cache, 0707 ) - OK.' . "\n";
+	} else {
+		$ng  .= '- chmod( '.XOOPS_TRUST_PATH . '/class/hyp_common/favicon/cache, 0707 ) - NG.' . "\n";
+	}
 	$out .= str_repeat('-', 40) . "\n";
 }
 
