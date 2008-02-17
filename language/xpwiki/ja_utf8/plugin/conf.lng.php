@@ -1,7 +1,7 @@
 <?php
 /*
  * Created on 2008/01/24 by nao-pon http://hypweb.net/
- * $Id: conf.lng.php,v 1.2 2008/01/30 07:29:41 nao-pon Exp $
+ * $Id: conf.lng.php,v 1.3 2008/02/17 14:16:47 nao-pon Exp $
  */
 
 $msg = array(
@@ -122,6 +122,11 @@ $msg = array(
 	'nofollow_extlink' => array(
 		'caption'     => '外部リンクに nofollow 属性をつける',
 		'description' => '',
+	),
+
+	'LC_CTYPE' => array(
+		'caption'     => 'ロケール(LC_CTYPE)',
+		'description' => '文字の分類と変換用のロケールを設定します。オートリンクなど正規表現で処理する場合に期待した結果にならない場合は、環境に合わせて設定してください。',
 	),
 
 	'autolink' => array(

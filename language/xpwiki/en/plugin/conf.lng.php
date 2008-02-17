@@ -1,7 +1,7 @@
 <?php
 /*
  * Created on 2008/01/24 by nao-pon http://hypweb.net/
- * $Id: conf.lng.php,v 1.2 2008/01/30 07:29:40 nao-pon Exp $
+ * $Id: conf.lng.php,v 1.3 2008/02/17 14:16:47 nao-pon Exp $
  */
 
 $msg = array(
@@ -123,6 +123,11 @@ each use page can be provided.<br />'
 	'nofollow_extlink' => array(
 		'caption'     => 'Set "nofollow" in Ext.Link?',
 		'description' => 'The "nofollow" attribute is applied to an external link.',
+	),
+
+	'LC_CTYPE' => array(
+		'caption'     => 'Locale (LC_CTYPE)',
+		'description' => 'The locale for character classification and conversion is set. Please set it according to the environment when expecting it when processing it by the regular expression such as auto links doesn\'t result. ',
 	),
 
 	'autolink' => array(
