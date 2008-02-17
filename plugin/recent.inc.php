@@ -1,5 +1,5 @@
 <?php
-// $Id: recent.inc.php,v 1.12 2008/02/08 08:25:21 nao-pon Exp $
+// $Id: recent.inc.php,v 1.13 2008/02/17 14:26:30 nao-pon Exp $
 // Copyright (C)
 //   2002-2006 PukiWiki Developers Team
 //   2002      Y.MASUI http://masui.net/pukiwiki/ masui@masui.net
@@ -113,7 +113,7 @@ class xpwiki_plugin_recent extends xpwiki_plugin {
 			$s_page = htmlspecialchars($page);
 			if($page === $this->root->vars['page']) {
 				// No need to link to the page you just read, or notify where you just read
-				$items .= ' <li><!--NA-->' . str_replace('/', '/&#8203;', $s_page) . '<!--/NA--></li>' . "\n";
+				$items .= ' <li><!--NA-->' . str_replace('/', '/' . $this->root->hierarchy_insert, $s_page) . '<!--/NA--></li>' . "\n";
 			} else {
 				$r_page = rawurlencode($page);
 				$passage = $this->root->show_passage ? ' ' . $this->func->get_passage($time) : '';
