@@ -1,7 +1,7 @@
 <?php
 //
 // Created on 2006/09/29 by nao-pon http://hypweb.net/
-// $Id: xpwiki.php,v 1.70 2008/02/08 02:55:51 nao-pon Exp $
+// $Id: xpwiki.php,v 1.71 2008/02/17 14:21:58 nao-pon Exp $
 //
 
 class XpWiki {
@@ -127,6 +127,9 @@ class XpWiki {
 			}
 		}
 
+		// Set Locale (LC_CTYPE only)
+		setlocale(LC_CTYPE, $this->cont['LC_CTYPE']);
+		
 		// 追加フェイスマークの処理
 		if ($this->root->use_extra_facemark) {
 			$this->root->facemark_rules = array_merge($this->func->get_extra_facemark(), $this->root->facemark_rules);
@@ -145,6 +148,16 @@ class XpWiki {
 		// Re-setting
 		if (strtolower($this->cont['PKWK_SAFE_MODE']) === 'auto') {
 			$this->cont['PKWK_SAFE_MODE'] = (! $this->root->userinfo['admin']);
+		}
+		
+		// favicon auto set JavaScript
+		if (! $this->root->can_not_connect_www) {
+			if ($this->root->favicon_set_classname) {
+				$this->func->add_js_var_head('XpWiki.faviconSetClass', $this->root->favicon_set_classname);
+			}
+			if ($this->root->favicon_replace_classname) {
+				$this->func->add_js_var_head('XpWiki.faviconReplaceClass', $this->root->favicon_replace_classname);
+			}
 		}
 		
 		// Object id
@@ -233,16 +246,7 @@ class XpWiki {
 				}
 			}
 			
-			// cont['USER_NAME_REPLACE'] などを 置換
-			$body = str_replace(
-					array($this->cont['USER_NAME_REPLACE'], $this->cont['USER_CODE_REPLACE']) ,
-					array($this->root->userinfo['uname_s'], $this->root->userinfo['ucd']) ,
-					$body);
-			
-			// For Safari
-			if ($this->cont['UA_NAME'] === 'Safari') {
-				$body = preg_replace('/(<form)([^>]*>)/' , '$1 accept-charset="UTF-8"$2', $body);
-			}
+			$func->convert_finisher($body);
 
 			// Outputas normal
 			if ($this->root->viewmode === 'normal') {
@@ -365,6 +369,7 @@ class XpWiki {
 		// 実行
 		if ($src) {
 			$this->body = $this->func->convert_html($src);
+			/*
 			// cont['USER_NAME_REPLACE'] などを 置換
 			$this->body = str_replace(
 					array($this->cont['USER_NAME_REPLACE'], $this->cont['USER_CODE_REPLACE']) ,
@@ -374,6 +379,8 @@ class XpWiki {
 			if ($this->cont['UA_NAME'] === 'Safari') {
 				$this->body = preg_replace('/(<form)([^>]*>)/' , '$1 accept-charset="UTF-8"$2', $this->body);
 			}
+			*/
+			$this->func->convert_finisher($this->body);
 		} else {
 			$this->execute();
 		}
@@ -516,6 +523,8 @@ EOD;
 			list($head_pre_tag, $head_tag) = $this->func->get_additional_headtags();
 		}
 		
+		$this->func->convert_finisher($text);
+		
 		$csstag = '';
 		if ($cssbase) {
 			$cssbase = 'r_'.$cssbase;
@@ -523,7 +532,8 @@ EOD;
 			$csstag = '<link rel="stylesheet" type="text/css" media="all" href="'.$this->cont['LOADER_URL'].'?charset='.$this->cont['CSS_CHARSET'].'&amp;skin='.$this->cont['SKIN_NAME'].'&amp;r=1&amp;'.$cssprefix.'src=main.css" charset="' . $this->cont['CSS_CHARSET'] . '" />';
 			$text = '<div class="xpwiki_'.$cssbase.'">'."\n".$text."\n".'</div>';
 		}
-
+		
+		/*
 		// cont['USER_NAME_REPLACE'] を 置換
 		$text = str_replace(
 				array($this->cont['USER_NAME_REPLACE'], $this->cont['USER_CODE_REPLACE']) ,
@@ -533,7 +543,8 @@ EOD;
 		if ($this->cont['UA_NAME'] === 'Safari') {
 			$text = preg_replace('/(<form)([^>]*>)/' , '$1 accept-charset="UTF-8"$2', $text);
 		}
-		
+		*/
+				
 		return $head_pre_tag."\n".$csstag."\n".$head_tag."\n".$text;
 
 	}
