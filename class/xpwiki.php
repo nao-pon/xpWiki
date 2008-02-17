@@ -1,7 +1,7 @@
 <?php
 //
 // Created on 2006/09/29 by nao-pon http://hypweb.net/
-// $Id: xpwiki.php,v 1.71 2008/02/17 14:21:58 nao-pon Exp $
+// $Id: xpwiki.php,v 1.72 2008/02/17 15:50:54 nao-pon Exp $
 //
 
 class XpWiki {
@@ -151,7 +151,7 @@ class XpWiki {
 		}
 		
 		// favicon auto set JavaScript
-		if (! $this->root->can_not_connect_www) {
+		if (! $this->root->can_not_connect_www && HypCommonFunc::get_version() >= '20080213') {
 			if ($this->root->favicon_set_classname) {
 				$this->func->add_js_var_head('XpWiki.faviconSetClass', $this->root->favicon_set_classname);
 			}
