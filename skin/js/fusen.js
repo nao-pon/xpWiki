@@ -9,7 +9,7 @@
 //
 // fusen.js for xpWiki by nao-pon
 // http://hypweb.net
-// $Id: fusen.js,v 1.9 2008/01/21 23:49:46 nao-pon Exp $
+// $Id: fusen.js,v 1.10 2008/02/17 14:11:58 nao-pon Exp $
 // 
 var fusenVar = new Array();
 var fusenMsgs = new Array();
@@ -869,12 +869,9 @@ function fusen_hide(id)
 {
 	if (id == 'fusen_list') fusen_select_clear();
 	fusenShowFlg[id] = false;
-	with($(id).style)
-	{
-		visibility = "hidden";
-		left = "-1000px";
-		top = "-1000px";
-	}
+	$(id).style.visibility = "hidden";
+	$(id).style.left = "-1000px";
+	$(id).style.top = "-1000px";
 	document.onmouseup = fusen_onmouseup;
 	document.onmousemove = fusen_onmousemove;
 	fusenDblClick = false;
@@ -920,17 +917,18 @@ function fusen_dustbox()
 
 function fusen_transparent()
 {
-	if (fusenBodyStyle != 'fusen_body') {
-		fusenBodyStyle = 'fusen_body';
-	} else {
-		fusenBodyStyle = 'fusen_body_trans';
-	}
-	for (var i = 0; i < $('fusen_area').childNodes.length; i++ ) {
-		if ($('fusen_area').childNodes[i].id.indexOf('fusen_id') == 0) {
-			$('fusen_area').childNodes[i].className = fusenBodyStyle;
+	if ($('fusen_area')) {
+		if (fusenBodyStyle != 'fusen_body') {
+			fusenBodyStyle = 'fusen_body';
+		} else {
+			fusenBodyStyle = 'fusen_body_trans';
+		}
+		for (var i = 0; i < $('fusen_area').childNodes.length; i++ ) {
+			if ($('fusen_area').childNodes[i].id.indexOf('fusen_id') == 0) {
+				$('fusen_area').childNodes[i].className = fusenBodyStyle;
+			}
 		}
 	}
-
 }
 
 function fusen_set_menu_html(tobj,id,mode)
@@ -1310,21 +1308,18 @@ function fusen_drawLine2(x, y, w, h, color, nid, border){
 		//window.status = x+','+y+','+w+','+h+','+color+','+b;
 		var objLine = document.createElement("DIV");
 		var strColor = color;
-		with(objLine.style)
-		{
-			backgroundColor = 'transparent';
-			position  = "absolute";
-			overflow  = "hidden";
-			width     = w + "px";
-			height    = h + "px";
-			top  = y + "px";
-			left = x + "px";
-			borderColor = color;
-			borderColor = "blue";
-			borderWidth = "0px";
-			borderStyle = "solid";
-			zIndex = 0;
-		}
+		objLine.style.backgroundColor = 'transparent';
+		objLine.style.position  = "absolute";
+		objLine.style.overflow  = "hidden";
+		objLine.style.width     = w + "px";
+		objLine.style.height    = h + "px";
+		objLine.style.top  = y + "px";
+		objLine.style.left = x + "px";
+		objLine.style.borderColor = color;
+		objLine.style.borderColor = "blue";
+		objLine.style.borderWidth = "0px";
+		objLine.style.borderStyle = "solid";
+		objLine.style.zIndex = 0;
 		if (border == 1) {objLine.style.borderTopWidth = "1px"; objLine.style.borderLeftWidth = "1px";}
 		if (border == 2) {objLine.style.borderTopWidth = "1px"; objLine.style.borderRightWidth = "1px";}
 		if (border == 3) {objLine.style.borderBottomWidth = "1px"; objLine.style.borderRightWidth = "1px";}
@@ -1618,12 +1613,9 @@ function fusen_select(selectid,nolist)
 	
 	fusen_editbox_hide();
 	fusen_select_clear('on');
-	with($('fusen_id' + selectid))
-	{
-		style.border = fusenVar['BorderObj']['select'];
-		className = 'fusen_body';
-		style.zIndex = 150;
-	}
+	$('fusen_id' + selectid).style.border = fusenVar['BorderObj']['select'];
+	$('fusen_id' + selectid).className = 'fusen_body';
+	$('fusen_id' + selectid).style.zIndex = 150;
 	if (!nolist) {
 		$('fusen_list').style.top = top + 'px';
 		$('fusen_list').style.left = (left + $('fusen_id' + selectid).offsetWidth + 1) + 'px';left + 'px';
@@ -1644,7 +1636,7 @@ function fusen_select_clear(mode)
 	fusen_transparent();
 	
 	for(var id in fusenObj) {
-		if (!isNaN(id)) {
+		if (!isNaN(id) && $('fusen_id' + id)) {
 			if (fusenObj[id].del) {
 				border = fusenVar['BorderObj']['del'];
 			} else  if (fusenObj[id].lk) {
@@ -1652,11 +1644,8 @@ function fusen_select_clear(mode)
 			} else {
 				border = fusenVar['BorderObj']['normal'];
 			}
-			with($('fusen_id' + id))
-			{
-				style.border = border;
-				style.zIndex = 1;
-			}
+			$('fusen_id' + id).style.border = border;
+			$('fusen_id' + id).style.zIndex = 1;
 		}
 	}
 }
@@ -1699,18 +1688,15 @@ function fusen_size_init(obj)
 {
 	v_tmp = obj.style.visibility;
 	l_tmp = obj.style.left;
-	with(obj.style)
-	{
-		visibility = 'hidden'
-		left = '0px';
-		overflow = 'visible';
-		whiteSpace = 'nowrap';
-		width = 'auto';
-		width = obj.offsetWidth + 'px';
-		whiteSpace = 'normal';
-		left = l_tmp;
-		visibility = v_tmp;
-	}
+	obj.style.visibility = 'hidden'
+	obj.style.left = '0px';
+	obj.style.overflow = 'visible';
+	obj.style.whiteSpace = 'nowrap';
+	obj.style.width = 'auto';
+	obj.style.width = obj.offsetWidth + 'px';
+	obj.style.whiteSpace = 'normal';
+	obj.style.left = l_tmp;
+	obj.style.visibility = v_tmp;
 }
 
 function fusen_list_make()
@@ -1786,7 +1772,7 @@ document.observe("dom:loaded", function() {
 		var elm = $('fusen_container');
 		var p = $('fusen_container').parentNode;
 		p.removeChild(elm);
-		$('xpwiki_body').appendChild(elm);
+		$('xpwiki_body').parentNode.insertBefore(elm, $('xpwiki_body'));
 	}
 	
 	fusen_set_elements();
