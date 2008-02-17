@@ -1,7 +1,7 @@
 <?php
 //
 // Created on 2006/10/02 by nao-pon http://hypweb.net/
-// $Id: xpwiki_func.php,v 1.145 2008/02/11 01:02:41 nao-pon Exp $
+// $Id: xpwiki_func.php,v 1.146 2008/02/17 14:24:41 nao-pon Exp $
 //
 class XpWikiFunc extends XpWikiXoopsWrapper {
 
@@ -833,7 +833,7 @@ EOD;
 		return $ret;	
 	}
 	
-	function add_js_var_head ($name, $var) {
+	function add_js_var_head ($name, $var, $pre = FALSE) {
 		if (is_numeric($var)) {
 			// Do nothing
 		} else if (is_bool($var)) {
@@ -841,8 +841,8 @@ EOD;
 		} else {
 			$var = '"' . htmlspecialchars($var) . '"';
 		}
-		array_unshift($this->root->head_pre_tags, '<script type="text/javascript">' . $name . ' = ' . $var . ';</script>');
-		$this->root->rtf['useJavascriptInHead'] = TRUE;
+		$target = $pre? 'head_pre_tags' : 'head_tags';
+		$this->root->{$target}[] = '<script type="text/javascript">' . $name . ' = ' . $var . ';</script>';
 	}
 	
 	function add_tag_head ($file, $pre = FALSE, $charset = '') {
@@ -871,7 +871,10 @@ EOD;
 				$this->root->{$target}[] = '<link rel="stylesheet" type="text/css" media="all" href="'.$this->cont['LOADER_URL'].'?skin='.$this->cont['SKIN_NAME'].'&amp;'.$mode.$cssprefix.'src='.$match[1].'.css"' . $charset . ' />';
 			} else if ($match[2] === 'js') {
 				$this->root->{$target}[] = '<script type="text/javascript" src="'.$this->cont['LOADER_URL'].'?src='.$match[1].'.js"' . $charset . '></script>';
-				$this->root->rtf['useJavascriptInHead'] = TRUE;
+				if (empty($this->root->rtf['HeadJsAjaxSafe'])) {
+					$this->root->rtf['useJavascriptInHead'] = TRUE;
+					$this->root->rtf['HeadJsAjaxSafe'] = NULL;
+				}
 			}
 		}	
 	}
@@ -887,7 +890,10 @@ EOD;
 		$target = $pre? 'head_pre_tags' : 'head_tags';
 		
 		$this->root->{$target}[] = '<script type="text/javascript" src="' . $file . '"' . $charset . '></script>';
-		$this->root->rtf['useJavascriptInHead'] = TRUE;
+		if (empty($this->root->rtf['HeadJsAjaxSafe'])) {
+			$this->root->rtf['useJavascriptInHead'] = TRUE;
+			$this->root->rtf['HeadJsAjaxSafe'] = NULL;
+		}
 	}
 
 	// リファラチェック $blank = 1 で未設定も不許可(デフォルトで未設定は許可)
@@ -1598,7 +1604,48 @@ EOD;
 	function isXpWikiDirname ($dirname) {
 		return (file_exists($this->cont['ROOT_PATH'].$this->cont['MOD_DIR_NAME'].$dirname.'/private/ini/pukiwiki.ini.php'));
 	}
+
 	
+	function convert_finisher (& $body) {
+		// 長い英数を折り返す
+		if ($this->root->word_break_limit && HypCommonFunc::get_version() >= '20080217') {
+			HypCommonFunc::html_wordwrap($body, $this->root->word_break_limit, $this->root->word_breaker);
+		}
+
+		// cont['USER_NAME_REPLACE'] などを 置換
+		$body = str_replace(
+				array($this->cont['USER_NAME_REPLACE'], $this->cont['USER_CODE_REPLACE']) ,
+				array($this->root->userinfo['uname_s'], $this->root->userinfo['ucd']) ,
+				$body);
+		
+		// For Safari
+		if ($this->cont['UA_NAME'] === 'Safari') {
+			$body = preg_replace('/(<form)([^>]*>)/' , '$1 accept-charset="UTF-8"$2', $body);
+		}
+	}
+	
+	function get_favicon_img ($url, $size = 16, $alt = '', $class = 'xpwikiFavicon') {
+		if ($this->root->can_not_connect_www || HypCommonFunc::get_version() < '20080213') {
+			return '';
+		}
+		
+		$url = preg_replace('/\?.*/', '', $url);
+		
+		if (!$alt) $alt = $url;
+		
+		$favicon = '<img src="'.$this->cont['LOADER_URL'].'?src=favicon&amp;url='.rawurlencode($url).'" width="'.$size.'" height="'.$size.'" border="0" alt="'.htmlspecialchars($alt).'" class="'.$class.'" />';
+		
+		return $favicon;
+	}
+	
+	function get_LC_CTYPE() {
+		if ($this->cont['CONTENT_CHARSET'] === 'EUC-JP') {
+			return (substr(PHP_OS, 0, 3) === 'WIN')? 'Japanese_Japan.20932' : 'ja_JP.eucJP';
+		} else {
+			return setlocale(LC_CTYPE, 0);
+		}
+	}
+
 /*----- DB Functions -----*/ 
 	//ページ名からページIDを求める
 	function get_pgid_by_name ($page, $cache = true, $make = false)
