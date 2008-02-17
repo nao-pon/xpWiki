@@ -1,7 +1,7 @@
 <?php
 //
 // Created on 2006/10/13 by nao-pon http://hypweb.net/
-// $Id: init.php,v 1.44 2008/02/11 01:02:41 nao-pon Exp $
+// $Id: init.php,v 1.45 2008/02/17 14:25:18 nao-pon Exp $
 //
 
 $root = & $this->root;
@@ -29,6 +29,9 @@ $const['SOURCE_ENCODING'] = $const['CONTENT_CHARSET'];
 
 // Is this site UTF-8?
 $this->cont['FILE_ENCORD_EXT'] = ($const['CONTENT_CHARSET'] === 'UTF-8')? '_utf8' : '';
+
+// Locale
+if (empty($this->cont['LC_CTYPE'])) $this->cont['LC_CTYPE'] = $this->get_LC_CTYPE();
 
 /////////////////////////////////////////////////
 // INI_FILE: Require Lang Conf
