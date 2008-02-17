@@ -1,7 +1,7 @@
 <?php
 //
 // Created on 2006/10/13 by nao-pon http://hypweb.net/
-// $Id: init.php,v 1.45 2008/02/17 14:25:18 nao-pon Exp $
+// $Id: init.php,v 1.46 2008/02/17 15:49:39 nao-pon Exp $
 //
 
 $root = & $this->root;
@@ -139,6 +139,13 @@ if ($root->userinfo['admin']) {
 	foreach(array($const['DATA_DIR'], $const['DIFF_DIR'], $const['BACKUP_DIR'], $const['CACHE_DIR']) as $dir){
 		if (! is_writable($dir))
 			$die .= 'Directory is not found or not writable (' . $dir . ')' . "\n";
+	}
+	
+	if (! $this->root->can_not_connect_www && HypCommonFunc::get_version() >= '20080213') {
+		$dir = $const['TRUST_PATH'] . 'class/hyp_common/favicon/cache';
+		if (! is_writable($dir))
+			$die .= 'Directory is not found or not writable (' . $dir . ')' . "\n";
+
 	}
 	
 	// 設定ファイルの変数チェック
