@@ -1,6 +1,6 @@
 <?php
 // PukiWiki - Yet another WikiWikiWeb clone
-// $Id: pukiwiki.ini.php,v 1.65 2008/02/08 02:55:52 nao-pon Exp $
+// $Id: pukiwiki.ini.php,v 1.66 2008/02/17 14:27:06 nao-pon Exp $
 // Copyright (C)
 //   2002-2006 PukiWiki Developers Team
 //   2001-2002 Originally written by yu-ji
@@ -222,6 +222,12 @@ $root->link_target = '';
 
 // class
 $root->class_extlink = 'ext';
+
+// favicon auto set class name
+$root->favicon_set_classname = 'ext';
+
+// favicon auto replace class name
+$root->favicon_replace_classname = 'extWithFavicon';
 
 // Add rel="nofollow"? (0 or 1)
 $root->nofollow_extlink = 0;

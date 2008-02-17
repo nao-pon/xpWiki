@@ -350,6 +350,47 @@ var XpWiki = {
 		}
 	},
 	
+	faviconSetDone: false,
+	faviconSet: function () {
+		if (this.faviconSetDone || typeof(this.faviconSetClass) == 'undefined') return;
+		var ins_a = new Array();
+		var ins_img = new Array();
+		this.faviconSetDone = true;
+		var time_limit = 3000; // (ms)
+		time_limit += new Date().getTime();
+		var Objs = document.getElementsByTagName('a');
+		var n = 0;
+		for (var i = 0; i < Objs.length; i++) {
+			if (time_limit < new Date().getTime()) break;
+			var obj = Objs[i];
+			if (obj.className == this.faviconSetClass && obj.firstChild.nodeName != 'IMG') {
+				var height = Math.min(32, parseInt(Element.getStyle(obj ,'fontSize'))) + 'px';
+				var img = document.createElement('img');
+				img.src = wikihelper_root_url + '/skin/loader.php?src=favicon&url=' + this.rawurlencode(obj.href.replace(/\?.*/, ''));
+				img.alt = '';
+				img.style.width = height;
+				img.style.height = height;
+				img.className = 'xpwikiFavicon';
+				
+				ins_a[n] = obj
+				ins_img[n] = img; 
+
+				n++;
+			}
+		}
+		if (ins_a.length) {
+			for (var i = 0; i < ins_a.length; i++) {
+				if (typeof(this.faviconReplaceClass) == 'undefined') {
+					ins_a[i].style.backgroundImage = 'none';
+					ins_a[i].style.paddingLeft = "0px";
+				} else {
+					ins_a[i].className = this.faviconReplaceClass;
+				}
+				ins_a[i].insertBefore(ins_img[i], ins_a[i].firstChild);
+			}
+		}
+	},
+	
 	htmlspecialchars: function (str) {
 		return str.
 		replace(/&/g,"&amp;").
@@ -357,6 +398,23 @@ var XpWiki = {
 		replace(/>/g,"&gt;").
 		replace(/"/g,"&quot;").
 		replace(/'/g,"&#039;");
+	},
+
+	rawurlencode: function (str) {
+		try {
+			return encodeURIComponent(str)
+				.replace(/!/g,  "%21")
+				.replace(/'/g,  "%27")
+				.replace(/\(/g, "%28")
+				.replace(/\)/g, "%29")
+				.replace(/\*/g, "%2A")
+				.replace(/~/g,  "%7E");
+		} catch(e) {
+			return escape(str)
+				.replace(/\+/g, "%2B")
+				.replace(/\//g, "%2F")
+				.replace(/@/g,  "%40");
+		}
 	}
 
 };
