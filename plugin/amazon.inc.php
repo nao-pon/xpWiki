@@ -1,94 +1,84 @@
 <?php
+// PukiWiki - Yet another WikiWikiWeb clone.
+// $Id: amazon.inc.php,v 1.5 2008/02/25 03:15:38 nao-pon Exp $
+// Id: amazon.inc.php,v 1.1 2003/07/24 13:00:00 閑舎
+//
+// Amazon plugin: Book-review maker via amazon.com/amazon.jp
+//
+// Copyright:
+//	2004-2005 PukiWiki Developers Team
+//	2003 閑舎 <raku@rakunet.org> (Original author)
+//
+// License: GNU/GPL
+//
+// ChangeLog:
+// * 2004/04/03 PukiWiki Developer Team (arino <arino@users.sourceforge.jp>)
+//        - replace plugin_amazon_get_page().
+//        - PLUGIN_AMAZON_XML 'xml.amazon.com' -> 'xml.amazon.co.jp'
+// * 0.6  URL が存在しない場合、No image を表示、画像配置など修正。
+//        インラインプラグインの呼び出し方を修正。
+//	  ASIN 番号部分をチェックする。
+//	  画像、タイトルのキャッシュによる速度の大幅アップ。
+// * 0.7  ブックレビュー生成のデバッグ、認証問題の一応のクリア。
+// * 0.8  amazon 全商品の画像を表示。
+//	  アソシエイト ID に対応。
+// * 0.9  RedHat9+php4.3.2+apache2.0.46 で画像が途中までしか読み込まれない問題に対処。
+//        日本語ページの下にブックレビューを作ろうとすると文字化けして作れない問題の解決。
+//        書籍でなく CD など、ASIN 部分が長くてもタイトルをうまく拾うようにする。
+//        写影のみ取り込むのでなければ、B000002G6J.01 と書かず B000002G6J と書いても写影が出るようにする。
+//	  ASIN に対応するキャッシュ画像/キャッシュタイトルをそれぞれ削除する機能追加。
+//	  proxy 対応(試験的)。
+//	  proxy 実装の過程で一般ユーザのための AID はなくとも自動生成されることがわかり、削除した。
+// * 1.0  ブックレビューでなく、レビューとする。
+//        画像のキャッシュを削除する期限を設ける。
+//        タイトル、写影を Web Services の XML アクセスの方法によって get することで時間を短縮する。
+//        レビューページ生成のタイミングについて注を入れる。
+// * 1.1  編集制限をかけている場合、部外者がレビューを作ろうとして、ページはできないが ASIN4774110655.tit などのキャッシュができるのを解決。
+//        画像の最後が 01 の場合、image を削除すると noimage.jpg となってしまうバグを修正。
+//        1.0 で導入した XML アクセスは高速だが、返す画像情報がウソなので、09 がだめなら 01 をトライする、で暫定的に解決。
+//
+// Caution!:
+// * 著作権が関連する為、www.amazon.co.jp のアソシエイトプログラムを確認の上ご利用下さい。
+// * レビューは、amazon プラグインが呼び出す編集画面はもう出来て PukiWiki に登録されているので、
+//   中止するなら全文を削除してページの更新ボタンを押すこと。
+// * 下の PLUGIN_AMAZON_AID、PROXY サーバの部分、expire の部分を適当に編集して使用してください(他はそのままでも Ok)。
+//
+// Thanks to: Reimy and PukiWiki Developers Team
+//
 class xpwiki_plugin_amazon extends xpwiki_plugin {
 	
 	/////////////////////////////////////////////////
 	
 	function plugin_amazon_init()
 	{
-
-	// PukiWiki - Yet another WikiWikiWeb clone.
-	// $Id: amazon.inc.php,v 1.4 2007/07/31 03:03:38 nao-pon Exp $
-	// Id: amazon.inc.php,v 1.1 2003/07/24 13:00:00 閑舎
-	//
-	// Amazon plugin: Book-review maker via amazon.com/amazon.jp
-	//
-	// Copyright:
-	//	2004-2005 PukiWiki Developers Team
-	//	2003 閑舎 <raku@rakunet.org> (Original author)
-	//
-	// License: GNU/GPL
-	//
-	// ChangeLog:
-	// * 2004/04/03 PukiWiki Developer Team (arino <arino@users.sourceforge.jp>)
-	//        - replace plugin_amazon_get_page().
-	//        - PLUGIN_AMAZON_XML 'xml.amazon.com' -> 'xml.amazon.co.jp'
-	// * 0.6  URL が存在しない場合、No image を表示、画像配置など修正。
-	//        インラインプラグインの呼び出し方を修正。
-	//	  ASIN 番号部分をチェックする。
-	//	  画像、タイトルのキャッシュによる速度の大幅アップ。
-	// * 0.7  ブックレビュー生成のデバッグ、認証問題の一応のクリア。
-	// * 0.8  amazon 全商品の画像を表示。
-	//	  アソシエイト ID に対応。
-	// * 0.9  RedHat9+php4.3.2+apache2.0.46 で画像が途中までしか読み込まれない問題に対処。
-	//        日本語ページの下にブックレビューを作ろうとすると文字化けして作れない問題の解決。
-	//        書籍でなく CD など、ASIN 部分が長くてもタイトルをうまく拾うようにする。
-	//        写影のみ取り込むのでなければ、B000002G6J.01 と書かず B000002G6J と書いても写影が出るようにする。
-	//	  ASIN に対応するキャッシュ画像/キャッシュタイトルをそれぞれ削除する機能追加。
-	//	  proxy 対応(試験的)。
-	//	  proxy 実装の過程で一般ユーザのための AID はなくとも自動生成されることがわかり、削除した。
-	// * 1.0  ブックレビューでなく、レビューとする。
-	//        画像のキャッシュを削除する期限を設ける。
-	//        タイトル、写影を Web Services の XML アクセスの方法によって get することで時間を短縮する。
-	//        レビューページ生成のタイミングについて注を入れる。
-	// * 1.1  編集制限をかけている場合、部外者がレビューを作ろうとして、ページはできないが ASIN4774110655.tit などのキャッシュができるのを解決。
-	//        画像の最後が 01 の場合、image を削除すると noimage.jpg となってしまうバグを修正。
-	//        1.0 で導入した XML アクセスは高速だが、返す画像情報がウソなので、09 がだめなら 01 をトライする、で暫定的に解決。
-	//
-	// Caution!:
-	// * 著作権が関連する為、www.amazon.co.jp のアソシエイトプログラムを確認の上ご利用下さい。
-	// * レビューは、amazon プラグインが呼び出す編集画面はもう出来て PukiWiki に登録されているので、
-	//   中止するなら全文を削除してページの更新ボタンを押すこと。
-	// * 下の PLUGIN_AMAZON_AID、PROXY サーバの部分、expire の部分を適当に編集して使用してください(他はそのままでも Ok)。
-	//
-	// Thanks to: Reimy and PukiWiki Developers Team
-	//
-	
-	/////////////////////////////////////////////////
-	// Settings
-	
-	// Amazon associate ID
-	//define('PLUGIN_AMAZON_AID',''); // None
+		/////////////////////////////////////////////////
+		// Settings
+		
+		// Amazon associate ID
+		//define('PLUGIN_AMAZON_AID',''); // None
 		$this->cont['PLUGIN_AMAZON_AID'] = '';
 	
-	// Expire caches per ? days
+		// Expire caches per ? days
 		$this->cont['PLUGIN_AMAZON_EXPIRE_IMAGECACHE'] =    1;
 		$this->cont['PLUGIN_AMAZON_EXPIRE_TITLECACHE'] =  356;
 	
-	// Alternative image for 'Image not found'
+		// Alternative image for 'Image not found'
 		$this->cont['PLUGIN_AMAZON_NO_IMAGE'] =  $this->cont['IMAGE_DIR'] . 'noimage.png';
 	
-	// URI prefixes
+		// URI prefixes
 		switch($this->cont['LANG']){
 		case 'ja':
-		// Amazon shop
+			// Amazon shop
 			$this->cont['PLUGIN_AMAZON_SHOP_URI'] =  'http://www.amazon.co.jp/exec/obidos/ASIN/';
 	
-		// Amazon information inquiry (dev-t = default value in the manual)
-			$this->cont['PLUGIN_AMAZON_XML'] =  'http://xml.amazon.co.jp/onca/xml3?t=webservices-20&' .
-		'dev-t=GTYDRES564THU&type=lite&page=1&f=xml&locale=jp&AsinSearch=';
 			break;
 		default:
-		// Amazon shop
+			// Amazon shop
 			$this->cont['PLUGIN_AMAZON_SHOP_URI'] =  'http://www.amazon.com/exec/obidos/ASIN/';
 	
-		// Amazon information inquiry (dev-t = default value in the manual)
-			$this->cont['PLUGIN_AMAZON_XML'] =  'http://xml.amazon.com/onca/xml3?t=webservices-20&' .
-		'dev-t=GTYDRES564THU&type=lite&page=1&f=xml&locale=us&AsinSearch=';
 			break;
 		}
 
-	//	global $amazon_aid, $amazon_body;
-	
 		if ($this->cont['PLUGIN_AMAZON_AID'] == '') {
 			$this->root->amazon_aid = '';
 		} else {
@@ -116,8 +106,9 @@ EOD;
 	
 	function plugin_amazon_convert()
 	{
-	//	global $script, $vars, $asin, $asin_all;
-	
+		if (HypCommonFunc::get_version() < 20080224) {
+			return '#amazon require "HypCommonFunc" >= Ver. 20080224';
+		}
 		if (func_num_args() > 3) {
 			if ($this->cont['PKWK_READONLY']) return ''; // Show nothing
 	
@@ -191,9 +182,6 @@ EOD;
 	
 	function plugin_amazon_action()
 	{
-	//	global $vars, $script, $edit_auth, $edit_auth_users;
-	//	global $amazon_body, $asin, $asin_all;
-	
 		if ($this->cont['PKWK_READONLY']) $this->func->die_message('PKWK_READONLY prohibits editing');
 	
 		$s_page   = isset($this->root->vars['refer']) ? $this->root->vars['refer'] : '';
@@ -234,8 +222,10 @@ EOD;
 	
 	function plugin_amazon_inline()
 	{
-	//	global $amazon_aid, $asin, $asin_all;
-	
+		if (HypCommonFunc::get_version() < 20080224) {
+			return '&amazon require "HypCommonFunc" >= Ver. 20080224';
+		}
+
 		list($this->root->asin_all) = func_get_args();
 	
 		$this->root->asin_all = htmlspecialchars($this->root->asin_all); // for XSS
@@ -252,9 +242,6 @@ EOD;
 	
 	function plugin_amazon_print_object($align, $alt, $title)
 	{
-	//	global $amazon_aid;
-	//	global $asin, $asin_ext, $asin_all;
-	
 		$url      = $this->plugin_amazon_cache_image_fetch($this->cont['CACHE_DIR']);
 		$url_shop = $this->cont['PLUGIN_AMAZON_SHOP_URI'] . $this->root->asin . '/' . $this->root->amazon_aid . 'ref=nosim';
 		$center   = 'text-align:center';
@@ -278,49 +265,44 @@ EOD;
 		return $div;
 	}
 	
-	function plugin_amazon_get_asin_title()
+	function plugin_amazon_get_asin($asin)
 	{
-	//	global $asin, $asin_ext, $asin_all;
-	
-		if ($this->root->asin_all == '') return '';
+		$false = array('', '');
+		if (!$asin) return $false;
 	
 		$nocache = $nocachable = 0;
+		
+		$cache_dir = $this->cont['CACHE_DIR'] . 'plugin/';
+		
+		if (file_exists($cache_dir) === FALSE || is_writable($cache_dir) === FALSE) $nocachable = 1; // キャッシュ不可の場合
 	
-		$url = $this->cont['PLUGIN_AMAZON_XML'] . $this->root->asin;
-	
-		if (file_exists($this->cont['CACHE_DIR']) === FALSE || is_writable($this->cont['CACHE_DIR']) === FALSE) $nocachable = 1; // キャッシュ不可の場合
-	
-		if (($title = $this->plugin_amazon_cache_title_fetch($this->cont['CACHE_DIR'])) == FALSE) {
+		if ($dat = $this->plugin_amazon_cache_fetch($cache_dir, $asin)) {
+			list($title, $image) = $dat;
+		} else {
 			$nocache = 1; // キャッシュ見つからず
-			$body    = $this->plugin_amazon_get_page($url); // しかたないので取りにいく
-			$tmpary  = array();
-			$body    = mb_convert_encoding($body, $this->cont['SOURCE_ENCODING'], 'UTF-8');
-			preg_match('/<ProductName>([^<]*)</', $body, $tmpary);
-			$title     = trim($tmpary[1]);
-	//		$tmpary[1] = '';
-	//		preg_match('#<ImageUrlMedium>http://images-jp.amazon.com/images/P/[^.]+\.(..)\.#',
-	//			$body, $tmpary);
-	//		if ($tmpary[1] != '') {
-	//			$asin_ext = $tmpary[1];
-	//			$asin_all = $asin . $asin_ext;
-	//		}
+
+			$ama = new HypSimpleAmazon($this->cont['PLUGIN_AMAZON_AID']);
+			$ama->encoding = $this->cont['SOURCE_ENCODING'];
+			$ama->itemLookup($this->root->asin);
+			$tmpary = $ama->getCompactArray();
+			$ama = NULL;
+			$title = $tmpary['Items'][0]['TITLE'];
+			$image = $tmpary['Items'][0]['MIMG'];
 		}
 	
-		if ($title == '') {
-			return '';
+		if ($title === '') {
+			return $false;
 		} else {
 			if ($nocache == 1 && $nocachable != 1)
-				$this->plugin_amazon_cache_title_save($title, $this->cont['CACHE_DIR']);
-			return $title;
+				$this->plugin_amazon_cache_save($title . "\t" . $image, $cache_dir);
+			return array($title, $image);
 		}
 	}
-	
-	// タイトルキャッシュがあるか調べる
-	function plugin_amazon_cache_title_fetch($dir)
+
+	// キャッシュがあるか調べる
+	function plugin_amazon_cache_fetch($dir, $asin)
 	{
-	//	global $asin, $asin_ext, $asin_all;
-	
-		$filename = $dir . 'ASIN' . $this->root->asin . '.tit';
+		$filename = $dir . $asin . '.aws';
 	
 		$get_tit = 0;
 		if (! is_readable($filename)) {
@@ -331,24 +313,35 @@ EOD;
 	
 		if ($get_tit) return FALSE;
 	
-		if (($fp = @fopen($filename, 'r')) === FALSE) return FALSE;
-		$title = fgets($fp, 4096);
-	//	$tmp_ext = fgets($fp, 4096);
-	//	if ($tmp_ext != '') $asin_ext = $tmp_ext;
-		fclose($fp);
-	
-		if (strlen($title) > 0) {
-			return $title;
+		if ($dat = file_get_contents($filename)){
+			return explode("\t", $dat);
 		} else {
 			return FALSE;
 		}
+	}
+
+	function plugin_amazon_get_asin_title()
+	{
+		if ($this->root->asin == '') return '';
+	
+		list($title, $image) = $this->plugin_amazon_get_asin($this->root->asin);
+		
+		return $title;
+	}
+	
+	function plugin_amazon_cache_save($data, $dir)
+	{
+		$filename = $dir . $this->root->asin_all . '.aws';
+		$fp = fopen($filename, 'w');
+		fwrite($fp, $data);
+		fclose($fp);
+	
+		return $filename;
 	}
 	
 	// 画像キャッシュがあるか調べる
 	function plugin_amazon_cache_image_fetch($dir)
 	{
-	//	global $asin, $asin_ext, $asin_all;
-	
 		$filename = $dir . 'ASIN' . $this->root->asin . '.jpg';
 	
 		$get_img = 0;
@@ -359,10 +352,9 @@ EOD;
 		}
 	
 		if ($get_img) {
-			$url = 'http://images-jp.amazon.com/images/P/' . $this->root->asin . '.' . $this->root->asin_ext . '.MZZZZZZZ.jpg';
-			if (! $this->func->is_url($url)) return FALSE;
+			list($title, $url) = $this->plugin_amazon_get_asin($this->root->asin);
 	
-			$body = $this->plugin_amazon_get_page($url);
+			$body = $url? $this->plugin_amazon_get_page($url) : '';
 			if ($body != '') {
 				$tmpfile = $dir . 'ASIN' . $this->root->asin . '.jpg.0';
 				$fp = fopen($tmpfile, 'wb');
@@ -373,50 +365,21 @@ EOD;
 			}
 			if ($body == '' || $size[1] <= 1) { // 通常は1が返るが念のため0の場合も(reimy)
 				// キャッシュを PLUGIN_AMAZON_NO_IMAGE のコピーとする
-				if ($this->root->asin_ext == '09') {
-					$url = 'http://images-jp.amazon.com/images/P/' . $this->root->asin . '.01.MZZZZZZZ.jpg';
-					$body = $this->plugin_amazon_get_page($url);
-					if ($body != '') {
-						$tmpfile = $dir . 'ASIN' . $this->root->asin . '.jpg.0';
-						$fp = fopen($tmpfile, 'wb');
-						fwrite($fp, $body);
-						fclose($fp);
-						$size = getimagesize($tmpfile);
-						unlink($tmpfile);
-					}
-				}
-				if ($body == '' || $size[1] <= 1) {
-					$fp = fopen($this->cont['PLUGIN_AMAZON_NO_IMAGE'], 'rb');
-					if (! $fp) return FALSE;
-					
-					$body = '';
-					while (! feof($fp)) $body .= fread($fp, 4096);
-					fclose ($fp);
-				}
+				$fp = fopen($this->cont['PLUGIN_AMAZON_NO_IMAGE'], 'rb');
+				if (! $fp) return FALSE;
+				
+				$body = '';
+				while (! feof($fp)) $body .= fread($fp, 4096);
+				fclose ($fp);
 			}
 			$this->plugin_amazon_cache_image_save($body, $this->cont['CACHE_DIR']);
 		}
 		return str_replace($this->cont["DATA_HOME"], $this->cont["HOME_URL"], $filename);
 	}
 	
-	// Save title cache
-	function plugin_amazon_cache_title_save($data, $dir)
-	{
-	//	global $asin, $asin_ext, $asin_all;
-	
-		$filename = $dir . 'ASIN' . $this->root->asin . '.tit';
-		$fp = fopen($filename, 'w');
-		fwrite($fp, $data);
-		fclose($fp);
-	
-		return $filename;
-	}
-	
 	// Save image cache
 	function plugin_amazon_cache_image_save($data, $dir)
 	{
-	//	global $asin, $asin_ext, $asin_all;
-	
 		$filename = $dir . 'ASIN' . $this->root->asin . '.jpg';
 		$fp = fopen($filename, 'wb');
 		fwrite($fp, $data);
@@ -428,8 +391,6 @@ EOD;
 	// Save book data
 	function plugin_amazon_review_save($page, $data)
 	{
-	//	global $asin, $asin_ext, $asin_all;
-	
 		$filename = $this->cont['DATA_DIR'] . $this->func->encode($page) . '.txt';
 		if (! is_readable($filename)) {
 			//$fp = fopen($filename, 'w');
@@ -451,18 +412,16 @@ EOD;
 	// is ASIN?
 	function is_asin()
 	{
-	//	global $asin, $asin_ext, $asin_all;
-	
-		$tmpary = array();
-		if (preg_match('/^([A-Z0-9]{10}).?([0-9][0-9])?$/', $this->root->asin_all, $tmpary) == FALSE) {
+		include_once XOOPS_TRUST_PATH . '/class/hyp_common/hsamazon/hyp_simple_amazon.php';
+		$ama = new HypSimpleAmazon();
+		$this->root->asin = $ama->ISBN2ASIN($this->root->asin_all);
+		$ama = NULL;
+		
+		if (! preg_match('/[a-z0-9]{10}/i', $this->root->asin)) {
+			$this->root->asin = '';
 			return FALSE;
-		} else {
-			$this->root->asin     = $tmpary[1];
-			$this->root->asin_ext = isset($tmpary[2]) ? $tmpary[2] : '';
-			if ($this->root->asin_ext == '') $this->root->asin_ext = '09';
-			$this->root->asin_all = $this->root->asin . $this->root->asin_ext;
-			return TRUE;
 		}
+		return TRUE;
 	}
 }
 ?>
