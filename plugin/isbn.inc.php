@@ -2,7 +2,7 @@
 /////////////////////////////////////////////////
 // PukiWiki - Yet another WikiWikiWeb clone.
 //
-// $Id: isbn.inc.php,v 1.2 2008/02/11 01:02:41 nao-pon Exp $
+// $Id: isbn.inc.php,v 1.3 2008/02/25 03:15:38 nao-pon Exp $
 //
 // *0.5: URL が存在しない場合、画像を表示しない。
 //			 Thanks to reimy.
@@ -36,6 +36,10 @@ class xpwiki_plugin_isbn extends xpwiki_plugin {
 	
 	
 	function plugin_isbn_convert() {
+		if (HypCommonFunc::get_version() < 20080224) {
+			return '#amazon require "HypCommonFunc" >= Ver. 20080224';
+		}
+
 		if (func_num_args() < 1 or func_num_args() > 3) {
 			return false;
 		}
@@ -45,6 +49,7 @@ class xpwiki_plugin_isbn extends xpwiki_plugin {
 	
 		$align = "right"; //規定値
 		$title = '';
+		$header = '';
 		switch (func_num_args())
 		{
 			case 3:
@@ -103,6 +108,10 @@ class xpwiki_plugin_isbn extends xpwiki_plugin {
 	
 	function plugin_isbn_inline()
 	{
+		if (HypCommonFunc::get_version() < 20080224) {
+			return '&amazon require "HypCommonFunc" >= Ver. 20080224';
+		}
+
 		$prms = func_get_args();
 		$body = array_pop($prms); // {}内
 		$body = preg_replace('#</?(a|span)[^>]*>#i','',$body);
@@ -125,7 +134,15 @@ class xpwiki_plugin_isbn extends xpwiki_plugin {
 			if ($option || $body) $title = $option.$body;
 			return $amazon_a . $title . '</a>';
 		} else {
-			$size = (!empty($match[1]))? $match[1].":" : "";
+			$size = '';
+			if (!empty($match[1])) {
+				$size = strtoupper($match[1]);
+				if ($size === 'M') {
+					$size = '';
+				} else {
+					$size .= '-';
+				}
+			}
 			$url = $this->plugin_isbn_cache_image_fetch($size.$isbn, $this->cont['CACHE_DIR']);
 			return $amazon_a.'<img src="'.$url.'" alt="'.$alt.'" /></a>';
 		}
@@ -149,10 +166,10 @@ class xpwiki_plugin_isbn extends xpwiki_plugin {
 		if ($data[8]) $alt .= "{$br}{$this->msg['info_price']}: ".str_replace('$1',$data[8],$this->msg['currency']);
 		if ($data[2]) $alt .= "{$br}{$this->msg['info_amazon']}: ".str_replace('$1',$data[2],$this->msg['currency']).$off;
 		if ($data[9]) $alt .= "{$br}{$this->msg['info_used']}: ".str_replace('$1',$data[9],$this->msg['currency_from']);
-		if ($data[3]) $alt .= "{$br}{$this->msg['info_author']}: $data[3]";
-		if ($data[4]) $alt .= "{$br}{$this->msg['info_artist']}: $data[4]";
+		//if ($data[3]) $alt .= "{$br}{$this->msg['info_author']}: $data[3]";
+		//if ($data[4]) $alt .= "{$br}{$this->msg['info_artist']}: $data[4]";
 		if ($data[5]) $alt .= "{$br}{$this->msg['info_sale_date']}: $data[5]";
-		if ($data[6]) $alt .= "{$br}{$this->msg['info_sales']}: $data[6]";
+		if ($data[6]) $alt .= "{$br}{$this->msg['info_sales']}: ". strip_tags($data[6]);
 		if ($data[7]) $alt .= "{$br}{$this->msg['info_status']}: $data[7]";
 		return $alt;
 	}
@@ -163,6 +180,7 @@ class xpwiki_plugin_isbn extends xpwiki_plugin {
 		$amazon_a = '<a href="'.str_replace('_ISBN_',$isbn,$this->config['ISBN_AMAZON_SHOP']).'" target="_blank" title="'.$alt.'">';
 		$amazon_s1 = "<a href=\"http://www.amazon.co.jp/exec/obidos/external-search/?mode=blended&amp;keyword=";
 		$amazon_s2 = "&amp;tag=".$this->config['AMAZON_ASE_ID']."&amp;encoding-string-jp=%93%FA%96%7B%8C%EA&amp;Go.x=14&amp;Go.y=5\" target=\"_blank\" alt=\"Amazon Serach\" title=\"Amazon Serach\">";
+		/*
 		if (@$data[3])
 		{
 			$artists = array();
@@ -183,6 +201,7 @@ class xpwiki_plugin_isbn extends xpwiki_plugin {
 		}
 		if (@$data[6])
 			$data[6] = $amazon_s1 . $this->plugin_isbn_jp_enc($data[6],"sjis") . $amazon_s2 . $data[6] . "</a>";
+		*/
 		
 		$off = "";
 		$_price = (int) trim(str_replace(",","",$data[2]));
@@ -196,14 +215,26 @@ class xpwiki_plugin_isbn extends xpwiki_plugin {
 			$data[9] = '<a href="'.str_replace('_ISBN_',$isbn,$this->config['ISBN_AMAZON_USED']).'" target="_blank" alt="Amazon Used Serach" title="Amazon Used Serach">'.$data[9].'円〜</a>';
 	
 		$td_title_style = " style=\"text-align:right;\" nowrap=\"true\"";
+		
+		$addrow = '';
+		if (@ $data[3]) {
+			foreach(explode('<br />', $data[3]) as $tmp){
+				list($cap, $val) = explode(':', $tmp, 2);
+				$cap = trim($cap);
+				$val = trim($val);
+				$addrow .= "<tr><td$td_title_style>{$cap}:</td><td style=\"text-align:left;\">{$val}</td></tr>";
+			}
+		}
+		
 		$ret = "<div><table style=\"width:auto;\">";
 		if (@$data[1]) $ret .= "<tr><td$td_title_style>{$this->msg['info_category']}</td><td style=\"text-align:left;\">$data[1]</td></tr>";
 		if (@$data[0]) $ret .= "<tr><td$td_title_style>{$this->msg['info_title']}</td><td style=\"text-align:left;\">{$amazon_a}$data[0]</a></td></tr>";
 		if (@$data[8]) $ret .= "<tr><td$td_title_style>{$this->msg['info_price']}</td><td style=\"text-align:left;\">".str_replace('$1',$data[8],$this->msg['currency'])."</td></tr>";
 		if (@$data[2]) $ret .= "<tr><td$td_title_style>{$this->msg['info_amazon']}</td><td style=\"text-align:left;\">".str_replace('$1',$data[2],$this->msg['currency'])."$off</td></tr>";
 		if (@$data[9]) $ret .= "<tr><td$td_title_style>{$this->msg['info_used']}</td><td style=\"text-align:left;\">$data[9]</td></tr>";
-		if (@$data[3]) $ret .= "<tr><td$td_title_style>{$this->msg['info_author']}</td><td style=\"text-align:left;\">$data[3]</td></tr>";
-		if (@$data[4]) $ret .= "<tr><td$td_title_style>{$this->msg['info_artist']}</td><td style=\"text-align:left;\">$data[4]</td></tr>";
+		//if (@$data[3]) $ret .= "<tr><td$td_title_style>{$this->msg['info_author']}</td><td style=\"text-align:left;\">$data[3]</td></tr>";
+		//if (@$data[4]) $ret .= "<tr><td$td_title_style>{$this->msg['info_artist']}</td><td style=\"text-align:left;\">$data[4]</td></tr>";
+		if ($addrow)   $ret .= $addrow;
 		if (@$data[5]) $ret .= "<tr><td$td_title_style>{$this->msg['info_sale_date']}</td><td style=\"text-align:left;\">$data[5]</td></tr>";
 		if (@$data[6]) $ret .= "<tr><td$td_title_style>{$this->msg['info_sales']}</td><td style=\"text-align:left;\">$data[6]</td></tr>";
 		if (@$data[7]) $ret .= "<tr><td$td_title_style>{$this->msg['info_status']}</td><td style=\"text-align:left;\">$data[7]</td></tr>";
@@ -258,9 +289,13 @@ EOD;
 		}
 	}
 	
-	function plugin_isbn_get_isbn_title($isbn,$check=true) {
+	function plugin_isbn_get_isbn_title(& $isbn, $check = true) {
+		include_once XOOPS_TRUST_PATH . '/class/hyp_common/hsamazon/hyp_simple_amazon.php';
+		$ama = new HypSimpleAmazon();
+		$isbn = $ama->ISBN2ASIN($isbn);
+ 
 		$nocache = $nocachable = 0;
-		$title = '';
+		$title = $category = $price = $author = $artist = $releasedate = $manufacturer = $availability = $listprice = $usedprice = '';
 		if ($title = $this->plugin_isbn_cache_fetch($isbn, $this->cont['CACHE_DIR'].'plugin/', $check)) {
 			list($title,$category,$price,$author,$artist,$releasedate,$manufacturer,$availability,$listprice,$usedprice) = $title;
 		} else {
@@ -271,14 +306,15 @@ EOD;
 	}
 	
 	// キャッシュがあるか調べる
-	function plugin_isbn_cache_fetch($target, $dir, $check=true) {
+	function plugin_isbn_cache_fetch($target, $dir, $check = true) {
 	//	global $vars;
 	
-		$filename = $dir."ISBN".$target.".dat";
+		$filename = $dir . $target . '.isbn';
 		
 		if (!file_exists($filename) ||
 			($check && $this->config['ISBN_AMAZON_EXPIRE_TIT'] * 3600 * 24 < time() - filemtime($filename))) {
 			// データを取りに行く
+/*
 			$url = $this->config['ISBN_AMAZON_XML'].$target;
 			$body = $this->func->http_request($url);
 			if ($body['rc'] == 200 && $body['data'])
@@ -305,9 +341,34 @@ EOD;
 			{
 				$title = "";
 			}
+*/			
+			include_once XOOPS_TRUST_PATH . '/class/hyp_common/hsamazon/hyp_simple_amazon.php';
+			$ama = new HypSimpleAmazon($this->config['AMAZON_ASE_ID']);
+			$ama->encoding = $this->cont['SOURCE_ENCODING'];
+			$ama->itemLookup($target);
+			$tmpary = $ama->getCompactArray();
+			$ama = NULL;
 			
+			$title = '';
+			if (!empty($tmpary['Items'])) {
+				$tmpary = $tmpary['Items'][0];
+				$title = $tmpary['TITLE'];
+				$category = @$tmpary['BINDING'];
+				$price = @$tmpary['PRICE'];
+				$author = @$tmpary['CREATOR'];
+				$artist = '';
+				$releasedate = @$tmpary['RELEASEDATE'];
+				$manufacturer = @ $tmpary['MANUFACTURER'];
+				$availability = @ $tmpary['AVAILABILITY'];
+				$listprice = @ $tmpary['LISTPRICE'];
+				$usedprice = @ $tmpary['USEDPRICE'];
+				$simg = $tmpary['SIMG']; //[10]
+				$mimg = $tmpary['MIMG']; //[11]
+				$limg = $tmpary['LIMG']; //[12]
+			}
+
 			if ($title != '') {				// タイトルがあれば、できるだけキャッシュに保存
-				$title = "$title<>$category<>$price<>$author<>$artist<>$releasedate<>$manufacturer<>$availability<>$listprice<>$usedprice";
+				$title = "$title<>$category<>$price<>$author<>$artist<>$releasedate<>$manufacturer<>$availability<>$listprice<>$usedprice<>$simg<>$mimg<>$limg";
 				$this->plugin_isbn_cache_save($title, $filename);
 			}
 		} else {
@@ -322,59 +383,31 @@ EOD;
 	
 	// 画像キャッシュがあるか調べる
 	function plugin_isbn_cache_image_fetch($target, $dir, $check=true) {
-	//	global $vars;
-		//echo $target;
 		$_target = $target = strtoupper($target);
 		$filename = $dir."ASIN".$target.".jpg";
 	
 		if (!is_readable($filename) || (is_readable($filename) && $check && $this->config['ISBN_AMAZON_EXPIRE_IMG'] * 3600 * 24 < time() - filemtime($filename))) {
-			$size = "MZZZZ";
-			$match = array();
-			if (preg_match("/^(?:(s|m|l):)(.+)/i",$target,$match))
-			{
+			$size = 'M';
+			$isbn = $target;
+			if (preg_match("/^(?:(s|m|l)-)(.+)/i",$target,$match)) {
 				$size = strtoupper($match[1]);
-				if ($size == "M") $target = $match[2];
-				$_target = $match[2];
-				$size = ($size == "S")? "THUMB" : $size."ZZZZ";
+				$isbn = $match[2];
 			}
-			$url = "http://images-jp.amazon.com/images/P/" . $_target . ".09.{$size}ZZZ.jpg";
-			if (!$this->func->is_url($url)) return false; // URL 形式チェック
+			$ary = $this->plugin_isbn_cache_fetch($isbn, $this->cont['CACHE_DIR'].'plugin/');
+			if ($size === 'S') {
+				$url = $ary[10];
+			} else if ($size === 'L') {
+				$url = $ary[12];
+			} else {
+				$url = $ary[11];
+			}
 			
-			if (ini_get('allow_url_fopen'))
-			{
-				$size = @getimagesize($url);
-				if ($size[0] <= 1) {
-					$url = "http://images-jp.amazon.com/images/P/" . $_target . ".01.{$size}ZZZ.jpg";
-					$size = @getimagesize($url);
-					if ($size[0] <= 1) $url = $this->config['NOIMAGE'];
-				}
-			}
-	
-			if ($url != $this->config['NOIMAGE']){
+			if ($url) {
 				$data = $this->func->http_request($url);
-				if ($data['rc'] == 200 && $data['data'])
-				{
+				if ($data['rc'] == 200 && $data['data']) {
 					$data = $data['data'];
-				}
-				else
-				{
-					if (!ini_get('allow_url_fopen'))
-					{
-						$url = "http://images-jp.amazon.com/images/P/" . $_target . ".01.{$size}ZZZ.jpg";
-						$data = $this->func->http_request($url);
-						if ($data['rc'] == 200 && $data['data'])
-						{
-							$data = $data['data'];
-						}
-						else
-						{
-							$data = @file_get_contents($this->config['NOIMAGE']);
-						}
-					}
-					else
-					{
-						$data = @join(@file($this->config['NOIMAGE']));
-					}
+				} else 	{
+					$data = @join(@file($this->config['NOIMAGE']));
 				}
 			} else {
 				// キャッシュを NOIMAGE のコピーとする
