@@ -1,6 +1,6 @@
 <?php
 // PukiWiki - Yet another WikiWikiWeb clone
-// $Id: pukiwiki.ini.php,v 1.66 2008/02/17 14:27:06 nao-pon Exp $
+// $Id: pukiwiki.ini.php,v 1.67 2008/02/25 03:17:22 nao-pon Exp $
 // Copyright (C)
 //   2002-2006 PukiWiki Developers Team
 //   2001-2002 Originally written by yu-ji
@@ -588,7 +588,8 @@ $root->filelist_only_admin = 0;
 
 $root->auto_template_func = 1;
 $root->auto_template_rules = array(
-	'((.+)\/([^\/]+))' => array('\2/template', ':template/\2') ,
+	'((.+)\/([^\/]+))' => array('\2/template', ':template/\2', 'template', ':template/default') ,
+	'(()(.+))'         => array('template', ':template/default') ,
 );
 
 /////////////////////////////////////////////////
