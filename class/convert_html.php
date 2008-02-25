@@ -961,8 +961,8 @@ class XpWikiBody extends XpWikiElement {
 				$len = strlen($matches[1]);
 				$line .= "\r"; // Delimiter
 				while (!empty ($lines)) {
-					$next_line = preg_replace("/[\r\n]*$/", '', array_shift($lines));
-					if (preg_match('/\}{'.$len.'}/', $next_line)) {
+					$next_line = rtrim(array_shift($lines), "\r\n");
+					if (preg_match('/^\}{'.$len.'}/', $next_line)) {
 						$line .= $next_line;
 						break;
 					} else {
