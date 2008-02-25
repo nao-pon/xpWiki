@@ -1,7 +1,7 @@
 <?php
 //
 // Created on 2006/10/31 by nao-pon http://hypweb.net/
-// $Id: tag.inc.php,v 1.6 2007/06/05 00:24:50 nao-pon Exp $
+// $Id: tag.inc.php,v 1.7 2008/02/25 03:15:19 nao-pon Exp $
 //
 function xpwiki_onPageWriteAfter_tag(&$xpwiki_func, &$page, &$postdata, &$notimestamp, &$mode, &$diffdata) {
 
@@ -34,7 +34,7 @@ function xpwiki_onPageWriteAfter_tag(&$xpwiki_func, &$page, &$postdata, &$notime
 					$len = strlen($matches[1]);
 					while (! empty ($data)) {
 						$next_line = preg_replace("/[\r\n]*$/", '', array_shift($data));
-						if (preg_match('/\}{'.$len.'}/', $next_line)) { break; }
+						if (preg_match('/^\}{'.$len.'}/', $next_line)) { break; }
 					}
 				}
 				
