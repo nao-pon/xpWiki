@@ -38,9 +38,11 @@ class XpWikiInlineConverter {
 		if ($converters === NULL) {
 			$converters = array ('plugin', // Inline plugins
 				'note', // Footnotes
-				'url', // URLs
+				//'url', // URLs
+				'url_i18n', // URLs (i18n)
 				'url_interwiki', // URLs (interwiki definition)
-				'mailto', // mailto: URL schemes
+				//'mailto', // mailto: URL schemes
+				'mailto_i18n', // mailto: URL schemes
 				'interwikiname', // InterWikiNames
 				'autoalias', // AutoAlias
 				//'autolink', // AutoLinks
@@ -381,6 +383,63 @@ EOD;
 	}
 }
 
+// URLs i18n
+class XpWikiLink_url_i18n extends XpWikiLink {
+	function XpWikiLink_url_i18n(& $xpwiki, $start) {
+		parent :: XpWikiLink($xpwiki, $start);
+	}
+
+	function get_pattern() {
+		$s1 = $this->start + 1;
+		return<<<EOD
+(\[\[             # (1) open bracket
+ ((?:(?!\]\]).)+) # (2) alias
+ (?:>|:)
+)?
+(                 # (3) scheme
+ (?:(?:https?|ftp|news):\/\/|mailto:)
+)
+([\w.-]+@)?       # (4) mailto name
+([^\/"<>\s]+|\/)  # (5) host
+(                 # (6) URI
+ [\w\/\@\$()!?&%#:;.,~'=*+-]*
+)
+(?($s1)\]\])      # close bracket
+EOD;
+//"
+	}
+
+	function get_count() {
+		return 6;
+	}
+
+	function set($arr, $page) {
+		list (,, $alias, $scheme, $mail, $host, $uri) = $this->splice($arr);
+		$name = $scheme . $mail . $host . $uri;
+		// https?:/// -> $this->cont['ROOT_URL']
+		$name = preg_replace('#^https?:///#', $this->cont['ROOT_URL'], $name);
+		$this->orginalname = $name;
+		if ($host !== '/' && preg_match('/[^A-Za-z0-9.-]/', $host)) {
+			$name = $scheme . $mail . $this->func->convertIDN($host, 'encode') . $uri;
+		} else if (!$alias && strtolower(substr($host, 0, 4)) === 'xn--') {
+			$this->orginalname = $scheme . $mail . $this->func->convertIDN($host, 'decode') . $uri;
+		}
+		return parent :: setParam($page, htmlspecialchars($name), '', 'url', $alias == '' ? $this->orginalname : $alias);
+	}
+
+	function toString() {
+		if (strpos($this->orginalname, $this->cont['ROOT_URL']) === FALSE) {
+			$rel = ($this->root->nofollow_extlink)? ' rel="nofollow"' : '';
+			$class = ($this->root->class_extlink)? ' class="' . $this->root->class_extlink . '"' : '';
+			$target = ($this->root->link_target)? ' target="' . $this->root->link_target . '"' : '';
+		} else {
+			$target = $rel = $class = '';
+		}
+		$img = ($this->is_image)? ' type="img"' : '';
+		return '<a href="'.$this->name.'" title="'.preg_replace('#^https?://#','',$this->orginalname).'"'.$rel.$class.$img.$target.'>'.$this->alias.'</a>';
+	}
+}
+
 // URLs (InterWiki definition on "InterWikiName")
 class XpWikiLink_url_interwiki extends XpWikiLink {
 	function XpWikiLink_url_interwiki(& $xpwiki, $start) {
@@ -443,6 +502,47 @@ EOD;
 	function set($arr, $page) {
 		list (, $alias, $name) = $this->splice($arr);
 		return parent :: setParam($page, $name, '', 'mailto', $alias == '' ? $name : $alias);
+	}
+
+	function toString() {
+		return '<a href="mailto:'.$this->name.'" rel="nofollow">'.$this->alias.'</a>';
+	}
+}
+
+// mailto: URL schemes (i18n)
+class XpWikiLink_mailto_i18n extends XpWikiLink {
+	var $is_image, $image;
+
+	function XpWikiLink_mailto(& $xpwiki, $start) {
+		parent :: XpWikiLink($xpwiki, $start);
+	}
+
+	function get_pattern() {
+		$s1 = $this->start + 1;
+		return<<<EOD
+(?:
+ \[\[
+ ((?:(?!\]\]).)+)(?:>|:)     # (1) alias
+)?
+([\w.-]+@)                   # (2) toname
+([^\/"<>\s]+\.[A-Za-z0-9-]+) # (3) host
+(?($s1)\]\])                 # close bracket if (1)
+EOD;
+	}
+//"
+	function get_count() {
+		return 3;
+	}
+
+	function set($arr, $page) {
+		list (, $alias, $toname, $host) = $this->splice($arr);
+		$name = $orginalname = $toname . $host;
+		if (preg_match('/[^A-Za-z0-9.-]/', $host)) {
+			$name = $toname . $this->func->convertIDN($host, 'encode');
+		} else if (!$alias && strtolower(substr($host, 0, 4)) === 'xn--') {
+			$orginalname = $toname . $this->func->convertIDN($host, 'decode');
+		}
+		return parent :: setParam($page, $name, '', 'mailto', $alias == '' ? $orginalname : $alias);
 	}
 
 	function toString() {

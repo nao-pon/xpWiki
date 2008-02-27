@@ -1,7 +1,7 @@
 <?php
 //
 // Created on 2006/10/02 by nao-pon http://hypweb.net/
-// $Id: xpwiki_func.php,v 1.146 2008/02/17 14:24:41 nao-pon Exp $
+// $Id: xpwiki_func.php,v 1.147 2008/02/27 08:25:14 nao-pon Exp $
 //
 class XpWikiFunc extends XpWikiXoopsWrapper {
 
@@ -1646,6 +1646,22 @@ EOD;
 		}
 	}
 
+	function convertIDN($host, $mode = 'auto') {
+		if (HypCommonFunc::get_version() < '20080226') { return $host; }
+		return HypCommonFunc::convertIDN($host, $mode, $this->cont['SOURCE_ENCODING']);
+	}
+	
+	function url_regularization(& $url) {
+		if ($arr = HypCommonFunc::i18n_parse_url($url)) {
+			$url = $arr['scheme'] . '://' . $arr['host']
+			     . (isset($arr['port'])? ':' . $arr['port'] : '')
+			     . (isset($arr['path'])? $arr['path'] : '')
+			     . (isset($arr['query'])? '?' . $arr['query'] : '')
+			     . (isset($arr['fragment'])? '#' . $arr['fragment'] : '');
+		}
+		return $url;
+	}
+	
 /*----- DB Functions -----*/ 
 	//ページ名からページIDを求める
 	function get_pgid_by_name ($page, $cache = true, $make = false)
