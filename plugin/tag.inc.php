@@ -28,7 +28,7 @@ class xpwiki_plugin_tag extends xpwiki_plugin {
 		return call_user_func_array(array($this->root->plugin_tag, 'convert'), $args);
 	}
 }
-	// $Id: tag.inc.php,v 1.9 2007/06/05 00:26:49 nao-pon Exp $
+	// $Id: tag.inc.php,v 1.10 2008/02/27 23:49:53 nao-pon Exp $
 	
 class XpWikiPluginTag
 {
@@ -394,7 +394,8 @@ class XpWikiTagCloud
 			$factor = 24 / ($max - $min);
 		}
 		$html = '';
-		sort($tags);
+		//sort($tags);
+		natcasesort($tags);
 		foreach($tags as $tag) {
 			$count = $this->counts[$tag];
 			$url   = $this->urls[$tag];
