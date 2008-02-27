@@ -1,7 +1,7 @@
 <?php
 //
 // Created on 2006/10/02 by nao-pon http://hypweb.net/
-// $Id: xpwiki_func.php,v 1.147 2008/02/27 08:25:14 nao-pon Exp $
+// $Id: xpwiki_func.php,v 1.148 2008/02/27 08:28:30 nao-pon Exp $
 //
 class XpWikiFunc extends XpWikiXoopsWrapper {
 
@@ -1652,6 +1652,7 @@ EOD;
 	}
 	
 	function url_regularization(& $url) {
+		if (HypCommonFunc::get_version() < '20080226') { return $url; }
 		if ($arr = HypCommonFunc::i18n_parse_url($url)) {
 			$url = $arr['scheme'] . '://' . $arr['host']
 			     . (isset($arr['port'])? ':' . $arr['port'] : '')
