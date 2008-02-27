@@ -353,6 +353,15 @@ var XpWiki = {
 	faviconSetDone: false,
 	faviconSet: function () {
 		if (this.faviconSetDone || typeof(this.faviconSetClass) == 'undefined') return;
+		
+		var em = document.createElement('div');
+		em.style.height = '1em';
+		em.style.width = '1px';
+		em.style.visibility = 'hidden';
+		document.getElementsByTagName('body')[0].appendChild(em);
+		var pxPerEm = em.clientHeight;
+		document.getElementsByTagName('body')[0].removeChild(em);
+		
 		var ins_a = new Array();
 		var ins_img = new Array();
 		this.faviconSetDone = true;
@@ -364,9 +373,17 @@ var XpWiki = {
 			if (time_limit < new Date().getTime()) break;
 			var obj = Objs[i];
 			if (obj.className == this.faviconSetClass && obj.firstChild.nodeName != 'IMG') {
-				var height = Math.min(32, parseInt(Element.getStyle(obj ,'fontSize'))) + 'px';
+				var height = Element.getStyle(obj ,'fontSize');
+				if (height.match(/%$/)) {
+					height = parseFloat(height)/100 * pxPerEm;
+				} else if (height.match(/em$/)) {
+					height = parseFloat(height) * pxPerEm;
+				} else {
+					height = parseFloat(height);
+				}
+				height = Math.min(32, height) + 'px';
 				var img = document.createElement('img');
-				img.src = wikihelper_root_url + '/skin/loader.php?src=favicon&url=' + this.rawurlencode(obj.href.replace(/\?.*/, ''));
+				img.src = wikihelper_root_url + '/skin/loader.php?src=favicon&url=' + this.rawurlencode(obj.readAttribute("href").replace(/\?.*/, ''));
 				img.alt = '';
 				img.style.width = height;
 				img.style.height = height;
