@@ -1,7 +1,7 @@
 <?php
 //
 // Created on 2006/10/02 by nao-pon http://hypweb.net/
-// $Id: xpwiki_func.php,v 1.148 2008/02/27 08:28:30 nao-pon Exp $
+// $Id: xpwiki_func.php,v 1.149 2008/02/29 23:34:59 nao-pon Exp $
 //
 class XpWikiFunc extends XpWikiXoopsWrapper {
 
@@ -1504,7 +1504,7 @@ EOD;
 	function encode_numericentity(& $arg, $toencode, $fromencode, $keys = array()) {
 		$fromencode = strtoupper($fromencode);
 		$toencode = strtoupper($toencode);
-		if ($fromencode === $toencode) return;
+		if ($fromencode === $toencode || $toencode === 'UTF-8') return;
 		if ($toencode === 'EUC-JP') $toencode = 'eucJP-win';
 		if (is_array($arg)) {
 			foreach (array_keys($arg) as $key) {
@@ -1519,11 +1519,11 @@ EOD;
 			if (extension_loaded('mbstring')) {
 				$_sub = mb_substitute_character();
 				mb_substitute_character('long');
-				$arg = preg_replace('/U\+([0-9A-F]{4})/', "\x08$1", $arg);
+				$arg = preg_replace('/U\+([0-9A-F]{2,5})/', "\x08$1", $arg);
 				if ($fromencode !== 'UTF-8') $arg = mb_convert_encoding($arg, 'UTF-8', $fromencode);
 				$arg = mb_convert_encoding($arg, $toencode, 'UTF-8');
-				$arg = preg_replace('/U\+([0-9A-F]{4})/e', '"&#".base_convert("$1",16,10).";"', $arg);
-				$arg = preg_replace('/\x08([0-9A-F]{4})/', 'U+$1', $arg);
+				$arg = preg_replace('/U\+([0-9A-F]{2,5})/e', '"&#".base_convert("$1",16,10).";"', $arg);
+				$arg = preg_replace('/\x08([0-9A-F]{2,5})/', 'U+$1', $arg);
 				mb_substitute_character($_sub);
 				$arg = mb_convert_encoding($arg, $fromencode, $toencode);
 			} else {
@@ -1661,6 +1661,42 @@ EOD;
 			     . (isset($arr['fragment'])? '#' . $arr['fragment'] : '');
 		}
 		return $url;
+	}
+
+	// Process onPageWriteBefore
+	function do_onPageWriteBefore ($page, $postdata, $notimestamp, $mode) {
+		$base = $this->root->mytrustdirpath."/events/onPageWriteBefore";
+		if ($handle = opendir($base)) {
+			while (false !== ($file = readdir($handle))) {
+				if (preg_match("/^([\w_]+)\.inc\.php$/", $file, $match)) {
+					include_once($base ."/".$file);
+					$_func = 'xpwiki_onPageWriteBefore_'.$match[1];
+					if (function_exists($_func)) {
+						$_func($this, $page, $postdata, $notimestamp, $mode);
+					}
+				}
+			}
+			closedir($handle);
+		}
+		$this->delete_caches();
+	}
+	
+	// Process onPageWriteAfter
+	function do_onPageWriteAfter ($page, $postdata, $notimestamp, $mode, $diffdata) {
+		$base = $this->root->mytrustdirpath."/events/onPageWriteAfter";
+		if ($handle = opendir($base)) {
+			while (false !== ($file = readdir($handle))) {
+				if (preg_match("/^([\w_]+)\.inc\.php$/", $file, $match)) {
+					include_once($base ."/".$file);
+					$_func = 'xpwiki_onPageWriteAfter_'.$match[1];
+					if (function_exists($_func)) {
+						$_func($this, $page, $postdata, $notimestamp, $mode, $diffdata);
+					}
+				}
+			}
+			closedir($handle);
+		}
+		$this->delete_caches();
 	}
 	
 /*----- DB Functions -----*/ 
