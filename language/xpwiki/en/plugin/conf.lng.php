@@ -1,7 +1,7 @@
 <?php
 /*
  * Created on 2008/01/24 by nao-pon http://hypweb.net/
- * $Id: conf.lng.php,v 1.3 2008/02/17 14:16:47 nao-pon Exp $
+ * $Id: conf.lng.php,v 1.4 2008/02/29 23:40:09 nao-pon Exp $
  */
 
 $msg = array(
@@ -168,6 +168,11 @@ each use page can be provided.<br />'
 	'plugin_follow_freeze' => array(
 		'caption'     => 'Plugin follow to page freezing?',
 		'description' => 'The contribution by the plugin is not permitted when the page is freezed.',
+	),
+
+	'line_break' => array(
+		'caption'     => 'Enable auto line break?',
+		'description' => 'Line break is converted to "&lt;br /&gt;".',
 	),
 
 	'fixed_heading_anchor_edit' => array(

@@ -1,7 +1,7 @@
 <?php
 /*
  * Created on 2008/01/24 by nao-pon http://hypweb.net/
- * $Id: conf.lng.php,v 1.3 2008/02/17 14:16:47 nao-pon Exp $
+ * $Id: conf.lng.php,v 1.4 2008/02/29 23:40:09 nao-pon Exp $
  */
 
 $msg = array(
@@ -167,6 +167,11 @@ $msg = array(
 	'plugin_follow_freeze' => array(
 		'caption'     => 'プラグインにページ凍結を適用する',
 		'description' => 'ページが凍結されている場合に、プラグインでの投稿を不許可にします。',
+	),
+
+	'line_break' => array(
+		'caption'     => '改行を有効にする',
+		'description' => '改行を &lt;br /&gt; に変換します。',
 	),
 
 	'fixed_heading_anchor_edit' => array(
