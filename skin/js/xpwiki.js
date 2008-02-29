@@ -408,6 +408,25 @@ var XpWiki = {
 		}
 	},
 	
+	checkUseHelper: function (obj) {
+		if (!! this.UseWikihelperAtAll) {
+			return true;
+		}
+		var parent;
+		while(parent = obj.parentNode) {
+			if (typeof(parent.className) != 'undefined') {
+				if (parent.className.match(/^NoWikiHelper/)) {
+					return false;
+				}
+				if (parent.className.match(/^xpwiki/)) {
+					return true;
+				}
+			}
+			obj = parent;
+		}
+		return false;
+	},
+	
 	htmlspecialchars: function (str) {
 		return str.
 		replace(/&/g,"&amp;").
