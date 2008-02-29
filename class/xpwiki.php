@@ -1,7 +1,7 @@
 <?php
 //
 // Created on 2006/09/29 by nao-pon http://hypweb.net/
-// $Id: xpwiki.php,v 1.72 2008/02/17 15:50:54 nao-pon Exp $
+// $Id: xpwiki.php,v 1.73 2008/02/29 23:37:10 nao-pon Exp $
 //
 
 class XpWiki {
@@ -467,11 +467,11 @@ EOD;
 	
 	// xpWiki render mode
 	function transform($text, $cssbase = '') {
-		
+		if (!$text) return '';
 		$this->init('#RenderMode');
 		$this->cont['PKWK_READONLY'] = 2;
 		$this->root->top = '';
-		$text = str_replace("\r", '', $text);
+		$text = str_replace(array("\r\n", "\r"), "\n", $text);
 		
 		if ($this->root->render_use_cache) {
 			$op = '';
@@ -533,18 +533,6 @@ EOD;
 			$text = '<div class="xpwiki_'.$cssbase.'">'."\n".$text."\n".'</div>';
 		}
 		
-		/*
-		// cont['USER_NAME_REPLACE'] ¤ò ÃÖ´¹
-		$text = str_replace(
-				array($this->cont['USER_NAME_REPLACE'], $this->cont['USER_CODE_REPLACE']) ,
-				array($this->root->userinfo['uname_s'], $this->root->userinfo['ucd']) ,
-		        $text);
-		// For Safari
-		if ($this->cont['UA_NAME'] === 'Safari') {
-			$text = preg_replace('/(<form)([^>]*>)/' , '$1 accept-charset="UTF-8"$2', $text);
-		}
-		*/
-				
 		return $head_pre_tag."\n".$csstag."\n".$head_tag."\n".$text;
 
 	}
