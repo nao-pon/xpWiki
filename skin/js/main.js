@@ -463,7 +463,7 @@ document.observe("dom:loaded", function() {
 	var tareas = document.getElementsByTagName('body')[0].getElementsByTagName('textarea');
 	for (var i=0; i<tareas.length; i++){
 		if (tareas[i].style.display == 'none') continue;
-		if (! tareas[i].getAttribute('rel') && !tareas[i].getAttribute('readonly')) {
+		if (! tareas[i].getAttribute('rel') && ! tareas[i].getAttribute('readonly') && XpWiki.checkUseHelper(tareas[i])) {
 			tareas[i].setAttribute("rel", "wikihelper");
 		}
 		if (!tareas[i].id) {
