@@ -1,7 +1,7 @@
 <?php
 //
 // Created on 2006/10/25 by nao-pon http://hypweb.net/
-// $Id: code.inc.php,v 1.15 2008/02/11 01:02:41 nao-pon Exp $
+// $Id: code.inc.php,v 1.16 2008/02/29 23:55:44 nao-pon Exp $
 //
 
 class xpwiki_plugin_code extends xpwiki_plugin {
@@ -23,7 +23,7 @@ class xpwiki_plugin_code extends xpwiki_plugin {
 		$this->cont['PLUGIN_CODE_OUTLINE'] =    1;  // アウトライン
 		$this->cont['PLUGIN_CODE_BLOCK'] =      1;  // ブロック開閉
 		$this->cont['PLUGIN_CODE_LITERAL'] =    1;  // 文字列開閉
-		$this->cont['PLUGIN_CODE_COMMENT'] =    1;  // コメント開閉
+		$this->cont['PLUGIN_CODE_SW_COMMENT'] = 1;  // コメント開閉
 		$this->cont['PLUGIN_CODE_MENU'] =       1;  // メニューの表示/非表示;
 		$this->cont['PLUGIN_CODE_FILE_ICON'] =  1;  // 添付ファイルにダウンロードアイコンを付ける
 		$this->cont['PLUGIN_CODE_LINK'] =       1;  // オートリンク
