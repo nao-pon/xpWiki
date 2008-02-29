@@ -1,6 +1,6 @@
 <?php
 // PukiWiki - Yet another WikiWikiWeb clone
-// $Id: rename.inc.php,v 1.8 2007/09/19 11:27:15 nao-pon Exp $
+// $Id: rename.inc.php,v 1.9 2008/02/29 23:44:25 nao-pon Exp $
 //
 // Rename plugin: Rename page-name and related data
 //
@@ -411,6 +411,14 @@ EOD;
 					$alias_up = true;
 				}
 			}
+			
+			$source = $this->func->get_source($new, TRUE, TRUE);
+			// PageWriteBefore
+			$this->func->do_onPageWriteBefore($old, '', 1, 'delete');
+			$this->func->do_onPageWriteBefore($new, $source, 1, 'insert');
+			// onPageWriteAfter
+			$this->func->do_onPageWriteAfter($old, '', 1, 'delete', '');
+			$this->func->do_onPageWriteAfter($new, $source, 1, 'insert', '');
 		}
 		if ($alias_up) {
 			$this->func->save_page_alias();
