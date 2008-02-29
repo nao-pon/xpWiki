@@ -2,7 +2,7 @@
 /////////////////////////////////////////////////
 // PukiWiki - Yet another WikiWikiWeb clone.
 //
-// $Id: isbn.inc.php,v 1.3 2008/02/25 03:15:38 nao-pon Exp $
+// $Id: isbn.inc.php,v 1.4 2008/02/29 23:39:10 nao-pon Exp $
 //
 // *0.5: URL が存在しない場合、画像を表示しない。
 //			 Thanks to reimy.
@@ -27,7 +27,7 @@ class xpwiki_plugin_isbn extends xpwiki_plugin {
 		// expire タイトルキャッシュを何日で削除するか
 		$this->config['ISBN_AMAZON_EXPIRE_TIT'] = 1;
 		// NoImage file.
-		$this->config['NOIMAGE'] = './image/noimage.png';
+		$this->config['NOIMAGE'] = $this->cont['IMAGE_DIR'] . 'noimage.png';
 		
 		// 言語ファイルの読み込み
 		$this->load_language();
