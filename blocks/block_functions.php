@@ -52,22 +52,23 @@ function b_xpwiki_notification_edit( $options )
 function b_xpwiki_a_page_show( $options )
 {
 	$mydirname = empty( $options[0] ) ? 'xpwiki' : $options[0] ;
-	$page = empty( $options[1] ) ? '' : $options[1] ;
-	$width = empty( $options[2] ) ? '100%' : $options[2] ;
-	$this_template = empty( $options[3] ) ? 'db:'.$mydirname.'_block_a_page.html' : trim( $options[3] ) ;
-	$div_class = empty( $options[4] ) ? 'xpwiki_b_' . $mydirname : $options[4];
-	$css = isset( $options[5] ) ? $options[5] : 'main.css';
-	$disabled_pagecache = empty($options[6])? false : true;
-	$head_tag_place = empty($options[7])? 'body' : trim($options[7]);
-	$configs = array();
-	
-	if( preg_match( '/[^0-9a-zA-Z_-]/' , $mydirname ) ) die( 'Invalid mydirname' ) ;
-	
+
 	// 必要なファイルの読み込み (固定値:変更の必要なし)
 	include_once XOOPS_TRUST_PATH."/modules/xpwiki/include.php";
 	 
 	// インスタンス化 (引数: モジュールディレクトリ名)
 	$xw = new XpWiki($mydirname);
+
+	$page = empty( $options[1] ) ? '' : $options[1] ;
+	$width = empty( $options[2] ) ? '100%' : $options[2] ;
+	$this_template = empty( $options[3] ) ? 'db:'.$mydirname.'_block_a_page.html' : trim( $options[3] ) ;
+	$div_class = empty( $options[4] ) ? 'xpwiki_b_' . $mydirname : $options[4];
+	$css = isset( $options[5] ) ? $options[5] : $xw->root->main_css;
+	$disabled_pagecache = empty($options[6])? false : true;
+	$head_tag_place = empty($options[7])? 'body' : trim($options[7]);
+	$configs = array();
+	
+	if( preg_match( '/[^0-9a-zA-Z_-]/' , $mydirname ) ) die( 'Invalid mydirname' ) ;
 	
 	// ページキャッシュを常に無効にする?
 	if ($disabled_pagecache) {
@@ -170,21 +171,22 @@ EOD;
 function b_xpwiki_block_show( $options, $src, $nocache = false )
 {
 	$mydirname = empty( $options[0] ) ? 'xpwiki' : $options[0] ;
-	$width = empty( $options[1] ) ? '100%' : $options[1] ;
-	$this_template = empty( $options[2] ) ? 'db:'.$mydirname.'_block_a_page.html' : trim( $options[2] ) ;
-	$div_class = empty( $options[3] ) ? 'xpwiki_b_' . $mydirname : $options[3];
-	$css = isset( $options[4] ) ? $options[4] : 'main.css';
-	$head_tag_place = empty($options[5])? 'module' : trim($options[5]);
 
-	$configs = array();
-	
-	if( preg_match( '/[^0-9a-zA-Z_-]/' , $mydirname ) ) die( 'Invalid mydirname' ) ;
-	
 	// 必要なファイルの読み込み (固定値:変更の必要なし)
 	include_once XOOPS_TRUST_PATH."/modules/xpwiki/include.php";
 	 
 	// インスタンス化 (引数: モジュールディレクトリ名)
 	$xw = new XpWiki($mydirname);
+
+	$width = empty( $options[1] ) ? '100%' : $options[1] ;
+	$this_template = empty( $options[2] ) ? 'db:'.$mydirname.'_block_a_page.html' : trim( $options[2] ) ;
+	$div_class = empty( $options[3] ) ? 'xpwiki_b_' . $mydirname : $options[3];
+	$css = isset( $options[4] ) ? $options[4] : $xw->root->main_css;
+	$head_tag_place = empty($options[5])? 'module' : trim($options[5]);
+
+	$configs = array();
+	
+	if( preg_match( '/[^0-9a-zA-Z_-]/' , $mydirname ) ) die( 'Invalid mydirname' ) ;
 	
 	// ページキャッシュを常に無効にする
 	if ($nocache) $configs['root']['pagecache_min'] = 0;
