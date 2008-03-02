@@ -2,7 +2,7 @@
 class xpwiki_plugin_xoopsblock extends xpwiki_plugin {
 	
 	function plugin_xoopsblock_init() {
-	// $Id: xoopsblock.inc.php,v 1.5 2007/07/22 08:08:50 nao-pon Exp $
+	// $Id: xoopsblock.inc.php,v 1.6 2008/03/02 08:59:41 nao-pon Exp $
 	
 	/*
 	 * countdown.inc.php
@@ -152,6 +152,13 @@ class xpwiki_plugin_xoopsblock extends xpwiki_plugin {
 				if ($bcontent) {
 					$ret .= "<h5>".$btitle."</h5>\n";
 					$ret .= $bcontent;
+					foreach(explode("\n", $xoopsTpl->get_template_vars('xoops_block_header')) as $str) {
+						$this->root->head_tags[] = rtrim($str);
+					}
+					foreach(explode("\n", $xoopsTpl->get_template_vars('xoops_module_header')) as $str) {
+						$this->root->head_tags[] = rtrim($str);
+					}
+					$this->root->head_tags = array_unique($this->root->head_tags);
 				}
 			}
 			unset($myblock);
@@ -160,8 +167,6 @@ class xpwiki_plugin_xoopsblock extends xpwiki_plugin {
 		if (!$css_show) {
 			$css_show = true;
 			$this->root->head_pre_tags[] = "<link rel=\"stylesheet\" type=\"text/css\" media=\"all\" href=\"". XOOPS_URL ."/xoops.css\" />";
-			//global $xoopsConfig;
-			//$this->root->head_pre_tags[] = "<link rel=\"stylesheet\" type=\"text/css\" media=\"all\" href=\"". xoops_getcss($xoopsConfig['theme_set']) ."\" />\n";
 		}
 		
 		if ($tgt == "?") $ret = "<ul>$ret</ul>";
