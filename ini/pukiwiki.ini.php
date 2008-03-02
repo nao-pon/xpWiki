@@ -1,6 +1,6 @@
 <?php
 // PukiWiki - Yet another WikiWikiWeb clone
-// $Id: pukiwiki.ini.php,v 1.67 2008/02/25 03:17:22 nao-pon Exp $
+// $Id: pukiwiki.ini.php,v 1.68 2008/03/02 08:54:26 nao-pon Exp $
 // Copyright (C)
 //   2002-2006 PukiWiki Developers Team
 //   2001-2002 Originally written by yu-ji
@@ -637,6 +637,11 @@ $root->clear_cache_parent = TRUE; // (TRUE or FASLE)
 $root->bgrun_with_img = 1;
 
 /////////////////////////////////////////////////
+// About CSS...
+
+// Main CSS name
+$root->main_css = 'main.css';
+
 // <pre> の幅指定 (600px, auto など)
 $root->pre_width = 'auto';
 

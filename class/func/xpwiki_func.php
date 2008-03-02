@@ -1,7 +1,7 @@
 <?php
 //
 // Created on 2006/10/02 by nao-pon http://hypweb.net/
-// $Id: xpwiki_func.php,v 1.149 2008/02/29 23:34:59 nao-pon Exp $
+// $Id: xpwiki_func.php,v 1.150 2008/03/02 08:54:26 nao-pon Exp $
 //
 class XpWikiFunc extends XpWikiXoopsWrapper {
 
@@ -1367,8 +1367,8 @@ $meta_content_type
 <meta http-equiv="content-style-type" content="text/css" />
 <meta http-equiv="Content-Script-Type" content="text/javascript" />
 $head_pre_tag
-<link rel="stylesheet" type="text/css" media="all" href="{$this->cont['LOADER_URL']}?skin={$this->cont['SKIN_NAME']}&amp;charset={$css_charset}&amp;pw={$this->root->pre_width}&amp;{$cssprefix}src=main.css" charset="{$css_charset}" />
-<link rel="stylesheet" type="text/css" media="print"  href="{$this->cont['LOADER_URL']}?skin={$this->cont['SKIN_NAME']}&amp;charset={$css_charset}&amp;pw={$this->root->pre_width}&amp;media=print&amp;{$cssprefix}src=main.css" charset="{$css_charset}" />
+<link rel="stylesheet" type="text/css" media="all" href="{$this->cont['LOADER_URL']}?skin={$this->cont['SKIN_NAME']}&amp;charset={$css_charset}&amp;pw={$this->root->pre_width}&amp;{$cssprefix}src={$this->root->main_css}" charset="{$css_charset}" />
+<link rel="stylesheet" type="text/css" media="print"  href="{$this->cont['LOADER_URL']}?skin={$this->cont['SKIN_NAME']}&amp;charset={$css_charset}&amp;pw={$this->root->pre_width}&amp;media=print&amp;{$cssprefix}src={$this->root->main_css}" charset="{$css_charset}" />
 $head_tag
 <title></title>
 </head>

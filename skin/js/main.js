@@ -459,7 +459,7 @@ window.onbeforeunload = function(e) {
 };
 
 document.observe("dom:loaded", function() {
-	XpWiki.addCssInHead('main.css');
+	XpWiki.addCssInHead('base.css');
 	var tareas = document.getElementsByTagName('body')[0].getElementsByTagName('textarea');
 	for (var i=0; i<tareas.length; i++){
 		if (tareas[i].style.display == 'none') continue;

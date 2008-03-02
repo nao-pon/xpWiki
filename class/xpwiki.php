@@ -1,7 +1,7 @@
 <?php
 //
 // Created on 2006/09/29 by nao-pon http://hypweb.net/
-// $Id: xpwiki.php,v 1.73 2008/02/29 23:37:10 nao-pon Exp $
+// $Id: xpwiki.php,v 1.74 2008/03/02 08:54:26 nao-pon Exp $
 //
 
 class XpWiki {
@@ -344,8 +344,11 @@ class XpWiki {
 		return $this->func->get_pginfo($this->page);
 	}
 	
-	function get_html_for_block ($page, $width = "100%", $div_class = 'xpwiki_b_$mydirname', $css_tag = 'main.css', $configs = array(), $byArray = FALSE) {
+	function get_html_for_block ($page, $width = "100%", $div_class = 'xpwiki_b_$mydirname', $css_tag = NULL, $configs = array(), $byArray = FALSE) {
 		
+		if (is_null($css_tag)) {
+			$css_tag = $this->root->main_css;
+		}
 		// configs
 		$this->iniVar = $configs;
 		
@@ -529,7 +532,7 @@ EOD;
 		if ($cssbase) {
 			$cssbase = 'r_'.$cssbase;
 			$cssprefix = $this->root->css_prefix ? 'pre=' . rawurlencode($this->root->css_prefix) . '&amp;' : '';
-			$csstag = '<link rel="stylesheet" type="text/css" media="all" href="'.$this->cont['LOADER_URL'].'?charset='.$this->cont['CSS_CHARSET'].'&amp;skin='.$this->cont['SKIN_NAME'].'&amp;r=1&amp;'.$cssprefix.'src=main.css" charset="' . $this->cont['CSS_CHARSET'] . '" />';
+			$csstag = '<link rel="stylesheet" type="text/css" media="all" href="'.$this->cont['LOADER_URL'].'?charset='.$this->cont['CSS_CHARSET'].'&amp;skin='.$this->cont['SKIN_NAME'].'&amp;r=1&amp;'.$cssprefix.'src=' . $this->root->main_css . '" charset="' . $this->cont['CSS_CHARSET'] . '" />';
 			$text = '<div class="xpwiki_'.$cssbase.'">'."\n".$text."\n".'</div>';
 		}
 		

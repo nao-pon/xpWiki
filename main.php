@@ -126,7 +126,7 @@ if ($xpwiki->runmode == "xoops") {
 	
 	echo <<<EOD
 $head_pre_tag
-<link rel="stylesheet" type="text/css" media="screen" href="{$xpwiki->cont['LOADER_URL']}?skin={$xpwiki->cont['SKIN_NAME']}&amp;pw={$xpwiki->root->pre_width}&amp;{$cssprefix}charset={$css_charset}&amp;src=main.css" charset="{$css_charset}" />	
+<link rel="stylesheet" type="text/css" media="screen" href="{$xpwiki->cont['LOADER_URL']}?skin={$xpwiki->cont['SKIN_NAME']}&amp;pw={$xpwiki->root->pre_width}&amp;{$cssprefix}charset={$css_charset}&amp;src={$this->root->main_css}" charset="{$css_charset}" />	
 $head_tag
 EOD;
 	
