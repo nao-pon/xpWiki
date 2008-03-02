@@ -3,7 +3,7 @@
 $this->root->runmode = "standalone";
 
 // PukiWiki - Yet another WikiWikiWeb clone.
-// $Id: tdiary.skin.php,v 1.29 2008/02/08 02:55:51 nao-pon Exp $
+// $Id: tdiary.skin.php,v 1.30 2008/03/02 08:55:35 nao-pon Exp $
 // Copyright (C)
 //   2002-2006 PukiWiki Developers Team
 //   2001-2002 Originally written by yu-ji
@@ -594,7 +594,6 @@ $css_prefix_id = $this->root->css_prefix ? ' id="' . ltrim($this->root->css_pref
  <?php echo $favicon ?>
  <link rel="stylesheet" type="text/css" media="all" href="<?php echo "{$this->cont['HOME_URL']}{$this->cont['TDIARY_DIR']}" ?>base.css" />
  <link rel="stylesheet" type="text/css" media="all" href="<?php echo "{$this->cont['HOME_URL']}{$this->cont['TDIARY_DIR']}" ?><?php echo $theme ?>/<?php echo $theme ?>.css" />
- <link rel="stylesheet" type="text/css" media="print"  href="<?php echo "{$this->cont['LOADER_URL']}" ?>?skin=<?php echo "{$this->cont['SKIN_NAME']}" ?>&amp;charset=<?php echo $css_charset ?>&amp;<?php echo $cssprefix ?>src=main.css" charset="<?php echo $css_charset ?>" />
  <link rel="stylesheet" type="text/css" media="screen" href="<?php echo "{$this->cont['HOME_URL']}{$this->cont['TDIARY_DIR']}" ?>tdiary.css.php?charset=<?php echo $css_charset ?>&amp;color=<?php echo $css_theme ?>" charset="<?php echo $css_charset ?>" />
  <link rel="stylesheet" type="text/css" media="print"  href="<?php echo "{$this->cont['HOME_URL']}{$this->cont['TDIARY_DIR']}" ?>tdiary.css.php?charset=<?php echo $css_charset ?>&amp;color=<?php echo $css_theme ?>&amp;media=print" charset="<?php echo $css_charset ?>" />
  <link rel="alternate" type="application/rss+xml" title="RSS" href="<?php echo $link['rss'] ?>" /><?php // RSS auto-discovery ?>
@@ -606,7 +605,7 @@ $css_prefix_id = $this->root->css_prefix ? ' id="' . ltrim($this->root->css_pref
 <?php if ($menu && $sidebar == 'strict') { ?>
 <!-- Sidebar top -->
 <div class="sidebar">
-	<div id="menubar">
+	<div class="menubar">
 		<?php echo $menu_body ?>
 	</div>
 </div><!-- class="sidebar" -->
@@ -617,7 +616,7 @@ $css_prefix_id = $this->root->css_prefix ? ' id="' . ltrim($this->root->css_pref
 
 <!-- Navigation buttuns -->
 <?php if ($this->cont['PKWK_SKIN_SHOW_NAVBAR']) { ?>
-<div class="adminmenu"><div id="<?php echo $dirname ?>_navigator">
+<div class="adminmenu"><div class="navigator">
  <?php $navigator($this, 'top') ?> &nbsp;
 
 <?php if ($is_page) { ?>
@@ -668,7 +667,7 @@ $css_prefix_id = $this->root->css_prefix ? ' id="' . ltrim($this->root->css_pref
 <?php } ?>
 </div></div>
 <?php } else { ?>
-<div id="navigator"></div>
+<div class="navigator"></div>
 <?php } // $this->cont['PKWK_SKIN_SHOW_NAVBAR'] ?>
 
 <h1><a href="<?php echo $this->root->siteinfo['rooturl'] ?>" title="Site Top"><?php echo $this->root->siteinfo['sitename'] ?></a> / <?php echo $this->root->module_title ?></h1>
@@ -687,7 +686,7 @@ $css_prefix_id = $this->root->css_prefix ? ' id="' . ltrim($this->root->css_pref
 <?php if ($menu && $sidebar == 'top') { ?>
 <!-- Sidebar compat top -->
 <div class="sidebar">
-	<div id="menubar">
+	<div class="menubar">
 		<?php echo $menu_body ?>
 	</div>
 </div><!-- class="sidebar" -->
@@ -853,7 +852,7 @@ default:
 <?php if ($menu && $sidebar == 'bottom') { ?>
 <!-- Sidebar compat bottom -->
 <div class="sidebar">
-	<div id="menubar">
+	<div class="menubar">
 		<?php echo $menu_body ?>
 	</div>
 </div><!-- class="sidebar" -->

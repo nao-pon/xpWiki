@@ -1,6 +1,6 @@
 <?php
 // PukiWiki - Yet another WikiWikiWeb clone.
-// $Id: tdiary.css.php,v 1.7 2007/12/30 02:37:47 nao-pon Exp $
+// $Id: tdiary.css.php,v 1.8 2008/03/02 08:55:35 nao-pon Exp $
 // Copyright (C)
 //   2002-2005 PukiWiki Developers Team
 //   2001-2002 Originally written by yu-ji
@@ -115,42 +115,6 @@ a.autolink {
 a.autolink_popup {
 	/*border-bottom: 1px silver dotted;*/
 	cursor: help;
-}
-
-div.resizableResizeX {
-	position: absolute;
-	right: -5px;
-	width: 4px;
-	top: 0px;
-	height:100%;
-	border: none;
-	padding: 0px;
-	margin: 0px;
-	background-color: #b0c4de;
-}
-
-div.resizableResizeY {
-	position: absolute;
-	bottom: -5px;
-	height: 4px;
-	left: 0px;
-	width:100%;
-	border: none;
-	padding: 0px;
-	margin: 0px;
-	background-color: #b0c4de;
-}
-
-div.resizableResizeXY {
-	position: absolute;
-	bottom: -5px;
-	height: 6px;
-	right: -5px;
-	width: 6px;
-	border: none;
-	padding: 0px;
-	margin: 0px;
-	background-color: #b0c4de;
 }
 
 pre {
@@ -347,12 +311,12 @@ strong.word9 {
 .edit_form { clear:both; }
 
 /* pukiwiki.skin.php */
-div#header {
+div.header {
 	padding:0px;
 	margin:0px;
 }
 
-div#navigator {
+div.navigator {
 <?php   if ($media == 'print') { ?>
 	display:none;
 <?php   } else { ?>
@@ -371,7 +335,7 @@ td.menubar {
 <?php   } ?>
 }
 
-div#menubar {
+div.menubar {
 <?php   if ($media == 'print') { ?>
 	display:none;
 <?php   } else { ?>
@@ -384,25 +348,25 @@ div#menubar {
 <?php   } ?>
 }
 
-div#menubar ul {
+div.menubar ul {
 	margin:0px 0px 0px .5em;
 	padding:0px 0px 0px .5em;
 }
 
-div#menubar ul li { line-height:110%; }
+div.menubar ul li { line-height:110%; }
 
-div#menubar h4 { font-size:110%; }
+div.menubar h4 { font-size:110%; }
 
 /* for tDiary themes */
 div.pkwk_body { padding:0px; }
 
-div#note {
+div.note {
 	clear:both;
 	padding:0px;
 	margin:0px;
 }
 
-div#attach {
+div.attach {
 <?php   if ($media == 'print') { ?>
 	display:none;
 <?php   } else { ?>
@@ -412,7 +376,7 @@ div#attach {
 <?php   } ?>
 }
 
-div#toolbar {
+div.toolbar {
 <?php   if ($media == 'print') { ?>
         display:none;
 <?php   } else { ?>
@@ -423,14 +387,14 @@ div#toolbar {
 <?php   } ?>
 }
 
-div#lastmodified {
+div.lastmodified {
 	font-size:80%;
 	padding:0px;
 	margin:0px;
 }
 
 /* for tDiary theme */
-div#related {
+div.related {
 <?php   if ($media == 'print') { ?>
         display:none;
 <?php   } else { ?>
@@ -440,23 +404,23 @@ div#related {
 <?php   } ?>
 }
 
-div#footer {
+div.footer {
 	font-size:70%;
 	padding:0px;
 	margin:16px 0px 0px 0px;
 }
 
-div#banner {
+div.banner {
 	float:right;
 	margin-top:24px;
 }
 
-div#preview {
+div.preview {
 	color:inherit;
 	background-color:#<?php echo $color['div#preview'] ?>;
 }
 
-img#logo {
+img.logo {
 <?php   if ($media == 'print') { ?>
 	display:none;
 <?php   } else { ?>
