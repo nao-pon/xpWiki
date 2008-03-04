@@ -1,7 +1,7 @@
 <?php
 //
 // Created on 2006/10/13 by nao-pon http://hypweb.net/
-// $Id: init.php,v 1.46 2008/02/17 15:49:39 nao-pon Exp $
+// $Id: init.php,v 1.47 2008/03/04 06:07:36 nao-pon Exp $
 //
 
 $root = & $this->root;
@@ -375,14 +375,15 @@ if (isset($const['page_show'])) {
 		$arg = $this->strip_bracket($arg);
 		$arg = $this->input_filter($arg);
 		
-		// RecentChanges is a cmd in xpWiki
-		if ($arg === $root->whatsnew){
-			$root->get['cmd'] = $root->post['cmd'] = $root->vars['cmd'] = 'recentchanges';
-		}
-			
 		$root->get['page'] = $root->post['page'] = $root->vars['page'] = $arg;
 	}
-	
+
+	// RecentChanges is a cmd in xpWiki
+	if ($root->vars['page'] === $root->whatsnew){
+		$root->get['cmd'] = $root->post['cmd'] = $root->vars['cmd'] = 'recentchanges';
+		$root->get['page'] = $root->post['page'] = $root->vars['page'] = '';
+	}
+
 	// PlainText DB 更新する？
 	if ($root->vars['page'] !== '' && $root->render_mode === 'main') {
 		$_udp_file = $const['CACHE_DIR'].$this->encode($root->vars['page']).".udp";
