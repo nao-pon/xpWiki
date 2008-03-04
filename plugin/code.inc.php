@@ -1,7 +1,7 @@
 <?php
 //
 // Created on 2006/10/25 by nao-pon http://hypweb.net/
-// $Id: code.inc.php,v 1.16 2008/02/29 23:55:44 nao-pon Exp $
+// $Id: code.inc.php,v 1.17 2008/03/04 06:02:48 nao-pon Exp $
 //
 
 class xpwiki_plugin_code extends xpwiki_plugin {
@@ -68,6 +68,9 @@ class xpwiki_plugin_code extends xpwiki_plugin {
 		
 		$this->cont['PLUGIN_CODE_LINE_MAX'] = 25; // Show max line count
 		$this->cont['PLUGIN_CODE_LINE_HEIGHT'] = 1.2; // style line-height: (em)
+		
+		$this->config['codehighlightClassFile'] = $this->root->mytrustdirpath . '/plugin/code/codehighlight.php';
+		$this->config['codehighlightClassName'] = 'XpWikiCodeHighlight';
 	}
 
 	function plugin_code_action()
@@ -91,10 +94,10 @@ class xpwiki_plugin_code extends xpwiki_plugin {
 	function plugin_code_convert()
 	{
 
-		if (file_exists($this->root->mytrustdirpath."/plugin/code/codehighlight.php"))
-			require_once($this->root->mytrustdirpath."/plugin/code/codehighlight.php");
+		if (file_exists($this->config['codehighlightClassFile']))
+			require_once($this->config['codehighlightClassFile']);
 		else
-			$this->func->die_message('file '.$this->root->mytrustdirpath.'/code/codehighlight.php not exist or not readable.');
+			$this->func->die_message('file ' . $this->config['codehighlightClassFile'] . ' not exist or not readable.');
 
 		$this->func->add_tag_head('code.css');
 
@@ -166,9 +169,10 @@ class xpwiki_plugin_code extends xpwiki_plugin {
 			$end = substr_count($lines, "\n") + $begin - 1;
 		
 		$_err = error_reporting(E_ALL ^ E_NOTICE); // orz...
-		$highlight = new XpWikiCodeHighlight($this->xpwiki);
+		$highlight = new $this->config['codehighlightClassName']($this->xpwiki);
 		$lines = $highlight->highlight($lang, $lines, $option, $end, $begin);
 		error_reporting($_err);
+		$highlight = NULL;
 
 		if ($option['outline']) $line_cnt += 1 * $this->cont['PLUGIN_CODE_LINE_HEIGHT'];
 				
