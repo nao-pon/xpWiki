@@ -188,6 +188,8 @@ function wikihelper_initTexts(obj)
 		if (wikihelper_initLoad) return;
 		obj = document;
 	}
+	var oElements;
+	var oElement;
 	wikihelper_initLoad = 1;
 	wikihelper_show_fontset_img();
 	var oElements = obj.getElementsByTagName("form");
@@ -212,24 +214,20 @@ function wikihelper_initTexts(obj)
 	for (i = 0; i < oElements.length; i++)
 	{
 		oElement = oElements[i];
-		if (oElement.type == "text" || oElement.type == "submit")
-		{
-			var rel = String(oElement.getAttribute('rel'));
-			var onfocus = oElement.onfocus;
-			if (rel == "wikihelper") {
-				//alert(rel);
-				oElement.onfocus = function()
-				{
-					if (onfocus) onfocus();
-					wikihelper_setActive(this);
-				};
-			} else {
-				oElement.onfocus = function()
-				{
-					if (onfocus) onfocus();
-					wikihelper_hide_helper();
-				};
-			}
+		var rel = String(oElement.getAttribute('rel'));
+		var onfocus = oElement.onfocus;
+		if (rel == "wikihelper") {
+			oElement.onfocus = function()
+			{
+				if (onfocus) onfocus();
+				wikihelper_setActive(this);
+			};
+		} else {
+			oElement.onfocus = function()
+			{
+				if (onfocus) onfocus();
+				wikihelper_hide_helper();
+			};
 		}
 	}
 	oElements = obj.getElementsByTagName("textarea");
@@ -252,6 +250,17 @@ function wikihelper_initTexts(obj)
 			};
 		}
 	}
+	oElements = obj.getElementsByTagName("select");
+	for (i = 0; i < oElements.length; i++)
+	{
+		oElement = oElements[i];
+		var onfocus = oElement.onfocus;
+		oElement.onfocus = function()
+		{
+			if (onfocus) onfocus();
+			wikihelper_hide_helper();
+		};
+	}
 	return;
 }
 
@@ -264,11 +273,13 @@ function wikihelper_setActive(elem)
 		Element.show(helper);
 		helper.style.left = offset[0] + "px";
 		helper.style.top = ( offset[1] - helper.offsetHeight - 1 ) + "px";
-		oElements = document.getElementsByTagName("select");
-		for (i = 0; i < oElements.length; i++)
-		{
-			oElement = oElements[i];
-			oElement.style.visibility = "hidden";
+		if (! XpWiki.isIE7) {
+			oElements = document.getElementsByTagName("select");
+			for (i = 0; i < oElements.length; i++)
+			{
+				oElement = oElements[i];
+				oElement.style.visibility = "hidden";
+			}
 		}
 	}
 }

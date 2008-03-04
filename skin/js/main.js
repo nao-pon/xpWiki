@@ -225,10 +225,8 @@ function wikihelper_cumulativeOffset(forElement) {
 function wikihelper_hide_helper() {
 	var helper = $("wikihelper_base");
 	if (helper) {
-		//helper.style.left = "-1000px";
-		//helper.style.top =  "-1000px";
 		Element.hide(helper);
-		if (wikihelper_WinIE) {
+		if (wikihelper_WinIE && ! XpWiki.isIE7) {
 			oElements = document.getElementsByTagName("select");
 			for (i = 0; i < oElements.length; i++)
 			{
