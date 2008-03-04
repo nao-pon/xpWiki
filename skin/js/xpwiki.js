@@ -17,6 +17,8 @@ var XpWiki = {
 	page: '',
 	title: '',
 	
+	isIE7: (typeof(document.documentElement.style.msInterpolationMode) != "undefined"),
+	
 	initPopupDiv: function (arg) {
 
 		if (!$('XpWikiPopup')) {

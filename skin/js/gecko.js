@@ -225,6 +225,8 @@ function wikihelper_initTexts(obj)
 		if (wikihelper_initLoad) return;
 		obj = document;
 	}
+	var oElements;
+	var oElement;
 	wikihelper_initLoad = 1;
 	wikihelper_elem = null;
 	wikihelper_show_fontset_img();
@@ -233,13 +235,10 @@ function wikihelper_initTexts(obj)
 	{
 		oElement = oElements[i];
 		var rel = String(oElement.getAttribute('rel'));
-		if (oElement.type == "text" || oElement.type == "submit")
-		{
-			if (rel == "wikihelper") {
-				oElement.addEventListener('focus', wikihelper_setActive, true);
-			} else {
-				oElement.addEventListener('focus', wikihelper_hide_helper, true);
-			}
+		if (rel == "wikihelper") {
+			oElement.addEventListener('focus', wikihelper_setActive, true);
+		} else {
+			oElement.addEventListener('focus', wikihelper_hide_helper, true);
 		}
 	}
 	oElements = obj.getElementsByTagName("textarea");
@@ -252,6 +251,12 @@ function wikihelper_initTexts(obj)
 		} else {
 			oElement.addEventListener('focus', wikihelper_hide_helper, true);
 		}
+	}
+	oElements = obj.getElementsByTagName("select");
+	for (i = 0; i < oElements.length; i++)
+	{
+		oElement = oElements[i];
+		oElement.addEventListener('focus', wikihelper_hide_helper, true);
 	}
 }
 
