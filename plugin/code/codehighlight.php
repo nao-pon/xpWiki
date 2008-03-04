@@ -746,11 +746,12 @@ class XpWikiCodeHighlight {
 				if ($str_len == $str_pos) $code = false; else $code = $string[$str_pos++]; // getc
 				continue 2;
 			case $this->cont['PLUGIN_CODE_COMMENT']:
+			case $this->cont['PLUGIN_CODE_HEAD_COMMENT']: // 行頭に限る
 				// コメント
 				--$str_pos;
 				$result = substr($string, $str_pos);
 				foreach($code_comment[$code] as $pattern) {
-					if (preg_match($pattern[0], $result)) {
+					if (($switchHash[$code] == $this->cont['PLUGIN_CODE_COMMENT'] || $startline) && preg_match($pattern[0], $result)) {
 						$pos = strpos($result, $pattern[1]);
 						if ($pos === false) { // 見つからないときは終わりまで
 							$str_pos = $str_len;
