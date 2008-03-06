@@ -1,7 +1,7 @@
 <?php
 /*
  * Created on 2007/04/23 by nao-pon http://hypweb.net/
- * $Id: ext_autolink.php,v 1.25 2008/02/11 01:02:41 nao-pon Exp $
+ * $Id: ext_autolink.php,v 1.26 2008/03/06 23:38:31 nao-pon Exp $
  */
 class XpWikiPukiExtAutoLink {
 	// External AutoLinks
@@ -23,18 +23,10 @@ class XpWikiPukiExtAutoLink {
 		}
 		array_multisort($this->ext_autolinks, SORT_NUMERIC, SORT_DESC,$sorter, SORT_NUMERIC, SORT_DESC);
 		
-		$utf8 = ($this->cont['SOURCE_ENCODING'] === 'UTF-8')? 'u' : '';
-		
 		foreach($this->ext_autolinks as $autolink) {
 			$pat = $this->get_ext_autolink($autolink);
 			if ($pat) {
-				if ($this->ci) {
-					$pat_pre = '/(<(script|a|textarea|style|option).*?<\/\\2>|<!--NA-->.+?<!--\/NA-->|<[^>]*>|&(?:#[0-9]+|#x[0-9a-f]+|[0-9a-z]+);)|(?<=\W)(';
-					$pat_aft = ')(?=\W)/isS' . $utf8;
-				} else {
-					$pat_pre = '/(<([sS][cC][rR][iI][pP][tT]|[a|A]|[tT][eE][xX][tT][aA][rR][eE][aA]|[sS][tT][yY][lL][eE]|[oO][pP][tT][iI][oO][nN]).*?<\/\\2>|<!--NA-->.+?<!--\/NA-->|<[^>]*>|&(?:#[0-9]+|#x[0-9a-fA-F]+|[0-9a-zA-Z]+);)|(?<=\W)(';
-					$pat_aft = ')(?=\W)/sS' . $utf8;
-				}
+				list($pat_pre, $pat_aft) = $this->func->get_autolink_regex_pre_after($this->ci);
 				foreach(explode("\t", $pat) as $_pat) {
 					$pattern = $pat_pre.$_pat.$pat_aft;
 					$str = preg_replace_callback($pattern,array(&$this,'ext_autolink_replace'),$str);
