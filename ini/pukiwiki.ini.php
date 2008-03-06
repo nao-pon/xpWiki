@@ -1,6 +1,6 @@
 <?php
 // PukiWiki - Yet another WikiWikiWeb clone
-// $Id: pukiwiki.ini.php,v 1.68 2008/03/02 08:54:26 nao-pon Exp $
+// $Id: pukiwiki.ini.php,v 1.69 2008/03/06 23:27:55 nao-pon Exp $
 // Copyright (C)
 //   2002-2006 PukiWiki Developers Team
 //   2001-2002 Originally written by yu-ji
@@ -652,6 +652,7 @@ $root->pre_width_ie = '700px';
 // CSS ID prefix ( ex. #xo-canvas )
 $root->css_prefix = '';
 
+
 /////////////////////////////////////////////////
 // レンダラーモード用設定
 // For renderer mode.
@@ -677,6 +678,10 @@ $root->render_popuplink_position = array(
 	'width'  => '',
 	'height' => ''
 );
+
+// Show the Wiki Helper on the site wide.
+$root->render_UseWikihelperAtAll = 0;
+
 
 /////////////////////////////////////////////////
 // User-Agent settings

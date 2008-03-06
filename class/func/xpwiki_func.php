@@ -1,7 +1,7 @@
 <?php
 //
 // Created on 2006/10/02 by nao-pon http://hypweb.net/
-// $Id: xpwiki_func.php,v 1.150 2008/03/02 08:54:26 nao-pon Exp $
+// $Id: xpwiki_func.php,v 1.151 2008/03/06 23:28:39 nao-pon Exp $
 //
 class XpWikiFunc extends XpWikiXoopsWrapper {
 
@@ -523,6 +523,9 @@ class XpWikiFunc extends XpWikiXoopsWrapper {
 	}
 	
 	function get_additional_headtags () {
+		if ($this->root->render_UseWikihelperAtAll) {
+			$this->add_js_var_head('XpWiki.UseWikihelperAtAll', TRUE);
+		}
 		// WikiHelper JavaScript
 		$head_tag = <<<EOD
 <script type="text/javascript" src="{$this->cont['LOADER_URL']}?src=default.{$this->cont['UI_LANG']}{$this->cont['FILE_ENCORD_EXT']}.js"></script>
@@ -1664,7 +1667,7 @@ EOD;
 	}
 
 	// Process onPageWriteBefore
-	function do_onPageWriteBefore ($page, $postdata, $notimestamp, $mode) {
+	function do_onPageWriteBefore ($page, $postdata, $notimestamp, $mode, $deletecache = TRUE) {
 		$base = $this->root->mytrustdirpath."/events/onPageWriteBefore";
 		if ($handle = opendir($base)) {
 			while (false !== ($file = readdir($handle))) {
@@ -1678,11 +1681,11 @@ EOD;
 			}
 			closedir($handle);
 		}
-		$this->delete_caches();
+		if ($deletecache) $this->delete_caches();
 	}
 	
 	// Process onPageWriteAfter
-	function do_onPageWriteAfter ($page, $postdata, $notimestamp, $mode, $diffdata) {
+	function do_onPageWriteAfter ($page, $postdata, $notimestamp, $mode, $diffdata, $deletecache = TRUE) {
 		$base = $this->root->mytrustdirpath."/events/onPageWriteAfter";
 		if ($handle = opendir($base)) {
 			while (false !== ($file = readdir($handle))) {
@@ -1696,7 +1699,19 @@ EOD;
 			}
 			closedir($handle);
 		}
-		$this->delete_caches();
+		if ($deletecache) $this->delete_caches();
+	}
+	
+	function get_autolink_regex_pre_after ($ci = false) {
+		$utf8 = ($this->cont['SOURCE_ENCODING'] === 'UTF-8')? 'u' : '';
+		if ($ci) {
+			$pat_pre = '/(<(script|a|textarea|style|option).*?<\/\\2>|<!--NA-->.+?(?:<!--\/NA-->|$)|<[^>]*>|&(?:#[0-9]+|#x[0-9a-f]+|[0-9a-z]+);)|(?<=\W)(';
+			$pat_aft = ')(?=\W)/isS' . $utf8;
+		} else {
+			$pat_pre = '/(<([sS][cC][rR][iI][pP][tT]|[a|A]|[tT][eE][xX][tT][aA][rR][eE][aA]|[sS][tT][yY][lL][eE]|[oO][pP][tT][iI][oO][nN]).*?<\/\\2>|<!--NA-->.+?(?:<!--\/NA-->|$)|<[^>]*>|&(?:#[0-9]+|#x[0-9a-fA-F]+|[0-9a-zA-Z]+);)|(?<=\W)(';
+			$pat_aft = ')(?=\W)/sS' . $utf8;
+		}
+		return array($pat_pre, $pat_aft);	
 	}
 	
 /*----- DB Functions -----*/ 
