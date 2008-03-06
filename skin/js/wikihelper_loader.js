@@ -18,5 +18,5 @@
 		document.write ('<script type="text/javascript" src="$wikihelper_root_url/skin/loader.php?src=default.'+lang+'.js"></script>');
 	}
 	// Set use wikiheper
-	XpWiki.UseWikihelperAtAll = true;
+	document.write ('<script type="text/javascript">XpWiki.UseWikihelperAtAll = true;</script>');
 })();
