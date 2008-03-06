@@ -1,11 +1,15 @@
 <?php
-// $Id: dump.inc.php,v 1.3 2007/07/05 05:01:19 nao-pon Exp $
+// $Id: dump.inc.php,v 1.4 2008/03/06 23:49:15 nao-pon Exp $
 //
 // Remote dump / restore plugin
 // Originated as tarfile.inc.php by teanan / Interfair Laboratory 2004.
 
 class xpwiki_plugin_dump extends xpwiki_plugin {
 	function plugin_dump_init () {
+		// 権限チェック
+		if (!$this->root->userinfo['admin']) {
+			return $this->action_msg_admin_only();
+		}
 		
 		// 言語ファイルの読み込み
 		$this->load_language();

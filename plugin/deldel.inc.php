@@ -1,6 +1,6 @@
 <?php
 /**
- * $Id: deldel.inc.php,v 1.6 2008/01/29 23:40:40 nao-pon Exp $
+ * $Id: deldel.inc.php,v 1.7 2008/03/06 23:49:15 nao-pon Exp $
  * ORG: deldel.inc.php 161 2005-06-28 12:58:13Z okkez $
  *
  * 色んなものを一括削除するプラグイン
@@ -110,6 +110,11 @@ class xpwiki_plugin_deldel extends xpwiki_plugin {
 	}
 
 	function plugin_deldel_action() {
+		// 権限チェック
+		if (!$this->root->userinfo['admin']) {
+			return $this->action_msg_admin_only();
+		}
+
 		// 管理画面モード指定
 		if ($this->root->module['platform'] == "xoops") {
 			$this->root->runmode = "xoops_admin";

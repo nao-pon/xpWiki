@@ -2,7 +2,7 @@
 /////////////////////////////////////////////////
 // PukiWiki - Yet another WikiWikiWeb clone.
 //
-// $Id: pginfo.inc.php,v 1.21 2008/01/31 01:08:55 nao-pon Exp $
+// $Id: pginfo.inc.php,v 1.22 2008/03/06 23:49:15 nao-pon Exp $
 //
 
 class xpwiki_plugin_pginfo extends xpwiki_plugin {
@@ -15,15 +15,13 @@ class xpwiki_plugin_pginfo extends xpwiki_plugin {
 	
 	function plugin_pginfo_action()
 	{
+		// 権限チェック
+		if (!$this->root->userinfo['admin']) {
+			return $this->action_msg_admin_only();
+		}
+
 		$pmode = (empty($this->root->post['pmode']))? '' : $this->root->post['pmode'];
 		$page = (isset($this->root->vars['page']))? $this->root->vars['page'] : '';
-		
-		// 権限チェック
-		if (($page === '' && !$this->root->userinfo['admin']) || !$this->func->is_owner($page)) {
-			$ret['msg'] = $this->msg['no_parmission_title'];
-			$ret['body'] = $this->msg['no_parmission'];
-			return $ret;
-		}
 		
 		if ($pmode === 'setparm'){
 			// 登録処理

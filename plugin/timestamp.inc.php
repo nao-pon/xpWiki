@@ -1,7 +1,7 @@
 <?php
 /*
  * Created on 2007/06/03 by nao-pon http://hypweb.net/
- * $Id: timestamp.inc.php,v 1.2 2007/12/08 12:11:14 nao-pon Exp $
+ * $Id: timestamp.inc.php,v 1.3 2008/03/06 23:49:15 nao-pon Exp $
  */
 
 class xpwiki_plugin_timestamp extends xpwiki_plugin {
@@ -15,6 +15,10 @@ class xpwiki_plugin_timestamp extends xpwiki_plugin {
 	}
 	
 	function makedata () {
+		// 権限チェック
+		if (!$this->root->userinfo['admin']) {
+			return $this->action_msg_admin_only();
+		}
 		
 		// 管理画面モード指定
 		if ($this->root->module['platform'] == "xoops") {
@@ -39,7 +43,7 @@ class xpwiki_plugin_timestamp extends xpwiki_plugin {
 		} else {
 			$ng = 'NOT ';
 		}
-		
+
 		$ret['msg'] = $ng.'Maked timestamp data.';
 		$ret['body'] = $ng.'Maked a file "'.$this->cont['DATA_DIR'].'.timestamp"';
 		return $ret;
