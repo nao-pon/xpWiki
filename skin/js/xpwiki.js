@@ -413,6 +413,13 @@ var XpWiki = {
 	checkUseHelper: function (obj) {
 		if (!! this.UseWikihelperAtAll) {
 			return true;
+		} else {
+			var obj = document.getElementsByTagName('script');
+			for (var i=0; i<obj.length; i++){
+				if (!! obj[i].src && obj[i].src.match(/wikihelper_loader\.js$/)) {
+					return true;
+				}
+			}
 		}
 		var parent;
 		while(parent = obj.parentNode) {
