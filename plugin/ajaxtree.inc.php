@@ -10,7 +10,7 @@
 
 /*
  * Created on 2008/02/07 by nao-pon http://hypweb.net/
- * $Id: ajaxtree.inc.php,v 1.4 2008/02/11 01:02:41 nao-pon Exp $
+ * $Id: ajaxtree.inc.php,v 1.5 2008/03/06 23:50:53 nao-pon Exp $
  */
 
 class xpwiki_plugin_ajaxtree extends xpwiki_plugin {
@@ -131,17 +131,21 @@ class xpwiki_plugin_ajaxtree extends xpwiki_plugin {
 		return $counts;
 	}
 
-	function plugin_ajaxtree_get_pages()
+	function plugin_ajaxtree_get_pages($reflash = FALSE)
 	{
 		static $pages = null;
 
-			if ($pages === null) {
+			if ($reflash || $pages === null) {
 			$temp[0] = $this->root->userinfo['admin'];
 			$temp[1] = $this->root->userinfo['uid'];
 			$this->root->userinfo['admin'] = FALSE;
 			$this->root->userinfo['uid'] = 0;
 
-			$pages = $this->func->get_existpages();
+			if ($reflash) {
+				$pages = $this->func->get_existpages(FALSE, '', array('nocache' => TRUE));
+			} else {
+				$pages = $this->func->get_existpages();
+			}
 		
 			$this->root->userinfo['admin'] = $temp[0];
 			$this->root->userinfo['uid'] = $temp[1];
@@ -167,14 +171,16 @@ class xpwiki_plugin_ajaxtree extends xpwiki_plugin {
 	
 	function plugin_ajaxtree_action()
 	{
+		// 権限チェック
+		if (!$this->root->userinfo['admin']) {
+			return $this->action_msg_admin_only();
+		}
+
 		if ($this->root->module['platform'] == "xoops") {
 			$this->root->runmode = "xoops_admin";
 		}
 
-		if ($this->root->userinfo['admin']) {
-			$this->plugin_ajaxtree_reset_cache();
-		}
-	
+		$this->plugin_ajaxtree_reset_cache();
 		return array(
 			'msg'  => 'AjaxTree',
 			'body' => 'Cache is updated.'
@@ -281,7 +287,7 @@ class xpwiki_plugin_ajaxtree extends xpwiki_plugin {
 	
 	function plugin_ajaxtree_write_after()
 	{
-		if (@ $this->root->vars['plugin'] == 'rename') {
+		if (@ $this->root->vars['plugin'] === 'rename' || @ $this->root->vars['cmd'] === 'rename') {
 			$this->plugin_ajaxtree_reset_cache();
 			return;
 		}
@@ -309,7 +315,7 @@ class xpwiki_plugin_ajaxtree extends xpwiki_plugin {
 	
 	function plugin_ajaxtree_reset_cache()
 	{
-		$pages = $this->plugin_ajaxtree_get_pages();
+		$pages = $this->plugin_ajaxtree_get_pages(TRUE);
 		$leaf  = $this->plugin_ajaxtree_get_leaf_flags();
 
 		foreach ($pages as $page) {
