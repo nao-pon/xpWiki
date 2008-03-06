@@ -13,6 +13,10 @@
 -[[データーインポート>[[cmd:import]]]]
 -[[エンティティデータ更新>[[cmd:update_entities]]]]
 
+*** プラグインキャッシュ初期化 [#we6a31e2]
+-[[ajaxtree プラグイン>[[cmd:ajaxtree]]]]
+-[[tag プラグイン>[[cmd:tag]]]]
+
 ** その他のツール [#cf9cc793]
 
 -各種一覧

@@ -13,6 +13,11 @@
 -[[Import>[[cmd:import]]]]
 -[[Update entities data>[[cmd:update_entities]]]]
 
+*** Plugin cache initialization [#k380e1e0]
+
+-[[ajaxtree Plugin>[[cmd:ajaxtree]]]]
+-[[tag Plugin>[[cmd:tag]]]]
+
 ** Other tooles [#cf9cc793]
 
 -Lists
