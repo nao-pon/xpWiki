@@ -1,6 +1,6 @@
 <?php
 // PukiWiki - Yet another WikiWikiWeb clone
-// $Id: rename.inc.php,v 1.9 2008/02/29 23:44:25 nao-pon Exp $
+// $Id: rename.inc.php,v 1.10 2008/03/06 23:36:48 nao-pon Exp $
 //
 // Rename plugin: Rename page-name and related data
 //
@@ -363,13 +363,15 @@ EOD;
 	
 		foreach ($files as $page=>$arr) {
 			foreach ($arr as $old=>$new) {
-				@set_time_limit(30);
+				@ set_time_limit(30);
 				if (isset($exists[$page][$old]) && $exists[$page][$old])
 					unlink($new);
 				rename($old, $new);
 			}
 		}
-	
+		
+		clearstatcache();
+		
 		$postdata = $this->func->get_source($this->cont['PLUGIN_RENAME_LOGPAGE']);
 		$postdata[] = '*' . $this->root->now . "\n";
 		if ($this->plugin_rename_getvar('method') == 'regex') {
@@ -396,6 +398,8 @@ EOD;
 		
 		$alias_up = false;
 		foreach ($pages as $old=>$new) {
+			@ set_time_limit(30);
+			
 			$old = $this->func->decode($old);
 			$new = $this->func->decode($new);
 			$postdata[] = '-' . $old .
@@ -414,12 +418,14 @@ EOD;
 			
 			$source = $this->func->get_source($new, TRUE, TRUE);
 			// PageWriteBefore
-			$this->func->do_onPageWriteBefore($old, '', 1, 'delete');
-			$this->func->do_onPageWriteBefore($new, $source, 1, 'insert');
+			$this->func->do_onPageWriteBefore($old, '', 1, 'delete', FALSE);
+			$this->func->do_onPageWriteBefore($new, $source, 1, 'insert', FALSE);
 			// onPageWriteAfter
-			$this->func->do_onPageWriteAfter($old, '', 1, 'delete', '');
-			$this->func->do_onPageWriteAfter($new, $source, 1, 'insert', '');
+			$this->func->do_onPageWriteAfter($old, '', 1, 'delete', '', FALSE);
+			$this->func->do_onPageWriteAfter($new, $source, 1, 'insert', '', FALSE);
 		}
+		// 各種キャッシュ更新など
+		$this->func->delete_caches();
 		if ($alias_up) {
 			$this->func->save_page_alias();
 		}

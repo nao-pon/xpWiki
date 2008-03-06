@@ -1,7 +1,7 @@
 <?php
 /*
  * Created on 2008/02/07 by nao-pon http://hypweb.net/
- * $Id: ajaxtree.inc.php,v 1.1 2008/02/08 03:04:24 nao-pon Exp $
+ * $Id: ajaxtree.inc.php,v 1.2 2008/03/06 23:36:22 nao-pon Exp $
  */
 
 function xpwiki_onPageWriteAfter_ajaxtree (&$xpwiki_func, &$page, &$postdata, &$notimestamp, &$mode, &$diffdata) {
@@ -11,7 +11,9 @@ function xpwiki_onPageWriteAfter_ajaxtree (&$xpwiki_func, &$page, &$postdata, &$
 	// Get plugin instance
 	$plugin = & $xpwiki_func->get_plugin_instance('ajaxtree');
 	
-	$plugin->plugin_ajaxtree_write_after();
-
+	$GLOBALS['xpwiki_cache_reflash_functions']['ajaxtree'] = array(
+		'name' => array($plugin, 'plugin_ajaxtree_write_after'),
+		'arg'  => ''
+	);
 }
 ?>
