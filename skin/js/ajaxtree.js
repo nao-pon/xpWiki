@@ -18,7 +18,8 @@ function rawurlencode(str) {
 document.observe("dom:loaded", function() {
 
 	var treeObj = document.getElementsByClassName("xpwiki_ajaxtree");
-	treeObj.each(function(obj){
+	for(var i=0; i<treeObj.length; i++){
+    	var obj = treeObj[i]; 
 		if (typeof(obj.onclick) != 'function') {
 		
 			var dirName = obj.id.replace('_ajaxtree', '');
@@ -62,7 +63,6 @@ document.observe("dom:loaded", function() {
 			  }
 			};
 		}
-	});
-
+	}
 
 });
