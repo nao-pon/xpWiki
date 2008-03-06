@@ -1,7 +1,7 @@
 <?php
 /*
  * Created on 2008/01/24 by nao-pon http://hypweb.net/
- * $Id: conf.inc.php,v 1.4 2008/02/29 23:40:09 nao-pon Exp $
+ * $Id: conf.inc.php,v 1.5 2008/03/06 23:49:15 nao-pon Exp $
  */
 
 class xpwiki_plugin_conf extends xpwiki_plugin {
@@ -222,26 +222,26 @@ class xpwiki_plugin_conf extends xpwiki_plugin {
 	}
 	
 	function plugin_conf_action() {
-		$mode = empty($this->root->post['pmode'])? '' : $this->root->post['pmode'];
-
 		// 権限チェック
 		if (!$this->root->userinfo['admin']) {
-			$ret['msg'] = $this->msg['title_form'];
-			$ret['body'] = $this->root->_msg_not_readable;
-			return $ret;
+			return $this->action_msg_admin_only();
 		}
+
+		$mode = empty($this->root->post['pmode'])? '' : $this->root->post['pmode'];
 
 		// 管理画面モード指定
 		if ($this->root->module['platform'] == "xoops") {
 			$this->root->runmode = "xoops_admin";
 		}
-		
-		switch($mode) {
-			case 'post' :
-				return $this->post_save();
-				break;
-			default :
-				return $this->show_form();
+
+		if ($this->root->userinfo['admin']) {
+			switch($mode) {
+				case 'post' :
+					return $this->post_save();
+					break;
+				default :
+					return $this->show_form();
+			}
 		}
 		return false;
 	}

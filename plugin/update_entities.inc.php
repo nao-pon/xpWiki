@@ -1,6 +1,6 @@
 <?php
 // PukiWiki - Yet another WikiWikiWeb clone
-// $Id: update_entities.inc.php,v 1.3 2007/12/08 11:30:22 nao-pon Exp $
+// $Id: update_entities.inc.php,v 1.4 2008/03/06 23:49:15 nao-pon Exp $
 //
 // Update entities plugin - Update XHTML entities from DTD
 // (for admin)
@@ -19,13 +19,16 @@ class xpwiki_plugin_update_entities extends xpwiki_plugin {
 	
 	function plugin_update_entities_action()
 	{
+		// 権限チェック
+		if (!$this->root->userinfo['admin']) {
+			return $this->action_msg_admin_only();
+		}
+
 		// 管理画面モード指定
 		if ($this->root->module['platform'] == "xoops") {
 			$this->root->runmode = "xoops_admin";
 		}
 
-		if (! $this->root->userinfo['admin']) $this->func->die_message('Only admin can access this area.');
-	
 		$msg = $body = '';
 		if (empty($this->root->vars['action'])) {
 			$msg   = & $this->msg['title_update'];

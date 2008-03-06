@@ -1,7 +1,7 @@
 <?php
 //
 // Created on 2006/10/05 by nao-pon http://hypweb.net/
-// $Id: plugin.php,v 1.6 2007/11/28 05:56:38 nao-pon Exp $
+// $Id: plugin.php,v 1.7 2008/03/06 23:49:15 nao-pon Exp $
 //
 
 
@@ -77,6 +77,13 @@ class xpwiki_plugin {
 				}
 			}
 		}
+	}
+	
+	function action_msg_admin_only () {
+		return array(
+			'msg'  => 'Admin\'s area',
+			'body' => 'Here is an area only for the administer.'
+		);	
 	}
 }
 

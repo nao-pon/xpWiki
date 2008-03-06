@@ -1,7 +1,7 @@
 <?php
 //
 // Created on 2006/11/17 by nao-pon http://hypweb.net/
-// $Id: dbsync.inc.php,v 1.24 2008/02/11 01:02:41 nao-pon Exp $
+// $Id: dbsync.inc.php,v 1.25 2008/03/06 23:49:15 nao-pon Exp $
 //
 
 class xpwiki_plugin_dbsync extends xpwiki_plugin {
@@ -18,6 +18,11 @@ class xpwiki_plugin_dbsync extends xpwiki_plugin {
 	
 	function plugin_dbsync_action()
 	{
+		// 権限チェック
+		if (!$this->root->userinfo['admin']) {
+			return $this->action_msg_admin_only();
+		}
+
 		$pmode = (empty($this->root->post['pmode']))? '' : $this->root->post['pmode'];
 		$page = (empty($this->root->vars['page']))? '' : $this->root->vars['page'];
 

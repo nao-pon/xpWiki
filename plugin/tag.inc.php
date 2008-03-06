@@ -27,8 +27,44 @@ class xpwiki_plugin_tag extends xpwiki_plugin {
 		$args = func_get_args();
 		return call_user_func_array(array($this->root->plugin_tag, 'convert'), $args);
 	}
+
+	function plugin_tag_action()
+	{
+		// 権限チェック
+		if (!$this->root->userinfo['admin']) {
+			return $this->action_msg_admin_only();
+		}
+
+		if ($this->root->module['platform'] == "xoops") {
+			$this->root->runmode = "xoops_admin";
+		}
+
+		include_once $this->root->mytrustdirpath . '/events/onPageWriteAfter/tag.inc.php';
+		$pages = $this->func->get_existpages();
+		
+		if ($dir_h = @opendir($this->cont['CACHE_DIR'])) {
+			while($file = readdir($dir_h)) {
+				if (substr($file, -4) === '.tag') @ unlink($this->cont['CACHE_DIR'] . $file);
+			}
+			closedir($dir_h);
+		}
+
+		foreach ($pages as $page) {
+			$postdata = $this->func->get_source($page, TRUE, TRUE);
+			$notimestamp = FALSE;
+			$mode = 'insert';
+			$diffdata = '';
+			xpwiki_onPageWriteAfter_tag($this->func, $page, $postdata, $notimestamp, $mode, $diffdata);
+		}
+	
+		return array(
+			'msg'  => 'Tag plugin',
+			'body' => 'Cache is updated.'
+		);
+	}
+
 }
-	// $Id: tag.inc.php,v 1.10 2008/02/27 23:49:53 nao-pon Exp $
+	// $Id: tag.inc.php,v 1.11 2008/03/06 23:49:15 nao-pon Exp $
 	
 class XpWikiPluginTag
 {
@@ -370,7 +406,7 @@ class XpWikiTagCloud
 		$a = $this->counts;
 		arsort($a);
 		$tags = array_keys($a);
-		if (isset($limit)) {
+		if (!empty($limit)) {
 			$tags = array_slice($tags, 0, $limit);
 		}
 		$n = count($tags);
