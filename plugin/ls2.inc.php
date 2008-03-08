@@ -1,7 +1,7 @@
 <?php
 // PukiWiki - Yet another WikiWikiWeb clone.
 //
-// $Id: ls2.inc.php,v 1.11 2008/01/31 01:15:24 nao-pon Exp $
+// $Id: ls2.inc.php,v 1.12 2008/03/08 02:34:31 nao-pon Exp $
 //
 // List plugin 2
 
@@ -39,6 +39,7 @@ class xpwiki_plugin_ls2 extends xpwiki_plugin {
 			'reverse'     => FALSE,
 			'compact'     => $this->cont['PLUGIN_LS2_LIST_COMPACT'],
 			'pagename'    => FALSE,
+			'basename'    => FALSE,
 			'notemplate'  => FALSE,
 			'relatedcount'=> FALSE,
 			'depth'       => FALSE,
@@ -82,7 +83,7 @@ class xpwiki_plugin_ls2 extends xpwiki_plugin {
 		
 		$prefix = isset($this->root->vars['prefix']) ? $this->root->vars['prefix'] : '';
 		
-		$params['_base_lev'] = count(explode('/', $prefix));
+		$params['_base_lev'] = substr_count($prefix, '/');
 		
 		$body = $this->plugin_ls2_show_lists($prefix, $params);
 	
@@ -99,6 +100,9 @@ class xpwiki_plugin_ls2 extends xpwiki_plugin {
 		}
 		
 		$this->fetch_options($params, $args, array('prefix'));
+		
+		// compat
+		if ($params['basename']) $params['pagename'] = TRUE;
 		
 		$prefix = ($params['prefix'])? $prefix = $params['prefix'] : '';
 
@@ -117,7 +121,7 @@ class xpwiki_plugin_ls2 extends xpwiki_plugin {
 		
 		if ($prefix === '') $prefix = $this->func->strip_bracket($this->root->vars['page']) . '/';
 		if ($prefix === '/') $prefix = '';
-		$params['_base_lev'] = count(explode('/', $prefix));
+		$params['_base_lev'] = substr_count($prefix, '/');
 		
 		$title = (! empty($params['_args'])) ? htmlspecialchars(join(',', $params['_args'])) :   // Manual
 			str_replace('$1', htmlspecialchars($prefix), $this->root->_ls2_msg_title); // Auto
@@ -158,10 +162,14 @@ class xpwiki_plugin_ls2 extends xpwiki_plugin {
 			$options['nolisting'] = TRUE;
 		}
 		$pages = $this->func->get_existpages(FALSE, $prefix, $options);
-	
-		natcasesort($pages);
+
+		if ($params['depth'] !== FALSE || $params['pagename']) {
+			$this->func->complementary_pagesort($pages, 'natcasesort');
+		} else {
+			natcasesort($pages);
+		}
 		
-		$params['_parent_depth'] = max(1, count(explode('/',rtrim($prefix,'/'))));
+		$params['_parent_depth'] = substr_count(rtrim($prefix,'/'), '/');
 		$params['_child_counts'] = array();
 		
 		// テンプレートページの正規表現
@@ -179,77 +187,24 @@ class xpwiki_plugin_ls2 extends xpwiki_plugin {
 			}
 			$_auto_template_name[$this->root->mydirname] = ($_temps)? '/\/(?:'.join('|', $_temps).')(_m)?$/' : '/(?!)/';
 		}
-		
-		if ($params['pagename'] || $params['depth'] !== FALSE) {
-			$prefix_parent = $this->func->page_dirname($prefix);
-			$last_page = $prefix;
-			$_pages = array();
-			foreach ($pages as $page) {
-				// テンプレートページは表示しない場合
-				if ($params['notemplate'] && preg_match($_auto_template_name[$this->root->mydirname], $page)) continue;
-				
-				// 抜けてる階層を補完
-				$now_parent = $this->func->page_dirname($page);
-				while (
-					$now_parent !== $last_page &&
-					$now_parent !== $this->func->page_dirname($last_page)
-				) {
-					$page_array = explode('/', $page);
-					$last_array = array_pad(explode('/',$last_page), count($page_array), '');
-					$_last = '';
-					$_page = '';
-					foreach ($page_array as $key=>$part) {
-						$_page .= $part;
-						$_last .= $last_array[$key];
-						if ($_page !== $_last) {
-							if ($page === $_page) {
-								break(2);
-							}
-							break;
-						} else {
-							$_page .= '/';
-							$_last .= '/';
-						}
-					}
-					
-					// 階層深さ指定チェック
-					if ($params['depth'] !== FALSE) {
-						if (count(explode('/',$_page)) - $params['_parent_depth'] > intval($params['depth'])) {
-							$last_page = $_page;
-							continue;
-						}
-						$params['_child_counts'][$_page] = $this->func->get_child_counts($_page);
-					}
-					
-					$_pages[] = $_page;
-					$params["page_{$_page}"] = 0;
-					$last_page = $_page;
-				}
-				
-				// 階層深さ指定チェック
-				if ($params['depth'] !== FALSE) {
-					if (count(explode('/',$page)) - $params['_parent_depth'] > intval($params['depth'])) {
-						$last_page = $page;
-						continue;
-					}
-					$params['_child_counts'][$page] = $this->func->get_child_counts($page);
-				}
-				
-				$_pages[] = $page;
-				$params["page_{$page}"] = 0;
-				$last_page = $page;
+
+		foreach ($pages as $key => $page) {
+			// テンプレートページは表示しない場合
+			if ($params['notemplate'] && preg_match("/\/".$_auto_template_name."(_m)?$/",$page)) {
+				unset($pages[$key]);
+				continue;
 			}
-			$pages = $_pages;
-			unset($_pages);
-		} else {
-			foreach ($pages as $key => $page) {
-				// テンプレートページは表示しない場合
-				if ($params['notemplate'] && preg_match("/\/".$_auto_template_name."(_m)?$/",$page)) {
+			
+			// 階層深さ指定チェック
+			if ($params['depth'] !== FALSE) {
+				if (substr_count($page, '/') - $params['_parent_depth'] > intval($params['depth'])) {
 					unset($pages[$key]);
 					continue;
 				}
-				$params["page_{$page}"] = 0;
+				$params['_child_counts'][$page] = $this->func->get_child_counts($page);
 			}
+
+			$params["page_{$page}"] = 0;
 		}
 
 		if ($params['reverse']) $pages = array_reverse($pages);
@@ -291,7 +246,7 @@ class xpwiki_plugin_ls2 extends xpwiki_plugin {
 		$margin_left = 0;
 		if ($params['pagename']) {
 			$s_page = $this->func->basename($s_page);
-			$margin_left = (count(explode('/', $page)) - $params['_base_lev']) * $this->root->_ul_margin;
+			$margin_left = (substr_count($page, '/') - $params['_base_lev']) * $this->root->_ul_margin;
 		}
 		
 		$href = $this->func->get_page_uri($page, true);
@@ -302,7 +257,7 @@ class xpwiki_plugin_ls2 extends xpwiki_plugin {
 			$new_mark = $this->func->do_plugin_inline("new","{$page},nolink",$_dum);
 		
 		// Child count
-		$child_count = (!empty($params['_child_counts'][$page]) && ($params['depth'] !== FALSE) && (count(explode('/',$page)) - $params['_parent_depth']) === intval($params['depth']))? ' [<a href="' . $this->root->script .  str_replace('$prefix', rawurlencode($page.'/'), $params['_link_query']) . '">+' . $params['_child_counts'][$page] . '</a>]' : '';
+		$child_count = (!empty($params['_child_counts'][$page]) && ($params['depth'] !== FALSE) && (substr_count($page, '/') - $params['_parent_depth']) === intval($params['depth']))? ' [<a href="' . $this->root->script .  str_replace('$prefix', rawurlencode($page.'/'), $params['_link_query']) . '">+' . $params['_child_counts'][$page] . '</a>]' : '';
 		
 		// Related count
 		$rel_count = ($params['relatedcount'])? ' ('.$this->func->links_get_related_count($page).')' : '';
@@ -321,7 +276,8 @@ class xpwiki_plugin_ls2 extends xpwiki_plugin {
 			$ret .= '<a id="list_' . $params["page_$page"] . '" href="' . $href .
 				'" title="' . $title . '">' . $s_page . '</a>' . $rel_count . $child_count . $new_mark;
 		} else {
-			$ret .= '<span id="list_' . $params["page_$page"] . '">' . $this->func->make_pagelink($page, ($params['pagename']? '#compact:'.$this->func->page_dirname($page) : '')) . '</span>' . $rel_count . $child_count . $new_mark;
+			$_dirname = $this->func->page_dirname($page);
+			$ret .= '<span id="list_' . $params["page_$page"] . '">' . $this->func->make_pagelink($page, (($_dirname && $params['pagename'])? '#compact:'.$_dirname : '')) . '</span>' . $rel_count . $child_count . $new_mark;
 		}
 		
 		array_push($params['result'], $ret);

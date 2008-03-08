@@ -10,7 +10,7 @@
 
 /*
  * Created on 2008/02/07 by nao-pon http://hypweb.net/
- * $Id: ajaxtree.inc.php,v 1.5 2008/03/06 23:50:53 nao-pon Exp $
+ * $Id: ajaxtree.inc.php,v 1.6 2008/03/08 02:34:31 nao-pon Exp $
  */
 
 class xpwiki_plugin_ajaxtree extends xpwiki_plugin {
@@ -65,7 +65,7 @@ class xpwiki_plugin_ajaxtree extends xpwiki_plugin {
 		static $leaf = array();
 
 		if ($leaf === array()) {
-			$pages = $this->func->get_existpages();
+			$pages = $this->plugin_ajaxtree_get_pages();
 			foreach ($pages as $page) {
 				if (isset($leaf[$page])) {
 					continue;
@@ -151,18 +151,8 @@ class xpwiki_plugin_ajaxtree extends xpwiki_plugin {
 			$this->root->userinfo['uid'] = $temp[1];
 
 			$this->plugin_ajaxtree_filter_pages($pages);
-			sort($pages);
-			$_pages = array();
-			foreach ($pages as $page) {
-				$parent = $page;
-				while ($pos = strrpos($parent, '/')) {
-					$parent = substr($parent, 0, $pos);
-					if (!in_array($parent, $pages)) {
-						$_pages[] = $parent;
-					}
-				}
-			}
-			$pages = array_merge($pages, array_unique($_pages));
+
+			$this->func->complementary_pagesort($pages);
 		}
 		
 		return $pages;
@@ -387,7 +377,11 @@ class xpwiki_plugin_ajaxtree extends xpwiki_plugin {
 		} else {
 			$counts = array();
 		}
-	
+		
+		if (!$pages[0]) {
+			var_dump(array($current,$pages));
+		}
+		
 		$depth = substr_count($pages[0], '/');
 		if ($depth === 0) {
 			$offset = 0;
