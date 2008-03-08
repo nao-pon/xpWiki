@@ -1,5 +1,5 @@
 <?php
-// $Id: ref.inc.php,v 1.23 2008/02/11 01:02:41 nao-pon Exp $
+// $Id: ref.inc.php,v 1.24 2008/03/08 02:36:08 nao-pon Exp $
 /*
 
 	*プラグイン ref
@@ -256,7 +256,7 @@ class xpwiki_plugin_ref extends xpwiki_plugin {
 			'name'   => array_shift($args), // 添付ファイル名を取得(第一引数)
 		);
 
-		if ($this->root->render_mode === 'render' && $this->root->rtf['convert_nest'] === 1) {
+		if ($lvar['page'] === '#RenderMode') {
 			$lvar['page'] = $this->root->render_attach;
 		}
 
