@@ -1,7 +1,7 @@
 <?php
 //
 // Created on 2006/10/02 by nao-pon http://hypweb.net/
-// $Id: xpwiki_func.php,v 1.151 2008/03/06 23:28:39 nao-pon Exp $
+// $Id: xpwiki_func.php,v 1.152 2008/03/08 02:32:33 nao-pon Exp $
 //
 class XpWikiFunc extends XpWikiXoopsWrapper {
 
@@ -675,14 +675,14 @@ EOD;
 	}
 	
 	// グループ選択フォーム作成
-	function make_grouplist_form ($tagname, $ids = array(), $disabled='') {
+	function make_grouplist_form ($tagname, $ids = array(), $disabled='', $js='') {
 		$groups = $this->get_group_list();
 		$mygroups = $this->get_mygroups();
 		
 		//$disabled = ($disabled)? ' disabled="disabled"' : '';
 		
 		$size = min(10, count($groups));
-		$ret = '<select size="'.$size.'" name="'.$tagname.'[]" id="'.$tagname.'[]" multiple="multiple"'.$disabled.'>'."\n";
+		$ret = '<select size="'.$size.'" name="'.$tagname.'[]" id="'.$tagname.'[]" multiple="multiple"'.$disabled.$js.'>'."\n";
 		$all = FALSE;
 		if ($ids === 'all' || $ids === 'none') {
 			$ids = array();
@@ -1712,6 +1712,26 @@ EOD;
 			$pat_aft = ')(?=\W)/sS' . $utf8;
 		}
 		return array($pat_pre, $pat_aft);	
+	}
+	
+	// 抜けた階層を補完してソート
+	// The hierarchy that has come off is supplemented and sorted.
+	function complementary_pagesort (& $pages, $sort = 'sort') {
+		sort($pages);
+		$tmp = $pages;
+		foreach ($tmp as $page) {
+			$parent = $page;
+			while ($pos = strrpos($parent, '/')) {
+				$parent = substr($parent, 0, $pos);
+				if (!in_array($parent, $pages)) {
+					$pages[] = $parent;
+				} else {
+					break;
+				}
+			}
+		}
+		$sort($pages);
+		return $pages;
 	}
 	
 /*----- DB Functions -----*/ 
