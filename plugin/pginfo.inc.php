@@ -2,7 +2,7 @@
 /////////////////////////////////////////////////
 // PukiWiki - Yet another WikiWikiWeb clone.
 //
-// $Id: pginfo.inc.php,v 1.22 2008/03/06 23:49:15 nao-pon Exp $
+// $Id: pginfo.inc.php,v 1.23 2008/03/08 02:35:11 nao-pon Exp $
 //
 
 class xpwiki_plugin_pginfo extends xpwiki_plugin {
@@ -356,6 +356,7 @@ EOD;
 		$this->func->add_tag_head('suggest.css');
 		$this->func->add_tag_head('log.js');
 		$this->func->add_tag_head('suggest.js');
+		$this->func->add_tag_head('pginfo.js');
 		
 		$disabled = '';
 		if ($page !== '') {
@@ -403,7 +404,7 @@ EOD;
 				$s_[$key]["select"] = ' checked="true"';
 			}
 		}
-		$edit_group_list = $this->func->make_grouplist_form('egids', $egids, $s_['edisable']);
+		$edit_group_list = $this->func->make_grouplist_form('egids', $egids, $s_['edisable'], ' onchange="xpwiki_pginfo_setradio(\'eg3\')"');
 		$edit_user_list = '';
 		if ($eaids && is_array($eaids)) {
 			foreach($eaids as $eaid) {
@@ -418,7 +419,7 @@ EOD;
 			}
 		}
 		
-		$view_group_list = $this->func->make_grouplist_form('vgids', $vgids, $s_['vdisable']);
+		$view_group_list = $this->func->make_grouplist_form('vgids', $vgids, $s_['vdisable'], ' onchange="xpwiki_pginfo_setradio(\'vg3\')"');
 		$view_user_list = '';
 		if ($eaids && is_array($vaids)) {
 			foreach($vaids as $vaid) {
@@ -451,13 +452,6 @@ document.observe("dom:loaded", function(){
 	XpWikiSuggest1 = new XpWikiUnameSuggest('{$this->cont['HOME_URL']}','xpwiki_tag_input1','xpwiki_suggest_list1','xpwiki_tag_hidden1','xpwiki_tag_list1','{$enc}');
 	XpWikiSuggest2 = new XpWikiUnameSuggest('{$this->cont['HOME_URL']}','xpwiki_tag_input2','xpwiki_suggest_list2','xpwiki_tag_hidden2','xpwiki_tag_list2','{$enc}');
 });
-function xpwiki_parm_desc (id, mode) {
-	var base = $(id).getElementsByTagName("input");
-	mode = (mode)? false : true;
-	for (var i = 0; i < base.length; i++ ) {
-		base[i].disabled = mode;
-	}
-}
 //-->
 </script>
 <form action="{$this->root->script}" method="post">
@@ -482,19 +476,19 @@ function xpwiki_parm_desc (id, mode) {
 <h4>{$this->msg['parmission_setting']}</h4>
 <table style="margin-left:2em;" id="xpwiki_edit_parm_desc"><tr>
  <td>
-  <input name="egid" id="_egid1" type="radio" value="all"{$s_['egids']['all']}{$s_['edisable2']} /><label for="_egid1"> {$this->msg['admit_all_group']}</label><br />
-  <input name="egid" id="_egid2" type="radio" value="none"{$s_['egids']['none']}{$s_['edisable2']} /><label for="_egid2"> {$this->msg['not_admit_all_group']}</label><br />
-  <input name="egid" id="_egid3" type="radio" value="select"{$s_['egids']['select']}{$s_['edisable2']} /><label for="_egid3"> {$this->msg['admit_select_group']}</label><br />
+  <input name="egid" id="_egid1" type="radio" value="all"{$s_['egids']['all']}{$s_['edisable2']} onclick="xpwiki_pginfo_setradio('eu1');" /><label for="_egid1" onclick="xpwiki_pginfo_setradio('eu1');"> {$this->msg['admit_all_group']}</label><br />
+  <input name="egid" id="_egid2" type="radio" value="none"{$s_['egids']['none']}{$s_['edisable2']} onclick="xpwiki_pginfo_setradio('eu2');" /><label for="_egid2" onclick="xpwiki_pginfo_setradio('eu2');"> {$this->msg['not_admit_all_group']}</label><br />
+  <input name="egid" id="_egid3" type="radio" value="select"{$s_['egids']['select']}{$s_['edisable2']} onclick="xpwiki_pginfo_setradio('eu2');" /><label for="_egid3" onclick="xpwiki_pginfo_setradio('eu2');"> {$this->msg['admit_select_group']}</label><br />
   <div style="margin-left:2em;">{$edit_group_list}</div>
  </td>
  <td>
-  <input name="eaid" id="_eaid1" type="radio" value="all"{$s_['eaids']['all']}{$s_['edisable2']} /><label for="_eaid1"> {$this->msg['admit_all_user']}</label><br />
-  <input name="eaid" id="_eaid2" type="radio" value="none"{$s_['eaids']['none']}{$s_['edisable2']} /><label for="_eaid2"> {$this->msg['not_admit_all_user']}</label><br />
-  <input name="eaid" id="_eaid3" type="radio" value="select"{$s_['eaids']['select']}{$s_['edisable2']} /><label for="_eaid3"> {$this->msg['admit_select_user']}</label><br />
+  <input name="eaid" id="_eaid1" type="radio" value="all"{$s_['eaids']['all']}{$s_['edisable2']} onclick="xpwiki_pginfo_setradio('eg1');" /><label for="_eaid1" onclick="xpwiki_pginfo_setradio('eg1');"> {$this->msg['admit_all_user']}</label><br />
+  <input name="eaid" id="_eaid2" type="radio" value="none"{$s_['eaids']['none']}{$s_['edisable2']} onclick="xpwiki_pginfo_setradio('eg2');" /><label for="_eaid2" onclick="xpwiki_pginfo_setradio('eg2');"> {$this->msg['not_admit_all_user']}</label><br />
+  <input name="eaid" id="_eaid3" type="radio" value="select"{$s_['eaids']['select']}{$s_['edisable2']} onclick="xpwiki_pginfo_setradio('eg2');" /><label for="_eaid3" onclick="xpwiki_pginfo_setradio('eg2');"> {$this->msg['admit_select_user']}</label><br />
   <div style="margin-left:2em;">
     <div id="xpwiki_tag_list1" class="xpwiki_tag_list">{$edit_user_list}</div>
     <input type="hidden" name="eaids" id="xpwiki_tag_hidden1" value="" />
-    {$this->msg['search_user']}: <input type="text" size="25" id="xpwiki_tag_input1" name="xpwiki_tag_input1" autocomplete='off' class="form_text"{$s_['edisable2']} /><br />
+    {$this->msg['search_user']}: <input type="text" size="25" id="xpwiki_tag_input1" name="xpwiki_tag_input1" autocomplete='off' class="form_text"{$s_['edisable2']} onclick="xpwiki_pginfo_setradio('eu3');" /><br />
     {$efor_remove}
     <div id='xpwiki_suggest_list1' class="auto_complete"></div>
   </div>
@@ -518,19 +512,19 @@ function xpwiki_parm_desc (id, mode) {
 <h4>{$this->msg['parmission_setting']}</h4>
 <table style="margin-left:2em;" id="xpwiki_view_parm_desc"><tr>
  <td>
-  <input name="vgid" id="_vgid1" type="radio" value="all"{$s_['vgids']['all']}{$s_['vdisable2']} /><label for="_vgid1"> {$this->msg['admit_all_group']}</label><br />
-  <input name="vgid" id="_vgid2" type="radio" value="none"{$s_['vgids']['none']}{$s_['vdisable2']} /><label for="_vgid2"> {$this->msg['not_admit_all_group']}</label><br />
-  <input name="vgid" id="_vgid3" type="radio" value="select"{$s_['vgids']['select']}{$s_['vdisable2']} /><label for="_vgid3"> {$this->msg['admit_select_group']}</label><br />
+  <input name="vgid" id="_vgid1" type="radio" value="all"{$s_['vgids']['all']}{$s_['vdisable2']} onclick="xpwiki_pginfo_setradio('vu1');" /><label for="_vgid1" onclick="xpwiki_pginfo_setradio('vu1');"> {$this->msg['admit_all_group']}</label><br />
+  <input name="vgid" id="_vgid2" type="radio" value="none"{$s_['vgids']['none']}{$s_['vdisable2']}} onclick="xpwiki_pginfo_setradio('vu2');" /><label for="_vgid2" onclick="xpwiki_pginfo_setradio('vu2');"> {$this->msg['not_admit_all_group']}</label><br />
+  <input name="vgid" id="_vgid3" type="radio" value="select"{$s_['vgids']['select']}{$s_['vdisable2']} onclick="xpwiki_pginfo_setradio('vu2');" /><label for="_vgid3" onclick="xpwiki_pginfo_setradio('vu2');"> {$this->msg['admit_select_group']}</label><br />
   <div style="margin-left:2em;">{$view_group_list}</div>
  </td>
  <td>
-  <input name="vaid" id="_vaid1" type="radio" value="all"{$s_['vaids']['all']}{$s_['vdisable2']} /><label for="_vaid1"> {$this->msg['admit_all_user']}</label><br />
-  <input name="vaid" id="_vaid2" type="radio" value="none"{$s_['vaids']['none']}{$s_['vdisable2']} /><label for="_vaid2"> {$this->msg['not_admit_all_user']}</label><br />
-  <input name="vaid" id="_vaid3" type="radio" value="select"{$s_['vaids']['select']}{$s_['vdisable2']} /><label for="_vaid3"> {$this->msg['admit_select_user']}</label><br />
+  <input name="vaid" id="_vaid1" type="radio" value="all"{$s_['vaids']['all']}{$s_['vdisable2']} onclick="xpwiki_pginfo_setradio('vg1');" /><label for="_vaid1" onclick="xpwiki_pginfo_setradio('vg1');"> {$this->msg['admit_all_user']}</label><br />
+  <input name="vaid" id="_vaid2" type="radio" value="none"{$s_['vaids']['none']}{$s_['vdisable2']} onclick="xpwiki_pginfo_setradio('vg2');" /><label for="_vaid2" onclick="xpwiki_pginfo_setradio('vg2');"> {$this->msg['not_admit_all_user']}</label><br />
+  <input name="vaid" id="_vaid3" type="radio" value="select"{$s_['vaids']['select']}{$s_['vdisable2']} onclick="xpwiki_pginfo_setradio('vg2');" /><label for="_vaid3" onclick="xpwiki_pginfo_setradio('vg2');"> {$this->msg['admit_select_user']}</label><br />
   <div style="margin-left:2em;">
     <div id="xpwiki_tag_list2" class="xpwiki_tag_list">{$view_user_list}</div>
     <input type="hidden" name="vaids" id="xpwiki_tag_hidden2" value="" />
-    {$this->msg['search_user']}: <input type="text" size="25" id="xpwiki_tag_input2" name="xpwiki_tag_input2" autocomplete='off' class="form_text"{$s_['vdisable2']} /><br />
+    {$this->msg['search_user']}: <input type="text" size="25" id="xpwiki_tag_input2" name="xpwiki_tag_input2" autocomplete='off' class="form_text"{$s_['vdisable2']} onclick="xpwiki_pginfo_setradio('vu3');" /><br />
     {$vfor_remove}
     <div id='xpwiki_suggest_list2' class="auto_complete"></div>
   </div>
