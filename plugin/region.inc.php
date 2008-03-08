@@ -2,7 +2,7 @@
 /////////////////////////////////////////////////
 // PukiWiki - Yet another WikiWikiWeb clone.
 //
-// $Id: region.inc.php,v 1.7 2008/02/04 23:50:09 nao-pon Exp $
+// $Id: region.inc.php,v 1.8 2008/03/08 02:37:13 nao-pon Exp $
 //
 
 class xpwiki_plugin_region extends xpwiki_plugin {
@@ -83,7 +83,7 @@ class XpWikiRegionPluginHTMLBuilder
 	// convert_html()を使って、概要の部分にブラケットネームを使えるように改良。
 	function setDescription($description){
 		//$this->description = convert_html($description);
-		$this->description = $this->func->make_link($description);
+		if ($description) $this->description = $this->func->make_link($description);
 		// convert_htmlを使うと <p>タグで囲まれてしまう。Mozzilaだと表示がずれるので<p>タグを消す。
 		//$this->description = preg_replace( "/^<p>/i", "", $this->description);
 		//$this->description = preg_replace( "/<\/p>$/i", "", $this->description);
