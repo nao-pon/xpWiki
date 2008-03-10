@@ -1,7 +1,7 @@
 <?php
 //
 // Created on 2006/10/03 by nao-pon http://hypweb.net/
-// $Id: include.php,v 1.9 2007/11/30 05:15:13 nao-pon Exp $
+// $Id: include.php,v 1.10 2008/03/10 04:22:06 nao-pon Exp $
 //
 
 // Load & check a class HypCommonFunc
@@ -11,6 +11,11 @@ if(!class_exists('HypCommonFunc')) {
 $hyp_common_methods = get_class_methods('HypCommonFunc');
 if (is_null($hyp_common_methods) || ! in_array('get_version', $hyp_common_methods) || HypCommonFunc::get_version() < 20071130.1) {
 	$xpwiki_error[] = '[Warning] Please install or update <a href="http://cvs.sourceforge.jp/cgi-bin/viewcvs.cgi/hypweb/XOOPS_TRUST/class/hyp_common.tar.gz?view=tar" title="Download">a newest HypCommonFunc</a> into "XOOPS_TRUST_PATH/class/".';
+}
+
+// Set 'memory_limit'
+if ($_xpwiki_memory_limit = HypCommonFunc::return_bytes(ini_get('memory_limit'))) {
+	if ($_xpwiki_memory_limit < 32768) ini_set('memory_limit', 32768);
 }
 
 include_once(dirname(__FILE__)."/class/xpwiki.php");
