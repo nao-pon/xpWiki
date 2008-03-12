@@ -10,7 +10,7 @@
 
 /*
  * Created on 2008/02/07 by nao-pon http://hypweb.net/
- * $Id: ajaxtree.inc.php,v 1.6 2008/03/08 02:34:31 nao-pon Exp $
+ * $Id: ajaxtree.inc.php,v 1.7 2008/03/12 23:59:25 nao-pon Exp $
  */
 
 class xpwiki_plugin_ajaxtree extends xpwiki_plugin {
@@ -106,7 +106,8 @@ class xpwiki_plugin_ajaxtree extends xpwiki_plugin {
 		if (!isset($children[$current])) {
 			$children[$current] = array();
 		}
-		natcasesort($children[$current]);
+		//natcasesort($children[$current]);
+		$this->func->pagesort($children[$current]);
 		return $children[$current];
 	}
 
@@ -354,7 +355,8 @@ class xpwiki_plugin_ajaxtree extends xpwiki_plugin {
 			$leaf  = $this->plugin_ajaxtree_get_leaf_flags();
 			$pages = $this->plugin_ajaxtree_get_pages();
 			$pages =  preg_grep('/' . $this->cont['PLUGIN_AJAXTREE_EXPAND_LIST'] . '/', $pages);
-			natcasesort($pages);
+			//natcasesort($pages);
+			$this->func->pagesort($pages);
 	
 			foreach ($pages as $page) {
 				if ($leaf[$page] === false) {

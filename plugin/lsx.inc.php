@@ -1,5 +1,5 @@
 <?php
-// $Id: lsx.inc.php,v 1.8 2007/09/19 11:27:15 nao-pon Exp $
+// $Id: lsx.inc.php,v 1.9 2008/03/12 23:59:25 nao-pon Exp $
 
 class xpwiki_plugin_lsx extends xpwiki_plugin {
 	
@@ -491,7 +491,8 @@ class XpWikiPluginLsx
 	{
 		switch ($this->options['sort'][1]) {
 		case 'name':
-			$this->sort_by($this->metapages, 'page', 'natcasesort');
+			//$this->sort_by($this->metapages, 'page', 'natcasesort');
+			$this->sort_by($this->metapages, 'page', 'pagesort');
 			break;
 		case 'date':
 			$this->sort_by($this->metapages, 'timestamp', 'rsort', SORT_NUMERIC);
@@ -524,10 +525,15 @@ class XpWikiPluginLsx
 			break;
 		case 'natsort':
 			natsort($field_array);
+			break;
 		case 'natcasesort':
 			# sort an array using a case insensitive "natural order" algorithm
 			natcasesort($field_array);
-		break;
+			break;
+		case 'pagesort':
+			# sort an array using a case insensitive "natural order" algorithm
+			$this->func->pagesort($field_array);
+			break;
 		}
 		# rebuild the array
 		$outarray = array();

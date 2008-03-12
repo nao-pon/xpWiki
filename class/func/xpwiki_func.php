@@ -1,7 +1,7 @@
 <?php
 //
 // Created on 2006/10/02 by nao-pon http://hypweb.net/
-// $Id: xpwiki_func.php,v 1.152 2008/03/08 02:32:33 nao-pon Exp $
+// $Id: xpwiki_func.php,v 1.153 2008/03/12 23:59:25 nao-pon Exp $
 //
 class XpWikiFunc extends XpWikiXoopsWrapper {
 
@@ -547,7 +547,9 @@ EOD;
 	// ページ情報を得る
 	function get_pginfo ($page = '', $src = '', $cache_clr = FALSE) {
 		static $info = array();
-
+		
+		$pginfo = array();
+		
 		if ($cache_clr) {
 			$info[$this->root->mydirname] = array();
 			if ($page === '') { return; }
@@ -565,7 +567,7 @@ EOD;
 		
 		// inherit = 0:継承指定なし, 1:規定値継承指定, 2:強制継承指定, 3:規定値継承した値, 4:強制継承した値
 		if (preg_match("/^#pginfo\((.+)\)\s*/m", $src, $match)) {
-			$_tmp = explode("\t",$match[1]);
+			$_tmp = array_pad(explode("\t",$match[1]), 13, '');
 			$pginfo['uid']       = (int)$_tmp[0];
 			$pginfo['ucd']       = $_tmp[1];
 			$pginfo['uname']     = $_tmp[2];
@@ -578,6 +580,7 @@ EOD;
 			$pginfo['lastuid']   = (int)$_tmp[9];
 			$pginfo['lastucd']   = $_tmp[10];
 			$pginfo['lastuname'] = $_tmp[11];
+			$pginfo['pgorder']   = min(9, max(0, ($_tmp[12] === '')? 1 : floatval($_tmp[12])));
 		} else {
 			$pginfo = $this->pageinfo_inherit($page);
 			if (!$this->is_page($page))
@@ -586,6 +589,7 @@ EOD;
 				$pginfo['ucd'] = $this->root->userinfo['ucd'];
 				$pginfo['uname'] = htmlspecialchars($this->root->userinfo['uname']);
 			}
+			$pginfo['pgorder'] = 1;
 		}
 		
 		if ($pginfo['uid'] && !$pginfo['uname']) {
@@ -1730,8 +1734,68 @@ EOD;
 				}
 			}
 		}
-		$sort($pages);
+		if (is_array($sort)) {
+			$sort[0]->$sort[1]($pages);
+		} else {
+			$sort($pages);
+		}
 		return $pages;
+	}
+	
+	// page sort with sorter(page order)
+	function pagesort(& $pages, $sort = 'pagesort', $sortflag = SORT_REGULAR) {
+		switch ($sort) {
+			case 'pagesort':
+				// keep original index for plugin lsx. 
+				$_pages = array();
+				if (asort($pages)) {
+					foreach ($pages as $key => $page) {
+						$_pages[$key] = $this->get_sortname($page);
+					}
+					natcasesort($_pages);
+					$sorted = array();
+					foreach($_pages as $key => $dumy) {
+						$sorted[$key] = $pages[$key];
+					}
+					$pages = $sorted;
+					return TRUE;
+				} else {
+					return FALSE;
+				}
+			case 'sort':
+				return asort($pages, $sortflag);
+			case 'rsort':
+				return arsort($pages, $sortflag);
+			case 'natsort':
+				return natsort($pages);
+			case 'natcasesort':
+				return natcasesort($pages);
+			default:
+				return FALSE;
+		}
+	}
+
+	function get_sortname ($page) {
+		static $sortname = array();
+		if (isset($sortname[$this->root->mydirname][$page])) {
+			return $sortname[$this->root->mydirname][$page];
+		}
+		if ($pos = strrpos($page, '/')) {
+			$name = $this->get_sortname(substr($page, 0, $pos)) . '/' . (isset($this->root->pgorders[$page])? $this->root->pgorders[$page] : $this->get_page_order($page)) . '#' . substr($page, $pos + 1);
+		} else {
+			$name = (isset($this->root->pgorders[$page])? $this->root->pgorders[$page] : $this->get_page_order($page)) . '#' . $page;
+		}
+		$sortname[$this->root->mydirname][$page] = $name;
+		return $name;
+	}
+	
+	function extract_pgtitle (& $postdata) {
+		$pgtitle = '';
+		if (preg_match($this->root->title_setting_regex, $postdata, $match)) {
+			$pgtitle = $match[1];
+			$postdata = preg_replace($this->root->title_setting_regex, '', $postdata, 1);
+		}
+		return $pgtitle;
 	}
 	
 /*----- DB Functions -----*/ 
@@ -1795,7 +1859,7 @@ EOD;
 		$res = $db->query($query);
 		if (!$res) return "";
 		$_ret = $db->fetchRow($res);
-		$_ret = htmlspecialchars($_ret[0], ENT_QUOTES);
+		$_ret = preg_replace('/&amp;(#?[a-z0-9]+?);/i', '&$1;', htmlspecialchars($_ret[0], ENT_QUOTES));
 		return $ret[$this->root->mydirname][$page] = ($_ret || $init)? $_ret : htmlspecialchars($page,ENT_NOQUOTES);
 	}
 	
@@ -1808,7 +1872,11 @@ EOD;
 		}
 		
 		static $_aryret = array();
-		if (isset($_aryret[$this->root->mydirname]) && $nocheck === FALSE && $base === '' && !$options) return $_aryret[$this->root->mydirname];
+		if (isset($_aryret[$this->root->mydirname]['pages']) && $nocheck === FALSE && $base === '' && !$options) {
+			$this->root->pgids = $_aryret[$this->root->mydirname]['pgids'];
+			$this->root->pgorders = $_aryret[$this->root->mydirname]['pgorders'];
+			return $_aryret[$this->root->mydirname]['pages'];
+		}
 		
 		$keys = array(
 			'where'     => '',
@@ -1888,12 +1956,12 @@ EOD;
 		$limit = ($limit)? " LIMIT $limit" : "";
 		$_select = '';
 		if ($select) {
-			$keys = array_merge($select, array('name', 'pgid'));
+			$keys = array_merge($select, array('name', 'pgid', 'pgorder'));
 			$keys = array_unique($keys);
 			$_select = '`' . join('`,`', $keys) . '`';
 			$query = 'SELECT '.$_select.' FROM '.$this->xpwiki->db->prefix($this->root->mydirname."_pginfo").$where.$order.$limit;
 		} else {
-			$query = 'SELECT `editedtime`, `name`, `pgid` FROM '.$this->xpwiki->db->prefix($this->root->mydirname."_pginfo").$where.$order.$limit;
+			$query = 'SELECT `editedtime`, `name`, `pgid`, `pgorder` FROM '.$this->xpwiki->db->prefix($this->root->mydirname."_pginfo").$where.$order.$limit;
 		}
 		$res = $this->xpwiki->db->query($query);
 		if ($res)
@@ -1902,15 +1970,21 @@ EOD;
 				while($data = $this->xpwiki->db->fetchArray($res)) {
 					$aryret[$data['name']] = $data;
 					$this->root->pgids[$data['name']] = $data['pgid'];
+					$this->root->pgorders[$data['name']] = $data['pgorder'];
 				}
 			} else {
 				while($data = $this->xpwiki->db->fetchRow($res)) {
 					$aryret[$this->encode($data[1]).'.txt'] = ($withtime)? $data[0]."\t".$data[1] : $data[1];
 					$this->root->pgids[$data[1]] = $data[2];
+					$this->root->pgorders[$data[1]] = $data[3];
 				}
 			}
 		}
-		if ($nocheck === FALSE && $base === '' && !$options) $_aryret[$this->root->mydirname] = $aryret;
+		if ($nocheck === FALSE && $base === '' && !$options) {
+			$_aryret[$this->root->mydirname]['pages'] = $aryret;
+			$_aryret[$this->root->mydirname]['pgids'] = $this->root->pgids;
+			$_aryret[$this->root->mydirname]['pgorders'] = $this->root->pgorders;
+		}
 		return $aryret;
 	}
 
@@ -1925,7 +1999,7 @@ EOD;
 			$editedtime = filemtime($file) - $this->cont['LOCALZONE'];
 			$s_name = addslashes($page);
 			
-			foreach (array('uid', 'ucd', 'uname', 'einherit', 'vinherit', 'lastuid', 'lastucd', 'lastuname', 'reading') as $key) {
+			foreach (array('uid', 'ucd', 'uname', 'einherit', 'vinherit', 'lastuid', 'lastucd', 'lastuname', 'reading', 'pgorder') as $key) {
 				$$key = addslashes($pginfo[$key]);
 			}
 			foreach (array('eaids', 'egids', 'vaids', 'vgids') as $key) {
@@ -1974,14 +2048,15 @@ EOD;
 						"`lastuname`='$lastuname' ," .
 						"`update`='0' ," .
 						"`reading`='$reading' ," .
-						"`name_ci`='$s_name'";
+						"`name_ci`='$s_name' ," .
+						"`pgorder`='$pgorder'";
 				$query = "UPDATE ".$this->xpwiki->db->prefix($this->root->mydirname."_pginfo")." SET $value WHERE pgid = '$id' LIMIT 1";
 			}
 			else
 			{
 				$query = "INSERT INTO ".$this->xpwiki->db->prefix($this->root->mydirname."_pginfo").
-						" (`name`,`title`,`buildtime`,`editedtime`,`uid`,`ucd`,`uname`,`freeze`,`einherit`,`eaids`,`egids`,`vinherit`,`vaids`,`vgids`,`lastuid`,`lastucd`,`lastuname`,`update`,`reading`,`name_ci`)" .
-						" values('$s_name','$title','$buildtime','$editedtime','$uid','$ucd','$uname','0','$einherit','$eaids','$egids','$vinherit','$vaids','$vgids','$lastuid','$lastucd','$lastuname','0','$reading','$s_name')";
+						" (`name`,`title`,`buildtime`,`editedtime`,`uid`,`ucd`,`uname`,`freeze`,`einherit`,`eaids`,`egids`,`vinherit`,`vaids`,`vgids`,`lastuid`,`lastucd`,`lastuname`,`update`,`reading`,`name_ci`,`pgorder`)" .
+						" values('$s_name','$title','$buildtime','$editedtime','$uid','$ucd','$uname','0','$einherit','$eaids','$egids','$vinherit','$vaids','$vgids','$lastuid','$lastucd','$lastuname','0','$reading','$s_name','$pgorder')";
 			}
 
 			$result = $this->xpwiki->db->queryF($query);
@@ -2002,7 +2077,8 @@ EOD;
 					"`editedtime`='$editedtime' ," .
 					"`lastuid`='$lastuid' ," .
 					"`lastucd`='$lastucd' ," .
-					"`lastuname`='$lastuname'";
+					"`lastuname`='$lastuname' ," .
+					"`pgorder`='$pgorder'";
 			if ($reading) $value .= " ,`reading`='$reading'";
 			$query = "UPDATE ".$this->xpwiki->db->prefix($this->root->mydirname."_pginfo")." SET $value WHERE pgid = '$id' LIMIT 1";
 			$result = $this->xpwiki->db->queryF($query);
@@ -2803,6 +2879,21 @@ EOD;
 		$dat.= ");";
 		
 		$this->save_config('pukiwiki.ini.php', 'page_aliases', $dat);
+	}
+
+	// ページオーダーを取得
+	function get_page_order ($page) {
+		if (! isset($this->root->pgorders[$page])) {
+			$pgid = $this->get_pgid_by_name($page);
+			$query = 'SELECT `pgorder` FROM `'.$this->xpwiki->db->prefix($this->root->mydirname."_pginfo").'` WHERE `pgid` = \''.$pgid.'\' LIMIT 1';
+			if ($pgid && $result = $this->xpwiki->db->query($query)) {
+				list($this->root->pgorders[$page]) = $this->xpwiki->db->fetchRow($result);
+				$this->root->pgorders[$page] = floatval($this->root->pgorders[$page]);
+			} else {
+				$this->root->pgorders[$page] = 1;
+			}
+		}
+		return $this->root->pgorders[$page];
 	}
 	
 	// 大文字小文字を正しいページ名に矯正する

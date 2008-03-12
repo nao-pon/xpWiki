@@ -1,7 +1,7 @@
 <?php
 // PukiWiki - Yet another WikiWikiWeb clone.
 //
-// $Id: ls2.inc.php,v 1.12 2008/03/08 02:34:31 nao-pon Exp $
+// $Id: ls2.inc.php,v 1.13 2008/03/12 23:59:25 nao-pon Exp $
 //
 // List plugin 2
 
@@ -164,9 +164,11 @@ class xpwiki_plugin_ls2 extends xpwiki_plugin {
 		$pages = $this->func->get_existpages(FALSE, $prefix, $options);
 
 		if ($params['depth'] !== FALSE || $params['pagename']) {
-			$this->func->complementary_pagesort($pages, 'natcasesort');
+			//$this->func->complementary_pagesort($pages, 'natcasesort');
+			$this->func->complementary_pagesort($pages, array(& $this->func, 'pagesort'));
 		} else {
-			natcasesort($pages);
+			//natcasesort($pages);
+			$this->func->pagesort($pages);
 		}
 		
 		$params['_parent_depth'] = substr_count(rtrim($prefix,'/'), '/');

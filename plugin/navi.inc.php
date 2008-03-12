@@ -4,7 +4,7 @@ class xpwiki_plugin_navi extends xpwiki_plugin {
 
 
 	// PukiWiki - Yet another WikiWikiWeb clone.
-	// $Id: navi.inc.php,v 1.6 2007/11/30 02:13:45 nao-pon Exp $
+	// $Id: navi.inc.php,v 1.7 2008/03/12 23:59:25 nao-pon Exp $
 	//
 	// Navi plugin: Show DocBook-like navigation bar and contents
 	
@@ -104,7 +104,8 @@ class xpwiki_plugin_navi extends xpwiki_plugin {
 			}
 			$pages[] = $current; // Sentinel :)
 			$pages   = array_unique($pages);
-			natcasesort($pages);
+			//natcasesort($pages);
+			$this->func->pagesort($pages);
 			if ($reverse) $pages = array_reverse($pages);
 	
 			$prev = $home;
