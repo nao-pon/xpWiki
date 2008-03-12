@@ -1,6 +1,6 @@
 <?php
 // PukiWiki - Yet another WikiWikiWeb clone.
-// $Id: edit.inc.php,v 1.53 2008/02/11 00:17:09 nao-pon Exp $
+// $Id: edit.inc.php,v 1.54 2008/03/12 23:59:25 nao-pon Exp $
 // Copyright (C) 2001-2006 PukiWiki Developers Team
 // License: GPL v2 or (at your option) any later version
 //
@@ -291,7 +291,7 @@ EOD;
 
 		$this->root->vars['original'] = $this->func->remove_pginfo($this->root->vars['original']);
 		$msg = & $this->root->vars['msg']; // Reference
-		
+
 		// ParaEdit
 		$hash = '';
 		if ($paraid) {
@@ -312,7 +312,12 @@ EOD;
 		$msg = rtrim($msg)."\n";
 		
 		// 改行・TAB・スペースのみだったら削除とみなす
-		$msg = preg_replace('/^[ \s]+$/', '', $msg);
+		$msg = preg_replace('/^\s+$/', '', $msg);
+		
+		// Page title
+		if ($msg && ! empty($this->root->post['pgtitle'])) {
+			$msg = $this->root->title_setting_string . trim($this->root->post['pgtitle']) . "\n" . $msg;
+		}
 	
 		$retvars = array();
 	

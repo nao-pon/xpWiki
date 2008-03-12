@@ -9,7 +9,7 @@ class xpwiki_plugin_ls extends xpwiki_plugin {
 	 * CopyRight 2002 Y.MASUI GPL2
 	 * http://masui.net/pukiwiki/ masui@masui.net
 	 *
-	 * $Id: ls.inc.php,v 1.4 2008/01/21 23:43:47 nao-pon Exp $
+	 * $Id: ls.inc.php,v 1.5 2008/03/12 23:59:25 nao-pon Exp $
 		 */
 
 	}
@@ -36,7 +36,8 @@ class xpwiki_plugin_ls extends xpwiki_plugin {
 				$pages[] = $page;
 			//}
 		}
-		natcasesort($pages);
+		//natcasesort($pages);
+		$this->func->pagesort($pages);
 	
 		$ls = array();
 		foreach ($pages as $page)

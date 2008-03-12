@@ -1,6 +1,6 @@
 <?php
 // PukiWiki - Yet another WikiWikiWeb clone.
-// $Id: lng.php,v 1.3 2008/02/04 23:50:12 nao-pon Exp $
+// $Id: lng.php,v 1.4 2008/03/12 23:59:26 nao-pon Exp $
 // Copyright (C)
 //   2002-2005 PukiWiki Developers Team
 //   2001-2002 Originally written by yu-ji
@@ -86,6 +86,9 @@ $root->_btn_delete    = 'Delete';
 $root->_btn_reading   = 'Reading of a page initial';
 $root->_btn_alias     = 'Page aliases (Split with "<span style="color:red;font-weight:bold;font-size:120%;">:</span>"[Colon])';
 $root->_btn_riddle    = '<strong>Q & A Verification</strong>: Please answer next a question before page update. (needless at preview)';
+$root->_btn_pgtitle   = 'Page title( Auto with blank )';
+$root->_btn_pgorder   = 'Page order( 0-9 Decimal Default:1 )';
+$root->_btn_other_op  = 'Show detailed input items.';
 
 ///////////////////////////////////////
 // Authentication

@@ -1,7 +1,7 @@
 <?php
 //
 // Created on 2006/10/02 by nao-pon http://hypweb.net/
-// $Id: pukiwiki_func.php,v 1.152 2008/03/06 23:31:11 nao-pon Exp $
+// $Id: pukiwiki_func.php,v 1.153 2008/03/12 23:59:25 nao-pon Exp $
 //
 class XpWikiPukiWikiFunc extends XpWikiBaseFunc {
 
@@ -113,9 +113,15 @@ class XpWikiPukiWikiFunc extends XpWikiBaseFunc {
 		
 		if ($postdata) {
 			$reading = (!empty($this->root->vars['reading']) && $this->get_page_reading($page) != $this->root->vars['reading'])? $this->root->vars['reading'] : '';
+			// Page order
+			$pgorder = NULL;
+			if (isset($this->root->post['pgorder'])) {
+				$pgorder = min(9, max(0, floatval($this->root->post['pgorder'])));
+				if ($this->get_page_order($page) === $pgorder) $pgorder = NULL;
+			}
 			if ($mode === 'update') {
 				// ページの内容変更がない場合何もしない
-				if (!$reading && $this->remove_pginfo($postdata) === $this->remove_pginfo($oldpostdata)) {
+				if (!$reading && is_null($pgorder) && $this->remove_pginfo($postdata) === $this->remove_pginfo($oldpostdata)) {
 					// For AutoLink
 					if ($need_autolink_update){
 						$this->autolink_dat_update();
@@ -141,6 +147,7 @@ class XpWikiPukiWikiFunc extends XpWikiBaseFunc {
 					$pginfo['lastuname'] = $this->root->cookie['name'].'('.$pginfo['lastuname'].')';
 				}
 				$pginfo['lastuname'] = htmlspecialchars($pginfo['lastuname']);
+				if (! is_null($pgorder)) $pginfo['pgorder'] = $pgorder;
 				$pginfo_str = '#pginfo('.join("\t",$pginfo).')'."\n";
 				$postdata = $pginfo_str . $this->remove_pginfo($postdata);
 				// ページ頭文字読み
@@ -902,7 +909,7 @@ class XpWikiPukiWikiFunc extends XpWikiBaseFunc {
 
 //----- Start convert_html.php -----//
 	// PukiWiki - Yet another WikiWikiWeb clone
-	// $Id: pukiwiki_func.php,v 1.152 2008/03/06 23:31:11 nao-pon Exp $
+	// $Id: pukiwiki_func.php,v 1.153 2008/03/12 23:59:25 nao-pon Exp $
 	// Copyright (C)
 	//   2002-2005 PukiWiki Developers Team
 	//   2001-2002 Originally written by yu-ji
@@ -1147,7 +1154,7 @@ class XpWikiPukiWikiFunc extends XpWikiBaseFunc {
 
 //----- Start func.php -----//
 	// PukiWiki - Yet another WikiWikiWeb clone.
-	// $Id: pukiwiki_func.php,v 1.152 2008/03/06 23:31:11 nao-pon Exp $
+	// $Id: pukiwiki_func.php,v 1.153 2008/03/12 23:59:25 nao-pon Exp $
 	// Copyright (C)
 	//   2002-2006 PukiWiki Developers Team
 	//   2001-2002 Originally written by yu-ji
@@ -1963,7 +1970,7 @@ EOD;
 
 //----- Start make_link.php -----//
 	// PukiWiki - Yet another WikiWikiWeb clone.
-	// $Id: pukiwiki_func.php,v 1.152 2008/03/06 23:31:11 nao-pon Exp $
+	// $Id: pukiwiki_func.php,v 1.153 2008/03/12 23:59:25 nao-pon Exp $
 	// Copyright (C)
 	//   2003-2005 PukiWiki Developers Team
 	//   2001-2002 Originally written by yu-ji
@@ -2894,7 +2901,7 @@ EOD;
 
 //----- Start html.php -----//
 	// PukiWiki - Yet another WikiWikiWeb clone.
-	// $Id: pukiwiki_func.php,v 1.152 2008/03/06 23:31:11 nao-pon Exp $
+	// $Id: pukiwiki_func.php,v 1.153 2008/03/12 23:59:25 nao-pon Exp $
 	// Copyright (C)
 	//   2002-2006 PukiWiki Developers Team
 	//   2001-2002 Originally written by yu-ji
@@ -3163,30 +3170,38 @@ EOD;
 		
 		$r_page      = rawurlencode($page);
 		$s_page      = htmlspecialchars($page);
-		$s_digest    = htmlspecialchars($digest);
-		$s_postdata  = htmlspecialchars($refer . $postdata);
-		$s_original  = isset($this->root->vars['original']) ? htmlspecialchars($this->root->vars['original']) : $s_postdata;
 		$s_id        = isset($this->root->vars['paraid']) ? htmlspecialchars($this->root->vars['paraid']) : '';
-		$b_preview   = isset($this->root->vars['preview']); // TRUE when preview
-		$btn_preview = $b_preview ? $this->root->_btn_repreview : $this->root->_btn_preview;
 		
 		if (!$s_id) {
-			// ページ読み & Alias
+			$othor_option = '<input type="checkbox" id="xpwiki_othor_option" name="other" onclick="Element.toggle($(\'xpwiki_edit_other\'));" /><label for="xpwiki_othor_option"> ' . $this->root->_btn_other_op . '</label>';
+
+			// Othor options
 			if (!empty($this->root->rtf['preview'])) {
+				$pgtitle_str = htmlspecialchars($this->root->vars['pgtitle']);
 				$reading_str = htmlspecialchars($this->root->vars['reading']);
 				$alias_str = htmlspecialchars($this->root->vars['alias']);
+				$order_val = floatval($this->root->vars['pgorder']);
 			} else {
+				$pgtitle_str = $this->extract_pgtitle($postdata);
 				$reading_str = htmlspecialchars($this->get_page_reading($page));
 				$alias_str = htmlspecialchars($this->get_page_alias($page));
+				$order_val = floatval($this->get_page_order($page));
 			}
+			
+			$pgtitle = $this->root->_btn_pgtitle . ': <input type="text" name="pgtitle" size="50" value="'.$pgtitle_str.'" /><br />';
+			
 			if ($this->root->pagereading_enable) {
 				$reading = $this->root->_btn_reading . ': <input type="text" name="reading" size="15" value="'.$reading_str.'" />&nbsp;&nbsp; ';
 			} else  {
 				$reading = '<input type="hidden" name="reading" size="15" value="'.$reading_str.'" />';
 			}
+
+			// page order
+			$pageorder = $this->root->_btn_pgorder . ': <input type="text" name="pgorder" size="5" value="'.$order_val.'" /><br />';
+			
 			// alias
-			$alias = $this->root->_btn_alias . ': <input type="text" name="alias" size="30" value="'.$alias_str.'" /><br />';
-		
+			$alias = $this->root->_btn_alias . ': <input type="text" name="alias" size="40" value="'.$alias_str.'" /><br />';
+			
 			// 添付ファイルリスト
 			$attaches = '';
 			if (!$ajax && $this->root->show_attachlist_editform && $this->is_page($page)) {
@@ -3196,10 +3211,16 @@ EOD;
 			}
 			$title = '<h3>'.str_replace('$1', $s_page, $this->root->_title_edit).'</h3>';
 		} else {
-			$reading = $attaches = $alias = '';
+			$othor_option = $pgtitle = $reading = $attaches = $alias = $pageorder = '';
 			$title = '<h3>'.str_replace('$1', '# '.$this->root->vars['paraid'], $this->root->_title_edit).'</h3>';
 		}
 		
+		$s_postdata  = htmlspecialchars($refer . $postdata);
+		$s_original  = isset($this->root->vars['original']) ? htmlspecialchars($this->root->vars['original']) : $s_postdata;
+		$s_digest    = htmlspecialchars($digest);
+		$b_preview   = isset($this->root->vars['preview']); // TRUE when preview
+		$btn_preview = $b_preview ? $this->root->_btn_repreview : $this->root->_btn_preview;
+
 		// Q & A 認証
 		$riddle = '';
 		if (isset($options['riddle'])) {
@@ -3252,14 +3273,17 @@ EOD;
 			          . '<input type="hidden" name="charset" value="UTF-8" />';
 			$attaches = '';
 			if ($s_id) {
-				$template = $reading = $alias = '';
+				$othor_option = $template = $reading = $alias = $pageorder = '';
 				$form_class = 'edit_form_ajax';
 			} else {
 				$form_class = 'edit_form';
 			}
+			$othor_hide = 'style="display:none; "';
+			$othor_hide_js = '';
 		} else {
-			$nonconvert = $ajax_submit = $ajax_cancel = $enc_hint = '';
+			$nonconvert = $ajax_submit = $ajax_cancel = $enc_hint = $othor_hide = '';
 			$form_class = 'edit_form';
+			$othor_hide_js = '<script type="text/javascript">$(\'xpwiki_edit_other\').style.display = \'none\';</script>';
 		}
 		
 		// 'margin-bottom', 'float:left', and 'margin-top'
@@ -3270,8 +3294,13 @@ EOD;
  <form action="{$this->root->script}" method="post" style="margin-bottom:0px;" id="xpwiki_edit_form"{$ajax_submit}>
   $template
   $addtag
+  $othor_option
+  <div id="xpwiki_edit_other" {$othor_hide}/>
+  $pgtitle
   $reading
+  $pageorder
   $alias
+  </div>
   $nonconvert
   $enc_hint
   $popup
@@ -3289,6 +3318,7 @@ EOD;
   </div>
   <textarea name="original" rows="1" cols="1" style="display:none">$s_original</textarea>
  </form>
+ $othor_hide_js
  <div id="xpwiki_cancel_form">
  <form action="{$this->root->script}" method="post" style="margin-top:0px;"{$ajax_cancel}>
   <input type="hidden" name="cmd"    value="edit" />
@@ -3579,7 +3609,7 @@ EOD;
 
 //----- Start mail.php -----//
 	// PukiWiki - Yet another WikiWikiWeb clone.
-	// $Id: pukiwiki_func.php,v 1.152 2008/03/06 23:31:11 nao-pon Exp $
+	// $Id: pukiwiki_func.php,v 1.153 2008/03/12 23:59:25 nao-pon Exp $
 	// Copyright (C)
 	//   2003-2005 PukiWiki Developers Team
 	//   2003      Originally written by upk
@@ -3882,7 +3912,7 @@ EOD;
 
 //----- Start link.php -----//
 	// PukiWiki - Yet another WikiWikiWeb clone
-	// $Id: pukiwiki_func.php,v 1.152 2008/03/06 23:31:11 nao-pon Exp $
+	// $Id: pukiwiki_func.php,v 1.153 2008/03/12 23:59:25 nao-pon Exp $
 	// Copyright (C) 2003-2006 PukiWiki Developers Team
 	// License: GPL v2 or (at your option) any later version
 	//

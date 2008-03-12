@@ -1,7 +1,7 @@
 <?php
 //
 // Created on 2006/09/29 by nao-pon http://hypweb.net/
-// $Id: xpwiki.php,v 1.75 2008/03/06 23:21:43 nao-pon Exp $
+// $Id: xpwiki.php,v 1.76 2008/03/12 23:59:25 nao-pon Exp $
 //
 
 class XpWiki {
@@ -108,6 +108,22 @@ class XpWiki {
 
 		// アクセスユーザーの情報読み込み
 		$this->func->set_userinfo();
+		
+		// Check etc. only admin.
+		if ($this->root->userinfo['admin']) {
+			// Database check
+			$query = 'SELECT `pgorder` FROM ' . $this->db->prefix($this->root->mydirname.'_pginfo') . ' LIMIT 1' ;
+			if(! $this->db->query($query)) {
+				$title = 'Please update this module on admin panel.';
+				if (defined('XOOPS_CUBE_LEGACY')) {
+					$this->func->redirect_header(XOOPS_URL . '/modules/legacy/admin/index.php?action=ModuleUpdate&dirname=' . $this->root->mydirname, 1, $title);
+				} else if (defined('XOOPS_URL')) {
+					$this->func->redirect_header(XOOPS_URL . '/modules/system/admin.php?fct=modulesadmin&op=update&module=' . $this->root->mydirname, 1, $title);
+				} else {
+					exit($title);
+				}
+			}
+		}
 		
 		// cookie 用ユーザーコード取得 & cookie読み書き 
 		$this->func->load_usercookie();

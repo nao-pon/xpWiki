@@ -49,6 +49,7 @@ CREATE TABLE `pginfo` (
   `update` tinyint(1) NOT NULL default '0',
   `reading` varchar(255) binary NOT NULL default '',
   `name_ci` varchar(255) NOT NULL default '',
+  `pgorder` float NOT NULL default '1',
   PRIMARY KEY  (`pgid`),
   UNIQUE KEY `name` (`name`),
   KEY `uid` (`uid`),
