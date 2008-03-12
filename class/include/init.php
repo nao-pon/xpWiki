@@ -1,7 +1,7 @@
 <?php
 //
 // Created on 2006/10/13 by nao-pon http://hypweb.net/
-// $Id: init.php,v 1.47 2008/03/04 06:07:36 nao-pon Exp $
+// $Id: init.php,v 1.48 2008/03/12 23:52:20 nao-pon Exp $
 //
 
 $root = & $this->root;
@@ -59,18 +59,24 @@ $const['UI_LANG'] = $this->get_accept_language();
 
 /////////////////////////////////////////////////
 // INI_FILE: Require UI Lang file
+$const['OFFICIAL_LANGS'] = array('ja', 'ja_utf8', 'en');
 
-$_lng = $const['UI_LANG'];
-$_lang = $this->root->mytrustdirpath.'/language/xpwiki/' . $const['UI_LANG'] . $const['FILE_ENCORD_EXT'] . '/' . 'lng.php';
-// none
-if (! file_exists($_lang)) {
-	$_lang = $this->root->mytrustdirpath.'/language/xpwiki/en/lng.php';
-	$_lng = 'en';
+$_uilang = $this->cont['UI_LANG'] . $this->cont['FILE_ENCORD_EXT'];
+
+if (! in_array($_uilang, $const['OFFICIAL_LANGS'])) {
+	// Load base language file.
+	require($this->root->mytrustdirpath.'/language/xpwiki/en/lng.php');
 }
-require($_lang);
+
+$_lang = $this->root->mytrustdirpath.'/language/xpwiki/' . $const['UI_LANG'] . $const['FILE_ENCORD_EXT'] . '/' . 'lng.php';
+if (file_exists($_lang)) {
+	require($_lang);
+} else {
+	$_uilang = 'en';
+}
 
 // It overwrites if it is on the HTML side.
-$_lang = $const['DATA_HOME'] . 'language/xpwiki/' . $_lng . $const['FILE_ENCORD_EXT'] . '/' . 'lng.php';
+$_lang = $const['DATA_HOME'] . 'language/xpwiki/' . $_uilang . '/' . 'lng.php';
 if (file_exists($_lang)) {
 	require($_lang);
 }
