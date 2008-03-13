@@ -1,6 +1,6 @@
 <?php
 // PukiWiki - Yet another WikiWikiWeb clone.
-// $Id: edit.inc.php,v 1.54 2008/03/12 23:59:25 nao-pon Exp $
+// $Id: edit.inc.php,v 1.55 2008/03/13 06:42:47 nao-pon Exp $
 // Copyright (C) 2001-2006 PukiWiki Developers Team
 // License: GPL v2 or (at your option) any later version
 //
@@ -115,6 +115,12 @@ EOD;
 			$postdata = $this->func->make_str_rules($postdata);
 			$postdata = explode("\n", $postdata);
 			$postdata = $this->func->drop_submit($this->func->convert_html($postdata));
+			// Add target="_blank"
+			$postdata = preg_replace_callback(
+						'/(<script.*?<\/script>)|(<a[^>]+)>/isS' ,
+						create_function('$arr', 'return $arr[1]? $arr[1] : ((strpos($arr[2], \'target=\') === FALSE)? "$arr[2] target=\"_blank\">" : "$arr[0]");') ,
+						$postdata
+					);
 			if (isset($this->root->vars['ajax'])) {
 				$class = 'ajax_preview';
 				if (isset($this->root->rtf['useJavascriptInHead'])) {
