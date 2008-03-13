@@ -411,7 +411,7 @@ var XpWiki = {
 	},
 	
 	checkUseHelper: function (obj) {
-		if (!! this.UseWikihelperAtAll) {
+		if (!! this.UseWikihelperAtAll || obj.id.match(/^xpwiki/)) {
 			return true;
 		} else {
 			var obj = document.getElementsByTagName('script');
