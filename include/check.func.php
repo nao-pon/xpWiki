@@ -1,7 +1,7 @@
 <?php
 //
 // Created on 2006/11/07 by nao-pon http://hypweb.net/
-// $Id: check.func.php,v 1.13 2008/02/11 01:02:41 nao-pon Exp $
+// $Id: check.func.php,v 1.14 2008/03/14 02:54:00 nao-pon Exp $
 //
 
 // when onInstall & onUpdate
@@ -69,7 +69,7 @@ function xpwikifunc_defdata_check ($mydirname, $mode = 'install') {
 		'wiki'  => 'private/wiki'
 	);
 	
-	$from_base = dirname(dirname(__FILE__)).'/InitialData/'.$lang.'/';
+	$from_base = dirname(dirname(__FILE__)).'/ID/'.$lang.'/';
 	$timestamp = array();
 	
 	foreach(file($from_base.'wiki/.timestamp') as $line) {

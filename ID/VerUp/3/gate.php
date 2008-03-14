@@ -1,7 +1,7 @@
 <?php
 /*
  * Created on 2007/06/29 by nao-pon http://hypweb.net/
- * $Id: gate.php,v 1.1 2007/06/29 08:54:28 nao-pon Exp $
+ * $Id: gate.php,v 1.1 2008/03/14 02:54:00 nao-pon Exp $
  */
 
 $xwGateOption = array();

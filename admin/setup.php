@@ -1,7 +1,7 @@
 <?php
 /*
  * Created on 2007/05/13 by nao-pon http://hypweb.net/
- * $Id: setup.php,v 1.5 2008/02/17 15:52:20 nao-pon Exp $
+ * $Id: setup.php,v 1.6 2008/03/14 02:54:01 nao-pon Exp $
  */
 
 $ng = $out = '';
@@ -110,7 +110,7 @@ if (! file_exists($mydirpath . '/.installed')) {
 if (@ $myhtml_version < 2) {
 
 	$base = $mydirpath . '/';
-	$trust = XOOPS_TRUST_PATH . '/modules/' . $mytrustdirname . '/InitialData/VerUp/2/';
+	$trust = XOOPS_TRUST_PATH . '/modules/' . $mytrustdirname . '/ID/VerUp/2/';
 	$rmfiles = array('blocks.php');
 	$mkdirs = array('blocks');
 	$cpfiles = array('mytrustdirname.php','attach/s/.htaccess','blocks/blocks.php');
@@ -122,7 +122,7 @@ if (@ $myhtml_version < 2) {
 if (@ $myhtml_version < 3) {
 
 	$base = $mydirpath . '/';
-	$trust = XOOPS_TRUST_PATH . '/modules/' . $mytrustdirname . '/InitialData/VerUp/3/';
+	$trust = XOOPS_TRUST_PATH . '/modules/' . $mytrustdirname . '/ID/VerUp/3/';
 	$rmfiles = array();
 	$mkdirs = array();
 	$cpfiles = array(
