@@ -1,7 +1,7 @@
 <?php
 //
 // Created on 2006/11/13 by nao-pon http://hypweb.net/
-// $Id: xoops_uname.php,v 1.1 2007/06/29 08:54:28 nao-pon Exp $
+// $Id: xoops_uname.php,v 1.1 2008/03/14 02:54:00 nao-pon Exp $
 //
 
 define('_LEGACY_PREVENT_LOAD_CORE_', TRUE); // for XOOPS Cube Legacy 
