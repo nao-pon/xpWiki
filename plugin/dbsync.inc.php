@@ -1,7 +1,7 @@
 <?php
 //
 // Created on 2006/11/17 by nao-pon http://hypweb.net/
-// $Id: dbsync.inc.php,v 1.25 2008/03/06 23:49:15 nao-pon Exp $
+// $Id: dbsync.inc.php,v 1.26 2008/03/14 04:05:39 nao-pon Exp $
 //
 
 class xpwiki_plugin_dbsync extends xpwiki_plugin {
@@ -223,15 +223,15 @@ __EOD__;
 		$base = $this->cont['CACHE_DIR'];
 		if (function_exists('glob')) {
 			chdir($base);
-			foreach (glob("*.autolink.api") as $file) {
-				unlink($base.$file);
+			if ($files = glob("*.autolink.api")) {
+				foreach ($files as $file) {
+					unlink($base.$file);
+				}
 			}
 			chdir($this->cont['DATA_HOME']);
 		} else {
-			if ($dir = @opendir($base))
-			{
-				while($file = readdir($dir))
-				{
+			if ($dir = @opendir($base)) {
+				while($file = readdir($dir)) {
 					if (substr($file, -13) === '.autolink.api') unlink($base . $file);
 				}
 			}
