@@ -84,6 +84,21 @@ function xpwiki_onupdate_base( $module , $mydirname )
 		$db->query('ALTER TABLE `'.$db->prefix($mydirname.'_pginfo').'` ADD `pgorder` FLOAT DEFAULT \'1\' NOT NULL');
 	}
 
+	$query = "SELECT count(*) FROM ".$db->prefix($mydirname."_cache") ;
+	if(! $db->query($query)) {
+		$db->query(
+'CREATE TABLE `'.$db->prefix($mydirname.'_cache').'` (
+  `key` varchar(64) NOT NULL default \'\',
+  `plugin` varchar(100) NOT NULL default \'\',
+  `data` mediumblob NOT NULL,
+  `mtime` int(11) NOT NULL default \'0\',
+  `ttl` int(11) NOT NULL default \'0\',
+  KEY `key` (`key`),
+  KEY `plugin` (`plugin`)
+)'
+		);
+	}
+
 	// TEMPLATES (all templates have been already removed by modulesadmin)
 	$tplfile_handler =& xoops_gethandler( 'tplfile' ) ;
 	$tpl_path = dirname(__FILE__).'/templates' ;

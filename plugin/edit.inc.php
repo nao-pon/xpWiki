@@ -1,6 +1,6 @@
 <?php
 // PukiWiki - Yet another WikiWikiWeb clone.
-// $Id: edit.inc.php,v 1.55 2008/03/13 06:42:47 nao-pon Exp $
+// $Id: edit.inc.php,v 1.56 2008/03/17 05:20:28 nao-pon Exp $
 // Copyright (C) 2001-2006 PukiWiki Developers Team
 // License: GPL v2 or (at your option) any later version
 //
@@ -55,6 +55,7 @@ class xpwiki_plugin_edit extends xpwiki_plugin {
 			$source = $this->func->get_source($page);
 		}
 		$postdata = $this->root->vars['original'] = @join('', $source);
+		$this->root->vars['orgkey'] = ($postdata)? $this->func->cache_save_db($postdata, 'edit') : '';
 		if (! empty($this->root->vars['paraid'])) {
 			$postdata = $this->plugin_edit_parts($this->root->vars['paraid'], $source);
 			if ($postdata === FALSE) {
@@ -295,7 +296,14 @@ EOD;
 		$this->root->vars['msg'] = preg_replace($this->cont['PLUGIN_EDIT_FREEZE_REGEX'], '', $this->root->vars['msg']);
 		$this->root->vars['msg'] = $this->func->remove_pginfo($this->root->vars['msg']);
 
-		$this->root->vars['original'] = $this->func->remove_pginfo($this->root->vars['original']);
+		// Get original data from cache DB.
+		if (! empty($this->root->vars['orgkey'])) {
+			$original = $this->func->cache_get_db($this->root->vars['orgkey'], 'edit');
+			if ($original) {
+				$this->root->vars['original'] = $original;
+			}
+		}
+		$this->root->vars['original'] = (isset($this->root->vars['original']))? $this->func->remove_pginfo($this->root->vars['original']) : '';
 		$msg = & $this->root->vars['msg']; // Reference
 
 		// ParaEdit

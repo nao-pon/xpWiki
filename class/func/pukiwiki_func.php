@@ -1,7 +1,7 @@
 <?php
 //
 // Created on 2006/10/02 by nao-pon http://hypweb.net/
-// $Id: pukiwiki_func.php,v 1.153 2008/03/12 23:59:25 nao-pon Exp $
+// $Id: pukiwiki_func.php,v 1.154 2008/03/17 05:20:28 nao-pon Exp $
 //
 class XpWikiPukiWikiFunc extends XpWikiBaseFunc {
 
@@ -909,7 +909,7 @@ class XpWikiPukiWikiFunc extends XpWikiBaseFunc {
 
 //----- Start convert_html.php -----//
 	// PukiWiki - Yet another WikiWikiWeb clone
-	// $Id: pukiwiki_func.php,v 1.153 2008/03/12 23:59:25 nao-pon Exp $
+	// $Id: pukiwiki_func.php,v 1.154 2008/03/17 05:20:28 nao-pon Exp $
 	// Copyright (C)
 	//   2002-2005 PukiWiki Developers Team
 	//   2001-2002 Originally written by yu-ji
@@ -1154,7 +1154,7 @@ class XpWikiPukiWikiFunc extends XpWikiBaseFunc {
 
 //----- Start func.php -----//
 	// PukiWiki - Yet another WikiWikiWeb clone.
-	// $Id: pukiwiki_func.php,v 1.153 2008/03/12 23:59:25 nao-pon Exp $
+	// $Id: pukiwiki_func.php,v 1.154 2008/03/17 05:20:28 nao-pon Exp $
 	// Copyright (C)
 	//   2002-2006 PukiWiki Developers Team
 	//   2001-2002 Originally written by yu-ji
@@ -1970,7 +1970,7 @@ EOD;
 
 //----- Start make_link.php -----//
 	// PukiWiki - Yet another WikiWikiWeb clone.
-	// $Id: pukiwiki_func.php,v 1.153 2008/03/12 23:59:25 nao-pon Exp $
+	// $Id: pukiwiki_func.php,v 1.154 2008/03/17 05:20:28 nao-pon Exp $
 	// Copyright (C)
 	//   2003-2005 PukiWiki Developers Team
 	//   2001-2002 Originally written by yu-ji
@@ -2901,7 +2901,7 @@ EOD;
 
 //----- Start html.php -----//
 	// PukiWiki - Yet another WikiWikiWeb clone.
-	// $Id: pukiwiki_func.php,v 1.153 2008/03/12 23:59:25 nao-pon Exp $
+	// $Id: pukiwiki_func.php,v 1.154 2008/03/17 05:20:28 nao-pon Exp $
 	// Copyright (C)
 	//   2002-2006 PukiWiki Developers Team
 	//   2001-2002 Originally written by yu-ji
@@ -3215,12 +3215,19 @@ EOD;
 			$title = '<h3>'.str_replace('$1', '# '.$this->root->vars['paraid'], $this->root->_title_edit).'</h3>';
 		}
 		
+		$originalkey = '';
 		$s_postdata  = htmlspecialchars($refer . $postdata);
-		$s_original  = isset($this->root->vars['original']) ? htmlspecialchars($this->root->vars['original']) : $s_postdata;
+		if ($this->root->vars['orgkey'] !== FALSE) {
+			$s_original = '';
+			$originalkey = htmlspecialchars($this->root->vars['orgkey']);
+		} else {
+			$s_original = isset($this->root->vars['original']) ? htmlspecialchars($this->root->vars['original']) : $s_postdata;
+			$s_original = '<textarea name="original" rows="1" cols="1" style="display:none">'.$s_original.'</textarea>';
+		}
 		$s_digest    = htmlspecialchars($digest);
 		$b_preview   = isset($this->root->vars['preview']); // TRUE when preview
 		$btn_preview = $b_preview ? $this->root->_btn_repreview : $this->root->_btn_preview;
-
+		
 		// Q & A Ç§¾Ú
 		$riddle = '';
 		if (isset($options['riddle'])) {
@@ -3308,6 +3315,7 @@ EOD;
   <input type="hidden" name="page"   value="$s_page" />
   <input type="hidden" name="digest" value="$s_digest" />
   <input type="hidden" name="paraid" value="$s_id" />
+  <input type="hidden" name="orgkey" value="$originalkey" />
   <textarea id="xpwiki_edit_textarea" name="msg" rows="{$this->root->rows}" cols="{$this->root->cols}">$s_postdata</textarea>
   $riddle
   <div style="float:left;">
@@ -3316,7 +3324,7 @@ EOD;
    $add_top
    $add_notimestamp
   </div>
-  <textarea name="original" rows="1" cols="1" style="display:none">$s_original</textarea>
+  $s_original
  </form>
  $othor_hide_js
  <div id="xpwiki_cancel_form">
@@ -3609,7 +3617,7 @@ EOD;
 
 //----- Start mail.php -----//
 	// PukiWiki - Yet another WikiWikiWeb clone.
-	// $Id: pukiwiki_func.php,v 1.153 2008/03/12 23:59:25 nao-pon Exp $
+	// $Id: pukiwiki_func.php,v 1.154 2008/03/17 05:20:28 nao-pon Exp $
 	// Copyright (C)
 	//   2003-2005 PukiWiki Developers Team
 	//   2003      Originally written by upk
@@ -3912,7 +3920,7 @@ EOD;
 
 //----- Start link.php -----//
 	// PukiWiki - Yet another WikiWikiWeb clone
-	// $Id: pukiwiki_func.php,v 1.153 2008/03/12 23:59:25 nao-pon Exp $
+	// $Id: pukiwiki_func.php,v 1.154 2008/03/17 05:20:28 nao-pon Exp $
 	// Copyright (C) 2003-2006 PukiWiki Developers Team
 	// License: GPL v2 or (at your option) any later version
 	//

@@ -1,7 +1,7 @@
 <?php
 //
 // Created on 2006/10/02 by nao-pon http://hypweb.net/
-// $Id: xpwiki_func.php,v 1.153 2008/03/12 23:59:25 nao-pon Exp $
+// $Id: xpwiki_func.php,v 1.154 2008/03/17 05:20:28 nao-pon Exp $
 //
 class XpWikiFunc extends XpWikiXoopsWrapper {
 
@@ -2967,5 +2967,62 @@ EOD;
 	}
 	*/
 
+	function cache_save_db ($data, $plugin='core', $ttl=86400, $key=NULL) {
+		if (is_null($key)) $key = sha1($data);
+		$ret = $key;
+		$key = addslashes($key);
+		$plugin = addslashes($plugin);
+		$data = addslashes($data);
+		$ttl = intval($ttl);
+		$dbtable = $this->xpwiki->db->prefix($this->root->mydirname.'_cache');
+		
+		// Old cache delete
+		$sql = 'DELETE FROM `'.$dbtable.'` WHERE `mtime` + `ttl` < '.time();
+		if ($this->xpwiki->db->queryF($sql)) {
+			$sql = 'OPTIMIZE TABLE `'.$dbtable.'`';
+			$this->xpwiki->db->query($sql);
+		} else {
+			// Table not found.
+			return FALSE;
+		}
+		// check
+		$sql = 'SELECT count(*) FROM `'.$dbtable.'` WHERE `key`=\''.$key.'\' AND `plugin`=\''.$plugin.'\'';
+		$count = 0;
+		if ($res = $this->xpwiki->db->query($sql)) {
+			list($count) = $this->xpwiki->db->fetchRow($res);
+		}
+		if ($count) {
+			$sql = 'UPDATE `'.$dbtable.'`';
+			$sql .= ' SET `data`=\''.$data.'\',';
+			$sql .= '`mtime`=\''.time().'\'';
+			$sql .= ' WHERE `key`=\''.$key.'\' AND `plugin`=\''.$plugin.'\'';
+		} else {
+			$sql = 'INSERT INTO `'.$dbtable.'` (`key`, `plugin`, `data`, `mtime`, `ttl`)';
+			$sql .= ' VALUES (\''.$key.'\', \''.$plugin.'\', \''.$data.'\', \''.time().'\', \''.$ttl.'\')';
+		}
+		if ($res = $this->xpwiki->db->queryF($sql)) {
+			return $ret;
+		} else {
+			return FALSE;
+		}
+	}
+	
+	function cache_get_db ($key, $plugin, $delete=FALSE) {
+		$key = addslashes($key);
+		$plugin = addslashes($plugin);
+		$data = '';
+		$dbtable = $this->xpwiki->db->prefix($this->root->mydirname.'_cache');
+		
+		$sql = 'SELECT `data` FROM `'.$dbtable.'` WHERE `key`=\''.$key.'\' AND `plugin`=\''.$plugin.'\'';
+		if ($res = $this->xpwiki->db->query($sql)) {
+			list($data) = $this->xpwiki->db->fetchRow($res);
+			if ($delete) {
+				$sql = 'DELETE FROM `'.$dbtable.'` WHERE `key`=\''.$key.'\' AND `plugin`=\''.$plugin.'\'';
+				$this->xpwiki->db->queryF($sql);
+			}
+		}
+		
+		return $data;
+	}
 }
 ?>

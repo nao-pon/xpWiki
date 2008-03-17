@@ -1,7 +1,7 @@
 <?php
 //
 // Created on 2006/09/29 by nao-pon http://hypweb.net/
-// $Id: xpwiki.php,v 1.76 2008/03/12 23:59:25 nao-pon Exp $
+// $Id: xpwiki.php,v 1.77 2008/03/17 05:20:28 nao-pon Exp $
 //
 
 class XpWiki {
@@ -112,7 +112,7 @@ class XpWiki {
 		// Check etc. only admin.
 		if ($this->root->userinfo['admin']) {
 			// Database check
-			$query = 'SELECT `pgorder` FROM ' . $this->db->prefix($this->root->mydirname.'_pginfo') . ' LIMIT 1' ;
+			$query = 'SELECT count(*) FROM ' . $this->db->prefix($this->root->mydirname.'_cache') ;
 			if(! $this->db->query($query)) {
 				$title = 'Please update this module on admin panel.';
 				if (defined('XOOPS_CUBE_LEGACY')) {
