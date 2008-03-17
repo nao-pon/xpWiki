@@ -1,6 +1,6 @@
 <?php
 // PukiWiki - Yet another WikiWikiWeb clone.
-// $Id: lng.php,v 1.3 2008/03/12 23:59:26 nao-pon Exp $
+// $Id: lng.php,v 1.4 2008/03/17 11:16:11 nao-pon Exp $
 // Copyright (C)
 //   2002-2005 PukiWiki Developers Team
 //   2001-2002 Originally written by yu-ji
@@ -69,7 +69,7 @@ $root->_msg_not_editable   = 'ページを編集する権限がありません。';
 ///////////////////////////////////////
 // Symbols
 $root->_symbol_anchor   = 'src:anchor.png,width:12,height:12';
-$root->_symbol_noexists = '<img src="'.$const['IMAGE_DIR'].'paraedit.png" alt="" height="9" width="9">';
+$root->_symbol_noexists = '<img src="'.$const['IMAGE_DIR'].'paraedit.png" alt="" height="9" width="9" />';
 
 ///////////////////////////////////////
 // Form buttons
@@ -85,7 +85,7 @@ $root->_btn_edit      = '編集';
 $root->_btn_delete    = '削除';
 $root->_btn_reading   = 'ページ頭文字読み';
 $root->_btn_alias     = 'ページ別名(複数は"<span style="color:red;font-weight:bold;font-size:120%;">:</span>"[コロン]で区切る)';
-$root->_btn_riddle    = '<strong>Q & A 認証</strong>: ページ更新時は次の質問にお答えください。(プレビュー時は必要ありません)';
+$root->_btn_riddle    = '<strong>Q &amp; A 認証</strong>: ページ更新時は次の質問にお答えください。(プレビュー時は必要ありません)';
 $root->_btn_pgtitle   = 'ページタイトル( 空白で自動設定 )';
 $root->_btn_pgorder   = 'ページ並び順( 0-9 小数可 標準:1 )';
 $root->_btn_other_op  = '詳細な入力項目を表示';
