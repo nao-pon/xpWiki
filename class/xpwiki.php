@@ -1,7 +1,7 @@
 <?php
 //
 // Created on 2006/09/29 by nao-pon http://hypweb.net/
-// $Id: xpwiki.php,v 1.77 2008/03/17 05:20:28 nao-pon Exp $
+// $Id: xpwiki.php,v 1.78 2008/03/17 07:06:51 nao-pon Exp $
 //
 
 class XpWiki {
@@ -372,7 +372,7 @@ class XpWiki {
 		$src = '';
 		if (is_array($page) && !empty($page['source'])) {
 			$src = $page['source'];
-			$this->init('#render');
+			$this->init('#RenderMode');
 		} else {
 			$this->init($page);
 		}
@@ -388,17 +388,6 @@ class XpWiki {
 		// 実行
 		if ($src) {
 			$this->body = $this->func->convert_html($src);
-			/*
-			// cont['USER_NAME_REPLACE'] などを 置換
-			$this->body = str_replace(
-					array($this->cont['USER_NAME_REPLACE'], $this->cont['USER_CODE_REPLACE']) ,
-					array($this->root->userinfo['uname_s'], $this->root->userinfo['ucd']) ,
-			        $this->body);
-			// For Safari
-			if ($this->cont['UA_NAME'] === 'Safari') {
-				$this->body = preg_replace('/(<form)([^>]*>)/' , '$1 accept-charset="UTF-8"$2', $this->body);
-			}
-			*/
 			$this->func->convert_finisher($this->body);
 		} else {
 			$this->execute();
