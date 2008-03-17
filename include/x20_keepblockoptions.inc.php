@@ -1,5 +1,5 @@
 <?php
-// $Id: x20_keepblockoptions.inc.php,v 1.1 2008/02/05 00:13:16 nao-pon Exp $
+// $Id: x20_keepblockoptions.inc.php,v 1.2 2008/03/17 07:08:22 nao-pon Exp $
 
 // Keep Block option values when update (by nobunobu) for XOOPS 2.0.x
 $db =& Database::getInstance() ;
@@ -71,14 +71,15 @@ if ($record) {
 			if (count($old_vals) == count($def_vals)) {
 				$modversion['blocks'][$i]['options'] = $fblock['options'];
 				$local_msgs[] = "Option's values of the block <b>".$fblock['name']."</b> will be kept. (value = <b>".$fblock['options']."</b>)";
-			} else if (count($old_vals) < count($def_vals)){
+//			} else if (count($old_vals) < count($def_vals)){
+			} else {
 				for ($j=0; $j < count($old_vals); $j++) {
 					$def_vals[$j] = $old_vals[$j];
 				}
 				$modversion['blocks'][$i]['options'] = implode("|",$def_vals);
 				$local_msgs[] = "Option's values of the block <b>".$fblock['name']."</b> will be kept and new option(s) are added. (value = <b>".$modversion['blocks'][$i]['options']."</b>)";
-			} else {
-				$local_msgs[] = "Option's values of the block <b>".$fblock['name']."</b> will be reset to the default, because of some decrease of options. (value = <b>".$modversion['blocks'][$i]['options']."</b>)";
+//			} else {
+//				$local_msgs[] = "Option's values of the block <b>".$fblock['name']."</b> will be reset to the default, because of some decrease of options. (value = <b>".$modversion['blocks'][$i]['options']."</b>)";
 			}
 		}
 	}
