@@ -1,6 +1,6 @@
 <?php
 // PukiWiki - Yet another WikiWikiWeb clone.
-// $Id: lng.php,v 1.4 2008/03/12 23:59:26 nao-pon Exp $
+// $Id: lng.php,v 1.5 2008/03/17 11:16:10 nao-pon Exp $
 // Copyright (C)
 //   2002-2005 PukiWiki Developers Team
 //   2001-2002 Originally written by yu-ji
@@ -69,7 +69,7 @@ $root->_msg_not_editable   = 'You don\'t have enough permission for edit.';
 ///////////////////////////////////////
 // Symbols
 $root->_symbol_anchor   = 'src:anchor.png,width:12,height:12';
-$root->_symbol_noexists = '<img src="'.$const['IMAGE_DIR'].'paraedit.png" alt="" height="9" width="9">';
+$root->_symbol_noexists = '<img src="'.$const['IMAGE_DIR'].'paraedit.png" alt="" height="9" width="9" />';
 
 ///////////////////////////////////////
 // Form buttons
@@ -85,7 +85,7 @@ $root->_btn_edit      = 'Edit';
 $root->_btn_delete    = 'Delete';
 $root->_btn_reading   = 'Reading of a page initial';
 $root->_btn_alias     = 'Page aliases (Split with "<span style="color:red;font-weight:bold;font-size:120%;">:</span>"[Colon])';
-$root->_btn_riddle    = '<strong>Q & A Verification</strong>: Please answer next a question before page update. (needless at preview)';
+$root->_btn_riddle    = '<strong>Q &amp; A Verification</strong>: Please answer next a question before page update. (needless at preview)';
 $root->_btn_pgtitle   = 'Page title( Auto with blank )';
 $root->_btn_pgorder   = 'Page order( 0-9 Decimal Default:1 )';
 $root->_btn_other_op  = 'Show detailed input items.';
