@@ -17,6 +17,16 @@ CREATE TABLE `attach` (
   KEY `owner` (`owner`)
 ) TYPE=MyISAM;
 
+CREATE TABLE `cache` (
+  `key` varchar(64) NOT NULL default '',
+  `plugin` varchar(100) NOT NULL default '',
+  `data` mediumblob NOT NULL,
+  `mtime` int(11) NOT NULL default '0',
+  `ttl` int(11) NOT NULL default '0',
+  KEY `key` (`key`),
+  KEY `plugin` (`plugin`)
+) TYPE=MyISAM;
+
 CREATE TABLE `count` (
   `pgid` int(11) NOT NULL default '0',
   `count` int(11) NOT NULL default '0',
