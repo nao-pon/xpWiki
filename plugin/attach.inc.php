@@ -9,7 +9,7 @@ class xpwiki_plugin_attach extends xpwiki_plugin {
 	/////////////////////////////////////////////////
 	// PukiWiki - Yet another WikiWikiWeb clone.
 	//
-	//  $Id: attach.inc.php,v 1.35 2008/03/21 02:45:41 nao-pon Exp $
+	//  $Id: attach.inc.php,v 1.36 2008/03/21 05:36:38 nao-pon Exp $
 	//  ORG: attach.inc.php,v 1.31 2003/07/27 14:15:29 arino Exp $
 	//
 	
@@ -379,7 +379,7 @@ class xpwiki_plugin_attach extends xpwiki_plugin {
 		}
 		
 		// ページオーナー権限がない場合は拡張子をチェック
-		if (!$overwrite && $this->root->allow_extensions && !$this->func->is_owner($page)
+		if (empty($options['asSystem']) && !$overwrite && $this->root->allow_extensions && !$this->func->is_owner($page)
 			 && !preg_match("/\.(".join("|",$this->root->allow_extensions).")$/i",$fname)) {
 			return array('result'=>FALSE,'msg'=>str_replace('$1',preg_replace('/.*\.([^.]*)$/',"$1",$fname),$this->root->_attach_messages['err_extension']));
 		}
@@ -457,15 +457,27 @@ class xpwiki_plugin_attach extends xpwiki_plugin {
 			}
 			$this->func->clear_page_cache($page);
 		}
+
+		if (! empty($options['asSystem'])) {
+			$_uid = 0;
+			$_ucd = 'SYSTEM';
+			$_uname = 'System';
+			$_admins = 0;
+		} else {
+			$_uid = $this->root->userinfo['uid'];
+			$_ucd = $this->root->userinfo['ucd'];
+			$_uname= $this->root->userinfo['uname'];
+			$_admins = (int)$this->func->check_admin($this->root->userinfo['uid']);
+		}
 		
 		$obj->getstatus();
 		$obj->status['pass'] = ($pass !== TRUE and $pass !== NULL) ? $pass : '';
 		$obj->status['copyright'] = $copyright;
-		$obj->status['owner'] = $this->root->userinfo['uid'];
-		$obj->status['ucd']   = $this->root->userinfo['ucd'];
-		$obj->status['uname'] = $this->root->userinfo['uname'];
+		$obj->status['owner'] = $_uid;
+		$obj->status['ucd']   = $_ucd;
+		$obj->status['uname'] = $_uname;
 		$obj->status['md5'] = md5_file($obj->filename);
-		$obj->status['admins'] = (int)$this->func->check_admin($this->root->userinfo['uid']);
+		$obj->status['admins'] = $_admins;
 		$obj->status['org_fname'] = $org_fname;
 		$obj->action = $_action;
 		$obj->putstatus();
@@ -1214,7 +1226,7 @@ EOD;
 </dl>
 $s_err
 EOD;
-		if ($is_editable || (! $this->owner_id && $pass))
+		if ($is_editable || (! $this->owner_id && $pass && $this->status['uname'] !== 'System'))
 		{
 			$retval['body'] .= <<<EOD
 <hr />
