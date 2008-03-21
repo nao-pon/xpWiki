@@ -1,7 +1,7 @@
 <?php
 //
 // Created on 2006/10/02 by nao-pon http://hypweb.net/
-// $Id: pukiwiki_func.php,v 1.155 2008/03/17 11:15:37 nao-pon Exp $
+// $Id: pukiwiki_func.php,v 1.156 2008/03/21 02:46:47 nao-pon Exp $
 //
 class XpWikiPukiWikiFunc extends XpWikiBaseFunc {
 
@@ -909,7 +909,7 @@ class XpWikiPukiWikiFunc extends XpWikiBaseFunc {
 
 //----- Start convert_html.php -----//
 	// PukiWiki - Yet another WikiWikiWeb clone
-	// $Id: pukiwiki_func.php,v 1.155 2008/03/17 11:15:37 nao-pon Exp $
+	// $Id: pukiwiki_func.php,v 1.156 2008/03/21 02:46:47 nao-pon Exp $
 	// Copyright (C)
 	//   2002-2005 PukiWiki Developers Team
 	//   2001-2002 Originally written by yu-ji
@@ -1154,7 +1154,7 @@ class XpWikiPukiWikiFunc extends XpWikiBaseFunc {
 
 //----- Start func.php -----//
 	// PukiWiki - Yet another WikiWikiWeb clone.
-	// $Id: pukiwiki_func.php,v 1.155 2008/03/17 11:15:37 nao-pon Exp $
+	// $Id: pukiwiki_func.php,v 1.156 2008/03/21 02:46:47 nao-pon Exp $
 	// Copyright (C)
 	//   2002-2006 PukiWiki Developers Team
 	//   2001-2002 Originally written by yu-ji
@@ -1970,7 +1970,7 @@ EOD;
 
 //----- Start make_link.php -----//
 	// PukiWiki - Yet another WikiWikiWeb clone.
-	// $Id: pukiwiki_func.php,v 1.155 2008/03/17 11:15:37 nao-pon Exp $
+	// $Id: pukiwiki_func.php,v 1.156 2008/03/21 02:46:47 nao-pon Exp $
 	// Copyright (C)
 	//   2003-2005 PukiWiki Developers Team
 	//   2001-2002 Originally written by yu-ji
@@ -2901,7 +2901,7 @@ EOD;
 
 //----- Start html.php -----//
 	// PukiWiki - Yet another WikiWikiWeb clone.
-	// $Id: pukiwiki_func.php,v 1.155 2008/03/17 11:15:37 nao-pon Exp $
+	// $Id: pukiwiki_func.php,v 1.156 2008/03/21 02:46:47 nao-pon Exp $
 	// Copyright (C)
 	//   2002-2006 PukiWiki Developers Team
 	//   2001-2002 Originally written by yu-ji
@@ -3123,6 +3123,8 @@ EOD;
 	{
 		$ajax = (isset($this->root->vars['ajax']));
 		
+		if (! isset($this->root->vars['orgkey'])) $this->root->vars['orgkey'] = '';
+		
 		// #pginfo ºï½ü
 		$postdata = $this->remove_pginfo($postdata);
 		
@@ -3139,7 +3141,7 @@ EOD;
 			$add_top = '<input type="checkbox" name="add_top" ' .
 				'id="_edit_form_add_top" value="true"' . $add_top . ' />' . "\n" .
 				'  <label for="_edit_form_add_top">' .
-					'<span class="small">' . $this->root->_btn_addtop . '</span>' .
+				'<span class="small">' . $this->root->_btn_addtop . '</span>' .
 				'</label>';
 		}
 	
@@ -3150,7 +3152,7 @@ EOD;
 					continue;
 				$s_page = htmlspecialchars($_page);
 				$pages[$_page] = '   <option value="' . $s_page . '">' .
-					$s_page . '</option>';
+				$s_page . '</option>';
 			}
 			ksort($pages);
 			$s_pages  = join("\n", $pages);
@@ -3598,7 +3600,7 @@ EOD;
 
 //----- Start mail.php -----//
 	// PukiWiki - Yet another WikiWikiWeb clone.
-	// $Id: pukiwiki_func.php,v 1.155 2008/03/17 11:15:37 nao-pon Exp $
+	// $Id: pukiwiki_func.php,v 1.156 2008/03/21 02:46:47 nao-pon Exp $
 	// Copyright (C)
 	//   2003-2005 PukiWiki Developers Team
 	//   2003      Originally written by upk
@@ -3901,7 +3903,7 @@ EOD;
 
 //----- Start link.php -----//
 	// PukiWiki - Yet another WikiWikiWeb clone
-	// $Id: pukiwiki_func.php,v 1.155 2008/03/17 11:15:37 nao-pon Exp $
+	// $Id: pukiwiki_func.php,v 1.156 2008/03/21 02:46:47 nao-pon Exp $
 	// Copyright (C) 2003-2006 PukiWiki Developers Team
 	// License: GPL v2 or (at your option) any later version
 	//
