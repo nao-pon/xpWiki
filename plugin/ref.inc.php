@@ -1,5 +1,5 @@
 <?php
-// $Id: ref.inc.php,v 1.24 2008/03/08 02:36:08 nao-pon Exp $
+// $Id: ref.inc.php,v 1.25 2008/03/21 05:38:44 nao-pon Exp $
 /*
 
 	*プラグイン ref
@@ -969,18 +969,8 @@ _HTML_;
 		fwrite($fp, $data);
 		fclose($fp);
 		
-		$_userinfo = $this->root->userinfo;
-		$_allow_extensions = $this->root->allow_extensions;
-		$this->root->userinfo['uid'] = 0;
-		$this->root->userinfo['ucd'] = '';
-		$this->root->userinfo['uname'] = 'System';
-		
-		$this->root->allow_extensions = "";
-
-		$attach->do_upload($page,$name,$filename.".tmp",$copyright,NULL,TRUE);
-		
-		$this->root->userinfo = $_userinfo;
-		$this->root->allow_extensions = $_allow_extensions;
+		$options = array('asSystem' => TRUE);
+		$attach->do_upload($page,$name,$filename.".tmp",$copyright,NULL,TRUE,$options);
 		
 		return TRUE;
 	}
