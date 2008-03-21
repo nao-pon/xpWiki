@@ -1,7 +1,7 @@
 <?php
 //
 // Created on 2006/10/02 by nao-pon http://hypweb.net/
-// $Id: xpwiki_func.php,v 1.154 2008/03/17 05:20:28 nao-pon Exp $
+// $Id: xpwiki_func.php,v 1.155 2008/03/21 03:00:23 nao-pon Exp $
 //
 class XpWikiFunc extends XpWikiXoopsWrapper {
 
@@ -1797,7 +1797,30 @@ EOD;
 		}
 		return $pgtitle;
 	}
-	
+
+	// Formart finger fixed child of the table cell is deleted. 
+	function cell_format_tag_del ($td) {
+		// Regular expression of color name
+		$colors_reg = "aqua|navy|black|olive|blue|purple|fuchsia|red|gray|silver|green|teal|lime|white|maroon|yellow|transparent";
+		
+		// Character color specification deletion
+		$td = preg_replace("/FC:(#?[0-9abcdef]{6}?|$colors_reg|0)/i","",$td);
+		
+		// Background color specification deletion
+		$td = preg_replace("/(SC|BC):(#?[0-9abcdef]{6}?|$colors_reg|0)(\(([^),]*)(,no|,one|,1)?\))/i","SC:$2",$td);
+		$td = preg_replace("/(SC|BC):(#?[0-9abcdef]{6}?|$colors_reg|0)/i","",$td);
+		
+		// Background picture specification deletion
+		$td = preg_replace("/(SC|BC):\(([^),]*)(,once|,1)?\)/i","",$td);
+		
+		// Character arrangement specification deletion
+		$tmp = array();
+		if (preg_match("/^(LEFT|CENTER|RIGHT)?(:)(TOP|MIDDLE|BOTTOM)?/i",$td,$tmp)) {
+			$td = (!$tmp[1] && !$tmp[3])? $tmp[2] : "";
+		}
+		return $td;
+	}
+
 /*----- DB Functions -----*/ 
 	//ページ名からページIDを求める
 	function get_pgid_by_name ($page, $cache = true, $make = false)
