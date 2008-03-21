@@ -31,7 +31,7 @@
 //
 // fusen.inc.php for xpWiki by nao-pon
 // http://xoops.hypweb.net
-// $Id: fusen.inc.php,v 1.19 2008/02/11 01:02:41 nao-pon Exp $
+// $Id: fusen.inc.php,v 1.20 2008/03/21 05:37:46 nao-pon Exp $
 // 
 
 class xpwiki_plugin_fusen extends xpwiki_plugin {
@@ -485,7 +485,7 @@ EOD;
 				fputs($fp, serialize($dat));
 				fclose($fp);
 				$this->root->pukiwiki_allow_extensions = "";
-				$options = array('overwrite' => TRUE);
+				$options = array('overwrite' => TRUE, 'asSystem' => TRUE);
 				if ($this->root->vars['mode'] == 'edit') {
 					// 編集時はタイムスタンプを更新する
 					$options['changelog'] = '[Fusen:' . $id . ' by ' . htmlspecialchars($name) . ']' . htmlspecialchars($txt);
