@@ -9,7 +9,7 @@ class xpwiki_plugin_attach extends xpwiki_plugin {
 	/////////////////////////////////////////////////
 	// PukiWiki - Yet another WikiWikiWeb clone.
 	//
-	//  $Id: attach.inc.php,v 1.34 2008/02/11 01:02:41 nao-pon Exp $
+	//  $Id: attach.inc.php,v 1.35 2008/03/21 02:45:41 nao-pon Exp $
 	//  ORG: attach.inc.php,v 1.31 2003/07/27 14:15:29 arino Exp $
 	//
 	
@@ -970,7 +970,7 @@ class XpWikiAttachFile
 		$this->size = filesize($this->filename);
 		$this->size_str = sprintf('%01.1f',round($this->size)/1024,1).'KB';
 		$this->type = xpwiki_plugin_attach::attach_mime_content_type($this->filename, $this->status['org_fname']);
-		$this->owner_id = $this->status['owner'];
+		$this->owner_id = intval($this->status['owner']);
 		$user = $this->func->get_userinfo_by_id($this->status['owner']);
 		$user = htmlspecialchars($user['uname']);
 		if (!$this->status['owner']) {
@@ -1214,7 +1214,7 @@ EOD;
 </dl>
 $s_err
 EOD;
-		if ($is_editable)
+		if ($is_editable || (! $this->owner_id && $pass))
 		{
 			$retval['body'] .= <<<EOD
 <hr />
@@ -1515,8 +1515,8 @@ EOD;
 	// 管理者、ページ作成者またはファイル所有者か？
 	function is_owner() {
 		if ($this->func->is_owner($this->page)) return TRUE;
-		if ($this->status['owner']) {
-			if ($this->root->userinfo['uid'] === $this->status['owner']) return TRUE;
+		if ($this->owner_id) {
+			if ($this->root->userinfo['uid'] === $this->owner_id) return TRUE;
 		} else {
 			if ($this->root->userinfo['ucd'] === $this->status['ucd']) return TRUE;
 		}

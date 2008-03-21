@@ -1,6 +1,6 @@
 <?php
 // PukiWiki - Yet another WikiWikiWeb clone.
-// $Id: lng.php,v 1.4 2008/03/17 11:16:10 nao-pon Exp $
+// $Id: lng.php,v 1.5 2008/03/21 02:46:00 nao-pon Exp $
 // Copyright (C)
 //   2002-2005 PukiWiki Developers Team
 //   2001-2002 Originally written by yu-ji
@@ -194,7 +194,7 @@ $root->_attach_messages = array(
 	'msg_isfreeze' => 'このファイルは凍結されています。',
 	'msg_rename'   => '名前を変更します。',
 	'msg_newname'  => '新しい名前',
-	'msg_require'  => '(管理者 or アップロード時 パスワードが必要です)',
+	'msg_require'  => '(アップロード時に指定したパスワードが必要です)',
 	'msg_filesize' => 'サイズ',
 	'msg_date'     => '登録日時',
 	'msg_dlcount'  => 'アクセス数',
