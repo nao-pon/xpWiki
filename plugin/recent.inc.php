@@ -1,5 +1,5 @@
 <?php
-// $Id: recent.inc.php,v 1.13 2008/02/17 14:26:30 nao-pon Exp $
+// $Id: recent.inc.php,v 1.14 2008/03/21 02:48:22 nao-pon Exp $
 // Copyright (C)
 //   2002-2006 PukiWiki Developers Team
 //   2002      Y.MASUI http://masui.net/pukiwiki/ masui@masui.net
@@ -55,7 +55,7 @@ class xpwiki_plugin_recent extends xpwiki_plugin {
 			}
 			
 			$prefix = preg_replace("/\/$/","",$prefix);
-			if ($this->func->is_page($prefix))
+			if ($this->func->is_page($prefix) || ! $prefix)
 			{
 				if (isset($args[1]) && is_numeric($args[1]))
 					$recent_lines = $args[1];
@@ -64,7 +64,7 @@ class xpwiki_plugin_recent extends xpwiki_plugin {
 			{
 				$prefix = $args[1];
 				$prefix = preg_replace("/\/$/","",$prefix);
-				if ($this->func->is_page($prefix))
+				if ($this->func->is_page($prefix) || ! $prefix)
 				{
 					if (isset($args[0]) && is_numeric($args[0]))
 						$recent_lines = $args[0];
