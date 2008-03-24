@@ -1,5 +1,5 @@
 <?php
-// $Id: ref.inc.php,v 1.25 2008/03/21 05:38:44 nao-pon Exp $
+// $Id: ref.inc.php,v 1.26 2008/03/24 09:10:06 nao-pon Exp $
 /*
 
 	*プラグイン ref
@@ -403,7 +403,7 @@ class xpwiki_plugin_ref extends xpwiki_plugin {
 				if ($copyright) {
 					//著作権保護されている場合はサイズ$this->cont['PLUGIN_REF_COPYRIGHT_IMG_MAX%']%以内かつ縦横 $this->cont['PLUGIN_REF_COPYRIGHT_IMG_MAX']px 以内で表示
 					$params['_size'] = TRUE;
-					if ($img['org_w'] > $this->cont['PLUGIN_REF_COPYRIGHT_IMG_MAX'] && $img['org_h'] > $this->cont['PLUGIN_REF_COPYRIGHT_IMG_MAX'] ) {
+					if ($img['org_w'] > $this->cont['PLUGIN_REF_COPYRIGHT_IMG_MAX'] || $img['org_h'] > $this->cont['PLUGIN_REF_COPYRIGHT_IMG_MAX'] ) {
 						$params['_w'] = $this->cont['PLUGIN_REF_COPYRIGHT_IMG_MAX'];
 						$params['_h'] = $this->cont['PLUGIN_REF_COPYRIGHT_IMG_MAX'];
 						$params['zoom'] = TRUE;
@@ -867,22 +867,9 @@ _HTML_;
 		
 		if (isset($ret[$this->xpwiki->pid][$file])) return $ret[$this->xpwiki->pid][$file];
 		
-		$ret[$this->xpwiki->pid][$file] = FALSE;
-		$logname = $file.'.log';
-		$status = array('count'=>array(0),'age'=>'','pass'=>'','freeze'=>FALSE,'copyright'=>FALSE,'owner'=>0,'ucd'=>'','uname'=>'','md5'=>'','admins'=>FALSE);
-		// ログファイル取得
-		if (file_exists($logname))
-		{
-			$data = file($logname);
-			foreach ($status as $key=>$value)
-			{
-				$status[$key] = chop(array_shift($data));
-			}
-			$status['count'] = explode(',',$status['count']);
-		}
+		$ret[$this->xpwiki->pid][$file] = $this->func->get_attachstatus($file);
 		
-		$ret[$this->xpwiki->pid][$file] = $status;
-		return $status;
+		return $ret[$this->xpwiki->pid][$file];
 	}
 	
 	// ファイルは管理者所有?
@@ -899,8 +886,17 @@ _HTML_;
 
 	// イメージサイズを取得
 	function getimagesize($file) {
-		//return FALSE;
-		return @getimagesize($file);
+		// 添付ファイルは事前にファイルタイプを検査 (getimagesize はコストが高い)
+		if (strpos($file, $this->cont['UPLOAD_DIR']) === 0) {
+			$status = $this->get_fileinfo($file);
+			if ($status) {
+				return $status['imagesize'];
+			}
+			return FALSE;
+		} else {
+			// URL の場合、一応取得してみる
+			return @ getimagesize($file);
+		}
 	}
 	
 	// 画像キャッシュがあるか調べる
