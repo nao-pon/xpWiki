@@ -1,6 +1,6 @@
 <?php
 // PukiWiki - Yet another WikiWikiWeb clone
-// $Id: pukiwiki.ini.php,v 1.70 2008/03/12 23:59:26 nao-pon Exp $
+// $Id: pukiwiki.ini.php,v 1.71 2008/03/24 09:21:21 nao-pon Exp $
 // Copyright (C)
 //   2002-2006 PukiWiki Developers Team
 //   2001-2002 Originally written by yu-ji
@@ -62,6 +62,10 @@ $const['PKWK_QUERY_STRING_MAX'] = 640; // Bytes, 0 = OFF
 //   }}
 //   #memo(This makes '#memo(foo)' to this)
 $const['PKWKEXP_DISABLE_MULTILINE_PLUGIN_HACK'] = 0; // 1 = Disabled
+
+// 整形済みマルチラインプラグイン
+// Multiline PRE plugins
+$this->root->multiline_pre_plugins = array('pre', 'code');
 
 /////////////////////////////////////////////////
 // UI LANG Auto Discovery
