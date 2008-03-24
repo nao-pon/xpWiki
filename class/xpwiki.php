@@ -1,7 +1,7 @@
 <?php
 //
 // Created on 2006/09/29 by nao-pon http://hypweb.net/
-// $Id: xpwiki.php,v 1.78 2008/03/17 07:06:51 nao-pon Exp $
+// $Id: xpwiki.php,v 1.79 2008/03/24 09:07:54 nao-pon Exp $
 //
 
 class XpWiki {
@@ -25,6 +25,8 @@ class XpWiki {
 	var $pid;
 	
 	var $isXpWiki = TRUE;
+	
+	var $admin_messages = array();
 
 	function XpWiki ($mydirname, $moddir='modules/') {
 		
