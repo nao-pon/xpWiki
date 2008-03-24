@@ -1,7 +1,7 @@
 <?php
 //
 // Created on 2006/10/02 by nao-pon http://hypweb.net/
-// $Id: xpwiki_func.php,v 1.155 2008/03/21 03:00:23 nao-pon Exp $
+// $Id: xpwiki_func.php,v 1.156 2008/03/24 09:03:09 nao-pon Exp $
 //
 class XpWikiFunc extends XpWikiXoopsWrapper {
 
@@ -1821,6 +1821,45 @@ EOD;
 		return $td;
 	}
 
+	function escape_multiline_pre (& $src, $enc = TRUE) {
+		// Multiline-enabled block plugin
+		if (!$this->cont['PKWKEXP_DISABLE_MULTILINE_PLUGIN_HACK']) {
+			$plugin_reg = join('|', $this->root->multiline_pre_plugins);
+			$is_array = FALSE;
+			if (is_array($src)) {
+				$is_array = TRUE;
+				$lines = $src;
+				$out = array();
+			} else {
+				$lines = explode("\n", $src);
+				$out = '';
+			}
+			$func = $enc ? 'base64_encode' : 'base64_decode';
+			while (!empty ($lines)) {
+				$line = rtrim(array_shift($lines), "\r\n") . "\n";
+				if (preg_match('/^#(?:'.$plugin_reg.')(?:\([^\)]*\))?(\{\{+)\s*$/', $line, $matches)) {
+					$len = strlen($matches[1]);
+					while (!empty ($lines)) {
+						$next_line = rtrim(array_shift($lines), "\r\n");
+						if (preg_match('/^\}{'.$len.'}/', $next_line)) {
+							$line .= $next_line . "\n";
+							break;
+						} else {
+							$line .= $func($next_line) . "\n";
+						}
+					}
+				}
+				if ($is_array) {
+					$out[] = $line;
+				} else {
+					$out .= $line;
+				}
+			}
+			$src = $out;
+		}
+		return;
+	}
+
 /*----- DB Functions -----*/ 
 	//ページ名からページIDを求める
 	function get_pgid_by_name ($page, $cache = true, $make = false)
@@ -2480,6 +2519,43 @@ EOD;
 		return $data;
 	}
 
+	// Get attachDB info
+	function get_attachdbinfo ($id) {
+		$dbinfo = array();
+		$query = 'SELECT `type`, `mtime`, `size` FROM '.$this->xpwiki->db->prefix($this->root->mydirname.'_attach').' WHERE `id`=\''.$id.'\' LIMIT 1';
+		if ($result = $this->xpwiki->db->query($query)) {
+			$dbinfo = $this->xpwiki->db->fetchArray($result);
+		}
+		return $dbinfo;
+	}
+	
+	function get_attachstatus ($file) {
+		if (is_array($file)) {
+			$page = $file['page'];
+			$name = $file['name'];
+			$age  = $file['age'];
+		} else {
+			$file = basename($file);
+			$pattern = "/^((?:[0-9A-F]{2})+)_((?:[0-9A-F]{2})+)(?:\.([0-9]+))?$/";
+			if (preg_match($pattern, $file, $matches)) {
+				$page = $this->decode($matches[1]);
+				$name = $this->decode($matches[2]);
+				$age  = isset($matches[3]) ? $matches[3] : 0;
+			} else {
+				return array();
+			}
+		}
+		$obj = & new XpWikiAttachFile($this->xpwiki, $page, $name, $age);
+		if ($obj->getstatus()) {
+			$status = $obj->status;
+		} else {
+			$status = array();
+		}
+		$obj = NULL;
+		unset($obj);
+		return $status;
+	}
+	
 	// プラグインからplane_text DB を更新を指示(コンバート時)
 	function need_update_plaindb($page = null, $mode = 'update')
 	{
