@@ -3,7 +3,7 @@ class xpwiki_plugin_article extends xpwiki_plugin {
 	function plugin_article_init () {
 
 
-	// $Id: article.inc.php,v 1.6 2007/12/14 00:02:08 nao-pon Exp $
+	// $Id: article.inc.php,v 1.7 2008/03/24 23:50:09 nao-pon Exp $
 	// Copyright (C)
 	//   2002-2005 PukiWiki Developers Team
 	//   2002      Originally written by OKAWARA,Satoshi <kawara@dml.co.jp>
@@ -79,6 +79,7 @@ class xpwiki_plugin_article extends xpwiki_plugin {
 	
 		$postdata = '';
 		$postdata_old  = $this->func->get_source($this->root->post['refer']);
+		$this->func->escape_multiline_pre($postdata_old, TRUE);
 		$article_no = 0;
 	
 		foreach($postdata_old as $line) {
@@ -113,6 +114,7 @@ class xpwiki_plugin_article extends xpwiki_plugin {
 EOD;
 	
 		} else {
+			$this->func->escape_multiline_pre($postdata, FALSE);
 			$this->func->page_write($this->root->post['refer'], trim($postdata));
 	
 			// 投稿内容のメール自動送信

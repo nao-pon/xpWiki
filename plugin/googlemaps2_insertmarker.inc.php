@@ -66,7 +66,10 @@ class xpwiki_plugin_googlemaps2_insertmarker extends xpwiki_plugin {
 		$no       = 0;
 		$postdata = '';
 		$above    = ($this->root->vars['direction'] == 'up');
-		foreach ($this->func->get_source($this->root->vars['refer']) as $line) {
+		
+		$postdata_old = $this->func->get_source($this->root->vars['refer']);
+		$this->func->escape_multiline_pre($postdata_old, TRUE);
+		foreach ($postdata_old as $line) {
 			if (! $above) $postdata .= $line;
 			if (preg_match('/^#googlemaps2_insertmarker/i', $line) && $no++ == $this->root->vars['no']) {
 				if ($above) {
@@ -85,6 +88,7 @@ class xpwiki_plugin_googlemaps2_insertmarker extends xpwiki_plugin {
 			$body  = $this->root->_msg_comment_collided . $this->func->make_pagelink($this->root->vars['refer']);
 		}
 	
+		$this->func->escape_multiline_pre($postdata, FALSE);
 		$this->func->page_write($this->root->vars['refer'], $postdata);
 	
 		$retvars['msg']  = $title;
