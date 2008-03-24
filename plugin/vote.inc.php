@@ -1,6 +1,6 @@
 <?php
 class xpwiki_plugin_vote extends xpwiki_plugin {
-	// $Id: vote.inc.php,v 1.5 2008/03/21 03:02:02 nao-pon Exp $
+	// $Id: vote.inc.php,v 1.6 2008/03/24 09:22:11 nao-pon Exp $
 	
 	function plugin_vote_init() {
 		$this->load_language();
@@ -18,7 +18,9 @@ class xpwiki_plugin_vote extends xpwiki_plugin {
 		$vote_no = 0;
 		$notimestamp = FALSE;
 		$nomail = FALSE;
-	
+		
+		$this->func->escape_multiline_pre($postdata_old, TRUE);
+		
 		$postdata = '';
 		foreach($postdata_old as $lines) {
 			if ($lines{0} == "|") {
@@ -114,6 +116,8 @@ class xpwiki_plugin_vote extends xpwiki_plugin {
 			}
 			$postdata .= join("|",$celldata)."\n";
 		}
+
+		$this->func->escape_multiline_pre($postdata, FALSE);
 
 		if(md5($this->func->get_source($this->root->vars['refer'], TRUE, TRUE)) !== $this->root->post["digest"]) {
 			$retvars["msg"] = $this->msg['collided'];
