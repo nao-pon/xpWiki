@@ -1,7 +1,7 @@
 <?php
 //
 // Created on 2006/10/02 by nao-pon http://hypweb.net/
-// $Id: xpwiki_func.php,v 1.156 2008/03/24 09:03:09 nao-pon Exp $
+// $Id: xpwiki_func.php,v 1.157 2008/03/24 09:32:22 nao-pon Exp $
 //
 class XpWikiFunc extends XpWikiXoopsWrapper {
 
@@ -2774,8 +2774,8 @@ EOD;
 		
 		$retval = '<ul>' . "\n";
 		foreach ($pages as $page => $data) {
-			if (!$data[0]) $data[0] = $this->get_filetime($page);
-			if (!$data[1]) $data[1] = $this->get_heading($page);
+			if (empty($data[0])) $data[0] = $this->get_filetime($page);
+			if (empty($data[1])) $data[1] = $this->get_heading($page);
 			$s_page  = htmlspecialchars($page);
 			$passage = $this->root->show_passage ? ' ' . $this->get_passage($data[0]) : '';
 			$retval .= ' <li><a href="' . $this->get_page_uri($page, true) . (@ $this->root->static_url ? '?' : '&amp;') . 'word=' . $r_word . '">' . $s_page .
