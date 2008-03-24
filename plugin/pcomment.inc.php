@@ -4,7 +4,7 @@ class xpwiki_plugin_pcomment extends xpwiki_plugin {
 
 
 	// PukiWiki - Yet another WikiWikiWeb clone
-	// $Id: pcomment.inc.php,v 1.11 2007/09/19 11:27:15 nao-pon Exp $
+	// $Id: pcomment.inc.php,v 1.12 2008/03/24 09:31:45 nao-pon Exp $
 	//
 	// pcomment plugin - Show/Insert comments into specified (another) page
 	//
@@ -231,6 +231,7 @@ EOD;
 			'-' . $msg . "\n";
 		} else {
 			$postdata = $this->func->get_source($page);
+			$this->func->escape_multiline_pre($postdata, TRUE);
 			$count    = count($postdata);
 	
 			$digest = isset($this->root->vars['digest']) ? $this->root->vars['digest'] : '';
@@ -282,6 +283,7 @@ EOD;
 			}
 			$postdata = join('', $postdata);
 		}
+		$this->func->escape_multiline_pre($postdata, FALSE);
 		$this->func->page_write($page, $postdata, $this->cont['PLUGIN_PCOMMENT_TIMESTAMP']);
 	
 		if ($this->cont['PLUGIN_PCOMMENT_TIMESTAMP']) {
