@@ -1,5 +1,5 @@
 <?php
-// $Id: urlbookmark.inc.php,v 1.4 2007/12/30 14:22:36 nao-pon Exp $
+// $Id: urlbookmark.inc.php,v 1.5 2008/03/24 23:59:01 nao-pon Exp $
 
 /*
  * PukiWiki urlbookmark プラグイン
@@ -102,6 +102,7 @@ class xpwiki_plugin_urlbookmark extends xpwiki_plugin {
 		
 		$postdata = '';
 		$postdata_old  = $this->func->get_source($this->root->post['refer']);
+		$this->func->escape_multiline_pre($postdata_old, TRUE);
 		$urlbookmark_no = 0;
 		$urlbookmark_ins = ($this->root->post['above'] == '1');
 		
@@ -133,6 +134,7 @@ class xpwiki_plugin_urlbookmark extends xpwiki_plugin {
 			$body = $this->msg['msg_urlbookmark_collided'] . $this->func->make_pagelink($this->root->post['refer']);
 		}
 		
+		$this->func->escape_multiline_pre($postdata, FALSE);
 		$this->func->page_write($this->root->post['refer'],$postdata);
 		
 		$retvars['msg'] = $title;
