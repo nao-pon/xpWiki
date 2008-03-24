@@ -4,7 +4,7 @@ class xpwiki_plugin_comment extends xpwiki_plugin {
 
 
 	// PukiWiki - Yet another WikiWikiWeb clone
-	// $Id: comment.inc.php,v 1.5 2007/09/19 12:10:10 nao-pon Exp $
+	// $Id: comment.inc.php,v 1.6 2008/03/24 09:25:16 nao-pon Exp $
 	// Copyright (C)
 	//   2002-2005 PukiWiki Developers Team
 	//   2001-2002 Originally written by yu-ji
@@ -59,7 +59,10 @@ class xpwiki_plugin_comment extends xpwiki_plugin {
 		$postdata    = '';
 		$comment_no  = 0;
 		$above       = (isset($this->root->vars['above']) && $this->root->vars['above'] == '1');
-		foreach ($this->func->get_source($this->root->vars['refer']) as $line) {
+		
+		$postdata_old = $this->func->get_source($this->root->vars['refer']);
+		$this->func->escape_multiline_pre($postdata_old, TRUE);
+		foreach ($postdata_old as $line) {
 			if (! $above) $postdata .= $line;
 			if (preg_match('/^#comment/i', $line) && $comment_no++ == $this->root->vars['comment_no']) {
 				if ($above) {
@@ -80,7 +83,8 @@ class xpwiki_plugin_comment extends xpwiki_plugin {
 			$title = $this->root->_title_comment_collided;
 			$body  = $this->root->_msg_comment_collided . $this->func->make_pagelink($this->root->vars['refer']);
 		}
-	
+		
+		$this->func->escape_multiline_pre($postdata, FALSE);
 		$this->func->page_write($this->root->vars['refer'], $postdata);
 	
 		$retvars['msg']  = $title;
