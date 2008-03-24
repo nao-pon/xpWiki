@@ -1,50 +1,52 @@
 <?php
 //
 // Created on 2006/10/03 by nao-pon http://hypweb.net/
-// $Id: include.php,v 1.10 2008/03/10 04:22:06 nao-pon Exp $
+// $Id: include.php,v 1.11 2008/03/24 09:08:49 nao-pon Exp $
 //
 
-// Load & check a class HypCommonFunc
-if(!class_exists('HypCommonFunc')) {
-	include_once(dirname(dirname(dirname(__FILE__))).'/class/hyp_common/hyp_common_func.php');
+if (! defined('_XPWIKI_FILES_LOADED')) {
+	$mytrustdirpath = dirname( __FILE__ );
+	
+	define('_XPWIKI_FILES_LOADED', TRUE);
+	// Load & check a class HypCommonFunc
+	if(!class_exists('HypCommonFunc')) {
+		include(dirname(dirname($mytrustdirpath)).'/class/hyp_common/hyp_common_func.php');
+	}
+	
+	// Set 'memory_limit'
+	if ($_xpwiki_memory_limit = HypCommonFunc::return_bytes(ini_get('memory_limit'))) {
+		if ($_xpwiki_memory_limit < 32768) ini_set('memory_limit', 32768);
+	}
+	
+	include($mytrustdirpath."/class/xpwiki.php");
+	
+	include($mytrustdirpath."/class/root.php");
+	
+	include($mytrustdirpath."/class/func/base_func.php");
+	include($mytrustdirpath."/class/func/pukiwiki_func.php");
+	if (extension_loaded('zlib')) {
+		include($mytrustdirpath."/class/func/backup_gzip.php");
+	} else {
+		include($mytrustdirpath."/class/func/backup_text.php");
+	}
+	include($mytrustdirpath."/class/func/xoops_wrapper.php");
+	include($mytrustdirpath."/class/func/xpwiki_func.php");
+	
+	include($mytrustdirpath."/class/extension.php");
+	
+	include($mytrustdirpath."/class/plugin.php");
+	
+	include($mytrustdirpath."/class/convert_html.php");
+	
+	include($mytrustdirpath."/class/make_link.php");
+	
+	include($mytrustdirpath."/class/diff.php");
+	
+	include($mytrustdirpath."/class/config.php");
+	
+	include($mytrustdirpath."/class/attach.php");
+	
+	// add compat functions
+	include($mytrustdirpath."/include/compat.php");
 }
-$hyp_common_methods = get_class_methods('HypCommonFunc');
-if (is_null($hyp_common_methods) || ! in_array('get_version', $hyp_common_methods) || HypCommonFunc::get_version() < 20071130.1) {
-	$xpwiki_error[] = '[Warning] Please install or update <a href="http://cvs.sourceforge.jp/cgi-bin/viewcvs.cgi/hypweb/XOOPS_TRUST/class/hyp_common.tar.gz?view=tar" title="Download">a newest HypCommonFunc</a> into "XOOPS_TRUST_PATH/class/".';
-}
-
-// Set 'memory_limit'
-if ($_xpwiki_memory_limit = HypCommonFunc::return_bytes(ini_get('memory_limit'))) {
-	if ($_xpwiki_memory_limit < 32768) ini_set('memory_limit', 32768);
-}
-
-include_once(dirname(__FILE__)."/class/xpwiki.php");
-
-include_once(dirname(__FILE__)."/class/root.php");
-
-include_once(dirname(__FILE__)."/class/func/base_func.php");
-include_once(dirname(__FILE__)."/class/func/pukiwiki_func.php");
-if (extension_loaded('zlib')) {
-	include_once(dirname(__FILE__)."/class/func/backup_gzip.php");
-} else {
-	include_once(dirname(__FILE__)."/class/func/backup_text.php");
-}
-include_once(dirname(__FILE__)."/class/func/xoops_wrapper.php");
-include_once(dirname(__FILE__)."/class/func/xpwiki_func.php");
-
-include_once(dirname(__FILE__)."/class/extension.php");
-
-include_once(dirname(__FILE__)."/class/plugin.php");
-
-include_once(dirname(__FILE__)."/class/convert_html.php");
-
-include_once(dirname(__FILE__)."/class/make_link.php");
-
-include_once(dirname(__FILE__)."/class/diff.php");
-
-include_once(dirname(__FILE__)."/class/config.php");
-
-// add compat functions
-include_once(dirname(__FILE__)."/include/compat.php");
-
 ?>
