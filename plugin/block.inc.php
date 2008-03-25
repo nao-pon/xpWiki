@@ -3,7 +3,7 @@ class xpwiki_plugin_block extends xpwiki_plugin {
 	function plugin_block_init () {
 
 
-	// $Id: block.inc.php,v 1.3 2007/11/07 23:49:20 nao-pon Exp $
+	// $Id: block.inc.php,v 1.4 2008/03/25 02:20:23 nao-pon Exp $
 	
 	/*
 	 * countdown.inc.php
@@ -149,11 +149,10 @@ class xpwiki_plugin_block extends xpwiki_plugin {
 		$body = '';
 		if ($params['_args']) {
 			$body = array_pop($params['_args']);
-			$body = str_replace("\r", "\n", $body);
 		}
 		
 		if ($body) {
-			$body = $this->func->convert_html($body);
+			$body = $this->func->convert_html_multiline($body);
 			if (isset($b_round[$this->xpwiki->pid][$b_count[$this->xpwiki->pid]])) {
 				$body .= '<div class="round_bb"><div></div></div>';
 			}

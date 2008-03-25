@@ -1,7 +1,7 @@
 <?php
 /*
  * Created on 2008/03/18 by nao-pon http://hypweb.net/
- * $Id: capture.inc.php,v 1.1 2008/03/21 04:31:12 nao-pon Exp $
+ * $Id: capture.inc.php,v 1.2 2008/03/25 02:20:23 nao-pon Exp $
  */
 
 class xpwiki_plugin_capture extends xpwiki_plugin {
@@ -13,8 +13,7 @@ class xpwiki_plugin_capture extends xpwiki_plugin {
 		
 		$body = '';
 		if ($options['body']) {
-			$body = str_replace("\r", "\n", $options['body']);
-			$body = $this->func->convert_html($body);
+			$body = $this->func->convert_html_multiline($options['body']);
 			$this->root->rtf['capture'][$options['name']] = $body;
 			return '';
 		} else {
