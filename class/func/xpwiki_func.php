@@ -1,7 +1,7 @@
 <?php
 //
 // Created on 2006/10/02 by nao-pon http://hypweb.net/
-// $Id: xpwiki_func.php,v 1.157 2008/03/24 09:32:22 nao-pon Exp $
+// $Id: xpwiki_func.php,v 1.158 2008/03/25 02:20:24 nao-pon Exp $
 //
 class XpWikiFunc extends XpWikiXoopsWrapper {
 
@@ -1859,7 +1859,23 @@ EOD;
 		}
 		return;
 	}
-
+	
+	function convert_html_multiline ($str) {
+		$oldflg = (isset($this->root->rtf['convert_html_multiline']))? $this->root->rtf['convert_html_multiline'] : NULL;
+		$this->root->rtf['convert_html_multiline'] = TRUE;
+		
+		$str = str_replace("\r", "\n", $str);
+		$html = $this->convert_html($str);
+		
+		if (is_null($oldflg)) {
+			unset($this->root->rtf['convert_html_multiline']);
+		} else {
+			$this->root->rtf['convert_html_multiline'] = $oldflg;
+		}
+		
+		return $html;
+	}
+	
 /*----- DB Functions -----*/ 
 	//ページ名からページIDを求める
 	function get_pgid_by_name ($page, $cache = true, $make = false)

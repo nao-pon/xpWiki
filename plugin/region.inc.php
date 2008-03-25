@@ -2,7 +2,7 @@
 /////////////////////////////////////////////////
 // PukiWiki - Yet another WikiWikiWeb clone.
 //
-// $Id: region.inc.php,v 1.8 2008/03/08 02:37:13 nao-pon Exp $
+// $Id: region.inc.php,v 1.9 2008/03/25 02:20:23 nao-pon Exp $
 //
 
 class xpwiki_plugin_region extends xpwiki_plugin {
@@ -157,7 +157,7 @@ EOD;
 	}
 
 	function buildBody() {
-		return $this->func->convert_html(str_replace("\r", "\n", $this->body));
+		return $this->func->convert_html_multiline($this->body);
 	}
 	
 	function buildClose() {

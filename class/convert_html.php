@@ -1041,7 +1041,7 @@ class XpWikiBody extends XpWikiElement {
 			$anchor = '';
 		} else {
 			$anchor = ' &aname(' . $id . ',noid,super,full){'. $this->root->_symbol_anchor . '};';
-			if ($this->root->fixed_heading_anchor_edit) $anchor .= " &edit(#$id,paraedit);";
+			if ($this->root->fixed_heading_anchor_edit && empty($this->root->rtf['convert_html_multiline'])) $anchor .= " &edit(#$id,paraedit);";
 		}
 
 		$text = ' '.$text;
