@@ -1,7 +1,7 @@
 <?php
 /*
  * Created on 2008/03/25 by nao-pon http://hypweb.net/
- * $Id: pluginlist.inc.php,v 1.1 2008/03/25 03:03:06 nao-pon Exp $
+ * $Id: pluginlist.inc.php,v 1.2 2008/03/25 05:16:12 nao-pon Exp $
  */
 
 class xpwiki_plugin_pluginlist extends xpwiki_plugin {
@@ -10,7 +10,7 @@ class xpwiki_plugin_pluginlist extends xpwiki_plugin {
 	}
 	
 	function plugin_pluginlist_convert () {
-		return $this->build_list();
+		return '<p>' . $this->build_list() . '</p>';
 	}
 	
 	function build_list () {
@@ -23,18 +23,28 @@ class xpwiki_plugin_pluginlist extends xpwiki_plugin {
 			}
 			closedir($dh);
 		}
-		$inlines = $blocks = array();
+		$cmds = $inlines = $blocks = array();
 		foreach($plugins as $name) {
 			$checks[] = $name;
 			if ($this->func->exist_plugin_convert($name)) {
-				$blocks[] = '#' . $name;
+				$blocks[] = $name;
 			}
 			if ($this->func->exist_plugin_inline($name)) {
-				$inlines[] = '&' . $name;
+				$inlines[] = $name;
+			}
+			if ($this->func->exist_plugin_action($name)) {
+				$cmds[] = $name;
 			}
 		}
-		$html = join('<br />', $blocks);
-		$html .= join('<br />', $inlines);
+		sort($blocks);
+		sort($inlines);
+		$html = '<h4>Block plugins</h4><ul><li>#';
+		$html .= join('</li><li>#', $blocks);
+		$html .= '</li></ul><hr /><h4>Inline plugins</h4><ul><li>&amp;';
+		$html .= join(';</li><li>&amp;', $inlines);
+		$html .= ';</li></ul><hr /><h4>Command plugins</h4><ul><li>';
+		$html .= join('</li><li>', $cmds);
+		$html .= '</li></ul>';
 		return $html;
 	}
 }
