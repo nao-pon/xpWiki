@@ -1,16 +1,13 @@
 <?php
 /*
  * Created on 2007/05/22 by nao-pon http://hypweb.net/
- * $Id: import.inc.php,v 1.8 2008/03/06 23:49:15 nao-pon Exp $
+ * $Id: import.inc.php,v 1.9 2008/03/30 04:27:44 nao-pon Exp $
  */
 
 class xpwiki_plugin_import extends xpwiki_plugin {
 
 	function plugin_import_init()
 	{
-		// 言語ファイルの読み込み
-		$this->load_language();
-		
 		$this->FILEMODE = 0666;
 		
 		$this->timelimit = 60;
@@ -22,6 +19,9 @@ class xpwiki_plugin_import extends xpwiki_plugin {
 			return $this->action_msg_admin_only();
 		}
 
+		// 言語ファイルの読み込み
+		$this->load_language();
+		
 		// 管理画面モード指定
 		if ($this->root->module['platform'] == "xoops") {
 			$this->root->runmode = "xoops_admin";

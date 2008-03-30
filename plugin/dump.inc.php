@@ -1,24 +1,11 @@
 <?php
-// $Id: dump.inc.php,v 1.4 2008/03/06 23:49:15 nao-pon Exp $
+// $Id: dump.inc.php,v 1.5 2008/03/30 04:27:44 nao-pon Exp $
 //
 // Remote dump / restore plugin
 // Originated as tarfile.inc.php by teanan / Interfair Laboratory 2004.
 
 class xpwiki_plugin_dump extends xpwiki_plugin {
 	function plugin_dump_init () {
-		// 権限チェック
-		if (!$this->root->userinfo['admin']) {
-			return $this->action_msg_admin_only();
-		}
-		
-		// 言語ファイルの読み込み
-		$this->load_language();
-
-		// 管理画面モード指定
-		if ($this->root->module['platform'] == "xoops") {
-			$this->root->runmode = "xoops_admin";
-		}
-				
 		/////////////////////////////////////////////////
 		// User defines
 		
@@ -107,7 +94,18 @@ class xpwiki_plugin_dump extends xpwiki_plugin {
 	// プラグイン本体
 	function plugin_dump_action()
 	{
-	//	global $vars;
+		// 権限チェック
+		if (!$this->root->userinfo['admin']) {
+			return $this->action_msg_admin_only();
+		}
+		
+		// 言語ファイルの読み込み
+		$this->load_language();
+
+		// 管理画面モード指定
+		if ($this->root->module['platform'] == "xoops") {
+			$this->root->runmode = "xoops_admin";
+		}
 	
 		if ($this->cont['PKWK_READONLY']) $this->func->die_message('PKWK_READONLY prohibits this');
 		

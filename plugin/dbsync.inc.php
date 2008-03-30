@@ -1,21 +1,11 @@
 <?php
 //
 // Created on 2006/11/17 by nao-pon http://hypweb.net/
-// $Id: dbsync.inc.php,v 1.26 2008/03/14 04:05:39 nao-pon Exp $
+// $Id: dbsync.inc.php,v 1.27 2008/03/30 04:27:44 nao-pon Exp $
 //
 
 class xpwiki_plugin_dbsync extends xpwiki_plugin {
 
-	function plugin_dbsync_init()
-	{
-		// 言語ファイルの読み込み
-		$this->load_language();
-	}
-	
-	function plugin_dbsync_convert() {
-		return '';
-	}
-	
 	function plugin_dbsync_action()
 	{
 		// 権限チェック
@@ -23,6 +13,9 @@ class xpwiki_plugin_dbsync extends xpwiki_plugin {
 			return $this->action_msg_admin_only();
 		}
 
+		// 言語ファイルの読み込み
+		$this->load_language();
+		
 		$pmode = (empty($this->root->post['pmode']))? '' : $this->root->post['pmode'];
 		$page = (empty($this->root->vars['page']))? '' : $this->root->vars['page'];
 
