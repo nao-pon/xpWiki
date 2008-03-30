@@ -1,6 +1,6 @@
 <?php
 // PukiWiki - Yet another WikiWikiWeb clone.
-// $Id: edit.inc.php,v 1.56 2008/03/17 05:20:28 nao-pon Exp $
+// $Id: edit.inc.php,v 1.57 2008/03/30 04:29:16 nao-pon Exp $
 // Copyright (C) 2001-2006 PukiWiki Developers Team
 // License: GPL v2 or (at your option) any later version
 //
@@ -116,6 +116,7 @@ EOD;
 			$postdata = $this->func->make_str_rules($postdata);
 			$postdata = explode("\n", $postdata);
 			$postdata = $this->func->drop_submit($this->func->convert_html($postdata));
+			$this->func->convert_finisher($postdata);
 			// Add target="_blank"
 			$postdata = preg_replace_callback(
 						'/(<script.*?<\/script>)|(<a[^>]+)>/isS' ,
