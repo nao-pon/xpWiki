@@ -2,7 +2,7 @@
 /////////////////////////////////////////////////
 // PukiWiki - Yet another WikiWikiWeb clone.
 //
-// $Id: region.inc.php,v 1.9 2008/03/25 02:20:23 nao-pon Exp $
+// $Id: region.inc.php,v 1.10 2008/03/30 04:31:32 nao-pon Exp $
 //
 
 class xpwiki_plugin_region extends xpwiki_plugin {
@@ -90,6 +90,7 @@ class XpWikiRegionPluginHTMLBuilder
 	}
 	function build(){
 		$this->callcount++;
+		$this->elemid = '__uNIQUEiD__' . $this->callcount;
 		$html = array();
 		// °Ê¹ß¡¢£È£Ô£Í£ÌºîÀ®½èÍý
 		array_push( $html, $this->buildButtonHtml() );
@@ -114,18 +115,18 @@ class XpWikiRegionPluginHTMLBuilder
 		return <<<EOD
 {$areadiv_closer}<table cellpadding="1" cellspacing="2" style="width:auto;"><tr>
 <td valign="top">
-	<span id="rgn_button{$this->callcount}" style="cursor:pointer;font:normal 10px £Í£Ó £Ð¥´¥·¥Ã¥¯;border:gray 1px solid;"
+	<span id="rgn_button{$this->elemid}" style="cursor:pointer;font-wight:normal;font-size:10px;font-family:monospace;border:gray 1px solid;"
 	onclick="
-	if(\$('rgn_summary$this->callcount').style.display!='none'){
-		\$('rgn_summary$this->callcount').style.display='none';
-		\$('rgn_content$this->callcount').style.display='';
-		\$('rgn_bracket$this->callcount').style.borderStyle='solid none solid solid';
-		\$('rgn_button$this->callcount').innerHTML='-';
+	if(\$('rgn_summary$this->elemid').style.display!='none'){
+		\$('rgn_summary$this->elemid').style.display='none';
+		\$('rgn_content$this->elemid').style.display='';
+		\$('rgn_bracket$this->elemid').style.borderStyle='solid none solid solid';
+		\$('rgn_button$this->elemid').innerHTML='-';
 	}else{
-		\$('rgn_summary$this->callcount').style.display='';
-		\$('rgn_content$this->callcount').style.display='none';
-		\$('rgn_bracket$this->callcount').style.borderStyle='none';
-		\$('rgn_button$this->callcount').innerHTML='+';
+		\$('rgn_summary$this->elemid').style.display='';
+		\$('rgn_content$this->elemid').style.display='none';
+		\$('rgn_bracket$this->elemid').style.borderStyle='none';
+		\$('rgn_button$this->elemid').innerHTML='+';
 	}
 	">$button</span>
 </td>
@@ -136,7 +137,7 @@ EOD;
 	function buildBracketHtml(){
 		$bracketstyle = ($this->isopened) ? "border-style: solid none solid solid;" : "border-style:none;";
 		return <<<EOD
-<td id="rgn_bracket{$this->callcount}" style="font-size:1pt;border:gray 1px;{$bracketstyle}">&nbsp;</td>
+<td id="rgn_bracket{$this->elemid}" style="font-size:1pt;border:gray 1px;{$bracketstyle}">&nbsp;</td>
 EOD;
 	}
 
@@ -144,7 +145,7 @@ EOD;
 	function buildSummaryHtml(){
 		$summarystyle = ($this->isopened) ? "display:none;" : "display:block;";
 		return <<<EOD
-<td id="rgn_summary{$this->callcount}" style="color:gray;border:gray 1px solid;{$summarystyle}">$this->description</td>
+<td id="rgn_summary{$this->elemid}" style="color:gray;border:gray 1px solid;{$summarystyle}">$this->description</td>
 EOD;
 	}
 
@@ -152,7 +153,7 @@ EOD;
 	function buildContentHtml(){
 		$contentstyle = ($this->isopened || $this->body) ? "display:block;" : "display:none;";
 		return <<<EOD
-<td valign="top" id="rgn_content{$this->callcount}" style="{$contentstyle}">
+<td valign="top" id="rgn_content{$this->elemid}" style="{$contentstyle}">
 EOD;
 	}
 
@@ -166,7 +167,7 @@ EOD;
 			$js = <<<EOD
 <script type="text/javascript">
 //<![CDATA[
-\$('rgn_content{$this->callcount}').style.display='none';
+\$('rgn_content{$this->elemid}').style.display='none';
 //]]>
 </script>
 EOD;
