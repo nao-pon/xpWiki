@@ -1,26 +1,23 @@
 <?php
 // PukiWiki - Yet another WikiWikiWeb clone
-// $Id: rename.inc.php,v 1.10 2008/03/06 23:36:48 nao-pon Exp $
+// $Id: rename.inc.php,v 1.11 2008/03/30 04:27:44 nao-pon Exp $
 //
 // Rename plugin: Rename page-name and related data
 //
 // Usage: http://path/to/pukiwikiphp?plugin=rename[&refer=page_name]
 
 class xpwiki_plugin_rename extends xpwiki_plugin {
-	function plugin_rename_init () {
-
-		// 管理画面モード指定
-		// 便宜上、ログインしていなくてもパスワードで実行できるようにしておく。
-		if ($this->root->userinfo['admin'] && $this->root->module['platform'] == "xoops") {
-			$this->root->runmode = "xoops_admin";
-		}
-	}
-	
 	function plugin_rename_action()
 	{
 	//	global $whatsnew;
 	
 		if ($this->cont['PKWK_READONLY']) $this->func->die_message('PKWK_READONLY prohibits this');
+		
+		// 管理画面モード指定
+		// 便宜上、ログインしていなくてもパスワードで実行できるようにしておく。
+		if ($this->root->userinfo['admin'] && $this->root->module['platform'] == "xoops") {
+			$this->root->runmode = "xoops_admin";
+		}
 	
 		$method = $this->plugin_rename_getvar('method');
 		if ($method == 'regex') {

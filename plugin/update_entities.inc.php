@@ -1,6 +1,6 @@
 <?php
 // PukiWiki - Yet another WikiWikiWeb clone
-// $Id: update_entities.inc.php,v 1.4 2008/03/06 23:49:15 nao-pon Exp $
+// $Id: update_entities.inc.php,v 1.5 2008/03/30 04:27:44 nao-pon Exp $
 //
 // Update entities plugin - Update XHTML entities from DTD
 // (for admin)
@@ -12,9 +12,6 @@ class xpwiki_plugin_update_entities extends xpwiki_plugin {
 	{
 		// DTDの場所
 		$this->cont['W3C_XHTML_DTD_LOCATION'] =  'http://www.w3.org/TR/xhtml1/DTD/';
-
-		// 言語ファイルの読み込み
-		$this->load_language();
 	}
 	
 	function plugin_update_entities_action()
@@ -23,6 +20,9 @@ class xpwiki_plugin_update_entities extends xpwiki_plugin {
 		if (!$this->root->userinfo['admin']) {
 			return $this->action_msg_admin_only();
 		}
+		
+		// 言語ファイルの読み込み
+		$this->load_language();
 
 		// 管理画面モード指定
 		if ($this->root->module['platform'] == "xoops") {
