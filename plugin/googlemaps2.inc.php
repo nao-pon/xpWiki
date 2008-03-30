@@ -163,7 +163,8 @@ class xpwiki_plugin_googlemaps2 extends xpwiki_plugin {
 			// maxContent用のレイアウトスタイルでページのbodyを出力
 			case 'showbody':
 				if ($this->func->is_page($page)) {
-					$body = $this->func->convert_html($this->func->get_source($page));	
+					$body = $this->func->convert_html($this->func->get_source($page));
+					$this->func->convert_finisher($body);
 				} else {
 					if ($page == '') {
 						$page = '(Empty Page Name)';
