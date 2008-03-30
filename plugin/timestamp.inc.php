@@ -1,12 +1,10 @@
 <?php
 /*
  * Created on 2007/06/03 by nao-pon http://hypweb.net/
- * $Id: timestamp.inc.php,v 1.3 2008/03/06 23:49:15 nao-pon Exp $
+ * $Id: timestamp.inc.php,v 1.4 2008/03/30 04:25:34 nao-pon Exp $
  */
 
 class xpwiki_plugin_timestamp extends xpwiki_plugin {
-	function plugin_timestamp_init () {
-	}
 	
 	function plugin_timestamp_action () {
 		$pmode = (isset($this->root->vars['pmode']))? $this->root->vars['pmode'] : ''; 
