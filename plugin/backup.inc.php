@@ -1,6 +1,6 @@
 <?php
 // PukiWiki - Yet another WikiWikiWeb clone.
-// $Id: backup.inc.php,v 1.10 2007/12/14 00:02:08 nao-pon Exp $
+// $Id: backup.inc.php,v 1.11 2008/03/30 04:28:51 nao-pon Exp $
 // Copyright (C)
 //   2002-2005 PukiWiki Developers Team
 //   2001-2002 Originally written by yu-ji
@@ -249,6 +249,7 @@ EOD;
 				$src = explode("\n", $src);
 				
 				$body .= $this->func->drop_submit($this->func->convert_html($src));
+				$this->func->convert_finisher($body);
 			}
 		}
 		
