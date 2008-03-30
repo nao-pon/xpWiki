@@ -1,7 +1,7 @@
 <?php
 //
 // Created on 2006/10/02 by nao-pon http://hypweb.net/
-// $Id: xpwiki_func.php,v 1.158 2008/03/25 02:20:24 nao-pon Exp $
+// $Id: xpwiki_func.php,v 1.159 2008/03/30 04:30:45 nao-pon Exp $
 //
 class XpWikiFunc extends XpWikiXoopsWrapper {
 
@@ -1614,15 +1614,19 @@ EOD;
 
 	
 	function convert_finisher (& $body) {
+		static $uniqueid = 0;
+		$uniqueid++;
+		
 		// 長い英数を折り返す
 		if ($this->root->word_break_limit && HypCommonFunc::get_version() >= '20080217') {
 			HypCommonFunc::html_wordwrap($body, $this->root->word_break_limit, $this->root->word_breaker);
 		}
 
 		// cont['USER_NAME_REPLACE'] などを 置換
+		// '_uNIQUEiD_' : Unique ID (Inreger)
 		$body = str_replace(
-				array($this->cont['USER_NAME_REPLACE'], $this->cont['USER_CODE_REPLACE']) ,
-				array($this->root->userinfo['uname_s'], $this->root->userinfo['ucd']) ,
+				array($this->cont['USER_NAME_REPLACE'], $this->cont['USER_CODE_REPLACE'], '_uNIQUEiD_') ,
+				array($this->root->userinfo['uname_s'], $this->root->userinfo['ucd'], $uniqueid) ,
 				$body);
 		
 		// For Safari
