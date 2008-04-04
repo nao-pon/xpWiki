@@ -631,10 +631,11 @@ class XpWikiCodeHighlight {
 		else
 			$html = substr($html, 0, -1);
 		
+		$end = substr_count($html, "\n") + $begin;
 		$html = array('src' => $html, 'number' => '', 'outline' => '', 'blocknum' => $this->blockno);
 		if($option['outline']) 
-			return $this->makeOutline($html, $option['number'],$num_of_line-1, $begin); // 最後に改行を削除したため -1
-		if($option['number']) $html['number'] = xpwiki_plugin_code::_plugin_code_makeNumber($num_of_line-1, $begin); 
+			return $this->makeOutline($html, $option['number'],$end, $begin);
+		if($option['number']) $html['number'] = xpwiki_plugin_code::_plugin_code_makeNumber($end, $begin); 
 		return $html;
 	}
     /**
@@ -1201,10 +1202,11 @@ class XpWikiCodeHighlight {
 		else
 			$html = substr($html, 0, -1);
 
+		$end = substr_count($html, "\n") + $begin;
 		$html = array('src' => $html, 'number' => '', 'outline' => '', 'blocknum' => $this->blockno);
 		if($option['outline']) 
-			return $this->makeOutline($html, $option['number'],$num_of_line-1, $begin); // 最後に改行を削除したため -1
-		if($option['number']) $html['number'] = xpwiki_plugin_code::_plugin_code_makeNumber($num_of_line-1, $begin); 
+			return $this->makeOutline($html, $option['number'],$end, $begin); // 最後に改行を削除したため -1
+		if($option['number']) $html['number'] = xpwiki_plugin_code::_plugin_code_makeNumber($end, $begin); 
 		return $html;
 	}
 
