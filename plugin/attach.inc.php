@@ -2,7 +2,7 @@
 /////////////////////////////////////////////////
 // PukiWiki - Yet another WikiWikiWeb clone.
 //
-//  $Id: attach.inc.php,v 1.37 2008/03/24 09:08:49 nao-pon Exp $
+//  $Id: attach.inc.php,v 1.38 2008/04/04 23:50:26 nao-pon Exp $
 //  ORG: attach.inc.php,v 1.31 2003/07/27 14:15:29 arino Exp $
 //
 /*
@@ -479,7 +479,11 @@ class xpwiki_plugin_attach extends xpwiki_plugin {
 			$this->ref_replace($page, $this->root->vars['refid'], $obj->file, $obj->status['imagesize']);
 		}
 		
-		return array('result'=>TRUE,'msg'=>$this->root->_attach_messages['msg_uploaded']);
+		return array(
+			'result'   => TRUE,
+			'msg'      => $this->root->_attach_messages['msg_uploaded'],
+			'name'     => $obj->file
+		);
 	}
 	
 	// ref プラグインのソース置換
