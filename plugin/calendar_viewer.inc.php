@@ -1,6 +1,6 @@
 <?php
 // PukiWiki - Yet another WikiWikiWeb clone
-// $Id: calendar_viewer.inc.php,v 1.11 2007/12/08 12:11:50 nao-pon Exp $
+// $Id: calendar_viewer.inc.php,v 1.12 2008/04/04 23:53:02 nao-pon Exp $
 //
 // Calendar viewer plugin - List pages that calendar/calnedar2 plugin created
 // (Based on calendar and recent plugin)
@@ -236,18 +236,14 @@ class xpwiki_plugin_calendar_viewer extends xpwiki_plugin {
 			}
 			$prev_YM = sprintf('%04d%s%02d', $prev_year, $date_sep, $prev_month);
 			if ($mode == 'past') {
-				//$right_YM   = $prev_YM;
-				//$right_text = $prev_YM . '&gt;&gt;'; // >>
-				//$left_YM    = $next_YM;
-				//$left_text  = '&lt;&lt;' . $next_YM; // <<
 				$left_YM    = str_replace($date_sep, '', $prev_YM);
 				$left_text  = '&lt;&lt;' . $prev_YM; // <<
-				$right_YM   = $next_YM;
+				$right_YM   = str_replace($date_sep, '', $next_YM);
 				$right_text = $next_YM . '&gt;&gt;'; // >>
 			} else {
 				$left_YM    = str_replace($date_sep, '', $prev_YM);
 				$left_text  = '&lt;&lt;' . $prev_YM; // <<
-				$right_YM   = $next_YM;
+				$right_YM   = str_replace($date_sep, '', $next_YM);
 				$right_text = $next_YM . '&gt;&gt;'; // >>
 			}
 		} else {
