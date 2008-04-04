@@ -2,7 +2,7 @@
 /////////////////////////////////////////////////
 // PukiWiki - Yet another WikiWikiWeb clone.
 //
-// $Id: isbn.inc.php,v 1.4 2008/02/29 23:39:10 nao-pon Exp $
+// $Id: isbn.inc.php,v 1.5 2008/04/04 23:54:58 nao-pon Exp $
 //
 // *0.5: URL が存在しない場合、画像を表示しない。
 //			 Thanks to reimy.
@@ -13,7 +13,7 @@ class xpwiki_plugin_isbn extends xpwiki_plugin {
 	function plugin_isbn_init () {
 		/////////////////////////////////////////////////
 		// AmazonアソシエイトID
-		$this->config['AMAZON_ASE_ID'] = 'hypweb-22';
+		$this->config['AMAZON_ASE_ID'] = '';
 		// amazon 商品情報問合せ URI(dev-t はマニュアルのディフォルト値)
 		$this->config['ISBN_AMAZON_XML'] = 'http://xml.amazon.co.jp/onca/xml3?t=webservices-20&dev-t=GTYDRES564THU&type=lite&page=1&f=xml&locale=jp&AsinSearch=';
 		// amazon shop URI (_ISBN_ に商品IDがセットされる)
@@ -28,10 +28,10 @@ class xpwiki_plugin_isbn extends xpwiki_plugin {
 		$this->config['ISBN_AMAZON_EXPIRE_TIT'] = 1;
 		// NoImage file.
 		$this->config['NOIMAGE'] = $this->cont['IMAGE_DIR'] . 'noimage.png';
-		
+
 		// 言語ファイルの読み込み
 		$this->load_language();
-		
+	
 	}
 	
 	
