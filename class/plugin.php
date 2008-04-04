@@ -1,7 +1,7 @@
 <?php
 //
 // Created on 2006/10/05 by nao-pon http://hypweb.net/
-// $Id: plugin.php,v 1.8 2008/03/12 23:52:20 nao-pon Exp $
+// $Id: plugin.php,v 1.9 2008/04/04 23:43:08 nao-pon Exp $
 //
 
 
@@ -20,31 +20,37 @@ class xpwiki_plugin {
 		$this->root   = & $func->root;
 		$this->cont   = & $func->cont;
 		$this->func   = & $func;
+		
+		$this->language_loaded = FALSE;
 	}
 	
 	// 言語ファイルの読み込み
 	function load_language () {
-		$uilang = $this->cont['UI_LANG'] . $this->cont['FILE_ENCORD_EXT'];
-		
-		if (! in_array($uilang, $this->cont['OFFICIAL_LANGS'])) {
-			// Load base language file.
-			include ($this->root->mytrustdirpath.'/language/xpwiki/en/plugin/'.$this->name.'.lng.php');
-			$this->msg = $msg;
-		}
-		
-		$lang = $this->root->mytrustdirpath.'/language/xpwiki/' . $uilang . '/plugin/'.$this->name.'.lng.php';
-		if (file_exists($lang)) {
-			include ($lang);
-			$this->msg = $msg;
-		} else {
-			$uilang = 'en';
-		}
-
-		// html側にファイルがあれば上書き
-		$lang = $this->root->mydirpath.'/language/xpwiki/' . $uilang . '/plugin/'.$this->name.'.lng.php';
-		if (file_exists($lang)) {
-			include ($lang);
-			$this->msg = array_merge($this->msg, $msg);
+		if (! $this->language_loaded) {
+			$this->language_loaded = TRUE;
+			
+			$uilang = $this->cont['UI_LANG'] . $this->cont['FILE_ENCORD_EXT'];
+			
+			if (! in_array($uilang, $this->cont['OFFICIAL_LANGS'])) {
+				// Load base language file.
+				include ($this->root->mytrustdirpath.'/language/xpwiki/en/plugin/'.$this->name.'.lng.php');
+				$this->msg = $msg;
+			}
+			
+			$lang = $this->root->mytrustdirpath.'/language/xpwiki/' . $uilang . '/plugin/'.$this->name.'.lng.php';
+			if (file_exists($lang)) {
+				include ($lang);
+				$this->msg = $msg;
+			} else {
+				$uilang = 'en';
+			}
+	
+			// html側にファイルがあれば上書き
+			$lang = $this->root->mydirpath.'/language/xpwiki/' . $uilang . '/plugin/'.$this->name.'.lng.php';
+			if (file_exists($lang)) {
+				include ($lang);
+				$this->msg = array_merge($this->msg, $msg);
+			}
 		}
 	}
 	
