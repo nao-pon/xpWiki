@@ -1,21 +1,19 @@
 <?php
+// PukiWiki - Yet another WikiWikiWeb clone.
+// $Id: search.inc.php,v 1.6 2008/04/04 23:56:01 nao-pon Exp $
+//
+// Search plugin
 class xpwiki_plugin_search extends xpwiki_plugin {
 	function plugin_search_init () {
-
-
-	// PukiWiki - Yet another WikiWikiWeb clone.
-	// $Id: search.inc.php,v 1.5 2008/02/11 00:24:59 nao-pon Exp $
-	//
-	// Search plugin
 	
-	// Allow search via GET method 'index.php?plugin=search&word=keyword'
-	// NOTE: Also allows DoS to your site more easily by SPAMbot or worm or ...
+		// Allow search via GET method 'index.php?plugin=search&word=keyword'
+		// NOTE: Also allows DoS to your site more easily by SPAMbot or worm or ...
 		$this->cont['PLUGIN_SEARCH_DISABLE_GET_ACCESS'] =  0; // 1, 0
 	
 		$this->cont['PLUGIN_SEARCH_MAX_LENGTH'] =  80;
 		$this->cont['PLUGIN_SEARCH_MAX_BASE'] =    16; // #search(1,2,3,...,15,16)
 
-		// Œ¾Œêƒtƒ@ƒCƒ‹‚Ì“Ç‚Ýž‚Ý
+		// Load Language
 		$this->load_language();
 	}
 	
@@ -35,7 +33,6 @@ class xpwiki_plugin_search extends xpwiki_plugin {
 	
 	function plugin_search_action()
 	{
-	//	global $post, $vars, $_title_result, $_title_search, $_msg_searching;
 	
 		if ($this->cont['PLUGIN_SEARCH_DISABLE_GET_ACCESS']) {
 			$s_word = isset($this->root->post['word']) ? htmlspecialchars($this->root->post['word']) : '';
@@ -81,8 +78,6 @@ class xpwiki_plugin_search extends xpwiki_plugin {
 	
 	function plugin_search_search_form($s_word = '', $type = '', $bases = array())
 	{
-	//	global $script, $_btn_and, $_btn_or, $_btn_search;
-	//	global $_search_pages, $_search_all;
 	
 		$and_check = $or_check = '';
 		if ($type == 'OR') {
@@ -132,13 +127,13 @@ EOD;
  <div>
   <input type="hidden" name="cmd" value="search" />
   <input type="text"  name="word" value="$s_word" size="20" />
-  <input type="radio" name="type" id="_p_search_AND" value="AND" $and_check />&nbsp;<label for="_p_search_AND">{$this->root->_btn_and}</label>
-  <input type="radio" name="type" id="_p_search_OR"  value="OR"  $or_check  />&nbsp;<label for="_p_search_OR">{$this->root->_btn_or}</label>
+  <span class="nowrap"><input type="radio" name="type" id="_p_search_AND" value="AND" $and_check />&nbsp;<label for="_p_search_AND">{$this->root->_btn_and}</label></span>
+  <span class="nowrap"><input type="radio" name="type" id="_p_search_OR"  value="OR"  $or_check  />&nbsp;<label for="_p_search_OR">{$this->root->_btn_or}</label></span>
   &nbsp;<input type="submit" value="{$this->root->_btn_search}" />
   <p>
-  <input type="checkbox" name="search_name" id="_p_search_name" value="1"{$search_check['name']} />&nbsp;<label for="_p_search_name">{$this->msg['btn_search_name']}</label>&nbsp;
-  <input type="checkbox" name="search_text" id="_p_search_text" value="1"{$search_check['text']} />&nbsp;<label for="_p_search_text">{$this->msg['btn_search_text']}</label>&nbsp;
-  <input type="checkbox" name="search_source" id="_p_search_source" value="1"{$search_check['source']} />&nbsp;<label for="_p_search_source">{$this->msg['btn_search_source']}</label>
+  <span class="nowrap"><input type="checkbox" name="search_name" id="_p_search_name" value="1"{$search_check['name']} />&nbsp;<label for="_p_search_name">{$this->msg['btn_search_name']}</label></span>&nbsp;
+  <span class="nowrap"><input type="checkbox" name="search_text" id="_p_search_text" value="1"{$search_check['text']} />&nbsp;<label for="_p_search_text">{$this->msg['btn_search_text']}</label></span>&nbsp;
+  <span class="nowrap"><input type="checkbox" name="search_source" id="_p_search_source" value="1"{$search_check['source']} />&nbsp;<label for="_p_search_source">{$this->msg['btn_search_source']}</label></span>
   </p>
  </div>
 $base_option
