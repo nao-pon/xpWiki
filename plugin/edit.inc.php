@@ -1,6 +1,6 @@
 <?php
 // PukiWiki - Yet another WikiWikiWeb clone.
-// $Id: edit.inc.php,v 1.57 2008/03/30 04:29:16 nao-pon Exp $
+// $Id: edit.inc.php,v 1.58 2008/04/04 23:53:27 nao-pon Exp $
 // Copyright (C) 2001-2006 PukiWiki Developers Team
 // License: GPL v2 or (at your option) any later version
 //
@@ -379,8 +379,8 @@ EOD;
 		}
 
 		// NULL POSTING, OR removing existing page
-		if ($postdata == '') {
-			$this->func->page_write($page, $postdata);
+		if (! $postdata) {
+			$this->func->page_write($page, '');
 	
 			if ($this->root->trackback) $this->func->tb_delete($page);
 			
