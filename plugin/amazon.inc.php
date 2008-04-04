@@ -1,6 +1,6 @@
 <?php
 // PukiWiki - Yet another WikiWikiWeb clone.
-// $Id: amazon.inc.php,v 1.5 2008/02/25 03:15:38 nao-pon Exp $
+// $Id: amazon.inc.php,v 1.6 2008/04/04 23:48:43 nao-pon Exp $
 // Id: amazon.inc.php,v 1.1 2003/07/24 13:00:00 ´×¼Ë
 //
 // Amazon plugin: Book-review maker via amazon.com/amazon.jp
@@ -55,7 +55,6 @@ class xpwiki_plugin_amazon extends xpwiki_plugin {
 		// Settings
 		
 		// Amazon associate ID
-		//define('PLUGIN_AMAZON_AID',''); // None
 		$this->cont['PLUGIN_AMAZON_AID'] = '';
 	
 		// Expire caches per ? days
