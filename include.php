@@ -1,7 +1,7 @@
 <?php
 //
 // Created on 2006/10/03 by nao-pon http://hypweb.net/
-// $Id: include.php,v 1.11 2008/03/24 09:08:49 nao-pon Exp $
+// $Id: include.php,v 1.12 2008/04/04 23:40:32 nao-pon Exp $
 //
 
 if (! defined('_XPWIKI_FILES_LOADED')) {
@@ -14,39 +14,39 @@ if (! defined('_XPWIKI_FILES_LOADED')) {
 	}
 	
 	// Set 'memory_limit'
-	if ($_xpwiki_memory_limit = HypCommonFunc::return_bytes(ini_get('memory_limit'))) {
-		if ($_xpwiki_memory_limit < 32768) ini_set('memory_limit', 32768);
-	}
+	// 64M = 64 * 1024 * 1024 = 67108864 bytes
+	if (HypCommonFunc::return_bytes(ini_get('memory_limit')) < 67108864) ini_set('memory_limit', '64M');
 	
-	include($mytrustdirpath."/class/xpwiki.php");
+	include($mytrustdirpath.'/class/xpwiki.php');
 	
-	include($mytrustdirpath."/class/root.php");
+	include($mytrustdirpath.'/class/root.php');
 	
-	include($mytrustdirpath."/class/func/base_func.php");
-	include($mytrustdirpath."/class/func/pukiwiki_func.php");
+	include($mytrustdirpath.'/class/func/base_func.php');
+	include($mytrustdirpath.'/class/func/pukiwiki_func.php');
 	if (extension_loaded('zlib')) {
-		include($mytrustdirpath."/class/func/backup_gzip.php");
+		include($mytrustdirpath.'/class/func/backup_gzip.php');
 	} else {
-		include($mytrustdirpath."/class/func/backup_text.php");
+		include($mytrustdirpath.'/class/func/backup_text.php');
 	}
-	include($mytrustdirpath."/class/func/xoops_wrapper.php");
-	include($mytrustdirpath."/class/func/xpwiki_func.php");
+	include($mytrustdirpath.'/class/func/xoops_wrapper.php');
+	include($mytrustdirpath.'/class/func/xpwiki_func.php');
 	
-	include($mytrustdirpath."/class/extension.php");
+	include($mytrustdirpath.'/class/extension.php');
 	
-	include($mytrustdirpath."/class/plugin.php");
+	include($mytrustdirpath.'/class/plugin.php');
 	
-	include($mytrustdirpath."/class/convert_html.php");
+	include($mytrustdirpath.'/class/convert_html.php');
 	
-	include($mytrustdirpath."/class/make_link.php");
+	include($mytrustdirpath.'/class/make_link.php');
 	
-	include($mytrustdirpath."/class/diff.php");
+	include($mytrustdirpath.'/class/diff.php');
 	
-	include($mytrustdirpath."/class/config.php");
+	include($mytrustdirpath.'/class/config.php');
 	
-	include($mytrustdirpath."/class/attach.php");
+	include($mytrustdirpath.'/plugin/attach.inc.php');
+	include($mytrustdirpath.'/class/attach.php');
 	
 	// add compat functions
-	include($mytrustdirpath."/include/compat.php");
+	include($mytrustdirpath.'/include/compat.php');
 }
 ?>
