@@ -1,7 +1,7 @@
 <?php
 /*
  * Created on 2008/02/28 by nao-pon http://hypweb.net/
- * $Id: aws.inc.php,v 1.1 2008/02/29 23:52:08 nao-pon Exp $
+ * $Id: aws.inc.php,v 1.2 2008/04/04 23:51:40 nao-pon Exp $
  */
 
 /////////////////////////////////////////////////
@@ -11,21 +11,21 @@ class xpwiki_plugin_aws extends xpwiki_plugin {
 
 	function plugin_aws_init() {
 		//////// Config ///////
-		$this->config = array(
-			'amazon_t'     => '',   // Associates ID
-			'cache_time'   => 1440, // Cache time (min) 1440min = 24h
-			'template_map' => array(
-								// Template mapping
-								'From name' => 'To name',
-							),
+		$this->config['amazon_t']     = '';   // Associates ID
+		$this->config['cache_time']   = 1440; // Cache time (min) 1440min = 24h
+		$this->config['template_map'] = array(
+			// Template mapping
+			'From name' => 'To name',
 		);
-		$this->load_language();
 	}
 
 	function plugin_aws_convert() {
+
 		if (HypCommonFunc::get_version() < 20080224) {
 			return '#aws require "HypCommonFunc" >= Ver. 20080224';
 		}
+
+		$this->load_language();
 
 		list($f, $m, $k, $b, $s, $noheader) = array_pad(func_get_args(), 6, '');
 	
