@@ -505,7 +505,7 @@ function p_googlemaps_regist_marker (page, mapname, center, key, option) {
 		page = mapname.match(/(^.*?)_/)[1];
 		mapname = mapname.replace(/^.*?_/, "");
 		alert("googlemaps2: '" + option.title + "' It failed in the marker's registration." + 
-		"Page��" + page + ", Not found map name '" + mapname + "'.");
+		"PageName: " + page + ", Not found map name '" + mapname + "'.");
 		return;
 	}
 	option.title = option.title.replace(/&lt;/g, '<');
@@ -530,7 +530,7 @@ function p_googlemaps_regist_to_markermanager (page, mapname, use_marker_mgr) {
 	var markers = googlemaps_markers[page][mapname];
 	
 	if (use_marker_mgr == false) {
-		for (key in markers) {
+		for ( var key in markers) {
 			if (!markers.hasOwnProperty(key)) continue;
 			var m = markers[key];
 
@@ -573,6 +573,25 @@ function p_googlemaps_regist_to_markermanager (page, mapname, use_marker_mgr) {
 		}
 	}
 	mgr.refresh();
+}
+
+function p_googlemaps_auto_zoom (page, mapname) {
+		var gb;
+		var first = 1;
+		var map = googlemaps_maps[page][mapname];
+		var markers = googlemaps_markers[page][mapname];
+		for( var key in markers ){
+			if (!markers.hasOwnProperty(key)) continue;
+			var marker = markers[key].marker;
+			if( first ){
+				gb = new GLatLngBounds( marker.getPoint(), marker.getPoint() );
+				first = 0;
+			}else{
+				var point = marker.getPoint();
+				gb.extend( point );
+			}
+		}
+		map.setCenter( gb.getCenter(), map.getBoundsZoomLevel( gb ) );
 }
 
 document.observe("dom:loaded", function() {

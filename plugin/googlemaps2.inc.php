@@ -82,6 +82,7 @@ class xpwiki_plugin_googlemaps2 extends xpwiki_plugin {
 		$this->cont['PLUGIN_GOOGLEMAPS2_DEF_BACKLINKMARKER'] =  false;	//バックリンクでマーカーを集める
 		
 		$this->cont['PLUGIN_GOOGLEMAPS2_DEF_WIKITAG'] = 'hide';	//このマップのWiki記法 (none, hide, show)
+		$this->cont['PLUGIN_GOOGLEMAPS2_DEF_AUTOZOOM'] = false;	//自動ズームですべてのマーカーを表示
 	
 		//Pukiwikiは1.4.5から携帯電話などのデバイスごとにプロファイルを用意して
 		//UAでスキンを切り替えて表示できるようになったが、この定数ではGoogleMapsを
@@ -131,6 +132,7 @@ class xpwiki_plugin_googlemaps2 extends xpwiki_plugin {
 			'importicon'	 => $this->cont['PLUGIN_GOOGLEMAPS2_DEF_IMPORTICON'],
 			'backlinkmarker' => $this->cont['PLUGIN_GOOGLEMAPS2_DEF_BACKLINKMARKER'],
 			'wikitag'        => $this->cont['PLUGIN_GOOGLEMAPS2_DEF_WIKITAG'],
+			'autozoom'       => $this->cont['PLUGIN_GOOGLEMAPS2_DEF_AUTOZOOM'],
 		);
 	}
 	
@@ -270,6 +272,7 @@ EOD;
 		$importicon		= $options['importicon'];
 		$backlinkmarker = $this->plugin_googlemaps2_getbool($options['backlinkmarker']);
 		$wikitag        = $options['wikitag'];
+		$autozoom       = $options['autozoom'];
 		
 		$page = $this->get_pgid($this->root->vars['page']);
 		//apiのチェック
@@ -360,7 +363,7 @@ var marker_mgr = new GMarkerManager(map);
 // 一度表示されて消えるみたいな挙動になるが、他に手段が無いので仕方が無い。
 GEvent.addListener(marker_mgr, "changed", function(bounds, markerCount) {
 	var markers = googlemaps_markers["$page"]["$mapname"];
-	for (key in markers) {
+	for (var key in markers) {
 		if (!markers.hasOwnProperty(key)) continue;
 		var m = markers[key];
 		if (m.isVisible() == false) {
@@ -369,7 +372,14 @@ GEvent.addListener(marker_mgr, "changed", function(bounds, markerCount) {
 	}
 });
 EOD;
-
+		// Auto Zoom
+		if ($autozoom) {
+			$output .= <<<EOD
+onloadfunc2.push( function () {
+	p_googlemaps_auto_zoom("$page", "$mapname");
+});
+EOD;
+		}
 		// Show Map Control/Zoom 
 		switch($mapctrl) {
 			case "small":
