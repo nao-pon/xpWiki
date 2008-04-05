@@ -1,21 +1,20 @@
 <?php
+// PukiWiki - Yet another WikiWikiWeb clone.
+// $Id: new.inc.php,v 1.4 2008/04/05 04:49:00 nao-pon Exp $
+//
+// New! plugin
+//
+// Usage:
+//	&new([nodate]){date};     // Check the date string
+//	&new(pagename[,nolink]);  // Check the pages's timestamp
+//	&new(pagename/[,nolink]);
+//		// Check multiple pages started with 'pagename/',
+//		// and show the latest one
+
 class xpwiki_plugin_new extends xpwiki_plugin {
 	
 	function plugin_new_init()
 	{
-
-	// PukiWiki - Yet another WikiWikiWeb clone.
-	// $Id: new.inc.php,v 1.3 2006/12/01 01:44:38 nao-pon Exp $
-	//
-	// New! plugin
-	//
-	// Usage:
-	//	&new([nodate]){date};     // Check the date string
-	//	&new(pagename[,nolink]);  // Check the pages's timestamp
-	//	&new(pagename/[,nolink]);
-	//		// Check multiple pages started with 'pagename/',
-	//		// and show the latest one
-	
 		$this->cont['PLUGIN_NEW_DATE_FORMAT'] =  '<span class="comment_date">%s</span>';
 
 		// Elapsed time => New! message with CSS
@@ -27,7 +26,6 @@ class xpwiki_plugin_new extends xpwiki_plugin {
 	
 	function plugin_new_inline()
 	{
-	//	global $vars, $_plugin_new_elapses;
 	
 		$retval = '';
 		$args = func_get_args();
@@ -37,8 +35,9 @@ class xpwiki_plugin_new extends xpwiki_plugin {
 			// Show 'New!' message by the time of the $date string
 			if (func_num_args() > 2) return '&new([nodate]){date};';
 	
-			$timestamp = strtotime($date);
-			if ($timestamp === -1) return '&new([nodate]){date}: Invalid date string;';
+			$_date = str_replace(array_merge($this->root->weeklabels, array('(', ')')), '', $date);
+			$timestamp = strtotime($_date);
+			if ($timestamp === -1 || $timestamp === FALSE) return '&new([nodate]){date}: Invalid date string;';
 			$timestamp -= $this->cont['ZONETIME'];
 	
 			$retval = in_array('nodate', $args) ? '' : htmlspecialchars($date);
