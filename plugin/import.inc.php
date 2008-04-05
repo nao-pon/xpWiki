@@ -1,7 +1,7 @@
 <?php
 /*
  * Created on 2007/05/22 by nao-pon http://hypweb.net/
- * $Id: import.inc.php,v 1.9 2008/03/30 04:27:44 nao-pon Exp $
+ * $Id: import.inc.php,v 1.10 2008/04/05 04:53:11 nao-pon Exp $
  */
 
 class xpwiki_plugin_import extends xpwiki_plugin {
@@ -390,7 +390,7 @@ EOD;
 	function do_copy() {
 		// 実行時間セット
 		@ set_time_limit($this->timelimit);
-		$timelimit = time() + (min(ini_get('max_execution_time'),$this->timelimit)) - 5;
+		$timelimit = $this->cont['UTC'] + (min(ini_get('max_execution_time'),$this->timelimit)) - 5;
 
 		list($op, $files) = unserialize(file_get_contents($this->cont['CACHE_DIR'].'copy.import'));
 		// proceed
@@ -582,7 +582,7 @@ EOD;
 		
 		// 実行時間セット
 		@ set_time_limit($this->timelimit);
-		$timelimit = time() + (min(ini_get('max_execution_time'),$this->timelimit)) - 5;
+		$timelimit = $this->cont['UTC'] + (min(ini_get('max_execution_time'),$this->timelimit)) - 5;
 		
 		//更新したページ名
 		$result = array();

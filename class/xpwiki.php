@@ -1,7 +1,7 @@
 <?php
 //
 // Created on 2006/09/29 by nao-pon http://hypweb.net/
-// $Id: xpwiki.php,v 1.79 2008/03/24 09:07:54 nao-pon Exp $
+// $Id: xpwiki.php,v 1.80 2008/04/05 04:53:11 nao-pon Exp $
 //
 
 class XpWiki {
@@ -259,7 +259,7 @@ class XpWiki {
 					
 					// Background Run?
 					if (!empty($this->root->rtf['add_bgrun_img'])) {
-						$body .= '<div style="display:none;"><img src="'.$this->cont['HOME_URL'].'gate.php?way=bgrun&amp;t='.time().'&amp;page='.rawurlencode($root->vars['page']).'" width="1" height="1" /></div>';
+						$body .= '<div style="display:none;"><img src="'.$this->cont['HOME_URL'].'gate.php?way=bgrun&amp;t='.$this->cont['UTC'].'&amp;page='.rawurlencode($root->vars['page']).'" width="1" height="1" /></div>';
 					}
 				}
 			}
@@ -494,7 +494,7 @@ EOD;
 			$cache = $this->cont['RENDER_CACHE_DIR'] . 'render_' . sha1($text.$op) . '.' .  $this->cont['UI_LANG'];
 			if (file_exists($cache) &&
 				@ filemtime($this->cont['CACHE_DIR'] . 'pagemove.time') < filemtime($cache) &&
-				(empty($this->root->render_cache_min) || ((filemtime($cache) +  $this->root->render_cache_min * 60) > time()))
+				(empty($this->root->render_cache_min) || ((filemtime($cache) +  $this->root->render_cache_min * 60) > $this->cont['UTC']))
 			) {
 				$texts = file($cache);
 				$head_pre_tag = array_shift($texts);

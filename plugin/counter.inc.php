@@ -1,6 +1,6 @@
 <?php
 // PukiWiki - Yet another WikiWikiWeb clone
-// $Id: counter.inc.php,v 1.4 2008/02/08 08:25:21 nao-pon Exp $
+// $Id: counter.inc.php,v 1.5 2008/04/05 04:53:11 nao-pon Exp $
 // Copyright (C)
 //   2002-2005 PukiWiki Developers Team
 //   2002 Y.MASUI GPL2 http://masui.net/pukiwiki/ masui@masui.net
@@ -82,7 +82,7 @@ EOD;
 	
 		// Set default
 		$counters[$this->xpwiki->pid][$page] = $default[$this->xpwiki->pid];
-		$modify = FALSE;
+		$writed = $modify = FALSE;
 	
 		$file = $this->cont['COUNTER_DIR'] . $this->func->encode($page) . $this->cont['PLUGIN_COUNTER_SUFFIX'];
 		$fp = fopen($file, file_exists($file) ? 'r+' : 'w+')
@@ -95,17 +95,17 @@ EOD;
 			$counters[$this->xpwiki->pid][$page][$key] = rtrim(fgets($fp, 256));
 			if (feof($fp)) break;
 		}
-		if ($counters[$this->xpwiki->pid][$page]['date'] != $default[$this->xpwiki->pid]['date']) {
+		if ($counters[$this->xpwiki->pid][$page]['date'] !== $default[$this->xpwiki->pid]['date']) {
 			// New day
 			$modify = TRUE;
-			$is_yesterday = ($counters[$this->xpwiki->pid][$page]['date'] == $this->func->get_date('Y/m/d', strtotime('yesterday', $this->cont['UTIME'])));
+			$is_yesterday = ($counters[$this->xpwiki->pid][$page]['date'] === $this->func->get_date('Y/m/d', strtotime('yesterday', $this->cont['UTC'])));
 			$counters[$this->xpwiki->pid][$page]['ip']        = $_SERVER['REMOTE_ADDR'];
 			$counters[$this->xpwiki->pid][$page]['date']      = $default[$this->xpwiki->pid]['date'];
 			$counters[$this->xpwiki->pid][$page]['yesterday'] = $is_yesterday ? $counters[$this->xpwiki->pid][$page]['today'] : 0;
 			$counters[$this->xpwiki->pid][$page]['today']     = 1;
 			$counters[$this->xpwiki->pid][$page]['total']++;
 	
-		} else if ($counters[$this->xpwiki->pid][$page]['ip'] != $_SERVER['REMOTE_ADDR']) {
+		} else if ($counters[$this->xpwiki->pid][$page]['ip'] !== $_SERVER['REMOTE_ADDR']) {
 			// Not the same host
 			$modify = TRUE;
 			$counters[$this->xpwiki->pid][$page]['ip']        = $_SERVER['REMOTE_ADDR'];
@@ -113,19 +113,20 @@ EOD;
 			$counters[$this->xpwiki->pid][$page]['total']++;
 		}
 		// Modify
-		if ($modify && $this->root->vars['cmd'] == 'read') {
+		if ($modify && $this->root->vars['cmd'] === 'read') {
 			rewind($fp);
 			ftruncate($fp, 0);
 			foreach (array_keys($default[$this->xpwiki->pid]) as $key) {
 				fputs($fp, $counters[$this->xpwiki->pid][$page][$key] . "\n");
 				$$key = $counters[$this->xpwiki->pid][$page][$key];
 			}
+			$writed = TRUE;
 		}
 		flock($fp, LOCK_UN);
 		fclose($fp);
 		
 		// DB¤ò¹¹¿·
-		if (isset($total)) {
+		if ($writed && isset($total)) {
 			$pgid = $this->func->get_pgid_by_name($page);
 			
 			$query = "UPDATE ".$this->xpwiki->db->prefix($this->root->mydirname."_count")." SET `count`='$total',`today`='$date',`today_count`='$today',`yesterday_count`='$yesterday',`ip`='$ip' WHERE `pgid`='$pgid' LIMIT 1";

@@ -1,7 +1,7 @@
 <?php
 /*
  * Created on 2007/09/21 by nao-pon http://hypweb.net/
- * $Id: bgrun.php,v 1.5 2008/02/11 01:02:41 nao-pon Exp $
+ * $Id: bgrun.php,v 1.6 2008/04/05 04:53:11 nao-pon Exp $
  */
 
 error_reporting(0);
@@ -30,7 +30,7 @@ if ($xpwiki->func->is_page($page)) {
 $pagemove_time = @ filemtime($xpwiki->cont['CACHE_DIR'] . 'pagemove.time');
 if ($pagemove_time) {
 	$render_cache_clr = @ filemtime($xpwiki->cont['CACHE_DIR'] . 'render_cache_clr.time');	
-	if ($render_cache_clr < time() - 86400) {
+	if ($render_cache_clr < $xpwiki->cont['UTC'] - 86400) {
 		touch($xpwiki->cont['CACHE_DIR'] . 'render_cache_clr.time');
 		if ($handle = opendir($xpwiki->cont['RENDER_CACHE_DIR'])) {
 			while (false !== ($file = readdir($handle))) {
