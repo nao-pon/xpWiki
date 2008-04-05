@@ -1,6 +1,6 @@
 <?php
 // PukiWiki - Yet another WikiWikiWeb clone.
-// $Id: amazon.inc.php,v 1.6 2008/04/04 23:48:43 nao-pon Exp $
+// $Id: amazon.inc.php,v 1.7 2008/04/05 04:53:11 nao-pon Exp $
 // Id: amazon.inc.php,v 1.1 2003/07/24 13:00:00 ´×¼Ë
 //
 // Amazon plugin: Book-review maker via amazon.com/amazon.jp
@@ -306,7 +306,7 @@ EOD;
 		$get_tit = 0;
 		if (! is_readable($filename)) {
 			$get_tit = 1;
-		} elseif ($this->cont['PLUGIN_AMAZON_EXPIRE_TITLECACHE'] * 3600 * 24 < time() - filemtime($filename)) {
+		} elseif ($this->cont['PLUGIN_AMAZON_EXPIRE_TITLECACHE'] * 3600 * 24 < $this->cont['UTC'] - filemtime($filename)) {
 			$get_tit = 1;
 		}
 	
@@ -346,7 +346,7 @@ EOD;
 		$get_img = 0;
 		if (! is_readable($filename)) {
 			$get_img = 1;
-		} elseif ($this->cont['PLUGIN_AMAZON_EXPIRE_IMAGECACHE'] * 3600 * 24 < time() - filemtime($filename)) {
+		} elseif ($this->cont['PLUGIN_AMAZON_EXPIRE_IMAGECACHE'] * 3600 * 24 < $this->cont['UTC'] - filemtime($filename)) {
 			$get_img = 1;
 		}
 	

@@ -1,5 +1,5 @@
 <?php
-// $Id: moblog.inc.php,v 1.1 2008/04/05 00:02:05 nao-pon Exp $
+// $Id: moblog.inc.php,v 1.2 2008/04/05 04:53:11 nao-pon Exp $
 // Author: nao-pon http://hypweb.net/
 // Bace script is pop.php of mailbbs by Let's PHP!
 // Let's PHP! Web: http://php.s3.to/
@@ -111,7 +111,7 @@ class xpwiki_plugin_moblog extends xpwiki_plugin {
 		$chk_file = $this->cont['CACHE_DIR']."moblog.chk";
 		if (! file_exists($chk_file)) {
 			touch($chk_file);
-		} else if ($refresh_min * 60 > time() - filemtime($chk_file) && empty($this->root->vars['now'])) {
+		} else if ($refresh_min * 60 > $this->cont['UTC'] - filemtime($chk_file) && empty($this->root->vars['now'])) {
 			$this->plugin_moblog_output();
 		} else {
 			touch($chk_file);
@@ -184,7 +184,7 @@ class xpwiki_plugin_moblog extends xpwiki_plugin {
 			$datereg = array();
 			eregi("Date:[ \t]*([^\r\n]+)", $head, $datereg);
 			$now = strtotime($datereg[1]);
-			if ($now == -1) $now = time();
+			if ($now == -1) $now = $this->cont['UTC'];
 			// サブジェクトの抽出
 			$subreg = array();
 			if (preg_match("/\nSubject:[ \t]*(.+?)(\n[\w-_]+:|$)/is", $head, $subreg)) {
@@ -325,7 +325,7 @@ class xpwiki_plugin_moblog extends xpwiki_plugin {
 					// 添付データをデコードして保存
 					if (eregi("Content-Transfer-Encoding:.*base64", $m_head) && eregi($subtype, $sub)) {
 						$tmp = base64_decode($m_body);
-						if (!$filename) $filename = time().".$sub";
+						if (!$filename) $filename = $this->cont['UTC'].".$sub";
 
 						$save_file = $this->cont['CACHE_DIR'].$this->func->encode($filename).".tmp";
 						

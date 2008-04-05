@@ -1,7 +1,7 @@
 <?php
 //
 // Created on 2006/11/28 by nao-pon http://hypweb.net/
-// $Id: xpwikiver.inc.php,v 1.3 2008/02/11 01:02:41 nao-pon Exp $
+// $Id: xpwikiver.inc.php,v 1.4 2008/04/05 04:53:11 nao-pon Exp $
 //
 class xpwiki_plugin_xpwikiver extends xpwiki_plugin {
 
@@ -22,7 +22,7 @@ class xpwiki_plugin_xpwikiver extends xpwiki_plugin {
 		
 		$c_file = $this->cont['CACHE_DIR'] . 'plugin/xpwikiver.dat';
 		
-		if (file_exists($c_file) && filemtime($c_file) + $this->time_limit > time()) {
+		if (file_exists($c_file) && filemtime($c_file) + $this->time_limit > $this->cont['UTC']) {
 			return file_get_contents($c_file);
 		}
 		

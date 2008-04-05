@@ -1,6 +1,6 @@
 <?php
 // PukiWiki - Yet another WikiWikiWeb clone
-// $Id: showrss.inc.php,v 1.7 2008/02/11 01:02:41 nao-pon Exp $
+// $Id: showrss.inc.php,v 1.8 2008/04/05 04:53:11 nao-pon Exp $
 //  Id:showrss.inc.php,v 1.40 2003/03/18 11:52:58 hiro Exp
 // Copyright (C):
 //     2002-2006 PukiWiki Developers Team
@@ -90,7 +90,7 @@ class xpwiki_plugin_showrss extends xpwiki_plugin {
 			// Get the cache not expired
 			$filename = $this->cont['CACHE_DIR'] . 'plugin/' . $this->func->encode($target) . '.showrss';
 			
-			if (is_readable($filename) && (filemtime($filename) + $cachehour * 60 * 60) > time()) {
+			if (is_readable($filename) && (filemtime($filename) + $cachehour * 60 * 60) > $this->cont['UTC']) {
 				$data  = unserialize(file_get_contents($filename));
 				$time = filemtime($filename) - $this->cont['LOCALZONE'];
 			}
@@ -131,7 +131,7 @@ class xpwiki_plugin_showrss extends xpwiki_plugin {
 		while (($file = $dh->read()) !== FALSE) {
 			if (substr($file, -8) != '.showrss') continue;
 			$file = $this->cont['CACHE_DIR'] . 'plugin/' . $file;
-			$last = time() - filemtime($file);
+			$last = $this->cont['UTC'] - filemtime($file);
 			if ($last > $expire) unlink($file);
 		}
 		$dh->close();
@@ -381,7 +381,7 @@ class XpWikiShowRSS_XML
 				$time -= $this->cont['LOCALZONE'];
 
 		} else {
-			$time = time() - $this->cont['LOCALZONE'];
+			$time = $this->cont['UTC'] - $this->cont['LOCALZONE'];
 		}
 		$item['_TIMESTAMP'] = $time;
 		$date = $this->func->get_date('Y-m-d', $item['_TIMESTAMP']);

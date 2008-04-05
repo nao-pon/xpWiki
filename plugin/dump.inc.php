@@ -1,5 +1,5 @@
 <?php
-// $Id: dump.inc.php,v 1.5 2008/03/30 04:27:44 nao-pon Exp $
+// $Id: dump.inc.php,v 1.6 2008/04/05 04:53:11 nao-pon Exp $
 //
 // Remote dump / restore plugin
 // Originated as tarfile.inc.php by teanan / Interfair Laboratory 2004.
@@ -252,7 +252,7 @@ class xpwiki_plugin_dump extends xpwiki_plugin {
 	{
 		$size = filesize($tempnam);
 	
-		$filename = strftime('tar%Y%m%d', time());
+		$filename = strftime('tar%Y%m%d', $this->cont['UTC']);
 		if ($arc_kind == 'tgz') {
 			$filename .= '.tar.gz';
 		} else {

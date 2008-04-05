@@ -1,7 +1,7 @@
 <?php
 //
 // Created on 2006/10/02 by nao-pon http://hypweb.net/
-// $Id: xpwiki_func.php,v 1.159 2008/03/30 04:30:45 nao-pon Exp $
+// $Id: xpwiki_func.php,v 1.160 2008/04/05 04:53:11 nao-pon Exp $
 //
 class XpWikiFunc extends XpWikiXoopsWrapper {
 
@@ -28,8 +28,9 @@ class XpWikiFunc extends XpWikiXoopsWrapper {
 		// Time settings
 		
 		$const['LOCALZONE'] = date('Z');
-		$const['UTIME'] = time() - $const['LOCALZONE'];
-		$const['MUTIME'] = $this->getmicrotime();
+		$const['UTC']       = time();
+		$const['UTIME']     = $const['UTC'] - $const['LOCALZONE'];
+		$const['MUTIME']    = $this->getmicrotime();
 		
 		/////////////////////////////////////////////////
 		// Require INI_FILE
@@ -350,7 +351,7 @@ class XpWikiFunc extends XpWikiXoopsWrapper {
 			"\t" . $this->root->cookie['skin'].
 			"\t" . $this->root->cookie['lang'];
 		$url = parse_url ( $this->cont['ROOT_URL'] );
-		setcookie($this->root->mydirname, $data, time()+86400*365, $url['path']); // 1年間
+		setcookie($this->root->mydirname, $data, $this->cont['UTC']+86400*365, $url['path']); // 1年間
 	}
 	
 	function load_usercookie () {
@@ -362,7 +363,7 @@ class XpWikiFunc extends XpWikiXoopsWrapper {
 		
 		// user-codeの発行
 		if(!$this->root->cookie['ucd']){
-			$this->root->cookie['ucd'] = md5(getenv("REMOTE_ADDR"). __FILE__ .gmdate("Ymd", time()+9*60*60));
+			$this->root->cookie['ucd'] = md5(getenv("REMOTE_ADDR"). __FILE__ .gmdate("Ymd", $this->cont['UTC']+9*60*60));
 		}
 		$this->root->userinfo['ucd'] = substr(crypt($this->root->cookie['ucd'],($this->root->adminpass)? $this->root->adminpass : 'id'),-11);
 		
@@ -436,7 +437,7 @@ class XpWikiFunc extends XpWikiXoopsWrapper {
 				$use_cache = FALSE;
 			}
 		} else {
-			$use_cache = ($this->root->userinfo['uid'] === 0 && $this->root->pagecache_min > 0 && file_exists($cache_file) && (filemtime($cache_file) + $this->root->pagecache_min * 60) > time());
+			$use_cache = ($this->root->userinfo['uid'] === 0 && $this->root->pagecache_min > 0 && file_exists($cache_file) && (filemtime($cache_file) + $this->root->pagecache_min * 60) > $this->cont['UTC']);
 		}
 		
 		if ($use_cache) {
@@ -3096,7 +3097,7 @@ EOD;
 		$dbtable = $this->xpwiki->db->prefix($this->root->mydirname.'_cache');
 		
 		// Old cache delete
-		$sql = 'DELETE FROM `'.$dbtable.'` WHERE `mtime` + `ttl` < '.time();
+		$sql = 'DELETE FROM `'.$dbtable.'` WHERE `mtime` + `ttl` < '.$this->cont['UTC'];
 		if ($this->xpwiki->db->queryF($sql)) {
 			$sql = 'OPTIMIZE TABLE `'.$dbtable.'`';
 			$this->xpwiki->db->query($sql);
@@ -3113,11 +3114,11 @@ EOD;
 		if ($count) {
 			$sql = 'UPDATE `'.$dbtable.'`';
 			$sql .= ' SET `data`=\''.$data.'\',';
-			$sql .= '`mtime`=\''.time().'\'';
+			$sql .= '`mtime`=\''.$this->cont['UTC'].'\'';
 			$sql .= ' WHERE `key`=\''.$key.'\' AND `plugin`=\''.$plugin.'\'';
 		} else {
 			$sql = 'INSERT INTO `'.$dbtable.'` (`key`, `plugin`, `data`, `mtime`, `ttl`)';
-			$sql .= ' VALUES (\''.$key.'\', \''.$plugin.'\', \''.$data.'\', \''.time().'\', \''.$ttl.'\')';
+			$sql .= ' VALUES (\''.$key.'\', \''.$plugin.'\', \''.$data.'\', \''.$this->cont['UTC'].'\', \''.$ttl.'\')';
 		}
 		if ($res = $this->xpwiki->db->queryF($sql)) {
 			return $ret;

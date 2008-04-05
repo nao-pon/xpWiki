@@ -1,7 +1,7 @@
 <?php
 //
 // Created on 2006/11/17 by nao-pon http://hypweb.net/
-// $Id: dbsync.inc.php,v 1.27 2008/03/30 04:27:44 nao-pon Exp $
+// $Id: dbsync.inc.php,v 1.28 2008/04/05 04:53:11 nao-pon Exp $
 //
 
 class xpwiki_plugin_dbsync extends xpwiki_plugin {
@@ -155,7 +155,7 @@ __EOD__;
 			exit('Invalid REFERER.');
 		}
 		
-		$this->root->post['start_time'] = time();
+		$this->root->post['start_time'] = $this->cont['UTC'];
 		
 		header ("Content-Type: text/html; charset=".$this->cont['CONTENT_CHARSET']);
 		

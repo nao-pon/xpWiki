@@ -2,7 +2,7 @@
 /////////////////////////////////////////////////
 // PukiWiki - Yet another WikiWikiWeb clone.
 //
-// $Id: isbn.inc.php,v 1.5 2008/04/04 23:54:58 nao-pon Exp $
+// $Id: isbn.inc.php,v 1.6 2008/04/05 04:53:11 nao-pon Exp $
 //
 // *0.5: URL が存在しない場合、画像を表示しない。
 //			 Thanks to reimy.
@@ -312,7 +312,7 @@ EOD;
 		$filename = $dir . $target . '.isbn';
 		
 		if (!file_exists($filename) ||
-			($check && $this->config['ISBN_AMAZON_EXPIRE_TIT'] * 3600 * 24 < time() - filemtime($filename))) {
+			($check && $this->config['ISBN_AMAZON_EXPIRE_TIT'] * 3600 * 24 < $this->cont['UTC'] - filemtime($filename))) {
 			// データを取りに行く
 /*
 			$url = $this->config['ISBN_AMAZON_XML'].$target;
@@ -386,7 +386,7 @@ EOD;
 		$_target = $target = strtoupper($target);
 		$filename = $dir."ASIN".$target.".jpg";
 	
-		if (!is_readable($filename) || (is_readable($filename) && $check && $this->config['ISBN_AMAZON_EXPIRE_IMG'] * 3600 * 24 < time() - filemtime($filename))) {
+		if (!is_readable($filename) || (is_readable($filename) && $check && $this->config['ISBN_AMAZON_EXPIRE_IMG'] * 3600 * 24 < $this->cont['UTC'] - filemtime($filename))) {
 			$size = 'M';
 			$isbn = $target;
 			if (preg_match("/^(?:(s|m|l)-)(.+)/i",$target,$match)) {

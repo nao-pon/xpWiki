@@ -31,7 +31,7 @@
 //
 // fusen.inc.php for xpWiki by nao-pon
 // http://xoops.hypweb.net
-// $Id: fusen.inc.php,v 1.20 2008/03/21 05:37:46 nao-pon Exp $
+// $Id: fusen.inc.php,v 1.21 2008/04/05 04:53:11 nao-pon Exp $
 // 
 
 class xpwiki_plugin_fusen extends xpwiki_plugin {
@@ -322,7 +322,7 @@ EOD;
 				// ページHTMLキャッシュを削除
 				$this->func->clear_page_cache($refer);
 				// touch
-				if ($id) $dat[$id]['tt'] = time();
+				if ($id) $dat[$id]['tt'] = $this->cont['UTC'];
 				//値更新
 				switch ($this->root->vars['mode']) 	{
 					case 'set':
@@ -441,7 +441,7 @@ EOD;
 						'name' => $name,
 						'mt' => $mt,
 						'et' => $et,
-						'tt' => time(),
+						'tt' => $this->cont['UTC'],
 						'uid' => $uid,
 						'ucd' => $ucd,
 						'fix' => $fix,
