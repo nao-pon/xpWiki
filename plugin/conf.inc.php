@@ -1,11 +1,13 @@
 <?php
 /*
  * Created on 2008/01/24 by nao-pon http://hypweb.net/
- * $Id: conf.inc.php,v 1.6 2008/03/30 04:27:44 nao-pon Exp $
+ * $Id: conf.inc.php,v 1.7 2008/04/06 00:08:10 nao-pon Exp $
  */
 
 class xpwiki_plugin_conf extends xpwiki_plugin {
 	function plugin_conf_init() {
+		$this->load_language();
+		
 		$this->conf = array(
 			'PKWK_READONLY' => array(
 				'kind' => 'const',
@@ -225,8 +227,6 @@ class xpwiki_plugin_conf extends xpwiki_plugin {
 			return $this->action_msg_admin_only();
 		}
 
-		$this->load_language();
-		
 		$mode = empty($this->root->post['pmode'])? '' : $this->root->post['pmode'];
 
 		// 管理画面モード指定
