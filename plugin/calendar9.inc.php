@@ -1,7 +1,7 @@
 <?php
 /*
  * Created on 2007/08/30 by nao-pon http://hypweb.net/
- * $Id: calendar9.inc.php,v 1.10 2007/12/19 09:12:59 nao-pon Exp $
+ * $Id: calendar9.inc.php,v 1.11 2008/04/09 07:51:08 nao-pon Exp $
  */
 
 class xpwiki_plugin_calendar9 extends xpwiki_plugin {
@@ -240,51 +240,53 @@ EOD;
 			$i = 0;
 
 			// 日付へのリンク
-			while($this->func->is_page($_page)) {
-				$subtitle = '';
+			while($this->func->is_page($_page) || $this->func->is_page($_page . '-0')) {
+				if ($this->func->is_page($_page)) {
 				
-				// タイトルと内容の取得を行う
-				if ($this->func->check_readable($_page, false, false)) {
-					foreach ($this->func->get_source($_page) as $line) {
-						if($freeze == -1) {
-							if(strncmp($line, "#freeze", 7) == 0) {
-								$freeze = 1;
+					$subtitle = '';
+					
+					// タイトルと内容の取得を行う
+					if ($this->func->check_readable($_page, false, false)) {
+						foreach ($this->func->get_source($_page) as $line) {
+							if($freeze == -1) {
+								if(strncmp($line, "#freeze", 7) == 0) {
+									$freeze = 1;
+								}
+								else {
+									$freeze = 0;
+								}
+							}
+							if( $line{0} === '*' || $line{0} === '#' || !trim($line)) {
+								continue;
 							}
 							else {
-								$freeze = 0;
+								$subtitle = strip_tags($this->func->convert_html($line, $_page));
+								break;
 							}
 						}
-						if( $line{0} === '*' || $line{0} === '#' || !trim($line)) {
-							continue;
-						}
-						else {
-							$subtitle = strip_tags($this->func->convert_html($line, $_page));
-							break;
-						}
-					}
-				
-					// ボックスに入れるテキストを作成する。
-					$href = $this->func->get_page_uri($_page, true);
-					$linkstr = '<a href="' . $href . '" onclick="return xpwiki_cal9_day_edit(\''.$_page.'\',\'read\',event);">' . $this->func->get_heading($_page) . '</a>'."\n";
-					if ($this->func->check_editable($_page, false, false)) {
-						$short = htmlspecialchars('Edit');
-						$title = htmlspecialchars(str_replace('$1', $s_page.$page, $this->root->_title_edit));
-						$icon = '<img src="' . $this->cont['IMAGE_DIR'] . 'paraedit.png' .
-							'" width="9" height="9" alt="' .
-							$short . '" title="' . $title . '" /> ';
-						$r_page = rawurlencode($_page);
-						$onclick = (!empty($this->root->rtf['preview']))? '' : " onclick=\"return xpwiki_cal9_day_edit('$_page','edit',event);\"";
-						$linkstr .= "<a href=\"{$this->root->script}?cmd=edit&amp;page=$r_page\"{$onclick}>$icon</a>";
-					}
 					
-					if($subtitle) {
-						$linkstr .= '<br />' . $subtitle;
+						// ボックスに入れるテキストを作成する。
+						$href = $this->func->get_page_uri($_page, true);
+						$linkstr = '<a href="' . $href . '" onclick="return xpwiki_cal9_day_edit(\''.$_page.'\',\'read\',event);">' . $this->func->get_heading($_page) . '</a>'."\n";
+						if ($this->func->check_editable($_page, false, false)) {
+							$short = htmlspecialchars('Edit');
+							$title = htmlspecialchars(str_replace('$1', $s_page.$page, $this->root->_title_edit));
+							$icon = '<img src="' . $this->cont['IMAGE_DIR'] . 'paraedit.png' .
+								'" width="9" height="9" alt="' .
+								$short . '" title="' . $title . '" /> ';
+							$r_page = rawurlencode($_page);
+							$onclick = (!empty($this->root->rtf['preview']))? '' : " onclick=\"return xpwiki_cal9_day_edit('$_page','edit',event);\"";
+							$linkstr .= "<a href=\"{$this->root->script}?cmd=edit&amp;page=$r_page\"{$onclick}>$icon</a>";
+						}
+						
+						if($subtitle) {
+							$linkstr .= '<br />' . $subtitle;
+						}
+						
+						$strr .= '<div style="border:solid 1px #aaaaaa;margin:1px;padding:1px;background-color:white;font-weight:normal;">' . $linkstr . '</div>';
 					}
-					
-					$strr .= '<div style="border:solid 1px #aaaaaa;margin:1px;padding:1px;background-color:white;font-weight:normal;">' . $linkstr . '</div>';
 				}
-				++$i;
-				$_page = $base.'/'.$dt.'-'.$i;
+				$_page = $base.'/'.$dt.'-'.$i++;
 			}
 
 			if ($this->func->check_editable($_page, false, false) && $freeze !== 1) {
