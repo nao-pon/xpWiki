@@ -2,24 +2,30 @@
 /////////////////////////////////////////////////
 // PukiWiki - Yet another WikiWikiWeb clone.
 //
-// $Id: pginfo.inc.php,v 1.24 2008/03/30 04:27:44 nao-pon Exp $
+// $Id: pginfo.inc.php,v 1.25 2008/04/09 07:54:35 nao-pon Exp $
 //
 
 class xpwiki_plugin_pginfo extends xpwiki_plugin {
 
 	function plugin_pginfo_action()
 	{
-		// 権限チェック
-		if (!$this->root->userinfo['admin']) {
-			return $this->action_msg_admin_only();
-		}
-		
-		// 言語ファイルの読み込み
-		$this->load_language();
-		
 		$pmode = (empty($this->root->post['pmode']))? '' : $this->root->post['pmode'];
 		$page = (isset($this->root->vars['page']))? $this->root->vars['page'] : '';
 		
+		// 権限チェック
+		if ($page === '') {
+			if (! $this->root->userinfo['admin']) {
+				return $this->action_msg_admin_only();
+			}
+		} else {
+			if (! $this->func->is_owner($page)) {
+				return $this->action_msg_owner_only();
+			}
+		}
+
+		// 言語ファイルの読み込み
+		$this->load_language();
+
 		if ($pmode === 'setparm'){
 			// 登録処理
 			return $this->save_parm($page);
