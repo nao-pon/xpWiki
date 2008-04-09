@@ -1,5 +1,5 @@
 <?php
-// $Id: moblog.inc.php,v 1.2 2008/04/05 04:53:11 nao-pon Exp $
+// $Id: moblog.inc.php,v 1.3 2008/04/09 07:50:37 nao-pon Exp $
 // Author: nao-pon http://hypweb.net/
 // Bace script is pop.php of mailbbs by Let's PHP!
 // Let's PHP! Web: http://php.s3.to/
@@ -49,6 +49,12 @@ class xpwiki_plugin_moblog extends xpwiki_plugin {
 		
 		// 件名がないときの題名
 		$this->config['nosubject'] = "";
+		
+		// 許可する Received-SPF: ヘッダ
+		// Received-SPF: ヘッダを付加しないMTAは、「チェックしない」にする。
+		$this->config['allow_spf'] = '';                     // チェックしない
+		//$this->config['allow_spf'] = '/pass/i';              // pass のみ許可 (奨励)
+		//$this->config['allow_spf'] = '/pass|none|neutral/i'; // pass, none, neutral を許可
 		
 		// 投稿非許可アドレス（ログに記録しない）
 		$this->config['deny'] = array('163.com','bigfoot.com','boss.com','yahoo-delivers@mail.yahoo.co.jp');
@@ -167,6 +173,16 @@ class xpwiki_plugin_moblog extends xpwiki_plugin {
 				// To: ヘッダがない
 				$write = false;
 			}
+			
+			// Received-SPF: のチェック
+			if ($this->config['allow_spf']) {
+				if (preg_match('/^Received-SPF:\s*([a-z]+)/im', $head, $match)) {
+					if (! preg_match($this->config['allow_spf'], $match[1])) {
+						$write = false;
+					}
+				}
+			}
+			
 			// メーラーのチェック
 			$mreg = array();
 			if ($write && (eregi("(X-Mailer|X-Mail-Agent):[ \t]*([^\r\n]+)", $head, $mreg))) {
