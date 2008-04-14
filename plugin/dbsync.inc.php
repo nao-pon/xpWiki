@@ -1,7 +1,7 @@
 <?php
 //
 // Created on 2006/11/17 by nao-pon http://hypweb.net/
-// $Id: dbsync.inc.php,v 1.28 2008/04/05 04:53:11 nao-pon Exp $
+// $Id: dbsync.inc.php,v 1.29 2008/04/14 08:30:23 nao-pon Exp $
 //
 
 class xpwiki_plugin_dbsync extends xpwiki_plugin {
@@ -321,7 +321,7 @@ __EOD__;
 				// pginfo
 				$pginfo = $this->func->get_pginfo($page, false);
 				
-				foreach (array('uid', 'ucd', 'uname', 'einherit', 'vinherit', 'lastuid', 'lastucd', 'lastuname') as $key) {
+				foreach (array('uid', 'ucd', 'uname', 'einherit', 'vinherit', 'lastuid', 'lastucd', 'lastuname', 'pgorder') as $key) {
 					$$key = addslashes($pginfo[$key]);
 				}
 				foreach (array('eaids', 'egids', 'vaids', 'vgids') as $key) {
@@ -343,8 +343,8 @@ __EOD__;
 				{
 					// ¿·µ¬ºîÀ®
 					$query = "INSERT INTO ".$this->xpwiki->db->prefix($this->root->mydirname."_pginfo").
-						" (`name`,`title`,`buildtime`,`editedtime`,`uid`,`ucd`,`uname`,`freeze`,`einherit`,`eaids`,`egids`,`vinherit`,`vaids`,`vgids`,`lastuid`,`lastucd`,`lastuname`,`update`,`reading`,`name_ci`)" .
-						" values('$name','$title','$buildtime','$editedtime','$uid','$ucd','$uname','$freeze','$einherit','$eaids','$egids','$vinherit','$vaids','$vgids','$lastuid','$lastucd','$lastuname','1','','$name')";
+						" (`name`,`title`,`buildtime`,`editedtime`,`uid`,`ucd`,`uname`,`freeze`,`einherit`,`eaids`,`egids`,`vinherit`,`vaids`,`vgids`,`lastuid`,`lastucd`,`lastuname`,`update`,`reading`,`name_ci`,`pgorder`)" .
+						" values('$name','$title','$buildtime','$editedtime','$uid','$ucd','$uname','$freeze','$einherit','$eaids','$egids','$vinherit','$vaids','$vgids','$lastuid','$lastucd','$lastuname','1','','$name','$pgorder')";
 				}
 				else
 				{
@@ -374,7 +374,8 @@ __EOD__;
 						.",`lastucd`='$lastucd'"
 						.",`lastuname`='$lastuname'"
 						.",`update`='1'"
-						.",`name_ci`='$name'";
+						.",`name_ci`='$name'"
+						.",`pgorder`='$pgorder'";
 					$query = "UPDATE ".$this->xpwiki->db->prefix($this->root->mydirname."_pginfo")." SET $value WHERE pgid = '$id' LIMIT 1;";
 				}
 				if (! $result = $this->xpwiki->db->queryF($query)) {
