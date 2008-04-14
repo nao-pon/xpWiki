@@ -1,7 +1,7 @@
 <?php
 //
 // Created on 2006/10/25 by nao-pon http://hypweb.net/
-// $Id: code.inc.php,v 1.17 2008/03/04 06:02:48 nao-pon Exp $
+// $Id: code.inc.php,v 1.18 2008/04/14 08:36:15 nao-pon Exp $
 //
 
 class xpwiki_plugin_code extends xpwiki_plugin {
@@ -144,14 +144,14 @@ class xpwiki_plugin_code extends xpwiki_plugin {
 		}
 		$data = array();
 		$multiline = $this->_plugin_code_multiline_argment($arg, $data, $lang, $option, $end, $begin);
-		
-		$data['data'] = rtrim($data['data']) . "\n";
-		$line_cnt = count(explode("\n", $data['data']));
+
+		if (isset($data['_error']) && $data['_error'] != '') {
+			return $data['_error'];
+		}
 		
 		if ($this->cont['PLUGIN_CODE_CACHE'] && ! $multiline) {
-			list($html, $option) = $this->_plugin_code_read_cache($arg);
-			if ($html != '' or $html != null)
-			{
+			if ($_ary = $this->_plugin_code_read_cache($arg, $option)) {
+				list($html, $option) = $_ary;
 				if ($option['outline']) {
 					$this->func->add_tag_head('code.js');
 				}
@@ -159,14 +159,15 @@ class xpwiki_plugin_code extends xpwiki_plugin {
 			}
 		}
 
-		if (isset($data['_error']) && $data['_error'] != '') {
-			return $data['_error'];
-		}
-		$lines = $data['data'];
-		$title = @$data['title'];
+		$data['data'] = rtrim($data['data']) . "\n";
+		$line_cnt = count(explode("\n", $data['data']));
 		
-		if (is_null($end))
+		$lines = $data['data'];
+		$title = @ $data['title'];
+		
+		if (is_null($end)) {
 			$end = substr_count($lines, "\n") + $begin - 1;
+		}
 		
 		$_err = error_reporting(E_ALL ^ E_NOTICE); // orz...
 		$highlight = new $this->config['codehighlightClassName']($this->xpwiki);
@@ -244,7 +245,7 @@ class xpwiki_plugin_code extends xpwiki_plugin {
 	 * 引数は添付ファイル名
 	 * 変換されたファイルデータを返す
 	 */
-	function _plugin_code_read_cache($fname)
+	function _plugin_code_read_cache($fname, & $option)
 	{
 	//	global $vars;
 		// 添付ファイルのあるページ: defaultは現在のページ名
@@ -264,22 +265,23 @@ class xpwiki_plugin_code extends xpwiki_plugin {
 		}
 
 		/* Read file data */
-		//$fdata = '';
-		//$filelines = file($this->cont['CACHE_DIR'].'code_'.$file.'.html');
+		// md5
+		list(,,,,,,,,$md5) = array_pad(@ file($this->cont['UPLOAD_DIR'].$file.".log"), 9, '');
+		$md5 = trim($md5);
+
 		if (!file_exists($this->cont['CACHE_DIR'].'plugin/'.$file.'.code')) {
-			return array("",array());
+			$option['id'] = $md5;
+			return false;
 		}
 		$fdata = file_get_contents($this->cont['CACHE_DIR'].'plugin/'.$file.'.code');
 
-		//foreach ($filelines as $line)
-		//	$fdata .= $line;
-
 		$dat = unserialize($fdata);
 		//md5ハッシュの検査
-		list(,,,,,,,,$md5) = array_pad(@file($this->cont['UPLOAD_DIR'].$file.".log"),9,"");
-		$md5 = trim($md5);
-		if ($dat[2] !== $md5) {$dat[0] = "";}
-
+		if ($dat[2] !== $md5) {
+			$option['id'] = $md5;
+			return false;
+		}
+		
 		return $dat;
 	}
 
@@ -392,22 +394,23 @@ class xpwiki_plugin_code extends xpwiki_plugin {
 	function _plugin_code_multiline_argment(& $arg, & $data, & $lang, & $option, $end = null, $begin = 1)
 	{
 	    // 改行コード変換
-		$arg = str_replace("\r\n", "\n", $arg);
-	    $arg = strtr($arg,"\r", "\n");
+		$arg = str_replace(array("\r\n", "\r"), "\n", $arg);
 
 	    // 最後の文字が改行でない場合は外部ファイル
 	    if ($arg[strlen($arg)-1] != "\n") {
 			// 言語自動判定
-			if ($lang === null)
+			if ($lang === null) {
 				$lang = $this->_plugin_code_extension($arg);
-			if ($lang === null)
+			}
+			if ($lang === null) {
 				if ($this->_plugin_code_mimetype($arg)) {
 					$data['_error'] = '<p class="error">Maybe file extension like binary. '.htmlspecialchars($arg).';</p>';
 					return 0;
 				} else {
 					$lang = $this->cont['PLUGIN_CODE_LANGUAGE'];
 				}
-
+			}
+			
 	        $params = $this->_plugin_code_read_file_data($arg, $end, $begin);
 	        if (isset($params['_error']) && $params['_error'] != '') {
 	            $data['_error'] = '<p class="error">'.$params['_error'].';</p>';
@@ -418,13 +421,15 @@ class xpwiki_plugin_code extends xpwiki_plugin {
 	            $data['_error'] ='<p class="error">file '.htmlspecialchars($params['title']).' is empty.</p>';
 	            return 0;
 	        }
-			if ($this->cont['PLUGIN_CODE_FILE_ICON'] && !$option['noicon'] || $option['icon']) $icon = $this->cont['FILE_ICON'];
-			else                                                       $icon = '';
+			if ($this->cont['PLUGIN_CODE_FILE_ICON'] && !$option['noicon'] || $option['icon']) {
+				$icon = $this->cont['FILE_ICON'];
+			} else {
+				$icon = '';
+			}
 
-	        @$data['title'] .= '<h5 class="'.$this->cont['PLUGIN_CODE_HEADER'].'title">'.'<a href="'.$params['url'].'" title="'.$params['info'].'">'
-			.$icon.$params['title'].'</a></h5>'."\n";
-		}
-		else {
+	        @$data['title'] .= '<h5 class="'.$this->cont['PLUGIN_CODE_HEADER'].'title">'.'<a href="'.$params['url'].'" title="'.$params['info'].'">'.$icon.$params['title'].'</a></h5>'."\n";
+
+		} else {
 			$data['data'] = $arg;
 			return 1;
 		}
@@ -491,7 +496,7 @@ class xpwiki_plugin_code extends xpwiki_plugin {
 	 * 引数に与えられたファイルの内容を文字列に変換して返す
 	 * 文字コードは PukiWikiと同一, 改行は \n である
 	 */
-	function _plugin_code_read_file_data(& $name, $end = null, $begin = 1) {
+	function _plugin_code_read_file_data($name, $end = null, $begin = 1) {
 	//    global $vars;
 
 		// Configファイルの存在チェック
@@ -512,7 +517,7 @@ class xpwiki_plugin_code extends xpwiki_plugin {
 	    $fname = $name;
 
 	    $is_url = $this->func->is_url($fname);
-
+		
 	    /* Check file location */
 	    if ($is_url) { // URL
 			if (! $this->cont['PLUGIN_CODE_READ_URL']) {
