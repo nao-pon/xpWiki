@@ -1,7 +1,7 @@
 <?php
 //
 // Created on 2006/10/05 by nao-pon http://hypweb.net/
-// $Id: plugin.php,v 1.10 2008/04/09 07:51:41 nao-pon Exp $
+// $Id: plugin.php,v 1.11 2008/04/14 08:25:14 nao-pon Exp $
 //
 
 
@@ -55,7 +55,7 @@ class xpwiki_plugin {
 	}
 	
 	// プラグインオプションの解析
-	function fetch_options (&$options, $args, $keys=array(), $other_key='_args', $sep='(?:=|:)') {
+	function fetch_options (& $options, $args, $keys = array(), $other_key = '_args', $sep = '(?:=|:)') {
 		if ($keys) {
 			$args = array_pad($args, count($keys), null);
 			foreach($keys as $key) {
@@ -78,13 +78,14 @@ class xpwiki_plugin {
 							continue;
 						}
 					}
-					if (!isset($options[$arg])) {
+					if (! isset($options[$arg])) {
 						if ($done_check) {
 							$done = $options['_done'] = TRUE;
 						}
 						$options[$other_key][] = $arg;
+					} else {
+						$options[$arg] = TRUE;
 					}
-					$options[$arg] = $arg;
 				}
 			}
 		}
