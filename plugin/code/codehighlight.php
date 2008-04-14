@@ -47,9 +47,14 @@ class XpWikiCodeHighlight {
 
     function highlight(& $lang, & $src, & $option, $end = null, $begin = 1) {
 //		static $id = 0; // プラグインが呼ばれた回数(IDに利用)
-			static $id = array();
-			if (!isset($id[$this->xpwiki->pid])) {$id[$this->xpwiki->pid] = 0;}
-        $this->id_number = ++$id[$this->xpwiki->pid];
+		static $id = array();
+		if (!isset($id[$this->xpwiki->pid])) {$id[$this->xpwiki->pid] = 0;}
+               
+        if (empty($option['id'])) {
+			$this->id_number = ++$id[$this->xpwiki->pid];
+        } else {
+        	$this->id_number = $option['id'];
+        }
 
 		if (strlen($lang) > 16)
             $lang = '';
