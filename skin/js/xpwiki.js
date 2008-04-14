@@ -436,6 +436,48 @@ var XpWiki = {
 		return false;
 	},
 	
+	remakeTextArea: function () {
+		var tareas = document.getElementsByTagName('body')[0].getElementsByTagName('textarea');
+		for (var i=0; i<tareas.length; i++){
+			if (tareas[i].style.display == 'none') continue;
+			if (! tareas[i].getAttribute('rel') && ! tareas[i].getAttribute('readonly') && this.checkUseHelper(tareas[i])) {
+				tareas[i].setAttribute("rel", "wikihelper");
+			}
+			if (!tareas[i].id) {
+				tareas[i].id = 'textarea_autoid_' + i;
+			}
+			new Resizable(tareas[i].id, {mode:'xy'});
+			this.addWrapButton(tareas[i].id);
+		}
+	},
+	
+	setWidthPreInTable: function () {
+		var elems = document.getElementsByTagName('body')[0].getElementsByTagName('div');
+		var pres = new Array();
+		var pNode;
+		var inTable;
+		for (var i=0; i<elems.length; i++){
+			if (elems[i].className == 'pre' && elems[i].style.overflow == 'auto') {
+				inTable = false;
+				pNode = elems[i].parentNode;
+				do {
+					if (pNode.nodeName == 'TD') {
+						inTable = true;
+						break;
+					}
+					pNode = pNode.parentNode;
+				} while(pNode);
+				if (inTable && elems[i].offsetParent) {
+					elems[i].style.width = '500px';
+					pres.push(elems[i]);
+				}
+			}
+		}
+		for (var i=0; i<pres.length; i++) {
+			pres[i].style.width = pres[i].offsetParent.offsetWidth - pres[i].offsetLeft - 30 + 'px';
+		}
+	},
+	
 	htmlspecialchars: function (str) {
 		return str.
 		replace(/&/g,"&amp;").
