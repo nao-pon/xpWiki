@@ -1,7 +1,7 @@
 <?php
 //
 // Created on 2006/10/02 by nao-pon http://hypweb.net/
-// $Id: xpwiki_func.php,v 1.160 2008/04/05 04:53:11 nao-pon Exp $
+// $Id: xpwiki_func.php,v 1.161 2008/04/14 08:27:57 nao-pon Exp $
 //
 class XpWikiFunc extends XpWikiXoopsWrapper {
 
@@ -841,16 +841,21 @@ EOD;
 		return $ret;	
 	}
 	
-	function add_js_var_head ($name, $var, $pre = FALSE) {
-		if (is_numeric($var)) {
-			// Do nothing
-		} else if (is_bool($var)) {
-			$var = ($var)? 'true' : 'false';
+	function add_js_var_head ($name, $var = NULL, $pre = FALSE) {
+		if (is_null($var)) {
+			$src = $name;
 		} else {
-			$var = '"' . htmlspecialchars($var) . '"';
+			if (is_numeric($var)) {
+				// Do nothing
+			} else if (is_bool($var)) {
+				$var = ($var)? 'true' : 'false';
+			} else {
+				$var = '"' . htmlspecialchars($var) . '"';
+			}
+			$src = $name . ' = ' . $var . ';';
 		}
 		$target = $pre? 'head_pre_tags' : 'head_tags';
-		$this->root->{$target}[] = '<script type="text/javascript">' . $name . ' = ' . $var . ';</script>';
+		$this->root->{$target}[] = '<script type="text/javascript">' . $src . '</script>';
 	}
 	
 	function add_tag_head ($file, $pre = FALSE, $charset = '') {
