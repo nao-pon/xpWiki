@@ -1,5 +1,5 @@
 <?php
-// $Id: moblog.inc.php,v 1.3 2008/04/09 07:50:37 nao-pon Exp $
+// $Id: moblog.inc.php,v 1.4 2008/04/14 08:32:04 nao-pon Exp $
 // Author: nao-pon http://hypweb.net/
 // Bace script is pop.php of mailbbs by Let's PHP!
 // Let's PHP! Web: http://php.s3.to/
@@ -90,6 +90,7 @@ class xpwiki_plugin_moblog extends xpwiki_plugin {
 	{
 		error_reporting(0);
 		//error_reporting(E_ALL);
+		$this->debug = array();
 		//設定ファイル読み込み
 		$host = (string)$this->config['host'];
 		$mail = (string)$this->config['mail'];
@@ -125,7 +126,7 @@ class xpwiki_plugin_moblog extends xpwiki_plugin {
 		
 		// wait 指定
 		$wait = (empty($this->root->vars['wait']))? 0 : (int)$this->root->vars['wait'];
-		sleep(min(15,$wait));
+		sleep(min(5, $wait));
 		
 		// 接続開始
 		$err = "";
@@ -169,9 +170,11 @@ class xpwiki_plugin_moblog extends xpwiki_plugin {
 			if (preg_match("/(?:^|\n|\r)To:[ \t]*([^\r\n]+)/i", $head, $treg)){
 				$toreg = "/".quotemeta($mail)."/";
 				if (!preg_match($toreg,$treg[1])) $write = false; //投稿アドレス以外
+				$this->debug[] = 'Bad to addr.';
 			} else {
 				// To: ヘッダがない
 				$write = false;
+				$this->debug[] = 'To: not found.';
 			}
 			
 			// Received-SPF: のチェック
@@ -179,6 +182,7 @@ class xpwiki_plugin_moblog extends xpwiki_plugin {
 				if (preg_match('/^Received-SPF:\s*([a-z]+)/im', $head, $match)) {
 					if (! preg_match($this->config['allow_spf'], $match[1])) {
 						$write = false;
+						$this->debug[] = 'Bad SPF.';
 					}
 				}
 			}
@@ -188,12 +192,14 @@ class xpwiki_plugin_moblog extends xpwiki_plugin {
 			if ($write && (eregi("(X-Mailer|X-Mail-Agent):[ \t]*([^\r\n]+)", $head, $mreg))) {
 				if ($deny_mailer){
 					if (preg_match($deny_mailer,$mreg[2])) $write = false;
+					$this->debug[] = 'Bad mailer.';
 				}
 			}
 			// キャラクターセットのチェック
 			if ($write && (eregi("charset[\s]*=[\s]*([^\r\n]+)", $head, $mreg))) {
 				if ($deny_lang){
 					if (preg_match($deny_lang,$mreg[1])) $write = false;
+					$this->debug[] = 'Bad charset.';
 				}
 			}
 			// 日付の抽出
@@ -228,6 +234,7 @@ class xpwiki_plugin_moblog extends xpwiki_plugin {
 				// 未承諾広告カット
 				if ($write && $deny_title){
 					if (preg_match($deny_title,$subject)) $write = false;
+					$this->debug[] = 'Bad title.';
 				}
 			}
 			// 送信者アドレスの抽出
@@ -247,6 +254,7 @@ class xpwiki_plugin_moblog extends xpwiki_plugin {
 			if ($write){
 				for ($f=0; $f<count($deny); $f++)
 					if (eregi($deny[$f], $from)) $write = false;
+					$this->debug[] = 'Bad from addr.';
 			}
 
 			// 登録対象ページを設定
@@ -267,6 +275,7 @@ class xpwiki_plugin_moblog extends xpwiki_plugin {
 					$this->root->cookie['name']  = '';
 				} else {
 					$write = false;
+					$this->debug[] = 'Allow page not found.';
 				}				
 			}
 			
@@ -297,6 +306,7 @@ class xpwiki_plugin_moblog extends xpwiki_plugin {
 					if ($write && (eregi("charset[\s]*=[\s]*([^\r\n]+)", $m_head, $mreg))) {
 						if ($deny_lang){
 							if (preg_match($deny_lang,$mreg[1])) $write = false;
+							$this->debug[] = 'Bad charset.';
 						}
 					}
 					$type = array();
@@ -362,6 +372,7 @@ class xpwiki_plugin_moblog extends xpwiki_plugin {
 							}
 						} else {
 							$write = false;
+							$this->debug[] = 'Attach not found.';
 						}
 					}
 				}
@@ -431,6 +442,7 @@ class xpwiki_plugin_moblog extends xpwiki_plugin {
 		// ページ更新
 		$this->func->page_write($page, $save_data);
 		
+		$this->debug[] = 'Page write ' . $page;
 	}
 	
 	function make_googlemaps ($pagedata, & $set_data, $subject, $date) {
@@ -491,9 +503,14 @@ class xpwiki_plugin_moblog extends xpwiki_plugin {
 	
 	// イメージ出力
 	function plugin_moblog_output () {
+		// clear output buffer
+		while( ob_get_level() ) {
+			ob_end_clean() ;
+		}
 		// imgタグ呼び出し用
 		header("Content-Type: image/gif");
 		readfile($this->root->mytrustdirpath . '/skin/image/gif/spacer.gif');
+		//echo 'Debug:<br />' . join('<br />', $this->debug);
 		exit();
 	}
 }
