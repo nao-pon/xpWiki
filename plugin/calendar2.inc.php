@@ -1,5 +1,5 @@
 <?php
-// $Id: calendar2.inc.php,v 1.8 2007/12/08 11:31:14 nao-pon Exp $
+// $Id: calendar2.inc.php,v 1.9 2008/04/15 06:53:50 nao-pon Exp $
 //
 // Calendar2 plugin
 //
@@ -88,6 +88,9 @@ class xpwiki_plugin_calendar2 extends xpwiki_plugin {
 		$next_date_str = ($m == 12) ?
 			sprintf('%04d%02d', $y + 1, 1) : sprintf('%04d%02d', $y, $m + 1);
 	
+		// Can make new page.
+		$is_editable = $this->func->check_editable($base . '/1', FALSE, FALSE);
+		
 		$ret = '';
 		if ($today_view) {
 			$ret = '<table border="0" summary="calendar frame">' . "\n" .
@@ -145,10 +148,10 @@ EOD;
 			$moblog_page = $page."-0";
 			
 			if ($this->func->is_page($page) || $this->func->is_page($moblog_page)) {
-				$link = '<div class="style_td_written"><a href="' . $this->func->get_page_uri($page, true) . '" title="' . $s_page .
-				'">' . $day . '</a></div>';
+				$_page = ($this->func->get_filetime($page))? $page : $moblog_page;
+				$link = '<div class="style_td_written">'.$this->func->make_pagelink($_page, $day).'</div>';
 			} else {
-				if ($this->cont['PKWK_READONLY'] === 1) {
+				if (! $is_editable) {
 					$link = $day;
 				} else {
 					$link = $this->root->script . '?cmd=edit&amp;page=' . $r_page . '&amp;refer=' . $r_base;
