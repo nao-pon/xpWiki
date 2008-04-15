@@ -200,11 +200,13 @@ function b_xpwiki_block_show( $options, $src, $nocache = false )
 	// オブジェクトを破棄
 	$xw = null;
 	unset($xw); 
-
+	
 	if ($head_tag_place === 'body' || !b_xpwiki_insert_headtag($head, $head_tag_place)) {
 		$str = $head . $str;
 	} 
 
+	if (! $str) return FALSE;
+	
 	$block = array( 
 		'mydirname' => $mydirname ,
 		'mod_url' => XOOPS_URL.'/modules/'.$mydirname ,
