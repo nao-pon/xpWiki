@@ -2,7 +2,7 @@
 /////////////////////////////////////////////////
 // PukiWiki - Yet another WikiWikiWeb clone.
 //
-// $Id: isbn.inc.php,v 1.6 2008/04/05 04:53:11 nao-pon Exp $
+// $Id: isbn.inc.php,v 1.7 2008/04/16 06:53:36 nao-pon Exp $
 //
 // *0.5: URL が存在しない場合、画像を表示しない。
 //			 Thanks to reimy.
@@ -50,6 +50,7 @@ class xpwiki_plugin_isbn extends xpwiki_plugin {
 		$align = "right"; //規定値
 		$title = '';
 		$header = '';
+		$alt = $title = $h_title = $price = $header = $listprice = $usedprice = '';
 		switch (func_num_args())
 		{
 			case 3:
@@ -244,10 +245,11 @@ class xpwiki_plugin_isbn extends xpwiki_plugin {
 	
 	function plugin_isbn_print_isbn_img($isbn, $align, $alt, $title, $h_title, $price, $header="",$listprice,$usedprice)
 	{
+		$clear = ($align === 'clear')? '<div style="clear:both"></div>' : '';
+
+		if (! $isbn) return $clear;
+		
 		$amazon_a = '<a href="'.str_replace('_ISBN_',$isbn,$this->config['ISBN_AMAZON_SHOP']).'" target="_blank" title="'.$alt.'">';
-		if ($align == 'clear') {			// 改行挿入
-			return '<div style="clear:both"></div>';
-		}
 	
 		if (! ($url = $this->plugin_isbn_cache_image_fetch($isbn, $this->cont['CACHE_DIR']))) return false;
 	
@@ -256,6 +258,7 @@ class xpwiki_plugin_isbn extends xpwiki_plugin {
 <div style="float:$align;padding:.5em 1.5em .5em 1.5em">
  {$amazon_a}<img src="$url" alt="$alt" /></a>
 </div>
+{$clear}
 EOD;
 		} else {					// 通常表示
 			$img_size = @getimagesize(str_replace(XOOPS_URL,XOOPS_ROOT_PATH,$url));
@@ -274,6 +277,7 @@ EOD;
 	<td style="text-align:left">{$amazon_a}$title</a></td>
  </tr></table>
 </div>
+{$clear}
 EOD;
 			} else {
 	return <<<EOD
@@ -284,6 +288,7 @@ EOD;
 $listprice
 $price
 $usedprice
+$clear
 EOD;
 			}
 		}
