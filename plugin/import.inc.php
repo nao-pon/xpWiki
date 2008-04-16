@@ -1,7 +1,7 @@
 <?php
 /*
  * Created on 2007/05/22 by nao-pon http://hypweb.net/
- * $Id: import.inc.php,v 1.10 2008/04/05 04:53:11 nao-pon Exp $
+ * $Id: import.inc.php,v 1.11 2008/04/16 06:50:38 nao-pon Exp $
  */
 
 class xpwiki_plugin_import extends xpwiki_plugin {
@@ -729,7 +729,7 @@ EOD;
 			//行頭書式をチェック
 			$head = substr($line,0,1);
 			$block = '';
-			if (strpos('-+:>',$head) !== FALSE) //次の行を食うブロック
+			if (strpos('-+:>',$head) !== FALSE && substr(rtrim($line), -1) !== '~') //次の行を食うブロック
 			{
 				$block = $head;
 			}
