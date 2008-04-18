@@ -1,7 +1,7 @@
 <?php
 //
 // Created on 2006/10/20 by nao-pon http://hypweb.net/
-// $Id: skin_changer.inc.php,v 1.5 2007/11/30 23:36:38 nao-pon Exp $
+// $Id: skin_changer.inc.php,v 1.6 2008/04/18 06:47:26 nao-pon Exp $
 //
 class xpwiki_plugin_skin_changer extends xpwiki_plugin {
 	function plugin_skin_changer_init () {
@@ -11,12 +11,12 @@ class xpwiki_plugin_skin_changer extends xpwiki_plugin {
 	function plugin_skin_changer_convert() {
 		$skins = $t_skins = array();
 		// SKIN Dirctory
-		$base = $this->cont['DATA_HOME'] . dirname($this->cont['SKIN_DIR']);
+		$base = $this->cont['DATA_HOME'] .'skin/';
 		if ($dir = opendir($base)) {
-			$nomatch = array(".", "..", "js", "default");
-			$nomatch[] = preg_replace("#.*/([^/]+)/$#", "$1",$this->cont['TDIARY_DIR']);
+			$nomatch = array('.', '..', 'js');
+			$nomatch[] = preg_replace("#.*/([^/]+)/$#", "$1", $this->cont['TDIARY_DIR']);
 			while (false !== ($file = readdir($dir))) {
-				if (is_dir($base."/".$file)
+				if (is_dir($base.'/'.$file)
 				 && !in_array($file, $nomatch)
 				 && file_exists("{$base}/{$file}/pukiwiki.skin.php")) {
 					$skins[$file] = $file;
@@ -27,12 +27,12 @@ class xpwiki_plugin_skin_changer extends xpwiki_plugin {
 		// tDiary Dirctory
 		$base = $this->cont['DATA_HOME'] . $this->cont['TDIARY_DIR'];
 		if ($dir = opendir($base)) {
-			$nomatch = array(".", "..");
+			$nomatch = array('.', '..');
 			while (false !== ($file = readdir($dir))) {
-				if (is_dir($base."/".$file)
+				if (is_dir($base.'/'.$file)
 				 && !in_array($file, $nomatch)
 				 && file_exists("{$base}/{$file}/{$file}.css")) {
-					$t_skins[$file] = "tD-".$file;
+					$t_skins[$file] = 'tD-'.$file;
 				}
 			}
 		}
