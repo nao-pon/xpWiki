@@ -1,7 +1,7 @@
 <?php
 //
 // Created on 2006/10/02 by nao-pon http://hypweb.net/
-// $Id: xpwiki_func.php,v 1.161 2008/04/14 08:27:57 nao-pon Exp $
+// $Id: xpwiki_func.php,v 1.162 2008/04/18 06:52:17 nao-pon Exp $
 //
 class XpWikiFunc extends XpWikiXoopsWrapper {
 
@@ -49,7 +49,13 @@ class XpWikiFunc extends XpWikiXoopsWrapper {
 		if ($die) $this->die_message(nl2br("\n\n" . $die));
 		
 		// Skin directory set
-		$const['SKIN_DIR'] = 'skin/' . $const['SKIN_NAME'] . '/';
+		if (substr($this->cont['SKIN_NAME'],0,3) === "tD-") {
+			// tDiary's theme
+			$this->cont['TDIARY_THEME'] =  substr($this->cont['SKIN_NAME'],3);
+		} else {
+			// Normal skin
+			$const['SKIN_DIR'] = 'skin/' . $const['SKIN_NAME'] . '/';
+		}
 	}
 
 	function init() {
