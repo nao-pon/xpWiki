@@ -1,7 +1,7 @@
 <?php
 /*
  * Created on 2008/01/24 by nao-pon http://hypweb.net/
- * $Id: conf.lng.php,v 1.4 2008/02/29 23:40:09 nao-pon Exp $
+ * $Id: conf.lng.php,v 1.5 2008/04/18 06:53:46 nao-pon Exp $
  */
 
 $msg = array(
@@ -73,6 +73,8 @@ $msg = array(
 	'SKIN_NAME' => array(
 		'caption'     => 'Default Skin name',
 		'description' => 'The skin name of default is specified.',
+		'normalskin'  => 'Normal skins',
+		'tdiarytheme' => 't-Diary\'s themes', 
 	),
 	
 	'SKIN_CHANGER' => array(

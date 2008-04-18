@@ -1,7 +1,7 @@
 <?php
 /*
  * Created on 2008/01/24 by nao-pon http://hypweb.net/
- * $Id: conf.inc.php,v 1.7 2008/04/06 00:08:10 nao-pon Exp $
+ * $Id: conf.inc.php,v 1.8 2008/04/18 06:53:46 nao-pon Exp $
  */
 
 class xpwiki_plugin_conf extends xpwiki_plugin {
@@ -62,7 +62,7 @@ class xpwiki_plugin_conf extends xpwiki_plugin {
 			'SKIN_NAME' => array(
 				'kind' => 'const',
 				'type' => 'string',
-				'form' => 'text',
+				'form' => 'select,size="1"',
 			),
 			'SKIN_CHANGER' => array(
 				'kind' => 'const',
@@ -249,6 +249,10 @@ class xpwiki_plugin_conf extends xpwiki_plugin {
 	function show_form() {
 		$script = $this->func->get_script_uri();
 		$msg_description = str_replace(array('$trust_ini_file', '$html_ini_file'), array($this->root->mytrustdirpath.'/ini/pukiwiki.ini.php',$this->root->mydirpath.'/private/ini/pukiwiki.ini.php'), $this->msg['msg_description']);
+
+		// Get Skin Names
+		$this->conf['SKIN_NAME']['list'] = $this->get_skin_names();
+		
 		$body =<<<EOD
 <div>
 <h2>{$this->msg['title_description']}</h2>
@@ -269,6 +273,29 @@ EOD;
 			$extention = ! empty($this->msg[$key]['extention'])? $this->msg[$key]['extention'] : '';
 			list($form, $attr) = array_pad(explode(',', $conf['form'], 2), 2, '');
 			switch ($form) {
+				case 'select':
+					$forms = array();
+					if (! isset($conf['list']['group'])) {
+						$conf['list']['group'][0] = $conf['list'];
+					}
+					foreach($conf['list']['group'] as $label => $optgroup) {
+						if (is_string($label)) {
+							$forms[] = '<optgroup label="'.$label.'">';
+						}
+						foreach($optgroup as $list_cap => $list_val) {
+							if ($value == $list_val) {
+								$selected = ' selected="selected"';
+							} else {
+								$selected = '';
+							}
+							$forms[] = '<option value="'.$list_val.'"'.$selected.'>'.$list_cap.'</option>';
+						}
+						if (is_string($label)) {
+							$forms[] = '</optgroup>';
+						}
+					}
+					$form = '<select name="'.$name4disp.'" '.$attr.'>' . join('', $forms) . '</select>';
+					break;
 				case 'yesno':
 					$conf['list'] = array(
 						$this->msg['Yes'] => 1,
@@ -364,6 +391,44 @@ EOD;
 			$line = '$root->'.$key.' = '.$val.';';
 		}
 		return $line;
+	}
+	
+	function get_skin_names () {
+		$skinnames = array();
+		
+		// SKIN Dirctory
+		$normals = array();
+		$base = $this->cont['DATA_HOME'] . 'skin/';
+		if ($dir = opendir($base)) {
+			$nomatch = array('.', '..', 'js');
+			while (false !== ($file = readdir($dir))) {
+				if (is_dir($base.'/'.$file)
+				 && !in_array($file, $nomatch)
+				 && file_exists("{$base}/{$file}/pukiwiki.skin.php")) {
+					$normals[$file] = $file;
+				}
+			}
+		}
+		// tDiary Dirctory
+		$tdiarys = array();
+		$base = $this->cont['DATA_HOME'] . $this->cont['TDIARY_DIR'];
+		if ($dir = opendir($base)) {
+			$nomatch = array('.', '..');
+			while (false !== ($file = readdir($dir))) {
+				if (is_dir($base.'/'.$file)
+				 && !in_array($file, $nomatch)
+				 && file_exists("{$base}/{$file}/{$file}.css")) {
+					$tdiarys[$file] = 'tD-' . $file;
+				}
+			}
+		}
+		ksort($normals);
+		ksort($tdiarys);
+		
+		$skinnames['group'][$this->msg['SKIN_NAME']['normalskin']] = $normals;
+		$skinnames['group'][$this->msg['SKIN_NAME']['tdiarytheme']] = $tdiarys;
+		
+		return $skinnames;
 	}
 }
 ?>
