@@ -63,7 +63,7 @@ function b_xpwiki_a_page_show( $options )
 	$width = empty( $options[2] ) ? '100%' : $options[2] ;
 	$this_template = empty( $options[3] ) ? 'db:'.$mydirname.'_block_a_page.html' : trim( $options[3] ) ;
 	$div_class = empty( $options[4] ) ? 'xpwiki_b_' . $mydirname : $options[4];
-	$css = isset( $options[5] ) ? $options[5] : $xw->root->main_css;
+	$css = isset( $options[5] ) ? $options[5] : NULL;
 	$disabled_pagecache = empty($options[6])? false : true;
 	$head_tag_place = empty($options[7])? 'body' : trim($options[7]);
 	$configs = array();
