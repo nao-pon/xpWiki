@@ -27,7 +27,7 @@ if ($xpwiki->root->userinfo['admin']) {
 	}
 }
 
-if ($xpwiki->runmode == "xoops") {
+if ($xpwiki->runmode === 'xoops') {
 	
 	// xoops header
 	include XOOPS_ROOT_PATH.'/header.php';
@@ -57,7 +57,7 @@ if ($xpwiki->runmode == "xoops") {
 	// xoops footer
 	include XOOPS_ROOT_PATH.'/footer.php';
 
-} else if ($xpwiki->runmode == "xoops_admin") {
+} else if ($xpwiki->runmode === 'xoops_admin') {
 
 	// Check referer
 	if (! $xpwiki->func->refcheck()) {
@@ -121,7 +121,7 @@ EOD;
 	// xoops admin footer
 	xoops_cp_footer() ;	
 
-} else if ($xpwiki->runmode == "standalone") {
+} else if ($xpwiki->runmode === 'standalone') {
 	
 	while( ob_get_level() ) {
 		ob_end_clean() ;
