@@ -1,7 +1,7 @@
 <?php
 //
 // Created on 2006/09/29 by nao-pon http://hypweb.net/
-// $Id: xpwiki.php,v 1.80 2008/04/05 04:53:11 nao-pon Exp $
+// $Id: xpwiki.php,v 1.81 2008/04/18 06:52:17 nao-pon Exp $
 //
 
 class XpWiki {
@@ -303,6 +303,13 @@ class XpWiki {
 	}
 	
 	function catbody () {
+		// Check Skin name
+		if (! file_exists($this->cont['SKIN_FILE']) || $this->root->runmode === 'xoops_admin') {
+			$this->cont['SKIN_NAME'] = 'default';
+			$this->cont['SKIN_DIR'] = 'skin/' . $this->cont['SKIN_NAME'] . '/';
+			$this->cont['SKIN_FILE'] = $this->cont['DATA_HOME'] . $this->cont['SKIN_DIR'] . 'pukiwiki.skin.php';
+		}
+
 		// SKIN select from Cookie or Plugin.
 		if ($this->cont['SKIN_CHANGER'] && $this->cont['UA_PROFILE'] !== 'keitai' && (!empty($this->root->cookie['skin']) || is_string($this->cont['SKIN_CHANGER']))) {
 			$this->cont['SKIN_NAME'] = empty($this->root->cookie['skin'])? $this->cont['SKIN_CHANGER'] : $this->root->cookie['skin'];
@@ -364,9 +371,6 @@ class XpWiki {
 	
 	function get_html_for_block ($page, $width = "100%", $div_class = 'xpwiki_b_$mydirname', $css_tag = NULL, $configs = array(), $byArray = FALSE) {
 		
-		if (is_null($css_tag)) {
-			$css_tag = $this->root->main_css;
-		}
 		// configs
 		$this->iniVar = $configs;
 		
@@ -377,6 +381,10 @@ class XpWiki {
 			$this->init('#RenderMode');
 		} else {
 			$this->init($page);
+		}
+
+		if (is_null($css_tag)) {
+			$css_tag = $this->root->main_css;
 		}
 		
 		$div_class = str_replace('$mydirname', $this->root->mydirname, $div_class);
