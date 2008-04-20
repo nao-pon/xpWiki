@@ -1,7 +1,7 @@
 <?php
 /*
  * Created on 2008/01/24 by nao-pon http://hypweb.net/
- * $Id: conf.inc.php,v 1.8 2008/04/18 06:53:46 nao-pon Exp $
+ * $Id: conf.inc.php,v 1.9 2008/04/20 01:32:04 nao-pon Exp $
  */
 
 class xpwiki_plugin_conf extends xpwiki_plugin {
@@ -425,6 +425,8 @@ EOD;
 		ksort($normals);
 		ksort($tdiarys);
 		
+		if (empty($this->msg['SKIN_NAME']['normalskin'])) $this->msg['SKIN_NAME']['normalskin'] = 'Normal skins';
+		if (empty($this->msg['SKIN_NAME']['tdiarytheme'])) $this->msg['SKIN_NAME']['tdiarytheme'] = 't-Diart\'s themes';
 		$skinnames['group'][$this->msg['SKIN_NAME']['normalskin']] = $normals;
 		$skinnames['group'][$this->msg['SKIN_NAME']['tdiarytheme']] = $tdiarys;
 		
