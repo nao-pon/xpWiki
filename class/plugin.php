@@ -1,7 +1,7 @@
 <?php
 //
 // Created on 2006/10/05 by nao-pon http://hypweb.net/
-// $Id: plugin.php,v 1.11 2008/04/14 08:25:14 nao-pon Exp $
+// $Id: plugin.php,v 1.12 2008/04/20 01:34:02 nao-pon Exp $
 //
 
 
@@ -28,10 +28,12 @@ class xpwiki_plugin {
 	function load_language () {
 		if (! $this->language_loaded) {
 			$this->language_loaded = TRUE;
+			$this->msg = array();
 			
 			$uilang = $this->cont['UI_LANG'] . $this->cont['FILE_ENCORD_EXT'];
 			
-			if (! in_array($uilang, $this->cont['OFFICIAL_LANGS'])) {
+			$isOfficial = in_array($uilang, $this->cont['OFFICIAL_LANGS']);
+			if (! $isOfficial) {
 				// Load base language file.
 				include ($this->root->mytrustdirpath.'/language/xpwiki/en/plugin/'.$this->name.'.lng.php');
 				$this->msg = $msg;
@@ -40,9 +42,14 @@ class xpwiki_plugin {
 			$lang = $this->root->mytrustdirpath.'/language/xpwiki/' . $uilang . '/plugin/'.$this->name.'.lng.php';
 			if (file_exists($lang)) {
 				include ($lang);
-				$this->msg = $msg;
+				$this->msg = array_merge($this->msg, $msg);
 			} else {
-				$uilang = 'en';
+				if ($isOfficial && $uilang !== 'en') {
+					$uilang = 'en';
+					$lang = $this->root->mytrustdirpath.'/language/xpwiki/en/plugin/'.$this->name.'.lng.php';
+					include ($lang);
+					$this->msg = array_merge($this->msg, $msg);
+				}
 			}
 	
 			// html側にファイルがあれば上書き
