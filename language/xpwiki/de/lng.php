@@ -1,6 +1,6 @@
 <?php
 // PukiWiki - Yet another WikiWikiWeb clone.
-// $Id: lng.php,v 1.1 2008/04/20 01:46:10 nao-pon Exp $
+// $Id: lng.php,v 1.2 2008/04/20 02:19:08 nao-pon Exp $
 // Copyright (C)
 //   2002-2005 PukiWiki Developers Team
 //   2001-2002 Originally written by yu-ji
@@ -101,8 +101,8 @@ $root->_msg_auth         = 'PukiWikiAuth';
 
 ///////////////////////////////////////
 // Page name
-$root->rule_page = 'Formatierungsregeln';	// Formatting rules
-$root->help_page = 'Hilfe';		// Help
+$root->rule_page = 'FormattingRules';	// Formatting rules
+$root->help_page = 'Help';		// Help
 
 ///////////////////////////////////////
 // TrackBack (REMOVED)
