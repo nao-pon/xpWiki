@@ -460,6 +460,6 @@ document.observe("dom:loaded", function() {
 	XpWiki.addCssInHead('base.css');
 	XpWiki.remakeTextArea();
 	wikihelper_initTexts();
-	XpWiki.setWidthPreInTable();
+	XpWiki.initDomExtension();
 	XpWiki.faviconSet();
 });

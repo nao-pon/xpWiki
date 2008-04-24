@@ -450,8 +450,8 @@ var XpWiki = {
 			this.addWrapButton(tareas[i].id);
 		}
 	},
-	
-	setWidthPreInTable: function () {
+
+	initDomExtension: function () {
 		var elems = document.getElementsByTagName('body')[0].getElementsByTagName('div');
 		var pres = new Array();
 		var pNode;
@@ -472,10 +472,43 @@ var XpWiki = {
 					pres.push(elems[i]);
 				}
 			}
+			if (elems[i].className === "toc_header") {
+				var toc_childlen = elems[i].parentNode.getElementsByTagName('div');
+				var toc_body = null;
+				for (var toc_i=0; toc_i<toc_childlen.length; toc_i++){
+					if (toc_childlen[toc_i].className === "toc_body") {
+						toc_body = toc_childlen[toc_i];
+						break;
+					}
+				}
+				if (toc_body) {
+					var toc_marker = document.createElement('span');
+					elems[i].insertBefore(toc_marker, elems[i].firstChild);
+					elems[i].onclick = function(){XpWiki.tocToggle(toc_body, toc_marker);};
+					elems[i].style.cursor = 'pointer';
+					this.tocSetMarker(toc_body, toc_marker);
+				}
+			}
 		}
 		for (var i=0; i<pres.length; i++) {
 			pres[i].style.width = pres[i].offsetParent.offsetWidth - pres[i].offsetLeft - 30 + 'px';
 		}
+	},
+
+	tocToggle: function (body, marker) {
+		Element.toggle(body);
+		this.tocSetMarker(body, marker);
+	},
+	
+	tocSetMarker: function (body, marker) {
+		if (body.style.display === 'none') {
+			marker.className = 'toc_open';
+			marker.innerHTML = '<span>+</span>';
+		} else {
+			marker.className = 'toc_close';
+			marker.innerHTML = '<span>-</span>';
+		}
+		
 	},
 	
 	htmlspecialchars: function (str) {

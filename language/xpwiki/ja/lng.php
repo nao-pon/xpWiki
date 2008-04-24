@@ -1,6 +1,6 @@
 <?php
 // PukiWiki - Yet another WikiWikiWeb clone.
-// $Id: lng.php,v 1.5 2008/03/21 02:46:00 nao-pon Exp $
+// $Id: lng.php,v 1.6 2008/04/24 00:22:00 nao-pon Exp $
 // Copyright (C)
 //   2002-2005 PukiWiki Developers Team
 //   2001-2002 Originally written by yu-ji
@@ -114,7 +114,7 @@ $root->_no_name = '';
 
 /////////////////////////////////////////////////
 // Title of the page contents list
-$root->contents_title = '<h2>ページ内コンテンツ</h2>' . "\n";
+$root->contents_title = 'ページ内コンテンツ';
 
 /////////////////////////////////////////////////
 // Skin
