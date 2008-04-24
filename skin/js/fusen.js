@@ -9,7 +9,7 @@
 //
 // fusen.js for xpWiki by nao-pon
 // http://hypweb.net
-// $Id: fusen.js,v 1.10 2008/02/17 14:11:58 nao-pon Exp $
+// $Id: fusen.js,v 1.11 2008/04/24 00:03:40 nao-pon Exp $
 // 
 var fusenVar = new Array();
 var fusenMsgs = new Array();
@@ -502,7 +502,7 @@ function fusen_new(dblclick)
 	$('edit_ln').value = '';
 	$('tc000000').selected = true;
 	$('bgffffff').selected = true;
-	$('edit_body').value = '';
+	$('xpwiki_fusen_edit').value = '';
 	$('edit_name').style.visibility = "visible";
 	$('edit_l').value = fusenVar['mouseX'];
 	$('edit_t').value = fusenVar['mouseY'];
@@ -522,7 +522,7 @@ function fusen_editbox_hide() {
 
 function fusen_save()
 {
-	if ($('edit_mode').value == 'edit' && !$('edit_body').value) {
+	if ($('edit_mode').value == 'edit' && !$('xpwiki_fusen_edit').value) {
 		alert(fusenMsgs['err_nottext']);
 		return;
 	}
@@ -601,7 +601,7 @@ function fusen_edit(id)
 	$('edit_ln').value = (fusenObj[id].ln) ? 'id' + fusenObj[id].ln : '';
 	//$('edit_name').style.visibility = "hidden";
 	$('edit_name').value = fusenObj[id].name;
-	$('edit_body').value = text_body;
+	$('xpwiki_fusen_edit').value = text_body;
 	$('edit_mode').value = 'edit';
 	$('edit_w').value = fusenObj[id].w;
 	$('edit_h').value = fusenObj[id].h;
@@ -634,7 +634,7 @@ function fusen_link(id) {
 	$('edit_id').value = '';
 	$('edit_ln').value = 'id' + id;
 	$('edit_name').style.visibility = "visible";
-	$('edit_body').value = '';
+	$('xpwiki_fusen_edit').value = '';
 	$('edit_mode').value = 'edit';
 	fusen_show('fusen_editbox');
 }
@@ -859,7 +859,7 @@ function fusen_show(id)
 	$(id).onmousedown = fusen_onmousedown;
 	
 	if (id == 'fusen_editbox')
-		setTimeout(function(){$("edit_body").focus();window.scrollTo(left,Math.max(0,top - 100));},10);
+		setTimeout(function(){$("xpwiki_fusen_edit").focus();window.scrollTo(left,Math.max(0,top - 100));},10);
 	else
 		setTimeout(function(){window.scrollTo(left,Math.max(0,top - 100));},10);
 
@@ -876,7 +876,7 @@ function fusen_hide(id)
 	document.onmousemove = fusen_onmousemove;
 	fusenDblClick = false;
 	fusenMovingObj = null;
-	$("edit_body").blur();
+	$("xpwiki_fusen_edit").blur();
 	$("edit_ln").blur();
 	//$('edit_name').style.visibility = "hidden";
 	fusen_set_timer();
