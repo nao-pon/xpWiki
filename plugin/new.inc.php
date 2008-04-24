@@ -1,6 +1,6 @@
 <?php
 // PukiWiki - Yet another WikiWikiWeb clone.
-// $Id: new.inc.php,v 1.4 2008/04/05 04:49:00 nao-pon Exp $
+// $Id: new.inc.php,v 1.5 2008/04/24 00:02:15 nao-pon Exp $
 //
 // New! plugin
 //
@@ -35,9 +35,9 @@ class xpwiki_plugin_new extends xpwiki_plugin {
 			// Show 'New!' message by the time of the $date string
 			if (func_num_args() > 2) return '&new([nodate]){date};';
 	
-			$_date = str_replace(array_merge($this->root->weeklabels, array('(', ')')), '', $date);
+			$_date = preg_replace('/\([^)]+\)/', '', $date);
 			$timestamp = strtotime($_date);
-			if ($timestamp === -1 || $timestamp === FALSE) return '&new([nodate]){date}: Invalid date string;';
+			if ($timestamp === -1 || $timestamp === FALSE) return '&new([nodate]){date};: Invalid date string "'.htmlspecialchars($date).'"';
 			$timestamp -= $this->cont['ZONETIME'];
 	
 			$retval = in_array('nodate', $args) ? '' : htmlspecialchars($date);
