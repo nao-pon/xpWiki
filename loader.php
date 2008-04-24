@@ -1,9 +1,10 @@
 <?php
 //
 // Created on 2006/10/25 by nao-pon http://hypweb.net/
-// $Id: loader.php,v 1.40 2008/02/17 14:27:06 nao-pon Exp $
+// $Id: loader.php,v 1.41 2008/04/24 00:08:15 nao-pon Exp $
 //
 
+ignore_user_abort(FALSE);
 error_reporting(0);
 
 // ブラウザキャッシュ有効時間(秒)
