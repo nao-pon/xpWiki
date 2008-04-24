@@ -1,5 +1,5 @@
 <?php
-// $Id: calendar2.inc.php,v 1.9 2008/04/15 06:53:50 nao-pon Exp $
+// $Id: calendar2.inc.php,v 1.10 2008/04/24 00:15:42 nao-pon Exp $
 //
 // Calendar2 plugin
 //
@@ -179,9 +179,11 @@ EOD;
 			if ($this->func->is_page($tpage)) {
 				$_page = $this->root->vars['page'];
 				$str = $this->func->convert_html($this->func->get_source($tpage), $tpage);
-				$str .= '<hr /><a class="small" href="' . $this->root->script .
-				'?cmd=edit&amp;page=' . $r_tpage . '">' .
-				$this->root->_calendar2_plugin_edit . '</a>';
+				if (! $this->cont['PKWK_READONLY'] && $this->func->check_editable($tpage, FALSE, FALSE)) {
+					$str .= '<hr /><a class="small" href="' . $this->root->script .
+						'?cmd=edit&amp;page=' . $r_tpage . '">' .
+						$this->root->_calendar2_plugin_edit . '</a>';
+				}
 			} else {
 				$str = sprintf($this->root->_calendar2_plugin_empty,
 				$this->func->make_pagelink($tpage));
