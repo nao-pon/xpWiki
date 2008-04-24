@@ -904,6 +904,7 @@ class XpWikiBody extends XpWikiElement {
 		$this->id = $id;
 		$this->contents = & new XpWikiElement($xpwiki);
 		$this->contents->last_level = 0;
+		$this->contents->count = 0;
 		$this->contents_last = & $this->contents;
 		parent :: XpWikiElement($xpwiki);
 	}
@@ -1053,7 +1054,8 @@ class XpWikiBody extends XpWikiElement {
 			}
 		}
 		$this->contents->last_level = $level;
-
+		$this->contents->count++;
+		
 		$this->contents_last = & $this->contents_last->add(new XpWikiContents_UList($this->xpwiki, $text, $level, $id));
 		
 		// Add heding
@@ -1073,15 +1075,28 @@ class XpWikiBody extends XpWikiElement {
 		$text .= $this->func->get_areadiv_closer();
 		
 		// #contents
+		if ($this->root->contents_auto_insertion && empty($this->root->rtf['contents_converted']) && $this->contents->count >= $this->root->contents_auto_insertion) {
+			$text = preg_replace('/<h\d/', '<#_contents_>'."\n".'$0', $text, 1);
+		}
+		//echo count($this->contents->elements);
+		
 		$text = preg_replace_callback('/<#_contents_>/', array (& $this, 'replace_contents'), $text);
 
 		return $text."\n";
 	}
 
 	function replace_contents($arr) {
-		$contents = '<div class="contents">' . "\n" . '<a id="contents_' . $this->id . '"></a>' . "\n"
-					. $this->root->contents_title . $this->contents->toString() . "\n" . '</div>' . "\n";
-		return $contents;
+		$contents = $this->contents->toString();
+		return <<<EOD
+<div class="contents">
+ <div class="toc_header">
+  {$this->root->contents_title}
+ </div>
+ <div class="toc_body">
+  $contents
+ </div>
+</div>
+EOD;
 	}
 }
 

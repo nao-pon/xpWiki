@@ -1,6 +1,6 @@
 <?php
 // PukiWiki - Yet another WikiWikiWeb clone
-// $Id: pukiwiki.ini.php,v 1.71 2008/03/24 09:21:21 nao-pon Exp $
+// $Id: pukiwiki.ini.php,v 1.72 2008/04/24 00:22:00 nao-pon Exp $
 // Copyright (C)
 //   2002-2006 PukiWiki Developers Team
 //   2001-2002 Originally written by yu-ji
@@ -596,6 +596,11 @@ $root->auto_template_rules = array(
 	'((.+)\/([^\/]+))' => array('\2/template', ':template/\2', 'template', ':template/default') ,
 	'(()(.+))'         => array('template', ':template/default') ,
 );
+
+/////////////////////////////////////////////////
+// Number of heading that inserts "#contents" automatically
+// 0: Disabled
+$root->contents_auto_insertion = 4;
 
 /////////////////////////////////////////////////
 // Automatically add fixed heading anchor

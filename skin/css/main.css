@@ -195,16 +195,43 @@ $class dt {
 $class div.contents {
 	float: right;
 	width: 30%;
-	font-size:80%;
-	background-color: #F5F8FF;
-	border: gray 1px solid;
-	margin: 10px 5px 10px 20px;
+	font-size: 80%;
+	border: none;
+	margin: 0px 0px 5px 20px;
 	padding: 5px;
 }
-$class div.contents h2 {
+$class div.contents span.toc_open,
+$class div.contents span.toc_close {
+	border: 0.4em solid #F5F5F5;
+	display: block;
+	float: right;
+	margin: 0.4em 3px 0 0;
+}
+$class div.contents span.toc_open {
+	border-top: 0.4em solid #0000CD;
+	margin-top: 0.4em;
+}
+$class div.contents span.toc_close {
+	border-bottom: 0.4em solid #0000CD;
+	margin-top: 0px;
+}
+$class div.contents span.toc_open span,
+$class div.contents span.toc_close span {
+	display: none;
+}
+$class div.toc_header {
 	font-size: 120%;
+	font-weight: bold;
+	background-color: #F5F5F5;
+	border: gray 1px solid;
+	padding: 2px 2px 2px 5px;
+}
+$class div.toc_body {
 	font-weight: normal;
-	background-color:#DDEEFF;
+	background-color: #FEFEFE;
+	border: gray 1px solid;
+	border-top: none;
+	padding: 0.4em 0.2em 0 0.4em;
 }
 $class div.contents ul,
 $class div.contents ol {
