@@ -1,6 +1,6 @@
 <?php
 // PukiWiki - Yet another WikiWikiWeb clone
-// $Id: calendar_viewer.inc.php,v 1.12 2008/04/04 23:53:02 nao-pon Exp $
+// $Id: calendar_viewer.inc.php,v 1.13 2008/04/24 00:16:40 nao-pon Exp $
 //
 // Calendar viewer plugin - List pages that calendar/calnedar2 plugin created
 // (Based on calendar and recent plugin)
@@ -134,8 +134,6 @@ class xpwiki_plugin_calendar_viewer extends xpwiki_plugin {
 			$pagepattern     = $this->func->strip_bracket($pagename) . '/';
 			$pagepattern_len = strlen($pagepattern);
 			$pagepattern    .= $page_YM;
-			//$filepattern     = $this->func->encode($pagepattern . $page_YM);
-			//$filepattern_len = strlen($filepattern);
 		}
 	
 		// ページリストの取得
@@ -176,8 +174,6 @@ class xpwiki_plugin_calendar_viewer extends xpwiki_plugin {
 	
 			$body = $this->func->convert_html($this->func->get_source($page), $page);
 	
-			$r_page = rawurlencode($page);
-	
 			if ($this->cont['PLUGIN_CALENDAR_VIEWER_DATE_FORMAT'] !== FALSE) {
 				$time = strtotime($this->func->basename($page)); // $date_sep must be assumed '-' or ''!
 				if ($time == -1) {
@@ -195,9 +191,9 @@ class xpwiki_plugin_calendar_viewer extends xpwiki_plugin {
 			}
 			
 			$edit = "";
-			$link   = $this->root->script . '?' . $r_page;
+			$link = $this->func->get_page_uri($page, TRUE);
 			if (!$this->cont['PKWK_READONLY'] && $this->func->check_editable($page, FALSE, FALSE)) {
-				$edit = $this->root->script . '?cmd=edit&amp;page=' . $r_page;
+				$edit = $this->root->script . '?cmd=edit&amp;page=' . rawurlencode($page);
 				$edit = '<div style="float:right;padding-right:10px;font-size:90%;"> (<a href="' . $edit . '">' . $this->root->_LANG['skin']['edit'] . '</a>)</div>';
 			}
 			$link   = '<a href="' . $link . '">' . $s_page . '</a>';
