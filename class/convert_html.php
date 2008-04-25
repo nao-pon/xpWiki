@@ -380,13 +380,43 @@ class XpWikiTableCell extends XpWikiElement {
 						$text = $matches[5];
 					}
 		}
+		
+		// Text alignment
+		if (empty($this->style['align'])) {
+			if (preg_match('/^(<|=|>)(.+)$/', rtrim($text), $matches)) {
+			// Text alignment with "<" or "=" or ">".
+				if ($matches[1] === '=') {
+					$this->style['align'] = 'text-align:center;';
+				} else if ($matches[1] === '>') {
+					$this->style['align'] = 'text-align:right;';
+				} else if ($matches[1] === '<') {
+					$this->style['align'] = 'text-align:left;';
+				}
+				$text = $matches[2];
+			} else if (preg_match('/^(\s+)?(.+?)(\s+)?$/', $text, $matches)) {
+			// Text alignment with 1 or more spaces.
+				if (! empty($matches[1]) && ! empty($matches[3])) {
+					$this->style['align'] = 'text-align:center;';
+				} else if (! empty($matches[1])) {
+					$this->style['align'] = 'text-align:right;';
+				} else if (! empty($matches[3])) {
+					$this->style['align'] = 'text-align:left;';
+				}
+				if (! empty($this->style['align'])) {
+					$text = $matches[2];
+				}
+			}
+		}
+		
 		if ($is_template && is_numeric($text))
 			$this->style['width'] = 'width:'.$text.'px;';
 
-		if ($text === '>') {
+		if ($text === '' || rtrim($text) === '<') {
+			$this->colspan = -1;
+		} else if (rtrim($text) === '>') {
 			$this->colspan = 0;
 		} else
-			if ($text === '~') {
+			if (in_array($text, array('~', '^'))) {
 				$this->rowspan = 0;
 			} else
 				if (substr($text, 0, 1) === '~') {
@@ -413,7 +443,7 @@ class XpWikiTableCell extends XpWikiElement {
 	}
 
 	function toString() {
-		if ($this->rowspan === 0 || $this->colspan === 0)
+		if ($this->rowspan === 0 || $this->colspan < 1)
 			return '';
 
 		$param = ' class="style_'.$this->tag.'"';
@@ -595,11 +625,17 @@ class XpWikiTable extends XpWikiElement {
 			if ($this->types[$nrow] === 'c')
 				$stylerow = & $row;
 			$colspan = 1;
+			$enable_col = NULL;
 			foreach (array_keys($row) as $ncol) {
-				if ($row[$ncol]->colspan === 0) {
+				if (! is_null($enable_col) && $row[$ncol]->colspan === -1) {
+					++ $row[$enable_col]->colspan;
+					continue;
+				}
+				if ($row[$ncol]->colspan < 1) {
 					++ $colspan;
 					continue;
 				}
+				$enable_col = $ncol;
 				$row[$ncol]->colspan = $colspan;
 				if ($stylerow !== NULL) {
 					$row[$ncol]->setStyle($stylerow[$ncol]->style);
