@@ -1,4 +1,7 @@
 #freeze
+#nofollow
+#norelated
+#contents
 *Text Formatting Rules [#te82f1fe]
 
 Most text is displayed as it is written.
@@ -8,8 +11,7 @@ Most text is displayed as it is written.
 
 Use the formatting rules below to decorate texts. For the formatting with plugins, only the most commonly used ones are explained here. See [[PukiWiki/1.4/Manual/Plugin]] for the details of the plugin options.
 
-#contents
-#hr
+----
 
 The input text of PukiWiki is usually shown in the same way as it was entered. However, you can use the following rules to enhance your texts. The use of HTML tags is forbidden. Instead, special characters can be used to format text. Formatting rules usually apply to a certain part of the text. Such a part of a text is called a text Element. 
 **&aname(elements);Elements [#vec0ef3a]
@@ -133,6 +135,20 @@ Inline Elements that are separated by "|", will be formatted as a Table. Remembe
 |rowapn|BGCOLOR(blue):BLUE|COLOR(red):RED|
 |~|>|colspan|
 //#br
+- The line arrangement in the cell can be expressed by using one or more spaces or "<", "=", ">".
+ |           ~Table with alignment          |||h
+ |         right|    center    |left          |
+ |left          |         right|    center    |
+ | xxxxxxxxxxxx | xxxxxxxxxxxx | xxxxxxxxxxxx |
+ 
+ |=~Table with alignment                    |||h
+ |>right        |=center       |<left         |
+ |<left         |>right        |=center       |
+ | xxxxxxxxxxxx | xxxxxxxxxxxx | xxxxxxxxxxxx |
+|           ~Table with alignment          |||h
+|         right|    center    |left          |
+|left          |         right|    center    |
+| xxxxxxxxxxxx | xxxxxxxxxxxx | xxxxxxxxxxxx |
 -"c" at the end of the line indicates the line to be Formatting Row. The following code may be used in the Formatting Row.
  LEFT:
  CENTER:
@@ -144,12 +160,16 @@ Inline Elements that are separated by "|", will be formatted as a Table. Remembe
 -"h" at the end of the line indicates the line to be the Header Row (thead).
 -"f" at the end of the line indicates the line to be the Footer Row (tfood).
 -Cell containing Inline Element starting with "~" indicates the Cell to be a Header Cell (th).
--Cell containing only ">" will be concatenated with the Cell right next to it (colspan).
--Cell containing only "~" will be concatenated with the Cell above it (rowapn).
+- A blank cell is connected with a left cell. (Connect it with a right cell when there is 
+no cell to the left.)
+-Cell containing only ">" will be concatenated with the right Cell (colspan).
+-Cell containing only "<" will be concatenated with the left Cell (colspan).
+-Cell containing only "~" or "^" will be concatenated with the Cell above it (rowapn).
 
 //#br
 -Table may be contained by another Block Element.
 -As a general rule, a Table may not contain other Block Element.
+
 ***&aname(csv);CSV Style Table [#b1645d3b]
  ,Inline Element,Inline Element,¡Ä
 ~Inline Elements that are separated by ","(comma), will be formatted as a Table. Note that you must write "," before the first Element of the CSV Style Table.
@@ -161,11 +181,12 @@ Inline Elements that are separated by "|", will be formatted as a Table. Remembe
 
 ,aaaaaaaaa,bbbbbbb,ccccccc
 ,left , center , right
-,==,COLOR(red):<-- colspan, test
+,COLOR(red):colspan -->,==, test
 
 //#br
 -CSV Style Table may be contained by another Block Element.
 -CSV Style Table may not contain other Block Elements.
+
 ***&aname(headline);Heading [#a191d5ac]
  *Inline Element
 A line that starts wit an "*" character becomes a Heading Element. There are three levels of heading Elements, namely: "*", "**",and "***".
@@ -351,14 +372,20 @@ Inline elements enclosed with &#40;&#40; and &#41;&#41; makes a footnote. A link
 //-Paragraph break inside a footnot must not contain other inline elements.
 
 ***&aname(ref2);Embedded Files and Images [#w04aa19e]
- &ref(File Name);
- &ref(URL);
-&#38;ref makes a link to an attachment file or a URL. If the attachment is an image file, the image is displayed.
+ &ref(File Name[,parameters]){alternative string};
+ {{File Name[,parameters]|alternative string}}
+ 
+ &ref(URL[,parameters]){alternative string};
+ {{URL[,parameters]|alternative string}}
+
+&#38;ref or {&#123; &#125;} makes a link to an attachment file or a URL. If the attachment is an image file, the image is displayed.
 //#br
+- When the attached file name is omitted, it becomes a link for the file up-loading. When the file is up-loaded by using the link, it is substituted for the file display that the link part appended.
 -&#38;ref can have the following parameters, separated by cammas. Default values are used for unspecified parameters.
  The page where the attachment file is uploaded.
 --This parameter defines the page (WikiName¡¢ BracketName) where the attachment file is stored. The default is the current page.
 --This parameter must be set right after the file name.
+-- The attached file name can be assumed to be "Page name/attached file name".
 -
  nolink
 --By default &#38;ref creates the link to the attachment file. With nolink, the link is not created.
