@@ -1,7 +1,7 @@
 <?php
 //
 // Created on 2006/11/07 by nao-pon http://hypweb.net/
-// $Id: check.func.php,v 1.14 2008/03/14 02:54:00 nao-pon Exp $
+// $Id: check.func.php,v 1.15 2008/04/25 02:40:28 nao-pon Exp $
 //
 
 // when onInstall & onUpdate
@@ -74,7 +74,7 @@ function xpwikifunc_defdata_check ($mydirname, $mode = 'install') {
 	
 	foreach(file($from_base.'wiki/.timestamp') as $line) {
 		list($file, $time) = explode("\t", $line);
-		$timestamp[$file] = intval(trim($time)) - 32400 + date('Z');
+		$timestamp[$file] = intval(trim($time));
 	}
 
 	foreach ($dirs as $from=>$to) {
@@ -143,6 +143,8 @@ function xpwikifunc_defdata_check ($mydirname, $mode = 'install') {
 								// pginfo DB write
 								$xpwiki->func->pginfo_freeze_db_write($page, 1);
 							}
+							// touch page
+							$xpwiki->func->touch_page($page, $timestamp[$file]);
 							
 							$msg[] = "Updated a page '" . htmlspecialchars($page) . "'.<br />";
 						}
