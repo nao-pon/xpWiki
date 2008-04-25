@@ -237,6 +237,29 @@ function wikihelper_hide_helper() {
 	}
 }
 
+function wikihelper_tagset (str, v) {
+	if ( v == 'size' ) {
+		var default_size = "%";
+		v = prompt(wikihelper_msg_fontsize, default_size);
+		if (!v) return false;
+		if (!v.match(/(%|pt)$/))
+			v += "pt";
+		if (!v.match(/\d+(%|pt)/))
+			return false;
+	}
+	if ( v == 'b') {
+		str = '\'\'' + str.replace(/(\r\n|\r|\n)/g, "&br;") + '\'\'';
+	} else if ( v == 'i') {
+		str = '\'\'\'' + str.replace(/(\r\n|\r|\n)/g, "&br;") + '\'\'\'';
+	} else if (str.match(/^&font\([^\)]*\)\{.*\};$/)) {
+		str = str.replace(/^(&font\([^\)]*)(\)\{.*\};)$/,"$1," + v.replace(/(\r\n|\r|\n)/g, "&br;") + "$2");
+	} else {
+		str = '&font(' + v + '){' + str.replace(/(\r\n|\r|\n)/g, "&br;") + '};';
+	}
+	
+	return str;
+}
+
 function xpwiki_now_loading(mode, id) {
 	if (mode) {
 		if (!id || !$(id)) {
