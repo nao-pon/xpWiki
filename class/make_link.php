@@ -36,20 +36,18 @@ class XpWikiInlineConverter {
 		$this->func = & $xpwiki->func;
 
 		if ($converters === NULL) {
-			$converters = array ('plugin', // Inline plugins
-				'note', // Footnotes
-				//'url', // URLs
-				'url_i18n', // URLs (i18n)
+			$converters = array (
+				'plugin',        // Inline plugins
+				'easyref',       // Easy ref style {{param|body}}
+				'note',          // Footnotes
+				'url_i18n',      // URLs (i18n)
 				'url_interwiki', // URLs (interwiki definition)
-				//'mailto', // mailto: URL schemes
-				'mailto_i18n', // mailto: URL schemes
+				'mailto_i18n',   // mailto: URL schemes
 				'interwikiname', // InterWikiNames
-				'autoalias', // AutoAlias
-				//'autolink', // AutoLinks
-				'bracketname', // BracketNames
-				'wikiname', // WikiNames
-				'autoalias_a', // AutoAlias(alphabet)
-				//'autolink_a', // AutoLinks(alphabet)
+				'autoalias',     // AutoAlias
+				'bracketname',   // BracketNames
+				'wikiname',      // WikiNames
+				'autoalias_a',   // AutoAlias(alphabet)
 			);
 		}
 
@@ -257,7 +255,7 @@ EOD;
 	}
 
 	function toString() {
-		$body = ($this->body == '') ? '' : $this->func->make_link($this->body);
+		$body = ($this->body === '') ? '' : $this->func->make_link($this->body);
 		$str = FALSE;
 
 		// Try to call the plugin
@@ -268,9 +266,47 @@ EOD;
 			return $str; // Succeed
 		} else {
 			// No such plugin, or Failed
-			$body = (($body == '') ? '' : '{'.$body.'}').';';
+			$body = (($body === '') ? '' : '{'.$body.'}').';';
 			return $this->func->make_line_rules(htmlspecialchars('&'.$this->plain).$body);
 		}
+	}
+}
+
+// Easy ref
+class XpWikiLink_easyref extends XpWikiLink {
+	var $pattern;
+	var $plain, $param;
+
+	function XpWikiLink_easyref(& $xpwiki, $start) {
+		parent :: XpWikiLink($xpwiki, $start);
+	}
+
+	function get_pattern() {
+		if (! $this->root->easy_ref_syntax) return FALSE;
+		
+		return<<<EOD
+\{\{
+ (.*?)  # (1) parameter
+ (?:\|
+  (.*?) # (2) body (optional)
+ )?
+\}\}
+EOD;
+	}
+
+	function get_count() {
+		return 2;
+	}
+
+	function set($arr, $page) {
+		list ($all, $this->param, $body) = $this->splice($arr);
+		$this->param = trim($this->param);
+		return parent :: setParam($page, 'ref', $body, 'plugin');
+	}
+
+	function toString() {
+		$body = ($this->body === '') ? '' : $this->func->make_link($this->body);
+		return $this->func->do_plugin_inline($this->name, $this->param, $body);
 	}
 }
 
