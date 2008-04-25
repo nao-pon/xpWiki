@@ -228,7 +228,7 @@ $class div.toc_header {
 }
 $class div.toc_body {
 	font-weight: normal;
-	background-color: #FEFEFE;
+	background-color: #FDFDFF;
 	border: gray 1px solid;
 	border-top: none;
 	padding: 0.4em 0.2em 0 0.4em;
@@ -305,13 +305,13 @@ $class tfoot td.style_td {
 }
 $class thead th.style_th,
 $class tfoot th.style_th {
-	color:inherit;
+	color:#000;
 	background-color:#E0E8F0;
 }
 $class .style_table {
 	padding:0px;
 	border:0px;
-	margin:auto;
+	margin: 10px auto;
 	text-align:left;
 	color:inherit;
 	background-color:#ccd5dd;
@@ -327,7 +327,7 @@ $class .style_td {
 	padding:5px;
 	margin:1px;
 	color:inherit;
-	background-color:#EEF5FF;
+	background-color:#FDFDFF;
 }
 
 $class ul,
