@@ -2,7 +2,7 @@
 /////////////////////////////////////////////////
 // PukiWiki - Yet another WikiWikiWeb clone.
 //
-//  $Id: attach.inc.php,v 1.38 2008/04/04 23:50:26 nao-pon Exp $
+//  $Id: attach.inc.php,v 1.39 2008/04/25 02:51:52 nao-pon Exp $
 //  ORG: attach.inc.php,v 1.31 2003/07/27 14:15:29 arino Exp $
 //
 /*
@@ -504,6 +504,9 @@ class xpwiki_plugin_attach extends xpwiki_plugin {
 		}
 		$_tmp = $postdata = $this->func->get_source($page);
 		$postdata = preg_replace('/((?:&|#)ref)\(ID\$'.preg_quote($refid, '/').'((?:,[^\)]+)?\);?)/', "$1(".$name.$prm."$2", $postdata);
+		if ($this->root->easy_ref_syntax) {
+			$postdata = preg_replace('/\{\{ID\$'.preg_quote($refid, '/').'((?:,|\|).*?)?\}\}/', "{{".$name.$prm."$1}}", $postdata);
+		}
 		if ($_tmp !== $postdata) {
 			$this->func->file_write($this->cont['DATA_DIR'], $page, join('', $postdata), TRUE);
 		}	
