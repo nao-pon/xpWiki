@@ -1,7 +1,7 @@
 <?php
 //
 // Created on 2006/10/02 by nao-pon http://hypweb.net/
-// $Id: xpwiki_func.php,v 1.162 2008/04/18 06:52:17 nao-pon Exp $
+// $Id: xpwiki_func.php,v 1.163 2008/04/25 02:42:00 nao-pon Exp $
 //
 class XpWikiFunc extends XpWikiXoopsWrapper {
 
@@ -1890,6 +1890,12 @@ EOD;
 		}
 		
 		return $html;
+	}
+	
+	function touch_page ($page, $time = FALSE) {
+		if (! $this->is_page($page)) return FALSE;
+		$this->pkwk_touch_file($this->get_filename($page), $time);
+		$this->touch_db($page);
 	}
 	
 /*----- DB Functions -----*/ 
