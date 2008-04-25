@@ -102,24 +102,7 @@ function wikihelper_tag(v)
 		return;
 	}
 	
-	if ( v == 'size' )
-	{
-		var default_size = "%";
-		v = prompt(wikihelper_msg_fontsize, default_size);
-		if (!v) return;
-		if (!v.match(/(%|pt)$/))
-			v += "pt";
-		if (!v.match(/\d+(%|pt)/))
-			return;
-	}
-	if (str.match(/^&font\([^\)]*\)\{.*\};$/))
-	{
-		str = str.replace(/^(&font\([^\)]*)(\)\{.*\};)$/,"$1," + v.replace(/(\r\n|\r|\n)/g, "&br;") + "$2");
-	}
-	else
-	{
-		str = '&font(' + v + '){' + str.replace(/(\r\n|\r|\n)/g, "&br;") + '};';
-	}
+	if (! (str = wikihelper_tagset(str, v))) return;
 	
 	wikihelper_elem.caretPos.text = str;
 	wikihelper_elem.focus();
