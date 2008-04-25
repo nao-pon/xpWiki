@@ -456,6 +456,7 @@ var XpWiki = {
 		var pres = new Array();
 		var pNode;
 		var inTable;
+		var tocId = 0;
 		for (var i=0; i<elems.length; i++){
 			if (elems[i].className == 'pre' && elems[i].style.overflow == 'auto') {
 				inTable = false;
@@ -478,15 +479,18 @@ var XpWiki = {
 				for (var toc_i=0; toc_i<toc_childlen.length; toc_i++){
 					if (toc_childlen[toc_i].className === "toc_body") {
 						toc_body = toc_childlen[toc_i];
+						toc_body.id = 'xpwiki_toc_body' + tocId;
 						break;
 					}
 				}
 				if (toc_body) {
 					var toc_marker = document.createElement('span');
+					toc_marker.id = 'xpwiki_toc_marker' + tocId;
 					elems[i].insertBefore(toc_marker, elems[i].firstChild);
-					elems[i].onclick = function(){XpWiki.tocToggle(toc_body, toc_marker);};
+					eval( 'elems[i].onclick = function(){ XpWiki.tocToggle("' + tocId + '"); };');
 					elems[i].style.cursor = 'pointer';
 					this.tocSetMarker(toc_body, toc_marker);
+					tocId++;
 				}
 			}
 		}
@@ -495,7 +499,9 @@ var XpWiki = {
 		}
 	},
 
-	tocToggle: function (body, marker) {
+	tocToggle: function (tocId) {
+		body = $('xpwiki_toc_body' + tocId);
+		marker = $('xpwiki_toc_marker' + tocId);
 		Element.toggle(body);
 		this.tocSetMarker(body, marker);
 	},
