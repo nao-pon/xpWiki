@@ -1,7 +1,7 @@
 <?php
 //
 // Created on 2006/10/02 by nao-pon http://hypweb.net/
-// $Id: pukiwiki_func.php,v 1.164 2008/04/25 12:11:31 nao-pon Exp $
+// $Id: pukiwiki_func.php,v 1.165 2008/04/27 11:52:42 nao-pon Exp $
 //
 class XpWikiPukiWikiFunc extends XpWikiBaseFunc {
 
@@ -31,7 +31,7 @@ class XpWikiPukiWikiFunc extends XpWikiBaseFunc {
 				$size = filesize($path);
 				if ($size === FALSE) {
 					$result = FALSE;
-				} else if ($size == 0) {
+				} else if ($size === 0) {
 					$result = '';
 				} else {
 					if (is_int($join)) { $size = min($join, $size); }
@@ -119,7 +119,7 @@ class XpWikiPukiWikiFunc extends XpWikiBaseFunc {
 		}
 		
 		if ($postdata) {
-			$reading = (!empty($this->root->vars['reading']) && $this->get_page_reading($page) != $this->root->vars['reading'])? $this->root->vars['reading'] : '';
+			$reading = (!empty($this->root->vars['reading']) && $this->get_page_reading($page) !== $this->root->vars['reading'])? $this->root->vars['reading'] : '';
 			$rm_postdata = $this->remove_pginfo($postdata);
 			// Page order
 			$pgorder = NULL;
@@ -375,12 +375,12 @@ class XpWikiPukiWikiFunc extends XpWikiBaseFunc {
 			$line = & $lines[$i]; // Modify directly
 	
 			// Ignore null string and preformatted texts
-			if ($line == '' || $line{0} == ' ' || $line{0} == "\t") continue;
+			if ($line === '' || $line{0} === ' ' || $line{0} === "\t") continue;
 	
 			// Modify this line?
 			if ($modify) {
 				if (! $this->cont['PKWKEXP_DISABLE_MULTILINE_PLUGIN_HACK'] &&
-				    $multiline == 0 &&
+				    $multiline === 0 &&
 				    preg_match('/^#[^{]+(\{\{+)\s*$/', $line, $matches)) {
 				    	// Multiline convert plugin start
 					$modify    = FALSE;
@@ -388,7 +388,7 @@ class XpWikiPukiWikiFunc extends XpWikiBaseFunc {
 				}
 			} else {
 				if (! $this->cont['PKWKEXP_DISABLE_MULTILINE_PLUGIN_HACK'] &&
-				    $multiline != 0 &&
+				    $multiline !== 0 &&
 				    preg_match('/^\}{' . $multiline . '}\s*$/', $line)) {
 				    	// Multiline convert plugin end
 					$modify    = TRUE;
@@ -404,7 +404,7 @@ class XpWikiPukiWikiFunc extends XpWikiBaseFunc {
 			// Adding fixed anchor into headings
 			if ($this->root->fixed_heading_anchor &&
 			    preg_match('/^(\*{1,5}.*?)(?:\[#([A-Za-z][\w-]*)\]\s*)?$/', $line, $matches) &&
-			    (! isset($matches[2]) || $matches[2] == '')) {
+			    (! isset($matches[2]) || $matches[2] === '')) {
 				// Generate unique id
 				$anchor = $this->generate_fixed_heading_anchor_id($matches[1]);
 				$line = rtrim($matches[1]) . ' [#' . $anchor . ']';
@@ -427,7 +427,7 @@ class XpWikiPukiWikiFunc extends XpWikiBaseFunc {
 	
 		// Multiline part has no stopper
 		if (! $this->cont['PKWKEXP_DISABLE_MULTILINE_PLUGIN_HACK'] &&
-		    $modify === FALSE && $multiline != 0)
+		    $modify === FALSE && $multiline !== 0)
 			$lines[] = str_repeat('}', $multiline);
 	
 		$lines = implode("\n", $lines);
@@ -458,7 +458,7 @@ class XpWikiPukiWikiFunc extends XpWikiBaseFunc {
 		$index = 0;
 		while (! feof($fp)) {
 			$line = fgets($fp, $buffer);
-			if ($line != FALSE) $array[] = $line;
+			if ($line !== FALSE) $array[] = $line;
 			if (++$index >= $count) break;
 		}
 		if ($lock) flock($fp, LOCK_UN);
@@ -480,12 +480,12 @@ class XpWikiPukiWikiFunc extends XpWikiBaseFunc {
 			return; // Do nothing
 		}
 		
-		if ($dir != $this->cont['DATA_DIR'] && $dir != $this->cont['DIFF_DIR']) die('file_write(): Invalid directory');
+		if ($dir !== $this->cont['DATA_DIR'] && $dir !== $this->cont['DIFF_DIR']) die('file_write(): Invalid directory');
 	
 		$page = $this->strip_bracket($page);
 		
 		// ページキャッシュを破棄
-		if ($dir == $this->cont['DATA_DIR']) {
+		if ($dir === $this->cont['DATA_DIR']) {
 			$this->clear_page_cache ($page);
 		}
 		
@@ -495,7 +495,7 @@ class XpWikiPukiWikiFunc extends XpWikiBaseFunc {
 		// ----
 		// Delete?
 	
-		if ($dir == $this->cont['DATA_DIR'] && $str === '') {
+		if ($dir === $this->cont['DATA_DIR'] && $str === '') {
 			// Page deletion
 			if (! $file_exists) return; // Ignore null posting for $this->cont['DATA_DIR']
 	
@@ -507,7 +507,7 @@ class XpWikiPukiWikiFunc extends XpWikiBaseFunc {
 	
 			return;
 	
-		} else if ($dir == $this->cont['DIFF_DIR'] && $str === " \n") {
+		} else if ($dir === $this->cont['DIFF_DIR'] && $str === " \n") {
 			return; // Ignore null posting for $this->cont['DIFF_DIR']
 		}
 	
@@ -536,7 +536,7 @@ class XpWikiPukiWikiFunc extends XpWikiBaseFunc {
 		if ($timestamp) $this->pkwk_touch_file($file, $timestamp);
 	
 		// Optional actions
-		if ($dir == $this->cont['DATA_DIR']) {
+		if ($dir === $this->cont['DATA_DIR']) {
 	
 			// Command execution per update
 			if (isset($this->cont['PKWK_UPDATE_EXEC']) && $this->cont['PKWK_UPDATE_EXEC'])
@@ -625,7 +625,7 @@ class XpWikiPukiWikiFunc extends XpWikiBaseFunc {
 		if (! $this->root->show_passage) return '';
 	
 		$time = $this->get_filetime($page);
-		$pg_passage = ($time != 0) ? $this->get_passage($time) : '';
+		$pg_passage = ($time !== 0) ? $this->get_passage($time) : '';
 	
 		return $sw ? '<small>' . $pg_passage . '</small>' : ' ' . $pg_passage;
 	}
@@ -644,7 +644,7 @@ class XpWikiPukiWikiFunc extends XpWikiBaseFunc {
 	function get_existpages($dir = NULL, $ext = '.txt')
 	{
 		// 通常はDB版へ丸投げ
-		//if (!is_string($nocheck) || $nocheck == DATA_DIR)
+		//if (!is_string($nocheck) || $nocheck === DATA_DIR)
 		//	return $this->get_existpages_db($nocheck,$base,$limit,$order,$nolisting,$nochiled,$nodelete);
 		
 		// PukiWiki 1.4 互換
@@ -655,7 +655,7 @@ class XpWikiPukiWikiFunc extends XpWikiBaseFunc {
 		$aryret = array();
 	
 		$pattern = '((?:[0-9A-F]{2})+)';
-		if ($ext != '') $ext = preg_quote($ext, '/');
+		if ($ext !== '') $ext = preg_quote($ext, '/');
 		$pattern = '/^' . $pattern . $ext . '$/';
 	
 		$dp = @opendir($dir) or
@@ -702,7 +702,7 @@ class XpWikiPukiWikiFunc extends XpWikiBaseFunc {
 			// Check there's non-clear-pronouncing page
 			$unknownPage = FALSE;
 			foreach ($readings as $page => $reading) {
-				if($reading == '') {
+				if($reading === '') {
 					$unknownPage = TRUE;
 					break;
 				}
@@ -719,7 +719,7 @@ class XpWikiPukiWikiFunc extends XpWikiBaseFunc {
 					$fp = fopen($tmpfname, 'w') or
 						$this->die_message('Cannot write temporary file "' . $tmpfname . '".' . "\n");
 					foreach ($readings as $page => $reading) {
-						if($reading != '') continue;
+						if($reading !== '') continue;
 						fputs($fp, mb_convert_encoding($page . "\n",
 							$this->root->pagereading_kanji2kana_encoding, $this->cont['SOURCE_ENCODING']));
 					}
@@ -732,7 +732,7 @@ class XpWikiPukiWikiFunc extends XpWikiBaseFunc {
 						$this->die_message('ChaSen execution failed: ' . $chasen);
 					}
 					foreach ($readings as $page => $reading) {
-						if($reading != '') continue;
+						if($reading !== '') continue;
 	
 						$line = fgets($fp);
 						$line = mb_convert_encoding($line, $this->cont['SOURCE_ENCODING'],
@@ -755,7 +755,7 @@ class XpWikiPukiWikiFunc extends XpWikiBaseFunc {
 					$fp       = fopen($tmpfname, 'w') or
 						$this->die_message('Cannot write temporary file "' . $tmpfname . '".' . "\n");
 					foreach ($readings as $page => $reading) {
-						if($reading != '') continue;
+						if($reading !== '') continue;
 						fputs($fp, mb_convert_encoding($page . "\n",
 							$this->root->pagereading_kanji2kana_encoding, $this->cont['SOURCE_ENCODING']));
 					}
@@ -769,7 +769,7 @@ class XpWikiPukiWikiFunc extends XpWikiBaseFunc {
 					}
 	
 					foreach ($readings as $page => $reading) {
-						if($reading != '') continue;
+						if($reading !== '') continue;
 	
 						$line = fgets($fp);
 						$line = mb_convert_encoding($line, $this->cont['SOURCE_ENCODING'],
@@ -793,7 +793,7 @@ class XpWikiPukiWikiFunc extends XpWikiBaseFunc {
 						}
 					}
 					foreach ($readings as $page => $reading) {
-						if($reading != '') continue;
+						if($reading !== '') continue;
 	
 						$readings[$page] = $page;
 						foreach ($patterns as $no => $pattern)
@@ -821,7 +821,7 @@ class XpWikiPukiWikiFunc extends XpWikiBaseFunc {
 	
 		// Pages that are not prounouncing-clear, return pagenames of themselves
 		foreach ($pages as $page) {
-			if($readings[$page] == '')
+			if($readings[$page] === '')
 				$readings[$page] = $page;
 		}
 	
@@ -938,7 +938,7 @@ class XpWikiPukiWikiFunc extends XpWikiBaseFunc {
 
 //----- Start convert_html.php -----//
 	// PukiWiki - Yet another WikiWikiWeb clone
-	// $Id: pukiwiki_func.php,v 1.164 2008/04/25 12:11:31 nao-pon Exp $
+	// $Id: pukiwiki_func.php,v 1.165 2008/04/27 11:52:42 nao-pon Exp $
 	// Copyright (C)
 	//   2002-2005 PukiWiki Developers Team
 	//   2001-2002 Originally written by yu-ji
@@ -1113,7 +1113,7 @@ class XpWikiPukiWikiFunc extends XpWikiBaseFunc {
 	function & Factory_Inline($text)
 	{
 		// Check the first letter of the line
-		if (substr($text, 0, 1) == '~') {
+		if (substr($text, 0, 1) === '~') {
 			$ret = & new XpWikiParagraph($this->xpwiki, ' ' . substr($text, 1));
 		} else {
 			$ret = & new XpWikiInline($this->xpwiki, $text);
@@ -1146,7 +1146,7 @@ class XpWikiPukiWikiFunc extends XpWikiBaseFunc {
 	// Comma-separated table
 	function & Factory_YTable($text)
 	{
-		if ($text == ',') {
+		if ($text === ',') {
 			return $this->Factory_Inline($text);
 		} else {
 			$ret = & new XpWikiYTable($this->xpwiki, $this->csv_explode(',', substr($text, 1)));
@@ -1173,7 +1173,7 @@ class XpWikiPukiWikiFunc extends XpWikiBaseFunc {
 				$len  = strlen($matches[3]);
 				$body = array();
 				$ret = false;
-				if ($len == 0) {
+				if ($len === 0) {
 					$ret = & new XpWikiDiv($this->xpwiki, $matches); // Seems legacy block plugin
 				} else if (preg_match('/\{{' . $len . '}\s*\r(.*)\r\}{' . $len . '}/', $text, $body)) { 
 					$matches[2] .= "\r" . $body[1] . "\r";
@@ -1189,7 +1189,7 @@ class XpWikiPukiWikiFunc extends XpWikiBaseFunc {
 
 //----- Start func.php -----//
 	// PukiWiki - Yet another WikiWikiWeb clone.
-	// $Id: pukiwiki_func.php,v 1.164 2008/04/25 12:11:31 nao-pon Exp $
+	// $Id: pukiwiki_func.php,v 1.165 2008/04/27 11:52:42 nao-pon Exp $
 	// Copyright (C)
 	//   2002-2006 PukiWiki Developers Team
 	//   2001-2002 Originally written by yu-ji
@@ -1217,7 +1217,7 @@ class XpWikiPukiWikiFunc extends XpWikiBaseFunc {
 				'/^(?:[\x00-\x7F]|(?:[\x8E\xA1-\xFE][\xA1-\xFE])|(?:\x8F[\xA1-\xFE][\xA1-\xFE]))+$/';
 				break;
 			}
-			if (isset($pattern) && $pattern != '')
+			if (isset($pattern) && $pattern !== '')
 				$is_pagename = ($is_pagename && preg_match($pattern, $str));
 		}
 	
@@ -1271,7 +1271,7 @@ class XpWikiPukiWikiFunc extends XpWikiBaseFunc {
 			flock($fp, LOCK_UN) or die('is_freeze(): flock() failed');
 			fclose($fp) or die('is_freeze(): fclose() failed: ' . htmlspecialchars($page));
 	
-				$is_freeze[$this->root->mydirname][$page] = ($buffer != FALSE && rtrim($buffer, "\r\n") == '#freeze');
+				$is_freeze[$this->root->mydirname][$page] = ($buffer !== FALSE && rtrim($buffer, "\r\n") === '#freeze');
 			return $is_freeze[$this->root->mydirname][$page];
 		}
 	}
@@ -1333,14 +1333,14 @@ class XpWikiPukiWikiFunc extends XpWikiBaseFunc {
 	
 		if (! isset($init)) {
 			// function: mb_convert_kana() is for Japanese code only
-			if ($this->cont['LANG'] == 'ja' && function_exists('mb_convert_kana')) {
+			if ($this->cont['LANG'] === 'ja' && function_exists('mb_convert_kana')) {
 				$mb_convert_kana = create_function('$str, $option',
 					'return mb_convert_kana($str, $option, "'.$this->cont["SOURCE_ENCODING"].'");');
 			} else {
 				$mb_convert_kana = create_function('$str, $option',
 					'return $str;');
 			}
-			if ($this->cont['SOURCE_ENCODING'] == 'EUC-JP') {
+			if ($this->cont['SOURCE_ENCODING'] === 'EUC-JP') {
 				// Perl memo - Correct pattern-matching with EUC-JP
 				// http://www.din.or.jp/~ohzaki/perl.htm#JP_Match (Japanese)
 				$pre  = '(?<!\x8F)';
@@ -1358,7 +1358,7 @@ class XpWikiPukiWikiFunc extends XpWikiBaseFunc {
 		$regex = array();
 		foreach ($words as $word) {
 			$word = trim($word);
-			if ($word == '') continue;
+			if ($word === '') continue;
 	
 			// Normalize: ASCII letters = to single-byte. Others = to Zenkaku and Katakana
 			$word_nm = $mb_convert_kana($word, 'aKCV');
@@ -1371,10 +1371,10 @@ class XpWikiPukiWikiFunc extends XpWikiBaseFunc {
 	
 				// Just normalized one? (ASCII char or Zenkaku-Katakana?)
 				$or = array(preg_quote($do_escape ? htmlspecialchars($char) : $char, $quote));
-				if (strlen($char) == 1) {
+				if (strlen($char) === 1) {
 					// An ASCII (single-byte) character
 					foreach (array(strtoupper($char), strtolower($char)) as $_char) {
-						if ($char != '&') $or[] = preg_quote($_char, $quote); // As-is?
+						if ($char !== '&') $or[] = preg_quote($_char, $quote); // As-is?
 						$ascii = ord($_char);
 						$or[] = sprintf('&#(?:%d|x%x);', $ascii, $ascii); // As an entity reference?
 						$or[] = preg_quote($mb_convert_kana($_char, 'A'), $quote); // As Zenkaku?
@@ -1399,7 +1399,7 @@ class XpWikiPukiWikiFunc extends XpWikiBaseFunc {
 	{
 		$retval = array();
 	
-		$b_type = ($type == 'AND'); // AND:TRUE OR:FALSE
+		$b_type = ($type === 'AND'); // AND:TRUE OR:FALSE
 		$keys = $this->get_search_words(preg_split('/\s+/', $word, -1, PREG_SPLIT_NO_EMPTY));
 		foreach ($keys as $key=>$value)
 			$keys[$key] = '/' . $value . '/S';
@@ -1407,7 +1407,7 @@ class XpWikiPukiWikiFunc extends XpWikiBaseFunc {
 		$pages = $this->get_existpages();
 	
 		// Avoid
-		if ($base != '') {
+		if ($base !== '') {
 			$pages = preg_grep('/^' . preg_quote($base, '/') . '/S', $pages);
 		}
 		if (! $this->root->search_non_list) {
@@ -1715,7 +1715,7 @@ EOD;
 		unset($config);
 		$auto_pages = array_merge($ignorepages, $forceignorepages);
 	
-		if ($min_len == -1) {
+		if ($min_len === -1) {
 			$min_len = $this->root->autolink;	// set $this->root->autolink, when omitted.
 		}
 		
@@ -1798,7 +1798,7 @@ EOD;
 		$multi = FALSE;
 		$reglen = 0;
 		while ($index < $sentry) {
-			if ($index != $offset) {
+			if ($index !== $offset) {
 				$multi = TRUE;
 				if ($nest === 1 && strlen($regex) - $reglen > $limit) {
 					$reglen = strlen($regex);
@@ -1814,7 +1814,7 @@ EOD;
 			// How many continuous keys have the same letter
 			// at the same position?
 			for ($i = $index; $i < $sentry; $i++)
-				if (mb_substr($array[$i], $pos, 1) != $char) break;
+				if (mb_substr($array[$i], $pos, 1) !== $char) break;
 			
 			if ($index < ($i - 1)) {
 				// Some more keys found
@@ -1854,7 +1854,7 @@ EOD;
 		$index = $offset;
 		$multi = FALSE;
 		while ($index < $sentry) {
-			if ($index != $offset) {
+			if ($index !== $offset) {
 				$multi = TRUE;
 				$regex .= '|'; // OR
 			}
@@ -1865,7 +1865,7 @@ EOD;
 			// How many continuous keys have the same letter
 			// at the same position?
 			for ($i = $index; $i < $sentry; $i++)
-				if (mb_substr($array[$i], $pos, 1) != $char) break;
+				if (mb_substr($array[$i], $pos, 1) !== $char) break;
 	
 			if ($index < ($i - 1)) {
 				// Some more keys found
@@ -1910,7 +1910,7 @@ EOD;
 			$max   = max($this->root->autoalias_max_words, 0);
 			if (preg_match_all('/' . $pattern . '/x', $postdata, $matches, PREG_SET_ORDER)) {
 				foreach($matches as $key => $value) {
-					if ($count ==  $max) break;
+					if ($count ===  $max) break;
 					$name = trim($value[1]);
 					if (! isset($pairs[$this->root->mydirname][$name])) {
 						++$count;
@@ -1982,7 +1982,7 @@ EOD;
 	
 		foreach ($matches[1] as $str) {
 			$len = strlen($str);
-			if ($len > 1 && $str{0} == '"' && $str{$len - 1} == '"')
+			if ($len > 1 && $str{0} === '"' && $str{$len - 1} === '"')
 				$str = str_replace('""', '"', substr($str, 1, -1));
 			$retval[] = $str;
 		}
@@ -1992,7 +1992,7 @@ EOD;
 	// Implode an array with CSV data format (escape double quotes)
 	function csv_implode($glue, $pieces)
 	{
-		$_glue = ($glue != '') ? '\\' . $glue{0} : '';
+		$_glue = ($glue !== '') ? '\\' . $glue{0} : '';
 		$arr = array();
 		foreach ($pieces as $str) {
 			if (ereg('[' . $_glue . '"' . "\n\r" . ']', $str))
@@ -2005,7 +2005,7 @@ EOD;
 
 //----- Start make_link.php -----//
 	// PukiWiki - Yet another WikiWikiWeb clone.
-	// $Id: pukiwiki_func.php,v 1.164 2008/04/25 12:11:31 nao-pon Exp $
+	// $Id: pukiwiki_func.php,v 1.165 2008/04/27 11:52:42 nao-pon Exp $
 	// Copyright (C)
 	//   2003-2005 PukiWiki Developers Team
 	//   2001-2002 Originally written by yu-ji
@@ -2152,27 +2152,27 @@ EOD;
 	function get_fullname($name, $refer)
 	{
 		// 'Here'
-		if ($name == '' || $name == './') return $refer;
+		if ($name === '' || $name === './') return $refer;
 	
 		// Absolute path
-		if ($name{0} == '/') {
+		if ($name{0} === '/') {
 			$name = substr($name, 1);
-			return ($name == '') ? $this->root->defaultpage : $name;
+			return ($name === '') ? $this->root->defaultpage : $name;
 		}
 	
 		// Relative path from 'Here'
-		if (substr($name, 0, 2) == './') {
+		if (substr($name, 0, 2) === './') {
 			$arrn    = preg_split('#/#', $name, -1, PREG_SPLIT_NO_EMPTY);
 			$arrn[0] = $refer;
 			return join('/', $arrn);
 		}
 	
 		// Relative path from dirname()
-		if (substr($name, 0, 3) == '../') {
+		if (substr($name, 0, 3) === '../') {
 			$arrn = preg_split('#/#', $name,  -1, PREG_SPLIT_NO_EMPTY);
 			$arrp = preg_split('#/#', $refer, -1, PREG_SPLIT_NO_EMPTY);
 	
-			while (! empty($arrn) && $arrn[0] == '..') {
+			while (! empty($arrn) && $arrn[0] === '..') {
 				array_shift($arrn);
 				array_pop($arrp);
 			}
@@ -2261,7 +2261,7 @@ EOD;
 			$otherObj = & XpWiki::getInitedSingleton(basename($url));
 			if ($otherObj->isXpWiki) {
 
-				if ($param != '') {
+				if ($param !== '') {
 					if (!$otherObj->func->is_pagename($param))
 						return $false;
 				}
@@ -2312,7 +2312,7 @@ EOD;
 			$_tb_id = $this->tb_get_id($page);
 			$cache[$this->xpwiki->pid][$_tb_id] = $page;
 			unset($pages[$this->xpwiki->pid][$page]);
-			if ($tb_id == $_tb_id) return $cache[$this->xpwiki->pid][$tb_id]; // Found
+			if ($tb_id === $_tb_id) return $cache[$this->xpwiki->pid][$tb_id]; // Found
 		}
 	
 		$cache[$this->xpwiki->pid][$tb_id] = FALSE;
@@ -2349,7 +2349,7 @@ EOD;
 		$links = array_unique($links[1]);
 	
 		// Reject from minus list
-		if ($minus != '') {
+		if ($minus !== '') {
 			$links_m = array();
 			$minus = $this->convert_html($minus); // WARNING: heavy and may cause side-effect
 			preg_match_all('#href="(https?://[^"]+)"#', $minus, $links_m, PREG_PATTERN_ORDER);
@@ -2474,7 +2474,7 @@ EOD;
 	
 		// Validate URI (Ignore own)
 		$parse_url = parse_url($url);
-		if (empty($parse_url['host']) || $parse_url['host'] == $_SERVER['HTTP_HOST'])
+		if (empty($parse_url['host']) || $parse_url['host'] === $_SERVER['HTTP_HOST'])
 			return TRUE;
 	
 		if (! is_dir($this->cont['TRACKBACK_DIR']))      die('No such directory: TRACKBACK_DIR');
@@ -2547,7 +2547,7 @@ EOD;
 		if (preg_match('/^(\{.+\})(.*)$/', $scheme, $matches)) {
 			$scheme = & $matches[1];
 			$salt   = & $matches[2];
-		} else if ($scheme != '') {
+		} else if ($scheme !== '') {
 			$scheme  = ''; // Cleartext
 			$salt    = '';
 		}
@@ -2558,7 +2558,7 @@ EOD;
 		// PHP crypt()
 		case '{x-php-crypt}' :
 			$hash = ($prefix ? ($canonical ? '{x-php-crypt}' : $scheme) : '') .
-				($salt != '' ? crypt($phrase, $salt) : crypt($phrase));
+				($salt !== '' ? crypt($phrase, $salt) : crypt($phrase));
 			break;
 	
 		// PHP md5()
@@ -2576,7 +2576,7 @@ EOD;
 		// LDAP CRYPT
 		case '{crypt}'       :
 			$hash = ($prefix ? ($canonical ? '{CRYPT}' : $scheme) : '') .
-				($salt != '' ? crypt($phrase, $salt) : crypt($phrase));
+				($salt !== '' ? crypt($phrase, $salt) : crypt($phrase));
 			break;
 	
 		// LDAP MD5
@@ -2588,7 +2588,7 @@ EOD;
 		// LDAP SMD5
 		case '{smd5}'        :
 			// MD5 Key length = 128bits = 16bytes
-			$salt = ($salt != '' ? substr(base64_decode($salt), 16) : substr(crypt(''), -8));
+			$salt = ($salt !== '' ? substr(base64_decode($salt), 16) : substr(crypt(''), -8));
 			$hash = ($prefix ? ($canonical ? '{SMD5}' : $scheme) : '') .
 				base64_encode($this->hex2bin(md5($phrase . $salt)) . $salt);
 			break;
@@ -2602,7 +2602,7 @@ EOD;
 		// LDAP SSHA
 		case '{ssha}'        :
 			// SHA-1 Key length = 160bits = 20bytes
-			$salt = ($salt != '' ? substr(base64_decode($salt), 20) : substr(crypt(''), -8));
+			$salt = ($salt !== '' ? substr(base64_decode($salt), 20) : substr(crypt(''), -8));
 			$hash = ($prefix ? ($canonical ? '{SSHA}' : $scheme) : '') .
 				base64_encode($this->hex2bin(sha1($phrase . $salt)) . $salt);
 			break;
@@ -2679,9 +2679,9 @@ EOD;
 	{
 		// Checked by:
 		$target_str = '';
-		if ($this->root->auth_method_type == 'pagename') {
+		if ($this->root->auth_method_type === 'pagename') {
 			$target_str = $page; // Page name
-		} else if ($this->root->auth_method_type == 'contents') {
+		} else if ($this->root->auth_method_type === 'contents') {
 			$target_str = $this->get_source($page, TRUE, TRUE); // Its contents
 		}
 	
@@ -2749,7 +2749,7 @@ EOD;
 		if (! $this->is_page($page)) return;
 		
 		$lastmod = $this->_backup_get_filetime($page);
-		$rotate = ($lastmod == 0 || $this->cont['UTIME'] - $lastmod > 60 * 60 * $this->root->cycle);
+		$rotate = ($lastmod === 0 || $this->cont['UTIME'] - $lastmod > 60 * 60 * $this->root->cycle);
 
 		$backups = $this->get_backup($page);
 		$count   = count($backups);
@@ -2917,7 +2917,7 @@ EOD;
 				$params = array($_obj->get('left'), $_obj->get('right'), $_obj->text());
 				foreach ($params as $key=>$text) {
 					$text = htmlspecialchars($text);
-					if (trim($text) == '') $text = '&nbsp;';
+					if (trim($text) === '') $text = '&nbsp;';
 					$this->root->do_update_diff_table .= '<' . $tags[$key] .
 						' class="style_' . $tags[$key] . '">' . $text .
 						'</' . $tags[$key] . '>';
@@ -2929,7 +2929,7 @@ EOD;
 	
 		$body = '';
 		foreach ($arr as $_obj) {
-			if ($_obj->get('left') != '-' && $_obj->get('right') != '-')
+			if ($_obj->get('left') !== '-' && $_obj->get('right') !== '-')
 				$body .= $_obj->text();
 		}
 	
@@ -2941,7 +2941,7 @@ EOD;
 
 //----- Start html.php -----//
 	// PukiWiki - Yet another WikiWikiWeb clone.
-	// $Id: pukiwiki_func.php,v 1.164 2008/04/25 12:11:31 nao-pon Exp $
+	// $Id: pukiwiki_func.php,v 1.165 2008/04/27 11:52:42 nao-pon Exp $
 	// Copyright (C)
 	//   2002-2006 PukiWiki Developers Team
 	//   2001-2002 Originally written by yu-ji
@@ -3203,7 +3203,7 @@ EOD;
 	  <br />
 EOD;
 	
-			if (isset($this->root->vars['refer']) && $this->root->vars['refer'] != '')
+			if (isset($this->root->vars['refer']) && $this->root->vars['refer'] !== '')
 				$refer = '[[' . $this->strip_bracket($this->root->vars['refer']) . ']]' . "\n\n";
 		}
 		
@@ -3404,7 +3404,7 @@ EOD;
 		}
 		if (empty($_links)) return ''; // Nothing
 	
-		if ($tag == 'p') { // From the line-head
+		if ($tag === 'p') { // From the line-head
 			$margin = $this->root->_ul_left_margin + $this->root->_ul_margin;
 			$style  = sprintf($this->root->_list_pad_str, 1, $margin, $margin);
 			$retval =  "\n" . '<ul' . $style . '>' . "\n" .
@@ -3499,7 +3499,7 @@ EOD;
 		if ($pos === FALSE) return array($page, '', FALSE);
 	
 		// Ignore the last sharp letter
-		if ($pos + 1 == strlen($page)) {
+		if ($pos + 1 === strlen($page)) {
 			$pos = strpos(substr($page, $pos + 1), '#');
 			if ($pos === FALSE) return array($page, '', FALSE);
 		}
@@ -3603,30 +3603,30 @@ EOD;
 		$charset = htmlspecialchars($charset);
 	
 		// Output XML or not
-		if ($type == $this->cont['PKWK_DTD_TYPE_XHTML']) echo '<?xml version="1.0" encoding="' . $charset . '" ?>' . "\n";
+		if ($type === $this->cont['PKWK_DTD_TYPE_XHTML']) echo '<?xml version="1.0" encoding="' . $charset . '" ?>' . "\n";
 	
 		// Output doctype
 		echo '<!DOCTYPE html PUBLIC "-//W3C//DTD ' .
-			($type == $this->cont['PKWK_DTD_TYPE_XHTML'] ? 'XHTML' : 'HTML') . ' ' .
+			($type === $this->cont['PKWK_DTD_TYPE_XHTML'] ? 'XHTML' : 'HTML') . ' ' .
 			$version .
-			($option != '' ? ' ' . $option : '') .
+			($option !== '' ? ' ' . $option : '') .
 			'//EN" "' .
 			$dtd .
 			'">' . "\n";
 	
 		// Output <html> start tag
 		echo '<html';
-		if ($type == $this->cont['PKWK_DTD_TYPE_XHTML']) {
+		if ($type === $this->cont['PKWK_DTD_TYPE_XHTML']) {
 			echo ' xmlns="http://www.w3.org/1999/xhtml"'; // dir="ltr" /* LeftToRight */
 			echo ' xml:lang="' . $this->cont['LANG'] . '"';
-			if ($version == '1.0') echo ' lang="' . $this->cont['LANG'] . '"'; // Only XHTML 1.0
+			if ($version === '1.0') echo ' lang="' . $this->cont['LANG'] . '"'; // Only XHTML 1.0
 		} else {
 			echo ' lang="' . $this->cont['LANG'] . '"'; // HTML
 		}
 		echo '>' . "\n"; // <html>
 	
 		// Return content-type (with MIME type)
-		if ($type == $this->cont['PKWK_DTD_TYPE_XHTML']) {
+		if ($type === $this->cont['PKWK_DTD_TYPE_XHTML']) {
 			// NOTE: XHTML 1.1 browser will ignore http-equiv
 			return '<meta http-equiv="content-type" content="application/xhtml+xml; charset=' . $charset . '" />' . "\n";
 		} else {
@@ -3637,7 +3637,7 @@ EOD;
 
 //----- Start mail.php -----//
 	// PukiWiki - Yet another WikiWikiWeb clone.
-	// $Id: pukiwiki_func.php,v 1.164 2008/04/25 12:11:31 nao-pon Exp $
+	// $Id: pukiwiki_func.php,v 1.165 2008/04/27 11:52:42 nao-pon Exp $
 	// Copyright (C)
 	//   2003-2005 PukiWiki Developers Team
 	//   2003      Originally written by upk
@@ -3660,7 +3660,7 @@ EOD;
 					die($func . 'Invalid $this->root->notify_to');
 				if (! preg_match($mail_regex, $this->root->notify_from))
 					die($func . 'Invalid $this->root->notify_from');
-				if ($this->root->notify_header != '') {
+				if ($this->root->notify_header !== '') {
 					$header_regex = "/\A(?:\r\n|\r|\n)|\r\n\r\n/";
 					if (preg_match($header_regex, $this->root->notify_header))
 						die($func . 'Invalid $this->root->notify_header');
@@ -3676,12 +3676,12 @@ EOD;
 				'From: ' . $this->root->notify_from;
 				
 			// Additional header(s) by admin
-			if ($this->root->notify_header != '') $_headers[$this->xpwiki->pid] .= "\r\n" . $this->root->notify_header;
+			if ($this->root->notify_header !== '') $_headers[$this->xpwiki->pid] .= "\r\n" . $this->root->notify_header;
 	
 			$_after_pop[$this->xpwiki->pid] = $this->root->smtp_auth;
 		}
 	
-		if ($subject == '' || ($message == '' && empty($footer))) return FALSE;
+		if ($subject === '' || ($message === '' && empty($footer))) return FALSE;
 	
 		// Subject:
 		if (isset($footer['PAGE'])) $subject = str_replace('$page', $footer['PAGE'], $subject);
@@ -3692,7 +3692,7 @@ EOD;
 			$footer['USER_AGENT']  = '(' . $this->cont['UA_PROFILE'] . ') ' . $this->cont['UA_NAME'] . '/' . $this->cont['UA_VERS'];
 		if (! empty($footer)) {
 			$_footer = '';
-			if ($message != '') $_footer = "\n" . str_repeat('-', 30) . "\n";
+			if ($message !== '') $_footer = "\n" . str_repeat('-', 30) . "\n";
 			foreach($footer as $key => $value)
 				$_footer .= $key . ': ' . $value . "\n";
 			$message .= $_footer;
@@ -3706,7 +3706,7 @@ EOD;
 	
 		ini_set('SMTP', $this->root->smtp_server);
 		mb_language($this->cont['LANG']);
-		if ($_headers[$this->xpwiki->pid] == '') {
+		if ($_headers[$this->xpwiki->pid] === '') {
 			return mb_send_mail($_to[$this->xpwiki->pid], $subject, $message);
 		} else {
 			return mb_send_mail($_to[$this->xpwiki->pid], $subject, $message, $_headers[$this->xpwiki->pid]);
@@ -3733,7 +3733,7 @@ EOD;
 		// Check
 		$die = '';
 		foreach(array('pop_userid', 'pop_server', 'pop_port') as $global)
-			if($$global == '') $die .= 'pop_before_smtp(): $' . $global . ' seems blank' . "\n";
+			if($$global === '') $die .= 'pop_before_smtp(): $' . $global . ' seems blank' . "\n";
 		if ($die) return ($die);
 	
 		// Connect
@@ -3828,7 +3828,7 @@ EOD;
 	
 		$query .= $headers;
 	
-		if (strtoupper($method) == 'POST') {
+		if (strtoupper($method) === 'POST') {
 			// 'application/x-www-form-urlencoded', especially for TrackBack ping
 			$POST = array();
 			foreach ($post as $name=>$val) $POST[] = $name . '=' . urlencode($val);
@@ -3883,7 +3883,7 @@ EOD;
 				$url = trim($matches[1]);
 				if (! preg_match('/^https?:\//', $url)) {
 					// Relative path to Absolute
-					if ($url{0} != '/')
+					if ($url{0} !== '/')
 						$url = substr($url_path, 0, strrpos($url_path, '/')) . '/' . $url;
 					$url = $url_base . $url; // Add sheme, host
 				}
@@ -3902,7 +3902,7 @@ EOD;
 	// Check if the $host is in the specified network(s)
 	function in_the_net($networks = array(), $host = '')
 	{
-		if (empty($networks) || $host == '') return FALSE;
+		if (empty($networks) || $host === '') return FALSE;
 		if (! is_array($networks)) $networks = array($networks);
 	
 		$matches = array();
@@ -3916,7 +3916,7 @@ EOD;
 	
 		foreach ($networks as $network) {
 			if (preg_match($this->cont['PKWK_CIDR_NETWORK_REGEX'], $network, $matches) &&
-			    is_long($l_ip) && long2ip($l_ip) == $ip) {
+			    is_long($l_ip) && long2ip($l_ip) === $ip) {
 				// $host seems valid IPv4 address
 				// Sample: '10.0.0.0/8' or '10.0.0.0/255.0.0.0'
 				$l_net = ip2long($matches[1]); // '10.0.0.0'
@@ -3925,7 +3925,7 @@ EOD;
 					pow(2, 32) - pow(2, 32 - $mask) : // '8' means '8-bit mask'
 					ip2long($mask);                   // '255.0.0.0' (the same)
 	
-				if (($l_ip & $mask) == $l_net) return TRUE;
+				if (($l_ip & $mask) === $l_net) return TRUE;
 			} else {
 				// $host seems not IPv4 address. May be a DNS name like 'foobar.example.com'?
 				foreach ($networks as $network)
@@ -3940,7 +3940,7 @@ EOD;
 
 //----- Start link.php -----//
 	// PukiWiki - Yet another WikiWikiWeb clone
-	// $Id: pukiwiki_func.php,v 1.164 2008/04/25 12:11:31 nao-pon Exp $
+	// $Id: pukiwiki_func.php,v 1.165 2008/04/27 11:52:42 nao-pon Exp $
 	// Copyright (C) 2003-2006 PukiWiki Developers Team
 	// License: GPL v2 or (at your option) any later version
 	//
@@ -3979,7 +3979,7 @@ EOD;
 		foreach (file($ref_name) as $line) {
 			list($_page) = explode("\t", rtrim($line));
 			$time = $this->get_filetime($_page);	
-			if($time != 0) $times[$_page] = $time;
+			if($time !== 0) $times[$_page] = $time;
 		}
 		return $times;
 	}
@@ -4006,8 +4006,8 @@ EOD;
 		$rel_auto = array(); // オートリンクしている参照先
 		$links    = $this->links_get_objects($page, TRUE);
 		foreach ($links as $_obj) {
-			if (! isset($_obj->type) || $_obj->type != 'pagename' ||
-			    $_obj->name == $page || $_obj->name == '')
+			if (! isset($_obj->type) || $_obj->type !== 'pagename' ||
+			    $_obj->name === $page || $_obj->name === '')
 				continue;
 	
 			if (is_a($_obj, 'Link_autolink')) { // 行儀が悪い
@@ -4086,13 +4086,13 @@ EOD;
 		foreach ($this->get_existpages() as $page) {
 			if ($page === $this->root->whatsnew) continue;
 			
-			if (ini_get('safe_mode') == '0') set_time_limit(60);
+			if (ini_get('safe_mode') === '0') set_time_limit(60);
 			
 			$rel   = array(); // 参照先
 			$links = $this->links_get_objects($page);
 			foreach ($links as $_obj) {
-				if (! isset($_obj->type) || $_obj->type != 'pagename' ||
-				    $_obj->name == $page || $_obj->name == '')
+				if (! isset($_obj->type) || $_obj->type !== 'pagename' ||
+				    $_obj->name === $page || $_obj->name === '')
 					continue;
 	
 				$_name = $_obj->name;
@@ -4142,7 +4142,7 @@ EOD;
 				foreach (file($ref_file) as $line) {
 					list($ref_page, $ref_auto) = explode("\t", rtrim($line));
 					if (! $ref_auto) $all_auto = FALSE;
-					if ($ref_page != $page) $ref .= $line;
+					if ($ref_page !== $page) $ref .= $line;
 				}
 				unlink($ref_file);
 			}
@@ -4169,13 +4169,13 @@ EOD;
 			$ref = '';
 			foreach (file($ref_file) as $line) {
 				list($ref_page, $ref_auto) = explode("\t", rtrim($line));
-				if ($ref_page != $page) {
+				if ($ref_page !== $page) {
 					if (! $ref_auto) $all_auto = FALSE;
 					$ref .= $line;
 				}
 			}
 			unlink($ref_file);
-			if (($is_page || ! $all_auto) && $ref != '') {
+			if (($is_page || ! $all_auto) && $ref !== '') {
 				$fp = fopen($ref_file, 'w')
 					or $this->die_message('cannot write ' . htmlspecialchars($ref_file));
 				fputs($fp, $ref);
