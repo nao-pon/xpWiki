@@ -290,7 +290,7 @@ class XpWikiDList extends XpWikiListContainer {
 	function XpWikiDList(& $xpwiki, $out) {
 		parent :: XpWikiListContainer($xpwiki, 'dl', 'dt', ':', $out[0]);
 		$this->last = & XpWikiElement :: insert(new XpWikiListElement($xpwiki, $this->level, 'dd'));
-		if ($out[1] != '')
+		if ($out[1] !== '')
 			$this->last = & $this->last->insert($xpwiki->func->Factory_Inline($out[1]));
 	}
 }
@@ -311,7 +311,7 @@ class XpWikiBQuote extends XpWikiElement {
 			$level = $this->level;
 			$this->level = 0;
 			$this->last = & $this->end($root, $level);
-			if ($text != '')
+			if ($text !== '')
 				$this->last = & $this->last->insert($this->func->Factory_Inline($text));
 		} else {
 			$this->insert($this->func->Factory_Inline($text));
@@ -424,7 +424,7 @@ class XpWikiTableCell extends XpWikiElement {
 					$text = substr($text, 1);
 				}
 
-		if ($text != '' && $text { 0 } === '#') {
+		if ($text !== '' && $text { 0 } === '#') {
 			// Try using Div class for this $text
 			$obj = & $this->func->Factory_Div($text);
 			if (is_a($obj, 'XpWikiParagraph'))
@@ -652,7 +652,7 @@ class XpWikiTable extends XpWikiElement {
 		foreach ($parts as $type => $part) {
 			$part_string = '';
 			foreach (array_keys($this->elements) as $nrow) {
-				if ($this->types[$nrow] != $type)
+				if ($this->types[$nrow] !== $type)
 					continue;
 				$row = & $this->elements[$nrow];
 				$row_string = '';
@@ -963,7 +963,7 @@ class XpWikiBody extends XpWikiElement {
 			if (!$ext_title_find && $this->root->title_setting_regex) {
 				if (preg_match($this->root->title_setting_regex , $line)) {
 					$ext_title_find = true;
-					continue;	
+					continue;
 				}
 			}
 
@@ -1053,6 +1053,7 @@ class XpWikiBody extends XpWikiElement {
 
 			// Other Character
 			if (isset ($this->factories[$head])) {
+				$this->root->rtf['contntId'] = $this->id;
 				$factoryname = 'Factory_'.$this->factories[$head];
 				$this->last = & $this->last->add($this->func->$factoryname($line));
 				$last_level = 0;
@@ -1111,10 +1112,9 @@ class XpWikiBody extends XpWikiElement {
 		$text .= $this->func->get_areadiv_closer();
 		
 		// #contents
-		if ($this->root->contents_auto_insertion && empty($this->root->rtf['contents_converted']) && $this->contents->count >= $this->root->contents_auto_insertion) {
+		if ($this->root->contents_auto_insertion && empty($this->root->rtf['contents_converted'][$this->id]) && $this->contents->count >= $this->root->contents_auto_insertion) {
 			$text = preg_replace('/<h\d/', '<#_contents_>'."\n".'$0', $text, 1);
 		}
-		//echo count($this->contents->elements);
 		
 		$text = preg_replace_callback('/<#_contents_>/', array (& $this, 'replace_contents'), $text);
 
