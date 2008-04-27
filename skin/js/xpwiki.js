@@ -457,6 +457,7 @@ var XpWiki = {
 		var pNode;
 		var inTable;
 		var tocId = 0;
+		var tocCond = XpWiki.cookieLoad('_xwtoc');
 		for (var i=0; i<elems.length; i++){
 			if (elems[i].className == 'pre' && elems[i].style.overflow == 'auto') {
 				inTable = false;
@@ -490,6 +491,9 @@ var XpWiki = {
 					eval( 'elems[i].onclick = function(){ XpWiki.tocToggle("' + tocId + '"); };');
 					elems[i].style.cursor = 'pointer';
 					this.tocSetMarker(toc_body, toc_marker);
+					if (tocCond == '+') {
+						this.tocToggle(tocId);
+					}
 					tocId++;
 				}
 			}
@@ -507,14 +511,16 @@ var XpWiki = {
 	},
 	
 	tocSetMarker: function (body, marker) {
+		var cond;
 		if (body.style.display === 'none') {
 			marker.className = 'toc_open';
-			marker.innerHTML = '<span>+</span>';
+			cond = '+';
 		} else {
 			marker.className = 'toc_close';
-			marker.innerHTML = '<span>-</span>';
+			cond = '-';
 		}
-		
+		marker.innerHTML = '<span>' + cond + '</span>';
+		XpWiki.cookieSave('_xwtoc', cond, 90, '/');
 	},
 	
 	htmlspecialchars: function (str) {
@@ -541,6 +547,45 @@ var XpWiki = {
 				.replace(/\//g, "%2F")
 				.replace(/@/g,  "%40");
 		}
+	},
+	
+	cookieSave: function (arg1, arg2, arg3, arg4) {
+		// arg1=dataname, arg2=data, arg3=expiration days, arg4=path
+		var xDay;
+		var _exp;
+		var _path;
+		if(arg1 && arg2) {
+			if (arg3) {
+				xDay = new Date;
+				xDay.setDate(xDay.getDate() + eval(arg3));
+				xDay = xDay.toGMTString();
+				_exp = ";expires=" + xDay;
+			} else {
+				_exp ="";
+			}
+			if(arg4) {
+				_path = ";path=" + arg4;
+			} else {
+				_path= "";
+			}
+			document.cookie = escape(arg1) + "=" + escape(arg2) + _exp + _path +";";
+		}
+	},
+	
+	cookieLoad: function (arg) {
+		if (arg) {
+			var cookieData = document.cookie + ";" ;
+			arg = escape(arg);
+			var startPoint1 = cookieData.indexOf(arg);
+			var startPoint2 = cookieData.indexOf("=", startPoint1) + 1;
+			var endPoint = cookieData.indexOf(";", startPoint1);
+			if(startPoint2 < endPoint && startPoint1 > -1 && startPoint2-startPoint1 == arg.length + 1) {
+				cookieData = cookieData.substring(startPoint2,endPoint);
+				cookieData = unescape(cookieData);
+				return cookieData;
+			}
+		}
+		return false;
 	}
 
 };

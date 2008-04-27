@@ -14,8 +14,7 @@ xpwiki_ajax_edit_var['mode'] = '';
 xpwiki_ajax_edit_var['func_post'] = '';
 
 // cookie
-var wikihelper_adv = wikihelper_load_cookie("__whlp");
-if (wikihelper_adv) wikihelper_save_cookie("__whlp",wikihelper_adv,90,"/");
+var wikihelper_adv;
 
 function wikihelper_show_fontset_img()
 {
@@ -121,46 +120,12 @@ function wikihelper_adv_swich()
 	wikihelper_elem.focus();
 }
 
-function wikihelper_save_cookie(arg1,arg2,arg3,arg4){ //arg1=dataname arg2=data arg3=expiration days
-	if(arg1&&arg2)
-	{
-		if(arg3)
-		{
-			xDay = new Date;
-			xDay.setDate(xDay.getDate() + eval(arg3));
-			xDay = xDay.toGMTString();
-			_exp = ";expires=" + xDay;
-		}
-		else
-		{
-			_exp ="";
-		}
-		if(arg4)
-		{
-			_path = ";path=" + arg4;
-		}
-		else
-		{
-			_path= "";
-		}
-		document.cookie = escape(arg1) + "=" + escape(arg2) + _exp + _path +";";
-	}
+function wikihelper_save_cookie(arg1,arg2,arg3,arg4){
+	XpWiki.cookieSave(arg1, arg2, arg3, arg4);
 }
 
-function wikihelper_load_cookie(arg){ //arg=dataname
-	if(arg) {
-		cookieData = document.cookie + ";" ;
-		arg = escape(arg);
-		startPoint1 = cookieData.indexOf(arg);
-		startPoint2 = cookieData.indexOf("=",startPoint1) +1;
-		endPoint = cookieData.indexOf(";",startPoint1);
-		if(startPoint2 < endPoint && startPoint1 > -1 &&startPoint2-startPoint1 == arg.length+1) {
-			cookieData = cookieData.substring(startPoint2,endPoint);
-			cookieData = unescape(cookieData);
-			return cookieData
-		}
-	}
-	return false
+function wikihelper_load_cookie(arg){
+	return XpWiki.cookieLoad(arg);
 }
 
 function wikihelper_area_highlite(id,mode) {
@@ -480,6 +445,10 @@ window.onbeforeunload = function(e) {
 };
 
 document.observe("dom:loaded", function() {
+	// cookie
+	wikihelper_adv = wikihelper_load_cookie("__whlp");
+	if (wikihelper_adv) wikihelper_save_cookie("__whlp",wikihelper_adv,90,"/");
+
 	XpWiki.addCssInHead('base.css');
 	XpWiki.remakeTextArea();
 	wikihelper_initTexts();
