@@ -1,7 +1,7 @@
 <?php
 //
 // Created on 2006/10/25 by nao-pon http://hypweb.net/
-// $Id: loader.php,v 1.41 2008/04/24 00:08:15 nao-pon Exp $
+// $Id: loader.php,v 1.42 2008/04/29 11:36:44 nao-pon Exp $
 //
 
 ignore_user_abort(FALSE);
@@ -23,7 +23,8 @@ $src   = preg_replace("/[^\w.\-%]+/","",@ $_GET['src']);
 $prefix = (isset($_GET['b']))? 'b_' : '';
 $prefix = (isset($_GET['r']))? 'r_' : $prefix;
 $nocache = (isset($_GET['nc']));
-$js_lang = $charset = $pre_width = $cache_file = $gzip_fname = $addcss = $dir = $out = $type = $src_file = '';
+$js_lang = $charset = $pre_width = $cache_file = $gzip_fname = $dir = $out = $type = $src_file = '';
+$addcss = array();
 $length = $addcsstime = $facetagtime = 0;
 $face_remake = $js_replace = $replace = false;
 $root_path = dirname($skin_dirname);
@@ -113,13 +114,13 @@ switch ($type) {
 		// CSS over write (css dir)
 		$addcss_file = "{$skin_dirname}/{$basedir}css/{$src}.css";
 		if (file_exists($addcss_file)) {
-			$addcss .= file_get_contents($addcss_file) . "\n";
+			$addcss[] = $addcss_file;
 			$addcsstime = filemtime($addcss_file);
 		}
 		// CSS over write (skin dir)
 		$addcss_file = "{$skin_dirname}/{$basedir}{$skin}/{$src}.css";
 		if (file_exists($addcss_file)) {
-			$addcss .= file_get_contents($addcss_file) . "\n";
+			$addcss[] = $addcss_file;
 			$addcsstime = max($addcsstime, filemtime($addcss_file));
 		}
 		if ($prefix) {
@@ -127,17 +128,17 @@ switch ($type) {
 			// CSS over write (css dir)
 			$addcss_file = "{$skin_dirname}/{$basedir}css/{$css_src}.css";
 			if (file_exists($addcss_file)) {
-				$addcss .= file_get_contents($addcss_file) . "\n";
-				$addcsstime = filemtime($addcss_file);
+				$addcss[] = $addcss_file;
+				$addcsstime = max($addcsstime, filemtime($addcss_file));
 			}
 			// CSS over write (skin dir)
 			$addcss_file = "{$skin_dirname}/{$basedir}{$skin}/{$css_src}.css";
 			if (file_exists($addcss_file)) {
-				$addcss .= file_get_contents($addcss_file) . "\n";
+				$addcss[] = $addcss_file;
 				$addcsstime = max($addcsstime, filemtime($addcss_file));
 			}
 		}
-
+		
 		$replace = true;
 		$cache_file = $cache_path.$skin.'_'.$src.'_'.$dir.($pre_width?'_'.$pre_width:'').($_charset?'_'.$_charset:'').'.'.$type;
 		$gzip_fname = $cache_file.'.gz';
@@ -220,7 +221,7 @@ if (file_exists($src_file)) {
 			header( 'Cache-Control: post-check=0, pre-check=0', false );
 			header( 'Pragma: no-cache' );
 		} else {
-			header( 'Cache-Control: max-age=' . $maxage );
+			header( 'Cache-Control: public, max-age=' . $maxage );
 		}
 		header( 'Etag: '. $etag );
 		exit();
@@ -260,14 +261,32 @@ if (file_exists($src_file)) {
 	
 	// 置換処理が必要?
 	if ($replace) {
-		$out = file_get_contents($src_file);
-		if ($dir) {
+		if ($type === 'css') {
+			$replace_src = 0;
+			$conf_file = "{$skin_dirname}/{$basedir}{$skin}/css.conf";
+			if (file_exists($conf_file)) {
+				$conf = parse_ini_file($conf_file, true);
+				if (! empty($conf[$src]['replace'])) {
+					$replace_src = 1;
+					$src_file = "{$skin_dirname}/{$basedir}{$skin}/{$src}.css";
+				}
+			}
+			
+			$out = file_get_contents($src_file);
+			
 			if ($pre_id) $pre_id .= ' ';
+			$addcss_src = '';
+			if (! $replace_src && $addcss) {
+				foreach ($addcss as $_file) {
+					$addcss_src .= file_get_contents($_file) . "\n";
+				}
+			}
 			$out = str_replace(array('$dir', '$class', '$pre_width', '$charset'),
 								array($dir, $pre_id.'div.xpwiki_'.$dir, $pre_width, $charset),
-								$out . "\n" . $addcss);
+								$out . "\n" . $addcss_src);
 		}
 		if ($type === 'js') {
+			$out = file_get_contents($src_file);
 			if ($src === 'main') {
 				chdir($root_path);
 				include_once XOOPS_ROOT_PATH.'/include/common.php';
@@ -334,7 +353,7 @@ if (file_exists($src_file)) {
 		header( 'Cache-Control: post-check=0, pre-check=0', false );
 		header( 'Pragma: no-cache' );
 	} else {
-		header( 'Cache-Control: max-age=' . $maxage );
+		header( 'Cache-Control: public, max-age=' . $maxage );
 	}
 	header( 'Etag: '. $etag );
 	header( 'Content-length: '.$length );
