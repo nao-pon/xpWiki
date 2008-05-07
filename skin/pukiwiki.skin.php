@@ -1,6 +1,6 @@
 <?php
 // PukiWiki - Yet another WikiWikiWeb clone.
-// $Id: pukiwiki.skin.php,v 1.35 2008/03/02 08:54:26 nao-pon Exp $
+// $Id: pukiwiki.skin.php,v 1.36 2008/05/07 08:39:25 nao-pon Exp $
 // Copyright (C)
 //   2002-2006 PukiWiki Developers Team
 //   2001-2002 Originally written by yu-ji
@@ -48,13 +48,14 @@ $css_charset = $this->cont['CSS_CHARSET'];
 
 $favicon = ($image['favicon'])? "<link rel=\"SHORTCUT ICON\" href=\"{$image['favicon']}\" />" : "";
 $dirname = $this->root->mydirname;
+$rsstitle = 'RSS of ' . htmlspecialchars($this->root->module['title']);
 
 $this->root->html_header = <<<EOD
 $favicon
 $head_pre_tag
 <link rel="stylesheet" type="text/css" media="all" href="{$this->cont['LOADER_URL']}?skin={$this->cont['SKIN_NAME']}&amp;charset={$css_charset}&amp;pw={$this->root->pre_width}&amp;{$cssprefix}src={$this->root->main_css}" charset="{$css_charset}" />
 <link rel="stylesheet" type="text/css" media="print"  href="{$this->cont['LOADER_URL']}?skin={$this->cont['SKIN_NAME']}&amp;charset={$css_charset}&amp;pw={$this->root->pre_width}&amp;media=print&amp;{$cssprefix}src={$this->root->main_css}" charset="{$css_charset}" />
-<link rel="alternate" type="application/rss+xml" title="RSS" href="{$link['rss']}" />
+<link rel="alternate" type="application/rss+xml" title="{$rsstitle}" href="{$link['rss']}" />
 $head_tag
 EOD;
 ?>
