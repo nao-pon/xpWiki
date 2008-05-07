@@ -1,6 +1,6 @@
 <?php
 // PukiWiki - Yet another WikiWikiWeb clone.
-// $Id: lng.php,v 1.7 2008/04/24 00:22:00 nao-pon Exp $
+// $Id: lng.php,v 1.8 2008/05/07 08:38:08 nao-pon Exp $
 // Copyright (C)
 //   2002-2005 PukiWiki Developers Team
 //   2001-2002 Originally written by yu-ji
@@ -249,17 +249,17 @@ $root->_msg_back_word = 'Back';
 
 ///////////////////////////////////////
 // backup.inc.php
-$root->_title_backup_delete  = 'Deleting backup of  $1';
-$root->_title_backupdiff     = 'Backup diff of  $1(No. $2)';
-$root->_title_backupnowdiff  = 'Backup diff of  $1 vs current(No. $2)';
+$root->_title_backup_delete  = 'Deleting backup of $1';
+$root->_title_backupdiff     = 'Backup diff of $1(No. $2)';
+$root->_title_backupnowdiff  = 'Backup diff of $1 vs current(No. $2)';
 $root->_title_backupsource   = 'Backup source of  $1(No. $2)';
-$root->_title_backup         = 'Backup of  $1(No. $2)';
-$root->_title_pagebackuplist = 'Backup list of  $1';
+$root->_title_backup         = 'Backup of $1(No. $2)';
+$root->_title_pagebackuplist = 'Backup list of $1';
 $root->_title_backuplist     = 'Backup list';
 $root->_msg_backup_deleted   = 'Backup of $1 has been deleted.';
 $root->_msg_backup_adminpass = 'Please input the password for deleting.';
 $root->_msg_backuplist       = 'List of Backups';
-$root->_msg_nobackup         = 'There are no backup(s) of  $1.';
+$root->_msg_nobackup         = 'There are no backup(s) of $1.';
 $root->_msg_diff             = 'diff';
 $root->_msg_nowdiff          = 'diff current';
 $root->_msg_source           = 'source';
@@ -268,6 +268,12 @@ $root->_msg_view             = 'View the $1.';
 $root->_msg_deleted          = ' $1 has been deleted.';
 $root->_msg_backupedit       = 'Edit Backup No.$1 as current.';
 $root->_msg_current          = 'Cur';
+$root->_title_backuprewind   = 'Rewind to backup No.$2 of $1.';
+$root->_title_dorewind       = 'Rewind content & timestamp with a time "$1"';
+$root->_msg_rewind           = 'Rewind';
+$root->_msg_dorewind         = 'Rewind to backup No.$1';
+$root->_msg_rewinded         = 'Rewound in backup No.$1.';
+$root->_msg_nobackupnum      = 'Missing backup No.$1.';
 
 ///////////////////////////////////////
 // calendar_viewer.inc.php

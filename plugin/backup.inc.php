@@ -1,6 +1,6 @@
 <?php
 // PukiWiki - Yet another WikiWikiWeb clone.
-// $Id: backup.inc.php,v 1.11 2008/03/30 04:28:51 nao-pon Exp $
+// $Id: backup.inc.php,v 1.12 2008/05/07 08:38:08 nao-pon Exp $
 // Copyright (C)
 //   2002-2005 PukiWiki Developers Team
 //   2001-2002 Originally written by yu-ji
@@ -20,6 +20,10 @@ class xpwiki_plugin_backup extends xpwiki_plugin {
 		$this->icons['source']['url']    = $this->cont['LOADER_URL'] . '?src=page_white_text.png';
 		$this->icons['source']['width']  = '16';
 		$this->icons['source']['height'] = '16';
+
+		$this->icons['rewind']['url']    = $this->cont['LOADER_URL'] . '?src=arrow_undo.png';
+		$this->icons['rewind']['width']  = '16';
+		$this->icons['rewind']['height'] = '16';
 	}
 	
 	function plugin_backup_action() {
@@ -32,9 +36,19 @@ class xpwiki_plugin_backup extends xpwiki_plugin {
 		$this->func->check_readable($page, true, true);
 		$s_page = htmlspecialchars($page);
 		$pgid = $this->func->get_pgid_by_name($page);
-	
+		$isowner = $this->func->is_owner($page);
+		$s_age = (isset($this->root->vars['age'])) ? $this->root->vars['age'] : 0;
+
 		$action = isset($this->root->vars['action']) ? $this->root->vars['action'] : '';
-		if ($action === 'delete') return $this->plugin_backup_delete($page);
+		if ($action === 'delete') {
+			return $this->plugin_backup_delete($page);
+		} else if ($action === 'dorewind') {
+			if ($isowner) {
+				return $this->do_rewind($page, intval($s_age));
+			} else {
+				$this->func->die_message('This feature is prohibited');
+			}
+		}
 	
 		$s_action = $r_action = '';
 		if ($action != '') {
@@ -48,8 +62,8 @@ class xpwiki_plugin_backup extends xpwiki_plugin {
 		
 		$edit_icon = '<a href="' . $script . '?cmd=edit&amp;pgid=' . $pgid . '&amp;backup=$1" title="' . htmlspecialchars($this->root->_msg_backupedit) . '"><img src="' . $this->icons['edit']['url'] . '" alt="' . htmlspecialchars($this->root->_msg_backupedit) . '" width="' . $this->icons['edit']['width'] . '" height="' . $this->icons['edit']['height'] . '" /></a>';
 		$source_icon = '<a href="' . $script . '?cmd=backup&amp;pgid=' . $pgid . '&amp;action=source&amp;age=$1" title="' . htmlspecialchars($this->root->_msg_source) . '"><img src="' . $this->icons['source']['url'] . '" alt="' . htmlspecialchars($this->root->_msg_source) . '" width="' . $this->icons['source']['width'] . '" height="' . $this->icons['source']['height'] . '" /></a>';
+		$rewind_icon = '<a href="' . $script . '?cmd=backup&amp;pgid=' . $pgid . '&amp;action=rewind&amp;age=$1" title="' . htmlspecialchars($this->root->_msg_rewind) . '"><img src="' . $this->icons['rewind']['url'] . '" alt="' . htmlspecialchars($this->root->_msg_rewind) . '" width="' . $this->icons['rewind']['width'] . '" height="' . $this->icons['rewind']['height'] . '" /></a>';
 		
-		$s_age = (isset($this->root->vars['age'])) ? $this->root->vars['age'] : 0;
 		if ($view_now && ($s_age === 'Cur' || !$s_age)) {
 			$s_age = 'Cur';
 			$is_now = TRUE;
@@ -69,50 +83,71 @@ class xpwiki_plugin_backup extends xpwiki_plugin {
 			return array( 'msg'=>$this->root->_title_pagebackuplist, 'body'=>$this->plugin_backup_get_list($page));
 		}
 
-		$body  = '<ul>' . "\n";
-		if (!$is_now) $body .= ' <li><a href="' . $script . '?cmd=backup">' . $this->root->_msg_backuplist . '</a></li>' ."\n";
-
-		$href    = $script . '?cmd=backup&amp;pgid=' . $pgid . '&amp;age=' . $s_age;
-		$is_page = $this->func->is_page($page);
-		$editable = $this->func->check_editable($page, FALSE, FALSE);
-	
-		if ($s_age && $is_page && $action != 'diff')
-			$body .= ' <li>' . str_replace('$1', '<a href="' . $href .
-			'&amp;action=diff">' . $this->root->_msg_diff . '</a>',
-			$this->root->_msg_view) . '</li>' . "\n";
-	
-		if (is_numeric($s_age) && $is_page && $action != 'nowdiff')
-			$body .= ' <li>' . str_replace('$1', '<a href="' . $href .
-			'&amp;action=nowdiff">' . $this->root->_msg_nowdiff . '</a>',
-			$this->root->_msg_view) . '</li>' . "\n";
-	
-		if ($s_age && $action != 'source')
-			$body .= ' <li>' . str_replace('$1', '<a href="' . $href .
-			'&amp;action=source">' . $this->root->_msg_source . '</a>',
-			$this->root->_msg_view) . '</li>' . "\n";
-	
-		if (is_numeric($s_age) && ! $this->cont['PLUGIN_BACKUP_DISABLE_BACKUP_RENDERING'] && $action)
-			$body .= ' <li>' . str_replace('$1', '<a href="' . $href .
-			'">' . $this->root->_msg_backup . ' No.' . $s_age . '</a>',
-			$this->root->_msg_view) . '</li>' . "\n";
-	
-		if (is_numeric($s_age) && $is_page && ($action === 'source' || !$action) && $editable)
-			$body .= ' <li><a href="' . $script . '?cmd=edit&amp;pgid=' . $pgid . '&amp;backup=' . $s_age .
-			'">' . str_replace('$1', $s_age, $this->root->_msg_backupedit) . '</a></li>' . "\n";
-
-		if ($is_page) {
-			$body .= ' <li>' . str_replace('$1',
-			'<a href="' . $this->func->get_page_uri($page, true) . '">' . $s_page . '</a>',
-			$this->root->_msg_goto) . "</li>\n";
+		if ($action === 'rewind') {
+			$date = $this->func->format_date($backups[$s_age]['time']);
+			$dorewind_title = str_replace('$1', $date, $this->root->_title_dorewind);
+			$body = <<<EOD
+{$dorewind_title}
+<form method="POST" action="{$script}">
+<input type="hidden" name="plugin" value="backup" />
+<input type="hidden" name="action" value="dorewind" />
+<input type="hidden" name="age" value="{$s_age}" />
+<input type="hidden" name="page" value="{$s_page}" />
+<input type="submit" value="{$this->root->_msg_rewind}" />
+</form>
+EOD;
 		} else {
-			$body .= ' <li>' . str_replace('$1', $s_page, $this->root->_msg_deleted) . "<li>\n";
+			$body  = '<ul>' . "\n";
+			if (!$is_now) $body .= ' <li><a href="' . $script . '?cmd=backup">' . $this->root->_msg_backuplist . '</a></li>' ."\n";
+
+			$href    = $script . '?cmd=backup&amp;pgid=' . $pgid . '&amp;age=' . $s_age;
+			$is_page = $this->func->is_page($page);
+			$editable = $this->func->check_editable($page, FALSE, FALSE);
+		
+			if ($s_age && $is_page && $action != 'diff')
+				$body .= ' <li>' . str_replace('$1', '<a href="' . $href .
+				'&amp;action=diff">' . $this->root->_msg_diff . '</a>',
+				$this->root->_msg_view) . '</li>' . "\n";
+		
+			if (is_numeric($s_age) && $is_page && $action != 'nowdiff')
+				$body .= ' <li>' . str_replace('$1', '<a href="' . $href .
+				'&amp;action=nowdiff">' . $this->root->_msg_nowdiff . '</a>',
+				$this->root->_msg_view) . '</li>' . "\n";
+		
+			if ($s_age && $action != 'source')
+				$body .= ' <li>' . str_replace('$1', '<a href="' . $href .
+				'&amp;action=source">' . $this->root->_msg_source . '</a>',
+				$this->root->_msg_view) . '</li>' . "\n";
+		
+			if (is_numeric($s_age) && (! $this->cont['PLUGIN_BACKUP_DISABLE_BACKUP_RENDERING'] || $isowner) && $action)
+				$body .= ' <li>' . str_replace('$1', '<a href="' . $href .
+				'">' . $this->root->_msg_backup . ' No.' . $s_age . '</a>',
+				$this->root->_msg_view) . '</li>' . "\n";
+		
+			if (is_numeric($s_age) && ($action === 'source' || !$action) && $isowner)
+				$body .= ' <li><a href="' . $href .
+				'&amp;action=rewind">' . str_replace('$1', $s_age, $this->root->_msg_dorewind) . '</a></li>' . "\n";
+
+			if (is_numeric($s_age) && ($action === 'source' || !$action) && $editable)
+				$body .= ' <li><a href="' . $script . '?cmd=edit&amp;pgid=' . $pgid . '&amp;backup=' . $s_age .
+				'">' . str_replace('$1', $s_age, $this->root->_msg_backupedit) . '</a></li>' . "\n";
+
+			if ($is_page) {
+				$body .= ' <li>' . str_replace('$1',
+				'<a href="' . $this->func->get_page_uri($page, true) . '">' . $s_page . '</a>',
+				$this->root->_msg_goto) . "</li>\n";
+			} else {
+				$body .= ' <li>' . str_replace('$1', $s_page, $this->root->_msg_deleted) . "<li>\n";
+			}
+			$body .= '</ul>' . "\n";
 		}
-		$body .= '</ul>' . "\n";
 		
 		$header[0] = '';
 		$list = '';
 		$navi = '';
-		if ($backups_count || $is_now) {
+		
+		$showlist = ($action !== 'rewind' && ($backups_count || $is_now));
+		if ($showlist) {
 			// list
 			$list .= '  <ul>' . "\n";
 			foreach($backups as $age => $val) {
@@ -129,6 +164,7 @@ class xpwiki_plugin_backup extends xpwiki_plugin {
 				if ($age == $s_age) {
 					$header[1] = $this->make_age_label($age, $date, $lasteditor);
 					$header[1] .= ' ' . str_replace('$1', $age, $source_icon);
+					if ($isowner) $header[1] .= ' ' . str_replace('$1', $age, $rewind_icon);
 					if ($editable) $header[1] .= ' ' . str_replace('$1', $age, $edit_icon);
 				}
 			}
@@ -194,6 +230,7 @@ class xpwiki_plugin_backup extends xpwiki_plugin {
 				$age = $is_now? $backups_count : ($s_age - 1);
 				$header[0] = $this->make_age_label($age, $date, $lasteditor);
 				$header[0] .= ' ' . str_replace('$1', $age, $source_icon);
+				if ($isowner) $header[0] .= ' ' . str_replace('$1', $age, $rewind_icon);
 				if ($editable) $header[0] .= ' ' . str_replace('$1', $age, $edit_icon);
 			} else {
 				$header[0] = '';
@@ -237,10 +274,14 @@ class xpwiki_plugin_backup extends xpwiki_plugin {
 </div>
 EOD;
 		} else {
-			if ($this->cont['PLUGIN_BACKUP_DISABLE_BACKUP_RENDERING']) {
+			if (! $isowner && $this->cont['PLUGIN_BACKUP_DISABLE_BACKUP_RENDERING']) {
 				$this->func->die_message('This feature is prohibited');
 			} else {
-				$title = & $this->root->_title_backup;
+				if ($action === 'rewind') {
+					$title = $this->root->_title_backuprewind;
+				} else {
+					$title = $this->root->_title_backup;
+				}
 				$body .= $this->root->hr . "\n";
 				
 				$this->root->rtf['preview'] = TRUE;
@@ -397,6 +438,26 @@ EOD;
 	
 	function make_age_label($age, $date, $lasteditor) {
 		return $age . ': ' . $date . ' <small>' . $lasteditor . '</small>';
+	}
+	
+	function do_rewind($page, $age) {
+		$this->root->vars['refer'] = $page;
+		if ($backup = $this->func->get_backup($page, $age, $age)) {
+			$time = $backup['time'] + $this->cont['ZONETIME'];
+			$data = join('', $backup['data']);
+			$this->func->page_write($page, $data, TRUE);
+			$this->func->touch_page($page, $time);
+			$s_page = htmlspecialchars($page);
+			return array(
+				'msg'  => str_replace('$1', $age, $this->root->_msg_rewinded),
+				'body' => ''
+			);
+		} else {
+			return array(
+				'msg'  => str_replace('$1', $age, $this->root->_msg_nobackupnum),
+				'body' => ''
+			);			
+		}
 	}
 }
 ?>

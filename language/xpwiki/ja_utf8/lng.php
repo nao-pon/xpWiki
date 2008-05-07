@@ -1,6 +1,6 @@
 <?php
 // PukiWiki - Yet another WikiWikiWeb clone.
-// $Id: lng.php,v 1.6 2008/04/24 00:22:00 nao-pon Exp $
+// $Id: lng.php,v 1.7 2008/05/07 08:38:08 nao-pon Exp $
 // Copyright (C)
 //   2002-2005 PukiWiki Developers Team
 //   2001-2002 Originally written by yu-ji
@@ -269,6 +269,12 @@ $root->_msg_view             = '$1 を表示';
 $root->_msg_deleted          = '$1 は削除されています。';
 $root->_msg_backupedit       = 'バックアップ No.$1 を復元して編集';
 $root->_msg_current          = '現';
+$root->_title_backuprewind   = '$1 のバックアップ(No.$2)へ巻き戻し';
+$root->_title_dorewind       = '$1 時点の以下の内容にタイムスタンプも含めて復元します。';
+$root->_msg_rewind           = '巻き戻し';
+$root->_msg_dorewind         = 'バックアップ No.$1 へ巻き戻す';
+$root->_msg_rewinded         = 'バックアップ No.$1 への巻き戻しが完了しました。';
+$root->_msg_nobackupnum      = 'バックアップ No.$1 はありません。';
 
 ///////////////////////////////////////
 // calendar_viewer.inc.php

@@ -1,6 +1,6 @@
 <?php
 // PukiWiki - Yet another WikiWikiWeb clone.
-// $Id: lng.php,v 1.3 2008/04/24 00:22:00 nao-pon Exp $
+// $Id: lng.php,v 1.4 2008/05/07 08:38:08 nao-pon Exp $
 // Copyright (C)
 //   2002-2005 PukiWiki Developers Team
 //   2001-2002 Originally written by yu-ji
@@ -272,6 +272,12 @@ $root->_msg_view             = 'Zeige das $1.';
 $root->_msg_deleted          = ' $1 wurde gelöscht.';
 $root->_msg_backupedit       = 'Ändere Backup Nr.$1 als aktuelles.';
 $root->_msg_current          = 'Cur';
+$root->_title_backuprewind   = 'Spulen Sie zu Unterstützung No.$2 von $1 zurück.';
+$root->_title_dorewind       = 'Spulen Sie Inhalt & Zeitbriefmarke mit einer Zeit "$1" zurück.';
+$root->_msg_rewind           = 'Spulen Sie zurück';
+$root->_msg_dorewind         = 'Spulen Sie zu Hilfs No.$1 zurück';
+$root->_msg_rewinded         = 'Zurückgespult in Backup No.$1.';
+$root->_msg_nobackupnum      = 'Das Danebengehen Backup No.$1.';
 
 ///////////////////////////////////////
 // calendar_viewer.inc.php
