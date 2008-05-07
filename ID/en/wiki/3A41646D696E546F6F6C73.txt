@@ -1,5 +1,5 @@
 #freeze
-#pginfo(0			3	all	all	3	all	all	1	sS3IcTah32w	web-master	)
+#pginfo(0			3	all	all	3	all	all	1	sS3IcTah32w	web-master	1	)
 #xoopsadmin
 
 * Admin tools list [#i95b71f6]
@@ -8,6 +8,7 @@
 
 -[[Page rename>[[cmd:rename]]]]
 -[[Delete any pages>[[cmd:deldel]]]]
+-[[Default setting of Page permission>[[cmd:pginfo]]]]
 -[[Backup & Restore>[[cmd:dump]]]]
 -[[Synchronize Database>[[cmd:dbsync]]]]
 -[[Import>[[cmd:import]]]]
