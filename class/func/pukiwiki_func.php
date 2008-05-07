@@ -1,7 +1,7 @@
 <?php
 //
 // Created on 2006/10/02 by nao-pon http://hypweb.net/
-// $Id: pukiwiki_func.php,v 1.165 2008/04/27 11:52:42 nao-pon Exp $
+// $Id: pukiwiki_func.php,v 1.166 2008/05/07 08:42:52 nao-pon Exp $
 //
 class XpWikiPukiWikiFunc extends XpWikiBaseFunc {
 
@@ -96,9 +96,15 @@ class XpWikiPukiWikiFunc extends XpWikiBaseFunc {
 			$postdata = preg_replace('/^#freeze\n/', '', $postdata);
 		}
 		
+		$empty_page_making = FALSE;
 		// set mode. use at custum events.
 		if (!$this->is_page($page) && $postdata) {
 			$mode = "insert";
+			// Empty page making by plugin.
+			if ($postdata === "\t") {
+				$postdata = '';
+				$empty_page_making = TRUE;
+			}
 		} else if (!$postdata) {
 			$mode = "delete";
 			$this->root->post['alias'] = '';
@@ -203,75 +209,77 @@ class XpWikiPukiWikiFunc extends XpWikiBaseFunc {
 		}
 		$this->pginfo_db_write($page, $mode, $pginfo);
 		
-		/*
-		if ($this->root->trackback) {
-			// TrackBack Ping
-			$_diff = explode("\n", $diffdata);
-			$plus  = join("\n", preg_replace('/^\+/', '', preg_grep('/^\+/', $_diff)));
-			$minus = join("\n", preg_replace('/^-/',  '', preg_grep('/^-/',  $_diff)));
-			$this->tb_send($page, $plus, $minus);
-		}
-		*/
-
-		// 更新通知メール
-		if ($this->root->notify) {
-			if ($this->root->notify_diff_only) $diffdata = preg_replace('/^[^-+].*\n/m', '', $diffdata);
-			$footer['ACTION'] = 'Page update';
-			$footer['PAGE']   = & $page;
-			//$footer['URI']    = $this->get_page_uri($page, true);
-			$footer['USER_AGENT']  = TRUE;
-			$footer['REMOTE_ADDR'] = TRUE;
-			$this->pkwk_mail_notify($this->root->notify_subject, $this->get_page_uri($page, true) . "\n\n" . $diffdata, $footer) or
-				die('pkwk_mail_notify(): Failed');
-		}
-		
-		// System notification
-		$tags['POST_URL'] = $this->get_page_uri($page, true);
-		$tags['PAGE_NAME'] = $page;
-		$tags['POST_DATA'] = $postdata;
-		$tags['POSTER_NAME'] = $this->root->userinfo['uname'];
-		$tags['POST_DIFF'] = $diffdata;
-		$tags['POST_DIFF'] = preg_replace('/^/m', ' ', $tags['POST_DIFF']);
-		if ($mode === 'insert') {
-			$tags['POST_DIFF'] = 'New page.';
-		} else if ($mode === 'update') {
-
-		} else	if ($mode === 'delete') {
-			$tags['POST_DATA'] = 'Page deleted.';
-		}
-		$this->system_notification($page, 'page', $this->get_pgid_by_name($page), 'page_update', $tags);
-		
-		list($pgid1, $pgid2) = $this->get_pgids_by_name($page);
-		$this->system_notification($page, 'page1', $pgid1, 'page_update', $tags);
-		if ($pgid2) $this->system_notification($page, 'page2', $pgid2, 'page_update', $tags);
-		
-		$this->system_notification($page, 'global', 0, 'page_update', $tags);
-
-		// For AutoLink
-		if ($need_autolink_update || $mode !== 'update'){
-			$this->autolink_dat_update();
-		}
-		
-		// Update autoalias.dat (AutoAliasName)
-		if ($this->root->autoalias && $page === $this->root->aliaspage) {
-			$aliases = $this->get_autoaliases();
-			if (empty($aliases)) {
-				// Remove
-				@unlink($this->cont['CACHE_DIR'] . $this->cont['PKWK_AUTOALIAS_REGEX_CACHE']);
-			} else {
-				// Create or Update
-				$this->autolink_pattern_write($this->cont['CACHE_DIR'] . $this->cont['PKWK_AUTOALIAS_REGEX_CACHE'],
-					$this->get_autolink_pattern(array_keys($aliases), $this->root->autoalias, true));
+		if (! $empty_page_making) {
+			/*
+			if ($this->root->trackback) {
+				// TrackBack Ping
+				$_diff = explode("\n", $diffdata);
+				$plus  = join("\n", preg_replace('/^\+/', '', preg_grep('/^\+/', $_diff)));
+				$minus = join("\n", preg_replace('/^-/',  '', preg_grep('/^-/',  $_diff)));
+				$this->tb_send($page, $plus, $minus);
 			}
+			*/
+
+			// 更新通知メール
+			if ($this->root->notify) {
+				if ($this->root->notify_diff_only) $diffdata = preg_replace('/^[^-+].*\n/m', '', $diffdata);
+				$footer['ACTION'] = 'Page update';
+				$footer['PAGE']   = & $page;
+				//$footer['URI']    = $this->get_page_uri($page, true);
+				$footer['USER_AGENT']  = TRUE;
+				$footer['REMOTE_ADDR'] = TRUE;
+				$this->pkwk_mail_notify($this->root->notify_subject, $this->get_page_uri($page, true) . "\n\n" . $diffdata, $footer) or
+					die('pkwk_mail_notify(): Failed');
+			}
+			
+			// System notification
+			$tags['POST_URL'] = $this->get_page_uri($page, true);
+			$tags['PAGE_NAME'] = $page;
+			$tags['POST_DATA'] = $postdata;
+			$tags['POSTER_NAME'] = $this->root->userinfo['uname'];
+			$tags['POST_DIFF'] = $diffdata;
+			$tags['POST_DIFF'] = preg_replace('/^/m', ' ', $tags['POST_DIFF']);
+			if ($mode === 'insert') {
+				$tags['POST_DIFF'] = 'New page.';
+			} else if ($mode === 'update') {
+
+			} else	if ($mode === 'delete') {
+				$tags['POST_DATA'] = 'Page deleted.';
+			}
+			$this->system_notification($page, 'page', $this->get_pgid_by_name($page), 'page_update', $tags);
+			
+			list($pgid1, $pgid2) = $this->get_pgids_by_name($page);
+			$this->system_notification($page, 'page1', $pgid1, 'page_update', $tags);
+			if ($pgid2) $this->system_notification($page, 'page2', $pgid2, 'page_update', $tags);
+			
+			$this->system_notification($page, 'global', 0, 'page_update', $tags);
+
+			// For AutoLink
+			if ($need_autolink_update || $mode !== 'update'){
+				$this->autolink_dat_update();
+			}
+			
+			// Update autoalias.dat (AutoAliasName)
+			if ($this->root->autoalias && $page === $this->root->aliaspage) {
+				$aliases = $this->get_autoaliases();
+				if (empty($aliases)) {
+					// Remove
+					@unlink($this->cont['CACHE_DIR'] . $this->cont['PKWK_AUTOALIAS_REGEX_CACHE']);
+				} else {
+					// Create or Update
+					$this->autolink_pattern_write($this->cont['CACHE_DIR'] . $this->cont['PKWK_AUTOALIAS_REGEX_CACHE'],
+						$this->get_autolink_pattern(array_keys($aliases), $this->root->autoalias, true));
+				}
+			}
+			
+			// Update interwiki.dat
+			if ($this->root->interwiki && $page === $this->root->interwiki) {
+				$this->interwiki_dat_update(explode("\n", $postdata));
+			}
+			
+			// onPageWriteAfter
+			$this->do_onPageWriteAfter($page, $postdata, $notimestamp, $mode, $diffdata);
 		}
-		
-		// Update interwiki.dat
-		if ($this->root->interwiki && $page === $this->root->interwiki) {
-			$this->interwiki_dat_update(explode("\n", $postdata));
-		}		
-		
-		// onPageWriteAfter
-		$this->do_onPageWriteAfter($page, $postdata, $notimestamp, $mode, $diffdata);
 		
 		ignore_user_abort($_user_abort_last);
 	}
@@ -938,7 +946,7 @@ class XpWikiPukiWikiFunc extends XpWikiBaseFunc {
 
 //----- Start convert_html.php -----//
 	// PukiWiki - Yet another WikiWikiWeb clone
-	// $Id: pukiwiki_func.php,v 1.165 2008/04/27 11:52:42 nao-pon Exp $
+	// $Id: pukiwiki_func.php,v 1.166 2008/05/07 08:42:52 nao-pon Exp $
 	// Copyright (C)
 	//   2002-2005 PukiWiki Developers Team
 	//   2001-2002 Originally written by yu-ji
@@ -1062,7 +1070,9 @@ class XpWikiPukiWikiFunc extends XpWikiBaseFunc {
 				$ext_autolink_obj->ext_autolinks = $ext_autolinks_aft;
 				$ext_autolink_obj->ext_autolink($ret);
 			}
-
+			
+			// Remove No Autolink tags
+			$ret = str_replace(array('<!--NA-->', '<!--/NA-->'), '', $ret);
 		}
 		
 		//if ($this->root->rtf['convert_nest'] > 1) $this->cont['PKWK_READONLY'] = $_PKWK_READONLY;
@@ -1189,7 +1199,7 @@ class XpWikiPukiWikiFunc extends XpWikiBaseFunc {
 
 //----- Start func.php -----//
 	// PukiWiki - Yet another WikiWikiWeb clone.
-	// $Id: pukiwiki_func.php,v 1.165 2008/04/27 11:52:42 nao-pon Exp $
+	// $Id: pukiwiki_func.php,v 1.166 2008/05/07 08:42:52 nao-pon Exp $
 	// Copyright (C)
 	//   2002-2006 PukiWiki Developers Team
 	//   2001-2002 Originally written by yu-ji
@@ -2005,7 +2015,7 @@ EOD;
 
 //----- Start make_link.php -----//
 	// PukiWiki - Yet another WikiWikiWeb clone.
-	// $Id: pukiwiki_func.php,v 1.165 2008/04/27 11:52:42 nao-pon Exp $
+	// $Id: pukiwiki_func.php,v 1.166 2008/05/07 08:42:52 nao-pon Exp $
 	// Copyright (C)
 	//   2003-2005 PukiWiki Developers Team
 	//   2001-2002 Originally written by yu-ji
@@ -2941,7 +2951,7 @@ EOD;
 
 //----- Start html.php -----//
 	// PukiWiki - Yet another WikiWikiWeb clone.
-	// $Id: pukiwiki_func.php,v 1.165 2008/04/27 11:52:42 nao-pon Exp $
+	// $Id: pukiwiki_func.php,v 1.166 2008/05/07 08:42:52 nao-pon Exp $
 	// Copyright (C)
 	//   2002-2006 PukiWiki Developers Team
 	//   2001-2002 Originally written by yu-ji
@@ -3193,13 +3203,13 @@ EOD;
 			}
 			ksort($pages);
 			$s_pages  = join("\n", $pages);
-			$ajax_template = $ajax? ' onClick="return xpwiki_ajax_edit_submit(1)"' : '';
+			$template_onclick = $ajax ? ' onclick="return xpwiki_ajax_edit_submit(1);"' : '';
 			$template = <<<EOD
 	  <select name="template_page">
 	   <option value="">-- {$this->root->_btn_template} --</option>
 	$s_pages
 	  </select>
-	  <input type="submit" name="template" value="{$this->root->_btn_load}" accesskey="r"{$ajax_template} />
+	  <input type="submit" name="template" value="{$this->root->_btn_load}" accesskey="r" onmousedown="(function(){if(\$('edit_write_hidden')){Element.remove(\$('edit_write_hidden'))}})();"{$template_onclick} />
 	  <br />
 EOD;
 	
@@ -3273,7 +3283,7 @@ EOD;
 			$riddle = '<p>' . $this->root->_btn_riddle . '<br />' .
 				'&nbsp;&nbsp;<strong>Q:</strong> ' . htmlspecialchars($options['riddle']) . '<br />' .
 				'&nbsp;&nbsp;<strong>A:</strong> <input type="text" name="riddle'.md5($this->cont['HOME_URL'].$options['riddle']) .
-				'" size="30" value="" autocomplete="off" onkeyup="(function(e){if(e.value&&$(\'edit_write\').name===\'write\'){if($(\'edit_preview\')){with($(\'edit_preview\')){name=\'write\';value=\''.$this->root->_btn_update.'\';setAttribute(\'accesskey\',\'s\');setAttribute(\'onmousedown\',\'xpwiki_ajax_edit_var[\\\'mode\\\']=\\\'write\\\'\');}with($(\'edit_write\')){name=\'preview\';value=\''.$btn_preview.'\';setAttribute(\'accesskey\',\'p\');setAttribute(\'onmousedown\',\'xpwiki_ajax_edit_var[\\\'mode\\\']=\\\'preview\\\'\');}}xpwiki_ajax_edit_var[\'mode\']=\'write\';}})(this)" /><br />' .
+				'" size="30" value="" autocomplete="off" onkeyup="(function(e){if(e.value&&!$(\'edit_write_hidden\')){var w=document.createElement(\'input\');w.id=\'edit_write_hidden\';w.type=\'hidden\';w.name=\'write\';e.parentNode.appendChild(w);}})(this)" /><br />' .
 				'</p>';	
 		}
 	
@@ -3339,8 +3349,8 @@ EOD;
   <textarea id="xpwiki_edit_textarea" name="msg" rows="{$this->root->rows}" cols="{$this->root->cols}">$s_postdata</textarea>
   $riddle
   <div style="float:left;">
-   <input type="submit" name="preview" value="$btn_preview" accesskey="p" id="edit_preview" onmousedown="xpwiki_ajax_edit_var['mode']='preview'" />
-   <input type="submit" name="write"   value="{$this->root->_btn_update}" accesskey="s" id="edit_write" onmousedown="xpwiki_ajax_edit_var['mode']='write'" />
+   <input type="submit" name="preview" value="$btn_preview" accesskey="p" id="edit_preview" onmousedown="(function(){if(\$('edit_write_hidden')){Element.remove(\$('edit_write_hidden'))};xpwiki_ajax_edit_var['mode']='preview';})();" />
+   <input type="submit" name="write"   value="{$this->root->_btn_update}" accesskey="s" id="edit_write" onmousedown="(function(){if(\$('edit_write_hidden')){Element.remove(\$('edit_write_hidden'))};xpwiki_ajax_edit_var['mode']='write';})();" />
    $add_top
    $add_notimestamp
   </div>
@@ -3637,7 +3647,7 @@ EOD;
 
 //----- Start mail.php -----//
 	// PukiWiki - Yet another WikiWikiWeb clone.
-	// $Id: pukiwiki_func.php,v 1.165 2008/04/27 11:52:42 nao-pon Exp $
+	// $Id: pukiwiki_func.php,v 1.166 2008/05/07 08:42:52 nao-pon Exp $
 	// Copyright (C)
 	//   2003-2005 PukiWiki Developers Team
 	//   2003      Originally written by upk
@@ -3940,7 +3950,7 @@ EOD;
 
 //----- Start link.php -----//
 	// PukiWiki - Yet another WikiWikiWeb clone
-	// $Id: pukiwiki_func.php,v 1.165 2008/04/27 11:52:42 nao-pon Exp $
+	// $Id: pukiwiki_func.php,v 1.166 2008/05/07 08:42:52 nao-pon Exp $
 	// Copyright (C) 2003-2006 PukiWiki Developers Team
 	// License: GPL v2 or (at your option) any later version
 	//
