@@ -1,5 +1,5 @@
 <?php
-// $Id: ref.inc.php,v 1.26 2008/03/24 09:10:06 nao-pon Exp $
+// $Id: ref.inc.php,v 1.27 2008/05/07 08:55:14 nao-pon Exp $
 /*
 
 	*プラグイン ref
@@ -261,7 +261,6 @@ class xpwiki_plugin_ref extends xpwiki_plugin {
 		}
 
 		// アップロードリンク指定
-		$this->root->rtf['disable_render_cache'] = true;
 		if (substr($lvar['name'],0,3) === 'ID$') {
 			$lvar['refid'] = substr($lvar['name'], 3);
 			$lvar['name'] = '';
@@ -290,7 +289,7 @@ class xpwiki_plugin_ref extends xpwiki_plugin {
 		$this->get_type($lvar, $args, $params);
 
 		// Check readable
-		if (!$this->func->check_readable($lvar['page'], false, false)) {
+		if ($lvar['page'] !== $this->root->render_attach && ! $this->func->check_readable($lvar['page'], false, false)) {
 			$params['_error'] = '<small>[File display right none]</small>';
 		}
 		
@@ -307,14 +306,12 @@ class xpwiki_plugin_ref extends xpwiki_plugin {
 				// サイズ指定子があるかチェック
 				$params['_args'] = $args;
 				$this->check_arg_ex ($params, $lvar);
-				$thumb = ($params['_size'])? '' :  '&amp;thumb=1';
 
 				$returi = ($this->root->render_mode !== 'render')? '' :
 					'&amp;returi='.rawurlencode($_SERVER['REQUEST_URI']);
 				
 				$params['_body'] = '<a href="'.$this->root->script.
 					'?plugin=attach&amp;pcmd=upload&amp;filename='.rawurlencode($lvar['name']).
-					$thumb.
 					'&amp;page='.rawurlencode($lvar['page']).
 					$returi.
 					'" title="'.$this->root->_LANG['skin']['upload'].'">'.
