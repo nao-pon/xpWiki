@@ -1,5 +1,5 @@
 <?php
-// $Id: moblog.inc.php,v 1.4 2008/04/14 08:32:04 nao-pon Exp $
+// $Id: moblog.inc.php,v 1.5 2008/05/07 08:53:40 nao-pon Exp $
 // Author: nao-pon http://hypweb.net/
 // Bace script is pop.php of mailbbs by Let's PHP!
 // Let's PHP! Web: http://php.s3.to/
@@ -273,6 +273,7 @@ class xpwiki_plugin_moblog extends xpwiki_plugin {
 					$this->root->userinfo = $this->func->get_userinfo_by_id($uid);
 					$this->root->userinfo['ucd'] = '';
 					$this->root->cookie['name']  = '';
+					$this->is_newpage = ! $this->func->is_page($page);
 				} else {
 					$write = false;
 					$this->debug[] = 'Allow page not found.';
@@ -365,6 +366,10 @@ class xpwiki_plugin_moblog extends xpwiki_plugin {
 							{
 								HypCommonFunc::rotateImage($save_file, $rotate);
 							}
+							// ページが無ければ空ページを作成
+							if (!$this->func->is_page($page)) {
+								$this->func->page_write($page, "\t");
+							}
 							$attach = $this->func->get_plugin_instance('attach');
 							$res = $attach->do_upload($page,$filename,$save_file);
 							if ($res['result']) {
@@ -416,19 +421,18 @@ class xpwiki_plugin_moblog extends xpwiki_plugin {
 		$set_data = ltrim($set_data, "\r\n");
 		$set_data = rtrim($set_data)."\n\n";
 		
-		$page_data = '';
-		if ($this->func->is_page($page)) {
-			//ページ更新
-			$page_data = rtrim(join('',$this->func->get_source($page)))."\n";
-		} else {
+		if ($this->is_newpage) {
 			//ページ新規作成
 			$template = ':template_m/' . preg_replace('/(.*)\/[^\/]+/', '$1', $page);
 			if ($this->func->is_page($template)) {
 				$page_data = rtrim(join('',$this->func->get_source($template)))."\n";
-				$this->func->remove_pginfo($page_data);
+			} else {
+				$page_data = '';
 			}
+		} else {
+			$page_data = rtrim(join('',$this->func->get_source($page)))."\n";
 		}
-
+		$this->func->remove_pginfo($page_data);
 		
 		$this->make_googlemaps($page_data, $set_data, $subject, $date);
 		
