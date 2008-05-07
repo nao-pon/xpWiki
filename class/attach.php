@@ -1,7 +1,7 @@
 <?php
 /*
  * Created on 2008/03/24 by nao-pon http://hypweb.net/
- * $Id: attach.php,v 1.1 2008/03/24 09:08:49 nao-pon Exp $
+ * $Id: attach.php,v 1.2 2008/05/07 08:48:55 nao-pon Exp $
  */
 
 //-------- ¥¯¥é¥¹
@@ -517,6 +517,9 @@ EOD;
 		if ($ret) {
 			$this->del_thumb_files();
 			$this->func->pkwk_touch_file($this->filename, $filemtime);
+			$this->getstatus();
+			$this->status['imagesize'] = @ getimagesize($this->filename);
+			$this->putstatus();
 		}
 		
 		$param  = '&file='.rawurlencode($this->file).'&refer='.rawurlencode($this->page).
