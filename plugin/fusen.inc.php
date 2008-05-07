@@ -31,7 +31,7 @@
 //
 // fusen.inc.php for xpWiki by nao-pon
 // http://xoops.hypweb.net
-// $Id: fusen.inc.php,v 1.22 2008/04/24 00:03:40 nao-pon Exp $
+// $Id: fusen.inc.php,v 1.23 2008/05/07 08:52:31 nao-pon Exp $
 // 
 
 class xpwiki_plugin_fusen extends xpwiki_plugin {
@@ -481,7 +481,7 @@ EOD;
 			$fname = $this->cont['UPLOAD_DIR'] . $this->func->encode($refer) . '_' . $this->func->encode($this->cont['FUSEN_ATTACH_FILENAME']);
 			if ($fp = fopen($fname.".tmp", "wb")) {
 				flock($fp, LOCK_EX);
-				fputs($fp, $this->cont['FUSEN_ATTACH_FILENAME'] . "\n");
+				fputs($fp, $this->cont['FUSEN_ATTACH_FILENAME'] . "\t" . $this->cont['SOURCE_ENCODING'] . "\n");
 				fputs($fp, serialize($dat));
 				fclose($fp);
 				$this->root->pukiwiki_allow_extensions = "";
@@ -511,9 +511,22 @@ EOD;
 		$fname = $this->func->encode($page) . '_' . $this->func->encode($this->cont['FUSEN_ATTACH_FILENAME']);
 		if (!file_exists($this->cont['UPLOAD_DIR'] . $fname)) return array();
 		$data = file($this->cont['UPLOAD_DIR'] . $fname);
-		if (!$data || trim(array_shift($data)) != $this->cont['FUSEN_ATTACH_FILENAME']) return array();
+		
+		$head = trim(array_shift($data));
+		if (!$data || strpos($head, $this->cont['FUSEN_ATTACH_FILENAME']) !== 0) return array();
 		
 		$data = unserialize(join('',$data));
+
+		$heads = explode("\t", $head);
+		$encode = (isset($heads[1]))? $heads[1] : $this->cont['SOURCE_ENCODING'];
+		if ($encode !== $this->cont['SOURCE_ENCODING']) {
+			foreach ($data as $k => $dat) {
+				$this->func->encode_numericentity($data[$k]['txt'], $this->cont['SOURCE_ENCODING'], $encode);
+				$this->func->encode_numericentity($data[$k]['name'], $this->cont['SOURCE_ENCODING'], $encode);
+				$data[$k]['txt'] = mb_convert_encoding($data[$k]['txt'], $this->cont['SOURCE_ENCODING'], $encode);
+				$data[$k]['name'] = mb_convert_encoding($data[$k]['name'], $this->cont['SOURCE_ENCODING'], $encode);
+			} 
+		}
 		
 		if (!$convert) return $data;
 		
