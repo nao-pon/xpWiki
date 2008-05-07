@@ -1,7 +1,7 @@
 <?php
 //
 // Created on 2006/10/02 by nao-pon http://hypweb.net/
-// $Id: xpwiki_func.php,v 1.163 2008/04/25 02:42:00 nao-pon Exp $
+// $Id: xpwiki_func.php,v 1.164 2008/05/07 08:45:14 nao-pon Exp $
 //
 class XpWikiFunc extends XpWikiXoopsWrapper {
 
@@ -871,10 +871,10 @@ EOD;
 			$done[$this->xpwiki->pid][$file] = TRUE;
 		}
 		
-		if ($charset) $charset = ' charset="' . $charset . '"';
 		$target = $pre? 'head_pre_tags' : 'head_tags';
 		
-		if (preg_match("/^(.+)\.([^\.]+)$/",$file,$match)) {
+		if (preg_match("/^(.+)\.([a-zA-Z]+)$/",$file,$match)) {
+			if ($charset) $charset = ' charset="' . $charset . '"';
 			if ($match[2] === 'css') {
 				if ($this->root->render_mode === 'main') {
 					$mode = '';
@@ -895,7 +895,9 @@ EOD;
 					$this->root->rtf['HeadJsAjaxSafe'] = NULL;
 				}
 			}
-		}	
+		} else {
+			$this->root->{$target}[] = $file;
+		}
 	}
 
 	function add_js_head ($file, $pre = FALSE, $charset = '') {
