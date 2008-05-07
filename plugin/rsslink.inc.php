@@ -2,7 +2,7 @@
 /////////////////////////////////////////////////
 // PukiWiki - Yet another WikiWikiWeb clone.
 //
-// $Id: rsslink.inc.php,v 1.3 2006/12/13 04:45:31 nao-pon Exp $
+// $Id: rsslink.inc.php,v 1.4 2008/05/07 08:40:10 nao-pon Exp $
 //
 class xpwiki_plugin_rsslink extends xpwiki_plugin {
 	function plugin_rsslink_init () {
@@ -32,6 +32,7 @@ class xpwiki_plugin_rsslink extends xpwiki_plugin {
 			return FALSE;
 		
 		$type = strtolower($type);
+		$linktype = 'application/rss+xml';
 		switch ($type) {
 			case 'rss10':
 			case '1.0';
@@ -51,6 +52,7 @@ class xpwiki_plugin_rsslink extends xpwiki_plugin {
 				$ver  = ' Atom';
 				$type = 'rss&amp;ver=atom';
 				$icon = 'feed-atom.png';
+				$linktype = 'application/atom+xml';
 				break;
 			default:
 				$ver = '';
@@ -58,7 +60,9 @@ class xpwiki_plugin_rsslink extends xpwiki_plugin {
 				$icon = 'feed-rss.png';
 		}
 
-	
+		if ($page) {
+			$page = $this->func->get_fullname($page, $this->root->vars['page']);
+		}	
 		if ($this->func->is_page($page))
 		{
 			$s_page = '&amp;p='.rawurlencode($page);
@@ -72,7 +76,9 @@ class xpwiki_plugin_rsslink extends xpwiki_plugin {
 		
 		$title = 'RSS' . $ver . $page;
 		$s_list_count = ($list_count)? '&amp;count=' . $list_count : '';
-		return '<a href="' . $this->root->script. '?cmd=' . $type . $s_page . $s_list_count . '" title="' . $title. '"><img src="'.$this->cont['IMAGE_DIR'].$icon.'" alt="' . $title . '" /></a>';
+		$link = $this->root->script. '?cmd=' . $type . $s_page . $s_list_count;
+		$this->func->add_tag_head('<link rel="alternate" type="'.$linktype.'" title="'.$title.'" href="'.$link.'" />');
+		return '<a href="' . $link . '" title="' . $title. '"><img src="'.$this->cont['IMAGE_DIR'].$icon.'" alt="' . $title . '" /></a>';
 	}
 }
 ?>
