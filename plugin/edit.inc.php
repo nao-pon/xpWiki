@@ -1,6 +1,6 @@
 <?php
 // PukiWiki - Yet another WikiWikiWeb clone.
-// $Id: edit.inc.php,v 1.58 2008/04/04 23:53:27 nao-pon Exp $
+// $Id: edit.inc.php,v 1.59 2008/05/07 08:49:28 nao-pon Exp $
 // Copyright (C) 2001-2006 PukiWiki Developers Team
 // License: GPL v2 or (at your option) any later version
 //
@@ -30,14 +30,14 @@ class xpwiki_plugin_edit extends xpwiki_plugin {
 		
 		$this->func->check_editable($page, true, true);
 		
-		if (isset($this->root->vars['preview']) || ($this->root->load_template_func && isset($this->root->vars['template']))) {
-			return $this->plugin_edit_preview();
-		} else if (isset($this->root->vars['write'])) {
+		if (isset($this->root->vars['write'])) {
 			if ($this->func->check_riddle()) {
 				return $this->plugin_edit_write();
 			} else {
 				return $this->plugin_edit_preview(TRUE);
 			}
+		} else if (isset($this->root->vars['preview']) || ($this->root->load_template_func && isset($this->root->vars['template']))) {
+			return $this->plugin_edit_preview();
 		} else if (isset($this->root->vars['cancel'])) {
 			return $this->plugin_edit_cancel();
 		}
@@ -87,7 +87,7 @@ EOD;
 		$page = isset($this->root->vars['page']) ? $this->root->vars['page'] : '';
 	
 		// Loading template
-		if (isset($this->root->vars['template_page']) && $this->func->is_page($this->root->vars['template_page'])) {
+		if (! $ng_riddle && isset($this->root->vars['template_page']) && $this->func->is_page($this->root->vars['template_page'])) {
 	
 			$this->root->vars['msg'] = $this->func->get_source($this->root->vars['template_page'], TRUE, TRUE);
 	
