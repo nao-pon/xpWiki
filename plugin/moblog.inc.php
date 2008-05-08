@@ -1,5 +1,5 @@
 <?php
-// $Id: moblog.inc.php,v 1.5 2008/05/07 08:53:40 nao-pon Exp $
+// $Id: moblog.inc.php,v 1.6 2008/05/08 00:10:00 nao-pon Exp $
 // Author: nao-pon http://hypweb.net/
 // Bace script is pop.php of mailbbs by Let's PHP!
 // Let's PHP! Web: http://php.s3.to/
@@ -415,7 +415,7 @@ class xpwiki_plugin_moblog extends xpwiki_plugin {
 		$set_data .= $text."\n\n".$date."\n#clear";
 		
 		// 念のためページ情報を削除
-		$this->func->remove_pginfo($set_data);
+		$set_data = $this->func->remove_pginfo($set_data);
 		
 		// 改行文字調整
 		$set_data = ltrim($set_data, "\r\n");
@@ -432,7 +432,7 @@ class xpwiki_plugin_moblog extends xpwiki_plugin {
 		} else {
 			$page_data = rtrim(join('',$this->func->get_source($page)))."\n";
 		}
-		$this->func->remove_pginfo($page_data);
+		$page_data = $this->func->remove_pginfo($page_data);
 		
 		$this->make_googlemaps($page_data, $set_data, $subject, $date);
 		
