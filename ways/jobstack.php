@@ -1,10 +1,10 @@
 <?php
 /*
  * Created on 2008/05/13 by nao-pon http://hypweb.net/
- * $Id: jobstack.php,v 1.1 2008/05/14 04:27:48 nao-pon Exp $
+ * $Id: jobstack.php,v 1.2 2008/05/14 05:08:37 nao-pon Exp $
  */
 
-error_reporting(E_ALL);
+error_reporting(0);
 
 ignore_user_abort(TRUE);
 
