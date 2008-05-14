@@ -3,7 +3,7 @@ class xpwiki_plugin_online extends xpwiki_plugin {
 	function plugin_online_init () {
 
 
-	// $Id: online.inc.php,v 1.1 2006/10/13 13:17:49 nao-pon Exp $
+	// $Id: online.inc.php,v 1.2 2008/05/14 07:16:41 nao-pon Exp $
 	// Copyright (C)
 	//   2002-2005 PukiWiki Developers Team
 	//   2001-2002 Originally written by yu-ji
@@ -107,7 +107,6 @@ class xpwiki_plugin_online extends xpwiki_plugin {
 			if (! $found && $matches[1] == $host) $found = TRUE;
 		}
 	
-		flock($fp, LOCK_UN);
 	
 		if(! fclose($fp)) return FALSE;
 	
@@ -158,8 +157,6 @@ class xpwiki_plugin_online extends xpwiki_plugin {
 			rewind($fp);
 			fputs($fp, join('', $lines));
 		}
-	
-		flock($fp, LOCK_UN);
 	
 		if(! fclose($fp)) return FALSE;
 	

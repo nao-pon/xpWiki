@@ -1,7 +1,7 @@
 <?php
 //
 // Created on 2006/10/25 by nao-pon http://hypweb.net/
-// $Id: code.inc.php,v 1.18 2008/04/14 08:36:15 nao-pon Exp $
+// $Id: code.inc.php,v 1.19 2008/05/14 07:16:41 nao-pon Exp $
 //
 
 class xpwiki_plugin_code extends xpwiki_plugin {
@@ -204,7 +204,7 @@ class xpwiki_plugin_code extends xpwiki_plugin {
 	 */
 	function _plugin_code_write_cache($fname, $html, $option)
 	{
-	//	global $vars;
+
 		// 添付ファイルのあるページ: defaultは現在のページ名
 		$page = isset($this->root->vars['page']) ? $this->root->vars['page'] : '';
 
@@ -225,18 +225,18 @@ class xpwiki_plugin_code extends xpwiki_plugin {
 		list(,,,,,,,,$md5) = array_pad(@file($this->cont['UPLOAD_DIR'].$file.".log"),9,"");
 		$md5 = trim($md5);
 
+		$html = $this->func->strip_MyHostUrl($html);
+		$data = serialize(array($html, $option, $md5));
+
 		$fp = fopen($this->cont['CACHE_DIR'].'plugin/'.$file.'.code', 'wb') or
 			$this->func->die_message('Cannot write cache file ' .
 					$this->cont['CACHE_DIR'].'plugin/'. $file .'.code'.
 					'<br />Maybe permission is not writable or filename is too long');
 
-		$html = $this->func->strip_MyHostUrl($html);
-		
 		set_file_buffer($fp, 0);
 		flock($fp, LOCK_EX);
 		rewind($fp);
-		fputs($fp, serialize(array($html, $option, $md5)));
-		flock($fp, LOCK_UN);
+		fputs($fp, $data);
 		fclose($fp);
 	}
 

@@ -3,7 +3,7 @@ class xpwiki_plugin_tb extends xpwiki_plugin {
 	function plugin_tb_init () {
 
 
-	// $Id: tb.inc.php,v 1.1 2006/10/13 13:17:49 nao-pon Exp $
+	// $Id: tb.inc.php,v 1.2 2008/05/14 07:16:41 nao-pon Exp $
 	/*
 	 * PukiWiki/TrackBack: TrackBack Ping receiver and viewer
 	 * (C) 2003-2005 PukiWiki Developers Team
@@ -110,7 +110,6 @@ class xpwiki_plugin_tb extends xpwiki_plugin {
 			$line = preg_replace('/[\r\n]/s', '', $line); // One line, one ping
 			fwrite($fp, join(',', $line) . "\n");
 		}
-		flock($fp, LOCK_UN);
 		fclose($fp);
 	
 		return array($this->cont['PLUGIN_TB_NOERROR'], '');

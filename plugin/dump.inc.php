@@ -1,5 +1,5 @@
 <?php
-// $Id: dump.inc.php,v 1.6 2008/04/05 04:53:11 nao-pon Exp $
+// $Id: dump.inc.php,v 1.7 2008/05/14 07:16:41 nao-pon Exp $
 //
 // Remote dump / restore plugin
 // Originated as tarfile.inc.php by teanan / Interfair Laboratory 2004.
@@ -500,7 +500,6 @@ class XpWikitarlib
 			$fpr = @fopen($name , 'rb');
 			flock($fpr, LOCK_SH);
 			$data = fread($fpr, $size);
-			flock($fpr, LOCK_UN);
 			fclose( $fpr );
 
 			// ファイル出力
@@ -715,7 +714,6 @@ class XpWikitarlib
 					fwrite($fpw, $buff, $size);
 					@chmod($name, 0666);
 					@touch($name, $mtime);
-					flock($fpw, LOCK_UN);
 
 					fclose($fpw);
 					$files[] = $name;
