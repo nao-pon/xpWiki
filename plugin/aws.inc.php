@@ -1,7 +1,7 @@
 <?php
 /*
  * Created on 2008/02/28 by nao-pon http://hypweb.net/
- * $Id: aws.inc.php,v 1.3 2008/04/05 04:53:11 nao-pon Exp $
+ * $Id: aws.inc.php,v 1.4 2008/05/14 04:28:41 nao-pon Exp $
  */
 
 /////////////////////////////////////////////////
@@ -80,6 +80,9 @@ class xpwiki_plugin_aws extends xpwiki_plugin {
 				fputs($fp,$ret);
 				fclose($fp);
 			}
+
+			// Update plainDB
+			$this->func->need_update_plaindb();
 		}
 		return explode("\x08", $ret, 2);
 	}
