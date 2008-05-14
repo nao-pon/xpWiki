@@ -1,7 +1,7 @@
 <?php
 //
 // Created on 2006/09/29 by nao-pon http://hypweb.net/
-// $Id: xpwiki.php,v 1.81 2008/04/18 06:52:17 nao-pon Exp $
+// $Id: xpwiki.php,v 1.82 2008/05/14 04:27:49 nao-pon Exp $
 //
 
 class XpWiki {
@@ -257,24 +257,25 @@ class XpWiki {
 					// 各ページ用の .css
 					$root->head_tags[] = $func->get_page_css_tag($base);
 					
-					// Background Run?
-					if (!empty($this->root->rtf['add_bgrun_img'])) {
-						$body .= '<div style="display:none;"><img src="'.$this->cont['HOME_URL'].'gate.php?way=bgrun&amp;t='.$this->cont['UTC'].'&amp;page='.rawurlencode($root->vars['page']).'" width="1" height="1" /></div>';
-					}
 				}
 			}
 			
 			$func->convert_finisher($body);
 
+			// JobStack
+			if ($root->render_mode === 'main') {
+				$body .= $func->get_jobstack_imagetag();
+			}
+			
 			// Outputas normal
-			if ($this->root->viewmode === 'normal') {
+			if ($root->viewmode === 'normal') {
 				$page_title = strip_tags($title);
-				$content_title = (!empty($this->root->content_title) && $title !== $this->root->content_title)?
-					' ['.$this->func->unhtmlspecialchars($this->root->content_title, ENT_QUOTES).']' : '';
+				$content_title = (!empty($root->content_title) && $title !== $root->content_title)?
+					' ['.$func->unhtmlspecialchars($root->content_title, ENT_QUOTES).']' : '';
 				
 				$root->pagetitle = str_replace(
 										array('$page_title', '$content_title', '$module_title'),
-										array($page_title, $content_title, $this->root->module_title),
+										array($page_title, $content_title, $root->module_title),
 										$root->html_head_title);
 	
 				$this->title         = $title;
@@ -291,12 +292,12 @@ class XpWiki {
 			}
 			
 			// Output as Ajax -> exit
-			if ($this->root->viewmode === 'ajax') {
+			if ($root->viewmode === 'ajax') {
 				$func->output_ajax($body);
 			}
 
 			// Output as Popup -> exit
-			if ($this->root->viewmode === 'popup') {
+			if ($root->viewmode === 'popup') {
 				$func->output_popup($body);
 			}
 		}

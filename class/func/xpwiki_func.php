@@ -1,7 +1,7 @@
 <?php
 //
 // Created on 2006/10/02 by nao-pon http://hypweb.net/
-// $Id: xpwiki_func.php,v 1.164 2008/05/07 08:45:14 nao-pon Exp $
+// $Id: xpwiki_func.php,v 1.165 2008/05/14 04:27:49 nao-pon Exp $
 //
 class XpWikiFunc extends XpWikiXoopsWrapper {
 
@@ -2601,14 +2601,10 @@ EOD;
 	{
 		if (is_null($page)) $page = $this->root->vars['page'];
 		
-		if ($this->is_page($page))
-		{
-			// ランチャーファイル作成
-			$filename = $this->cont['CACHE_DIR'].$this->encode($page).".udp";
-			if ($fp = fopen($filename, 'wb')) {
-				fwrite($fp, $mode);
-				fclose($fp);
-			}
+		if ($this->is_page($page)) {
+			// Regist JobStack
+			$data = array('action' => 'plain_up', 'page' => $page, 'mode' => $mode);
+			$this->regist_jobstack($data);
 		}
 		return;
 	}
@@ -3116,10 +3112,13 @@ EOD;
 		$dbtable = $this->xpwiki->db->prefix($this->root->mydirname.'_cache');
 		
 		// Old cache delete
-		$sql = 'DELETE FROM `'.$dbtable.'` WHERE `mtime` + `ttl` < '.$this->cont['UTC'];
-		if ($this->xpwiki->db->queryF($sql)) {
-			$sql = 'OPTIMIZE TABLE `'.$dbtable.'`';
-			$this->xpwiki->db->query($sql);
+		$sql = 'DELETE FROM `'.$dbtable.'` WHERE (`mtime` + `ttl`) < '.$this->cont['UTC'];
+		if ($res = $this->xpwiki->db->queryF($sql)) {
+			list($count) = $this->xpwiki->db->fetchRow($res);
+			if ($count) {
+				$sql = 'OPTIMIZE TABLE `'.$dbtable.'`';
+				$this->xpwiki->db->query($sql);
+			}
 		} else {
 			// Table not found.
 			return FALSE;
@@ -3162,6 +3161,36 @@ EOD;
 		}
 		
 		return $data;
+	}
+
+	function cache_del_db ($key, $plugin) {
+		$key = addslashes($key);
+		$plugin = addslashes($plugin);
+		$data = '';
+		$dbtable = $this->xpwiki->db->prefix($this->root->mydirname.'_cache');
+		
+		$sql = 'DELETE FROM `'.$dbtable.'` WHERE `key`=\''.$key.'\' AND `plugin`=\''.$plugin.'\'';
+		$ret = $this->xpwiki->db->queryF($sql);
+		
+		return $ret;
+	}
+	
+	function regist_jobstack ($data, $ttl = 864000) {
+		$plugin = 'jobstack';
+		$key = md5(join('',array_values($data)));
+		if (! $this->cache_get_db($key, $plugin)) {
+			$this->cache_save_db(serialize($data), 'jobstack', $ttl, $key);
+		}
+	}
+	
+	function get_jobstack_imagetag () {
+		$dbtable = $this->xpwiki->db->prefix($this->root->mydirname.'_cache');
+		$sql = 'SELECT COUNT(*) FROM `'.$dbtable.'` WHERE `plugin`=\'jobstack\'';
+		$count = 0;
+		if ($res = $this->xpwiki->db->query($sql)) {
+			list($count) = $this->xpwiki->db->fetchRow($res);
+		}
+		return $count? '<div style="display:none;"><img src="'.$this->cont['HOME_URL'].'gate.php?way=jobstack" alt="" width="1" height="1" /></div>' . "\n" : '';
 	}
 }
 ?>
