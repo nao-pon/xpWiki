@@ -1,7 +1,7 @@
 <?php
 //
 // Created on 2006/10/02 by nao-pon http://hypweb.net/
-// $Id: xpwiki_func.php,v 1.165 2008/05/14 04:27:49 nao-pon Exp $
+// $Id: xpwiki_func.php,v 1.166 2008/05/14 05:00:14 nao-pon Exp $
 //
 class XpWikiFunc extends XpWikiXoopsWrapper {
 
@@ -2162,7 +2162,6 @@ EOD;
 			}
 
 			$result = $this->xpwiki->db->queryF($query);
-			$this->need_update_plaindb($page,"insert");
 			
 			//投稿数カウントアップ
 			//if ($uid && $countup_xoops)
@@ -2184,7 +2183,6 @@ EOD;
 			if ($reading) $value .= " ,`reading`='$reading'";
 			$query = "UPDATE ".$this->xpwiki->db->prefix($this->root->mydirname."_pginfo")." SET $value WHERE pgid = '$id' LIMIT 1";
 			$result = $this->xpwiki->db->queryF($query);
-			$this->need_update_plaindb($page,"update");
 		}
 		
 		// ページ削除
@@ -2194,9 +2192,14 @@ EOD;
 			$value = "editedtime=0";
 			$query = "UPDATE ".$this->xpwiki->db->prefix($this->root->mydirname."_pginfo")." SET $value WHERE pgid = '$id' LIMIT 1";
 			$result = $this->xpwiki->db->queryF($query);
-			$this->plain_db_write($page,"delete");
 		}
-
+		
+		// plain DB update
+		if (empty($this->root->rtf['plaindb_up_now'])) {
+			$this->need_update_plaindb($page, $action);
+		} else {
+			$this->plain_db_write($page, $action);
+		}
 	}
 	
 	// freeze情報更新
