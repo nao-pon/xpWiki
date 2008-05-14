@@ -31,7 +31,7 @@
 //
 // fusen.inc.php for xpWiki by nao-pon
 // http://xoops.hypweb.net
-// $Id: fusen.inc.php,v 1.23 2008/05/07 08:52:31 nao-pon Exp $
+// $Id: fusen.inc.php,v 1.24 2008/05/14 07:16:41 nao-pon Exp $
 // 
 
 class xpwiki_plugin_fusen extends xpwiki_plugin {
@@ -479,10 +479,10 @@ EOD;
 			if (count($dat) < 1) $dat = array();
 			
 			$fname = $this->cont['UPLOAD_DIR'] . $this->func->encode($refer) . '_' . $this->func->encode($this->cont['FUSEN_ATTACH_FILENAME']);
+			$dat = serialize($dat);
 			if ($fp = fopen($fname.".tmp", "wb")) {
 				flock($fp, LOCK_EX);
-				fputs($fp, $this->cont['FUSEN_ATTACH_FILENAME'] . "\t" . $this->cont['SOURCE_ENCODING'] . "\n");
-				fputs($fp, serialize($dat));
+				fputs($fp, $this->cont['FUSEN_ATTACH_FILENAME'] . "\t" . $this->cont['SOURCE_ENCODING'] . "\n" . $dat);
 				fclose($fp);
 				$this->root->pukiwiki_allow_extensions = "";
 				$options = array('overwrite' => TRUE, 'asSystem' => TRUE);

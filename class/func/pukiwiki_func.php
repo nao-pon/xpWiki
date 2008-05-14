@@ -1,7 +1,7 @@
 <?php
 //
 // Created on 2006/10/02 by nao-pon http://hypweb.net/
-// $Id: pukiwiki_func.php,v 1.166 2008/05/07 08:42:52 nao-pon Exp $
+// $Id: pukiwiki_func.php,v 1.167 2008/05/14 07:16:41 nao-pon Exp $
 //
 class XpWikiPukiWikiFunc extends XpWikiBaseFunc {
 
@@ -55,7 +55,6 @@ class XpWikiPukiWikiFunc extends XpWikiBaseFunc {
 			}
 	
 			if ($lock) {
-				flock($fp, LOCK_UN);
 				@fclose($fp);
 			}
 		}
@@ -319,7 +318,6 @@ class XpWikiPukiWikiFunc extends XpWikiBaseFunc {
 		flock($fp, LOCK_EX);
 		rewind($fp);
 		fwrite($fp, serialize($interwikinames));
-		flock($fp, LOCK_UN);
 		fclose($fp);
 		
 		return $interwikinames;
@@ -469,7 +467,6 @@ class XpWikiPukiWikiFunc extends XpWikiBaseFunc {
 			if ($line !== FALSE) $array[] = $line;
 			if (++$index >= $count) break;
 		}
-		if ($lock) flock($fp, LOCK_UN);
 		if (! fclose($fp)) return FALSE;
 	
 		return $array;
@@ -538,7 +535,6 @@ class XpWikiPukiWikiFunc extends XpWikiBaseFunc {
 		ftruncate($fp, 0);
 		rewind($fp);
 		fputs($fp, $str);
-		flock($fp, LOCK_UN);
 		fclose($fp);
 	
 		if ($timestamp) $this->pkwk_touch_file($file, $timestamp);
@@ -594,7 +590,6 @@ class XpWikiPukiWikiFunc extends XpWikiBaseFunc {
 		fputs($fp, '#freeze'    . "\n");
 		fputs($fp, '#norelated' . "\n"); // :)
 		fputs($fp, join('', $lines));
-		flock($fp, LOCK_UN);
 		fclose($fp);
 		
 		// Clear fstat cache.
@@ -623,7 +618,6 @@ class XpWikiPukiWikiFunc extends XpWikiBaseFunc {
 		fputs($fp, $pattern   . "\n");
 		fputs($fp, $pattern_a . "\n");
 		fputs($fp, join("\t", $forceignorelist) . "\n");
-		flock($fp, LOCK_UN);
 		fclose($fp);
 	}
 	
@@ -884,7 +878,7 @@ class XpWikiPukiWikiFunc extends XpWikiBaseFunc {
 		$flock = fopen($lockfile, 'a') or
 			die('pkwk_chown(): fopen() failed for: CACHEDIR/' .
 				basename(htmlspecialchars($lockfile)));
-		flock($flock, LOCK_EX) or die('pkwk_chown(): flock() failed for lock');
+		flock($flock, LOCK_EX);
 	
 		// Check owner
 		$stat = stat($filename) or
@@ -906,11 +900,10 @@ class XpWikiPukiWikiFunc extends XpWikiBaseFunc {
 			//   * touch() before copy() is for 'rw-r--r--' instead of 'rwxr-xr-x' (with umask 022).
 			//   * (PHP 4 < PHP 4.2.0) touch() with the third argument is not implemented and retuns NULL and Warn.
 			//   * @unlink() before rename() is for Windows but here's for Unix only
-			flock($ffile, LOCK_EX) or die('pkwk_chown(): flock() failed');
+			flock($ffile, LOCK_EX);
 			$result = touch($tmp) && copy($filename, $tmp) &&
 				($preserve_time ? (touch($tmp, $stat[9], $stat[8]) || touch($tmp, $stat[9])) : TRUE) &&
 				rename($tmp, $filename);
-			flock($ffile, LOCK_UN) or die('pkwk_chown(): flock() failed');
 	
 			fclose($ffile) or die('pkwk_chown(): fclose() failed');
 	
@@ -918,7 +911,6 @@ class XpWikiPukiWikiFunc extends XpWikiBaseFunc {
 		}
 	
 		// Unlock for pkwk_chown()
-		flock($flock, LOCK_UN) or die('pkwk_chown(): flock() failed for lock');
 		fclose($flock) or die('pkwk_chown(): fclose() failed for lock');
 	
 		return $result;
@@ -946,7 +938,7 @@ class XpWikiPukiWikiFunc extends XpWikiBaseFunc {
 
 //----- Start convert_html.php -----//
 	// PukiWiki - Yet another WikiWikiWeb clone
-	// $Id: pukiwiki_func.php,v 1.166 2008/05/07 08:42:52 nao-pon Exp $
+	// $Id: pukiwiki_func.php,v 1.167 2008/05/14 07:16:41 nao-pon Exp $
 	// Copyright (C)
 	//   2002-2005 PukiWiki Developers Team
 	//   2001-2002 Originally written by yu-ji
@@ -1199,7 +1191,7 @@ class XpWikiPukiWikiFunc extends XpWikiBaseFunc {
 
 //----- Start func.php -----//
 	// PukiWiki - Yet another WikiWikiWeb clone.
-	// $Id: pukiwiki_func.php,v 1.166 2008/05/07 08:42:52 nao-pon Exp $
+	// $Id: pukiwiki_func.php,v 1.167 2008/05/14 07:16:41 nao-pon Exp $
 	// Copyright (C)
 	//   2002-2006 PukiWiki Developers Team
 	//   2001-2002 Originally written by yu-ji
@@ -1275,10 +1267,9 @@ class XpWikiPukiWikiFunc extends XpWikiBaseFunc {
 		} else {
 			$fp = fopen($this->get_filename($page), 'rb') or
 				die('is_freeze(): fopen() failed: ' . htmlspecialchars($page));
-			flock($fp, LOCK_SH) or die('is_freeze(): flock() failed');
+			flock($fp, LOCK_SH);
 			rewind($fp);
 			$buffer = fgets($fp, 9);
-			flock($fp, LOCK_UN) or die('is_freeze(): flock() failed');
 			fclose($fp) or die('is_freeze(): fclose() failed: ' . htmlspecialchars($page));
 	
 				$is_freeze[$this->root->mydirname][$page] = ($buffer !== FALSE && rtrim($buffer, "\r\n") === '#freeze');
@@ -2015,7 +2006,7 @@ EOD;
 
 //----- Start make_link.php -----//
 	// PukiWiki - Yet another WikiWikiWeb clone.
-	// $Id: pukiwiki_func.php,v 1.166 2008/05/07 08:42:52 nao-pon Exp $
+	// $Id: pukiwiki_func.php,v 1.167 2008/05/14 07:16:41 nao-pon Exp $
 	// Copyright (C)
 	//   2003-2005 PukiWiki Developers Team
 	//   2001-2002 Originally written by yu-ji
@@ -2416,7 +2407,6 @@ EOD;
 			// $data[$key] = URL
 			$result[rawurldecode($data[$key])] = $data;
 		}
-		flock($fp, LOCK_UN);
 		fclose ($fp);
 	
 		return $result;
@@ -2516,7 +2506,6 @@ EOD;
 		rewind($fp);
 		foreach ($data as $line)
 			fwrite($fp, join(',', $line) . "\n");
-		flock($fp, LOCK_UN);
 		fclose($fp);
 	
 		return TRUE;
@@ -2951,7 +2940,7 @@ EOD;
 
 //----- Start html.php -----//
 	// PukiWiki - Yet another WikiWikiWeb clone.
-	// $Id: pukiwiki_func.php,v 1.166 2008/05/07 08:42:52 nao-pon Exp $
+	// $Id: pukiwiki_func.php,v 1.167 2008/05/14 07:16:41 nao-pon Exp $
 	// Copyright (C)
 	//   2002-2006 PukiWiki Developers Team
 	//   2001-2002 Originally written by yu-ji
@@ -3647,7 +3636,7 @@ EOD;
 
 //----- Start mail.php -----//
 	// PukiWiki - Yet another WikiWikiWeb clone.
-	// $Id: pukiwiki_func.php,v 1.166 2008/05/07 08:42:52 nao-pon Exp $
+	// $Id: pukiwiki_func.php,v 1.167 2008/05/14 07:16:41 nao-pon Exp $
 	// Copyright (C)
 	//   2003-2005 PukiWiki Developers Team
 	//   2003      Originally written by upk
@@ -3950,7 +3939,7 @@ EOD;
 
 //----- Start link.php -----//
 	// PukiWiki - Yet another WikiWikiWeb clone
-	// $Id: pukiwiki_func.php,v 1.166 2008/05/07 08:42:52 nao-pon Exp $
+	// $Id: pukiwiki_func.php,v 1.167 2008/05/14 07:16:41 nao-pon Exp $
 	// Copyright (C) 2003-2006 PukiWiki Developers Team
 	// License: GPL v2 or (at your option) any later version
 	//

@@ -1,6 +1,6 @@
 <?php
 // PukiWiki - Yet another WikiWikiWeb clone
-// $Id: counter.inc.php,v 1.5 2008/04/05 04:53:11 nao-pon Exp $
+// $Id: counter.inc.php,v 1.6 2008/05/14 07:16:41 nao-pon Exp $
 // Copyright (C)
 //   2002-2005 PukiWiki Developers Team
 //   2002 Y.MASUI GPL2 http://masui.net/pukiwiki/ masui@masui.net
@@ -122,7 +122,6 @@ EOD;
 			}
 			$writed = TRUE;
 		}
-		flock($fp, LOCK_UN);
 		fclose($fp);
 		
 		// DB¤ò¹¹¿·
