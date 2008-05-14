@@ -1,7 +1,7 @@
 <?php
 //
 // Created on 2006/10/13 by nao-pon http://hypweb.net/
-// $Id: init.php,v 1.49 2008/04/04 23:48:13 nao-pon Exp $
+// $Id: init.php,v 1.50 2008/05/14 04:27:49 nao-pon Exp $
 //
 
 $root = & $this->root;
@@ -184,11 +184,6 @@ if (isset($const['page_show'])) {
 	$root->get['cmd']  = $root->post['cmd']  = $root->vars['cmd']  = 'read';
 	if ($const['page_show'] === '#RenderMode') {
 		$root->render_mode = 'render';
-	} else {
-		$_udp_file = $const['CACHE_DIR'].$this->encode($const['page_show']).".udp";
-		if (file_exists($_udp_file)) {
-			$root->rtf['add_bgrun_img'] = TRUE;
-		}
 	}
 	$root->get['page'] = $root->post['page'] = $root->vars['page'] = $const['page_show'];
 	$const['page_show'] = TRUE;
@@ -390,38 +385,8 @@ if (isset($const['page_show'])) {
 		$root->get['page'] = $root->post['page'] = $root->vars['page'] = '';
 	}
 
-	// PlainText DB 更新する？
+	// $_GET['pgid'] をセット
 	if ($root->vars['page'] !== '' && $root->render_mode === 'main') {
-		$_udp_file = $const['CACHE_DIR'].$this->encode($root->vars['page']).".udp";
-		if (file_exists($_udp_file)) {
-			if (@$root->vars['cmd'] === 'read' && empty($this->root->bgrun_with_img)) {
-				$_udp_mode = file_get_contents($_udp_file);
-				unlink($_udp_file);
-
-				// ブラウザとのコネクションが切れても実行し続ける
-				ignore_user_abort(TRUE);
-				
-				// ブラウザにはリダイレクトを通知
-				$base = preg_replace("#^(https?://[^/]+).*$#i","$1",$const['ROOT_URL']);
-				$uri = $base.$_SERVER['REQUEST_URI'];
-				while( ob_get_level() ) { ob_end_clean() ; }
-				$out = "\r\n";
-				header("Content-Length: ".strlen($out));
-				header("Connection: close");
-				header("Location: " . $uri);
-				echo $out;
-				flush();
-
-				// ブラウザは再表示し、PHPは実行を継続
-				$this->plain_db_write($root->vars['page'], $_udp_mode);
-				exit();
-			} else {
-				$root->rtf['add_bgrun_img'] = TRUE;
-			}
-		}
-		
-		// ついでの処理(ページ表示時に必要なもの)
-		// $_GET['pgid'] をセット
 		if (empty($_GET['pgid'])) {
 			$_GET['pgid'] = $root->get['pgid'] = $this->get_pgid_by_name($root->vars['page']);
 		}

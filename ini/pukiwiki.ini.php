@@ -1,6 +1,6 @@
 <?php
 // PukiWiki - Yet another WikiWikiWeb clone
-// $Id: pukiwiki.ini.php,v 1.73 2008/04/25 02:51:52 nao-pon Exp $
+// $Id: pukiwiki.ini.php,v 1.74 2008/05/14 04:27:49 nao-pon Exp $
 // Copyright (C)
 //   2002-2006 PukiWiki Developers Team
 //   2001-2002 Originally written by yu-ji
@@ -644,10 +644,6 @@ $root->always_clear_cache_pages = array (
 
 // 上位層のページもキャッシュをクリアする
 $root->clear_cache_parent = TRUE; // (TRUE or FASLE)
-
-// ページ更新時のバックグラウンドタスクを<img> タグによって実行する
-// 0 の場合は、リダイレクトによる実行 
-$root->bgrun_with_img = 1;
 
 /////////////////////////////////////////////////
 // About CSS...
