@@ -1,6 +1,6 @@
 <?php
 // PukiWiki - Yet another WikiWikiWeb clone
-// $Id: showrss.inc.php,v 1.8 2008/04/05 04:53:11 nao-pon Exp $
+// $Id: showrss.inc.php,v 1.9 2008/05/14 04:28:41 nao-pon Exp $
 //  Id:showrss.inc.php,v 1.40 2003/03/18 11:52:58 hiro Exp
 // Copyright (C):
 //     2002-2006 PukiWiki Developers Team
@@ -118,6 +118,9 @@ class xpwiki_plugin_showrss extends xpwiki_plugin {
 				fwrite($fp, serialize($data));
 				fclose($fp);
 			}
+			
+			// Update plainDB
+			$this->func->need_update_plaindb();
 		}
 	
 		return array($data, $time);

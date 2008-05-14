@@ -2,7 +2,7 @@
 /////////////////////////////////////////////////
 // PukiWiki - Yet another WikiWikiWeb clone.
 //
-// $Id: isbn.inc.php,v 1.7 2008/04/16 06:53:36 nao-pon Exp $
+// $Id: isbn.inc.php,v 1.8 2008/05/14 04:28:41 nao-pon Exp $
 //
 // *0.5: URL が存在しない場合、画像を表示しない。
 //			 Thanks to reimy.
@@ -319,34 +319,6 @@ EOD;
 		if (!file_exists($filename) ||
 			($check && $this->config['ISBN_AMAZON_EXPIRE_TIT'] * 3600 * 24 < $this->cont['UTC'] - filemtime($filename))) {
 			// データを取りに行く
-/*
-			$url = $this->config['ISBN_AMAZON_XML'].$target;
-			$body = $this->func->http_request($url);
-			if ($body['rc'] == 200 && $body['data'])
-			{
-				$body = $body['data'];
-				$data = array();
-				$body = mb_convert_encoding($body,$this->cont['SOURCE_ENCODING'],"UTF-8");
-				$category = (preg_match("/<Catalog>(.+)<\/Catalog>/",$body,$data))? trim($data[1]) : "";
-				$title = (preg_match("/<ProductName>(.+)<\/ProductName>/",$body,$data))? trim($data[1]) : "";
-				$price = (preg_match("/<OurPrice>(.+)<\/OurPrice>/",$body,$data))? trim($data[1]) : "";
-				$author = (preg_match_all("/<Author>(.+)<\/Author>/",$body,$data))? join(", ",$data[1]) : "";
-				$artist = (preg_match_all("/<Artist>(.+)<\/Artist>/",$body,$data))? join(', ',$data[1]) : "";
-				$releasedate = (preg_match("/<ReleaseDate>(.+)<\/ReleaseDate>/",$body,$data))? trim($data[1]) : "";
-				$manufacturer = (preg_match("/<Manufacturer>(.+)<\/Manufacturer>/",$body,$data))? trim($data[1]) : "";
-				$availability = (preg_match("/<Availability>(.+)<\/Availability>/",$body,$data))? trim($data[1]) : "";
-				$listprice = (preg_match("/<ListPrice>(.+)<\/ListPrice>/",$body,$data))? trim($data[1]) : "";
-				$usedprice = (preg_match("/<UsedPrice>(.+)<\/UsedPrice>/",$body,$data))? trim($data[1]) : "";
-				
-				$price = preg_replace("/[￥\s]+/","",$price);
-				$listprice = preg_replace("/[￥\s]+/","",$listprice);
-				$usedprice = preg_replace("/[￥\s]+/","",$usedprice);
-			}
-			else
-			{
-				$title = "";
-			}
-*/			
 			include_once XOOPS_TRUST_PATH . '/class/hyp_common/hsamazon/hyp_simple_amazon.php';
 			$ama = new HypSimpleAmazon($this->config['AMAZON_ASE_ID']);
 			$ama->encoding = $this->cont['SOURCE_ENCODING'];
@@ -376,6 +348,10 @@ EOD;
 				$title = "$title<>$category<>$price<>$author<>$artist<>$releasedate<>$manufacturer<>$availability<>$listprice<>$usedprice<>$simg<>$mimg<>$limg";
 				$this->plugin_isbn_cache_save($title, $filename);
 			}
+
+			// Update plainDB
+			$this->func->need_update_plaindb();
+
 		} else {
 			$title = file_get_contents($filename);
 		}
