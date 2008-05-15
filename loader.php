@@ -1,7 +1,7 @@
 <?php
 //
 // Created on 2006/10/25 by nao-pon http://hypweb.net/
-// $Id: loader.php,v 1.42 2008/04/29 11:36:44 nao-pon Exp $
+// $Id: loader.php,v 1.43 2008/05/15 23:42:51 nao-pon Exp $
 //
 
 ignore_user_abort(FALSE);
@@ -229,7 +229,7 @@ if (file_exists($src_file)) {
 
 	// gzip 受け入れ不可能?
 	if (! preg_match('/\b(gzip)\b/i', $_SERVER['HTTP_ACCEPT_ENCODING'])
-		|| strpos(strtolower($_SERVER['HTTP_USER_AGENT']), 'safari') !== false
+		|| strpos(strtolower(@ $_SERVER['HTTP_USER_AGENT']), 'safari') !== false
 	) {
 		$gzip_fname = '';
 	}
