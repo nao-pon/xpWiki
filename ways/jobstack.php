@@ -1,7 +1,7 @@
 <?php
 /*
  * Created on 2008/05/13 by nao-pon http://hypweb.net/
- * $Id: jobstack.php,v 1.2 2008/05/14 05:08:37 nao-pon Exp $
+ * $Id: jobstack.php,v 1.3 2008/05/15 23:53:06 nao-pon Exp $
  */
 
 error_reporting(0);
@@ -42,7 +42,12 @@ readfile($file);
 
 function xpwiki_jobstack_plain_up (& $xpwiki, $page, $mode) {
 	if ($xpwiki->func->is_page($page)) {
-		$xpwiki->func->plain_db_write($page, $mode);
+		$notimestamp = FALSE;
+		if ($mode === 'update_notimestamp') {
+			$notimestamp = TRUE;
+			$mode = 'update';
+		}
+		$xpwiki->func->plain_db_write($page, $mode, FALSE, $notimestamp);
 	}
 	
 	// 古いレンダーキャッシュファイルの削除 (1日1回程度)

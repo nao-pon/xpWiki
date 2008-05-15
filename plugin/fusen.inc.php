@@ -31,7 +31,7 @@
 //
 // fusen.inc.php for xpWiki by nao-pon
 // http://xoops.hypweb.net
-// $Id: fusen.inc.php,v 1.24 2008/05/14 07:16:41 nao-pon Exp $
+// $Id: fusen.inc.php,v 1.25 2008/05/15 23:53:06 nao-pon Exp $
 // 
 
 class xpwiki_plugin_fusen extends xpwiki_plugin {
@@ -349,7 +349,7 @@ EOD;
 						} else {
 							unset($dat[$id]);
 							// plane_text DB を更新
-							$this->func->need_update_plaindb($refer);
+							$this->func->need_update_plaindb($refer, TRUE);
 						}
 						foreach($dat as $k=>$v) {
 							if ($dat[$k]['ln'] == 'id'.$id) $dat[$k]['ln'] = '';
@@ -366,7 +366,7 @@ EOD;
 								$burned = true;
 							}
 						}
-						if ($burned) $this->func->need_update_plaindb($refer);
+						if ($burned) $this->func->need_update_plaindb($refer, TRUE);
 						break;
 					case 'del_m':
 						foreach($ids as $id) {
@@ -455,7 +455,7 @@ EOD;
 					$dat = $this->func->input_filter($dat);
 					
 					// plane_text DB 更新を指示
-					$this->func->need_update_plaindb($refer);
+					$this->func->need_update_plaindb($refer, FALSE);
 					
 					// ページHTMLキャッシュとRSSキャッシュを削除
 					$this->func->clear_page_cache($refer);

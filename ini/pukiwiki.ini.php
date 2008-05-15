@@ -1,6 +1,6 @@
 <?php
 // PukiWiki - Yet another WikiWikiWeb clone
-// $Id: pukiwiki.ini.php,v 1.74 2008/05/14 04:27:49 nao-pon Exp $
+// $Id: pukiwiki.ini.php,v 1.75 2008/05/15 23:53:06 nao-pon Exp $
 // Copyright (C)
 //   2002-2006 PukiWiki Developers Team
 //   2001-2002 Originally written by yu-ji
@@ -661,6 +661,24 @@ $root->pre_width_ie = '700px';
 // CSS ID prefix ( ex. #xo-canvas )
 $root->css_prefix = '';
 
+/////////////////////////////////////////////////
+//// XML-RPC ping setting (weblogUpdates.ping)
+// Send update ping?
+$root->update_ping = 0;
+
+// ping servers URL + ' E'
+// ' E' means Extended ping server. (weblogUpdates.extendedPing)
+$root->update_ping_servers = '
+http://api.my.yahoo.co.jp/RPC2
+http://blog.goo.ne.jp/XMLRPC
+http://blogsearch.google.co.jp/ping/RPC2 E
+http://feeds.feedburner.com/ArakiNotes E
+http://ping.bloggers.jp/rpc/
+http://r.hatena.ne.jp/rpc
+http://rpc.technorati.com/rpc/ping E
+http://rpc.weblogs.com/RPC2 E
+http://www.blogpeople.net/servlet/weblogUpdates E
+';
 
 /////////////////////////////////////////////////
 // レンダラーモード用設定
