@@ -1,7 +1,7 @@
 <?php
 //
 // Created on 2006/09/29 by nao-pon http://hypweb.net/
-// $Id: xpwiki.php,v 1.82 2008/05/14 04:27:49 nao-pon Exp $
+// $Id: xpwiki.php,v 1.83 2008/05/15 23:52:14 nao-pon Exp $
 //
 
 class XpWiki {
@@ -159,7 +159,7 @@ class XpWiki {
 		}
 		
 		// <pre> ¤ÎÉý»ØÄê
-		if ( stristr($_SERVER['HTTP_USER_AGENT'],'msie')) {
+		if ( stristr($this->root->ua, 'msie')) {
 			$this->root->pre_width = rawurlencode($this->root->pre_width_ie);
 		}
 		

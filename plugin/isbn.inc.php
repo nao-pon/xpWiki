@@ -2,7 +2,7 @@
 /////////////////////////////////////////////////
 // PukiWiki - Yet another WikiWikiWeb clone.
 //
-// $Id: isbn.inc.php,v 1.8 2008/05/14 04:28:41 nao-pon Exp $
+// $Id: isbn.inc.php,v 1.9 2008/05/15 23:52:14 nao-pon Exp $
 //
 // *0.5: URL が存在しない場合、画像を表示しない。
 //			 Thanks to reimy.
@@ -161,7 +161,7 @@ class xpwiki_plugin_isbn extends xpwiki_plugin {
 		}
 	
 		//改行文字セット IE は "&#13;&#10;"
-		$br = (strstr($_SERVER["HTTP_USER_AGENT"], "MSIE"))? "&#13;&#10;" : " ";
+		$br = (strstr($this->root->ua, "MSIE"))? "&#13;&#10;" : " ";
 	
 		$alt = "[ $data[1] ]{$br}$data[0]";
 		if ($data[8]) $alt .= "{$br}{$this->msg['info_price']}: ".str_replace('$1',$data[8],$this->msg['currency']);
