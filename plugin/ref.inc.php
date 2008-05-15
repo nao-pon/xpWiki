@@ -1,5 +1,5 @@
 <?php
-// $Id: ref.inc.php,v 1.27 2008/05/07 08:55:14 nao-pon Exp $
+// $Id: ref.inc.php,v 1.28 2008/05/15 23:52:14 nao-pon Exp $
 /*
 
 	*プラグイン ref
@@ -426,7 +426,7 @@ class xpwiki_plugin_ref extends xpwiki_plugin {
 				}
 				
 				//IE以外は改行文字をスペースに変換
-				//if ( !strstr($_SERVER["HTTP_USER_AGENT"], "MSIE")) $title = str_replace("&#13;&#10;"," ",$title);
+				//if ( !strstr($this->root->ua, "MSIE")) $title = str_replace("&#13;&#10;"," ",$title);
 
 				$lvar['url'] = $lvar['file'];
 				if ($params['_%']) {
