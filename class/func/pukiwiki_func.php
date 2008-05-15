@@ -1,7 +1,7 @@
 <?php
 //
 // Created on 2006/10/02 by nao-pon http://hypweb.net/
-// $Id: pukiwiki_func.php,v 1.167 2008/05/14 07:16:41 nao-pon Exp $
+// $Id: pukiwiki_func.php,v 1.168 2008/05/15 23:53:06 nao-pon Exp $
 //
 class XpWikiPukiWikiFunc extends XpWikiBaseFunc {
 
@@ -206,7 +206,7 @@ class XpWikiPukiWikiFunc extends XpWikiBaseFunc {
 		if (empty($pginfo)) {
 			$pginfo = $this->get_pginfo($page);
 		}
-		$this->pginfo_db_write($page, $mode, $pginfo);
+		$this->pginfo_db_write($page, $mode, $pginfo, $notimestamp);
 		
 		if (! $empty_page_making) {
 			/*
@@ -218,40 +218,6 @@ class XpWikiPukiWikiFunc extends XpWikiBaseFunc {
 				$this->tb_send($page, $plus, $minus);
 			}
 			*/
-
-			// 更新通知メール
-			if ($this->root->notify) {
-				if ($this->root->notify_diff_only) $diffdata = preg_replace('/^[^-+].*\n/m', '', $diffdata);
-				$footer['ACTION'] = 'Page update';
-				$footer['PAGE']   = & $page;
-				//$footer['URI']    = $this->get_page_uri($page, true);
-				$footer['USER_AGENT']  = TRUE;
-				$footer['REMOTE_ADDR'] = TRUE;
-				$this->pkwk_mail_notify($this->root->notify_subject, $this->get_page_uri($page, true) . "\n\n" . $diffdata, $footer) or
-					die('pkwk_mail_notify(): Failed');
-			}
-			
-			// System notification
-			$tags['POST_URL'] = $this->get_page_uri($page, true);
-			$tags['PAGE_NAME'] = $page;
-			$tags['POST_DATA'] = $postdata;
-			$tags['POSTER_NAME'] = $this->root->userinfo['uname'];
-			$tags['POST_DIFF'] = $diffdata;
-			$tags['POST_DIFF'] = preg_replace('/^/m', ' ', $tags['POST_DIFF']);
-			if ($mode === 'insert') {
-				$tags['POST_DIFF'] = 'New page.';
-			} else if ($mode === 'update') {
-
-			} else	if ($mode === 'delete') {
-				$tags['POST_DATA'] = 'Page deleted.';
-			}
-			$this->system_notification($page, 'page', $this->get_pgid_by_name($page), 'page_update', $tags);
-			
-			list($pgid1, $pgid2) = $this->get_pgids_by_name($page);
-			$this->system_notification($page, 'page1', $pgid1, 'page_update', $tags);
-			if ($pgid2) $this->system_notification($page, 'page2', $pgid2, 'page_update', $tags);
-			
-			$this->system_notification($page, 'global', 0, 'page_update', $tags);
 
 			// For AutoLink
 			if ($need_autolink_update || $mode !== 'update'){
@@ -278,6 +244,41 @@ class XpWikiPukiWikiFunc extends XpWikiBaseFunc {
 			
 			// onPageWriteAfter
 			$this->do_onPageWriteAfter($page, $postdata, $notimestamp, $mode, $diffdata);
+
+			// 更新通知メール
+			$diff_compact = preg_replace('/^[^+-].*\n/m', '', $diffdata);
+			if ($this->root->notify) {
+				$footer['ACTION'] = 'Page update';
+				$footer['PAGE']   = $page;
+				$footer['USER_AGENT']  = TRUE;
+				$footer['REMOTE_ADDR'] = TRUE;
+				$this->pkwk_mail_notify(
+					$this->root->notify_subject,
+					$this->get_page_uri($page, true) . "\n\n" . ($this->root->notify_diff_only? $diff_compact : $diffdata),
+					$footer
+				);
+			}
+			
+			// System notification
+			$tags['POST_URL'] = $this->get_page_uri($page, true);
+			$tags['PAGE_NAME'] = $page;
+			$tags['POST_DATA'] = $postdata;
+			$tags['POSTER_NAME'] = $this->root->userinfo['uname'];
+			$tags['POST_DIFF'] = preg_replace('/^/m', ' ', $diff_compact);
+			if ($mode === 'insert') {
+				$tags['POST_DIFF'] = 'New page.';
+			} else if ($mode === 'update') {
+
+			} else	if ($mode === 'delete') {
+				$tags['POST_DATA'] = 'Page deleted.';
+			}
+			$this->system_notification($page, 'page', $this->get_pgid_by_name($page), 'page_update', $tags);
+			
+			list($pgid1, $pgid2) = $this->get_pgids_by_name($page);
+			$this->system_notification($page, 'page1', $pgid1, 'page_update', $tags);
+			if ($pgid2) $this->system_notification($page, 'page2', $pgid2, 'page_update', $tags);
+			
+			$this->system_notification($page, 'global', 0, 'page_update', $tags);
 		}
 		
 		ignore_user_abort($_user_abort_last);
@@ -938,7 +939,7 @@ class XpWikiPukiWikiFunc extends XpWikiBaseFunc {
 
 //----- Start convert_html.php -----//
 	// PukiWiki - Yet another WikiWikiWeb clone
-	// $Id: pukiwiki_func.php,v 1.167 2008/05/14 07:16:41 nao-pon Exp $
+	// $Id: pukiwiki_func.php,v 1.168 2008/05/15 23:53:06 nao-pon Exp $
 	// Copyright (C)
 	//   2002-2005 PukiWiki Developers Team
 	//   2001-2002 Originally written by yu-ji
@@ -1191,7 +1192,7 @@ class XpWikiPukiWikiFunc extends XpWikiBaseFunc {
 
 //----- Start func.php -----//
 	// PukiWiki - Yet another WikiWikiWeb clone.
-	// $Id: pukiwiki_func.php,v 1.167 2008/05/14 07:16:41 nao-pon Exp $
+	// $Id: pukiwiki_func.php,v 1.168 2008/05/15 23:53:06 nao-pon Exp $
 	// Copyright (C)
 	//   2002-2006 PukiWiki Developers Team
 	//   2001-2002 Originally written by yu-ji
@@ -2006,7 +2007,7 @@ EOD;
 
 //----- Start make_link.php -----//
 	// PukiWiki - Yet another WikiWikiWeb clone.
-	// $Id: pukiwiki_func.php,v 1.167 2008/05/14 07:16:41 nao-pon Exp $
+	// $Id: pukiwiki_func.php,v 1.168 2008/05/15 23:53:06 nao-pon Exp $
 	// Copyright (C)
 	//   2003-2005 PukiWiki Developers Team
 	//   2001-2002 Originally written by yu-ji
@@ -2864,7 +2865,7 @@ EOD;
 	function do_diff($strlines1, $strlines2)
 	{
 		$obj = new XpWikiline_diff();
-		$str = $obj->str_compare($strlines1, $strlines2);
+		$str = $obj->str_compare(rtrim($strlines1), rtrim($strlines2));
 		$obj = null;
 		return $str;
 	}
@@ -2940,7 +2941,7 @@ EOD;
 
 //----- Start html.php -----//
 	// PukiWiki - Yet another WikiWikiWeb clone.
-	// $Id: pukiwiki_func.php,v 1.167 2008/05/14 07:16:41 nao-pon Exp $
+	// $Id: pukiwiki_func.php,v 1.168 2008/05/15 23:53:06 nao-pon Exp $
 	// Copyright (C)
 	//   2002-2006 PukiWiki Developers Team
 	//   2001-2002 Originally written by yu-ji
@@ -3636,7 +3637,7 @@ EOD;
 
 //----- Start mail.php -----//
 	// PukiWiki - Yet another WikiWikiWeb clone.
-	// $Id: pukiwiki_func.php,v 1.167 2008/05/14 07:16:41 nao-pon Exp $
+	// $Id: pukiwiki_func.php,v 1.168 2008/05/15 23:53:06 nao-pon Exp $
 	// Copyright (C)
 	//   2003-2005 PukiWiki Developers Team
 	//   2003      Originally written by upk
@@ -3939,7 +3940,7 @@ EOD;
 
 //----- Start link.php -----//
 	// PukiWiki - Yet another WikiWikiWeb clone
-	// $Id: pukiwiki_func.php,v 1.167 2008/05/14 07:16:41 nao-pon Exp $
+	// $Id: pukiwiki_func.php,v 1.168 2008/05/15 23:53:06 nao-pon Exp $
 	// Copyright (C) 2003-2006 PukiWiki Developers Team
 	// License: GPL v2 or (at your option) any later version
 	//

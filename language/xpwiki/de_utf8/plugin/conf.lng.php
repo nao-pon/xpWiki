@@ -1,7 +1,7 @@
 <?php
 /*
  * Created on 2008/01/24 by nao-pon http://hypweb.net/
- * $Id: conf.lng.php,v 1.1 2008/04/20 01:46:10 nao-pon Exp $
+ * $Id: conf.lng.php,v 1.2 2008/05/15 23:53:06 nao-pon Exp $
  */
 //
 // German Translation Version 1.0 (11.03.2008)
@@ -208,6 +208,16 @@ $msg = array(
 	'pre_width_ie' => array(
 		'caption'     => 'CSS:Breite für &lt;pre&gt;(nur IE)',
 		'description' => 'Dieser Wert ist nur für den Internet Explorer. Falls die Anzeige nicht korrekt aussieht, da das Theme von XOOPS für &lt;Table&gt; entworfen wurde, gib einen festen Wert wie "700px" ein.',
+	),
+
+	'update_ping' => array(
+		'caption'     => 'Schicken Update Ping?',
+		'description' => '',
+	),
+
+	'update_ping_servers' => array(
+		'caption'     => 'Update Ping Server',
+		'description' => 'Schreiben Sie einem XML-RPC Ping Server, die mit "http" eine Linie beginnen.<br />Wenn Sie "extendedPing" schicken wollen, befestigen Sie [Space] + "E" nach dem URL.',
 	),
 
 	'pagereading_enable' => array(

@@ -1,7 +1,7 @@
 <?php
 /*
  * Created on 2008/01/24 by nao-pon http://hypweb.net/
- * $Id: conf.lng.php,v 1.5 2008/04/18 06:53:46 nao-pon Exp $
+ * $Id: conf.lng.php,v 1.6 2008/05/15 23:53:06 nao-pon Exp $
  */
 
 $msg = array(
@@ -204,6 +204,16 @@ $msg = array(
 	'pre_width_ie' => array(
 		'caption'     => '&lt;pre&gt;のCSS:width指定(IE専用)',
 		'description' => 'こちらはブラウザのIE専用値です。使用しているXOOPSのテーマが&lt;table&gt;構成の場合は、700px など固定値を指定すると表示の崩れが軽減されると思います。',
+	),
+
+	'update_ping' => array(
+		'caption'     => '更新Pingを送信する',
+		'description' => '',
+	),
+
+	'update_ping_servers' => array(
+		'caption'     => '更新Pingの送信先',
+		'description' => '送信先サーバーURLを 1 行に 1 件、http から記述します。<br />URLの最後に、[半角スペース]で区切った"E"を入れた場合、extendedPingで送信します。',
 	),
 
 	'pagereading_enable' => array(

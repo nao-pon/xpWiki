@@ -1,7 +1,7 @@
 <?php
 /*
  * Created on 2008/01/24 by nao-pon http://hypweb.net/
- * $Id: conf.lng.php,v 1.5 2008/04/18 06:53:46 nao-pon Exp $
+ * $Id: conf.lng.php,v 1.6 2008/05/15 23:53:06 nao-pon Exp $
  */
 
 $msg = array(
@@ -205,6 +205,16 @@ each use page can be provided.<br />'
 	'pre_width_ie' => array(
 		'caption'     => 'CSS:width of &lt;pre&gt;(IE Only)',
 		'description' => 'Here is a value only for IE of a browser. When the display falls into disorder because the theme of XOOPS is composed of &lt;Table&gt;, specify a fixed value such as "700px".',
+	),
+
+	'update_ping' => array(
+		'caption'     => 'Send update pings?',
+		'description' => '',
+	),
+
+	'update_ping_servers' => array(
+		'caption'     => 'Update ping servers',
+		'description' => 'Write a XML-RPC updates ping servers starting with "http" a line.<br />If you want to send "extendedPing", append [Space] + "E" after the URL.',
 	),
 
 	'pagereading_enable' => array(

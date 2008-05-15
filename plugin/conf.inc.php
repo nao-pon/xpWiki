@@ -1,7 +1,7 @@
 <?php
 /*
  * Created on 2008/01/24 by nao-pon http://hypweb.net/
- * $Id: conf.inc.php,v 1.9 2008/04/20 01:32:04 nao-pon Exp $
+ * $Id: conf.inc.php,v 1.10 2008/05/15 23:53:06 nao-pon Exp $
  */
 
 class xpwiki_plugin_conf extends xpwiki_plugin {
@@ -178,6 +178,16 @@ class xpwiki_plugin_conf extends xpwiki_plugin {
 				'type' => 'string',
 				'form' => 'text,size="6"',
 			),
+			'update_ping' => array(
+				'kind' => 'root',
+				'type' => 'integer',
+				'form' => 'yesno',
+			),
+			'update_ping_servers' => array(
+				'kind' => 'root',
+				'type' => 'string',
+				'form' => 'textarea,style="width:100%;height:6em;"',
+			),
 			'pagereading_enable' => array(
 				'kind' => 'root',
 				'type' => 'integer',
@@ -315,6 +325,9 @@ EOD;
 					}
 					$form = join(' | ', $forms);
 					break;
+				case 'textarea':
+					$form = '<textarea name="'.$name4disp.'" '.$attr.'>'.$value4disp.'</textarea>';
+					break;
 				case 'text':
 				default:
 					$style = '';
@@ -375,6 +388,12 @@ EOD;
 		$line = '';
 		if (!isset($this->conf[$key])) return $line;
 		
+		$val = trim($val);
+		if (substr($this->conf[$key]['form'], 0, 8) === 'textarea') {
+			$val = preg_replace('/(\r\n|\r)/', "\n", $val);
+		} else {
+			$val = preg_replace('/[\r\n]+/', '', $val);
+		}
 		switch($this->conf[$key]['type']){
 			case 'integer' :
 				$val = intval($val);

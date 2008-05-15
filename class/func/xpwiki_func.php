@@ -1,7 +1,7 @@
 <?php
 //
 // Created on 2006/10/02 by nao-pon http://hypweb.net/
-// $Id: xpwiki_func.php,v 1.166 2008/05/14 05:00:14 nao-pon Exp $
+// $Id: xpwiki_func.php,v 1.167 2008/05/15 23:53:06 nao-pon Exp $
 //
 class XpWikiFunc extends XpWikiXoopsWrapper {
 
@@ -1899,6 +1899,48 @@ EOD;
 		$this->pkwk_touch_file($this->get_filename($page), $time);
 		$this->touch_db($page);
 	}
+
+	function send_update_ping () {
+		if ($this->root->update_ping && HypCommonFunc::get_version() >= 20080515) {
+			if (! $this->cache_get_db('xmlrpc_ping_send', 'system')) {
+	
+				$this->cache_save_db('done', 'system', 1800, 'xmlrpc_ping_send'); // TTL = 1800 sec.
+				
+				HypCommonFunc::loadClass('HypPinger');
+				$p = new HypPinger(
+					$this->root->module['title'] . ' / ' . $this->root->siteinfo['sitename'],
+					$this->cont['HOME_URL'],
+					$this->cont['HOME_URL'] . '?' . rawurldecode($this->root->whatsnew),
+					$this->cont['HOME_URL'] . '?cmd=rss',
+					''
+				);
+				$p->setEncording($this->cont['SOURCE_ENCODING']);
+				
+				foreach(explode("\n", trim($this->root->update_ping_servers)) as $to) {
+					list($url, $extended) = array_pad(explode(' ', trim($to)), 2, '');
+					$url = trim($url);
+					$extended = $extended? TRUE : FALSE; 
+					if ($this->is_url($url, TRUE)) {
+						$p->addSendTo($url, $extended);
+					}
+				}
+				
+				$p->send();
+				
+				// for debug
+				$log = $this->cont['CACHE_DIR'] . 'ping.log';
+				$data = date('r') . "\n";
+				$data .= print_r($p->results, TRUE) . "\n\n";
+				if ($fp = fopen($log, 'a')) {
+					fwrite($fp, $data);
+					fclose($fp);
+				}
+				
+				$p = NULL;
+				unset($p);
+			}
+		}
+	}
 	
 /*----- DB Functions -----*/ 
 	//ページ名からページIDを求める
@@ -2091,7 +2133,7 @@ EOD;
 	}
 
 	// pginfo DB を更新
-	function pginfo_db_write($page, $action, $pginfo)
+	function pginfo_db_write($page, $action, $pginfo, $notimestamp = FALSE)
 	{
 		// pgid
 		$id = $this->get_pgid_by_name($page);
@@ -2196,9 +2238,9 @@ EOD;
 		
 		// plain DB update
 		if (empty($this->root->rtf['plaindb_up_now'])) {
-			$this->need_update_plaindb($page, $action);
+			$this->need_update_plaindb($page, $action, $notimestamp);
 		} else {
-			$this->plain_db_write($page, $action);
+			$this->plain_db_write($page, $action, FALSE, $notimestamp);
 		}
 	}
 	
@@ -2269,7 +2311,7 @@ EOD;
 	}
 	
 	// plane_text DB を更新
-	function plain_db_write($page, $action, $init = FALSE)
+	function plain_db_write($page, $action, $init = FALSE, $notimestamp = FALSE)
 	{
 		if (!$pgid = $this->get_pgid_by_name($page)) return false;
 
@@ -2428,10 +2470,15 @@ EOD;
 					// PlainテキストDB 更新予約を設定
 					//$this->need_update_plaindb($_page);
 					// 相手先ページも更新
-					$this->plain_db_write($_page, 'update');
+					$this->plain_db_write($_page, 'update', FALSE, TRUE);
 					// ページHTMLキャッシュを削除
 					$this->clear_page_cache($_page);
 				}
+			}
+			
+			// Send update ping
+			if ($this->check_readable_page($page, FALSE, FALSE, 0)) {
+				$this->send_update_ping();
 			}
 		}
 		
@@ -2453,6 +2500,11 @@ EOD;
 				$query = "INSERT INTO ".$this->xpwiki->db->prefix($this->root->mydirname."_rel")." (pgid,relid) VALUES(".$pgid.",".$relid.");";
 				$result=$this->xpwiki->db->queryF($query);
 				//if (!$result) echo $query."<hr>";
+			}
+			
+			if ($notimestamp === FALSE && $this->check_readable_page($page, FALSE, FALSE, 0)) {
+				// Send update ping
+				$this->send_update_ping();
 			}
 		}
 		
@@ -2600,12 +2652,15 @@ EOD;
 	}
 	
 	// プラグインからplane_text DB を更新を指示(コンバート時)
-	function need_update_plaindb($page = null, $mode = 'update')
+	function need_update_plaindb($page = null, $mode = 'update', $notimestamp = TRUE)
 	{
 		if (is_null($page)) $page = $this->root->vars['page'];
 		
 		if ($this->is_page($page)) {
 			// Regist JobStack
+			if ($mode === 'update' && $notimestamp) {
+				$mode = 'update_notimestamp';
+			}
 			$data = array('action' => 'plain_up', 'page' => $page, 'mode' => $mode);
 			$this->regist_jobstack($data);
 		}
