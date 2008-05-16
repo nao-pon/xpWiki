@@ -1,7 +1,7 @@
 <?php
 //
 // Created on 2006/10/02 by nao-pon http://hypweb.net/
-// $Id: xpwiki_func.php,v 1.168 2008/05/16 00:02:19 nao-pon Exp $
+// $Id: xpwiki_func.php,v 1.169 2008/05/16 06:15:53 nao-pon Exp $
 //
 class XpWikiFunc extends XpWikiXoopsWrapper {
 
@@ -1446,15 +1446,17 @@ EOD;
 		$d->connect_timeout = $c_timeout;
 		$d->read_timeout = $r_timeout;
 		
-		$d->use_proxy = $this->root->use_proxy;
-		$d->proxy_host = $this->root->proxy_host;
-		$d->proxy_port = $this->root->proxy_port;
-		
-		$d->need_proxy_auth = $this->root->need_proxy_auth;
-		$d->proxy_auth_user = $this->root->proxy_auth_user;
-		$d->proxy_auth_pass = $this->root->proxy_auth_pass;
-		
-		$d->no_proxy = $this->root->no_proxy;
+		if (empty($d->iniLoaded)) {
+			$d->use_proxy = $this->root->use_proxy;
+			$d->proxy_host = $this->root->proxy_host;
+			$d->proxy_port = $this->root->proxy_port;
+			
+			$d->need_proxy_auth = $this->root->need_proxy_auth;
+			$d->proxy_auth_user = $this->root->proxy_auth_user;
+			$d->proxy_auth_pass = $this->root->proxy_auth_pass;
+			
+			$d->no_proxy = $this->root->no_proxy;
+		}
 		
 		$d->get();
 		
