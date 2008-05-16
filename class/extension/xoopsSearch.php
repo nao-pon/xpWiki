@@ -1,7 +1,7 @@
 <?php
 //
 // Created on 2006/11/27 by nao-pon http://hypweb.net/
-// $Id: xoopsSearch.php,v 1.6 2008/03/02 08:57:04 nao-pon Exp $
+// $Id: xoopsSearch.php,v 1.7 2008/05/16 00:22:33 nao-pon Exp $
 //
 class XpWikiExtension_xoopsSearch extends XpWikiExtension {
 
@@ -89,7 +89,7 @@ class XpWikiExtension_xoopsSearch extends XpWikiExtension {
 				'link'    => $this->func->get_page_uri($myrow['name']) . (@ $this->root->static_url ? '?' : '&amp;') . 'word=' . $sword,
 				'title'   => htmlspecialchars($myrow['name'].$title, ENT_QUOTES),
 				'image'   => '',
-				'time'    => $myrow['editedtime'],
+				'time'    => $myrow['editedtime'] + $this->cont['LOCALZONE'],
 				'uid'     => $myrow['uid'],
 				'page'    => $myrow['name'],
 				'context' => $context );
