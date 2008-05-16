@@ -1,7 +1,7 @@
 <?php
 //
 // Created on 2006/10/02 by nao-pon http://hypweb.net/
-// $Id: xpwiki_func.php,v 1.167 2008/05/15 23:53:06 nao-pon Exp $
+// $Id: xpwiki_func.php,v 1.168 2008/05/16 00:02:19 nao-pon Exp $
 //
 class XpWikiFunc extends XpWikiXoopsWrapper {
 
@@ -1927,14 +1927,14 @@ EOD;
 				
 				$p->send();
 				
-				// for debug
-				$log = $this->cont['CACHE_DIR'] . 'ping.log';
-				$data = date('r') . "\n";
-				$data .= print_r($p->results, TRUE) . "\n\n";
-				if ($fp = fopen($log, 'a')) {
-					fwrite($fp, $data);
-					fclose($fp);
-				}
+//				// for debug
+//				$log = $this->cont['CACHE_DIR'] . 'ping.log';
+//				$data = date('r') . "\n";
+//				$data .= print_r($p->results, TRUE) . "\n\n";
+//				if ($fp = fopen($log, 'a')) {
+//					fwrite($fp, $data);
+//					fclose($fp);
+//				}
 				
 				$p = NULL;
 				unset($p);
