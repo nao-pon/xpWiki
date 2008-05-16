@@ -1,5 +1,5 @@
 <?php
-// $Id: urlbookmark.inc.php,v 1.5 2008/03/24 23:59:01 nao-pon Exp $
+// $Id: urlbookmark.inc.php,v 1.6 2008/05/16 06:14:08 nao-pon Exp $
 
 /*
  * PukiWiki urlbookmark プラグイン
@@ -56,7 +56,7 @@ class xpwiki_plugin_urlbookmark extends xpwiki_plugin {
 		
 		$this->root->post['msg'] = preg_replace("/\n/",'',$this->root->post['msg']);
 	
-		$url = $this->root->post['url'];
+		$url = trim($this->root->post['url']);
 		
 		if ($url == '') {
 			return array('msg'=>'','body'=>'');
