@@ -2,7 +2,7 @@
 /////////////////////////////////////////////////
 // PukiWiki - Yet another WikiWikiWeb clone.
 //
-// $Id: region.inc.php,v 1.10 2008/03/30 04:31:32 nao-pon Exp $
+// $Id: region.inc.php,v 1.11 2008/05/19 04:59:16 nao-pon Exp $
 //
 
 class xpwiki_plugin_region extends xpwiki_plugin {
@@ -115,7 +115,7 @@ class XpWikiRegionPluginHTMLBuilder
 		return <<<EOD
 {$areadiv_closer}<table cellpadding="1" cellspacing="2" style="width:auto;"><tr>
 <td valign="top">
-	<span id="rgn_button{$this->elemid}" style="cursor:pointer;font-wight:normal;font-size:10px;font-family:monospace;border:gray 1px solid;"
+	<span id="rgn_button{$this->elemid}" style="cursor:pointer;font-weight:normal;font-size:10px;font-family:monospace;border:gray 1px solid;"
 	onclick="
 	if(\$('rgn_summary$this->elemid').style.display!='none'){
 		\$('rgn_summary$this->elemid').style.display='none';
