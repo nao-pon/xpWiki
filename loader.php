@@ -1,7 +1,7 @@
 <?php
 //
 // Created on 2006/10/25 by nao-pon http://hypweb.net/
-// $Id: loader.php,v 1.43 2008/05/15 23:42:51 nao-pon Exp $
+// $Id: loader.php,v 1.44 2008/05/19 04:59:59 nao-pon Exp $
 //
 
 ignore_user_abort(FALSE);
@@ -261,7 +261,7 @@ if (file_exists($src_file)) {
 	
 	// 置換処理が必要?
 	if ($replace) {
-		if ($type === 'css') {
+		if ($type === 'css' || $type === 'pagecss') {
 			$replace_src = 0;
 			$conf_file = "{$skin_dirname}/{$basedir}{$skin}/css.conf";
 			if (file_exists($conf_file)) {
