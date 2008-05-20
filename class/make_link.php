@@ -76,14 +76,17 @@ class XpWikiInlineConverter {
 		$this->page = $page;
 		$this->result = array ();
 
-		$string = preg_replace_callback('/'.$this->pattern.'/x', array (& $this, 'replace'), $string);
+		$string = preg_replace_callback('/'.$this->pattern.'/xS', array (& $this, 'replace'), $string);
 
-		$arr = explode("\x08", $this->func->make_line_rules(htmlspecialchars($string)));
-		$retval = '';
-		while (!empty ($arr)) {
-			$retval .= array_shift($arr).array_shift($this->result);
-		}
+		$retval = $this->func->make_line_rules(htmlspecialchars($string));
 		
+		$i = 0;
+		$found = strpos($retval, "\x08");
+		while($found !== FALSE) {
+			$retval = substr_replace($retval, $this->result[$i++], $found, 1);
+			$found = strpos($retval, "\x08");
+		}
+
 		return $retval;
 	}
 
