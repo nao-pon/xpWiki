@@ -1,7 +1,7 @@
 <?php
 //
 // Created on 2006/10/25 by nao-pon http://hypweb.net/
-// $Id: loader.php,v 1.45 2008/05/20 08:36:43 nao-pon Exp $
+// $Id: loader.php,v 1.46 2008/05/20 08:41:26 nao-pon Exp $
 //
 
 ignore_user_abort(FALSE);
@@ -263,12 +263,15 @@ if (file_exists($src_file)) {
 	if ($replace) {
 		if ($type === 'css' || $type === 'pagecss') {
 			$replace_src = 0;
-			$conf_file = "{$skin_dirname}/{$basedir}{$skin}/css.conf";
-			if (file_exists($conf_file)) {
-				$conf = parse_ini_file($conf_file, true);
-				if (! empty($conf[$src]['replace'])) {
-					$replace_src = 1;
-					$src_file = "{$skin_dirname}/{$basedir}{$skin}/{$src}.css";
+			
+			if ($type === 'css') {
+				$conf_file = "{$skin_dirname}/{$basedir}{$skin}/css.conf";
+				if (file_exists($conf_file)) {
+					$conf = parse_ini_file($conf_file, true);
+					if (! empty($conf[$src]['replace'])) {
+						$replace_src = 1;
+						$src_file = "{$skin_dirname}/{$basedir}{$skin}/{$src}.css";
+					}
 				}
 			}
 			
