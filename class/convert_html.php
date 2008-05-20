@@ -49,12 +49,12 @@ class XpWikiElement {
 	}
 
 	function toString() {
-		$ret = array ();
-		foreach (array_keys($this->elements) as $key) {
-			$ret[] = $this->elements[$key]->toString();
-			$this->elements[$key] = null;
+		$ret = '';
+		foreach ($this->elements as $value) {
+			if ($ret !== '') $ret .= "\n";
+			$ret .= $value->toString();
 		}
-		return join("\n", $ret);
+		return $ret;
 	}
 
 	function dump($indent = 0) {
@@ -950,34 +950,10 @@ class XpWikiBody extends XpWikiElement {
 		$matches = array ();
 		$ext_title_find = (false || $this->root->render_mode === 'render');
 		$last_level = 0;
+		$title_len = strlen($this->root->title_setting_string);
 		
 		while (!empty ($lines)) {
-			$line = array_shift($lines);
-
-			// Escape comments
-			if (! $this->root->no_slashes_commentout && substr($line, 0, 2) === '//') {
-				continue;
-			}
-
-			// Extend TITLE
-			if (!$ext_title_find && $this->root->title_setting_regex) {
-				if (preg_match($this->root->title_setting_regex , $line)) {
-					$ext_title_find = true;
-					continue;
-				}
-			}
-
-			if (preg_match('/^(LEFT|CENTER|RIGHT):(.*)$/', $line, $matches)) {
-				// <div style="text-align:...">
-				$this->last = & $this->last->add(new XpWikiAlign($this->xpwiki, strtolower($matches[1])));
-				if ($matches[2] === '') {
-					$last_level = 0;
-					continue;
-				}
-				$line = $matches[2];
-			}
-
-			$line = rtrim($line, "\r\n");
+			$line = rtrim(array_shift($lines), "\r\n");
 
 			// Empty
 			if ($line === '') {
@@ -986,48 +962,86 @@ class XpWikiBody extends XpWikiElement {
 				continue;
 			}
 
-			// Horizontal Rule
-			if (preg_match('/^\-{4,}$/', $line)) {
-				$this->insert(new XpWikiHRule($this, $line));
-				$last_level = 0;
+			// Escape comments
+			if (! $this->root->no_slashes_commentout && substr($line, 0, 2) === '//') {
 				continue;
 			}
 
-			// Multiline-enabled block plugin
-			if (!$this->cont['PKWKEXP_DISABLE_MULTILINE_PLUGIN_HACK'] && preg_match('/^#[^{]+(\{\{+)\s*$/', $line, $matches)) {
-				$len = strlen($matches[1]);
-				$line .= "\r"; // Delimiter
-				while (!empty ($lines)) {
-					$next_line = rtrim(array_shift($lines), "\r\n");
-					if (preg_match('/^\}{'.$len.'}/', $next_line)) {
-						$line .= $next_line;
-						break;
-					} else {
-						$line .= $next_line .= "\r"; // Delimiter
-					}
+			// Extended TITLE:
+			if (! $ext_title_find && $title_len) {
+				if (substr($line, 0, $title_len) === $this->root->title_setting_string) {
+					$ext_title_find = TRUE;
+					continue;
 				}
 			}
 
 			// The first character
-			$head = $line {0};
-			
-			// <, <<, <<< only to escape blockquote.
-			if ($head === '<' and !preg_match('/^<{1,3}\s*$/', $line)) {
-				$head = '';
-			}
+			$head = $line[0];
 
+			// LEFT, CENTER, RIGHT
+			if ($head === 'R' || $head === 'C' || $head === 'L') {
+				if (preg_match('/^(LEFT|CENTER|RIGHT):(.*)$/', $line, $matches)) {
+					// <div style="text-align:...">
+					$this->last = & $this->last->add(new XpWikiAlign($this->xpwiki, strtolower($matches[1])));
+					if ($matches[2] === '') {
+						$last_level = 0;
+						continue;
+					}
+					$line = $matches[2];
+					$head = $line[0];
+				}
+			}
+						
+			switch ($head) {
+			
+			// Horizontal Rule
+			case '-':
+				if (substr($line, 0, 4) === '----') {
+					$this->insert(new XpWikiHRule($this, $line));
+					$last_level = 0;
+					continue 2;
+				}
+				break;
+
+			// Multiline-enabled block plugin
+			case '#':
+				if (!$this->cont['PKWKEXP_DISABLE_MULTILINE_PLUGIN_HACK'] && preg_match('/^#[^{]+(\{\{+)\s*$/', $line, $matches)) {
+					$len = strlen($matches[1]);
+					$line .= "\r"; // Delimiter
+					while (!empty ($lines)) {
+						$next_line = rtrim(array_shift($lines), "\r\n");
+						if (preg_match('/^\}{'.$len.'}/', $next_line)) {
+							$line .= $next_line;
+							break;
+						} else {
+							$line .= $next_line .= "\r"; // Delimiter
+						}
+					}
+				}
+				break;
+				
 			// Heading
-			if ($head === '*') {
+			case '*':
 				$this->insert(new XpWikiHeading($this, $line));
 				$last_level = 0;
-				continue;
-			}
+				continue 2;
+				break;
 
 			// Pre
-			if ($head === ' ' || $head === "\t") {
+			case ' ':
+			case "\t":
 				$this->last = & $this->last->add(new XpWikiPre($this, $line));
 				$last_level = 0;
-				continue;
+				continue 2;
+				break;
+			
+			// <, <<, <<< only to escape blockquote.
+			case '<':
+				if (! preg_match('/^<{1,3}\s*$/', $line)) {
+					$head = '';
+				}
+				break;
+
 			}
 
 			// Line Break
@@ -1042,7 +1056,6 @@ class XpWikiBody extends XpWikiElement {
 				if ($this_level - $last_level > 1) {
 					for($_lev = $last_level+1; $_lev < $this_level; $_lev++ ) {
 						$this->last = & $this->last->add(new $classname ($this, str_repeat($head, $_lev)."\x08"));
-						//$this->last->add(new $classname ($this, str_repeat($head, $_lev)."\x08"));
 					}
 				}
 				$last_level = $this_level;
