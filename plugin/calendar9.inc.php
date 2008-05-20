@@ -1,7 +1,7 @@
 <?php
 /*
  * Created on 2007/08/30 by nao-pon http://hypweb.net/
- * $Id: calendar9.inc.php,v 1.11 2008/04/09 07:51:08 nao-pon Exp $
+ * $Id: calendar9.inc.php,v 1.12 2008/05/20 06:16:13 nao-pon Exp $
  */
 
 class xpwiki_plugin_calendar9 extends xpwiki_plugin {
@@ -164,6 +164,9 @@ EOD;
 		for ($i = 0; $i < ($wday + $diffday) % 7; $i++) {
 			$ret .= "     <td class=\"style_td_blank\">&nbsp;</td>\n";
 		}
+
+		// this year pages
+		$y_pages = $this->func->get_existpages(FALSE, $prefix . sprintf('%4d-', $year), array('select' => array('name')));
 		
 		$next_month = false;
 		while (true) {
@@ -240,8 +243,8 @@ EOD;
 			$i = 0;
 
 			// 日付へのリンク
-			while($this->func->is_page($_page) || $this->func->is_page($_page . '-0')) {
-				if ($this->func->is_page($_page)) {
+			do {
+				if ($i !== 0 || isset($y_pages[$_page])) {
 				
 					$subtitle = '';
 					
@@ -287,7 +290,8 @@ EOD;
 					}
 				}
 				$_page = $base.'/'.$dt.'-'.$i++;
-			}
+			} while (isset($y_pages[$_page]));
+
 
 			if ($this->func->check_editable($_page, false, false) && $freeze !== 1) {
 				$r_page = rawurlencode($_page);
