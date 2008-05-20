@@ -1,7 +1,7 @@
 <?php
 //
 // Created on 2006/10/25 by nao-pon http://hypweb.net/
-// $Id: loader.php,v 1.44 2008/05/19 04:59:59 nao-pon Exp $
+// $Id: loader.php,v 1.45 2008/05/20 08:36:43 nao-pon Exp $
 //
 
 ignore_user_abort(FALSE);
@@ -274,6 +274,10 @@ if (file_exists($src_file)) {
 			
 			$out = file_get_contents($src_file);
 			
+			if ($type === 'pagecss') {
+				xpwiki_pagecss_filter($out);
+			}
+			
 			if ($pre_id) $pre_id .= ' ';
 			$addcss_src = '';
 			if (! $replace_src && $addcss) {
@@ -396,6 +400,15 @@ function xpwiki_make_facemarks ($skin_dirname, $cache, $face_tag_ver) {
 		fclose($fp);
 	}
 	return $tags;
+}
+
+function xpwiki_pagecss_filter (& $css, $chrctor) {
+	if (! extension_loaded('mbstring') && ! class_exists('HypMBString')) {
+		include(XOOPS_TRUST_PATH . '/class/hyp_common/mbemulator/mb-emulator.php');
+	}
+	$css = mb_convert_kana($css, 'asKV', mb_detect_encoding($css));
+	$css = preg_replace('/(expression|javascript|vbscript|@import|cookie|eval|behavior|behaviour|binding|include-source|@i|[\x00-\x08\x0e-\x1f\x7f]+|\\\(?![\'"{};:()#A*]))/i', '', $css);
+	$css = str_replace(array('*/', '<', '>', '&#'), array('*/  ', '&lt;', '&gt;', ''), $css);
 }
 
 // file_get_contents -- Reads entire file into a string
