@@ -1,5 +1,5 @@
 <?php
-// $Id: calendar2.inc.php,v 1.10 2008/04/24 00:15:42 nao-pon Exp $
+// $Id: calendar2.inc.php,v 1.11 2008/05/20 06:16:13 nao-pon Exp $
 //
 // Calendar2 plugin
 //
@@ -123,6 +123,9 @@ EOD;
 		for ($i = 0; $i < $wday; $i++)
 			$ret .= '     <td class="style_td_blank">&nbsp;</td>' . "\n";
 	
+		// this month pages
+		$m_pages = $this->func->get_existpages(FALSE, $prefix . sprintf('%4d-%02d-', $year, $m_num), array('select' => array('name')));
+		
 		while (checkdate($m_num, $day, $year)) {
 			$dt     = sprintf('%4d-%02d-%02d', $year, $m_num, $day);
 			$page   = $prefix . $dt;
@@ -146,9 +149,9 @@ EOD;
 			
 			// for PukiWikiMod compat
 			$moblog_page = $page."-0";
-			
-			if ($this->func->is_page($page) || $this->func->is_page($moblog_page)) {
-				$_page = ($this->func->get_filetime($page))? $page : $moblog_page;
+			$normal_page = isset($m_pages[$page]);
+			if ($normal_page || isset($m_pages[$moblog_page])) {
+				$_page = ($normal_page)? $page : $moblog_page;
 				$link = '<div class="style_td_written">'.$this->func->make_pagelink($_page, $day).'</div>';
 			} else {
 				if (! $is_editable) {
