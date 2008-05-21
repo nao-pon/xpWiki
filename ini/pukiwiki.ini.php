@@ -1,6 +1,6 @@
 <?php
 // PukiWiki - Yet another WikiWikiWeb clone
-// $Id: pukiwiki.ini.php,v 1.76 2008/05/21 11:49:34 nao-pon Exp $
+// $Id: pukiwiki.ini.php,v 1.77 2008/05/21 11:55:02 nao-pon Exp $
 // Copyright (C)
 //   2002-2006 PukiWiki Developers Team
 //   2001-2002 Originally written by yu-ji
@@ -223,6 +223,12 @@ ForceType application/x-httpd-php
 
 $root->static_url = 0; // 0 or 1, 2, 3
 
+// PATH_INFO 使用時 (static_url = 2 or 3) のスクリプト名
+// "index" 以外にする場合は、.htaccess の書き換えと次の内容の スクリプト名.php を置く
+/* スクリプト名.php
+<?php
+include 'index.php';
+ */
 $root->path_info_script = 'index';
 
 /////////////////////////////////////////////////
