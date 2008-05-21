@@ -1,7 +1,7 @@
 <?php
 /*
  * Created on 2008/01/24 by nao-pon http://hypweb.net/
- * $Id: conf.lng.php,v 1.2 2008/05/15 23:53:06 nao-pon Exp $
+ * $Id: conf.lng.php,v 1.3 2008/05/21 11:49:34 nao-pon Exp $
  */
 //
 // German Translation Version 1.0 (11.03.2008)
@@ -109,10 +109,17 @@ $msg = array(
 	),
 
 	'static_url' => array(
-		'caption'     => 'URL im statischen Seiten-Stiel anlegen?',
-		'description' => 'Die Seiten URL übernimmt die "Page ID.html", und ist wie eine URL einer statischen Seite.<br />'
-		               . 'Wenn Du diese Funktion nutzt, ist es notwendig, dass Du folgende Einträge in der ".htaccess" vornimmst.<br />'
-		               . '<code>RewriteEngine on<br />RewriteRule ^([0-9]+)\.html$ index.php?pgid=$1 [qsappend,L]</code>',
+		'caption'     => 'Page URL-Stil',
+		'description' => 'Außer "?[PAGE]", wählen Sie es bitte, und ist wie eine URL einer statischen Seite.<br />'
+		               . 'Aber, Wahlen zufolge, ist es notwendig, dass Du folgende Einträge in der ".htaccess" vornimmst.<br />'
+		               . '<dl><dt>[ID].html</dt><dd><code>RewriteEngine on<br />RewriteRule ^([0-9]+)\.html$ index.php?pgid=$1 [qsappend,L]</code></dd></dl>'
+		               . '<dl><dt>{$root->path_info_script}/[PAGE]</dt><dd><code>&lt;FilesMatch "^{$root->path_info_script}$"&gt;<br />ForceType application/x-httpd-php<br />&lt;/FilesMatch&gt;</code></dd></dl>',
+	),
+
+	'url_encode_utf8' => array(
+		'caption'     => 'Benutzen Sie "UTF-8" von URL?',
+		'description' => '"[PAGE]" Teil obenerwähnten "Page URL-Stil" wird von "UTF-8" verschlüsselt.<br />'
+		               . 'Aber, wenn die Charakterverschlüsselung von xpWiki ist UTF-8, es wird immer "UTF-8."',
 	),
 
 	'link_target' => array(

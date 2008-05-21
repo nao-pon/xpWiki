@@ -1,6 +1,6 @@
 <?php
 // PukiWiki - Yet another WikiWikiWeb clone
-// $Id: pukiwiki.ini.php,v 1.75 2008/05/15 23:53:06 nao-pon Exp $
+// $Id: pukiwiki.ini.php,v 1.76 2008/05/21 11:49:34 nao-pon Exp $
 // Copyright (C)
 //   2002-2006 PukiWiki Developers Team
 //   2001-2002 Originally written by yu-ji
@@ -205,13 +205,30 @@ $root->no_slashes_commentout = 0;
 $root->pagename_num2str = 1;
 
 /////////////////////////////////////////////////
-// ページリンクを [pgid].html の形式にする
+// [ 1 ] ページリンクを [pgid].html の形式にする
 // modules/[DirName]/.htaccess に次の設定が必要です
 /* .htaccess 
 RewriteEngine on
 RewriteRule ^([0-9]+)\.html$ index.php?pgid=$1 [qsappend,L]
  */
-$root->static_url = 0;
+// [ 2 ] ページリンクを index/ページ名 の形式にする
+// modules/[DirName]/.htaccess に次の設定が必要です
+/* .htaccess 
+<FilesMatch "^index$">
+ForceType application/x-httpd-php
+</FilesMatch>
+ */
+// [ 3 ] ページリンクを index.php/ページ名 の形式にする
+// modules/[DirName]/.htaccess の設定は不要です 
+
+$root->static_url = 0; // 0 or 1, 2, 3
+
+$root->path_info_script = 'index';
+
+/////////////////////////////////////////////////
+// ページリンクをUTF-8エンコードする
+// 
+$root->url_encode_utf8 = 0;
 
 /////////////////////////////////////////////////
 // URLエンコードされていないGETクエリを受け入れる

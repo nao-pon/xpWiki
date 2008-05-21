@@ -1,7 +1,7 @@
 <?php
 //
 // Created on 2006/10/02 by nao-pon http://hypweb.net/
-// $Id: pukiwiki_func.php,v 1.169 2008/05/20 06:19:03 nao-pon Exp $
+// $Id: pukiwiki_func.php,v 1.170 2008/05/21 11:49:34 nao-pon Exp $
 //
 class XpWikiPukiWikiFunc extends XpWikiBaseFunc {
 
@@ -941,7 +941,7 @@ class XpWikiPukiWikiFunc extends XpWikiBaseFunc {
 
 //----- Start convert_html.php -----//
 	// PukiWiki - Yet another WikiWikiWeb clone
-	// $Id: pukiwiki_func.php,v 1.169 2008/05/20 06:19:03 nao-pon Exp $
+	// $Id: pukiwiki_func.php,v 1.170 2008/05/21 11:49:34 nao-pon Exp $
 	// Copyright (C)
 	//   2002-2005 PukiWiki Developers Team
 	//   2001-2002 Originally written by yu-ji
@@ -1194,7 +1194,7 @@ class XpWikiPukiWikiFunc extends XpWikiBaseFunc {
 
 //----- Start func.php -----//
 	// PukiWiki - Yet another WikiWikiWeb clone.
-	// $Id: pukiwiki_func.php,v 1.169 2008/05/20 06:19:03 nao-pon Exp $
+	// $Id: pukiwiki_func.php,v 1.170 2008/05/21 11:49:34 nao-pon Exp $
 	// Copyright (C)
 	//   2002-2006 PukiWiki Developers Team
 	//   2001-2002 Originally written by yu-ji
@@ -1551,7 +1551,7 @@ class XpWikiPukiWikiFunc extends XpWikiBaseFunc {
 		}
 	
 		foreach($pages as $file=>$page) {
-			$r_page  = ($cmd === 'read' && $this->root->static_url)? $this->root->pgids[$page] . '.html' : rawurlencode($page);
+			$r_page  = ($cmd === 'read' && $this->root->static_url)? $this->get_page_uri($page) : rawurlencode($page);
 			$s_page  = htmlspecialchars($page, ENT_QUOTES);
 			$passage = $this->get_pg_passage($page);
 			$title = (empty($titles[$page]))? '' : ' [ ' . htmlspecialchars($titles[$page]) . ' ]';
@@ -2021,7 +2021,7 @@ EOD;
 
 //----- Start make_link.php -----//
 	// PukiWiki - Yet another WikiWikiWeb clone.
-	// $Id: pukiwiki_func.php,v 1.169 2008/05/20 06:19:03 nao-pon Exp $
+	// $Id: pukiwiki_func.php,v 1.170 2008/05/21 11:49:34 nao-pon Exp $
 	// Copyright (C)
 	//   2003-2005 PukiWiki Developers Team
 	//   2001-2002 Originally written by yu-ji
@@ -2107,7 +2107,7 @@ EOD;
 		if (! isset($this->root->notyets[$page]) && $page !== $this->root->vars['page'] && !$this->is_page($page))
 			$this->root->notyets[$page] = TRUE;
 
-		if ($class === 'autolink' || $this->is_page($page) || !empty($options['nocheck'])) {
+		if ($class === 'autolink' || !empty($options['nocheck']) || $this->is_page($page)) {
 			// ownpage
 			if ($this->cont['PAGENAME'] === $page) {
 				return '<span class="thispage">' . $s_alias . '</span>';
@@ -2156,8 +2156,8 @@ EOD;
 				$class .= '_popup';
 			}
 			
-			$link = $this->get_page_uri($page);
-			return $al_left . '<a ' . 'href="' . $this->root->script . $link . $anchor .
+			$link = $this->get_page_uri($page, TRUE);
+			return $al_left . '<a ' . 'href="' . $link . $anchor .
 				'"' . $title . ' class="' . $class . '"' . $onclick . '>' . $s_alias . '</a>' . $al_right;
 		} else {
 			// Dangling link
@@ -2967,7 +2967,7 @@ EOD;
 
 //----- Start html.php -----//
 	// PukiWiki - Yet another WikiWikiWeb clone.
-	// $Id: pukiwiki_func.php,v 1.169 2008/05/20 06:19:03 nao-pon Exp $
+	// $Id: pukiwiki_func.php,v 1.170 2008/05/21 11:49:34 nao-pon Exp $
 	// Copyright (C)
 	//   2002-2006 PukiWiki Developers Team
 	//   2001-2002 Originally written by yu-ji
@@ -3663,7 +3663,7 @@ EOD;
 
 //----- Start mail.php -----//
 	// PukiWiki - Yet another WikiWikiWeb clone.
-	// $Id: pukiwiki_func.php,v 1.169 2008/05/20 06:19:03 nao-pon Exp $
+	// $Id: pukiwiki_func.php,v 1.170 2008/05/21 11:49:34 nao-pon Exp $
 	// Copyright (C)
 	//   2003-2005 PukiWiki Developers Team
 	//   2003      Originally written by upk
@@ -3966,7 +3966,7 @@ EOD;
 
 //----- Start link.php -----//
 	// PukiWiki - Yet another WikiWikiWeb clone
-	// $Id: pukiwiki_func.php,v 1.169 2008/05/20 06:19:03 nao-pon Exp $
+	// $Id: pukiwiki_func.php,v 1.170 2008/05/21 11:49:34 nao-pon Exp $
 	// Copyright (C) 2003-2006 PukiWiki Developers Team
 	// License: GPL v2 or (at your option) any later version
 	//

@@ -1,7 +1,7 @@
 <?php
 //
 // Created on 2006/10/13 by nao-pon http://hypweb.net/
-// $Id: init.php,v 1.50 2008/05/14 04:27:49 nao-pon Exp $
+// $Id: init.php,v 1.51 2008/05/21 11:49:34 nao-pon Exp $
 //
 
 $root = & $this->root;
@@ -260,9 +260,6 @@ if (isset($const['page_show'])) {
 	
 	/////////////////////////////////////////////////
 	// QUERY_STRINGを取得
-	
-	// cmdもpluginも指定されていない場合は、QUERY_STRINGを
-	// ページ名かInterWikiNameであるとみなす
 	$arg = '';
 	if (isset($_SERVER['QUERY_STRING']) && $_SERVER['QUERY_STRING']) {
 		$arg = $_SERVER['QUERY_STRING'];
@@ -363,15 +360,23 @@ if (isset($const['page_show'])) {
 	
 		$root->get['cmd']  = $root->post['cmd']  = $root->vars['cmd']  = 'read';
 	
-		$arg = rawurldecode($arg);
-		
+		if (isset($_SERVER['PATH_INFO'])) {
+			$arg = trim($_SERVER['PATH_INFO'], '/');
+		} else {
+			$arg = rawurldecode($arg);
+		}
+
 		// 特定のキーを除外
 		$arg = preg_replace('/&?(word|'.preg_quote(session_name(), '/').')=[^&]+/', '', $arg);
 		
 		// XOOPS の redirect_header で付加されることがある &以降を削除
 		$arg = preg_replace('/&.*$/', '', $arg);
-		
-		if ($arg === '') $arg = $root->defaultpage;
+
+		if ($arg === '') {
+			$arg = $root->defaultpage;
+		} else if ($this->root->url_encode_utf8 && $const['SOURCE_ENCODING'] !== 'UTF-8') {
+			$arg = mb_convert_encoding($arg, $const['SOURCE_ENCODING'], 'UTF-8');
+		}
 		
 		$arg = $this->strip_bracket($arg);
 		$arg = $this->input_filter($arg);
