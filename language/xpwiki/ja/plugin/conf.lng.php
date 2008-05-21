@@ -1,7 +1,7 @@
 <?php
 /*
  * Created on 2008/01/24 by nao-pon http://hypweb.net/
- * $Id: conf.lng.php,v 1.6 2008/05/15 23:53:06 nao-pon Exp $
+ * $Id: conf.lng.php,v 1.7 2008/05/21 11:49:34 nao-pon Exp $
  */
 
 $msg = array(
@@ -105,10 +105,17 @@ $msg = array(
 	),
 
 	'static_url' => array(
-		'caption'     => '静的ページ風URLにする',
-		'description' => 'ページURLを「ページID.html」とし、静的なページのURLのように振舞います。<br />'
-		               . 'ただし、この機能を有効にした場合には .htaccess にて以下の記述を有効にする必要があります。<br />'
-		               . '<code>RewriteEngine on<br />RewriteRule ^([0-9]+)\.html$ index.php?pgid=$1 [qsappend,L]</code>',
+		'caption'     => 'ページURLの形式',
+		'description' => 'ページURLの形式を選択します。"?[PAGE]" 以外を選択すると静的なページのURLのように振舞います。<br />'
+		               . 'ただし、選択肢によっては .htaccess にて以下の記述を有効にする必要があります。<br />'
+		               . '<dl><dt>[ID].html</dt><dd><code>RewriteEngine on<br />RewriteRule ^([0-9]+)\.html$ index.php?pgid=$1 [qsappend,L]</code></dd></dl>'
+		               . '<dl><dt>{$root->path_info_script}/[PAGE]</dt><dd><code>&lt;FilesMatch "^{$root->path_info_script}$"&gt;<br />ForceType application/x-httpd-php<br />&lt;/FilesMatch&gt;</code></dd></dl>',
+	),
+
+	'url_encode_utf8' => array(
+		'caption'     => 'ページURLを UTF-8 にする',
+		'description' => '上記 "ページURLの形式" の "[PAGE]" 部分を "UTF-8" でエンコードします。<br />'
+		               . 'ただし、xpWiki の文字エンコーディングが UTF-8 の場合は、常に "UTF-8" となります。',
 	),
 
 	'link_target' => array(

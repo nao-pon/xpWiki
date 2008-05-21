@@ -1,7 +1,7 @@
 <?php
 /*
  * Created on 2008/01/24 by nao-pon http://hypweb.net/
- * $Id: conf.inc.php,v 1.10 2008/05/15 23:53:06 nao-pon Exp $
+ * $Id: conf.inc.php,v 1.11 2008/05/21 11:49:34 nao-pon Exp $
  */
 
 class xpwiki_plugin_conf extends xpwiki_plugin {
@@ -90,6 +90,17 @@ class xpwiki_plugin_conf extends xpwiki_plugin {
 				'form' => 'yesno',
 			),
 			'static_url' => array(
+				'kind' => 'root',
+				'type' => 'integer',
+				'form' => 'radio',
+				'list' => array(
+					'?[PAGE]' => '0',
+					'[ID].html' => '1',
+					$this->root->path_info_script . '/[PAGE]' => '2',
+					$this->root->path_info_script . '.php/[PAGE]' => '3',
+				),
+			),
+			'url_encode_utf8' => array(
 				'kind' => 'root',
 				'type' => 'integer',
 				'form' => 'yesno',
@@ -276,6 +287,7 @@ EOD;
 		foreach ($this->conf as $key => $conf) {
 			$caption = ! empty($conf['caption'])? $conf['caption'] : (! empty($this->msg[$key]['caption'])? $this->msg[$key]['caption'] : $key);
 			$description = ! empty($conf['description'])? $conf['description'] : (! empty($this->msg[$key]['description'])? $this->msg[$key]['description'] : '');
+			$description = preg_replace('/\{\$root->(.+?)\}/e', '$this->root->$1', $description);
 			$value = ($conf['kind'] === 'root')? $this->root->$key : $this->cont[$key];
 			$value4disp = htmlspecialchars($value); 
 			$name4disp = htmlspecialchars((($conf['kind'] === 'root')? 'root_' : 'const_') . $key);
@@ -320,7 +332,7 @@ EOD;
 						} else {
 							$checked = '';
 						}
-						$forms[] = '<input id="'.$name4disp.'_'.$i.'" type="radio" name="'.$name4disp.'" value="'.$list_val.'"'.$checked.' /><label for="'.$name4disp.'_'.$i.'">'.$list_cap.'</label>';
+						$forms[] = '<span class="nowrap"><input id="'.$name4disp.'_'.$i.'" type="radio" name="'.$name4disp.'" value="'.$list_val.'"'.$checked.' /><label for="'.$name4disp.'_'.$i.'">'.$list_cap.'</label></span>';
 						$i++;
 					}
 					$form = join(' | ', $forms);

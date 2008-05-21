@@ -1,7 +1,7 @@
 <?php
 /*
  * Created on 2008/01/24 by nao-pon http://hypweb.net/
- * $Id: conf.lng.php,v 1.6 2008/05/15 23:53:06 nao-pon Exp $
+ * $Id: conf.lng.php,v 1.7 2008/05/21 11:49:34 nao-pon Exp $
  */
 
 $msg = array(
@@ -106,10 +106,17 @@ each use page can be provided.<br />'
 	),
 
 	'static_url' => array(
-		'caption'     => 'Make URL by static page style?',
-		'description' => 'Page URL is assumed to be "Page ID.html", and it behaves like URL on a static page.<br />'
-		               . 'However, when you make this function effective. It is necessary to do the following descriptions with ".htaccess" effectively.<br />'
-		               . '<code>RewriteEngine on<br />RewriteRule ^([0-9]+)\.html$ index.php?pgid=$1 [qsappend,L]</code>',
+		'caption'     => 'Page URL style',
+		'description' => 'Select it excluding "?[PAGE]", and it behaves like URL on a static page.<br />'
+		               . 'However, according to choices. It is necessary to do the following descriptions with ".htaccess" effectively.<br />'
+		               . '<dl><dt>[ID].html</dt><dd><code>RewriteEngine on<br />RewriteRule ^([0-9]+)\.html$ index.php?pgid=$1 [qsappend,L]</code></dd></dl>'
+		               . '<dl><dt>{$root->path_info_script}/[PAGE]</dt><dd><code>&lt;FilesMatch "^{$root->path_info_script}$"&gt;<br />ForceType application/x-httpd-php<br />&lt;/FilesMatch&gt;</code></dd></dl>',
+	),
+
+	'url_encode_utf8' => array(
+		'caption'     => 'Use "UTF-8" of URL?',
+		'description' => '"[PAGE]" part of above-mentioned "Page URL style" is encoded by "UTF-8".<br />'
+		               . 'However, when the character encoding of xpWiki is UTF-8, it always becomes "UTF-8".',
 	),
 
 	'link_target' => array(

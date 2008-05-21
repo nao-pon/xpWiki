@@ -9,7 +9,7 @@
 //
 // fusen.js for xpWiki by nao-pon
 // http://hypweb.net
-// $Id: fusen.js,v 1.11 2008/04/24 00:03:40 nao-pon Exp $
+// $Id: fusen.js,v 1.12 2008/05/21 11:49:34 nao-pon Exp $
 // 
 var fusenVar = new Array();
 var fusenMsgs = new Array();
@@ -1009,7 +1009,7 @@ function fusen_create_resizeobj(id,obj) {
 	var cobj = document.createElement("IMG");
 	cobj.className = 'fusen_resize';
 	cobj.id = 'fusen_id' + id + 'resize';
-	cobj.src = './skin/loader.php?src=resize.gif';
+	cobj.src = wikihelper_root_url + '/skin/loader.php?src=resize.gif';
 	cobj.title = cobj.alt = 'Resize';
 	cobj.onmousedown = function(){fusenResizeFlg=1;return true;};
 	if (obj.lk) {
@@ -1022,7 +1022,7 @@ function fusen_create_wresizeobj(id,obj) {
 	var cobj = document.createElement("IMG");
 	cobj.className = 'fusen_wresize';
 	cobj.id = 'fusen_id' + id + 'wresize';
-	cobj.src = './skin/loader.php?src=w_resize.gif';
+	cobj.src = wikihelper_root_url + '/skin/loader.php?src=w_resize.gif';
 	cobj.title = cobj.alt = 'Set Width';
 	cobj.onmousedown = function(){fusenResizeFlg=2;return true;};
 	if (obj.lk)
@@ -1330,7 +1330,7 @@ function fusen_drawLine2(x, y, w, h, color, nid, border){
 	function _Img1(x,y,w,h,color,b)
 	{
 		var obj = document.createElement("img");
-		obj.src = "./skin/loader.php?src=connect.gif";
+		obj.src = wikihelper_root_url + "/skin/loader.php?src=connect.gif";
 		obj.style.zIndex = 0;
 		obj.style.position  = "absolute";
 		if (fusenVar['IE']) {
@@ -1349,7 +1349,7 @@ function fusen_drawLine2(x, y, w, h, color, nid, border){
 	function _Img2(x,y,w,h,color,b)
 	{
 		var obj = document.createElement("img");
-		obj.src = "./skin/loader.php?src=connect.gif";
+		obj.src = wikihelper_root_url + "/skin/loader.php?src=connect.gif";
 		obj.style.zIndex = 0;
 		obj.style.position  = "absolute";
 		if (fusenVar['IE']) {

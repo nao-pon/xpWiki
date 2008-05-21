@@ -1,7 +1,7 @@
 <?php
 //
 // Created on 2006/10/02 by nao-pon http://hypweb.net/
-// $Id: xpwiki_func.php,v 1.169 2008/05/16 06:15:53 nao-pon Exp $
+// $Id: xpwiki_func.php,v 1.170 2008/05/21 11:49:34 nao-pon Exp $
 //
 class XpWikiFunc extends XpWikiXoopsWrapper {
 
@@ -1168,11 +1168,31 @@ EOD;
 	}
 	
 	// ページURIを得る
-	function get_page_uri($page, $full = false) {
+	function get_page_uri($page, $full = FALSE) {
 		if ($page === $this->root->defaultpage) {
 			$link = '';
 		} else {
-			$link = ($this->root->static_url && $this->is_page($page)) ? $this->get_pgid_by_name($page) . '.html' : '?' . rawurlencode($page);
+			if ($this->root->static_url) {
+				switch($this->root->static_url) {
+					case 3:
+					case 2:
+						if ($this->root->url_encode_utf8) {
+							$page = mb_convert_encoding($page, 'UTF-8', $this->cont['SOURCE_ENCODING']);
+						}
+						$page = str_replace('%2F', '/', rawurlencode($page));
+						$link = $this->root->path_info_script . (($this->root->static_url === 2)? '' : '.php') . '/' . $page;
+						break;
+					case 1:
+					default:
+						if ($pgid = $this->get_pgid_by_name($page)) {
+							$link = $pgid . '.html';
+						} else {
+							$link = '?' . rawurlencode($this->root->url_encode_utf8? mb_convert_encoding($page, 'UTF-8', $this->cont['SOURCE_ENCODING']) : $page);
+						}
+				}
+			} else {
+				$link = '?' . rawurlencode($this->root->url_encode_utf8? mb_convert_encoding($page, 'UTF-8', $this->cont['SOURCE_ENCODING']) : $page);
+			}
 		}
 		return ($full ? $this->cont['HOME_URL'] : '' ) . $link;
 	}
@@ -1217,17 +1237,15 @@ EOD;
 		$ret = array();
 		//$ret[] = array($name => $self, $url = '');
 		while (! empty($parts)) {
-			$_landing = join('/', $parts);
-			$landing  = rawurlencode($_landing);
+			$landing = join('/', $parts);
 			$element = htmlspecialchars(array_pop($parts));
 			
-			if (! $this->is_page($_landing)) {
+			if (! $this->is_page($landing)) {
 				// Page not exists
 				$ret[] = array($name => $element, $url => '');
 			} else {
 				// Page exists
-				$link = (@$this->root->static_url)? $this->get_pgid_by_name($_landing) . '.html' : '?' . $landing;
-				$ret[] = array($name => $element, $url => $this->root->script . $link);
+				$ret[] = array($name => $element, $url => $this->get_page_uri($landing, TRUE));
 			}
 		}
 		$ret[] = array($name => $this->root->module['title'], $url => $this->root->script);
@@ -2874,7 +2892,7 @@ EOD;
 			if (empty($data[1])) $data[1] = $this->get_heading($page);
 			$s_page  = htmlspecialchars($page);
 			$passage = $this->root->show_passage ? ' ' . $this->get_passage($data[0]) : '';
-			$retval .= ' <li><a href="' . $this->get_page_uri($page, true) . (@ $this->root->static_url ? '?' : '&amp;') . 'word=' . $r_word . '">' . $s_page .
+			$retval .= ' <li><a href="' . $this->get_page_uri($page, TRUE) . ($this->root->static_url ? '?' : '&amp;') . 'word=' . $r_word . '">' . $s_page .
 				'</a><small>' . $passage . '</small> [ ' . htmlspecialchars($data[1]) . ' ]</li>' . "\n";
 		}
 		$retval .= '</ul>' . "\n";
