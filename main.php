@@ -1,4 +1,13 @@
 <?php
+// Forbid prefetch
+if (
+	(isset($_SERVER['HTTP_X_MOZ']) && $_SERVER['HTTP_X_MOZ'] === 'prefetch')
+	||
+	(isset($_SERVER['HTTP_USER_AGENT']) && $_SERVER['HTTP_USER_AGENT'] === 'Fasterfox')
+) {
+	header ( 'HTTP/1.1 403 Forbidden' );
+	exit();
+}
 
 $mytrustdirname = basename( dirname( __FILE__ ) ) ;
 $mytrustdirpath = dirname( __FILE__ ) ;
