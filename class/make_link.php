@@ -461,20 +461,25 @@ EOD;
 
 	function set($arr, $page) {
 		list (,, $alias, $scheme, $mail, $host, $uri) = $this->splice($arr);
-		$name = $scheme . $mail . $host . $uri;
-		// https?:/// -> $this->cont['ROOT_URL']
-		$name = preg_replace('#^https?:///#', $this->cont['ROOT_URL'], $name);
-		$this->orginalname = $name;
 		if ($host !== '/' && preg_match('/[^A-Za-z0-9.-]/', $host)) {
-			$name = $scheme . $mail . $this->func->convertIDN($host, 'encode') . $uri;
-		} else if (!$alias && strtolower(substr($host, 0, 4)) === 'xn--') {
-			$this->orginalname = $scheme . $mail . $this->func->convertIDN($host, 'decode') . $uri;
+			$host = $this->func->convertIDN($host, 'encode');
 		}
-		return parent :: setParam($page, htmlspecialchars($name), '', 'url', $alias == '' ? $this->orginalname : $alias);
+		$name = $scheme . $mail . $host;
+		// https?:/// -> $this->cont['ROOT_URL']
+		$name = preg_replace('#^https?:///#', $this->cont['ROOT_URL'], $name) . $uri;
+		if (!$alias) {
+			$alias = (strtolower(substr($host, 0, 4)) === 'xn--')?
+				($scheme . $mail . $this->func->convertIDN($host, 'decode') . $uri)
+				: $name;
+			if (strpos($alias, '%') !== FALSE) {
+				$alias = mb_convert_encoding(rawurldecode($alias), $this->cont['SOURCE_ENCODING'], 'AUTO');
+			}
+		}
+		return parent :: setParam($page, htmlspecialchars($name), '', 'url', $alias);
 	}
 
 	function toString() {
-		if (strpos($this->orginalname, $this->cont['ROOT_URL']) === FALSE) {
+		if (strpos($this->name, $this->cont['ROOT_URL']) === FALSE) {
 			$rel = ($this->root->nofollow_extlink)? ' rel="nofollow"' : '';
 			$class = ($this->root->class_extlink)? ' class="' . $this->root->class_extlink . '"' : '';
 			$target = ($this->root->link_target)? ' target="' . $this->root->link_target . '"' : '';
@@ -482,7 +487,7 @@ EOD;
 			$target = $rel = $class = '';
 		}
 		$img = ($this->is_image)? ' type="img"' : '';
-		return '<a href="'.$this->name.'" title="'.preg_replace('#^https?://#','',$this->orginalname).'"'.$rel.$class.$img.$target.'>'.$this->alias.'</a>';
+		return '<a href="'.$this->name.'" title="'.preg_replace('#^https?://#','',$this->name).'"'.$rel.$class.$img.$target.'>'.$this->alias.'</a>';
 	}
 }
 
