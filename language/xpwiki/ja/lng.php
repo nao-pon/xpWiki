@@ -1,6 +1,6 @@
 <?php
 // PukiWiki - Yet another WikiWikiWeb clone.
-// $Id: lng.php,v 1.7 2008/05/07 08:38:08 nao-pon Exp $
+// $Id: lng.php,v 1.8 2008/05/22 08:58:17 nao-pon Exp $
 // Copyright (C)
 //   2002-2005 PukiWiki Developers Team
 //   2001-2002 Originally written by yu-ji
@@ -186,7 +186,7 @@ $root->_attach_messages = array(
 	'msg_file'     => '添付ファイル',
 	'msg_maxsize'  => 'アップロード可能最大ファイルサイズは %s です。',
 	'msg_count'    => ' <span class="small">%s件</span>',
-	'msg_password' => 'パスワード(必須)',
+	'msg_password' => 'ファイルに設定するパスワード(必須)',
 	'msg_adminpass'=> '管理者パスワード',
 	'msg_delete'   => 'このファイルを削除します。',
 	'msg_freeze'   => 'このファイルを凍結します。',
@@ -194,7 +194,7 @@ $root->_attach_messages = array(
 	'msg_isfreeze' => 'このファイルは凍結されています。',
 	'msg_rename'   => '名前を変更します。',
 	'msg_newname'  => '新しい名前',
-	'msg_require'  => '(アップロード時に指定したパスワードが必要です)',
+	'msg_require'  => '(アップロード時に設定したパスワードが必要です)',
 	'msg_filesize' => 'サイズ',
 	'msg_date'     => '登録日時',
 	'msg_dlcount'  => 'アクセス数',
