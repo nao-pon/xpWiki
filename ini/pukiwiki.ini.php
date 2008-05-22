@@ -1,6 +1,6 @@
 <?php
 // PukiWiki - Yet another WikiWikiWeb clone
-// $Id: pukiwiki.ini.php,v 1.77 2008/05/21 11:55:02 nao-pon Exp $
+// $Id: pukiwiki.ini.php,v 1.78 2008/05/22 00:28:52 nao-pon Exp $
 // Copyright (C)
 //   2002-2006 PukiWiki Developers Team
 //   2001-2002 Originally written by yu-ji
@@ -214,6 +214,7 @@ RewriteRule ^([0-9]+)\.html$ index.php?pgid=$1 [qsappend,L]
 // [ 2 ] ページリンクを index/ページ名 の形式にする
 // modules/[DirName]/.htaccess に次の設定が必要です
 /* .htaccess 
+Options +MultiViews
 <FilesMatch "^index$">
 ForceType application/x-httpd-php
 </FilesMatch>
@@ -223,9 +224,9 @@ ForceType application/x-httpd-php
 
 $root->static_url = 0; // 0 or 1, 2, 3
 
-// PATH_INFO 使用時 (static_url = 2 or 3) のスクリプト名
-// "index" 以外にする場合は、.htaccess の書き換えと次の内容の スクリプト名.php を置く
-/* スクリプト名.php
+// PATH_INFO 使用時 (static_url = 2 or 3) のファイル名
+// "index" 以外にする場合は、.htaccess の書き換えと次の内容のファイルを置く
+/* 「スクリプト名」で保存する
 <?php
 include 'index.php';
  */
