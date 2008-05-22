@@ -1,7 +1,7 @@
 <?php
 /*
  * Created on 2007/08/30 by nao-pon http://hypweb.net/
- * $Id: calendar9.inc.php,v 1.12 2008/05/20 06:16:13 nao-pon Exp $
+ * $Id: calendar9.inc.php,v 1.13 2008/05/22 14:12:55 nao-pon Exp $
  */
 
 class xpwiki_plugin_calendar9 extends xpwiki_plugin {
@@ -244,7 +244,7 @@ EOD;
 
 			// 日付へのリンク
 			do {
-				if ($i !== 0 || isset($y_pages[$_page])) {
+				if (isset($y_pages[$_page])) {
 				
 					$subtitle = '';
 					
@@ -290,9 +290,15 @@ EOD;
 					}
 				}
 				$_page = $base.'/'.$dt.'-'.$i++;
-			} while (isset($y_pages[$_page]));
+			} while ($i === 1 || isset($y_pages[$_page]));
 
-
+			if ($i === 2) {
+				$_page = $base.'/'.$dt;
+				if (isset($y_pages[$_page])) {
+					$_page = $_page . '-1';
+				}
+			}
+			
 			if ($this->func->check_editable($_page, false, false) && $freeze !== 1) {
 				$r_page = rawurlencode($_page);
 				$link = "<a href=\"{$this->root->script}?cmd=edit&amp;page=$r_page\" title=\"$s_page\" style=\"font-weight:bold;\">$day</a>";
