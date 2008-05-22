@@ -1,7 +1,7 @@
 <?php
 //
 // Created on 2006/10/13 by nao-pon http://hypweb.net/
-// $Id: init.php,v 1.51 2008/05/21 11:49:34 nao-pon Exp $
+// $Id: init.php,v 1.52 2008/05/22 09:06:55 nao-pon Exp $
 //
 
 $root = & $this->root;
@@ -275,15 +275,13 @@ if (isset($const['page_show'])) {
 	}
 	$arg = $this->input_filter($arg); // \0 除去
 	
-	// mb_convert_variablesのバグ(?)対策: 配列で渡さないと落ちる
-	$arg = array($arg);
-	mb_convert_variables($const['SOURCE_ENCODING'], 'auto', $arg);
-	$arg = $arg[0];
-	
-	/////////////////////////////////////////////////
-	// QUERY_STRINGを分解してコード変換し、$root->get に上書き
+	// URI を urlencode せずに入力した場合に対処する
 	if ($this->root->accept_not_encoded_query) {
-		// URI を urlencode せずに入力した場合に対処する
+		// mb_convert_variablesのバグ(?)対策: 配列で渡さないと落ちる
+		$arg = array($arg);
+		mb_convert_variables($const['SOURCE_ENCODING'], 'auto', $arg);
+		$arg = $arg[0];
+		// QUERY_STRINGを分解してコード変換し、$root->get に上書き
 		$matches = array();
 		foreach (explode('&', $arg) as $key_and_value) {
 			if (preg_match('/^([^=]+)=(.+)/', $key_and_value, $matches) &&
@@ -364,18 +362,20 @@ if (isset($const['page_show'])) {
 			$arg = trim($_SERVER['PATH_INFO'], '/');
 		} else {
 			$arg = rawurldecode($arg);
+			
+			// 特定のキーを除外
+			$arg = preg_replace('/&?(word|'.preg_quote(session_name(), '/').')=[^&]+/', '', $arg);
+			
+			// XOOPS の redirect_header で付加されることがある &以降を削除
+			$arg = preg_replace('/&.*$/', '', $arg);
 		}
-
-		// 特定のキーを除外
-		$arg = preg_replace('/&?(word|'.preg_quote(session_name(), '/').')=[^&]+/', '', $arg);
-		
-		// XOOPS の redirect_header で付加されることがある &以降を削除
-		$arg = preg_replace('/&.*$/', '', $arg);
 
 		if ($arg === '') {
 			$arg = $root->defaultpage;
 		} else if ($this->root->url_encode_utf8 && $const['SOURCE_ENCODING'] !== 'UTF-8') {
-			$arg = mb_convert_encoding($arg, $const['SOURCE_ENCODING'], 'UTF-8');
+			if (! $this->is_pagename($arg) || ! $this->get_pgid_by_name($arg)) {
+				$arg = mb_convert_encoding($arg, $const['SOURCE_ENCODING'], 'UTF-8');
+			}
 		}
 		
 		$arg = $this->strip_bracket($arg);
@@ -410,25 +410,6 @@ if (isset($const['page_show'])) {
 }
 
 /////////////////////////////////////////////////
-// 初期設定($WikiName,$BracketNameなど)
-// $WikiName = '[A-Z][a-z]+(?:[A-Z][a-z]+)+';
-// $WikiName = '\b[A-Z][a-z]+(?:[A-Z][a-z]+)+\b';
-// $WikiName = '(?<![[:alnum:]])(?:[[:upper:]][[:lower:]]+){2,}(?![[:alnum:]])';
-// $WikiName = '(?<!\w)(?:[A-Z][a-z]+){2,}(?!\w)';
-
-// BugTrack/304暫定対処
-$root->WikiName = '(?:[A-Z][a-z]+){2,}(?!\w)';
-
-// $BracketName = ':?[^\s\]#&<>":]+:?';
-$root->BracketName = '(?!\s):?[^\r\n\t\f\[\]<>#&":]+:?(?<!\s)';
-
-// InterWiki
-$root->InterWikiName = '(\[\[)?((?:(?!\s|:|\]\]).)+):(.+)(?(1)\]\])';
-
-// 注釈
-$root->NotePattern = '/\(\(((?:(?>(?:(?!\(\()(?!\)\)(?:[^\)]|$)).)+)|(?R))*)\)\)/ex';
-
-/////////////////////////////////////////////////
 // 初期設定(ユーザ定義ルール読み込み)
 require($const['DATA_HOME'] . 'private/ini/rules.ini.php');
 
@@ -449,5 +430,5 @@ $root->line_rules = array_merge(array(
 	'^#contents$' => '<del>#contents</del>'
 ), $root->line_rules);
 
-$root->digest = "";
+$root->digest = '';
 ?>

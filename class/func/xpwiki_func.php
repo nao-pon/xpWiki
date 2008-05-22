@@ -1,7 +1,7 @@
 <?php
 //
 // Created on 2006/10/02 by nao-pon http://hypweb.net/
-// $Id: xpwiki_func.php,v 1.170 2008/05/21 11:49:34 nao-pon Exp $
+// $Id: xpwiki_func.php,v 1.171 2008/05/22 09:06:55 nao-pon Exp $
 //
 class XpWikiFunc extends XpWikiXoopsWrapper {
 
@@ -51,11 +51,31 @@ class XpWikiFunc extends XpWikiXoopsWrapper {
 		// Skin directory set
 		if (substr($this->cont['SKIN_NAME'],0,3) === "tD-") {
 			// tDiary's theme
-			$this->cont['TDIARY_THEME'] =  substr($this->cont['SKIN_NAME'],3);
+			$const['TDIARY_THEME'] =  substr($this->cont['SKIN_NAME'],3);
 		} else {
 			// Normal skin
 			$const['SKIN_DIR'] = 'skin/' . $const['SKIN_NAME'] . '/';
 		}
+
+		/////////////////////////////////////////////////
+		// 初期設定($WikiName,$BracketNameなど)
+		// $WikiName = '[A-Z][a-z]+(?:[A-Z][a-z]+)+';
+		// $WikiName = '\b[A-Z][a-z]+(?:[A-Z][a-z]+)+\b';
+		// $WikiName = '(?<![[:alnum:]])(?:[[:upper:]][[:lower:]]+){2,}(?![[:alnum:]])';
+		// $WikiName = '(?<!\w)(?:[A-Z][a-z]+){2,}(?!\w)';
+		
+		// BugTrack/304暫定対処
+		$root->WikiName = '(?:[A-Z][a-z]+){2,}(?!\w)';
+		
+		// $BracketName = ':?[^\s\]#&<>":]+:?';
+		$root->BracketName = '(?!\s):?[^\r\n\t\f\[\]<>#&":]+:?(?<!\s)';
+		
+		// InterWiki
+		$root->InterWikiName = '(\[\[)?((?:(?!\s|:|\]\]).)+):(.+)(?(1)\]\])';
+		
+		// 注釈
+		$root->NotePattern = '/\(\(((?:(?>(?:(?!\(\()(?!\)\)(?:[^\)]|$)).)+)|(?R))*)\)\)/ex';
+		
 	}
 
 	function init() {
