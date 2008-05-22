@@ -1,7 +1,7 @@
 <?php
 /*
  * Created on 2008/01/24 by nao-pon http://hypweb.net/
- * $Id: conf.lng.php,v 1.7 2008/05/21 11:49:34 nao-pon Exp $
+ * $Id: conf.lng.php,v 1.8 2008/05/22 00:28:52 nao-pon Exp $
  */
 
 $msg = array(
@@ -110,7 +110,7 @@ each use page can be provided.<br />'
 		'description' => 'Select it excluding "?[PAGE]", and it behaves like URL on a static page.<br />'
 		               . 'However, according to choices. It is necessary to do the following descriptions with ".htaccess" effectively.<br />'
 		               . '<dl><dt>[ID].html</dt><dd><code>RewriteEngine on<br />RewriteRule ^([0-9]+)\.html$ index.php?pgid=$1 [qsappend,L]</code></dd></dl>'
-		               . '<dl><dt>{$root->path_info_script}/[PAGE]</dt><dd><code>&lt;FilesMatch "^{$root->path_info_script}$"&gt;<br />ForceType application/x-httpd-php<br />&lt;/FilesMatch&gt;</code></dd></dl>',
+		               . '<dl><dt>{$root->path_info_script}/[PAGE]</dt><dd><code>Options +MultiViews<br />&lt;FilesMatch "^{$root->path_info_script}$"&gt;<br />ForceType application/x-httpd-php<br />&lt;/FilesMatch&gt;</code></dd></dl>',
 	),
 
 	'url_encode_utf8' => array(
