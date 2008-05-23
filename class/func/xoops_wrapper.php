@@ -1,7 +1,7 @@
 <?php
 //
 // Created on 2006/10/11 by nao-pon http://hypweb.net/
-// $Id: xoops_wrapper.php,v 1.41 2008/01/29 23:43:53 nao-pon Exp $
+// $Id: xoops_wrapper.php,v 1.42 2008/05/23 04:17:41 nao-pon Exp $
 //
 class XpWikiXoopsWrapper extends XpWikiBackupFunc {
 	
@@ -87,7 +87,7 @@ class XpWikiXoopsWrapper extends XpWikiBackupFunc {
 		$cache[$this->root->mydirname] = $this->root->userinfo;
 	}
 	
-	function get_userinfo_by_id ($uid) {
+	function get_userinfo_by_id ($uid = 0) {
 		$uid = intval($uid);
 		$config_handler =& xoops_gethandler('config');
 		$xoopsConfig =& $config_handler->getConfigsByCat(XOOPS_CONF);
