@@ -1,7 +1,7 @@
 <?php
 //
 // Created on 2006/10/02 by nao-pon http://hypweb.net/
-// $Id: pukiwiki_func.php,v 1.170 2008/05/21 11:49:34 nao-pon Exp $
+// $Id: pukiwiki_func.php,v 1.171 2008/05/23 06:28:05 nao-pon Exp $
 //
 class XpWikiPukiWikiFunc extends XpWikiBaseFunc {
 
@@ -219,10 +219,12 @@ class XpWikiPukiWikiFunc extends XpWikiBaseFunc {
 			}
 			*/
 
-			// For AutoLink
+			// For AutoLink -> moved to "plain_db_write()"
+			/*
 			if ($need_autolink_update || $mode !== 'update'){
 				$this->autolink_dat_update();
 			}
+			*/
 			
 			// Update autoalias.dat (AutoAliasName)
 			if ($this->root->autoalias && $page === $this->root->aliaspage) {
@@ -286,16 +288,9 @@ class XpWikiPukiWikiFunc extends XpWikiBaseFunc {
 	
 	function autolink_dat_update () {
 		if (!$this->root->autolink) return;
+		
 		// Get WHOLE page list (always as guest)
-		$temp[0] = $this->root->userinfo['admin'];
-		$temp[1] = $this->root->userinfo['uid'];
-		$this->root->userinfo['admin'] = FALSE;
-		$this->root->userinfo['uid'] = 0;
-		
-		$pages = $this->get_existpages();
-		
-		$this->root->userinfo['admin'] = $temp[0];
-		$this->root->userinfo['uid'] = $temp[1];
+		$pages = $this->get_existpages(FALSE, '', array('asguest' => TRUE));
 		
 		$this->autolink_pattern_write($this->cont['CACHE_DIR'] . $this->cont['PKWK_AUTOLINK_REGEX_CACHE'],
 			$this->get_autolink_pattern($pages, $this->root->autolink, false));
@@ -941,7 +936,7 @@ class XpWikiPukiWikiFunc extends XpWikiBaseFunc {
 
 //----- Start convert_html.php -----//
 	// PukiWiki - Yet another WikiWikiWeb clone
-	// $Id: pukiwiki_func.php,v 1.170 2008/05/21 11:49:34 nao-pon Exp $
+	// $Id: pukiwiki_func.php,v 1.171 2008/05/23 06:28:05 nao-pon Exp $
 	// Copyright (C)
 	//   2002-2005 PukiWiki Developers Team
 	//   2001-2002 Originally written by yu-ji
@@ -1194,7 +1189,7 @@ class XpWikiPukiWikiFunc extends XpWikiBaseFunc {
 
 //----- Start func.php -----//
 	// PukiWiki - Yet another WikiWikiWeb clone.
-	// $Id: pukiwiki_func.php,v 1.170 2008/05/21 11:49:34 nao-pon Exp $
+	// $Id: pukiwiki_func.php,v 1.171 2008/05/23 06:28:05 nao-pon Exp $
 	// Copyright (C)
 	//   2002-2006 PukiWiki Developers Team
 	//   2001-2002 Originally written by yu-ji
@@ -2021,7 +2016,7 @@ EOD;
 
 //----- Start make_link.php -----//
 	// PukiWiki - Yet another WikiWikiWeb clone.
-	// $Id: pukiwiki_func.php,v 1.170 2008/05/21 11:49:34 nao-pon Exp $
+	// $Id: pukiwiki_func.php,v 1.171 2008/05/23 06:28:05 nao-pon Exp $
 	// Copyright (C)
 	//   2003-2005 PukiWiki Developers Team
 	//   2001-2002 Originally written by yu-ji
@@ -2967,7 +2962,7 @@ EOD;
 
 //----- Start html.php -----//
 	// PukiWiki - Yet another WikiWikiWeb clone.
-	// $Id: pukiwiki_func.php,v 1.170 2008/05/21 11:49:34 nao-pon Exp $
+	// $Id: pukiwiki_func.php,v 1.171 2008/05/23 06:28:05 nao-pon Exp $
 	// Copyright (C)
 	//   2002-2006 PukiWiki Developers Team
 	//   2001-2002 Originally written by yu-ji
@@ -3663,7 +3658,7 @@ EOD;
 
 //----- Start mail.php -----//
 	// PukiWiki - Yet another WikiWikiWeb clone.
-	// $Id: pukiwiki_func.php,v 1.170 2008/05/21 11:49:34 nao-pon Exp $
+	// $Id: pukiwiki_func.php,v 1.171 2008/05/23 06:28:05 nao-pon Exp $
 	// Copyright (C)
 	//   2003-2005 PukiWiki Developers Team
 	//   2003      Originally written by upk
@@ -3966,7 +3961,7 @@ EOD;
 
 //----- Start link.php -----//
 	// PukiWiki - Yet another WikiWikiWeb clone
-	// $Id: pukiwiki_func.php,v 1.170 2008/05/21 11:49:34 nao-pon Exp $
+	// $Id: pukiwiki_func.php,v 1.171 2008/05/23 06:28:05 nao-pon Exp $
 	// Copyright (C) 2003-2006 PukiWiki Developers Team
 	// License: GPL v2 or (at your option) any later version
 	//
