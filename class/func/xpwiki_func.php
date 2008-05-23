@@ -1,7 +1,7 @@
 <?php
 //
 // Created on 2006/10/02 by nao-pon http://hypweb.net/
-// $Id: xpwiki_func.php,v 1.171 2008/05/22 09:06:55 nao-pon Exp $
+// $Id: xpwiki_func.php,v 1.172 2008/05/23 06:29:22 nao-pon Exp $
 //
 class XpWikiFunc extends XpWikiXoopsWrapper {
 
@@ -295,7 +295,7 @@ class XpWikiFunc extends XpWikiXoopsWrapper {
 			return $retvar;
 		}
 	}
-	
+
 	// Get HTTP_ACCEPT_LANGUAGE
 	function get_accept_language () {
 		$accept = @ $_SERVER["HTTP_ACCEPT_LANGUAGE"];
@@ -1983,6 +1983,35 @@ EOD;
 	}
 	
 /*----- DB Functions -----*/ 
+	// Over write pukiwiki_func
+	function is_freeze($page, $clearcache = FALSE) {
+		static $is_freeze = array();
+	
+		if ($clearcache === TRUE) {
+			unset($is_freeze[$this->root->mydirname][$page]);
+		}
+		
+		if (isset($is_freeze[$this->root->mydirname][$page])) return $is_freeze[$this->root->mydirname][$page];
+	
+			if (! $this->root->function_freeze || ! $this->is_page($page)) {
+			$is_freeze[$this->root->mydirname][$page] = FALSE;
+			return FALSE;
+		}
+		
+		$s_page = addslashes($page);
+		$case = ($this->root->page_case_insensitive)? '_ci' : '';
+		$db =& $this->xpwiki->db;
+		$query = "SELECT `freeze` FROM ".$db->prefix($this->root->mydirname."_pginfo")." WHERE name".$case."='$s_page' LIMIT 1";			
+
+		if ($res = $db->query($query)) {
+			list($freeze) = $db->fetchRow($res);
+			$is_freeze[$this->root->mydirname][$page] = (bool)$freeze;
+			return $is_freeze[$this->root->mydirname][$page];
+		} else {
+			return parent::is_freeze($page, $clearcache);
+		}
+	}
+
 	//ページ名からページIDを求める
 	function get_pgid_by_name ($page, $cache = true, $make = false)
 	{
@@ -2070,9 +2099,16 @@ EOD;
 			'nochiled'  => FALSE,
 			'nodelete'  => TRUE,
 			'withtime'  => FALSE,
-			'select'    => array() );
+			'select'    => array(),
+			'asguest'   => FALSE
+		);
 		foreach ($keys as $key => $def) {
 			$$key = (isset($options[$key]))? $options[$key] : $def ;
+		}
+		
+		if ($asguest) {
+			$_userinfo = $this->root->userinfo;
+			$this->root->userinfo = $this->get_userinfo_by_id();
 		}
 		
 		$aryret = array();
@@ -2169,6 +2205,11 @@ EOD;
 			$_aryret[$this->root->mydirname]['pgids'] = $this->root->pgids;
 			$_aryret[$this->root->mydirname]['pgorders'] = $this->root->pgorders;
 		}
+		
+		if ($asguest) {
+			$this->root->userinfo = $_userinfo;
+		}
+		
 		return $aryret;
 	}
 
@@ -2355,6 +2396,11 @@ EOD;
 	{
 		if (!$pgid = $this->get_pgid_by_name($page)) return false;
 
+		// For AutoLink
+		if ($action !== 'update'){
+			$this->autolink_dat_update();
+		}
+
 		$rel_pages = array();
 		$data = '';
 		// ページ読みのデータページはコンバート処理しない(過負荷対策)
@@ -2460,21 +2506,52 @@ EOD;
 		}
 		$data = addslashes(preg_replace("/[\s]+/","",$data));
 
+		// ページ更新
+		if ($action === 'update') {
+			$value = "plain='$data'";
+			$query = "UPDATE ".$this->xpwiki->db->prefix($this->root->mydirname."_plain")." SET $value WHERE pgid = $pgid;";
+			if ($result = $this->xpwiki->db->queryF($query)) {
+				//リンク先ページ
+				$query = "DELETE FROM ".$this->xpwiki->db->prefix($this->root->mydirname."_rel")." WHERE pgid = ".$pgid.";";
+				$this->xpwiki->db->queryF($query);
+				foreach ($rel_pages as $rel_page)
+				{
+					$relid = $this->get_pgid_by_name($rel_page);
+					if ($pgid == $relid || !$relid) {continue;}
+					$query = "INSERT INTO ".$this->xpwiki->db->prefix($this->root->mydirname."_rel")." (pgid,relid) VALUES(".$pgid.",".$relid.");";
+					$this->xpwiki->db->queryF($query);
+				}
+				
+				if ($notimestamp === FALSE && $this->check_readable_page($page, FALSE, FALSE, 0)) {
+					// Send update ping
+					$this->send_update_ping();
+				}
+			} else {
+				// Update なのにデータがない模様
+				$action = 'insert';
+			}
+		}
+
 		// 新規作成
-		if ($action == "insert")
+		if ($action === 'insert')
 		{
+			// 念のため削除
+			$query = "DELETE FROM ".$this->xpwiki->db->prefix($this->root->mydirname."_plain")." WHERE `pgid`='$pgid' LIMIT 1";
+			$this->xpwiki->db->queryF($query);
+			
 			$query = "INSERT INTO ".$this->xpwiki->db->prefix($this->root->mydirname."_plain")." (pgid,plain) VALUES($pgid,'$data');";
-			$result=$this->xpwiki->db->queryF($query);
-			//if (!$result) echo $query."<hr>";
+			$this->xpwiki->db->queryF($query);
 			
 			//リンク先ページ
+			// 念のため削除
+			$query = "DELETE FROM ".$this->xpwiki->db->prefix($this->root->mydirname."_rel")." WHERE pgid = ".$pgid.";";
+			$this->xpwiki->db->queryF($query);
 			foreach ($rel_pages as $rel_page)
 			{
 				$relid = $this->get_pgid_by_name($rel_page);
 				if ($pgid == $relid || !$relid) {continue;}
 				$query = "INSERT INTO ".$this->xpwiki->db->prefix($this->root->mydirname."_rel")." (pgid,relid) VALUES(".$pgid.",".$relid.");";
-				$result=$this->xpwiki->db->queryF($query);
-				//if (!$result) echo $query."<hr>";
+				$this->xpwiki->db->queryF($query);
 			}
 			
 			//リンク元ページ
@@ -2517,39 +2594,13 @@ EOD;
 			}
 			
 			// Send update ping
-			if ($this->check_readable_page($page, FALSE, FALSE, 0)) {
-				$this->send_update_ping();
-			}
-		}
-		
-		// ページ更新
-		elseif ($action == "update")
-		{
-			$value = "plain='$data'";
-			$query = "UPDATE ".$this->xpwiki->db->prefix($this->root->mydirname."_plain")." SET $value WHERE pgid = $pgid;";
-			$result=$this->xpwiki->db->queryF($query);
-			
-			//リンク先ページ
-			$query = "DELETE FROM ".$this->xpwiki->db->prefix($this->root->mydirname."_rel")." WHERE pgid = ".$pgid.";";
-			$result=$this->xpwiki->db->queryF($query);
-			//if (!$result) echo $query."<hr>";
-			foreach ($rel_pages as $rel_page)
-			{
-				$relid = $this->get_pgid_by_name($rel_page);
-				if ($pgid == $relid || !$relid) {continue;}
-				$query = "INSERT INTO ".$this->xpwiki->db->prefix($this->root->mydirname."_rel")." (pgid,relid) VALUES(".$pgid.",".$relid.");";
-				$result=$this->xpwiki->db->queryF($query);
-				//if (!$result) echo $query."<hr>";
-			}
-			
 			if ($notimestamp === FALSE && $this->check_readable_page($page, FALSE, FALSE, 0)) {
-				// Send update ping
 				$this->send_update_ping();
 			}
 		}
 		
 		// ページ削除
-		elseif ($action == "delete")
+		elseif ($action === 'delete')
 		{
 			$query = "DELETE FROM ".$this->xpwiki->db->prefix($this->root->mydirname."_plain")." WHERE pgid = $pgid;";
 			$result=$this->xpwiki->db->queryF($query);
@@ -2558,6 +2609,14 @@ EOD;
 			//リンクページ
 			$query = "DELETE FROM ".$this->xpwiki->db->prefix($this->root->mydirname."_rel")." WHERE pgid = ".$pgid." OR relid = ".$pgid.";";
 			$result=$this->xpwiki->db->queryF($query);
+
+			// Optimaize DB tables
+			$tables = array();
+			foreach (array('attach', 'cache', 'count', 'pginfo', 'plain', 'rel', 'tb') as $table) {
+				$tables[] = '`' . $this->xpwiki->db->prefix($this->root->mydirname . '_' . $table) .  '`';
+			}
+			$sql = 'OPTIMIZE TABLE '.join(',', $tables);
+			$this->xpwiki->db->queryF($sql);
 		}
 		else
 			return false;
@@ -2696,14 +2755,13 @@ EOD;
 	{
 		if (is_null($page)) $page = $this->root->vars['page'];
 		
-		if ($this->is_page($page)) {
-			// Regist JobStack
-			if ($mode === 'update' && $notimestamp) {
-				$mode = 'update_notimestamp';
-			}
-			$data = array('action' => 'plain_up', 'page' => $page, 'mode' => $mode);
-			$this->regist_jobstack($data);
+		// Regist JobStack
+		if ($mode === 'update' && $notimestamp) {
+			$mode = 'update_notimestamp';
 		}
+		$data = array('action' => 'plain_up', 'page' => $page, 'mode' => $mode);
+		$this->regist_jobstack($data);
+
 		return;
 	}
 	
@@ -3215,7 +3273,7 @@ EOD;
 			list($count) = $this->xpwiki->db->fetchRow($res);
 			if ($count) {
 				$sql = 'OPTIMIZE TABLE `'.$dbtable.'`';
-				$this->xpwiki->db->query($sql);
+				$this->xpwiki->db->queryF($sql);
 			}
 		} else {
 			// Table not found.
@@ -3255,6 +3313,8 @@ EOD;
 			if ($delete) {
 				$sql = 'DELETE FROM `'.$dbtable.'` WHERE `key`=\''.$key.'\' AND `plugin`=\''.$plugin.'\'';
 				$this->xpwiki->db->queryF($sql);
+				$sql = 'OPTIMIZE TABLE `'.$dbtable.'`';
+				$this->xpwiki->db->queryF($sql);
 			}
 		}
 		
@@ -3269,6 +3329,8 @@ EOD;
 		
 		$sql = 'DELETE FROM `'.$dbtable.'` WHERE `key`=\''.$key.'\' AND `plugin`=\''.$plugin.'\'';
 		$ret = $this->xpwiki->db->queryF($sql);
+		$sql = 'OPTIMIZE TABLE `'.$dbtable.'`';
+		$this->xpwiki->db->queryF($sql);
 		
 		return $ret;
 	}
@@ -3277,7 +3339,7 @@ EOD;
 		$plugin = 'jobstack';
 		$key = md5(join('',array_values($data)));
 		if (! $this->cache_get_db($key, $plugin)) {
-			$this->cache_save_db(serialize($data), 'jobstack', $ttl, $key);
+			$this->cache_save_db(serialize($data), $plugin, $ttl, $key);
 		}
 	}
 	
