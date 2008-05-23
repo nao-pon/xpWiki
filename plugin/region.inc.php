@@ -2,7 +2,7 @@
 /////////////////////////////////////////////////
 // PukiWiki - Yet another WikiWikiWeb clone.
 //
-// $Id: region.inc.php,v 1.11 2008/05/19 04:59:16 nao-pon Exp $
+// $Id: region.inc.php,v 1.12 2008/05/23 04:12:18 nao-pon Exp $
 //
 
 class xpwiki_plugin_region extends xpwiki_plugin {
@@ -13,8 +13,10 @@ class xpwiki_plugin_region extends xpwiki_plugin {
 	function plugin_region_convert()
 	{
 		static $builder = array();
-		if (!isset($builder[$this->xpwiki->pid])) {$builder[$this->xpwiki->pid] = 0;}
-		if( $builder[$this->xpwiki->pid]==0 ) $builder[$this->xpwiki->pid] = new XpWikiRegionPluginHTMLBuilder($this->xpwiki);
+		
+		if(! isset($builder[$this->xpwiki->pid])) {
+			$builder[$this->xpwiki->pid] = new XpWikiRegionPluginHTMLBuilder($this->xpwiki);
+		}
 	
 		// static で宣言してしまったので２回目呼ばれたとき、前の情報が残っていて変な動作になるので初期化。
 		$builder[$this->xpwiki->pid]->setDefaultSettings();
