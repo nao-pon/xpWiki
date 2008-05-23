@@ -1,7 +1,7 @@
 <?php
 /*
  * Created on 2008/05/13 by nao-pon http://hypweb.net/
- * $Id: jobstack.php,v 1.4 2008/05/23 06:28:04 nao-pon Exp $
+ * $Id: jobstack.php,v 1.5 2008/05/23 10:08:49 nao-pon Exp $
  */
 
 error_reporting(0);
@@ -13,19 +13,22 @@ include_once $mytrustdirpath . '/include.php';
 $xpwiki = new XpWiki($mydirname);
 $xpwiki->init('#RenderMode');
 
-$sql = 'SELECT `key`, `data` FROM '.$xpwiki->db->prefix($xpwiki->root->mydirname.'_cache').' WHERE `plugin`=\'jobstack\' ORDER BY `mtime` ASC LIMIT 1';
-
+// It is all as for the one executed soon. (ttl = 0)
+$sql = 'SELECT `key`, `data` FROM '.$xpwiki->db->prefix($xpwiki->root->mydirname.'_cache').' WHERE `plugin`=\'jobstack\' AND `ttl`=0 ORDER BY `mtime` ASC LIMIT 1';
 if ($res = $xpwiki->db->query($sql)) {
-	list($key, $data) = $xpwiki->db->fetchRow($res);
-	$xpwiki->func->cache_del_db($key, 'jobstack');
-	$data = unserialize($data);
-	switch ($data['action']) {
-		case 'http_get':
-			$xpwiki->func->http_request($data['url']);
-			break;
-		case 'plain_up':
-			xpwiki_jobstack_plain_up($xpwiki, $data['page'], $data['mode']);
-			break;
+	$row = $xpwiki->db->fetchRow($res);
+	while($row) {
+		xpwiki_jobstack_switch($xpwiki, $row);
+		$res = $xpwiki->db->query($sql);
+		$row = $xpwiki->db->fetchRow($res);
+	}
+}
+
+// Additionally, the one executed sequentially
+$sql = 'SELECT `key`, `data` FROM '.$xpwiki->db->prefix($xpwiki->root->mydirname.'_cache').' WHERE `plugin`=\'jobstack\' ORDER BY `mtime` ASC LIMIT 1';
+if ($res = $xpwiki->db->query($sql)) {
+	if ($row = $xpwiki->db->fetchRow($res)) {
+		xpwiki_jobstack_switch($xpwiki, $row);
 	}
 }
 
@@ -39,6 +42,20 @@ header('Cache-Control: no-cache, no-store, must-revalidate, pre-check=0, post-ch
 header('Pragma: no-cache');
 
 readfile($file);
+
+function xpwiki_jobstack_switch (& $xpwiki, $row) {
+	list($key, $data) = $row;
+	$xpwiki->func->cache_del_db($key, 'jobstack');
+	$data = unserialize($data);
+	switch ($data['action']) {
+		case 'http_get':
+			$xpwiki->func->http_request($data['url']);
+			break;
+		case 'plain_up':
+			xpwiki_jobstack_plain_up($xpwiki, $data['page'], $data['mode']);
+			break;
+	}	
+}
 
 function xpwiki_jobstack_plain_up (& $xpwiki, $page, $mode) {
 	$notimestamp = FALSE;

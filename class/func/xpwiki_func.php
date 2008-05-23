@@ -1,7 +1,7 @@
 <?php
 //
 // Created on 2006/10/02 by nao-pon http://hypweb.net/
-// $Id: xpwiki_func.php,v 1.172 2008/05/23 06:29:22 nao-pon Exp $
+// $Id: xpwiki_func.php,v 1.173 2008/05/23 10:08:49 nao-pon Exp $
 //
 class XpWikiFunc extends XpWikiXoopsWrapper {
 
@@ -2319,7 +2319,7 @@ EOD;
 		
 		// plain DB update
 		if (empty($this->root->rtf['plaindb_up_now'])) {
-			$this->need_update_plaindb($page, $action, $notimestamp);
+			$this->need_update_plaindb($page, $action, $notimestamp, TRUE);
 		} else {
 			$this->plain_db_write($page, $action, FALSE, $notimestamp);
 		}
@@ -2751,7 +2751,7 @@ EOD;
 	}
 	
 	// プラグインからplane_text DB を更新を指示(コンバート時)
-	function need_update_plaindb($page = null, $mode = 'update', $notimestamp = TRUE)
+	function need_update_plaindb($page = null, $mode = 'update', $notimestamp = TRUE, $soon = FALSE)
 	{
 		if (is_null($page)) $page = $this->root->vars['page'];
 		
@@ -2760,7 +2760,8 @@ EOD;
 			$mode = 'update_notimestamp';
 		}
 		$data = array('action' => 'plain_up', 'page' => $page, 'mode' => $mode);
-		$this->regist_jobstack($data);
+		$ttl = ($soon)? 0 : 864000;
+		$this->regist_jobstack($data, $ttl);
 
 		return;
 	}
@@ -3268,7 +3269,7 @@ EOD;
 		$dbtable = $this->xpwiki->db->prefix($this->root->mydirname.'_cache');
 		
 		// Old cache delete
-		$sql = 'DELETE FROM `'.$dbtable.'` WHERE (`mtime` + `ttl`) < '.$this->cont['UTC'];
+		$sql = 'DELETE FROM `'.$dbtable.'` WHERE `ttl` > 0 AND (`mtime` + `ttl`) < '.$this->cont['UTC'];
 		if ($res = $this->xpwiki->db->queryF($sql)) {
 			list($count) = $this->xpwiki->db->fetchRow($res);
 			if ($count) {
