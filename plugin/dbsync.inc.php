@@ -1,7 +1,7 @@
 <?php
 //
 // Created on 2006/11/17 by nao-pon http://hypweb.net/
-// $Id: dbsync.inc.php,v 1.30 2008/05/23 04:18:59 nao-pon Exp $
+// $Id: dbsync.inc.php,v 1.31 2008/05/23 10:10:17 nao-pon Exp $
 //
 
 class xpwiki_plugin_dbsync extends xpwiki_plugin {
@@ -127,6 +127,7 @@ function xpwiki_dbsync_setmsg(id,msg)
   <input type="checkbox" name="p_info" value="on" />{$this->msg['msg_moreinfo']}<br />
   &nbsp;&#9500;<input type="radio" name="plain_all" value="" checked="true" />{$this->msg['msg_plain_init_notall']}<br />
   &nbsp;&#9492;<input type="radio" name="plain_all" value="on" />{$this->msg['msg_plain_init_all']}<br />
+  &nbsp;&nbsp;&nbsp;&nbsp;<input type="checkbox" name="plain_bg" value="on" />{$this->msg['msg_background']}
  </div>
   <br />
   <input id="xpwiki_dbsync_submit" type="submit" value="{$this->msg['btn_submit']}" onClick="xpwiki_dbsync_blink('start');return true;" />
@@ -179,6 +180,7 @@ __EOD__;
 		$this->root->post['plain_all'] = (!empty($this->root->post['plain_all']))? "on" : "";
 		$this->root->post['attach'] = (!empty($this->root->post['attach']))? "on" : "";
 		$this->root->post['p_info'] = (!empty($this->root->post['p_info']))? "on" : "";
+		$this->root->post['plain_bg'] = (!empty($this->root->post['plain_bg']))? "on" : "";
 		
 		if ($this->root->post['init']) $this->pginfo_db_init();
 		if ($this->root->post['count']) $this->count_db_init();
@@ -602,8 +604,12 @@ __EOD__;
 				
 				$s_page = htmlspecialchars($page);
 				if ($this->root->post['p_info']) { echo 'Start: '. $s_page . '<br />'; }
-				if ($this->func->plain_db_write($page,$mode,TRUE))
+				if ($this->root->post['plain_bg'] || $this->func->plain_db_write($page,$mode,TRUE))
 				{
+					if ($this->root->post['plain_bg']) {
+						$this->func->need_update_plaindb($page, $mode, FALSE);
+					}
+					
 					$dones[1][] = $file;
 					$counter++;
 					if ($this->root->post['p_info']) {
@@ -801,6 +807,7 @@ __EOD__;
   <input type="hidden" name="plain_all" value="{$this->root->post['plain_all']}" />
   <input type="hidden" name="attach" value="{$this->root->post['attach']}" />
   <input type="hidden" name="p_info" value="{$this->root->post['p_info']}" />
+  <input type="hidden" name="plain_bg" value="{$this->root->post['plain_bg']}" />
   <input type="submit" value="{$this->msg['btn_next_do']}" onClick="parent.xpwiki_dbsync_blink('start');return true;" />
  </div>
 </form>

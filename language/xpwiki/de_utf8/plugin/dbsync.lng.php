@@ -1,7 +1,7 @@
 <?php
 //
 // Created on 2006/11/09 by nao-pon http://hypweb.net/
-// $Id: dbsync.lng.php,v 1.1 2008/04/20 01:46:10 nao-pon Exp $
+// $Id: dbsync.lng.php,v 1.2 2008/05/23 10:10:17 nao-pon Exp $
 //
 // German Translation Version 1.0 (11.03.2008)
 // Translation English --> German: Octopus (hunter0815@googlemail.com)
@@ -25,6 +25,7 @@ $msg = array(
 	'msg_now_doing' => 'Zugriff auf den Server<br />bitte lass die Seite geöffnet bis "Alle Arbeitsvorgänge wurden abgeschlossen." im unteren Fenster erscheint.',
 	'msg_next_do' => '<span style="color:blue;">Prozess wurde durch Erreichen eines Zeitlimits auf dem Server gestoppt.<br />Klicke "Fortfahren" beim unteren Fenster.</span>',
 	'msg_moreinfo' => 'Detaillierte Auswertung',
+	'msg_background' => 'Marschiere jetzt nicht, und Verarbeite es einer um einen beim Hintergrund.',
 	'btn_submit'    => 'Los!',
 	'btn_next_do'    => 'Fortfahren',
 	'msg_done'      => 'Alle Arbeitsvorgänge wurden abgeschlossen.',
