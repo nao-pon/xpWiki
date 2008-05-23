@@ -1,7 +1,7 @@
 <?php
 //
 // Created on 2006/11/09 by nao-pon http://hypweb.net/
-// $Id: dbsync.lng.php,v 1.1 2007/11/28 05:56:38 nao-pon Exp $
+// $Id: dbsync.lng.php,v 1.2 2008/05/23 10:10:17 nao-pon Exp $
 //
 
 $msg = array(
@@ -22,6 +22,7 @@ $msg = array(
 	'msg_now_doing' => 'Now processing in a server side.<br />Keep open this page until display "All processing was completed" to a lower progress screen.',
 	'msg_next_do' => '<span style="color:blue;">Stopped processing by a limit for execute time of a server.<br />Click "Do continue" of a lower progress screen bedrock, and please work to last.</span>',
 	'msg_moreinfo' => 'Detailed report',
+	'msg_background' => 'Do not process now, and process it one by one at the background.',
 	'btn_submit'    => 'Go!',
 	'btn_next_do'    => 'Do continue.',
 	'msg_done'      => 'All processing was completed.',
