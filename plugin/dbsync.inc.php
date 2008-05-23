@@ -1,7 +1,7 @@
 <?php
 //
 // Created on 2006/11/17 by nao-pon http://hypweb.net/
-// $Id: dbsync.inc.php,v 1.29 2008/04/14 08:30:23 nao-pon Exp $
+// $Id: dbsync.inc.php,v 1.30 2008/05/23 04:18:59 nao-pon Exp $
 //
 
 class xpwiki_plugin_dbsync extends xpwiki_plugin {
@@ -187,19 +187,7 @@ __EOD__;
 		
 		// 各種キャッシュファイルの削除
 		// For AutoLink
-		// Get WHOLE page list (always as guest)
-		$temp[0] = $this->root->userinfo['admin'];
-		$temp[1] = $this->root->userinfo['uid'];
-		$this->root->userinfo['admin'] = FALSE;
-		$this->root->userinfo['uid'] = 0;
-		
-		$pages = $this->func->get_existpages();
-		
-		$this->root->userinfo['admin'] = $temp[0];
-		$this->root->userinfo['uid'] = $temp[1];
-		
-		$this->func->autolink_pattern_write($this->cont['CACHE_DIR'] . $this->cont['PKWK_AUTOLINK_REGEX_CACHE'],
-			$this->func->get_autolink_pattern($pages, $this->root->autolink, false));
+		$this->func->autolink_dat_update();
 		
 		// Update autoalias.dat (AutoAliasName)
 		$aliases = $this->func->get_autoaliases();
