@@ -996,7 +996,7 @@ class XpWikiBody extends XpWikiElement {
 			
 			// Horizontal Rule
 			case '-':
-				if (substr($line, 0, 4) === '----') {
+				if (preg_match('/^\-{4,}$/', $line)) {
 					$this->insert(new XpWikiHRule($this, $line));
 					$last_level = 0;
 					continue 2;
