@@ -1,7 +1,7 @@
 <?php
 /*
  * Created on 2007/06/18 by nao-pon http://hypweb.net/
- * $Id: areaedit.lng.php,v 1.1 2008/04/20 01:46:10 nao-pon Exp $
+ * $Id: areaedit.lng.php,v 1.2 2008/05/26 01:21:38 nao-pon Exp $
  */
 
 //
@@ -15,7 +15,7 @@ $msg = array(
 	'no_page_error'	 => 'Es gibt keine Seite von $1',
 	'btn_name'		 => '[Ändern]',
 	'btn_name_collect' => 'Gather',
-	'btn_name_inline'=> '<img src="./image/paraedit.png" width="9" height="9" />',
+	'btn_name_inline'=> '<img src="'.$this->cont['IMAGE_DIR'].'paraedit.png" width="9" height="9" />',
 	'btn_enter_enable' => 'Aktiviere CR',
 	'msg_cannotedit' => '',
 	'msg_cannotedit_inline' => '',
