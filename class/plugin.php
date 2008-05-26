@@ -1,7 +1,7 @@
 <?php
 //
 // Created on 2006/10/05 by nao-pon http://hypweb.net/
-// $Id: plugin.php,v 1.13 2008/05/26 00:13:05 nao-pon Exp $
+// $Id: plugin.php,v 1.14 2008/05/26 06:45:51 nao-pon Exp $
 //
 
 
@@ -73,9 +73,8 @@ class xpwiki_plugin {
 			$done = FALSE;
 			$done_check = isset($options['_done']);
 			foreach($args as $arg) {
-				$arg = trim($arg);
 				if ($done) {
-					$options[$other_key][] = $arg;
+					if ($arg) $options[$other_key][] = $arg;
 				} else {
 					list($key, $val) = array_pad(preg_split('/' . $sep . '/', $arg, 2), 2, NULL);
 					if (! is_null($val) && isset($options[$key])) {
@@ -86,7 +85,7 @@ class xpwiki_plugin {
 						if ($done_check) {
 							$done = $options['_done'] = TRUE;
 						}
-						$options[$other_key][] = $arg;
+						if ($arg) $options[$other_key][] = $arg;
 					} else {
 						$options[$arg] = TRUE;
 					}
