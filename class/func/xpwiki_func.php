@@ -1,7 +1,7 @@
 <?php
 //
 // Created on 2006/10/02 by nao-pon http://hypweb.net/
-// $Id: xpwiki_func.php,v 1.174 2008/05/26 00:14:03 nao-pon Exp $
+// $Id: xpwiki_func.php,v 1.175 2008/05/26 00:18:43 nao-pon Exp $
 //
 class XpWikiFunc extends XpWikiXoopsWrapper {
 
@@ -1984,7 +1984,7 @@ EOD;
 	
 	function cleanup_template_source (& $source) {
 		// 見出しの固有ID部を削除
-		$source = preg_replace('/^(\*{1,3}.*)\[#[A-Za-z][\w-]+\](.*)$/m','$1$2',$source);
+		$source = preg_replace('/^(\*{1,5}.*)\[#[A-Za-z][\w-]+\](.*)$/m', '$1$2', $source);
 		// ref のアップロード用ID部を削除
 		$source = preg_replace('/((?:&|#)ref\()ID\$[^,]+/','$1',$source);
 		// #freezeを削除
