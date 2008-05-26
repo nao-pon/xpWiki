@@ -1,5 +1,5 @@
 <?php
-// $Id: ref.inc.php,v 1.29 2008/05/26 01:20:42 nao-pon Exp $
+// $Id: ref.inc.php,v 1.30 2008/05/26 06:46:32 nao-pon Exp $
 /*
 
 	*プラグイン ref
@@ -293,12 +293,10 @@ class xpwiki_plugin_ref extends xpwiki_plugin {
 		}
 
 		// 残りの引数の処理
-		if (! empty($args))
-			foreach ($args as $arg)
-				$this->check_arg($arg, $params);
+		$this->fetch_options($params, $args);
 		
 		// 拡張パラメーターの処理
-		$this->check_arg_ex ($params, $lvar);
+		$this->check_arg_ex($params, $lvar);
 		
 		// サムネイルを作成せず表示する最大サイズ
 		if (!$params['_size']) {
@@ -1010,8 +1008,9 @@ _HTML_;
 		if ($params['auth'] && ($this->cont['PKWK_READONLY'] === 1 || ! $this->func->check_editable($lvar['page'], FALSE, FALSE))) {
 			$params['_body'] = '';
 		} else {
+			$name = (isset($lvar['refid']))? '&amp;refid=' . rawurlencode($lvar['refid']) : (($lvar['name'])? '&amp;filename=' . rawurlencode($lvar['name']) : '');
 			$params['_body'] = '<a href="'.$this->root->script.
-				'?plugin=attach&amp;pcmd=upload&amp;filename='.rawurlencode($lvar['name']).
+				'?plugin=attach&amp;pcmd=upload'.$name.
 				'&amp;page='.rawurlencode($lvar['page']).
 				$returi.
 				'" title="'.$this->root->_LANG['skin']['upload'].'">'.
