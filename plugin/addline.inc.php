@@ -2,7 +2,7 @@
 /////////////////////////////////////////////////
 // PukiWiki - Yet another WikiWikiWeb clone.
 //
-// $Id: addline.inc.php,v 1.1 2008/05/26 06:52:34 nao-pon Exp $
+// $Id: addline.inc.php,v 1.2 2008/05/26 09:13:52 nao-pon Exp $
 //
 /* 
 *プラグイン addline
@@ -136,7 +136,7 @@ EOD;
 		if ( func_num_args() ){
 			$args =func_get_args();
 			$opt = array_pop($args);
-			$btn_text = $opt ? htmlspecialchars($opt) : $btn_text;
+			$btn_text = $opt ? $opt : $btn_text;
 			foreach ( $args as $opt ){
 				if ( $opt === 'before' ){
 					$above = 3;
