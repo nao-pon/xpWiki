@@ -1,7 +1,7 @@
 <?php
 /*
  * Created on 2007/06/05 by nao-pon http://hypweb.net/
- * $Id: areaedit.lng.php,v 1.1 2007/11/28 05:56:38 nao-pon Exp $
+ * $Id: areaedit.lng.php,v 1.2 2008/05/26 01:21:38 nao-pon Exp $
  */
 
 $msg = array(
@@ -10,7 +10,7 @@ $msg = array(
 	'no_page_error'	 => '$1 のページは存在しません',
 	'btn_name'		 => '[編集]',
 	'btn_name_collect' => '収集',
-	'btn_name_inline'=> '<img src="./image/paraedit.png" width="9" height="9" />',
+	'btn_name_inline'=> '<img src="'.$this->cont['IMAGE_DIR'].'paraedit.png" width="9" height="9" />',
 	'btn_enter_enable' => '改行を有効にする',
 	'msg_cannotedit' => '',
 	'msg_cannotedit_inline' => '',
