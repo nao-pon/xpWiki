@@ -1,5 +1,5 @@
 <?php
-// $Id: ref.inc.php,v 1.28 2008/05/15 23:52:14 nao-pon Exp $
+// $Id: ref.inc.php,v 1.29 2008/05/26 01:20:42 nao-pon Exp $
 /*
 
 	*プラグイン ref
@@ -238,13 +238,14 @@ class xpwiki_plugin_ref extends xpwiki_plugin {
 			'noimg'  => FALSE, // 画像を展開しない
 			'zoom'   => FALSE, // 縦横比を保持する
 			'nocache'=> FALSE, // URLの場合にキャッシュしない
+			'btn'    => '',    // アップロードリンクのテキスト指定
+			'auth'   => FALSE, // アップロードリンク表示時編集権限チェック
 			'_size'  => FALSE, // サイズ指定あり
 			'_w'     => 0,     // 幅
 			'_h'     => 0,     // 高さ
 			'_%'     => 0,     // 拡大率
 			'_align' => $this->cont['PLUGIN_REF_DEFAULT_ALIGN'],
 			'_args'  => array(),
-			'_done'  => FALSE,
 			'_body' => '',
 			'_error' => ''
 		);
@@ -266,22 +267,7 @@ class xpwiki_plugin_ref extends xpwiki_plugin {
 			$lvar['name'] = '';
 		}
 		if ($lvar['refid']) {
-			// サイズ指定子があるかチェック
-			$params['_args'] = $args;
-			$this->check_arg_ex ($params, $lvar);
-			$thumb = ($params['_size'])? '' :  '&amp;thumb=1';
-			
-			$returi = ($this->root->render_mode !== 'render')? '' :
-				'&amp;returi='.rawurlencode($_SERVER['REQUEST_URI']);
-
-			$params['_body'] = '<a href="'.$this->root->script.
-				'?plugin=attach&amp;pcmd=upload&amp;refid='.$lvar['refid'].
-				$thumb.
-				'&amp;page='.rawurlencode($lvar['page']).
-				$returi.
-				'" title="'.$this->root->_LANG['skin']['upload'].'">'.
-				'<img src="'.$this->cont['IMAGE_DIR'].'file.png" width="20" height="20" alt="'.$this->root->_LANG['skin']['upload'].'" title="'.$this->root->_LANG['skin']['upload'].'">'.
-				'['.$this->root->_LANG['skin']['upload'].']</a>';
+			$this->make_uploadlink($params, $lvar, $args);
 			return $params;
 		}
 
@@ -296,28 +282,12 @@ class xpwiki_plugin_ref extends xpwiki_plugin {
 		// エラーあり
 		if ($params['_error']) {
 			if ($params['_error'] === 'File not found.') {
-				
+				// 添付ファイルがないのでアップロードリンク
 				$this->root->rtf['disable_render_cache'] = true;
-				
 				if (!$lvar['page']) {
 					$lvar['page'] = $this->root->render_attach;
 				}
-				
-				// サイズ指定子があるかチェック
-				$params['_args'] = $args;
-				$this->check_arg_ex ($params, $lvar);
-
-				$returi = ($this->root->render_mode !== 'render')? '' :
-					'&amp;returi='.rawurlencode($_SERVER['REQUEST_URI']);
-				
-				$params['_body'] = '<a href="'.$this->root->script.
-					'?plugin=attach&amp;pcmd=upload&amp;filename='.rawurlencode($lvar['name']).
-					'&amp;page='.rawurlencode($lvar['page']).
-					$returi.
-					'" title="'.$this->root->_LANG['skin']['upload'].'">'.
-					'<img src="'.$this->cont['IMAGE_DIR'].'file.png" width="20" height="20" alt="'.$this->root->_LANG['skin']['upload'].'" title="'.$this->root->_LANG['skin']['upload'].'">'.
-					'['.$this->root->_LANG['skin']['upload'].']</a>';
-				$params['_error'] = '';
+				$this->make_uploadlink($params, $lvar, $args);
 			}
 			return $params;
 		}
@@ -978,18 +948,14 @@ _HTML_;
 	function check_arg($val, & $params)
 	{
 		if ($val == '') {
-			$params['_done'] = TRUE;
 			return;
 		}
 	
-		if (! $params['_done']) {
-			foreach (array_keys($params) as $key) {
-				if (strpos($key, strtolower($val)) === 0) {
-					$params[$key] = TRUE;
-					return;
-				}
+		foreach (array_keys($params) as $key) {
+			if (strpos($key, strtolower($val)) === 0) {
+				$params[$key] = TRUE;
+				return;
 			}
-			//$params['_done'] = TRUE;
 		}
 	
 		$params['_args'][] = $val;
@@ -1021,6 +987,36 @@ _HTML_;
 			} else {
 				$lvar['title'][] = $arg;
 			}
+		}
+	}
+	
+	function make_uploadlink(& $params, & $lvar, $args) {
+		$params['_error'] = '';
+		$this->fetch_options($params, $args);
+		$this->check_arg_ex ($params, $lvar);
+
+		$returi = ($this->root->render_mode !== 'render')? '' :
+			'&amp;returi='.rawurlencode($_SERVER['REQUEST_URI']);
+
+		if ($params['btn']) {
+			if (strtolower(substr($params['btn'], -4)) === "auth") {
+				$params['btn'] = htmlspecialchars(rtrim(substr($params['btn'], 0, strlen($params['btn'])-4),':'));
+				$params['auth'] = TRUE;
+			}
+		}
+		if (! $params['btn']) {
+			$params['btn'] = '[' . $this->root->_LANG['skin']['upload'] . ']';
+		}
+		if ($params['auth'] && ($this->cont['PKWK_READONLY'] === 1 || ! $this->func->check_editable($lvar['page'], FALSE, FALSE))) {
+			$params['_body'] = '';
+		} else {
+			$params['_body'] = '<a href="'.$this->root->script.
+				'?plugin=attach&amp;pcmd=upload&amp;filename='.rawurlencode($lvar['name']).
+				'&amp;page='.rawurlencode($lvar['page']).
+				$returi.
+				'" title="'.$this->root->_LANG['skin']['upload'].'">'.
+				'<img src="'.$this->cont['IMAGE_DIR'].'file.png" width="20" height="20" alt="'.$this->root->_LANG['skin']['upload'].'" title="'.$this->root->_LANG['skin']['upload'].'">'.
+				$params['btn'].'</a>';
 		}
 	}
 }
