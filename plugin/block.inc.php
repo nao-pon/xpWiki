@@ -3,7 +3,7 @@ class xpwiki_plugin_block extends xpwiki_plugin {
 	function plugin_block_init () {
 
 
-	// $Id: block.inc.php,v 1.4 2008/03/25 02:20:23 nao-pon Exp $
+	// $Id: block.inc.php,v 1.5 2008/05/26 01:59:12 nao-pon Exp $
 	
 	/*
 	 * countdown.inc.php
@@ -87,11 +87,12 @@ class xpwiki_plugin_block extends xpwiki_plugin {
 		
 		if ($tate)
 		{
+			$this->load_language();
 			$block_class = "wiki_body_block_tate";
 			//$tate_div = "<div class=\"tate\">";
 			//$b_tag[$b_count]++;
 			$tate_style = " style=\"writing-mode:tb-rl;\"";
-			$tate_js = "\n<script type=\"text/javascript\">\n<!--\nif (!pukiwiki_WinIE) document.write(\"<div style='text-align:right;'><small>※ このブロックは $this->func->IE(5.5以上)で閲覧すると縦書きで表示されます。</small></div>\");\n-->\n</script>\n";
+			$tate_js = "\n<script type=\"text/javascript\">\n<!--\nif (!wikihelper_WinIE) document.write(\"<div style='text-align:right;'><small>{$this->msg['ie_only_tate']}</small></div>\");\n-->\n</script>\n";
 			
 			if (strpos($width,"%")) $width = "";
 			if (strpos($height,"%")) $height = "";
