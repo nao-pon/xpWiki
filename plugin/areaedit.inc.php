@@ -3,7 +3,7 @@ class xpwiki_plugin_areaedit extends xpwiki_plugin {
 /////////////////////////////////////////////////
 // PukiWiki - Yet another WikiWikiWeb clone.
 //
-// $Id: areaedit.inc.php,v 1.10 2008/05/08 00:10:00 nao-pon Exp $
+// $Id: areaedit.inc.php,v 1.11 2008/05/26 01:21:04 nao-pon Exp $
 //
 /* 
 *プラグイン areaedit
@@ -596,7 +596,7 @@ EOD;
 				$ary = array_splice($ary, -$inline_flag, $inline_flag);
 			}
 			$head = join("\n", $ary);
-			list ($_head,$head) = preg_split("/(\n\*|\n\n)/s",$head,2);
+			list ($_head,$head) = array_pad(preg_split("/(\n\*|\n\n)/s",$head,2),2,'');
 			if (!$head) $head = $_head;
 			$preview_above = $postdata_input;
 			if ( $preview_above == '' )	 $preview_above = "&nbsp;&nbsp;";
