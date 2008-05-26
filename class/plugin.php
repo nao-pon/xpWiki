@@ -1,7 +1,7 @@
 <?php
 //
 // Created on 2006/10/05 by nao-pon http://hypweb.net/
-// $Id: plugin.php,v 1.12 2008/04/20 01:34:02 nao-pon Exp $
+// $Id: plugin.php,v 1.13 2008/05/26 00:13:05 nao-pon Exp $
 //
 
 
@@ -75,15 +75,12 @@ class xpwiki_plugin {
 			foreach($args as $arg) {
 				$arg = trim($arg);
 				if ($done) {
-					$options[$arg] = $arg;
+					$options[$other_key][] = $arg;
 				} else {
-					if (preg_match('/(.+)' . $sep . '(.*)/s', $arg, $match)) {
-						$match[1] = trim(@ $match[1]);
-						$match[2] = trim(@ $match[2]);
-						if (isset($options[$match[1]])) {
-							$options[$match[1]] = ($match[2])? $match[2] : null;
-							continue;
-						}
+					list($key, $val) = array_pad(preg_split('/' . $sep . '/', $arg, 2), 2, NULL);
+					if (! is_null($val) && isset($options[$key])) {
+						$options[$key] = ($val === '')? NULL : $val;
+						continue;
 					}
 					if (! isset($options[$arg])) {
 						if ($done_check) {
