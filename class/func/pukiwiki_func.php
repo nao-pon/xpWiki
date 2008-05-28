@@ -1,7 +1,7 @@
 <?php
 //
 // Created on 2006/10/02 by nao-pon http://hypweb.net/
-// $Id: pukiwiki_func.php,v 1.172 2008/05/26 00:31:19 nao-pon Exp $
+// $Id: pukiwiki_func.php,v 1.173 2008/05/28 08:06:17 nao-pon Exp $
 //
 class XpWikiPukiWikiFunc extends XpWikiBaseFunc {
 
@@ -936,7 +936,7 @@ class XpWikiPukiWikiFunc extends XpWikiBaseFunc {
 
 //----- Start convert_html.php -----//
 	// PukiWiki - Yet another WikiWikiWeb clone
-	// $Id: pukiwiki_func.php,v 1.172 2008/05/26 00:31:19 nao-pon Exp $
+	// $Id: pukiwiki_func.php,v 1.173 2008/05/28 08:06:17 nao-pon Exp $
 	// Copyright (C)
 	//   2002-2005 PukiWiki Developers Team
 	//   2001-2002 Originally written by yu-ji
@@ -1189,7 +1189,7 @@ class XpWikiPukiWikiFunc extends XpWikiBaseFunc {
 
 //----- Start func.php -----//
 	// PukiWiki - Yet another WikiWikiWeb clone.
-	// $Id: pukiwiki_func.php,v 1.172 2008/05/26 00:31:19 nao-pon Exp $
+	// $Id: pukiwiki_func.php,v 1.173 2008/05/28 08:06:17 nao-pon Exp $
 	// Copyright (C)
 	//   2002-2006 PukiWiki Developers Team
 	//   2001-2002 Originally written by yu-ji
@@ -2013,7 +2013,7 @@ EOD;
 
 //----- Start make_link.php -----//
 	// PukiWiki - Yet another WikiWikiWeb clone.
-	// $Id: pukiwiki_func.php,v 1.172 2008/05/26 00:31:19 nao-pon Exp $
+	// $Id: pukiwiki_func.php,v 1.173 2008/05/28 08:06:17 nao-pon Exp $
 	// Copyright (C)
 	//   2003-2005 PukiWiki Developers Team
 	//   2001-2002 Originally written by yu-ji
@@ -2959,7 +2959,7 @@ EOD;
 
 //----- Start html.php -----//
 	// PukiWiki - Yet another WikiWikiWeb clone.
-	// $Id: pukiwiki_func.php,v 1.172 2008/05/26 00:31:19 nao-pon Exp $
+	// $Id: pukiwiki_func.php,v 1.173 2008/05/28 08:06:17 nao-pon Exp $
 	// Copyright (C)
 	//   2002-2006 PukiWiki Developers Team
 	//   2001-2002 Originally written by yu-ji
@@ -3131,8 +3131,9 @@ EOD;
 	
 		// Search words
 		if ($this->root->search_word_color && isset($this->root->vars['word'])) {
-			$body = '<div class="small">' . $this->root->_msg_word . htmlspecialchars($this->root->vars['word']) .
-				'</div>' . $this->root->hr . "\n" . $body;
+			$body = '<div class="small">' . $this->root->_msg_word
+			      . preg_replace('/&amp;#(\d+;)/', '&#$1', htmlspecialchars($this->root->vars['word']))
+			      . '</div>' . $this->root->hr . "\n" . $body;
 	
 			// BugTrack2/106: Only variables can be passed by reference from PHP 5.0.5
 			// with array_splice(), array_flip()
@@ -3150,7 +3151,9 @@ EOD;
 				$pattern  = '/' .
 					'<textarea[^>]*>.*?<\/textarea>' .	// Ignore textareas
 					'|' . '<[^>]*>' .			// Ignore tags
-					'|' . '&[^;]+;' .			// Ignore entities
+					'|' . ( preg_match('/^(&?#?[\d]+|#?[\d]+;|&#?|#|;)$/', $key)?
+					'&[^;]+;' :					// Ignore entities
+					'&#[^\d]+;' ) .				// Ignore entities (Not numerical entities only)
 					'|' . '(' . $pattern . ')' .		// $matches[1]: Regex for a search word
 					'/sS';
 				$decorate_Nth_word = create_function(
@@ -3655,7 +3658,7 @@ EOD;
 
 //----- Start mail.php -----//
 	// PukiWiki - Yet another WikiWikiWeb clone.
-	// $Id: pukiwiki_func.php,v 1.172 2008/05/26 00:31:19 nao-pon Exp $
+	// $Id: pukiwiki_func.php,v 1.173 2008/05/28 08:06:17 nao-pon Exp $
 	// Copyright (C)
 	//   2003-2005 PukiWiki Developers Team
 	//   2003      Originally written by upk
@@ -3958,7 +3961,7 @@ EOD;
 
 //----- Start link.php -----//
 	// PukiWiki - Yet another WikiWikiWeb clone
-	// $Id: pukiwiki_func.php,v 1.172 2008/05/26 00:31:19 nao-pon Exp $
+	// $Id: pukiwiki_func.php,v 1.173 2008/05/28 08:06:17 nao-pon Exp $
 	// Copyright (C) 2003-2006 PukiWiki Developers Team
 	// License: GPL v2 or (at your option) any later version
 	//
