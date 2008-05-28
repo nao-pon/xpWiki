@@ -1,7 +1,7 @@
 <?php
 //
 // Created on 2006/11/27 by nao-pon http://hypweb.net/
-// $Id: xoopsSearch.php,v 1.7 2008/05/16 00:22:33 nao-pon Exp $
+// $Id: xoopsSearch.php,v 1.8 2008/05/28 07:58:49 nao-pon Exp $
 //
 class XpWikiExtension_xoopsSearch extends XpWikiExtension {
 
@@ -32,7 +32,7 @@ class XpWikiExtension_xoopsSearch extends XpWikiExtension {
 			$i = 0;
 			foreach ($keywords as $keyword) {
 				if ($i++ !== 0) $sql .= " $andor ";
-				if (function_exists("mb_convert_kana"))
+				if ($this->cont['LANG'] === 'ja' && function_exists("mb_convert_kana"))
 				{
 					// 英数字は半角,カタカナは全角,ひらがなはカタカナに
 					$word = addslashes(mb_convert_kana($keyword,'aKCV'));
