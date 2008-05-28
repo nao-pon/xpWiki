@@ -2,7 +2,7 @@
 /////////////////////////////////////////////////
 // PukiWiki - Yet another WikiWikiWeb clone.
 //
-// $Id: addline.inc.php,v 1.2 2008/05/26 09:13:52 nao-pon Exp $
+// $Id: addline.inc.php,v 1.3 2008/05/28 07:52:48 nao-pon Exp $
 //
 /* 
 *プラグイン addline
@@ -166,9 +166,13 @@ EOD;
 		$f_page	  = rawurlencode($this->root->vars['page']);
 		$f_config = rawurlencode($configname);
 	
-		$string = <<<EOD
+		if ($this->cont['PKWK_READONLY']) {
+			$string = $btn_text;
+		} else {
+			$string = <<<EOD
 <a href="{$this->root->script}?plugin=addline&amp;addline_inno=$addline_no&amp;above=$above&amp;refer=$f_page&amp;configname=$f_config&amp;digest={$this->root->digest}">$btn_text</a>
 EOD;
+		}
 		return $string;
 	}
 	function plugin_addline_action()
