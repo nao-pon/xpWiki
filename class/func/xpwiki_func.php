@@ -1,7 +1,7 @@
 <?php
 //
 // Created on 2006/10/02 by nao-pon http://hypweb.net/
-// $Id: xpwiki_func.php,v 1.175 2008/05/26 00:18:43 nao-pon Exp $
+// $Id: xpwiki_func.php,v 1.176 2008/05/28 08:06:17 nao-pon Exp $
 //
 class XpWikiFunc extends XpWikiXoopsWrapper {
 
@@ -2899,14 +2899,28 @@ EOD;
 	}
 	
 	// 'Search' main function (DB版)
-	function do_search($words, $type = 'AND', $non_format = FALSE, $base = '', $db = TRUE, $field='name,text', $limit = 0, $offset = 0 , $userid = 0)
+	function do_search($words, $type = 'AND', $non_format = FALSE, $base = '', $options = array())
 	{
-		if (!$db) return parent::do_search($words, $type, $non_format, $base);
+		$def_options = array(
+			'db'     => TRUE,
+			'field'  => 'name,text',
+			'limit'  => 0,
+			'offset' => 0,
+			'userid' => 0,
+			'spZen'  => FALSE,
+		);
 		
+		$options = array_merge($def_options, $options);
+		
+		if ($this->cont['LANG'] === 'ja' && function_exists("mb_convert_kana") && $options['spZen']) {
+			$words = mb_convert_kana($words, 's');
+		}
+		
+		if (!$options['db']) return parent::do_search($words, $type, $non_format, $base);
 		
 		$keywords = preg_split('/\s+/', $words, -1, PREG_SPLIT_NO_EMPTY);
 		
-		$fields = explode(',', $field);
+		$fields = explode(',', $options['field']);
 		
 		$andor = ($type === 'AND')? 'AND' : 'OR';
 		
@@ -2920,8 +2934,8 @@ EOD;
 		}
 		
 		$sql = "SELECT p.name, p.editedtime, p.title FROM ".$this->xpwiki->db->prefix($this->root->mydirname."_pginfo")." p INNER JOIN ".$this->xpwiki->db->prefix($this->root->mydirname."_plain")." t ON t.pgid=p.pgid WHERE ($where) ";
-		if ( $userid != 0 ) {
-			$sql .= "AND (p.uid=".$userid.") ";
+		if ( $options['userid'] != 0 ) {
+			$sql .= "AND (p.uid=".$options['userid'].") ";
 		}
 		
 		if ( is_array($keywords) && $keywords ) {
@@ -2930,7 +2944,7 @@ EOD;
 			$i = 0;
 			foreach ($keywords as $keyword) {
 				if ($i++ !== 0) $sql .= " $andor ";
-				if (function_exists("mb_convert_kana"))
+				if ($this->cont['LANG'] === 'ja' && function_exists("mb_convert_kana"))
 				{
 					// 英数字は半角,カタカナは全角,ひらがなはカタカナに
 					$word = addslashes(mb_convert_kana($keyword,'aKCV'));
@@ -2948,7 +2962,7 @@ EOD;
 			$sql .= ") ";
 		}
 		
-		$result = $this->xpwiki->db->query($sql, $limit, $offset);
+		$result = $this->xpwiki->db->query($sql, $options['limit'], $options['offset']);
 		
 		$ret = array();
 		
@@ -2968,7 +2982,8 @@ EOD;
 		if ($non_format) return array_keys($pages);
 	
 		$r_word = rawurlencode($words);
-		$s_word = htmlspecialchars($words);
+		$s_word = preg_replace('/&amp;#(\d+;)/', '&#$1', htmlspecialchars($words));
+		
 		if (empty($pages))
 			return str_replace('$1', $s_word, $this->root->_msg_notfoundresult);
 	

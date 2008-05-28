@@ -1,6 +1,6 @@
 <?php
 // PukiWiki - Yet another WikiWikiWeb clone.
-// $Id: search.inc.php,v 1.6 2008/04/04 23:56:01 nao-pon Exp $
+// $Id: search.inc.php,v 1.7 2008/05/28 08:06:17 nao-pon Exp $
 //
 // Search plugin
 class xpwiki_plugin_search extends xpwiki_plugin {
@@ -39,6 +39,8 @@ class xpwiki_plugin_search extends xpwiki_plugin {
 		} else {
 			$s_word = isset($this->root->vars['word']) ? htmlspecialchars($this->root->vars['word']) : '';
 		}
+		$s_word = preg_replace('/&amp;#(\d+;)/', '&#$1', $s_word);
+		
 		if (strlen($s_word) > $this->cont['PLUGIN_SEARCH_MAX_LENGTH']) {
 			unset($this->root->vars['word']); // Stop using $_msg_word at lib/html.php
 			$this->func->die_message('Search words too long');
@@ -61,7 +63,8 @@ class xpwiki_plugin_search extends xpwiki_plugin {
 			}
 			
 			$msg  = str_replace('$1', $s_word, $this->root->_title_result);
-			$body = $this->func->do_search($this->root->vars['word'], $type, FALSE, $base, TRUE, $filed);
+			$options = array('field' => $filed, 'spZen' => TRUE);
+			$body = $this->func->do_search($this->root->vars['word'], $type, FALSE, $base, $options);
 		} else {
 			// Init
 			unset($this->root->vars['word']); // Stop using $_msg_word at lib/html.php
