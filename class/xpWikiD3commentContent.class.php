@@ -25,11 +25,11 @@ function fetchSummary( $pgid )
 		if (strpos(@$_SERVER['REQUEST_URI'], '/modules/'.$mydirname) === FALSE) {
 			include_once dirname(dirname(__FILE__))."/include.php";
 			$page = & XpWiki::getSingleton($mydirname);
-			$uri = $page->func->get_page_uri($data['name'], true);
 			if ($data['editedtime']) {
 				$page->init($data['name']);
 				$page->execute();
 				$body = $page->body;
+				$uri = $page->func->get_page_uri($data['name'], true);
 			} else {
 				$body = '"' . $data['name']. '" is deleted.';
 			}
