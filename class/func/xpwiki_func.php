@@ -1,7 +1,7 @@
 <?php
 //
 // Created on 2006/10/02 by nao-pon http://hypweb.net/
-// $Id: xpwiki_func.php,v 1.176 2008/05/28 08:06:17 nao-pon Exp $
+// $Id: xpwiki_func.php,v 1.177 2008/05/30 08:43:48 nao-pon Exp $
 //
 class XpWikiFunc extends XpWikiXoopsWrapper {
 
@@ -25,14 +25,6 @@ class XpWikiFunc extends XpWikiXoopsWrapper {
 		$const = & $this->cont;
 		
 		/////////////////////////////////////////////////
-		// Time settings
-		
-		$const['LOCALZONE'] = date('Z');
-		$const['UTC']       = time();
-		$const['UTIME']     = $const['UTC'] - $const['LOCALZONE'];
-		$const['MUTIME']    = $this->getmicrotime();
-		
-		/////////////////////////////////////////////////
 		// Require INI_FILE
 		
 		$const['INI_FILE'] = $const['DATA_HOME'] . 'private/ini/pukiwiki.ini.php';
@@ -47,35 +39,7 @@ class XpWikiFunc extends XpWikiXoopsWrapper {
 		}
 
 		if ($die) $this->die_message(nl2br("\n\n" . $die));
-		
-		// Skin directory set
-		if (substr($this->cont['SKIN_NAME'],0,3) === "tD-") {
-			// tDiary's theme
-			$const['TDIARY_THEME'] =  substr($this->cont['SKIN_NAME'],3);
-		} else {
-			// Normal skin
-			$const['SKIN_DIR'] = 'skin/' . $const['SKIN_NAME'] . '/';
-		}
-
-		/////////////////////////////////////////////////
-		// 初期設定($WikiName,$BracketNameなど)
-		// $WikiName = '[A-Z][a-z]+(?:[A-Z][a-z]+)+';
-		// $WikiName = '\b[A-Z][a-z]+(?:[A-Z][a-z]+)+\b';
-		// $WikiName = '(?<![[:alnum:]])(?:[[:upper:]][[:lower:]]+){2,}(?![[:alnum:]])';
-		// $WikiName = '(?<!\w)(?:[A-Z][a-z]+){2,}(?!\w)';
-		
-		// BugTrack/304暫定対処
-		$root->WikiName = '(?:[A-Z][a-z]+){2,}(?!\w)';
-		
-		// $BracketName = ':?[^\s\]#&<>":]+:?';
-		$root->BracketName = '(?!\s):?[^\r\n\t\f\[\]<>#&":]+:?(?<!\s)';
-		
-		// InterWiki
-		$root->InterWikiName = '(\[\[)?((?:(?!\s|:|\]\]).)+):(.+)(?(1)\]\])';
-		
-		// 注釈
-		$root->NotePattern = '/\(\(((?:(?>(?:(?!\(\()(?!\)\)(?:[^\)]|$)).)+)|(?R))*)\)\)/ex';
-		
+	
 	}
 
 	function init() {

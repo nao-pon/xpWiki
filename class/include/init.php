@@ -1,7 +1,7 @@
 <?php
 //
 // Created on 2006/10/13 by nao-pon http://hypweb.net/
-// $Id: init.php,v 1.52 2008/05/22 09:06:55 nao-pon Exp $
+// $Id: init.php,v 1.53 2008/05/30 08:43:48 nao-pon Exp $
 //
 
 $root = & $this->root;
@@ -14,6 +14,42 @@ $const['S_COPYRIGHT'] =
 	$root->module['credits'] .
 	' License is GPL.<br />' .
 	' Based on "PukiWiki" 1.4.8_alpha';
+
+/////////////////////////////////////////////////
+// 初期設定($WikiName,$BracketNameなど)
+// BugTrack/304暫定対処
+$root->WikiName = '(?:[A-Z][a-z]+){2,}(?![a-zA-Z0-9_])';
+
+// $BracketName = ':?[^\s\]#&<>":]+:?';
+$root->BracketName = '(?!\s):?[^\r\n\t\f\[\]<>#&":]+:?(?<!\s)';
+
+// InterWiki
+$root->InterWikiName = '(\[\[)?((?:(?!\s|:|\]\]).)+):(.+)(?(1)\]\])';
+
+// 注釈
+$root->NotePattern = '/\(\(((?:(?>(?:(?!\(\()(?!\)\)(?:[^\)]|$)).)+)|(?R))*)\)\)/ex';
+
+/////////////////////////////////////////////////
+// Time settings
+$const['LOCALZONE'] = date('Z');
+$const['UTC']       = time();
+$const['UTIME']     = $const['UTC'] - $const['LOCALZONE'];
+$const['MUTIME']    = $this->getmicrotime();
+
+// Set default skin directory
+if (substr($const['SKIN_NAME'],0,3) === "tD-") {
+	// tDiary's theme
+	$const['TDIARY_THEME'] =  substr($const['SKIN_NAME'],3);
+} else {
+	// Normal skin
+	$const['SKIN_DIR'] = 'skin/' . $const['SKIN_NAME'] . '/';
+}
+
+// アクセスユーザーの情報読み込み
+$this->set_userinfo();
+
+// cookie 用ユーザーコード取得 & cookie読み書き 
+$this->load_usercookie();
 
 /////////////////////////////////////////////////
 // Language / Encoding settings
@@ -137,46 +173,26 @@ $const['UA_NAME'] = isset($user_agent['name']) ? $user_agent['name'] : '';
 $const['UA_VERS'] = isset($user_agent['vers']) ? $user_agent['vers'] : '';
 unset($user_agent);	// Unset after reading UA_INI_FILE
 
-if ($root->userinfo['admin']) {
-	/////////////////////////////////////////////////
-	// ディレクトリのチェック
-	
-	$die = '';
-	foreach(array($const['DATA_DIR'], $const['DIFF_DIR'], $const['BACKUP_DIR'], $const['CACHE_DIR']) as $dir){
-		if (! is_writable($dir))
-			$die .= 'Directory is not found or not writable (' . $dir . ')' . "\n";
-	}
-	
-	if (! $this->root->can_not_connect_www && HypCommonFunc::get_version() >= '20080213') {
-		$dir = $const['TRUST_PATH'] . 'class/hyp_common/favicon/cache';
-		if (! is_writable($dir))
-			$die .= 'Directory is not found or not writable (' . $dir . ')' . "\n";
+/////////////////////////////////////////////////
+// 初期設定(ユーザ定義ルール読み込み)
+require($const['DATA_HOME'] . 'private/ini/rules.ini.php');
 
-	}
-	
-	// 設定ファイルの変数チェック
-	$temp = '';
-	foreach(array('rss_max', 'note_hr', 'related_link', 'show_passage',
-		'rule_related_str', 'load_template_func') as $var){
-		if (! isset($root->{$var})) $temp .= '$' . $var . "\n";
-	}
-	if ($temp) {
-		if ($die) $die .= "\n";	// A breath
-		$die .= 'Variable(s) not found: (Maybe the old *.ini.php?)' . "\n" . $temp;
-	}
-	
-	$temp = '';
-	foreach(array($const['LANG'], $const['PLUGIN_DIR']) as $def){
-		if (! isset($def)) $temp .= $def . "\n";
-	}
-	if ($temp) {
-		if ($die) $die .= "\n";	// A breath
-		$die .= 'Define(s) not found: (Maybe the old *.ini.php?)' . "\n" . $temp;
-	}
-	
-	if($die) $this->die_message(nl2br("\n\n" . $die));
-	unset($die, $temp);
-}
+/////////////////////////////////////////////////
+// 初期設定(その他のグローバル変数)
+
+// 現在時刻
+$root->now = $this->format_date($const['UTIME']);
+
+// 実体参照パターンおよびシステムで使用するパターンを$line_rulesに加える
+//$entity_pattern = '[a-zA-Z0-9]{2,8}';
+$root->entity_pattern = trim(file_get_contents($const['CACHE_DIR'] . $const['PKWK_ENTITIES_REGEX_CACHE']));
+
+$root->line_rules = array_merge(array(
+	'&amp;(#[0-9]+|#x[0-9a-f]+|' . $root->entity_pattern . ');' => '&$1;',
+	"\r"          => '<br />' . "\n",	/* 行末にチルダは改行 */
+	'#related$'   => '<del>#related</del>',
+	'^#contents$' => '<del>#contents</del>'
+), $root->line_rules);
 
 // 指定ページ表示モード
 if (isset($const['page_show'])) {
@@ -189,15 +205,68 @@ if (isset($const['page_show'])) {
 	$const['page_show'] = TRUE;
 
 } else {
-
-	/////////////////////////////////////////////////
-	// 必須のページが存在しなければ、空のファイルを作成する
+	// Check etc. only admin.
 	if ($root->userinfo['admin']) {
+		// Database check
+		$query = 'SELECT count(*) FROM ' . $this->xpwiki->db->prefix($root->mydirname.'_cache') ;
+		if(! $this->xpwiki->db->query($query)) {
+			$title = 'Please update this module on admin panel.';
+			if (defined('XOOPS_CUBE_LEGACY')) {
+				$this->redirect_header(XOOPS_URL . '/modules/legacy/admin/index.php?action=ModuleUpdate&dirname=' . $root->mydirname, 1, $title);
+			} else if (defined('XOOPS_URL')) {
+				$this->redirect_header(XOOPS_URL . '/modules/system/admin.php?fct=modulesadmin&op=update&module=' . $root->mydirname, 1, $title);
+			} else {
+				exit($title);
+			}
+		}
+	
+		/////////////////////////////////////////////////
+		// ディレクトリのチェック
+		
+		$die = '';
+		foreach(array($const['DATA_DIR'], $const['DIFF_DIR'], $const['BACKUP_DIR'], $const['CACHE_DIR']) as $dir){
+			if (! is_writable($dir))
+				$die .= 'Directory is not found or not writable (' . $dir . ')' . "\n";
+		}
+		
+		if (! $this->root->can_not_connect_www && HypCommonFunc::get_version() >= '20080213') {
+			$dir = $const['TRUST_PATH'] . 'class/hyp_common/favicon/cache';
+			if (! is_writable($dir))
+				$die .= 'Directory is not found or not writable (' . $dir . ')' . "\n";
+	
+		}
+		
+		// 設定ファイルの変数チェック
+		$temp = '';
+		foreach(array('rss_max', 'note_hr', 'related_link', 'show_passage',
+			'rule_related_str', 'load_template_func') as $var){
+			if (! isset($root->{$var})) $temp .= '$' . $var . "\n";
+		}
+		if ($temp) {
+			if ($die) $die .= "\n";	// A breath
+			$die .= 'Variable(s) not found: (Maybe the old *.ini.php?)' . "\n" . $temp;
+		}
+		
+		$temp = '';
+		foreach(array($const['LANG'], $const['PLUGIN_DIR']) as $def){
+			if (! isset($def)) $temp .= $def . "\n";
+		}
+		if ($temp) {
+			if ($die) $die .= "\n";	// A breath
+			$die .= 'Define(s) not found: (Maybe the old *.ini.php?)' . "\n" . $temp;
+		}
+		
+		if($die) $this->die_message(nl2br("\n\n" . $die));
+		unset($die, $temp);
+
+		/////////////////////////////////////////////////
+		// 必須のページが存在しなければ、空のファイルを作成する
 		foreach(array($root->defaultpage, $root->whatsnew, $root->interwiki) as $page){
 			if (! $this->is_page($page)) $this->pkwk_touch_file($this->get_filename($page));
 		}
+
 	}
-	
+
 	/////////////////////////////////////////////////
 	// 外部からくる変数のチェック
 	
@@ -358,16 +427,13 @@ if (isset($const['page_show'])) {
 	
 		$root->get['cmd']  = $root->post['cmd']  = $root->vars['cmd']  = 'read';
 	
-		if (isset($_SERVER['PATH_INFO'])) {
+		if (isset($_SERVER['PATH_INFO']) && $_SERVER['PATH_INFO'] !== '') {
 			$arg = trim($_SERVER['PATH_INFO'], '/');
 		} else {
-			$arg = rawurldecode($arg);
-			
-			// 特定のキーを除外
-			$arg = preg_replace('/&?(word|'.preg_quote(session_name(), '/').')=[^&]+/', '', $arg);
-			
-			// XOOPS の redirect_header で付加されることがある &以降を削除
+			// "&" 以降を削除
 			$arg = preg_replace('/&.*$/', '', $arg);
+
+			$arg = rawurldecode($arg);
 		}
 
 		if ($arg === '') {
@@ -408,27 +474,4 @@ if (isset($const['page_show'])) {
 	}
 
 }
-
-/////////////////////////////////////////////////
-// 初期設定(ユーザ定義ルール読み込み)
-require($const['DATA_HOME'] . 'private/ini/rules.ini.php');
-
-/////////////////////////////////////////////////
-// 初期設定(その他のグローバル変数)
-
-// 現在時刻
-$root->now = $this->format_date($const['UTIME']);
-
-// 実体参照パターンおよびシステムで使用するパターンを$line_rulesに加える
-//$entity_pattern = '[a-zA-Z0-9]{2,8}';
-$root->entity_pattern = trim(file_get_contents($const['CACHE_DIR'] . $const['PKWK_ENTITIES_REGEX_CACHE']));
-
-$root->line_rules = array_merge(array(
-	'&amp;(#[0-9]+|#x[0-9a-f]+|' . $root->entity_pattern . ');' => '&$1;',
-	"\r"          => '<br />' . "\n",	/* 行末にチルダは改行 */
-	'#related$'   => '<del>#related</del>',
-	'^#contents$' => '<del>#contents</del>'
-), $root->line_rules);
-
-$root->digest = '';
 ?>

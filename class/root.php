@@ -1,7 +1,7 @@
 <?php
 //
 // Created on 2006/09/29 by nao-pon http://hypweb.net/
-// $Id: root.php,v 1.13 2008/04/04 23:44:05 nao-pon Exp $
+// $Id: root.php,v 1.14 2008/05/30 08:43:48 nao-pon Exp $
 //
 class XpWikiRoot {
 
@@ -150,6 +150,9 @@ class XpWikiRoot {
 		$this->viewmode     = 'normal'; // View mode ( normal, popup or ajax )
 		$this->nonflag      = array();  // non-Plugin flag
 		$this->c['PAGENAME']= '';       // cont['PAGENAME']
+		$this->digest       = '';
+		// Former value is memorized.
+		$this->rtf['PKWK_READONLY'] = $this->c['PKWK_READONLY'];
 	}
 }
 ?>
