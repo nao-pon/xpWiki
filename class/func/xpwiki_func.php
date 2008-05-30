@@ -1,7 +1,7 @@
 <?php
 //
 // Created on 2006/10/02 by nao-pon http://hypweb.net/
-// $Id: xpwiki_func.php,v 1.177 2008/05/30 08:43:48 nao-pon Exp $
+// $Id: xpwiki_func.php,v 1.178 2008/05/30 11:18:48 nao-pon Exp $
 //
 class XpWikiFunc extends XpWikiXoopsWrapper {
 
@@ -711,6 +711,8 @@ EOD;
 	function check_readable_page ($page, $auth_flag = TRUE, $exit_flag = TRUE, $uid = NULL) {
 		// for renderer mode
 		$this->root->rtf['disable_render_cache'] = TRUE;
+
+		if (! $this->root->module['checkRight']) return FALSE;
 		
 		if ($this->is_owner($page, $uid)) return TRUE;
 		
@@ -758,6 +760,11 @@ EOD;
 
 	// ページ毎編集権限チェック
 	function check_editable_page ($page, $auth_flag = TRUE, $exit_flag = TRUE, $uid = NULL) {
+		// for renderer mode
+		$this->root->rtf['disable_render_cache'] = TRUE;
+
+		if (! $this->root->module['checkRight']) return FALSE;
+
 		if ($this->is_owner($page, $uid)) return TRUE;
 
 		if (!$this->check_readable_page ($page, $auth_flag, $exit_flag, $uid)) {
@@ -2060,6 +2067,7 @@ EOD;
 		}
 		
 		static $_aryret = array();
+		
 		if (isset($_aryret[$this->root->mydirname]['pages']) && $nocheck === FALSE && $base === '' && !$options) {
 			$this->root->pgids = $_aryret[$this->root->mydirname]['pgids'];
 			$this->root->pgorders = $_aryret[$this->root->mydirname]['pgorders'];
@@ -2812,10 +2820,11 @@ EOD;
 		
 		if (!isset($where[$this->root->mydirname][$key]))
 		{
-			if ($is_admin)
+			if ($is_admin) {
 				$where[$this->root->mydirname][$key] = '';
-			else
-			{
+			} else if (! $this->root->module['checkRight']) {
+				$where[$this->root->mydirname][$key] = '0 != 0';
+			} else {
 				$_where = "";
 				if ($uid) $_where .= " ({$table}`uid` = '$uid') OR";
 				$_where .= " ({$table}`vaids` = 'all')";
