@@ -1,7 +1,7 @@
 <?php
 //
 // Created on 2006/09/29 by nao-pon http://hypweb.net/
-// $Id: xpwiki.php,v 1.83 2008/05/15 23:52:14 nao-pon Exp $
+// $Id: xpwiki.php,v 1.84 2008/05/30 08:43:48 nao-pon Exp $
 //
 
 class XpWiki {
@@ -91,44 +91,19 @@ class XpWiki {
 		
 		static $oid;
 		$page = strval($page);
-		
-		$this->root->init();
+		if ($page !== '') {$this->cont['page_show'] = $page;}
 		
 		// GET, POST, COOKIE
 		// 基本的に直接操作しない
 		$this->root->get    = $_GET;
 		$this->root->post   = $_POST;
 		$this->root->cookie = $_COOKIE;
-		
-		if ($page !== '') {$this->cont['page_show'] = $page;}
-		
+
 		// ini ファイル読み込み
 		$this->func->load_ini();
-
-		// 元の値を記憶
-		$this->root->rtf['PKWK_READONLY'] = $this->cont['PKWK_READONLY'];
-
-		// アクセスユーザーの情報読み込み
-		$this->func->set_userinfo();
 		
-		// Check etc. only admin.
-		if ($this->root->userinfo['admin']) {
-			// Database check
-			$query = 'SELECT count(*) FROM ' . $this->db->prefix($this->root->mydirname.'_cache') ;
-			if(! $this->db->query($query)) {
-				$title = 'Please update this module on admin panel.';
-				if (defined('XOOPS_CUBE_LEGACY')) {
-					$this->func->redirect_header(XOOPS_URL . '/modules/legacy/admin/index.php?action=ModuleUpdate&dirname=' . $this->root->mydirname, 1, $title);
-				} else if (defined('XOOPS_URL')) {
-					$this->func->redirect_header(XOOPS_URL . '/modules/system/admin.php?fct=modulesadmin&op=update&module=' . $this->root->mydirname, 1, $title);
-				} else {
-					exit($title);
-				}
-			}
-		}
-		
-		// cookie 用ユーザーコード取得 & cookie読み書き 
-		$this->func->load_usercookie();
+		// Init runtime var.
+		$this->root->init();
 
 		// 各パラメーターを初期化
 		$this->func->init();
