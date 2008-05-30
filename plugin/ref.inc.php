@@ -1,5 +1,5 @@
 <?php
-// $Id: ref.inc.php,v 1.30 2008/05/26 06:46:32 nao-pon Exp $
+// $Id: ref.inc.php,v 1.31 2008/05/30 08:36:19 nao-pon Exp $
 /*
 
 	*プラグイン ref
@@ -38,7 +38,7 @@ class xpwiki_plugin_ref extends xpwiki_plugin {
 				' alt="file" style="border-width:0px" />';
 	
 		// default alignment
-		$this->cont['PLUGIN_REF_DEFAULT_ALIGN'] = 'left'; // 'left','center','right'
+		$this->cont['PLUGIN_REF_DEFAULT_ALIGN'] = 'none'; // 'none','left','center','right'
 
 		// Text wrapping
 		$this->cont['PLUGIN_REF_WRAP_TABLE'] =  FALSE; // TRUE, FALSE
@@ -189,6 +189,16 @@ class xpwiki_plugin_ref extends xpwiki_plugin {
 		} else {
 			$ret = $params['_body'];
 		}
+		
+		$around = FALSE;
+		switch ($params['_align']) {
+			case 'left' :
+			case 'right' :
+				$around = TRUE;
+			case 'center' :
+				$ret = $this->wrap_div($ret, $params['_align'], $around);
+		}
+		
 		return $ret;
 	}
 	
@@ -205,20 +215,10 @@ class xpwiki_plugin_ref extends xpwiki_plugin {
 			$ret = $params['_body'];
 		}
 	
-		//アラインメント判定
-		if ($params['right'])
-			$align = 'right';
-		else if ($params['left'])
-			$align = 'left';
-		else if ($params['center'])
-			$align = 'center';
-		else
-			$align = $this->cont['PLUGIN_REF_DEFAULT_ALIGN'];
-		
 		if (($this->cont['PLUGIN_REF_WRAP_TABLE'] and !$params['nowrap']) or $params['wrap']) {
-			$ret = $this->wrap_table($ret, $align, $params['around']);
+			$ret = $this->wrap_table($ret, $params['_align'], $params['around']);
 		}
-		$ret = $this->wrap_div($ret, $align, $params['around']);
+		$ret = $this->wrap_div($ret, $params['_align'], $params['around']);
 		
 		return $ret;
 	}
@@ -253,8 +253,9 @@ class xpwiki_plugin_ref extends xpwiki_plugin {
 		// local var
 		$lvar = array(
 			'refid' => '',
-			'page'   => $this->root->vars['page'], // ページ名
-			'name'   => array_shift($args), // 添付ファイル名を取得(第一引数)
+			'page'  => $this->root->vars['page'], // ページ名
+			'name'  => array_shift($args), // 添付ファイル名を取得(第一引数)
+			'isurl' => FALSE,
 		);
 
 		if ($lvar['page'] === '#RenderMode') {
@@ -293,10 +294,7 @@ class xpwiki_plugin_ref extends xpwiki_plugin {
 		}
 
 		// 残りの引数の処理
-		$this->fetch_options($params, $args);
-		
-		// 拡張パラメーターの処理
-		$this->check_arg_ex($params, $lvar);
+		$this->fetch_options($params, $args, $lvar);
 		
 		// サムネイルを作成せず表示する最大サイズ
 		if (!$params['_size']) {
@@ -361,7 +359,11 @@ class xpwiki_plugin_ref extends xpwiki_plugin {
 					$img['org_h'] = $size[1];
 				}
 				
-				$lvar['link'] = '';
+				if ($lvar['isurl']) {
+					$lvar['link'] = htmlspecialchars($lvar['isurl']);
+				} else {
+					$lvar['link'] = '';
+				}
 				$lvar['title'][] = (preg_match('/([^\/]+)$/', $lvar['status']['org_fname']? $lvar['status']['org_fname'] : $lvar['name'], $match))? $match[1] : '';
 				
 				$copyright = $this->check_copyright($lvar['file']);
@@ -580,12 +582,11 @@ _HTML_;
 	// divで包む
 	function wrap_div($text, $align, $around) {
 		if ($around) {
-			$style = ($align == 'right') ? 'float:right' : 'float:left';
+			$style = 'width:auto;' . (($align === 'right') ? 'float:right;' : 'float:left;');
 		} else {
-			$style = "text-align:$align";
+			$style = ($align !== 'none')? 'text-align:' . $align . ';' : '';
 		}
 		return "<div style=\"$style\"><div class=\"img_margin\">$text</div></div>\n";
-		//return "<div style=\"$style\">$text</div>\n";
 	}
 	// 枠で包む
 	// margin:auto Moz1=x(wrap,aroundが効かない),op6=oNN6=x(wrap,aroundが効かない)IE6=x(wrap,aroundが効かない)
@@ -607,6 +608,7 @@ _HTML_;
 		// 5:添付その他
 		
 		if ($this->func->is_url($lvar['name'])) {
+			$lvar['isurl'] = $lvar['name'];
 			// URL
 			$lvar['nocache'] = array_search('nocache', $args);
 			if (! $this->cont['PKWK_DISABLE_INLINE_IMAGE_FROM_URI'] &&
@@ -990,8 +992,7 @@ _HTML_;
 	
 	function make_uploadlink(& $params, & $lvar, $args) {
 		$params['_error'] = '';
-		$this->fetch_options($params, $args);
-		$this->check_arg_ex ($params, $lvar);
+		$this->fetch_options($params, $args, $lvar);
 
 		$returi = ($this->root->render_mode !== 'render')? '' :
 			'&amp;returi='.rawurlencode($_SERVER['REQUEST_URI']);
@@ -1016,6 +1017,23 @@ _HTML_;
 				'" title="'.$this->root->_LANG['skin']['upload'].'">'.
 				'<img src="'.$this->cont['IMAGE_DIR'].'file.png" width="20" height="20" alt="'.$this->root->_LANG['skin']['upload'].'" title="'.$this->root->_LANG['skin']['upload'].'">'.
 				$params['btn'].'</a>';
+		}
+	}
+	
+	function fetch_options (& $params, $args, & $lvar) {
+		// 残りの引数の処理
+		parent::fetch_options($params, $args);
+		
+		// 拡張パラメーターの処理
+		$this->check_arg_ex($params, $lvar);
+		
+		//アラインメント判定
+		if ($params['right']) {
+			$params['_align'] = 'right';
+		} else if ($params['left']) {
+			$params['_align'] = 'left';
+		} else if ($params['center']) {
+			$params['_align'] = 'center';
 		}
 	}
 }
