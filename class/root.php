@@ -1,7 +1,7 @@
 <?php
 //
 // Created on 2006/09/29 by nao-pon http://hypweb.net/
-// $Id: root.php,v 1.14 2008/05/30 08:43:48 nao-pon Exp $
+// $Id: root.php,v 1.15 2008/05/30 11:19:12 nao-pon Exp $
 //
 class XpWikiRoot {
 
@@ -151,6 +151,8 @@ class XpWikiRoot {
 		$this->nonflag      = array();  // non-Plugin flag
 		$this->c['PAGENAME']= '';       // cont['PAGENAME']
 		$this->digest       = '';
+		$this->pgids        = array();
+		$this->pgorders     = array();
 		// Former value is memorized.
 		$this->rtf['PKWK_READONLY'] = $this->c['PKWK_READONLY'];
 	}
