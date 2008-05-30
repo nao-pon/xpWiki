@@ -186,6 +186,7 @@ class XpWikiLink {
 			if ($this->cont['SHOW_EXTIMG_BY_REF'] && !$this->func->refcheck(0, $alias)) {
 				$_dum = '';
 				$alias = $this->func->do_plugin_inline('ref', $alias, $_dum);
+				$alias = preg_replace('#</?a[^>]*>#i', '', $alias);
 			} else {
 				$alias = '<img src="'.htmlspecialchars($alias).'" alt="'.$name.'" />';
 			}
