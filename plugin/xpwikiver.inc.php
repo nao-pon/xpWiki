@@ -1,7 +1,7 @@
 <?php
 //
 // Created on 2006/11/28 by nao-pon http://hypweb.net/
-// $Id: xpwikiver.inc.php,v 1.4 2008/04/05 04:53:11 nao-pon Exp $
+// $Id: xpwikiver.inc.php,v 1.5 2008/05/31 02:25:41 nao-pon Exp $
 //
 class xpwiki_plugin_xpwikiver extends xpwiki_plugin {
 
@@ -26,7 +26,7 @@ class xpwiki_plugin_xpwikiver extends xpwiki_plugin {
 			return file_get_contents($c_file);
 		}
 		
-		$url = 'http://cvs.sourceforge.jp/cgi-bin/viewcvs.cgi/*checkout*/hypweb/XOOPS_TRUST/modules/xpwiki/xoops_version.php?content-type=text%2Fplain';
+		$url = 'http://cvs.sourceforge.jp/cgi-bin/viewcvs.cgi/*checkout*/hypweb/XOOPS_TRUST/modules/xpwiki/version.php?content-type=text%2Fplain';
 		
 		$dat = $this->func->http_request($url);
 		
@@ -35,7 +35,7 @@ class xpwiki_plugin_xpwikiver extends xpwiki_plugin {
 		if ($dat['rc'] === 200) {
 			$data = $dat['data'];
 
-			if (preg_match('/\$modversion\[\'version\'\]\s*=\s*\'([0-9.]+)/', $data, $match)) {
+			if (preg_match('/\$xpwiki_version\s*=\s*\'([0-9.]+)/', $data, $match)) {
 				$ver = $match[1];
 			}
 	
