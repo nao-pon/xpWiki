@@ -1,15 +1,18 @@
 <?php
 
+$_parentdirname = dirname(__FILE__);
 // language file (modinfo.php)
-if( file_exists( dirname(__FILE__).'/language/'.@$xoopsConfig['language'].'/modinfo.php' ) ) {
-	include dirname(__FILE__).'/language/'.@$xoopsConfig['language'].'/modinfo.php' ;
-} else if( file_exists( dirname(__FILE__).'/language/english/modinfo.php' ) ) {
-	include dirname(__FILE__).'/language/english/modinfo.php' ;
+if( file_exists( $_parentdirname.'/language/'.@$xoopsConfig['language'].'/modinfo.php' ) ) {
+	include $_parentdirname.'/language/'.@$xoopsConfig['language'].'/modinfo.php' ;
+} else if( file_exists( $_parentdirname.'/language/english/modinfo.php' ) ) {
+	include $_parentdirname.'/language/english/modinfo.php' ;
 }
 $constpref = '_MI_' . strtoupper( $mydirname ) ;
 
+include $_parentdirname . '/version.php';
+
 $modversion['name'] = $mydirname ;
-$modversion['version'] = '3.71.41' ;
+$modversion['version'] = $xpwiki_version ;
 $modversion['description'] = constant($constpref.'_MODULE_DESCRIPTION') ;
 $modversion['credits'] = '&copy; 2006-2008 hypweb.net.';
 $modversion['author'] = 'nao-pon' ;
@@ -190,14 +193,14 @@ $modversion['onUninstall'] = 'onuninstall.php' ;
 
 // Regularization of func_num
 if ( defined( 'XOOPS_CUBE_LEGACY' ) && isset( $_GET['action'] ) && $_GET['action'] == 'ModuleUpdate' && isset( $_POST['dirname'] ) && $_POST['dirname'] == $modversion['dirname'] ) {
-	include dirname(__FILE__).'/include/block_reg_funcnum.inc.php';
+	include $_parentdirname.'/include/block_reg_funcnum.inc.php';
 }
 
 if ( ! defined( 'XOOPS_CUBE_LEGACY' ) && substr( XOOPS_VERSION , 6 , 3 ) < 2.1 && ! empty( $_POST['fct'] ) && ! empty( $_POST['op'] ) && $_POST['fct'] == 'modulesadmin' && $_POST['op'] == 'update_ok' && $_POST['dirname'] == $modversion['dirname'] ) {
 	// Regularization of func_num
-	include dirname(__FILE__).'/include/block_reg_funcnum.inc.php';
+	include $_parentdirname.'/include/block_reg_funcnum.inc.php';
 	// keep block's options
-	include dirname(__FILE__).'/include/x20_keepblockoptions.inc.php' ;
+	include $_parentdirname.'/include/x20_keepblockoptions.inc.php' ;
 }
 
 ?>

@@ -1,7 +1,7 @@
 <?php
 //
 // Created on 2006/10/11 by nao-pon http://hypweb.net/
-// $Id: xoops_wrapper.php,v 1.42 2008/05/23 04:17:41 nao-pon Exp $
+// $Id: xoops_wrapper.php,v 1.43 2008/05/31 02:10:20 nao-pon Exp $
 //
 class XpWikiXoopsWrapper extends XpWikiBackupFunc {
 	
@@ -25,6 +25,11 @@ class XpWikiXoopsWrapper extends XpWikiBackupFunc {
 			$this->root->module['mid']   = $XoopsModule->mid();
 			$this->root->module['config'] =& $config_handler->getConfigsByCat(0, $XoopsModule->mid());
 			$this->root->module['platform'] = "xoops";
+			
+			if (defined('XOOPS_CUBE_LEGACY')) {
+				include dirname(dirname(dirname(__FILE__))) . '/version.php';
+				$this->root->module['version'] = $xpwiki_version;
+			}
 			
 			$moduleperm_handler =& xoops_gethandler('groupperm');
 			global $xoopsUser;
