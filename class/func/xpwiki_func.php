@@ -1,7 +1,7 @@
 <?php
 //
 // Created on 2006/10/02 by nao-pon http://hypweb.net/
-// $Id: xpwiki_func.php,v 1.178 2008/05/30 11:18:48 nao-pon Exp $
+// $Id: xpwiki_func.php,v 1.179 2008/05/31 00:48:09 nao-pon Exp $
 //
 class XpWikiFunc extends XpWikiXoopsWrapper {
 
@@ -708,14 +708,20 @@ EOD;
 	}
 	
 	// ページ毎閲覧権限チェック
-	function check_readable_page ($page, $auth_flag = TRUE, $exit_flag = TRUE, $uid = NULL) {
-		// for renderer mode
-		$this->root->rtf['disable_render_cache'] = TRUE;
+	function check_readable_page ($page, $auth_flag = TRUE, $exit_flag = TRUE, $uid = NULL, $checkOwn = TRUE) {
+		
+		if (! $this->root->module['checkRight']) {
+			// for renderer mode
+			$this->root->rtf['disable_render_cache'] = TRUE;
+			return FALSE;
+		}
+		
+		if ($checkOwn && $this->is_owner($page, $uid)) {
+			// for renderer mode
+			$this->root->rtf['disable_render_cache'] = TRUE;
+			return TRUE;
+		}
 
-		if (! $this->root->module['checkRight']) return FALSE;
-		
-		if ($this->is_owner($page, $uid)) return TRUE;
-		
 		if (is_null($uid)) {
 			$userinfo = $this->root->userinfo;
 		} else {
@@ -742,7 +748,11 @@ EOD;
 				$ret = TRUE;
 			}
 		}
-		if ($ret) return TRUE;
+		if ($ret) {
+			// for renderer mode
+			if ($userinfo['uid']) $this->root->rtf['disable_render_cache'] = TRUE;
+			return TRUE;
+		}
 		if ($exit_flag) {
 			$title = $this->root->_msg_not_readable;
 			if (!$userinfo['uid'] && $auth_flag) {
@@ -755,19 +765,27 @@ EOD;
 			}
 			exit;
 		}
+		// for renderer mode
+		$this->root->rtf['disable_render_cache'] = TRUE;
 		return FALSE;
 	}
 
 	// ページ毎編集権限チェック
 	function check_editable_page ($page, $auth_flag = TRUE, $exit_flag = TRUE, $uid = NULL) {
-		// for renderer mode
-		$this->root->rtf['disable_render_cache'] = TRUE;
+		
+		if (! $this->root->module['checkRight']) {
+			// for renderer mode
+			$this->root->rtf['disable_render_cache'] = TRUE;
+			return FALSE;
+		}
 
-		if (! $this->root->module['checkRight']) return FALSE;
-
-		if ($this->is_owner($page, $uid)) return TRUE;
-
-		if (!$this->check_readable_page ($page, $auth_flag, $exit_flag, $uid)) {
+		if ($this->is_owner($page, $uid)) {
+			// for renderer mode
+			$this->root->rtf['disable_render_cache'] = TRUE;
+			return TRUE;
+		}
+		
+		if (!$this->check_readable_page ($page, $auth_flag, $exit_flag, $uid, FALSE)) {
 			return FALSE;
 		}
 
@@ -798,7 +816,11 @@ EOD;
 				$ret = TRUE;
 			}
 		}
-		if ($ret) return TRUE;
+		if ($ret) {
+			// for renderer mode
+			if ($userinfo['uid']) $this->root->rtf['disable_render_cache'] = TRUE;
+			return TRUE;
+		}
 		if ($exit_flag) {
 			$title = $this->root->_msg_not_editable;
 			if (!$userinfo['uid'] && $auth_flag) {
@@ -811,6 +833,8 @@ EOD;
 			}
 			exit;
 		}
+		// for renderer mode
+		$this->root->rtf['disable_render_cache'] = TRUE;
 		return FALSE;
 	}
 	
