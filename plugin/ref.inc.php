@@ -1,5 +1,5 @@
 <?php
-// $Id: ref.inc.php,v 1.31 2008/05/30 08:36:19 nao-pon Exp $
+// $Id: ref.inc.php,v 1.32 2008/05/31 00:46:11 nao-pon Exp $
 /*
 
 	*プラグイン ref
@@ -991,24 +991,33 @@ _HTML_;
 	}
 	
 	function make_uploadlink(& $params, & $lvar, $args) {
+		
 		$params['_error'] = '';
+		
 		$this->fetch_options($params, $args, $lvar);
-
-		$returi = ($this->root->render_mode !== 'render')? '' :
-			'&amp;returi='.rawurlencode($_SERVER['REQUEST_URI']);
 
 		if ($params['btn']) {
 			if (strtolower(substr($params['btn'], -4)) === "auth") {
-				$params['btn'] = htmlspecialchars(rtrim(substr($params['btn'], 0, strlen($params['btn'])-4),':'));
+				$params['btn'] = rtrim(substr($params['btn'], 0, strlen($params['btn'])-4),':');
 				$params['auth'] = TRUE;
 			}
 		}
 		if (! $params['btn']) {
 			$params['btn'] = '[' . $this->root->_LANG['skin']['upload'] . ']';
-		}
-		if ($params['auth'] && ($this->cont['PKWK_READONLY'] === 1 || ! $this->func->check_editable($lvar['page'], FALSE, FALSE))) {
-			$params['_body'] = '';
 		} else {
+			$params['btn'] = htmlspecialchars($params['btn']);
+		}
+
+		if (! $_attach = $this->func->get_plugin_instance('attach')) {
+			$params['_body'] = $params['btn'];
+			return;
+		}
+
+		if (($params['auth'] || $this->cont['ATTACH_UPLOAD_EDITER_ONLY']) && ($this->cont['PKWK_READONLY'] === 1 || ! $this->func->check_editable($lvar['page'], FALSE, FALSE))) {
+			$params['_body'] = $params['btn'];
+		} else {
+			$returi = ($this->root->render_mode !== 'render')? '' :
+				'&amp;returi='.rawurlencode($_SERVER['REQUEST_URI']);
 			$name = (isset($lvar['refid']))? '&amp;refid=' . rawurlencode($lvar['refid']) : (($lvar['name'])? '&amp;filename=' . rawurlencode($lvar['name']) : '');
 			$params['_body'] = '<a href="'.$this->root->script.
 				'?plugin=attach&amp;pcmd=upload'.$name.
