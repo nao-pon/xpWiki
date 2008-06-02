@@ -1,7 +1,7 @@
 <?php
 //
 // Created on 2006/10/02 by nao-pon http://hypweb.net/
-// $Id: xpwiki_func.php,v 1.180 2008/06/01 00:41:25 nao-pon Exp $
+// $Id: xpwiki_func.php,v 1.181 2008/06/02 07:17:19 nao-pon Exp $
 //
 class XpWikiFunc extends XpWikiXoopsWrapper {
 
@@ -2326,7 +2326,7 @@ EOD;
 		
 		// plain DB update
 		if (empty($this->root->rtf['plaindb_up_now'])) {
-			$this->need_update_plaindb($page, $action, $notimestamp, TRUE);
+			$this->need_update_plaindb($page, $action, $notimestamp);
 		} else {
 			$this->plain_db_write($page, $action, FALSE, $notimestamp);
 		}
@@ -2758,7 +2758,7 @@ EOD;
 	}
 	
 	// プラグインからplane_text DB を更新を指示(コンバート時)
-	function need_update_plaindb($page = null, $mode = 'update', $notimestamp = TRUE, $soon = FALSE)
+	function need_update_plaindb($page = null, $mode = 'update', $notimestamp = TRUE, $soon = TRUE)
 	{
 		if (is_null($page)) $page = $this->root->vars['page'];
 		
@@ -3313,6 +3313,7 @@ EOD;
 			$sql = 'UPDATE `'.$dbtable.'`';
 			$sql .= ' SET `data`=\''.$data.'\',';
 			$sql .= '`mtime`=\''.$this->cont['UTC'].'\'';
+			$sql .= '`ttl`=\''.$ttl.'\'';
 			$sql .= ' WHERE `key`=\''.$key.'\' AND `plugin`=\''.$plugin.'\'';
 		} else {
 			$sql = 'INSERT INTO `'.$dbtable.'` (`key`, `plugin`, `data`, `mtime`, `ttl`)';
@@ -3362,9 +3363,7 @@ EOD;
 	function regist_jobstack ($data, $ttl = 864000) {
 		$plugin = 'jobstack';
 		$key = md5(join('',array_values($data)));
-		if (! $this->cache_get_db($key, $plugin)) {
-			$this->cache_save_db(serialize($data), $plugin, $ttl, $key);
-		}
+		$this->cache_save_db(serialize($data), $plugin, $ttl, $key);
 	}
 	
 	function get_jobstack_imagetag () {
