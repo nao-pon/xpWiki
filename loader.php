@@ -1,7 +1,7 @@
 <?php
 //
 // Created on 2006/10/25 by nao-pon http://hypweb.net/
-// $Id: loader.php,v 1.46 2008/05/20 08:41:26 nao-pon Exp $
+// $Id: loader.php,v 1.47 2008/06/02 07:14:55 nao-pon Exp $
 //
 
 ignore_user_abort(FALSE);
@@ -68,7 +68,6 @@ if ($type !== 'css') {
 
 switch ($type) {
 	case 'css':
-		$_charset = '';
 		$c_type = 'text/css';
 		
 		$pre_id = preg_replace('/[^\w_\-#]+/', '', @ $_GET['pre']);
@@ -80,20 +79,11 @@ switch ($type) {
 		$_is_tdiary = (substr($skin, 0, 3) === 'tD-');
 
 		$dir = $prefix.basename($root_path);
+		// Default CSS
 		if ($src === 'main') {
-			// Default CSS
 			// Default charset
-			$charset = @ $_GET['charset'];
-			$_charset = strtolower($charset);
-			switch ($_charset) {
-				case 'shift_jis':
-				case 'iso-2022-jp':
-				case 'euc-jp':
-				case 'utf-8':
-					break; /* this @charset is for Mozilla's bug */
-				default: $_charset = $charset ='iso-8859-1';
-			}
-			$c_type = 'text/css; charset=' . $charset;
+			if (isset($_GET['charset'])) $charset = preg_replace('/[^\w.-]+/','',$_GET['charset']);
+			$c_type = 'text/css' . ($charset ? '; charset=' . $charset : '');
 			// tDiary
 			if ($_is_tdiary) {
 				$src .= '_tdiary';
@@ -140,7 +130,7 @@ switch ($type) {
 		}
 		
 		$replace = true;
-		$cache_file = $cache_path.$skin.'_'.$src.'_'.$dir.($pre_width?'_'.$pre_width:'').($_charset?'_'.$_charset:'').'.'.$type;
+		$cache_file = $cache_path.$skin.'_'.$src.'_'.$dir.($pre_width?'_'.$pre_width:'').($charset?'_'.$charset:'').'.'.$type;
 		$gzip_fname = $cache_file.'.gz';
 		break;
 	case 'js':
