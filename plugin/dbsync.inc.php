@@ -1,7 +1,7 @@
 <?php
 //
 // Created on 2006/11/17 by nao-pon http://hypweb.net/
-// $Id: dbsync.inc.php,v 1.31 2008/05/23 10:10:17 nao-pon Exp $
+// $Id: dbsync.inc.php,v 1.32 2008/06/02 07:17:19 nao-pon Exp $
 //
 
 class xpwiki_plugin_dbsync extends xpwiki_plugin {
@@ -607,7 +607,7 @@ __EOD__;
 				if ($this->root->post['plain_bg'] || $this->func->plain_db_write($page,$mode,TRUE))
 				{
 					if ($this->root->post['plain_bg']) {
-						$this->func->need_update_plaindb($page, $mode, FALSE);
+						$this->func->need_update_plaindb($page, $mode, FALSE, FALSE);
 					}
 					
 					$dones[1][] = $file;
