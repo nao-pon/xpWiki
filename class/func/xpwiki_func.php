@@ -1,7 +1,7 @@
 <?php
 //
 // Created on 2006/10/02 by nao-pon http://hypweb.net/
-// $Id: xpwiki_func.php,v 1.181 2008/06/02 07:17:19 nao-pon Exp $
+// $Id: xpwiki_func.php,v 1.182 2008/06/03 02:09:48 nao-pon Exp $
 //
 class XpWikiFunc extends XpWikiXoopsWrapper {
 
@@ -876,6 +876,9 @@ EOD;
 			$src = $name . ' = ' . $var . ';';
 		}
 		$target = $pre? 'head_pre_tags' : 'head_tags';
+		if ($this->root->render_mode === 'render') {
+			$src = '<!--' . "\n" . $src . '//-->';
+		}
 		$this->root->{$target}[] = '<script type="text/javascript">' . $src . '</script>';
 	}
 	
@@ -1962,17 +1965,11 @@ EOD;
 				
 				$p->send();
 				
-//				// for debug
-//				$log = $this->cont['CACHE_DIR'] . 'ping.log';
-//				$data = date('r') . "\n";
-//				$data .= print_r($p->results, TRUE) . "\n\n";
-//				if ($fp = fopen($log, 'a')) {
-//					fwrite($fp, $data);
-//					fclose($fp);
-//				}
-				
 				$p = NULL;
 				unset($p);
+			} else {
+				// Retry after 5 min.
+				$this->regist_jobstack(array('action' => 'xmlrpc_ping_send'), 0, 300);
 			}
 		}
 	}
@@ -3282,8 +3279,10 @@ EOD;
 	}
 	*/
 
-	function cache_save_db ($data, $plugin='core', $ttl=86400, $key=NULL) {
+	function cache_save_db ($data, $plugin='core', $ttl=86400, $key=NULL, $mtime = NULL) {
 		if (is_null($key)) $key = sha1($data);
+		if (is_null($mtime)) $mtime = $this->cont['UTC'];
+		
 		$ret = $key;
 		$key = addslashes($key);
 		$plugin = addslashes($plugin);
@@ -3312,12 +3311,12 @@ EOD;
 		if ($count) {
 			$sql = 'UPDATE `'.$dbtable.'`';
 			$sql .= ' SET `data`=\''.$data.'\',';
-			$sql .= '`mtime`=\''.$this->cont['UTC'].'\'';
+			$sql .= '`mtime`=\''.$mtime.'\'';
 			$sql .= '`ttl`=\''.$ttl.'\'';
 			$sql .= ' WHERE `key`=\''.$key.'\' AND `plugin`=\''.$plugin.'\'';
 		} else {
 			$sql = 'INSERT INTO `'.$dbtable.'` (`key`, `plugin`, `data`, `mtime`, `ttl`)';
-			$sql .= ' VALUES (\''.$key.'\', \''.$plugin.'\', \''.$data.'\', \''.$this->cont['UTC'].'\', \''.$ttl.'\')';
+			$sql .= ' VALUES (\''.$key.'\', \''.$plugin.'\', \''.$data.'\', \''.$mtime.'\', \''.$ttl.'\')';
 		}
 		if ($res = $this->xpwiki->db->queryF($sql)) {
 			return $ret;
@@ -3360,10 +3359,11 @@ EOD;
 		return $ret;
 	}
 	
-	function regist_jobstack ($data, $ttl = 864000) {
+	function regist_jobstack ($data, $ttl = 864000, $wait = 0) {
 		$plugin = 'jobstack';
 		$key = md5(join('',array_values($data)));
-		$this->cache_save_db(serialize($data), $plugin, $ttl, $key);
+		$mtime = $this->cont['UTC'] + $wait;
+		$this->cache_save_db(serialize($data), $plugin, $ttl, $key, $mtime);
 	}
 	
 	function get_jobstack_imagetag () {
