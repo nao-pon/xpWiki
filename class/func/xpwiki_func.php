@@ -1,7 +1,7 @@
 <?php
 //
 // Created on 2006/10/02 by nao-pon http://hypweb.net/
-// $Id: xpwiki_func.php,v 1.182 2008/06/03 02:09:48 nao-pon Exp $
+// $Id: xpwiki_func.php,v 1.183 2008/06/03 06:42:08 nao-pon Exp $
 //
 class XpWikiFunc extends XpWikiXoopsWrapper {
 
@@ -1944,6 +1944,8 @@ EOD;
 	
 				$this->cache_save_db('done', 'system', 1800, 'xmlrpc_ping_send'); // TTL = 1800 sec.
 				
+				$this->unregist_jobstack(array('action' => 'xmlrpc_ping_send'));
+				
 				HypCommonFunc::loadClass('HypPinger');
 				$p = new HypPinger(
 					$this->root->module['title'] . ' / ' . $this->root->siteinfo['sitename'],
@@ -2453,7 +2455,7 @@ EOD;
 			$rel_pages = array_unique($rel_pages);
 			
 			// 未作成ページ
-			if ($page !== $pobj->root->whatsdeleted && $page !== $pobj->cont['PLUGIN_RENAME_LOGPAGE'])
+			if ($page !== $this->root->whatsdeleted && $page !== $this->cont['PLUGIN_RENAME_LOGPAGE'])
 			{	
 				$yetlists = array();
 				$notyets = array_keys($pobj->notyets);
@@ -2530,6 +2532,8 @@ EOD;
 					// Send update ping
 					$this->send_update_ping();
 				}
+				
+				return true;
 			} else {
 				// Update なのにデータがない模様
 				$action = 'insert';
@@ -2580,7 +2584,7 @@ EOD;
 				}
 				
 				// 検索実行
-				$pages = (@ $this->root->rtf['is_init'])? $this->do_source_search($lookup_page,'AND',TRUE) : $this->do_search($lookup_page,'AND',TRUE);
+				$pages = (! empty($this->root->rtf['is_init']))? $this->do_source_search($lookup_page,'AND',TRUE) : $this->do_search($lookup_page,'AND',TRUE);
 				
 				foreach ($pages as $_page)
 				{
@@ -2757,6 +2761,9 @@ EOD;
 	// プラグインからplane_text DB を更新を指示(コンバート時)
 	function need_update_plaindb($page = null, $mode = 'update', $notimestamp = TRUE, $soon = TRUE)
 	{
+		// Do nothing on plainDB update.
+		if (! empty($this->root->rtf['is_init'])) return;
+		
 		if (is_null($page)) $page = $this->root->vars['page'];
 		
 		// Regist JobStack
@@ -3360,10 +3367,14 @@ EOD;
 	}
 	
 	function regist_jobstack ($data, $ttl = 864000, $wait = 0) {
-		$plugin = 'jobstack';
-		$key = md5(join('',array_values($data)));
+		$key = md5(serialize($data));
 		$mtime = $this->cont['UTC'] + $wait;
-		$this->cache_save_db(serialize($data), $plugin, $ttl, $key, $mtime);
+		$this->cache_save_db(serialize($data), 'jobstack', $ttl, $key, $mtime);
+	}
+	
+	function unregist_jobstack ($data) {
+		$key = md5(serialize($data));
+		$this->cache_del_db($key, 'jobstack');
 	}
 	
 	function get_jobstack_imagetag () {
