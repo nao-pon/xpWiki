@@ -1,7 +1,7 @@
 <?php
 //
 // Created on 2006/09/29 by nao-pon http://hypweb.net/
-// $Id: xpwiki.php,v 1.84 2008/05/30 08:43:48 nao-pon Exp $
+// $Id: xpwiki.php,v 1.85 2008/06/03 02:04:44 nao-pon Exp $
 //
 
 class XpWiki {
@@ -527,7 +527,7 @@ EOD;
 			$text = '<div class="xpwiki_'.$cssbase.'">'."\n".$text."\n".'</div>';
 		}
 		
-		return str_replace("\n", '', $head_pre_tag.$csstag.$head_tag).$text;
+		return preg_replace("/\n{2,}/", "\n", $head_pre_tag.$csstag.$head_tag) . $text;
 
 	}
 	
