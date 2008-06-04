@@ -1,6 +1,6 @@
 <?php
 // PukiWiki - Yet another WikiWikiWeb clone.
-// $Id: backup.inc.php,v 1.12 2008/05/07 08:38:08 nao-pon Exp $
+// $Id: backup.inc.php,v 1.13 2008/06/04 00:45:33 nao-pon Exp $
 // Copyright (C)
 //   2002-2005 PukiWiki Developers Team
 //   2001-2002 Originally written by yu-ji
@@ -41,12 +41,16 @@ class xpwiki_plugin_backup extends xpwiki_plugin {
 
 		$action = isset($this->root->vars['action']) ? $this->root->vars['action'] : '';
 		if ($action === 'delete') {
-			return $this->plugin_backup_delete($page);
+			if ($isowner) {
+				return $this->plugin_backup_delete($page);
+			} else {
+				return $this->action_msg_owner_only();
+			}
 		} else if ($action === 'dorewind') {
 			if ($isowner) {
 				return $this->do_rewind($page, intval($s_age));
 			} else {
-				$this->func->die_message('This feature is prohibited');
+				return $this->action_msg_owner_only();
 			}
 		}
 	
@@ -98,7 +102,7 @@ class xpwiki_plugin_backup extends xpwiki_plugin {
 EOD;
 		} else {
 			$body  = '<ul>' . "\n";
-			if (!$is_now) $body .= ' <li><a href="' . $script . '?cmd=backup">' . $this->root->_msg_backuplist . '</a></li>' ."\n";
+			//if (!$is_now) $body .= ' <li><a href="' . $script . '?cmd=backup">' . $this->root->_msg_backuplist . '</a></li>' ."\n";
 
 			$href    = $script . '?cmd=backup&amp;pgid=' . $pgid . '&amp;age=' . $s_age;
 			$is_page = $this->func->is_page($page);
@@ -137,7 +141,7 @@ EOD;
 				'<a href="' . $this->func->get_page_uri($page, true) . '">' . $s_page . '</a>',
 				$this->root->_msg_goto) . "</li>\n";
 			} else {
-				$body .= ' <li>' . str_replace('$1', $s_page, $this->root->_msg_deleted) . "<li>\n";
+				$body .= ' <li>' . str_replace('$1', $s_page, $this->root->_msg_deleted) . "</li>\n";
 			}
 			$body .= '</ul>' . "\n";
 		}
@@ -149,10 +153,11 @@ EOD;
 		$showlist = ($action !== 'rewind' && ($backups_count || $is_now));
 		if ($showlist) {
 			// list
+			$_name = '_title_backup' . $action;
+			$title = $this->root->$_name;
+			$list .= '<li>'.htmlspecialchars(str_replace(array('$1', '$2'), array($page, ' All'), $title)).'</li>';
 			$list .= '  <ul>' . "\n";
 			foreach($backups as $age => $val) {
-				$_name = '_title_backup' . $action;
-				$title = $this->root->$_name;
 				$s_title = htmlspecialchars(str_replace(array('$1', '$2'), array($page, $age), $title));
 				$date = $this->func->format_date($val['time']);
 				$lasteditor = $this->func->get_lasteditor($this->func->get_pginfo('',$val['data']));
@@ -300,7 +305,7 @@ EOD;
 			$href = $script . '?cmd=backup&amp;pgid=' . $pgid;
 			$body .= '<hr style="clear:both;" />'. "\n";
 			if ($backups_count) {
-				$body .= '<ul><li><a href="'.$href.'">'. str_replace('$1', $s_page, $this->root->_title_pagebackuplist) . "</a>\n" . $list . '</li></ul>';
+				$body .= '<ul><li><a href="'.$href.'">'. str_replace('$1', $s_page, $this->root->_title_pagebackuplist) . "</a></li>\n" . $list . '</li></ul>';
 			} else {
 				$body .= $list;
 			}
@@ -316,28 +321,24 @@ EOD;
 			return array('msg'=>$this->root->_title_pagebackuplist, 'body'=>$this->plugin_backup_get_list($page)); // Say "is not found"
 
 		$body = '';
-		if (isset($this->root->vars['pass'])) {
-			if ($this->func->pkwk_login($this->root->vars['pass'])) {
-				$this->func->_backup_delete($page);
-				return array(
-					'msg'  => $this->root->_title_backup_delete,
-				'body' => str_replace('$1', $this->func->make_pagelink($page), $this->root->_msg_backup_deleted)
-				);
-			} else {
-				$body = '<p><strong>' . $this->root->_msg_invalidpass . '</strong></p>' . "\n";
-			}
+		if (isset($this->root->post['action'])) {
+			$this->func->_backup_delete($page);
+			return array(
+				'msg'  => str_replace('$1', $page, $this->root->_msg_backup_deleted),
+				'body' => ''
+			);
 		}
 	
 		$script = $this->func->get_script_uri();
 		$s_page = htmlspecialchars($page);
+		$s_title = str_replace('$1', $s_page, $this->root->_title_backup_delete);
 		$body .= <<<EOD
-<p>{$this->root->_msg_backup_adminpass}</p>
+<p>$s_title</p>
 <form action="$script" method="post">
  <div>
   <input type="hidden"   name="cmd"    value="backup" />
   <input type="hidden"   name="page"   value="$s_page" />
   <input type="hidden"   name="action" value="delete" />
-  <input type="password" name="pass"   size="12" />
   <input type="submit"   name="ok"     value="{$this->root->_btn_delete}" />
  </div>
 </form>
@@ -383,7 +384,7 @@ EOD;
 			return join('', $retval);
 		}
 	
-		if (! $this->cont['PKWK_READONLY']) {
+		if ($this->func->is_owner($page)) {
  			$retval[1] .= '   <li><a href="' . $script . '?cmd=backup&amp;action=delete&amp;pgid=' . $pgid . '">';
 			$retval[1] .= str_replace('$1', $s_page, $this->root->_title_backup_delete);
 			$retval[1] .= '</a></li>' . "\n";
