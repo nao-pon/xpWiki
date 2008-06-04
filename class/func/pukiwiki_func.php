@@ -1,7 +1,7 @@
 <?php
 //
 // Created on 2006/10/02 by nao-pon http://hypweb.net/
-// $Id: pukiwiki_func.php,v 1.175 2008/06/04 08:30:05 nao-pon Exp $
+// $Id: pukiwiki_func.php,v 1.176 2008/06/04 23:51:39 nao-pon Exp $
 //
 class XpWikiPukiWikiFunc extends XpWikiBaseFunc {
 
@@ -104,7 +104,7 @@ class XpWikiPukiWikiFunc extends XpWikiBaseFunc {
 				$postdata = '';
 				$empty_page_making = TRUE;
 			}
-		} else if (!$postdata) {
+		} else if ($postdata === '') {
 			$mode = "delete";
 			$this->root->post['alias'] = '';
 		} else {
@@ -194,7 +194,7 @@ class XpWikiPukiWikiFunc extends XpWikiBaseFunc {
 		}
 		
 		// Create backup
-		$this->make_backup($page, $postdata === ''); // Is $postdata null?
+		$this->make_backup($page, ($mode === 'delete'), $notimestamp); // Is $postdata null?
 	
 		// Create wiki text
 		$this->file_write($this->cont['DATA_DIR'], $page, $postdata, $notimestamp);
@@ -936,7 +936,7 @@ class XpWikiPukiWikiFunc extends XpWikiBaseFunc {
 
 //----- Start convert_html.php -----//
 	// PukiWiki - Yet another WikiWikiWeb clone
-	// $Id: pukiwiki_func.php,v 1.175 2008/06/04 08:30:05 nao-pon Exp $
+	// $Id: pukiwiki_func.php,v 1.176 2008/06/04 23:51:39 nao-pon Exp $
 	// Copyright (C)
 	//   2002-2005 PukiWiki Developers Team
 	//   2001-2002 Originally written by yu-ji
@@ -1189,7 +1189,7 @@ class XpWikiPukiWikiFunc extends XpWikiBaseFunc {
 
 //----- Start func.php -----//
 	// PukiWiki - Yet another WikiWikiWeb clone.
-	// $Id: pukiwiki_func.php,v 1.175 2008/06/04 08:30:05 nao-pon Exp $
+	// $Id: pukiwiki_func.php,v 1.176 2008/06/04 23:51:39 nao-pon Exp $
 	// Copyright (C)
 	//   2002-2006 PukiWiki Developers Team
 	//   2001-2002 Originally written by yu-ji
@@ -2015,7 +2015,7 @@ EOD;
 
 //----- Start make_link.php -----//
 	// PukiWiki - Yet another WikiWikiWeb clone.
-	// $Id: pukiwiki_func.php,v 1.175 2008/06/04 08:30:05 nao-pon Exp $
+	// $Id: pukiwiki_func.php,v 1.176 2008/06/04 23:51:39 nao-pon Exp $
 	// Copyright (C)
 	//   2003-2005 PukiWiki Developers Team
 	//   2001-2002 Originally written by yu-ji
@@ -2103,7 +2103,7 @@ EOD;
 
 		if ($class === 'autolink' || !empty($options['nocheck']) || $this->is_page($page)) {
 			// ownpage
-			if ($this->cont['PAGENAME'] === $page) {
+			if ($this->cont['PAGENAME'] === $page && $anchor === '') {
 				return '<span class="thispage">' . $s_alias . '</span>';
 			}
 			
@@ -2150,7 +2150,7 @@ EOD;
 				$class .= '_popup';
 			}
 			
-			$link = $this->get_page_uri($page, TRUE);
+			$link = ($this->cont['PAGENAME'] === $page)? '' : $this->get_page_uri($page, TRUE);
 			return $al_left . '<a ' . 'href="' . $link . $anchor .
 				'"' . $title . ' class="' . $class . '"' . $onclick . '>' . $s_alias . '</a>' . $al_right;
 		} else {
@@ -2757,9 +2757,9 @@ EOD;
 
 //----- Start backup.php -----//
 	
-	function make_backup($page, $delete = FALSE)
+	function make_backup($page, $delete = FALSE, $notimestamp = FALSE)
 	{
-		if ($this->cont['PKWK_READONLY'] || ! $this->root->do_backup) return;
+		if ($this->cont['PKWK_READONLY'] === 1 || ! $this->root->do_backup) return;
 	
 		if ($this->root->del_backup && $delete) {
 			$this->_backup_delete($page);
@@ -2768,28 +2768,29 @@ EOD;
 	
 		if (! $this->is_page($page)) return;
 		
-		$lastmod = $this->_backup_get_filetime($page);
-		$rotate = ($lastmod === 0 || $this->cont['UTIME'] - $lastmod > 60 * 60 * $this->root->cycle);
-
 		$backups = $this->get_backup($page);
 		$count = count($backups);
-		
-		if ($this->root->backup_everytime_others) {
-			// get pginfo
-			if ($backups) {
-				$pginfo_last = $this->get_pginfo('', $backups[$count]['data']);
-			} else {
-				$pginfo_last = array('lastuid' => 0, 'lastucd' => '');
-			}
-			// check pginfo
-			$diff_user = ! (($this->root->userinfo['uid'] && $pginfo_last['lastuid'] === $this->root->userinfo['uid']) || ($this->root->userinfo['ucd'] && $pginfo_last['lastucd'] === $this->root->userinfo['ucd']));		
+
+		// Are those who update it different from last time?
+		$pginfo_last = $this->get_pginfo($page);
+		$diff_user = ! (($this->root->userinfo['uid'] && $pginfo_last['lastuid'] === $this->root->userinfo['uid']) || ($this->root->userinfo['ucd'] && $pginfo_last['lastucd'] === $this->root->userinfo['ucd']));		
+
+		// Rotation judgment
+		if (! $diff_user && $notimestamp) {
+			// The time stamp was not renewed in last time and the same user.
+			$rotate = FALSE;
+		} else if ($diff_user && $this->root->backup_everytime_others) {
+			// Setting that rotates without fail when different user updating.
+			$rotate = TRUE;
 		} else {
-			$diff_user = FALSE;
+			// Normal rotation judgment
+			$lastmod = $this->_backup_get_filetime($page);
+			$rotate = $lastmod === 0 || $this->cont['UTIME'] - $lastmod > 60 * 60 * $this->root->cycle;
 		}
-		
-		if ($rotate || $diff_user) {
+
+		if ($rotate) {
 			$count++;
-			// 直後に1件追加するので、(最大件数 - 1)を超える要素を捨てる
+			// The element that exceeds one addition (Maximum - 1) to the immediate aftermath is thrown away.
 			if ($count > $this->root->maxage)
 				array_splice($backups, 0, $count - $this->root->maxage);
 		
@@ -2955,7 +2956,7 @@ EOD;
 
 //----- Start html.php -----//
 	// PukiWiki - Yet another WikiWikiWeb clone.
-	// $Id: pukiwiki_func.php,v 1.175 2008/06/04 08:30:05 nao-pon Exp $
+	// $Id: pukiwiki_func.php,v 1.176 2008/06/04 23:51:39 nao-pon Exp $
 	// Copyright (C)
 	//   2002-2006 PukiWiki Developers Team
 	//   2001-2002 Originally written by yu-ji
@@ -3654,7 +3655,7 @@ EOD;
 
 //----- Start mail.php -----//
 	// PukiWiki - Yet another WikiWikiWeb clone.
-	// $Id: pukiwiki_func.php,v 1.175 2008/06/04 08:30:05 nao-pon Exp $
+	// $Id: pukiwiki_func.php,v 1.176 2008/06/04 23:51:39 nao-pon Exp $
 	// Copyright (C)
 	//   2003-2005 PukiWiki Developers Team
 	//   2003      Originally written by upk
@@ -3957,7 +3958,7 @@ EOD;
 
 //----- Start link.php -----//
 	// PukiWiki - Yet another WikiWikiWeb clone
-	// $Id: pukiwiki_func.php,v 1.175 2008/06/04 08:30:05 nao-pon Exp $
+	// $Id: pukiwiki_func.php,v 1.176 2008/06/04 23:51:39 nao-pon Exp $
 	// Copyright (C) 2003-2006 PukiWiki Developers Team
 	// License: GPL v2 or (at your option) any later version
 	//
