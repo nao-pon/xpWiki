@@ -1,7 +1,7 @@
 <?php
 //
 // Created on 2006/10/02 by nao-pon http://hypweb.net/
-// $Id: pukiwiki_func.php,v 1.174 2008/06/02 07:15:34 nao-pon Exp $
+// $Id: pukiwiki_func.php,v 1.175 2008/06/04 08:30:05 nao-pon Exp $
 //
 class XpWikiPukiWikiFunc extends XpWikiBaseFunc {
 
@@ -936,7 +936,7 @@ class XpWikiPukiWikiFunc extends XpWikiBaseFunc {
 
 //----- Start convert_html.php -----//
 	// PukiWiki - Yet another WikiWikiWeb clone
-	// $Id: pukiwiki_func.php,v 1.174 2008/06/02 07:15:34 nao-pon Exp $
+	// $Id: pukiwiki_func.php,v 1.175 2008/06/04 08:30:05 nao-pon Exp $
 	// Copyright (C)
 	//   2002-2005 PukiWiki Developers Team
 	//   2001-2002 Originally written by yu-ji
@@ -1189,7 +1189,7 @@ class XpWikiPukiWikiFunc extends XpWikiBaseFunc {
 
 //----- Start func.php -----//
 	// PukiWiki - Yet another WikiWikiWeb clone.
-	// $Id: pukiwiki_func.php,v 1.174 2008/06/02 07:15:34 nao-pon Exp $
+	// $Id: pukiwiki_func.php,v 1.175 2008/06/04 08:30:05 nao-pon Exp $
 	// Copyright (C)
 	//   2002-2006 PukiWiki Developers Team
 	//   2001-2002 Originally written by yu-ji
@@ -2015,7 +2015,7 @@ EOD;
 
 //----- Start make_link.php -----//
 	// PukiWiki - Yet another WikiWikiWeb clone.
-	// $Id: pukiwiki_func.php,v 1.174 2008/06/02 07:15:34 nao-pon Exp $
+	// $Id: pukiwiki_func.php,v 1.175 2008/06/04 08:30:05 nao-pon Exp $
 	// Copyright (C)
 	//   2003-2005 PukiWiki Developers Team
 	//   2001-2002 Originally written by yu-ji
@@ -2772,7 +2772,7 @@ EOD;
 		$rotate = ($lastmod === 0 || $this->cont['UTIME'] - $lastmod > 60 * 60 * $this->root->cycle);
 
 		$backups = $this->get_backup($page);
-		$count   = count($backups);
+		$count = count($backups);
 		
 		if ($this->root->backup_everytime_others) {
 			// get pginfo
@@ -2782,7 +2782,7 @@ EOD;
 				$pginfo_last = array('lastuid' => 0, 'lastucd' => '');
 			}
 			// check pginfo
-			$diff_user = ! (($this->root->userinfo['uid'] && $pginfo_last['lastuid'] === $this->root->userinfo['uid']) || $pginfo_last['lastucd'] === $this->root->userinfo['ucd']);		
+			$diff_user = ! (($this->root->userinfo['uid'] && $pginfo_last['lastuid'] === $this->root->userinfo['uid']) || ($this->root->userinfo['ucd'] && $pginfo_last['lastucd'] === $this->root->userinfo['ucd']));		
 		} else {
 			$diff_user = FALSE;
 		}
@@ -2792,33 +2792,27 @@ EOD;
 			// 直後に1件追加するので、(最大件数 - 1)を超える要素を捨てる
 			if ($count > $this->root->maxage)
 				array_splice($backups, 0, $count - $this->root->maxage);
-		} else {
-			// 最終更新分を入れ替える
-			array_pop($backups);
-		}
 		
-		$strout = '';
-		foreach($backups as $age=>$data) {
-			$strout .= $this->cont['PKWK_SPLITTER'] . ' ' . $data['time'] . "\n"; // Splitter format
-			$strout .= join('', $data['data']);
-			unset($backups[$age]);
-		}
-		$strout = preg_replace("/([^\n])\n*$/", "$1\n", $strout);
-
-		// Escape 'lines equal to PKWK_SPLITTER', by inserting a space
-		$body = preg_replace('/^(' . preg_quote($this->cont['PKWK_SPLITTER']) . "\s\d+)$/", '$1 ', $this->get_source($page));
-		$body = $this->cont['PKWK_SPLITTER'] . ' ' . $this->get_filetime($page) . "\n" . join('', $body);
-		//$body = $this->cont['PKWK_SPLITTER'] . ' ' . $this->cont['UTIME'] . "\n" . join('', $body);
-		$body = preg_replace("/\n*$/", "\n", $body);
-
-		$fp = $this->_backup_fopen($page, 'wb')
-			or $this->die_message('Cannot open ' . htmlspecialchars($this->_backup_get_filename($page)) .
-			'<br />Maybe permission is not writable or filename is too long');
-		$this->_backup_fputs($fp, $strout);
-		$this->_backup_fputs($fp, $body);
-		$this->_backup_fclose($fp);
-		if (!$rotate) {
-			$this->pkwk_touch_file($this->_backup_get_filename($page), $lastmod + $this->cont['LOCALZONE']);
+			$strout = '';
+			foreach($backups as $age=>$data) {
+				$strout .= $this->cont['PKWK_SPLITTER'] . ' ' . $data['time'] . "\n"; // Splitter format
+				$strout .= join('', $data['data']);
+				unset($backups[$age]);
+			}
+			$strout = preg_replace("/([^\n])\n*$/", "$1\n", $strout);
+	
+			// Escape 'lines equal to PKWK_SPLITTER', by inserting a space
+			$body = preg_replace('/^(' . preg_quote($this->cont['PKWK_SPLITTER']) . "\s\d+)$/", '$1 ', $this->get_source($page));
+			$body = $this->cont['PKWK_SPLITTER'] . ' ' . $this->get_filetime($page) . "\n" . join('', $body);
+			//$body = $this->cont['PKWK_SPLITTER'] . ' ' . $this->cont['UTIME'] . "\n" . join('', $body);
+			$body = preg_replace("/\n*$/", "\n", $body);
+	
+			$fp = $this->_backup_fopen($page, 'wb')
+				or $this->die_message('Cannot open ' . htmlspecialchars($this->_backup_get_filename($page)) .
+				'<br />Maybe permission is not writable or filename is too long');
+			$this->_backup_fputs($fp, $strout);
+			$this->_backup_fputs($fp, $body);
+			$this->_backup_fclose($fp);
 		}
 	}
 	function get_backup($page, $age = 0, $data_age = '')
@@ -2961,7 +2955,7 @@ EOD;
 
 //----- Start html.php -----//
 	// PukiWiki - Yet another WikiWikiWeb clone.
-	// $Id: pukiwiki_func.php,v 1.174 2008/06/02 07:15:34 nao-pon Exp $
+	// $Id: pukiwiki_func.php,v 1.175 2008/06/04 08:30:05 nao-pon Exp $
 	// Copyright (C)
 	//   2002-2006 PukiWiki Developers Team
 	//   2001-2002 Originally written by yu-ji
@@ -3660,7 +3654,7 @@ EOD;
 
 //----- Start mail.php -----//
 	// PukiWiki - Yet another WikiWikiWeb clone.
-	// $Id: pukiwiki_func.php,v 1.174 2008/06/02 07:15:34 nao-pon Exp $
+	// $Id: pukiwiki_func.php,v 1.175 2008/06/04 08:30:05 nao-pon Exp $
 	// Copyright (C)
 	//   2003-2005 PukiWiki Developers Team
 	//   2003      Originally written by upk
@@ -3963,7 +3957,7 @@ EOD;
 
 //----- Start link.php -----//
 	// PukiWiki - Yet another WikiWikiWeb clone
-	// $Id: pukiwiki_func.php,v 1.174 2008/06/02 07:15:34 nao-pon Exp $
+	// $Id: pukiwiki_func.php,v 1.175 2008/06/04 08:30:05 nao-pon Exp $
 	// Copyright (C) 2003-2006 PukiWiki Developers Team
 	// License: GPL v2 or (at your option) any later version
 	//
