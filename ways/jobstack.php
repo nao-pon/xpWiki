@@ -1,7 +1,7 @@
 <?php
 /*
  * Created on 2008/05/13 by nao-pon http://hypweb.net/
- * $Id: jobstack.php,v 1.6 2008/06/03 02:09:33 nao-pon Exp $
+ * $Id: jobstack.php,v 1.7 2008/06/04 00:44:26 nao-pon Exp $
  */
 
 error_reporting(0);
@@ -51,22 +51,25 @@ function xpwiki_jobstack_switch (& $xpwiki, $row) {
 		case 'http_get':
 			$xpwiki->func->http_request($data['url']);
 			break;
-		case 'plain_up':
-			xpwiki_jobstack_plain_up($xpwiki, $data['page'], $data['mode']);
-			break;
 		case 'xmlrpc_ping_send':
 			$xpwiki->func->send_update_ping();
+			break;
+		case 'plain_up':
+		case 'plugin_func':
+			$func = 'xpwiki_jobstack_' . $data['action'];
+			$func($xpwiki, $data);
 			break;
 	}	
 }
 
-function xpwiki_jobstack_plain_up (& $xpwiki, $page, $mode) {
+function xpwiki_jobstack_plain_up (& $xpwiki, $data) {
+	$mode = $data['mode'];
 	$notimestamp = FALSE;
 	if ($mode === 'update_notimestamp') {
 		$notimestamp = TRUE;
 		$mode = 'update';
 	}
-	$xpwiki->func->plain_db_write($page, $mode, FALSE, $notimestamp);
+	$xpwiki->func->plain_db_write($data['page'], $mode, FALSE, $notimestamp);
 	
 	// 古いレンダーキャッシュファイルの削除 (1日1回程度)
 	$pagemove_time = @ filemtime($xpwiki->cont['CACHE_DIR'] . 'pagemove.time');
@@ -85,6 +88,16 @@ function xpwiki_jobstack_plain_up (& $xpwiki, $page, $mode) {
 				}
 				closedir($handle);
 			}
+		}
+	}
+}
+
+function xpwiki_jobstack_plugin_func (& $xpwiki, $data) {
+	$plugin = $data['plugin'];
+	$func = $data['func'];
+	if ($plugin = $xpwiki->func->get_plugin_instance($plugin)) {
+		if (method_exists($plugin, $func)) {
+			$plugin->$func($data['args']);
 		}
 	}
 }
