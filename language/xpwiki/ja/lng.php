@@ -1,6 +1,6 @@
 <?php
 // PukiWiki - Yet another WikiWikiWeb clone.
-// $Id: lng.php,v 1.8 2008/05/22 08:58:17 nao-pon Exp $
+// $Id: lng.php,v 1.9 2008/06/08 23:44:37 nao-pon Exp $
 // Copyright (C)
 //   2002-2005 PukiWiki Developers Team
 //   2001-2002 Originally written by yu-ji
@@ -69,7 +69,7 @@ $root->_msg_not_editable   = 'ページを編集する権限がありません。';
 ///////////////////////////////////////
 // Symbols
 $root->_symbol_anchor   = 'src:anchor.png,width:12,height:12';
-$root->_symbol_noexists = '<img src="'.$const['IMAGE_DIR'].'paraedit.png" alt="" height="9" width="9" />';
+$root->_symbol_noexists = '<img src="'.$const['IMAGE_DIR'].'paraedit.png" alt="編集" height="9" width="9" />';
 
 ///////////////////////////////////////
 // Form buttons
