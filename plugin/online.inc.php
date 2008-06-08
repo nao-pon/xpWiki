@@ -3,7 +3,7 @@ class xpwiki_plugin_online extends xpwiki_plugin {
 	function plugin_online_init () {
 
 
-	// $Id: online.inc.php,v 1.2 2008/05/14 07:16:41 nao-pon Exp $
+	// $Id: online.inc.php,v 1.3 2008/06/08 23:47:41 nao-pon Exp $
 	// Copyright (C)
 	//   2002-2005 PukiWiki Developers Team
 	//   2001-2002 Originally written by yu-ji
@@ -43,7 +43,7 @@ class xpwiki_plugin_online extends xpwiki_plugin {
 		static $base = array();
 		if (!isset($base[$this->xpwiki->pid])) {$base[$this->xpwiki->pid] = array();}
 	
-		if (! isset($count[$this->xpwiki->pid])) {
+		if (! $count[$this->xpwiki->pid]) {
 			if (isset($_SERVER['REMOTE_ADDR'])) {
 				$host  = & $_SERVER['REMOTE_ADDR'];
 			} else {
@@ -51,7 +51,7 @@ class xpwiki_plugin_online extends xpwiki_plugin {
 			}
 	
 			// Try read
-			if ($this->plugin_online_check_online(& $count[$this->xpwiki->pid], $host)) {
+			if ($this->plugin_online_check_online($count[$this->xpwiki->pid], $host)) {
 				$result[$this->xpwiki->pid] = TRUE;
 			} else {
 				// Write
@@ -62,7 +62,7 @@ class xpwiki_plugin_online extends xpwiki_plugin {
 		if ($result[$this->xpwiki->pid]) {
 			return $count[$this->xpwiki->pid]; // Integer
 		} else {
-			if (! isset($base[$this->xpwiki->pid])) $base[$this->xpwiki->pid] = basename($this->cont['PLUGIN_ONLINE_USER_LIST']);
+			if (! $base[$this->xpwiki->pid]) $base[$this->xpwiki->pid] = basename($this->cont['PLUGIN_ONLINE_USER_LIST']);
 			$error = '"COUNTER_DIR/' . $base[$this->xpwiki->pid] . '" not writable';
 			if ($type == 0) {
 				$error = '#online: ' . $error . '<br />' . "\n";
