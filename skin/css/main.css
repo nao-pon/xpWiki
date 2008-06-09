@@ -533,6 +533,14 @@ $class strong.word9 {
 $class div.commentbody table {
 	width: 100%;
 }
+$class div.context {
+	background-color: #FFFFEE;
+	border: 1px dotted blue;
+	font-size: 90%;
+	margin: 5px 5px 5px 25px;
+	padding: 3px 10px;
+	text-align: left;
+}
 
 /* html.php/edit_form() */
 $class .edit_form {	clear: both; }
