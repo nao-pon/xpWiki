@@ -383,7 +383,7 @@ class XpWikiTableCell extends XpWikiElement {
 		
 		// Text alignment
 		if (empty($this->style['align'])) {
-			if (preg_match('/^(<|=|>)(.+)$/', rtrim($text), $matches)) {
+			if ($this->root->symbol_cell_align && preg_match('/^(<|=|>)(.+)$/', rtrim($text), $matches)) {
 			// Text alignment with "<" or "=" or ">".
 				if ($matches[1] === '=') {
 					$this->style['align'] = 'text-align:center;';
@@ -393,7 +393,7 @@ class XpWikiTableCell extends XpWikiElement {
 					$this->style['align'] = 'text-align:left;';
 				}
 				$text = $matches[2];
-			} else if (preg_match('/^(\s+)?(.+?)(\s+)?$/', $text, $matches)) {
+			} else if ($this->root->space_cell_align && preg_match('/^(\s+)?(.+?)(\s+)?$/', $text, $matches)) {
 			// Text alignment with 1 or more spaces.
 				if (! empty($matches[1]) && ! empty($matches[3])) {
 					$this->style['align'] = 'text-align:center;';

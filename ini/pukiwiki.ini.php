@@ -1,6 +1,6 @@
 <?php
 // PukiWiki - Yet another WikiWikiWeb clone
-// $Id: pukiwiki.ini.php,v 1.78 2008/05/22 00:28:52 nao-pon Exp $
+// $Id: pukiwiki.ini.php,v 1.79 2008/06/09 02:05:26 nao-pon Exp $
 // Copyright (C)
 //   2002-2006 PukiWiki Developers Team
 //   2001-2002 Originally written by yu-ji
@@ -650,6 +650,12 @@ $root->line_break = 0;
 /////////////////////////////////////////////////
 // Use extended table format like a PukiWikiMod
 $root->extended_table_format = 1;
+
+// Enable text-align of cell by spaces.
+$root->space_cell_align = 1;
+
+// Enable text-align of cell by symbols("<", "=" & ">").
+$root->symbol_cell_align = 1;
 
 /////////////////////////////////////////////////
 // Use date-time rules (See rules.ini.php)
