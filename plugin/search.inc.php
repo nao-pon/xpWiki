@@ -1,6 +1,6 @@
 <?php
 // PukiWiki - Yet another WikiWikiWeb clone.
-// $Id: search.inc.php,v 1.7 2008/05/28 08:06:17 nao-pon Exp $
+// $Id: search.inc.php,v 1.8 2008/06/09 01:34:29 nao-pon Exp $
 //
 // Search plugin
 class xpwiki_plugin_search extends xpwiki_plugin {
@@ -63,7 +63,7 @@ class xpwiki_plugin_search extends xpwiki_plugin {
 			}
 			
 			$msg  = str_replace('$1', $s_word, $this->root->_title_result);
-			$options = array('field' => $filed, 'spZen' => TRUE);
+			$options = array('field' => $filed, 'spZen' => TRUE, 'context' => TRUE);
 			$body = $this->func->do_search($this->root->vars['word'], $type, FALSE, $base, $options);
 		} else {
 			// Init

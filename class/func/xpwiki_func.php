@@ -1,7 +1,7 @@
 <?php
 //
 // Created on 2006/10/02 by nao-pon http://hypweb.net/
-// $Id: xpwiki_func.php,v 1.183 2008/06/03 06:42:08 nao-pon Exp $
+// $Id: xpwiki_func.php,v 1.184 2008/06/09 01:34:29 nao-pon Exp $
 //
 class XpWikiFunc extends XpWikiXoopsWrapper {
 
@@ -2510,7 +2510,7 @@ EOD;
 				$data = mb_convert_kana($data,'aKVC');
 			}
 		}
-		$data = addslashes(preg_replace("/[\s]+/","",$data));
+		$data = addslashes(preg_replace("/[\s]+/"," ",$data));
 
 		// ページ更新
 		if ($action === 'update') {
@@ -2909,6 +2909,7 @@ EOD;
 			'offset' => 0,
 			'userid' => 0,
 			'spZen'  => FALSE,
+			'context'   => FALSE,
 		);
 		
 		$options = array_merge($def_options, $options);
@@ -2934,7 +2935,9 @@ EOD;
 			$where = "$where AND ($where_readable)";
 		}
 		
-		$sql = "SELECT p.name, p.editedtime, p.title FROM ".$this->xpwiki->db->prefix($this->root->mydirname."_pginfo")." p INNER JOIN ".$this->xpwiki->db->prefix($this->root->mydirname."_plain")." t ON t.pgid=p.pgid WHERE ($where) ";
+		$sel_desc = ($options['context'])? ', t.plain' : '';
+		
+		$sql = 'SELECT p.name, p.editedtime, p.title'.$sel_desc.' FROM '.$this->xpwiki->db->prefix($this->root->mydirname."_pginfo")." p INNER JOIN ".$this->xpwiki->db->prefix($this->root->mydirname."_plain")." t ON t.pgid=p.pgid WHERE ($where) ";
 		if ( $options['userid'] != 0 ) {
 			$sql .= "AND (p.uid=".$options['userid'].") ";
 		}
@@ -2978,6 +2981,7 @@ EOD;
 		}
 		while($myrow = $this->xpwiki->db->fetchArray($result)) {
 			$pages[$myrow['name']] = array($myrow['editedtime'], $myrow['title']);
+			if ($options['context']) $pages[$myrow['name']][2] = $myrow['plain'];
 		}
 		
 		if ($non_format) return array_keys($pages);
@@ -2999,7 +3003,11 @@ EOD;
 			$s_page  = htmlspecialchars($page);
 			$passage = $this->root->show_passage ? ' ' . $this->get_passage($data[0]) : '';
 			$retval .= ' <li><a href="' . $this->get_page_uri($page, TRUE) . ($this->root->static_url ? '?' : '&amp;') . 'word=' . $r_word . '">' . $s_page .
-				'</a><small>' . $passage . '</small> [ ' . htmlspecialchars($data[1]) . ' ]</li>' . "\n";
+				'</a><small>' . $passage . '</small> [ ' . htmlspecialchars($data[1]) . ' ]' . "\n";
+			if ($options['context']) {
+				$retval .= '<div class="context">' . HypCommonFunc::make_context($data[2], $keywords) . '</div>';
+			}
+			$retval .= '</li>';
 		}
 		$retval .= '</ul>' . "\n";
 	
