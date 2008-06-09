@@ -1,6 +1,6 @@
 <?php
 // PukiWiki - Yet another WikiWikiWeb clone.
-// $Id: keitai.skin.php,v 1.2 2007/12/17 07:52:28 nao-pon Exp $
+// $Id: keitai.skin.php,v 1.3 2008/06/09 01:53:16 nao-pon Exp $
 // Copyright (C) 2003-2006 PukiWiki Developers Team
 // License: GPL v2 or (at your option) any later version
 //
@@ -15,10 +15,11 @@ if (! isset($this->cont['UI_LANG'])) die('UI_LANG is not set');
 $this->root->runmode = "standalone";
 
 $pageno = (isset($this->root->vars['p']) && is_numeric($this->root->vars['p'])) ? $this->root->vars['p'] : 0;
-$edit = (isset($this->root->vars['cmd'])    && $this->root->vars['cmd']    == 'edit') ||
-	(isset($this->root->vars['plugin']) && $this->root->vars['plugin'] == 'edit');
-
-$this->root->max_size = --$this->root->max_size * 1024; // Make 1KByte spare (for $navi, etc)
+$edit = (isset($this->root->vars['cmd']) && $this->root->vars['cmd'] === 'edit') ||
+	(isset($this->root->vars['plugin']) && $this->root->vars['plugin'] === 'edit');
+$read = (isset($this->root->vars['cmd']) && $this->root->vars['cmd'] === 'read') ||
+	(isset($this->root->vars['plugin']) && $this->root->vars['plugin'] === 'read');
+$this->root->max_size = $this->root->max_size * 1024 - 500; // Make 500bytes spare for HTTP Header & Pageing navi.
 $link = $_LINK;
 $rw = ! $this->cont['PKWK_READONLY'];
 
@@ -26,13 +27,23 @@ $rw = ! $this->cont['PKWK_READONLY'];
 // Modify
 
 // Ignore &dagger;s
-//$body = preg_replace('#<a[^>]+>' . preg_quote($this->root->_symbol_anchor, '#') . '</a>#', '', $body);
+$body = preg_replace('#<a[^>]+>' . preg_quote($this->root->_symbol_anchor, '#') . '</a>#S', '', $body);
+
+// For shows inline image by "ref"
+$body = preg_replace('#(<div[^>]+>)?((<a[^>]+>)?<)img([^>]*) class="m"([^>]*>(?(3)</a>))(?(1)</div>)#iS', '$2pic$4$5', $body);
 
 // Shrink IMG tags (= images) with character strings
 // With ALT option
-$body = preg_replace('#(<div[^>]+>)?(<a[^>]+>)?<img[^>]*alt="([^"]+)"[^>]*>(?(2)</a>)(?(1)</div>)#i', '[$3]', $body);
+$body = preg_replace('#(<div[^>]+>)?(<a[^>]+>)?<img[^>]*alt="([^"]+)"[^>]*>(?(2)(</a>))(?(1)</div>)#iS', '[$2$3$4]', $body);
 // Without ALT option
-$body = preg_replace('#(<div[^>]+>)?(<a[^>]+>)?<img[^>]+>(?(2)</a>)(?(1)</div>)#i', '[img]', $body);
+$body = preg_replace('#(<div[^>]+>)?(<a[^>]+>)?<img[^>]+>(?(2)(</a>))(?(1)</div>)#iS', '[$2img$3]', $body);
+$body = str_replace('[img]', '', $body);
+
+// Reformat IMG tags
+$body = str_replace('<pic', '<img', $body);
+
+// Remove etc.
+if (HypCommonFunc::get_version() >= 20080609) $body = HypCommonFunc::html_diet_for_hp($body, $this->root->siteinfo['host']);
 
 // ----
 
@@ -43,62 +54,105 @@ $pagecount = ceil(strlen($body) / $this->root->max_size);
 if ($edit && $pagecount > 1)
    	die('Unable to edit: Too large contents for your device');
 
-// Get one page
-$body = substr($body, $pageno * $this->root->max_size, $this->root->max_size);
-
 // ----
 // Top navigation (text) bar
 
 $navi = array();
-$navi[] = '<a href="' . $link['top']  . '" ' . $this->root->accesskey . '="0">0.Top</a>';
+$navi[] = '<a href="#h" name="h" ' . $this->root->accesskey . '="0">0:Top</a>';
+//$navi[] = '<a href="' . $link['top']  . '" ' . $this->root->accesskey . '="1">1:Home</a>';
+$navi[] = '<a href="' . $this->root->script . '?' . rawurlencode($this->root->menubar) . '" ' . $this->root->accesskey . '="1">1:Menu</a>';
 if ($rw) {
-	$navi[] = '<a href="' . $link['new']  . '" ' . $this->root->accesskey . '="1">1.New</a>';
-	$navi[] = '<a href="' . $link['edit'] . '" ' . $this->root->accesskey . '="2">2.Edit</a>';
+	$navi[] = '<a href="' . $link['new']  . '" ' . $this->root->accesskey . '="2">2.New</a>';
+	if (!$is_freeze && $is_editable) $navi[] = '<a href="' . $link['edit'] . '" ' . $this->root->accesskey . '="3">3:Edit</a>';
 	if ($is_read && $this->root->function_freeze) {
 		if (! $is_freeze) {
-			$navi[] = '<a href="' . $link['freeze']   . '" ' . $this->root->accesskey . '="3">3.Freeze</a>';
+			$navi[] = '<a href="' . $link['freeze']   . '" ' . $this->root->accesskey . '="4">4:Frez</a>';
 		} else {
-			$navi[] = '<a href="' . $link['unfreeze'] . '" ' . $this->root->accesskey . '="3">3.Unfreeze</a>';
+			$navi[] = '<a href="' . $link['unfreeze'] . '" ' . $this->root->accesskey . '="4">4:Ufrz</a>';
 		}
 	}
 }
-$navi[] = '<a href="' . $this->root->script . '?' . rawurlencode($this->root->menubar) . '" ' . $this->root->accesskey . '="4">4.Menu</a>';
-$navi[] = '<a href="' . $link['recent'] . '" ' . $this->root->accesskey . '="5">5.Recent</a>';
+if ($is_read) $navi[] = '<a href="' . $link['diff'] . '" ' . $this->root->accesskey . '="5">5:Diff</a>';
+$navi[] = '<a href="' . $link['recent'] . '" ' . $this->root->accesskey . '="6">6:Rect</a>';
+$navi[] = '<a href="' . $link['search'] . '" ' . $this->root->accesskey . '="7">7:Srch</a>';
 
 // Previous / Next block
+$pager = array();
 if ($pagecount > 1) {
+	if ($read) {
+		$base = $this->root->script . '?cmd=read&amp;page=' . $r_page;
+	} else {
+		$querys = array();
+		foreach($_GET as $key => $val) {
+			if ($key !== 'p') {
+				$querys[] = $key . (($val !== '') ? '=' . rawurlencode($val) : '');
+			}
+		}
+		$base = $this->root->script . '?' . join('&amp;', $querys);
+	}
 	$prev = $pageno - 1;
 	$next = $pageno + 1;
 	if ($pageno > 0) {
-		$navi[] = '<a href="' . $this->root->script . '?cmd=read&amp;page=' . $r_page .
-			'&amp;p=' . $prev . '" ' . $this->root->accesskey . '="7">7.Prev</a>';
+		$pager[] = '<a href="' . $base .
+			(($prev > 1)? '&amp;p=' . $prev : '') . '" ' . $this->root->accesskey . '="*">*:Prev</a>';
 	}
-	$navi[] = $next . '/' . $pagecount . ' ';
+	$pager[] = $next . '/' . $pagecount . ' ';
 	if ($pageno < $pagecount - 1) {
-		$navi[] = '<a href="' . $this->root->script . '?cmd=read&amp;page=' . $r_page .
-			'&amp;p=' . $next . '" ' . $this->root->accesskey . '="8">8.Next</a>';
+		$pager[] = '<a href="' . $base .
+			'&amp;p=' . $next . '" ' . $this->root->accesskey . '="#">#:Next</a>';
 	}
 }
 
 $navi = join(' | ', $navi);
 
+$h_navi = $f_navi = '';
+if ($pager) {
+	$pager = join(' | ', $pager);
+	$h_navi = '<br>' . $pager;
+	$f_navi = '<hr>' . $pager;
+}
+
+$topicpath = '';
+if (!$is_top) {
+   $topicpath = $this->do_plugin_inline('topicpath','',$_dum) . '<hr>';
+}
+
+$header = '<html><head><title>' . $title . '</title></head><body>' . $navi . '$h_navi<hr>' . $topicpath;
+$footer = '$f_navi</body></html>';
+
+if (HypCommonFunc::get_version() >= 20080609) {
+	$header = HypCommonFunc::html_diet_for_hp($header, $this->root->siteinfo['host']);
+	$footer = HypCommonFunc::html_diet_for_hp($footer, $this->root->siteinfo['host']);
+}
+
+$extra_len = strlen($header.$footer);
+
+$header = str_replace('$h_navi', $h_navi, $header);
+$footer = str_replace('$f_navi', $f_navi, $footer);
+
+// To Shift-JIS
+$header = mb_convert_encoding($header, 'SJIS', $this->cont['SOURCE_ENCODING']);
+$footer = mb_convert_encoding($footer, 'SJIS', $this->cont['SOURCE_ENCODING']);
+$body = mb_convert_encoding($body, 'SJIS', $this->cont['SOURCE_ENCODING']);
+
+// Get one page
+if ($pagecount > 1) {
+	if (HypCommonFunc::get_version() >= 20080609) {
+		$bodys = HypCommonFunc::html_split($body, ($this->root->max_size - $extra_len), 'SJIS');
+		$body = $bodys[$pageno];
+	} else {
+		$body = substr($body, $pageno * ($this->root->max_size - $extra_len), ($this->root->max_size - $extra_len));
+	}
+}
+
+$out = $header . $body . $footer;
+
 // ----
 // Output HTTP headers
 $this->pkwk_headers_sent();
-if(TRUE) {
-	// Force Shift JIS encode for Japanese embedded browsers and devices
-	header('Content-Type: text/html; charset=Shift_JIS');
-	$title = mb_convert_encoding($title, 'SJIS', $this->cont['SOURCE_ENCODING']);
-	$body  = mb_convert_encoding($body,  'SJIS', $this->cont['SOURCE_ENCODING']);
-} else {
-	header('Content-Type: text/html; charset=' . $this->cont['CONTENT_CHARSET']);
-}
+// Force Shift JIS encode for Japanese embedded browsers and devices
+header('Content-Type: text/html; charset=Shift_JIS');
+header('Content-Length: ' . strlen($out));
 
 // Output
-?><html><head><title><?php
-	echo $title
-?></title></head><body><?php
-	echo $navi
-?><hr><?php
-	echo $body
-?></body></html>
+echo $out;

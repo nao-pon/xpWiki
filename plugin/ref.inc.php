@@ -1,5 +1,5 @@
 <?php
-// $Id: ref.inc.php,v 1.32 2008/05/31 00:46:11 nao-pon Exp $
+// $Id: ref.inc.php,v 1.33 2008/06/09 01:53:16 nao-pon Exp $
 /*
 
 	*プラグイン ref
@@ -371,9 +371,9 @@ class xpwiki_plugin_ref extends xpwiki_plugin {
 					//著作権保護されている場合はサイズ$this->cont['PLUGIN_REF_COPYRIGHT_IMG_MAX%']%以内かつ縦横 $this->cont['PLUGIN_REF_COPYRIGHT_IMG_MAX']px 以内で表示
 					$params['_size'] = TRUE;
 					if ($img['org_w'] > $this->cont['PLUGIN_REF_COPYRIGHT_IMG_MAX'] || $img['org_h'] > $this->cont['PLUGIN_REF_COPYRIGHT_IMG_MAX'] ) {
-						$params['_w'] = $this->cont['PLUGIN_REF_COPYRIGHT_IMG_MAX'];
-						$params['_h'] = $this->cont['PLUGIN_REF_COPYRIGHT_IMG_MAX'];
+						$params['_h'] = $params['_w'] = $this->cont['PLUGIN_REF_COPYRIGHT_IMG_MAX'];
 						$params['zoom'] = TRUE;
+						$params['_%'] = '';
 					} else {
 						$params['_%'] = $this->cont['PLUGIN_REF_COPYRIGHT_IMG_MAX%'];
 					}
@@ -381,6 +381,18 @@ class xpwiki_plugin_ref extends xpwiki_plugin {
 				
 				// イメージ表示サイズの取得
 				$this->get_show_imagesize($img, $params);
+				
+				// 携帯用画像サイズ再設定
+				if ($this->cont['UA_PROFILE'] === 'keitai') {
+					if ($img['width'] > $this->root->keitai_img_px || $img['height'] > $this->root->keitai_img_px) {
+						$params['_h'] = $params['_w'] = $this->root->keitai_img_px;
+						$params['zoom'] = TRUE;
+						$params['_%'] = '';
+						$this->get_show_imagesize($img, $params);
+						$img['class'] = ' class="m"';
+					}
+				}
+				
 				$lvar['img'] = $img;
 				$lvar['title'][] = $img['title'];
 
@@ -399,12 +411,13 @@ class xpwiki_plugin_ref extends xpwiki_plugin {
 				//if ( !strstr($this->root->ua, "MSIE")) $title = str_replace("&#13;&#10;"," ",$title);
 
 				$lvar['url'] = $lvar['file'];
-				if ($params['_%']) {
-					$s_file = $this->cont['UPLOAD_DIR']."s/".$this->func->encode($lvar['page']).'_'.$this->func->encode($params['_%']."%".$lvar['name']);
+				if ($params['_%'] && $params['_%'] < 95) {
+					$_file = preg_split('/(\.[a-zA-Z]+)?$/', $lvar['name'], -1, PREG_SPLIT_DELIM_CAPTURE);
+					$s_file = $this->cont['UPLOAD_DIR']."s/".$this->func->encode($lvar['page']).'_'.$params['_%']."_".$this->func->encode($_file[0]).$_file[1];
 					if (file_exists($s_file)) {
 						//サムネイル作成済みならそれを参照
 						$lvar['url'] = $s_file;
-					} else if ($params['_%'] < 95) {
+					} else {
 						//サムネイル作成
 						$lvar['url'] = $this->make_thumb($lvar['file'], $s_file, $img['width'], $img['height']);
 					}
@@ -811,6 +824,7 @@ _HTML_;
 				$width  = (int)($width  * $params['_%'] / 100);
 				$height = (int)($height * $params['_%'] / 100);
 			}
+			$params['_%'] = round($params['_%']);
 		}
 		
 		$img['title'] = "SIZE:{$img['org_w']}x{$img['org_h']}({$params['fsize']})";
@@ -1018,7 +1032,7 @@ _HTML_;
 		} else {
 			$returi = ($this->root->render_mode !== 'render')? '' :
 				'&amp;returi='.rawurlencode($_SERVER['REQUEST_URI']);
-			$name = (isset($lvar['refid']))? '&amp;refid=' . rawurlencode($lvar['refid']) : (($lvar['name'])? '&amp;filename=' . rawurlencode($lvar['name']) : '');
+			$name = (!empty($lvar['refid']))? '&amp;refid=' . rawurlencode($lvar['refid']) : (($lvar['name'])? '&amp;filename=' . rawurlencode($lvar['name']) : '');
 			$params['_body'] = '<a href="'.$this->root->script.
 				'?plugin=attach&amp;pcmd=upload'.$name.
 				'&amp;page='.rawurlencode($lvar['page']).

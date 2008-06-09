@@ -1,7 +1,7 @@
 <?php
 /*
  * Created on 2008/03/24 by nao-pon http://hypweb.net/
- * $Id: attach.php,v 1.3 2008/05/14 07:16:41 nao-pon Exp $
+ * $Id: attach.php,v 1.4 2008/06/09 01:53:16 nao-pon Exp $
  */
 
 //-------- епеще╣
@@ -616,9 +616,11 @@ EOD;
 			or die('directory '.$this->cont['UPLOAD_DIR'].'s/ is not exist or not readable.');
 		
 		$root = $this->cont['UPLOAD_DIR']."s/".$this->func->encode($this->page).'_';
+		$_file = preg_split('/(\.[a-zA-Z]+)?$/', $this->file, -1, PREG_SPLIT_DELIM_CAPTURE);
+		$_file = $this->func->encode($_file[0]) . $_file[1];
 		for ($i = 1; $i < 100; $i++)
 		{
-			$file = $root.$this->func->encode($i."%").$this->func->encode($this->file);
+			$file = $root . $i . '_' . $_file;
 			if (file_exists($file))
 			{
 				unlink($file);
