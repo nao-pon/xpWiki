@@ -1,7 +1,7 @@
 <?php
 //
 // Created on 2006/10/13 by nao-pon http://hypweb.net/
-// $Id: init.php,v 1.53 2008/05/30 08:43:48 nao-pon Exp $
+// $Id: init.php,v 1.54 2008/06/09 01:36:33 nao-pon Exp $
 //
 
 $root = & $this->root;
@@ -146,9 +146,10 @@ $root->script = $const['HOME_URL'];
 // INI_FILE: $agents:  UserAgent¤Î¼±ÊÌ
 
 $root->ua = empty($_SERVER['HTTP_USER_AGENT'])? '' : $_SERVER['HTTP_USER_AGENT'];
+
 $user_agent = $matches = array();
 
-$user_agent['agent'] = isset($_SERVER['HTTP_USER_AGENT']) ? $_SERVER['HTTP_USER_AGENT'] : '';
+$user_agent['agent'] = $root->ua;
 
 foreach ($root->agents as $agent) {
 	if (preg_match($agent['pattern'], $user_agent['agent'], $matches)) {
