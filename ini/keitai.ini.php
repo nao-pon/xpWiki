@@ -1,6 +1,6 @@
 <?php
 // PukiWiki - Yet another WikiWikiWeb clone.
-// $Id: keitai.ini.php,v 1.9 2008/02/17 14:25:49 nao-pon Exp $
+// $Id: keitai.ini.php,v 1.10 2008/06/09 01:53:16 nao-pon Exp $
 // Copyright (C)
 //   2002-2005 PukiWiki Developers Team
 //   2001-2002 Originally written by yu-ji
@@ -123,7 +123,7 @@ $root->hierarchy_insert = '';
 // Long word break limit
 $root->word_break_limit = 0;
 // WordBeark ('&#8203;' or '<wbr>' or '' etc.)
-$root->word_breaker = '&#8203;';
+$root->word_breaker = '';
 
 /////////////////////////////////////////////////
 // accesskey (SKINで使用)
@@ -144,6 +144,8 @@ $root->max_size = 5;	// SKINで使用, KByte
 // cols: テキストエリアのカラム数 rows: 行数
 $root->cols = 22; $root->rows = 5;	// i_mode
 
+// ref でのイメージサイズの最大px
+$root->keitai_img_px = 96;
 
 /////////////////////////////////////////////////
 // ブラウザに合わせた調整
@@ -180,11 +182,13 @@ switch ($root->ua_name) {
 		$matches = array("");
 		preg_match('/^([0-9]+)\./', $user_agent['vers'], $matches);
 		switch($matches[1]){
-		case '3': $root->max_size =   6; break; // C type: lt   6000bytes
+		case '3': $root->max_size =   6; break; // C type: lt 6000bytes
 		case '4': $root->max_size =  12; break; // P type: lt  12Kbytes
-		case '5': $root->max_size =  40; break; // W type: lt 200Kbytes
+		case '5': $root->max_size =  40; break; // W type: lt  48Kbytes
 		}
 		$root->cols = 24; $root->rows = 20;
+		// 識別番号の削除
+		$root->ua = preg_replace('#/SN[^ ]+#', '', $root->ua);
 		break;
 
 	case 'Vodafone':
@@ -195,6 +199,8 @@ switch ($root->ua_name) {
 		case '1': $root->max_size = 40; break;
 		}
 		$root->cols = 24; $root->rows = 20;
+		// 識別番号の削除
+		$root->ua = preg_replace('#/SN[^ ]+#', '', $root->ua);
 		break;
 
 	// UP.Browser
@@ -207,7 +213,7 @@ switch ($root->ua_name) {
 }
 
 // Browser-name + version
-switch ("$root->ua_name/$root->ua_vers") {
+switch ($root->ua_name.'/'.$root->ua_vers) {
 	// Restriction For imode:
 	//  http://www.nttdocomo.co.jp/mc-user/i/tag/s2.html
 	case 'DoCoMo/2.0':	$root->max_size = min($root->max_size, 30); break;
