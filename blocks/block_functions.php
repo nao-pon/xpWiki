@@ -181,7 +181,7 @@ function b_xpwiki_block_show( $options, $src, $nocache = false )
 	$width = empty( $options[1] ) ? '100%' : $options[1] ;
 	$this_template = empty( $options[2] ) ? 'db:'.$mydirname.'_block_a_page.html' : trim( $options[2] ) ;
 	$div_class = empty( $options[3] ) ? 'xpwiki_b_' . $mydirname : $options[3];
-	$css = isset( $options[4] ) ? $options[4] : $xw->root->main_css;
+	$css = isset( $options[4] ) ? $options[4] : NULL;
 	$head_tag_place = empty($options[5])? 'module' : trim($options[5]);
 
 	$configs = array();
