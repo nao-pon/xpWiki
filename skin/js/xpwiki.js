@@ -499,7 +499,10 @@ var XpWiki = {
 			}
 		}
 		for (var i=0; i<pres.length; i++) {
-			pres[i].style.width = pres[i].offsetParent.offsetWidth - pres[i].offsetLeft - 30 + 'px';
+			var width = pres[i].offsetParent.offsetWidth - pres[i].offsetLeft - 30;
+			if (width > 0) {
+				pres[i].style.width = width + 'px';
+			}
 		}
 	},
 
