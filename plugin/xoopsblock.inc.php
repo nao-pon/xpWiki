@@ -2,7 +2,7 @@
 class xpwiki_plugin_xoopsblock extends xpwiki_plugin {
 	
 	function plugin_xoopsblock_init() {
-	// $Id: xoopsblock.inc.php,v 1.6 2008/03/02 08:59:41 nao-pon Exp $
+	// $Id: xoopsblock.inc.php,v 1.7 2008/06/10 09:12:20 nao-pon Exp $
 	
 	/*
 	 * countdown.inc.php
@@ -67,7 +67,9 @@ class xpwiki_plugin_xoopsblock extends xpwiki_plugin {
 		$arr = array();
 		$side = null;
 		
-		if ( $xoopsUser ) {
+		if ($this->root->userinfo['admin']) {
+			$arr = $xoopsblock->getAllBlocks();
+		} else if ( $xoopsUser ) {
 			$arr = $xoopsblock->getAllBlocksByGroup($xoopsUser->groups());
 		} else {
 			$arr = $xoopsblock->getAllBlocksByGroup($this->plugin_xoopsblock_getByType("Anonymous"));
@@ -88,6 +90,11 @@ class xpwiki_plugin_xoopsblock extends xpwiki_plugin {
 			
 			require_once XOOPS_ROOT_PATH.'/class/template.php';
 			$xoopsTpl = new XoopsTpl();
+
+			if ($xoopsUser != '') {
+				$xoopsTpl->assign(array('xoops_isuser' => true, 'xoops_userid' => $xoopsUser->getVar('uid'), 'xoops_uname' => $xoopsUser->getVar('uname'), 'xoops_isadmin' => $xoopsUserIsAdmin));
+			}
+			$xoopsTpl->assign('xoops_requesturi', htmlspecialchars($GLOBALS['xoopsRequestUri'], ENT_QUOTES));
 
 			foreach ($tgt_bids as $bid) {
 				$myblock = new XoopsBlock($bid);
