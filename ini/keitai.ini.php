@@ -1,6 +1,6 @@
 <?php
 // PukiWiki - Yet another WikiWikiWeb clone.
-// $Id: keitai.ini.php,v 1.10 2008/06/09 01:53:16 nao-pon Exp $
+// $Id: keitai.ini.php,v 1.11 2008/06/10 09:13:36 nao-pon Exp $
 // Copyright (C)
 //   2002-2005 PukiWiki Developers Team
 //   2001-2002 Originally written by yu-ji
@@ -314,6 +314,8 @@ switch ($root->ua_name) {
     // Graphic icons for Vodafone (ex. J-PHONE) cell phones
     // http://www.dp.j-phone.com/dp/tool_dl/web/picword_top.php
     case 'J-PHONE':
+    case 'Vodafone':
+    case 'SoftBank':
 
 	$root->facemark_rules = array(
 	// Face marks
@@ -355,6 +357,7 @@ switch ($root->ua_name) {
 	'&amp;(pb8);'	=>	chr(27).'$FC'.chr(15),	// '&#57891;',
 	'&amp;(pb9);'	=>	chr(27).'$FD'.chr(15),	// '&#57892;',
 	'&amp;(pb0);'	=>	chr(27).'$FE'.chr(15),	// '&#57893;',
+	'&amp;(pb#);'	=>	chr(27).'$F0'.chr(15),	// '&#63877;',
 
 	// Others
 	'&amp;(zzz);'	=>	chr(27).'$E\\'.chr(15),
