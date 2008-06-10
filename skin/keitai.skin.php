@@ -1,6 +1,6 @@
 <?php
 // PukiWiki - Yet another WikiWikiWeb clone.
-// $Id: keitai.skin.php,v 1.4 2008/06/10 00:28:29 nao-pon Exp $
+// $Id: keitai.skin.php,v 1.5 2008/06/10 09:14:44 nao-pon Exp $
 // Copyright (C) 2003-2006 PukiWiki Developers Team
 // License: GPL v2 or (at your option) any later version
 //
@@ -49,23 +49,23 @@ if (HypCommonFunc::get_version() >= 20080609) $body = HypCommonFunc::html_diet_f
 // Top navigation (text) bar
 
 $navi = array();
-$navi[] = '<a href="#h" name="h" ' . $this->root->accesskey . '="0">0:Top</a>';
-//$navi[] = '<a href="' . $link['top']  . '" ' . $this->root->accesskey . '="1">1:Home</a>';
-$navi[] = '<a href="' . $this->root->script . '?' . rawurlencode($this->root->menubar) . '" ' . $this->root->accesskey . '="1">1:Menu</a>';
+$navi[] = '<a href="#h" name="h" ' . $this->root->accesskey . '="0">'.$this->make_link('&pb0;').'Top</a>';
+//$navi[] = '<a href="' . $link['top']  . '" ' . $this->root->accesskey . '="1">'.$this->make_link('&pb1;').'Home</a>';
+$navi[] = '<a href="' . $this->root->script . '?' . rawurlencode($this->root->menubar) . '" ' . $this->root->accesskey . '="1">'.$this->make_link('&pb1;').'Menu</a>';
 if ($rw) {
-	$navi[] = '<a href="' . $link['new']  . '" ' . $this->root->accesskey . '="2">2.New</a>';
-	if (!$is_freeze && $is_editable) $navi[] = '<a href="' . $link['edit'] . '" ' . $this->root->accesskey . '="3">3:Edit</a>';
+	$navi[] = '<a href="' . $link['new']  . '" ' . $this->root->accesskey . '="2">'.$this->make_link('&pb2;').'New</a>';
+	if (!$is_freeze && $is_editable) $navi[] = '<a href="' . $link['edit'] . '" ' . $this->root->accesskey . '="3">'.$this->make_link('&pb3;').'Edit</a>';
 	if ($is_read && $this->root->function_freeze) {
 		if (! $is_freeze) {
-			$navi[] = '<a href="' . $link['freeze']   . '" ' . $this->root->accesskey . '="4">4:Frez</a>';
+			$navi[] = '<a href="' . $link['freeze']   . '" ' . $this->root->accesskey . '="4">'.$this->make_link('&pb4;').'Frez</a>';
 		} else {
-			$navi[] = '<a href="' . $link['unfreeze'] . '" ' . $this->root->accesskey . '="4">4:Ufrz</a>';
+			$navi[] = '<a href="' . $link['unfreeze'] . '" ' . $this->root->accesskey . '="4">'.$this->make_link('&pb4;').'Ufrz</a>';
 		}
 	}
 }
-if ($is_read) $navi[] = '<a href="' . $link['diff'] . '" ' . $this->root->accesskey . '="5">5:Diff</a>';
-$navi[] = '<a href="' . $link['recent'] . '" ' . $this->root->accesskey . '="6">6:Rect</a>';
-$navi[] = '<a href="' . $link['search'] . '" ' . $this->root->accesskey . '="7">7:Srch</a>';
+if ($is_read) $navi[] = '<a href="' . $link['diff'] . '" ' . $this->root->accesskey . '="5">'.$this->make_link('&pb5;').'Diff</a>';
+$navi[] = '<a href="' . $link['recent'] . '" ' . $this->root->accesskey . '="6">'.$this->make_link('&pb6;').'Rect</a>';
+$navi[] = '<a href="' . $link['search'] . '" ' . $this->root->accesskey . '="7">'.$this->make_link('&pb7;').'Srch</a>';
 
 $navi = join(' | ', $navi);
 
@@ -121,12 +121,12 @@ if (strlen($body) > $this->root->max_size) {
 			$pager[] = '<a href="' . $base . '">|&lt;</a>';
 		}
 		$pager[] = '<a href="' . $base .
-			(($prev > 0)? '&amp;p=' . $prev : '') . '" ' . $this->root->accesskey . '="*">*&lt;</a>';
+			(($prev > 0)? '&amp;p=' . $prev : '') . '" ' . $this->root->accesskey . '="*">[*]&lt;</a>';
 	}
 	$pager[] = $next . '/' . $pagecount . ' ';
 	if ($pageno < $pagecount - 1) {
 		$pager[] = '<a href="' . $base .
-			'&amp;p=' . $next . '" ' . $this->root->accesskey . '="#">#&gt;</a>';
+			'&amp;p=' . $next . '" ' . $this->root->accesskey . '="#">'.$this->make_link('&pb#;').'&gt;</a>';
 		if ($pageno < $pagecount - 2) {
 			$pager[] = '<a href="' . $base . '&amp;p=' . ($pagecount - 1) . '">&gt;|</a>';
 		}
