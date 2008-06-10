@@ -1,6 +1,6 @@
 <?php
 // PukiWiki - Yet another WikiWikiWeb clone.
-// $Id: keitai.skin.php,v 1.3 2008/06/09 01:53:16 nao-pon Exp $
+// $Id: keitai.skin.php,v 1.4 2008/06/10 00:28:29 nao-pon Exp $
 // Copyright (C) 2003-2006 PukiWiki Developers Team
 // License: GPL v2 or (at your option) any later version
 //
@@ -43,16 +43,7 @@ $body = str_replace('[img]', '', $body);
 $body = str_replace('<pic', '<img', $body);
 
 // Remove etc.
-if (HypCommonFunc::get_version() >= 20080609) $body = HypCommonFunc::html_diet_for_hp($body, $this->root->siteinfo['host']);
-
-// ----
-
-// Check content volume, Page numbers, divided by this skin
-$pagecount = ceil(strlen($body) / $this->root->max_size);
-
-// Too large contents to edit
-if ($edit && $pagecount > 1)
-   	die('Unable to edit: Too large contents for your device');
+if (HypCommonFunc::get_version() >= 20080609) $body = HypCommonFunc::html_diet_for_hp($body, $this->root->siteinfo['host'], $this->cont['SOURCE_ENCODING']);
 
 // ----
 // Top navigation (text) bar
@@ -76,41 +67,7 @@ if ($is_read) $navi[] = '<a href="' . $link['diff'] . '" ' . $this->root->access
 $navi[] = '<a href="' . $link['recent'] . '" ' . $this->root->accesskey . '="6">6:Rect</a>';
 $navi[] = '<a href="' . $link['search'] . '" ' . $this->root->accesskey . '="7">7:Srch</a>';
 
-// Previous / Next block
-$pager = array();
-if ($pagecount > 1) {
-	if ($read) {
-		$base = $this->root->script . '?cmd=read&amp;page=' . $r_page;
-	} else {
-		$querys = array();
-		foreach($_GET as $key => $val) {
-			if ($key !== 'p') {
-				$querys[] = $key . (($val !== '') ? '=' . rawurlencode($val) : '');
-			}
-		}
-		$base = $this->root->script . '?' . join('&amp;', $querys);
-	}
-	$prev = $pageno - 1;
-	$next = $pageno + 1;
-	if ($pageno > 0) {
-		$pager[] = '<a href="' . $base .
-			(($prev > 1)? '&amp;p=' . $prev : '') . '" ' . $this->root->accesskey . '="*">*:Prev</a>';
-	}
-	$pager[] = $next . '/' . $pagecount . ' ';
-	if ($pageno < $pagecount - 1) {
-		$pager[] = '<a href="' . $base .
-			'&amp;p=' . $next . '" ' . $this->root->accesskey . '="#">#:Next</a>';
-	}
-}
-
 $navi = join(' | ', $navi);
-
-$h_navi = $f_navi = '';
-if ($pager) {
-	$pager = join(' | ', $pager);
-	$h_navi = '<br>' . $pager;
-	$f_navi = '<hr>' . $pager;
-}
 
 $topicpath = '';
 if (!$is_top) {
@@ -121,29 +78,73 @@ $header = '<html><head><title>' . $title . '</title></head><body>' . $navi . '$h
 $footer = '$f_navi</body></html>';
 
 if (HypCommonFunc::get_version() >= 20080609) {
-	$header = HypCommonFunc::html_diet_for_hp($header, $this->root->siteinfo['host']);
-	$footer = HypCommonFunc::html_diet_for_hp($footer, $this->root->siteinfo['host']);
+	$header = HypCommonFunc::html_diet_for_hp($header, $this->root->siteinfo['host'], $this->cont['SOURCE_ENCODING']);
+	$footer = HypCommonFunc::html_diet_for_hp($footer, $this->root->siteinfo['host'], $this->cont['SOURCE_ENCODING']);
 }
 
 $extra_len = strlen($header.$footer);
 
+// To Shift-JIS
+$body = mb_convert_encoding($body, 'SJIS', $this->cont['SOURCE_ENCODING']);
+
+$h_navi = $f_navi = '';
+
+// Get one page
+if (strlen($body) > $this->root->max_size) {
+	if (HypCommonFunc::get_version() >= 20080609) {
+		$bodys = HypCommonFunc::html_split($body, ($this->root->max_size - $extra_len), 'SJIS');
+		$body = $bodys[$pageno];
+		$pagecount = count($bodys);
+	} else {
+		$body = substr($body, $pageno * ($this->root->max_size - $extra_len), ($this->root->max_size - $extra_len));
+		$pagecount = ceil(strlen($body) / $this->root->max_size);
+	}
+	
+	// Previous / Next block
+	$pager = array();
+
+	if ($read) {
+		$base = '?cmd=read&amp;page=' . $r_page;
+	} else {
+		$querys = array();
+		foreach($_GET as $key => $val) {
+			if ($key !== 'p') {
+				$querys[] = $key . (($val !== '') ? '=' . rawurlencode($val) : '');
+			}
+		}
+		$base = '?' . join('&amp;', $querys);
+	}
+	$prev = $pageno - 1;
+	$next = $pageno + 1;
+	if ($pageno > 0) {
+		if ($prev > 0) {
+			$pager[] = '<a href="' . $base . '">|&lt;</a>';
+		}
+		$pager[] = '<a href="' . $base .
+			(($prev > 0)? '&amp;p=' . $prev : '') . '" ' . $this->root->accesskey . '="*">*&lt;</a>';
+	}
+	$pager[] = $next . '/' . $pagecount . ' ';
+	if ($pageno < $pagecount - 1) {
+		$pager[] = '<a href="' . $base .
+			'&amp;p=' . $next . '" ' . $this->root->accesskey . '="#">#&gt;</a>';
+		if ($pageno < $pagecount - 2) {
+			$pager[] = '<a href="' . $base . '&amp;p=' . ($pagecount - 1) . '">&gt;|</a>';
+		}
+	}
+
+	$pager = '<center>' . join(' ', $pager) . '</center>';
+	$h_navi = '<br>' . $pager;
+	$f_navi = '<hr>' . $pager;
+
+}
+
+// Replace h_navi & f_navi
 $header = str_replace('$h_navi', $h_navi, $header);
 $footer = str_replace('$f_navi', $f_navi, $footer);
 
 // To Shift-JIS
 $header = mb_convert_encoding($header, 'SJIS', $this->cont['SOURCE_ENCODING']);
 $footer = mb_convert_encoding($footer, 'SJIS', $this->cont['SOURCE_ENCODING']);
-$body = mb_convert_encoding($body, 'SJIS', $this->cont['SOURCE_ENCODING']);
-
-// Get one page
-if ($pagecount > 1) {
-	if (HypCommonFunc::get_version() >= 20080609) {
-		$bodys = HypCommonFunc::html_split($body, ($this->root->max_size - $extra_len), 'SJIS');
-		$body = $bodys[$pageno];
-	} else {
-		$body = substr($body, $pageno * ($this->root->max_size - $extra_len), ($this->root->max_size - $extra_len));
-	}
-}
 
 $out = $header . $body . $footer;
 
