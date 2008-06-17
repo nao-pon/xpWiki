@@ -1,7 +1,7 @@
 <?php
 //
 // Created on 2006/10/11 by nao-pon http://hypweb.net/
-// $Id: xoops_wrapper.php,v 1.44 2008/06/17 00:21:39 nao-pon Exp $
+// $Id: xoops_wrapper.php,v 1.45 2008/06/17 02:10:43 nao-pon Exp $
 //
 class XpWikiXoopsWrapper extends XpWikiBackupFunc {
 	
@@ -62,7 +62,7 @@ class XpWikiXoopsWrapper extends XpWikiBackupFunc {
 		$this->root->siteinfo['anonymous'] = $xoopsConfig['anonymous'];
 		
 		$parsed_url = parse_url($this->root->siteinfo['rooturl']);
-		$this->root->siteinfo['host'] = $parsed_url['scheme'].'://'.$parsed_url['host'].($parsed_url['port']? ':' . $parsed_url['port'] : '');
+		$this->root->siteinfo['host'] = $parsed_url['scheme'].'://'.$parsed_url['host'].(isset($parsed_url['port'])? ':' . $parsed_url['port'] : '');
 	}
 		
 	function set_userinfo () {
