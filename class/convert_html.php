@@ -411,7 +411,7 @@ class XpWikiTableCell extends XpWikiElement {
 		if ($is_template && is_numeric($text))
 			$this->style['width'] = 'width:'.$text.'px;';
 
-		if ($text === '' || rtrim($text) === '<') {
+		if (rtrim($text) === '<' || ($this->root->empty_cell_join && $text === '')) {
 			$this->colspan = -1;
 		} else if (rtrim($text) === '>') {
 			$this->colspan = 0;
