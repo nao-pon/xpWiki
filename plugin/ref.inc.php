@@ -1,5 +1,5 @@
 <?php
-// $Id: ref.inc.php,v 1.33 2008/06/09 01:53:16 nao-pon Exp $
+// $Id: ref.inc.php,v 1.34 2008/06/17 00:21:39 nao-pon Exp $
 /*
 
 	*プラグイン ref
@@ -389,7 +389,6 @@ class xpwiki_plugin_ref extends xpwiki_plugin {
 						$params['zoom'] = TRUE;
 						$params['_%'] = '';
 						$this->get_show_imagesize($img, $params);
-						$img['class'] = ' class="m"';
 					}
 				}
 				

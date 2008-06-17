@@ -1,7 +1,7 @@
 <?php
 //
 // Created on 2006/10/13 by nao-pon http://hypweb.net/
-// $Id: init.php,v 1.54 2008/06/09 01:36:33 nao-pon Exp $
+// $Id: init.php,v 1.55 2008/06/17 00:21:39 nao-pon Exp $
 //
 
 $root = & $this->root;
@@ -367,7 +367,12 @@ if (isset($const['page_show'])) {
 		$page = $this->get_name_by_pgid((int)$root->get['pgid']);
 		if ($page !== '') {
 			if (!isset($root->get['page'])) $root->get['page'] = $page;
-			if (!isset($root->get['cmd']) && !isset($root->get['plugin'])) $root->get['cmd'] = 'read';
+			if (!isset($root->get['cmd']) && !isset($root->get['plugin'])) {
+				$root->get['cmd'] = 'read';
+				if ($root->static_url === 1) {
+					$_SERVER['QUERY_STRING'] = preg_replace('/&?pgid='.$root->get['pgid'].'/', '', $_SERVER['QUERY_STRING']);
+				}
+			}
 		} else {
 			header("HTTP/1.0 404 Not Found");
 			$arg = '';
@@ -431,9 +436,15 @@ if (isset($const['page_show'])) {
 		if (isset($_SERVER['PATH_INFO']) && $_SERVER['PATH_INFO'] !== '') {
 			$arg = trim($_SERVER['PATH_INFO'], '/');
 		} else {
+			// Remove session_name
+			$arg = preg_replace('/(?:^|&)' . preg_quote(session_name(), '/') . '=[^&]+/', '', $arg);
+			// K_TAI Render "_p_" (page numbar)
+			$arg = preg_replace('/(?:^|&)_p_=[^&]+/', '', $arg);
+			// K_TAI Render "_h_" (hash key)
+			$arg = preg_replace('/(?:^|&)_h_=[^&]+/', '', $arg);
 			// "&" °Ê¹ß¤òºï½ü
 			$arg = preg_replace('/&.*$/', '', $arg);
-
+			// 
 			$arg = rawurldecode($arg);
 		}
 

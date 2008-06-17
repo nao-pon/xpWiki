@@ -1,6 +1,6 @@
 <?php
 // PukiWiki - Yet another WikiWikiWeb clone.
-// $Id: keitai.ini.php,v 1.11 2008/06/10 09:13:36 nao-pon Exp $
+// $Id: keitai.ini.php,v 1.12 2008/06/17 00:21:39 nao-pon Exp $
 // Copyright (C)
 //   2002-2005 PukiWiki Developers Team
 //   2001-2002 Originally written by yu-ji
@@ -56,7 +56,7 @@ $root->_list_pad_str   = '';
 
 /////////////////////////////////////////////////
 // 大・小見出しから目次へ戻るリンクの文字
-$root->top = '';
+$root->top = $root->_msg_content_back_to_top;
 
 /////////////////////////////////////////////////
 // 添付ファイルの一覧を常に表示する (負担がかかります)
@@ -110,7 +110,7 @@ $root->link_compact = 1;
 // フェイスマークを絵文字に変換する (※i-mode, Vodafone, EzWebなど携帯電話限定)
 $root->usefacemark = 1;
 // 追加(XOOPS)のフェイスマークを使用する
-$root->use_extra_facemark = 0;
+$root->use_extra_facemark = 1;
 
 /////////////////////////////////////////////////
 // 長い英数文字列を表示域に合わせて改行する設定

@@ -1,7 +1,7 @@
 <?php
 //
 // Created on 2006/10/11 by nao-pon http://hypweb.net/
-// $Id: xoops_wrapper.php,v 1.43 2008/05/31 02:10:20 nao-pon Exp $
+// $Id: xoops_wrapper.php,v 1.44 2008/06/17 00:21:39 nao-pon Exp $
 //
 class XpWikiXoopsWrapper extends XpWikiBackupFunc {
 	
@@ -62,7 +62,7 @@ class XpWikiXoopsWrapper extends XpWikiBackupFunc {
 		$this->root->siteinfo['anonymous'] = $xoopsConfig['anonymous'];
 		
 		$parsed_url = parse_url($this->root->siteinfo['rooturl']);
-		$this->root->siteinfo['host'] = $parsed_url['scheme'].'://'.$parsed_url['host'];
+		$this->root->siteinfo['host'] = $parsed_url['scheme'].'://'.$parsed_url['host'].($parsed_url['port']? ':' . $parsed_url['port'] : '');
 	}
 		
 	function set_userinfo () {
@@ -365,6 +365,8 @@ class XpWikiXoopsWrapper extends XpWikiBackupFunc {
 	
 	// リダイレクト
 	function redirect_header($url, $wait = 3, $title = '', $addredirect = true) {
+		$url = $this->href_give_session_id($url);
+		$url = str_replace('&amp;', '&', $url);
 		redirect_header($url, $wait, $title, $addredirect);
 		exit;
 	}
