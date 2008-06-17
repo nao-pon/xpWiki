@@ -1,6 +1,6 @@
 <?php
 // PukiWiki - Yet another WikiWikiWeb clone
-// $Id: pukiwiki.ini.php,v 1.79 2008/06/09 02:05:26 nao-pon Exp $
+// $Id: pukiwiki.ini.php,v 1.80 2008/06/17 00:47:49 nao-pon Exp $
 // Copyright (C)
 //   2002-2006 PukiWiki Developers Team
 //   2001-2002 Originally written by yu-ji
@@ -656,6 +656,9 @@ $root->space_cell_align = 1;
 
 // Enable text-align of cell by symbols("<", "=" & ">").
 $root->symbol_cell_align = 1;
+
+// Enable join cell with empty cell.
+$root->empty_cell_join = 1;
 
 /////////////////////////////////////////////////
 // Use date-time rules (See rules.ini.php)
