@@ -1,6 +1,6 @@
 <?php
 // PukiWiki - Yet another WikiWikiWeb clone.
-// $Id: keitai.skin.php,v 1.5 2008/06/10 09:14:44 nao-pon Exp $
+// $Id: keitai.skin.php,v 1.6 2008/06/17 00:21:39 nao-pon Exp $
 // Copyright (C) 2003-2006 PukiWiki Developers Team
 // License: GPL v2 or (at your option) any later version
 //
@@ -22,131 +22,98 @@ $read = (isset($this->root->vars['cmd']) && $this->root->vars['cmd'] === 'read')
 $this->root->max_size = $this->root->max_size * 1024 - 500; // Make 500bytes spare for HTTP Header & Pageing navi.
 $link = $_LINK;
 $rw = ! $this->cont['PKWK_READONLY'];
+$dirname = $this->root->mydirname;
 
 // ----
 // Modify
+$heads = array();
+
+if ($page_comments_count) {
+	$heads[] = $page_comments_count;
+}
+
+if ($page_comments) {
+	$body .= '<hr>' . $page_comments;
+}
+
+if ($heads) {
+	$body ='[ ' . join(' ', $heads) . ' ]<hr>' . $body;;
+}
 
 // Ignore &dagger;s
 $body = preg_replace('#<a[^>]+>' . preg_quote($this->root->_symbol_anchor, '#') . '</a>#S', '', $body);
 
-// For shows inline image by "ref"
-$body = preg_replace('#(<div[^>]+>)?((<a[^>]+>)?<)img([^>]*) class="m"([^>]*>(?(3)</a>))(?(1)</div>)#iS', '$2pic$4$5', $body);
-
-// Shrink IMG tags (= images) with character strings
-// With ALT option
-$body = preg_replace('#(<div[^>]+>)?(<a[^>]+>)?<img[^>]*alt="([^"]+)"[^>]*>(?(2)(</a>))(?(1)</div>)#iS', '[$2$3$4]', $body);
-// Without ALT option
-$body = preg_replace('#(<div[^>]+>)?(<a[^>]+>)?<img[^>]+>(?(2)(</a>))(?(1)</div>)#iS', '[$2img$3]', $body);
-$body = str_replace('[img]', '', $body);
-
-// Reformat IMG tags
-$body = str_replace('<pic', '<img', $body);
-
-// Remove etc.
-if (HypCommonFunc::get_version() >= 20080609) $body = HypCommonFunc::html_diet_for_hp($body, $this->root->siteinfo['host'], $this->cont['SOURCE_ENCODING']);
-
 // ----
 // Top navigation (text) bar
+$_empty = '&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;';
+$navi = '';
+$navi .= '<a href="'.$this->cont['ROOT_URL'].'" name="h" ' . $this->root->accesskey . '="1">'.$this->make_link('&pb1;').'Home</a>';
+$navi .= ' <a href="#xpwiki_navigator" ' . $this->root->accesskey . '="2">'.$this->make_link('&pb2;').'Head</a>';
+$navi .= ' <a href="' . $link['top']  . '" ' . $this->root->accesskey . '="3">'.$this->make_link('&pb3;').'Top&nbsp;</a>';
 
-$navi = array();
-$navi[] = '<a href="#h" name="h" ' . $this->root->accesskey . '="0">'.$this->make_link('&pb0;').'Top</a>';
-//$navi[] = '<a href="' . $link['top']  . '" ' . $this->root->accesskey . '="1">'.$this->make_link('&pb1;').'Home</a>';
-$navi[] = '<a href="' . $this->root->script . '?' . rawurlencode($this->root->menubar) . '" ' . $this->root->accesskey . '="1">'.$this->make_link('&pb1;').'Menu</a>';
+$navi .= '<br>';
+
+$navi .= $_empty;
+$navi .= ' <a href="' . $this->root->script . '?' . rawurlencode($this->root->menubar) . '" ' . $this->root->accesskey . '="5">'.$this->make_link('&pb5;').'Menu</a>';
+$navi .= ' ' . $_empty;
+
+$navi .= '<br>';
+
 if ($rw) {
-	$navi[] = '<a href="' . $link['new']  . '" ' . $this->root->accesskey . '="2">'.$this->make_link('&pb2;').'New</a>';
-	if (!$is_freeze && $is_editable) $navi[] = '<a href="' . $link['edit'] . '" ' . $this->root->accesskey . '="3">'.$this->make_link('&pb3;').'Edit</a>';
+	$navi .= '<a href="' . $link['new']  . '" ' . $this->root->accesskey . '="7">'.$this->make_link('&pb7;').'New&nbsp;</a>';
+	if (!$is_freeze && $is_editable) {
+		$navi .= ' <a href="' . $link['edit'] . '" ' . $this->root->accesskey . '="8">'.$this->make_link('&pb8;').'Edit</a>';
+	} else {
+		$navi .= ' ' . $_empty;
+	}
 	if ($is_read && $this->root->function_freeze) {
 		if (! $is_freeze) {
-			$navi[] = '<a href="' . $link['freeze']   . '" ' . $this->root->accesskey . '="4">'.$this->make_link('&pb4;').'Frez</a>';
+			$navi .= ' <a href="' . $link['freeze']   . '" ' . $this->root->accesskey . '="9">'.$this->make_link('&pb9;').'Frez</a>';
 		} else {
-			$navi[] = '<a href="' . $link['unfreeze'] . '" ' . $this->root->accesskey . '="4">'.$this->make_link('&pb4;').'Ufrz</a>';
+			$navi .= ' <a href="' . $link['unfreeze'] . '" ' . $this->root->accesskey . '="9">'.$this->make_link('&pb9;').'Ufrz</a>';
 		}
+	} else {
+		$navi .= ' ' . $_empty;
 	}
 }
-if ($is_read) $navi[] = '<a href="' . $link['diff'] . '" ' . $this->root->accesskey . '="5">'.$this->make_link('&pb5;').'Diff</a>';
-$navi[] = '<a href="' . $link['recent'] . '" ' . $this->root->accesskey . '="6">'.$this->make_link('&pb6;').'Rect</a>';
-$navi[] = '<a href="' . $link['search'] . '" ' . $this->root->accesskey . '="7">'.$this->make_link('&pb7;').'Srch</a>';
 
-$navi = join(' | ', $navi);
+$navi .= '<br>';
+
+$navi .= '<a href="' . $link['search'] . '" ' . $this->root->accesskey . '="*">*]Srch</a>';
+$navi .= ' <a href="' . $link['recent'] . '" ' . $this->root->accesskey . '="0">'.$this->make_link('&pb0;').'Rect</a>';
+if ($is_read) {
+	$navi .= ' <a href="' . $link['diff'] . '" ' . $this->root->accesskey . '="#">'.$this->make_link('&pb#;').'Diff</a>';
+} else {
+	$navi .= ' ' . $_empty;
+}
+$navi = '<center>' . $navi . '</center>';
 
 $topicpath = '';
 if (!$is_top) {
-   $topicpath = $this->do_plugin_inline('topicpath','',$_dum) . '<hr>';
+   $topicpath = '<div style="font-size:0.9em">' . $this->do_plugin_inline('topicpath','',$_dum) . '</div><hr>';
 }
 
-$header = '<html><head><title>' . $title . '</title></head><body>' . $navi . '$h_navi<hr>' . $topicpath;
-$footer = '$f_navi</body></html>';
+$head = '<head><title>' . mb_convert_encoding($title, 'SJIS', $this->cont['SOURCE_ENCODING']) . '</title></head>';
+$header = '<div id="' . $dirname . '_navigator">' . $navi . '</div><hr>' . $topicpath;
+$footer = '';
 
-if (HypCommonFunc::get_version() >= 20080609) {
-	$header = HypCommonFunc::html_diet_for_hp($header, $this->root->siteinfo['host'], $this->cont['SOURCE_ENCODING']);
-	$footer = HypCommonFunc::html_diet_for_hp($footer, $this->root->siteinfo['host'], $this->cont['SOURCE_ENCODING']);
-}
-
-$extra_len = strlen($header.$footer);
-
-// To Shift-JIS
-$body = mb_convert_encoding($body, 'SJIS', $this->cont['SOURCE_ENCODING']);
-
-$h_navi = $f_navi = '';
-
-// Get one page
-if (strlen($body) > $this->root->max_size) {
-	if (HypCommonFunc::get_version() >= 20080609) {
-		$bodys = HypCommonFunc::html_split($body, ($this->root->max_size - $extra_len), 'SJIS');
-		$body = $bodys[$pageno];
-		$pagecount = count($bodys);
-	} else {
-		$body = substr($body, $pageno * ($this->root->max_size - $extra_len), ($this->root->max_size - $extra_len));
-		$pagecount = ceil(strlen($body) / $this->root->max_size);
-	}
+if (HypCommonFunc::get_version() >= '20080617') {
+	HypCommonFunc::loadClass('HypKTaiRender');
+	$r = new HypKTaiRender();
+	$r->set_myRoot($this->root->siteinfo['host']);
+	$r->contents['header'] = $header;
+	$r->contents['body'] = $body;
+	$r->contents['footer'] = $footer;
+	$r->doOptimize();
+	$body = $r->outputBody;
 	
-	// Previous / Next block
-	$pager = array();
-
-	if ($read) {
-		$base = '?cmd=read&amp;page=' . $r_page;
-	} else {
-		$querys = array();
-		foreach($_GET as $key => $val) {
-			if ($key !== 'p') {
-				$querys[] = $key . (($val !== '') ? '=' . rawurlencode($val) : '');
-			}
-		}
-		$base = '?' . join('&amp;', $querys);
-	}
-	$prev = $pageno - 1;
-	$next = $pageno + 1;
-	if ($pageno > 0) {
-		if ($prev > 0) {
-			$pager[] = '<a href="' . $base . '">|&lt;</a>';
-		}
-		$pager[] = '<a href="' . $base .
-			(($prev > 0)? '&amp;p=' . $prev : '') . '" ' . $this->root->accesskey . '="*">[*]&lt;</a>';
-	}
-	$pager[] = $next . '/' . $pagecount . ' ';
-	if ($pageno < $pagecount - 1) {
-		$pager[] = '<a href="' . $base .
-			'&amp;p=' . $next . '" ' . $this->root->accesskey . '="#">'.$this->make_link('&pb#;').'&gt;</a>';
-		if ($pageno < $pagecount - 2) {
-			$pager[] = '<a href="' . $base . '&amp;p=' . ($pagecount - 1) . '">&gt;|</a>';
-		}
-	}
-
-	$pager = '<center>' . join(' ', $pager) . '</center>';
-	$h_navi = '<br>' . $pager;
-	$f_navi = '<hr>' . $pager;
-
+	$r = NULL;
+	unset($r);
+} else {
+	$body = '"keitai.skin" require HypCommonFunc >= 20080617';
 }
 
-// Replace h_navi & f_navi
-$header = str_replace('$h_navi', $h_navi, $header);
-$footer = str_replace('$f_navi', $f_navi, $footer);
-
-// To Shift-JIS
-$header = mb_convert_encoding($header, 'SJIS', $this->cont['SOURCE_ENCODING']);
-$footer = mb_convert_encoding($footer, 'SJIS', $this->cont['SOURCE_ENCODING']);
-
-$out = $header . $body . $footer;
+$out = '<html>' . $head . '<body>' .  $body . '</body></html>';
 
 // ----
 // Output HTTP headers

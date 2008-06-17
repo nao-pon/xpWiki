@@ -1,7 +1,7 @@
 <?php
 //
 // Created on 2006/10/02 by nao-pon http://hypweb.net/
-// $Id: xpwiki_func.php,v 1.184 2008/06/09 01:34:29 nao-pon Exp $
+// $Id: xpwiki_func.php,v 1.185 2008/06/17 00:21:39 nao-pon Exp $
 //
 class XpWikiFunc extends XpWikiXoopsWrapper {
 
@@ -1348,11 +1348,43 @@ EOD;
 		if (headers_sent()) {
 			$this->redirect_header($url, 0, $title);
 		} else {
+			$url = $this->href_give_session_id($url);
+			$url = str_replace('&amp;', '&', $url);
 			header('Location: ' . $url);
 		}
 		exit;
 	}
-	
+
+	function href_give_session_id ($url) {
+		
+		if (!defined('SID') || ! SID) return $url;
+		
+		$parsed_base = parse_url($this->cont['ROOT_URL']);
+		$parsed_url = parse_url($url);
+		
+		if (strtolower(substr($url, 0, 6)) === 'mailto') {
+			$parsed_url['scheme'] = 'mailto';
+			$parsed_url['host'] = $parsed_base['host'];
+		}
+		if (empty($parsed_url['host']) || ($parsed_url['host'] === $parsed_base['host'] && $parsed_url['scheme'] === $parsed_base['scheme'])) {
+			$url = preg_replace('/(?:\?|&(?:amp;)?)' . preg_quote(session_name(), '/') . '=[^&#>]+/', '', $url);
+			$url = preg_replace('/(?:\?|&(?:amp;)?)' . preg_quote($this->hashkey, '/') . '=[^&#>]+/', '', $url);
+			
+			list($href, $hash) = array_pad(explode('#', $url, 2), 2, '');
+			
+			if (!$href) {
+				$href = isset($_SERVER['QUERY_STRING'])? '?' . $_SERVER['QUERY_STRING'] : '';
+				$href = preg_replace('/(?:\?|&(?:amp;)?)' . preg_quote(session_name(), '/') . '=[^&]+/', '', $href);
+				$href = preg_replace('/(?:\?|&(?:amp;)?)' . preg_quote($this->hashkey, '/') . '=[^&]+/', '', $href);
+			};
+			
+			$href .= ((strpos($href, "?") === FALSE)? '?' : '&amp;') . '&amp;' . SID;
+			$url = $href . ($hash? '#' . $hash : '');
+		}
+		
+		return $url;
+	}
+
 	function send_xml ($res, $encode = 'UTF-8', $version = '1.0') {
 		error_reporting(0);
 		if (strtoupper($encode) === 'UTF-8' && strtoupper($this->cont['SOURCE_ENCODING']) === 'ISO-8859-1') {
