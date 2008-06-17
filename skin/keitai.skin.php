@@ -1,6 +1,6 @@
 <?php
 // PukiWiki - Yet another WikiWikiWeb clone.
-// $Id: keitai.skin.php,v 1.6 2008/06/17 00:21:39 nao-pon Exp $
+// $Id: keitai.skin.php,v 1.7 2008/06/17 10:14:11 nao-pon Exp $
 // Copyright (C) 2003-2006 PukiWiki Developers Team
 // License: GPL v2 or (at your option) any later version
 //
@@ -97,13 +97,14 @@ $head = '<head><title>' . mb_convert_encoding($title, 'SJIS', $this->cont['SOURC
 $header = '<div id="' . $dirname . '_navigator">' . $navi . '</div><hr>' . $topicpath;
 $footer = '';
 
-if (HypCommonFunc::get_version() >= '20080617') {
+if (HypCommonFunc::get_version() >= '20080617.2') {
 	HypCommonFunc::loadClass('HypKTaiRender');
 	$r = new HypKTaiRender();
 	$r->set_myRoot($this->root->siteinfo['host']);
 	$r->contents['header'] = $header;
 	$r->contents['body'] = $body;
 	$r->contents['footer'] = $footer;
+	$r->Config_redirect = $this->cont['HOME_URL'] . 'gate.php?way=redirect_SJIS&amp;xmode=2&amp;l=';
 	$r->doOptimize();
 	$body = $r->outputBody;
 	
