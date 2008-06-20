@@ -6,7 +6,7 @@ class xpwiki_plugin_freeze extends xpwiki_plugin {
 
 	}
 	// PukiWiki - Yet another WikiWikiWeb clone.
-	// $Id: freeze.inc.php,v 1.5 2008/05/23 06:28:53 nao-pon Exp $
+	// $Id: freeze.inc.php,v 1.6 2008/06/20 02:08:22 nao-pon Exp $
 	//
 	// Freeze(Lock) plugin
 	
@@ -28,10 +28,9 @@ class xpwiki_plugin_freeze extends xpwiki_plugin {
 		if ($this->func->is_freeze($page)) {
 			// Freezed already
 			$msg  = & $this->root->_title_isfreezed;
-			$body = str_replace('$1', htmlspecialchars($this->func->strip_bracket($page)),
-			$this->root->_title_isfreezed);
+			$body = str_replace('$1', $this->func->make_pagelink($page), $this->root->_title_isfreezed);
 	
-		} else if ($this->root->userinfo['admin'] || ($pass !== NULL && $this->func->pkwk_login($pass))) {
+		} else if ($this->func->is_owner($page) || ($pass !== NULL && $this->func->pkwk_login($pass))) {
 			// Freeze
 			$postdata = $this->func->get_source($page);
 			array_unshift($postdata, "#freeze\n");
