@@ -1,6 +1,6 @@
 <?php
 // PukiWiki - Yet another WikiWikiWeb clone.
-// $Id: keitai.skin.php,v 1.7 2008/06/17 10:14:11 nao-pon Exp $
+// $Id: keitai.skin.php,v 1.8 2008/06/20 02:19:20 nao-pon Exp $
 // Copyright (C) 2003-2006 PukiWiki Developers Team
 // License: GPL v2 or (at your option) any later version
 //
@@ -14,6 +14,7 @@ if (! isset($this->cont['UI_LANG'])) die('UI_LANG is not set');
 // xpWiki run mode
 $this->root->runmode = "standalone";
 
+$pagename = (isset($this->root->vars['page']))? $this->root->vars['page'] : '';
 $pageno = (isset($this->root->vars['p']) && is_numeric($this->root->vars['p'])) ? $this->root->vars['p'] : 0;
 $edit = (isset($this->root->vars['cmd']) && $this->root->vars['cmd'] === 'edit') ||
 	(isset($this->root->vars['plugin']) && $this->root->vars['plugin'] === 'edit');
@@ -21,6 +22,7 @@ $read = (isset($this->root->vars['cmd']) && $this->root->vars['cmd'] === 'read')
 	(isset($this->root->vars['plugin']) && $this->root->vars['plugin'] === 'read');
 $this->root->max_size = $this->root->max_size * 1024 - 500; // Make 500bytes spare for HTTP Header & Pageing navi.
 $link = $_LINK;
+$lang = $_LANG['skin'];
 $rw = ! $this->cont['PKWK_READONLY'];
 $dirname = $this->root->mydirname;
 
@@ -54,38 +56,40 @@ $navi .= ' <a href="' . $link['top']  . '" ' . $this->root->accesskey . '="3">'.
 $navi .= '<br>';
 
 $navi .= $_empty;
-$navi .= ' <a href="' . $this->root->script . '?' . rawurlencode($this->root->menubar) . '" ' . $this->root->accesskey . '="5">'.$this->make_link('&pb5;').'Menu</a>';
+$navi .= ' <a href="' . $this->root->script . '?cmd=menu&amp;refer=' . rawurlencode($pagename) . '" ' . $this->root->accesskey . '="5">'.$this->make_link('&pb5;').'Menu</a>';
 $navi .= ' ' . $_empty;
 
 $navi .= '<br>';
 
 if ($rw) {
 	$navi .= '<a href="' . $link['new']  . '" ' . $this->root->accesskey . '="7">'.$this->make_link('&pb7;').'New&nbsp;</a>';
-	if (!$is_freeze && $is_editable) {
-		$navi .= ' <a href="' . $link['edit'] . '" ' . $this->root->accesskey . '="8">'.$this->make_link('&pb8;').'Edit</a>';
-	} else {
-		$navi .= ' ' . $_empty;
-	}
-	if ($is_read && $this->root->function_freeze) {
-		if (! $is_freeze) {
-			$navi .= ' <a href="' . $link['freeze']   . '" ' . $this->root->accesskey . '="9">'.$this->make_link('&pb9;').'Frez</a>';
-		} else {
-			$navi .= ' <a href="' . $link['unfreeze'] . '" ' . $this->root->accesskey . '="9">'.$this->make_link('&pb9;').'Ufrz</a>';
-		}
-	} else {
-		$navi .= ' ' . $_empty;
-	}
+} else {
+	$navi .= $_empty;
 }
+if (!$is_freeze && $is_editable) {
+	$navi .= ' <a href="' . $link['edit'] . '" ' . $this->root->accesskey . '="8">'.$this->make_link('&pb8;').'Edit</a>';
+} else {
+	$navi .= ' ' . $_empty;
+}
+/*
+if ($is_read && $this->root->function_freeze) {
+	if (! $is_freeze) {
+		$navi .= ' <a href="' . $link['freeze']   . '" ' . $this->root->accesskey . '="9">'.$this->make_link('&pb9;').'Frez</a>';
+	} else {
+		$navi .= ' <a href="' . $link['unfreeze'] . '" ' . $this->root->accesskey . '="9">'.$this->make_link('&pb9;').'Ufrz</a>';
+	}
+} else {
+	$navi .= ' ' . $_empty;
+}
+*/
+$navi .= ' <a href="' . $link['related'] . '" ' . $this->root->accesskey . '="9">'.$this->make_link('&pb9;').'Rel </a>';
 
 $navi .= '<br>';
 
 $navi .= '<a href="' . $link['search'] . '" ' . $this->root->accesskey . '="*">*]Srch</a>';
 $navi .= ' <a href="' . $link['recent'] . '" ' . $this->root->accesskey . '="0">'.$this->make_link('&pb0;').'Rect</a>';
-if ($is_read) {
-	$navi .= ' <a href="' . $link['diff'] . '" ' . $this->root->accesskey . '="#">'.$this->make_link('&pb#;').'Diff</a>';
-} else {
-	$navi .= ' ' . $_empty;
-}
+$navi .= ' <a href="' . $link['list'] . '" ' . $this->root->accesskey . '="#">'.$this->make_link('&pb#;').'List</a>';
+
 $navi = '<center>' . $navi . '</center>';
 
 $topicpath = '';
@@ -94,8 +98,27 @@ if (!$is_top) {
 }
 
 $head = '<head><title>' . mb_convert_encoding($title, 'SJIS', $this->cont['SOURCE_ENCODING']) . '</title></head>';
-$header = '<div id="' . $dirname . '_navigator">' . $navi . '</div><hr>' . $topicpath;
-$footer = '';
+$header = '<div id="' . $dirname . '_navigator">' . $navi . '</div>';
+$header .= $this->do_plugin_convert('easylogin');
+$header .= '<hr>' . $topicpath;
+
+// Build footer
+ob_start(); ?>
+<hr>
+<div style="font-size:0.9em">
+<?php if ($is_page) echo $this->do_plugin_convert('counter') ?>
+<?php if ($lastmodified != '') { ?>
+<div><?php echo $lang['lastmodify'] ?>: <?php echo $lastmodified ?> by <?php echo $pginfo['lastuname'] ?></div>
+<?php } ?>
+<?php if ($is_page) { ?>
+<div><?php echo $lang['pagealias'] ?>: <?php echo $pginfo['alias'] ?></div>
+<div><?php echo $lang['pageowner'] ?>: <?php echo $pginfo['uname'] ?></div>
+<?php } ?>
+<div><?php echo $lang['siteadmin'] ?>: <a href="<?php echo $this->root->modifierlink ?>"><?php echo $this->root->modifier ?></a></div>
+</div>
+<?php
+$footer = ob_get_contents();
+ob_end_clean();
 
 if (HypCommonFunc::get_version() >= '20080617.2') {
 	HypCommonFunc::loadClass('HypKTaiRender');
