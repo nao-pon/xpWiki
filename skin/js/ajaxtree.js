@@ -22,10 +22,8 @@ document.observe("dom:loaded", function() {
     	var obj = treeObj[i]; 
 		if (typeof(obj.onclick) != 'function') {
 		
-			var dirName = obj.id.replace('_ajaxtree', '');
-			
 			obj.onclick = function(event) {
-			  var baseUrl = XpWikiModuleUrl + "/" + dirName + "/skin/loader.php?src=";
+			  var baseUrl = XpWikiModuleUrl + "/" + this.id.replace('_ajaxtree', '') + "/skin/loader.php?src=";
 			
 			  var event   = event || window.event;
 			  var element = event.target || event.srcElement;
