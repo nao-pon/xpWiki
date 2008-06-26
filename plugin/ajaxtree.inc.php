@@ -10,7 +10,7 @@
 
 /*
  * Created on 2008/02/07 by nao-pon http://hypweb.net/
- * $Id: ajaxtree.inc.php,v 1.8 2008/05/14 07:16:41 nao-pon Exp $
+ * $Id: ajaxtree.inc.php,v 1.9 2008/06/26 08:58:36 nao-pon Exp $
  */
 
 class xpwiki_plugin_ajaxtree extends xpwiki_plugin {
@@ -374,14 +374,14 @@ class xpwiki_plugin_ajaxtree extends xpwiki_plugin {
 		$leaf	= $this->plugin_ajaxtree_get_leaf_flags();
 		$script =  $this->plugin_ajaxtree_get_script_uri();
 	
+		if (! $pages) {
+			return '';
+		}
+		
 		if ($this->cont['PLUGIN_AJAXTREE_COUNT_DESCENDANTS']) {
 			$counts = $this->plugin_ajaxtree_get_counts();
 		} else {
 			$counts = array();
-		}
-		
-		if (!$pages[0]) {
-			var_dump(array($current,$pages));
 		}
 		
 		$depth = substr_count($pages[0], '/');
