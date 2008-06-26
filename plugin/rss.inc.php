@@ -1,6 +1,6 @@
 <?php
 // PukiWiki - Yet another WikiWikiWeb clone
-// $Id: rss.inc.php,v 1.27 2008/05/23 06:28:05 nao-pon Exp $
+// $Id: rss.inc.php,v 1.28 2008/06/26 00:17:40 nao-pon Exp $
 //
 // RSS plugin: Publishing RSS of RecentChanges
 //
@@ -111,7 +111,7 @@ class xpwiki_plugin_rss extends xpwiki_plugin {
 			$filetime = filemtime($c_file);
 			$etag = md5($c_file.$filetime);
 					
-			if ($etag === @$_SERVER["HTTP_IF_NONE_MATCH"]) {
+			if ($etag === @$_SERVER["HTTP_IF_NONE_MATCH"] && $this->cont['UA_PROFILE'] !== 'keitai') {
 				header( "HTTP/1.1 304 Not Modified" );
 				header( "Etag: ". $etag );
 				header('Cache-Control: private');
@@ -380,13 +380,33 @@ EOD;
 			$filetime = filemtime($c_file);
 			$etag = md5($c_file.$filetime);
 		}
-		//$this->func->pkwk_common_headers();
-		header('Content-Type: application/xml; charset=utf-8');
-		header('Content-Length: ' . strlen($out));
-		header('Cache-Control: private');
-		header('Pragma:');
-		header('Last-Modified: ' . gmdate( 'D, d M Y H:i:s', $filetime ) . ' GMT' );
-		header('Etag: '. $etag );
+
+		if ($this->cont['UA_PROFILE'] === 'keitai' && HypCommonFunc::get_version() >= '20080626') {
+			HypCommonFunc::loadClass('HypRss2Html');
+			$r = new HypRss2Html($out);
+			$out = $r->getHtml();
+			$out = mb_convert_encoding($out, 'SJIS', $r->encoding);
+
+			HypCommonFunc::loadClass('HypKTaiRender');
+			$r = new HypKTaiRender();
+			$r->set_myRoot($this->root->siteinfo['host']);
+			$r->inputHtml = $out;
+			$r->inputEncode = 'SHIFT_JIS';
+			$r->Config_redirect = $this->cont['HOME_URL'] . 'gate.php?way=redirect_SJIS&amp;xmode=2&amp;l=';
+			$r->doOptimize();
+			$out = $r->outputBody;
+
+			header('Content-Type: text/html; charset=Shift_JIS');
+			header('Content-Length: ' . strlen($out));
+		
+		} else {
+			header('Content-Type: application/xml; charset=utf-8');
+			header('Content-Length: ' . strlen($out));
+			header('Cache-Control: private');
+			header('Pragma:');
+			header('Last-Modified: ' . gmdate( 'D, d M Y H:i:s', $filetime ) . ' GMT' );
+			header('Etag: '. $etag );
+		}
 		echo $out;
 		exit;
 	}
