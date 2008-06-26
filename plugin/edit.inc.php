@@ -1,6 +1,6 @@
 <?php
 // PukiWiki - Yet another WikiWikiWeb clone.
-// $Id: edit.inc.php,v 1.59 2008/05/07 08:49:28 nao-pon Exp $
+// $Id: edit.inc.php,v 1.60 2008/06/26 00:13:29 nao-pon Exp $
 // Copyright (C) 2001-2006 PukiWiki Developers Team
 // License: GPL v2 or (at your option) any later version
 //
@@ -54,13 +54,14 @@ class xpwiki_plugin_edit extends xpwiki_plugin {
 		if (!$source) {
 			$source = $this->func->get_source($page);
 		}
-		$postdata = $this->root->vars['original'] = @join('', $source);
+		if (is_array($source)) $postdata = join('', $source);
 		$this->root->vars['orgkey'] = ($postdata)? $this->func->cache_save_db($postdata, 'edit') : '';
 		if (! empty($this->root->vars['paraid'])) {
+			$_postdata = $postdata;
 			$postdata = $this->plugin_edit_parts($this->root->vars['paraid'], $source);
 			if ($postdata === FALSE) {
 				unset($this->root->vars['paraid']);
-				$postdata = $this->root->vars['original']; // なかったことに :)
+				$postdata = $_postdata; // なかったことに :)
 			}
 		}
 
@@ -293,31 +294,31 @@ EOD;
 		$add    = isset($this->root->vars['add'])    ? $this->root->vars['add']    : '';
 		$digest = isset($this->root->vars['digest']) ? $this->root->vars['digest'] : '';
 		$paraid = isset($this->root->vars['paraid']) ? $this->root->vars['paraid'] : '';
-	
+		$original = '';
+		
 		$this->root->vars['msg'] = preg_replace($this->cont['PLUGIN_EDIT_FREEZE_REGEX'], '', $this->root->vars['msg']);
 		$this->root->vars['msg'] = $this->func->remove_pginfo($this->root->vars['msg']);
+		$msg = & $this->root->vars['msg']; // Reference
 
 		// Get original data from cache DB.
 		if (! empty($this->root->vars['orgkey'])) {
-			$original = $this->func->cache_get_db($this->root->vars['orgkey'], 'edit');
-			if ($original) {
-				$this->root->vars['original'] = $original;
-			}
+			$original = (string)$this->func->cache_get_db($this->root->vars['orgkey'], 'edit');
+			$original = $this->func->remove_pginfo($original);
 		}
-		$this->root->vars['original'] = (isset($this->root->vars['original']))? $this->func->remove_pginfo($this->root->vars['original']) : '';
-		$msg = & $this->root->vars['msg']; // Reference
-
+		
 		// ParaEdit
 		$hash = '';
 		if ($paraid) {
-			$source = preg_split('/([^\n]*\n)/', $this->root->vars['original'], -1,
+			if (! $original) {
+				$original = $this->func->remove_pginfo($this->func->get_source($page, TRUE, TRUE));
+			}
+			$source = preg_split('/([^\n]*\n)/', $original, -1,
 				PREG_SPLIT_NO_EMPTY | PREG_SPLIT_DELIM_CAPTURE);
 			if ($this->plugin_edit_parts($paraid, $source, $msg) !== FALSE) {
 				$fullmsg = join('', $source);
-				$part_src = rtrim($msg)."\n";
 			} else {
 				// $this->root->vars['msg']だけがページに書き込まれてしまうのを防ぐ。
-				$fullmsg = rtrim($this->root->vars['original']) . "\n\n" . $msg;
+				$fullmsg = rtrim($original) . "\n\n" . $msg;
 			}
 			$msg = $fullmsg;
 			$hash = '#' . $paraid;
@@ -343,7 +344,6 @@ EOD;
 			$this->root->vars['digest'] = $oldpagemd5; // Reset
 			unset($this->root->vars['paraid']); // 更新が衝突したら全文編集に切り替え
 	
-			$original = isset($this->root->vars['original']) ? $this->root->vars['original'] : '';
 			$oldpagesrc = $this->func->remove_pginfo($oldpagesrc);
 			list($postdata_input, $auto) = $this->func->do_update_diff($oldpagesrc, $msg, $original);
 	
