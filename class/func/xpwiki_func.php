@@ -1,7 +1,7 @@
 <?php
 //
 // Created on 2006/10/02 by nao-pon http://hypweb.net/
-// $Id: xpwiki_func.php,v 1.185 2008/06/17 00:21:39 nao-pon Exp $
+// $Id: xpwiki_func.php,v 1.186 2008/06/26 00:14:47 nao-pon Exp $
 //
 class XpWikiFunc extends XpWikiXoopsWrapper {
 
@@ -3238,6 +3238,8 @@ EOD;
 		$dat.= ");";
 		
 		$this->save_config('pukiwiki.ini.php', 'page_aliases', $dat);
+		// Clear cache *.api
+		$GLOBALS['xpwiki_cache_deletes'][$this->cont['CACHE_DIR']]['api'] = '*.autolink.api';
 	}
 
 	// ページオーダーを取得
