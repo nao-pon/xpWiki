@@ -1,31 +1,29 @@
 <?php
+/////////////////////////////////////////////////
+// PukiWiki - Yet another WikiWikiWeb clone.
+//
+// $Id: menu.inc.php,v 1.9 2008/06/26 00:15:44 nao-pon Exp $
+//
+
 class xpwiki_plugin_menu extends xpwiki_plugin {
 	function plugin_menu_init () {
-
-
-	/////////////////////////////////////////////////
-	// PukiWiki - Yet another WikiWikiWeb clone.
-	//
-	// $Id: menu.inc.php,v 1.8 2008/06/20 02:09:25 nao-pon Exp $
-	//
 	
-	// サブメニューを使用する
+		// サブメニューを使用する
 		$this->cont['MENU_ENABLE_SUBMENU'] =  FALSE;
 	
-	// サブメニューの名称
+		// サブメニューの名称
 		$this->cont['MENU_SUBMENUBAR'] =  'MenuBar';
 
 	}
 	
 	function make_pgmenu ($cmd, $page) {
 		
-		if ($cmd === 'upload') {
-			$docmd = '?plugin=attach&amp;pcmd=' . $cmd;
-		} else if ($cmd === 'attaches') {
-			$docmd = '?plugin=attach&amp;pcmd=list';
-		} else {
-			$docmd = '?cmd=' . $cmd;
-		}
+		$links = array(
+			'upload'   => '?plugin=attach&amp;pcmd=upload',
+			'attaches' => '?plugin=attach&amp;pcmd=list',
+			'diff'     => '?cmd=backup&amp;action=diff',
+		);
+		$docmd = (isset($links[$cmd]))? $links[$cmd] : '?cmd=' . $cmd;
 		return '<a href="' . $this->cont['HOME_URL'] . $docmd . '&amp;page=' . rawurlencode($page) . '">' . $this->root->_LANG['skin'][$cmd] . '</a>';
 	}
 	
@@ -83,10 +81,7 @@ class xpwiki_plugin_menu extends xpwiki_plugin {
 		return array('msg' => $msg, 'body' => $page_menu . $body);
 	}
 	
-	function plugin_menu_convert()
-	{
-	//	global $vars, $menubar;
-	//	static $menu = NULL;
+	function plugin_menu_convert() {
 		static $menu = array();
 		if (!isset($menu[$this->xpwiki->pid])) {$menu[$this->xpwiki->pid] = NULL;}
 	
