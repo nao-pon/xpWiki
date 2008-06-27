@@ -1,7 +1,7 @@
 <?php
 //
 // Created on 2006/10/11 by nao-pon http://hypweb.net/
-// $Id: xoops_wrapper.php,v 1.45 2008/06/17 02:10:43 nao-pon Exp $
+// $Id: xoops_wrapper.php,v 1.46 2008/06/27 01:25:53 nao-pon Exp $
 //
 class XpWikiXoopsWrapper extends XpWikiBackupFunc {
 	
@@ -519,6 +519,32 @@ class XpWikiXoopsWrapper extends XpWikiBackupFunc {
 			//$page,
 		);
 		return (empty($ret))? '' : str_replace($from, $to, $ret);
+	}
+	
+	function onPageWriteBefore ($page, $postdata, $notimestamp, $mode, $deletecache) {
+		// Update Post Count
+		$uid = 0;
+		if ($this->root->xoops_post_count_up && $mode === 'insert') {
+			$uid = $this->root->userinfo['uid'];
+			$count = 1;
+		}
+		if ($this->root->xoops_post_count_down && $mode === 'delete') {
+			$uid = $this->get_pg_auther($page);
+			$count = -1;
+		}
+		if ($uid) {
+			$member_handler =& xoops_gethandler('member');
+			$user =& $member_handler->getUser($uid);
+			if (is_object($user)) {
+				$member_handler->updateUserByField($user, 'posts', $user->getVar('posts') + $count);
+			}
+			$user = NULL;
+			unset($user);
+		}
+	}
+	
+	function onPageWriteAfter ($page, $postdata, $notimestamp, $mode, $diffdata, $deletecache) {
+
 	}
 }
 ?>

@@ -1,6 +1,6 @@
 <?php
 // PukiWiki - Yet another WikiWikiWeb clone
-// $Id: pukiwiki.ini.php,v 1.80 2008/06/17 00:47:49 nao-pon Exp $
+// $Id: pukiwiki.ini.php,v 1.81 2008/06/27 01:25:54 nao-pon Exp $
 // Copyright (C)
 //   2002-2006 PukiWiki Developers Team
 //   2001-2002 Originally written by yu-ji
@@ -742,6 +742,12 @@ $root->render_popuplink_position = array(
 // Show the Wiki Helper on the site wide.
 $root->render_UseWikihelperAtAll = 0;
 
+/////////////////////////////////////////////////
+// For XOOPS System
+
+// Update post count when page updating or page deleting
+$root->xoops_post_count_up = 1;
+$root->xoops_post_count_down = 1;
 
 /////////////////////////////////////////////////
 // User-Agent settings

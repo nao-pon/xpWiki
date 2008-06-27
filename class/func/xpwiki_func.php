@@ -1,7 +1,7 @@
 <?php
 //
 // Created on 2006/10/02 by nao-pon http://hypweb.net/
-// $Id: xpwiki_func.php,v 1.186 2008/06/26 00:14:47 nao-pon Exp $
+// $Id: xpwiki_func.php,v 1.187 2008/06/27 01:25:53 nao-pon Exp $
 //
 class XpWikiFunc extends XpWikiXoopsWrapper {
 
@@ -1760,6 +1760,7 @@ EOD;
 
 	// Process onPageWriteBefore
 	function do_onPageWriteBefore ($page, $postdata, $notimestamp, $mode, $deletecache = TRUE) {
+		$this->onPageWriteBefore ($page, $postdata, $notimestamp, $mode, $deletecache);
 		$base = $this->root->mytrustdirpath."/events/onPageWriteBefore";
 		if ($handle = opendir($base)) {
 			while (false !== ($file = readdir($handle))) {
@@ -1791,6 +1792,7 @@ EOD;
 			}
 			closedir($handle);
 		}
+		$this->onPageWriteAfter($page, $postdata, $notimestamp, $mode, $diffdata, $deletecache);
 		if ($deletecache) $this->delete_caches();
 	}
 	
