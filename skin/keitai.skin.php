@@ -1,6 +1,6 @@
 <?php
 // PukiWiki - Yet another WikiWikiWeb clone.
-// $Id: keitai.skin.php,v 1.8 2008/06/20 02:19:20 nao-pon Exp $
+// $Id: keitai.skin.php,v 1.9 2008/06/29 23:50:57 nao-pon Exp $
 // Copyright (C) 2003-2006 PukiWiki Developers Team
 // License: GPL v2 or (at your option) any later version
 //
@@ -39,7 +39,7 @@ if ($page_comments) {
 }
 
 if ($heads) {
-	$body ='[ ' . join(' ', $heads) . ' ]<hr>' . $body;;
+	$body ='[ ' . join(' ', $heads) . ' ]<hr>' . $body;
 }
 
 // Ignore &dagger;s
@@ -71,17 +71,6 @@ if (!$is_freeze && $is_editable) {
 } else {
 	$navi .= ' ' . $_empty;
 }
-/*
-if ($is_read && $this->root->function_freeze) {
-	if (! $is_freeze) {
-		$navi .= ' <a href="' . $link['freeze']   . '" ' . $this->root->accesskey . '="9">'.$this->make_link('&pb9;').'Frez</a>';
-	} else {
-		$navi .= ' <a href="' . $link['unfreeze'] . '" ' . $this->root->accesskey . '="9">'.$this->make_link('&pb9;').'Ufrz</a>';
-	}
-} else {
-	$navi .= ' ' . $_empty;
-}
-*/
 $navi .= ' <a href="' . $link['related'] . '" ' . $this->root->accesskey . '="9">'.$this->make_link('&pb9;').'Rel </a>';
 
 $navi .= '<br>';
@@ -102,10 +91,14 @@ $header = '<div id="' . $dirname . '_navigator">' . $navi . '</div>';
 $header .= $this->do_plugin_convert('easylogin');
 $header .= '<hr>' . $topicpath;
 
+$footnotes = '<hr>';
+if ($notes) {
+	$footnotes = '<div>' . $notes . '</div><hr>';
+}
 // Build footer
 ob_start(); ?>
-<hr>
 <div style="font-size:0.9em">
+<?php echo $footnotes ?>
 <?php if ($is_page) echo $this->do_plugin_convert('counter') ?>
 <?php if ($lastmodified != '') { ?>
 <div><?php echo $lang['lastmodify'] ?>: <?php echo $lastmodified ?> by <?php echo $pginfo['lastuname'] ?></div>
