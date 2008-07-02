@@ -1,7 +1,7 @@
 <?php
 /*
  * Created on 2007/11/16 by nao-pon http://hypweb.net/
- * $Id: siteimage.inc.php,v 1.4 2008/04/05 04:53:11 nao-pon Exp $
+ * $Id: siteimage.inc.php,v 1.5 2008/07/02 00:04:32 nao-pon Exp $
  */
 
 class xpwiki_plugin_siteimage extends xpwiki_plugin {
@@ -10,7 +10,7 @@ class xpwiki_plugin_siteimage extends xpwiki_plugin {
 
 		// 再取得までの日数
 		// Days until acquiring again.
-		$this->cache_day = 1;
+		$this->cache_day = 10;
 		
 		// 初回の再取得時間(分)
 		// Time of re-acquisition first time.(min.)
@@ -18,30 +18,32 @@ class xpwiki_plugin_siteimage extends xpwiki_plugin {
 		
 		// 再取得時一度に処理できる件数
 		// The number of cases treatable when acquiring it again at a time.
-		$this->get_max_once = 5;
+		$this->get_max_once = 3;
 		
 		// サイトイメージの取得元
 		// Acquisition origin of site image
-		$this->fetch_url = 'http://img.simpleapi.net/small/';
+		//$this->fetch_url = 'http://screenshot.livedoor.com/large/';
+		//$this->fetch_url = 'http://mozshot.nemui.org/shot/160x120?';
+		$this->fetch_url = 'http://capture.heartrails.com/medium?';
 		
 		// サムネイルサイズの定義 (l, m, s)
 		// Definition of thumbnail size.(l, m, s)
 		$this->thumb_size['l'] = array(
-			'width'  => 128,
-			'height' => 128
+			'width'  => 160,
+			'height' => 120
 		);
 		$this->thumb_size['m'] = array(
-			'width'  => 90,
+			'width'  => 120,
 			'height' => 90
 		);
 		$this->thumb_size['s'] = array(
-			'width'  => 60,
+			'width'  => 90,
 			'height' => 60
 		);
 		
 		// サムネイルサイズの規定値
 		// Regulated value of thumbnail size.
-		$this->default_size = 'l';
+		$this->default_size = 's';
 	}
 	
 	function plugin_siteimage_inline() {
