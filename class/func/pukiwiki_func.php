@@ -1,7 +1,7 @@
 <?php
 //
 // Created on 2006/10/02 by nao-pon http://hypweb.net/
-// $Id: pukiwiki_func.php,v 1.179 2008/06/26 00:14:47 nao-pon Exp $
+// $Id: pukiwiki_func.php,v 1.180 2008/07/02 23:59:46 nao-pon Exp $
 //
 class XpWikiPukiWikiFunc extends XpWikiBaseFunc {
 
@@ -79,11 +79,18 @@ class XpWikiPukiWikiFunc extends XpWikiBaseFunc {
 	function page_write($page, $postdata, $notimestamp = FALSE)
 	{
 		if (
-			($this->cont['PKWK_READONLY'])
+			$this->cont['PKWK_READONLY']
 			||
-			(empty($this->root->rtf['freezefunc']) && $this->root->plugin_follow_freeze && $this->is_freeze($page))
-			||
-			(empty($this->root->rtf['freezefunc']) && $this->root->plugin_follow_editauth && ! $this->check_editable_page($page, FALSE, FALSE))
+			(
+			empty($this->root->rtf['no_checkauth_on_write']) &&
+				(
+				! $this->check_readable_page($page, FALSE, FALSE)
+				||
+				($this->root->plugin_follow_freeze && $this->is_freeze($page))
+				||
+				($this->root->plugin_follow_editauth && ! $this->check_editable_page($page, FALSE, FALSE))
+				)
+			)
 		) {
 			return; // Do nothing
 		}
@@ -473,11 +480,18 @@ class XpWikiPukiWikiFunc extends XpWikiBaseFunc {
 	function file_write($dir, $page, $str, $notimestamp = FALSE)
 	{
 		if (
-			($this->cont['PKWK_READONLY'])
+			$this->cont['PKWK_READONLY']
 			||
-			(empty($this->root->rtf['freezefunc']) && $this->root->plugin_follow_freeze && $this->is_freeze($page))
-			||
-			(empty($this->root->rtf['freezefunc']) && $this->root->plugin_follow_editauth && ! $this->check_editable_page($page, FALSE, FALSE))
+			(
+			empty($this->root->rtf['no_checkauth_on_write']) &&
+				(
+				! $this->check_readable_page($page, FALSE, FALSE)
+				||
+				($this->root->plugin_follow_freeze && $this->is_freeze($page))
+				||
+				($this->root->plugin_follow_editauth && ! $this->check_editable_page($page, FALSE, FALSE))
+				)
+			)
 		) {
 			return; // Do nothing
 		}
@@ -937,7 +951,7 @@ class XpWikiPukiWikiFunc extends XpWikiBaseFunc {
 
 //----- Start convert_html.php -----//
 	// PukiWiki - Yet another WikiWikiWeb clone
-	// $Id: pukiwiki_func.php,v 1.179 2008/06/26 00:14:47 nao-pon Exp $
+	// $Id: pukiwiki_func.php,v 1.180 2008/07/02 23:59:46 nao-pon Exp $
 	// Copyright (C)
 	//   2002-2005 PukiWiki Developers Team
 	//   2001-2002 Originally written by yu-ji
@@ -1190,7 +1204,7 @@ class XpWikiPukiWikiFunc extends XpWikiBaseFunc {
 
 //----- Start func.php -----//
 	// PukiWiki - Yet another WikiWikiWeb clone.
-	// $Id: pukiwiki_func.php,v 1.179 2008/06/26 00:14:47 nao-pon Exp $
+	// $Id: pukiwiki_func.php,v 1.180 2008/07/02 23:59:46 nao-pon Exp $
 	// Copyright (C)
 	//   2002-2006 PukiWiki Developers Team
 	//   2001-2002 Originally written by yu-ji
@@ -2016,7 +2030,7 @@ EOD;
 
 //----- Start make_link.php -----//
 	// PukiWiki - Yet another WikiWikiWeb clone.
-	// $Id: pukiwiki_func.php,v 1.179 2008/06/26 00:14:47 nao-pon Exp $
+	// $Id: pukiwiki_func.php,v 1.180 2008/07/02 23:59:46 nao-pon Exp $
 	// Copyright (C)
 	//   2003-2005 PukiWiki Developers Team
 	//   2001-2002 Originally written by yu-ji
@@ -2957,7 +2971,7 @@ EOD;
 
 //----- Start html.php -----//
 	// PukiWiki - Yet another WikiWikiWeb clone.
-	// $Id: pukiwiki_func.php,v 1.179 2008/06/26 00:14:47 nao-pon Exp $
+	// $Id: pukiwiki_func.php,v 1.180 2008/07/02 23:59:46 nao-pon Exp $
 	// Copyright (C)
 	//   2002-2006 PukiWiki Developers Team
 	//   2001-2002 Originally written by yu-ji
@@ -3651,7 +3665,7 @@ EOD;
 
 //----- Start mail.php -----//
 	// PukiWiki - Yet another WikiWikiWeb clone.
-	// $Id: pukiwiki_func.php,v 1.179 2008/06/26 00:14:47 nao-pon Exp $
+	// $Id: pukiwiki_func.php,v 1.180 2008/07/02 23:59:46 nao-pon Exp $
 	// Copyright (C)
 	//   2003-2005 PukiWiki Developers Team
 	//   2003      Originally written by upk
@@ -3954,7 +3968,7 @@ EOD;
 
 //----- Start link.php -----//
 	// PukiWiki - Yet another WikiWikiWeb clone
-	// $Id: pukiwiki_func.php,v 1.179 2008/06/26 00:14:47 nao-pon Exp $
+	// $Id: pukiwiki_func.php,v 1.180 2008/07/02 23:59:46 nao-pon Exp $
 	// Copyright (C) 2003-2006 PukiWiki Developers Team
 	// License: GPL v2 or (at your option) any later version
 	//
