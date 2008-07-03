@@ -2,7 +2,7 @@
 /////////////////////////////////////////////////
 // PukiWiki - Yet another WikiWikiWeb clone.
 //
-// $Id: pginfo.inc.php,v 1.26 2008/07/01 23:35:05 nao-pon Exp $
+// $Id: pginfo.inc.php,v 1.27 2008/07/03 00:01:42 nao-pon Exp $
 //
 
 class xpwiki_plugin_pginfo extends xpwiki_plugin {
@@ -190,7 +190,7 @@ class xpwiki_plugin_pginfo extends xpwiki_plugin {
 			
 			// ページ保存
 			if ($this->func->is_page($page)) {
-				$this->root->rtf['freezefunc'] = TRUE;
+				$this->root->rtf['no_checkauth_on_write'] = TRUE;
 				$this->func->file_write($this->cont['DATA_DIR'], $page, $src, TRUE);
 			} else {
 				// ページが未作成の場合
