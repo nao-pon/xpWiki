@@ -1,33 +1,26 @@
 <?php
+// $Id: template.inc.php,v 1.3 2008/07/04 11:09:02 nao-pon Exp $
+//
+// Load template plugin
+
 class xpwiki_plugin_template extends xpwiki_plugin {
 	function plugin_template_init () {
 
-
-	// $Id: template.inc.php,v 1.2 2007/09/19 11:27:15 nao-pon Exp $
-	//
-	// Load template plugin
-	
 		$this->cont['MAX_LEN'] =  60;
 
 	}
 	
 	function plugin_template_action()
 	{
-	//	global $script, $vars;
-	//	global $_title_edit;
-	//	global $_msg_template_start, $_msg_template_end, $_msg_template_page, $_msg_template_refer;
-	//	global $_btn_template_create, $_title_template;
-	//	global $_err_template_already, $_err_template_invalid, $_msg_template_force;
-	
 		if ($this->cont['PKWK_READONLY']) $this->func->die_message('PKWK_READONLY prohibits editing');
-		if (! isset($this->root->vars['refer']) || ! $this->func->is_page($this->root->vars['refer']))
+		if (! isset($this->root->vars['refer']) || ! $this->func->is_page($this->root->vars['refer']) || ! $this->func->check_readable($this->root->vars['refer'], FALSE, FALSE))
 			return FALSE;
 	
 		$lines = $this->func->get_source($this->root->vars['refer']);
-	
-		// Remove '#freeze'
-		if (! empty($lines) && strtolower(rtrim($lines[0])) == '#freeze')
+		$this->func->cleanup_template_source($lines);
+		while(isset($lines[0]) && trim($lines[0], "\r\n") === '') {
 			array_shift($lines);
+		}
 	
 		$begin = (isset($this->root->vars['begin']) && is_numeric($this->root->vars['begin'])) ? $this->root->vars['begin'] : 0;
 		$end   = (isset($this->root->vars['end'])   && is_numeric($this->root->vars['end']))   ? $this->root->vars['end'] : count($lines) - 1;
@@ -41,9 +34,16 @@ class xpwiki_plugin_template extends xpwiki_plugin {
 	
 		// edit
 		if ($is_pagename = $this->func->is_pagename($page) && (! $is_page || ! empty($this->root->vars['force']))) {
+			
+			$this->func->check_editable($page, true, true);
+			
+			// Q & A Ç§¾Ú
+			$edit =& $this->func->get_plugin_instance('edit');
+			$options = $edit->get_riddle();
+			
 			$postdata       = join('', array_splice($lines, $begin, $end - $begin + 1));
 			$retvar['msg']  = $this->root->_title_edit;
-			$retvar['body'] = $this->func->edit_form($this->root->vars['page'], $postdata);
+			$retvar['body'] = $this->func->edit_form($this->root->vars['page'], $postdata, FALSE, FALSE, $options);
 			$this->root->vars['refer']  = $this->root->vars['page'];
 			return $retvar;
 		}
