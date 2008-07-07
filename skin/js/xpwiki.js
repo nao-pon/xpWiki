@@ -374,7 +374,7 @@ var XpWiki = {
 		for (var i = 0; i < Objs.length; i++) {
 			if (time_limit < new Date().getTime()) break;
 			var obj = Objs[i];
-			if (obj.className == this.faviconSetClass && obj.firstChild.nodeName != 'IMG') {
+			if (obj.className == this.faviconSetClass && obj.firstChild && obj.firstChild.nodeName != 'IMG') {
 				var height = Element.getStyle(obj ,'fontSize');
 				if (height.match(/%$/)) {
 					height = parseFloat(height)/100 * pxPerEm;
