@@ -1,6 +1,6 @@
 <?php
 // PukiWiki - Yet another WikiWikiWeb clone.
-// $Id: keitai.skin.php,v 1.9 2008/06/29 23:50:57 nao-pon Exp $
+// $Id: keitai.skin.php,v 1.10 2008/07/20 07:16:31 nao-pon Exp $
 // Copyright (C) 2003-2006 PukiWiki Developers Team
 // License: GPL v2 or (at your option) any later version
 //
@@ -121,6 +121,7 @@ if (HypCommonFunc::get_version() >= '20080617.2') {
 	$r->contents['body'] = $body;
 	$r->contents['footer'] = $footer;
 	$r->Config_redirect = $this->cont['HOME_URL'] . 'gate.php?way=redirect_SJIS&amp;xmode=2&amp;l=';
+	$r->Config_emojiDir = $this->cont['ROOT_URL'] . 'images/emoji';
 	$r->doOptimize();
 	$body = $r->outputBody;
 	
