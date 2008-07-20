@@ -16,7 +16,7 @@
 // -----------------------------------------------------------------------------------
 //
 //  edited by nao-pon - http://hypweb.net/
-//  $Id: lightbox.js,v 1.12 2008/01/21 23:49:46 nao-pon Exp $
+//  $Id: lightbox.js,v 1.13 2008/07/20 07:11:42 nao-pon Exp $
 //
 // -----------------------------------------------------------------------------------
 
@@ -625,28 +625,27 @@ function getPageScroll(){
 function getPageSize(){
 
 	var xScroll, yScroll;
-
+	
+	var documentBody = (document.documentElement || document.body);
+	
 	if (window.innerHeight && window.scrollMaxY) {
-		xScroll = document.body.scrollWidth;
+		xScroll = documentBody.scrollWidth;
 		yScroll = window.innerHeight + window.scrollMaxY;
-	} else if (document.body.scrollHeight > document.body.offsetHeight){ // all but Explorer Mac
-		xScroll = document.body.scrollWidth;
-		yScroll = document.body.scrollHeight;
+	} else if (documentBody.scrollHeight > documentBody.offsetHeight){ // all but Explorer Mac
+		xScroll = documentBody.scrollWidth;
+		yScroll = documentBody.scrollHeight;
 	} else { // Explorer Mac...would also work in Explorer 6 Strict, Mozilla and Safari
-		xScroll = document.body.offsetWidth;
-		yScroll = document.body.offsetHeight;
+		xScroll = documentBody.offsetWidth;
+		yScroll = documentBody.offsetHeight;
 	}
 
 	var windowWidth, windowHeight;
 	if (self.innerHeight) {	// all except Explorer
 		windowWidth = self.innerWidth;
 		windowHeight = self.innerHeight;
-	} else if (document.documentElement && document.documentElement.clientHeight) { // Explorer 6 Strict Mode
-		windowWidth = document.documentElement.clientWidth;
-		windowHeight = document.documentElement.clientHeight;
-	} else if (document.body) { // other Explorers
-		windowWidth = document.body.clientWidth;
-		windowHeight = document.body.clientHeight;
+	} else {
+		windowWidth = documentBody.clientWidth;
+		windowHeight = documentBody.clientHeight;
 	}
 
 	// for small pages with total height less then height of the viewport
@@ -662,7 +661,6 @@ function getPageSize(){
 	} else {
 		pageWidth = xScroll;
 	}
-
 
 	arrayPageSize = new Array(pageWidth,pageHeight,windowWidth,windowHeight)
 	return arrayPageSize;
