@@ -3,7 +3,7 @@
 $this->root->runmode = "standalone";
 
 // PukiWiki - Yet another WikiWikiWeb clone.
-// $Id: tdiary.skin.php,v 1.30 2008/03/02 08:55:35 nao-pon Exp $
+// $Id: tdiary.skin.php,v 1.31 2008/07/20 07:14:30 nao-pon Exp $
 // Copyright (C)
 //   2002-2006 PukiWiki Developers Team
 //   2001-2002 Originally written by yu-ji
@@ -539,6 +539,8 @@ if ($sidebar == 'none') {
 		$menu_body = preg_replace('#<h2 ([^>]*)>(.*?)</h2>#',
 			'<h3 $1><span class="sanchor"></span> $2</h3>',
 			$this->do_plugin_convert('menu'));
+		// Reget
+		list($head_pre_tag, $head_tag) = $this->get_additional_headtags();
 	}
 }
 
@@ -555,10 +557,6 @@ $css_charset = 'iso-8859-1';
 switch($this->cont['UI_LANG']){
 	case 'ja': $css_charset = 'Shift_JIS'; break;
 }
-
-$head_tag .= ! empty($this->root->head_tags) ? "\n". join("\n", $this->root->head_tags) ."\n" : '';
-$head_pre_tag .= ! empty($this->root->head_pre_tags) ? "\n". join("\n", $this->root->head_pre_tags) ."\n" : '';
-
 
 // ------------------------------------------------------------
 // Output
