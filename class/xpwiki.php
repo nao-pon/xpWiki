@@ -1,7 +1,7 @@
 <?php
 //
 // Created on 2006/09/29 by nao-pon http://hypweb.net/
-// $Id: xpwiki.php,v 1.85 2008/06/03 02:04:44 nao-pon Exp $
+// $Id: xpwiki.php,v 1.86 2008/07/20 07:16:09 nao-pon Exp $
 //
 
 class XpWiki {
@@ -141,16 +141,6 @@ class XpWiki {
 		// Re-setting
 		if (strtolower($this->cont['PKWK_SAFE_MODE']) === 'auto') {
 			$this->cont['PKWK_SAFE_MODE'] = (! $this->root->userinfo['admin']);
-		}
-		
-		// favicon auto set JavaScript
-		if (! $this->root->can_not_connect_www && HypCommonFunc::get_version() >= '20080213') {
-			if ($this->root->favicon_set_classname) {
-				$this->func->add_js_var_head('XpWiki.faviconSetClass', $this->root->favicon_set_classname);
-			}
-			if ($this->root->favicon_replace_classname) {
-				$this->func->add_js_var_head('XpWiki.faviconReplaceClass', $this->root->favicon_replace_classname);
-			}
 		}
 		
 		// Object id
