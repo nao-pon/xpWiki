@@ -1,7 +1,7 @@
 <?php
 //
 // Created on 2006/10/02 by nao-pon http://hypweb.net/
-// $Id: xpwiki_func.php,v 1.187 2008/06/27 01:25:53 nao-pon Exp $
+// $Id: xpwiki_func.php,v 1.188 2008/07/20 07:16:08 nao-pon Exp $
 //
 class XpWikiFunc extends XpWikiXoopsWrapper {
 
@@ -514,6 +514,17 @@ class XpWikiFunc extends XpWikiXoopsWrapper {
 	}
 	
 	function get_additional_headtags () {
+
+		// favicon auto set JavaScript
+		if (! $this->root->can_not_connect_www && HypCommonFunc::get_version() >= '20080213') {
+			if ($this->root->favicon_set_classname) {
+				$this->add_js_var_head('XpWiki.faviconSetClass', $this->root->favicon_set_classname);
+			}
+			if ($this->root->favicon_replace_classname) {
+				$this->add_js_var_head('XpWiki.faviconReplaceClass', $this->root->favicon_replace_classname);
+			}
+		}
+		
 		if ($this->root->render_UseWikihelperAtAll) {
 			$this->add_js_var_head('XpWiki.UseWikihelperAtAll', TRUE);
 		}
@@ -876,10 +887,11 @@ EOD;
 			$src = $name . ' = ' . $var . ';';
 		}
 		$target = $pre? 'head_pre_tags' : 'head_tags';
+		$_src = $src;
 		if ($this->root->render_mode === 'render') {
 			$src = '<!--' . "\n" . $src . '//-->';
 		}
-		$this->root->{$target}[] = '<script type="text/javascript">' . $src . '</script>';
+		$this->root->{$target}[$_src] = '<script type="text/javascript">' . $src . '</script>';
 	}
 	
 	function add_tag_head ($file, $pre = FALSE, $charset = '') {
@@ -905,16 +917,17 @@ EOD;
 						);
 				}
 				$cssprefix = $this->root->css_prefix ? 'pre=' . rawurlencode($this->root->css_prefix) . '&amp;' : '';
-				$this->root->{$target}[] = '<link rel="stylesheet" type="text/css" media="all" href="'.$this->cont['LOADER_URL'].'?skin='.$this->cont['SKIN_NAME'].'&amp;'.$mode.$cssprefix.'src='.$match[1].'.css"' . $charset . ' />';
+				$_css = 'skin='.$this->cont['SKIN_NAME'].'&amp;'.$mode.$cssprefix.'src='.$match[1];
+				$this->root->{$target}['css'.$_css] = '<link rel="stylesheet" type="text/css" media="all" href="'.$this->cont['LOADER_URL'] . '?' . $_css . '.css"' . $charset . ' />';
 			} else if ($match[2] === 'js') {
-				$this->root->{$target}[] = '<script type="text/javascript" src="'.$this->cont['LOADER_URL'].'?src='.$match[1].'.js"' . $charset . '></script>';
+				$this->root->{$target}['js'.$match[1]] = '<script type="text/javascript" src="'.$this->cont['LOADER_URL'].'?src='.$match[1].'.js"' . $charset . '></script>';
 				if (empty($this->root->rtf['HeadJsAjaxSafe'])) {
 					$this->root->rtf['useJavascriptInHead'] = TRUE;
 					$this->root->rtf['HeadJsAjaxSafe'] = NULL;
 				}
 			}
 		} else {
-			$this->root->{$target}[] = $file;
+			$this->root->{$target}['js'.$file] = $file;
 		}
 	}
 
@@ -928,7 +941,7 @@ EOD;
 		if ($charset) $charset = ' charset="' . $charset . '"';
 		$target = $pre? 'head_pre_tags' : 'head_tags';
 		
-		$this->root->{$target}[] = '<script type="text/javascript" src="' . $file . '"' . $charset . '></script>';
+		$this->root->{$target}['js'.$file] = '<script type="text/javascript" src="' . $file . '"' . $charset . '></script>';
 		if (empty($this->root->rtf['HeadJsAjaxSafe'])) {
 			$this->root->rtf['useJavascriptInHead'] = TRUE;
 			$this->root->rtf['HeadJsAjaxSafe'] = NULL;
@@ -956,11 +969,11 @@ EOD;
 	function get_exif_data($file, $alltag = FALSE){
 		$ret = array();
 		if (function_exists('read_exif_data')) {
-			$exif_data = @read_exif_data($file);
-			if (!$exif_data) return $ret;
+			$exif_data = @ read_exif_data($file);
+			if (! $exif_data) return $ret;
 			
 			$ret['title'] = "-- Shot Info --";
-			//if (isset($exif_data['Make']))	$ret['Maker '] = $exif_data['Make'];
+
 			if (isset($exif_data['Model']))
 				$ret['Camera '] = $exif_data['Model'];
 			
@@ -970,14 +983,17 @@ EOD;
 			if (isset($exif_data['ExposureTime']))
 				$ret['Shutter Speed '] = $this->get_exif_numbar($exif_data['ExposureTime']).' sec';
 			
-			if (isset($exif_data['FNumber']))
+			if (isset($exif_data['ApertureValue'])) {
+				$ret['F(Shot) '] = 'F '.$this->get_exif_numbar($exif_data['ApertureValue'], TRUE);
+			} else if (isset($exif_data['FNumber'])) {
 				$ret['F(Shot) '] = 'F '.$this->get_exif_numbar($exif_data['FNumber']);
+			}
 			
 			if (isset($exif_data['FocalLength']))
 				$ret['Lens '] = $this->get_exif_numbar($exif_data['FocalLength']).' mm';
 					
 			if (isset($exif_data['MaxApertureValue']))
-				@$ret['Lens '] .= '/F '.$this->get_exif_numbar($exif_data['MaxApertureValue']);
+				@$ret['Lens '] .= '/F '.$this->get_exif_numbar($exif_data['MaxApertureValue'], TRUE);
 			
 			if (isset($exif_data['Flash'])){
 				if ($exif_data['Flash'] == 0) {$ret['Flash '] = "OFF";}
@@ -1008,8 +1024,12 @@ EOD;
 		return $ret;
 	}
 	function get_exif_numbar ($dat, $APEX=FALSE) {
-		if (preg_match('#^([\d]+)/([1-9]+)$#',$dat,$match)) {
-			$dat = $match[1] / $match[2];
+		if (preg_match('#^([\d]+)/([\d]+)$#',$dat,$match)) {
+			if ($match[2]) {
+				$dat = $match[1] / $match[2];
+			} else {
+				$dat = $match[1];
+			}
 		} else {
 			$dat = (float)$dat;
 		}
@@ -1018,6 +1038,8 @@ EOD;
 		}
 		if ($dat < 1) {
 			$dat = '1/' . (int)(1/$dat);
+		} else {
+			$dat = round($dat * 100) / 100;
 		}
 		return $dat;
 	}
