@@ -348,34 +348,38 @@ EOD;
 
 		$page = isset ($this->root->vars['page']) ? rawurlencode($this->root->vars['page']) : '';
 		
-		if (isset($noteStr[$base_id][md5($body)])) {
-			list($id, $title) = $noteStr[$base_id][md5($body)];
-			$elm_id = '';
+		if (preg_match('/^(?:e|i|s):[0-9a-f]{4}$/', $body)) {
+			$name = '((' . $body . '))';
 		} else {
-			$id = ++ $this->root->rtf['note_id'];
-			$note = $this->func->make_link($body);
-	
-			// Footnote
-			$this->root->foot_explain[$id] = '<a id="notefoot_'.$base_id.'_'.$id.'" name="notefoot_'.$base_id.'_'.$id.'" href="'.$script.'#notetext_'.$base_id.'_'.$id.'" class="note_super">*'.$id.'</a>'."\n".'<span class="small">'.$note.'</span><br />';
-
-			// A hyperlink, content-body to footnote
-			if (!is_numeric($this->cont['PKWK_FOOTNOTE_TITLE_MAX']) || $this->cont['PKWK_FOOTNOTE_TITLE_MAX'] <= 0) {
-				$title = '';
+			if (isset($noteStr[$base_id][md5($body)])) {
+				list($id, $title) = $noteStr[$base_id][md5($body)];
+				$elm_id = '';
 			} else {
-				$title = strip_tags($note);
-				$count = mb_strlen($title, $this->cont['SOURCE_ENCODING']);
-				$title = mb_substr($title, 0, $this->cont['PKWK_FOOTNOTE_TITLE_MAX'], $this->cont['SOURCE_ENCODING']);
-				$abbr = (mb_strlen($title) < $count) ? '...' : '';
-				$title = ' title="'.$title.$abbr.'"';
-			}
+				$id = ++ $this->root->rtf['note_id'];
+				$note = $this->func->make_link($body);
+		
+				// Footnote
+				$this->root->foot_explain[$id] = '<a id="notefoot_'.$base_id.'_'.$id.'" name="notefoot_'.$base_id.'_'.$id.'" href="'.$script.'#notetext_'.$base_id.'_'.$id.'" class="note_super">*'.$id.'</a>'."\n".'<span class="small">'.$note.'</span><br />';
 
-			$noteStr[$base_id][md5($body)] = array($id, $title);
+				// A hyperlink, content-body to footnote
+				if (!is_numeric($this->cont['PKWK_FOOTNOTE_TITLE_MAX']) || $this->cont['PKWK_FOOTNOTE_TITLE_MAX'] <= 0) {
+					$title = '';
+				} else {
+					$title = strip_tags($note);
+					$count = mb_strlen($title, $this->cont['SOURCE_ENCODING']);
+					$title = mb_substr($title, 0, $this->cont['PKWK_FOOTNOTE_TITLE_MAX'], $this->cont['SOURCE_ENCODING']);
+					$abbr = (mb_strlen($title) < $count) ? '...' : '';
+					$title = ' title="'.$title.$abbr.'"';
+				}
+
+				$noteStr[$base_id][md5($body)] = array($id, $title);
+				
+				$elm_id = 'notetext_'.$base_id.'_'.$id;
+			}
 			
-			$elm_id = 'notetext_'.$base_id.'_'.$id;
+			$name = '<a id="'.$elm_id.'" name="'.$elm_id.'" href="'.$script.'#notefoot_'.$base_id.'_'.$id.'" class="note_super"'.$title.'>*'.$id.'</a>';
 		}
 		
-		$name = '<a id="'.$elm_id.'" name="'.$elm_id.'" href="'.$script.'#notefoot_'.$base_id.'_'.$id.'" class="note_super"'.$title.'>*'.$id.'</a>';
-
 		return parent :: setParam($page, $name, $body);
 	}
 
