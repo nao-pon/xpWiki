@@ -1,6 +1,6 @@
 <?php
 // PukiWiki - Yet another WikiWikiWeb clone.
-// $Id: keitai.skin.php,v 1.10 2008/07/20 07:16:31 nao-pon Exp $
+// $Id: keitai.skin.php,v 1.11 2008/07/29 14:38:12 nao-pon Exp $
 // Copyright (C) 2003-2006 PukiWiki Developers Team
 // License: GPL v2 or (at your option) any later version
 //
@@ -44,6 +44,8 @@ if ($heads) {
 
 // Ignore &dagger;s
 $body = preg_replace('#<a[^>]+>' . preg_quote($this->root->_symbol_anchor, '#') . '</a>#S', '', $body);
+
+$body = str_replace($this->root->_symbol_noexists, '<span style="font-size:xx-small">((i:f9be))</span>', $body);
 
 // ----
 // Top navigation (text) bar
@@ -113,6 +115,7 @@ ob_start(); ?>
 $footer = ob_get_contents();
 ob_end_clean();
 
+$ctype = 'text/html';
 if (HypCommonFunc::get_version() >= '20080617.2') {
 	HypCommonFunc::loadClass('HypKTaiRender');
 	$r = new HypKTaiRender();
@@ -122,22 +125,24 @@ if (HypCommonFunc::get_version() >= '20080617.2') {
 	$r->contents['footer'] = $footer;
 	$r->Config_redirect = $this->cont['HOME_URL'] . 'gate.php?way=redirect_SJIS&amp;xmode=2&amp;l=';
 	$r->Config_emojiDir = $this->cont['ROOT_URL'] . 'images/emoji';
+	$r->outputMode = 'xhtml';
 	$r->doOptimize();
 	$body = $r->outputBody;
-	
+	$ctype = $r->getOutputContentType();
 	$r = NULL;
 	unset($r);
 } else {
 	$body = '"keitai.skin" require HypCommonFunc >= 20080617';
 }
 
-$out = '<html>' . $head . '<body>' .  $body . '</body></html>';
+$out = '<?xml version="1.0" encoding="Shift_JIS"? ><html>' . $head . '<body>' .  $body . '</body></html>';
+//$out = '<html>' . $head . '<body>' .  $body . '</body></html>';
 
 // ----
 // Output HTTP headers
 $this->pkwk_headers_sent();
 // Force Shift JIS encode for Japanese embedded browsers and devices
-header('Content-Type: text/html; charset=Shift_JIS');
+header('Content-Type: '.$ctype.'; charset=Shift_JIS');
 header('Content-Length: ' . strlen($out));
 
 // Output
