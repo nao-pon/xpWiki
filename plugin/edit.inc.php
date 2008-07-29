@@ -1,6 +1,6 @@
 <?php
 // PukiWiki - Yet another WikiWikiWeb clone.
-// $Id: edit.inc.php,v 1.60 2008/06/26 00:13:29 nao-pon Exp $
+// $Id: edit.inc.php,v 1.61 2008/07/29 14:53:54 nao-pon Exp $
 // Copyright (C) 2001-2006 PukiWiki Developers Team
 // License: GPL v2 or (at your option) any later version
 //
@@ -163,6 +163,20 @@ EOD;
 			$title = (!$ng_riddle)? $this->root->_title_preview : $this->root->_title_ng_riddle;
 			$title = '<h3>'.str_replace('$1', htmlspecialchars($page), $title).'</h3>';
 			$body = $title.$body;
+
+			if (defined('HYP_K_TAI_RENDER') && preg_match('/\(\((?:e|i|s):[0-9a-f]{4}\)\)/S', $body)) {
+				if (! class_exists('MobilePictogramConverter')) {
+					HypCommonFunc::loadClass('MobilePictogramConverter');
+				}
+				if (class_exists('MobilePictogramConverter')) {
+					$mpc =& MobilePictogramConverter::factory_common();
+					$mpc->setImagePath(XOOPS_URL . '/images/emoji');
+					$mpc->setString($body, FALSE);
+					$body = $mpc->autoConvertModKtai();
+				}
+			}
+
+
 			$body = <<<EOD
 <xpwiki>
 <content><![CDATA[{$body}]]></content>
