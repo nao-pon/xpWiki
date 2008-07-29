@@ -1,6 +1,6 @@
 <?php
 // PukiWiki - Yet another WikiWikiWeb clone
-// $Id: topicpath.inc.php,v 1.6 2008/06/20 02:08:48 nao-pon Exp $
+// $Id: topicpath.inc.php,v 1.7 2008/07/29 14:56:14 nao-pon Exp $
 //
 // 'topicpath' plugin for PukiWiki, available under GPL
 
@@ -19,8 +19,8 @@ class xpwiki_plugin_topicpath extends xpwiki_plugin {
 		// Show the page itself or not
 		$this->cont['PLUGIN_TOPICPATH_THIS_PAGE_DISPLAY'] =  1;
 		
-		// If PLUGIN_TOPICPATH_THIS_PAGE_DISPLAY, add a link to itself
-		$this->cont['PLUGIN_TOPICPATH_THIS_PAGE_LINK'] =  0;
+		// If PLUGIN_TOPICPATH_THIS_PAGE_DISPLAY, add a link to itself (0: off, 1:on, 2:only on read)
+		$this->cont['PLUGIN_TOPICPATH_THIS_PAGE_LINK'] =  2;
 
 	}
 	
@@ -42,13 +42,14 @@ class xpwiki_plugin_topicpath extends xpwiki_plugin {
 		$page = isset($this->root->vars['page']) ? $this->root->vars['page'] : '';
 		if ($page === $this->root->defaultpage) return '';
 		
-		if ($this->root->vars['cmd'] === 'read' && $page !== '') {
+		//if ($this->root->vars['cmd'] === 'read' && $page !== '') {
+		if ($page !== '') {
 		
 			$parts = explode('/', $page);
 		
 			$b_link = TRUE;
 			if ($this->cont['PLUGIN_TOPICPATH_THIS_PAGE_DISPLAY']) {
-				$b_link = $this->cont['PLUGIN_TOPICPATH_THIS_PAGE_LINK'];
+				$b_link = ($this->cont['PLUGIN_TOPICPATH_THIS_PAGE_LINK'] === 2)? ($this->root->vars['cmd'] !== 'read') : (bool)$this->cont['PLUGIN_TOPICPATH_THIS_PAGE_LINK'];
 			} else {
 				array_pop($parts); // Remove the page itself
 			}
@@ -67,8 +68,6 @@ class xpwiki_plugin_topicpath extends xpwiki_plugin {
 					$topic_path[] = $element;
 				} else {
 					// Page exists or not exists
-					//$topic_path[] = '<a href="' . $this->root->script . '?' . $landing . '">' .
-					//$element . '</a>';
 					$topic_path[] = $this->func->make_pagelink($_landing, $element);
 				}
 			}
@@ -79,7 +78,14 @@ class xpwiki_plugin_topicpath extends xpwiki_plugin {
 		if ($this->cont['PLUGIN_TOPICPATH_TOP_DISPLAY'])
 			$topic_path[] = $this->func->make_pagelink($this->root->defaultpage, $this->cont['PLUGIN_TOPICPATH_TOP_LABEL']);
 	
-		return join($this->cont['PLUGIN_TOPICPATH_TOP_SEPARATOR'], array_reverse($topic_path));
+		$ret = join($this->cont['PLUGIN_TOPICPATH_TOP_SEPARATOR'], array_reverse($topic_path));
+		
+		if ($page !== '' && $this->root->vars['cmd'] !== 'read') {
+			$title = strip_tags($this->xpwiki->title);
+			if (strpos($title, $page) !== FALSE) $ret = str_replace($page, $ret, $title);
+		}
+		
+		return $ret;
 	}
 }
 ?>
