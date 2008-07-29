@@ -4,7 +4,7 @@ class xpwiki_plugin_pcomment extends xpwiki_plugin {
 
 
 	// PukiWiki - Yet another WikiWikiWeb clone
-	// $Id: pcomment.inc.php,v 1.12 2008/03/24 09:31:45 nao-pon Exp $
+	// $Id: pcomment.inc.php,v 1.13 2008/07/29 15:00:06 nao-pon Exp $
 	//
 	// pcomment plugin - Show/Insert comments into specified (another) page
 	//
@@ -62,13 +62,11 @@ $this->cont['PLUGIN_PCOMMENT_DIRECTION_DEFAULT'] =  1; // 1: above 0: below
 			$this->root->vars['page'] = $refer;
 			return $retval;
 		}
-	
-		$this->func->pkwk_headers_sent();
 		
 		if ($this->root->render_mode !== 'render') {
-			$back = ($refer)? $this->func->get_page_uri($refer) : ($_SERVER['HTTP_REFERER'])? $_SERVER['HTTP_REFERER'] : $this->root->script;
+			$back = ($refer)? $this->func->get_page_uri($refer, TRUE) : ($_SERVER['HTTP_REFERER']? $_SERVER['HTTP_REFERER'] : $this->root->script);
 		} else {
-			$back = ($refer)? $this->root->siteinfo['host'].$refer : ($_SERVER['HTTP_REFERER'])? $_SERVER['HTTP_REFERER'] : $this->cont['ROOT_URL'];
+			$back = ($refer)? $this->root->siteinfo['host'].$refer : ($_SERVER['HTTP_REFERER']? $_SERVER['HTTP_REFERER'] : $this->cont['ROOT_URL']);
 		}
 
 		$this->func->send_location('', '', $back);
@@ -83,11 +81,11 @@ $this->cont['PLUGIN_PCOMMENT_DIRECTION_DEFAULT'] =  1; // 1: above 0: below
 	
 		$params = array(
 			'noname'=>FALSE,
-		'nodate'=>FALSE,
-		'below' =>FALSE,
-		'above' =>FALSE,
-		'reply' =>FALSE,
-		'_args' =>array()
+			'nodate'=>FALSE,
+			'below' =>FALSE,
+			'above' =>FALSE,
+			'reply' =>FALSE,
+			'_args' =>array()
 		);
 	
 		foreach(func_get_args() as $arg)
