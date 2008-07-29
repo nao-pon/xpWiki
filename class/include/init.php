@@ -1,7 +1,7 @@
 <?php
 //
 // Created on 2006/10/13 by nao-pon http://hypweb.net/
-// $Id: init.php,v 1.55 2008/06/17 00:21:39 nao-pon Exp $
+// $Id: init.php,v 1.56 2008/07/29 14:52:12 nao-pon Exp $
 //
 
 $root = & $this->root;
@@ -173,10 +173,6 @@ if (! file_exists($const['UA_INI_FILE']) || ! is_readable($const['UA_INI_FILE'])
 $const['UA_NAME'] = isset($user_agent['name']) ? $user_agent['name'] : '';
 $const['UA_VERS'] = isset($user_agent['vers']) ? $user_agent['vers'] : '';
 unset($user_agent);	// Unset after reading UA_INI_FILE
-
-/////////////////////////////////////////////////
-// 初期設定(ユーザ定義ルール読み込み)
-require($const['DATA_HOME'] . 'private/ini/rules.ini.php');
 
 /////////////////////////////////////////////////
 // 初期設定(その他のグローバル変数)
@@ -486,4 +482,9 @@ if (isset($const['page_show'])) {
 	}
 
 }
+
+/////////////////////////////////////////////////
+// 初期設定(ユーザ定義ルール読み込み)
+require($const['DATA_HOME'] . 'private/ini/rules.ini.php');
+
 ?>
