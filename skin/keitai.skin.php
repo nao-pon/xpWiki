@@ -1,6 +1,6 @@
 <?php
 // PukiWiki - Yet another WikiWikiWeb clone.
-// $Id: keitai.skin.php,v 1.11 2008/07/29 14:38:12 nao-pon Exp $
+// $Id: keitai.skin.php,v 1.12 2008/07/31 07:34:41 nao-pon Exp $
 // Copyright (C) 2003-2006 PukiWiki Developers Team
 // License: GPL v2 or (at your option) any later version
 //
@@ -135,8 +135,7 @@ if (HypCommonFunc::get_version() >= '20080617.2') {
 	$body = '"keitai.skin" require HypCommonFunc >= 20080617';
 }
 
-$out = '<?xml version="1.0" encoding="Shift_JIS"? ><html>' . $head . '<body>' .  $body . '</body></html>';
-//$out = '<html>' . $head . '<body>' .  $body . '</body></html>';
+$out = '<?xml version="1.0" encoding="Shift_JIS"?><html>' . $head . '<body>' .  $body . '</body></html>';
 
 // ----
 // Output HTTP headers
@@ -144,6 +143,7 @@ $this->pkwk_headers_sent();
 // Force Shift JIS encode for Japanese embedded browsers and devices
 header('Content-Type: '.$ctype.'; charset=Shift_JIS');
 header('Content-Length: ' . strlen($out));
+header('Cache-Control: no-cache');
 
 // Output
 echo $out;
