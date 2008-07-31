@@ -132,11 +132,8 @@ EOD;
 
 } else if ($xpwiki->runmode === 'standalone') {
 	
-	while( ob_get_level() ) {
-		ob_end_clean() ;
-	}
 	echo $xpwiki->html;
 
 }
 
-exit;
+exit();
