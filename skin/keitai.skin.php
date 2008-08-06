@@ -1,6 +1,6 @@
 <?php
 // PukiWiki - Yet another WikiWikiWeb clone.
-// $Id: keitai.skin.php,v 1.12 2008/07/31 07:34:41 nao-pon Exp $
+// $Id: keitai.skin.php,v 1.13 2008/08/06 00:05:29 nao-pon Exp $
 // Copyright (C) 2003-2006 PukiWiki Developers Team
 // License: GPL v2 or (at your option) any later version
 //
@@ -126,7 +126,13 @@ if (HypCommonFunc::get_version() >= '20080617.2') {
 	$r->Config_redirect = $this->cont['HOME_URL'] . 'gate.php?way=redirect_SJIS&amp;xmode=2&amp;l=';
 	$r->Config_emojiDir = $this->cont['ROOT_URL'] . 'images/emoji';
 	$r->outputMode = 'xhtml';
+	$r->langcode = $this->cont['LANG'];
 	$r->doOptimize();
+	if (method_exists($r, 'getHtmlDeclaration')) {
+		$htmlDec = $r->getHtmlDeclaration();
+	} else {
+		$htmlDec = '<?xml version="1.0" encoding="Shift_JIS"?><!DOCTYPE html PUBLIC "-//W3C//DTD XHTML 1.0 Transitional//EN" "http://www.w3.org/TR/xhtml1/DTD/xhtml1-transitional.dtd"><html xmlns="http://www.w3.org/1999/xhtml" lang="ja" xml:lang="ja">';
+	}
 	$body = $r->outputBody;
 	$ctype = $r->getOutputContentType();
 	$r = NULL;
@@ -135,7 +141,7 @@ if (HypCommonFunc::get_version() >= '20080617.2') {
 	$body = '"keitai.skin" require HypCommonFunc >= 20080617';
 }
 
-$out = '<?xml version="1.0" encoding="Shift_JIS"?><html>' . $head . '<body>' .  $body . '</body></html>';
+$out = $htmlDec . $head . '<body>' .  $body . '</body></html>';
 
 // ----
 // Output HTTP headers
