@@ -1,5 +1,5 @@
 <?php
-// $Id: ref.inc.php,v 1.34 2008/06/17 00:21:39 nao-pon Exp $
+// $Id: ref.inc.php,v 1.35 2008/08/08 01:03:27 nao-pon Exp $
 /*
 
 	*プラグイン ref
@@ -406,12 +406,13 @@ class xpwiki_plugin_ref extends xpwiki_plugin {
 					}
 				}
 				
-				//IE以外は改行文字をスペースに変換
-				//if ( !strstr($this->root->ua, "MSIE")) $title = str_replace("&#13;&#10;"," ",$title);
-
 				$lvar['url'] = $lvar['file'];
 				if ($params['_%'] && $params['_%'] < 95) {
 					$_file = preg_split('/(\.[a-zA-Z]+)?$/', $lvar['name'], -1, PREG_SPLIT_DELIM_CAPTURE);
+					// Check original filename extention (for Renderer mode)
+					if (! $_file[1] && preg_match('/(\.[a-zA-Z]+)$/', $lvar['status']['org_fname'], $_match)) {
+						$_file[1] = $_match[1];
+					} 
 					$s_file = $this->cont['UPLOAD_DIR']."s/".$this->func->encode($lvar['page']).'_'.$params['_%']."_".$this->func->encode($_file[0]).$_file[1];
 					if (file_exists($s_file)) {
 						//サムネイル作成済みならそれを参照
