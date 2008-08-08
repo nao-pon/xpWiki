@@ -1,7 +1,7 @@
 <?php
 /*
  * Created on 2008/03/24 by nao-pon http://hypweb.net/
- * $Id: attach.php,v 1.4 2008/06/09 01:53:16 nao-pon Exp $
+ * $Id: attach.php,v 1.5 2008/08/08 03:34:11 nao-pon Exp $
  */
 
 //-------- クラス
@@ -459,7 +459,8 @@ EOD;
 		
 		@unlink($this->logname);
 		
-		$this->rename_thumb_files($fname);
+		//$this->rename_thumb_files($fname);
+		$this->del_thumb_files();
 		
 		$this->file = $fname;
 		$this->basename = $newbase;
@@ -617,6 +618,10 @@ EOD;
 		
 		$root = $this->cont['UPLOAD_DIR']."s/".$this->func->encode($this->page).'_';
 		$_file = preg_split('/(\.[a-zA-Z]+)?$/', $this->file, -1, PREG_SPLIT_DELIM_CAPTURE);
+		// Check original filename extention (for Renderer mode)
+		if (! $_file[1] && preg_match('/(\.[a-zA-Z]+)$/', $this->status['org_fname'], $_match)) {
+			$_file[1] = $_match[1];
+		} 
 		$_file = $this->func->encode($_file[0]) . $_file[1];
 		for ($i = 1; $i < 100; $i++)
 		{
@@ -628,6 +633,7 @@ EOD;
 		}
 	}
 	
+/* remove
 	// 該当ファイルのサムネイルをリネーム
 	function rename_thumb_files($newname){
 		$dir = opendir($this->cont['UPLOAD_DIR']."s/")
@@ -645,6 +651,7 @@ EOD;
 			}
 		}
 	}
+*/
 	
 	// 管理者、ページ作成者またはファイル所有者か？
 	function is_owner() {
