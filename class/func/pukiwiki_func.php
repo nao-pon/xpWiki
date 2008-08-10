@@ -1,7 +1,7 @@
 <?php
 //
 // Created on 2006/10/02 by nao-pon http://hypweb.net/
-// $Id: pukiwiki_func.php,v 1.182 2008/08/02 02:52:38 nao-pon Exp $
+// $Id: pukiwiki_func.php,v 1.183 2008/08/10 03:03:57 nao-pon Exp $
 //
 class XpWikiPukiWikiFunc extends XpWikiBaseFunc {
 
@@ -951,7 +951,7 @@ class XpWikiPukiWikiFunc extends XpWikiBaseFunc {
 
 //----- Start convert_html.php -----//
 	// PukiWiki - Yet another WikiWikiWeb clone
-	// $Id: pukiwiki_func.php,v 1.182 2008/08/02 02:52:38 nao-pon Exp $
+	// $Id: pukiwiki_func.php,v 1.183 2008/08/10 03:03:57 nao-pon Exp $
 	// Copyright (C)
 	//   2002-2005 PukiWiki Developers Team
 	//   2001-2002 Originally written by yu-ji
@@ -1204,7 +1204,7 @@ class XpWikiPukiWikiFunc extends XpWikiBaseFunc {
 
 //----- Start func.php -----//
 	// PukiWiki - Yet another WikiWikiWeb clone.
-	// $Id: pukiwiki_func.php,v 1.182 2008/08/02 02:52:38 nao-pon Exp $
+	// $Id: pukiwiki_func.php,v 1.183 2008/08/10 03:03:57 nao-pon Exp $
 	// Copyright (C)
 	//   2002-2006 PukiWiki Developers Team
 	//   2001-2002 Originally written by yu-ji
@@ -2031,7 +2031,7 @@ EOD;
 
 //----- Start make_link.php -----//
 	// PukiWiki - Yet another WikiWikiWeb clone.
-	// $Id: pukiwiki_func.php,v 1.182 2008/08/02 02:52:38 nao-pon Exp $
+	// $Id: pukiwiki_func.php,v 1.183 2008/08/10 03:03:57 nao-pon Exp $
 	// Copyright (C)
 	//   2003-2005 PukiWiki Developers Team
 	//   2001-2002 Originally written by yu-ji
@@ -2066,12 +2066,16 @@ EOD;
 	// Make hyperlink for the page
 	function make_pagelink($page, $alias = '', $anchor = '', $refer = '', $class = 'pagelink', $options = array())
 	{
+		static $path_cache = array();
+		
 		// check alias page
 		if (!$this->is_page($page) && isset($this->root->page_aliases[$page])) {
 			if (!$alias) $alias = $page;
 			$page = $this->root->page_aliases[$page];
 		}
-
+		
+		$isset_alias = ($alias);
+		
 		$s_page = htmlspecialchars($this->strip_bracket($page));
 		
 		if ($page && !$this->is_pagename($page)) {
@@ -2083,9 +2087,11 @@ EOD;
 		}
 		
 		$compact_base = false;
-		if (preg_match('/^#compact:(.+)/', $alias, $match)) {
+		$base_key = '#none';
+		if (preg_match('/^#compact:(.+)$/', $alias, $match)) {
 			$alias = '';
-			$compact_base = trim($match[1]);
+			$isset_alias = FALSE;
+			$base_key = $compact_base = trim($match[1]);
 		}
 		if ($alias) {
 			$s_alias = $alias;
@@ -2101,11 +2107,38 @@ EOD;
 		
 		// Remake
 		$s_page = htmlspecialchars($page);
-	
+
+		// Anchor only
 		if ($page === '') return '<a href="' . $anchor . '" class="'.$class.'">' . $s_alias . '</a>';
-		
+
+		// Make topic path
+		$basepath = '';
+		if ($this->root->pagelink_topicpath && ! $isset_alias && strpos($page, '/')) {
+			$s_alias = $this->page_basename($s_alias);
+			$parts = explode('/', $page);
+			array_pop($parts);
+			$page_dirname = $this->page_dirname($page);
+			if (isset($path_cache[$this->root->mydirname][$page_dirname][$base_key])) {
+				$basepath = $path_cache[$this->root->mydirname][$page_dirname][$base_key];
+			} else {
+				$topic_path = array();
+				while (! empty($parts)) {
+					$_landing = join('/', $parts);
+					if ($compact_base && $compact_base === $_landing) {
+						break;
+					}
+					$element = htmlspecialchars(array_pop($parts));
+					$topic_path[] = $this->make_pagelink($_landing, $element);
+				}
+				if ($topic_path) {
+					$basepath = join('/' . $this->root->hierarchy_insert, array_reverse($topic_path)) . '/' . $this->root->hierarchy_insert;
+					$path_cache[$this->root->mydirname][$page_dirname][$base_key] = $basepath;
+				}
+			}
+		}
+	
 		if ($class === 'autolink' && $page === $this->root->vars['page']) {
-			return '<span class="thispage">' . $s_alias . '</span>';
+			return $basepath . '<span class="thispage">' . $s_alias . '</span>';
 		}
 		
 		$r_page  = rawurlencode($page);
@@ -2120,7 +2153,7 @@ EOD;
 		if ($class === 'autolink' || !empty($options['nocheck']) || $this->is_page($page)) {
 			// ownpage
 			if ($this->root->vars['cmd'] === 'read' && $this->cont['PAGENAME'] === $page && $anchor === '') {
-				return '<span class="thispage">' . $s_alias . '</span>';
+				return $basepath . '<span class="thispage">' . $s_alias . '</span>';
 			}
 			
 			// Hyperlink to the page
@@ -2167,14 +2200,15 @@ EOD;
 			}
 			
 			$link = ($this->root->vars['cmd'] === 'read' && $this->cont['PAGENAME'] === $page)? '' : $this->get_page_uri($page, TRUE);
-			return $al_left . '<a ' . 'href="' . $link . $anchor .
+			
+			return $basepath . $al_left . '<a ' . 'href="' . $link . $anchor .
 				'"' . $title . ' class="' . $class . '"' . $onclick . '>' . $s_alias . '</a>' . $al_right;
 		} else {
 			// Dangling link
 			if ($this->cont['PKWK_READONLY'] === 1 || ! $this->check_editable($page,false,false)) return $s_alias; // No dacorations
 			
 			$title = htmlspecialchars(str_replace('$1', $page, $this->root->_title_edit));
-			$retval = $s_alias . '<a href="' .
+			$retval = $basepath . $s_alias . '<a href="' .
 				$this->root->script . '?cmd=edit&amp;page=' . $r_page . $r_refer . '" class="' . $class . '" title="' . $title . '">' .
 				$this->root->_symbol_noexists . '</a>';
 	
@@ -2972,7 +3006,7 @@ EOD;
 
 //----- Start html.php -----//
 	// PukiWiki - Yet another WikiWikiWeb clone.
-	// $Id: pukiwiki_func.php,v 1.182 2008/08/02 02:52:38 nao-pon Exp $
+	// $Id: pukiwiki_func.php,v 1.183 2008/08/10 03:03:57 nao-pon Exp $
 	// Copyright (C)
 	//   2002-2006 PukiWiki Developers Team
 	//   2001-2002 Originally written by yu-ji
@@ -3428,7 +3462,8 @@ EOD;
 				$_links[] = '[ <a href="' . $this->root->script . '?cmd=related&amp;page='.rawurlencode($page).'">Show All</a> ]';
 				break;
 			}
-			$_links[] = $this->make_pagelink($_page);
+			$_dirname = $this->page_dirname($_page);
+			$_links[] = $this->make_pagelink($_page, ($_dirname ? '#compact:'.$_dirname : ''));
 		}
 		if (empty($_links)) return ''; // Nothing
 	
@@ -3665,7 +3700,7 @@ EOD;
 
 //----- Start mail.php -----//
 	// PukiWiki - Yet another WikiWikiWeb clone.
-	// $Id: pukiwiki_func.php,v 1.182 2008/08/02 02:52:38 nao-pon Exp $
+	// $Id: pukiwiki_func.php,v 1.183 2008/08/10 03:03:57 nao-pon Exp $
 	// Copyright (C)
 	//   2003-2005 PukiWiki Developers Team
 	//   2003      Originally written by upk
@@ -3968,7 +4003,7 @@ EOD;
 
 //----- Start link.php -----//
 	// PukiWiki - Yet another WikiWikiWeb clone
-	// $Id: pukiwiki_func.php,v 1.182 2008/08/02 02:52:38 nao-pon Exp $
+	// $Id: pukiwiki_func.php,v 1.183 2008/08/10 03:03:57 nao-pon Exp $
 	// Copyright (C) 2003-2006 PukiWiki Developers Team
 	// License: GPL v2 or (at your option) any later version
 	//

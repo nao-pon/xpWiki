@@ -1,7 +1,7 @@
 <?php
 /*
  * Created on 2008/01/24 by nao-pon http://hypweb.net/
- * $Id: conf.lng.php,v 1.4 2008/05/22 00:28:52 nao-pon Exp $
+ * $Id: conf.lng.php,v 1.5 2008/08/10 03:03:57 nao-pon Exp $
  */
 //
 // German Translation Version 1.0 (11.03.2008)
@@ -106,6 +106,11 @@ $msg = array(
 	'pagename_num2str' => array(
 		'caption'     => 'Ist der Seitenname konkret angezeigt?',
 		'description' => 'Falls der letzte hierarchische Teil, die Nummer - (der Bindestrich) existiert, ersetzt dieser Teil den Seiten-Titel.',
+	),
+
+	'pagelink_topicpath' => array(
+		'caption'     => 'Zeigen Sie pagelink mit Topic path?',
+		'description' => 'Page links (#recent and #ls2, etc.) except an AutoLink and the BracketLink are displayed with the Topic path.',
 	),
 
 	'static_url' => array(

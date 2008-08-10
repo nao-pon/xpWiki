@@ -1,7 +1,7 @@
 <?php
 /*
  * Created on 2008/01/24 by nao-pon http://hypweb.net/
- * $Id: conf.lng.php,v 1.8 2008/05/22 00:28:52 nao-pon Exp $
+ * $Id: conf.lng.php,v 1.9 2008/08/10 03:03:56 nao-pon Exp $
  */
 
 $msg = array(
@@ -103,6 +103,11 @@ each use page can be provided.<br />'
 	'pagename_num2str' => array(
 		'caption'     => 'Is page name concretely displayed?',
 		'description' => 'When the last hierarchical part, the number - (the hyphen) it consists, the part of that is substituted in page title.',
+	),
+
+	'pagelink_topicpath' => array(
+		'caption'     => 'Show pagelink with topic path?',
+		'description' => 'Page links (#recent and #ls2, etc.) except an AutoLink and the BracketLink are displayed with the Topic path.',
 	),
 
 	'static_url' => array(
