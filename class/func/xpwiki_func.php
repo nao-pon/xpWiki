@@ -1,7 +1,7 @@
 <?php
 //
 // Created on 2006/10/02 by nao-pon http://hypweb.net/
-// $Id: xpwiki_func.php,v 1.188 2008/07/20 07:16:08 nao-pon Exp $
+// $Id: xpwiki_func.php,v 1.189 2008/08/10 03:03:57 nao-pon Exp $
 //
 class XpWikiFunc extends XpWikiXoopsWrapper {
 
@@ -621,7 +621,7 @@ EOD;
 		while ($done['edit'] < 2 && $done['view'] < 2) {
 			if (strpos($page, '/') !== FALSE) {
 				//上位ページを見る
-				$uppage = dirname($page);
+				$uppage = $this->page_dirname($page);
 				$_pginfo = $this->get_pginfo($uppage);
 				// 編集権限
 				if ($done['edit'] < 2) {
@@ -1320,7 +1320,12 @@ EOD;
 	
 	// ページの親階層を得る
 	function page_dirname ($page) {
-		return preg_replace("/(^|\/)[^\/]*$/","",$page);
+		return preg_replace('/(^|\/)[^\/]*$/', '',$page);
+	}
+
+	// ページのbasenameを得る
+	function page_basename ($page) {
+		return preg_replace('#^.*/#', '', $page);
 	}
 
 	//あるページの関連ページ数を得る

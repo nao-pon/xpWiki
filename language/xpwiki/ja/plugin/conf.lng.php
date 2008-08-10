@@ -1,7 +1,7 @@
 <?php
 /*
  * Created on 2008/01/24 by nao-pon http://hypweb.net/
- * $Id: conf.lng.php,v 1.8 2008/05/22 00:28:52 nao-pon Exp $
+ * $Id: conf.lng.php,v 1.9 2008/08/10 03:03:57 nao-pon Exp $
  */
 
 $msg = array(
@@ -102,6 +102,11 @@ $msg = array(
 	'pagename_num2str' => array(
 		'caption'     => 'ページ名の具体表示をする',
 		'description' => '二階層以上のページ名で最終階層部分が、数字と-(ハイフン)で構成されている場合にその部分をページタイトルに置換して表示します。',
+	),
+
+	'pagelink_topicpath' => array(
+		'caption'     => 'ページリンクをパンくずリストにする',
+		'description' => 'オートリンク、ブラケットリンクを除くページリンク(#recent, #ls2 など)をパンくずリスト(Topic path)方式で表示します。',
 	),
 
 	'static_url' => array(

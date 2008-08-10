@@ -1,7 +1,7 @@
 <?php
 /*
  * Created on 2008/01/24 by nao-pon http://hypweb.net/
- * $Id: conf.inc.php,v 1.11 2008/05/21 11:49:34 nao-pon Exp $
+ * $Id: conf.inc.php,v 1.12 2008/08/10 03:03:57 nao-pon Exp $
  */
 
 class xpwiki_plugin_conf extends xpwiki_plugin {
@@ -85,6 +85,11 @@ class xpwiki_plugin_conf extends xpwiki_plugin {
 				'form' => 'yesno',
 			),
 			'pagename_num2str' => array(
+				'kind' => 'root',
+				'type' => 'integer',
+				'form' => 'yesno',
+			),
+			'pagelink_topicpath' => array(
 				'kind' => 'root',
 				'type' => 'integer',
 				'form' => 'yesno',

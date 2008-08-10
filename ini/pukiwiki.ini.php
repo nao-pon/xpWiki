@@ -1,6 +1,6 @@
 <?php
 // PukiWiki - Yet another WikiWikiWeb clone
-// $Id: pukiwiki.ini.php,v 1.81 2008/06/27 01:25:54 nao-pon Exp $
+// $Id: pukiwiki.ini.php,v 1.82 2008/08/10 03:03:57 nao-pon Exp $
 // Copyright (C)
 //   2002-2006 PukiWiki Developers Team
 //   2001-2002 Originally written by yu-ji
@@ -23,10 +23,6 @@ $const['PKWK_OPTIMISE'] = 0;
 
 /////////////////////////////////////////////////
 // Security settings
-
-// PKWK_READONLY - Prohibits editing and maintain via WWW
-//   NOTE: Counter-related functions will work now (counter, attach count, etc)
-$const['PKWK_READONLY'] = 0; // 0 or 1
 
 // PKWK_SAFE_MODE - Prohibits some unsafe(but compatible) functions 
 // 'auto': Safe mode( The administer is excluded. )
@@ -98,13 +94,6 @@ $const['RENDER_CACHE_DIR'] = $const['DATA_HOME'] . 'private/cache/';      // Ran
 /////////////////////////////////////////////////
 // Directory settings II (ended with '/')
 
-// Skins / Stylesheets
-// Default skin name
-$const['SKIN_NAME'] = 'default';
-
-// Enable Skin changer by GET REQUEST or Plugin? (0: off, 1: on)
-$const['SKIN_CHANGER'] = 1;
-
 // tDiary theme directory
 $const['TDIARY_DIR'] = 'skin/tdiary_theme/';
 
@@ -129,9 +118,6 @@ $const['ZONE'] = $this->get_zone_by_time($const['ZONETIME'] / 3600);
 // Also used as RSS feed's channel name etc
 $root->module_title = $root->module['title'] ;
 
-// HTML HEAD Title
-$root->html_head_title = '$page_title$content_title - $module_title';
-
 // Specifies title formatting rule. (Regex)
 // The first pattern match part is used.
 $root->title_setting_string = 'TITLE:';
@@ -143,17 +129,7 @@ $root->title_setting_regex = '/^TITLE:(.*)(\r\n|\r|\n)?$/m';
 // Shorten $root->script: Cut its file name (default: not cut)
 //$root->script_directory_index = 'index.php';
 
-// Site admin's name (CHANGE THIS)
-$root->modifier = 'anonymous';
-
-// Site admin's Web page (CHANGE THIS)
-$root->modifierlink = 'http://pukiwiki.example.com/';
-
-// Page name case insensitive
-$root->page_case_insensitive = 0;
-
 // Default page name
-$root->defaultpage  = 'FrontPage';     // Top / Default page
 $root->whatsnew     = 'RecentChanges'; // Modified page list
 $root->whatsdeleted = 'RecentDeleted'; // Removeed page list
 $root->interwiki    = 'InterWikiName'; // Set InterWiki definition here
@@ -184,46 +160,10 @@ $root->trackback = 0;
 $root->trackback_javascript = 0;
 
 /////////////////////////////////////////////////
-// Referer list feature
-$root->referer = 0;
-
-/////////////////////////////////////////////////
-// Page comment feature
-$root->allow_pagecomment = 1;
-
-/////////////////////////////////////////////////
-// _Disable_ WikiName auto-linking
-$root->nowikiname = 0;
-
-/////////////////////////////////////////////////
 // Disable slashes comment out
 $root->no_slashes_commentout = 0;
 
 /////////////////////////////////////////////////
-// 2階層以上で basename が 数字と- のみの場合
-// リンク時の表示をタイトルに置換する 0 or 1
-$root->pagename_num2str = 1;
-
-/////////////////////////////////////////////////
-// [ 1 ] ページリンクを [pgid].html の形式にする
-// modules/[DirName]/.htaccess に次の設定が必要です
-/* .htaccess 
-RewriteEngine on
-RewriteRule ^([0-9]+)\.html$ index.php?pgid=$1 [qsappend,L]
- */
-// [ 2 ] ページリンクを index/ページ名 の形式にする
-// modules/[DirName]/.htaccess に次の設定が必要です
-/* .htaccess 
-Options +MultiViews
-<FilesMatch "^index$">
-ForceType application/x-httpd-php
-</FilesMatch>
- */
-// [ 3 ] ページリンクを index.php/ページ名 の形式にする
-// modules/[DirName]/.htaccess の設定は不要です 
-
-$root->static_url = 0; // 0 or 1, 2, 3
-
 // PATH_INFO 使用時 (static_url = 2 or 3) のファイル名
 // "index" 以外にする場合は、.htaccess の書き換えと次の内容のファイルを置く
 /* 「スクリプト名」で保存する
@@ -233,11 +173,6 @@ include 'index.php';
 $root->path_info_script = 'index';
 
 /////////////////////////////////////////////////
-// ページリンクをUTF-8エンコードする
-// 
-$root->url_encode_utf8 = 0;
-
-/////////////////////////////////////////////////
 // URLエンコードされていないGETクエリを受け入れる
 // URL encoding is not GET queries to accept
 $root->accept_not_encoded_query = 0;
@@ -245,12 +180,6 @@ $root->accept_not_encoded_query = 0;
 /////////////////////////////////////////////////
 // 外部リンクの追加属性
 // Attributes for external link tag <a>.
-// target
-// ※ HTML4.01, XHTML1.0で非推奨、HTML4.01Strict, XHTML1.1では使えません
-$root->link_target = '';
-
-// class
-$root->class_extlink = 'ext';
 
 // favicon auto set class name
 $root->favicon_set_classname = 'ext';
@@ -258,19 +187,11 @@ $root->favicon_set_classname = 'ext';
 // favicon auto replace class name
 $root->favicon_replace_classname = 'extWithFavicon';
 
-// Add rel="nofollow"? (0 or 1)
-$root->nofollow_extlink = 0;
-
 /////////////////////////////////////////////////
 // AutoLink feature
-// Automatic link to existing pages (especially helpful for non-wikiword pages, but heavy)
 
-// Minimum length of page name
-$root->autolink = 0; // Bytes, 0 = OFF (try 8)
-
-// Is upper directory hierarchy omissible?
-// 上層階層名は省略可能 ?
-$root->autolink_omissible_upper = 0; // Bytes(need $root->autolink = ON), 0 = OFF
+// An upper layer hierarchical name is priority when assuming that it is possible to omit it.
+// 上層階層名は省略可能とした場合の優先度
 $root->autolink_omissible_upper_priority = 60; // 優先度(通常のAutolink=50)
 
 /////////////////////////////////////////////////
@@ -329,66 +250,9 @@ $root->autolink_omissible_upper_priority = 60; // 優先度(通常のAutolink=50)
 //);
 
 /////////////////////////////////////////////////
-// AutoAlias feature
-// Automatic link from specified word, to specifiled URI, page or InterWiki
-
-// Minimum length of alias "from" word
-$root->autoalias = 0; // Bytes, 0 = OFF (try 8)
-
-// Limit loading valid alias pairs
-$root->autoalias_max_words = 50; // pairs
-
-/////////////////////////////////////////////////
-// Enable Freeze / Unfreeze feature
-$root->function_freeze = 1;
-
-/////////////////////////////////////////////////
 // Allow to use 'Do not change timestamp' checkbox
 // (0:Disable, 1:For everyone,  2:Only for the administrator)
 $root->notimeupdate = 1;
-
-/////////////////////////////////////////////////
-// Admin password for this Wikisite
-
-// Default: always fail
-$root->adminpass = '{x-php-md5}!';
-
-// Sample:
-//$root->adminpass = 'pass'; // Cleartext
-//$root->adminpass = '{x-php-md5}1a1dc91c907325c69271ddf0c944bc72'; // PHP md5()  'pass'
-//$root->adminpass = '{CRYPT}$1$AR.Gk94x$uCe8fUUGMfxAPH83psCZG/';   // LDAP CRYPT 'pass'
-//$root->adminpass = '{MD5}Gh3JHJBzJcaScd3wyUS8cg==';               // LDAP MD5   'pass'
-//$root->adminpass = '{SMD5}o7lTdtHFJDqxFOVX09C8QnlmYmZnd2Qx';      // LDAP SMD5  'pass'
-
-/////////////////////////////////////////////////
-// Page-reading feature settings
-// (Automatically creating pronounce datas, for Kanji-included page names,
-//  to show sorted page-list correctly)
-
-// Enable page-reading feature by calling ChaSen or KAKASHI command
-// (1:Enable, 0:Disable)
-$root->pagereading_enable = 0;
-
-// Specify converter as ChaSen('chasen') or KAKASI('kakasi') or None('none')
-$root->pagereading_kanji2kana_converter = 'none';
-
-// Specify Kanji encoding to pass data between PukiWiki and the converter
-$root->pagereading_kanji2kana_encoding = 'EUC'; // Default for Unix
-//$root->pagereading_kanji2kana_encoding = 'SJIS'; // Default for Windows
-
-// Absolute path of the converter (ChaSen)
-$root->pagereading_chasen_path = '/usr/local/bin/chasen';
-//$root->pagereading_chasen_path = 'c:\progra~1\chasen21\chasen.exe';
-
-// Absolute path of the converter (KAKASI)
-$root->pagereading_kakasi_path = '/usr/local/bin/kakasi';
-//$root->pagereading_kakasi_path = 'c:\kakasi\bin\kakasi.exe';
-
-// Page name contains pronounce data (written by the converter)
-$root->pagereading_config_page = ':config/PageReading';
-
-// Page name of default pronouncing dictionary, used when converter = 'none'
-$root->pagereading_config_dict = ':config/PageReading/dict';
 
 /////////////////////////////////////////////////
 // User definition
@@ -428,30 +292,6 @@ $root->edit_auth_pages = array(
 
 // Q & A 認証 (使用しない = 0, ゲストのみ = 1, 管理者以外 = 2)
 $root->riddle_auth = 1;
-
-// 編集権限をプラグインでの書き込みにも適用する
-$root->plugin_follow_editauth = 0;
-
-// 凍結をプラグインでの書き込みにも適用する
-$root->plugin_follow_freeze = 1;
-
-/////////////////////////////////////////////////
-// ページ情報のサイト規定値
-// inherit = 0:継承指定なし, 1:規定値継承指定, 2:強制継承指定, 3:規定値継承した値, 4:強制継承した値
-$root->pginfo = array(
-	'uid'       => 0,     // UserID
-	'ucd'       => '',    // UserCode(by cookie)
-	'uname'     => '',    // UserName(by cookie)
-	'einherit'  => 3,     // Edit Inherit
-	'eaids'     => 'all', // Editable users
-	'egids'     => 'all', // Editable groups
-	'vinherit'  => 3,     // View Inherit
-	'vaids'     => 'all', // Viewable users
-	'vgids'     => 'all', // Viewable groups
-	'lastuid'   => 0,     // Last editer's uid
-	'lastucd'   => '',    // Last editer's ucd(by cookie)
-	'lastuname' => '',    // Last editer's name(by cookie)
-);
 
 /////////////////////////////////////////////////
 // Search auth
@@ -560,15 +400,6 @@ $root->no_proxy = array(
 // Show system notification in SKIN
 $root->show_system_notification_skin = 0;
 
-////////////////////////////////////////////////
-// Mail related settings
-
-// Send mail per update of pages
-$root->notify = 0;
-
-// Send diff only
-$root->notify_diff_only = 1;
-
 //// These settings are not used on XOOPS.
 // SMTP server (Windows only. Usually specified at php.ini)
 $root->smtp_server = 'localhost';
@@ -634,18 +465,8 @@ $root->contents_auto_insertion = 4;
 $root->fixed_heading_anchor = 1;
 
 /////////////////////////////////////////////////
-// enable paraedit 
-$root->fixed_heading_anchor_edit = 1;
-// part-edit area - 'compat':PukiWiki 1.4.4 compat, 'level':level
-$root->paraedit_partarea = 'compat';
-
-/////////////////////////////////////////////////
 // Remove the first spaces from Preformatted text
 $root->preformat_ltrim = 1;
-
-/////////////////////////////////////////////////
-// Convert linebreaks into <br />
-$root->line_break = 0;
 
 /////////////////////////////////////////////////
 // Use extended table format like a PukiWikiMod
@@ -664,11 +485,6 @@ $root->empty_cell_join = 1;
 // Use date-time rules (See rules.ini.php)
 $root->usedatetime = 1;
 
-/////////////////////////////////////////////////
-// ページキャッシュの設定 (ゲストアクセス時のみ)
-// ページキャッシュを最長何分間するか？
-$root->pagecache_min = 0;
-
 // ページ更新時常にページキャッシュを破棄するページ
 $root->always_clear_cache_pages = array (
 	//$root->defaultpage,
@@ -684,34 +500,8 @@ $root->clear_cache_parent = TRUE; // (TRUE or FASLE)
 // Main CSS name
 $root->main_css = 'main.css';
 
-// <pre> の幅指定 (600px, auto など)
-$root->pre_width = 'auto';
-
-// IE に指定する <pre> の幅 (600px, auto など)
-// xpWiki が Table 内に表示される場合(Table theme) px 指定したほうがよい
-$root->pre_width_ie = '700px';
-
 // CSS ID prefix ( ex. #xo-canvas )
 $root->css_prefix = '';
-
-/////////////////////////////////////////////////
-//// XML-RPC ping setting (weblogUpdates.ping)
-// Send update ping?
-$root->update_ping = 0;
-
-// ping servers URL + ' E'
-// ' E' means Extended ping server. (weblogUpdates.extendedPing)
-$root->update_ping_servers = '
-http://api.my.yahoo.co.jp/RPC2
-http://blog.goo.ne.jp/XMLRPC
-http://blogsearch.google.co.jp/ping/RPC2 E
-http://feeds.feedburner.com/ArakiNotes E
-http://ping.bloggers.jp/rpc/
-http://r.hatena.ne.jp/rpc
-http://rpc.technorati.com/rpc/ping E
-http://rpc.weblogs.com/RPC2 E
-http://www.blogpeople.net/servlet/weblogUpdates E
-';
 
 /////////////////////////////////////////////////
 // レンダラーモード用設定
@@ -896,4 +686,80 @@ $const['USER_CODE_REPLACE'] = '__uSER_cODE_rEPLACE__';
 
 // #pginfo の正規表現 (#pginfo削除などに利用)
 $const['PKWK_PGINFO_REGEX'] = '/^(?:#pginfo\(.*\)[\r\n]*)+/m';
+
+//////////////////////////////////////////////////////////////////////////////////////////////////
+//////////////////////////////////////////////////////////////////////////////////////////////////
+// The following settings are overwrited when the environment of the management screen is set,
+// and go in the setting change by an environmental setting, please.
+// 以下の設定は、管理画面の環境設定をした場合に上書きされますので、設定変更は環境設定で行ってください。
+
+$const['PKWK_READONLY'] = 0; // 0 or 1
+$root->function_freeze = 1;
+$root->adminpass = '{x-php-md5}!';
+$root->html_head_title = '$page_title$content_title - $module_title';
+$root->modifier = 'anonymous';
+$root->modifierlink = 'http://pukiwiki.example.com/';
+$root->notify = 0;
+$root->notify_diff_only = 1;
+$root->defaultpage  = 'FrontPage';
+$root->page_case_insensitive = 0;
+$const['SKIN_NAME'] = 'default';
+$const['SKIN_CHANGER'] = 1;
+$root->referer = 0;
+$root->allow_pagecomment = 1;
+$root->nowikiname = 0;
+$root->pagename_num2str = 1;
+$root->pagelink_topicpath = 0;
+$root->static_url = 0; // 0 or 1, 2, 3
+$root->url_encode_utf8 = 0;
+$root->link_target = '';
+$root->class_extlink = 'ext';
+$root->nofollow_extlink = 0;
+$root->autolink = 0;
+$root->autolink_omissible_upper = 0; // Bytes(need $root->autolink = ON), 0 = OFF
+$root->autoalias = 0;
+$root->autoalias_max_words = 50;
+$root->plugin_follow_editauth = 0;
+$root->plugin_follow_freeze = 1;
+$root->line_break = 0;
+$root->fixed_heading_anchor_edit = 1;
+$root->paraedit_partarea = 'compat';
+$root->pagecache_min = 0;
+$root->pre_width = 'auto';
+$root->pre_width_ie = '700px';
+$root->update_ping = 0;
+$root->update_ping_servers = '
+http://api.my.yahoo.co.jp/RPC2
+http://blog.goo.ne.jp/XMLRPC
+http://blogsearch.google.co.jp/ping/RPC2 E
+http://feeds.feedburner.com/ArakiNotes E
+http://ping.bloggers.jp/rpc/
+http://r.hatena.ne.jp/rpc
+http://rpc.technorati.com/rpc/ping E
+http://rpc.weblogs.com/RPC2 E
+http://www.blogpeople.net/servlet/weblogUpdates E
+';
+$root->pagereading_enable = 0;
+$root->pagereading_kanji2kana_converter = 'none';
+$root->pagereading_kanji2kana_encoding = 'EUC'; // Default for Unix
+$root->pagereading_chasen_path = '/usr/local/bin/chasen';
+$root->pagereading_kakasi_path = '/usr/local/bin/kakasi';
+$root->pagereading_config_page = ':config/PageReading';
+$root->pagereading_config_dict = ':config/PageReading/dict';
+
+$root->pginfo = array(
+	'uid'       => 0,     // UserID
+	'ucd'       => '',    // UserCode(by cookie)
+	'uname'     => '',    // UserName(by cookie)
+	'einherit'  => 3,     // Edit Inherit
+	'eaids'     => 'all', // Editable users
+	'egids'     => 'all', // Editable groups
+	'vinherit'  => 3,     // View Inherit
+	'vaids'     => 'all', // Viewable users
+	'vgids'     => 'all', // Viewable groups
+	'lastuid'   => 0,     // Last editer's uid
+	'lastucd'   => '',    // Last editer's ucd(by cookie)
+	'lastuname' => '',    // Last editer's name(by cookie)
+);
+
 ?>
