@@ -4,7 +4,7 @@ class xpwiki_plugin_navi extends xpwiki_plugin {
 
 
 	// PukiWiki - Yet another WikiWikiWeb clone.
-	// $Id: navi.inc.php,v 1.9 2008/05/22 08:59:43 nao-pon Exp $
+	// $Id: navi.inc.php,v 1.10 2008/08/11 01:17:35 nao-pon Exp $
 	//
 	// Navi plugin: Show DocBook-like navigation bar and contents
 	
@@ -122,12 +122,12 @@ class xpwiki_plugin_navi extends xpwiki_plugin {
 				$navi[$this->xpwiki->pid][$home]['up']    = $this->func->make_pagelink($up, $this->root->_navi_up);
 			}
 			if (! $is_home) {
-				$navi[$this->xpwiki->pid][$home]['prev']  = $this->func->make_pagelink($prev);
+				$navi[$this->xpwiki->pid][$home]['prev']  = $this->func->make_pagelink($prev, '#compact:' . $home);
 				$navi[$this->xpwiki->pid][$home]['prev1'] = $this->func->make_pagelink($prev, $this->root->_navi_prev);
 				$this->func->add_tag_head('<link rel="prev" title="' . htmlspecialchars($prev) . '" href="' . $this->func->get_page_uri($prev, TRUE) . '" />');
 			}
 			if ($next != '') {
-				$navi[$this->xpwiki->pid][$home]['next']  = $this->func->make_pagelink($next);
+				$navi[$this->xpwiki->pid][$home]['next']  = $this->func->make_pagelink($next, '#compact:' . $home);
 				$navi[$this->xpwiki->pid][$home]['next1'] = $this->func->make_pagelink($next, $this->root->_navi_next);
 				$this->func->add_tag_head('<link rel="next" title="' . htmlspecialchars($next) . '" href="' . $this->func->get_page_uri($next, TRUE) . '" />');
 			}
