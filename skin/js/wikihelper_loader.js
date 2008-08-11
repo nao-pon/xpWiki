@@ -5,7 +5,7 @@
 	if (typeof(XpWiki) == 'undefined') {
 		var lang;
 		if(document.all) {
-			lang = navigator.browserLanguage;
+			lang = (navigator.userLanguage || navigator.browserLanguage);
 		} else {
 			lang = navigator.language;
 		}
@@ -13,8 +13,11 @@
 		if (! lang.match(/(en|ja)/)) {
 			lang = 'en';
 		}
-		
+		var charset = '';
+		if (lang == 'ja') {
+			charset = 'charset="EUC-JP" ';
+		}
 		// load default.*.js
-		document.write ('<script type="text/javascript" src="$wikihelper_root_url/skin/loader.php?src=default.'+lang+'.js"></script>');
+		document.write ('<script type="text/javascript" ' + charset + 'src="$wikihelper_root_url/skin/loader.php?src=default.'+lang+'.js"></script>');
 	}
 })();
