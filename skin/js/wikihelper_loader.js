@@ -13,7 +13,7 @@
 		if (! lang.match(/(en|ja)/)) {
 			lang = 'en';
 		}
-		var charset = '';
+		var charset = 'ISO-8859-1';
 		if (lang == 'ja') {
 			charset = 'charset="EUC-JP" ';
 		}
