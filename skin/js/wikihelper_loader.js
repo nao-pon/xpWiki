@@ -10,10 +10,10 @@
 			lang = navigator.language;
 		}
 		lang = lang.substr(0,2);
-		if (! lang.match(/(en|ja)/)) {
+		if (! lang.match(/(en|de|ja)/)) {
 			lang = 'en';
 		}
-		var charset = 'ISO-8859-1';
+		var charset = 'charset="ISO-8859-1" ';
 		if (lang == 'ja') {
 			charset = 'charset="EUC-JP" ';
 		}
