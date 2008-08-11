@@ -1,6 +1,6 @@
 <?php
 // PukiWiki - Yet another WikiWikiWeb clone.
-// $Id: keitai.ini.php,v 1.12 2008/06/17 00:21:39 nao-pon Exp $
+// $Id: keitai.ini.php,v 1.13 2008/08/11 01:10:01 nao-pon Exp $
 // Copyright (C)
 //   2002-2005 PukiWiki Developers Team
 //   2001-2002 Originally written by yu-ji
@@ -433,6 +433,10 @@ switch ($root->ua_name) {
 
 }
 
-//unset($matches, $ua_name, $ua_vers, $ua_agent, $special_rules);
+// インラインイメージを表示するホスト名(後方一致)
+$this->k_tai_conf['showImgHosts'] = array('amazon.com', 'yimg.jp', 'yimg.com', 'ad.jp.ap.valuecommerce.com', 'ad.jp.ap.valuecommerce.com', 'ba.afl.rakuten.co.jp', 'assoc-amazon.jp', 'ad.linksynergy.com');
+
+// リダイレクトスクリプトを経由しないホスト名(後方一致)
+$this->k_tai_conf['directLinkHosts'] = array('amazon.co.jp', 'ck.jp.ap.valuecommerce.com');
 
 ?>
