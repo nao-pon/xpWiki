@@ -2,7 +2,7 @@
 class xpwiki_plugin_xoopsblock extends xpwiki_plugin {
 	
 	function plugin_xoopsblock_init() {
-	// $Id: xoopsblock.inc.php,v 1.7 2008/06/10 09:12:20 nao-pon Exp $
+	// $Id: xoopsblock.inc.php,v 1.8 2008/08/15 02:50:33 nao-pon Exp $
 	
 	/*
 	 * countdown.inc.php
@@ -91,8 +91,8 @@ class xpwiki_plugin_xoopsblock extends xpwiki_plugin {
 			require_once XOOPS_ROOT_PATH.'/class/template.php';
 			$xoopsTpl = new XoopsTpl();
 
-			if ($xoopsUser != '') {
-				$xoopsTpl->assign(array('xoops_isuser' => true, 'xoops_userid' => $xoopsUser->getVar('uid'), 'xoops_uname' => $xoopsUser->getVar('uname'), 'xoops_isadmin' => $xoopsUserIsAdmin));
+			if (is_object($xoopsUser)) {
+				$xoopsTpl->assign(array('xoops_isuser' => true, 'xoops_userid' => $xoopsUser->getVar('uid'), 'xoops_uname' => $xoopsUser->getVar('uname'), 'xoops_isadmin' => $xoopsUser->isAdmin()));
 			}
 			$xoopsTpl->assign('xoops_requesturi', htmlspecialchars($GLOBALS['xoopsRequestUri'], ENT_QUOTES));
 
