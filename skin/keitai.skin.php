@@ -1,6 +1,6 @@
 <?php
 // PukiWiki - Yet another WikiWikiWeb clone.
-// $Id: keitai.skin.php,v 1.14 2008/08/11 01:10:01 nao-pon Exp $
+// $Id: keitai.skin.php,v 1.15 2008/08/15 02:48:34 nao-pon Exp $
 // Copyright (C) 2003-2006 PukiWiki Developers Team
 // License: GPL v2 or (at your option) any later version
 //
@@ -130,6 +130,9 @@ if (HypCommonFunc::get_version() >= '20080617.2') {
 	}
 	if (! empty($this->root->k_tai_conf['directLinkHosts'])) {
 		$r->Config_directLinkHosts = $this->root->k_tai_conf['directLinkHosts'];
+	}
+	if ($this->cont['PKWK_ENCODING_HINT']) {
+		$r->Config_encodeHintWord = $this->cont['PKWK_ENCODING_HINT'];
 	}
 	$r->outputMode = 'xhtml';
 	$r->langcode = $this->cont['LANG'];
