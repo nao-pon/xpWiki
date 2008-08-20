@@ -369,7 +369,7 @@ var XpWiki = {
 		this.faviconSetDone = true;
 		var time_limit = 3000; // (ms)
 		time_limit += new Date().getTime();
-		var Objs = document.getElementsByTagName('a');
+		var Objs = document.getElementsByTagName('body')[0].getElementsByTagName('a');
 		var n = 0;
 		for (var i = 0; i < Objs.length; i++) {
 			if (time_limit < new Date().getTime()) break;
