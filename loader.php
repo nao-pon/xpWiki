@@ -1,7 +1,7 @@
 <?php
 //
 // Created on 2006/10/25 by nao-pon http://hypweb.net/
-// $Id: loader.php,v 1.47 2008/06/02 07:14:55 nao-pon Exp $
+// $Id: loader.php,v 1.48 2008/08/20 04:33:38 nao-pon Exp $
 //
 
 ignore_user_abort(FALSE);
@@ -53,6 +53,7 @@ if (preg_match("/^(.+)\.([^.]+)$/",$src,$match)) {
 
 if (!$type || !$src) {
 	header( 'HTTP/1.1 404 Not Found' );
+	header( 'Content-Length: 0' );
 	exit();
 }
 
@@ -60,7 +61,7 @@ $basedir = ($type === "png" || $type === "gif")? "image/" : "";
 
 // CSS 以外は html側に指定ファイルがあれば、それにリダイレクト
 if ($type !== 'css') {
-	if (file_exists("{$skin_dirname}/{$basedir}{$type}/{$src}.{$type}")) {
+	if (is_file("{$skin_dirname}/{$basedir}{$type}/{$src}.{$type}")) {
 		header("Location: {$basedir}{$type}/{$src}.{$type}");
 		exit();
 	}
@@ -103,13 +104,13 @@ switch ($type) {
 		
 		// CSS over write (css dir)
 		$addcss_file = "{$skin_dirname}/{$basedir}css/{$src}.css";
-		if (file_exists($addcss_file)) {
+		if (is_file($addcss_file)) {
 			$addcss[] = $addcss_file;
 			$addcsstime = filemtime($addcss_file);
 		}
 		// CSS over write (skin dir)
 		$addcss_file = "{$skin_dirname}/{$basedir}{$skin}/{$src}.css";
-		if (file_exists($addcss_file)) {
+		if (is_file($addcss_file)) {
 			$addcss[] = $addcss_file;
 			$addcsstime = max($addcsstime, filemtime($addcss_file));
 		}
@@ -117,13 +118,13 @@ switch ($type) {
 			$css_src = ($prefix === 'b_') ? $src . '_block' : $src . '_render';
 			// CSS over write (css dir)
 			$addcss_file = "{$skin_dirname}/{$basedir}css/{$css_src}.css";
-			if (file_exists($addcss_file)) {
+			if (is_file($addcss_file)) {
 				$addcss[] = $addcss_file;
 				$addcsstime = max($addcsstime, filemtime($addcss_file));
 			}
 			// CSS over write (skin dir)
 			$addcss_file = "{$skin_dirname}/{$basedir}{$skin}/{$css_src}.css";
-			if (file_exists($addcss_file)) {
+			if (is_file($addcss_file)) {
 				$addcss[] = $addcss_file;
 				$addcsstime = max($addcsstime, filemtime($addcss_file));
 			}
@@ -144,15 +145,15 @@ switch ($type) {
 			$js_lang = substr($src, 8);
 			$src_file = $root_path . '/language/xpwiki/' . $js_lang . '/' . 'default.js';
 			// Check Trust
-			if (! file_exists($src_file)) {
+			if (! is_file($src_file)) {
 				$src_file = dirname(__FILE__) . '/language/xpwiki/' . $js_lang . '/' . 'default.js';
 			}
 			// none
-			if (! file_exists($src_file)) {
+			if (! is_file($src_file)) {
 				$src_file = dirname(__FILE__) . '/language/xpwiki/en/default.js';
 			}
 		} else 	if ($src === 'main') {
-			$face_remake = (!file_exists($face_cache) || filemtime($face_cache) + $face_tag_maxage < time());
+			$face_remake = (!is_file($face_cache) || filemtime($face_cache) + $face_tag_maxage < time());
 			if ($face_remake) {
 				$facetagtime = time();
 			} else {
@@ -197,13 +198,13 @@ if (!$src_file) {
 	$src_file = dirname(__FILE__)."/skin/{$basedir}{$type}/".preg_replace("/[^\w.]/","",$src).".$type";
 }
 
-if (file_exists($src_file)) {
+if (is_file($src_file)) {
 	$filetime = max(filemtime(__FILE__), filemtime($src_file), $addcsstime, $facetagtime);
 
 	$etag = md5($type.$dir.$pre_width.$charset.$src.$filetime.$pre_id);
-		
+	
 	// ブラウザのキャッシュをチェック
-	if ($etag == @$_SERVER['HTTP_IF_NONE_MATCH']) {
+	if (isset($_SERVER['HTTP_IF_NONE_MATCH']) && $etag === $_SERVER['HTTP_IF_NONE_MATCH']) {
 		header( 'HTTP/1.1 304 Not Modified' );
 		if ($nocache) {
 			header( 'Expires: Thu, 01 Dec 1994 16:00:00 GMT' );
@@ -225,7 +226,7 @@ if (file_exists($src_file)) {
 	}
 	
 	// キャッシュ判定
-	if ($gzip_fname && file_exists($gzip_fname) && filemtime($gzip_fname) >= $filetime) {
+	if ($gzip_fname && is_file($gzip_fname) && filemtime($gzip_fname) >= $filetime) {
 		// html側/private/cache に 有効な gzip ファイルがある場合
 		header( 'Content-Type: ' . $c_type );
 		header( 'Last-Modified: ' . gmdate( 'D, d M Y H:i:s', $filetime ) . ' GMT' );
@@ -237,7 +238,7 @@ if (file_exists($src_file)) {
 		
 		if ($method !== 'HEAD') readfile($gzip_fname);
 		exit();
-	} else if ($replace && file_exists($cache_file) && filemtime($cache_file) >= $filetime) {
+	} else if ($replace && is_file($cache_file) && filemtime($cache_file) >= $filetime) {
 		// html側/private/cache に 有効なキャッシュファイルがある場合
 		header( 'Content-Type: ' . $c_type );
 		header( 'Last-Modified: ' . gmdate( 'D, d M Y H:i:s', $filetime ) . ' GMT' );
@@ -256,7 +257,7 @@ if (file_exists($src_file)) {
 			
 			if ($type === 'css') {
 				$conf_file = "{$skin_dirname}/{$basedir}{$skin}/css.conf";
-				if (file_exists($conf_file)) {
+				if (is_file($conf_file)) {
 					$conf = parse_ini_file($conf_file, true);
 					if (! empty($conf[$src]['replace'])) {
 						$replace_src = 1;
@@ -369,6 +370,7 @@ if (file_exists($src_file)) {
 	exit();
 } else {
 	header( 'HTTP/1.1 404 Not Found' );
+	header( 'Content-Length: 0' );
 	exit();
 }
 
