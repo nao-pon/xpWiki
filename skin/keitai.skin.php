@@ -1,6 +1,6 @@
 <?php
 // PukiWiki - Yet another WikiWikiWeb clone.
-// $Id: keitai.skin.php,v 1.15 2008/08/15 02:48:34 nao-pon Exp $
+// $Id: keitai.skin.php,v 1.16 2008/08/20 04:34:25 nao-pon Exp $
 // Copyright (C) 2003-2006 PukiWiki Developers Team
 // License: GPL v2 or (at your option) any later version
 //
@@ -123,6 +123,7 @@ if (HypCommonFunc::get_version() >= '20080617.2') {
 	$r->contents['header'] = $header;
 	$r->contents['body'] = $body;
 	$r->contents['footer'] = $footer;
+	$r->Config_hypCommonURL = $this->cont['ROOT_URL'] . 'class/hyp_common';
 	$r->Config_redirect = $this->cont['HOME_URL'] . 'gate.php?way=redirect_SJIS&amp;xmode=2&amp;l=';
 	$r->Config_emojiDir = $this->cont['ROOT_URL'] . 'images/emoji';
 	if (! empty($this->root->k_tai_conf['showImgHosts'])) {
