@@ -53,11 +53,10 @@ class xpwiki_plugin_iframe extends xpwiki_plugin {
 		//////////////////////////////////////////
 		
 		//正規表現による指定。ホスト許可などに使用。
-		//正規表現なので本当は \. にすべき。www.google.co.jp はそのURLだけ。pukiwiki.org はホスト全体を許可。
-		$this->iframe_accept_regurl = '^http://www.google.co.jp$|^http://pukiwiki.org'; 
+		$this->iframe_accept_regurl = '^http://([a-z]+\.)*google\.co(\.jp|m)/'; 
 		//ただの文字列マッチ。常にこちらを使用した方が安全。日本語を使用する場合はURLエンコードしておくこと。
 		$this->iframe_accept_url = array(
-		'http://pukiwiki.org/index.php?%E8%87%AA%E4%BD%9C%E3%83%97%E3%83%A9%E3%82%B0%E3%82%A4%E3%83%B3%2Fiframe.inc.php',
+			'',
 		);
 	}
 	
@@ -111,25 +110,26 @@ class xpwiki_plugin_iframe extends xpwiki_plugin {
 			'iestyle'   => FALSE,
 			'_args'   => array(),
 		);
-		array_walk($args, 'iframe_check_arg', $params);
 		
-		$style = '';		
+		$this->fetch_options($params, $args);
+		
+		$style = '';
 		
 		// USER_AGENT が IE の場合は iframe タグを使用
 		// コンテンツがheight,widthの値よりも小さい場合でもダミーのscrollbarが表示されてしまうため
 		// iframe を使用するには XHTML1.1 のままだと XHTML 構文エラー
-		if (ereg("MSIE (3|4|5|6)", $this->root->ua ) )
+		if (ereg("MSIE (3|4|5|6|7)", $this->root->ua ) )
 		{
 			$this->root->pkwk_dtd = $this->cont['PKWK_DTD_XHTML_1_0_TRANSITIONAL'];
 			$this->root->html_transitional = 1;
 			$class=" class=\"iframe_ie\"";
 			if ( $params['iestyle'] != FALSE )
 			{
-				$style = " style=".$params['iestyle']; 
+				$style = ' style="' . htmlspecialchars(strip_tags(trim($params['iestyle'], '"'))) . '"'; 
 			}
 			else if ( $params['style'] != FALSE )
 			{
-				$style = " style=".$params['style'];
+				$style = ' style="' . htmlspecialchars(strip_tags(trim($params['style'], '"'))) . '"';
 			}
 			
 			return <<<HTML
@@ -159,25 +159,5 @@ HTML;
 		}
 	}
 	
-	//オプションを解析する
-	function iframe_check_arg($val, $key, &$params)
-	{
-		if ($val == '')
-		{
-			return;
-		}
-		$lowval = strtolower($val); //trim はあえてしません。
-		foreach (array_keys($params) as $key)
-		{
-			if (strpos($lowval, $key) === 0)
-			{
-				$lowval = ereg_replace("^$key=",'',$lowval);
-				$lowval = strip_tags($lowval);
-				$params[$key] = $lowval;
-				return;
-			}
-		}
-		$params['_args'][] = $val;
-	}
 }
 ?>
