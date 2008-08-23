@@ -1,13 +1,21 @@
 //
 // Created on 2007/10/03 by nao-pon http://hypweb.net/
-// $Id: loader.js,v 1.3 2008/08/20 04:43:12 nao-pon Exp $
+// $Id: loader.js,v 1.4 2008/08/23 05:44:30 nao-pon Exp $
 //
 
 //// JavaScript optimizer by amachang.
 //// http://d.hatena.ne.jp/amachang/20060924/1159084608
-
-/*@cc_on _d=document;eval('var document=_d')@*/
-
+/*@cc_on
+eval((function(props) {
+	var code = [];
+	for (var i=0; i<props.length; i++){
+		var prop = props[i];
+		window['_'+prop]=window[prop];
+		code.push(prop+'=_'+prop)
+	}
+	return 'var '+code.join(',');
+})('document self top parent alert setInterval clearInterval setTimeout clearTimeout'.split(' ')));
+@*/
 var _si_nativeSetInterval = window.setInterval;
 var _si_nativeClearInterval = window.clearInterval;
 var _si_intervalTime = 10;
@@ -47,7 +55,6 @@ window.clearInterval = function(id) {
         }
     }
 };
-
 //// By amachang end.
 
 // Init.
