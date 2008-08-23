@@ -1,6 +1,6 @@
 <?php
 // PukiWiki - Yet another WikiWikiWeb clone.
-// $Id: keitai.ini.php,v 1.13 2008/08/11 01:10:01 nao-pon Exp $
+// $Id: keitai.ini.php,v 1.14 2008/08/23 05:42:43 nao-pon Exp $
 // Copyright (C)
 //   2002-2005 PukiWiki Developers Team
 //   2001-2002 Originally written by yu-ji
@@ -145,7 +145,7 @@ $root->max_size = 5;	// SKINで使用, KByte
 $root->cols = 22; $root->rows = 5;	// i_mode
 
 // ref でのイメージサイズの最大px
-$root->keitai_img_px = 96;
+$root->keitai_img_px = 128;
 
 /////////////////////////////////////////////////
 // ブラウザに合わせた調整
