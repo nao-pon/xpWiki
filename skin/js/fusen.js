@@ -9,7 +9,7 @@
 //
 // fusen.js for xpWiki by nao-pon
 // http://hypweb.net
-// $Id: fusen.js,v 1.12 2008/05/21 11:49:34 nao-pon Exp $
+// $Id: fusen.js,v 1.13 2008/08/23 05:43:57 nao-pon Exp $
 // 
 var fusenVar = new Array();
 var fusenMsgs = new Array();
@@ -150,7 +150,7 @@ function fusen_postdata(mode) {
 	if (fusenTimerID) clearTimeout(fusenTimerID);
 	
 	var w_starus = (fusenVar['Interval'])? (fusenMsgs['fusen_func'] + ": " + fusenMsgs['com_comp'] + " [" + fusenMsgs['refreshing'] + "(" + (fusenVar['Interval']/1000) + "s)" + fusenMsgs['waiting'] + "]") : (fusenMsgs['fusen_func'] + ": " + fusenMsgs['com_comp'] + " [" + fusenMsgs['refreshing'] + " " + fusenMsgs['stopping'] + "]");
-	window.status = fusenMsgs['connecting'];
+	//window.status = fusenMsgs['connecting'];
 	fusen_busy(1);
 	var s_mode = '';
 	
@@ -191,7 +191,7 @@ function fusen_postdata(mode) {
 		throw 'Unable to post fusen data.';
 	}
 	if (!mode) {
-		window.status = w_starus;
+		//window.status = w_starus;
 		fusen_busy(0);
 		if(xmlhttp.status == 200 || xmlhttp.status == 0) {
 			var ret = xmlhttp.responseText;
@@ -206,10 +206,10 @@ function fusen_postdata(mode) {
 	}
 	function readyStateChangeHandler()
 	{
-		window.status = fusenMsgs['communicating'];
+		//window.status = fusenMsgs['communicating'];
 		if (xmlhttp.readyState == 4) {
 			fusen_busy(0);
-			window.status = w_starus;
+			//window.status = w_starus;
 			try {
 				if (xmlhttp.status == 200) {
 					fusen_set_timer();
@@ -234,7 +234,7 @@ function fusen_getdata(mod)
 	if (fusenTimerID) clearTimeout(fusenTimerID);
 	
 	var w_starus = (fusenVar['Interval'])? (fusenMsgs['fusen_func'] + ": " + fusenMsgs['com_comp'] + " [" + fusenMsgs['refreshing'] + "(" + (fusenVar['Interval']/1000) + "s)" + fusenMsgs['waiting'] + "]") : (fusenMsgs['fusen_func'] + ": " + fusenMsgs['com_comp'] + " [" + fusenMsgs['refreshing'] + " " + fusenMsgs['stopping'] + "]");
-	window.status = fusenMsgs['connecting'];
+	//window.status = fusenMsgs['connecting'];
 
 	try {
 		var xmlhttp = fusen_httprequest();
@@ -260,10 +260,10 @@ function fusen_getdata(mod)
 
 	function readyStateChangeHandler()
 	{
-		window.status = fusenMsgs['communicating'];
+		//window.status = fusenMsgs['communicating'];
 		var er = "";
 		if (xmlhttp.readyState == 4) {
-			window.status = w_starus;
+			//window.status = w_starus;
 			try {
 				if (xmlhttp.status == 200 || xmlhttp.status == 304 || xmlhttp.status == 404) {
 					fusen_busy(0);
@@ -290,6 +290,8 @@ function fusen_getdata(mod)
 					try
 					{
 						var obj = $('fusen_area');
+						//obj.style.display = 'none';
+						//obj.style.visibility = 'hidden';
 						if (fusenVar['base']) {
 							var pobj = $(fusenVar['base']);
 						} else if (fusenVar['FromSkin']) {
@@ -412,6 +414,8 @@ function fusen_getdata(mod)
 						}
 						if (change_status) fusen_list_make();
 						fusen_set_timer();
+						//obj.style.display = '';
+						//obj.style.visibility = 'visible';
 					} catch(e) {
 						er = fusenMsgs['err_baddata'];
 						fusenLastModified = '';
@@ -432,7 +436,7 @@ function fusen_getdata(mod)
 						fusenRetTimerID = setInterval("fusen_init(0)", 1000);
 					} else {
 						fusenVar['Interval'] = 0;
-						window.status = fusenMsgs['fusen_func']+": "+fusenMsgs['com_comp']+" ["+fusenMsgs['refreshing']+" "+fusenMsgs['stopping']+"]";
+						//window.status = fusenMsgs['fusen_func']+": "+fusenMsgs['com_comp']+" ["+fusenMsgs['refreshing']+" "+fusenMsgs['stopping']+"]";
 						$('fusen_menu_interval').selectedIndex = 0;
 					}
 				} else {
@@ -1459,7 +1463,7 @@ function fusen_onmousemove(e)
 				$('fusen_id' + id).style.height = 'auto';
 			}
 			fusenObj[id].fix = fusenResizeFlg;
-			window.status = fusenMsgs['fusen']+" "+id+" "+fusenMsgs['resizing']+"[ W:"+x+", H:"+y+" ]";
+			//window.status = fusenMsgs['fusen']+" "+id+" "+fusenMsgs['resizing']+"[ W:"+x+", H:"+y+" ]";
 		} else {
 			if (fusenVar['IE']) {
 				var x = event.clientX + document.body.scrollLeft - fusenVar['offsetX'];
@@ -1470,7 +1474,7 @@ function fusen_onmousemove(e)
 			}
 			fusenMovingObj.style.left = x + "px";
 			fusenMovingObj.style.top = y + "px";
-			window.status = fusenMsgs['fusen']+" "+id+" "+fusenMsgs['moving']+"[ X:"+x+", Y:"+y+" ]";
+			//window.status = fusenMsgs['fusen']+" "+id+" "+fusenMsgs['moving']+"[ X:"+x+", Y:"+y+" ]";
 		}
 		if (!fusenDustboxFlg) {fusen_setlines(id);}
 		return false;
@@ -1487,7 +1491,7 @@ function fusen_onmouseup(e) {
 		fusen_setpos(id,0);
 	}
 	fusenMovingObj = null;
-	window.status = "";
+	//window.status = "";
 	fusenMovingFlg = false;
 	fusenResizeFlg = false;
 	fusen_set_timer();
