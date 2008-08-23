@@ -1,5 +1,5 @@
 <?php
-// $Id: lsx.inc.php,v 1.9 2008/03/12 23:59:25 nao-pon Exp $
+// $Id: lsx.inc.php,v 1.10 2008/08/23 05:46:00 nao-pon Exp $
 
 class xpwiki_plugin_lsx extends xpwiki_plugin {
 	
@@ -31,6 +31,7 @@ class xpwiki_plugin_lsx extends xpwiki_plugin {
 			'new'		=> array('bool', false),
 			'tag'		=> array('string', ''),
 			'notitle'	=> array('bool', false),
+			'order'     => array('bool', false),
 		);
 
 		// Modify here for external plugins
@@ -138,6 +139,7 @@ class XpWikiPluginLsx
 		$this->hierarchy_metapages();
 		$this->tree_filter_metapages();
 		$this->flat_basename_metapages();
+		$this->order_metapages();
 		
 		$body = $this->list_pages();
 		return $body;
@@ -270,7 +272,8 @@ class XpWikiPluginLsx
 			$relative = $metapage['relative'];
 			$exist	  = $metapage['exist'];
 			$depth	  = $metapage['listdepth'];
-			$info	  = @$metapage['info'];
+			$info	  = $metapage['info'];
+			$order    = $metapage['order'];
 			if ($exist && $this->options['include'][1] != '') {
 				$option = '"' . $page . '"';
 				if (! empty($this->options['include'][1])) {
@@ -306,7 +309,8 @@ class XpWikiPluginLsx
 			} else {
 				$html .= $relative;
 			}
-			$html .= $info . "\n";
+			//$html .= $info . "\n";
+			$html .= $info . $order . "\n";
 			
 			if ($exist && $this->options['contents'][1] != '') {
 				$option = '"page=' . $page . '"';
@@ -386,6 +390,18 @@ class XpWikiPluginLsx
 		}
 	}
 
+	function order_metapages()
+	{
+		if (! $this->options['order'][1]) {
+			return;
+		}
+		foreach ($this->metapages as $i => $metapage) {
+			$page = $this->metapages[$i]['page'];
+			$pginfo = $this->func->get_pginfo($page);
+			$this->metapages[$i]['order'] = ' =&gt; ' . $pginfo['pgorder'];
+		}
+	}
+
 	function flat_basename_metapages()
 	{
 		if ($this->options['basename'][1] === false) {
@@ -452,7 +468,7 @@ class XpWikiPluginLsx
 						$relative = $page;
 						$listdepth = 1;
 					}
-					$this->metapages[] = array('page'=>$page, 'relative'=>$relative, 'exist'=>false, 'depth'=>$depth, 'listdepth'=>$listdepth, 'timestamp'=>1, 'date'=>'', 'leaf'=>false);
+					$this->metapages[] = array('page'=>$page, 'relative'=>$relative, 'exist'=>false, 'depth'=>$depth, 'listdepth'=>$listdepth, 'timestamp'=>1, 'date'=>'', 'leaf'=>false, 'info'=>'', 'order'=>'');
 					// PHP: new item is not seen at this loop
 				}
 			}
@@ -603,7 +619,7 @@ class XpWikiPluginLsx
 		$metapages = array();
 		foreach ($pages as $i => $page) {
 			unset($pages[$i]);
-			$metapages[] = array('page'=>$page, 'relative'=>$page, 'exist'=>true, 'depth'=>1, 'listdepth'=>1, 'timestamp'=>1, 'date'=>'');
+			$metapages[] = array('page'=>$page, 'relative'=>$page, 'exist'=>true, 'depth'=>1, 'listdepth'=>1, 'timestamp'=>1, 'date'=>'', 'info'=>'', 'order'=>'');
 		}
 		$this->metapages = $metapages;
 	}
