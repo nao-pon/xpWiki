@@ -2,7 +2,7 @@
 /////////////////////////////////////////////////
 // PukiWiki - Yet another WikiWikiWeb clone.
 //
-// $Id: popular.inc.php,v 1.9 2007/11/30 02:13:45 nao-pon Exp $
+// $Id: popular.inc.php,v 1.10 2008/08/30 06:00:36 nao-pon Exp $
 //
 
 /*
@@ -44,7 +44,7 @@ class xpwiki_plugin_popular extends xpwiki_plugin {
 	
 		$array = func_get_args();
 		$yesterday = $today = FALSE;
-		$prefix = "";
+		$prefix = '';
 		$compact = 0;
 	
 		switch (func_num_args()) {
@@ -52,7 +52,7 @@ class xpwiki_plugin_popular extends xpwiki_plugin {
 			if ($array[4]) $compact = 1;
 		case 4:
 			$prefix = $array[3];
-			$prefix = preg_replace("/\/$/","",$prefix);
+			$prefix = rtrim($prefix, '/');
 		case 3:
 			if ($array[2]) {
 				$today = $this->func->get_date('Y/m/d');
@@ -62,101 +62,92 @@ class xpwiki_plugin_popular extends xpwiki_plugin {
 			}
 		case 2:
 			$except = $array[1];
-			$except = str_replace(array("&#124;","&#x7c;"," "),"|",$except);
+			$except = str_replace(array("&#124;","&#x7c;",' '), '|', $except);
 		case 1:
 			$max = (int)$array[0]; 
 			$max = (!$max)? $this->cont['PLUGIN_POPULAR_DEFAULT'] : $max;
 		}
 	
-		$nopage = " AND p.editedtime != 0";
+		$nopage = ' AND p.editedtime != 0';
 		if ($except)
 		{
-			$excepts = explode("|",$except);
+			$excepts = explode('|', $except);
 			foreach($excepts as $_except)
 			{
-				if (substr($_except,-1) == "/")
+				if (substr($_except,-1) == '/')
 				{
-					$_except .= "%";
+					$_except .= '%';
 				}
-				$nopage .= " AND (p.name NOT LIKE '$_except')";
+				$nopage .= ' AND (p.name NOT LIKE \'' . $_except . '\')';
 			}
 		}
 		$counters = array();
 		
 		$where = $this->func->get_readable_where('p.');
 
-		if ($prefix)
-		{
+		if ($prefix) {
 			$prefix = $this->func->strip_bracket($prefix);
 			if ($where)
-				$where = " (p.name LIKE '$prefix/%') AND ($where)";
+				$where = ' (p.name LIKE \'' . $prefix . '/%\') AND (' . $where . ')';
 			else
-				$where = " p.name LIKE '$prefix/%'";
+				$where = ' p.name LIKE \'' . $prefix . '/%\'';
 		}
 	
-		if ($where) $where = " AND ($where)";
-		if ($today)
-		{
+		if ($where) $where = ' AND (' . $where . ')';
+		if ($today) {
 			$_where = $where;
-			$where = " WHERE (c.pgid = p.pgid) AND (p.name NOT LIKE ':%') AND (today = '$today')".($yesterday ? 'AND (c.`yesterday_count` != 0)' : '')."$nopage$_where";
+			$where = ' WHERE (c.pgid = p.pgid) AND (p.name NOT LIKE \':%\') AND (today = \'' . $today . '\')' . ($yesterday ? 'AND (c.`yesterday_count` != 0)' : '') . $nopage . $_where;
 			if ($yesterday) {
-				$where .= " UNION SELECT p.`name`, c.`today_count` AS `count`";
-				$where .= " FROM ".$this->xpwiki->db->prefix($this->root->mydirname."_count")." as c INNER JOIN ".$this->xpwiki->db->prefix($this->root->mydirname."_pginfo")." as p ON c.pgid = p.pgid";
-				$where .= " WHERE (p.name NOT LIKE ':%') AND (today = '$yesterday')$nopage$_where";
-				$select = "p.`name`, c.`yesterday_count` AS `count`";
+				$where .= ' UNION SELECT p.`name`, c.`today_count` AS `count`';
+				$where .= ' FROM ' . $this->xpwiki->db->prefix($this->root->mydirname . '_count') . ' as c INNER JOIN ' . $this->xpwiki->db->prefix($this->root->mydirname . '_pginfo') . ' as p ON c.pgid = p.pgid';
+				$where .= ' WHERE (p.name NOT LIKE \':%\') AND (today = \'' . $yesterday . '\')' . $nopage . $_where;
+				$select = 'p.`name`, c.`yesterday_count` AS `count`';
 			} else {
-				$select = "p.`name`, c.`today_count` AS `count`";
+				$select = 'p.`name`, c.`today_count` AS `count`';
 			}
+		} else {
+			$where = ' WHERE (p.name NOT LIKE \':%\')' . $nopage . $where;
+			$select = 'p.`name`, c.`count` AS `count`';
 		}
-		else
-		{
-			$where = " WHERE (p.name NOT LIKE ':%')$nopage$where";
-			$select = "p.`name`, c.`count` AS `count`";
-		}
-		$query = "SELECT $select FROM ".$this->xpwiki->db->prefix($this->root->mydirname."_count")." as c INNER JOIN ".$this->xpwiki->db->prefix($this->root->mydirname."_pginfo")." as p ON c.pgid = p.pgid $where ORDER BY `count` DESC LIMIT $max";
+		$query = 'SELECT ' . $select . ' FROM ' . $this->xpwiki->db->prefix($this->root->mydirname . '_count') . ' as c INNER JOIN ' . $this->xpwiki->db->prefix($this->root->mydirname . '_pginfo') . ' as p ON c.pgid = p.pgid ' . $where . ' ORDER BY `count` DESC LIMIT ' . $max;
 		$res = $this->xpwiki->db->query($query);
-		if ($res)
-		{
-			while($data = $this->xpwiki->db->fetchRow($res))
-			{
+		if ($res) {
+			while($data = $this->xpwiki->db->fetchRow($res)) {
 				$counters[$data[0]] = $data[1];
 			}
 		}
 	
 	
 		$items = '';
-		if ($prefix)
-		{
-			$bypege = " [ ".$this->func->make_pagelink($prefix,$prefix)." ] ";
-			$prefix .= "/";
-			$prefix = preg_quote($prefix,"/");
+		if ($prefix) {
+			$bypege = ' [ ' . $this->func->make_pagelink($prefix, $prefix) . ' ] ';
+		} else {
+			$bypege = '';
 		}
-		else
-			$bypege = "";
 		
 		if (count($counters))
 		{
 			$_style = $this->root->_ul_left_margin + $this->root->_ul_margin;
-			$_style = " style=\"margin-left:". $_style ."px;padding-left:". $_style ."px;";
-			$items = '<ul class="popular_list"'.$_style.'">';
-			$new_mark = "";
+			$_style = ' style="margin-left:' . $_style . 'px;padding-left:' . $_style . 'px;';
+			$items = '<ul class="popular_list"' . $_style . '">';
+			$new_mark = '';
 			
 			foreach ($counters as $page=>$count) {
 				//Newマーク付加
-				if ($this->func->exist_plugin_inline("new"))
-					$new_mark = $this->func->do_plugin_inline("new","{$page},nolink",$_dum);
+				if ($this->func->exist_plugin_inline('new'))
+					$new_mark = $this->func->do_plugin_inline('new', $page . ',nolink', $_dum);
 				
 				if ($compact)
 					$page = $this->func->make_pagelink($page,$this->func->basename($page));
 				else
 				{
 					if ($prefix)
-						$page = $this->func->make_pagelink($page,preg_replace("/^$prefix/","",$page));
+						$page = $this->func->make_pagelink($page, '#compact:' . $prefix);
 					else
 						$page = $this->func->make_pagelink($page);
 				}
 				
-				$items .= " <li>".$page."<span class=\"counter\">($count)</span>$new_mark</li>\n";
+				$items .= ' <li>' . $page . '<span class="counter">(' . $count . ')</span>' . $new_mark . '</li>' . "\n";
 				}
 			$items .= '</ul>';
 		}
