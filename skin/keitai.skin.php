@@ -1,6 +1,6 @@
 <?php
 // PukiWiki - Yet another WikiWikiWeb clone.
-// $Id: keitai.skin.php,v 1.16 2008/08/20 04:34:25 nao-pon Exp $
+// $Id: keitai.skin.php,v 1.17 2008/08/30 05:56:42 nao-pon Exp $
 // Copyright (C) 2003-2006 PukiWiki Developers Team
 // License: GPL v2 or (at your option) any later version
 //
@@ -135,6 +135,12 @@ if (HypCommonFunc::get_version() >= '20080617.2') {
 	if ($this->cont['PKWK_ENCODING_HINT']) {
 		$r->Config_encodeHintWord = $this->cont['PKWK_ENCODING_HINT'];
 	}
+
+	if (! empty($this->root->k_tai_conf['googleAdsense']['config'])) {
+		$r->Config_googleAdSenseConfig = $this->root->k_tai_conf['googleAdsense']['config'];
+		$r->Config_googleAdSenseBelow = $this->root->k_tai_conf['googleAdsense']['below'];
+	}
+
 	$r->outputMode = 'xhtml';
 	$r->langcode = $this->cont['LANG'];
 	$r->doOptimize();
