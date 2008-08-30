@@ -1,7 +1,7 @@
 <?php
 /*
  * Created on 2008/02/28 by nao-pon http://hypweb.net/
- * $Id: aws.inc.php,v 1.4 2008/05/14 04:28:41 nao-pon Exp $
+ * $Id: aws.inc.php,v 1.5 2008/08/30 05:58:12 nao-pon Exp $
  */
 
 /////////////////////////////////////////////////
@@ -56,7 +56,7 @@ class xpwiki_plugin_aws extends xpwiki_plugin {
 		} else {
 			include_once $this->cont['TRUST_PATH'] . 'class/hyp_common/hsamazon/hyp_simple_amazon.php';
 			$ama = new HypSimpleAmazon($this->config['amazon_t']);
-			$ama->encoding = $this->cont['SOURCE_ENCODING'];
+			$ama->encoding = ($this->cont['SOURCE_ENCODING'] === 'EUC-JP')? 'EUCJP-win' : $this->cont['SOURCE_ENCODING'];
 	
 			$options = array();
 			if ($s && preg_match("/(\+(titlerank|daterank))/", $s, $s_val))
