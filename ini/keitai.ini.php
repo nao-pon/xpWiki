@@ -1,6 +1,6 @@
 <?php
 // PukiWiki - Yet another WikiWikiWeb clone.
-// $Id: keitai.ini.php,v 1.14 2008/08/23 05:42:43 nao-pon Exp $
+// $Id: keitai.ini.php,v 1.15 2008/08/30 05:56:42 nao-pon Exp $
 // Copyright (C)
 //   2002-2005 PukiWiki Developers Team
 //   2001-2002 Originally written by yu-ji
@@ -434,9 +434,13 @@ switch ($root->ua_name) {
 }
 
 // インラインイメージを表示するホスト名(後方一致)
-$this->k_tai_conf['showImgHosts'] = array('amazon.com', 'yimg.jp', 'yimg.com', 'ad.jp.ap.valuecommerce.com', 'ad.jp.ap.valuecommerce.com', 'ba.afl.rakuten.co.jp', 'assoc-amazon.jp', 'ad.linksynergy.com');
+$root->k_tai_conf['showImgHosts'] = array('amazon.com', 'yimg.jp', 'yimg.com', 'ad.jp.ap.valuecommerce.com', 'ad.jp.ap.valuecommerce.com', 'ba.afl.rakuten.co.jp', 'assoc-amazon.jp', 'ad.linksynergy.com');
 
 // リダイレクトスクリプトを経由しないホスト名(後方一致)
-$this->k_tai_conf['directLinkHosts'] = array('amazon.co.jp', 'ck.jp.ap.valuecommerce.com');
+$root->k_tai_conf['directLinkHosts'] = array('amazon.co.jp', 'ck.jp.ap.valuecommerce.com');
+
+// Google Adsense 設定
+$root->k_tai_conf['googleAdsense']['config'] = $const['TRUST_PATH'] . 'class/hyp_common/ktairender/adsenseConf.php';
+$root->k_tai_conf['googleAdsense']['below'] = 'header';
 
 ?>
