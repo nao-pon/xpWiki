@@ -1,6 +1,6 @@
 <?php
 // PukiWiki - Yet another WikiWikiWeb clone.
-// $Id: amazon.inc.php,v 1.7 2008/04/05 04:53:11 nao-pon Exp $
+// $Id: amazon.inc.php,v 1.8 2008/08/30 05:58:12 nao-pon Exp $
 // Id: amazon.inc.php,v 1.1 2003/07/24 13:00:00 閑舎
 //
 // Amazon plugin: Book-review maker via amazon.com/amazon.jp
@@ -281,7 +281,7 @@ EOD;
 			$nocache = 1; // キャッシュ見つからず
 
 			$ama = new HypSimpleAmazon($this->cont['PLUGIN_AMAZON_AID']);
-			$ama->encoding = $this->cont['SOURCE_ENCODING'];
+			$ama->encoding = ($this->cont['SOURCE_ENCODING'] === 'EUC-JP')? 'EUCJP-win' : $this->cont['SOURCE_ENCODING'];
 			$ama->itemLookup($this->root->asin);
 			$tmpary = $ama->getCompactArray();
 			$ama = NULL;

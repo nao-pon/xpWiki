@@ -2,7 +2,7 @@
 /////////////////////////////////////////////////
 // PukiWiki - Yet another WikiWikiWeb clone.
 //
-// $Id: isbn.inc.php,v 1.9 2008/05/15 23:52:14 nao-pon Exp $
+// $Id: isbn.inc.php,v 1.10 2008/08/30 05:58:12 nao-pon Exp $
 //
 // *0.5: URL が存在しない場合、画像を表示しない。
 //			 Thanks to reimy.
@@ -84,7 +84,7 @@ class xpwiki_plugin_isbn extends xpwiki_plugin {
 			$_listprice = (int) trim(str_replace(",","",$tmpary[8]));
 			if ($_price && $_listprice && ($_price < $_listprice))
 			{
-				$off = 100 - (($_price/$_listprice) * 100);
+				$off = floor(100 - (($_price/$_listprice) * 100));
 				$price = "<div style=\"text-align:right;\">".str_replace(array('$1','$2','$3'), array($tmpary[8],$tmpary[2],$off),$this->msg['price_down'])."</div>";
 				$listprice = '';
 			} else {
@@ -156,7 +156,7 @@ class xpwiki_plugin_isbn extends xpwiki_plugin {
 		$_listprice = (int) trim(str_replace(",","",$data[8]));
 		if ($_price && $_listprice && ($_price != $_listprice))
 		{
-			$off = (int)(100 - (($_price/$_listprice) * 100));
+			$off = floor(100 - (($_price/$_listprice) * 100));
 			$off = " ({$off}% Off)";
 		}
 	
@@ -321,7 +321,7 @@ EOD;
 			// データを取りに行く
 			include_once XOOPS_TRUST_PATH . '/class/hyp_common/hsamazon/hyp_simple_amazon.php';
 			$ama = new HypSimpleAmazon($this->config['AMAZON_ASE_ID']);
-			$ama->encoding = $this->cont['SOURCE_ENCODING'];
+			$ama->encoding = ($this->cont['SOURCE_ENCODING'] === 'EUC-JP')? 'EUCJP-win' : $this->cont['SOURCE_ENCODING'];
 			$ama->itemLookup($target);
 			$tmpary = $ama->getCompactArray();
 			$ama = NULL;
