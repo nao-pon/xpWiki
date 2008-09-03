@@ -1,6 +1,6 @@
 <?php
 // PukiWiki - Yet another WikiWikiWeb clone.
-// $Id: keitai.skin.php,v 1.17 2008/08/30 05:56:42 nao-pon Exp $
+// $Id: keitai.skin.php,v 1.18 2008/09/03 08:14:46 nao-pon Exp $
 // Copyright (C) 2003-2006 PukiWiki Developers Team
 // License: GPL v2 or (at your option) any later version
 //
@@ -10,6 +10,15 @@
 // Prohibit direct access
 if (! isset($this->cont['UI_LANG'])) die('UI_LANG is not set');
 
+
+$style = array(
+	'siteTitle' => 'text-align:center;background-color:#A6DDAF;font-size:large',
+	'easyLogin' => 'text-align:center;background-color:#DBBCA6;font-size:small',
+	'wikiTitle' => 'text-align:center;background-color:#A6D5DB;font-size:large',
+	'pageTitle' => 'text-align:center;background-color:#EAFFCC',
+	'pageMenu'  => 'background-color:#CED9DB;font-size:small',
+	'pageFooter'=> 'background-color:#CED9DB;font-size:small',
+);
 /////////////////////////////////////////////////
 // xpWiki run mode
 $this->root->runmode = "standalone";
@@ -39,7 +48,7 @@ if ($page_comments) {
 }
 
 if ($heads) {
-	$body ='[ ' . join(' ', $heads) . ' ]<hr>' . $body;
+	$body ='<div style="text-align:right;font-size:x-small">[ ' . join(' ', $heads) . ' ]</div><hr>' . $body;
 }
 
 // Ignore &dagger;s
@@ -47,59 +56,114 @@ $body = preg_replace('#<a[^>]+>' . preg_quote($this->root->_symbol_anchor, '#') 
 
 $body = str_replace($this->root->_symbol_noexists, '<span style="font-size:xx-small">((i:f9be))</span>', $body);
 
-// ----
-// Top navigation (text) bar
-$_empty = '&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;';
-$navi = '';
-$navi .= '<a href="'.$this->cont['ROOT_URL'].'" name="h" ' . $this->root->accesskey . '="1">'.$this->make_link('&pb1;').'Home</a>';
-$navi .= ' <a href="#xpwiki_navigator" ' . $this->root->accesskey . '="2">'.$this->make_link('&pb2;').'Head</a>';
-$navi .= ' <a href="' . $link['top']  . '" ' . $this->root->accesskey . '="3">'.$this->make_link('&pb3;').'Top&nbsp;</a>';
-
-$navi .= '<br>';
-
-$navi .= $_empty;
-$navi .= ' <a href="' . $this->root->script . '?cmd=menu&amp;refer=' . rawurlencode($pagename) . '" ' . $this->root->accesskey . '="5">'.$this->make_link('&pb5;').'Menu</a>';
-$navi .= ' ' . $_empty;
-
-$navi .= '<br>';
-
-if ($rw) {
-	$navi .= '<a href="' . $link['new']  . '" ' . $this->root->accesskey . '="7">'.$this->make_link('&pb7;').'New&nbsp;</a>';
-} else {
-	$navi .= $_empty;
-}
-if (!$is_freeze && $is_editable) {
-	$navi .= ' <a href="' . $link['edit'] . '" ' . $this->root->accesskey . '="8">'.$this->make_link('&pb8;').'Edit</a>';
-} else {
-	$navi .= ' ' . $_empty;
-}
-$navi .= ' <a href="' . $link['related'] . '" ' . $this->root->accesskey . '="9">'.$this->make_link('&pb9;').'Rel </a>';
-
-$navi .= '<br>';
-
-$navi .= '<a href="' . $link['search'] . '" ' . $this->root->accesskey . '="*">*]Srch</a>';
-$navi .= ' <a href="' . $link['recent'] . '" ' . $this->root->accesskey . '="0">'.$this->make_link('&pb0;').'Rect</a>';
-$navi .= ' <a href="' . $link['list'] . '" ' . $this->root->accesskey . '="#">'.$this->make_link('&pb#;').'List</a>';
-
-$navi = '<center>' . $navi . '</center>';
-
-$topicpath = '';
-if (!$is_top) {
-   $topicpath = '<div style="font-size:0.9em">' . $this->do_plugin_inline('topicpath','',$_dum) . '</div><hr>';
-}
-
 $head = '<head><title>' . mb_convert_encoding($title, 'SJIS', $this->cont['SOURCE_ENCODING']) . '</title></head>';
-$header = '<div id="' . $dirname . '_navigator">' . $navi . '</div>';
-$header .= $this->do_plugin_convert('easylogin');
-$header .= '<hr>' . $topicpath;
 
-$footnotes = '<hr>';
+$header = '';
+$header .= sprintf('<div style="%s">%s <a href="%s" %s="1">%s</a></div>',
+	$style['siteTitle'],
+	$this->make_link('&pb1;'),
+	$this->cont['ROOT_URL'],
+	$this->root->accesskey,
+	htmlspecialchars($this->root->siteinfo['sitename']) );
+
+$header .= sprintf('<div style="%s">%s</div>',
+	$style['easyLogin'],
+	$this->do_plugin_convert('easylogin') );
+
+$header .= sprintf('<div style="%s">%s <a href="%s" %s="3">%s</a></div>',
+	$style['wikiTitle'],
+	$this->make_link('&pb3;'),
+	$link['top'],
+	$this->root->accesskey,
+	htmlspecialchars($this->root->module['title']) );
+
+if ($read && $pagename) {
+	$pageTitle = $this->make_pagelink($pagename) . '<a href="' . $link['related'] . '">((i:f981))</a>';
+} else {
+	$pageTitle = strip_tags($this->xpwiki->title);
+}
+$header .= sprintf('<div style="%s">%s</div>',
+	$style['pageTitle'],
+	$pageTitle );
+
+$header .= '<div style="' . $style['pageMenu'] . '">';
+$header .= '<table align="center"><tr><td>';
+$header .= '<div style="' . $style['pageMenu'] . '">';
+
+$header .= sprintf('%s <a href="#xpwiki_navigator" %s="2">%s</a><br />',
+$this->make_link('&pb2;'),
+$this->root->accesskey,
+$lang['header']
+);
+
+$header .= sprintf('%s <a href="#xpwiki_footer" %s="8">%s</a><br />',
+$this->make_link('&pb8;'),
+$this->root->accesskey,
+$lang['footer']
+);
+
+if ($pagename) {
+	$header .= sprintf('%s <a href="%s?cmd=menu&amp;refer=%s" %s="5">%s</a><br />',
+	$this->make_link('&pb5;'),
+	$this->root->script,
+	rawurlencode($pagename),
+	$this->root->accesskey,
+	$lang['menu']
+	);
+} else {
+	$header .= '<br />';
+}
+
+if (!$is_freeze && $is_editable) {
+	$header .= sprintf('%s <a href="%s" %s="9">%s</a><br />',
+	$this->make_link('&pb9;'),
+	$link['edit'],
+	$this->root->accesskey,
+	$lang['edit']
+	);
+} else {
+	$header .= '<br />';
+}
+$header .= '</div>';
+$header .= '</td><td style="background-color:#fff"> </td><td>';
+$header .= '<div style="' . $style['pageMenu'] . ';text-align:right">';
+
+$header .= sprintf('<a href="%s" %s="7">%s</a> %s<br />',
+$link['new'],
+$this->root->accesskey,
+$lang['new'],
+$this->make_link('&pb7;') );
+
+$header .= sprintf('<a href="%s" %s="*">%s</a> %s<br />',
+$link['search'],
+$this->root->accesskey,
+$lang['search_s'],
+'[*]' );
+
+$header .= sprintf('<a href="%s" %s="0">%s</a> %s<br />',
+$link['recent'],
+$this->root->accesskey,
+$lang['recent_s'],
+$this->make_link('&pb0;') );
+
+$header .= sprintf('<a href="%s" %s="#">%s</a> %s<br />',
+$link['list'],
+$this->root->accesskey,
+$lang['list'],
+$this->make_link('&pb#;') );
+
+$header .= '</div>';
+$header .= '</td></tr></table>';
+$header .= '</div>';
+//$header .= '<hr>' . $topicpath;
+
+$footnotes = '<hr />';
 if ($notes) {
 	$footnotes = '<div>' . $notes . '</div><hr>';
 }
 // Build footer
 ob_start(); ?>
-<div style="font-size:0.9em">
+<div style="<?php echo $style['pageFooter'] ?>" id="xpwiki_footer">
 <?php echo $footnotes ?>
 <?php if ($is_page) echo $this->do_plugin_convert('counter') ?>
 <?php if ($lastmodified != '') { ?>
@@ -141,6 +205,8 @@ if (HypCommonFunc::get_version() >= '20080617.2') {
 		$r->Config_googleAdSenseBelow = $this->root->k_tai_conf['googleAdsense']['below'];
 	}
 
+	$r->inputEncode = $this->cont['SOURCE_ENCODING'];
+	$r->outputEncode = 'SJIS';
 	$r->outputMode = 'xhtml';
 	$r->langcode = $this->cont['LANG'];
 	$r->doOptimize();

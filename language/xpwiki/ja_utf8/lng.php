@@ -1,6 +1,6 @@
 <?php
 // PukiWiki - Yet another WikiWikiWeb clone.
-// $Id: lng.php,v 1.9 2008/06/08 23:44:37 nao-pon Exp $
+// $Id: lng.php,v 1.10 2008/09/03 08:14:46 nao-pon Exp $
 // Copyright (C)
 //   2002-2005 PukiWiki Developers Team
 //   2001-2002 Originally written by yu-ji
@@ -131,8 +131,12 @@ $root->_LANG['skin']['freeze']    = '凍結';
 $root->_LANG['skin']['help']      = 'ヘルプ';
 $root->_LANG['skin']['list']      = '一覧';	// List of pages
 $root->_LANG['skin']['new']       = '新規';
+$root->_LANG['skin']['menu']      = 'メニュー';
+$root->_LANG['skin']['header']    = '頁上';
+$root->_LANG['skin']['footer']    = '頁下';
 $root->_LANG['skin']['rdf']       = '最終更新のRDF';	// RDF of RecentChanges
 $root->_LANG['skin']['recent']    = '最終更新';	// RecentChanges
+$root->_LANG['skin']['recent_s']  = '最新';
 $root->_LANG['skin']['refer']     = 'リンク元';	// Show list of referer
 $root->_LANG['skin']['reload']    = 'リロード';
 $root->_LANG['skin']['rename']    = '名前変更';	// Rename a page (and related)
@@ -141,6 +145,7 @@ $root->_LANG['skin']['rss10']     = $root->_LANG['skin']['rss'] . ' 1.0';
 $root->_LANG['skin']['rss20']     = $root->_LANG['skin']['rss'] . ' 2.0';
 $root->_LANG['skin']['atom']      = $root->_LANG['skin']['rss'] . ' Atom';
 $root->_LANG['skin']['search']    = '単語検索';
+$root->_LANG['skin']['search_s']  = '検索';
 $root->_LANG['skin']['top']       = 'トップ';	// Top page
 $root->_LANG['skin']['trackback'] = 'Trackback';	// Show list of trackback
 $root->_LANG['skin']['unfreeze']  = '凍結解除';
