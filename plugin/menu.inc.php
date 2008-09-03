@@ -2,7 +2,7 @@
 /////////////////////////////////////////////////
 // PukiWiki - Yet another WikiWikiWeb clone.
 //
-// $Id: menu.inc.php,v 1.9 2008/06/26 00:15:44 nao-pon Exp $
+// $Id: menu.inc.php,v 1.10 2008/09/03 08:08:27 nao-pon Exp $
 //
 
 class xpwiki_plugin_menu extends xpwiki_plugin {
@@ -44,7 +44,6 @@ class xpwiki_plugin_menu extends xpwiki_plugin {
 			$use_attach = ((bool)ini_get('file_uploads') && $rw && $this->func->is_page($_page) && $this->func->get_plugin_instance('attach'));
 			$can_attach = ($use_attach && (! $this->cont['ATTACH_UPLOAD_ADMIN_ONLY'] || $is_admin) && (! $this->cont['ATTACH_UPLOAD_EDITER_ONLY'] || $is_editable));
 			
-			$page_menus[] = '';
 			
 			if (!$is_freeze && $is_editable) {
 				$page_menus[] = $this->make_pgmenu('edit', $_page);
@@ -71,10 +70,9 @@ class xpwiki_plugin_menu extends xpwiki_plugin {
 			if ($use_attach) {
 				$page_menus[] = $this->make_pgmenu('attaches', $_page);
 			}
-			
-			$page_menus[] = '';
+
 		}
-		$page_menu = ($page_menus) ? '<h4>[ ' . $this->func->make_pagelink($_page) . ' ] Page Menu</h4><div>' . join(' | ', $page_menus)  . '</div><hr />': '';
+		$page_menu = ($page_menus) ? '<h2>Page Menu</h2><div>[ ' . $this->func->make_pagelink($_page) . ' ]</div><ul><li>' . join('</li><li>', $page_menus)  . '</li></ul><hr />': '';
 		
 		$body = $this->plugin_menu_convert();
 		
