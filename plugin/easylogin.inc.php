@@ -2,7 +2,7 @@
 /*
  * Created on 2008/06/20 by nao-pon http://hypweb.net/
  * License: GPL v2 or (at your option) any later version
- * $Id: easylogin.inc.php,v 1.1 2008/06/20 02:18:30 nao-pon Exp $
+ * $Id: easylogin.inc.php,v 1.2 2008/09/03 08:09:43 nao-pon Exp $
  */
 
 class xpwiki_plugin_easylogin extends xpwiki_plugin
@@ -15,7 +15,7 @@ class xpwiki_plugin_easylogin extends xpwiki_plugin
 		$a = $this->get_a_tag ();
 		
 		if ($a = $this->get_a_tag()) {
-			return '<div style="text-align:center"><span style="font-size:0.9em">[ ' . $a . ' ]</span></div>';
+			return '[ ' . $a . ' ]';
 		} else {
 			return '';
 		}
@@ -27,6 +27,9 @@ class xpwiki_plugin_easylogin extends xpwiki_plugin
 			$r = new HypKTaiRender();
 			$r->set_myRoot(XOOPS_URL);
 			
+			$msg['easylogin'] = ($this->root->k_tai_conf['msg']['easylogin'])? $this->root->k_tai_conf['msg']['easylogin'] : 'Easy Login';
+			$msg['logout'] = ($this->root->k_tai_conf['msg']['logout'])? $this->root->k_tai_conf['msg']['logout'] : 'Logout';
+			
 			if (! empty($r->vars['ua']['isKTai'])) {
 				if (! $this->root->userinfo['uid']) {
 					$add = '_EASYLOGIN';
@@ -36,9 +39,9 @@ class xpwiki_plugin_easylogin extends xpwiki_plugin
 					$url = $r->myRoot . $r->removeSID($_SERVER['REQUEST_URI']);
 					$url .= ((strpos($url, '?') === FALSE)? '?' : '&') . $add;
 					$url = str_replace('&', '&amp;', $url);
-					return '<a href="' . $url . '">Easy Login</a>';
+					return '<a href="' . $url . '">' . $msg['easylogin'] . '</a>';
 				} else {
-					return '<a href="' . XOOPS_URL . '/userinfo.php?uid=' . $this->root->userinfo['uid'] . '">' . htmlspecialchars($this->root->userinfo['uname']) . '</a> <a href="' . XOOPS_URL . '/user.php?op=logout">Logout</a>';
+					return '<a href="' . XOOPS_URL . '/userinfo.php?uid=' . $this->root->userinfo['uid'] . '">' . htmlspecialchars($this->root->userinfo['uname']) . '</a> <a href="' . XOOPS_URL . '/user.php?op=logout">' . $msg['logout'] . '</a>';
 				}
 			}
 		}
