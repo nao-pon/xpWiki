@@ -4,7 +4,7 @@ class xpwiki_plugin_navi extends xpwiki_plugin {
 
 
 	// PukiWiki - Yet another WikiWikiWeb clone.
-	// $Id: navi.inc.php,v 1.10 2008/08/11 01:17:35 nao-pon Exp $
+	// $Id: navi.inc.php,v 1.11 2008/09/03 08:46:57 nao-pon Exp $
 	//
 	// Navi plugin: Show DocBook-like navigation bar and contents
 	
@@ -172,6 +172,15 @@ class xpwiki_plugin_navi extends xpwiki_plugin {
 				$ret .= '</ul>';
 			}
 	
+		} else if ($this->cont['UA_PROFILE'] === 'keitai') {
+			$ret = <<<EOD
+<p>
+((e:f75b)){$navi[$this->xpwiki->pid][$home]['home']}<br />
+&nbsp;((e:f76f)){$navi[$this->xpwiki->pid][$home]['prev']}<br />
+&nbsp;((e:f76e)){$navi[$this->xpwiki->pid][$home]['next']}
+</p>
+<hr class="full_hr" />
+EOD;
 		} else if (! $footer) {
 			// Header
 			$ret = <<<EOD
@@ -182,7 +191,6 @@ class xpwiki_plugin_navi extends xpwiki_plugin {
 </ul>
 <hr class="full_hr" />
 EOD;
-	
 		} else {
 			// Footer
 			$ret = <<<EOD
