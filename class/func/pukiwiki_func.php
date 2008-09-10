@@ -1,7 +1,7 @@
 <?php
 //
 // Created on 2006/10/02 by nao-pon http://hypweb.net/
-// $Id: pukiwiki_func.php,v 1.184 2008/08/11 01:16:42 nao-pon Exp $
+// $Id: pukiwiki_func.php,v 1.185 2008/09/10 04:37:37 nao-pon Exp $
 //
 class XpWikiPukiWikiFunc extends XpWikiBaseFunc {
 
@@ -951,7 +951,7 @@ class XpWikiPukiWikiFunc extends XpWikiBaseFunc {
 
 //----- Start convert_html.php -----//
 	// PukiWiki - Yet another WikiWikiWeb clone
-	// $Id: pukiwiki_func.php,v 1.184 2008/08/11 01:16:42 nao-pon Exp $
+	// $Id: pukiwiki_func.php,v 1.185 2008/09/10 04:37:37 nao-pon Exp $
 	// Copyright (C)
 	//   2002-2005 PukiWiki Developers Team
 	//   2001-2002 Originally written by yu-ji
@@ -1204,7 +1204,7 @@ class XpWikiPukiWikiFunc extends XpWikiBaseFunc {
 
 //----- Start func.php -----//
 	// PukiWiki - Yet another WikiWikiWeb clone.
-	// $Id: pukiwiki_func.php,v 1.184 2008/08/11 01:16:42 nao-pon Exp $
+	// $Id: pukiwiki_func.php,v 1.185 2008/09/10 04:37:37 nao-pon Exp $
 	// Copyright (C)
 	//   2002-2006 PukiWiki Developers Team
 	//   2001-2002 Originally written by yu-ji
@@ -2031,7 +2031,7 @@ EOD;
 
 //----- Start make_link.php -----//
 	// PukiWiki - Yet another WikiWikiWeb clone.
-	// $Id: pukiwiki_func.php,v 1.184 2008/08/11 01:16:42 nao-pon Exp $
+	// $Id: pukiwiki_func.php,v 1.185 2008/09/10 04:37:37 nao-pon Exp $
 	// Copyright (C)
 	//   2003-2005 PukiWiki Developers Team
 	//   2001-2002 Originally written by yu-ji
@@ -3008,7 +3008,7 @@ EOD;
 
 //----- Start html.php -----//
 	// PukiWiki - Yet another WikiWikiWeb clone.
-	// $Id: pukiwiki_func.php,v 1.184 2008/08/11 01:16:42 nao-pon Exp $
+	// $Id: pukiwiki_func.php,v 1.185 2008/09/10 04:37:37 nao-pon Exp $
 	// Copyright (C)
 	//   2002-2006 PukiWiki Developers Team
 	//   2001-2002 Originally written by yu-ji
@@ -3019,6 +3019,9 @@ EOD;
 	// Show page-content
 	function catbody($title, $page, $body)
 	{
+		// Set _LANG
+		$_LANG =& $this->root->_LANG;
+
 		// #noattach
 		if (isset($this->root->nonflag['attach'])) {
 			$attach =& $this->get_plugin_instance('attach');
@@ -3050,7 +3053,17 @@ EOD;
 		$pginfo = $this->get_pginfo($_page);
 		
 		// Pagename alias
-		$pginfo['alias'] = join(', ',$this->get_page_alias($_page, true));
+		$pagealiases = $this->get_page_alias($_page, true);
+		$pginfo['alias'] = $pagealiases? join(', ', $pagealiases) : $_LANG['skin']['none'];
+		
+		$pginfo['pageowner'] = (! $pginfo['uid'])? ($pginfo['uname']? $pginfo['uname'] : $_LANG['skin']['none']) : $this->make_userlink($pginfo['uid'], $pginfo['uname']);
+		
+		// Set auth
+		$pginfo['readableGroups'] = isset($_LANG['skin']['perm'][$pginfo['vgids']])? $_LANG['skin']['perm'][$pginfo['vgids']] : $this->get_groupname($pginfo['vgids']);
+		$pginfo['readableUsers'] = isset($_LANG['skin']['perm'][$pginfo['vaids']])? $_LANG['skin']['perm'][$pginfo['vaids']] : $this->make_userlink($pginfo['vaids']);
+		$pginfo['editableGroups'] = isset($_LANG['skin']['perm'][$pginfo['egids']])? $_LANG['skin']['perm'][$pginfo['egids']] : $this->get_groupname($pginfo['egids']);
+		$pginfo['editableUsers'] = isset($_LANG['skin']['perm'][$pginfo['eaids']])? $_LANG['skin']['perm'][$pginfo['eaids']] : $this->make_userlink($pginfo['eaids']);
+
 		
 		// Set skin functions
 		$navigator = create_function('&$this, $key, $value = \'\', $javascript = \'\'', 'return XpWikiFunc::skin_navigator($this, $key, $value, $javascript);');
@@ -3088,9 +3101,6 @@ EOD;
 		}
 		$_LINK['unfreeze'] = "{$this->root->script}?cmd=unfreeze&amp;page=$r_page#{$this->root->mydirname}_header";
 		$_LINK['upload']   = "{$this->root->script}?plugin=attach&amp;pcmd=upload&amp;page=$r_page#{$this->root->mydirname}_header";
-		
-		// Set _LANG
-		$_LANG =& $this->root->_LANG;
 		
 		// Compat: Skins for 1.4.4 and before
 		$link_add       = & $_LINK['add'];
@@ -3702,7 +3712,7 @@ EOD;
 
 //----- Start mail.php -----//
 	// PukiWiki - Yet another WikiWikiWeb clone.
-	// $Id: pukiwiki_func.php,v 1.184 2008/08/11 01:16:42 nao-pon Exp $
+	// $Id: pukiwiki_func.php,v 1.185 2008/09/10 04:37:37 nao-pon Exp $
 	// Copyright (C)
 	//   2003-2005 PukiWiki Developers Team
 	//   2003      Originally written by upk
@@ -4005,7 +4015,7 @@ EOD;
 
 //----- Start link.php -----//
 	// PukiWiki - Yet another WikiWikiWeb clone
-	// $Id: pukiwiki_func.php,v 1.184 2008/08/11 01:16:42 nao-pon Exp $
+	// $Id: pukiwiki_func.php,v 1.185 2008/09/10 04:37:37 nao-pon Exp $
 	// Copyright (C) 2003-2006 PukiWiki Developers Team
 	// License: GPL v2 or (at your option) any later version
 	//

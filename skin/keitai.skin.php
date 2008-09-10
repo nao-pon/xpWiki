@@ -1,6 +1,6 @@
 <?php
 // PukiWiki - Yet another WikiWikiWeb clone.
-// $Id: keitai.skin.php,v 1.18 2008/09/03 08:14:46 nao-pon Exp $
+// $Id: keitai.skin.php,v 1.19 2008/09/10 04:37:37 nao-pon Exp $
 // Copyright (C) 2003-2006 PukiWiki Developers Team
 // License: GPL v2 or (at your option) any later version
 //
@@ -155,7 +155,6 @@ $this->make_link('&pb#;') );
 $header .= '</div>';
 $header .= '</td></tr></table>';
 $header .= '</div>';
-//$header .= '<hr>' . $topicpath;
 
 $footnotes = '<hr />';
 if ($notes) {
@@ -170,10 +169,19 @@ ob_start(); ?>
 <div><?php echo $lang['lastmodify'] ?>: <?php echo $lastmodified ?> by <?php echo $pginfo['lastuname'] ?></div>
 <?php } ?>
 <?php if ($is_page) { ?>
-<div><?php echo $lang['pagealias'] ?>: <?php echo $pginfo['alias'] ?></div>
-<div><?php echo $lang['pageowner'] ?>: <?php echo $pginfo['uname'] ?></div>
+<h4><?php echo $lang['pageinfo'] ?></h4>
+<div><?php echo $lang['pagename'] ?> : <?php echo $_page ?></div>
+<div><?php echo $lang['pagealias'] ?> : <?php echo $pginfo['alias'] ?></div>
+<div><?php echo $lang['pageowner'] ?> : <?php echo $pginfo['pageowner'] ?></div>
+<h4><?php echo $lang['readable'] ?></h4>
+<div><?php echo $lang['groups'] ?> : <?php echo $pginfo['readableGroups'] ?></div>
+<div><?php echo $lang['users'] ?> : <?php echo $pginfo['readableUsers'] ?></div>
+<h4><?php echo $lang['editable'] ?></h4>
+<div><?php echo $lang['groups'] ?> : <?php echo $pginfo['editableGroups'] ?></div>
+<div><?php echo $lang['users'] ?> : <?php echo $pginfo['editableUsers'] ?></div>
+</table>
 <?php } ?>
-<div><?php echo $lang['siteadmin'] ?>: <a href="<?php echo $this->root->modifierlink ?>"><?php echo $this->root->modifier ?></a></div>
+<p><?php echo $lang['siteadmin'] ?>: <a href="<?php echo $this->root->modifierlink ?>"><?php echo $this->root->modifier ?></a></p>
 </div>
 <?php
 $footer = ob_get_contents();
@@ -188,7 +196,7 @@ if (HypCommonFunc::get_version() >= '20080617.2') {
 	$r->contents['body'] = $body;
 	$r->contents['footer'] = $footer;
 	$r->Config_hypCommonURL = $this->cont['ROOT_URL'] . 'class/hyp_common';
-	$r->Config_redirect = $this->cont['HOME_URL'] . 'gate.php?way=redirect_SJIS&amp;xmode=2&amp;l=';
+	$r->Config_redirect = $this->root->k_tai_conf['redirect'];
 	$r->Config_emojiDir = $this->cont['ROOT_URL'] . 'images/emoji';
 	if (! empty($this->root->k_tai_conf['showImgHosts'])) {
 		$r->Config_showImgHosts = $this->root->k_tai_conf['showImgHosts'];
