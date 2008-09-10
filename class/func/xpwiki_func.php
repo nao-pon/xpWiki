@@ -1,7 +1,7 @@
 <?php
 //
 // Created on 2006/10/02 by nao-pon http://hypweb.net/
-// $Id: xpwiki_func.php,v 1.189 2008/08/10 03:03:57 nao-pon Exp $
+// $Id: xpwiki_func.php,v 1.190 2008/09/10 04:32:22 nao-pon Exp $
 //
 class XpWikiFunc extends XpWikiXoopsWrapper {
 
@@ -515,19 +515,6 @@ class XpWikiFunc extends XpWikiXoopsWrapper {
 	
 	function get_additional_headtags () {
 
-		// favicon auto set JavaScript
-		if (! $this->root->can_not_connect_www && HypCommonFunc::get_version() >= '20080213') {
-			if ($this->root->favicon_set_classname) {
-				$this->add_js_var_head('XpWiki.faviconSetClass', $this->root->favicon_set_classname);
-			}
-			if ($this->root->favicon_replace_classname) {
-				$this->add_js_var_head('XpWiki.faviconReplaceClass', $this->root->favicon_replace_classname);
-			}
-		}
-		
-		if ($this->root->render_UseWikihelperAtAll) {
-			$this->add_js_var_head('XpWiki.UseWikihelperAtAll', TRUE);
-		}
 		// WikiHelper JavaScript
 		$head_tag = <<<EOD
 <script type="text/javascript" src="{$this->cont['LOADER_URL']}?src=default.{$this->cont['UI_LANG']}{$this->cont['FILE_ENCORD_EXT']}.js"></script>
@@ -906,21 +893,32 @@ EOD;
 		if (preg_match("/^(.+)\.([a-zA-Z]+)$/",$file,$match)) {
 			if ($charset) $charset = ' charset="' . $charset . '"';
 			if ($match[2] === 'css') {
-				if ($this->root->render_mode === 'main') {
-					$mode = '';
+				$key = 'css:s' . $this->cont['SKIN_NAME'] . 'm' . $this->root->render_mode . 'p' . $this->root->css_prefix . 'c' .$charset;
+				if (isset($this->root->{$target}[$key])) {
+					$this->root->{$target}[$key] = str_replace('.css"', ',' . $match[1] . '.css"', $this->root->{$target}[$key]);
 				} else {
-					$mode = ($this->root->render_mode === 'block')?
-						'b=1&amp;' : 
-						(($this->root->render_mode === 'render')?
-							'r=1&amp;' :
-							''
-						);
+					if ($this->root->render_mode === 'main') {
+						$mode = '';
+					} else {
+						$mode = ($this->root->render_mode === 'block')?
+							'b=1&amp;' : 
+							(($this->root->render_mode === 'render')?
+								'r=1&amp;' :
+								''
+							);
+					}
+					$cssprefix = $this->root->css_prefix ? 'pre=' . rawurlencode($this->root->css_prefix) . '&amp;' : '';
+					$_css = 'skin='.$this->cont['SKIN_NAME'].'&amp;'.$mode.$cssprefix.'src='.$match[1];
+					$this->root->{$target}[$key] = '<link rel="stylesheet" type="text/css" media="all" href="'.$this->cont['LOADER_URL'] . '?' . $_css . '.css"' . $charset . ' />';
 				}
-				$cssprefix = $this->root->css_prefix ? 'pre=' . rawurlencode($this->root->css_prefix) . '&amp;' : '';
-				$_css = 'skin='.$this->cont['SKIN_NAME'].'&amp;'.$mode.$cssprefix.'src='.$match[1];
-				$this->root->{$target}['css'.$_css] = '<link rel="stylesheet" type="text/css" media="all" href="'.$this->cont['LOADER_URL'] . '?' . $_css . '.css"' . $charset . ' />';
+				
 			} else if ($match[2] === 'js') {
-				$this->root->{$target}['js'.$match[1]] = '<script type="text/javascript" src="'.$this->cont['LOADER_URL'].'?src='.$match[1].'.js"' . $charset . '></script>';
+				$key = 'js:' . $charset;
+				if (isset($this->root->{$target}[$key])) {
+					$this->root->{$target}[$key] = str_replace('.js"', ',' . $match[1] . '.js"', $this->root->{$target}[$key]);
+				} else {
+					$this->root->{$target}[$key] = '<script type="text/javascript" src="'.$this->cont['LOADER_URL'].'?src='.$match[1].'.js"' . $charset . '></script>';
+				}
 				if (empty($this->root->rtf['HeadJsAjaxSafe'])) {
 					$this->root->rtf['useJavascriptInHead'] = TRUE;
 					$this->root->rtf['HeadJsAjaxSafe'] = NULL;

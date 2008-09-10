@@ -1,12 +1,14 @@
 <?php
 //
 // Created on 2006/10/25 by nao-pon http://hypweb.net/
-// $Id: loader.php,v 1.48 2008/08/20 04:33:38 nao-pon Exp $
+// $Id: loader.php,v 1.49 2008/09/10 04:32:22 nao-pon Exp $
 //
 
 ignore_user_abort(FALSE);
 error_reporting(0);
 
+if (! isset($_GET['src'])) exit();
+ 
 // ブラウザキャッシュ有効時間(秒)
 $maxage = 86400; // 60*60*24 (1day)
 
@@ -19,24 +21,26 @@ while( ob_get_level() ) {
 }
 
 // 変数初期化
-$src   = preg_replace("/[^\w.\-%]+/","",@ $_GET['src']);
+$src = preg_replace('/[^\w.%,-]+/', '', $_GET['src']);
+
+if ($src === 'favicon') {
+	require XOOPS_TRUST_PATH.'/class/hyp_common/favicon/favicon.php';
+	exit();
+}
+
 $prefix = (isset($_GET['b']))? 'b_' : '';
 $prefix = (isset($_GET['r']))? 'r_' : $prefix;
 $nocache = (isset($_GET['nc']));
 $js_lang = $charset = $pre_width = $cache_file = $gzip_fname = $dir = $out = $type = $src_file = '';
 $addcss = array();
-$length = $addcsstime = $facetagtime = 0;
+$length = $addtime = 0;
 $face_remake = $js_replace = $replace = false;
 $root_path = dirname($skin_dirname);
 $cache_path = $root_path.'/private/cache/';
 $face_tag_ver = 1.0;
 $method = empty($_SERVER['REQUEST_METHOD'])? 'GET' : strtoupper($_SERVER['REQUEST_METHOD']);
 $pre_id = '';
-
-if ($src === 'favicon') {
-	require XOOPS_TRUST_PATH.'/class/hyp_common/favicon/favicon.php';
-	exit();
-}
+$js_replaces = array();
 
 if (preg_match("/^(.+)\.([^.]+)$/",$src,$match)) {
 	$type = $match[2];
@@ -80,55 +84,67 @@ switch ($type) {
 		$_is_tdiary = (substr($skin, 0, 3) === 'tD-');
 
 		$dir = $prefix.basename($root_path);
-		// Default CSS
-		if ($src === 'main') {
-			// Default charset
-			if (isset($_GET['charset'])) $charset = preg_replace('/[^\w.-]+/','',$_GET['charset']);
-			$c_type = 'text/css' . ($charset ? '; charset=' . $charset : '');
-			// tDiary
-			if ($_is_tdiary) {
-				$src .= '_tdiary';
+		
+		$src_files = array();
+		$srcs = array();
+		foreach (explode(',', $src) as $_src) {
+			// Default CSS
+			if ($_src === 'main') {
+				// Default charset
+				if (isset($_GET['charset'])) $charset = preg_replace('/[^\w.-]+/','',$_GET['charset']);
+				$c_type = 'text/css' . ($charset ? '; charset=' . $charset : '');
+				// tDiary
+				if ($_is_tdiary) {
+					$_src .= '_tdiary';
+				}
+				// Media
+				$media = isset($_GET['media'])? $_GET['media'] : '';
+				$media = ($media === 'print')? '_print' : '';
+				$_src .= $media;
+				// Pre Width
+				$pre_width = (isset($_GET['pw']) && preg_match('/^([0-9]{2,4}(px|%)|auto)$/',$_GET['pw']))? $_GET['pw'] : 'auto';
 			}
-			// Media
-			$media = isset($_GET['media'])? $_GET['media'] : '';
-			$media = ($media === 'print')? '_print' : '';
-			$src .= $media;
-			// Pre Width
-			$pre_width = (isset($_GET['pw']) && preg_match('/^([0-9]{2,4}(px|%)|auto)$/',$_GET['pw']))? $_GET['pw'] : 'auto';
-		}
-		
-		// tDiary's Skin
-		if ($_is_tdiary) {
-			$skin = 'tdiary_theme';
-		}
-		
-		// CSS over write (css dir)
-		$addcss_file = "{$skin_dirname}/{$basedir}css/{$src}.css";
-		if (is_file($addcss_file)) {
-			$addcss[] = $addcss_file;
-			$addcsstime = filemtime($addcss_file);
-		}
-		// CSS over write (skin dir)
-		$addcss_file = "{$skin_dirname}/{$basedir}{$skin}/{$src}.css";
-		if (is_file($addcss_file)) {
-			$addcss[] = $addcss_file;
-			$addcsstime = max($addcsstime, filemtime($addcss_file));
-		}
-		if ($prefix) {
-			$css_src = ($prefix === 'b_') ? $src . '_block' : $src . '_render';
+			
+			// tDiary's Skin
+			if ($_is_tdiary) {
+				$skin = 'tdiary_theme';
+			}
+			
 			// CSS over write (css dir)
-			$addcss_file = "{$skin_dirname}/{$basedir}css/{$css_src}.css";
+			$addcss_file = "{$skin_dirname}/{$basedir}css/{$_src}.css";
 			if (is_file($addcss_file)) {
 				$addcss[] = $addcss_file;
-				$addcsstime = max($addcsstime, filemtime($addcss_file));
+				$addtime = filemtime($addcss_file);
 			}
 			// CSS over write (skin dir)
-			$addcss_file = "{$skin_dirname}/{$basedir}{$skin}/{$css_src}.css";
+			$addcss_file = "{$skin_dirname}/{$basedir}{$skin}/{$_src}.css";
 			if (is_file($addcss_file)) {
 				$addcss[] = $addcss_file;
-				$addcsstime = max($addcsstime, filemtime($addcss_file));
+				$addtime = max($addtime, filemtime($addcss_file));
+			}
+			if ($prefix) {
+				$css_src = ($prefix === 'b_') ? $_src . '_block' : $_src . '_render';
+				// CSS over write (css dir)
+				$addcss_file = "{$skin_dirname}/{$basedir}css/{$css_src}.css";
+				if (is_file($addcss_file)) {
+					$addcss[] = $addcss_file;
+					$addtime = max($addtime, filemtime($addcss_file));
+				}
+				// CSS over write (skin dir)
+				$addcss_file = "{$skin_dirname}/{$basedir}{$skin}/{$css_src}.css";
+				if (is_file($addcss_file)) {
+					$addcss[] = $addcss_file;
+					$addtime = max($addtime, filemtime($addcss_file));
+				}
+			}
+			$src_file = dirname(__FILE__)."/skin/{$basedir}{$type}/".preg_replace("/[^\w.]/","",$_src).".$type";
+			if (is_file($src_file)) {
+				$srcs[] = $_src;
+				$src_files[$_src] = $src_file;
 			}
 		}
+		$src = join(',', $srcs);
+		$src_file = $src_files;
 		
 		$replace = true;
 		$cache_file = $cache_path.$skin.'_'.$src.'_'.$dir.($pre_width?'_'.$pre_width:'').($charset?'_'.$charset:'').'.'.$type;
@@ -139,32 +155,46 @@ switch ($type) {
 		$wikihelper_root_url = $module_url . '/' . basename($root_path);
 		$wikihelper_root_url_md5 = md5($wikihelper_root_url);
 		$face_cache = $cache_path . $wikihelper_root_url_md5 .'_facemarks.js';
-		if (substr($src, 0, 7) === "default") {
-			$js_replace = true;
-			$replace = true;
-			$js_lang = substr($src, 8);
-			$src_file = $root_path . '/language/xpwiki/' . $js_lang . '/' . 'default.js';
-			// Check Trust
-			if (! is_file($src_file)) {
-				$src_file = dirname(__FILE__) . '/language/xpwiki/' . $js_lang . '/' . 'default.js';
+		$src_files = array();
+		$replace = true;
+		foreach(explode(',', $src) as $_src) {
+			$src_file = '';
+			if (substr($_src, 0, 7) === "default") {
+				$js_replaces[] = $_src;
+				$js_lang = substr($_src, 8);
+				$src_file = $root_path . '/language/xpwiki/' . $js_lang . '/' . 'default.js';
+				// Check Trust
+				if (! is_file($src_file)) {
+					$src_file = dirname(__FILE__) . '/language/xpwiki/' . $js_lang . '/' . 'default.js';
+				}
+				// none
+				if (! is_file($src_file)) {
+					$src_file = dirname(__FILE__) . '/language/xpwiki/en/default.js';
+				}
+			} else 	if ($_src === 'main') {
+				$js_replaces[] = $_src;
+				$face_remake = (!is_file($face_cache) || filemtime($face_cache) + $face_tag_maxage < time());
+				if ($face_remake) {
+					$addtime = time();
+				} else {
+					$chk = array();
+					$chk[] = $face_cache;
+					$chk[] = XOOPS_TRUST_PATH . '/modules/xpwiki/ini/pukiwiki.ini.php';
+					$chk[] = $root_path . '/private/ini/pukiwiki.ini.php';
+					$chk[] = $cache_path . 'pukiwiki.ini.php';
+					$addtime = get_filemtime($chk);
+				}
+			} else if ($_src === 'wikihelper_loader') {
+				$js_replaces[] = $_src;		
 			}
-			// none
-			if (! is_file($src_file)) {
-				$src_file = dirname(__FILE__) . '/language/xpwiki/en/default.js';
+			if (!$src_file) {
+				$src_file = dirname(__FILE__)."/skin/{$basedir}{$type}/".preg_replace("/[^\w.]/","",$_src).".$type";
 			}
-		} else 	if ($src === 'main') {
-			$face_remake = (!is_file($face_cache) || filemtime($face_cache) + $face_tag_maxage < time());
-			if ($face_remake) {
-				$facetagtime = time();
-			} else {
-				$facetagtime = filemtime($face_cache);
+			if (is_file($src_file)) {
+				$src_files[$_src] = $src_file;
 			}
-			$replace = true;
-			$js_replace = true;
-		} else if ($src === 'wikihelper_loader') {
-			$replace = true;
-			$js_replace = true;			
 		}
+		$src_file = $src_files;
 		$c_type = 'application/x-javascript';
 		$cache_file = $cache_path . $src . ($js_replace? '_' . $wikihelper_root_url_md5 : '') . '.' . $type;
 		$gzip_fname = $cache_file . '.gz';
@@ -198,8 +228,9 @@ if (!$src_file) {
 	$src_file = dirname(__FILE__)."/skin/{$basedir}{$type}/".preg_replace("/[^\w.]/","",$src).".$type";
 }
 
-if (is_file($src_file)) {
-	$filetime = max(filemtime(__FILE__), filemtime($src_file), $addcsstime, $facetagtime);
+if ($type === 'js' || $type === 'css' || is_file($src_file)) {
+
+	$filetime = max(filemtime(__FILE__), get_filemtime($src_file), $addtime);
 
 	$etag = md5($type.$dir.$pre_width.$charset.$src.$filetime.$pre_id);
 	
@@ -249,32 +280,18 @@ if (is_file($src_file)) {
 		if ($method !== 'HEAD') readfile($cache_file);
 		exit();
 	}
-	
+
 	// 置換処理が必要?
 	if ($replace) {
-		if ($type === 'css' || $type === 'pagecss') {
-			$replace_src = 0;
-			
-			if ($type === 'css') {
-				$conf_file = "{$skin_dirname}/{$basedir}{$skin}/css.conf";
-				if (is_file($conf_file)) {
-					$conf = parse_ini_file($conf_file, true);
-					if (! empty($conf[$src]['replace'])) {
-						$replace_src = 1;
-						$src_file = "{$skin_dirname}/{$basedir}{$skin}/{$src}.css";
-					}
-				}
-			}
+		if ($type === 'pagecss') {
 			
 			$out = file_get_contents($src_file);
 			
-			if ($type === 'pagecss') {
-				xpwiki_pagecss_filter($out);
-			}
+			xpwiki_pagecss_filter($out);
 			
 			if ($pre_id) $pre_id .= ' ';
 			$addcss_src = '';
-			if (! $replace_src && $addcss) {
+			if ($addcss) {
 				foreach ($addcss as $_file) {
 					$addcss_src .= file_get_contents($_file) . "\n";
 				}
@@ -283,33 +300,72 @@ if (is_file($src_file)) {
 								array($dir, $pre_id.'div.xpwiki_'.$dir, $pre_width, $charset),
 								$out . "\n" . $addcss_src);
 		}
-		if ($type === 'js') {
-			$out = file_get_contents($src_file);
-			if ($src === 'main') {
-				chdir($root_path);
-				include_once XOOPS_ROOT_PATH.'/include/common.php';
-				chdir($skin_dirname);
-				include_once dirname( __FILE__ ) . '/include.php';
-				$xpwiki = new XpWiki(basename($root_path));
-				$xpwiki->init('#RenderMode');
-				$encode_hint = $xpwiki->cont['PKWK_ENCODING_HINT'];
-				if (!$face_remake) {
-					list($face_tag, $face_tag_full, $_face_tag_ver) = array_pad(file($face_cache), 3, '');
-					if (!$face_tag_full) $face_tag_full = $face_tag;
-					if ($_face_tag_ver < $face_tag_ver) {
-						$face_remake = true;
+		if ($type === 'css') {
+			$out = '';
+			if ($pre_id) $pre_id .= ' ';
+			foreach($src_file as $_src => $_file) {
+				
+				$replace_src = 0;
+				
+				$conf_file = "{$skin_dirname}/{$basedir}{$skin}/css.conf";
+				if (is_file($conf_file)) {
+					$conf = parse_ini_file($conf_file, true);
+					if (! empty($conf[$_src]['replace'])) {
+						$replace_src = 1;
+						$_file = "{$skin_dirname}/{$basedir}{$skin}/{$_src}.css";
 					}
 				}
-				if ($face_remake) {
-					list($face_tag, $face_tag_full) = xpwiki_make_facemarks ($skin_dirname, $face_cache, $face_tag_ver);
+				
+				$_out = file_get_contents($_file);
+				
+				$addcss_src = '';
+				if (! $replace_src && $addcss) {
+					foreach ($addcss as $_file) {
+						$addcss_src .= file_get_contents($_file) . "\n";
+					}
 				}
-				$out = str_replace(
-					array('$face_tag_full', '$face_tag', '$module_url', '$encode_hint', '$charset'),
-					array($face_tag_full, $face_tag, $module_url, $encode_hint, $xpwiki->cont['SOURCE_ENCODING']),
-				$out);
+				$_out = str_replace(array('$dir', '$class', '$pre_width', '$charset'),
+									array($dir, $pre_id.'div.xpwiki_'.$dir, $pre_width, $charset),
+									$_out . "\n" . $addcss_src);
+				
+				$out .= $_out;
 			}
-			if ($js_replace) {
-				$out = str_replace('$wikihelper_root_url', $wikihelper_root_url, $out);
+		}
+		if ($type === 'js') {
+			$out = '';
+			foreach($src_file as $_src => $_file) {
+				$_out = file_get_contents($_file) . "\n";
+				if ($_src === 'main') {
+					if (! isset($xpwiki)) {
+						chdir($root_path);
+						include_once XOOPS_ROOT_PATH.'/include/common.php';
+						chdir($skin_dirname);
+						include_once dirname( __FILE__ ) . '/include.php';
+						$xpwiki = new XpWiki(basename($root_path));
+						$xpwiki->init('#RenderMode');
+					}
+					$encode_hint = $xpwiki->cont['PKWK_ENCODING_HINT'];
+					if (!$face_remake) {
+						list($face_tag, $face_tag_full, $_face_tag_ver) = array_pad(file($face_cache), 3, '');
+						if (!$face_tag_full) $face_tag_full = $face_tag;
+						if ($_face_tag_ver < $face_tag_ver) {
+							$face_remake = true;
+						}
+					}
+					if ($face_remake) {
+						list($face_tag, $face_tag_full) = xpwiki_make_facemarks ($skin_dirname, $face_cache, $face_tag_ver);
+					}
+					$ieDomLoadedDisabled = $xpwiki->root->ieDomLoadedDisabled? 'true' : 'false';
+					$UseWikihelperAtAll = $xpwiki->root->render_UseWikihelperAtAll? 'true' : 'false';
+					$_out = str_replace(
+						array('$face_tag_full', '$face_tag', '$module_url', '$encode_hint', '$charset', '$ieDomLoadedDisabled', '$faviconSetClass', '$faviconReplaceClass', '$UseWikihelperAtAll', '$UseWikihelperAtAll'),
+						array($face_tag_full, $face_tag, $module_url, $encode_hint, $xpwiki->cont['SOURCE_ENCODING'], $ieDomLoadedDisabled, $xpwiki->root->favicon_set_classname, $xpwiki->root->favicon_replace_classname, $UseWikihelperAtAll),
+					$_out);
+				}
+				if (in_array($_src, $js_replaces)) {
+					$_out = str_replace('$wikihelper_root_url', $wikihelper_root_url, $_out);
+				}
+				$out .= $_out;
 			}
 		}
 		$length = strlen($out);
@@ -325,7 +381,7 @@ if (is_file($src_file)) {
 	// html側/private/cache に gzip 圧縮してキャッシュする
 	$is_gz = false;
 	if ($gzip_fname && extension_loaded('zlib')) {
-		if (!$replace) {
+		if (! $replace) {
 			$out = file_get_contents($src_file);
 		}
 		if ($gzip_out = gzencode($out)) {
@@ -404,6 +460,20 @@ function xpwiki_pagecss_filter (& $css, $chrctor) {
 	$css = mb_convert_kana($css, 'asKV', mb_detect_encoding($css));
 	$css = preg_replace('/(expression|javascript|vbscript|@import|cookie|eval|behavior|behaviour|binding|include-source|@i|[\x00-\x08\x0e-\x1f\x7f]+|\\\(?![\'"{};:()#A*]))/i', '', $css);
 	$css = str_replace(array('*/', '<', '>', '&#'), array('*/  ', '&lt;', '&gt;', ''), $css);
+}
+
+function get_filemtime ($file) {
+	if (! is_array($file)) {
+		return filemtime($file);
+	} else {
+		$time = 0;
+		foreach($file as $f) {
+			if (is_file($f)) {
+				$time = max($time, filemtime($f));
+			}
+		}
+		return $time;
+	}
 }
 
 // file_get_contents -- Reads entire file into a string
