@@ -1,6 +1,6 @@
 //
 // Created on 2007/10/03 by nao-pon http://hypweb.net/
-// $Id: resizable.js,v 1.8 2008/01/17 23:47:34 nao-pon Exp $
+// $Id: resizable.js,v 1.9 2008/09/10 04:40:14 nao-pon Exp $
 //
 
 var Resizable = Class.create();
@@ -33,7 +33,7 @@ Resizable.prototype = {
 		var target = $(id);
 		if (!target) return false;
 		
-		if (typeof(target.Resizable_done) != 'undefined') return false;
+		if (!!target.Resizable_done) return false;
 		target.Resizable_done = true;
 		
 		this.tagName = target.tagName;
@@ -111,16 +111,25 @@ Resizable.prototype = {
 			return false;
 		}
 		with(this.base.style) {
-			//position = 'absolute';
 			overflow = 'visible';
 			maxHeight = 'none';
 			maxWidth = 'none';
 			marginBottom = '10px';
 			marginRight = '5px';
 		}
+		if (!!this.elem.getStyle) {
+			this.elem._Top = parseInt(this.elem.getStyle('top'));
+			if (isNaN(this.elem._Top)) this.elem._Top = 0;
+			this.elem._Left = parseInt(this.elem.getStyle('left'));
+			if (isNaN(this.elem._Left)) this.elem._Left = 0;
+		} else {
+			this.elem._Top = this.elem._Left = 0;
+		}
+
 		Element.makePositioned(this.base);
 		//Element.makePositioned(this.elem);
 		this.makeResizeBox (options.mode);
+
 		return this;
 	},
 
@@ -143,7 +152,7 @@ Resizable.prototype = {
 		if (!mode) mode = 'xy';
 
 		if (mode == 'x' ) {
-			this.elem.style.maxWidth = 'none';
+			this.elem.style.maxWidth = (Prototype.Browser.WebKit)? '100%' : 'none';
 			if (this.initWidth) {
 				this.setWidth(this.initWidth);
 			} else {
@@ -335,7 +344,8 @@ Resizable.prototype = {
 	setWidth: function (val) {
 		val = parseInt(val);
 		if (val > 0) {
-			this.base.style.width = this.elem.style.width = val + "px";
+			this.base.style.width = val + "px";
+			this.elem.style.width = (val - this.elem._Left) + "px";
 			this.sizeX = val;
 		}
 	},
@@ -343,7 +353,8 @@ Resizable.prototype = {
 	setHeight: function (val) {
 		val = parseInt(val);
 		if (val > 0) {
-			this.base.style.height = this.elem.style.height = val + "px";
+			this.base.style.height = val + "px";
+			this.elem.style.height = (val - this.elem._Top) + "px";
 			this.sizeY = val;
 		}
 	}
