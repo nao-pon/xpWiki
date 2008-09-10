@@ -1,6 +1,6 @@
 <?php
 // PukiWiki - Yet another WikiWikiWeb clone
-// $Id: pukiwiki.ini.php,v 1.82 2008/08/10 03:03:57 nao-pon Exp $
+// $Id: pukiwiki.ini.php,v 1.83 2008/09/10 04:36:17 nao-pon Exp $
 // Copyright (C)
 //   2002-2006 PukiWiki Developers Team
 //   2001-2002 Originally written by yu-ji
@@ -502,6 +502,13 @@ $root->main_css = 'main.css';
 
 // CSS ID prefix ( ex. #xo-canvas )
 $root->css_prefix = '';
+
+/////////////////////////////////////////////////
+// JavaScript setting
+
+// ie で Dom:loaded を使わず window.loaded を使う
+$root->ieDomLoadedDisabled = 0;
+
 
 /////////////////////////////////////////////////
 // レンダラーモード用設定
