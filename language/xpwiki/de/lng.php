@@ -1,6 +1,6 @@
 <?php
 // PukiWiki - Yet another WikiWikiWeb clone.
-// $Id: lng.php,v 1.7 2008/09/03 08:14:46 nao-pon Exp $
+// $Id: lng.php,v 1.8 2008/09/10 04:37:37 nao-pon Exp $
 // Copyright (C)
 //   2002-2005 PukiWiki Developers Team
 //   2001-2002 Originally written by yu-ji
@@ -161,6 +161,15 @@ $root->_LANG['skin']['linkpage']  = 'Links';
 $root->_LANG['skin']['pagealias'] = 'Seiten Aliases';
 $root->_LANG['skin']['pageowner'] = 'Seiten Inhaber';
 $root->_LANG['skin']['siteadmin'] = 'Seiten Admin';
+$root->_LANG['skin']['none']      = 'None';
+$root->_LANG['skin']['pageinfo']  = 'Page Info';
+$root->_LANG['skin']['pagename']  = 'Page Name';
+$root->_LANG['skin']['readable']  = 'Can Read';
+$root->_LANG['skin']['editable']  = 'Can Edit';
+$root->_LANG['skin']['groups']    = 'Groups';
+$root->_LANG['skin']['users']     = 'Users';
+$root->_LANG['skin']['perm']['all']  = 'All visitors';
+$root->_LANG['skin']['perm']['none'] = 'No one';
 
 ///////////////////////////////////////
 // Plug-in message

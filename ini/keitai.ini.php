@@ -1,6 +1,6 @@
 <?php
 // PukiWiki - Yet another WikiWikiWeb clone.
-// $Id: keitai.ini.php,v 1.16 2008/09/03 08:11:47 nao-pon Exp $
+// $Id: keitai.ini.php,v 1.17 2008/09/10 04:37:37 nao-pon Exp $
 // Copyright (C)
 //   2002-2005 PukiWiki Developers Team
 //   2001-2002 Originally written by yu-ji
@@ -448,6 +448,10 @@ if (class_exists('HypCommonPreLoad')) {
 	// Google Adsense 設定
 	$root->k_tai_conf['googleAdsense']['config'] = $const['TRUST_PATH'] . 'class/hyp_common/ktairender/adsenseConf.php';
 	$root->k_tai_conf['googleAdsense']['below'] = 'header';
+	
+	// リダイレクトスクリプト
+	$root->k_tai_conf['redirect'] = $this->cont['HOME_URL'] . 'gate.php?way=redirect_SJIS&amp;xmode=2&amp;l=';
+	
 }
 
 ?>

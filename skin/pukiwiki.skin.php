@@ -1,6 +1,6 @@
 <?php
 // PukiWiki - Yet another WikiWikiWeb clone.
-// $Id: pukiwiki.skin.php,v 1.36 2008/05/07 08:39:25 nao-pon Exp $
+// $Id: pukiwiki.skin.php,v 1.37 2008/09/10 04:37:37 nao-pon Exp $
 // Copyright (C)
 //   2002-2006 PukiWiki Developers Team
 //   2001-2002 Originally written by yu-ji
@@ -249,6 +249,21 @@ $this->root->_IMAGE['skin']['rdf']      = 'rdf.png';
 </div>
 <?php } // PKWK_SKIN_SHOW$toolbar ?>
 
+<?php if ($is_page) { ?>
+<table class="footer_pginfo">
+<tr><th colspan="2"><?php echo $lang['pageinfo'] ?></th></tr>
+<tr><td><?php echo $lang['pagename'] ?> :</td><td><?php echo $_page ?></td></tr>
+<tr><td><?php echo $lang['pagealias'] ?> :</td><td><?php echo $pginfo['alias'] ?></td></tr>
+<tr><td><?php echo $lang['pageowner'] ?> :</td><td><?php echo $pginfo['pageowner'] ?></td></tr>
+<tr><th colspan="2"><?php echo $lang['readable'] ?></th></tr>
+<tr><td><?php echo $lang['groups'] ?> :</td><td><?php echo $pginfo['readableGroups'] ?></td></tr>
+<tr><td><?php echo $lang['users'] ?> :</td><td><?php echo $pginfo['readableUsers'] ?></td></tr>
+<tr><th colspan="2"><?php echo $lang['editable'] ?></th></tr>
+<tr><td><?php echo $lang['groups'] ?> :</td><td><?php echo $pginfo['editableGroups'] ?></td></tr>
+<tr><td><?php echo $lang['users'] ?> :</td><td><?php echo $pginfo['editableUsers'] ?></td></tr>
+</table>
+<?php } ?>
+
 <?php if ($is_page) echo $this->do_plugin_convert('counter') ?>
 
 <?php if ($lastmodified != '') { ?>
@@ -259,11 +274,7 @@ $this->root->_IMAGE['skin']['rdf']      = 'rdf.png';
 <div class="related"><?php echo $lang['linkpage'] ?>: <?php echo $related ?></div>
 <?php } ?>
 <div class="footer">
-<?php if ($is_page) { ?>
- <div><?php echo $lang['pagealias'] ?>: <?php echo $pginfo['alias'] ?></div>
-<?php } ?>
- <div><?php echo $lang['pageowner'] ?>: <?php echo $pginfo['uname'] ?></div>
- <div><?php echo $lang['siteadmin'] ?>: <a href="<?php echo $this->root->modifierlink ?>"><?php echo $this->root->modifier ?></a></div>
+ <p><?php echo $lang['siteadmin'] ?>: <a href="<?php echo $this->root->modifierlink ?>"><?php echo $this->root->modifier ?></a></p>
 <?php if ($is_admin) { ?>
  <?php echo $this->cont['S_COPYRIGHT'] ?>.
  Powered by PHP <?php echo PHP_VERSION ?>. HTML convert time: <?php echo $taketime ?> sec.

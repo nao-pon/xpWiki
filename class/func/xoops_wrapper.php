@@ -1,7 +1,7 @@
 <?php
 //
 // Created on 2006/10/11 by nao-pon http://hypweb.net/
-// $Id: xoops_wrapper.php,v 1.46 2008/06/27 01:25:53 nao-pon Exp $
+// $Id: xoops_wrapper.php,v 1.47 2008/09/10 04:37:37 nao-pon Exp $
 //
 class XpWikiXoopsWrapper extends XpWikiBackupFunc {
 	
@@ -284,6 +284,30 @@ class XpWikiXoopsWrapper extends XpWikiBackupFunc {
 		return $ret;
 	}
 	
+	// グループ名を得る
+	function get_groupname ($id) {
+		static $list;
+
+		if (strpos($id, '&') !== FALSE) {
+			$ret = array();
+			foreach(explode('&', $id) as $_id) {
+				$_id = intval(trim($_id));
+				$ret[] = $this->get_groupname($_id);
+			}
+			return join(', ', $ret);
+		}
+
+		if (! $list) {
+			$XM =& xoops_gethandler('member');
+			$list = $XM->getGroupList();
+		}
+		if (isset($list[$id])) {
+			return htmlspecialchars($list[$id]);
+		} else {
+			return '';
+		}
+	}
+	
 	// ユーザー名を得る
 	function getUnameFromId ($uid) {
 		static $user = NULL;
@@ -291,6 +315,30 @@ class XpWikiXoopsWrapper extends XpWikiBackupFunc {
 			$user = new XoopsUser();
 		}
 		return $user->getUnameFromId($uid);
+	}
+	
+	// ユーザー情報ページへのリンクを作成
+	function make_userlink ($uid, $uname = '') {
+		if (strpos($uid, '&') !== FALSE) {
+			$ret = array();
+			foreach(explode('&', $uid) as $_uid) {
+				$_uid = intval(trim($_uid));
+				$ret[] = $this->make_userlink($_uid);
+			}
+			return join(', ', $ret);
+		}
+
+		if (! $uname) {
+			$user = $this->get_userinfo_by_id($uid);
+			$uname = $user['uname'];
+		}
+		$uname = htmlspecialchars($uname);
+		
+		if (! $uid) {
+			return $uname;
+		} else {
+			return '<a href="'.XOOPS_URL.'/userinfo.php?uid='.$uid.'">' . $uname . '</a>';
+		}
 	}
 	
 	// 管理者権限があるか調べる
