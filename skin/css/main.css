@@ -654,9 +654,24 @@ $class div.related {
 }
 
 $class div.footer {
-	font-size:70%;
+	text-align: right;
+	font-size: x-small;
 	padding:0px;
-	margin:16px 0px 0px 0px;
+	margin:10px 10px 0px 0px;
+	clear: both;
+}
+
+$class table.footer_pginfo {
+	border: 1px solid gray;
+	width: auto;
+	max-width: 50%;
+	margin: 1em 0.5em 1em 1em;
+	float: right;
+}
+
+$class table.footer_pginfo th,
+$class table.footer_pginfo td {
+	font-size: x-small;
 }
 
 $class div.banner {

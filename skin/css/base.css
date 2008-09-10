@@ -1,16 +1,17 @@
 #xpwiki_loading {
-	background-color: white;
+	background-color: yellow;
 	position: absolute;
 	text-align: center;
 	z-index: 200;
-	filter:alpha(opacity=50);
-	-moz-opacity: 0.5;
-	opacity: 0.5;
+	filter:alpha(opacity=20);
+	-moz-opacity: 0.2;
+	opacity: 0.2;
 	cursor: wait;
 }
 
 #XpWikiPopup {
 	border-left: solid gray 1px;
+	background-color: white;
 }
 
 #XpWikiPopupHeader {
@@ -24,7 +25,6 @@
 }
 
 body.popup_body {
-	padding-top:25px;
 	font-size:75%;
 }
 
