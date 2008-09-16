@@ -1,7 +1,7 @@
 <?php
 //
 // Created on 2006/10/02 by nao-pon http://hypweb.net/
-// $Id: pukiwiki_func.php,v 1.185 2008/09/10 04:37:37 nao-pon Exp $
+// $Id: pukiwiki_func.php,v 1.186 2008/09/16 04:16:37 nao-pon Exp $
 //
 class XpWikiPukiWikiFunc extends XpWikiBaseFunc {
 
@@ -951,7 +951,7 @@ class XpWikiPukiWikiFunc extends XpWikiBaseFunc {
 
 //----- Start convert_html.php -----//
 	// PukiWiki - Yet another WikiWikiWeb clone
-	// $Id: pukiwiki_func.php,v 1.185 2008/09/10 04:37:37 nao-pon Exp $
+	// $Id: pukiwiki_func.php,v 1.186 2008/09/16 04:16:37 nao-pon Exp $
 	// Copyright (C)
 	//   2002-2005 PukiWiki Developers Team
 	//   2001-2002 Originally written by yu-ji
@@ -1104,10 +1104,11 @@ class XpWikiPukiWikiFunc extends XpWikiBaseFunc {
 
 		// ページ数が多い場合は、セパレータ \t で複数パターンに分割されている
 		$auto = explode("\t",trim($auto));
-		foreach($auto as $pat)
-		{
-			$pattern = $pat_pre.$pat.$pat_aft;
-			$str = preg_replace_callback($pattern, array(& $this, 'int_auto_link_replace'), $str);
+		foreach($auto as $pat) {
+			if (preg_match('/' . $pat . '/S', '') !== false) {
+				$pattern = $pat_pre.$pat.$pat_aft;
+				$str = preg_replace_callback($pattern, array(& $this, 'int_auto_link_replace'), $str);
+			}
 		}
 		
 		return ;
@@ -1204,7 +1205,7 @@ class XpWikiPukiWikiFunc extends XpWikiBaseFunc {
 
 //----- Start func.php -----//
 	// PukiWiki - Yet another WikiWikiWeb clone.
-	// $Id: pukiwiki_func.php,v 1.185 2008/09/10 04:37:37 nao-pon Exp $
+	// $Id: pukiwiki_func.php,v 1.186 2008/09/16 04:16:37 nao-pon Exp $
 	// Copyright (C)
 	//   2002-2006 PukiWiki Developers Team
 	//   2001-2002 Originally written by yu-ji
@@ -1984,8 +1985,7 @@ EOD;
 		if (is_array($param)) {
 			return array_map(array(& $this, 'input_filter'), $param);
 		} else {
-			$removes = array("\0", '&#8203;');
-			$result = str_replace($removes, '', $param);
+			$result = str_replace("\0", '', $param);
 			if ($magic_quotes_gpc) $result = stripslashes($result);
 			return $result;
 		}
@@ -2031,7 +2031,7 @@ EOD;
 
 //----- Start make_link.php -----//
 	// PukiWiki - Yet another WikiWikiWeb clone.
-	// $Id: pukiwiki_func.php,v 1.185 2008/09/10 04:37:37 nao-pon Exp $
+	// $Id: pukiwiki_func.php,v 1.186 2008/09/16 04:16:37 nao-pon Exp $
 	// Copyright (C)
 	//   2003-2005 PukiWiki Developers Team
 	//   2001-2002 Originally written by yu-ji
@@ -2104,7 +2104,7 @@ EOD;
 			$s_alias = preg_replace('/^'.preg_quote(htmlspecialchars($compact_base).'/', '/').'/', '', $s_alias);
 		}
 		if ($this->root->hierarchy_insert) {
-			$s_alias = preg_replace('#((?:^|\G|>)[^<]*?)/#', '$1/' . $this->root->hierarchy_insert, $s_alias);
+			$s_alias = preg_replace('#((?:^|\G|>)[^<]*?)/#', '$1' . $this->root->hierarchy_insert . '/', $s_alias);
 		}
 		
 		// Remake
@@ -2133,7 +2133,7 @@ EOD;
 					$topic_path[] = $this->make_pagelink($_landing, $element);
 				}
 				if ($topic_path) {
-					$basepath = join('/' . $this->root->hierarchy_insert, array_reverse($topic_path)) . '/' . $this->root->hierarchy_insert;
+					$basepath = join($this->root->hierarchy_insert . '/', array_reverse($topic_path)) . $this->root->hierarchy_insert . '/';
 					$path_cache[$this->root->mydirname][$page_dirname][$base_key] = $basepath;
 				}
 			}
@@ -3008,7 +3008,7 @@ EOD;
 
 //----- Start html.php -----//
 	// PukiWiki - Yet another WikiWikiWeb clone.
-	// $Id: pukiwiki_func.php,v 1.185 2008/09/10 04:37:37 nao-pon Exp $
+	// $Id: pukiwiki_func.php,v 1.186 2008/09/16 04:16:37 nao-pon Exp $
 	// Copyright (C)
 	//   2002-2006 PukiWiki Developers Team
 	//   2001-2002 Originally written by yu-ji
@@ -3543,7 +3543,7 @@ EOD;
 		$r_page = rawurlencode($page);
 	
 		return '<a href="' . $this->root->script . '?plugin=related&amp;page=' . $r_page .
-			'" title="Backlinks for: ' . $s_page . '">' . str_replace('/', '/' . $this->root->hierarchy_insert, $s_page) . '</a> ';
+			'" title="Backlinks for: ' . $s_page . '">' . str_replace('/', $this->root->hierarchy_insert . '/', $s_page) . '</a> ';
 	}
 	
 	// Make heading string (remove heading-related decorations from Wiki text)
@@ -3712,7 +3712,7 @@ EOD;
 
 //----- Start mail.php -----//
 	// PukiWiki - Yet another WikiWikiWeb clone.
-	// $Id: pukiwiki_func.php,v 1.185 2008/09/10 04:37:37 nao-pon Exp $
+	// $Id: pukiwiki_func.php,v 1.186 2008/09/16 04:16:37 nao-pon Exp $
 	// Copyright (C)
 	//   2003-2005 PukiWiki Developers Team
 	//   2003      Originally written by upk
@@ -4015,7 +4015,7 @@ EOD;
 
 //----- Start link.php -----//
 	// PukiWiki - Yet another WikiWikiWeb clone
-	// $Id: pukiwiki_func.php,v 1.185 2008/09/10 04:37:37 nao-pon Exp $
+	// $Id: pukiwiki_func.php,v 1.186 2008/09/16 04:16:37 nao-pon Exp $
 	// Copyright (C) 2003-2006 PukiWiki Developers Team
 	// License: GPL v2 or (at your option) any later version
 	//
