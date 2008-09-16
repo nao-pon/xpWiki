@@ -1,7 +1,7 @@
 <?php
 /*
  * Created on 2007/04/23 by nao-pon http://hypweb.net/
- * $Id: ext_autolink.php,v 1.27 2008/04/05 04:53:11 nao-pon Exp $
+ * $Id: ext_autolink.php,v 1.28 2008/09/16 04:15:20 nao-pon Exp $
  */
 class XpWikiPukiExtAutoLink {
 	// External AutoLinks
@@ -180,7 +180,7 @@ class XpWikiPukiExtAutoLink {
 					// check regex pattern
 					if ($pat1) {
 						foreach(explode("\t", $pat1) as $_pat) {
-							if (preg_match('/('.$_pat.')/s','') === false){
+							if (preg_match('/('.$_pat.')/S','') === false){
 								$pat1 = '';
 								break;
 							}
@@ -188,7 +188,7 @@ class XpWikiPukiExtAutoLink {
 					}
 					if ($pat2) {
 						foreach(explode("\t", $pat2) as $_pat) {
-							if (preg_match('/('.$_pat.')/s','') === false){
+							if (preg_match('/('.$_pat.')/S','') === false){
 								$pat2 = '';
 								break;
 							}
