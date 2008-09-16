@@ -37,6 +37,9 @@ $outdir = "$mydirpath/private/cache/out/";
 $cachedir = "$mydirpath/private/cache/";
 $isupload = 0;
 
+$plugin = preg_replace('/[^a-zA-Z0-9_-]/', '', @$_POST['plugin']);
+$initonly = (! empty($_POST['initonly']));
+
 if (!empty($_FILES['userfile']['name'])) {
 	$files[] = basename($_FILES['userfile']['name']);
 	$isupload = 1;
@@ -51,18 +54,43 @@ if (!empty($_FILES['userfile']['name'])) {
 	}
 }
 
-if (!$files) {
+if (!$files && !$plugin) {
+
+	$plugins = array();
+	if ($dh = opendir(XOOPS_TRUST_PATH . '/modules/xpwiki/plugin/')) {
+		while (($file = readdir($dh)) !== false) {
+			if (preg_match('/^([a-zA-Z0-9_-]+)\.inc\.php$/', $file, $match)) {
+				$plugins[] = $match[1];	
+			}
+		}
+		closedir($dh);
+	}
+	
+	sort($plugins);
+	
+	$select = '<select name="plugin"><option value="">Select plugin</option>';
+	foreach ($plugins as $plugin) {
+		$select .= '<option value="'.$plugin.'">'.$plugin.'</option>';
+	}
+	$select .= '</select>';
+	
 	echo <<<EOD
-<h1>Plugin converter from PukiWiki 1.4 to xpWiki</h1>
-<form enctype="multipart/form-data" action="index.php?page=plugin_conv" method="POST">
-    PukiWiki 1.4 plugin file:<br /><input name="userfile" type="file" size="60" /><br />
-    <input type="submit" value="Do convert & Download!" onClick="this.style.visibility='hidden';return true;" />
+<h1>Convert the xpWiki Plugin from "trust" to "html"</h1>
+<form enctype="multipart/form-data" action="index.php?page=plugin_conv&amp;mode=s2u" method="POST">
+    Select xpWiki plugin: {$select}
+    <p>
+    <input type="checkbox" name="initonly" value="on" checked="checked" /> plugin_<i>xxx</i>_init() Only.<br />
+    &nbsp; &nbsp;<input type="checkbox" name="withparent" value="on" /> With "parent::plugin_<i>xxx</i>_init();".
+    </p>
+    <input type="submit" value="Do convert & Download!" />
 	Click &amp; Wait...
 </form>
+<p>
 <hr />
-<h1>xpWiki Plugin converter from System to User</h1>
-<form enctype="multipart/form-data" action="index.php?page=plugin_conv&amp;mode=s2u" method="POST">
-    xpWiki system plugin file:<br /><input name="userfile" type="file" size="60" /><br />
+</p>
+<h1>Convert a plugin from PukiWiki 1.4 to xpWiki</h1>
+<form enctype="multipart/form-data" action="index.php?page=plugin_conv" method="POST">
+    PukiWiki 1.4 plugin file:<br /><input name="userfile" type="file" size="60" /><br />
     <input type="submit" value="Do convert & Download!" onClick="this.style.visibility='hidden';return true;" />
 	Click &amp; Wait...
 </form>
@@ -74,8 +102,8 @@ EOD;
 error_reporting(E_ALL ^ E_NOTICE);
 
 $mode = (empty($_GET['mode']))? "" : $_GET['mode'];
-if ($mode == "s2u") {
-	convert_s2u ($files, $mydirname);
+if ($mode == "s2u" && $plugin) {
+	convert_s2u ($plugin, $mydirname, $initonly);
 	exit;
 }
 
@@ -548,15 +576,29 @@ function _global_replace($global,$str) {
 	return $str;
 }
 
-function convert_s2u ($files, $mydirname) {
-	$input = $files[0];
-	
-	$org_file = $_FILES['userfile']['tmp_name'];
+function convert_s2u ($plugin, $mydirname, $initonly) {
+	$input = $plugin . '.inc.php';
+	$org_file = XOOPS_TRUST_PATH . '/modules/xpwiki/plugin/' . $input;
 	$dat = file_get_contents($org_file);
 	
-	$dat = preg_replace("/((?:^|\n|\r)\s*class\s+xpwiki_)(plugin(_\w+)\s+extends\s+xpwiki_plugin)/","$1".$mydirname."_$2$3",$dat);
-	
-	unlink($org_file);
+	if ($initonly) {
+		$withparent = (empty($_POST['withparent']))? '' : "\n\t\t//Call trust side init()\n\t\tparent::plugin_".$plugin."_init();\n";
+		$init = '<'.'?php' . "\n" . 'class xpwiki_' . $mydirname  . '_plugin_' . $plugin . ' extends xpwiki_plugin_' . $plugin . ' {' ."\n";
+		if (preg_match('/(\s*function\s+plugin_'.$plugin.'_init\s*[^{]+{)(.+})[^}]+function\b/isSU', $dat, $match)) {
+			$init_func = trim($match[1].$withparent.$match[2], "\r\n");
+		} else {
+			$init_func = <<<EOD
+	function plugin_{$plugin}_init () {{$withparent}
+		// There is no default
+	}
+EOD;
+		}
+		$init .= "\n" . $init_func . "\n";
+		$init .= '}';
+		$dat = $init;
+	} else {
+		$dat = preg_replace("/((?:^|\n|\r)\s*class\s+xpwiki_)(plugin(_\w+)\s+extends\s+xpwiki_plugin)/","$1".$mydirname."_$2$3",$dat);
+	}
 
 	while( ob_get_level() ) {
 		ob_end_clean() ;
