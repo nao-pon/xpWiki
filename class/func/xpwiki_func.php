@@ -1,7 +1,7 @@
 <?php
 //
 // Created on 2006/10/02 by nao-pon http://hypweb.net/
-// $Id: xpwiki_func.php,v 1.190 2008/09/10 04:32:22 nao-pon Exp $
+// $Id: xpwiki_func.php,v 1.191 2008/09/16 04:20:49 nao-pon Exp $
 //
 class XpWikiFunc extends XpWikiXoopsWrapper {
 
@@ -462,7 +462,8 @@ class XpWikiFunc extends XpWikiXoopsWrapper {
 							'related'       => $this->root->related,
 							'runmode'       => $this->root->runmode,
 							'content_title' => $this->root->content_title,
-							'nonflag'       => $this->root->nonflag
+							'nonflag'       => $this->root->nonflag,
+							'replaces_finish'=> $this->root->replaces_finish
 						),
 						'cont'          => array(
 							'SKIN_CHANGER'  => $this->cont['SKIN_CHANGER']
@@ -1733,10 +1734,17 @@ EOD;
 
 		// cont['USER_NAME_REPLACE'] などを 置換
 		// '_uNIQUEiD_' : Unique ID (Inreger)
-		$body = str_replace(
-				array($this->cont['USER_NAME_REPLACE'], $this->cont['USER_CODE_REPLACE'], '_uNIQUEiD_') ,
-				array($this->root->userinfo['uname_s'], $this->root->userinfo['ucd'], $uniqueid) ,
-				$body);
+		$bef = array($this->cont['USER_NAME_REPLACE'], $this->cont['USER_CODE_REPLACE'], '_uNIQUEiD_');
+		$aft = array($this->root->userinfo['uname_s'], $this->root->userinfo['ucd'], $uniqueid);
+		if ($this->root->replaces_finish) {
+			foreach($this->root->replaces_finish as $key => $val) {
+				if ($key[0] === '_') {
+					$bef[] = $key;
+					$aft[] = $val;
+				}
+			}
+		}
+		$body = str_replace($bef ,$aft , $body);
 		
 		// For Safari
 		if ($this->cont['UA_NAME'] === 'Safari') {

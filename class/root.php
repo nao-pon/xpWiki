@@ -1,7 +1,7 @@
 <?php
 //
 // Created on 2006/09/29 by nao-pon http://hypweb.net/
-// $Id: root.php,v 1.15 2008/05/30 11:19:12 nao-pon Exp $
+// $Id: root.php,v 1.16 2008/09/16 04:20:49 nao-pon Exp $
 //
 class XpWikiRoot {
 
@@ -153,6 +153,7 @@ class XpWikiRoot {
 		$this->digest       = '';
 		$this->pgids        = array();
 		$this->pgorders     = array();
+		$this->replaces_finish = array(); // Replaces words at convert_finisher()
 		// Former value is memorized.
 		$this->rtf['PKWK_READONLY'] = $this->c['PKWK_READONLY'];
 	}
