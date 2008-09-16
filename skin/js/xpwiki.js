@@ -385,11 +385,11 @@ var XpWiki = {
 		this.faviconSetDone = true;
 		var time_limit = 3000; // (ms)
 		time_limit += new Date().getTime();
-		var Objs = body.getElementsByTagName('a');
+		var x = document.evaluate('//a[@class="' + this.faviconSetClass + '"]', body, null, 6, null);
 		var n = 0;
-		for (var i = 0; i < Objs.length; i++) {
+		for (var i = 0; i < x.snapshotLength; i++) {
 			if (time_limit < new Date().getTime()) break;
-			var obj = Objs[i];
+			var obj = x.snapshotItem(i);
 			if (obj.className == this.faviconSetClass && obj.firstChild && obj.firstChild.nodeName != 'IMG') {
 				var height = Element.getStyle(obj ,'fontSize');
 				if (height.match(/%$/)) {

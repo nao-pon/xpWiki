@@ -1,6 +1,6 @@
 //
 // Created on 2007/10/03 by nao-pon http://hypweb.net/
-// $Id: loader.js,v 1.5 2008/09/10 04:33:12 nao-pon Exp $
+// $Id: loader.js,v 1.6 2008/09/16 04:23:37 nao-pon Exp $
 //
 
 //// JavaScript optimizer by amachang.
@@ -63,12 +63,18 @@ var wikihelper_Gecko = (navigator.userAgent.indexOf('Gecko') > -1 && navigator.u
 var wikihelper_Opera = !!window.opera;
 var wikihelper_WebKit = (navigator.userAgent.indexOf('AppleWebKit/') > -1);
 
+var xpwiki_scripts = '';
+
+if (typeof(document.evaluate) != 'function') {
+	xpwiki_scripts += 'xpath,';
+}
+
 // prototype.js
 // script.aculo.us
 // resizable.js
 // xpwiki.js
 // main.js
-var xpwiki_scripts = 'prototype,effects,dragdrop,resizable,xpwiki,main';
+xpwiki_scripts += 'prototype,effects,dragdrop,resizable,xpwiki,main';
 
 // Branch.
 if (wikihelper_WinIE) {
