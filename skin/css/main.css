@@ -469,6 +469,7 @@ $class div.commentbody h2 {
 
 $class div.commentbody textarea {
 	height: 7em;
+	line-height: 1.3;
 }
 
 $class div.system_notification {
@@ -550,6 +551,7 @@ $class .edit_form textarea {
 	max-height: 350px;
 	margin: 0px;
 	padding: 0px;
+	line-height: 1.3;
 }
 $class .edit_form_ajax {
 	border: 1px gray solid;
@@ -561,6 +563,7 @@ $class .edit_form_ajax textarea {
 	max-height: 250px;
 	margin: 0px;
 	padding: 0px;
+	line-height: 1.3;
 }
 
 /* pukiwiki.skin.php */
