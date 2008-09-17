@@ -64,7 +64,7 @@ class xpwiki_plugin_tag extends xpwiki_plugin {
 	}
 
 }
-	// $Id: tag.inc.php,v 1.11 2008/03/06 23:49:15 nao-pon Exp $
+	// $Id: tag.inc.php,v 1.12 2008/09/17 08:29:29 nao-pon Exp $
 	
 class XpWikiPluginTag
 {
@@ -432,13 +432,40 @@ class XpWikiTagCloud
 		$html = '';
 		//sort($tags);
 		natcasesort($tags);
+		
+		if ($this->cont['UA_PROFILE'] === 'keitai') {
+			for ($i = 0; $i < 25; $i++) {
+				if ($i < 5) {
+					$_size = 'xx-small';
+				} else if ($i < 10) {
+					$_size = 'x-small';
+				} else if ($i < 15) {
+					$_size = '';
+				} else if ($i < 20) {
+					$_size = 'x-large';
+				} else {
+					$_size = 'xx-large';
+				}
+				$fontsize[$i] = $_size;
+			}
+		}
+		
+		$tagparts = array();
 		foreach($tags as $tag) {
 			$count = $this->counts[$tag];
 			$url   = $this->urls[$tag];
 			$level = (int)((sqrt($count) - $min) * $factor);
-			$html .=  "<span class=\"tagcloud$level\"><a href=\"$url\">$tag</a></span>\n"; 
+			if ($this->cont['UA_PROFILE'] === 'keitai') {
+				if ($fontsize[$level]) {
+					$tagparts[] = '<span style="font-size:' . $fontsize[$level] . '"><a href="' . $url . '">' . $tag . '</a></span>';
+				} else {
+					$tagparts[] = '<a href="' . $url . '">' . $tag . '</a>';
+				}
+			} else {
+				$tagparts[] = '<span class="tagcloud' . $level . '"><a href="' . $url . '">' . $tag . '</a></span>';
+			}
 		}
-		$html = "<div class=\"htmltagcloud\">$html</div>";
+		$html = '<div class="htmltagcloud">' . join(' ', $tagparts) . '</div>';
 		return $html;
 	}
 

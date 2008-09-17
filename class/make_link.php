@@ -359,7 +359,11 @@ EOD;
 				$note = $this->func->make_link($body);
 		
 				// Footnote
-				$this->root->foot_explain[$id] = '<a id="notefoot_'.$base_id.'_'.$id.'" name="notefoot_'.$base_id.'_'.$id.'" href="'.$script.'#notetext_'.$base_id.'_'.$id.'" class="note_super">*'.$id.'</a>'."\n".'<span class="small">'.$note.'</span><br />';
+				$footNum = '<a id="notefoot_'.$base_id.'_'.$id.'" name="notefoot_'.$base_id.'_'.$id.'" href="'.$script.'#notetext_'.$base_id.'_'.$id.'" class="note_super">*'.$id.'</a>';
+				if ($this->cont['UA_PROFILE'] === 'keitai') {
+					$footNum = '<span style="vertical-align:super;font-size:xx-small">' . $footNum . '</span>';
+				}
+				$this->root->foot_explain[$id] = $footNum."\n".'<span class="small">'.$note.'</span><br />';
 
 				// A hyperlink, content-body to footnote
 				if (!is_numeric($this->cont['PKWK_FOOTNOTE_TITLE_MAX']) || $this->cont['PKWK_FOOTNOTE_TITLE_MAX'] <= 0) {
@@ -378,6 +382,9 @@ EOD;
 			}
 			
 			$name = '<a id="'.$elm_id.'" name="'.$elm_id.'" href="'.$script.'#notefoot_'.$base_id.'_'.$id.'" class="note_super"'.$title.'>*'.$id.'</a>';
+			if ($this->cont['UA_PROFILE'] === 'keitai') {
+				$name = '<span style="vertical-align:super;font-size:xx-small">' . $name . '</span>';
+			}
 		}
 		
 		return parent :: setParam($page, $name, $body);
