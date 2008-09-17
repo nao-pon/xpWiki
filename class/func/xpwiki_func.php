@@ -1,7 +1,7 @@
 <?php
 //
 // Created on 2006/10/02 by nao-pon http://hypweb.net/
-// $Id: xpwiki_func.php,v 1.191 2008/09/16 04:20:49 nao-pon Exp $
+// $Id: xpwiki_func.php,v 1.192 2008/09/17 08:29:29 nao-pon Exp $
 //
 class XpWikiFunc extends XpWikiXoopsWrapper {
 
@@ -421,6 +421,10 @@ class XpWikiFunc extends XpWikiXoopsWrapper {
 			$this->root->userinfo['uname'] = '';
 			$this->root->userinfo['uname_s'] = '';
 			$this->root->userinfo['gids'] = array();
+			
+			$_uaprofile = $this->cont['UA_PROFILE'];
+			$this->cont['UA_PROFILE'] = 'default';
+			
 			if (file_exists($cache_file)) {
 				$use_cache = TRUE;
 			} else {
@@ -476,6 +480,7 @@ class XpWikiFunc extends XpWikiXoopsWrapper {
 		}
 		if (!empty($this->root->rtf['use_cache_always'])) {
 			$this->root->userinfo = $_userinfo; // Restore
+			$this->cont['UA_PROFILE'] = $_uaprofile;
 		}
 		return $body;
 	}

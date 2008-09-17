@@ -1,6 +1,6 @@
 <?php
 // PukiWiki - Yet another WikiWikiWeb clone
-// $Id: rss.inc.php,v 1.28 2008/06/26 00:17:40 nao-pon Exp $
+// $Id: rss.inc.php,v 1.29 2008/09/17 08:29:29 nao-pon Exp $
 //
 // RSS plugin: Publishing RSS of RecentChanges
 //
@@ -371,13 +371,17 @@ EOD;
 			// NULLバイト除去
 			$out = $this->func->input_filter($out);
 			
-			//キャッシュ書き込み
-			if ($fp = @fopen($c_file,"wb"))
-			{
-				fputs($fp, $out);
-				fclose($fp);
+			if ($this->cont['UA_PROFILE'] === 'default') {
+				//キャッシュ書き込み
+				if ($fp = @fopen($c_file,"wb"))
+				{
+					fputs($fp, $out);
+					fclose($fp);
+				}
+				$filetime = filemtime($c_file);
+			} else {
+				$filetime = time();
 			}
-			$filetime = filemtime($c_file);
 			$etag = md5($c_file.$filetime);
 		}
 
