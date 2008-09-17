@@ -1,6 +1,6 @@
 <?php
 // PukiWiki - Yet another WikiWikiWeb clone.
-// $Id: keitai.skin.php,v 1.19 2008/09/10 04:37:37 nao-pon Exp $
+// $Id: keitai.skin.php,v 1.20 2008/09/17 08:28:46 nao-pon Exp $
 // Copyright (C) 2003-2006 PukiWiki Developers Team
 // License: GPL v2 or (at your option) any later version
 //
@@ -18,6 +18,7 @@ $style = array(
 	'pageTitle' => 'text-align:center;background-color:#EAFFCC',
 	'pageMenu'  => 'background-color:#CED9DB;font-size:small',
 	'pageFooter'=> 'background-color:#CED9DB;font-size:small',
+	'pageInfo'  => 'background-color:#EAFFCC;font-size:small',
 );
 /////////////////////////////////////////////////
 // xpWiki run mode
@@ -160,6 +161,27 @@ $footnotes = '<hr />';
 if ($notes) {
 	$footnotes = '<div>' . $notes . '</div><hr>';
 }
+
+// page info
+$pageinfo = '';
+if ($is_page) {
+	$pageinfo = <<<EOD
+<div style="{$style['pageInfo']}">
+<h4>{$lang['pageinfo']}</h4>
+{$lang['pagename']} : $_page<br />
+{$lang['pagealias']} : {$pginfo['alias']}<br />
+{$lang['pageowner']} : {$pginfo['pageowner']}
+<h4>{$lang['readable']}</h4>
+{$lang['groups']} : {$pginfo['readableGroups']}<br />
+{$lang['users']} : {$pginfo['readableUsers']}
+<h4>{$lang['editable']}</h4>
+{$lang['groups']} : {$pginfo['editableGroups']}<br />
+{$lang['users']} : {$pginfo['editableUsers']}
+</div>
+EOD;
+}
+
+
 // Build footer
 ob_start(); ?>
 <div style="<?php echo $style['pageFooter'] ?>" id="xpwiki_footer">
@@ -167,19 +189,6 @@ ob_start(); ?>
 <?php if ($is_page) echo $this->do_plugin_convert('counter') ?>
 <?php if ($lastmodified != '') { ?>
 <div><?php echo $lang['lastmodify'] ?>: <?php echo $lastmodified ?> by <?php echo $pginfo['lastuname'] ?></div>
-<?php } ?>
-<?php if ($is_page) { ?>
-<h4><?php echo $lang['pageinfo'] ?></h4>
-<div><?php echo $lang['pagename'] ?> : <?php echo $_page ?></div>
-<div><?php echo $lang['pagealias'] ?> : <?php echo $pginfo['alias'] ?></div>
-<div><?php echo $lang['pageowner'] ?> : <?php echo $pginfo['pageowner'] ?></div>
-<h4><?php echo $lang['readable'] ?></h4>
-<div><?php echo $lang['groups'] ?> : <?php echo $pginfo['readableGroups'] ?></div>
-<div><?php echo $lang['users'] ?> : <?php echo $pginfo['readableUsers'] ?></div>
-<h4><?php echo $lang['editable'] ?></h4>
-<div><?php echo $lang['groups'] ?> : <?php echo $pginfo['editableGroups'] ?></div>
-<div><?php echo $lang['users'] ?> : <?php echo $pginfo['editableUsers'] ?></div>
-</table>
 <?php } ?>
 <p><?php echo $lang['siteadmin'] ?>: <a href="<?php echo $this->root->modifierlink ?>"><?php echo $this->root->modifier ?></a></p>
 </div>
@@ -193,7 +202,7 @@ if (HypCommonFunc::get_version() >= '20080617.2') {
 	$r = new HypKTaiRender();
 	$r->set_myRoot($this->root->siteinfo['host']);
 	$r->contents['header'] = $header;
-	$r->contents['body'] = $body;
+	$r->contents['body'] = $body . $pageinfo;
 	$r->contents['footer'] = $footer;
 	$r->Config_hypCommonURL = $this->cont['ROOT_URL'] . 'class/hyp_common';
 	$r->Config_redirect = $this->root->k_tai_conf['redirect'];
