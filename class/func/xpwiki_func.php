@@ -1,7 +1,7 @@
 <?php
 //
 // Created on 2006/10/02 by nao-pon http://hypweb.net/
-// $Id: xpwiki_func.php,v 1.192 2008/09/17 08:29:29 nao-pon Exp $
+// $Id: xpwiki_func.php,v 1.193 2008/09/21 05:28:15 nao-pon Exp $
 //
 class XpWikiFunc extends XpWikiXoopsWrapper {
 
@@ -1387,8 +1387,8 @@ EOD;
 	}
 
 	function href_give_session_id ($url) {
-		
-		if (!defined('SID') || ! SID) return $url;
+		$session_name = session_name();
+		if (! defined('SID') || ! SID || isset($_COOKIE[$session_name])) return $url;
 		
 		$parsed_base = parse_url($this->cont['ROOT_URL']);
 		$parsed_url = parse_url($url);
@@ -1398,14 +1398,14 @@ EOD;
 			$parsed_url['host'] = $parsed_base['host'];
 		}
 		if (empty($parsed_url['host']) || ($parsed_url['host'] === $parsed_base['host'] && $parsed_url['scheme'] === $parsed_base['scheme'])) {
-			$url = preg_replace('/(?:\?|&(?:amp;)?)' . preg_quote(session_name(), '/') . '=[^&#>]+/', '', $url);
+			$url = preg_replace('/(?:\?|&(?:amp;)?)' . preg_quote($session_name, '/') . '=[^&#>]+/', '', $url);
 			$url = preg_replace('/(?:\?|&(?:amp;)?)' . preg_quote($this->hashkey, '/') . '=[^&#>]+/', '', $url);
 			
 			list($href, $hash) = array_pad(explode('#', $url, 2), 2, '');
 			
 			if (!$href) {
 				$href = isset($_SERVER['QUERY_STRING'])? '?' . $_SERVER['QUERY_STRING'] : '';
-				$href = preg_replace('/(?:\?|&(?:amp;)?)' . preg_quote(session_name(), '/') . '=[^&]+/', '', $href);
+				$href = preg_replace('/(?:\?|&(?:amp;)?)' . preg_quote($session_name, '/') . '=[^&]+/', '', $href);
 				$href = preg_replace('/(?:\?|&(?:amp;)?)' . preg_quote($this->hashkey, '/') . '=[^&]+/', '', $href);
 			};
 			
