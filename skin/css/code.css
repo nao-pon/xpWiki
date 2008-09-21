@@ -55,6 +55,7 @@ $class pre.code {
     border-bottom: #888899 1px solid;
     border-left:   #DDDDEE 1px solid;
 	white-space: pre;
+	word-wrap: normal;
 	overflow: visible;
     line-height: 120%;
 }
@@ -111,6 +112,7 @@ $class div.pre_table
     border-left:   #DDDDEE 1px solid;
     margin: 0px;
     white-space: pre;
+    word-wrap: normal;
     width: auto;
 }
 $class table.code_table,
