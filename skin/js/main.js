@@ -6,10 +6,6 @@ var wikihelper_root_url = '$wikihelper_root_url';
 var XpWikiModuleUrl = '$module_url';
 var XpWikiEncHint = '$encode_hint';
 var XpWikiCharSet = '$charset';
-
-var XpWikiFaviconSetClass = '$faviconSetClass';
-var XpWikiFaviconReplaceClass = '$faviconReplaceClass';
-var XpWikiUseWikihelperAtAll = $UseWikihelperAtAll;
 var XpWikiIeDomLoadedDisable = $ieDomLoadedDisabled;
 
 XpWiki.faviconSetClass = '$faviconSetClass';
