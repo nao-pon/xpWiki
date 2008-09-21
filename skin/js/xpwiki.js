@@ -370,7 +370,7 @@ var XpWiki = {
 	
 	faviconSetDone: false,
 	faviconSet: function (body) {
-		if (this.faviconSetDone || typeof(this.faviconSetClass) == 'undefined') return;
+		if (this.faviconSetDone || typeof(this.faviconSetClass) == 'undefined' || this.faviconSetClass == '') return;
 		
 		var em = document.createElement('div');
 		em.style.height = '1em';
