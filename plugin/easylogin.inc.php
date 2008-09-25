@@ -2,7 +2,7 @@
 /*
  * Created on 2008/06/20 by nao-pon http://hypweb.net/
  * License: GPL v2 or (at your option) any later version
- * $Id: easylogin.inc.php,v 1.2 2008/09/03 08:09:43 nao-pon Exp $
+ * $Id: easylogin.inc.php,v 1.3 2008/09/25 00:20:11 nao-pon Exp $
  */
 
 class xpwiki_plugin_easylogin extends xpwiki_plugin
@@ -33,7 +33,7 @@ class xpwiki_plugin_easylogin extends xpwiki_plugin
 			if (! empty($r->vars['ua']['isKTai'])) {
 				if (! $this->root->userinfo['uid']) {
 					$add = '_EASYLOGIN';
-					if ($r->vars['ua']['name'] === 'DoCoMo') {
+					if ($r->vars['ua']['carrier'] === 'docomo') {
 						$add .= '&guid=ON';
 					}
 					$url = $r->myRoot . $r->removeSID($_SERVER['REQUEST_URI']);
@@ -41,7 +41,8 @@ class xpwiki_plugin_easylogin extends xpwiki_plugin
 					$url = str_replace('&', '&amp;', $url);
 					return '<a href="' . $url . '">' . $msg['easylogin'] . '</a>';
 				} else {
-					return '<a href="' . XOOPS_URL . '/userinfo.php?uid=' . $this->root->userinfo['uid'] . '">' . htmlspecialchars($this->root->userinfo['uname']) . '</a> <a href="' . XOOPS_URL . '/user.php?op=logout">' . $msg['logout'] . '</a>';
+					$guid = ($r->vars['ua']['carrier'] === 'docomo')? '&amp;guid=ON' : '';
+					return '<a href="' . XOOPS_URL . '/userinfo.php?uid=' . $this->root->userinfo['uid'] . $guid . '">' . htmlspecialchars($this->root->userinfo['uname']) . '</a> <a href="' . XOOPS_URL . '/user.php?op=logout">' . $msg['logout'] . '</a>';
 				}
 			}
 		}
