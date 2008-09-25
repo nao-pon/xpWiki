@@ -1,6 +1,6 @@
 <?php
 // PukiWiki - Yet another WikiWikiWeb clone.
-// $Id: keitai.ini.php,v 1.17 2008/09/10 04:37:37 nao-pon Exp $
+// $Id: keitai.ini.php,v 1.18 2008/09/25 00:21:46 nao-pon Exp $
 // Copyright (C)
 //   2002-2005 PukiWiki Developers Team
 //   2001-2002 Originally written by yu-ji
@@ -166,9 +166,10 @@ switch ($root->ua_name) {
 	case 'NetFront':
 	case 'CNF':
 	case 'DoCoMo':
-	case 'Opera': // Performing CNF compatible
+	case 'DDIPOCKET':
+	case 'WILLCOM': // Performing CNF compatible
 		if (preg_match('#\b[cC]([0-9]+)\b#', $root->ua_agent, $matches)) {
-			$root->max_size = $matches[1];	// Cache max size
+			$root->max_size = intval($matches[1] / 2);	// Cache max size
 		}
 		$root->cols = 22; $root->rows = 5;	// i_mode
 		break;
@@ -216,7 +217,7 @@ switch ($root->ua_name) {
 switch ($root->ua_name.'/'.$root->ua_vers) {
 	// Restriction For imode:
 	//  http://www.nttdocomo.co.jp/mc-user/i/tag/s2.html
-	case 'DoCoMo/2.0':	$root->max_size = min($root->max_size, 30); break;
+	//case 'DoCoMo/2.0':	$root->max_size = min($root->max_size, 30); break;
 }
 
 
@@ -256,6 +257,8 @@ switch ($root->ua_name) {
     // http://www.nttdocomo.co.jp/mc-user/i/tag/emoji/e1.html
     // http://www.nttdocomo.co.jp/mc-user/i/tag/emoji/list.html
     case 'DoCoMo':
+	case 'DDIPOCKET':
+	case 'WILLCOM':
 
 	$root->facemark_rules = array(
 	// Face marks
