@@ -1,6 +1,6 @@
 <?php
 // PukiWiki - Yet another WikiWikiWeb clone.
-// $Id: keitai.skin.php,v 1.20 2008/09/17 08:28:46 nao-pon Exp $
+// $Id: keitai.skin.php,v 1.21 2008/09/25 00:18:21 nao-pon Exp $
 // Copyright (C) 2003-2006 PukiWiki Developers Team
 // License: GPL v2 or (at your option) any later version
 //
@@ -60,7 +60,7 @@ $body = str_replace($this->root->_symbol_noexists, '<span style="font-size:xx-sm
 $head = '<head><title>' . mb_convert_encoding($title, 'SJIS', $this->cont['SOURCE_ENCODING']) . '</title></head>';
 
 $header = '';
-$header .= sprintf('<div style="%s">%s <a href="%s" %s="1">%s</a></div>',
+$header .= sprintf('<div style="%s" id="header">%s <a href="%s" %s="1">%s</a></div>',
 	$style['siteTitle'],
 	$this->make_link('&pb1;'),
 	$this->cont['ROOT_URL'],
@@ -91,13 +91,13 @@ $header .= '<div style="' . $style['pageMenu'] . '">';
 $header .= '<table align="center"><tr><td>';
 $header .= '<div style="' . $style['pageMenu'] . '">';
 
-$header .= sprintf('%s <a href="#xpwiki_navigator" %s="2">%s</a><br />',
+$header .= sprintf('%s <a href="#header" %s="2">%s</a><br />',
 $this->make_link('&pb2;'),
 $this->root->accesskey,
 $lang['header']
 );
 
-$header .= sprintf('%s <a href="#xpwiki_footer" %s="8">%s</a><br />',
+$header .= sprintf('%s <a href="#footer" %s="8">%s</a><br />',
 $this->make_link('&pb8;'),
 $this->root->accesskey,
 $lang['footer']
@@ -184,7 +184,7 @@ EOD;
 
 // Build footer
 ob_start(); ?>
-<div style="<?php echo $style['pageFooter'] ?>" id="xpwiki_footer">
+<div style="<?php echo $style['pageFooter'] ?>" id="footer">
 <?php echo $footnotes ?>
 <?php if ($is_page) echo $this->do_plugin_convert('counter') ?>
 <?php if ($lastmodified != '') { ?>
