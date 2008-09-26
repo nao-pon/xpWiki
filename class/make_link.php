@@ -209,6 +209,18 @@ class XpWikiLink {
 
 		return TRUE;
 	}
+	
+	function getATagAttr ($url) {
+		if (strpos($url, $this->cont['ROOT_URL']) === FALSE) {
+			$rel = ($this->root->nofollow_extlink)? ' rel="nofollow"' : '';
+			$class = ($this->root->class_extlink)? ' class="' . $this->root->class_extlink . '"' : '';
+			$target = ($this->root->link_target)? ' target="' . $this->root->link_target . '"' : '';
+		} else {
+			$target = $rel = $class = '';
+		}
+		$title = ' title="' . preg_replace('#^https?://#', '', $url) . '"';
+		return array($rel, $class, $target, $title);
+	}
 }
 
 // Inline plugins
@@ -427,15 +439,9 @@ EOD;
 	}
 
 	function toString() {
-		if (strpos($this->name, $this->cont['ROOT_URL']) === FALSE) {
-			$rel = ($this->root->nofollow_extlink)? ' rel="nofollow"' : '';
-			$class = ($this->root->class_extlink)? ' class="' . $this->root->class_extlink . '"' : '';
-			$target = ($this->root->link_target)? ' target="' . $this->root->link_target . '"' : '';
-		} else {
-			$target = $rel = $class = '';
-		}
+		list($rel, $class, $target, $title) = $this->getATagAttr($this->name);
 		$img = ($this->is_image)? ' type="img"' : '';
-		return '<a href="'.$this->name.'" title="'.preg_replace('#^https?://#','',$this->name).'"'.$rel.$class.$img.$target.'>'.$this->alias.'</a>';
+		return '<a href="'.$this->name.'"'.$title.$rel.$class.$img.$target.'>'.$this->alias.'</a>';
 	}
 }
 
@@ -491,15 +497,9 @@ EOD;
 	}
 
 	function toString() {
-		if (strpos($this->name, $this->cont['ROOT_URL']) === FALSE) {
-			$rel = ($this->root->nofollow_extlink)? ' rel="nofollow"' : '';
-			$class = ($this->root->class_extlink)? ' class="' . $this->root->class_extlink . '"' : '';
-			$target = ($this->root->link_target)? ' target="' . $this->root->link_target . '"' : '';
-		} else {
-			$target = $rel = $class = '';
-		}
+		list($rel, $class, $target, $title) = $this->getATagAttr($this->name);
 		$img = ($this->is_image)? ' type="img"' : '';
-		return '<a href="'.$this->name.'" title="'.preg_replace('#^https?://#','',$this->name).'"'.$rel.$class.$img.$target.'>'.$this->alias.'</a>';
+		return '<a href="'.$this->name.'"'.$title.$rel.$class.$img.$target.'>'.$this->alias.'</a>';
 	}
 }
 
@@ -534,7 +534,8 @@ EOD;
 	}
 
 	function toString() {
-		return '<a href="'.$this->name.'" rel="nofollow">'.$this->alias.'</a>';
+		list($rel, $class, $target, $title) = $this->getATagAttr($this->name);
+		return '<a href="'.$this->name.'"'.$title.$rel.$class.$target.'>'.$this->alias.'</a>';
 	}
 }
 
@@ -677,7 +678,8 @@ EOD;
 		if (is_object($this->otherObj)) {
 			return $this->otherObj->func->make_pagelink($this->name, $this->alias, $this->anchor, $this->page);
 		} else {
-			return '<a href="'.$this->url.$this->anchor.'" title="'.$this->name.'" rel="nofollow">'.$this->alias.'</a>';
+			$rel = ($this->root->nofollow_extlink)? ' rel="nofollow"' : '';
+			return '<a href="'.$this->url.$this->anchor.'" title="'.$this->name.'"'.$rel.'>'.$this->alias.'</a>';
 		}
 	}
 }
