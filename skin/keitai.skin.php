@@ -1,6 +1,6 @@
 <?php
 // PukiWiki - Yet another WikiWikiWeb clone.
-// $Id: keitai.skin.php,v 1.21 2008/09/25 00:18:21 nao-pon Exp $
+// $Id: keitai.skin.php,v 1.22 2008/09/26 09:10:41 nao-pon Exp $
 // Copyright (C) 2003-2006 PukiWiki Developers Team
 // License: GPL v2 or (at your option) any later version
 //
@@ -71,12 +71,14 @@ $header .= sprintf('<div style="%s">%s</div>',
 	$style['easyLogin'],
 	$this->do_plugin_convert('easylogin') );
 
-$header .= sprintf('<div style="%s">%s <a href="%s" %s="3">%s</a></div>',
+$header .= sprintf('<div style="%s">%s <a href="%s" %s="3">%s</a><a href="%s">%s</a></div>',
 	$style['wikiTitle'],
 	$this->make_link('&pb3;'),
 	$link['top'],
 	$this->root->accesskey,
-	htmlspecialchars($this->root->module['title']) );
+	htmlspecialchars($this->root->module['title']),
+	$link['rss'],
+	'((e:f699))' );
 
 if ($read && $pagename) {
 	$pageTitle = $this->make_pagelink($pagename) . '<a href="' . $link['related'] . '">((i:f981))</a>';
@@ -199,11 +201,12 @@ ob_end_clean();
 $ctype = 'text/html';
 if (HypCommonFunc::get_version() >= '20080617.2') {
 	HypCommonFunc::loadClass('HypKTaiRender');
-	$r = new HypKTaiRender();
+	if (HypCommonFunc::get_version() < '20080925') {
+		$r = new HypKTaiRender();
+	} else {
+		$r =& HypKTaiRender::getSingleton();
+	}
 	$r->set_myRoot($this->root->siteinfo['host']);
-	$r->contents['header'] = $header;
-	$r->contents['body'] = $body . $pageinfo;
-	$r->contents['footer'] = $footer;
 	$r->Config_hypCommonURL = $this->cont['ROOT_URL'] . 'class/hyp_common';
 	$r->Config_redirect = $this->root->k_tai_conf['redirect'];
 	$r->Config_emojiDir = $this->cont['ROOT_URL'] . 'images/emoji';
@@ -226,6 +229,11 @@ if (HypCommonFunc::get_version() >= '20080617.2') {
 	$r->outputEncode = 'SJIS';
 	$r->outputMode = 'xhtml';
 	$r->langcode = $this->cont['LANG'];
+
+	$r->contents['header'] = $header;
+	$r->contents['body'] = $body . $pageinfo;
+	$r->contents['footer'] = $footer;
+
 	$r->doOptimize();
 	if (method_exists($r, 'getHtmlDeclaration')) {
 		$htmlDec = $r->getHtmlDeclaration();
