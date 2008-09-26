@@ -1,6 +1,6 @@
 <?php
 // PukiWiki - Yet another WikiWikiWeb clone
-// $Id: rss.inc.php,v 1.29 2008/09/17 08:29:29 nao-pon Exp $
+// $Id: rss.inc.php,v 1.30 2008/09/26 09:10:10 nao-pon Exp $
 //
 // RSS plugin: Publishing RSS of RecentChanges
 //
@@ -392,16 +392,44 @@ EOD;
 			$out = mb_convert_encoding($out, 'SJIS', $r->encoding);
 
 			HypCommonFunc::loadClass('HypKTaiRender');
-			$r = new HypKTaiRender();
+			if (HypCommonFunc::get_version() < '20080925') {
+				$r = new HypKTaiRender();
+			} else {
+				$r =& HypKTaiRender::getSingleton();
+			}
+
 			$r->set_myRoot($this->root->siteinfo['host']);
-			$r->inputHtml = $out;
+			$r->Config_hypCommonURL = $this->cont['ROOT_URL'] . 'class/hyp_common';
+			$r->Config_redirect = $this->root->k_tai_conf['redirect'];
+			$r->Config_emojiDir = $this->cont['ROOT_URL'] . 'images/emoji';
+			if (! empty($this->root->k_tai_conf['showImgHosts'])) {
+				$r->Config_showImgHosts = $this->root->k_tai_conf['showImgHosts'];
+			}
+			if (! empty($this->root->k_tai_conf['directLinkHosts'])) {
+				$r->Config_directLinkHosts = $this->root->k_tai_conf['directLinkHosts'];
+			}
+			if ($this->cont['PKWK_ENCODING_HINT']) {
+				$r->Config_encodeHintWord = $this->cont['PKWK_ENCODING_HINT'];
+			}
+		
+			if (! empty($this->root->k_tai_conf['googleAdsense']['config'])) {
+				$r->Config_googleAdSenseConfig = $this->root->k_tai_conf['googleAdsense']['config'];
+				$r->Config_googleAdSenseBelow = $this->root->k_tai_conf['googleAdsense']['below'];
+			}
+		
 			$r->inputEncode = 'SHIFT_JIS';
-			$r->Config_redirect = $this->cont['HOME_URL'] . 'gate.php?way=redirect_SJIS&amp;xmode=2&amp;l=';
+			$r->outputEncode = 'SJIS';
+			$r->outputMode = 'xhtml';
+			$r->langcode = $this->cont['LANG'];
+			
+			$r->inputHtml = $out;
+			
 			$r->doOptimize();
 			$out = $r->outputBody;
 
 			header('Content-Type: text/html; charset=Shift_JIS');
 			header('Content-Length: ' . strlen($out));
+			header('Cache-Control: no-cache');
 		
 		} else {
 			header('Content-Type: application/xml; charset=utf-8');
