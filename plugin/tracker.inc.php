@@ -1,6 +1,6 @@
 <?php
 // PukiWiki - Yet another WikiWikiWeb clone
-// $Id: tracker.inc.php,v 1.16 2008/05/26 00:31:19 nao-pon Exp $
+// $Id: tracker.inc.php,v 1.17 2008/10/02 10:35:35 nao-pon Exp $
 // ORG: tracker.inc.php,v 1.57 2007/09/20 15:17:20 henoheno Exp $
 // Issue tracker plugin (See Also bugtrack plugin)
 
@@ -798,10 +798,10 @@ class XpWikiTracker_list
 		// TODO: if (is FALSE) OR file_exists()
 		$source = xpwiki_plugin_tracker::plugin_tracker_get_source($config->page . '/page', TRUE);
 		// Block-plugins to pseudo fields (#convert => [_block_convert])
-		$source = preg_replace('/^\#([^\(\s]+)(?:\((.*)\))?\s*$/m', '[_block_$1]', $source);
+		$source = preg_replace('/^\#([^\(\s]+)(?:\((.*?)\))?\s*$/m', '[_block_$1]', $source);
 
 		// Now, $source = array('*someting*', 'fieldname', '*someting*', 'fieldname', ...)
-		$source = preg_split('/\\\\\[(\w+)\\\\\]/', preg_quote($source, '/'), -1, PREG_SPLIT_DELIM_CAPTURE);
+		$source = preg_split('/\\\\\[(\w+?)\\\\\]/', preg_quote($source, '/'), -1, PREG_SPLIT_DELIM_CAPTURE);
 
 		while (! empty($source)) {
 			// Just ignore these _fixed_ data
@@ -810,10 +810,10 @@ class XpWikiTracker_list
 			if (! empty($source)) {
 				$fieldname = array_shift($source);
 				if (isset($fields[$fieldname])) {
-					$pattern[]        = '(.*)';		// Just capture it
+					$pattern[]        = '(.*?)';		// Just capture it
 					$pattern_fields[] = $fieldname;	// Capture it as this $filedname
 				} else {
-					$pattern[]        = '.*';		// Just ignore pseudo fields
+					$pattern[]        = '.*?';		// Just ignore pseudo fields
 				}
 			}
 		}
@@ -824,12 +824,10 @@ class XpWikiTracker_list
 		// Listing
 		$pattern     = $base . '/';
 		$pattern_len = strlen($pattern);
-		foreach ($this->func->get_existpages() as $_page) {
-			if (strpos($_page, $pattern) === 0) {
-				$name = substr($_page, $pattern_len);
-				if (preg_match($this->cont['PLUGIN_TRACKER_LIST_EXCLUDE_PATTERN'], $name)) continue;
-				$this->add($_page, $name);
-			}
+		foreach ($this->func->get_existpages(false, $pattern) as $_page) {
+			$name = substr($_page, $pattern_len);
+			if (preg_match($this->cont['PLUGIN_TRACKER_LIST_EXCLUDE_PATTERN'], $name)) continue;
+			$this->add($_page, $name);
 		}
 	}
 
@@ -866,7 +864,7 @@ class XpWikiTracker_list
 
 		// Load / Redefine cell
 		$matches = array();
-		$row['_match'] = preg_match('/' . $this->pattern . '/s', implode('', $source), $matches);
+		$row['_match'] = preg_match('/' . $this->pattern . '/sS', implode('', $source), $matches);
 		unset($source);
 		if ($row['_match']) {
 			array_shift($matches);	// $matches[0] = all of the captured string
