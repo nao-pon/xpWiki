@@ -1,7 +1,7 @@
 <?php
 //
 // Created on 2006/10/02 by nao-pon http://hypweb.net/
-// $Id: pukiwiki_func.php,v 1.186 2008/09/16 04:16:37 nao-pon Exp $
+// $Id: pukiwiki_func.php,v 1.187 2008/10/09 08:19:20 nao-pon Exp $
 //
 class XpWikiPukiWikiFunc extends XpWikiBaseFunc {
 
@@ -951,7 +951,7 @@ class XpWikiPukiWikiFunc extends XpWikiBaseFunc {
 
 //----- Start convert_html.php -----//
 	// PukiWiki - Yet another WikiWikiWeb clone
-	// $Id: pukiwiki_func.php,v 1.186 2008/09/16 04:16:37 nao-pon Exp $
+	// $Id: pukiwiki_func.php,v 1.187 2008/10/09 08:19:20 nao-pon Exp $
 	// Copyright (C)
 	//   2002-2005 PukiWiki Developers Team
 	//   2001-2002 Originally written by yu-ji
@@ -1205,7 +1205,7 @@ class XpWikiPukiWikiFunc extends XpWikiBaseFunc {
 
 //----- Start func.php -----//
 	// PukiWiki - Yet another WikiWikiWeb clone.
-	// $Id: pukiwiki_func.php,v 1.186 2008/09/16 04:16:37 nao-pon Exp $
+	// $Id: pukiwiki_func.php,v 1.187 2008/10/09 08:19:20 nao-pon Exp $
 	// Copyright (C)
 	//   2002-2006 PukiWiki Developers Team
 	//   2001-2002 Originally written by yu-ji
@@ -2031,7 +2031,7 @@ EOD;
 
 //----- Start make_link.php -----//
 	// PukiWiki - Yet another WikiWikiWeb clone.
-	// $Id: pukiwiki_func.php,v 1.186 2008/09/16 04:16:37 nao-pon Exp $
+	// $Id: pukiwiki_func.php,v 1.187 2008/10/09 08:19:20 nao-pon Exp $
 	// Copyright (C)
 	//   2003-2005 PukiWiki Developers Team
 	//   2001-2002 Originally written by yu-ji
@@ -3008,7 +3008,7 @@ EOD;
 
 //----- Start html.php -----//
 	// PukiWiki - Yet another WikiWikiWeb clone.
-	// $Id: pukiwiki_func.php,v 1.186 2008/09/16 04:16:37 nao-pon Exp $
+	// $Id: pukiwiki_func.php,v 1.187 2008/10/09 08:19:20 nao-pon Exp $
 	// Copyright (C)
 	//   2002-2006 PukiWiki Developers Team
 	//   2001-2002 Originally written by yu-ji
@@ -3066,8 +3066,8 @@ EOD;
 
 		
 		// Set skin functions
-		$navigator = create_function('&$this, $key, $value = \'\', $javascript = \'\'', 'return XpWikiFunc::skin_navigator($this, $key, $value, $javascript);');
-		$toolbar   = create_function('&$this, $key, $x = 20, $y = 20',                  'return XpWikiFunc::skin_toolbar($this, $key, $x, $y);');
+		$navigator = create_function('&$this, $key, $value = \'\', $javascript = \'\'',    'return XpWikiFunc::skin_navigator($this, $key, $value, $javascript);');
+		$toolbar   = create_function('&$this, $key, $x = 20, $y = 20, $javascript = \'\'', 'return XpWikiFunc::skin_toolbar($this, $key, $x, $y, $javascript);');
 		$ajax_edit_js = ($this->root->use_ajax_edit)? ' onclick="return xpwiki_ajax_edit(\''.htmlspecialchars($r_page, ENT_QUOTES).'\');"' : '';
 		
 		// Set $_LINK for skin
@@ -3388,6 +3388,10 @@ EOD;
 			$othor_hide_js = '<script type="text/javascript">$(\'xpwiki_edit_other\').style.display = \'none\';</script>';
 		}
 		
+		// textarea id
+		//$tareaId = $this->root->mydirname . ':xpwiki_edit_textarea';
+		$tareaId = 'xpwiki_edit_textarea';
+		
 		// 'margin-bottom', 'float:left', and 'margin-top'
 		// are for layout of 'cancel button'
 		$body = <<<EOD
@@ -3411,7 +3415,7 @@ EOD;
   <input type="hidden" name="digest" value="$s_digest" />
   <input type="hidden" name="paraid" value="$s_id" />
   <input type="hidden" name="orgkey" value="$originalkey" />
-  <textarea id="xpwiki_edit_textarea" name="msg" rows="{$this->root->rows}" cols="{$this->root->cols}">$s_postdata</textarea>
+  <textarea id="{$tareaId}" name="msg" rows="{$this->root->rows}" cols="{$this->root->cols}">$s_postdata</textarea>
   $riddle
   <div style="float:left;">
    <input type="submit" name="preview" value="$btn_preview" accesskey="p" id="edit_preview" onmousedown="(function(){if(\$('edit_write_hidden')){Element.remove(\$('edit_write_hidden'))};xpwiki_ajax_edit_var['mode']='preview';})();" />
@@ -3712,7 +3716,7 @@ EOD;
 
 //----- Start mail.php -----//
 	// PukiWiki - Yet another WikiWikiWeb clone.
-	// $Id: pukiwiki_func.php,v 1.186 2008/09/16 04:16:37 nao-pon Exp $
+	// $Id: pukiwiki_func.php,v 1.187 2008/10/09 08:19:20 nao-pon Exp $
 	// Copyright (C)
 	//   2003-2005 PukiWiki Developers Team
 	//   2003      Originally written by upk
@@ -4015,7 +4019,7 @@ EOD;
 
 //----- Start link.php -----//
 	// PukiWiki - Yet another WikiWikiWeb clone
-	// $Id: pukiwiki_func.php,v 1.186 2008/09/16 04:16:37 nao-pon Exp $
+	// $Id: pukiwiki_func.php,v 1.187 2008/10/09 08:19:20 nao-pon Exp $
 	// Copyright (C) 2003-2006 PukiWiki Developers Team
 	// License: GPL v2 or (at your option) any later version
 	//

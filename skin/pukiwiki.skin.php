@@ -1,6 +1,6 @@
 <?php
 // PukiWiki - Yet another WikiWikiWeb clone.
-// $Id: pukiwiki.skin.php,v 1.37 2008/09/10 04:37:37 nao-pon Exp $
+// $Id: pukiwiki.skin.php,v 1.38 2008/10/09 08:19:20 nao-pon Exp $
 // Copyright (C)
 //   2002-2006 PukiWiki Developers Team
 //   2001-2002 Originally written by yu-ji
@@ -49,6 +49,9 @@ $css_charset = $this->cont['CSS_CHARSET'];
 $favicon = ($image['favicon'])? "<link rel=\"SHORTCUT ICON\" href=\"{$image['favicon']}\" />" : "";
 $dirname = $this->root->mydirname;
 $rsstitle = 'RSS of ' . htmlspecialchars($this->root->module['title']);
+$s_page = htmlspecialchars($_page, ENT_QUOTES);
+
+$upload_js = ' onclick="return XpWiki.fileupFormPopup(\''.$dirname.'\',\''.$s_page.'\')"';
 
 $this->root->html_header = <<<EOD
 $favicon
@@ -118,7 +121,7 @@ EOD;
 	| <?php $navigator($this,'backup') ?>
  <?php } ?>
  <?php if ($can_attach) { ?>
-	| <?php $navigator($this,'upload') ?>
+	| <?php $navigator($this,'upload','',$upload_js) ?>
  <?php } ?>
  <?php if ($this->is_page($_page)) { ?> | <?php $navigator($this,'reload'); } ?>
  ] &nbsp;
@@ -228,7 +231,7 @@ $this->root->_IMAGE['skin']['rdf']      = 'rdf.png';
 <?php } ?>
 <?php if ($rw) { ?>
 	<?php if ($can_attach) { ?>
-		<?php $toolbar($this, 'upload') ?>
+		<?php $toolbar($this, 'upload', 20, 20, $upload_js) ?>
 	<?php } ?>
 	<?php $toolbar($this, 'copy') ?>
 	<?php $toolbar($this, 'rename') ?>

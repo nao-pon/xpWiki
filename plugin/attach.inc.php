@@ -2,7 +2,7 @@
 /////////////////////////////////////////////////
 // PukiWiki - Yet another WikiWikiWeb clone.
 //
-//  $Id: attach.inc.php,v 1.41 2008/05/30 08:37:16 nao-pon Exp $
+//  $Id: attach.inc.php,v 1.42 2008/10/09 08:19:20 nao-pon Exp $
 //  ORG: attach.inc.php,v 1.31 2003/07/27 14:15:29 arino Exp $
 //
 /*
@@ -215,7 +215,18 @@ class xpwiki_plugin_attach extends xpwiki_plugin {
 			{
 				$pass = (!empty($this->root->vars['pass'])) ? md5($this->root->vars['pass']) : NULL;
 				$copyright = (isset($this->root->post['copyright']))? TRUE : FALSE;
-				$ret = $this->attach_upload($_FILES['attach_file'],$this->root->vars['refer'],$pass,$copyright);
+				if (is_array($_FILES['attach_file']['name'])) {
+					for ($i = 0; $i < count($_FILES['attach_file']['name']); $i++) {
+						if (! $_FILES['attach_file']['name'][$i]) continue;
+						$_files = array();
+						foreach(array_keys($_FILES['attach_file']) as $_key) {
+							$_files[$_key] = $_FILES['attach_file'][$_key][$i];
+						}
+						$ret = $this->attach_upload($_files,$this->root->vars['refer'],$pass,$copyright);
+					}	
+				} else {
+					$ret = $this->attach_upload($_FILES['attach_file'],$this->root->vars['refer'],$pass,$copyright);
+				}
 				if (!empty($this->root->post['returi'])) {
 					$ret['redirect'] = $this->root->siteinfo['host'].$this->root->post['returi'];
 				}
@@ -662,8 +673,7 @@ class xpwiki_plugin_attach extends xpwiki_plugin {
 		$mode = ($mode == "imglist")? $mode : "";
 	
 		$obj = &new XpWikiAttachPages($this->xpwiki, $refer,NULL,TRUE,$max,$start,FALSE,$f_order,$mode);
-		if ($obj->err === 1) return array('msg'=>'DB ERROR!','body'=>'Please initialize an attach file database on an administrator screen.');
-		
+		if ($refer && $this->func->is_page($refer) && $obj->err === 1) return array('msg'=>'DB ERROR!','body'=>'Please initialize an attach file database on an administrator screen.');
 		
 		$body = ($refer === '' or array_key_exists($refer,$obj->pages)) ?
 			$obj->toString($refer,FALSE) :
@@ -754,6 +764,11 @@ class xpwiki_plugin_attach extends xpwiki_plugin {
 		
 		// refid »ØÄê
 		$refid = (!empty($this->root->vars['refid']))? '<input type="hidden" name="refid" value="'.htmlspecialchars($this->root->vars['refid']).'" />' : '';
+		
+		if (! empty($this->root->vars['popup'])) {
+			$this->root->vars['returi'] = $_SERVER['REQUEST_URI'];
+		}
+		
 		$thumb_px = $this->cont['ATTACH_CONFIG_REF_THUMB'];
 		$thumb = (!empty($this->root->vars['refid']) && !empty($this->root->vars['thumb']))?
 			'<p><input type="checkbox" name="make_thumb" value="1" checked="checked" />' .
@@ -762,18 +777,22 @@ class xpwiki_plugin_attach extends xpwiki_plugin {
 			'W:<input type="text" name="thumb_w" size="3" value="'.$thumb_px.'" /> x ' .
 			'H:<input type="text" name="thumb_h" size="3" value="'.$thumb_px.'" />(Max)</p>' : '';
 		$filename = (!empty($this->root->vars['filename']))? '<input type="hidden" name="filename" value="'.htmlspecialchars($this->root->vars['filename']).'" />' : '';
-		$returi = (!empty($this->root->vars['returi']))? '<input type="hidden" name="returi" value="'.htmlspecialchars($this->root->vars['returi']).'" />' : '';	
+		$returi = (!empty($this->root->vars['returi']))? '<input type="hidden" name="returi" value="'.htmlspecialchars($this->root->vars['returi']).'" />' : '';
 		
 		$r_page = rawurlencode($page);
 		$s_page = htmlspecialchars($page);
-		$header = "<h3>".str_replace('$1',$this->func->make_pagelink($page),$this->root->_attach_messages['msg_upload'])."</h3>";
-		$navi = <<<EOD
-  $header
+		$is_popup = isset($this->root->vars['popup']);
+		
+		$navi = '';
+		if (! $is_popup) {
+			$navi = "<h3>".str_replace('$1', $this->func->make_pagelink($page), $this->root->_attach_messages['msg_upload'])."</h3>";
+			$navi .= <<<EOD
   <span class="small">
    [<a href="{$this->root->script}?plugin=attach&amp;pcmd=list&amp;refer=$r_page">{$this->root->_attach_messages['msg_list']}</a>]
    [<a href="{$this->root->script}?plugin=attach&amp;pcmd=list">{$this->root->_attach_messages['msg_listall']}</a>]
   </span><br />
 EOD;
+		}
 	
 		if (!(bool)ini_get('file_uploads'))
 		{
@@ -814,6 +833,8 @@ EOD;
 		$maxsize = $this->cont['PLUGIN_ATTACH_MAX_FILESIZE'];
 		$msg_maxsize = sprintf($this->root->_attach_messages['msg_maxsize'],number_format($maxsize/1024)."KB");
 	
+		$file_select = '<div id="_p_attach_file">' . $this->root->_attach_messages['msg_file'] . ': <input type="file" name="attach_file[]" /><input type="button" value="More" onclick="XpWiki.insertClone(\'_p_attach_file\', \'_p_attach_more\')" /></div>';
+		
 		//$uid = get_pg_auther($this->page);
 		$pass = '';
 		//if (ATTACH_PASSWORD_REQUIRE && !ATTACH_UPLOAD_ADMIN_ONLY && ((!$X_admin && $X_uid !== $uid) || $X_uid == 0))
@@ -842,7 +863,7 @@ EOD;
   <input type="hidden" name="pcmd" value="post" />
   <input type="hidden" name="refer" value="$s_page" />
   <input type="hidden" name="max_file_size" value="$maxsize" />
-  $refid
+  $refid$popup
   $filename
   $returi
   $navi
@@ -851,7 +872,8 @@ EOD;
   </span><br />
   $allow_extensions
   $thumb
-  <label for="_p_attach_attach_fil_{$pgid}_{$load[$this->xpwiki->pid][$page]}">{$this->root->_attach_messages['msg_file']}</label>: <input type="file" id="_p_attach_attach_fil_{$pgid}_{$load[$this->xpwiki->pid][$page]}" name="attach_file" />
+  $file_select
+  <div id="_p_attach_more"></div>
   $pass
   <input type="submit" class="upload_btn" value="{$this->root->_attach_messages['btn_upload']}" />
   $antar_tag<br />

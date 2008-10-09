@@ -1,5 +1,5 @@
 var XpWiki = {
-	Version: '20071011',
+	Version: '20081003',
 	
 	MyUrl: '',
 	EncHint: '',
@@ -13,9 +13,20 @@ var XpWiki = {
 	PopupHeight: '80%',
 	PopupWidth:  '300px',
 
+	fileupPopupTop:    '0px',
+	fileupPopupBottom: '',
+	fileupPopupLeft:   '0px',
+	fileupPopupRight:  '',
+	fileupPopupHeight: '99%',
+	fileupPopupWidth:  '220px',
+
 	dir: '',
 	page: '',
 	title: '',
+	UploadDir: '',
+	UploadPage: '',
+	RendererDir: '',
+	RendererPage: '',
 	
 	isIE7: (typeof(document.documentElement.style.msInterpolationMode) != "undefined"),
 	
@@ -37,7 +48,11 @@ var XpWiki = {
 	},
 	
 	initPopupDiv: function (arg) {
-
+		
+		if (typeof arg == 'undefined') {
+			var arg = [];
+		}
+		
 		if (!$('XpWikiPopup')) {
 			
 			// base
@@ -241,9 +256,9 @@ var XpWiki = {
 		this.title = arg.page;
 		
 		if (!!arg.top) { this.PopupTop = arg.top; }
-		if (!!arg.left) { this.PopupTop = arg.left; }
-		if (!!arg.width) { this.PopupTop = arg.width; }
-		if (!!arg.height) { this.PopupTop = arg.height; }
+		if (!!arg.left) { this.PopupLeft = arg.left; }
+		if (!!arg.width) { this.PopupWidth = arg.width; }
+		if (!!arg.height) { this.PopupHeight = arg.height; }
 
 		this.initPopupDiv();
 		
@@ -291,6 +306,7 @@ var XpWiki = {
 	},
 	
 	Popup: function (body, title) {
+		this.initPopupDiv();
 		Element.setStyle(this.PopupDiv,{
 			top: this.PopupTop,
 			left: this.PopupLeft,
@@ -437,24 +453,24 @@ var XpWiki = {
 		if (!! this.UseWikihelperAtAll || obj.id.match(/^xpwiki/)) {
 			return true;
 		} else {
-			var obj = document.getElementsByTagName('script');
-			for (var i=0; i<obj.length; i++){
-				if (!! obj[i].src && obj[i].src.match(/wikihelper_loader\.js$/)) {
+			var scripts = document.getElementsByTagName('script');
+			for (var i=0; i<scripts.length; i++){
+				if (!! scripts[i].src && scripts[i].src.match(/wikihelper_loader\.js$/)) {
 					return true;
 				}
 			}
 		}
-		var parent;
-		while(parent = obj.parentNode) {
-			if (typeof(parent.className) != 'undefined') {
-				if (parent.className.match(/^NoWikiHelper/)) {
+		var pnode;
+		while(pnode = obj.parentNode) {
+			if (typeof pnode.className != 'undefined') {
+				if (pnode.className.match(/^NoWikiHelper/)) {
 					return false;
 				}
-				if (parent.className.match(/^xpwiki/)) {
+				if (pnode.className.match(/^xpwiki/)) {
 					return true;
 				}
 			}
-			obj = parent;
+			obj = pnode;
 		}
 		return false;
 	},
@@ -612,6 +628,94 @@ var XpWiki = {
 			}
 		}
 		return false;
-	}
+	},
 
+	insertClone: function (srcId, toId) {
+		var src = $(srcId);
+		var cln = src.cloneNode(true);
+		cln.id = '';
+		var inp = cln.getElementsByTagName('INPUT');
+		for (var i=0; i < inp.length; i++) {
+			if (inp[i].type === 'file') {
+				inp[i].value = '';
+			}
+		}
+		var to = $(toId);
+		to.appendChild(cln);
+	},
+	
+	fileupFormPopup: function (dirname, page) {
+		
+		this.dir = dirname;
+		this.title = this.htmlspecialchars(page);
+		
+		var arg = [];
+		arg.top = this.fileupPopupTop;
+		arg.bottom = this.fileupPopupBottom;
+		arg.left = this.fileupPopupLeft;
+		arg.right = this.fileupPopupRight;
+		arg.width = this.fileupPopupWidth;
+		arg.height = this.fileupPopupHeight;
+		
+		this.initPopupDiv(arg);
+		
+		var url = this.MyUrl + '/' + this.dir + '/?plugin=attach&pcmd=imglist&refer=';
+		url += encodeURIComponent(page);
+		url += '&popup=_self';
+		url += '&cols=1';
+		url += '&max=10';
+		url += '&encode_hint=' + encodeURIComponent(this.EncHint);
+		
+		if ($('XpWikiPopupBody').src != url) {
+			$('XpWikiPopupHeaderTitle').innerHTML = 'Now loading...';
+			$('XpWikiPopupBody').src = url;
+		}
+		Element.show(this.PopupDiv);
+		
+		return false;
+	},
+	
+	setUploadVar: function (elm) {
+		if (elm.id.match(/^[a-z_]+:/i)) {
+			var form;
+			var element = elm;
+			 while (element = element.parentNode) {
+				if (element.nodeName == 'FORM') {
+					form = element;
+					break;
+				}		
+			}
+			if (form && (typeof form.page != 'undefined' || typeof form.refer != 'undefined')) {
+				var dir = elm.id.replace(/^([a-z_]+):.+$/i, "$1");
+				var reg = new RegExp('/'+dir);
+				if (form.action.match(reg)) {
+					XpWiki.UploadDir = dir;
+					XpWiki.UploadPage = (form.page || form.refer).value;
+				}
+			}
+		} else {
+			if (XpWiki.RendererDir && XpWiki.RendererPage) {
+				XpWiki.UploadDir = XpWiki.RendererDir;
+				XpWiki.UploadPage = XpWiki.RendererPage;
+			}
+		}
+	},
+	
+	refInsert: function(file, type) {
+		var size = '';
+		if (type == 'image') {
+			inp = prompt(wikihelper_msg_thumbsize, '');
+			if (inp == null) { return; }
+			var size = '';
+			if (inp.match(/[\d]{1,3}[^\d]+[\d]{1,3}/)) {
+				size = inp.replace(/([\d]{1,3})[^\d]+([\d]{1,3})/, ",mw:$1,mh:$2");
+			} else if (inp.match(/[\d]{1,3}/)) {
+				size = inp.replace(/([\d]{1,3})/, ",mw:$1,mh:$1");
+			}
+		}
+		var v = "&ref("+file+size+");";
+		wikihelper_ins(v);
+		
+		return false;
+	}
 };
