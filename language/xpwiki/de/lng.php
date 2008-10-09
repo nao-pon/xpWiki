@@ -1,6 +1,6 @@
 <?php
 // PukiWiki - Yet another WikiWikiWeb clone.
-// $Id: lng.php,v 1.8 2008/09/10 04:37:37 nao-pon Exp $
+// $Id: lng.php,v 1.9 2008/10/09 08:19:20 nao-pon Exp $
 // Copyright (C)
 //   2002-2005 PukiWiki Developers Team
 //   2001-2002 Originally written by yu-ji
@@ -259,6 +259,11 @@ $root->_attach_messages = array(
 	'msg_rotated_ng' => 'Das Bild konte nicht gedreht werden.',
 	'err_isflash' => 'Kann keine Flash-Datei hochladen.',
 	'msg_make_thumb' => 'Mache ein Vorschaubild.(nur Bild-Dateien): ',
+	'msg_sort_time' => 'Sort Time',
+	'msg_sort_name' => 'Sort Name',
+	'msg_list_view' => 'List View',
+	'msg_image_view' => 'Image View',
+	'msg_insert' => 'Insert',
 );
 
 ///////////////////////////////////////

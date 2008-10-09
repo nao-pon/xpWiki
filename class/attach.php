@@ -1,7 +1,7 @@
 <?php
 /*
  * Created on 2008/03/24 by nao-pon http://hypweb.net/
- * $Id: attach.php,v 1.5 2008/08/08 03:34:11 nao-pon Exp $
+ * $Id: attach.php,v 1.6 2008/10/09 08:19:20 nao-pon Exp $
  */
 
 //-------- クラス
@@ -181,10 +181,14 @@ class XpWikiAttachFile
 		$info = $count = '';
 		if ($showinfo) {
 			$_title = str_replace('$1',rawurlencode($this->file),$this->root->_attach_messages['msg_info']);
-			if ($mode == "imglist") {
-				$info = "[ [[{$this->root->_attach_messages['btn_info']}:{$this->root->script}?plugin=attach&pcmd=info".str_replace("&amp;","&", ($param . $param2))."]] ]";
+			if (isset($this->root->vars['popup'])) {
+				$info = '[ &build_js(refInsert,"'.htmlspecialchars($this->file).'",'.$this->type.'); ]';
 			} else {
-				$info = "\n<span class=\"small\">[<a href=\"{$this->root->script}?plugin=attach&amp;pcmd=info{$param}{$param2}\" title=\"$_title\">{$this->root->_attach_messages['btn_info']}</a>]</span>";
+				if ($mode == "imglist") {
+					$info = "[ [[{$this->root->_attach_messages['btn_info']}:{$this->root->script}?plugin=attach&pcmd=info".str_replace("&amp;","&", ($param . $param2))."]] ]";
+				} else {
+					$info = "\n<span class=\"small\">[<a href=\"{$this->root->script}?plugin=attach&amp;pcmd=info{$param}{$param2}\" title=\"$_title\">{$this->root->_attach_messages['btn_info']}</a>]</span>";
+				}
 			}
 			$count = ($showicon and !empty($this->status['count'][$this->age])) ?
 				sprintf($this->root->_attach_messages['msg_count'],$this->status['count'][$this->age]) : '';
@@ -684,6 +688,7 @@ class XpWikiAttachFiles
 		$this->func   =& $xpwiki->func;
 
 		$this->page = $page;
+		$this->is_popup = isset($this->root->vars['popup']);
 	}
 	function add($file,$age)
 	{
@@ -708,14 +713,32 @@ class XpWikiAttachFiles
 		$navi = "";
 		$pcmd = ($mode == "imglist")? "imglist" : "list";
 		$pcmd2 = ($mode == "imglist")? "list" : "imglist";
+		
+		$otherkeys = array('cols', 'max', 'popup');
+		$otherparm = '';
+		$otherprams = array();
+		foreach($otherkeys as $key) {
+			if (isset($this->root->vars[$key])) {
+				$otherprams[] = htmlspecialchars($key) . '=' . rawurlencode($this->root->vars[$key]);
+			}
+		}
+		if ($otherprams) {
+			$otherparm = '&amp;' . join('&amp;', $otherprams);
+		}
+		
 		if (!$fromall)
 		{
-			$url = $this->root->script."?plugin=attach&amp;pcmd={$pcmd}&amp;refer=".rawurlencode($this->page)."&amp;order=".$this->order."&amp;start=";
-			$url2 = $this->root->script."?plugin=attach&amp;pcmd={$pcmd}&amp;refer=".rawurlencode($this->page)."&amp;start=";
-			$url3 = $this->root->script."?plugin=attach&amp;pcmd={$pcmd2}&amp;refer=".rawurlencode($this->page)."&amp;order=".$this->order."&amp;start=".$this->start;
-			$sort_time = ($this->order == "name")? " [ <a href=\"{$url2}0&amp;order=time\">Sort by time</a> |" : " [ <b>Sort by time</b> |";
-			$sort_name = ($this->order == "name")? " <b>Sort by name</b> ] " : " <a href=\"{$url2}0&amp;order=name\">Sort by name</a> ] ";
-			$mode_tag = ($mode == "imglist")? "[ <a href=\"$url3\">List view<a> ]":"[ <a href=\"$url3\">Image view</a> ]";
+			$url = $this->root->script."?plugin=attach&amp;pcmd={$pcmd}&amp;refer=".rawurlencode($this->page).$otherparm."&amp;order=".$this->order."&amp;start=";
+			$url2 = $this->root->script."?plugin=attach&amp;pcmd={$pcmd}&amp;refer=".rawurlencode($this->page).$otherparm."&amp;start=";
+			$url3 = $this->root->script."?plugin=attach&amp;pcmd={$pcmd2}&amp;refer=".rawurlencode($this->page).$otherparm."&amp;order=".$this->order."&amp;start=".$this->start;
+			$sort_time = ($this->order == "name")? " [ <a href=\"{$url2}0&amp;order=time\">{$this->root->_attach_messages['msg_sort_time']}</a> |" : " [ <b>{$this->root->_attach_messages['msg_sort_time']}</b> |";
+			$sort_name = ($this->order == "name")? " <b>{$this->root->_attach_messages['msg_sort_name']}</b> ] " : " <a href=\"{$url2}0&amp;order=name\">{$this->root->_attach_messages['msg_sort_name']}</a> ] ";
+			
+			if ($this->is_popup) {
+				$mode_tag = '';
+			} else {
+				$mode_tag = ($mode == "imglist")? "[ <a href=\"$url3\">{$this->root->_attach_messages['msg_list_view']}<a> ]":"[ <a href=\"$url3\">{$this->root->_attach_messages['msg_image_view']}</a> ]";
+			}
 			
 			if ($this->max < $this->count)
 			{
@@ -736,17 +759,22 @@ class XpWikiAttachFiles
 				
 				$prev = max(0,$now - 1);
 				$next = $now;
-				$prev = ($prev)? "<a href=\"".$url.($prev - 1) * $this->max."\" title=\"Prev\"> <img src=\"./image/prev.png\" width=\"6\" height=\"12\" alt=\"Prev\"> </a>|" : "";
-				$next = ($next < $total)? "|<a href=\"".$url.$next * $this->max."\" title=\"Next\"> <img src=\"./image/next.png\" width=\"6\" height=\"12\" alt=\"Next\"> </a>" : "";
+				$prev = ($prev)? "<a href=\"".$url.($prev - 1) * $this->max."\" title=\"Prev\"> <img src=\"{$this->cont['LOADER_URL']}?src=prev.png\" width=\"6\" height=\"12\" alt=\"Prev\"> </a>|" : "";
+				$next = ($next < $total)? "|<a href=\"".$url.$next * $this->max."\" title=\"Next\"> <img src=\"{$this->cont['LOADER_URL']}?src=next.png\" width=\"6\" height=\"12\" alt=\"Next\"> </a>" : "";
 				
 				$navi = "<div class=\"page_navi\">| $navi |<br />[{$prev} $_start - $_end / ".$this->count." files {$next}]<br />{$sort_time}{$sort_name}{$mode_tag}</div>";
 			}
-			else
+			else if ($this->count)
 			{
 				$navi = "<div class=\"page_navi\">{$sort_time}{$sort_name}{$mode_tag}</div>";
 			}
+			else
+			{
+				$navi = '';
+			}
 		}
 		$col = 1;
+		$cols = (! empty($this->root->vars['cols']))? max(1, min(intval($this->root->vars['cols']), 5)) : 4;
 		foreach ($files as $file)
 		{
 			$_files = array();
@@ -768,7 +796,7 @@ class XpWikiAttachFiles
 				{
 					$ret .= "~\n".join("~\n-",$_files);
 				}
-				$mod = $col % 4;
+				$mod = $col % $cols;
 				if ($mod === 0)
 				{
 					$ret .= "|\n";
@@ -791,13 +819,22 @@ class XpWikiAttachFiles
 		{
 			if ($mod) $ret .= str_repeat("|>",4-$mod)."|\n";
 			//if ($mod) $ret .= "|\n";
-			$ret = "|CENTER:|CENTER:|CENTER:|CENTER:|c\n".$ret;
+			$ret = '|' . str_repeat('CENTER:|', $cols) . "c\n".$ret;
 		 	$ret = $this->func->convert_html($ret);
+		} else {
+			$ret = "<ul>\n$ret</ul>";
+		}
+		
+		$form = '';
+		if ($this->is_popup) {
+			$attach =& $this->func->get_plugin_instance('attach');
+			$form = $attach->attach_form($this->page) . '<hr />';
 		}
 		
 		$showall = ($fromall && $this->max < $this->count)? " [ <a href=\"{$this->root->script}?plugin=attach&amp;pcmd={$pcmd}&amp;refer=".rawurlencode($this->page)."\">Show All</a> ]" : "";
-		$allpages = ($fromall)? "" : " [ <a href=\"{$this->root->script}?plugin=attach&amp;pcmd={$pcmd}\" />All Pages</a> ]";
-		return $navi.($navi? "<hr />":"")."<div class=\"filelist_page\">".$this->func->make_pagelink($this->page)."<small> (".$this->count." file".(($this->count===1)?"":"s").")".$showall.$allpages."</small></div>\n<ul>\n$ret</ul>".($navi? "<hr />":"")."$navi\n";
+		$allpages = ($this->is_popup || $fromall)? "" : " [ <a href=\"{$this->root->script}?plugin=attach&amp;pcmd={$pcmd}\" />All Pages</a> ]";
+		$body = $this->is_popup? $ret : "<div class=\"filelist_page\">".$this->func->make_pagelink($this->page)."<small> (".$this->count." file".(($this->count===1)?"":"s").")".$showall.$allpages."</small></div>\n$ret";
+		return $form.$navi.($navi? "<hr />":"").$body.($navi? "<hr />":"")."$navi\n";
 	}
 	// ファイル一覧を取得(inline)
 	function to_flat()
@@ -839,8 +876,11 @@ class XpWikiAttachPages
 		$this->root   =& $xpwiki->root;
 		$this->cont   =& $xpwiki->cont;
 		$this->func   =& $xpwiki->func;
-
-//		global $xoopsDB,$X_admin,$X_uid;
+		
+		if (! empty($this->root->vars['max'])) {
+			$max = max(1, min($max, intval($this->root->vars['max'])));
+		}
+		
 		$this->mode = $mode;
 		if ($page)
 		{
@@ -936,9 +976,9 @@ class XpWikiAttachPages
 		$url = $this->root->script."?plugin=attach&amp;pcmd={$pcmd}&amp;order=".$this->order."&amp;start=";
 		$url2 = $this->root->script."?plugin=attach&amp;pcmd={$pcmd}&amp;start=";
 		$url3 = $this->root->script."?plugin=attach&amp;pcmd={$pcmd2}&amp;order=".$this->order."&amp;start=".$this->start;
-		$sort_time = ($this->order == "name")? " [ <a href=\"{$url2}0&amp;order=time\">Sort by time</a> |" : " [ <b>Sort by time</b> |";
-		$sort_name = ($this->order == "name")? " <b>Sort by name</b> ] " : " <a href=\"{$url2}0&amp;order=name\">Sort by name</a> ] ";
-		$mode_tag = ($this->mode == "imglist")? "[ <a href=\"$url3\">List view<a> ]":"[ <a href=\"$url3\">Image view</a> ]";
+		$sort_time = ($this->order == "name")? " [ <a href=\"{$url2}0&amp;order=time\">{$this->root->_attach_messages['msg_sort_time']}</a> |" : " [ <b>{$this->root->_attach_messages['msg_sort_time']}</b> |";
+		$sort_name = ($this->order == "name")? " <b>{$this->root->_attach_messages['msg_sort_name']}</b> ] " : " <a href=\"{$url2}0&amp;order=name\">{$this->root->_attach_messages['msg_sort_name']}</a> ] ";
+		$mode_tag = ($this->mode == "imglist")? "[ <a href=\"$url3\">{$this->root->_attach_messages['msg_list_view']}<a> ]":"[ <a href=\"$url3\">{$this->root->_attach_messages['msg_image_view']}</a> ]";
 		
 		$_start = $this->start + 1;
 		$_end = $this->start + $this->max;
@@ -957,8 +997,8 @@ class XpWikiAttachPages
 		$navi = join(' | ',$navi);
 		$prev = max(0,$now - 1);
 		$next = $now;
-		$prev = ($prev)? "<a href=\"".$url.($prev - 1) * $this->max."\" title=\"Prev\"> <img src=\"./image/prev.png\" width=\"6\" height=\"12\" alt=\"Prev\"> </a>|" : "";
-		$next = ($next < $total)? "|<a href=\"".$url.$next * $this->max."\" title=\"Next\"> <img src=\"./image/next.png\" width=\"6\" height=\"12\" alt=\"Next\"> </a>" : "";
+		$prev = ($prev)? "<a href=\"".$url.($prev - 1) * $this->max."\" title=\"Prev\"> <img src=\"{$this->cont['LOADER_URL']}?src=prev.png\" width=\"6\" height=\"12\" alt=\"Prev\"> </a>|" : "";
+		$next = ($next < $total)? "|<a href=\"".$url.$next * $this->max."\" title=\"Next\"> <img src=\"{$this->cont['LOADER_URL']}?src=next.png\" width=\"6\" height=\"12\" alt=\"Next\"> </a>" : "";
 		$navi = "<div class=\"page_navi\">| $navi |<br />[{$prev} $_start - $_end / ".$this->count." pages {$next}]<br />{$sort_time}{$sort_name}{$mode_tag}</div>";
 		
 		$ret = "";

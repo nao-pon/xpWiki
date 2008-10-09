@@ -31,7 +31,7 @@
 //
 // fusen.inc.php for xpWiki by nao-pon
 // http://xoops.hypweb.net
-// $Id: fusen.inc.php,v 1.25 2008/05/15 23:53:06 nao-pon Exp $
+// $Id: fusen.inc.php,v 1.26 2008/10/09 08:19:20 nao-pon Exp $
 // 
 
 class xpwiki_plugin_fusen extends xpwiki_plugin {
@@ -173,6 +173,7 @@ fusenVar['base'] = "{$base}";
 fusenVar['BorderObj'] = {"normal":"{$border_normal}", "lock":"{$border_lock}", "del":"{$border_del}", "select":"{$border_select}"};
 fusenVar['PostUrl'] = XpWikiModuleUrl + "{$fusen_post}";
 fusenVar['JsonUrl'] = XpWikiModuleUrl + "{$fusen_url}";
+fusenVar['textarea'] = "{$this->root->mydirname}:xpwiki_fusen_edit";
 fusenVar['Interval'] = {$refresh};
 fusenVar['admin'] = {$auth};
 fusenVar['uid'] = {$this->root->userinfo['uid']};

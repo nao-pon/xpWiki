@@ -1,7 +1,7 @@
 <?php
 //
 // Created on 2006/10/02 by nao-pon http://hypweb.net/
-// $Id: xpwiki_func.php,v 1.193 2008/09/21 05:28:15 nao-pon Exp $
+// $Id: xpwiki_func.php,v 1.194 2008/10/09 08:19:20 nao-pon Exp $
 //
 class XpWikiFunc extends XpWikiXoopsWrapper {
 
@@ -1257,7 +1257,7 @@ EOD;
 	}
 
 	// SKIN Function
-	function skin_toolbar ($obj, $key, $x = 20, $y = 20) {
+	function skin_toolbar ($obj, $key, $x = 20, $y = 20, $javascript = '') {
 		$lang  = & $obj->root->_LANG['skin'];
 		$link  = & $obj->root->_LINK;
 		$image = & $obj->root->_IMAGE['skin'];
@@ -1265,7 +1265,7 @@ EOD;
 		if (! isset($link[$key]) ) { echo $key.' LINK NOT FOUND';  return FALSE; }
 		if (! isset($image[$key])) { echo $key.' IMAGE NOT FOUND'; return FALSE; }
 	
-		echo '<a href="' . $link[$key] . '">' .
+		echo '<a href="' . $link[$key] . '" ' . $javascript . '>' .
 			'<img src="' . $obj->cont['IMAGE_DIR'] . $image[$key] . '" width="' . $x . '" height="' . $y . '" ' .
 				'alt="' . $lang[$key] . '" title="' . $lang[$key] . '" />' .
 			'</a>';
@@ -1754,6 +1754,23 @@ EOD;
 		// For Safari
 		if ($this->cont['UA_NAME'] === 'Safari') {
 			$body = preg_replace('/(<form)([^>]*>)/' , '$1 accept-charset="UTF-8"$2', $body);
+		}
+		
+		// TextArea id
+		if (strpos($body, '<textarea') !== FALSE) {
+
+			$_func = <<<EOD
+static \$i = 0;
+if (strpos(\$match[2], ' id="') !== FALSE) {
+	\$match[2] = str_replace(' id="', ' id="{$this->root->mydirname}:', \$match[2]);
+	return \$match[1] . \$match[2] . '>';
+} else {
+	\$i++;
+	\$id = '{$this->root->mydirname}:xpwiki_txtarea_' . \$i;
+	return \$match[1] . \$match[2] . ' id="' . \$id . '">';
+}
+EOD;
+			$body = preg_replace_callback('/(<textarea)([^>]*?)>/', create_function('$match', $_func), $body);
 		}
 	}
 	

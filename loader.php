@@ -1,7 +1,7 @@
 <?php
 //
 // Created on 2006/10/25 by nao-pon http://hypweb.net/
-// $Id: loader.php,v 1.49 2008/09/10 04:32:22 nao-pon Exp $
+// $Id: loader.php,v 1.50 2008/10/09 08:19:20 nao-pon Exp $
 //
 
 ignore_user_abort(FALSE);
@@ -357,9 +357,21 @@ if ($type === 'js' || $type === 'css' || is_file($src_file)) {
 					}
 					$ieDomLoadedDisabled = $xpwiki->root->ieDomLoadedDisabled? 'true' : 'false';
 					$UseWikihelperAtAll = $xpwiki->root->render_UseWikihelperAtAll? 'true' : 'false';
+					if (defined('XPWIKI_RENDERER_DIR')) {
+						$RendererDir = XPWIKI_RENDERER_DIR;
+						if ($xpwiki->root->mydirname === XPWIKI_RENDERER_DIR) {
+							$RendererPage = $xpwiki->root->render_attach;
+						} else {
+							$renderer = new XpWiki(XPWIKI_RENDERER_DIR);
+							$xpwiki->init('#RenderMode');
+							$RendererPage = $renderer->root->render_attach;
+						}
+					} else {
+						$RendererDir = $RendererPage = '';
+					}
 					$_out = str_replace(
-						array('$face_tag_full', '$face_tag', '$module_url', '$encode_hint', '$charset', '$ieDomLoadedDisabled', '$faviconSetClass', '$faviconReplaceClass', '$UseWikihelperAtAll', '$UseWikihelperAtAll'),
-						array($face_tag_full, $face_tag, $module_url, $encode_hint, $xpwiki->cont['SOURCE_ENCODING'], $ieDomLoadedDisabled, $xpwiki->root->favicon_set_classname, $xpwiki->root->favicon_replace_classname, $UseWikihelperAtAll),
+						array('$face_tag_full', '$face_tag', '$module_url', '$encode_hint', '$charset',                       '$ieDomLoadedDisabled', '$faviconSetClass',                   '$faviconReplaceClass',                   '$UseWikihelperAtAll', '$RendererDir', '$RendererPage'),
+						array( $face_tag_full,   $face_tag,   $module_url,   $encode_hint,   $xpwiki->cont['SOURCE_ENCODING'], $ieDomLoadedDisabled,   $xpwiki->root->favicon_set_classname, $xpwiki->root->favicon_replace_classname, $UseWikihelperAtAll,   $RendererDir,   $RendererPage),
 					$_out);
 				}
 				if (in_array($_src, $js_replaces)) {

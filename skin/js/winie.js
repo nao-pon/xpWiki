@@ -51,8 +51,12 @@ function wikihelper_ins(v)
 	}
 
 	if (v == "&ref();") {
+		if (XpWiki.UploadDir && XpWiki.UploadPage) {
+			XpWiki.fileupFormPopup(XpWiki.UploadDir, XpWiki.UploadPage);
+			return;
+		}
 		inp = prompt(wikihelper_msg_thumbsize, '');
-		if (inp == null) { inp = "";}
+		if (inp == null) { return; }
 		var size = '';
 		if (inp.match(/[\d]{1,3}[^\d]+[\d]{1,3}/)) {
 			size = inp.replace(/([\d]{1,3})[^\d]+([\d]{1,3})/, ",mw:$1,mh:$2");
@@ -251,11 +255,16 @@ function wikihelper_setActive(elem)
 {
 	var helper = $("wikihelper_base");
 	if (helper.style.display == 'none' || wikihelper_elem != elem) {
+		XpWiki.UploadDir = '';
+		XpWiki.UploadPage = '';
 		wikihelper_elem = elem;
 		var offset = wikihelper_cumulativeOffset(wikihelper_elem);
 		Element.show(helper);
 		helper.style.left = offset[0] + "px";
 		helper.style.top = ( offset[1] - helper.offsetHeight - 1 ) + "px";
+		if (wikihelper_elem.nodeName == 'TEXTAREA') {
+			XpWiki.setUploadVar(wikihelper_elem);
+		}
 		if (! XpWiki.isIE7) {
 			oElements = document.getElementsByTagName("select");
 			for (i = 0; i < oElements.length; i++)

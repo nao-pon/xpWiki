@@ -1,6 +1,6 @@
 <?php
 // PukiWiki - Yet another WikiWikiWeb clone.
-// $Id: edit.inc.php,v 1.61 2008/07/29 14:53:54 nao-pon Exp $
+// $Id: edit.inc.php,v 1.62 2008/10/09 08:19:20 nao-pon Exp $
 // Copyright (C) 2001-2006 PukiWiki Developers Team
 // License: GPL v2 or (at your option) any later version
 //
@@ -73,6 +73,7 @@ class xpwiki_plugin_edit extends xpwiki_plugin {
 		$body = $this->func->edit_form($page, $postdata, FALSE, TRUE, $options);
 		
 		if (isset($this->root->vars['ajax'])) {
+			$this->func->convert_finisher($body);
 			$body = <<<EOD
 <editform><![CDATA[{$body}]]></editform>
 EOD;
@@ -117,7 +118,6 @@ EOD;
 			$postdata = $this->func->make_str_rules($postdata);
 			$postdata = explode("\n", $postdata);
 			$postdata = $this->func->drop_submit($this->func->convert_html($postdata));
-			$this->func->convert_finisher($postdata);
 			// Add target="_blank"
 			$postdata = preg_replace_callback(
 						'/(<script.*?<\/script>)|(<a[^>]+)>/isS' ,
@@ -160,6 +160,9 @@ EOD;
 					$body);
 			$body = preg_replace('/<div id="(xpwiki_body|'.preg_quote($this->root->vars['paraid'], '/').')"/', '<div ', $body);
 			$body .= $this->func->edit_form($page, $this->root->vars['msg'], $this->root->vars['digest'], TRUE, $options);
+			
+			$this->func->convert_finisher($body);
+			
 			$title = (!$ng_riddle)? $this->root->_title_preview : $this->root->_title_ng_riddle;
 			$title = '<h3>'.str_replace('$1', htmlspecialchars($page), $title).'</h3>';
 			$body = $title.$body;
@@ -365,8 +368,9 @@ EOD;
 			$retvars['body'] = ($auto ? $this->root->_msg_collided_auto : $this->root->_msg_collided) . "\n";
 			$retvars['body'] .= $this->root->do_update_diff_table;
 			$retvars['body'] .= $this->func->edit_form($page, $postdata_input, $oldpagemd5, FALSE);
-
+			
 			if (isset($this->root->vars['ajax'])) {
+				$this->func->convert_finisher($retvars['body']);
 				$body = <<<EOD
 <xpwiki>
 <content><![CDATA[{$retvars['body']}]]></content>
