@@ -1,7 +1,7 @@
 <?php
 //
 // Created on 2006/10/25 by nao-pon http://hypweb.net/
-// $Id: loader.php,v 1.50 2008/10/09 08:19:20 nao-pon Exp $
+// $Id: loader.php,v 1.51 2008/10/11 00:54:12 nao-pon Exp $
 //
 
 ignore_user_abort(FALSE);
@@ -363,7 +363,7 @@ if ($type === 'js' || $type === 'css' || is_file($src_file)) {
 							$RendererPage = $xpwiki->root->render_attach;
 						} else {
 							$renderer = new XpWiki(XPWIKI_RENDERER_DIR);
-							$xpwiki->init('#RenderMode');
+							$renderer->init('#RenderMode');
 							$RendererPage = $renderer->root->render_attach;
 						}
 					} else {
