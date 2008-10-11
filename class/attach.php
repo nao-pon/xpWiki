@@ -1,7 +1,7 @@
 <?php
 /*
  * Created on 2008/03/24 by nao-pon http://hypweb.net/
- * $Id: attach.php,v 1.6 2008/10/09 08:19:20 nao-pon Exp $
+ * $Id: attach.php,v 1.7 2008/10/11 00:38:24 nao-pon Exp $
  */
 
 //-------- епеще╣
@@ -817,8 +817,7 @@ class XpWikiAttachFiles
 		
 		if ($mode == "imglist")
 		{
-			if ($mod) $ret .= str_repeat("|>",4-$mod)."|\n";
-			//if ($mod) $ret .= "|\n";
+			if ($mod) $ret .= str_repeat("|>", $cols - $mod)."|\n";
 			$ret = '|' . str_repeat('CENTER:|', $cols) . "c\n".$ret;
 		 	$ret = $this->func->convert_html($ret);
 		} else {
