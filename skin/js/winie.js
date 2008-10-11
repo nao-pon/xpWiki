@@ -57,6 +57,7 @@ function wikihelper_ins(v)
 		}
 		inp = prompt(wikihelper_msg_thumbsize, '');
 		if (inp == null) { return; }
+		inp = XpWiki.z2h_digit(inp);
 		var size = '';
 		if (inp.match(/[\d]{1,3}[^\d]+[\d]{1,3}/)) {
 			size = inp.replace(/([\d]{1,3})[^\d]+([\d]{1,3})/, ",mw:$1,mh:$2");
@@ -262,9 +263,7 @@ function wikihelper_setActive(elem)
 		Element.show(helper);
 		helper.style.left = offset[0] + "px";
 		helper.style.top = ( offset[1] - helper.offsetHeight - 1 ) + "px";
-		if (wikihelper_elem.nodeName == 'TEXTAREA') {
-			XpWiki.setUploadVar(wikihelper_elem);
-		}
+		XpWiki.setUploadVar(wikihelper_elem);
 		if (! XpWiki.isIE7) {
 			oElements = document.getElementsByTagName("select");
 			for (i = 0; i < oElements.length; i++)

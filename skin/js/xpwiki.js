@@ -694,7 +694,7 @@ var XpWiki = {
 				}
 			}
 		} else {
-			if (XpWiki.RendererDir && XpWiki.RendererPage) {
+			if (elm.nodeName == 'TEXTAREA' && XpWiki.RendererDir && XpWiki.RendererPage) {
 				XpWiki.UploadDir = XpWiki.RendererDir;
 				XpWiki.UploadPage = XpWiki.RendererPage;
 			}
@@ -706,6 +706,7 @@ var XpWiki = {
 		if (type == 'image') {
 			inp = prompt(wikihelper_msg_thumbsize, '');
 			if (inp == null) { return; }
+			inp = XpWiki.z2h_digit(inp);
 			var size = '';
 			if (inp.match(/[\d]{1,3}[^\d]+[\d]{1,3}/)) {
 				size = inp.replace(/([\d]{1,3})[^\d]+([\d]{1,3})/, ",mw:$1,mh:$2");
@@ -717,5 +718,20 @@ var XpWiki = {
 		wikihelper_ins(v);
 		
 		return false;
+	},
+	
+	// Copyright (c) 2003 AOK <soft@aokura.com>
+	z2h_digit: function(src) {
+		var str = new String;
+		var len = src.length;
+		for (var i = 0; i < len; i++) {
+			var c = src.charCodeAt(i);
+			if (c >= 65296 && c <= 65305) {
+				str += String.fromCharCode(c - 65248);
+			} else {
+				str += src.charAt(i);
+			} 
+		}
+		return str;
 	}
 };
