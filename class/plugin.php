@@ -1,7 +1,7 @@
 <?php
 //
 // Created on 2006/10/05 by nao-pon http://hypweb.net/
-// $Id: plugin.php,v 1.14 2008/05/26 06:45:51 nao-pon Exp $
+// $Id: plugin.php,v 1.15 2008/10/11 00:46:25 nao-pon Exp $
 //
 
 
@@ -107,7 +107,18 @@ class xpwiki_plugin {
 			'body' => 'Here is an area only for this page owner.'
 		);	
 	}
-
+	
+	function get_domid ($name, $withDirname = false) {
+		static $count = array();
+		$pgid = $this->func->get_pgid_by_name($this->root->vars['page']);
+		$plugin = substr(get_class($this), 14);
+		if (! isset($count[$this->root->mydirname][$pgid][$plugin][$name])) {
+			$count[$this->root->mydirname][$pgid][$plugin][$name] = 0;
+		}
+		$count[$this->root->mydirname][$pgid][$plugin][$name]++;
+		$dirname = $withDirname? $this->root->mydirname . ':' : '';
+		return $dirname . $this->root->mydirname .'_' . $plugin . '_' . $name . '_' . $pgid . '_' . $count[$this->root->mydirname][$pgid][$plugin][$name];
+	}
 }
 
 ?>
