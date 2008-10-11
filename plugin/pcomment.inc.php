@@ -4,7 +4,7 @@ class xpwiki_plugin_pcomment extends xpwiki_plugin {
 
 
 	// PukiWiki - Yet another WikiWikiWeb clone
-	// $Id: pcomment.inc.php,v 1.13 2008/07/29 15:00:06 nao-pon Exp $
+	// $Id: pcomment.inc.php,v 1.14 2008/10/11 00:54:43 nao-pon Exp $
 	//
 	// pcomment plugin - Show/Insert comments into specified (another) page
 	//
@@ -130,7 +130,8 @@ $this->cont['PLUGIN_PCOMMENT_DIRECTION_DEFAULT'] =  1; // 1: above 0: below
 	
 			$radio   = $params['reply'] ?
 				'<input type="radio" name="reply" value="0" tabindex="0" checked="checked" />' : '';
-			$comment = '<input type="text" name="msg" rel="wikihelper" size="' . $this->cont['PLUGIN_PCOMMENT_SIZE_MSG'] . '" />';
+
+			$comment = '<input type="text" name="msg" id="' . $this->get_domid('msg', true) . '" rel="wikihelper" size="' . $this->cont['PLUGIN_PCOMMENT_SIZE_MSG'] . '" />';
 	
 			$s_page   = htmlspecialchars($_page);
 			if ($this->root->render_mode !== 'render') {
@@ -139,7 +140,7 @@ $this->cont['PLUGIN_PCOMMENT_DIRECTION_DEFAULT'] =  1; // 1: above 0: below
 				$s_refer = htmlspecialchars($_SERVER['REQUEST_URI']);
 			}
 			$s_nodate = htmlspecialchars($params['nodate']);
-	
+			
 			$form_start = '<form action="' . $this->func->get_script_uri() . '" method="post">' . "\n";
 			$form = <<<EOD
   <div>
