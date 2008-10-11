@@ -4,7 +4,7 @@ class xpwiki_plugin_comment extends xpwiki_plugin {
 
 
 	// PukiWiki - Yet another WikiWikiWeb clone
-	// $Id: comment.inc.php,v 1.6 2008/03/24 09:25:16 nao-pon Exp $
+	// $Id: comment.inc.php,v 1.7 2008/10/11 00:54:43 nao-pon Exp $
 	// Copyright (C)
 	//   2002-2005 PukiWiki Developers Team
 	//   2001-2002 Originally written by yu-ji
@@ -109,10 +109,12 @@ class xpwiki_plugin_comment extends xpwiki_plugin {
 	
 		if (! isset($numbers[$this->xpwiki->pid][$this->root->vars['page']])) $numbers[$this->xpwiki->pid][$this->root->vars['page']] = 0;
 		$comment_no = $numbers[$this->xpwiki->pid][$this->root->vars['page']]++;
-	
+		
+		$domid = $this->get_domid('msg', true);
+			
 		$options = func_num_args() ? func_get_args() : array();
 		if (in_array('noname', $options)) {
-			$nametags = '<label for="_p_comment_comment_' . $comment_no . '">' .
+			$nametags = '<label for="'. $domid . '">' .
 			$this->root->_msg_comment . '</label>';
 		} else {
 			$nametags = '<label for="_p_comment_name_' . $comment_no . '">' .
@@ -138,7 +140,7 @@ class xpwiki_plugin_comment extends xpwiki_plugin {
   <input type="hidden" name="above"  value="$above" />
   <input type="hidden" name="digest" value="{$this->root->digest}" />
   $nametags
-  <input type="text"   name="msg" rel="wikihelper" id="_p_comment_comment_{$comment_no}" size="{$comment_cols[$this->xpwiki->pid]}" />
+  <input type="text"   name="msg" rel="wikihelper" id="{$domid}" size="{$comment_cols[$this->xpwiki->pid]}" />
   <input type="submit" name="comment" value="{$this->root->_btn_comment}" />
  </div>
 </form>
