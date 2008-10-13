@@ -1,6 +1,6 @@
 <?php
 // PukiWiki - Yet another WikiWikiWeb clone.
-// $Id: lng.php,v 1.13 2008/10/09 08:19:20 nao-pon Exp $
+// $Id: lng.php,v 1.14 2008/10/13 12:30:06 nao-pon Exp $
 // Copyright (C)
 //   2002-2005 PukiWiki Developers Team
 //   2001-2002 Originally written by yu-ji
@@ -260,6 +260,10 @@ $root->_attach_messages = array(
 	'msg_list_view' => 'List View',
 	'msg_image_view' => 'Image View',
 	'msg_insert' => 'Insert',
+	'msg_select_current' => ' (Current)',
+	'msg_select_useful' => 'Pages for uploading',
+	'msg_select_manyitems' => 'Pages with many files',
+	'msg_noupload' => 'Cannot upload any files to $1.',
 );
 
 ///////////////////////////////////////

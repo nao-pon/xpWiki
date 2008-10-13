@@ -1,7 +1,7 @@
 <?php
 /*
  * Created on 2008/03/24 by nao-pon http://hypweb.net/
- * $Id: attach.php,v 1.7 2008/10/11 00:38:24 nao-pon Exp $
+ * $Id: attach.php,v 1.8 2008/10/13 12:30:06 nao-pon Exp $
  */
 
 //-------- クラス
@@ -714,7 +714,7 @@ class XpWikiAttachFiles
 		$pcmd = ($mode == "imglist")? "imglist" : "list";
 		$pcmd2 = ($mode == "imglist")? "list" : "imglist";
 		
-		$otherkeys = array('cols', 'max', 'popup');
+		$otherkeys = array('cols', 'max', 'popup', 'base');
 		$otherparm = '';
 		$otherprams = array();
 		foreach($otherkeys as $key) {
@@ -824,16 +824,63 @@ class XpWikiAttachFiles
 			$ret = "<ul>\n$ret</ul>";
 		}
 		
-		$form = '';
+		$select = $form = '';
 		if ($this->is_popup) {
-			$attach =& $this->func->get_plugin_instance('attach');
-			$form = $attach->attach_form($this->page) . '<hr />';
+			$otherPages = array();
+			$shown = array($this->root->vars['base']);
+			if ($this->root->pages_for_attach) {
+				$otherPages[] = '<optgroup label="' . $this->root->_attach_messages['msg_select_useful'] . '">';
+				foreach(explode('#', $this->root->pages_for_attach) as $_page) {
+					if ($this->func->check_readable($_page, false, false)) {
+						$selected = ($_page === $this->page)? ' selected="selected"' : '';
+						$shown[] = $_page;
+						$_page = htmlspecialchars($_page);
+						$otherPages[] = '<option value="' . $_page . '"' . $selected . '>' . $_page . '</option>';
+					}
+				}
+				$otherPages[] = '</optgroup>';
+			}
+			$query = 'SELECT p.name, count( * ) AS count FROM `' . $this->xpwiki->db->prefix($this->root->mydirname.'_pginfo') . '` p INNER JOIN `' . $this->xpwiki->db->prefix($this->root->mydirname.'_attach') . '` a ON p.pgid = a.pgid WHERE a.age =0 AND a.name != "fusen.dat" GROUP BY a.pgid ORDER BY count DESC, p.name ASC LIMIT 0 , 50';
+			if ($result = $this->xpwiki->db->query($query)) {
+				$otherPages[] = '<optgroup label="' . $this->root->_attach_messages['msg_select_manyitems'] . '">';
+				while($row = $this->xpwiki->db->fetchRow($result)) {
+					if ($this->func->check_readable($row[0], false, false)) {
+						if (in_array($row[0], $shown)) continue;
+						$selected = ($row[0] === $this->page)? ' selected="selected"' : '';
+						$_page = htmlspecialchars($row[0]);
+						$otherPages[] = '<option value="' . $_page . '"' . $selected . '>' . $_page . ' (' . $row[1] . ')</option>';
+					}
+				}
+				$otherPages[] = '</optgroup>';
+			}
+			if ($otherPages) {
+				$select_js = <<<EOD
+<script>
+<!--
+function xpwiki_file_selector_change(page) {
+	if (page) {
+		parent.XpWiki.PopupBodyUrl = parent.$('XpWikiPopupBody').src = parent.XpWiki.PopupBodyUrl.replace(/&refer=[^&]+/, '&refer=' + encodeURIComponent(page));
+	}
+}
+-->
+</script>
+EOD;
+				$thisPage = htmlspecialchars($this->root->vars['base']);
+				$thisPage = '<option value="'.$thisPage.'">' . $thisPage . $this->root->_attach_messages['msg_select_current'] . '</option>';
+				$select = $select_js . '<form><select name="othorpage" onchange="xpwiki_file_selector_change(this.options[this.selectedIndex].value)">' . $thisPage . join('', $otherPages) . '</select></form>';
+			}
+			
+			if (empty($this->root->vars['start'])) {
+				$attach =& $this->func->get_plugin_instance('attach');
+				$form = $attach->attach_form($this->page);
+				if ($form) $form .= '<hr />';
+			}
 		}
 		
 		$showall = ($fromall && $this->max < $this->count)? " [ <a href=\"{$this->root->script}?plugin=attach&amp;pcmd={$pcmd}&amp;refer=".rawurlencode($this->page)."\">Show All</a> ]" : "";
 		$allpages = ($this->is_popup || $fromall)? "" : " [ <a href=\"{$this->root->script}?plugin=attach&amp;pcmd={$pcmd}\" />All Pages</a> ]";
 		$body = $this->is_popup? $ret : "<div class=\"filelist_page\">".$this->func->make_pagelink($this->page)."<small> (".$this->count." file".(($this->count===1)?"":"s").")".$showall.$allpages."</small></div>\n$ret";
-		return $form.$navi.($navi? "<hr />":"").$body.($navi? "<hr />":"")."$navi\n";
+		return $select.$form.$navi.($navi? "<hr />":"").$body.($navi? "<hr />":"")."$navi\n";
 	}
 	// ファイル一覧を取得(inline)
 	function to_flat()
@@ -894,6 +941,7 @@ class XpWikiAttachPages
 			// WHERE句
 			$where = array();
 			$where[] = "`pgid` = {$pgid}";
+			if (isset($this->root->vars['popup'])) $where[] = '`name` != "fusen.dat"';
 			if (!$isbn) $where[] = "`mode` != '1'";
 			if (!is_null($age)) $where[] = "`age` = $age";
 			//if ($mode == "imglist") $where[] = "`type` LIKE 'image%' AND `age` = 0";

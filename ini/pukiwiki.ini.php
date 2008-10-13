@@ -1,6 +1,6 @@
 <?php
 // PukiWiki - Yet another WikiWikiWeb clone
-// $Id: pukiwiki.ini.php,v 1.84 2008/09/25 00:21:46 nao-pon Exp $
+// $Id: pukiwiki.ini.php,v 1.85 2008/10/13 12:30:06 nao-pon Exp $
 // Copyright (C)
 //   2002-2006 PukiWiki Developers Team
 //   2001-2002 Originally written by yu-ji
@@ -138,6 +138,10 @@ $root->menubar      = 'MenuBar';       // Menu
 $root->render_attach= ':RenderAttaches';
 
 $const['PLUGIN_RENAME_LOGPAGE'] = ':RenameLog'; // Rename Log page
+
+// ファイル添付用として表示するページ(複数は # で区切る)
+// Page displayed for file uploading. ( The plural is delimited by "#" )
+$root->pages_for_attach = '';
 
 // Guest user's name (It will be overwrite by xoops setting.)
 $root->anonymous = 'anonymous';
