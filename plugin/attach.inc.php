@@ -2,7 +2,7 @@
 /////////////////////////////////////////////////
 // PukiWiki - Yet another WikiWikiWeb clone.
 //
-//  $Id: attach.inc.php,v 1.42 2008/10/09 08:19:20 nao-pon Exp $
+//  $Id: attach.inc.php,v 1.43 2008/10/13 12:30:06 nao-pon Exp $
 //  ORG: attach.inc.php,v 1.31 2003/07/27 14:15:29 arino Exp $
 //
 /*
@@ -158,13 +158,13 @@ class xpwiki_plugin_attach extends xpwiki_plugin {
 		$age = array_key_exists('age',$this->root->vars) ? $this->root->vars['age'] : 0;
 		$pcmd = array_key_exists('pcmd',$this->root->vars) ? $this->root->vars['pcmd'] : '';
 		
-		if (!empty($this->root->vars['page']) && $this->func->is_page($this->root->vars['page']) && empty($pcmd))
+		if (!empty($this->root->vars['refer']) && $this->func->is_page($this->root->vars['refer']) && empty($pcmd))
 		{
 			//ページが指定されていて pcmd がない時は 'upload' にする
 			$pcmd = 'upload';
 		}
 		
-		if (empty($this->root->vars['page']) && $pcmd === 'upload') {
+		if (empty($this->root->vars['refer']) && $pcmd === 'upload') {
 			// ページ名の指定がない場合は list
 			$pcmd = 'list';
 		}
@@ -180,9 +180,9 @@ class xpwiki_plugin_attach extends xpwiki_plugin {
 				exit;
 			}
 		}
-	
+
 		// Authentication
-		if (array_key_exists('refer',$this->root->vars))
+		if (isset($this->root->vars['refer']))
 		{
 			if ($pcmd == 'upload')
 			{
@@ -195,42 +195,51 @@ class xpwiki_plugin_attach extends xpwiki_plugin {
 				{
 					if ($this->cont['ATTACH_UPLOAD_EDITER_ONLY'])
 					{
-						$check = $this->func->check_editable($this->root->vars['refer']);
+						$check = $this->func->check_editable($this->root->vars['refer'], false, false);
 					}
 					else
 					{
-						$check = $this->func->check_readable($this->root->vars['refer']);
+						$check = $this->func->check_readable($this->root->vars['refer'], false, false);
 					}
 				}
-				if (!$check) return array('result'=>FALSE,'msg'=>$this->root->_attach_messages['err_noparm']);
+				
+				if (!$check) {
+					$ret = array(
+						'result' => FALSE,
+						'msg'    => $this->root->_attach_messages['err_noparm']
+					);
+					if (!empty($this->root->post['returi'])) {
+						$ret['redirect'] = $this->root->siteinfo['host'].$this->root->post['returi'];
+					}
+					return $ret;
+				}
+
+				if (array_key_exists('attach_file',$_FILES))
+				{
+					$pass = (!empty($this->root->vars['pass'])) ? md5($this->root->vars['pass']) : NULL;
+					$copyright = (isset($this->root->post['copyright']))? TRUE : FALSE;
+					if (is_array($_FILES['attach_file']['name'])) {
+						for ($i = 0; $i < count($_FILES['attach_file']['name']); $i++) {
+							if (! $_FILES['attach_file']['name'][$i]) continue;
+							$_files = array();
+							foreach(array_keys($_FILES['attach_file']) as $_key) {
+								$_files[$_key] = $_FILES['attach_file'][$_key][$i];
+							}
+							$ret = $this->attach_upload($_files,$this->root->vars['refer'],$pass,$copyright);
+						}	
+					} else {
+						$ret = $this->attach_upload($_FILES['attach_file'],$this->root->vars['refer'],$pass,$copyright);
+					}
+					if (!empty($this->root->post['returi'])) {
+						$ret['redirect'] = $this->root->siteinfo['host'].$this->root->post['returi'];
+					}
+					return $ret;
+				}
 			}
 			else
 			{
 				//その他
-				if (!$this->func->check_readable($this->root->vars['refer'])) return array('result'=>FALSE,'msg'=>_MD_PUKIWIKI_NO_VISIBLE);
-			}
-			
-			// Upload
-			if (array_key_exists('attach_file',$_FILES))
-			{
-				$pass = (!empty($this->root->vars['pass'])) ? md5($this->root->vars['pass']) : NULL;
-				$copyright = (isset($this->root->post['copyright']))? TRUE : FALSE;
-				if (is_array($_FILES['attach_file']['name'])) {
-					for ($i = 0; $i < count($_FILES['attach_file']['name']); $i++) {
-						if (! $_FILES['attach_file']['name'][$i]) continue;
-						$_files = array();
-						foreach(array_keys($_FILES['attach_file']) as $_key) {
-							$_files[$_key] = $_FILES['attach_file'][$_key][$i];
-						}
-						$ret = $this->attach_upload($_files,$this->root->vars['refer'],$pass,$copyright);
-					}	
-				} else {
-					$ret = $this->attach_upload($_FILES['attach_file'],$this->root->vars['refer'],$pass,$copyright);
-				}
-				if (!empty($this->root->post['returi'])) {
-					$ret['redirect'] = $this->root->siteinfo['host'].$this->root->post['returi'];
-				}
-				return $ret;
+				if (!$this->func->check_readable($this->root->vars['refer'])) return array('result'=>FALSE,'msg'=>$this->root->_attach_messages['err_noparm']);
 			}
 		}
 		
@@ -751,6 +760,11 @@ class xpwiki_plugin_attach extends xpwiki_plugin {
 	//アップロードフォーム
 	function attach_form($page) {
 		static $load = array();
+
+		if ($this->cont['ATTACH_UPLOAD_EDITER_ONLY'] && ! $this->func->check_editable($page, false, false)) {
+			return str_replace('$1', htmlspecialchars($page), $this->root->_attach_messages['msg_noupload']);
+		}
+
 		if (!isset($load[$this->xpwiki->pid])) {$load[$this->xpwiki->pid] = array();}
 		
 		$this->func->exist_plugin('attach');
@@ -860,7 +874,7 @@ EOD;
 <form enctype="multipart/form-data" action="{$this->root->script}" method="post">
  <div>
   <input type="hidden" name="plugin" value="attach" />
-  <input type="hidden" name="pcmd" value="post" />
+  <input type="hidden" name="pcmd" value="upload" />
   <input type="hidden" name="refer" value="$s_page" />
   <input type="hidden" name="max_file_size" value="$maxsize" />
   $refid$popup

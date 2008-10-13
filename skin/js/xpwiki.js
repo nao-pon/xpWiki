@@ -661,6 +661,7 @@ var XpWiki = {
 		
 		var url = this.MyUrl + '/' + this.dir + '/?plugin=attach&pcmd=imglist&refer=';
 		url += encodeURIComponent(page);
+		url += '&base=' + encodeURIComponent(page);
 		url += '&popup=_self';
 		url += '&cols=1';
 		url += '&max=10';
@@ -669,6 +670,7 @@ var XpWiki = {
 		if ($('XpWikiPopupBody').src != url) {
 			$('XpWikiPopupHeaderTitle').innerHTML = 'Now loading...';
 			$('XpWikiPopupBody').src = url;
+			this.PopupBodyUrl = url;
 		}
 		Element.show(this.PopupDiv);
 		
@@ -702,6 +704,10 @@ var XpWiki = {
 	},
 	
 	refInsert: function(file, type) {
+		if (! wikihelper_elem) {
+			alert(wikihelper_msg_elem);
+			return false;
+		}
 		var size = '';
 		if (type == 'image') {
 			inp = prompt(wikihelper_msg_thumbsize, '');
