@@ -16,7 +16,7 @@
 // -----------------------------------------------------------------------------------
 //
 //  edited by nao-pon - http://hypweb.net/
-//  $Id: lightbox.js,v 1.13 2008/07/20 07:11:42 nao-pon Exp $
+//  $Id: lightbox.js,v 1.14 2008/10/13 12:28:18 nao-pon Exp $
 //
 // -----------------------------------------------------------------------------------
 
@@ -296,7 +296,7 @@ Lightbox.prototype = {
 		// calculate top offset for the lightbox and display
 		var arrayPageSize = getPageSize();
 		var arrayPageScroll = getPageScroll();
-		var lightboxTop = arrayPageScroll[1] + (arrayPageSize[3] / 30);
+		var lightboxTop = arrayPageScroll[1] + (arrayPageSize[3] / 50);
 
 		Element.setTop('lightbox', lightboxTop);
 		Element.show('lightbox');
@@ -377,7 +377,7 @@ Lightbox.prototype = {
 		document.getElementById('originalLink').style.display = 'none';
 		var boxHeight = imgHeight + 36 + (borderSize * 3);
 		var boxWidth = imgWidth + (borderSize * 2);
-		var ratio = 0.8;
+		var ratio = 0.96;
 		
 		if(arrayPageSize[3] <= boxHeight | arrayPageSize[2] <= boxWidth){
 			if(arrayPageSize[3] <= boxHeight) {
