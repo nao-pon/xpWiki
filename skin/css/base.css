@@ -56,6 +56,7 @@ div.resizableResizeY {
 	filter:alpha(opacity=60);
 	-moz-opacity: 0.6;
 	opacity: 0.6;
+	overflow: hidden;	/* for IE6 */
 }
 
 div.resizableResizeXY {
@@ -71,10 +72,29 @@ div.resizableResizeXY {
 	filter:alpha(opacity=60);
 	-moz-opacity: 0.6;
 	opacity: 0.6;
+	overflow: hidden;	/* for IE6 */
 }
 
 img.xpwikiFavicon {
 	border: none;
 	padding: 0px 1px 0px 0px;
 	margin: 0px;
+}
+
+div.xpwikiWrapBtn {
+	float: right;
+	width: auto;
+	font-size: 11px;
+	padding: 3px;
+	border: 1px solid gray;
+	cursor: pointer;
+}
+
+div.xpwikiFckBtn {
+	float: right;
+	width: auto;
+	font-size: 11px;
+	padding: 3px;
+	border: 1px solid gray;
+	cursor: pointer;
 }
