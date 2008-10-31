@@ -1,56 +1,86 @@
 <?php
+// PukiWiki - Yet another WikiWikiWeb clone
+// $Id: pcomment.inc.php,v 1.15 2008/10/31 07:11:47 nao-pon Exp $
+//
+// pcomment plugin - Show/Insert comments into specified (another) page
+//
+// Usage: #pcomment([page][,max][,options])
+//
+//   page -- An another page-name that holds comments
+//           (default:PLUGIN_PCOMMENT_PAGE)
+//   max  -- Max number of recent comments to show
+//           (0:Show all, default:PLUGIN_PCOMMENT_NUM_COMMENTS)
+//
+// Options:
+//   above -- Comments are listed above the #pcomment (added by chronological order)
+//   below -- Comments are listed below the #pcomment (by reverse order)
+//   reply -- Show radio buttons allow to specify where to reply
+
 class xpwiki_plugin_pcomment extends xpwiki_plugin {
 	function plugin_pcomment_init () {
 
-
-	// PukiWiki - Yet another WikiWikiWeb clone
-	// $Id: pcomment.inc.php,v 1.14 2008/10/11 00:54:43 nao-pon Exp $
-	//
-	// pcomment plugin - Show/Insert comments into specified (another) page
-	//
-	// Usage: #pcomment([page][,max][,options])
-	//
-	//   page -- An another page-name that holds comments
-	//           (default:PLUGIN_PCOMMENT_PAGE)
-	//   max  -- Max number of recent comments to show
-	//           (0:Show all, default:PLUGIN_PCOMMENT_NUM_COMMENTS)
-	//
-	// Options:
-	//   above -- Comments are listed above the #pcomment (added by chronological order)
-	//   below -- Comments are listed below the #pcomment (by reverse order)
-	//   reply -- Show radio buttons allow to specify where to reply
-	
-	// Default recording page name (%s = $vars['page'] = original page name)
+		// Default recording page name (%s = $vars['page'] = original page name)
 		switch ($this->cont['LANG']) {
-		case 'ja': $this->cont['PLUGIN_PCOMMENT_PAGE'] =  '[[コメント/%s]]'; break;
-		default:   $this->cont['PLUGIN_PCOMMENT_PAGE'] =  '[[Comments/%s]]'; break;
+		case 'ja':
+			$this->conf['PAGE'] =  '[[コメント/%s]]';
+			$this->conf['NEW_TITLE'] =  '[[<_REFER_>]]のコメント一覧';
+			$this->conf['NOW_COMMENT'] = '最新コメント';
+			$this->conf['LOG_TITLE'] =  '過去ログ';
+			break;
+		default:
+			$this->conf['PAGE'] =  '[[Comments/%s]]';
+			$this->conf['NEW_TITLE'] =  'Comments of [[<_REFER_>]]';
+			$this->conf['NOW_COMMENT'] = 'Current';
+			$this->conf['LOG_TITLE'] =  'Old Log';
+			break;
 		}
-	
-		$this->cont['PLUGIN_PCOMMENT_NUM_COMMENTS'] =      10; // Default 'latest N posts'
-$this->cont['PLUGIN_PCOMMENT_DIRECTION_DEFAULT'] =  1; // 1: above 0: below
-		$this->cont['PLUGIN_PCOMMENT_SIZE_MSG'] =   70;
-		$this->cont['PLUGIN_PCOMMENT_SIZE_NAME'] =  15;
-	
-	// Auto log rotation
-		$this->cont['PLUGIN_PCOMMENT_AUTO_LOG'] =  0; // 0:off 1-N:number of comments per page
-	
-	// Update recording page's timestamp instead of parent's page itself
-		$this->cont['PLUGIN_PCOMMENT_TIMESTAMP'] =  0;
-	
-	// ----
-		$this->cont['PLUGIN_PCOMMENT_FORMAT_NAME'] = 	'[[$name]]';
-		$this->cont['PLUGIN_PCOMMENT_FORMAT_MSG'] = 	'$msg';
-		$this->cont['PLUGIN_PCOMMENT_FORMAT_NOW'] = 	'&new{$now};';
-	
-	// "\x01", "\x02", "\x03", and "\x08" are used just as markers
-		$this->cont['PLUGIN_PCOMMENT_FORMAT_STRING'] = 
-	"\x08" . 'MSG' . "\x08" . ' -- ' . "\x08" . 'NAME' . "\x08" . ' ' . "\x08" . 'DATE' . "\x08";
+		
+		$this->conf['NUM_COMMENTS'] =      10; // Default 'latest N posts'
+		$this->conf['DIRECTION_DEFAULT'] =  1; // 1: above 0: below
+		$this->conf['SIZE_MSG'] =   70;
+		$this->conf['SIZE_NAME'] =  15;
+		
+		// Auto log rotation
+		$this->conf['AUTO_LOG'] =  30; // 0:off 1-N:number of comments per page
+		
+		// Update recording page's timestamp instead of parent's page itself
+		$this->conf['TIMESTAMP'] =  1;
+		
+		// Template "default"
+		$this->conf['FORMAT_NAME']['default'] = '[[$name]]';
+		$this->conf['FORMAT_MSG']['default']  = '$msg';
+		$this->conf['FORMAT_NOW']['default']  = '&new{$now};';
+		// "\x01", "\x02", "\x03", and "\x08" are used just as markers
+		$this->conf['FORMAT_STRING']['default'] = 
+		"\x08" . 'MSG' . "\x08" . ' -- ' . "\x08" . 'NAME' . "\x08" . ' ' . "\x08" . 'DATE' . "\x08";
+		
+		// Template "areaedt"
+		$this->conf['FORMAT_NAME']['areaedit'] = '$name';
+		$this->conf['FORMAT_MSG']['areaedit']  = '&areaedit(' . "\x08" . 'USER_CODE' . "\x08" . ',preview:5){$msg};';
+		
+		$this->conf['TEMPLATE_DEFAULT'] = 'default';
+		
+		$this->conf['NEW_PAGE_FORMAT'] = <<<EOD
+* {$this->conf['NEW_TITLE']}
+** {$this->conf['LOG_TITLE']}
+#ls2(,pagename,col:5)
+** {$this->conf['NOW_COMMENT']}
+EOD;
+
+		$this->conf['LOG_PAGE_FORMAT'] = <<<EOD
+* {$this->conf['LOG_TITLE']} (<_LOG_NUMBAR_>)
+
+#navi(../)
+
+<_BODY_>
+
+#navi(../)
+EOD;
 
 	}
 	
 	function plugin_pcomment_action()
 	{
-	//	global $vars;
 	
 		if ($this->cont['PKWK_READONLY']) $this->func->die_message('PKWK_READONLY prohibits editing');
 	
@@ -74,9 +104,6 @@ $this->cont['PLUGIN_PCOMMENT_DIRECTION_DEFAULT'] =  1; // 1: above 0: below
 	
 	function plugin_pcomment_convert()
 	{
-	//	global $vars;
-	//	global $_pcmt_messages;
-	
 		$ret = '';
 	
 		$params = array(
@@ -85,23 +112,25 @@ $this->cont['PLUGIN_PCOMMENT_DIRECTION_DEFAULT'] =  1; // 1: above 0: below
 			'below' =>FALSE,
 			'above' =>FALSE,
 			'reply' =>FALSE,
+			'template' => $this->conf['TEMPLATE_DEFAULT'],
 			'_args' =>array()
 		);
 	
-		foreach(func_get_args() as $arg)
-			$this->plugin_pcomment_check_arg($arg, $params);
+		$args = func_get_args();
+		$this->fetch_options($params, $args, array('page'));
 		
 		$vars_page = isset($this->root->vars['page']) ? $this->root->vars['page'] : '';
-		$page  = (isset($params['_args'][0]) && $params['_args'][0] != '') ? $params['_args'][0] :
-			sprintf($this->cont['PLUGIN_PCOMMENT_PAGE'], $this->func->strip_bracket($vars_page));
-		$count = isset($params['_args'][1]) ? intval($params['_args'][1]) : 0;
-		if ($count == 0) $count = $this->cont['PLUGIN_PCOMMENT_NUM_COMMENTS'];
-	
+		$page = $params['page'];
+		if (! $page ) $page = sprintf($this->conf['PAGE'], $this->func->strip_bracket($vars_page));
+		$count = isset($params['_args'][0]) ? intval($params['_args'][0]) : 0;
+		if ($count == 0) $count = $this->conf['NUM_COMMENTS'];
+		$temp = htmlspecialchars($params['template']);
+		
 		$_page = $this->func->get_fullname($this->func->strip_bracket($page), $vars_page);
 		if (!$this->func->is_pagename($_page))
 			return sprintf($this->root->_pcmt_messages['err_pagename'], htmlspecialchars($_page));
 	
-		$dir = $this->cont['PLUGIN_PCOMMENT_DIRECTION_DEFAULT'];
+		$dir = $this->conf['DIRECTION_DEFAULT'];
 		if ($params['below']) {
 			$dir = 0;
 		} elseif ($params['above']) {
@@ -125,13 +154,13 @@ $this->cont['PLUGIN_PCOMMENT_DIRECTION_DEFAULT'] =  1; // 1: above 0: below
 				$name = '';
 			} else {
 				$title = $this->root->_pcmt_messages['btn_name'];
-				$name = '<input type="text" name="name" value="' . $this->cont['USER_NAME_REPLACE'] . '"size="' . $this->cont['PLUGIN_PCOMMENT_SIZE_NAME'] . '" />';
+				$name = '<input type="text" name="name" value="' . $this->cont['USER_NAME_REPLACE'] . '"size="' . $this->conf['SIZE_NAME'] . '" />';
 			}
 	
 			$radio   = $params['reply'] ?
 				'<input type="radio" name="reply" value="0" tabindex="0" checked="checked" />' : '';
 
-			$comment = '<input type="text" name="msg" id="' . $this->get_domid('msg', true) . '" rel="wikihelper" size="' . $this->cont['PLUGIN_PCOMMENT_SIZE_MSG'] . '" />';
+			$comment = '<input type="text" name="msg" id="' . $this->get_domid('msg', true) . '" rel="wikihelper" size="' . $this->conf['SIZE_MSG'] . '" />';
 	
 			$s_page   = htmlspecialchars($_page);
 			if ($this->root->render_mode !== 'render') {
@@ -151,6 +180,7 @@ $this->cont['PLUGIN_PCOMMENT_DIRECTION_DEFAULT'] =  1; // 1: above 0: below
   <input type="hidden" name="nodate" value="$s_nodate" />
   <input type="hidden" name="dir"    value="$dir" />
   <input type="hidden" name="count"  value="$count" />
+  <input type="hidden" name="temp"   value="$temp" />
   $radio $title $name $comment
   <input type="submit" value="{$this->root->_pcmt_messages['btn_comment']}" />
   </div>
@@ -171,15 +201,15 @@ EOD;
 			return '<div>' .
 			'<p>' . $recent . ' ' . $link . '</p>' . "\n" .
 			$form_start .
-				$comments . "\n" .
-				$form .
+			$comments . "\n" .
+			$form .
 			$form_end .
 			'</div>' . "\n";
 		} else {
 			return '<div>' .
 			$form_start .
-				$form .
-				$comments. "\n" .
+			$form .
+			$comments. "\n" .
 			$form_end .
 			'<p>' . $recent . ' ' . $link . '</p>' . "\n" .
 			'</div>' . "\n";
@@ -188,11 +218,23 @@ EOD;
 	
 	function plugin_pcomment_insert()
 	{
-	//	global $script, $vars, $now;
-	//	global $_title_updated, $_no_name, $_pcmt_messages;
-	
+		$template_vars = array(
+			'FORMAT_NAME',
+			'FORMAT_MSG',
+			'FORMAT_NOW',
+			'FORMAT_STRING'
+		);
+		
 		$refer = isset($this->root->vars['refer']) ? $this->root->vars['refer'] : '';
 		$page  = isset($this->root->vars['page'])  ? $this->root->vars['page']  : '';
+		$template = isset($this->root->vars['temp']) ? $this->root->vars['temp'] : 'default';
+		
+		// テンプレート設定
+		foreach ($template_vars as $_vars) {
+			$$_vars = isset($this->conf[$_vars][$template])?
+				$this->conf[$_vars][$template] : $this->conf[$_vars]['default'];
+		}
+				
 		$this->root->vars['page'] = $page = $this->func->get_fullname($page, $refer);
 	
 		if (! $this->func->is_pagename($page))
@@ -202,19 +244,20 @@ EOD;
 				'collided'=>TRUE
 			);
 		
-		$this->func->check_editable($page, true, true);
+		//$this->func->check_editable($page, true, true);
 	
 		$ret = array('msg' => $this->root->_title_updated, 'collided' => FALSE);
 	
-		$msg = str_replace('$msg', rtrim($this->root->vars['msg']), $this->cont['PLUGIN_PCOMMENT_FORMAT_MSG']);
+		$msg = str_replace('$msg', rtrim($this->root->vars['msg']), $FORMAT_MSG);
+		$msg = str_replace("\x08" . 'USER_CODE' . "\x08", ($this->root->userinfo['uid']? 'uid:' . $this->root->userinfo['uid'] : 'ucd:' . $this->root->userinfo['ucd']), $msg);
 		$name = (! isset($this->root->vars['name']) || $this->root->vars['name'] == '') ? $this->root->_no_name : $this->root->vars['name'];
 		// save name to cookie
 		if ($name) { $this->func->save_name2cookie($name); }
-		$name = ($name == '') ? '' : str_replace('$name', $name, $this->cont['PLUGIN_PCOMMENT_FORMAT_NAME']);
+		$name = ($name == '') ? '' : str_replace('$name', $name, $FORMAT_NAME);
 		$date = (! isset($this->root->vars['nodate']) || $this->root->vars['nodate'] != '1') ?
-			str_replace('$now', $this->root->now, $this->cont['PLUGIN_PCOMMENT_FORMAT_NOW']) : '';
+			str_replace('$now', $this->root->now, $FORMAT_NOW) : '';
 		if ($date != '' || $name != '') {
-			$msg = str_replace("\x08" . 'MSG'  . "\x08", $msg,  $this->cont['PLUGIN_PCOMMENT_FORMAT_STRING']);
+			$msg = str_replace("\x08" . 'MSG'  . "\x08", $msg,  $FORMAT_STRING);
 			$msg = str_replace("\x08" . 'NAME' . "\x08", $name, $msg);
 			$msg = str_replace("\x08" . 'DATE' . "\x08", $date, $msg);
 		}
@@ -226,7 +269,9 @@ EOD;
 		$msg = rtrim($msg);
 	
 		if (! $this->func->is_page($page)) {
-			$postdata = '[[' . htmlspecialchars($this->func->strip_bracket($refer)) . ']]' . "\n\n" .
+			$this->func->make_empty_page($page);
+			
+			$postdata = str_replace('<_REFER_>', htmlspecialchars($this->func->strip_bracket($refer)), $this->conf['NEW_PAGE_FORMAT']) . "\n" .
 			'-' . $msg . "\n";
 		} else {
 			$postdata = $this->func->get_source($page);
@@ -276,18 +321,17 @@ EOD;
 			// Insert new comment
 			array_splice($postdata, $end_position, 0, str_repeat('-', $level) . $msg . "\n");
 	
-			if ($this->cont['PLUGIN_PCOMMENT_AUTO_LOG']) {
+			if ($this->conf['AUTO_LOG']) {
 				$_count = isset($this->root->vars['count']) ? $this->root->vars['count'] : '';
 				$this->plugin_pcomment_auto_log($page, $dir, $_count, $postdata);
 			}
 			$postdata = join('', $postdata);
 		}
 		$this->func->escape_multiline_pre($postdata, FALSE);
-		$this->func->page_write($page, $postdata, $this->cont['PLUGIN_PCOMMENT_TIMESTAMP']);
+		$this->func->page_write($page, $postdata, $this->conf['TIMESTAMP']);
 	
-		if ($this->cont['PLUGIN_PCOMMENT_TIMESTAMP']) {
-			if ($refer !== '') $this->func->pkwk_touch_file($this->func->get_filename($refer));
-			$this->func->put_lastmodified();
+		if ($this->conf['TIMESTAMP']) {
+			if ($refer !== '') $this->func->touch_page($refer, FALSE, TRUE);
 		}
 	
 		return $ret;
@@ -296,17 +340,17 @@ EOD;
 	// Auto log rotation
 	function plugin_pcomment_auto_log($page, $dir, $count, & $postdata)
 	{
-		if (! $this->cont['PLUGIN_PCOMMENT_AUTO_LOG']) return;
+		if (! $this->conf['AUTO_LOG']) return;
 	
 		$keys = array_keys(preg_grep('/(?:^-(?!-).*$)/m', $postdata));
-		if (count($keys) < ($this->cont['PLUGIN_PCOMMENT_AUTO_LOG'] + $count)) return;
+		if (count($keys) < ($this->conf['AUTO_LOG'] + $count)) return;
 	
 		if ($dir) {
 			// Top N comments (N = PLUGIN_PCOMMENT_AUTO_LOG)
-			$old = array_splice($postdata, $keys[0], $keys[$this->cont['PLUGIN_PCOMMENT_AUTO_LOG']] - $keys[0]);
+			$old = array_splice($postdata, $keys[0], $keys[$this->conf['AUTO_LOG']] - $keys[0]);
 		} else {
 			// Bottom N comments
-			$old = array_splice($postdata, $keys[count($keys) - $this->cont['PLUGIN_PCOMMENT_AUTO_LOG']]);
+			$old = array_splice($postdata, $keys[count($keys) - $this->conf['AUTO_LOG']]);
 		}
 	
 		// Decide new page name
@@ -315,8 +359,13 @@ EOD;
 			++$i;
 			$_page = $page . '/' . $i;
 		} while ($this->func->is_page($_page));
-	
-		$this->func->page_write($_page, '[[' . $page . ']]' . "\n\n" . join('', $old));
+		
+		$data = $this->func->rewrite4move2child(join('', $old));
+		$data = str_replace(array('<_LOG_NUMBAR_>', '<_BODY_>'), array($i, $data), $this->conf['LOG_PAGE_FORMAT']);
+		
+		$this->func->make_empty_page($_page);
+		
+		$this->func->page_write($_page, $data);
 	
 		// Recurse :)
 		$this->plugin_pcomment_auto_log($page, $dir, $count, $postdata);
@@ -377,13 +426,19 @@ EOD;
 		$data = $cmts;
 		if ($dir) $data = array_reverse($data);
 		unset($cmts, $matches);
-	
+
 		// Remove lines before comments
 		while (! empty($data) && substr($data[0], 0, 1) != '-')
 			array_shift($data);
+
+		//areaedit用スタートマーカーセット
+		$start = md5(rtrim(preg_replace("/\x01.+?\x03/", '', $data[0])));
 	
 		$comments = $this->func->convert_html($data, $page);
 		unset($data);
+
+		//areaedit用スタートマーカー付加
+		$comments = str_replace("<a href=\"".$this->root->script."?plugin=areaedit","<a href=\"".$this->root->script."?plugin=areaedit&amp;start=$start",$comments);
 	
 		// Add radio buttons
 		if ($reply)
