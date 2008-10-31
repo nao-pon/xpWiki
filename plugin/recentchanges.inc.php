@@ -1,7 +1,7 @@
 <?php
 //
 // Created on 2006/11/19 by nao-pon http://hypweb.net/
-// $Id: recentchanges.inc.php,v 1.13 2007/12/14 00:02:08 nao-pon Exp $
+// $Id: recentchanges.inc.php,v 1.14 2008/10/31 07:12:58 nao-pon Exp $
 //
 class xpwiki_plugin_recentchanges extends xpwiki_plugin {
 	
@@ -30,7 +30,7 @@ class xpwiki_plugin_recentchanges extends xpwiki_plugin {
 		{
 			$date = $items = "";
 			$cnt = 0;
-			$items = '<ol class="list1" style="padding-left:16px;margin-left:16px">';
+			$items = '<ol class="list1">';
 			while(list($page, $editedtime) = $this->xpwiki->db->fetchRow($res))
 			{
 				$lastmod = $this->func->format_date($editedtime);
