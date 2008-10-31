@@ -1,6 +1,6 @@
 <?php
 // PukiWiki - Yet another WikiWikiWeb clone.
-// $Id: backup.inc.php,v 1.13 2008/06/04 00:45:33 nao-pon Exp $
+// $Id: backup.inc.php,v 1.14 2008/10/31 07:03:31 nao-pon Exp $
 // Copyright (C)
 //   2002-2005 PukiWiki Developers Team
 //   2001-2002 Originally written by yu-ji
@@ -155,7 +155,7 @@ EOD;
 			// list
 			$_name = '_title_backup' . $action;
 			$title = $this->root->$_name;
-			$list .= '<li>'.htmlspecialchars(str_replace(array('$1', '$2'), array($page, ' All'), $title)).'</li>';
+			$list .= '<li>'.htmlspecialchars(str_replace(array('$1', '$2'), array($page, ' All'), $title)) . "\n";
 			$list .= '  <ul>' . "\n";
 			foreach($backups as $age => $val) {
 				$s_title = htmlspecialchars(str_replace(array('$1', '$2'), array($page, $age), $title));
