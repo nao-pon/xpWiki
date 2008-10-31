@@ -1,7 +1,7 @@
 <?php
 //
 // Created on 2006/10/02 by nao-pon http://hypweb.net/
-// $Id: xpwiki_func.php,v 1.194 2008/10/09 08:19:20 nao-pon Exp $
+// $Id: xpwiki_func.php,v 1.195 2008/10/31 07:01:33 nao-pon Exp $
 //
 class XpWikiFunc extends XpWikiXoopsWrapper {
 
@@ -2021,10 +2021,15 @@ EOD;
 		return $html;
 	}
 	
-	function touch_page ($page, $time = FALSE) {
+	function touch_page ($page, $time = FALSE, $lastuser_update = FALSE) {
 		if (! $this->is_page($page)) return FALSE;
-		$this->pkwk_touch_file($this->get_filename($page), $time);
-		$this->touch_db($page);
+		if ($lastuser_update) {
+			$this->page_write($page, NULL);
+		}
+		if (! $lastuser_update || $time) {
+			$this->pkwk_touch_file($this->get_filename($page), $time);
+			$this->touch_db($page);
+		}
 	}
 
 	function send_update_ping () {
@@ -2074,6 +2079,39 @@ EOD;
 		$source = preg_replace('/^#freeze\s*$/m','',$source);
 		// #pginfo¤òºï½ü
 		$source = $this->remove_pginfo($source);
+	}
+	
+	function make_empty_page ($page, $asSystem = true) {
+		if ($asSystem) {
+			$_userinfo = $this->root->userinfo;
+			$this->root->userinfo['admin'] = true;
+			$this->root->userinfo['uid'] = 0;
+			$this->root->userinfo['ucd'] = 'System';
+			$this->root->userinfo['uname_s'] = $this->root->userinfo['uname'] = '[System]';
+			$this->root->userinfo['gids'] = array();
+		}
+		$this->page_write($page, "\t");
+		if ($asSystem) {
+			$this->root->userinfo = $_userinfo;
+		}
+	}
+	
+	function rewrite4move2child ($src) {
+		$src = preg_replace_callback('/((?:#|&)[A-Za-z0-9_-]+\()([^,)]+)/', array(& $this, '_rewrite4move2child_ref'), $src);
+		$from = array('[[./', '[[../');
+		$to = array('[[../', '[[../../');
+		$src = str_replace($from, $to, $src);
+		$src = preg_replace('#\[\[[^\]>]+>\.\./#', '\0../', $src);
+		return $src;
+	}
+	
+	function _rewrite4move2child_ref ($match) {
+		if (strpos($match[2], '/') === FALSE || substr($match[2], 0, 3) === '../') {
+			$match[2] = '../' . $match[2];
+		} else if (substr($match[2], 0, 2) === './') {
+			$match[2] = '../' . substr($match[2], 2);
+		}
+		return $match[1] . $match[2];
 	}
 
 /*----- DB Functions -----*/ 
