@@ -1,7 +1,7 @@
 <?php
 /*
  * Created on 2007/06/29 by nao-pon http://hypweb.net/
- * $Id: gate.php,v 1.4 2008/10/31 07:16:51 nao-pon Exp $
+ * $Id: gate.php,v 1.5 2008/10/31 07:22:46 nao-pon Exp $
  */
 
 /*
@@ -15,6 +15,7 @@
 $xwGateOption['nocommonAllowWays'] = array('x2w');
 $xwGateOption['nodosAllowWays'] = array('ref', 'fusen');
 $xwGateOption['noumbAllowWays'] = array('ref', 'attach');
+$xwGateOption['hypmodeAllowWays'] = array('w2x');
 
 $mytrustdirpath = dirname( __FILE__ ) ;
 
@@ -31,6 +32,10 @@ if ($xwGateOption['nodos']) {
 
 if ($xwGateOption['noumb']) {
 	if (!in_array($way, $xwGateOption['noumbAllowWays'])) xpWikiGate_goOut('Bad request.');
+}
+
+if ($xwGateOption['hypmode']) {
+	if (!in_array($way, $xwGateOption['hypmodeAllowWays'])) xpWikiGate_goOut('Bad request.');
 }
 
 $file_php = $mytrustdirpath . '/ways/' . $way . '.php';
