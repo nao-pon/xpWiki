@@ -93,7 +93,8 @@ class xpwiki_plugin_googlemaps2 extends xpwiki_plugin {
 		//またデフォルトのプロファイルを"default"以外の名前にしている場合も変更すること。
 		//注:GoogleMapsは携帯電話で表示できない。
 		$this->cont['PLUGIN_GOOGLEMAPS2_PROFILE'] =  'default';
-
+		
+		$this->conf['ApiVersion'] = '2.132d';
 	}
 	
 	function plugin_googlemaps2_is_supported_profile () {
@@ -561,7 +562,7 @@ EOD;
 	}
 	
 	function plugin_googlemaps2_init_output($key, $noiconname) {
-		$this->func->add_js_head('http://maps.google.co.jp/maps?file=api&amp;v=2.x&amp;key='.$key, false, 'UTF-8');
+		$this->func->add_js_head('http://maps.google.co.jp/maps?file=api&amp;v='.$this->conf['ApiVersion'].'&amp;key='.$key, false, 'UTF-8');
 		$this->func->add_tag_head('googlemaps2.js');
 		return;
 	}
