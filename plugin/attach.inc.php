@@ -2,7 +2,7 @@
 /////////////////////////////////////////////////
 // PukiWiki - Yet another WikiWikiWeb clone.
 //
-//  $Id: attach.inc.php,v 1.43 2008/10/13 12:30:06 nao-pon Exp $
+//  $Id: attach.inc.php,v 1.44 2008/10/31 07:05:22 nao-pon Exp $
 //  ORG: attach.inc.php,v 1.31 2003/07/27 14:15:29 arino Exp $
 //
 /*
@@ -315,7 +315,7 @@ class xpwiki_plugin_attach extends xpwiki_plugin {
 
 		// ページが無ければ空ページを作成
 		if (!$this->func->is_page($page)) {
-			$this->func->page_write($page, "\t");
+			$this->func->make_empty_page($page);
 		}
 
 		if ( strcasecmp(substr($file['name'],-4),".tar") == 0 && $this->root->post['untar_mode'] == "on" ) {
@@ -462,8 +462,7 @@ class xpwiki_plugin_attach extends xpwiki_plugin {
 		
 		if ($this->func->is_page($page)) {
 			if (!$notouch) {
-				$this->func->pkwk_touch_file($this->func->get_filename($page));
-				$this->func->touch_db($page);
+				$this->func->touch_page($page, FALSE, TRUE);
 				if (!$changelog) $changelog = 'Attach file: '.htmlspecialchars($obj->file). ' by '.$this->root->userinfo['uname_s'];
 				$this->func->push_page_changes($page, $changelog);
 			}
@@ -877,7 +876,7 @@ EOD;
   <input type="hidden" name="pcmd" value="upload" />
   <input type="hidden" name="refer" value="$s_page" />
   <input type="hidden" name="max_file_size" value="$maxsize" />
-  $refid$popup
+  $refid
   $filename
   $returi
   $navi
