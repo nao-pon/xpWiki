@@ -1,7 +1,7 @@
 <?php
 /*
  * Created on 2008/03/24 by nao-pon http://hypweb.net/
- * $Id: attach.php,v 1.8 2008/10/13 12:30:06 nao-pon Exp $
+ * $Id: attach.php,v 1.9 2008/10/31 06:45:52 nao-pon Exp $
  */
 
 //-------- епеще╣
@@ -775,6 +775,7 @@ class XpWikiAttachFiles
 		}
 		$col = 1;
 		$cols = (! empty($this->root->vars['cols']))? max(1, min(intval($this->root->vars['cols']), 5)) : 4;
+		$mod = 0;
 		foreach ($files as $file)
 		{
 			$_files = array();
