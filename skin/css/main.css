@@ -730,7 +730,7 @@ $class span.calendar_viewer_right {
 }
 
 /* areaedit.inc.php */
-$class .highlight
+$class ._highlight
 {
 	background-color: #ffe4e1;
 }
