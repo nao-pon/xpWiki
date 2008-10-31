@@ -45,7 +45,9 @@ class XpWikiElement {
 	}
 
 	function wrap($string, $tag, $param = '', $canomit = TRUE) {
-		return ($canomit && $string === '') ? '' : '<'.$tag.$param.'>'.$string.'</'.$tag.'>';
+		return ($canomit && $string === '') ? '' :
+			($tag ? '<' . $tag . $param . '>' . $string . '</' . $tag . '>' : $string);
+
 	}
 
 	function toString() {
@@ -415,14 +417,16 @@ class XpWikiTableCell extends XpWikiElement {
 			$this->colspan = -1;
 		} else if (rtrim($text) === '>') {
 			$this->colspan = 0;
-		} else
+		} else {
 			if (in_array($text, array('~', '^'))) {
 				$this->rowspan = 0;
-			} else
+			} else {
 				if (substr($text, 0, 1) === '~') {
 					$this->tag = 'th';
 					$text = substr($text, 1);
 				}
+			}
+		}
 
 		if ($text !== '' && $text { 0 } === '#') {
 			// Try using Div class for this $text
@@ -463,28 +467,32 @@ class XpWikiTableCell extends XpWikiElement {
 		$cells = explode('|',$string,2);
 //		echo "CELL: {$cells[0]}\n";
 		$colors_reg = "aqua|navy|black|olive|blue|purple|fuchsia|red|gray|silver|green|teal|lime|white|maroon|yellow|transparent";
-		$this->style['color'] = '';
-		if (preg_match("/FC:(#?[0-9abcdef]{6}?|$colors_reg|0)/i",$cells[0],$tmp)) {
+		// 文字色
+		if (preg_match("/FC:(#?[0-9abcdef]{6}?|$colors_reg|0) ?/i",$cells[0],$tmp)) {
 			if ($tmp[1]==="0") $tmp[1]="transparent";
-			$this->style['fcolor'] = "color:".$tmp[1].";";
-			$cells[0] = preg_replace("/FC:(#?[0-9abcdef]{6}?|$colors_reg|0)(\(([^),]*)(,no|,one|,1)?\))/i","FC:$2",$cells[0]);
-			$cells[0] = preg_replace("/FC:(#?[0-9abcdef]{6}?|$colors_reg|0)/i","",$cells[0]);
+			$this->style['color'] = "color:".$tmp[1].";";
+			$cells[0] = preg_replace("/FC:(#?[0-9abcdef]{6}?|$colors_reg|0)(\(([^),]*)(,(?:no|one(?:ce)?|1))??\) ?)/i","FC:$2",$cells[0]);
+			$cells[0] = preg_replace("/FC:(#?[0-9abcdef]{6}?|$colors_reg|0) ?/i","",$cells[0]);
 		}
-		// セル規定背景色指定
-		if (preg_match("/(?:SC|BC):(#?[0-9abcdef]{6}?|$colors_reg|0)/i",$cells[0],$tmp)) {
+
+		// セル背景色
+		if (preg_match("/(?:SC|CC):(#?[0-9abcdef]{6}?|$colors_reg|0) ?/i",$cells[0],$tmp)) {
 			if ($tmp[1]==="0") $tmp[1]="transparent";
-			$this->style['color'] = "background-color:".$tmp[1].";";
-			$cells[0] = preg_replace("/(?:SC|BC):(#?[0-9abcdef]{6}?|$colors_reg|0)(\(([^),]*)(,no|,one|,1)?\))/i","BC:$2",$cells[0]);
-			$cells[0] = preg_replace("/(?:SC|BC):(#?[0-9abcdef]{6}?|$colors_reg|0)/i","",$cells[0]);
+			$this->style['background-color'] = "background-color:".$tmp[1].";";
+			$cells[0] = preg_replace("/(?:SC|CC):(#?[0-9abcdef]{6}?|$colors_reg|0)(\(([^),]*)(,(?:no|one(?:ce)?|1))?\)) ?/i","CC:$2",$cells[0]);
+			$cells[0] = preg_replace("/(?:SC|CC):(#?[0-9abcdef]{6}?|$colors_reg|0) ?/i","",$cells[0]);
 		}
-		// セル規定背景画指定
-		if (preg_match("/(?:SC|BC):\(([^),]*)(,once|,1)?\)/i",$cells[0],$tmp)) {
-			$tmp[1] = str_replace("http","HTTP",$tmp[1]);
-			$this->style['color'] .= "background-image: url(".$tmp[1].");";
-			if (!empty($tmp[2])) $this->style['color'] .= "background-repeat: no-repeat;";
-			$cells[0] = preg_replace("/(?:SC|BC):\(([^),]*)(,once|,1)?\)/i","",$cells[0]);
+		// セル背景画
+		if (preg_match("/(?:SC|CC):\(([^),]*)(,once|,1)?\) ?/i",$cells[0],$tmp)) {
+			if (strpos($tmp[1], $this->cont['ROOT_URL']) === 0) {
+				$tmp[1] = htmlspecialchars($tmp[1]);
+				$this->style['background-image'] .= "background-image: url(".$tmp[1].");";
+				if (!empty($tmp[2])) $this->style['background-image'] .= "background-repeat: no-repeat;";
+			}
+			$cells[0] = preg_replace("/(?:SC|CC):\(([^),]*)(,once|,1)?\) ?/i","",$cells[0]);
 		}
-		if (preg_match("/K:([0-9]+),?([0-9]*)(one|two|boko|deko|in|out|dash|dott)?/i",$cells[0],$tmp)) {
+		// ボーダー
+		if (preg_match("/K:([0-9]+),?([0-9]*)(one|two|boko|deko|in|out|dash|dott)? ?/i",$cells[0],$tmp)) {
 			if (array_key_exists (3,$tmp)) {
 				switch (strtolower($tmp[3])) {
 					case 'one':
@@ -532,18 +540,18 @@ class XpWikiTableCell extends XpWikiElement {
 					$this->style['padding'] = " padding:5px;";
 				}
 			}
-			$cells[0] = preg_replace("/K:([0-9]+),?([0-9]*)(one|two|boko|deko|in|out|dash|dott)?/i","",$cells[0]);
+			$cells[0] = preg_replace("/K:([0-9]+),?([0-9]*)(one|two|boko|deko|in|out|dash|dott)? ?/i","",$cells[0]);
 		} else {
 //			$this->style['border'] = "border:none;";
 		}
 		// ボーダー色指定
-		if (preg_match("/KC:(#?[0-9abcdef]{6}?|$colors_reg|0)/i",$cells[0],$tmp)) {
+		if (preg_match("/KC:(#?[0-9abcdef]{6}?|$colors_reg|0) ?/i",$cells[0],$tmp)) {
 			if ($tmp[1]==="0") $tmp[1]="transparent";
 			$this->style['border-color'] = "border-color:".$tmp[1].";";
-			$cells[0] = preg_replace("/KC:(#?[0-9abcdef]{6}?|$colors_reg|0)/i","",$cells[0]);
+			$cells[0] = preg_replace("/KC:(#?[0-9abcdef]{6}?|$colors_reg|0) ?/i","",$cells[0]);
 		}
 		// セル規定文字揃え、幅指定
-		if (preg_match("/(?:^ *)(?:(LEFT|CENTER|RIGHT)?:(TOP|MIDDLE|BOTTOM)?)?(?::([0-9]+[%]?))?/i",$cells[0],$tmp)) {
+		if (preg_match("/(?:^ *)(?:(LEFT|CENTER|RIGHT)?:(TOP|MIDDLE|BOTTOM)?)?(?::([0-9]+[%]?))? ?/i",$cells[0],$tmp)) {
 			//var_dump($tmp); echo "<br>\n";
 			if (@$tmp[1] || @$tmp[2] || @$tmp[3]) {
 				if (@$tmp[3]) {
@@ -552,7 +560,7 @@ class XpWikiTableCell extends XpWikiElement {
 				}
 				if (@$tmp[1]) $this->style['align'] = "text-align:".strtolower($tmp[1]).";";
 				if (@$tmp[2]) $this->style['valign'] = "vertical-align:".strtolower($tmp[2]).";";
-				$cells[0] = preg_replace("/(?:^ *)(?:(LEFT|CENTER|RIGHT)?:(TOP|MIDDLE|BOTTOM)?)?(?::([0-9]+[%]?))?/i","",$cells[0]);
+				$cells[0] = preg_replace("/(?:^ *)(?:(LEFT|CENTER|RIGHT)?:(TOP|MIDDLE|BOTTOM)?)?(?::([0-9]+[%]?))? ?/i","",$cells[0]);
 			}
 		}
 		return implode('|',$cells);
@@ -678,9 +686,9 @@ class XpWikiTable extends XpWikiElement {
 		//$this->table_around = "<br clear=all /><br />";
 		$this->table_around = "<br clear=all />";
 		// 回り込み指定
-		if (preg_match("/AROUND/i",$string)) $this->table_around = "";
+		if (preg_match("/AROUND ?/i",$string)) $this->table_around = "";
 		// ボーダー指定
-		if (preg_match("/B:([0-9]+),?([0-9]*)(one|two|boko|deko|in|out|dash|dott)?/i",$string,$reg)) {
+		if (preg_match("/B:([0-9]*),?([0-9]*)(one|two|boko|deko|in|out|dash|dott)? ?/i",$string,$reg)) {
 			if (array_key_exists (3,$reg)) {
 				switch (strtolower($reg[3])) {
 					case 'one':
@@ -729,33 +737,35 @@ class XpWikiTable extends XpWikiElement {
 					$this->table_style .= " cellspacing=\"1\"";
 				}
 			}
-			$string = preg_replace("/B:([0-9]+),?([0-9]*)(one|two|boko|deko|in|out|dash|dott)?/i","",$string);
+			$string = preg_replace("/B:([0-9]*),?([0-9]*)(one|two|boko|deko|in|out|dash|dott)? ?/i","",$string);
 		} else {
 			$this->table_style .= " border=\"0\" cellspacing=\"1\"";
 			//$this->table_style .= " cellspacing=\"1\"";
 			//$this->table_sheet .= "border:none;";
 		}
 		// ボーダー色指定
-		if (preg_match("/BC:(#?[0-9abcdef]{6}?|$colors_reg|0)/i",$string,$reg)) {
+		if (preg_match("/BC:(#?[0-9a-f]{6}?|$colors_reg|0) ?/i",$string,$reg)) {
 			$this->table_sheet .= "border-color:".$reg[1].";";
-			$string = preg_replace("/BC:(#?[0-9abcdef]{6}?|$colors_reg)/i","",$string);
+			$string = preg_replace("/BC:(#?[0-9abcdef]{6}?|$colors_reg) ?/i","",$string);
 		}
 		// テーブル背景色指定
-		if (preg_match("/TC:(#?[0-9abcdef]{6}?|$colors_reg|0)/i",$string,$reg)) {
+		if (preg_match("/TC:(#?[0-9a-f]{6}?|$colors_reg|0) ?/i",$string,$reg)) {
 			if ($reg[1]==="0") $reg[1]="transparent";
 			$this->table_sheet .= "background-color:".$reg[1].";";
-			$string = preg_replace("/TC:(#?[0-9abcdef]{6}?|$colors_reg|0)(\(([^),]*)(,no|,one|,1)?\))/i","TC:$2",$string);
-			$string = preg_replace("/TC:(#?[0-9abcdef]{6}?|$colors_reg|0)/i","",$string);
+			$string = preg_replace("/TC:(#?[0-9abcdef]{6}?|$colors_reg|0)(\(([^),]*)(,(?:no|one(?:ce)?|1))?\) ?)/i","TC:$2",$string);
+			$string = preg_replace("/TC:(#?[0-9abcdef]{6}?|$colors_reg|0) ?/i","",$string);
 		}
 		// テーブル背景画像指定
-		if (preg_match("/TC:\(([^),]*)(,once|,1)?\)/i",$string,$reg)) {
-			$reg[1] = str_replace("http","HTTP",$reg[1]);
-			$this->table_sheet .= "background-image: url(".$reg[1].");";
-			if (!empty($reg[2])) $this->table_sheet .= "background-repeat: no-repeat;";
-			$string = preg_replace("/TC:\(([^),]*)(,once|,1)?\)/i","",$string);
+		if (preg_match("/TC:\(([^),]*)(,(?:no|one(?:ce)?|1))?\) ?/i",$string,$reg)) {
+			if (strpos($reg[1], $this->cont['ROOT_URL']) === 0) {
+				$reg[1] = htmlspecialchars($reg[1]);
+				$this->table_sheet .= "background-image: url(".$reg[1].");";
+				if (!empty($reg[2])) $this->table_sheet .= "background-repeat: no-repeat;";
+			}
+			$string = preg_replace("/TC:\(([^),]*)(,once|,1)?\) ?/i","",$string);
 		}
 		// 配置・幅指定
-		if (preg_match("/T(LEFT|RIGHT)/i",$string,$reg)) {
+		if (preg_match("/T(LEFT|RIGHT) ?/i",$string,$reg)) {
 			$this->table_align = strtolower($reg[1]);
 			$this->table_style .= " align=\"".$this->table_align."\"";
 			$this->div_style = " style=\"text-align:".$this->table_align."\"";
@@ -765,16 +775,16 @@ class XpWikiTable extends XpWikiElement {
 				$this->table_sheet .= "margin-left:auto;margin-right:10px;";
 			}
 		}
-		if (preg_match("/T(CENTER)/i",$string,$reg)) {
+		if (preg_match("/T(CENTER) ?/i",$string,$reg)) {
 			$this->table_style .= " align=\"".strtolower($reg[1])."\"";
 			$this->div_style = " style=\"text-align:".strtolower($reg[1])."\"";
 			$this->table_sheet .= "margin-left:auto;margin-right:auto;";
 			$this->table_around = "";
 		}
-		if (preg_match("/T(LEFT|CENTER|RIGHT)?:([0-9]+(%|px)?)/i",$string,$reg)) {
+		if (preg_match("/T(LEFT|CENTER|RIGHT)?:([0-9]+(%|px)?) ?/i",$string,$reg)) {
 			$this->table_sheet .= "width:".$reg[2].";";
 		}
-		$string = preg_replace("/^(TLEFT|TCENTER|TRIGHT|T):([0-9]+(%|px)?)?/i","",$string);
+		$string = preg_replace("/^(TLEFT|TCENTER|TRIGHT|T):([0-9]+(%|px)?)? ?/i","",$string);
 		return ltrim($string);
 	}
 }
