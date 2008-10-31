@@ -1,7 +1,7 @@
 <?php
 /*
  * Created on 2007/06/29 by nao-pon http://hypweb.net/
- * $Id: gate.php,v 1.3 2008/01/16 07:18:11 nao-pon Exp $
+ * $Id: gate.php,v 1.4 2008/10/31 07:16:51 nao-pon Exp $
  */
 
 /*
@@ -12,7 +12,7 @@
 
 @ ignore_user_abort(FALSE);
 
-$xwGateOption['nocommonAllowWays'] = array();
+$xwGateOption['nocommonAllowWays'] = array('x2w');
 $xwGateOption['nodosAllowWays'] = array('ref', 'fusen');
 $xwGateOption['noumbAllowWays'] = array('ref', 'attach');
 

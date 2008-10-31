@@ -1,7 +1,7 @@
 <?php
 //
 // Created on 2006/10/25 by nao-pon http://hypweb.net/
-// $Id: loader.php,v 1.51 2008/10/11 00:54:12 nao-pon Exp $
+// $Id: loader.php,v 1.52 2008/10/31 07:16:51 nao-pon Exp $
 //
 
 ignore_user_abort(FALSE);
@@ -21,7 +21,8 @@ while( ob_get_level() ) {
 }
 
 // 変数初期化
-$src = preg_replace('/[^\w.%,-]+/', '', $_GET['src']);
+$src = preg_replace('/[^\w.%, -]+/', '', $_GET['src']);
+$src = str_replace(' ', ',', $src);
 
 if ($src === 'favicon') {
 	require XOOPS_TRUST_PATH.'/class/hyp_common/favicon/favicon.php';
@@ -30,6 +31,8 @@ if ($src === 'favicon') {
 
 $prefix = (isset($_GET['b']))? 'b_' : '';
 $prefix = (isset($_GET['r']))? 'r_' : $prefix;
+$prefix = (isset($_GET['f']))? 'fck' : $prefix;
+
 $nocache = (isset($_GET['nc']));
 $js_lang = $charset = $pre_width = $cache_file = $gzip_fname = $dir = $out = $type = $src_file = '';
 $addcss = array();
@@ -37,7 +40,7 @@ $length = $addtime = 0;
 $face_remake = $js_replace = $replace = false;
 $root_path = dirname($skin_dirname);
 $cache_path = $root_path.'/private/cache/';
-$face_tag_ver = 1.0;
+$face_tag_ver = 1.1;
 $method = empty($_SERVER['REQUEST_METHOD'])? 'GET' : strtoupper($_SERVER['REQUEST_METHOD']);
 $pre_id = '';
 $js_replaces = array();
@@ -155,6 +158,7 @@ switch ($type) {
 		$wikihelper_root_url = $module_url . '/' . basename($root_path);
 		$wikihelper_root_url_md5 = md5($wikihelper_root_url);
 		$face_cache = $cache_path . $wikihelper_root_url_md5 .'_facemarks.js';
+		$fckeditor = $skin_dirname . '/js/fckeditor/fckeditor.js';
 		$src_files = array();
 		$replace = true;
 		foreach(explode(',', $src) as $_src) {
@@ -324,8 +328,9 @@ if ($type === 'js' || $type === 'css' || is_file($src_file)) {
 						$addcss_src .= file_get_contents($_file) . "\n";
 					}
 				}
+				$class = ($prefix === 'fck')? 'body' : $pre_id.'div.xpwiki_'.$dir;
 				$_out = str_replace(array('$dir', '$class', '$pre_width', '$charset'),
-									array($dir, $pre_id.'div.xpwiki_'.$dir, $pre_width, $charset),
+									array($dir, $class, $pre_width, $charset),
 									$_out . "\n" . $addcss_src);
 				
 				$out .= $_out;
@@ -346,14 +351,14 @@ if ($type === 'js' || $type === 'css' || is_file($src_file)) {
 					}
 					$encode_hint = $xpwiki->cont['PKWK_ENCODING_HINT'];
 					if (!$face_remake) {
-						list($face_tag, $face_tag_full, $_face_tag_ver) = array_pad(file($face_cache), 3, '');
+						@ list($face_tag, $face_tag_full, $_face_tag_ver, $fck_smileys) = array_pad(file($face_cache), 3, '');
 						if (!$face_tag_full) $face_tag_full = $face_tag;
 						if ($_face_tag_ver < $face_tag_ver) {
 							$face_remake = true;
 						}
 					}
 					if ($face_remake) {
-						list($face_tag, $face_tag_full) = xpwiki_make_facemarks ($skin_dirname, $face_cache, $face_tag_ver);
+						list($face_tag, $face_tag_full, $_face_tag_ver, $fck_smileys) = xpwiki_make_facemarks ($skin_dirname, $face_cache, $face_tag_ver);
 					}
 					$ieDomLoadedDisabled = $xpwiki->root->ieDomLoadedDisabled? 'true' : 'false';
 					$UseWikihelperAtAll = $xpwiki->root->render_UseWikihelperAtAll? 'true' : 'false';
@@ -370,8 +375,8 @@ if ($type === 'js' || $type === 'css' || is_file($src_file)) {
 						$RendererDir = $RendererPage = '';
 					}
 					$_out = str_replace(
-						array('$face_tag_full', '$face_tag', '$module_url', '$encode_hint', '$charset',                       '$ieDomLoadedDisabled', '$faviconSetClass',                   '$faviconReplaceClass',                   '$UseWikihelperAtAll', '$RendererDir', '$RendererPage'),
-						array( $face_tag_full,   $face_tag,   $module_url,   $encode_hint,   $xpwiki->cont['SOURCE_ENCODING'], $ieDomLoadedDisabled,   $xpwiki->root->favicon_set_classname, $xpwiki->root->favicon_replace_classname, $UseWikihelperAtAll,   $RendererDir,   $RendererPage),
+						array('$face_tag_full', '$face_tag', '$fck_smileys', '$module_url', '$encode_hint', '$charset',                       '$ieDomLoadedDisabled', '$faviconSetClass',                   '$faviconReplaceClass',                   '$UseWikihelperAtAll', '$RendererDir', '$RendererPage'),
+						array( $face_tag_full,   $face_tag,   $fck_smileys,   $module_url,   $encode_hint,   $xpwiki->cont['SOURCE_ENCODING'], $ieDomLoadedDisabled,   $xpwiki->root->favicon_set_classname, $xpwiki->root->favicon_replace_classname, $UseWikihelperAtAll,   $RendererDir,   $RendererPage),
 					$_out);
 				}
 				if (in_array($_src, $js_replaces)) {
@@ -445,19 +450,23 @@ if ($type === 'js' || $type === 'css' || is_file($src_file)) {
 function xpwiki_make_facemarks ($skin_dirname, $cache, $face_tag_ver) {
 	include_once XOOPS_TRUST_PATH."/modules/xpwiki/include.php";
 	$wiki =& XpWiki::getInitedSingleton( basename(dirname($skin_dirname)) );
-	$tags_full = $tags = array();
+	$fck_face = $tags_full = $tags = array();
 	foreach($wiki->root->wikihelper_facemarks as $key => $img) {
 		$key = htmlspecialchars($key, ENT_QUOTES);
-		$q_key = str_replace("'", "\'", $key);
+		$q_key = str_replace("'", "\\'", $key);
 		if ($img{0} === '*') {
 			$img = substr($img, 1);
 			$tags_full[] = '\'<img src="'.$img.'" border="0" title="'.$key.'" alt="'.$key.'" onClick="javascript:wikihelper_face(\\\''.$q_key.'\\\');return false;" />\'';
+			$fck_face[] = "'$q_key'";
+			$fck_face[] = "'$img'";
 			continue;
 		}
 		$tags[] = '\'<img src="'.$img.'" border="0" title="'.$key.'" alt="'.$key.'" onClick="javascript:wikihelper_face(\\\''.$q_key.'\\\');return false;" />\'';
 		$tags_full[] = '\'<img src="'.$img.'" border="0" title="'.$key.'" alt="'.$key.'" onClick="javascript:wikihelper_face(\\\''.$q_key.'\\\');return false;" />\'';
+		$fck_face[] = "'$q_key'";
+		$fck_face[] = "'$img'";
 	}
-	$tags = array(join('+', $tags) ,join('+', $tags_full), $face_tag_ver);
+	$tags = array(join('+', $tags) ,join('+', $tags_full), $face_tag_ver, '[' . join(',', $fck_face) . ']');
 	if ($fp = fopen($cache, 'wb')) {
 		fwrite($fp, join("\n", $tags));
 		fclose($fp);

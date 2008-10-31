@@ -1,0 +1,32 @@
+body {
+	font-size: 80%;
+	width: auto;
+}
+
+body td, body th {
+	font-size: 80%;
+}
+
+body pre {
+	font-family: "MS Gothic", monospace;
+}
+
+ol li { list-style-type:decimal; }
+
+div.plugin, div.ref {
+	background-color: #ffffcc;
+	margin-top: 5px;
+	margin-bottom: 5px;
+}
+
+span.plugin, span.ref {
+	background-color: #ccffcc;
+}
+
+div.SC_Panel {
+	background-color: #FFF;
+}
+
+div.SC_Panel table {
+	width: 100%;
+}
