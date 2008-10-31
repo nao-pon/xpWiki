@@ -313,11 +313,14 @@ var XpWiki = {
 			height: this.PopupHeight,
 			width: this.PopupWidth
 		});
-		
 		$('XpWikiPopupHeaderTitle').innerHTML = title.replace(/([\w])/g, "$1&#8203;");
 		$('XpWikiPopupBody').innerHTML = '<div style="margin:10px;">' + body + '</div>';
 		//wikihelper_initTexts(this.PopupDiv.id);
 		Element.show(this.PopupDiv);
+	},
+	
+	PopupHide: function () {
+		Element.hide('XpWikiPopup');
 	},
 	
 	textaraWrap: function (id) {
@@ -340,21 +343,44 @@ var XpWiki = {
 	
 	addWrapButton: function (id) {
 		var txtarea = $(id);
+		id = txtarea.id;
 		
 		if (typeof(txtarea.XpWiki_addWrap_done) != 'undefined') return false;
 		txtarea.XpWiki_addWrap_done = true;
 
 		var btn = document.createElement('div');
-		Element.setStyle (btn, {
-			'float' : 'right',
-			'fontSize' : '80%',
-			'padding' : '3px',
-			'border' : '1px solid gray',
-			'cursor' : 'pointer'	
-		});
+		btn.id = id + '_WrapBtn';
+		btn.className = 'xpwikiWrapBtn';
 		btn.innerHTML = wikihelper_msg_nowrap;
 		Event.observe(btn, 'mousedown', function(){
 			this.innerHTML = XpWiki.textaraWrap(id);
+		});
+		var parNod = txtarea.parentNode;
+		var nxtSib = txtarea.nextSibling;
+		parNod.insertBefore(btn, nxtSib);
+
+		if (txtarea.getAttribute("rel") == "wikihelper") {
+			if (id.match(/^[a-z0-9_-]+:/i)) {
+				var mydir = id.replace(/^([a-z0-9_-]+):.+$/i, "$1");
+			} else {
+				var mydir = XpWiki.RendererDir;
+			}
+			this.addFckButton(id, mydir);
+		} 
+	},
+
+	addFckButton: function (id, mydir) {
+		var txtarea = $(id);
+		
+		if (typeof(txtarea.XpWiki_addFck_done) != 'undefined') return false;
+		txtarea.XpWiki_addFck_done = true;
+
+		var btn = document.createElement('div');
+		btn.id = id + '_FckBtn';
+		btn.className = 'xpwikiFckBtn';
+		btn.innerHTML = 'WYSIWYG';
+		Event.observe(btn, 'mousedown', function(){
+			XpWiki.switch2FCK(id, mydir);
 		});
 		var parNod = txtarea.parentNode;
 		var nxtSib = txtarea.nextSibling;
@@ -485,8 +511,20 @@ var XpWiki = {
 			if (!tareas[i].id) {
 				tareas[i].id = 'textarea_autoid_' + i;
 			}
+			
 			new Resizable(tareas[i].id, {mode:'xy'});
+			
 			this.addWrapButton(tareas[i].id);
+/*
+			if (tareas[i].getAttribute("rel") == "wikihelper") {
+				if (tareas[i].id.match(/^[a-z0-9_-]+:/i)) {
+					var mydir = tareas[i].id.replace(/^([a-z0-9_-]+):.+$/i, "$1");
+				} else {
+					var mydir = XpWiki.RendererDir;
+				}
+				this.addFckButton(tareas[i].id, mydir);
+			}
+			*/
 		}
 	},
 
@@ -644,10 +682,15 @@ var XpWiki = {
 		to.appendChild(cln);
 	},
 	
-	fileupFormPopup: function (dirname, page) {
+	fileupFormPopup: function (mode) {
 		
-		this.dir = dirname;
-		this.title = this.htmlspecialchars(page);
+		//this.dir = dirname;
+		//this.title = this.htmlspecialchars(page);
+		this.dir = this.UploadDir;
+		this.title = this.htmlspecialchars(this.UploadPage);
+		if (typeof mode == "undefind") {
+			mode = '';
+		}
 		
 		var arg = [];
 		arg.top = this.fileupPopupTop;
@@ -660,11 +703,12 @@ var XpWiki = {
 		this.initPopupDiv(arg);
 		
 		var url = this.MyUrl + '/' + this.dir + '/?plugin=attach&pcmd=imglist&refer=';
-		url += encodeURIComponent(page);
-		url += '&base=' + encodeURIComponent(page);
+		url += encodeURIComponent(this.UploadPage);
+		url += '&base=' + encodeURIComponent(this.UploadPage);
 		url += '&popup=_self';
 		url += '&cols=1';
 		url += '&max=10';
+		url += '&mode=' + mode;
 		url += '&encode_hint=' + encodeURIComponent(this.EncHint);
 		
 		if ($('XpWikiPopupBody').src != url) {
@@ -672,6 +716,10 @@ var XpWiki = {
 			$('XpWikiPopupBody').src = url;
 			this.PopupBodyUrl = url;
 		}
+		
+		var zindex = this.getLargestZIndex('iframe') + 1;
+		this.PopupDiv.style.zIndex = Math.max(this.PopupDiv.style.zIndex, zindex);
+
 		Element.show(this.PopupDiv);
 		
 		return false;
@@ -726,6 +774,71 @@ var XpWiki = {
 		return false;
 	},
 	
+	FCKrefInsert: function(file, type) {
+		var r = document.evaluate('//iframe[contains(@src,\'fckeditor/editor/fckdialog.html\')]', document, null, 7, null);
+		if (r) {
+			var base = (r.snapshotItem(0).contentWindow.document || r.snapshotItem(0).contentDocument);
+			var fckdialog = (base.getElementById('frmMain').contentWindow.document || base.getElementById('frmMain').contentDocument);
+			fckdialog.getElementById('name').value = file;
+		}
+		Element.hide('XpWikiPopup');
+		return false;
+	},
+	
+	switch2FCK: function(id, dir) {
+		if (typeof FCKeditor == 'undefined') {
+			FCKeditor = false;
+			var sc = document.createElement('script');
+			sc.type = 'text/javascript';
+			if (window.ActiveXObject) {
+				sc.onreadystatechange = function(){
+					if (sc.readyState == 'complete' || sc.readyState == 'loaded') {
+						XpWiki.switch2FCK(id, dir);
+					}
+				};
+			} else {
+				sc.onload = function(){
+					XpWiki.switch2FCK(id, dir);
+				};
+				sc.onerror = function(){
+					XpWiki.switch2FCK(id, dir);
+				};
+			}
+			sc.src = XpWikiModuleUrl + '/' + dir + '/skin/js/fckeditor/fckeditor.js';
+			document.body.appendChild(sc);
+		} else if (typeof FCKeditor == "function") {
+			this.setUploadVar($(id));
+			var myDir = XpWikiModuleUrl + '/' + dir;
+			var myFckDir =  myDir + "/skin/js/fckxpwiki";
+			var sBasePath = myDir + '/skin/js/fckeditor/';
+			var oFCKeditor = new FCKeditor(id);
+			
+			if (this.UploadPage == this.RendererPage) {
+				oFCKeditor.Config['xpWiki_LineBreak'] = 1;
+			} else {
+				oFCKeditor.Config['xpWiki_LineBreak'] = "";
+			}
+			
+			oFCKeditor.BasePath = sBasePath;
+
+			oFCKeditor.Height = "100%";
+			
+			oFCKeditor.Config['CustomConfigurationsPath'] = myFckDir + "/fck.config.js";
+			oFCKeditor.Config['EditorAreaCSS'] = myDir + "/skin/loader.php?src=main+fckeditor.css&f=1";
+			oFCKeditor.Config['SkinPath'] = myFckDir + "/skin/";
+			oFCKeditor.Config['PluginsPath'] = myFckDir + "/plugins/";
+			oFCKeditor.Config['SmileyImages'] = XpWiki.FCKSmileys;
+			
+			oFCKeditor.ReplaceTextarea();
+			
+			Element.remove(id + '_WrapBtn');
+			Element.remove(id + '_FckBtn');
+			wikihelper_hide_helper();
+		} else {
+			$(id + '_FckBtn').innerHTML = 'x';
+		}
+	},
+	
 	// Copyright (c) 2003 AOK <soft@aokura.com>
 	z2h_digit: function(src) {
 		var str = new String;
@@ -739,5 +852,26 @@ var XpWiki = {
 			} 
 		}
 		return str;
+	},
+	
+	getLargestZIndex: function(){
+		var largestZIndex = 0; 
+		var defaultView = document.defaultView;
+		var func = function(tagname){
+			var elems = document.getElementsByTagName(tagname), len=elems.length;
+			for(var i=0; i<len; i++){
+				var elem = elems[i];
+				var zIndex = elem.style.zIndex;
+				if (!zIndex) {
+					var css = elem.currentStyle || defaultView.getComputedStyle(elem,null);
+					zIndex = css ? css.zIndex : 0;
+				}
+				zIndex -= 0;
+				if(largestZIndex < zIndex) largestZIndex=zIndex;
+			}
+		};
+		if(arguments.length == 0) func('*');
+		else for(var i=0; i<arguments.length; i++) func(arguments[i]);
+		return largestZIndex;
 	}
 };

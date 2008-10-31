@@ -54,7 +54,7 @@ function wikihelper_ins(v)
 		
 		if (v == "&ref();") {
 			if (XpWiki.UploadDir && XpWiki.UploadPage) {
-				XpWiki.fileupFormPopup(XpWiki.UploadDir, XpWiki.UploadPage);
+				XpWiki.fileupFormPopup();
 				return;
 			}
 			inp = prompt(wikihelper_msg_thumbsize, '');

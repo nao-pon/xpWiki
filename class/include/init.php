@@ -1,7 +1,7 @@
 <?php
 //
 // Created on 2006/10/13 by nao-pon http://hypweb.net/
-// $Id: init.php,v 1.57 2008/09/25 00:20:57 nao-pon Exp $
+// $Id: init.php,v 1.58 2008/10/31 07:16:51 nao-pon Exp $
 //
 
 $root = & $this->root;
@@ -184,12 +184,14 @@ $root->now = $this->format_date($const['UTIME']);
 //$entity_pattern = '[a-zA-Z0-9]{2,8}';
 $root->entity_pattern = trim(file_get_contents($const['CACHE_DIR'] . $const['PKWK_ENTITIES_REGEX_CACHE']));
 
-$root->line_rules = array_merge(array(
-	'&amp;(#[0-9]+|#x[0-9a-f]+|' . $root->entity_pattern . ');' => '&$1;',
-	"\r"          => '<br />' . "\n",	/* 行末にチルダは改行 */
-	'#related$'   => '<del>#related</del>',
-	'^#contents$' => '<del>#contents</del>'
-), $root->line_rules);
+if (empty($root->fckediting)) {
+	$root->line_rules = array_merge(array(
+		'&amp;(#[0-9]+|#x[0-9a-f]+|' . $root->entity_pattern . ');' => '&$1;',
+		"\r"          => '<br />' . "\n",	/* 行末にチルダは改行 */
+		'#related$'   => '<del>#related</del>',
+		'^#contents$' => '<del>#contents</del>'
+	), $root->line_rules);
+}
 
 // 指定ページ表示モード
 if (isset($const['page_show'])) {
