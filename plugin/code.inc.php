@@ -1,7 +1,7 @@
 <?php
 //
 // Created on 2006/10/25 by nao-pon http://hypweb.net/
-// $Id: code.inc.php,v 1.19 2008/05/14 07:16:41 nao-pon Exp $
+// $Id: code.inc.php,v 1.20 2008/10/31 07:06:37 nao-pon Exp $
 //
 
 class xpwiki_plugin_code extends xpwiki_plugin {
@@ -407,7 +407,7 @@ class xpwiki_plugin_code extends xpwiki_plugin {
 					$data['_error'] = '<p class="error">Maybe file extension like binary. '.htmlspecialchars($arg).';</p>';
 					return 0;
 				} else {
-					$lang = $this->cont['PLUGIN_CODE_LANGUAGE'];
+					$lang = 'pre';
 				}
 			}
 			
