@@ -1,7 +1,7 @@
 <?php
 // PukiWiki - Yet another WikiWikiWeb clone.
 //
-// $Id: ls2.inc.php,v 1.13 2008/03/12 23:59:25 nao-pon Exp $
+// $Id: ls2.inc.php,v 1.14 2008/10/31 07:10:10 nao-pon Exp $
 //
 // List plugin 2
 
@@ -171,6 +171,16 @@ class xpwiki_plugin_ls2 extends xpwiki_plugin {
 			$this->func->pagesort($pages);
 		}
 		
+		$base_pages = array();
+		if ($prefix) {
+			$_base = '';
+			foreach(explode('/', rtrim($prefix, '/')) as $_page) {
+				$_base .= $_page;
+				$base_pages[$_base] = true;
+				$_base .= '/';
+			}
+		}
+		
 		$params['_parent_depth'] = substr_count(rtrim($prefix,'/'), '/');
 		$params['_child_counts'] = array();
 		
@@ -191,6 +201,14 @@ class xpwiki_plugin_ls2 extends xpwiki_plugin {
 		}
 
 		foreach ($pages as $key => $page) {
+			// complementary_pagesort() で保管された $prefix ページ($base_pages)を削除
+			if ($base_pages) {
+				if (isset($base_pages[$page])) {
+					unset($pages[$key]);
+					continue;
+				}
+			}
+			
 			// テンプレートページは表示しない場合
 			if ($params['notemplate'] && preg_match("/\/".$_auto_template_name."(_m)?$/",$page)) {
 				unset($pages[$key]);
