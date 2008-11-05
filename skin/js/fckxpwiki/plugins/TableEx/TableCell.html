@@ -15,7 +15,7 @@
 	<title>Table Cell Properties</title>
 	<meta http-equiv="Content-Type" content="text/html; charset=utf-8" />
 	<meta name="robots" content="noindex, nofollow" />
-	<script type="text/javascript">
+	<script type="text/javascript" charset="UTF-8">
 
 var oEditor = window.parent.InnerDialogLoaded() ;
 
@@ -48,8 +48,14 @@ function SetStartupValue() {
 		GetE('txtRowSpan').value = GetAttribute(oCell, 'rowSpan');
 		GetE('txtCollSpan').value = GetAttribute(oCell, 'colSpan');
 		GetE('txtFontSize').value = size;
-		GetE('txtBackColor').value = oCell.style.backgroundColor;
-		GetE('txtFontColor').value = oCell.style.color;
+		GetE('txtBackColor').value = TableEx_rgb2hex(oCell.style.backgroundColor);
+		GetE('txtFontColor').value = TableEx_rgb2hex(oCell.style.color);
+
+		GetE('txtBorder').value = oCell.style.borderLeftWidth.replace(/([\d]+).*$/, '$1');
+		GetE('selBorferStyle').value = oCell.style.borderLeftStyle;
+		GetE('txtBorderColor').value = TableEx_rgb2hex(oCell.style.borderLeftColor);
+		GetE('txtCellSpacing').value = oCell.style.paddingLeft.replace(/([\d]+).*$/, '$1');
+
 	}
 }
 
@@ -75,6 +81,19 @@ function Ok() {
 		
 		aCells[i].style.color = GetE('txtFontColor').value;
 		aCells[i].style.backgroundColor = GetE('txtBackColor').value;
+
+		if (GetE('txtBorder').value) {
+			aCells[i].style.border = GetE('txtBorder').value + 'px';
+			aCells[i].style.borderStyle = GetE('selBorferStyle').value
+		}
+	
+		if (GetE('txtBorderColor').value && GetE('txtBorderColor').value.match(/([a-z]+|#[0-9a-f]+)/i)) {
+			aCells[i].style.borderColor = GetE('txtBorderColor').value;
+		}
+		
+		if (GetE('txtCellSpacing').value) {
+			aCells[i].style.padding = GetE('txtCellSpacing').value + 'px';
+		}
 	}
 
 	return true ;
@@ -92,8 +111,10 @@ function RemoveStyle(oElement, property) {
 }
 
 function SelectBackColor(color) {
-	if (color && color.length > 0)
+	if (color && color.length > 0) {
 		GetE('txtBackColor').value = color;
+		GetE('selTranceparent').checked = false;
+	}
 }
 
 function SelectFontColor(color) {
@@ -101,10 +122,69 @@ function SelectFontColor(color) {
 		GetE('txtFontColor').value = color;
 }
 
-function SelectColor(wich) {
+function SelectBorderColor(color) {
+	if (color && color.length > 0)
+		GetE('txtBorderColor').value = color;
+}
+
+function SelectColor(func) {
 	oEditor.FCKDialog.OpenDialog('FCKDialog_Color', oEditor.FCKLang.DlgColorTitle,
-		'dialog/fck_colorselector.html', 400, 330, wich == 'Back' ? SelectBackColor : SelectFontColor, window
+		'dialog/fck_colorselector.html', 400, 330, func, window
 	);
+}
+
+function CorrectFiledData(cmd) {
+	if (cmd == 'around') {
+		if (GetE('tAround').checked) {
+			if (GetE('selAlignment').value == '' || GetE('selAlignment').value == 'center') {
+				GetE('selAlignment').value = 'left';
+			}
+		}
+	}
+	if (cmd == 'align') {
+		if (GetE('selAlignment').value == '' || GetE('selAlignment').value == 'center') {
+			GetE('tAround').checked = false;
+		}
+	}
+	if (cmd == 'width') {
+		if (GetE('txtWidth').value) {
+			if (GetE('selWidthType').value == 'auto') {
+				GetE('selWidthType').value = 'pixels';
+			}
+		} else {
+			GetE('selWidthType').value = 'auto';
+		}
+	}
+	if (cmd == 'wtype') {
+		if (GetE('selWidthType').value == 'auto') {
+			GetE('txtWidth').value = '';
+		}
+	}
+	if (cmd == 'tranceparent') {
+		if (GetE('selTranceparent').checked) {
+			GetE('txtBackColor').value = 'tranceparent';
+		} else {
+			GetE('txtBackColor').value = '';
+		}
+	}
+}
+
+function TableEx_rgb2hex(str) {
+	if (str[0] == '-') return '';
+	if (str.match(/rgb\(\s*[\d]+\s*,\s*[\d]+\s*,\s*[\d]+\s*\)/i)) {
+		var matches = str.match(/[\d]+/g);
+		return '#' + TableEx_num2hex(matches[0]) + TableEx_num2hex(matches[1]) + TableEx_num2hex(matches[2]);
+	}
+	return str;
+}
+
+function TableEx_num2hex(num) {
+	num = parseInt(num);
+	var f = '';
+	if (num < 16) {
+		f = '0';
+	}
+	return f + num.toString(16);
 }
 
 	</script>
@@ -118,7 +198,7 @@ function SelectColor(wich) {
 						<td>
 							<table cellspacing="0" cellpadding="0" border="0">
 								<tr>
-									<td colspan="3">
+									<td colspan="3" nowrap="nowrap">
 										<input type="checkbox" id="head">
 										<label for="head" fcklang="TableCellDlgHead">Head</label>
 									<td>
@@ -130,16 +210,16 @@ function SelectColor(wich) {
 										&nbsp;</td>
 								</tr>
 								<tr>
-									<td>
+									<td nowrap="nowrap">
 										<span fcklang="TableCellDlgRowSpan">Rows Span</span>:</td>
-									<td>
+									<td nowrap="nowrap">
 										&nbsp;
 										<input id="txtRowSpan" type="text" size="2" disabled></td>
 								</tr>
 								<tr>
-									<td>
+									<td nowrap="nowrap">
 										<span fcklang="TableCellDlgColSpan">Columns Span</span>:</td>
-									<td>
+									<td nowrap="nowrap">
 										&nbsp;
 										<input id="txtCollSpan" type="text" size="2" disabled></td>
 								</tr>
@@ -150,9 +230,9 @@ function SelectColor(wich) {
 										&nbsp;</td>
 								</tr>
 								<tr>
-									<td>
+									<td nowrap="nowrap">
 										<span fcklang="TableCellDlgAlign">Alignment</span>:</td>
-									<td colspan="2">
+									<td colspan="2" nowrap="nowrap">
 										&nbsp;
 										<select id="selHAlign" name="selAlignment">
 											<option fcklang="DlgCellHorAlignNotSet" value="" selected>Not set</option>
@@ -169,51 +249,81 @@ function SelectColor(wich) {
 						<td valign="bottom">
 							<table cellspacing="0" cellpadding="0" border="0">
 								<tr>
-									<td>
-										&nbsp;</td>
-									<td>
-										&nbsp;</td>
-									<td>
-										&nbsp;</td>
-								</tr>
-								<tr>
-									<td>
+									<td nowrap="nowrap">
 										<span fcklang="TableCellDlgFontSize">Font Size</span>:</td>
-									<td colspan="2">
+									<td colspan="2" nowrap="nowrap">
 										&nbsp;
 										<input id="txtFontSize" type="text" maxlength="3" size="3" />
 										&nbsp;px
 									</td>
 								</tr>
 								<tr>
-									<td>
-										&nbsp;</td>
-									<td>
-										&nbsp;</td>
-									<td>
-										&nbsp;</td>
-								</tr>
-								<tr>
-									<td>
+									<td nowrap="nowrap">
 										<span fcklang="TableCellDlgFontColor">Font Color</span>:</td>
-									<td>
+									<td nowrap="nowrap">
 										&nbsp;<input id="txtFontColor" type="text" size="8" name="txtCellPadding" /></td>
-									<td>
+									<td nowrap="nowrap">
 										&nbsp;
 										<input type="button" fcklang="DlgCellBtnSelect" value="Select..."
-											onclick="SelectColor('Font')" />
+											onclick="SelectColor(SelectFontColor)" />
+									</td>
+								</tr>
+								<tr>
+									<td nowrap="nowrap">
+										<span fcklang="DlgCellBackColor">Background Color</span>:</td>
+									<td nowrap="nowrap">
+										&nbsp;<input id="txtBackColor" type="text" size="8" name="txtCellSpacing"></td>
+									<td nowrap="nowrap">
+										&nbsp;
+										<input type="button" fcklang="DlgCellBtnSelect" value="Select..."
+											onclick="SelectColor(SelectBackColor)">
+									</td>
+								</tr>
+								<tr>
+									<td>&nbsp;</td>
+									<td colspan="2" nowrap="nowrap">
+										&nbsp;<input id="selTranceparent" name="selTranceparent" type="checkbox" value="1"
+											onclick="CorrectFiledData('tranceparent');"><label for="selTranceparent" fcklang="TableDlgTranceparent">Tranceparent</label>
+									</td>
+								</tr>
+								<tr>
+									<td colspan="3">&nbsp;</td>
+								</tr>
+								<tr>
+									<td nowrap="nowrap">
+										<span fcklang="DlgTableBorder">Border size</span>:</td>
+									<td colspan="2" nowrap="nowrap">
+										&nbsp;<input id="txtBorder" type="text" maxlength="2" size="2" value="" name="txtBorder"
+											onkeypress="return IsDigit(event);" />px
+										&nbsp;<select id="selBorferStyle" name="selBorferStyle" onchange="CorrectFiledData('btype');">
+											<option fcklang="TableDlgBorder_solid" value="solid">solid</option>
+											<option fcklang="TableDlgBorder_double" value="double">double</option>
+											<option fcklang="TableDlgBorder_groove" value="groove">groove</option>
+											<option fcklang="TableDlgBorder_ridge" value="ridge">ridge</option>
+											<option fcklang="TableDlgBorder_inset" value="inset">inset</option>
+											<option fcklang="TableDlgBorder_outset" value="outset" selected="selected">outset</option>
+											<option fcklang="TableDlgBorder_dashed" value="dashed">dashed</option>
+											<option fcklang="TableDlgBorder_dotted" value="dotted">dotted</option>
+										</select>
 									</td>
 								</tr>
 								<tr>
 									<td>
-										<span fcklang="DlgCellBackColor">Background Color</span>:</td>
+										<span fcklang="DlgBorderColor">Border Color</span>:</td>
 									<td>
-										&nbsp;<input id="txtBackColor" type="text" size="8" name="txtCellSpacing"></td>
+										&nbsp;<input id="txtBorderColor" type="text" size="8" name="txtBorderColor"></td>
 									<td>
 										&nbsp;
 										<input type="button" fcklang="DlgCellBtnSelect" value="Select..."
-											onclick="SelectColor('Back')">
+											onclick="SelectColor(SelectBorderColor)">
 									</td>
+								</tr>
+								<tr>
+									<td nowrap="nowrap">
+										<span fcklang="DlgTableCellSpace">Cell spacing</span>:</td>
+									<td colspan="2" nowrap="nowrap">
+										&nbsp;<input id="txtCellSpacing" type="text" maxlength="2" size="2" value="1" name="txtCellSpacing"
+											onkeypress="return IsDigit(event);" />px</td>
 								</tr>
 							</table>
 						</td>
