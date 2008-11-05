@@ -492,31 +492,47 @@ class XpWikiTableCell extends XpWikiElement {
 			$cells[0] = preg_replace("/(?:SC|CC):\(([^),]*)(,once|,1)?\) ?/i","",$cells[0]);
 		}
 		// ボーダー
-		if (preg_match("/K:([0-9]+),?([0-9]*)(one|two|boko|deko|in|out|dash|dott)? ?/i",$cells[0],$tmp)) {
+		if (preg_match("/K:([0-9]+),?([0-9]*)\(?(one|s(?:olid)?|da(?:sh(?:ed)?)?|do(?:tt(?:ed)?)?|two|d(?:ouble)?|boko|g(?:roove)?|deko|r(?:idge)?|in?(?:set)?|o(?:ut(?:set)?)?)?\)? ?/i",$cells[0],$tmp)) {
 			if (array_key_exists (3,$tmp)) {
 				switch (strtolower($tmp[3])) {
 					case 'one':
+					case 's':
+					case 'solid':
 				 		$border_type = "solid";
 				 		break;
 					case 'two':
+					case 'd':
+					case 'double':
 						$border_type = "double";
 				 		break;
 					case 'boko':
+					case 'g':
+					case 'groove':
 						$border_type = "groove";
 				 		break;
 					case 'deko':
+					case 'r':
+					case 'ridge':
 						$border_type = "ridge";
 				 		break;
 					case 'in':
+					case 'i':
+					case 'inset':
 						$border_type = "inset";
 				 		break;
 					case 'out':
+					case 'o':
+					case 'outset':
 						$border_type = "outset";
 				 		break;
 					case 'dash':
+					case 'da':
+					case 'dashed':
 						$border_type = "dashed";
 				 		break;
 					case 'dott':
+					case 'do':
+					case 'dotted':
 						$border_type = "dotted";
 				 		break;
 					default:
@@ -540,7 +556,7 @@ class XpWikiTableCell extends XpWikiElement {
 					$this->style['padding'] = " padding:5px;";
 				}
 			}
-			$cells[0] = preg_replace("/K:([0-9]+),?([0-9]*)(one|two|boko|deko|in|out|dash|dott)? ?/i","",$cells[0]);
+			$cells[0] = preg_replace("/K:([0-9]+),?([0-9]*)\(?(one|s(?:olid)?|da(?:sh(?:ed)?)?|do(?:tt(?:ed)?)?|two|d(?:ouble)?|boko|g(?:roove)?|deko|r(?:idge)?|in?(?:set)?|o(?:ut(?:set)?)?)?\)? ?/i","",$cells[0]);
 		} else {
 //			$this->style['border'] = "border:none;";
 		}
@@ -688,31 +704,47 @@ class XpWikiTable extends XpWikiElement {
 		// 回り込み指定
 		if (preg_match("/AROUND ?/i",$string)) $this->table_around = "";
 		// ボーダー指定
-		if (preg_match("/B:([0-9]*),?([0-9]*)(one|two|boko|deko|in|out|dash|dott)? ?/i",$string,$reg)) {
-			if (array_key_exists (3,$reg)) {
+		if (preg_match("/B:([0-9]*),?([0-9]*)\(?(one|s(?:olid)?|da(?:sh(?:ed)?)?|do(?:tt(?:ed)?)?|two|d(?:ouble)?|boko|g(?:roove)?|deko|r(?:idge)?|in?(?:set)?|o(?:ut(?:set)?)?)?\)? ?/i",$string,$reg)) {
+			if (isset($reg[3])) {
 				switch (strtolower($reg[3])) {
 					case 'one':
+					case 's':
+					case 'solid':
 				 		$border_type = "solid";
 				 		break;
 					case 'two':
+					case 'd':
+					case 'double':
 						$border_type = "double";
 				 		break;
 					case 'boko':
+					case 'g':
+					case 'groove':
 						$border_type = "groove";
 				 		break;
 					case 'deko':
+					case 'r':
+					case 'ridge':
 						$border_type = "ridge";
 				 		break;
 					case 'in':
+					case 'i':
+					case 'inset':
 						$border_type = "inset";
 				 		break;
 					case 'out':
+					case 'o':
+					case 'outset':
 						$border_type = "outset";
 				 		break;
 					case 'dash':
+					case 'da':
+					case 'dashed':
 						$border_type = "dashed";
 				 		break;
 					case 'dott':
+					case 'do':
+					case 'dotted':
 						$border_type = "dotted";
 				 		break;
 					default:
@@ -723,21 +755,21 @@ class XpWikiTable extends XpWikiElement {
 			}
 			
 			//$this->table_style .= " border=\"".$reg[1]."\"";
-			if (array_key_exists (1,$reg)) {
+			if (isset($reg[1])) {
 				if ($reg[1]==="0"){
 					$this->table_sheet .= "border:none;";
 				} else {
 					$this->table_sheet .= "border:".$border_type." ".$reg[1]."px;";
 				}
 			}
-			if (array_key_exists (2,$reg)) {
+			if (isset($reg[2])) {
 				if ($reg[2]!=""){
 					$this->table_style .= " cellspacing=\"".$reg[2]."\"";
 				} else {
 					$this->table_style .= " cellspacing=\"1\"";
 				}
 			}
-			$string = preg_replace("/B:([0-9]*),?([0-9]*)(one|two|boko|deko|in|out|dash|dott)? ?/i","",$string);
+			$string = preg_replace("/B:([0-9]*),?([0-9]*)\(?(one|s(?:olid)?|da(?:sh(?:ed)?)?|do(?:tt(?:ed)?)?|two|d(?:ouble)?|boko|g(?:roove)?|deko|r(?:idge)?|in?(?:set)?|o(?:ut(?:set)?)?)?\)? ?/i","",$string);
 		} else {
 			$this->table_style .= " border=\"0\" cellspacing=\"1\"";
 			//$this->table_style .= " cellspacing=\"1\"";
