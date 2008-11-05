@@ -2,7 +2,7 @@
 /*
  * Created on 2008/10/23 by nao-pon http://hypweb.net/
  * License: GPL v2 or (at your option) any later version
- * $Id: x2w.php,v 1.2 2008/11/05 09:45:03 nao-pon Exp $
+ * $Id: x2w.php,v 1.3 2008/11/05 10:53:02 nao-pon Exp $
  */
 
 //
@@ -449,11 +449,8 @@ class XHTML2Wiki
 		}
 
 		// padding
-		if (preg_match('/padding:\s*(\d+)/', $attribute, $matches)) {
-			// "5" is default
-			if (intval($matches[1]) !== 5) {
-				$cellspacing = ',' . $matches[1];
-			}
+		if (preg_match('/padding(?:-left)?:\s*(\d+)px/', $attribute, $matches)) {
+			$cellspacing = ',' . $matches[1];
 		}
 		if ($border || $borderType || $cellspacing) {
 			$format = 'K:' . $border . $cellspacing . $borderType;
