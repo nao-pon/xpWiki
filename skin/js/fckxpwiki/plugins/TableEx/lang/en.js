@@ -13,6 +13,20 @@
 
 FCKLang.TableDlgHead				= 'Header';
 FCKLang.TableDlgFoot				= 'Footer';
+FCKLang.TableDlgAlign				= 'Arrangement'; 
+FCKLang.TableDlgAround				= 'Float'; 
+FCKLang.TableDlgAuto				= 'Auto';
+FCKLang.DlgBorderColor				= 'Border color';
+FCKLang.TableDlgBorder_solid		= 'Solid';
+FCKLang.TableDlgBorder_double		= 'Double';
+FCKLang.TableDlgBorder_groove		= 'Groove';
+FCKLang.TableDlgBorder_ridge		= 'Ridge';
+FCKLang.TableDlgBorder_inset		= 'Inset';
+FCKLang.TableDlgBorder_outset		= 'Outset';
+FCKLang.TableDlgBorder_dashed		= 'Dashed';
+FCKLang.TableDlgBorder_dotted		= 'Dotted';
+FCKLang.TableDlgTranceparent		= 'Tranceparent';
+FCKLang.TableDlgTableBackColor		= 'Table BG Color';
 
 FCKLang.TableCellDlgAlign			= 'Alignment';
 FCKLang.TableCellDlgRowSpan			= 'Rows Span';
