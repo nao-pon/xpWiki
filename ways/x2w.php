@@ -2,7 +2,7 @@
 /*
  * Created on 2008/10/23 by nao-pon http://hypweb.net/
  * License: GPL v2 or (at your option) any later version
- * $Id: x2w.php,v 1.1 2008/10/31 07:16:51 nao-pon Exp $
+ * $Id: x2w.php,v 1.2 2008/11/05 09:45:03 nao-pon Exp $
  */
 
 //
@@ -87,12 +87,12 @@ class XHTML2Wiki
 		$this->body = '';
 		
 		$source = preg_replace('#(<BR[^>]*?>)\n#iS', '$1', $source);
-		$source = preg_replace('#\s*(<(?:FORM|TABLE|TBODY|THEAD|TR|P|DIV|H[1-6]|PRE|OL|UL|LI|DL|DT|DD|TD|TH|BLOCKQUOTE)[^>]*?>)#iS', "\n$1", $source);
-		$source = preg_replace('#(</(?:FORM|TABLE|TBODY|THEAD|TR|P|DIV|H[1-6]|PRE|OL|UL|LI|DL|DT|DD|TD|TH|BLOCKQUOTE)>)\s*#iS', "$1\n", $source);
+		$source = preg_replace('#\s*(<(?:FORM|TABLE|TBODY|THEAD|TFOOT|TR|COLGROUP|P|DIV|H[1-6]|PRE|OL|UL|LI|DL|DT|DD|TD|TH|BLOCKQUOTE)[^>]*?>)#iS', "\n$1", $source);
+		$source = preg_replace('#(</(?:FORM|TABLE|TBODY|THEAD|TFOOT|TR|COLGROUP|P|DIV|H[1-6]|PRE|OL|UL|LI|DL|DT|DD|TD|TH|BLOCKQUOTE)>)\s*#iS', "$1\n", $source);
 		$source = preg_replace('#(<BLOCKQUOTE[^>]*?>)\s*#iS', "$1\n", $source);
 		$source = preg_replace('#\s*(</BLOCKQUOTE>)#iS', "\n$1", $source);
 		
-		//debug($source);
+		debug($source);
 
 		// １行ずつに分割
 		$source = explode("\n", $source);
@@ -120,7 +120,7 @@ class XHTML2Wiki
 			return;
 		}
 		
-		$line = preg_replace('/ *(<(?:FORM|TABLE|TBODY|THEAD|TR|UL|OL))/i', '$1', $line);
+		$line = preg_replace('/ *(<(?:FORM|TABLE|TBODY|THEAD|TFOOT|TR|UL|OL))/i', '$1', $line);
 		
 		if ($this->GetDiv() == 'Table') {
 			$this->Table($line);
@@ -172,9 +172,7 @@ class XHTML2Wiki
 		// リスト
 		else if (preg_match("/<(o|u|d)l(.*?)>/", $line, $matches)) {
 			$element = strtoupper($matches[1]) . 'List';
-			if ($this->GetDiv() != $element) {
-				$this->StartDiv($element);
-			}
+			$this->StartDiv($element);
 			$this->div_level++;
 			if ($element === 'OList' || $element === 'UList') $this->list_level++;
 		}
@@ -218,11 +216,9 @@ class XHTML2Wiki
 		if (preg_match("/<\/ol>/", $line)) {
 			$this->div_level--;
 			$this->list_level--;
-			if ($this->div_level == 0) {
-				$this->EndDiv();
-				if ($this->GetDiv() == '') {
-					$this->OutputLine();
-				}
+			$this->EndDiv();
+			if ($this->GetDiv() == '') {
+				$this->OutputLine();
 			}
 		}
 		else if (preg_match("/^(<li([^>]*?)>)?(.*?)(<\/li>)?$/", $line, $matches)) {
@@ -245,11 +241,9 @@ class XHTML2Wiki
 		if (preg_match("/<\/ul>/", $line)) {
 			$this->div_level--;
 			$this->list_level--;
-			if ($this->div_level == 0) {
-				$this->EndDiv();
-				if ($this->GetDiv() == '') {
-					$this->OutputLine();
-				}
+			$this->EndDiv();
+			if ($this->GetDiv() == '') {
+				$this->OutputLine();
 			}
 		}
 		else if (preg_match("/^(<li([^>]*?)>)?(.*?)(<\/li>)?$/", $line, $matches)) {
@@ -388,6 +382,7 @@ class XHTML2Wiki
 				$texts[] = $this->GetTableAttribute($matches[1], ++$_col, true);
 			}
 			$this->body[] = '|' . $this->tableStyle . (($this->tableStyle && $texts[0])? ' ' : '') . join('|', $texts) . "|c\n";
+			$this->tableStyle = '';
 		}
 		// ヘッダ・ボディ・フッタの開始
 		else if (preg_match("/<t((h)ead|body|(f)oot)>/", $line, $matches)) {
@@ -403,60 +398,60 @@ class XHTML2Wiki
 		}
 	}
 	
-	// テーブルの属性を取得
+	// セルの属性を取得
 	function GetTableAttribute($attribute, $col, $c = false) {
 		static $borders = array(
-			'solid' => 'one',
-			'double' => 'two',
-			'groove' => 'boko',
-			'ridge' => 'deko',
-			'inset' => 'in',
-			'outset' => 'out',
-			'dashed' => 'dash',
-			'dotted' => 'dott'
+			'solid' => '(s)',
+			'double' => '(d)',
+			'groove' => '(g)',
+			'ridge' => '(r)',
+			'inset' => '(i)',
+			'outset' => '(o)',
+			'dashed' => '(da)',
+			'dotted' => '(do)'
 		);
 		static $colors_reg = "aqua|navy|black|olive|blue|purple|fuchsia|red|gray|silver|green|teal|lime|white|maroon|yellow|transparent";
+
+		$pattern = "/rgb\((\d+),\s(\d+),\s(\d+)\)/ie";
+		$attribute = preg_replace($pattern, 'sprintf("#%02x%02x%02x", "$1", "$2", "$3")', $attribute);
 
 		$text = '';
 		$extexts = array();
 		if ($c) $this->basicStyles[$col] = '';
-		
-		$pattern = "/rgb\((\d+),\s(\d+),\s(\d+)\)/ie";
-		$attribute = preg_replace($pattern, 'sprintf("#%02x%02x%02x", "$1", "$2", "$3")', $attribute);
 		
 		// 文字サイズ
 		if (preg_match("/font-size:\s?(\d+)px/i", $attribute, $matches)) {
 			$format = "SIZE(" . $matches[1] . "):";
 			if (strpos($this->basicStyles[$col], $format) === FALSE) $text .= $format;
 		}
-		// 背景色
-		//if (preg_match("/background-color:\s?([#0-9a-z]+)/i", $attribute, $matches)) {
-		//	$format = "BGCOLOR(" . $matches[1] . "):";
-		//	if (strpos($this->basicStyles[$col], $format) === FALSE) $text .= $format;
-		//}
+
 		// 文字色
 		if (preg_match("/(\"|\s)color:\s?([#0-9a-z]+)/i", $attribute, $matches)) {
-			$format = "COLOR(" . $matches[2] . "):";
-			if (strpos($this->basicStyles[$col], $format) === FALSE) $text .= $format;
+			$format = "FC:" . $matches[2];
+			if (strpos($this->basicStyles[$col], $format) === FALSE) $extexts[] = $format;
 		}
 
 		// border
 		//one|two|boko|deko|in|out|dash|dott
 		$border = $borderType = $cellspacing = '';
-		if (preg_match('/border="(\d+)"/', $attribute, $matches)) {
-			if ($matches[1]) $border = $matches[1];
+		if (preg_match('/border="(\d+)"/i', $attribute, $matches)) {
+			$border = $matches[1];
 		}
-		if (preg_match('/border:[^;]*?(\d+)/', $attribute, $matches)) {
-			if ($matches[1]) $border = $matches[1];
+		if (preg_match('/border(?:-left)?(?:-width)?:[^;]*?(none)/i', $attribute, $matches)) {
+			$border = 0;
 		}
-		if (preg_match('/border:[^;]*?(solid|double|groove|ridge|inset|dashed|dotted)/i', $attribute, $matches)) {
+		if (preg_match('/border(?:-left)?(?:-width)?:[^;]*?(\d+)px/i', $attribute, $matches)) {
+			$border = $matches[1];
+		}
+		if (preg_match('/border(?:-left)?(?:-style)?:[^;]*?(solid|double|groove|ridge|inset|dashed|dotted)/i', $attribute, $matches)) {
 			// "outset" is default
 			$borderType = $borders[strtolower($matches[1])];
 		}
-		// cellspacing
-		if (preg_match('/cellspacing="(\d+)"/', $attribute, $matches)) {
-			// "1" is default
-			if (intval($matches[1]) !== 1) {
+
+		// padding
+		if (preg_match('/padding:\s*(\d+)/', $attribute, $matches)) {
+			// "5" is default
+			if (intval($matches[1]) !== 5) {
 				$cellspacing = ',' . $matches[1];
 			}
 		}
@@ -532,21 +527,25 @@ class XHTML2Wiki
 			}			
 		}
 		
-		return rtrim($text);
+		//return rtrim($text);
+		return $text;
 	}
 	
 	function GetTableStyle($attribute) {
 		static $borders = array(
-			'solid' => 'one',
-			'double' => 'two',
-			'groove' => 'boko',
-			'ridge' => 'deko',
-			'inset' => 'in',
-			'outset' => 'out',
-			'dashed' => 'dash',
-			'dotted' => 'dott'
+			'solid' => '(s)',
+			'double' => '(d)',
+			'groove' => '(g)',
+			'ridge' => '(r)',
+			'inset' => '(i)',
+			'outset' => '(o)',
+			'dashed' => '(da)',
+			'dotted' => '(do)'
 		);
 		static $colors_reg = "aqua|navy|black|olive|blue|purple|fuchsia|red|gray|silver|green|teal|lime|white|maroon|yellow|transparent";
+
+		$pattern = "/rgb\((\d+),\s(\d+),\s(\d+)\)/ie";
+		$attribute = preg_replace($pattern, 'sprintf("#%02x%02x%02x", "$1", "$2", "$3")', $attribute);
 		
 		$this->tableStyle = '';
 		
@@ -575,7 +574,7 @@ class XHTML2Wiki
 		if (preg_match('/width="(\d+(?:%|px))"/i', $attribute, $matches)) {
 			$width = $matches[1];
 		}
-		if (preg_match('/width: *(\d+(?:%|px))/i', $attribute, $matches)) {
+		if (preg_match('/[" ;]width: *(\d+(?:%|px))/i', $attribute, $matches)) {
 			$width = $matches[1];
 		}
 		if ($align || $width) {
@@ -585,12 +584,15 @@ class XHTML2Wiki
 		//one|two|boko|deko|in|out|dash|dott
 		$border = $borderType = $cellspacing = '';
 		if (preg_match('/border="(\d+)"/i', $attribute, $matches)) {
-			if ($matches[1]) $border = $matches[1];
+			$border = $matches[1];
 		}
-		if (preg_match('/border(?:-right)?:[^;]*?(\d+)/i', $attribute, $matches)) {
-			if ($matches[1]) $border = $matches[1];
+		if (preg_match('/border(?:-left)?(?:-width)?:[^;]*?(none)/i', $attribute, $matches)) {
+			$border = 0;
 		}
-		if (preg_match('/border(?:-right)?:[^;]*?(solid|double|groove|ridge|inset|dashed|dotted)/i', $attribute, $matches)) {
+		if (preg_match('/border(?:-left)?(?:-width)?:[^;]*?(\d+)px/i', $attribute, $matches)) {
+			$border = $matches[1];
+		}
+		if (preg_match('/border(?:-left)?(?:-style)?:[^;]*?(solid|double|groove|ridge|inset|dashed|dotted)/i', $attribute, $matches)) {
 			// "outset" is default
 			$borderType = $borders[strtolower($matches[1])];
 		}
@@ -605,7 +607,7 @@ class XHTML2Wiki
 			$styles[] = 'B:' . $border . $cellspacing . $borderType;
 		}
 		// border-color
-		if (preg_match('/border(?:-color)?:[^;]*?(#[0-9a-f]+|' . $colors_reg . ')/i', $attribute, $matches)) {
+		if (preg_match('/border(?:-left)?(?:-color)?:[^;]*?(#[0-9a-f]+|' . $colors_reg . ')/i', $attribute, $matches)) {
 			$styles[] = 'BC:' . $matches[1];
 		}
 		// background-color, background-image & background-repeat
@@ -630,6 +632,10 @@ class XHTML2Wiki
 	function OutputTable($cells, $type) {
 		$row = count($cells);
 		$col = count($cells[1]);
+		if ($this->tableStyle) {
+			$this->body[] = '|' . $this->tableStyle . str_repeat('|', $col)  . "c\n";
+			$this->tableStyle = '';
+		}
 		for ($i = 1; $i <= $row; $i++) {
 			for ($j = 1; $j <= $col; $j++) {
 				$this->body[] = "|" . $this->Inline($cells[$i][$j]);
@@ -641,11 +647,20 @@ class XHTML2Wiki
 	// 段落
 	function Paragraph($line) {
 		$head = $this->list_level? '~' : '';
-		if (preg_match("/<(p|div)(\sstyle=\"text-align:\s*(left|center|right);?\s?\")?>(.*)/", $line, $matches)) {
+		$align = '';
+		if (preg_match("/<(?:p|div)([^>]*)(?:text-align:\s*(left|center|right))([^>]*)>/", $line, $matches)) {
+			if (strpos($matches[1], 'class="ie5"') === false && strpos($matches[3], 'class="ie5"') === false) {
+				$align = strtoupper($matches[2]) . ':';
+			}
+		}
+		if (preg_match("/<(p|div)[^>]*>(.*)/", $line, $matches)) {
 			if (! $head && $matches[1] == 'p') {
 				$this->OutputLine();
+				if ($align === 'LEFT:') {
+					$align = '';
+				}
 			}
-			$line = ($matches[3] ? (strtoupper($matches[3]) . ':') : '') . $matches[4];
+			$line = $align . $matches[2];
 		}
 		if (preg_match("/(.*)<\/(p|div)>/", $line, $matches)) {
 			if ($matches[1]) {

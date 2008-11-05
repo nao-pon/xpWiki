@@ -682,12 +682,16 @@ var XpWiki = {
 		to.appendChild(cln);
 	},
 	
-	fileupFormPopup: function (mode) {
+	fileupFormPopup: function (mode, page) {
 		
-		//this.dir = dirname;
-		//this.title = this.htmlspecialchars(page);
-		this.dir = this.UploadDir;
-		this.title = this.htmlspecialchars(this.UploadPage);
+		if (typeof page != "undefined") {
+			this.dir = mode;
+			this.UploadPage = page;
+			this.title = this.htmlspecialchars(page);
+		} else {
+			this.dir = this.UploadDir;
+			this.title = this.htmlspecialchars(this.UploadPage);
+		}
 		if (typeof mode == "undefind") {
 			mode = '';
 		}
@@ -790,6 +794,7 @@ var XpWiki = {
 			FCKeditor = false;
 			var sc = document.createElement('script');
 			sc.type = 'text/javascript';
+			sc.charset = 'UTF-8';
 			if (window.ActiveXObject) {
 				sc.onreadystatechange = function(){
 					if (sc.readyState == 'complete' || sc.readyState == 'loaded') {
@@ -823,7 +828,7 @@ var XpWiki = {
 
 			oFCKeditor.Height = "100%";
 			
-			oFCKeditor.Config['CustomConfigurationsPath'] = myFckDir + "/fck.config.js";
+			oFCKeditor.Config['CustomConfigurationsPath'] = myDir + "/skin/loader.php?src=fck.config.js";
 			oFCKeditor.Config['EditorAreaCSS'] = myDir + "/skin/loader.php?src=main+fckeditor.css&f=1";
 			oFCKeditor.Config['SkinPath'] = myFckDir + "/skin/";
 			oFCKeditor.Config['PluginsPath'] = myFckDir + "/plugins/";

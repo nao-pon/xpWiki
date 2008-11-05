@@ -2,7 +2,7 @@
 /*
  * Created on 2008/10/23 by nao-pon http://hypweb.net/
  * License: GPL v2 or (at your option) any later version
- * $Id: w2x.php,v 1.1 2008/10/31 07:16:51 nao-pon Exp $
+ * $Id: w2x.php,v 1.2 2008/11/05 09:45:03 nao-pon Exp $
  */
 
 error_reporting(0);
@@ -85,7 +85,7 @@ function guiedit_convert_html($lines) {
 	$body->parse($lines);
 	
 	$html = $body->toString();
-	if ($html) $html . '<p></p>';
+	if ($html) $html = $html . '<div></div>';
 	return $html;
 }
 
@@ -96,29 +96,7 @@ function guiedit_make_link($line)
 	if (is_null($obj)) {
 		$obj = new InlineConverterEx();
 	}
-	$converter = $obj->get_clone($obj);
-	return $converter->convert($line);
-/*
-		static $converter = null;
-		static $converter_pool = null;
-	
-		if (is_null($converter)) $converter = new InlineConverterEx();
-	
-		if (is_null($converter_pool)) {
-			$converter_pool = array();
-			$clone = NULL;
-		} else {
-			$clone = array_shift($converter_pool);
-		}
-		if ($clone === NULL) {
-			$clone = $converter->get_clone($converter);
-		}
-	
-		$result = $clone->convert($line);
-		$converter_pool[] = $clone; // For recycling
-	
-		return $result;
-*/
+	return $obj->convert($line);
 }
 
 // 添付ファイルプラグインの変換
@@ -277,7 +255,8 @@ class InlineConverterEx {
 		}
 		
 		if (preg_match("/^<br\s\/>$/", $line)) {
-			$line .= "\n&nbsp;";
+			//$line .= "\n&nbsp;";
+			$line .= "\n";
 		}
 		
 		return $line;
@@ -1126,31 +1105,47 @@ class TableCellEx extends ElementEx
 			$cells[0] = preg_replace("/(?:SC|CC):\(([^),]*)(,(?:no|one(?:ce)?|1))?\) ?/i","",$cells[0]);
 		}
 		// セル ボーダー
-		if (preg_match("/K:([0-9]+),?([0-9]*)(one|two|boko|deko|in|out|dash|dott)? ?/i",$cells[0],$tmp)) {
+		if (preg_match("/K:([0-9]+),?([0-9]*)\(?(one|s(?:olid)?|da(?:sh(?:ed)?)?|do(?:tt(?:ed)?)?|two|d(?:ouble)?|boko|g(?:roove)?|deko|r(?:idge)?|in?(?:set)?|o(?:ut(?:set)?)?)?\)? ?/i",$cells[0],$tmp)) {
 			if (array_key_exists (3,$tmp)) {
 				switch (strtolower($tmp[3])) {
 					case 'one':
+					case 's':
+					case 'solid':
 				 		$border_type = "solid";
 				 		break;
 					case 'two':
+					case 'd':
+					case 'double':
 						$border_type = "double";
 				 		break;
 					case 'boko':
+					case 'g':
+					case 'groove':
 						$border_type = "groove";
 				 		break;
 					case 'deko':
+					case 'r':
+					case 'ridge':
 						$border_type = "ridge";
 				 		break;
 					case 'in':
+					case 'i':
+					case 'inset':
 						$border_type = "inset";
 				 		break;
 					case 'out':
+					case 'o':
+					case 'outset':
 						$border_type = "outset";
 				 		break;
 					case 'dash':
+					case 'da':
+					case 'dashed':
 						$border_type = "dashed";
 				 		break;
 					case 'dott':
+					case 'do':
+					case 'dotted':
 						$border_type = "dotted";
 				 		break;
 					default:
@@ -1174,7 +1169,7 @@ class TableCellEx extends ElementEx
 					$this->style['padding'] = " padding:5px;";
 				}
 			}
-			$cells[0] = preg_replace("/K:([0-9]+),?([0-9]*)(one|two|boko|deko|in|out|dash|dott)? ?/i","",$cells[0]);
+			$cells[0] = preg_replace("/K:([0-9]+),?([0-9]*)\(?(one|s(?:olid)?|da(?:sh(?:ed)?)?|do(?:tt(?:ed)?)?|two|d(?:ouble)?|boko|g(?:roove)?|deko|r(?:idge)?|in?(?:set)?|o(?:ut(?:set)?)?)?\)? ?/i","",$cells[0]);
 		} else {
 //			$this->style['border'] = "border:none;";
 		}
@@ -1326,31 +1321,47 @@ class TableEx extends ElementEx
 		// 回り込み指定
 		if (preg_match("/AROUND ?/i",$string)) $this->table_around = "float:";
 		// ボーダー指定
-		if (preg_match("/B:([0-9]*),?([0-9]*)(one|two|boko|deko|in|out|dash|dott)? ?/i",$string,$reg)) {
+		if (preg_match("/B:([0-9]*),?([0-9]*)\(?(one|s(?:olid)?|da(?:sh(?:ed)?)?|do(?:tt(?:ed)?)?|two|d(?:ouble)?|boko|g(?:roove)?|deko|r(?:idge)?|in?(?:set)?|o(?:ut(?:set)?)?)?\)? ?/i",$string,$reg)) {
 			if (array_key_exists (3,$reg)) {
 				switch (strtolower($reg[3])) {
 					case 'one':
+					case 's':
+					case 'solid':
 				 		$border_type = "solid";
 				 		break;
 					case 'two':
+					case 'd':
+					case 'double':
 						$border_type = "double";
 				 		break;
 					case 'boko':
+					case 'g':
+					case 'groove':
 						$border_type = "groove";
 				 		break;
 					case 'deko':
+					case 'r':
+					case 'ridge':
 						$border_type = "ridge";
 				 		break;
 					case 'in':
+					case 'i':
+					case 'inset':
 						$border_type = "inset";
 				 		break;
 					case 'out':
+					case 'o':
+					case 'outset':
 						$border_type = "outset";
 				 		break;
 					case 'dash':
+					case 'da':
+					case 'dashed':
 						$border_type = "dashed";
 				 		break;
 					case 'dott':
+					case 'do':
+					case 'dotted':
 						$border_type = "dotted";
 				 		break;
 					default:
@@ -1375,7 +1386,7 @@ class TableEx extends ElementEx
 					$this->table_style .= " cellspacing=\"1\"";
 				}
 			}
-			$string = preg_replace("/B:([0-9]*),?([0-9]*)(one|two|boko|deko|in|out|dash|dott)? ?/i","",$string);
+			$string = preg_replace("/B:([0-9]*),?([0-9]*)\(?(one|s(?:olid)?|da(?:sh(?:ed)?)?|do(?:tt(?:ed)?)?|two|d(?:ouble)?|boko|g(?:roove)?|deko|r(?:idge)?|in?(?:set)?|o(?:ut(?:set)?)?)?\)? ?/i","",$string);
 		} else {
 			$this->table_style .= " border=\"0\" cellspacing=\"1\"";
 			//$this->table_style .= " cellspacing=\"1\"";
