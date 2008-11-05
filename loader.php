@@ -1,7 +1,7 @@
 <?php
 //
 // Created on 2006/10/25 by nao-pon http://hypweb.net/
-// $Id: loader.php,v 1.52 2008/10/31 07:16:51 nao-pon Exp $
+// $Id: loader.php,v 1.53 2008/11/05 09:42:44 nao-pon Exp $
 //
 
 ignore_user_abort(FALSE);
@@ -37,7 +37,7 @@ $nocache = (isset($_GET['nc']));
 $js_lang = $charset = $pre_width = $cache_file = $gzip_fname = $dir = $out = $type = $src_file = '';
 $addcss = array();
 $length = $addtime = 0;
-$face_remake = $js_replace = $replace = false;
+$face_remake = $replace = false;
 $root_path = dirname($skin_dirname);
 $cache_path = $root_path.'/private/cache/';
 $face_tag_ver = 1.1;
@@ -200,7 +200,7 @@ switch ($type) {
 		}
 		$src_file = $src_files;
 		$c_type = 'application/x-javascript';
-		$cache_file = $cache_path . $src . ($js_replace? '_' . $wikihelper_root_url_md5 : '') . '.' . $type;
+		$cache_file = $cache_path . $src . ($js_replaces? '_' . $wikihelper_root_url_md5 : '') . '.' . $type;
 		$gzip_fname = $cache_file . '.gz';
 		break;
 	case 'png':
