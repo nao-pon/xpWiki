@@ -1,6 +1,6 @@
 //
 // Created on 2007/10/03 by nao-pon http://hypweb.net/
-// $Id: resizable.js,v 1.10 2008/10/31 07:15:35 nao-pon Exp $
+// $Id: resizable.js,v 1.11 2008/11/06 23:21:23 nao-pon Exp $
 //
 
 var Resizable = Class.create();
@@ -151,6 +151,24 @@ Resizable.prototype = {
 	makeResizeBox: function (mode) {
 		if (!mode) mode = 'xy';
 
+		// cover for event
+		var cover = document.createElement('div');
+		cover.id =  this.base.id + '_resizeC';
+		Element.setStyle(cover,{
+			position: 'absolute',
+			display: 'none',
+			top: '0px',
+			left: '0px',
+			margin: '0px',
+			padding: '0px',
+			overflow: 'hidden',
+			border: 'none',
+			width: '100%',
+			height: '100%',
+			zIndex: '10000'
+		});
+		this.base.appendChild(cover);
+		
 		if (mode == 'x' ) {
 			this.elem.style.maxWidth = (Prototype.Browser.WebKit)? '100%' : 'none';
 			if (this.initWidth) {
@@ -273,6 +291,7 @@ Resizable.prototype = {
 
 	dragStart: function (event) {
 		if ( this.onDrag ) return;
+		Element.show(this.base.id + '_resizeC');
 		Event.stop(event);
 		this.onDrag = true;
 		this.backupCursor();
@@ -290,22 +309,28 @@ Resizable.prototype = {
 	dragMove: function (event) {
 		if ( ! this.onDrag ) return;
 		Event.stop(event);
+		var oldX = this.sizeX;
 		var newX = this.sizeX + event.clientX - this.curX;
 		if ( this.boolX && newX > 0 ) {
 			this.setWidth(newX);
 			this.curX = event.clientX;
 		}
-	
 		var newY = this.sizeY + event.clientY - this.curY;
 		if ( this.boolY && newY > 0 ) {
 			this.setHeight(newY);
 			this.curY = event.clientY;
+		}
+		if (Prototype.Browser.WebKit && oldX == this.sizeX) {
+			// For Safari's bug?
+			this.setWidth(this.base.offsetWidth + 1);
+			this.setWidth(this.base.offsetWidth - 1);
 		}
 		return false;
 	},
 	
 	dragFinish: function (event) {
 		if ( ! this.onDrag ) return;
+		Element.hide(this.base.id + '_resizeC');
 		if (!!this.options.endeffect) this.options.endeffect(this.base);
 		//Event.stop(event);
 		this.restoreCursor();
