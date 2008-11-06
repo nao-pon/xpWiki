@@ -2,7 +2,7 @@
 /*
  * Created on 2008/10/23 by nao-pon http://hypweb.net/
  * License: GPL v2 or (at your option) any later version
- * $Id: x2w.php,v 1.3 2008/11/05 10:53:02 nao-pon Exp $
+ * $Id: x2w.php,v 1.4 2008/11/06 06:18:13 nao-pon Exp $
  */
 
 //
@@ -92,7 +92,7 @@ class XHTML2Wiki
 		$source = preg_replace('#(<BLOCKQUOTE[^>]*?>)\s*#iS', "$1\n", $source);
 		$source = preg_replace('#\s*(</BLOCKQUOTE>)#iS', "\n$1", $source);
 		
-		debug($source);
+		//debug($source);
 
 		// １行ずつに分割
 		$source = explode("\n", $source);
@@ -703,6 +703,12 @@ class XHTML2Wiki
 		$line = preg_replace("/<\/?u>/", "%%%", $line);
 		// 取消線
 		$line = preg_replace("/<\/?strike>/", "%%", $line);
+		// 文字装飾 <span> の入れ子をシンプルにする
+		$line = str_replace('</span>', "\x08", $line);
+		while(preg_match('/((?:<span style=\".+?\">){2,})([^\08]+?)(\x08{2,})/', $line)) {
+			$line = preg_replace_callback('/((?:<span style=\"[^\"]+?\">){2,})([^\08]+?)(\x08{2,})/', array(&$this, 'SpanSimplify'), $line);
+		}
+		$line = str_replace("\x08", '</span>', $line);
 		// 文字のサイズ・色
 		$line = preg_replace_callback("/<(\/)?span(.*?)>/", array(&$this, 'Font'), $line);
 		// 改行
@@ -746,6 +752,18 @@ class XHTML2Wiki
 		//$alias = strip_tags($matches[2]);
 		$alias = $matches[2];
 		return "[[" . (($url == $alias) ? '' : "$alias>") . "$url]]";
+	}
+	
+	// 文字装飾 <span> の入れ子をシンプルにする
+	function SpanSimplify($matches) {
+		if (preg_match_all('/style="(.+?)"/', $matches[1], $styles, PREG_PATTERN_ORDER)) {
+			$open = substr_count($matches[1], '<span');
+			$close = strlen($matches[3]);
+			$style = join(';', $styles[1]);
+			return '<span style="' . $style . '">' . $matches[2] . str_repeat("\x08", $close - $open + 1);
+		} else {
+			return $matches[0];
+		}
 	}
 	
 	// 文字のサイズ・色
@@ -827,7 +845,7 @@ class XHTML2Wiki
 			return array_shift($foot_array);
 		}
 	}
-
+	
 	// インライン型プラグイン
 	function InlinePlugin($matches) {
 		static $pattern, $replace;
