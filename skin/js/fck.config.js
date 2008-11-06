@@ -89,7 +89,8 @@ FCKConfig.ContextMenu = ['Generic','Link','Anchor'] ;
 FCKConfig.FontFormats	= 'p;div;pre;h2;h3;h4;h5;h6' ;
 
 //	Font format
-FCKConfig.FontSizes = '8px;9px;10px;11px;12px;14px;16px;18px;20px;24px;28px;32px;40px;48px;60px;'
+FCKConfig.FontSizes = '80%;120%;140%;160%;180%;200%;250%;300%;'
+					+ '8px;9px;10px;11px;12px;14px;16px;18px;20px;24px;28px;32px;40px;48px;60px;'
 					+ 'xx-small;x-small;small;medium;large;x-large;xx-large';
 FCKConfig.CoreStyles['Size'].Styles['line-height'] = '130%';
 FCKConfig.CoreStyles['Bold'].Element = 'strong';
