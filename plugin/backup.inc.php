@@ -1,6 +1,6 @@
 <?php
 // PukiWiki - Yet another WikiWikiWeb clone.
-// $Id: backup.inc.php,v 1.14 2008/10/31 07:03:31 nao-pon Exp $
+// $Id: backup.inc.php,v 1.15 2008/11/06 08:54:50 nao-pon Exp $
 // Copyright (C)
 //   2002-2005 PukiWiki Developers Team
 //   2001-2002 Originally written by yu-ji
@@ -147,7 +147,7 @@ EOD;
 		}
 		
 		$header[0] = '';
-		$list = '';
+		$list2 = $list = '';
 		$navi = '';
 		
 		$showlist = ($action !== 'rewind' && ($backups_count || $is_now));
@@ -156,12 +156,11 @@ EOD;
 			$_name = '_title_backup' . $action;
 			$title = $this->root->$_name;
 			$list .= '<li>'.htmlspecialchars(str_replace(array('$1', '$2'), array($page, ' All'), $title)) . "\n";
-			$list .= '  <ul>' . "\n";
 			foreach($backups as $age => $val) {
 				$s_title = htmlspecialchars(str_replace(array('$1', '$2'), array($page, $age), $title));
 				$date = $this->func->format_date($val['time']);
 				$lasteditor = $this->func->get_lasteditor($this->func->get_pginfo('',$val['data']));
-				$list .= ($age == $s_age) ?
+				$list2 .= ($age == $s_age) ?
 					'   <li><em>' . $age . ': ' . $date . ' ' . $lasteditor . '</em></li>' . "\n" :
 					'   <li><a href="' . $script . '?cmd=backup&amp;action=' .
 					$r_action . '&amp;pgid=' . $pgid . '&amp;age=' . $age .
@@ -184,17 +183,21 @@ EOD;
 				$s_title = htmlspecialchars(str_replace('$1', $page, $title));
 				$date = $this->func->format_date($this->func->get_filetime($page));
 				$lasteditor = $this->func->get_lasteditor($this->func->get_pginfo($page));
-				$list .= ($is_now) ?
+				$list2 .= ($is_now) ?
 					'   <li><em>' . $this->root->_msg_current . ': ' . $date . ' ' . $lasteditor . '</em></li>' . "\n" :
 					'   <li><a href="' . $script . '?cmd=backup&amp;action=' .
 					$r_action . '&amp;pgid=' . $pgid . '&amp;age=Cur'.
 					'" title="' . $s_title . '">' . $this->root->_msg_current . ': ' . $date . '</a> ' . $lasteditor . '</li>' . "\n";
-				$list .= '  </ul>' . "\n";
 				if ($is_now) {
 					$header[1] = $this->make_age_label($this->root->_msg_current, $date, $lasteditor);
 					$header[1] .= ' ' . str_replace('$1', 'Cur', $source_icon);
 					if ($editable) $header[1] .= ' ' . str_replace('$1', '0', str_replace($this->root->_msg_backupedit, $this->root->_btn_edit, $edit_icon));
 				}
+			}
+			if ($list2) {
+				$list .= '<ul>' . $list2 . '</ul></li>';
+			} else {
+				$list .= '</li>';
 			}
 			
 			// navi
@@ -305,9 +308,9 @@ EOD;
 			$href = $script . '?cmd=backup&amp;pgid=' . $pgid;
 			$body .= '<hr style="clear:both;" />'. "\n";
 			if ($backups_count) {
-				$body .= '<ul><li><a href="'.$href.'">'. str_replace('$1', $s_page, $this->root->_title_pagebackuplist) . "</a></li>\n" . $list . '</li></ul>';
+				$body .= '<ul><li><a href="'.$href.'">'. str_replace('$1', $s_page, $this->root->_title_pagebackuplist) . "</a></li>\n" . $list . '</ul>';
 			} else {
-				$body .= $list;
+				$body .= '<ul>' . $list . '</ul>';
 			}
 		}
 		
