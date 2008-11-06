@@ -2,7 +2,7 @@
 /*
  * Created on 2008/10/23 by nao-pon http://hypweb.net/
  * License: GPL v2 or (at your option) any later version
- * $Id: x2w.php,v 1.4 2008/11/06 06:18:13 nao-pon Exp $
+ * $Id: x2w.php,v 1.5 2008/11/06 08:56:11 nao-pon Exp $
  */
 
 //
@@ -705,15 +705,16 @@ class XHTML2Wiki
 		$line = preg_replace("/<\/?strike>/", "%%", $line);
 		// 文字装飾 <span> の入れ子をシンプルにする
 		$line = str_replace('</span>', "\x08", $line);
-		while(preg_match('/((?:<span style=\".+?\">){2,})([^\08]+?)(\x08{2,})/', $line)) {
-			$line = preg_replace_callback('/((?:<span style=\"[^\"]+?\">){2,})([^\08]+?)(\x08{2,})/', array(&$this, 'SpanSimplify'), $line);
+		while(preg_match('/((?:<span style=\".+?\">){2,})([^\08]+?)(\x08{2,})/iS', $line)) {
+			$line = preg_replace_callback('/((?:<span style=\"[^\"]+?\">){2,})([^\08]+?)(\x08{2,})/iS', array(&$this, 'SpanSimplify'), $line);
 		}
-		$line = str_replace("\x08", '</span>', $line);
 		// 文字のサイズ・色
-		$line = preg_replace_callback("/<(\/)?span(.*?)>/", array(&$this, 'Font'), $line);
+		while(preg_match('/<span[^>]*?>[^\x08]*\x08/iS', $line)) {
+			$line = preg_replace_callback('/<span([^>]*?)>([^\x08]*)\x08/iS', array(&$this, 'Font'), $line);
+		}
 		// 改行
 		global $line_break;
-		if ($this->GetDiv() == "Heading" || $this->GetDiv() == "Table") {
+		if ($this->GetDiv() == "Heading" || $this->GetDiv() == "Table" || $this->span_level) {
 			$line = preg_replace("/<br\s*\/?>/", "&br;", $line);
 		}
 		else if ($line_break) {
@@ -756,95 +757,90 @@ class XHTML2Wiki
 	
 	// 文字装飾 <span> の入れ子をシンプルにする
 	function SpanSimplify($matches) {
+		$open = substr_count($matches[1], '<span');
+		$close = strlen($matches[3]);
+		$style = '';
 		if (preg_match_all('/style="(.+?)"/', $matches[1], $styles, PREG_PATTERN_ORDER)) {
-			$open = substr_count($matches[1], '<span');
-			$close = strlen($matches[3]);
 			$style = join(';', $styles[1]);
-			return '<span style="' . $style . '">' . $matches[2] . str_repeat("\x08", $close - $open + 1);
-		} else {
-			return $matches[0];
 		}
+		return '<span style="' . $style . '">' . $matches[2] . str_repeat("\x08", $close - $open + 1);
 	}
-	
+
 	// 文字のサイズ・色
 	function Font($matches) {
 		static $foot_array = array();
-		$attribute = $matches[2];
+		$attribute = $matches[1];
+		$body = preg_replace('#<br ?/?>#', '&br;', $matches[2]);
 		$styles = array();
-		$decoration = array();
 		
-		if (!$matches[1]) {
-			// size
-			if (preg_match("/font-size:\s?((\d+(?:%|px|pt|em))|[a-z\-]+)/", $attribute, $matches)) {
-				if ($matches[2]) {
-					array_unshift($foot_array, '};');
-					$styles[] = "$matches[2]";
-				} else {
-					switch ($matches[1]) {
-						case 'xx-small':	$size = '1'; break;
-						case 'x-small':		$size = '2'; break;
-						case 'small':		$size = '3'; break;
-						case 'medium':		$size = '4'; break;
-						case 'large':		$size = '5'; break;
-						case 'x-large':		$size = '6'; break;
-						case 'xx-large':	$size = '7'; break;
-					}
-					if ($this->GetDiv() == 'Heading' || $this->GetDiv() == 'Table') {
-						array_unshift($foot_array, '');
-					}
-					else {
-						array_unshift($foot_array, "\n");
-					}
-					return "SIZE($size):";
+		// size
+		$matches = array();
+		if (preg_match("/font-size:\s?((\d+(?:%|px|pt|em))|[a-z\-]+)/", $attribute, $matches)) {
+			if ($matches[2]) {
+				$styles[] = $matches[2];
+			} else {
+				switch ($matches[1]) {
+					case 'xx-small':	$size = '1'; break;
+					case 'x-small':		$size = '2'; break;
+					case 'small':		$size = '3'; break;
+					case 'medium':		$size = '4'; break;
+					case 'large':		$size = '5'; break;
+					case 'x-large':		$size = '6'; break;
+					case 'xx-large':	$size = '7'; break;
 				}
+				$ret = 'SIZE(' . $size . '):' . $body;
+				if ($this->GetDiv() != 'Heading' && $this->GetDiv() != 'Table') {
+					$ret .= "\n";
+				}
+				return $ret;
 			}
-			
-			// color & backgroung-color
-			$pattern = "/rgb\((\d+),\s(\d+),\s(\d+)\)/e";
-			$attribute = preg_replace($pattern, 'sprintf("#%02x%02x%02x", "$1", "$2", "$3")', $attribute);
+		}
+		
+		// color & backgroung-color
+		$pattern = "/rgb\((\d+),\s(\d+),\s(\d+)\)/e";
+		$attribute = preg_replace($pattern, 'sprintf("#%02x%02x%02x", "$1", "$2", "$3")', $attribute);
 
-			if (preg_match("/background-color:\s?([#0-9a-z]+)/i", $attribute, $matches)) {
-				$bgcolor = $matches[1];
-			}
-			if (preg_match("/[^-]color:\s?([#0-9a-z]+)/i", $attribute, $matches)) {
-				$color = $matches[1];
-			}
-			if ($color || $bgcolor) {
-				if (!$styles) array_unshift($foot_array, '};');
-				$styles[] = $color;
-				if ($bgcolor) $styles[] = $bgcolor;
-			}
-			
-			// Italic
-			if (preg_match("/font-style:\s?(italic)/i", $attribute, $matches)) {
-				$styles[] = $matches[1];
-			}
-			
-			// Bold
-			if (preg_match("/font-weight:\s?(bold)/i", $attribute, $matches)) {
-				$styles[] = $matches[1];
-			}
-			
-			// text-decoration
-			if (preg_match("/text-decoration[^;]*?(?::| )(blink)/i", $attribute, $matches)) {
-				$styles[] = $matches[1];
-			}
-			if (preg_match("/text-decoration[^;]*?(?::| )(underline)/i", $attribute, $matches)) {
-				$styles[] = $matches[1];
-			}
-			if (preg_match("/text-decoration[^;]*?(?::| )(overline)/i", $attribute, $matches)) {
-				$styles[] = $matches[1];
-			}
-			if (preg_match("/text-decoration[^;]*?(?::| )(line-through)/i", $attribute, $matches)) {
-				$styles[] = $matches[1];
-			}
-			
-			return $styles? '&font(' . join(',', $styles) . '){' : '';
+		$matches = array();
+		if (preg_match("/background-color:\s?([#0-9a-z]+)/i", $attribute, $matches)) {
+			$bgcolor = $matches[1];
 		}
-		else {
-			return array_shift($foot_array);
+		if (preg_match("/[^-]color:\s?([#0-9a-z]+)/i", $attribute, $matches)) {
+			$color = $matches[1];
 		}
-	}
+		if ($color || $bgcolor) {
+			$styles[] = $color;
+			if ($bgcolor) $styles[] = $bgcolor;
+		}
+		
+		// Italic
+		if (preg_match("/font-style:\s?(italic)/i", $attribute, $matches)) {
+			$styles[] = $matches[1];
+		}
+		
+		// Bold
+		if (preg_match("/font-weight:\s?(bold)/i", $attribute, $matches)) {
+			$styles[] = $matches[1];
+		}
+		
+		// text-decoration
+		if (preg_match("/text-decoration[^;]*?(?::| )(blink)/i", $attribute, $matches)) {
+			$styles[] = $matches[1];
+		}
+		if (preg_match("/text-decoration[^;]*?(?::| )(underline)/i", $attribute, $matches)) {
+			$styles[] = $matches[1];
+		}
+		if (preg_match("/text-decoration[^;]*?(?::| )(overline)/i", $attribute, $matches)) {
+			$styles[] = $matches[1];
+		}
+		if (preg_match("/text-decoration[^;]*?(?::| )(line-through)/i", $attribute, $matches)) {
+			$styles[] = $matches[1];
+		}
+		if ($styles) {
+			return '&font(' . join(',', $styles) . '){' . $body . '};';
+		} else {
+			return $body;
+		}
+	}	
 	
 	// インライン型プラグイン
 	function InlinePlugin($matches) {
