@@ -2,7 +2,7 @@
 /*
  * Created on 2008/10/23 by nao-pon http://hypweb.net/
  * License: GPL v2 or (at your option) any later version
- * $Id: w2x.php,v 1.2 2008/11/05 09:45:03 nao-pon Exp $
+ * $Id: w2x.php,v 1.3 2008/11/06 23:16:22 nao-pon Exp $
  */
 
 error_reporting(0);
@@ -27,6 +27,8 @@ $xpwiki->init('#RenderMode');
 define('PKWKEXP_DISABLE_MULTILINE_PLUGIN_HACK', $xpwiki->cont['PKWKEXP_DISABLE_MULTILINE_PLUGIN_HACK']);
 define('PLUGIN_DIR', $mytrustdirpath . '/plugin/');
 define('MSIE', (strpos($_SERVER['HTTP_USER_AGENT'], 'MSIE') !== FALSE));
+
+define('COLORS_REG', 'aqua|navy|black|olive|blue|purple|fuchsia|red|gray|silver|green|teal|lime|white|maroon|yellow|transparent');
 
 if ($line_break === '') $line_break = $xpwiki->root->line_break;
 
@@ -343,7 +345,7 @@ class InlineConverterEx {
 						$decoration[] = "overline";
 					elseif (preg_match("/^l(ine-through)?$/i",$prm))
 						$decoration[] = "line-through";
-					elseif (preg_match('/^(#[0-9a-f]+|\w+)$/i',$prm,$color))
+					elseif (preg_match('/^(#[0-9a-f]+|'.COLORS_REG.')$/i',$prm,$color))
 					{
 						if ($color_type)
 						{
@@ -353,10 +355,10 @@ class InlineConverterEx {
 							$style .= "background-color:".htmlspecialchars($color[1]).";";
 						}
 					}
-					elseif (preg_match('/^(\d+)$/',$prm,$size))
-						$style .= "font-size:".htmlspecialchars($size[1])."px;line-height:130%;";
 					elseif (preg_match('/^(\d+(%|px|pt|em))$/',$prm,$size))
 						$style .= "font-size:".htmlspecialchars($size[1]).";line-height:130%;";
+					elseif (preg_match('/^(\d+)$/',$prm,$size))
+						$style .= "font-size:".htmlspecialchars($size[1])."px;line-height:130%;";
 					elseif (preg_match('/^class:(.+)$/',$prm,$arg))
 						$class = ' class="' . str_replace('"' , '', htmlspecialchars($arg[1])) . '"';
 				}
@@ -1079,7 +1081,7 @@ class TableCellEx extends ElementEx
 		global $xpwiki;
 		
 		$cells = explode('|',$string,2);
-		$colors_reg = "aqua|navy|black|olive|blue|purple|fuchsia|red|gray|silver|green|teal|lime|white|maroon|yellow|transparent";
+		$colors_reg = COLORS_REG;
 
 		// セル文字色
 		if (preg_match("/FC:(#?[0-9abcdef]{6}?|$colors_reg|0) ?/i",$cells[0],$tmp)) {
@@ -1315,7 +1317,7 @@ class TableEx extends ElementEx
 	function get_table_style($string) {
 		global $xpwiki;
 		
-		$colors_reg = "aqua|navy|black|olive|blue|purple|fuchsia|red|gray|silver|green|teal|lime|white|maroon|yellow|transparent";
+		$colors_reg = COLORS_REG;
 		//$this->table_around = "<br clear=all /><br />";
 		$this->table_around = "";
 		// 回り込み指定
