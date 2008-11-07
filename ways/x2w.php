@@ -2,7 +2,7 @@
 /*
  * Created on 2008/10/23 by nao-pon http://hypweb.net/
  * License: GPL v2 or (at your option) any later version
- * $Id: x2w.php,v 1.5 2008/11/06 08:56:11 nao-pon Exp $
+ * $Id: x2w.php,v 1.6 2008/11/07 08:20:59 nao-pon Exp $
  */
 
 //
@@ -56,6 +56,9 @@ function xhtml2wiki($source)
 	
 	// 変換メソッドの呼び出し
 	$body = $obj->Convert($source);
+	
+	// 先頭の無駄な空白を削除
+	$body = preg_replace('/^(?:[\r\n]* [\r\n]+)+/', '', $body);
 	
 	return $body;
 }
