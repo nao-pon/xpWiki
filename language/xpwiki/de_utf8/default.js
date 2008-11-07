@@ -25,6 +25,8 @@ var wikihelper_msg_thumbsize = "If you want to make a thumbnail. Please input [M
 var wikihelper_msg_notsave = "Do not save editing content.";
 var wikihelper_msg_wrap = "to Wrap text";
 var wikihelper_msg_nowrap = "to Nowrap text";
+var wikihelper_msg_rich_editor = "Rich Editor";
+var wikihelper_msg_normal_editor = "Normal Editor";
 
 // Set wikihelper_root_url
 var wikihelper_root_url = "$wikihelper_root_url";

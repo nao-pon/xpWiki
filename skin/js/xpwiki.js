@@ -352,7 +352,7 @@ var XpWiki = {
 		btn.id = id + '_WrapBtn';
 		btn.className = 'xpwikiWrapBtn';
 		btn.innerHTML = wikihelper_msg_nowrap;
-		Event.observe(btn, 'mousedown', function(){
+		Event.observe(btn, 'click', function(){
 			this.innerHTML = XpWiki.textaraWrap(id);
 		});
 		var parNod = txtarea.parentNode;
@@ -378,8 +378,8 @@ var XpWiki = {
 		var btn = document.createElement('div');
 		btn.id = id + '_FckBtn';
 		btn.className = 'xpwikiFckBtn';
-		btn.innerHTML = 'WYSIWYG';
-		Event.observe(btn, 'mousedown', function(){
+		btn.innerHTML = wikihelper_msg_rich_editor;
+		Event.observe(btn, 'click', function(){
 			XpWiki.switch2FCK(id, mydir);
 		});
 		var parNod = txtarea.parentNode;
@@ -812,6 +812,9 @@ var XpWiki = {
 			sc.src = XpWikiModuleUrl + '/' + dir + '/skin/js/fckeditor/fckeditor.js';
 			document.body.appendChild(sc);
 		} else if (typeof FCKeditor == "function") {
+			if (typeof FCKeditorAPI == "object" && FCKeditorAPI.GetInstance(id)) {
+				return this.toggleFCK(id);
+			}
 			this.setUploadVar($(id));
 			var myDir = XpWikiModuleUrl + '/' + dir;
 			var myFckDir =  myDir + "/skin/js/fckxpwiki";
@@ -836,11 +839,35 @@ var XpWiki = {
 			
 			oFCKeditor.ReplaceTextarea();
 			
-			Element.remove(id + '_WrapBtn');
-			Element.remove(id + '_FckBtn');
+			Element.hide(id + '_WrapBtn');
+			Element.hide(id + '_FckBtn');
 			wikihelper_hide_helper();
 		} else {
 			$(id + '_FckBtn').innerHTML = 'x';
+		}
+	},
+	
+	toggleFCK: function(id) {
+		var oEditorIns = FCKeditorAPI.GetInstance(id);
+		var oEditorIframe = $(id + '___Frame');
+		var tArea = $(id);
+		var bIsWysiwyg = ( oEditorIns.EditMode == FCK_EDITMODE_WYSIWYG );
+		if (tArea.style.display == 'none') {
+			if ( bIsWysiwyg ) oEditorIns.SwitchEditMode(); //switch to plain
+			var text = oEditorIns.GetData( oEditorIns.Config.FormatSource );
+			tArea.value = text;
+			oEditorIframe.style.display = 'none';
+			tArea.style.display = '';
+			Element.show(id + '_WrapBtn');
+			$(id + '_FckBtn').innerHTML = wikihelper_msg_rich_editor;
+		} else {
+			if ( bIsWysiwyg ) oEditorIns.SwitchEditMode(); //switch to plain
+			tArea.style.display = 'none';
+			oEditorIns.EditingArea.Textarea.value = tArea.value
+			oEditorIframe.style.display = '';
+			if ( !bIsWysiwyg ) oEditorIns.SwitchEditMode(); //switch to WYSIWYG
+			Element.hide(id + '_WrapBtn');
+			$(id + '_FckBtn').innerHTML = wikihelper_msg_normal_editor;
 		}
 	},
 	
@@ -880,3 +907,12 @@ var XpWiki = {
 		return largestZIndex;
 	}
 };
+
+// For FCKeditor
+function FCKeditor_OnComplete(editorInstance) {
+	var iframe = $(editorInstance.Name + '___Frame');
+	iframe.style.marginTop = "3px";
+	iframe.style.marginLeft = "3px";
+	$(editorInstance.Name + '_FckBtn').innerHTML = wikihelper_msg_normal_editor;
+	Element.show(editorInstance.Name + '_FckBtn');
+}

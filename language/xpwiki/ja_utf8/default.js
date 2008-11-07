@@ -25,6 +25,8 @@ var wikihelper_msg_thumbsize = "サムネイルを作成する場合は、[最�
 var wikihelper_msg_notsave = "編集内容を保存していません。";
 var wikihelper_msg_wrap = "テキストを折り返す";
 var wikihelper_msg_nowrap = "テキストを折り返さない";
+var wikihelper_msg_rich_editor = "リッチエディタ";
+var wikihelper_msg_normal_editor = "通常エディタ";
 
 // Set wikihelper_root_url
 var wikihelper_root_url = "$wikihelper_root_url";
