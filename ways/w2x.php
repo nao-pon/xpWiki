@@ -2,7 +2,7 @@
 /*
  * Created on 2008/10/23 by nao-pon http://hypweb.net/
  * License: GPL v2 or (at your option) any later version
- * $Id: w2x.php,v 1.4 2008/11/07 08:20:31 nao-pon Exp $
+ * $Id: w2x.php,v 1.5 2008/11/07 23:54:22 nao-pon Exp $
  */
 
 //
@@ -24,49 +24,52 @@
 
 error_reporting(0);
 
-$source = isset($_POST['s'])? $_POST['s'] : $_GET['s'];
+$source = isset($_POST['s'])? $_POST['s'] : '';
+$line_break = isset($_POST['lb'])? strval($_POST['lb']) : '';
 
 define('DEBUG', (! empty($_GET['debug'])));
 
-if ($source) {
-	$source = rtrim($source) . "\n";
+if ($source || $line_break === '') {
+	
+	if ($source) {
+		$source = str_replace(array("\r\n", "\r"), "\n", $source);
+		$source = rtrim($source) . "\n";
+	}
+
+	include_once $mytrustdirpath . '/include.php';
+
+	$xpwiki = new XpWiki($mydirname);
+	$xpwiki->root->fckediting = true;
+	$xpwiki->init('#RenderMode');
+
+	// 定数設定
+	define('PKWKEXP_DISABLE_MULTILINE_PLUGIN_HACK', $xpwiki->cont['PKWKEXP_DISABLE_MULTILINE_PLUGIN_HACK']);
+	define('MSIE', (strpos($_SERVER['HTTP_USER_AGENT'], 'MSIE') !== FALSE));
+	define('COLORS_REG', 'aqua|navy|black|olive|blue|purple|fuchsia|red|gray|silver|green|teal|lime|white|maroon|yellow|transparent');
+
+	// globals
+	if ($line_break === '') $line_break = $xpwiki->root->line_break;
+	
+	$hr = $xpwiki->root->hr;
+	$_ul_left_margin = $xpwiki->root->_ul_left_margin;
+	$_ul_margin = $xpwiki->root->_ul_margin;
+	$_ol_left_margin = $xpwiki->root->_ol_left_margin;
+	$_ol_margin = $xpwiki->root->_ol_margin;
+	$_dl_left_margin = $xpwiki->root->_dl_left_margin;
+	$_dl_margin = $xpwiki->root->_dl_margin;
+	$_list_pad_str = $xpwiki->root->_list_pad_str;
+	$preformat_ltrim = $xpwiki->root->preformat_ltrim;
+
+	$guiedit_line_rules = $xpwiki->root->line_rules;
+	// Over write
+	$guiedit_line_rules['%%%(?!%)((?:(?!%%%).)*)%%%'] 	= '<u>$1</u>';
+	$guiedit_line_rules['%%(?!%)((?:(?!%%).)*)%%'] 		= '<strike>$1</strike>';
+	$guiedit_line_rules["'''(?!')((?:(?!''').)*)'''"] 	= '<em>$1</em>';
+	$guiedit_line_rules["''(?!')((?:(?!'').)*)''"] 		= '<strong>$1</strong>';
+	$guiedit_line_rules["\r"]                           = '<br />' . "\n";
+
+	$source = guiedit_convert_html($source);
 }
-
-$line_break = isset($_POST['lb'])? strval($_POST['lb']) : '';
-
-include_once $mytrustdirpath . '/include.php';
-
-$xpwiki = new XpWiki($mydirname);
-$xpwiki->root->fckediting = true;
-$xpwiki->init('#RenderMode');
-
-// 定数設定
-define('PKWKEXP_DISABLE_MULTILINE_PLUGIN_HACK', $xpwiki->cont['PKWKEXP_DISABLE_MULTILINE_PLUGIN_HACK']);
-define('MSIE', (strpos($_SERVER['HTTP_USER_AGENT'], 'MSIE') !== FALSE));
-define('COLORS_REG', 'aqua|navy|black|olive|blue|purple|fuchsia|red|gray|silver|green|teal|lime|white|maroon|yellow|transparent');
-
-if ($line_break === '') $line_break = $xpwiki->root->line_break;
-
-// globals
-$hr = $xpwiki->root->hr;
-$_ul_left_margin = $xpwiki->root->_ul_left_margin;
-$_ul_margin = $xpwiki->root->_ul_margin;
-$_ol_left_margin = $xpwiki->root->_ol_left_margin;
-$_ol_margin = $xpwiki->root->_ol_margin;
-$_dl_left_margin = $xpwiki->root->_dl_left_margin;
-$_dl_margin = $xpwiki->root->_dl_margin;
-$_list_pad_str = $xpwiki->root->_list_pad_str;
-$preformat_ltrim = $xpwiki->root->preformat_ltrim;
-
-$guiedit_line_rules = $xpwiki->root->line_rules;
-// Over write
-$guiedit_line_rules['%%%(?!%)((?:(?!%%%).)*)%%%'] 	= '<u>$1</u>';
-$guiedit_line_rules['%%(?!%)((?:(?!%%).)*)%%'] 		= '<strike>$1</strike>';
-$guiedit_line_rules["'''(?!')((?:(?!''').)*)'''"] 	= '<em>$1</em>';
-$guiedit_line_rules["''(?!')((?:(?!'').)*)''"] 		= '<strong>$1</strong>';
-$guiedit_line_rules["\r"]                           = '<br />' . "\n";
-
-$source = guiedit_convert_html($source);
 
 Send_xml($source, strval($line_break));
 
@@ -94,15 +97,20 @@ function Send_xml($body, $line_break)
 }
 
 //	PukiWiki の構文を XHTML に変換
-function guiedit_convert_html($lines) {
+function guiedit_convert_html($source) {
 	if (DEBUG) error_reporting(E_ALL);
-	if (! is_array($lines)) $lines = explode("\n", $lines);
-
-	$body = & new BodyEx();
-	$body->parse($lines);
 	
-	$html = $body->toString();
-	if ($html) $html = $html . '<div></div>';
+	if ($source) {
+		$lines = explode("\n", $source);
+		$body = & new BodyEx();
+		$body->parse($lines);
+	
+		$html = $body->toString();
+	} else {
+		$html = '';
+	}
+	
+	if (trim($html)) $html = $html . '<div></div>';
 	return $html;
 }
 
@@ -1719,6 +1727,11 @@ class BodyEx extends ElementEx
 				continue;
 			}
 
+			// <, <<, <<< only to escape blockquote.
+			if ($head === '<' && ! preg_match('/^<{1,3}\s*$/', $line)) {
+				$head = '';
+			}
+			
 			// Line Break
 			if (substr($line, -1) == '~')
 				$line = substr($line, 0, -1) . "\r";
