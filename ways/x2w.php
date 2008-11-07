@@ -2,7 +2,7 @@
 /*
  * Created on 2008/10/23 by nao-pon http://hypweb.net/
  * License: GPL v2 or (at your option) any later version
- * $Id: x2w.php,v 1.6 2008/11/07 08:20:59 nao-pon Exp $
+ * $Id: x2w.php,v 1.7 2008/11/07 23:56:57 nao-pon Exp $
  */
 
 //
@@ -141,7 +141,7 @@ class XHTML2Wiki
 			} else {
 				//if (! $line) $line = " \r\n";
 			}
-			$line = preg_replace("/<br\s*\/?>/", "\r\n ", $line);
+			$line = preg_replace("/<br[^>]*?>/", "\r\n ", $line);
 			$line = strip_tags($line);
 			$this->OutputLine(' ' . $this->DecodeSpecialChars($line));
 		}
@@ -160,7 +160,7 @@ class XHTML2Wiki
 		}
 		// ブロック型プラグイン
 		else if (preg_match("/<div\s([^>]*?)class=\"(plugin|ref)\"(.*?)>(.*)/", $line)) {
-			$line = preg_replace("/<br\s*\/?>/", "\r\n", $line);
+			$line = preg_replace("/<br[^>]*?>/", "\r\n", $line);
 			$line = strip_tags($line);
 			$this->OutputLine($this->DecodeSpecialChars($line));
 		}
@@ -718,13 +718,13 @@ class XHTML2Wiki
 		// 改行
 		global $line_break;
 		if ($this->GetDiv() == "Heading" || $this->GetDiv() == "Table" || $this->span_level) {
-			$line = preg_replace("/<br\s*\/?>/", "&br;", $line);
+			$line = preg_replace("/<br[^>]*?>/", "&br;", $line);
 		}
 		else if ($line_break) {
-			$line = preg_replace("/<br\s*\/?>(<br\s*\/?>)?/e", '("$1" ? "~" : "") . "\n"', $line);
+			$line = preg_replace("/<br[^>]*?>(<br[^>]*?>)?/e", '("$1" ? "~" : "") . "\n"', $line);
 		}
 		else {
-			$line = preg_replace("/<br\s*\/?>/", "~\n", $line);
+			$line = preg_replace("/<br[^>]*?>/", "~\n", $line);
 		}
 		
 		// 無駄な改行を削除
@@ -773,7 +773,7 @@ class XHTML2Wiki
 	function Font($matches) {
 		static $foot_array = array();
 		$attribute = $matches[1];
-		$body = preg_replace('#<br ?/?>#', '&br;', $matches[2]);
+		$body = preg_replace('#<br[^>]*?>#', '&br;', $matches[2]);
 		$styles = array();
 		
 		// size
@@ -864,7 +864,7 @@ class XHTML2Wiki
 	
 	// 参照文字
 	function CharacterRef($matches) {
-		return str_replace('&', '&amp;', $matches[1]);
+		return str_replace(array('\'', '&'), array('&#039;', '&amp;'), $matches[1]);
 	}
 	
 	// ブロック要素の開始
