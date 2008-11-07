@@ -17,6 +17,8 @@ div.plugin, div.ref {
 	background-color: #ffffcc;
 	margin-top: 5px;
 	margin-bottom: 5px;
+	white-space: pre;
+	font-family: "MS Gothic", monospace;
 }
 
 span.plugin, span.ref {
