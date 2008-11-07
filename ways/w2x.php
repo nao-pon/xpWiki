@@ -2,8 +2,25 @@
 /*
  * Created on 2008/10/23 by nao-pon http://hypweb.net/
  * License: GPL v2 or (at your option) any later version
- * $Id: w2x.php,v 1.3 2008/11/06 23:16:22 nao-pon Exp $
+ * $Id: w2x.php,v 1.4 2008/11/07 08:20:31 nao-pon Exp $
  */
+
+//
+//	guiedit - PukiWiki Plugin
+//
+//	License:
+//		GNU General Public License Version 2 or later (GPL)
+//		http://www.gnu.org/licenses/gpl.html
+//
+//	Copyright (C) 2006-2008 garand
+//	PukiWiki : Copyright (C) 2001-2006 PukiWiki Developers Team
+//	FCKeditor : Copyright (C) 2003-2008 Frederico Caldeira Knabben
+//
+//
+//	File: 
+//	  wiki2xhtml.php
+//	  PukiWiki の構文を XHTML に変換
+//
 
 error_reporting(0);
 
@@ -23,15 +40,14 @@ $xpwiki = new XpWiki($mydirname);
 $xpwiki->root->fckediting = true;
 $xpwiki->init('#RenderMode');
 
-// 暫定設定
+// 定数設定
 define('PKWKEXP_DISABLE_MULTILINE_PLUGIN_HACK', $xpwiki->cont['PKWKEXP_DISABLE_MULTILINE_PLUGIN_HACK']);
-define('PLUGIN_DIR', $mytrustdirpath . '/plugin/');
 define('MSIE', (strpos($_SERVER['HTTP_USER_AGENT'], 'MSIE') !== FALSE));
-
 define('COLORS_REG', 'aqua|navy|black|olive|blue|purple|fuchsia|red|gray|silver|green|teal|lime|white|maroon|yellow|transparent');
 
 if ($line_break === '') $line_break = $xpwiki->root->line_break;
 
+// globals
 $hr = $xpwiki->root->hr;
 $_ul_left_margin = $xpwiki->root->_ul_left_margin;
 $_ul_margin = $xpwiki->root->_ul_margin;
@@ -43,7 +59,6 @@ $_list_pad_str = $xpwiki->root->_list_pad_str;
 $preformat_ltrim = $xpwiki->root->preformat_ltrim;
 
 $guiedit_line_rules = $xpwiki->root->line_rules;
-
 // Over write
 $guiedit_line_rules['%%%(?!%)((?:(?!%%%).)*)%%%'] 	= '<u>$1</u>';
 $guiedit_line_rules['%%(?!%)((?:(?!%%).)*)%%'] 		= '<strike>$1</strike>';
@@ -315,7 +330,8 @@ class InlineConverterEx {
 		$body = (isset($matches[3]))? $matches[3] : '';
 		
 		//	プラグインが存在しない場合はそのまま返す。
-		if (!file_exists(PLUGIN_DIR . $name . '.inc.php')) {
+		global $xpwiki;
+		if (! $xpwiki->func->exist_plugin_inline($name)) {
 			return $matches[0];
 		}
 
@@ -1591,7 +1607,9 @@ class DivEx extends ElementEx
 		}
 		
 		//$inner = '<pre>'. $inner . '</pre>';
-		return $this->wrap($inner, 'div', ' class="plugin" contenteditable="true"' . $style);
+		global $xpwiki;
+		$attr = ($xpwiki->func->exist_plugin_convert($this->name))? ' class="plugin" contenteditable="true"' : '';
+		return $this->wrap($inner, 'div', $attr . $style);
 	}
 }
 
