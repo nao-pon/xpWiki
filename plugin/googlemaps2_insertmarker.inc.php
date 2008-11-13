@@ -111,9 +111,9 @@ class xpwiki_plugin_googlemaps2_insertmarker extends xpwiki_plugin {
 		);
 	}
 	//inline型はテキストのパースがめんどくさそうなのでとりあえず放置。
-	function plugin_googlemaps2_insertmarker_inline() {
-		return $this->msg['err_noinline'] . "\n";
-	}
+	//function plugin_googlemaps2_insertmarker_inline() {
+	//	return $this->msg['err_noinline'] . "\n";
+	//}
 	function plugin_googlemaps2_insertmarker_convert() {
 		static $numbers = array();
 		
