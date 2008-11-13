@@ -2,7 +2,7 @@
 /*
  * Created on 2008/10/23 by nao-pon http://hypweb.net/
  * License: GPL v2 or (at your option) any later version
- * $Id: x2w.php,v 1.7 2008/11/07 23:56:57 nao-pon Exp $
+ * $Id: x2w.php,v 1.8 2008/11/13 00:21:54 nao-pon Exp $
  */
 
 //
@@ -686,8 +686,12 @@ class XHTML2Wiki
 			$line = preg_replace("/<hr\sclass=\"short_line\"\s*\/?>/", "\n#hr\n", $line);
 		}
 		// プラグイン
-		$pattern = "/<span\s[^>]*?class=\"(plugin|ref)\".*?>(.*?);<\/span>/";
+		$pattern = "/<span\s[^>]*?class=\"(plugin)\".*?>(.*?);<\/span>/";
 		$line = preg_replace_callback($pattern, array(&$this, 'InlinePlugin'), $line);
+		$pattern = "/<span([^>]*?)class=\"ref\"([^>]*?)>.*?<\/span>/";
+		$line = preg_replace_callback($pattern, array(&$this, 'InlinePluginRef'), $line);
+		$pattern = "/<img([^>]*?)class=\"ref\"([^>]*?)>/";
+		$line = preg_replace_callback($pattern, array(&$this, 'InlinePluginRef'), $line);
 		// 参照文字
 		$pattern = "/<span\s[^>]*?class=\"chrref\"[^>]*?>(.*?)<\/span>/";
 		$line = preg_replace_callback($pattern, array(&$this, 'CharacterRef'), $line);
@@ -718,7 +722,7 @@ class XHTML2Wiki
 		// 改行
 		global $line_break;
 		if ($this->GetDiv() == "Heading" || $this->GetDiv() == "Table" || $this->span_level) {
-			$line = preg_replace("/<br[^>]*?>/", "&br;", $line);
+			$line = preg_replace("/<br[^>]*?>|<\/p>\s*<p[^>]*?>/", "&br;", $line);
 		}
 		else if ($line_break) {
 			$line = preg_replace("/<br[^>]*?>(<br[^>]*?>)?/e", '("$1" ? "~" : "") . "\n"', $line);
@@ -861,7 +865,35 @@ class XHTML2Wiki
 		
 		return preg_replace($pattern, $replace, $matches[2] . ';');
 	}
-	
+
+	function InlinePluginRef($matches) {
+		static $pattern, $replace;
+
+		if (!isset($pattern)) {
+			$rule = array(
+				"/&amp;/"	=> "&",
+				"/&#123;/"	=> "{",
+				"/&#125;;/"	=> "};"
+			);
+			$pattern = array_keys($rule);
+			$replace = array_values($rule);
+		}
+		
+		$attr = '';
+		if (isset($matches[1])) {
+			$attr .= $matches[1];
+		}
+		if (isset($matches[2])) {
+			$attr .= $matches[2];
+		}
+		
+		if (preg_match('/_source="([^"]+)"/', $attr, $attrs)) {
+			return preg_replace($pattern, $replace, $attrs[1]);
+		} else {
+			return '';
+		}
+	}
+		
 	// 参照文字
 	function CharacterRef($matches) {
 		return str_replace(array('\'', '&'), array('&#039;', '&amp;'), $matches[1]);
