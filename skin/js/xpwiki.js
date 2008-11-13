@@ -320,7 +320,9 @@ var XpWiki = {
 	},
 	
 	PopupHide: function () {
-		Element.hide('XpWikiPopup');
+		if ($('XpWikiPopup')) {
+			Element.hide('XpWikiPopup');
+		}
 	},
 	
 	textaraWrap: function (id) {
@@ -363,28 +365,30 @@ var XpWiki = {
 			if (id.match(/^[a-z0-9_-]+:/i)) {
 				var mydir = id.replace(/^([a-z0-9_-]+):.+$/i, "$1");
 			} else {
-				var mydir = XpWiki.RendererDir;
+				var mydir = this.RendererDir;
 			}
 			this.addFckButton(id, mydir);
 		} 
 	},
 
 	addFckButton: function (id, mydir) {
-		var txtarea = $(id);
-		
-		if (typeof(txtarea.XpWiki_addFck_done) != 'undefined') return false;
-		txtarea.XpWiki_addFck_done = true;
+		if (this.FCKeditor_path) {
+			var txtarea = $(id);
+			
+			if (typeof(txtarea.XpWiki_addFck_done) != 'undefined') return false;
+			txtarea.XpWiki_addFck_done = true;
 
-		var btn = document.createElement('div');
-		btn.id = id + '_FckBtn';
-		btn.className = 'xpwikiFckBtn';
-		btn.innerHTML = wikihelper_msg_rich_editor;
-		Event.observe(btn, 'click', function(){
-			XpWiki.switch2FCK(id, mydir);
-		});
-		var parNod = txtarea.parentNode;
-		var nxtSib = txtarea.nextSibling;
-		parNod.insertBefore(btn, nxtSib);
+			var btn = document.createElement('div');
+			btn.id = id + '_FckBtn';
+			btn.className = 'xpwikiFckBtn';
+			btn.innerHTML = wikihelper_msg_rich_editor;
+			Event.observe(btn, 'click', function(){
+				XpWiki.switch2FCK(id, mydir);
+			});
+			var parNod = txtarea.parentNode;
+			var nxtSib = txtarea.nextSibling;
+			parNod.insertBefore(btn, nxtSib);
+		}
 	},
 	
 	addCssInHead: function (filename) {
@@ -520,7 +524,7 @@ var XpWiki = {
 				if (tareas[i].id.match(/^[a-z0-9_-]+:/i)) {
 					var mydir = tareas[i].id.replace(/^([a-z0-9_-]+):.+$/i, "$1");
 				} else {
-					var mydir = XpWiki.RendererDir;
+					var mydir = this.RendererDir;
 				}
 				this.addFckButton(tareas[i].id, mydir);
 			}
@@ -534,7 +538,7 @@ var XpWiki = {
 		var pNode;
 		var inTable;
 		var tocId = 0;
-		var tocCond = XpWiki.cookieLoad('_xwtoc');
+		var tocCond = this.cookieLoad('_xwtoc');
 		for (var i=0; i<elems.length; i++){
 			if (elems[i].className == 'pre' && elems[i].style.overflow == 'auto') {
 				inTable = false;
@@ -600,7 +604,7 @@ var XpWiki = {
 			cond = '-';
 		}
 		marker.innerHTML = '<span>' + cond + '</span>';
-		XpWiki.cookieSave('_xwtoc', cond, 90, '/');
+		this.cookieSave('_xwtoc', cond, 90, '/');
 	},
 	
 	htmlspecialchars: function (str) {
@@ -730,27 +734,30 @@ var XpWiki = {
 	},
 	
 	setUploadVar: function (elm) {
-		if (elm.id.match(/^[a-z_]+:/i)) {
-			var form;
-			var element = elm;
-			 while (element = element.parentNode) {
-				if (element.nodeName == 'FORM') {
-					form = element;
-					break;
-				}		
-			}
-			if (form && (typeof form.page != 'undefined' || typeof form.refer != 'undefined')) {
-				var dir = elm.id.replace(/^([a-z_]+):.+$/i, "$1");
-				var reg = new RegExp('/'+dir);
-				if (form.action.match(reg)) {
-					XpWiki.UploadDir = dir;
-					XpWiki.UploadPage = (form.page || form.refer).value;
+		if (!!elm) {
+			elm = $(elm);
+			if (elm.id.match(/^[a-z_]+:/i)) {
+				var form;
+				var element = elm;
+				 while (element = element.parentNode) {
+					if (element.nodeName == 'FORM') {
+						form = element;
+						break;
+					}		
 				}
-			}
-		} else {
-			if (elm.nodeName == 'TEXTAREA' && XpWiki.RendererDir && XpWiki.RendererPage) {
-				XpWiki.UploadDir = XpWiki.RendererDir;
-				XpWiki.UploadPage = XpWiki.RendererPage;
+				if (form && (typeof form.page != 'undefined' || typeof form.refer != 'undefined')) {
+					var dir = elm.id.replace(/^([a-z_]+):.+$/i, "$1");
+					var reg = new RegExp('/'+dir);
+					if (form.action.match(reg)) {
+						this.UploadDir = dir;
+						this.UploadPage = (form.page || form.refer).value;
+					}
+				}
+			} else {
+				if (elm.nodeName == 'TEXTAREA' && this.RendererDir && this.RendererPage) {
+					this.UploadDir = this.RendererDir;
+					this.UploadPage = this.RendererPage;
+				}
 			}
 		}
 	},
@@ -764,7 +771,7 @@ var XpWiki = {
 		if (type == 'image') {
 			inp = prompt(wikihelper_msg_thumbsize, '');
 			if (inp == null) { return; }
-			inp = XpWiki.z2h_digit(inp);
+			inp = this.z2h_digit(inp);
 			var size = '';
 			if (inp.match(/[\d]{1,3}[^\d]+[\d]{1,3}/)) {
 				size = inp.replace(/([\d]{1,3})[^\d]+([\d]{1,3})/, ",mw:$1,mh:$2");
@@ -779,7 +786,7 @@ var XpWiki = {
 	},
 	
 	FCKrefInsert: function(file, type) {
-		var r = document.evaluate('//iframe[contains(@src,\'fckeditor/editor/fckdialog.html\')]', document, null, 7, null);
+		var r = document.evaluate('//iframe[contains(@src,\'/editor/fckdialog.html\')]', document, null, 7, null);
 		if (r) {
 			var base = (r.snapshotItem(0).contentWindow.document || r.snapshotItem(0).contentDocument);
 			var fckdialog = (base.getElementById('frmMain').contentWindow.document || base.getElementById('frmMain').contentDocument);
@@ -791,6 +798,7 @@ var XpWiki = {
 	
 	switch2FCK: function(id, dir) {
 		if (typeof FCKeditor == 'undefined') {
+			xpwiki_now_loading(true, $(id).parentNode);
 			FCKeditor = false;
 			var sc = document.createElement('script');
 			sc.type = 'text/javascript';
@@ -809,16 +817,15 @@ var XpWiki = {
 					XpWiki.switch2FCK(id, dir);
 				};
 			}
-			sc.src = XpWikiModuleUrl + '/' + dir + '/skin/js/fckeditor/fckeditor.js';
+			sc.src = this.FCKeditor_path + 'fckeditor.js';
 			document.body.appendChild(sc);
 		} else if (typeof FCKeditor == "function") {
 			if (typeof FCKeditorAPI == "object" && FCKeditorAPI.GetInstance(id)) {
 				return this.toggleFCK(id);
 			}
-			this.setUploadVar($(id));
+			this.setUploadVar(id);
 			var myDir = XpWikiModuleUrl + '/' + dir;
-			var myFckDir =  myDir + "/skin/js/fckxpwiki";
-			var sBasePath = myDir + '/skin/js/fckeditor/';
+
 			var oFCKeditor = new FCKeditor(id);
 			
 			if (this.UploadPage == this.RendererPage) {
@@ -826,16 +833,19 @@ var XpWiki = {
 			} else {
 				oFCKeditor.Config['xpWiki_LineBreak'] = "";
 			}
+			oFCKeditor.Config['xpWiki_myPath'] = myDir + '/';
+			oFCKeditor.Config['xpWiki_FCKxpwikiPath'] = this.FCKxpwiki_path;
+			oFCKeditor.Config['xpWiki_PageName'] = this.UploadPage;
 			
-			oFCKeditor.BasePath = sBasePath;
+			oFCKeditor.BasePath = this.FCKeditor_path;
 
 			oFCKeditor.Height = "100%";
 			
 			oFCKeditor.Config['CustomConfigurationsPath'] = myDir + "/skin/loader.php?src=fck.config.js";
 			oFCKeditor.Config['EditorAreaCSS'] = myDir + "/skin/loader.php?src=main+fckeditor.css&f=1";
-			oFCKeditor.Config['SkinPath'] = myFckDir + "/skin/";
-			oFCKeditor.Config['PluginsPath'] = myFckDir + "/plugins/";
-			oFCKeditor.Config['SmileyImages'] = XpWiki.FCKSmileys;
+			oFCKeditor.Config['SkinPath'] = this.FCKxpwiki_path + "skin/";
+			oFCKeditor.Config['PluginsPath'] = this.FCKxpwiki_path + "plugins/";
+			oFCKeditor.Config['SmileyImages'] = this.FCKSmileys;
 			
 			oFCKeditor.ReplaceTextarea();
 			
@@ -852,23 +862,42 @@ var XpWiki = {
 		var oEditorIframe = $(id + '___Frame');
 		var tArea = $(id);
 		var bIsWysiwyg = ( oEditorIns.EditMode == FCK_EDITMODE_WYSIWYG );
+		Element.hide(id + '_WrapBtn');
+		Element.hide(id + '_FckBtn');
 		if (tArea.style.display == 'none') {
 			if ( bIsWysiwyg ) oEditorIns.SwitchEditMode(); //switch to plain
 			var text = oEditorIns.GetData( oEditorIns.Config.FormatSource );
 			tArea.value = text;
 			oEditorIframe.style.display = 'none';
 			tArea.style.display = '';
-			Element.show(id + '_WrapBtn');
 			$(id + '_FckBtn').innerHTML = wikihelper_msg_rich_editor;
+			Element.show(id + '_FckBtn');
+			Element.show(id + '_WrapBtn');
 		} else {
 			if ( bIsWysiwyg ) oEditorIns.SwitchEditMode(); //switch to plain
-			tArea.style.display = 'none';
 			oEditorIns.EditingArea.Textarea.value = tArea.value
-			oEditorIframe.style.display = '';
 			if ( !bIsWysiwyg ) oEditorIns.SwitchEditMode(); //switch to WYSIWYG
-			Element.hide(id + '_WrapBtn');
+			tArea.style.display = 'none';
+			oEditorIframe.style.display = '';
 			$(id + '_FckBtn').innerHTML = wikihelper_msg_normal_editor;
+			Element.show(id + '_FckBtn');
 		}
+	},
+	
+	removeFCK: function(areaId) {
+		var wait = 0;
+		if (typeof FCKeditor == "function" && typeof FCKeditorAPI == "object") {
+			var tareas = $(areaId).getElementsByTagName('textarea');
+			for (var i=0; i<tareas.length; i++){
+				var iframe = $(tareas[i].id + '___Frame');
+				if (iframe) {
+					delete FCKeditorAPI.Instances[ tareas[i].id ];
+					iframe.parentNode.removeChild(iframe);
+					if (Prototype.Browser.IE) wait = 10;
+				}
+			}
+		}
+		return wait;
 	},
 	
 	// Copyright (c) 2003 AOK <soft@aokura.com>

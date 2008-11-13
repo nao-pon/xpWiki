@@ -1,7 +1,7 @@
 <?php
 /*
  * Created on 2008/01/24 by nao-pon http://hypweb.net/
- * $Id: conf.inc.php,v 1.12 2008/08/10 03:03:57 nao-pon Exp $
+ * $Id: conf.inc.php,v 1.13 2008/11/13 00:30:22 nao-pon Exp $
  */
 
 class xpwiki_plugin_conf extends xpwiki_plugin {
@@ -178,6 +178,11 @@ class xpwiki_plugin_conf extends xpwiki_plugin {
 					$this->msg['paraedit_partarea']['compat'] => 'compat',
 					$this->msg['paraedit_partarea']['level']  => 'level',
 				),
+			),
+			'fckeditor_path' => array(
+				'kind' => 'root',
+				'type' => 'string',
+				'form' => 'text,size="40"',
 			),
 			'pagecache_min' => array(
 				'kind' => 'root',

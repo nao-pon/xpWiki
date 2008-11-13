@@ -1,7 +1,7 @@
 <?php
 /*
  * Created on 2008/01/24 by nao-pon http://hypweb.net/
- * $Id: conf.lng.php,v 1.5 2008/08/10 03:03:57 nao-pon Exp $
+ * $Id: conf.lng.php,v 1.6 2008/11/13 00:30:22 nao-pon Exp $
  */
 //
 // German Translation Version 1.0 (11.03.2008)
@@ -203,6 +203,13 @@ $msg = array(
 		               . 'Bereich des Kapitels beginnt bei der Überschrift und startet mit * des Wiki-Formats.',
 		'compat'      => 'Weiter zum nächsten',
 		'level'       => 'Weiter zum gleichen oder höheren Level',
+	),
+
+	'fckeditor_path' => array(
+		'caption'     => 'Path of "FCKeditor"',
+		'description' => 'Please input continuation from <span style="font-weight:bold;">' . $this->cont['ROOT_PATH'] . '</span><br />'
+		               . 'Please set the directory name with fckeditor.js. It is necessary for FCKeditor since Version 2.6.<br />'
+		               . 'Please set empty when you do not use a rich editor by FCKeditor.',
 	),
 
 	'pagecache_min' => array(

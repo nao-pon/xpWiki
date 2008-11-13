@@ -1,7 +1,7 @@
 <?php
 /*
  * Created on 2007/06/29 by nao-pon http://hypweb.net/
- * $Id: gate.php,v 1.5 2008/10/31 07:22:46 nao-pon Exp $
+ * $Id: gate.php,v 1.6 2008/11/13 00:30:22 nao-pon Exp $
  */
 
 /*
@@ -34,7 +34,7 @@ if ($xwGateOption['noumb']) {
 	if (!in_array($way, $xwGateOption['noumbAllowWays'])) xpWikiGate_goOut('Bad request.');
 }
 
-if ($xwGateOption['hypmode']) {
+if (isset($xwGateOption['hypmode']) && $xwGateOption['hypmode']) {
 	if (!in_array($way, $xwGateOption['hypmodeAllowWays'])) xpWikiGate_goOut('Bad request.');
 }
 
