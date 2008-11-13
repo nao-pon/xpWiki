@@ -1,5 +1,5 @@
 <?php
-// $Id: ref.inc.php,v 1.36 2008/09/10 04:30:52 nao-pon Exp $
+// $Id: ref.inc.php,v 1.37 2008/11/13 00:19:48 nao-pon Exp $
 /*
 
 	*プラグイン ref
@@ -182,21 +182,12 @@ class xpwiki_plugin_ref extends xpwiki_plugin {
 		//エラーチェック
 		if (!func_num_args()) return 'no argument(s).';
 		
-		$params = $this->get_body(func_get_args());
+		$params = $this->get_body(func_get_args(), true);
 		
 		if ($params['_error']) {
 			$ret = $params['_error'];
 		} else {
 			$ret = $params['_body'];
-		}
-		
-		$around = FALSE;
-		switch ($params['_align']) {
-			case 'left' :
-			case 'right' :
-				$around = TRUE;
-			case 'center' :
-				$ret = $this->wrap_div($ret, $params['_align'], $around);
 		}
 		
 		return $ret;
@@ -224,7 +215,7 @@ class xpwiki_plugin_ref extends xpwiki_plugin {
 	}
 	
 	// BodyMake
-	function get_body($args){
+	function get_body($args, $inline = false){
 		// 初期化
 		$params = array(
 			'left'   => FALSE, // 左寄せ
@@ -479,8 +470,23 @@ class xpwiki_plugin_ref extends xpwiki_plugin {
 					$this->func->add_tag_head('lightbox.css');
 					$this->func->add_tag_head('lightbox.js');
 				}
+				$_size = '';
+				if ($img['width']) {
+					$_size .= ' width="' . $img['width'] . '"';
+				}
+				if ($img['height']) {
+					$_size .= ' height="' . $img['height'] . '"';
+				}
+				$align = '';
+				if ($inline) {
+					if ($params['right']) {
+						$align = ' align="right" style="float:right;"';
+					} else if ($params['left']) {
+						$align = ' align="left" style="float:left;"';
+					}
+				}
 				// 画像ファイル
-				$params['_body'] = '<img src="' . $lvar['url'] . '" alt="' . $lvar['title'] . '" title="' . $lvar['title'] . '"' . $img['class'] . $img['info'] . '/>';
+				$params['_body'] = '<img src="' . $lvar['url'] . '" alt="' . $lvar['title'] . '" title="' . $lvar['title'] . '"' . $img['class'] . $img['info'] . $_size . $align . ' />';
 				if ($lvar['link']) {
 					$params['_body'] = '<a href="' . $lvar['link'] . '" title="' . $lvar['title'] . '" type="img">' . $params['_body'] . '</a>';
 				}
