@@ -2,7 +2,7 @@
 /*
  * Created on 2008/10/23 by nao-pon http://hypweb.net/
  * License: GPL v2 or (at your option) any later version
- * $Id: w2x.php,v 1.5 2008/11/07 23:54:22 nao-pon Exp $
+ * $Id: w2x.php,v 1.6 2008/11/13 00:21:54 nao-pon Exp $
  */
 
 //
@@ -26,6 +26,7 @@ error_reporting(0);
 
 $source = isset($_POST['s'])? $_POST['s'] : '';
 $line_break = isset($_POST['lb'])? strval($_POST['lb']) : '';
+$page = isset($_POST['page'])? $_POST['page'] : '';
 
 define('DEBUG', (! empty($_GET['debug'])));
 
@@ -41,7 +42,12 @@ if ($source || $line_break === '') {
 	$xpwiki = new XpWiki($mydirname);
 	$xpwiki->root->fckediting = true;
 	$xpwiki->init('#RenderMode');
-
+	
+	if ($page) {
+		$e_page = mb_convert_encoding($page,  $xpwiki->cont['SOURCE_ENCORDING'], 'UTF-8');
+		$xpwiki->root->vars['page'] = $xpwiki->root->post['page'] = $xpwiki->root->get['page'] = $e_page;
+	}
+	
 	// 定数設定
 	define('PKWKEXP_DISABLE_MULTILINE_PLUGIN_HACK', $xpwiki->cont['PKWKEXP_DISABLE_MULTILINE_PLUGIN_HACK']);
 	define('MSIE', (strpos($_SERVER['HTTP_USER_AGENT'], 'MSIE') !== FALSE));
@@ -126,6 +132,8 @@ function guiedit_make_link($line)
 
 // 添付ファイルプラグインの変換
 function guiedit_convert_ref($args, $div = TRUE) {
+	
+	$args_org = $args;
 	$body = $argbody = '';
 	if (! $div) {
 		$body = array_pop($args);
@@ -211,16 +219,37 @@ function guiedit_convert_ref($args, $div = TRUE) {
 	$attribute .= ' _zoom="' . $params['zoom'] . '"';
 	
 	if ($div) {
+		$attribute .= ' _source="' . htmlspecialchars("#ref($options)") . '"';
 		$tags = "<div $attribute>#ref($options)</div>";
-	}
-	else {
-		$tags = "<span $attribute>&ref($options)$argbody;</span>";
+	} else {
+		$inner = "&ref($options)$argbody;";
+		$attribute .= ' _source="' . htmlspecialchars($inner) . '"';
+		$html = get_ref_html($args_org, false);
+		//debug($html);
+		if (preg_match('#^<img[^>]+?'.'>$#', $html)) {
+			$attribute = str_replace('contenteditable="false"', 'contenteditable="true"', $attribute);
+			$tags = str_replace('<img', '<img ' . $attribute, $html);
+		} else {
+			$tags = "<span $attribute>$inner</span>";
+		}
 	}
 	
 	return $tags;
 }
 
-
+function get_ref_html($args, $div = TRUE) {
+	global $xpwiki;
+	$plugin = & $xpwiki->func->get_plugin_instance('ref');
+	mb_convert_variables($xpwiki->cont['SOURCE_ENCODING'], 'UTF-8', $args);
+	if (! $div) {
+		$retvar  = call_user_func_array(array(& $plugin, 'plugin_ref_inline'), $args);
+	} else {
+		$retvar  = call_user_func_array(array(& $plugin, 'plugin_ref_convert'), $args);
+	}
+	$retvar = mb_convert_encoding($retvar, 'UTF-8', $xpwiki->cont['SOURCE_ENCODING']);
+	$retvar = trim(preg_replace('#</?a[^>]*?'.'>#is', '', $retvar));
+	return $retvar;
+}
 
 function guiedit_make_line_rules($line) {
 	global $guiedit_line_rules;
