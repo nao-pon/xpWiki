@@ -9,6 +9,15 @@
 	cursor: wait;
 }
 
+#xpwiki_loading_text {
+	color: #000;
+	font-size: 40px;
+	font-weight: bold;
+	position: relative;
+	text-align: center;
+	top: 20%;
+}
+
 #XpWikiPopup {
 	border-left: solid gray 1px;
 	background-color: white;
