@@ -1,6 +1,6 @@
 <?php
 //
-// $Id: chat.inc.php,v 1.1 2008/09/16 04:22:42 nao-pon Exp $
+// $Id: chat.inc.php,v 1.2 2008/11/13 23:56:10 nao-pon Exp $
 //
 	
 class xpwiki_plugin_chat extends xpwiki_plugin {
@@ -45,10 +45,13 @@ class xpwiki_plugin_chat extends xpwiki_plugin {
 		$height = $this->config['height'];
 		foreach(func_get_args() as $cmd)
 		{
+			$cmd = trim($cmd);
 			if (substr(strtolower($cmd),0,9) === 'staypos:r'){$stay = '&amp;staypos=r';}
-			if (preg_match('/height:([\d]+)(px)?/i', $cmd, $arg))
-			{
+			if (preg_match('/height:([\d]+)(px)?/i', $cmd, $arg)) {
 				$height = max(min($arg[1],500),150);
+			}
+			if (preg_match('/id:([\d]+)/i', $cmd, $arg)) {
+				$chatid = $arg[1];
 			}
 		}
 		
