@@ -1,7 +1,7 @@
 <?php
 /*
  * Created on 2008/01/24 by nao-pon http://hypweb.net/
- * $Id: conf.lng.php,v 1.9 2008/08/10 03:03:57 nao-pon Exp $
+ * $Id: conf.lng.php,v 1.10 2008/11/13 00:30:22 nao-pon Exp $
  */
 
 $msg = array(
@@ -199,6 +199,13 @@ $msg = array(
 		               . '章の範囲は、Wiki書式の * で始まる見出し行で開始されます。',
 		'compat'      => '次の見出しまで',
 		'level'       => '同レベル以上の見出しまで',
+	),
+
+	'fckeditor_path' => array(
+		'caption'     => 'FCKeditor のパス',
+		'description' => '<span style="font-weight:bold;">' . $this->cont['ROOT_PATH'] . '</span> からの続きを入力してください。<br />'
+		               . 'fckeditor.js のあるディレクトリ名を設定してください。FCKeditor は、Version 2.6 以降が必要です。<br />'
+		               . 'FCKeditor によるリッチエディタを使用しない場合は未入力としてください。',
 	),
 
 	'pagecache_min' => array(

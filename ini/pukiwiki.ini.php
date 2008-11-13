@@ -1,6 +1,6 @@
 <?php
 // PukiWiki - Yet another WikiWikiWeb clone
-// $Id: pukiwiki.ini.php,v 1.85 2008/10/13 12:30:06 nao-pon Exp $
+// $Id: pukiwiki.ini.php,v 1.86 2008/11/13 00:30:22 nao-pon Exp $
 // Copyright (C)
 //   2002-2006 PukiWiki Developers Team
 //   2001-2002 Originally written by yu-ji
@@ -296,6 +296,9 @@ $root->edit_auth_pages = array(
 
 // Q & A 認証 (使用しない = 0, ゲストのみ = 1, 管理者以外 = 2)
 $root->riddle_auth = 1;
+
+// Directory path of fckxpwiki (Remove $this->cont['ROOT_PATH'])
+$root->fckxpwiki_path = 'common/fckxpwiki';
 
 /////////////////////////////////////////////////
 // Search auth
@@ -738,6 +741,7 @@ $root->paraedit_partarea = 'compat';
 $root->pagecache_min = 0;
 $root->pre_width = 'auto';
 $root->pre_width_ie = '700px';
+$root->fckeditor_path = 'common/fckeditor_2.6';
 $root->update_ping = 0;
 $root->update_ping_servers = '
 http://api.my.yahoo.co.jp/RPC2
@@ -772,5 +776,4 @@ $root->pginfo = array(
 	'lastucd'   => '',    // Last editer's ucd(by cookie)
 	'lastuname' => '',    // Last editer's name(by cookie)
 );
-
 ?>
