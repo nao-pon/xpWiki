@@ -1,7 +1,7 @@
 <?php
 /*
  * Created on 2008/03/24 by nao-pon http://hypweb.net/
- * $Id: attach.php,v 1.9 2008/10/31 06:45:52 nao-pon Exp $
+ * $Id: attach.php,v 1.10 2008/11/13 00:24:43 nao-pon Exp $
  */
 
 //-------- епеще╣
@@ -714,7 +714,7 @@ class XpWikiAttachFiles
 		$pcmd = ($mode == "imglist")? "imglist" : "list";
 		$pcmd2 = ($mode == "imglist")? "list" : "imglist";
 		
-		$otherkeys = array('cols', 'max', 'popup', 'base');
+		$otherkeys = array('cols', 'max', 'popup', 'base', 'mode');
 		$otherparm = '';
 		$otherprams = array();
 		foreach($otherkeys as $key) {
