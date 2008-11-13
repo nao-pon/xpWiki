@@ -101,6 +101,7 @@ FCKConfig.LinkDlgHideTarget		= true ;
 FCKConfig.LinkDlgHideAdvanced	= true ;
 FCKConfig.LinkBrowser = false ;
 FCKConfig.LinkUpload = false ;
+FCKConfig.EMailProtection = 'none';
 
 //	Smiley
 FCKConfig.SmileyColumns = 8 ;
