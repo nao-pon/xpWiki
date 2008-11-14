@@ -2,7 +2,7 @@
 /*
  * Created on 2008/11/10 by nao-pon http://hypweb.net/
  * License: GPL v2 or (at your option) any later version
- * $Id: pluginlist.lng.php,v 1.1 2008/11/13 00:30:22 nao-pon Exp $
+ * $Id: pluginlist.lng.php,v 1.2 2008/11/14 00:27:05 nao-pon Exp $
  */
 
 $msg = array(
@@ -68,7 +68,7 @@ $msg = array(
 	),
 	'chat' => array(
 		'title' => 'AjaxChat挿入',
-		'block_usage' => '#chat([staypos:r][,height:<高さ>])',
+		'block_usage' => '#chat([staypos:r][,height:<高さ>][,id:ChatID])',
 		'inline_usage' => ''
 	),
 	'clear' => array(
