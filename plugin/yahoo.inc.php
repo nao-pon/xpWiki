@@ -1,7 +1,7 @@
 <?php
 class xpwiki_plugin_yahoo extends xpwiki_plugin {
 	// PukiWiki - Yet another WikiWikiWeb clone.
-	// $Id: yahoo.inc.php,v 1.1 2008/08/30 06:32:38 nao-pon Exp $
+	// $Id: yahoo.inc.php,v 1.2 2008/11/14 07:59:42 nao-pon Exp $
 	/////////////////////////////////////////////////
 	
 	// #yahoo([Format Filename],[Mode],[Key Word],[Node Number],[Sort Mode])
@@ -85,7 +85,7 @@ class xpwiki_plugin_yahoo extends xpwiki_plugin {
 		list($ret,$refresh) = $this->plugin_yahoo_get($mode,$query,$prms['type'],$max,$prms['target'],$prms['col']);
 		
 		$cr = '<!-- Begin Yahoo! JAPAN Web Services Attribution Snippet -->
-<a href="http://developer.yahoo.co.jp/about" target="'.$this->root->link_target.'"><img src="http://i.yimg.jp/images/yjdn/yjdn_attbtn2_105_17.gif" width="105" height="17" title="Webサービス by Yahoo! JAPAN" alt="Webサービス by Yahoo! JAPAN" border="0" style="margin:15px 15px 15px 15px"></a>
+<a href="http://developer.yahoo.co.jp/about" target="'.$this->root->link_target.'"><img src="http://i.yimg.jp/images/yjdn/yjdn_attbtn2_105_17.gif" width="105" height="17" title="'.$this->msg['msg_websvc'].' by Yahoo! JAPAN" alt="'.$this->msg['msg_websvc'].' by Yahoo! JAPAN" border="0" style="margin:15px 15px 15px 15px"></a>
 <!-- End Yahoo! JAPAN Web Services Attribution Snippet -->';
 	
 		return "<p><div class='pwm_yahoo'>{$ret}</div>{$cr}{$more}{$youtube}</p>";
