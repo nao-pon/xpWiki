@@ -2,7 +2,7 @@
 /*
  * Created on 2008/08/30 by nao-pon http://hypweb.net/
  * License: GPL v2 or (at your option) any later version
- * $Id: yahoo.lng.php,v 1.1 2008/08/30 06:32:38 nao-pon Exp $
+ * $Id: yahoo.lng.php,v 1.2 2008/11/14 07:59:42 nao-pon Exp $
  */
 
 $msg = array(
@@ -11,6 +11,7 @@ $msg = array(
 	'msg_web'      => 'Web site',
 	'msg_img'      => 'Image',
 	'msg_mov'      => 'Movie',
+	'msg_websvc'   => 'Web Service',
 	'err_badres'   => 'Connected failure to Yahoo!.',
 	'err_option'   => '#yahoo(mode,query) Error: The option is not correctly specified.',
 );
