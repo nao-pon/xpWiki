@@ -2,7 +2,7 @@
 /*
  * Created on 2008/10/23 by nao-pon http://hypweb.net/
  * License: GPL v2 or (at your option) any later version
- * $Id: x2w.php,v 1.8 2008/11/13 00:21:54 nao-pon Exp $
+ * $Id: x2w.php,v 1.9 2008/11/14 00:08:25 nao-pon Exp $
  */
 
 //
@@ -26,6 +26,8 @@ error_reporting(0);
 
 $post = isset($_POST['s'])? $_POST['s'] : $_GET['s'];
 $line_break = isset($_POST['lb'])? $_POST['lb'] : $_GET['lb'];
+
+define('DEBUG', (! empty($_GET['debug'])));
 
 $source = str_replace(array("\r\n", "\r"), "\n", $post);
 $postdata = xhtml2wiki($source);
@@ -51,6 +53,12 @@ function Send_xml($postdata)
 
 function xhtml2wiki($source)
 {
+	if (DEBUG) {
+		error_reporting(E_ALL);
+	} else {
+		error_reporting(0);
+	}
+
 	// 変換クラスのオブジェクト生成とその設定
 	$obj = new XHTML2Wiki();
 	
@@ -79,6 +87,7 @@ class XHTML2Wiki
 	//	初期化
 	function XHTML2Wiki() {
 		$this->parent_div = array('');
+		$this->level_array = array();
 		$this->div_level = 0;
 		$this->list_level = 0;
 		$this->last_div = '';
