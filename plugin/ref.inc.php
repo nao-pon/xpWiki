@@ -1,5 +1,5 @@
 <?php
-// $Id: ref.inc.php,v 1.37 2008/11/13 00:19:48 nao-pon Exp $
+// $Id: ref.inc.php,v 1.38 2008/11/14 12:01:21 nao-pon Exp $
 /*
 
 	*プラグイン ref
@@ -30,6 +30,8 @@
 */
 
 class xpwiki_plugin_ref extends xpwiki_plugin {
+	var $flg_lightbox_loaded = false;
+	
 	function plugin_ref_init () {
 		// File icon image
 		if (! isset($this->cont['FILE_ICON']))
@@ -465,8 +467,8 @@ class xpwiki_plugin_ref extends xpwiki_plugin {
 			if ($lvar['url']) {
 				// 画像
 				// lightbox
-				if ($this->root->ref_use_lightbox) {
-					$this->root->ref_use_lightbox = FALSE;
+				if (! $this->flg_lightbox_loaded && $this->root->ref_use_lightbox) {
+					$this->flg_lightbox_loaded = true;
 					$this->func->add_tag_head('lightbox.css');
 					$this->func->add_tag_head('lightbox.js');
 				}
