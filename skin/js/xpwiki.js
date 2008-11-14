@@ -944,4 +944,9 @@ function FCKeditor_OnComplete(editorInstance) {
 	iframe.style.marginLeft = "3px";
 	$(editorInstance.Name + '_FckBtn').innerHTML = wikihelper_msg_normal_editor;
 	Element.show(editorInstance.Name + '_FckBtn');
+	// For FormValidater (d3forum etc...)
+	if (!$(editorInstance.Name).value) {
+		$(editorInstance.Name).value = '&nbsp;';
+	}
+
 }
