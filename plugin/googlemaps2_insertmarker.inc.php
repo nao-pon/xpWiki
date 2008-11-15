@@ -121,7 +121,7 @@ class xpwiki_plugin_googlemaps2_insertmarker extends xpwiki_plugin {
 
 		$p_googlemaps2 =& $this->func->get_plugin_instance('googlemaps2');
 				
-		if (!$p_googlemaps2->lastmap_name) {
+		if ($p_googlemaps2->plugin_googlemaps2_is_supported_profile() && !$p_googlemaps2->lastmap_name) {
 			return "googlemaps2_insertmarker: {$p_googlemaps2->msg['err_need_googlemap2']}";
 		}
 		
@@ -275,12 +275,12 @@ onloadfunc.push(function() {
 			}
 		};
 		
-		//地図がドラッグされたりするたびに動的にパラメータを代入する
+		//Whenever the map is dragged, the parameter is dynamically substituted.
 		GEvent.addListener(map, 'moveend', update_func);
 		
 		update_func();
 		
-		//クッキーがあれば地図の位置を初期化をする。使い終えたらクッキーの中身をクリアする。
+		//The position of the map is initialized if there is a cookie. Contents of the cookie are cleared when finishing using it. 
 		(function () {
 			var cookies = document.cookie.split(";");
 			for (i in cookies) {
@@ -338,7 +338,7 @@ onloadfunc.push(function() {
 			document.cookie = "pukiwkigooglemaps2insertmarker$no=;";
 		})();
 
-		//入力チェック
+		//Input check
 		form.onsubmit = function () {
 			if (isNaN(parseFloat(lat.value)) || isNaN(lat.value) || 
 				isNaN(parseFloat(lng.value)) || isNaN(lng.value)) {
@@ -348,7 +348,7 @@ onloadfunc.push(function() {
 			return true;
 		};
 	}
-	//このページに存在しているicon定義を全て読みこんでセレクトを更新。
+	//The selection is updated reading all the icon definitions that exist on this page. 
 	onloadfunc.push(function() {
 		for(iconname in googlemaps_icons['$page']) {
 			if (!googlemaps_icons['$page'].hasOwnProperty(iconname)) continue;
