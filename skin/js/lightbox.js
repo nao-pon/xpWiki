@@ -16,7 +16,7 @@
 // -----------------------------------------------------------------------------------
 //
 //  edited by nao-pon - http://hypweb.net/
-//  $Id: lightbox.js,v 1.14 2008/10/13 12:28:18 nao-pon Exp $
+//  $Id: lightbox.js,v 1.15 2008/11/15 00:39:30 nao-pon Exp $
 //
 // -----------------------------------------------------------------------------------
 
@@ -123,19 +123,10 @@ Lightbox.prototype = {
 		this.myhost = this.myhost.replace(reg, "##__BACK_SLASH__##$1").replace(/##__BACK_SLASH__##/g, '\\');
 		this.myhost = new RegExp("^"+this.myhost,"i");
 		
-		//if (!document.getElementById('body')) {
-			var anchors = document.getElementsByTagName('body')[0].getElementsByTagName('a');
-		//} else {
-		//	var anchors = document.getElementById('body').getElementsByTagName('a');
-		//}
-		
-		// loop through all anchor tags
-		for (var i=0; i<anchors.length; i++){
-			var anchor = anchors[i];
-			
-			var typeAttribute = String(anchor.getAttribute('type'));
-			if (anchor.getAttribute('href') && (typeAttribute.toLowerCase().match('img')))
-			{
+		var r = document.evaluate('//a[@type="img"]', document, null, 7, null);
+		for (var i=0; i<r.snapshotLength; i++){
+			var anchor = r.snapshotItem(i);
+			if (anchor.getAttribute('href')) {
 				anchor.setAttribute("rel", "lightbox[stack]");
 				anchor.onclick = function () {myLightbox.start(this); return false;}
 			}
@@ -269,26 +260,22 @@ Lightbox.prototype = {
 
 		if (!document.getElementsByTagName){ return; }
 		
-		//var anchors = document.getElementById('body').getElementsByTagName('a');
-		//if (!document.getElementById('body')) {
-			var anchors = document.getElementsByTagName('body')[0].getElementsByTagName('a');
-		//} else {
-		//	var anchors = document.getElementById('body').getElementsByTagName('a');
-		//}
-		
-		if((imageLink.getAttribute('rel') == 'lightbox')){
+		var myrel = imageLink.getAttribute('rel');
+		if((myrel == 'lightbox')){
 			// add single image to imageArray
 			imageArray.push(new Array(imageLink.getAttribute('href'), imageLink.getAttribute('title')));
-		} else {
-		// if image is part of a set..
+		} else if (myrel) {
+			// if image is part of a set..
 
 			// loop through anchors, find other images in set, and add them to imageArray
-			for (var i=0; i<anchors.length; i++){
-				var anchor = anchors[i];
-				if (anchor.getAttribute('href') && (anchor.getAttribute('rel') == imageLink.getAttribute('rel'))){
+			var r = document.evaluate('//a[@rel="'+myrel+'"]', document, null, 7, null);
+			for (var i=0; i<r.snapshotLength; i++){
+				var anchor = r.snapshotItem(i);
+				if (anchor.getAttribute('href')) {
 					imageArray.push(new Array(anchor.getAttribute('href'), anchor.getAttribute('title')));
 				}
 			}
+
 			imageArray.removeDuplicates();
 			while(imageArray[imageNum][0] != imageLink.getAttribute('href')) { imageNum++;}
 		}
