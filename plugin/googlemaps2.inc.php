@@ -94,11 +94,13 @@ class xpwiki_plugin_googlemaps2 extends xpwiki_plugin {
 		//注:GoogleMapsは携帯電話で表示できない。
 		$this->cont['PLUGIN_GOOGLEMAPS2_PROFILE'] =  'default';
 		
-		$this->conf['ApiVersion'] = '2.132d';
+		// This plugins config
+		$this->conf['ApiVersion'] = '2';
+		$this->conf['StaticMapSize'] = '200x200';
 	}
 	
 	function plugin_googlemaps2_is_supported_profile () {
-		if (defined("UA_PROFILE")) {
+		if ($this->cont['UA_PROFILE']) {
 			return in_array($this->cont['UA_PROFILE'], preg_split('/[\s,]+/', $this->cont['PLUGIN_GOOGLEMAPS2_PROFILE']));
 		} else {
 			return 1;
@@ -210,13 +212,22 @@ EOD;
 		return $this->lastmap_name;
 	}
 	
-	function plugin_googlemaps2_output($doInit, $params) {
-	//	global $vars;
-		$this->root->rtf['disable_render_cache'] = true;
-		
-		if (!$this->plugin_googlemaps2_is_supported_profile()) {
-			return "googlemaps2:unsupported device";
+	function get_static_image_url($lat, $lng, $zoom) {
+		if ($zoom > 10) {
+			$zoom = $zoom - 1;
 		}
+		$url = 'http://maps.google.com/staticmap?center='.$lat.','.$lng.'&amp;zoom='.$zoom.'&amp;size='.$this->conf['StaticMapSize'].'&amp;type=mobile&amp;key='.$this->cont['PLUGIN_GOOGLEMAPS2_DEF_KEY'];
+		return $url;
+	}
+	
+	function make_static_maps($lat, $lng, $zoom) {
+		$imgurl = $this->get_static_image_url($lat, $lng, $zoom);
+		$img = '<img src="'.$imgurl.'" />';
+		return '<div style="text-align:center;">' . $img . '</div>';
+	}
+	
+	function plugin_googlemaps2_output($doInit, $params) {
+		$this->root->rtf['disable_render_cache'] = true;
 		
 		$defoptions = $this->plugin_googlemaps2_get_default();
 		
@@ -300,6 +311,12 @@ EOD;
 		if ($api < 2 && $isSetZoom) {
 			$zoom = 17 - $zoom;
 		}
+		
+		if (!$this->plugin_googlemaps2_is_supported_profile()) {
+			//return "googlemaps2:unsupported device";
+			return $this->make_static_maps($lat, $lng, $zoom);
+		}
+
 		// width, heightの値チェック
 		if (is_numeric($width)) { $width = (int)$width . "px"; }
 		if (is_numeric($height)) { $height = (int)$height . "px"; }
@@ -359,9 +376,6 @@ map.setCenter(PGTool.getLatLng($lat, $lng, "$api"), $zoom, $type);
 
 var marker_mgr = new GMarkerManager(map);
 
-// 現在(2.70)のMarker Managerではマーカーをhideしていても、描画更新時に
-// マーカーを表示してしまうため、リフレッシュ後にフラグを確認して再び隠す。
-// 一度表示されて消えるみたいな挙動になるが、他に手段が無いので仕方が無い。
 GEvent.addListener(marker_mgr, "changed", function(bounds, markerCount) {
 	var markers = googlemaps_markers["$page"]["$mapname"];
 	for (var key in markers) {
