@@ -61,7 +61,7 @@ class xpwiki_plugin_googlemaps2_icon extends xpwiki_plugin {
 		
 		$p_googlemaps2 =& $this->func->get_plugin_instance('googlemaps2');
 				
-		if (!$p_googlemaps2->lastmap_name) {
+		if ($p_googlemaps2->plugin_googlemaps2_is_supported_profile() && !$p_googlemaps2->lastmap_name) {
 			return "googlemaps2_icon: {$p_googlemaps2->msg['err_need_googlemap2']}";
 		}
 
