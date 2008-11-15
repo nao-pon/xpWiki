@@ -38,9 +38,14 @@ class xpwiki_plugin_googlemaps2_mark extends xpwiki_plugin {
 		//FMTINFOはマップ上のマーカーをクリックして表示されるフキダシの（中の）雛型
 		$this->cont['PLUGIN_GOOGLEMAPS2_MK_DEF_FORMATLIST'] =  '<b>%title%</b><p>%caption% %maxcontent%</p>';
 		$this->cont['PLUGIN_GOOGLEMAPS2_MK_DEF_FORMATINFO'] =  '<b>%title%</b><br/><div style=\'width:215px;\'><span style=\'float:left; padding-right: 3px; padding-bottom: 3px;\'>%image%</span>%caption%</div>';
-	
+		
 		//リストをクリックするとマップにフォーカスさせる。(0 or 1)
 		$this->cont['PLUGIN_GOOGLEMAPS2_MK_DEF_ALINK'] =  1;
+		
+		// This Plugin's Config
+		$this->conf['IMG_THUMB_MAX_WIDTH'] = '120'; // 画像サムネイルの最大幅
+		$this->conf['IMG_THUMB_MAX_HEIGHT'] = '120'; // 画像サムネイルの最大高さ
+	
 
 	}
 	
@@ -90,10 +95,16 @@ class xpwiki_plugin_googlemaps2_mark extends xpwiki_plugin {
 	}
 	
 	function plugin_googlemaps2_mark_output($lat, $lng, $params) {
-
+		if (empty($this->conf['IMG_THUMB_MAX_WIDTH'])) {
+			$this->conf['IMG_THUMB_MAX_WIDTH'] = '120';
+		}
+		if (empty($this->conf['IMG_THUMB_MAX_HEIGHT'])) {
+			$this->conf['IMG_THUMB_MAX_HEIGHT'] = '120';
+		}
+		
 		$p_googlemaps2 =& $this->func->get_plugin_instance('googlemaps2');
 				
-		if (!$p_googlemaps2->lastmap_name) {
+		if ($p_googlemaps2->plugin_googlemaps2_is_supported_profile() && !$p_googlemaps2->lastmap_name) {
 			return "googlemaps2_mark: {$p_googlemaps2->msg['err_need_googlemap2']}";
 		}
 		
@@ -198,6 +209,8 @@ class xpwiki_plugin_googlemaps2_mark extends xpwiki_plugin {
 		//携帯デバイス用リスト出力
 		if (!$p_googlemaps2->plugin_googlemaps2_is_supported_profile()) {
 			if ($nolist == false) {
+				$imgurl = $p_googlemaps2->get_static_image_url($lat, $lng, $zoom);
+				$title = '<a href="'.$imgurl.'">'.$title.' [Map]</a>';
 				return $this->plugin_googlemaps_mark_simple_format_listhtml(
 					$formatlist, $title, $caption, $maxcontentfull);
 			}
@@ -214,8 +227,12 @@ class xpwiki_plugin_googlemaps2_mark extends xpwiki_plugin {
 		//Pukiwikiの添付された画像の表示
 		$q = '/^http:\/\/.*(\.jpg|\.gif|\.png)$/i';
 		if ($image != '' && !preg_match($q, $image)) {
-			$image = $this->root->script.'?plugin=ref'.'&page='.
-		rawurlencode($this->root->vars["page"]).'&src='.rawurlencode($image);
+			$ref =& $this->func->get_plugin_instance('ref');
+			$params = $ref->get_body(array($image, 'mw:' . $this->conf['IMG_THUMB_MAX_WIDTH'], 'mh:' . $this->conf['IMG_THUMB_MAX_HEIGHT']), true);
+			$image = $params['_body'];
+			if ($this->root->ref_use_lightbox) {
+				$image = str_replace('<a', '<a rel="lightbox[stack]" onclick="myLightbox.start(this);return false;"', $image);
+			}
 		}
 		if ($noinfowindow == false) {
 			$infohtml = $this->plugin_googlemaps_mark_format_infohtml(
@@ -293,7 +310,7 @@ EOD;
 		}
 		$html = str_replace('%title%', $title, $html);
 		$html = str_replace('%caption%', $caption, $html);
-		$html = str_replace('%image%', '<img src="'.$image.'" border=0/>', $html);
+		$html = str_replace('%image%', $image, $html);
 		$html = str_replace('%maxcontent%', $maxcontentfull, $html);
 		return $html;
 	}
@@ -310,7 +327,7 @@ EOD;
 		$html = str_replace('%caption%', $caption, $html);
 	
 		if ($image != '') {
-			$image = '<img src=\\\''.$image.'\\\' border=0/>';
+			$image = str_replace("'", "\\\'", $image);
 		}
 		$html = str_replace('%image%', $image, $html);
 	
