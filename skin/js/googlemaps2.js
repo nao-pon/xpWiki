@@ -21,7 +21,11 @@ function PGMarker (point, icon, page, map, hidden, visible, title, maxtitle, max
 	var marker = null;
 	if (hidden == false) {
 		var opt = new Object();
-		if (icon != '') { opt.icon = googlemaps_icons[page][icon]; }
+		if (icon != '') {
+			opt.icon = googlemaps_icons[page][icon];
+		} else if (!!googlemaps_icons[page]['_default']) {
+			opt.icon = googlemaps_icons[page]['_default'];
+		}
 		if (title != '') { opt.title = title; }
 		marker = new GMarker(point, opt);
 		GEvent.addListener(marker, "click", function() { this.pukiwikigooglemaps.onclick(); });

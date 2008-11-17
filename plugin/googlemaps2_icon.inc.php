@@ -47,13 +47,21 @@ class xpwiki_plugin_googlemaps2_icon extends xpwiki_plugin {
 	}
 	
 	function plugin_googlemaps2_icon_convert() {
-		$args = func_get_args();
+		if (func_num_args() < 1) {
+			$args = array('_default', '');
+		} else {
+			$args = func_get_args();
+		}
 		return $this->plugin_googlemaps2_icon_output($args[0], array_slice($args, 1));
 	}
 	
 	function plugin_googlemaps2_icon_inline() {
-		$args = func_get_args();
-		array_pop($args);
+		if (func_num_args < 1) {
+			$args = array('_default', '');
+		} else {
+			$args = func_get_args();
+			array_pop($args);
+		}
 		return $this->plugin_googlemaps2_icon_output($args[0], array_slice($args, 1));
 	}
 	
@@ -73,7 +81,7 @@ class xpwiki_plugin_googlemaps2_icon extends xpwiki_plugin {
 		
 		$inoptions = array();
 		foreach ($params as $param) {
-			list($index, $value) = split('=', $param, 2);
+			list($index, $value) = array_pad(split('=', $param, 2), 2, '');
 			$index = trim($index);
 			$value = htmlspecialchars(trim($value), ENT_QUOTES);
 			$inoptions[$index] = $value;

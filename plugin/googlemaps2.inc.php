@@ -561,7 +561,8 @@ EOD;
 				$output .= "</ul>\n";
 			}
 		}
-	
+		// マーカーデフォルトアイコンを設定
+		$output .= $this->func->do_plugin_convert('googlemaps2_icon');
 		return $output;
 	}
 	
