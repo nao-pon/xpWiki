@@ -2,7 +2,7 @@
 /*
  * Created on 2008/10/23 by nao-pon http://hypweb.net/
  * License: GPL v2 or (at your option) any later version
- * $Id: w2x.php,v 1.6 2008/11/13 00:21:54 nao-pon Exp $
+ * $Id: w2x.php,v 1.7 2008/11/17 01:11:49 nao-pon Exp $
  */
 
 //
@@ -88,18 +88,30 @@ function debug($data){
 //	XML 形式で出力
 function Send_xml($body, $line_break)
 {
+	// clear output buffer
+	while( ob_get_level() ) {
+		ob_end_clean() ;
+	}
+	$out = '';
+	$out .= '<?xml version="1.0" encoding="UTF-8" ?>' . "\n";
+	$out .= '<data>';
+	$out .= '<res><![CDATA[' . $body . ']]></res>';
+	$out .= '<lb>' . $line_break . '</lb>';
+	$out .= '</data>';
 	//	出力
+	header('Expires: Mon, 26 Jul 1997 05:00:00 GMT');
+	header('Last-Modified: '.gmdate('D, d M Y H:i:s').' GMT');
+	header('Cache-Control: no-store, no-cache, must-revalidate');
+	header('Cache-Control: post-check=0, pre-check=0', false);
+	header('Pragma: no-cache');
 	if (DEBUG) {
 		header('Content-Type: text/plain; charset=UTF-8');
 	} else {
 		header('Content-Type: application/xml; charset=UTF-8');
 	}
-	echo '<?xml version="1.0" encoding="UTF-8" ?>' . "\n";
-	echo '<data>';
-	echo '<res><![CDATA[' . $body . ']]></res>';
-	echo '<lb>' . $line_break . '</lb>';
-	echo '</data>';
-	exit;
+	header('Content-Length: ' . strlen($out));
+	echo $out;
+	exit();
 }
 
 //	PukiWiki の構文を XHTML に変換
