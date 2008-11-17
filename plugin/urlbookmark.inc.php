@@ -1,5 +1,5 @@
 <?php
-// $Id: urlbookmark.inc.php,v 1.7 2008/10/02 10:36:42 nao-pon Exp $
+// $Id: urlbookmark.inc.php,v 1.8 2008/11/17 02:34:23 nao-pon Exp $
 
 /*
  * PukiWiki urlbookmark プラグイン
@@ -175,9 +175,10 @@ class xpwiki_plugin_urlbookmark extends xpwiki_plugin {
 		$s_page = htmlspecialchars($this->root->vars['page']);
 		$urlbookmark_cols = $this->config['URLBOOKMARK_COMMENT_COLS'];
 		$url_cols = $this->config['URLBOOKMARK_URL_COLS'];
+		$script = $this->func->get_script_uri();
 		$string = <<<EOD
 <br />
-<form action="{$this->root->script}" method="post">
+<form action="{$script}" method="post">
  <div>
   <input type="hidden" name="urlbookmark_no" value="$urlbookmark_no" />
   <input type="hidden" name="refer" value="$s_page" />

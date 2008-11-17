@@ -1,6 +1,6 @@
 <?php
 // PukiWiki - Yet another WikiWikiWeb clone
-// $Id: update_entities.inc.php,v 1.5 2008/03/30 04:27:44 nao-pon Exp $
+// $Id: update_entities.inc.php,v 1.6 2008/11/17 02:34:23 nao-pon Exp $
 //
 // Update entities plugin - Update XHTML entities from DTD
 // (for admin)
@@ -33,9 +33,10 @@ class xpwiki_plugin_update_entities extends xpwiki_plugin {
 		if (empty($this->root->vars['action'])) {
 			$msg   = & $this->msg['title_update'];
 			$items = $this->plugin_update_entities_create();
+			$script = $this->func->get_script_uri();
 			$body  = $this->func->convert_html(sprintf($this->msg['msg_usage'], join("\n" . '-', $items)));
 			$body .= <<<EOD
-<form method="POST" action="{$this->root->script}">
+<form method="POST" action="{$script}">
  <div>
   <input type="hidden" name="plugin" value="update_entities" />
   <input type="hidden" name="action" value="update" />

@@ -6,7 +6,7 @@ class xpwiki_plugin_diff extends xpwiki_plugin {
 
 	}
 	// PukiWiki - Yet another WikiWikiWeb clone.
-	// $Id: diff.inc.php,v 1.4 2008/02/11 01:02:41 nao-pon Exp $
+	// $Id: diff.inc.php,v 1.5 2008/11/17 02:34:23 nao-pon Exp $
 	// Copyright (C)
 	//   2002-2005 PukiWiki Developers Team
 	//   2002      Originally written by yu-ji
@@ -102,9 +102,10 @@ EOD;
 		}
 	
 		$s_page = htmlspecialchars($page);
+		$script = $this->func->get_script_uri();
 		$body .= <<<EOD
 <p>{$this->root->_msg_diff_adminpass}</p>
-<form action="{$this->root->script}" method="post">
+<form action="{$script}" method="post">
  <div>
   <input type="hidden"   name="cmd"    value="diff" />
   <input type="hidden"   name="page"   value="$s_page" />

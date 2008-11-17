@@ -5,7 +5,7 @@ class xpwiki_plugin_newpage extends xpwiki_plugin {
 
 
 	}
-	// $Id: newpage.inc.php,v 1.4 2007/07/31 03:03:38 nao-pon Exp $
+	// $Id: newpage.inc.php,v 1.5 2008/11/17 02:34:23 nao-pon Exp $
 	//
 	// Newpage plugin
 	
@@ -32,9 +32,9 @@ class xpwiki_plugin_newpage extends xpwiki_plugin {
 		$base = (empty($s_newpage))? '' : $s_newpage ;
 		
 		++$id[$this->xpwiki->pid];
-	
+		$script = $this->func->get_script_uri();
 		$ret = <<<EOD
-<form action="{$this->root->script}" method="post">
+<form action="{$script}" method="post">
  <div>
   <input type="hidden" name="plugin" value="newpage" />
   <input type="hidden" name="refer" value="$s_page" />

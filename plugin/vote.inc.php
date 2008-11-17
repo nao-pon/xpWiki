@@ -1,6 +1,6 @@
 <?php
 class xpwiki_plugin_vote extends xpwiki_plugin {
-	// $Id: vote.inc.php,v 1.6 2008/03/24 09:22:11 nao-pon Exp $
+	// $Id: vote.inc.php,v 1.7 2008/11/17 02:34:23 nao-pon Exp $
 	
 	function plugin_vote_init() {
 		$this->load_language();
@@ -195,8 +195,9 @@ class xpwiki_plugin_vote extends xpwiki_plugin {
 		}
 	
 		$count_label = ($sort)? "<td align=\"left\" class=\"vote_label\" style=\"padding-left:1em;padding-right:1em\"><strong>{$this->msg['rank']}</strong>" : "";
+		$script = $this->func->get_script_uri();
 		$string = ""
-		. "<form action=\"{$this->root->script}\" method=\"post\">\n"
+		. "<form action=\"{$script}\" method=\"post\">\n"
 		. "<table cellspacing=\"0\" cellpadding=\"2\" class=\"style_table\">\n"
 		. "<tr>\n"
 		. $count_label

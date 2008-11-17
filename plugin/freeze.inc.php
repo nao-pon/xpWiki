@@ -6,7 +6,7 @@ class xpwiki_plugin_freeze extends xpwiki_plugin {
 
 	}
 	// PukiWiki - Yet another WikiWikiWeb clone.
-	// $Id: freeze.inc.php,v 1.7 2008/07/03 00:01:42 nao-pon Exp $
+	// $Id: freeze.inc.php,v 1.8 2008/11/17 02:34:23 nao-pon Exp $
 	//
 	// Freeze(Lock) plugin
 	
@@ -51,10 +51,11 @@ class xpwiki_plugin_freeze extends xpwiki_plugin {
 			// Show a freeze form
 			$msg    = & $this->root->_title_freeze;
 			$s_page = htmlspecialchars($page);
+			$script = $this->func->get_script_uri();
 			$body   = ($pass === NULL) ? '' : "<p><strong>{$this->root->_msg_invalidpass}</strong></p>\n";
 			$body  .= <<<EOD
 <p>{$this->root->_msg_freezing}</p>
-<form action="{$this->root->script}" method="post">
+<form action="{$script}" method="post">
  <div>
   <input type="hidden"   name="cmd"  value="freeze" />
   <input type="hidden"   name="page" value="$s_page" />

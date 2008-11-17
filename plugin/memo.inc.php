@@ -3,7 +3,7 @@ class xpwiki_plugin_memo extends xpwiki_plugin {
 	function plugin_memo_init () {
 
 
-	// $Id: memo.inc.php,v 1.2 2007/09/19 12:10:10 nao-pon Exp $
+	// $Id: memo.inc.php,v 1.3 2008/11/17 02:34:23 nao-pon Exp $
 	//
 	// Memo box plugin
 	
@@ -49,9 +49,9 @@ class xpwiki_plugin_memo extends xpwiki_plugin {
 			$s_refer  = htmlspecialchars($this->root->vars['refer']);
 			$s_digest = htmlspecialchars($this->root->vars['digest']);
 			$s_postdata_input = htmlspecialchars($postdata_input);
-	
+			$script = $this->func->get_script_uri();
 			$body .= <<<EOD
-<form action="{$this->root->script}?cmd=preview" method="post">
+<form action="{$script}?cmd=preview" method="post">
  <div>
   <input type="hidden" name="refer"  value="$s_refer" />
   <input type="hidden" name="digest" value="$s_digest" />
@@ -93,7 +93,7 @@ EOD;
 			$_script = '';
 			$_submit = '';	
 		} else {
-			$_script = & $this->root->script;
+			$_script = $this->func->get_script_uri();
 			$_submit = '<input type="submit" name="memo"    value="' . $this->root->_btn_memo_update . '" />';
 		}
 	

@@ -1,7 +1,7 @@
 <?php
 //
 // Created on 2006/10/02 by nao-pon http://hypweb.net/
-// $Id: xpwiki_func.php,v 1.195 2008/10/31 07:01:33 nao-pon Exp $
+// $Id: xpwiki_func.php,v 1.196 2008/11/17 02:34:24 nao-pon Exp $
 //
 class XpWikiFunc extends XpWikiXoopsWrapper {
 
@@ -95,9 +95,9 @@ class XpWikiFunc extends XpWikiXoopsWrapper {
 				die('Alert: plugin "' . htmlspecialchars($name) .
 				'" was called over ' . $this->cont['PKWK_PLUGIN_CALL_TIME_LIMIT'] .
 				' times. SPAM or someting?<br />' . "\n" .
-				'<a href="' . $this->get_script_uri() . '?cmd=edit&amp;page='.
+				'<a href="' . $this->cont['HOME_URL'] . '?cmd=edit&amp;page='.
 				rawurlencode($this->root->vars['page']) . '">Try to edit this page</a><br />' . "\n" .
-				'<a href="' . $this->get_script_uri() . '">Return to frontpage</a>');
+				'<a href="' . $this->cont['HOME_URL'] . '">Return to frontpage</a>');
 			return $exist[$this->xpwiki->pid][$name];
 		}
 	

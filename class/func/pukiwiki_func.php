@@ -1,7 +1,7 @@
 <?php
 //
 // Created on 2006/10/02 by nao-pon http://hypweb.net/
-// $Id: pukiwiki_func.php,v 1.189 2008/11/15 00:37:57 nao-pon Exp $
+// $Id: pukiwiki_func.php,v 1.190 2008/11/17 02:34:24 nao-pon Exp $
 //
 class XpWikiPukiWikiFunc extends XpWikiBaseFunc {
 
@@ -960,7 +960,7 @@ class XpWikiPukiWikiFunc extends XpWikiBaseFunc {
 
 //----- Start convert_html.php -----//
 	// PukiWiki - Yet another WikiWikiWeb clone
-	// $Id: pukiwiki_func.php,v 1.189 2008/11/15 00:37:57 nao-pon Exp $
+	// $Id: pukiwiki_func.php,v 1.190 2008/11/17 02:34:24 nao-pon Exp $
 	// Copyright (C)
 	//   2002-2005 PukiWiki Developers Team
 	//   2001-2002 Originally written by yu-ji
@@ -1214,7 +1214,7 @@ class XpWikiPukiWikiFunc extends XpWikiBaseFunc {
 
 //----- Start func.php -----//
 	// PukiWiki - Yet another WikiWikiWeb clone.
-	// $Id: pukiwiki_func.php,v 1.189 2008/11/15 00:37:57 nao-pon Exp $
+	// $Id: pukiwiki_func.php,v 1.190 2008/11/17 02:34:24 nao-pon Exp $
 	// Copyright (C)
 	//   2002-2006 PukiWiki Developers Team
 	//   2001-2002 Originally written by yu-ji
@@ -1973,7 +1973,7 @@ EOD;
 	function get_script_uri($init_uri = '')
 	{
 		// for compatibility
-		return $this->cont['HOME_URL'];
+		return $this->cont['HOME_URL'] . 'index.php';
 	}
 	
 	// Remove null(\0) bytes from variables
@@ -2040,7 +2040,7 @@ EOD;
 
 //----- Start make_link.php -----//
 	// PukiWiki - Yet another WikiWikiWeb clone.
-	// $Id: pukiwiki_func.php,v 1.189 2008/11/15 00:37:57 nao-pon Exp $
+	// $Id: pukiwiki_func.php,v 1.190 2008/11/17 02:34:24 nao-pon Exp $
 	// Copyright (C)
 	//   2003-2005 PukiWiki Developers Team
 	//   2001-2002 Originally written by yu-ji
@@ -2420,7 +2420,7 @@ EOD;
 	// $minus = Removed lines may include URLs
 	function tb_send($page, $plus, $minus = '')
 	{
-		$script = $this->get_script_uri();
+		$script = $this->cont['HOME_URL'];
 	
 		// Disable 'max execution time' (php.ini: max_execution_time)
 		if (ini_get('safe_mode') == '0') set_time_limit(120);
@@ -2497,7 +2497,7 @@ EOD;
 	// Get a RDF comment to bury TrackBack-ping-URI under HTML(XHTML) output
 	function tb_get_rdf($page)
 	{
-		$_script = $this->get_script_uri(); // Get absolute path
+		$_script = $this->cont['HOME_URL']; // Get absolute path
 		$r_page = rawurlencode($page);
 		$tb_id  = $this->tb_get_id($page);
 		// $dcdate = substr_replace(get_date('Y-m-d\TH:i:sO', $time), ':', -2, 0);
@@ -3017,7 +3017,7 @@ EOD;
 
 //----- Start html.php -----//
 	// PukiWiki - Yet another WikiWikiWeb clone.
-	// $Id: pukiwiki_func.php,v 1.189 2008/11/15 00:37:57 nao-pon Exp $
+	// $Id: pukiwiki_func.php,v 1.190 2008/11/17 02:34:24 nao-pon Exp $
 	// Copyright (C)
 	//   2002-2006 PukiWiki Developers Team
 	//   2001-2002 Originally written by yu-ji
@@ -3403,10 +3403,11 @@ EOD;
 		
 		// 'margin-bottom', 'float:left', and 'margin-top'
 		// are for layout of 'cancel button'
+		$script = $this->get_script_uri();
 		$body = <<<EOD
 <div class="{$form_class}">
  $title
- <form action="{$this->root->script}" method="post" style="margin-bottom:0px;" id="xpwiki_edit_form"{$ajax_submit}>
+ <form action="{$script}" method="post" style="margin-bottom:0px;" id="xpwiki_edit_form"{$ajax_submit}>
   $template
   $addtag
   $othor_option
@@ -3435,7 +3436,7 @@ EOD;
  </form>
  $othor_hide_js
  <div id="xpwiki_cancel_form">
- <form action="{$this->root->script}" method="post" style="margin-top:0px;"{$ajax_cancel}>
+ <form action="{$script}" method="post" style="margin-top:0px;"{$ajax_cancel}>
   <input type="hidden" name="cmd"    value="edit" />
   <input type="hidden" name="page"   value="$s_page" />
   <input type="hidden" name="paraid" value="$s_id" />
@@ -3725,7 +3726,7 @@ EOD;
 
 //----- Start mail.php -----//
 	// PukiWiki - Yet another WikiWikiWeb clone.
-	// $Id: pukiwiki_func.php,v 1.189 2008/11/15 00:37:57 nao-pon Exp $
+	// $Id: pukiwiki_func.php,v 1.190 2008/11/17 02:34:24 nao-pon Exp $
 	// Copyright (C)
 	//   2003-2005 PukiWiki Developers Team
 	//   2003      Originally written by upk
@@ -4028,7 +4029,7 @@ EOD;
 
 //----- Start link.php -----//
 	// PukiWiki - Yet another WikiWikiWeb clone
-	// $Id: pukiwiki_func.php,v 1.189 2008/11/15 00:37:57 nao-pon Exp $
+	// $Id: pukiwiki_func.php,v 1.190 2008/11/17 02:34:24 nao-pon Exp $
 	// Copyright (C) 2003-2006 PukiWiki Developers Team
 	// License: GPL v2 or (at your option) any later version
 	//

@@ -1,6 +1,6 @@
 <?php
 // PukiWiki - Yet another WikiWikiWeb clone.
-// $Id: backup.inc.php,v 1.15 2008/11/06 08:54:50 nao-pon Exp $
+// $Id: backup.inc.php,v 1.16 2008/11/17 02:34:23 nao-pon Exp $
 // Copyright (C)
 //   2002-2005 PukiWiki Developers Team
 //   2001-2002 Originally written by yu-ji
@@ -64,9 +64,9 @@ class xpwiki_plugin_backup extends xpwiki_plugin {
 		
 		$view_now = ($action === 'diff' || $action === 'source');
 		
-		$edit_icon = '<a href="' . $script . '?cmd=edit&amp;pgid=' . $pgid . '&amp;backup=$1" title="' . htmlspecialchars($this->root->_msg_backupedit) . '"><img src="' . $this->icons['edit']['url'] . '" alt="' . htmlspecialchars($this->root->_msg_backupedit) . '" width="' . $this->icons['edit']['width'] . '" height="' . $this->icons['edit']['height'] . '" /></a>';
-		$source_icon = '<a href="' . $script . '?cmd=backup&amp;pgid=' . $pgid . '&amp;action=source&amp;age=$1" title="' . htmlspecialchars($this->root->_msg_source) . '"><img src="' . $this->icons['source']['url'] . '" alt="' . htmlspecialchars($this->root->_msg_source) . '" width="' . $this->icons['source']['width'] . '" height="' . $this->icons['source']['height'] . '" /></a>';
-		$rewind_icon = '<a href="' . $script . '?cmd=backup&amp;pgid=' . $pgid . '&amp;action=rewind&amp;age=$1" title="' . htmlspecialchars($this->root->_msg_rewind) . '"><img src="' . $this->icons['rewind']['url'] . '" alt="' . htmlspecialchars($this->root->_msg_rewind) . '" width="' . $this->icons['rewind']['width'] . '" height="' . $this->icons['rewind']['height'] . '" /></a>';
+		$edit_icon = '<a href="' . $this->cont['HOME_URL'] . '?cmd=edit&amp;pgid=' . $pgid . '&amp;backup=$1" title="' . htmlspecialchars($this->root->_msg_backupedit) . '"><img src="' . $this->icons['edit']['url'] . '" alt="' . htmlspecialchars($this->root->_msg_backupedit) . '" width="' . $this->icons['edit']['width'] . '" height="' . $this->icons['edit']['height'] . '" /></a>';
+		$source_icon = '<a href="' . $this->cont['HOME_URL'] . '?cmd=backup&amp;pgid=' . $pgid . '&amp;action=source&amp;age=$1" title="' . htmlspecialchars($this->root->_msg_source) . '"><img src="' . $this->icons['source']['url'] . '" alt="' . htmlspecialchars($this->root->_msg_source) . '" width="' . $this->icons['source']['width'] . '" height="' . $this->icons['source']['height'] . '" /></a>';
+		$rewind_icon = '<a href="' . $this->cont['HOME_URL'] . '?cmd=backup&amp;pgid=' . $pgid . '&amp;action=rewind&amp;age=$1" title="' . htmlspecialchars($this->root->_msg_rewind) . '"><img src="' . $this->icons['rewind']['url'] . '" alt="' . htmlspecialchars($this->root->_msg_rewind) . '" width="' . $this->icons['rewind']['width'] . '" height="' . $this->icons['rewind']['height'] . '" /></a>';
 		
 		if ($view_now && ($s_age === 'Cur' || !$s_age)) {
 			$s_age = 'Cur';

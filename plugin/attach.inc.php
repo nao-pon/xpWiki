@@ -2,7 +2,7 @@
 /////////////////////////////////////////////////
 // PukiWiki - Yet another WikiWikiWeb clone.
 //
-//  $Id: attach.inc.php,v 1.44 2008/10/31 07:05:22 nao-pon Exp $
+//  $Id: attach.inc.php,v 1.45 2008/11/17 02:34:23 nao-pon Exp $
 //  ORG: attach.inc.php,v 1.31 2003/07/27 14:15:29 arino Exp $
 //
 /*
@@ -819,11 +819,11 @@ EOD;
 			$pich = WIKI_PAINTER_DEF_HEIGHT;
 			//$picw = min($picw,WIKI_PAINTER_MAX_WIDTH_UPLOAD);
 			//$pich = min($pich,WIKI_PAINTER_MAX_HEIGHT_UPLOAD);
-			
+			$script = $this->func->get_script_uri();
 			$painter='
 <hr />
 	<a href="'.$this->root->script.'?plugin=painter&amp;pmode=upload&amp;refer='.encode($page).'">'.$_attach_messages['msg_search_updata'].'</a><br />
-	<form action="'.$this->root->script.'" method=POST>
+	<form action="'.$script.'" method=POST>
 	<label for="_p_attach_tools_'.$pgid.'_'.$load[$this->xpwiki->pid][$page].'">'.$_attach_messages['msg_paint_tool'].'</label>:<select id="_p_attach_tools_'.$pgid.'_'.$load[$this->xpwiki->pid][$page].'" name="tools">
 	<option value="normal">'.$_attach_messages['msg_shi'].'</option>
 	<option value="pro">'.$_attach_messages['msg_shipro'].'</option>
@@ -868,9 +868,9 @@ EOD;
 		
 		//$filelist = "<hr />".$this->attach_filelist();
 		$filelist = '';
-		
+		$script = $this->func->get_script_uri();
 		return <<<EOD
-<form enctype="multipart/form-data" action="{$this->root->script}" method="post">
+<form enctype="multipart/form-data" action="{$script}" method="post">
  <div>
   <input type="hidden" name="plugin" value="attach" />
   <input type="hidden" name="pcmd" value="upload" />
