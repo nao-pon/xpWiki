@@ -1,7 +1,7 @@
 <?php
 //
 // Created on 2006/09/29 by nao-pon http://hypweb.net/
-// $Id: xpwiki.php,v 1.86 2008/07/20 07:16:09 nao-pon Exp $
+// $Id: xpwiki.php,v 1.87 2008/11/17 01:09:45 nao-pon Exp $
 //
 
 class XpWiki {
@@ -14,8 +14,9 @@ class XpWiki {
 	var $func;  // All functions
 	var $db;    // Database Connection
 	
-	var $skin_title;
+	var $title;
 	var $page;
+	var $skin_title;
 	var $body;
 	var $html;
 	var $breadcrumbs_array;
