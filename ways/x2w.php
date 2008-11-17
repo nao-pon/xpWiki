@@ -2,7 +2,7 @@
 /*
  * Created on 2008/10/23 by nao-pon http://hypweb.net/
  * License: GPL v2 or (at your option) any later version
- * $Id: x2w.php,v 1.9 2008/11/14 00:08:25 nao-pon Exp $
+ * $Id: x2w.php,v 1.10 2008/11/17 01:11:49 nao-pon Exp $
  */
 
 //
@@ -43,11 +43,21 @@ function debug($data){
 function Send_xml($postdata)
 {
 	$postdata = trim($postdata, "\n") . "\n";
-	
+	$out  =  '<?xml version="1.0" encoding="UTF-8" ?>' . "\n";
+	$out .= '<res><![CDATA[' . $postdata . ']]></res>';
 	//	╫пно
-	header('Content-Type: application/xml; charset=UTF-8');
-	echo '<?xml version="1.0" encoding="UTF-8" ?>' . "\n";
-	echo '<res><![CDATA[' . $postdata . ']]></res>';
+	header('Expires: Mon, 26 Jul 1997 05:00:00 GMT');
+	header('Last-Modified: '.gmdate('D, d M Y H:i:s').' GMT');
+	header('Cache-Control: no-store, no-cache, must-revalidate');
+	header('Cache-Control: post-check=0, pre-check=0', false);
+	header('Pragma: no-cache');
+	if (DEBUG) {
+		header('Content-Type: text/plain; charset=UTF-8');
+	} else {
+		header('Content-Type: application/xml; charset=UTF-8');
+	}
+	header('Content-Length: ' . strlen($out));
+	echo $out;
 	exit;
 }
 
