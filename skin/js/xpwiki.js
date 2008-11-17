@@ -865,6 +865,12 @@ var XpWiki = {
 		Element.hide(id + '_WrapBtn');
 		Element.hide(id + '_FckBtn');
 		if (tArea.style.display == 'none') {
+			if (!tArea._FCKBlurRegisted) {
+				tArea._FCKBlurRegisted = true;
+				Event.observe(tArea, 'blur', function(){
+					oEditorIns.EditingArea.Textarea.value = tArea.value;
+				});
+			}
 			if ( bIsWysiwyg ) oEditorIns.SwitchEditMode(); //switch to plain
 			var text = oEditorIns.GetData( oEditorIns.Config.FormatSource );
 			tArea.value = text;
