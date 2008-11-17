@@ -1,6 +1,6 @@
 <?php
 // PukiWiki - Yet another WikiWikiWeb clone
-// $Id: tracker.inc.php,v 1.17 2008/10/02 10:35:35 nao-pon Exp $
+// $Id: tracker.inc.php,v 1.18 2008/11/17 02:34:23 nao-pon Exp $
 // ORG: tracker.inc.php,v 1.57 2007/09/20 15:17:20 henoheno Exp $
 // Issue tracker plugin (See Also bugtrack plugin)
 
@@ -98,8 +98,9 @@ class xpwiki_plugin_tracker extends xpwiki_plugin
 		$script = $this->func->get_script_uri();
 		$retval = str_replace($from, $to, $this->func->convert_html($this->plugin_tracker_get_source($form)));
 		$hidden = implode('<br />' . "\n", $hidden);
+		$script = $this->func->get_script_uri();
 		return <<<EOD
-<form enctype="multipart/form-data" action="{$this->root->script}" method="post">
+<form enctype="multipart/form-data" action="{$script}" method="post">
 <div>
 $retval
 $hidden

@@ -3,7 +3,7 @@ class xpwiki_plugin_areaedit extends xpwiki_plugin {
 /////////////////////////////////////////////////
 // PukiWiki - Yet another WikiWikiWeb clone.
 //
-// $Id: areaedit.inc.php,v 1.11 2008/05/26 01:21:04 nao-pon Exp $
+// $Id: areaedit.inc.php,v 1.12 2008/11/17 02:34:23 nao-pon Exp $
 //
 /* 
 *プラグイン areaedit
@@ -98,9 +98,10 @@ EOD;
 			$s_page	  = htmlspecialchars($page);
 			$s_refer  = htmlspecialchars($collect);
 			$s_digest = htmlspecialchars($this->root->digest);
+			$script = $this->func->get_script_uri();
 			return <<<EOD
 <div style="margin:0px auto 0px 0px;text-align:left;" title="collect">
-<form action="{$this->root->script}" method="post">
+<form action="{$script}" method="post">
  <div class="edit_form">
   <input type="hidden" name="plugin" value="areaedit" />
   <input type="hidden" name="page"	 value="$s_page" />
@@ -710,9 +711,9 @@ EOD;
 		$inline_preview = (isset($this->root->vars['inline_preview']))? intval($this->root->vars['inline_preview']) : '';
 		$areaedit_no = (isset($this->root->vars['areaedit_no']))? intval($this->root->vars['areaedit_no']) : '';
 		$areaedit_start_no = (isset($this->root->vars['areaedit_start_no']))? intval($this->root->vars['areaedit_start_no']) : '';
-		
+		$script = $this->func->get_script_uri();
 		$body = <<<EOD
-<form action="{$this->root->script}" method="post">
+<form action="{$script}" method="post">
  <div class="edit_form">
   <input type="hidden" name="plugin" value="areaedit" />
   <input type="hidden" name="page"	 value="$s_page" />

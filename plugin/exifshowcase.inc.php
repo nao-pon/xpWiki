@@ -4,7 +4,7 @@
 //
 //
 // ref.inc.php,v 1.20をベースに作成
-// $Id: exifshowcase.inc.php,v 1.2 2007/12/19 09:13:29 nao-pon Exp $
+// $Id: exifshowcase.inc.php,v 1.3 2008/11/17 02:34:23 nao-pon Exp $
 //
 
 /*
@@ -344,8 +344,9 @@ EOD;
 				}
 				if ( $params['ucomedit'] &&
 						array_key_exists('UserComment', @ $exif["COMPUTED"])) {
+						$script = $this->func->get_script_uri();
 						$ucom .= <<<EOD
-<form action="{$this->root->script}" method="post">
+<form action="{$script}" method="post">
 <div style="text-align:right;margin:0px 4px 4px 0px;"><input type="hidden" name="plugin" value="ucomedit" />
 <input type="hidden" name="refer"  value="$page" />
 <input type="hidden" name="target" value="{$aname}" />

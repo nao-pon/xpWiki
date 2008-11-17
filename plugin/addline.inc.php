@@ -2,7 +2,7 @@
 /////////////////////////////////////////////////
 // PukiWiki - Yet another WikiWikiWeb clone.
 //
-// $Id: addline.inc.php,v 1.3 2008/05/28 07:52:48 nao-pon Exp $
+// $Id: addline.inc.php,v 1.4 2008/11/17 02:34:23 nao-pon Exp $
 //
 /* 
 *プラグイン addline
@@ -100,8 +100,9 @@ class xpwiki_plugin_addline extends xpwiki_plugin {
 		$f_config = htmlspecialchars($configname);
 	
 		$string = '';
+		$script = $this->func->get_script_uri();
 		if (! $disabled || $left_text || $right_text) $string = <<<EOD
- <form action="{$this->root->script}" method="post">
+ <form action="{$script}" method="post">
   <div style="margin:0px auto 0px auto;text-align:center;">
    <input type="hidden" name="addline_no" value="$addline_no" />
    <input type="hidden" name="refer" value="$f_page" />

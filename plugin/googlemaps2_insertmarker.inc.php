@@ -177,8 +177,9 @@ class xpwiki_plugin_googlemaps2_insertmarker extends xpwiki_plugin {
 		$no = $numbers[$this->xpwiki->pid][$page]++;
 	
 		$imprefix = "_p_googlemaps2_insertmarker_".$page."_".$no;
+		$script = $this->func->get_script_uri();
 		$output = <<<EOD
-<form action="{$this->root->script}" id="${imprefix}_form" method="post">
+<form action="{$script}" id="${imprefix}_form" method="post">
 <div style="padding:2px;">
   <input type="hidden" name="plugin"    value="googlemaps2_insertmarker" />
   <input type="hidden" name="refer"     value="$s_page" />

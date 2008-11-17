@@ -1,7 +1,7 @@
 <?php
 //
 // Created on 2006/11/17 by nao-pon http://hypweb.net/
-// $Id: dbsync.inc.php,v 1.32 2008/06/02 07:17:19 nao-pon Exp $
+// $Id: dbsync.inc.php,v 1.33 2008/11/17 02:34:23 nao-pon Exp $
 //
 
 class xpwiki_plugin_dbsync extends xpwiki_plugin {
@@ -55,6 +55,7 @@ class xpwiki_plugin_dbsync extends xpwiki_plugin {
 					$not[$type] = "";
 				}
 			}
+			$script = $this->func->get_script_uri();
 			$body .= <<<__EOD__
 <script>
 <!--
@@ -112,7 +113,7 @@ function xpwiki_dbsync_setmsg(id,msg)
 }
 -->
 </script>
-<form target="pukiwiki_dbsync_work" style= "margin:0px;" method="POST" action="{$this->root->script}">
+<form target="pukiwiki_dbsync_work" style= "margin:0px;" method="POST" action="{$script}">
  <div>
   <input type="hidden" name="plugin" value="dbsync" />
   <input type="hidden" name="pmode" value="update" />
@@ -793,9 +794,9 @@ __EOD__;
 		
 		//$token = $this->func->get_token_html();
 		$token = '';
-		
+		$script = $this->func->get_script_uri();
 		$html = <<<__EOD__
-<form method="POST" action="{$this->root->script}" onsubmit="return pukiwiki_check(this);">
+<form method="POST" action="{$script}" onsubmit="return pukiwiki_check(this);">
  <div>
   {$token}
   <input type="hidden" name="encode_hint" value="คื" />

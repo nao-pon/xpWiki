@@ -3,7 +3,7 @@ class xpwiki_plugin_insert extends xpwiki_plugin {
 	function plugin_insert_init () {
 
 
-	// $Id: insert.inc.php,v 1.4 2007/12/14 00:02:08 nao-pon Exp $
+	// $Id: insert.inc.php,v 1.5 2008/11/17 02:34:23 nao-pon Exp $
 	//
 	// Text inserting box plugin
 	
@@ -49,9 +49,9 @@ class xpwiki_plugin_insert extends xpwiki_plugin {
 			$s_refer  = htmlspecialchars($this->root->vars['refer']);
 			$s_digest = htmlspecialchars($this->root->vars['digest']);
 			$s_postdata_input = htmlspecialchars($postdata_input);
-	
+			$script = $this->func->get_script_uri();
 			$body .= <<<EOD
-<form action="{$this->root->script}?cmd=preview" method="post">
+<form action="{$script}?cmd=preview" method="post">
  <div>
   <input type="hidden" name="refer"  value="$s_refer" />
   <input type="hidden" name="digest" value="$s_digest" />
@@ -90,8 +90,9 @@ EOD;
 		$s_digest = htmlspecialchars($this->root->digest);
 		$s_cols = $this->cont['INSERT_COLS'];
 		$s_rows = $this->cont['INSERT_ROWS'];
+		$script = $this->func->get_script_uri();
 		$string = <<<EOD
-<form action="{$this->root->script}" method="post">
+<form action="{$script}" method="post">
  <div>
   <input type="hidden" name="insert_no" value="$insert_no" />
   <input type="hidden" name="refer"  value="$s_page" />

@@ -1,5 +1,5 @@
 <?php
-// $Id: dump.inc.php,v 1.7 2008/05/14 07:16:41 nao-pon Exp $
+// $Id: dump.inc.php,v 1.8 2008/11/17 02:34:23 nao-pon Exp $
 //
 // Remote dump / restore plugin
 // Originated as tarfile.inc.php by teanan / Interfair Laboratory 2004.
@@ -291,12 +291,12 @@ class xpwiki_plugin_dump extends xpwiki_plugin {
 			'<label for="_p_dump_adminpass_dump"><strong>'.$this->msg['admin_pass'].'</strong></label>
   <input type="password" name="pass" id="_p_dump_adminpass_dump" size="12" />';
 
-	
+		$script = $this->func->get_script_uri();
 		$data = <<<EOD
 <span class="small">
 </span>
 <h3>{$this->msg['data_download']}</h3>
-<form action="{$this->root->script}" method="post">
+<form action="{$script}" method="post">
  <div>
   <input type="hidden" name="cmd"  value="dump" />
   <input type="hidden" name="page" value="{$this->root->defaultpage}" />
@@ -338,9 +338,10 @@ EOD;
 			$passform = ($this->root->userinfo['admin'])? '' :
 				'<label for="_p_dump_adminpass_restore"><strong>'.$this->msg['admin_pass'].'</strong></label>
   <input type="password" name="pass" id="_p_dump_adminpass_restore" size="12" />';
+			$script = $this->func->get_script_uri();
 			$data .= <<<EOD
 <h3>{$this->msg['data_restore']}</h3>
-<form enctype="multipart/form-data" action="{$this->root->script}" method="post">
+<form enctype="multipart/form-data" action="{$script}" method="post">
  <div>
   <input type="hidden" name="cmd"  value="dump" />
   <input type="hidden" name="page" value="{$this->root->defaultpage}" />

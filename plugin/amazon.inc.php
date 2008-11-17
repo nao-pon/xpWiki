@@ -1,6 +1,6 @@
 <?php
 // PukiWiki - Yet another WikiWikiWeb clone.
-// $Id: amazon.inc.php,v 1.8 2008/08/30 05:58:12 nao-pon Exp $
+// $Id: amazon.inc.php,v 1.9 2008/11/17 02:34:23 nao-pon Exp $
 // Id: amazon.inc.php,v 1.1 2003/07/24 13:00:00 ´×¼Ë
 //
 // Amazon plugin: Book-review maker via amazon.com/amazon.jp
@@ -120,8 +120,9 @@ EOD;
 	
 			$s_page = htmlspecialchars($this->root->vars['page']);
 			if ($s_page == '') $s_page = isset($this->root->vars['refer']) ? $this->root->vars['refer'] : '';
+			$script = $this->func->get_script_uri();
 			$ret = <<<EOD
-<form action="{$this->root->script}" method="post">
+<form action="{$script}" method="post">
  <div>
   <input type="hidden" name="plugin" value="amazon" />
   <input type="hidden" name="refer" value="$s_page" />

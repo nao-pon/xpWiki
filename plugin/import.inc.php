@@ -1,7 +1,7 @@
 <?php
 /*
  * Created on 2007/05/22 by nao-pon http://hypweb.net/
- * $Id: import.inc.php,v 1.11 2008/04/16 06:50:38 nao-pon Exp $
+ * $Id: import.inc.php,v 1.12 2008/11/17 02:34:23 nao-pon Exp $
  */
 
 class xpwiki_plugin_import extends xpwiki_plugin {
@@ -70,10 +70,11 @@ class xpwiki_plugin_import extends xpwiki_plugin {
 			$select .= '<option value="'.$dir.'#'.$type.'">'.$dir.'</option>'; 
 		}
 		$select .= '</select>';
+		$script = $this->func->get_script_uri();
 		$ret['msg'] = $this->msg['title_import_dir'];
 		$ret['body'] = <<<EOD
 <p>{$this->msg['import_dir']}</p>
-<form action="{$this->root->script}" method="post">
+<form action="{$script}" method="post">
 {$select} <input type="submit" value="{$this->msg['btn_do_next']}" />
 <input type="hidden" name="cmd" value="import" />
 <input type="hidden" name="pmode" value="select_option" />
@@ -101,7 +102,8 @@ EOD;
 		$this->from_dir = $mdir;
 		$this->msg = array_map(array(& $this, 'replace_msg'), $this->msg);
 
-		$form = '<form action="'.$this->root->script.'" method="post">';
+		$script = $this->func->get_script_uri();
+		$form = '<form action="'.$script.'" method="post">';
 		$form .= $this->msg['target_page'].$this->msg['target_page_note'].'<br /><input type="text" name="target_page" value="'.htmlspecialchars($target_page).'" size="50" /><br />';
 		if ($type === 'pwm') {
 			$form .= $this->msg['keep_pgid'].'<br />';
@@ -164,10 +166,10 @@ EOD;
 			$option .= $key . ': ' . $val . '<br />';
 		}
 		$option .= '<p>'.$this->msg['do_check_note'].'</p>';
-		$form = '<form action="'.$this->root->script.'" method="post">';
-
+		$script = $this->func->get_script_uri();
+		$form = '';
 		$form .= <<<EOD
-<form action="{$this->root->script}" method="post">
+<form action="{$script}" method="post">
 <input type="submit" value="{$this->msg['btn_do_check']}" />
 &nbsp;&nbsp;&nbsp;&nbsp;<input type="submit" name="go_first" value="{$this->msg['btn_go_first']}" />
 <input type="hidden" name="cmd" value="import" />
@@ -220,8 +222,9 @@ EOD;
 			list($result, $data, $files) = $this->file_check($op);
 		}
 		if ($result === false) {
+			$script = $this->func->get_script_uri();
 			$form = <<<EOD
-<form action="{$this->root->script}" method="post">
+<form action="{$script}" method="post">
 <input type="submit" value="{$this->msg['btn_do_check']}" />
 &nbsp;&nbsp;&nbsp;&nbsp;<input type="submit" name="go_first" value="{$this->msg['btn_go_first']}" />
 <input type="hidden" name="cmd" value="import" />
@@ -248,13 +251,14 @@ EOD;
 				}
 			}
 			$body .= ($body)? '<p>'.$this->msg['do_copy_note'].'</p>' : '<p>'.$this->msg['do_copy_nothing'].'</p>';
+			$script = $this->func->get_script_uri();
 			if ($cpage) {
 				if ($fp = fopen($this->cont['CACHE_DIR'].'copy.import', 'wb')) {
 					fwrite($fp, serialize(array($op, $files)));
 					fclose($fp);
 				}
 				$form .= <<<EOD
-<form action="{$this->root->script}" method="post">
+<form action="{$script}" method="post">
 <input type="submit" value="{$this->msg['btn_do_copy']}" />
 &nbsp;&nbsp;&nbsp;&nbsp;<input type="submit" name="go_first" value="{$this->msg['btn_go_first']}" />
 <input type="hidden" name="cmd" value="import" />
@@ -270,7 +274,7 @@ EOD;
 				return $ret;
 			} else {
 				$form .= <<<EOD
-<form action="{$this->root->script}" method="post">
+<form action="{$script}" method="post">
 &nbsp;&nbsp;&nbsp;&nbsp;<input type="submit" name="go_first" value="{$this->msg['btn_go_first']}" />
 <input type="hidden" name="cmd" value="import" />
 </form>
@@ -443,23 +447,6 @@ EOD;
 		// 続きあり
 		if ($_files) {
 			return $this->do_more_form ('do_copy', $this->msg['more_copy_note'], count($_files));
-			/*
-			$body = 'More' . count($_files) . 'files.';
-			$form .= <<<EOD
-<form action="{$this->root->script}" method="post">
-<input type="submit" value="{$this->msg['do_copy']}" />
-<input type="hidden" name="cmd" value="import" />
-<input type="hidden" name="pmode" value="do_copy" />
-</form>
-EOD;
-			$ret['msg'] = $this->msg['title_do_import'];
-			$ret['body'] = <<<EOD
-$body
-<hr />
-{$form}
-EOD;
-			return $ret;
-			*/
 		}
 		if (file_exists($this->cont['CACHE_DIR'].'convert.import')) {
 			if ($op['type'] === 'pwm') {
@@ -472,8 +459,9 @@ EOD;
 
 	function do_more_form ($pmode, $note, $count) {
 		$body = str_replace('$count', $count, $this->msg['do_more']);
+		$script = $this->func->get_script_uri();
 		$form = <<<EOD
-<form action="{$this->root->script}" method="post">
+<form action="{$script}" method="post">
 <input type="submit" value="{$this->msg['btn_do_more']}" />
 <input type="hidden" name="cmd" value="import" />
 <input type="hidden" name="pmode" value="{$pmode}" />
@@ -491,12 +479,13 @@ EOD;
 
 	function get_do_convert_form () {
 		$wiki = $this->func->convert_html($this->msg['do_convert_wiki']);
+		$script = $this->func->get_script_uri();
 		$ret['msg'] = $this->msg['title_convert'];
 		$ret['body'] = <<<EOD
 <p>{$this->msg['do_convert_note']}</p>
 <hr />
 {$wiki}
-<form action="{$this->root->script}" method="post">
+<form action="{$script}" method="post">
 <input type="submit" value="{$this->msg['do_convert']}" />
 <input type="hidden" name="cmd" value="import" />
 <input type="hidden" name="pmode" value="do_convert" />

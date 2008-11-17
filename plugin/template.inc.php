@@ -1,5 +1,5 @@
 <?php
-// $Id: template.inc.php,v 1.3 2008/07/04 11:09:02 nao-pon Exp $
+// $Id: template.inc.php,v 1.4 2008/11/17 02:34:23 nao-pon Exp $
 //
 // Load template plugin
 
@@ -69,8 +69,9 @@ class xpwiki_plugin_template extends xpwiki_plugin {
 	
 		$s_refer = htmlspecialchars($this->root->vars['refer']);
 		$s_page  = ($page === '') ? str_replace('$1', $s_refer, $this->root->_msg_template_page) : $_page;
+		$script = $this->func->get_script_uri();
 		$ret     = <<<EOD
-<form action="{$this->root->script}" method="post">
+<form action="{$script}" method="post">
  <div>
   <input type="hidden" name="plugin" value="template" />
   <input type="hidden" name="refer"  value="$s_refer" />

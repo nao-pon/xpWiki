@@ -5,7 +5,7 @@ class xpwiki_plugin_paint extends xpwiki_plugin {
 
 	// PukiWiki - Yet another WikiWikiWeb clone
 	//
-	// $Id: paint.inc.php,v 1.1 2006/10/13 13:17:49 nao-pon Exp $
+	// $Id: paint.inc.php,v 1.2 2008/11/17 02:34:23 nao-pon Exp $
 	//
 	// Paint plugin
 	
@@ -196,9 +196,9 @@ EOD;
 		$f_page = htmlspecialchars($this->root->vars['page']);
 	
 		$max = sprintf($this->root->_paint_messages['msg_max'],$this->cont['PAINT_MAX_WIDTH'],$this->cont['PAINT_MAX_HEIGHT']);
-	
+		$script = $this->func->get_script_uri();
 		$ret = <<<EOD
-  <form action="{$this->root->script}" method="post">
+  <form action="{$script}" method="post">
   <div>
   <input type="hidden" name="paint_no" value="$paint_no" />
   <input type="hidden" name="digest" value="{$this->root->digest}" />

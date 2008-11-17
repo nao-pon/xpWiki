@@ -1,6 +1,6 @@
 <?php
 // PukiWiki - Yet another WikiWikiWeb clone
-// $Id: rename.inc.php,v 1.12 2008/09/21 05:28:55 nao-pon Exp $
+// $Id: rename.inc.php,v 1.13 2008/11/17 02:34:23 nao-pon Exp $
 //
 // Rename plugin: Rename page-name and related data
 //
@@ -110,12 +110,12 @@ class xpwiki_plugin_rename extends xpwiki_plugin {
 	
 		$s_src = htmlspecialchars($this->plugin_rename_getvar('src'));
 		$s_dst = htmlspecialchars($this->plugin_rename_getvar('dst'));
-	
+		$script = $this->func->get_script_uri();
 		$ret = array();
 		$ret['msg']  = $this->root->_rename_messages['msg_title'];
 		$ret['body'] = <<<EOD
 $msg
-<form action="{$this->root->script}" method="post">
+<form action="{$script}" method="post">
  <div>
   <input type="hidden" name="plugin" value="rename" />
   <input type="radio"  name="method" id="_p_rename_page" value="page"$radio_page />
@@ -152,12 +152,12 @@ EOD;
 		$msg_rename = sprintf($this->root->_rename_messages['msg_rename'], $this->func->make_pagelink($refer));
 		$s_page  = htmlspecialchars($page);
 		$s_refer = htmlspecialchars($refer);
-	
+		$script = $this->func->get_script_uri();
 		$ret = array();
 		$ret['msg']  = $this->root->_rename_messages['msg_title'];
 		$ret['body'] = <<<EOD
 $msg
-<form action="{$this->root->script}" method="post">
+<form action="{$script}" method="post">
  <div>
   <input type="hidden" name="plugin" value="rename" />
   <input type="hidden" name="refer"  value="$s_refer" />
@@ -296,11 +296,12 @@ EOD;
 			'<label for="_p_rename_adminpass">'.$this->root->_rename_messages['msg_adminpass'].'</label>
   <input type="password" name="pass" id="_p_rename_adminpass" value="" />';
 		
+		$script = $this->func->get_script_uri();
 		$ret = array();
 		$ret['msg'] = $this->root->_rename_messages['msg_title'];
 		$ret['body'] = <<<EOD
 <p>$msg</p>
-<form action="{$this->root->script}" method="post">
+<form action="{$script}" method="post">
  <div>
   <input type="hidden" name="plugin" value="rename" />
   <input type="hidden" name="pmode" value="proceed" />

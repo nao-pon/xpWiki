@@ -1,7 +1,7 @@
 <?php
 /*
  * Created on 2008/03/24 by nao-pon http://hypweb.net/
- * $Id: attach.php,v 1.10 2008/11/13 00:24:43 nao-pon Exp $
+ * $Id: attach.php,v 1.11 2008/11/17 02:34:24 nao-pon Exp $
  */
 
 //-------- епеще╣
@@ -212,7 +212,7 @@ class XpWikiAttachFile
 		$s_err = ($err == '') ? '' : '<p style="font-weight:bold">'.$this->root->_attach_messages[$err].'</p>';
 		$ref = "";
 		$img_info = "";
-			
+		$script = $this->func->get_script_uri();
 		$pass = '';
 		$msg_require = '';
 		$is_editable = $this->is_owner();
@@ -242,7 +242,7 @@ class XpWikiAttachFile
 				if ($is_editable && (defined('HYP_JPEGTRAN_PATH') || $isize[2] == 2))
 				{
 					$img_info = <<<EOD
-<form action="{$this->root->script}" method="post">
+<form action="{$script}" method="post">
  <div>
   $img_info
   <input type="hidden" name="plugin" value="attach" />
@@ -351,7 +351,7 @@ EOD;
 		{
 			$retval['body'] .= <<<EOD
 <hr />
-<form action="{$this->root->script}" method="post">
+<form action="{$script}" method="post">
  <div>
   <input type="hidden" name="plugin" value="attach" />
   <input type="hidden" name="refer" value="$s_page" />

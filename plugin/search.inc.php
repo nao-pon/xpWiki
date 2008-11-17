@@ -1,6 +1,6 @@
 <?php
 // PukiWiki - Yet another WikiWikiWeb clone.
-// $Id: search.inc.php,v 1.8 2008/06/09 01:34:29 nao-pon Exp $
+// $Id: search.inc.php,v 1.9 2008/11/17 02:34:23 nao-pon Exp $
 //
 // Search plugin
 class xpwiki_plugin_search extends xpwiki_plugin {
@@ -125,8 +125,9 @@ EOD;
 			$base_option = '<div class="small">' . $base_msg . '</div>';
 		}
 		$method = $this->cont['PLUGIN_SEARCH_DISABLE_GET_ACCESS']? 'POST' : 'GET';
+		$script = ($method === 'POST')? $this->func->get_script_uri() : $this->cont['HOME_URL'];
 		return <<<EOD
-<form action="{$this->root->script}" method="$method">
+<form action="{$script}" method="$method">
  <div>
   <input type="hidden" name="cmd" value="search" />
   <input type="text"  name="word" value="$s_word" size="20" />

@@ -3,7 +3,7 @@ class xpwiki_plugin_article extends xpwiki_plugin {
 	function plugin_article_init () {
 
 
-	// $Id: article.inc.php,v 1.7 2008/03/24 23:50:09 nao-pon Exp $
+	// $Id: article.inc.php,v 1.8 2008/11/17 02:34:23 nao-pon Exp $
 	// Copyright (C)
 	//   2002-2005 PukiWiki Developers Team
 	//   2002      Originally written by OKAWARA,Satoshi <kawara@dml.co.jp>
@@ -103,8 +103,9 @@ class xpwiki_plugin_article extends xpwiki_plugin {
 			$s_refer    = htmlspecialchars($this->root->post['refer']);
 			$s_digest   = htmlspecialchars($this->root->post['digest']);
 			$s_postdata = htmlspecialchars($postdata_input);
+			$script = $this->func->get_script_uri();
 			$body .= <<<EOD
-<form action="{$this->root->script}?cmd=preview" method="post">
+<form action="{$script}?cmd=preview" method="post">
  <div>
   <input type="hidden" name="refer" value="$s_refer" />
   <input type="hidden" name="digest" value="$s_digest" />
@@ -168,8 +169,9 @@ EOD;
 		$subject_cols = $this->cont['PLUGIN_ARTICLE_SUBJECT_COLS'];
 		$article_rows = $this->cont['PLUGIN_ARTICLE_ROWS'];
 		$article_cols = $this->cont['PLUGIN_ARTICLE_COLS'];
+		$script = $this->func->get_script_uri();
 		$string = <<<EOD
-<form action="{$this->root->script}" method="post">
+<form action="{$script}" method="post">
  <div>
   <input type="hidden" name="article_no" value="$article_no" />
   <input type="hidden" name="plugin" value="article" />

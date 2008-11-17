@@ -1,6 +1,6 @@
 <?php
 /**
- * $Id: deldel.inc.php,v 1.9 2008/05/23 06:28:05 nao-pon Exp $
+ * $Id: deldel.inc.php,v 1.10 2008/11/17 02:34:23 nao-pon Exp $
  * ORG: deldel.inc.php 161 2005-06-28 12:58:13Z okkez $
  *
  * 色んなものを一括削除するプラグイン
@@ -128,17 +128,17 @@ class xpwiki_plugin_deldel extends xpwiki_plugin {
 		$this->root->vars['s_regxp'] = (empty($this->root->vars['regexp']))? "" : htmlspecialchars($this->root->vars['regexp']);
 		$body = '';
 		$moved = false;
-		
+		$script = $this->func->get_script_uri();
 		if(!isset($mode) || !$this->root->userinfo['admin'])
 		{
 			if (!$this->root->userinfo['admin'])
 			{
 				$body .= "<p style=\"color:red;font-size:120%;font-weight:bold;\"><img src=\"image/alert.gif\" width=\"15\" height=\"15\" alt=\"alert\" /> ".$this->msg['msg_auth_error']."</p>";
 			}
-
+			
 			//最初のページ
 			$body .= "<h2>".$this->msg['msg_selectlist']."</h2>";
-			$body .= "<form method='post' action=\"{$this->root->script}?cmd=deldel\">";
+			$body .= "<form method='post' action=\"{$script}?cmd=deldel\">";
 			$body .= "<input type=\"hidden\" name=\"dir\" value=\"DATA\"/>\n";
 			$body .= "<input type=\"hidden\" name=\"mode\" value=\"select\"/>\n";
 			$body .= "{$this->msg['msg_regexp_label']}<input type='text' name='regexp' value='{$this->root->vars['s_regxp']}' />\n";
@@ -147,7 +147,7 @@ class xpwiki_plugin_deldel extends xpwiki_plugin {
 			$body .= "</form>";
 			
 			$body .= "<h2>".$this->msg['msg_dirlist']."</h2>";
-			$body .= "<form method='post' action=\"{$this->root->script}?cmd=deldel\">";
+			$body .= "<form method='post' action=\"{$script}?cmd=deldel\">";
 			$body .= '<select name="dir" size="1">';
 			$body .= '<option value="DATA">wiki</option>';
 			$body .= '<option value="BACKUP">backup</option>';
@@ -194,7 +194,7 @@ class xpwiki_plugin_deldel extends xpwiki_plugin {
 					return array('msg'=>$this->msg['title_backuplist'],'body'=>$body);
 				}elseif(isset($this->root->vars['dir']) && $this->root->vars['dir']==="UPLOAD"){
 					//添付ファイル
-					$body .= "\n<form method=\"post\" action=\"{$this->root->script}?cmd=deldel\"><div>";
+					$body .= "\n<form method=\"post\" action=\"{$script}?cmd=deldel\"><div>";
 					$retval = $this->attach_list2();
 					$body .= $retval['body'];
 					$body .= "<input type=\"hidden\" name=\"mode\" value=\"confirm\"/>\n<input type=\"hidden\" name=\"dir\" value=\"{$this->root->vars['dir']}\"/>\n";
@@ -564,8 +564,9 @@ class xpwiki_plugin_deldel extends xpwiki_plugin {
 		}elseif($dir === $this->cont['COUNTER_DIR']) {
 			$ext = '.count';
 		}
+		$script = $this->func->get_script_uri();
 		$body = '';
-		$body .= "<form method='post' action=\"{$this->root->script}?cmd=$cmd\"><div>\n";
+		$body .= "<form method='post' action=\"{$script}?cmd=$cmd\"><div>\n";
 		if ($dir === $this->cont['DATA_DIR'])
 		{
 			$body .= "<input type=\"hidden\" name=\"dir\" value=\"DATA\"/>\n";
@@ -574,7 +575,7 @@ class xpwiki_plugin_deldel extends xpwiki_plugin {
 			$body .= "<input type=\"submit\" value=\"{$this->msg['btn_research']}\" /></div></form>\n";
 		}
 		if ($retry === false) {
-			$body .= "<form method='post' action=\"{$this->root->script}?cmd=$cmd\"><div>\n";
+			$body .= "<form method='post' action=\"{$script}?cmd=$cmd\"><div>\n";
 			if ($pages)
 			{
 				$body .= $this->page_list2($pages, 'read', FALSE, TRUE);
@@ -633,9 +634,9 @@ class xpwiki_plugin_deldel extends xpwiki_plugin {
 		$is_cascade = ($is_cascade)? "1" : "0";
 		
 		$i=0;
-		
+		$script = $this->func->get_script_uri();
 		$body = '';
-		$body .= "<form method=\"post\" action=\"{$this->root->script}?cmd=$cmd\">\n<ul>\n";
+		$body .= "<form method=\"post\" action=\"{$script}?cmd=$cmd\">\n<ul>\n";
 		switch($dir){
 		  case 'DATA' :
 		  case 'BACKUP' :
