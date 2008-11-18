@@ -1,4 +1,4 @@
 <?php
 	$mytrustdirname = 'xpwiki' ;
-	$myhtml_version = 3;
+	$myhtml_version = 4;
 ?>
