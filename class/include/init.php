@@ -1,7 +1,7 @@
 <?php
 //
 // Created on 2006/10/13 by nao-pon http://hypweb.net/
-// $Id: init.php,v 1.58 2008/10/31 07:16:51 nao-pon Exp $
+// $Id: init.php,v 1.59 2008/11/18 04:10:40 nao-pon Exp $
 //
 
 $root = & $this->root;
@@ -481,7 +481,11 @@ if (isset($const['page_show'])) {
 	// 入力チェック: 'cmd=' prohibits nasty 'plugin='
 	if (isset($root->vars['cmd']) && isset($root->vars['plugin']))
 		unset($root->get['plugin'], $root->post['plugin'], $root->vars['plugin']);
-		
+	
+	if (! isset($root->vars['cmd'])) {
+		$root->get['cmd'] = $root->post['cmd'] = $root->vars['cmd'] = '';
+	}
+	
 	// Set displayed page name.
 	if (! empty($root->vars['page'])) {
 		$const['PAGENAME'] = $root->vars['page'];

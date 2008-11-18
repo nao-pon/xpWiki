@@ -1,7 +1,7 @@
 <?php
 //
 // Created on 2006/10/02 by nao-pon http://hypweb.net/
-// $Id: pukiwiki_func.php,v 1.190 2008/11/17 02:34:24 nao-pon Exp $
+// $Id: pukiwiki_func.php,v 1.191 2008/11/18 04:10:40 nao-pon Exp $
 //
 class XpWikiPukiWikiFunc extends XpWikiBaseFunc {
 
@@ -960,7 +960,7 @@ class XpWikiPukiWikiFunc extends XpWikiBaseFunc {
 
 //----- Start convert_html.php -----//
 	// PukiWiki - Yet another WikiWikiWeb clone
-	// $Id: pukiwiki_func.php,v 1.190 2008/11/17 02:34:24 nao-pon Exp $
+	// $Id: pukiwiki_func.php,v 1.191 2008/11/18 04:10:40 nao-pon Exp $
 	// Copyright (C)
 	//   2002-2005 PukiWiki Developers Team
 	//   2001-2002 Originally written by yu-ji
@@ -997,7 +997,7 @@ class XpWikiPukiWikiFunc extends XpWikiBaseFunc {
 		// Set digest
 		if ($this->root->vars['page'] !== '') {
 			if (!isset($digests[$this->root->mydirname][$this->root->vars['page']])) {
-				$digests[$this->root->mydirname][$this->root->vars['page']] = md5($this->get_source($this->root->vars['page'], TRUE, TRUE));
+				$digests[$this->root->mydirname][$this->root->vars['page']] = $this->get_digests($this->get_source($this->root->vars['page'], TRUE, TRUE));
 			}
 			$this->root->digest = $digests[$this->root->mydirname][$this->root->vars['page']];
 		} else {
@@ -1214,7 +1214,7 @@ class XpWikiPukiWikiFunc extends XpWikiBaseFunc {
 
 //----- Start func.php -----//
 	// PukiWiki - Yet another WikiWikiWeb clone.
-	// $Id: pukiwiki_func.php,v 1.190 2008/11/17 02:34:24 nao-pon Exp $
+	// $Id: pukiwiki_func.php,v 1.191 2008/11/18 04:10:40 nao-pon Exp $
 	// Copyright (C)
 	//   2002-2006 PukiWiki Developers Team
 	//   2001-2002 Originally written by yu-ji
@@ -2040,7 +2040,7 @@ EOD;
 
 //----- Start make_link.php -----//
 	// PukiWiki - Yet another WikiWikiWeb clone.
-	// $Id: pukiwiki_func.php,v 1.190 2008/11/17 02:34:24 nao-pon Exp $
+	// $Id: pukiwiki_func.php,v 1.191 2008/11/18 04:10:40 nao-pon Exp $
 	// Copyright (C)
 	//   2003-2005 PukiWiki Developers Team
 	//   2001-2002 Originally written by yu-ji
@@ -3017,7 +3017,7 @@ EOD;
 
 //----- Start html.php -----//
 	// PukiWiki - Yet another WikiWikiWeb clone.
-	// $Id: pukiwiki_func.php,v 1.190 2008/11/17 02:34:24 nao-pon Exp $
+	// $Id: pukiwiki_func.php,v 1.191 2008/11/18 04:10:40 nao-pon Exp $
 	// Copyright (C)
 	//   2002-2006 PukiWiki Developers Team
 	//   2001-2002 Originally written by yu-ji
@@ -3256,7 +3256,7 @@ EOD;
 		$postdata = $this->remove_pginfo($postdata);
 		
 		// Newly generate $digest or not
-		if ($digest === FALSE) $digest = md5($this->get_source($page, TRUE, TRUE));
+		if ($digest === FALSE) $digest = $this->get_digests($this->get_source($page, TRUE, TRUE));
 	
 		$refer = $template = '';
 	 
@@ -3726,7 +3726,7 @@ EOD;
 
 //----- Start mail.php -----//
 	// PukiWiki - Yet another WikiWikiWeb clone.
-	// $Id: pukiwiki_func.php,v 1.190 2008/11/17 02:34:24 nao-pon Exp $
+	// $Id: pukiwiki_func.php,v 1.191 2008/11/18 04:10:40 nao-pon Exp $
 	// Copyright (C)
 	//   2003-2005 PukiWiki Developers Team
 	//   2003      Originally written by upk
@@ -4029,7 +4029,7 @@ EOD;
 
 //----- Start link.php -----//
 	// PukiWiki - Yet another WikiWikiWeb clone
-	// $Id: pukiwiki_func.php,v 1.190 2008/11/17 02:34:24 nao-pon Exp $
+	// $Id: pukiwiki_func.php,v 1.191 2008/11/18 04:10:40 nao-pon Exp $
 	// Copyright (C) 2003-2006 PukiWiki Developers Team
 	// License: GPL v2 or (at your option) any later version
 	//

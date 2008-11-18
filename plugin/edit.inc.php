@@ -1,6 +1,6 @@
 <?php
 // PukiWiki - Yet another WikiWikiWeb clone.
-// $Id: edit.inc.php,v 1.62 2008/10/09 08:19:20 nao-pon Exp $
+// $Id: edit.inc.php,v 1.63 2008/11/18 04:10:40 nao-pon Exp $
 // Copyright (C) 2001-2006 PukiWiki Developers Team
 // License: GPL v2 or (at your option) any later version
 //
@@ -356,7 +356,7 @@ EOD;
 	
 		// Collision Detection
 		$oldpagesrc = $this->func->get_source($page, TRUE, TRUE);
-		$oldpagemd5 = md5($oldpagesrc);
+		$oldpagemd5 = $this->func->get_digests($oldpagesrc);
 		if ($digest != $oldpagemd5) {
 			$this->root->vars['digest'] = $oldpagemd5; // Reset
 			unset($this->root->vars['paraid']); // 更新が衝突したら全文編集に切り替え

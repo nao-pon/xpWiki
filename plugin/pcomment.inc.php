@@ -1,6 +1,6 @@
 <?php
 // PukiWiki - Yet another WikiWikiWeb clone
-// $Id: pcomment.inc.php,v 1.15 2008/10/31 07:11:47 nao-pon Exp $
+// $Id: pcomment.inc.php,v 1.16 2008/11/18 04:10:40 nao-pon Exp $
 //
 // pcomment plugin - Show/Insert comments into specified (another) page
 //
@@ -279,7 +279,7 @@ EOD;
 			$count    = count($postdata);
 	
 			$digest = isset($this->root->vars['digest']) ? $this->root->vars['digest'] : '';
-			if (md5(join('', $postdata)) != $digest) {
+			if ($this->func->get_digests(join('', $postdata)) != $digest) {
 				$ret['msg']  = $this->root->_pcmt_messages['title_collided'];
 				$ret['body'] = $this->root->_pcmt_messages['msg_collided'];
 			}
@@ -399,9 +399,9 @@ EOD;
 		$data = $this->func->get_source($page);
 		$data = preg_replace('/^#pcomment\(?.*/i', '', $data);	// Avoid eternal recurse
 	
-		if (! is_array($data)) return array('', 0);
+		if (! $data) return array('', 0);
 	
-		$digest = md5(join('', $data));
+		$digest = $this->func->get_digests(join('', $data));
 	
 		// Get latest N comments
 		$num  = $cnt     = 0;

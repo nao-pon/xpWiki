@@ -2,7 +2,7 @@
 /////////////////////////////////////////////////
 // PukiWiki - Yet another WikiWikiWeb clone.
 //
-// $Id: addline.inc.php,v 1.4 2008/11/17 02:34:23 nao-pon Exp $
+// $Id: addline.inc.php,v 1.5 2008/11/18 04:10:40 nao-pon Exp $
 //
 /* 
 *プラグイン addline
@@ -223,7 +223,7 @@ EOD;
 	
 		$title = $this->root->_title_updated;
 		$body = '';
-		if (md5(@join('',$postdata_old)) != $this->root->vars['digest'])
+		if ($this->func->get_digests(@join('',$postdata_old)) != $this->root->vars['digest'])
 		{
 			$title = $this->msg['title_collided'];
 			$body  = $this->msg['msg_collided'] . $this->func->make_pagelink($refer);

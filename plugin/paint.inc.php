@@ -5,7 +5,7 @@ class xpwiki_plugin_paint extends xpwiki_plugin {
 
 	// PukiWiki - Yet another WikiWikiWeb clone
 	//
-	// $Id: paint.inc.php,v 1.2 2008/11/17 02:34:23 nao-pon Exp $
+	// $Id: paint.inc.php,v 1.3 2008/11/18 04:10:40 nao-pon Exp $
 	//
 	// Paint plugin
 	
@@ -264,7 +264,7 @@ EOD;
 		}
 	
 		// 更新の衝突を検出
-		if (md5(join('',$postdata_old)) != $this->root->vars['digest'])
+		if ($this->func->get_digests(join('',$postdata_old)) != $this->root->vars['digest'])
 		{
 			$ret['msg'] = $this->root->_paint_messages['msg_title_collided'];
 			$ret['body'] = $this->root->_paint_messages['msg_collided'];

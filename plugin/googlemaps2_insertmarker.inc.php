@@ -83,7 +83,7 @@ class xpwiki_plugin_googlemaps2_insertmarker extends xpwiki_plugin {
 	
 		$title = $this->root->_title_updated;
 		$body = '';
-		if (md5(@join('', $this->func->get_source($this->root->vars['refer']))) != $this->root->vars['digest']) {
+		if ($this->func->get_digests($this->func->get_source($this->root->vars['refer'], TRUE, TRUE)) != $this->root->vars['digest']) {
 			$title = $this->root->_title_comment_collided;
 			$body  = $this->root->_msg_comment_collided . $this->func->make_pagelink($this->root->vars['refer']);
 		}
