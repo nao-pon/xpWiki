@@ -1,7 +1,7 @@
 <?php
 //
 // Created on 2006/10/02 by nao-pon http://hypweb.net/
-// $Id: xpwiki_func.php,v 1.196 2008/11/17 02:34:24 nao-pon Exp $
+// $Id: xpwiki_func.php,v 1.197 2008/11/18 04:10:40 nao-pon Exp $
 //
 class XpWikiFunc extends XpWikiXoopsWrapper {
 
@@ -2113,7 +2113,15 @@ EOD;
 		}
 		return $match[1] . $match[2];
 	}
-
+	
+	function get_digests ($src) {
+		if (is_array($src)) {
+			$src = join('', $src);
+		}
+		$src = $this->remove_pginfo($src);
+		return md5($src);
+	}
+	
 /*----- DB Functions -----*/ 
 	// Over write pukiwiki_func
 	function is_freeze($page, $clearcache = FALSE) {

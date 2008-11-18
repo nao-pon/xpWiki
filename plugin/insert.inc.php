@@ -3,7 +3,7 @@ class xpwiki_plugin_insert extends xpwiki_plugin {
 	function plugin_insert_init () {
 
 
-	// $Id: insert.inc.php,v 1.5 2008/11/17 02:34:23 nao-pon Exp $
+	// $Id: insert.inc.php,v 1.6 2008/11/18 04:10:40 nao-pon Exp $
 	//
 	// Text inserting box plugin
 	
@@ -42,7 +42,7 @@ class xpwiki_plugin_insert extends xpwiki_plugin {
 		$postdata_input = $insert . "\n";
 	
 		$body = '';
-		if (md5($this->func->get_source($this->root->vars['refer'], TRUE, TRUE)) !== $this->root->vars['digest']) {
+		if ($this->func->get_digests($this->func->get_source($this->root->vars['refer'], TRUE, TRUE)) !== $this->root->vars['digest']) {
 			$title = $this->root->_title_collided;
 			$body = $this->root->_msg_collided . "\n";
 	

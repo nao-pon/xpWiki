@@ -3,7 +3,7 @@ class xpwiki_plugin_article extends xpwiki_plugin {
 	function plugin_article_init () {
 
 
-	// $Id: article.inc.php,v 1.8 2008/11/17 02:34:23 nao-pon Exp $
+	// $Id: article.inc.php,v 1.9 2008/11/18 04:10:40 nao-pon Exp $
 	// Copyright (C)
 	//   2002-2005 PukiWiki Developers Team
 	//   2002      Originally written by OKAWARA,Satoshi <kawara@dml.co.jp>
@@ -95,7 +95,7 @@ class xpwiki_plugin_article extends xpwiki_plugin {
 		$postdata_input = $article . "\n";
 		$body = '';
 	
-		if (md5($this->func->get_source($this->root->post['refer'], TRUE, TRUE)) !== $this->root->post['digest']) {
+		if ($this->func->get_digests($this->func->get_source($this->root->post['refer'], TRUE, TRUE)) !== $this->root->post['digest']) {
 			$title = $this->root->_title_collided;
 	
 			$body = $this->root->_msg_collided . "\n";
