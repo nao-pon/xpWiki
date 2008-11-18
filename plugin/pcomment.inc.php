@@ -1,6 +1,6 @@
 <?php
 // PukiWiki - Yet another WikiWikiWeb clone
-// $Id: pcomment.inc.php,v 1.16 2008/11/18 04:10:40 nao-pon Exp $
+// $Id: pcomment.inc.php,v 1.17 2008/11/18 07:45:02 nao-pon Exp $
 //
 // pcomment plugin - Show/Insert comments into specified (another) page
 //
@@ -18,22 +18,14 @@
 
 class xpwiki_plugin_pcomment extends xpwiki_plugin {
 	function plugin_pcomment_init () {
-
 		// Default recording page name (%s = $vars['page'] = original page name)
-		switch ($this->cont['LANG']) {
-		case 'ja':
-			$this->conf['PAGE'] =  '[[コメント/%s]]';
-			$this->conf['NEW_TITLE'] =  '[[<_REFER_>]]のコメント一覧';
-			$this->conf['NOW_COMMENT'] = '最新コメント';
-			$this->conf['LOG_TITLE'] =  '過去ログ';
-			break;
-		default:
-			$this->conf['PAGE'] =  '[[Comments/%s]]';
-			$this->conf['NEW_TITLE'] =  'Comments of [[<_REFER_>]]';
-			$this->conf['NOW_COMMENT'] = 'Current';
-			$this->conf['LOG_TITLE'] =  'Old Log';
-			break;
-		}
+
+		$this->load_language($this->cont['LANG']);
+
+		$this->conf['PAGE'] = $this->msg['PAGE'];
+		$this->conf['NEW_TITLE'] = $this->msg['NEW_TITLE'];
+		$this->conf['NOW_COMMENT'] = $this->msg['NOW_COMMENT'];
+		$this->conf['LOG_TITLE'] = $this->msg['LOG_TITLE'];
 		
 		$this->conf['NUM_COMMENTS'] =      10; // Default 'latest N posts'
 		$this->conf['DIRECTION_DEFAULT'] =  1; // 1: above 0: below
