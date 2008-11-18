@@ -1,7 +1,7 @@
 <?php
 //
 // Created on 2006/10/05 by nao-pon http://hypweb.net/
-// $Id: plugin.php,v 1.15 2008/10/11 00:46:25 nao-pon Exp $
+// $Id: plugin.php,v 1.16 2008/11/18 07:46:08 nao-pon Exp $
 //
 
 
@@ -25,12 +25,12 @@ class xpwiki_plugin {
 	}
 	
 	// 言語ファイルの読み込み
-	function load_language () {
+	function load_language ($setlang = '') {
 		if (! $this->language_loaded) {
 			$this->language_loaded = TRUE;
 			$this->msg = array();
 			
-			$uilang = $this->cont['UI_LANG'] . $this->cont['FILE_ENCORD_EXT'];
+			$uilang = ($setlang? $setlang : $this->cont['UI_LANG']) . $this->cont['FILE_ENCORD_EXT'];
 			
 			$isOfficial = in_array($uilang, $this->cont['OFFICIAL_LANGS']);
 			if (! $isOfficial) {
