@@ -1,7 +1,7 @@
 <?php
 /*
  * Created on 2007/05/13 by nao-pon http://hypweb.net/
- * $Id: setup.php,v 1.6 2008/03/14 02:54:01 nao-pon Exp $
+ * $Id: setup.php,v 1.7 2008/11/18 00:30:53 nao-pon Exp $
  */
 
 $ng = $out = '';
@@ -134,6 +134,21 @@ if (@ $myhtml_version < 3) {
 		'private/wiki/.cvsignore',
 		'skin/pukiwiki/pukiwiki.skin.php',
 		'skin/xpwiki/pukiwiki.skin.php',
+	);
+	
+	files_copy ($base, $trust, $rmfiles, $mkdirs, $cpfiles);
+}
+
+// VerUP to 4
+if (@ $myhtml_version < 4) {
+
+	$base = $mydirpath . '/';
+	$trust = XOOPS_TRUST_PATH . '/modules/' . $mytrustdirname . '/ID/VerUp/4/';
+	$rmfiles = array();
+	$mkdirs = array();
+	$cpfiles = array(
+		'gate.php',
+		'mytrustdirname.php'
 	);
 	
 	files_copy ($base, $trust, $rmfiles, $mkdirs, $cpfiles);
