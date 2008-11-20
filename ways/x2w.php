@@ -2,7 +2,7 @@
 /*
  * Created on 2008/10/23 by nao-pon http://hypweb.net/
  * License: GPL v2 or (at your option) any later version
- * $Id: x2w.php,v 1.10 2008/11/17 01:11:49 nao-pon Exp $
+ * $Id: x2w.php,v 1.11 2008/11/20 05:32:14 nao-pon Exp $
  */
 
 //
@@ -109,16 +109,17 @@ class XHTML2Wiki
 		$this->body = '';
 		
 		$source = preg_replace('#(<BR[^>]*?>)\n#iS', '$1', $source);
+		$source = preg_replace('#(<P>&nbsp;</P>\s*)+$#iS', '', $source);
+		$source = preg_replace('#\s*<P>&nbsp;</P>\s*#iS', "\n<br class=\"block\" />\n", $source);
 		$source = preg_replace('#\s*(<(?:FORM|TABLE|TBODY|THEAD|TFOOT|TR|COLGROUP|P|DIV|H[1-6]|PRE|OL|UL|LI|DL|DT|DD|TD|TH|BLOCKQUOTE)[^>]*?>)#iS', "\n$1", $source);
 		$source = preg_replace('#(</(?:FORM|TABLE|TBODY|THEAD|TFOOT|TR|COLGROUP|P|DIV|H[1-6]|PRE|OL|UL|LI|DL|DT|DD|TD|TH|BLOCKQUOTE)>)\s*#iS', "$1\n", $source);
 		$source = preg_replace('#(<BLOCKQUOTE[^>]*?>)\s*#iS', "$1\n", $source);
 		$source = preg_replace('#\s*(</BLOCKQUOTE>)#iS', "\n$1", $source);
 		
 		//debug($source);
-
+		
 		// １行ずつに分割
 		$source = explode("\n", $source);
-		
 		
 		// 一行ずつ取り出し
 		foreach ($source as $line) {
@@ -212,6 +213,10 @@ class XHTML2Wiki
 				$this->OutputLine('----');
 			}
 		}
+		// 改行
+		else if (preg_match('/^<br[^>]*?class="block"[^>]*?>$/', $line, $matches)) {
+			$this->OutputLine("#br");
+		}
 		else {
 			switch ($this->GetDiv()) {
 				case 'OList':
@@ -249,8 +254,8 @@ class XHTML2Wiki
 				//$head = str_repeat("+", $this->GetLevel());
 				$head = str_repeat("+", $this->list_level);
 			}
-			if (empty($matches[1]) && empty($matches[4])) {
-				$this->Paragraph($line);
+			if (!$matches[1] && $matches[3]) {
+				$this->Paragraph($matches[3]);
 			}
 			else if ($head || $matches[3]) {
 				$this->OutputLine($head, $matches[3]);
@@ -271,11 +276,10 @@ class XHTML2Wiki
 		else if (preg_match("/^(<li([^>]*?)>)?(.*?)(<\/li>)?$/", $line, $matches)) {
 			$head = '';
 			if ($matches[1] && (empty($matches[2]) || strpos($matches[2], 'class="list_none"') === false)) {
-				//$head = str_repeat("-", $this->GetLevel());
 				$head = str_repeat("-", $this->list_level);
 			}
-			if (!$matches[1] && !$matches[4]) {
-				$this->Paragraph($line);
+			if (!$matches[1] && $matches[3]) {
+				$this->Paragraph($matches[3]);
 			}
 			else if ($head || $matches[3]) {
 				$this->OutputLine($head, $matches[3]);
@@ -667,12 +671,14 @@ class XHTML2Wiki
 	function Paragraph($line) {
 		$head = $this->list_level? '~' : '';
 		$align = '';
+		$p = false;
 		if (preg_match("/<(?:p|div)([^>]*)(?:text-align:\s*(left|center|right))([^>]*)>/", $line, $matches)) {
 			if (strpos($matches[1], 'class="ie5"') === false && strpos($matches[3], 'class="ie5"') === false) {
 				$align = strtoupper($matches[2]) . ':';
 			}
 		}
 		if (preg_match("/<(p|div)[^>]*>(.*)/", $line, $matches)) {
+			$p = true;
 			if (! $head && $matches[1] == 'p') {
 				$this->OutputLine();
 				if ($align === 'LEFT:') {
@@ -690,7 +696,19 @@ class XHTML2Wiki
 			}
 		}
 		else if ($line) {
-			$this->OutputLine($head, $line);
+			if ($p) {
+				$this->OutputLine($head, $line);
+			} else {
+				if ($this->list_level) {
+					if ($this->GetDiv() === 'UList') {
+						$this->OutputLine(str_repeat('-', $this->list_level));
+						$this->OutputLine($line);
+					} else if ($this->GetDiv() === 'OList') {
+						$this->OutputLine(str_repeat('+', $this->list_level));
+						$this->OutputLine($line);
+					}
+				}
+			}
 		}
 	}
 	
@@ -740,6 +758,7 @@ class XHTML2Wiki
 		}
 		// 改行
 		global $line_break;
+		$line = preg_replace('#<br[^>]*?class="inline"[^>]*?>#i', '&br;', $line);
 		if ($this->GetDiv() == "Heading" || $this->GetDiv() == "Table" || $this->span_level) {
 			$line = preg_replace("/<br[^>]*?>|<\/p>\s*<p[^>]*?>/", "&br;", $line);
 		}
@@ -748,6 +767,7 @@ class XHTML2Wiki
 		}
 		else {
 			$line = preg_replace("/<br[^>]*?>/", "~\n", $line);
+			$line = preg_replace('/ ?&zwnj;/', "\n", $line);
 		}
 		
 		// 無駄な改行を削除

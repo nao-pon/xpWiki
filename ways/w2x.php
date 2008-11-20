@@ -2,7 +2,7 @@
 /*
  * Created on 2008/10/23 by nao-pon http://hypweb.net/
  * License: GPL v2 or (at your option) any later version
- * $Id: w2x.php,v 1.7 2008/11/17 01:11:49 nao-pon Exp $
+ * $Id: w2x.php,v 1.8 2008/11/20 05:32:14 nao-pon Exp $
  */
 
 //
@@ -98,6 +98,7 @@ function Send_xml($body, $line_break)
 	$out .= '<res><![CDATA[' . $body . ']]></res>';
 	$out .= '<lb>' . $line_break . '</lb>';
 	$out .= '</data>';
+	
 	//	╫пно
 	header('Expires: Mon, 26 Jul 1997 05:00:00 GMT');
 	header('Last-Modified: '.gmdate('D, d M Y H:i:s').' GMT');
@@ -320,11 +321,6 @@ class InlineConverterEx {
 			$line = $this->make_link($line);
 		}
 		
-		if (preg_match("/^<br\s\/>$/", $line)) {
-			//$line .= "\n&nbsp;";
-			$line .= "\n";
-		}
-		
 		return $line;
 	}
 
@@ -388,7 +384,7 @@ class InlineConverterEx {
 			case 'aname':
 				return "<a name=\"$aryargs[0]\">$body</a>";
 			case 'br':
-				return "<br />";
+				return '<br class="inline" />';
 			case 'font':
 				$class = $style = "";
 				$color_type = true;
@@ -540,11 +536,10 @@ class ElementEx
 	function & add(& $obj)
 	{
 		if ($this->canContain($obj)) {
-			$ret = $this->insert($obj);
+			return $this->insert($obj);
 		} else {
-			$ret = $this->parent->add($obj);
+			return $this->parent->add($obj);
 		}
-		return $ret;
 	}
 
 	function & insert(& $obj)
@@ -552,8 +547,7 @@ class ElementEx
 		$obj->setParent($this);
 		$this->elements[] = & $obj;
 
-		$this->last = & $obj->last;
-		return $this->last;
+		return $this->last = & $obj->last;
 	}
 
 	function canContain($obj)
@@ -569,10 +563,12 @@ class ElementEx
 
 	function toString()
 	{
-		$ret = array();
-		foreach (array_keys($this->elements) as $key)
-			$ret[] = $this->elements[$key]->toString();
-		return join("\n", $ret);
+		$ret = '';
+		foreach ($this->elements as $value) {
+			if ($ret !== '') $ret .= "\n";
+			$ret .= $value->toString();
+		}
+		return $ret;
 	}
 
 	function dump($indent = 0)
@@ -687,7 +683,7 @@ class InlineEx extends ElementEx
 	function toString()
 	{
 		global $line_break;
-		return join(($line_break ? '<br />' . "\n" : "\n"), $this->elements);
+		return join(($line_break ? '<br />' . "\n" : "\n&zwnj;"), $this->elements);
 	}
 
 	function & toPara($class = '')
@@ -754,8 +750,7 @@ class HeadingEx extends ElementEx
 	function & insert(& $obj)
 	{
 		parent::insert($obj);
-		$this->last = & $this;
-		return $this->last;
+		return $this->last = & $this;
 	}
 
 	function canContain(& $obj)
@@ -1631,7 +1626,7 @@ class DivEx extends ElementEx
 		$styles = array();
 		switch ($this->name) {
 			case 'br':
-				return "<br />\n&nbsp;";
+				return '<p>&nbsp;</p>';
 			case 'hr':
 				return '<hr class="short_line" />';
 			case 'ref':
@@ -1710,71 +1705,91 @@ class BodyEx extends ElementEx
 		$last_level = 0;
 		
 		while (! empty($lines)) {
-			$line = array_shift($lines);
+			$line = rtrim(array_shift($lines), "\r\n");
+
+			// Empty
+			if ($line === '') {
+				$this->last = & $this;
+				$last_level = 0;
+				continue;
+			}
 			
 			// Escape comments
 			//if (substr($line, 0, 2) == '//') continue;
 
-			if (preg_match('/^(LEFT|CENTER|RIGHT):(.*)$/', $line, $matches)) {
-				// <div style="text-align:...">
-				$this->last = & $this->last->add(new AlignEx(strtolower($matches[1])));
-				if ($matches[2] == '') continue;
-				$line = $matches[2];
-			}
+			// The first character
+			$head = $line[0];
 
-			$line = rtrim($line, "\r\n");
+			// LEFT, CENTER, RIGHT
+			if ($head === 'R' || $head === 'C' || $head === 'L') {
 
-			// Empty
-			if ($line == '') {
-				$this->last = & $this;
-				continue;
-			}
-
-			// Horizontal Rule
-			//if (substr($line, 0, 4) == '----') {
-			if (preg_match('/-{4,}$/', $line)) {
-				$this->insert(new HRuleEx($this, $line));
-				continue;
-			}
-
-			// Multiline-enabled block plugin
-			if (! PKWKEXP_DISABLE_MULTILINE_PLUGIN_HACK &&
-			    preg_match('/^#[^{]+(\{\{+)\s*$/', $line, $matches)) {
-				$len = strlen($matches[1]);
-				$line .= "\r"; // Delimiter
-				while (! empty($lines)) {
-					$next_line = preg_replace("/[\r\n]*$/", '', array_shift($lines));
-					if (preg_match('/\}{' . $len . '}/', $next_line)) {
-						$line .= $next_line;
-						break;
-					} else {
-						$line .= $next_line .= "\r"; // Delimiter
+				if (preg_match('/^(LEFT|CENTER|RIGHT):(.*)$/', $line, $matches)) {
+					// <div style="text-align:...">
+					$this->last = & $this->last->add(new AlignEx(strtolower($matches[1])));
+					if ($matches[2] === '') {
+						$last_level = 0;
+						continue;
 					}
+					$line = $matches[2];
+					$head = $line[0];
 				}
 			}
+			
+			switch ($head) {
 
-			// The first character
-			$head = $line{0};
+			// Horizontal Rule
+			case '-':
+				if (preg_match('/-{4,}$/', $line)) {
+					$this->insert(new HRuleEx($this, $line));
+					$last_level = 0;
+					continue 2;
+				}
+				break;
+
+			// Multiline-enabled block plugin
+			case '#':
+				if (! PKWKEXP_DISABLE_MULTILINE_PLUGIN_HACK &&
+				    preg_match('/^#[^{]+(\{\{+)\s*$/', $line, $matches)) {
+					$len = strlen($matches[1]);
+					$line .= "\r"; // Delimiter
+					while (! empty($lines)) {
+						$next_line = preg_replace("/[\r\n]*$/", '', array_shift($lines));
+						if (preg_match('/\}{' . $len . '}/', $next_line)) {
+							$line .= $next_line;
+							break;
+						} else {
+							$line .= $next_line .= "\r"; // Delimiter
+						}
+					}
+				}
+				break;
 
 			// HeadingEx
-			if ($head == '*') {
+			case '*':
 				$this->insert(new HeadingEx($this, $line));
-				continue;
-			}
+				$last_level = 0;
+				continue 2;
+				break;
 
 			// PreEx
-			if ($head == ' ' || $head == "\t") {
+			case ' ':
+			case "\t":
 				$this->last = & $this->last->add(new PreEx($this, $line));
-				continue;
-			}
+				$last_level = 0;
+				continue 2;
+				break;
 
 			// <, <<, <<< only to escape blockquote.
-			if ($head === '<' && ! preg_match('/^<{1,3}\s*$/', $line)) {
-				$head = '';
+			case '<':
+				if ($head === '<' && ! preg_match('/^<{1,3}\s*$/', $line)) {
+					$head = '';
+				}
+				break;
+			
 			}
 			
 			// Line Break
-			if (substr($line, -1) == '~')
+			if (substr($line, -1) === '~')
 				$line = substr($line, 0, -1) . "\r";
 			
 			// Other Character
@@ -1797,11 +1812,13 @@ class BodyEx extends ElementEx
 			if (isset($this->factories[$head])) {
 				$factoryname = 'Factory_' . $this->factories[$head];
 				$this->last  = & $this->last->add($factoryname($this, $line));
+				$last_level = 0;
 				continue;
 			}
 
 			// Default
 			$this->last = & $this->last->add(Factory_InlineEx($line));
+			$last_level = 0;
 		}
 	}
 
