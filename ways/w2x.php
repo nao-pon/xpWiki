@@ -2,7 +2,7 @@
 /*
  * Created on 2008/10/23 by nao-pon http://hypweb.net/
  * License: GPL v2 or (at your option) any later version
- * $Id: w2x.php,v 1.8 2008/11/20 05:32:14 nao-pon Exp $
+ * $Id: w2x.php,v 1.9 2008/11/20 12:10:40 nao-pon Exp $
  */
 
 //
@@ -588,10 +588,10 @@ class ElementEx
 function & Factory_InlineEx($text)
 {
 	// Check the first letter of the line
-	if (substr($text, 0, 1) == '~') {
-		$ret = new ParagraphEx(' ' . substr($text, 1));
+	if (substr($text, 0, 1) === '~') {
+		$ret = & new ParagraphEx(' ' . substr($text, 1));
 	} else {
-		$ret = new InlineEx($text);
+		$ret = & new InlineEx($text);
 	}
 	return $ret;
 }
@@ -602,7 +602,7 @@ function & Factory_DListEx(& $root, $text)
 	if (count($out) < 2) {
 		$ret = Factory_InlineEx($text);
 	} else {
-		$ret = new DListEx($out);
+		$ret = & new DListEx($out);
 	}
 	return $ret;
 }
@@ -613,7 +613,7 @@ function & Factory_TableEx(& $root, $text)
 	if (! preg_match('/^\|(.+)\|([hHfFcC]?)$/', $text, $out)) {
 		$ret = Factory_InlineEx($text);
 	} else {
-		$ret = new TableEx($out);
+		$ret = & new TableEx($out);
 	}
 	return $ret;
 }
@@ -624,7 +624,7 @@ function & Factory_YTableEx(& $root, $text)
 	if ($text == ',') {
 		$ret = Factory_InlineEx($text);
 	} else {
-		$ret = new YTableEx(csv_explode(',', substr($text, 1)));
+		$ret = & new YTableEx(csv_explode(',', substr($text, 1)));
 	}
 	return $ret;
 }
@@ -637,7 +637,7 @@ function & Factory_DivEx(& $root, $text)
 	if (PKWKEXP_DISABLE_MULTILINE_PLUGIN_HACK) {
 		// Usual code
 		if (preg_match('/^\#([^\(]+)(?:\((.*)\))?/', $text, $matches)) {
-			$ret = new DivEx($matches);
+			$ret = & new DivEx($matches);
 			return $ret;
 		}
 	} else {
@@ -646,16 +646,16 @@ function & Factory_DivEx(& $root, $text)
 			$len  = strlen($matches[3]);
 			$body = array();
 			if ($len == 0) {
-				$ret = new DivEx($matches); // Seems legacy block plugin
+				$ret = & new DivEx($matches); // Seems legacy block plugin
 			} else if (preg_match('/\{{' . $len . '}\s*\r(.*)\r\}{' . $len . '}/', $text, $body)) { 
 				$matches[3] .= "\r" . $body[1] . "\r" . str_repeat('}', $len);
-				$ret = new DivEx($matches); // Seems multiline-enabled block plugin
+				$ret = & new DivEx($matches); // Seems multiline-enabled block plugin
 			}
 			return $ret;
 		}
 	}
 
-	$ret = new ParagraphEx($text);
+	$ret = & new ParagraphEx($text);
 	return $ret;
 }
 
@@ -822,14 +822,15 @@ class ListContainerEx extends ElementEx
 		
 		parent::insert(new ListElementEx($this->level, $tag2, $style));
 
-		if ($text != '')
+		if ($text !== '') {
 			$this->last = & $this->last->insert(Factory_InlineEx($text));
+		}
 	}
 
 	function canContain(& $obj)
 	{
 		return (! is_a($obj, 'ListContainerEx')
-			|| ($this->tag == $obj->tag && $this->level == $obj->level));
+			|| ($this->tag === $obj->tag && $this->level === $obj->level));
 	}
 
 	function setParent(& $parent)
@@ -843,7 +844,7 @@ class ListContainerEx extends ElementEx
 			$step -= $parent->parent->level;
 
 		$margin = $this->margin * $step;
-		if ($step == $this->level)
+		if ($step === $this->level)
 			$margin += $this->left_margin;
 
 		$this->style = sprintf($_list_pad_str, $this->level, $margin, $margin);
@@ -855,13 +856,14 @@ class ListContainerEx extends ElementEx
 			return $this->last = & $this->last->insert($obj);
 
 		// Break if no elements found (BugTrack/524)
-		if (count($obj->elements) == 1 && empty($obj->elements[0]->elements))
+		if (count($obj->elements) === 1 && empty($obj->elements[0]->elements))
 			return $this->last->parent; // up to ListElementEx
 
 		// Move elements
-		foreach(array_keys($obj->elements) as $key)
+		foreach(array_keys($obj->elements) as $key) {
 			parent::insert($obj->elements[$key]);
-
+		}
+		
 		return $this->last;
 	}
 
@@ -1278,6 +1280,10 @@ class TableEx extends ElementEx
 		$this->types = array($this->type);
 		$is_template = ($this->type == 'c');
 		
+		$this->table_style = '';
+		$this->table_sheet = '';
+		$this->div_style = '';
+
 		if ($xpwiki->root->extended_table_format && $is_template) {
 			$cells[0] = $this->get_table_style($cells[0]);
 		}
