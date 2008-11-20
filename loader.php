@@ -1,7 +1,7 @@
 <?php
 //
 // Created on 2006/10/25 by nao-pon http://hypweb.net/
-// $Id: loader.php,v 1.54 2008/11/13 00:30:22 nao-pon Exp $
+// $Id: loader.php,v 1.55 2008/11/20 05:10:27 nao-pon Exp $
 //
 
 ignore_user_abort(FALSE);
@@ -40,7 +40,7 @@ $length = $addtime = 0;
 $face_remake = $replace = false;
 $root_path = dirname($skin_dirname);
 $cache_path = $root_path.'/private/cache/';
-$face_tag_ver = 1.1;
+$face_tag_ver = 1.2;
 $method = empty($_SERVER['REQUEST_METHOD'])? 'GET' : strtoupper($_SERVER['REQUEST_METHOD']);
 $pre_id = '';
 $js_replaces = array();
@@ -338,6 +338,7 @@ if ($type === 'js' || $type === 'css' || is_file($src_file)) {
 		}
 		if ($type === 'js') {
 			$out = '';
+			$xpwiki = null;
 			foreach($src_file as $_src => $_file) {
 				$_out = file_get_contents($_file) . "\n";
 				if ($_src === 'main') {
@@ -358,7 +359,7 @@ if ($type === 'js' || $type === 'css' || is_file($src_file)) {
 						}
 					}
 					if ($face_remake) {
-						list($face_tag, $face_tag_full, $_face_tag_ver, $fck_smileys) = xpwiki_make_facemarks ($skin_dirname, $face_cache, $face_tag_ver);
+						list($face_tag, $face_tag_full, $_face_tag_ver, $fck_smileys) = xpwiki_make_facemarks ($xpwiki, $skin_dirname, $face_cache, $face_tag_ver);
 					}
 					$ieDomLoadedDisabled = $xpwiki->root->ieDomLoadedDisabled? 'true' : 'false';
 					$UseWikihelperAtAll = $xpwiki->root->render_UseWikihelperAtAll? 'true' : 'false';
@@ -452,9 +453,7 @@ if ($type === 'js' || $type === 'css' || is_file($src_file)) {
 	exit();
 }
 
-function xpwiki_make_facemarks ($skin_dirname, $cache, $face_tag_ver) {
-	include_once XOOPS_TRUST_PATH."/modules/xpwiki/include.php";
-	$wiki =& XpWiki::getInitedSingleton( basename(dirname($skin_dirname)) );
+function xpwiki_make_facemarks (& $wiki, $skin_dirname, $cache, $face_tag_ver) {
 	$fck_face = $tags_full = $tags = array();
 	foreach($wiki->root->wikihelper_facemarks as $key => $img) {
 		$key = htmlspecialchars($key, ENT_QUOTES);
