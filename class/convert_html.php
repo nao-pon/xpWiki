@@ -602,6 +602,10 @@ class XpWikiTable extends XpWikiElement {
 		$this->types = array ($this->type);
 		$is_template = ($this->type === 'c');
 		
+		$this->table_style = '';
+		$this->table_sheet = '';
+		$this->div_style = '';
+
 		if ($this->root->extended_table_format && $is_template) {
 			$cells[0] = $this->get_table_style($cells[0]);
 		}
