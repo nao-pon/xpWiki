@@ -4,7 +4,7 @@
 //
 //
 // ref.inc.php,v 1.20をベースに作成
-// $Id: exifshowcase.inc.php,v 1.3 2008/11/17 02:34:23 nao-pon Exp $
+// $Id: exifshowcase.inc.php,v 1.4 2008/11/22 00:07:50 nao-pon Exp $
 //
 
 /*
@@ -317,7 +317,7 @@ EOD;
 	
 					if ( !$params['nokash'] ) {
 						$lml = "<a href=\"http://lml.kashmir3d.com/getlml?".
-						MakeLMLURL($lar,$lad,$lam,$las,$lor,$lod,$lom,$los,$datum).
+						$this->MakeLMLURL($lar,$lad,$lam,$las,$lor,$lod,$lom,$los,$datum).
 						"&amp;icon=915001&amp;name={$aname}&amp;url=http://{$_SERVER['HTTP_HOST']}{$_SERVER['PHP_SELF']}".rawurlencode($url)."\"><img src=\"".$this->config['KASH_ICON']."\" alt=\"kashmir3d\" /></a>";
 					}
 	
