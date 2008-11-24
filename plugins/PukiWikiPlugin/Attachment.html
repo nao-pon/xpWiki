@@ -42,7 +42,6 @@ window.onload = function ()
 	LoadSelected();
 	
 	window.parent.SetOkButton(true);
-	window.parent.SetAutoSize(true);
 	
 	var insName = oEditor.FCK.Name;
 	if (insName) {
@@ -50,6 +49,8 @@ window.onload = function ()
 	}
 	window.parent.document.getElementById('btnOk').disabled = false;
 	window.parent.document.getElementById('btnCancel').disabled = false;
+
+	setTimeout(function(){window.parent.SetAutoSize(true)}, 100);
 };
 
 window.onunload = function ()
