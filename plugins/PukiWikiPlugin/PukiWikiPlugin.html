@@ -51,7 +51,7 @@ window.onload = function ()
 	
 	// Show the "Ok" button.
 	window.parent.SetOkButton(true);
-	window.parent.SetAutoSize(true);
+	setTimeout(function(){window.parent.SetAutoSize(true)}, 100);
 }
 
 function BuildPluginSelect() {
@@ -97,11 +97,11 @@ function BuildPluginSelect() {
 
 function SetPluginSelect() {
 	if (GetE('div').checked) {
-		GetE('plugin_select').innerHTML = blocks;
+		GetE('pluginSelect').innerHTML = '<select onchange="OnNameSelect(this)">' + blocks + '</select>';
 		GetE('argblock').style.display = '';
 		GetE('arginline').style.display = 'none';
 	} else {
-		GetE('plugin_select').innerHTML = inlines;
+		GetE('pluginSelect').innerHTML = '<select onchange="OnNameSelect(this)">' + inlines + '</select>';
 		GetE('argblock').style.display = 'none';
 		GetE('arginline').style.display = '';
 	}
@@ -250,10 +250,12 @@ function HTMLDecode(text) {
 						<tr>
 							<td valign="top" nowrap="nowrap"><span fckLang="PukiWikiPluginDlgName">Plugin Name</span>:</td>
 							<td>
-								<select onchange="OnNameSelect(this)" id="plugin_select">
-									<option fckLang="PukiWikiPluginDlgSelect"></option>
-									<option fckLang="PukiWikiPluginDlgLoading">Now loading...</option>
-								</select><br>
+								<div id="pluginSelect">
+									<select onchange="OnNameSelect(this)">
+										<option fckLang="PukiWikiPluginDlgSelect"></option>
+										<option fckLang="PukiWikiPluginDlgLoading">Now loading...</option>
+									</select>
+								</div>
 								<input id="name" type="text" style="width: 100%" onkeyup="SetUsage()">
 							</td>
 						</tr>
