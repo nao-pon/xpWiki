@@ -95,6 +95,7 @@ div.xpwikiWrapBtn {
 	width: auto;
 	font-size: 11px;
 	margin-top: 2px;
+	margin-right: 1px;
 	padding: 3px;
 	border: 1px solid gray;
 	cursor: pointer;
@@ -105,6 +106,7 @@ div.xpwikiFckBtn {
 	width: auto;
 	font-size: 11px;
 	margin-top: 2px;
+	margin-right: 1px;
 	padding: 3px;
 	border: 1px solid gray;
 	cursor: pointer;

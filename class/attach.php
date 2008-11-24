@@ -1,7 +1,7 @@
 <?php
 /*
  * Created on 2008/03/24 by nao-pon http://hypweb.net/
- * $Id: attach.php,v 1.11 2008/11/17 02:34:24 nao-pon Exp $
+ * $Id: attach.php,v 1.12 2008/11/24 02:07:39 nao-pon Exp $
  */
 
 //-------- епеще╣
@@ -714,7 +714,7 @@ class XpWikiAttachFiles
 		$pcmd = ($mode == "imglist")? "imglist" : "list";
 		$pcmd2 = ($mode == "imglist")? "list" : "imglist";
 		
-		$otherkeys = array('cols', 'max', 'popup', 'base', 'mode');
+		$otherkeys = array('cols', 'max', 'popup', 'base', 'mode', 'winop');
 		$otherparm = '';
 		$otherprams = array();
 		foreach($otherkeys as $key) {
@@ -860,7 +860,11 @@ class XpWikiAttachFiles
 <!--
 function xpwiki_file_selector_change(page) {
 	if (page) {
-		parent.XpWiki.PopupBodyUrl = parent.$('XpWikiPopupBody').src = parent.XpWiki.PopupBodyUrl.replace(/&refer=[^&]+/, '&refer=' + encodeURIComponent(page));
+		if (XpWiki.isIE6) {
+			opener.window.XpWiki.PopupBodyUrl = location.href = location.href.replace(/&refer=[^&]+/, '&refer=' + encodeURIComponent(page));
+		} else {
+			parent.XpWiki.PopupBodyUrl = parent.$('XpWikiPopupBody').src = parent.XpWiki.PopupBodyUrl.replace(/&refer=[^&]+/, '&refer=' + encodeURIComponent(page));
+		}
 	}
 }
 -->
