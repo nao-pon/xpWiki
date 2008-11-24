@@ -1,6 +1,6 @@
 //
 // Created on 2007/10/03 by nao-pon http://hypweb.net/
-// $Id: resizable.js,v 1.11 2008/11/06 23:21:23 nao-pon Exp $
+// $Id: resizable.js,v 1.12 2008/11/24 02:07:40 nao-pon Exp $
 //
 
 var Resizable = Class.create();
@@ -114,7 +114,7 @@ Resizable.prototype = {
 			overflow = 'visible';
 			maxHeight = 'none';
 			maxWidth = 'none';
-			marginBottom = '2em';
+			marginBottom = '5px';
 			marginRight = '5px';
 		}
 		if (!!this.elem.getStyle) {
@@ -152,22 +152,24 @@ Resizable.prototype = {
 		if (!mode) mode = 'xy';
 
 		// cover for event
-		var cover = document.createElement('div');
-		cover.id =  this.base.id + '_resizeC';
-		Element.setStyle(cover,{
-			position: 'absolute',
-			display: 'none',
-			top: '0px',
-			left: '0px',
-			margin: '0px',
-			padding: '0px',
-			overflow: 'hidden',
-			border: 'none',
-			width: '100%',
-			height: '100%',
-			zIndex: '10000'
-		});
-		this.base.appendChild(cover);
+		if (! $(this.base.id + '_resizeC')) {
+			var cover = document.createElement('div');
+			cover.id =  this.base.id + '_resizeC';
+			Element.setStyle(cover,{
+				position: 'absolute',
+				display: 'none',
+				top: '0px',
+				left: '0px',
+				margin: '0px',
+				padding: '0px',
+				overflow: 'hidden',
+				border: 'none',
+				width: '100%',
+				height: '100%',
+				zIndex: '10000'
+			});
+			this.base.appendChild(cover);
+		}
 		
 		if (mode == 'x' ) {
 			this.elem.style.maxWidth = (Prototype.Browser.WebKit)? '100%' : 'none';
