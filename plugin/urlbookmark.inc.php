@@ -1,5 +1,5 @@
 <?php
-// $Id: urlbookmark.inc.php,v 1.9 2008/11/18 04:10:40 nao-pon Exp $
+// $Id: urlbookmark.inc.php,v 1.10 2008/11/26 23:41:01 nao-pon Exp $
 
 /*
  * PukiWiki urlbookmark プラグイン
@@ -214,7 +214,7 @@ EOD;
 		
 		$buf = preg_replace('/[\x00\r\n]+/', '', $data);
 		
-		if (preg_match('/<title(?:\s+[^>]+)*>(.+)<\/title\s*>/i', $buf, $tmpary)) {
+		if (preg_match('/<title[^>]*>(.+?)<\/title>/i', $buf, $tmpary)) {
 			$title = trim($tmpary[1]);
 		} else {
 			$title = rawurldecode($url);
