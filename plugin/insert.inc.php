@@ -3,7 +3,7 @@ class xpwiki_plugin_insert extends xpwiki_plugin {
 	function plugin_insert_init () {
 
 
-	// $Id: insert.inc.php,v 1.6 2008/11/18 04:10:40 nao-pon Exp $
+	// $Id: insert.inc.php,v 1.7 2008/11/26 23:42:04 nao-pon Exp $
 	//
 	// Text inserting box plugin
 	
@@ -28,17 +28,15 @@ class xpwiki_plugin_insert extends xpwiki_plugin {
 		$postdata_old  = $this->func->get_source($this->root->vars['refer']);
 		$insert_no = 0;
 	
-	
 		foreach($postdata_old as $line) {
 			if (! $this->cont['INSERT_INS']) $postdata .= $line;
-			if (preg_match('/^#insert$/i', $line)) {
+			if (preg_match('/^#insert(?:\([^)]*\))?$/i', $line)) {
 				if ($insert_no == $this->root->vars['insert_no'])
 					$postdata .= $insert;
 				$insert_no++;
 			}
 			if ($this->cont['INSERT_INS']) $postdata .= $line;
 		}
-	
 		$postdata_input = $insert . "\n";
 	
 		$body = '';
@@ -98,8 +96,8 @@ EOD;
   <input type="hidden" name="refer"  value="$s_page" />
   <input type="hidden" name="plugin" value="insert" />
   <input type="hidden" name="digest" value="$s_digest" />
-  <textarea name="msg" rows="$s_rows" cols="$s_cols"></textarea><br />
-  <input type="submit" name="insert" value="{$this->root->_btn_insert}" />
+  <textarea name="msg" rows="$s_rows" cols="$s_cols"></textarea>
+  <div><input type="submit" name="insert" value="{$this->root->_btn_insert}" /></div>
  </div>
 </form>
 EOD;
