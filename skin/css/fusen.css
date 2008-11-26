@@ -1,4 +1,10 @@
 /* fusen.inc.php */
+$class div#fusen_container {
+	position: absolute;
+	top : 0;
+	left: 0;
+}
+
 $class div#fusen_area
 {
 	margin: 0px;
