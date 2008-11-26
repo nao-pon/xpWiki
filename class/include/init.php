@@ -1,7 +1,7 @@
 <?php
 //
 // Created on 2006/10/13 by nao-pon http://hypweb.net/
-// $Id: init.php,v 1.59 2008/11/18 04:10:40 nao-pon Exp $
+// $Id: init.php,v 1.60 2008/11/26 23:39:29 nao-pon Exp $
 //
 
 $root = & $this->root;
@@ -434,19 +434,11 @@ if (isset($const['page_show'])) {
 		if (isset($_SERVER['PATH_INFO']) && $_SERVER['PATH_INFO'] !== '') {
 			$arg = trim($_SERVER['PATH_INFO'], '/');
 		} else {
-			// word=
-			$arg = preg_replace('/(?:^|&)word=[^&]*/', '', $arg);
-			// Remove session_name
-			$arg = preg_replace('/(?:^|&)' . preg_quote(session_name(), '/') . '=[^&]*/', '', $arg);
-			if (HypCommonFunc::get_version() < '20080925') {
-				// K_TAI Render "_p_" (page numbar)
-				$arg = preg_replace('/(?:^|&)_p_=[^&]*/', '', $arg);
-				// K_TAI Render "_h_" (hash key)
-				$arg = preg_replace('/(?:^|&)_h_=[^&]*/', '', $arg);
-			}
+			// Remove any "[key]=[val]"
+			$arg = preg_replace('/(?:^|&)[^&=]+=[^&]*/i', '', $arg);
 			// "&" °Ê¹ß¤òºï½ü
 			$arg = preg_replace('/&.*$/', '', $arg);
-			// 
+			
 			$arg = rawurldecode($arg);
 		}
 
