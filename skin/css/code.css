@@ -1,32 +1,33 @@
+@charset "UTF-8"; 
 /**
  * PukiWiki Plugin Code highlight
  *
  */
 
-/* ¥ª¥Ú¥ì¡¼¥¿ */
+/* ã‚ªãƒšãƒ¬ãƒ¼ã‚¿ */
 $class span.code_operator {color: blue;}
-/* ¼±ÊÌ»Ò */
+/* è­˜åˆ¥å­ */
 $class span.code_identifier {color: darkblue;}
 
-/* À©¸æ¹½Ê¸ */
+/* åˆ¶å¾¡æ§‹æ–‡ */
 $class span.code_control  {color: navy;}
-/* É¸½à´Ø¿ô */
+/* æ¨™æº–é–¢æ•° */
 $class span.code_function {color: blue;}
-/* Äê¿ô */
+/* å®šæ•° */
 $class span.code_constant {color: teal;}
 
-/* module, import, ¾­ÍèÂĞ±ş¤¹¤ë pragma */
+/* module, import, å°†æ¥å¯¾å¿œã™ã‚‹ pragma */
 $class span.code_pragma {color: #008080;}
-/* __stdcall ¤Ê¤É¤Î½èÍı·ÏÀìÍÑ¤ÎÅÛ¤È¤« */
+/* __stdcall ãªã©ã®å‡¦ç†ç³»å°‚ç”¨ã®å¥´ã¨ã‹ */
 $class span.code_system {color: #5f0000;}
-/* ´Ä¶­ÊÑ¿ô  */
+/* ç’°å¢ƒå¤‰æ•°  */
 $class span.code_environment {color: #777777;}
-/* Ê¸»úÎó */
+/* æ–‡å­—åˆ— */
 $class span.code_string {color: green;}
-/* ¥³¥á¥ó¥È */
+/* ã‚³ãƒ¡ãƒ³ãƒˆ */
 $class span.code_comment {color: darkorange;}
 
-/* ¸Ä¡¹¤Î¥Ï¥¤¥é¥¤¥ÈÀìÍÑ */
+/* å€‹ã€…ã®ãƒã‚¤ãƒ©ã‚¤ãƒˆå°‚ç”¨ */
 /* for TeX */
 $class span.code_formula {color: teal;}
 /* for diff*/
@@ -44,8 +45,8 @@ $class span.code_list  {color: navy;}
 $class span.code_pre   {color: teal;}
 $class span.code_quote {color: #777700;}
 
-/* ¥½¡¼¥¹¥³¡¼¥ÉÉ½¼¨ÉôÊ¬¤ÎÀßÄê */
-/* ÃÊÁÈ¤ò¤·¤Ê¤¤¾ì¹ç¤ÎÀßÄê */
+/* ã‚½ãƒ¼ã‚¹ã‚³ãƒ¼ãƒ‰è¡¨ç¤ºéƒ¨åˆ†ã®è¨­å®š */
+/* æ®µçµ„ã‚’ã—ãªã„å ´åˆã®è¨­å®š */
 $class pre.code {
     background: #EEFFFF;
     margin: 1em 2em 0.5em 1em;
@@ -59,7 +60,7 @@ $class pre.code {
 	overflow: visible;
     line-height: 120%;
 }
-/* ÃÊÁÈ¤ò¤·¤¿¾ì¹ç¤ÎÀßÄê */
+/* æ®µçµ„ã‚’ã—ãŸå ´åˆã®è¨­å®š */
 $class table.code_table pre.code,
 $class div.code_table pre.code,
 $class table.code_table pre.pre_body,
@@ -74,7 +75,7 @@ $class div.code_src pre.pre_body
     width: 100%;
 }
 
-/* ¹ÔÈÖ¹æÉ½¼¨ */
+/* è¡Œç•ªå·è¡¨ç¤º */
 $class table.code_table pre.code_number,
 $class table.code_table pre.pre_number
 {
@@ -88,7 +89,7 @@ $class table.code_table pre.pre_number
     /*min-width: 3.5ex;*/
 }
 
-/* ¥¢¥¦¥È¥é¥¤¥óÉ½¼¨ */
+/* ã‚¢ã‚¦ãƒˆãƒ©ã‚¤ãƒ³è¡¨ç¤º */
 $class table.code_table pre.code_outline {
     margin:  0;
     padding: 0;
@@ -100,7 +101,7 @@ $class table.code_table pre.code_outline {
     line-height: 120%;
 }
 
-/* ÏÈÁÈ */
+/* æ çµ„ */
 $class div.code_table,
 $class div.pre_table
 {
@@ -121,7 +122,7 @@ $class table.code_table td {
 
 }
 
-/* ÃÊÁÈÍ×ÁÇ¤ÎÀßÄêÌµ¸ú²½ */
+/* æ®µçµ„è¦ç´ ã®è¨­å®šç„¡åŠ¹åŒ– */
 $class table.code_table,
 $class table.code_table td,
 $class div.code_number pre,
@@ -135,12 +136,12 @@ $class div.pre_body pre
     border: none;
 }
 
-/* table¤Ë¤è¤ëÃÊÁÈ */
+/* tableã«ã‚ˆã‚‹æ®µçµ„ */
 td.code_src,
 td.pre_body 
 {width:100%;}
 
-/* div¤Ë¤è¤ëÊ¬³ä¤ÎÄêµÁ  */
+/* divã«ã‚ˆã‚‹åˆ†å‰²ã®å®šç¾©  */
 $class div.code_number,
 $class div.code_outline,
 $class div.code_src,
@@ -155,7 +156,7 @@ $class div.pre_body
 }
 
 /**
- * ¥¢¥¦¥È¥é¥¤¥ó¡¦¥á¥Ë¥å¡¼¤ÎÀßÄê
+ * ã‚¢ã‚¦ãƒˆãƒ©ã‚¤ãƒ³ãƒ»ãƒ¡ãƒ‹ãƒ¥ãƒ¼ã®è¨­å®š
  */
 
 /* icon */ 
@@ -163,10 +164,10 @@ $class div.code_menu {
     background-color: #d4d0c8;
 }
 
-/* ¥¢¥¦¥È¥é¥¤¥ó¤¬ÊÄ¤¸¤¿»ş¤Î¥¤¥á¡¼¥¸ */
+/* ã‚¢ã‚¦ãƒˆãƒ©ã‚¤ãƒ³ãŒé–‰ã˜ãŸæ™‚ã®ã‚¤ãƒ¡ãƒ¼ã‚¸ */
 img.code_dotimage {width:20px;height:8px;margin:0;padding:0;}
 
-/* ¥¢¥¦¥È¥é¥¤¥ó¤ÎÀßÄê */
+/* ã‚¢ã‚¦ãƒˆãƒ©ã‚¤ãƒ³ã®è¨­å®š */
 $class a.code_outline{
     background-color: #FFFFFF;
     color: black;
