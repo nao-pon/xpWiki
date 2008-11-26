@@ -9,7 +9,7 @@
 //
 // fusen.js for xpWiki by nao-pon
 // http://hypweb.net
-// $Id: fusen.js,v 1.14 2008/10/09 08:19:20 nao-pon Exp $
+// $Id: fusen.js,v 1.15 2008/11/26 23:59:18 nao-pon Exp $
 // 
 var fusenVar = new Array();
 var fusenMsgs = new Array();
@@ -305,10 +305,21 @@ function fusen_getdata(mod)
 						fusenMovingObj = null;
 						fusenMovingFlg = false;
 						
+						fusenVar['BasePos'] = [0,0];
+						var tgtElement = pobj;
 						while (pobj != null) { 
+							if (Element.getStyle(pobj, 'position') != 'static') {
+								fusenVar['BasePos'] = [parseInt(pobj.offsetLeft), parseInt(pobj.offsetTop)];
+								break;
+							}
 							o_left += parseInt(pobj.offsetLeft); 
+							if (fusenVar['IE'] &&
+								pobj == tgtElement && 
+								pobj.tagName.toUpperCase() == 'DIV') {
+								o_left -= parseInt(pobj.offsetLeft);
+							}
 							o_top += parseInt(pobj.offsetTop); 
-							pobj = pobj.offsetParent; 
+							pobj = pobj.offsetParent;
 						}
 						$('edit_bx').value = o_left;
 						$('edit_by').value = o_top;
@@ -508,8 +519,8 @@ function fusen_new(dblclick)
 	$('bgffffff').selected = true;
 	$(fusenVar['textarea']).value = '';
 	$('edit_name').style.visibility = "visible";
-	$('edit_l').value = fusenVar['mouseX'];
-	$('edit_t').value = fusenVar['mouseY'];
+	$('edit_l').value = fusenVar['mouseX'] - fusenVar['BasePos'][0];
+	$('edit_t').value = fusenVar['mouseY'] - fusenVar['BasePos'][1];
 	$('edit_w').value = 0;
 	$('edit_h').value = 0;
 	$('edit_fix').value = 0;
@@ -851,8 +862,8 @@ function fusen_show(id)
 		var top = $('edit_t').value;
 		var left = $('edit_l').value;
 	} else {
-		var top = fusenVar['mouseY'];
-		var left = fusenVar['mouseX'];
+		var top = fusenVar['mouseY'] - fusenVar['BasePos'][1];
+		var left = fusenVar['mouseX'] - fusenVar['BasePos'][0];
 	}
 
 	$(id).style.left = left + "px";
