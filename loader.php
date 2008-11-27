@@ -1,7 +1,7 @@
 <?php
 //
 // Created on 2006/10/25 by nao-pon http://hypweb.net/
-// $Id: loader.php,v 1.55 2008/11/20 05:10:27 nao-pon Exp $
+// $Id: loader.php,v 1.56 2008/11/27 00:10:01 nao-pon Exp $
 //
 
 ignore_user_abort(FALSE);
@@ -229,7 +229,7 @@ switch ($type) {
 }
 
 if (!$src_file) {
-	$src_file = dirname(__FILE__)."/skin/{$basedir}{$type}/".preg_replace("/[^\w.]/","",$src).".$type";
+	$src_file = dirname(__FILE__)."/skin/{$basedir}{$type}/".preg_replace("/[^\w.]/","",$src.$pre_id).".$type";
 }
 
 if ($type === 'js' || $type === 'css' || is_file($src_file)) {
