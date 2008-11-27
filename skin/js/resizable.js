@@ -1,6 +1,6 @@
 //
 // Created on 2007/10/03 by nao-pon http://hypweb.net/
-// $Id: resizable.js,v 1.12 2008/11/24 02:07:40 nao-pon Exp $
+// $Id: resizable.js,v 1.13 2008/11/27 00:04:14 nao-pon Exp $
 //
 
 var Resizable = Class.create();
@@ -114,7 +114,7 @@ Resizable.prototype = {
 			overflow = 'visible';
 			maxHeight = 'none';
 			maxWidth = 'none';
-			marginBottom = '5px';
+			marginBottom = (XpWiki.isIE7)? '2em' : '5px';
 			marginRight = '5px';
 		}
 		if (!!this.elem.getStyle) {
