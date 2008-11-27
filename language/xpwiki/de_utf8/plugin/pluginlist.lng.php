@@ -2,7 +2,7 @@
 /*
  * Created on 2008/11/10 by nao-pon http://hypweb.net/
  * License: GPL v2 or (at your option) any later version
- * $Id: pluginlist.lng.php,v 1.2 2008/11/14 00:27:05 nao-pon Exp $
+ * $Id: pluginlist.lng.php,v 1.3 2008/11/27 00:09:13 nao-pon Exp $
  */
 
 $msg = array(
@@ -103,8 +103,8 @@ $msg = array(
 	),
 	'exifshowcase' => array(
 		'title' => 'Image list',
-		'block_usage' => '#exifshowcase([<Extraction pattern>][,Left|,Center|,Right][,Wrap|,Nowrap][,Around][,nolink][,noimg][,<Width>x<Height>][,<Ratio>%][,info][,nomapi][,nokash][,noexif][,reverse][,<Rows>])',
-		'inline_usage' => '&exifshowcase([<Extraction pattern>][,nolink][,noimg][,<Width>x<Height>][,<Ratio>%][,info][,nomapi][,nokash][,noexif][,reverse][,<Rows>]);'
+		'block_usage' => '#exifshowcase([<Extraction pattern>][,Left|,Center|,Right][,Wrap|,Nowrap][,Around][,nolink][,noimg][,<Width>x<Height>][,<Ratio>%][,info][,nomapi][,nokash][,noexif][,reverse][,sort][,col:<Cols>][,row:<Rows>][,<Rows>])',
+		'inline_usage' => '&exifshowcase([<Extraction pattern>][,nolink][,noimg][,<Width>x<Height>][,<Ratio>%][,info][,nomapi][,nokash][,noexif][,reverse][,sort][,col:<Cols>][,row:<Rows>][,<Rows>]);'
 	),
 	'fusen' => array(
 		'title' => 'Tag panel',
@@ -324,6 +324,11 @@ $msg = array(
 	'tracker_list' => array(
 		'title' => 'Report list',
 		'block_usage' => '#tracker_list([<Definition name>][,[<Base page name>][,[[<Sorting item>]:[SORT_ASC|SORT_DESC]][,<Max number>]]]])',
+		'inline_usage' => ''
+	),
+	'ucomedit' => array(
+		'title' => 'Edit EXIF Comments',
+		'block_usage' => '#ucomedit(filename[,formonly])',
 		'inline_usage' => ''
 	),
 	'urlbookmark' => array(
