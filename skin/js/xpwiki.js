@@ -362,9 +362,9 @@ var XpWiki = {
 		Event.observe(btn, 'click', function(){
 			this.innerHTML = XpWiki.textaraWrap(id);
 		});
-		var refNode = ($(id + '_resize_base_resizeY'))? $(id + '_resize_base_resizeY') : $(id);
+		
+		var refNode = ($(id + '_resize_base_resizeXY'))? $(id + '_resize_base_resizeXY') : $(id);
 		this.DOMNode_insertAfter(btn, refNode);
-		//this.DOMNode_insertAfter(btn, $(id));
 		
 		if (txtarea.getAttribute("rel") == "wikihelper") {
 			if (id.match(/^[a-z0-9_-]+:/i)) {
@@ -373,7 +373,8 @@ var XpWiki = {
 				var mydir = this.RendererDir;
 			}
 			this.addFckButton(id, mydir);
-		} 
+		}
+
 	},
 
 	addFckButton: function (id, mydir) {
@@ -390,9 +391,8 @@ var XpWiki = {
 			Event.observe(btn, 'click', function(){
 				XpWiki.switch2FCK(id, mydir);
 			});
-			var refNode = ($(id + '_resize_base_resizeY'))? $(id + '_resize_base_resizeY') : $(id);
+			var refNode = ($(id + '_resize_base_resizeXY'))? $(id + '_resize_base_resizeXY') : $(id);
 			this.DOMNode_insertAfter(btn, refNode);
-			//this.DOMNode_insertAfter(btn, $(id));
 		}
 	},
 	
@@ -520,7 +520,6 @@ var XpWiki = {
 			if (!tareas[i].id) {
 				tareas[i].id = 'textarea_autoid_' + i;
 			}
-			
 			new Resizable(tareas[i].id, {mode:'xy'});
 			
 			this.addWrapButton(tareas[i].id);
@@ -841,6 +840,7 @@ var XpWiki = {
 			if (typeof FCKeditorAPI == "object" && FCKeditorAPI.GetInstance(id)) {
 				return this.toggleFCK(id);
 			}
+			
 			this.setUploadVar(id);
 			var myDir = XpWikiModuleUrl + '/' + dir;
 
@@ -964,7 +964,23 @@ var XpWiki = {
 		var parent=refChild.parentNode;
 		if(parent.lastChild==refChild) return parent.appendChild(newChild);
 		else return parent.insertBefore(newChild,refChild.nextSibling);
-	}
+	},
+
+	cumulativeOffset: function(tgtElement) {
+		var valueT = 0, valueL = 0;
+		var element = tgtElement;
+		do {
+			valueT += element.offsetTop  || 0;
+			valueL += element.offsetLeft || 0;
+			if (Prototype.Browser.IE &&
+				element == tgtElement && 
+				element.tagName.toUpperCase() == 'DIV') {
+				valueL -= element.offsetLeft || 0;
+			}
+			element = element.offsetParent;
+		} while (element);
+		return Element._returnOffset(valueL, valueT);
+  }
 };
 
 // For FCKeditor
