@@ -4,7 +4,7 @@
 //
 //
 // ref.inc.php,v 1.20をベースに作成
-// $Id: exifshowcase.inc.php,v 1.4 2008/11/22 00:07:50 nao-pon Exp $
+// $Id: exifshowcase.inc.php,v 1.5 2008/11/27 00:00:22 nao-pon Exp $
 //
 
 /*
@@ -74,10 +74,10 @@ class xpwiki_plugin_exifshowcase extends xpwiki_plugin {
 		$this->config['DEFAULT_MH'] = 160; // px
 	
 		// カシミールアイコン
-		$this->config['KASH_ICON'] =  'image/kash3d.png';
+		$this->config['KASH_ICON'] = $this->cont['LOADER_URL'] . '?src=kash3d.png';
 	
 		// マピオンアイコン
-		$this->config['MAPI_ICON'] =  'http://www.mapion.co.jp/QA/user/img/mapion_a.gif';
+		$this->config['MAPI_ICON'] = 'http://www.mapion.co.jp/QA/user/img/mapion_a.gif';
 
 	}
 	
@@ -237,7 +237,7 @@ EOD;
 			$url = "{$this->root->script}?plugin=attach&amp;openfile={$aname}&amp;refer=".rawurlencode($page);
 	
 			if ( $exif_extension ) {
-				$exif  = exif_read_data($fname, 0, true);
+				$exif  = @ exif_read_data($fname, 0, true);
 				$eh = @ $exif["COMPUTED"]["Height"];
 				$ew = @ $exif["COMPUTED"]["Width"];
 			}
@@ -343,7 +343,9 @@ EOD;
 					$ucom = str_replace( "</p><p></p><p>","</p><p>","$ucom");
 				}
 				if ( $params['ucomedit'] &&
-						array_key_exists('UserComment', @ $exif["COMPUTED"])) {
+					is_array($exif["COMPUTED"]) && array_key_exists('UserComment', $exif["COMPUTED"])) {
+					$attachObj = new XpWikiAttachFile($this->xpwiki, $page, $aname);
+					if ($attachObj->is_owner()) {
 						$script = $this->func->get_script_uri();
 						$ucom .= <<<EOD
 <form action="{$script}" method="post">
@@ -353,6 +355,7 @@ EOD;
 <input type="submit" name="mode" value="edit" /></div>
 </form>
 EOD;
+					}
 				}
 	
 				$sz = @ $exif['FILE']['FileSize'];
