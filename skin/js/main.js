@@ -239,28 +239,39 @@ function wikihelper_tagset (str, v) {
 
 function xpwiki_now_loading(mode, id) {
 	if (mode) {
-		if (!id || !$(id)) {
-			id = $('xpwiki_body');
+		var objSrc = $(id);
+		if (!id || !objSrc) {
+			id = 'xpwiki_body';
+			objSrc = $(id);
 		}
-		if (!id) return;
+		if (!objSrc) return;
 		
 		wikihelper_hide_helper();
-		
 		if (!$("xpwiki_loading")) {
-			var objBody = document.getElementsByTagName("body")[0];
+			var objBody = document.body;
 			var objBack = document.createElement("div");
-			objBack.setAttribute('id', 'xpwiki_loading');
-			Element.setStyle(objBack, {display : 'none'});
-			Element.setStyle(objBack, {position: 'absolute'});
-			objBack.zIndex = 1000;
+			objBack.id = 'xpwiki_loading';
+			objBack.style.display = 'none';
+			objBack.style.position = 'absolute';
+			objBack.style.zIndex = '1000';
 			var txtBox = document.createElement("div");
 			txtBox.innerHTML = 'Now loading...';
 			txtBox.setAttribute('id', 'xpwiki_loading_text');
 			objBack.appendChild(txtBox);
 			objBody.appendChild(objBack);
+		} else {
+			var objBack = $("xpwiki_loading");
 		}
-	
-		Element.clonePosition('xpwiki_loading', id);
+		
+		//var pos = objSrc.positionedOffset();
+		var pos = XpWiki.cumulativeOffset(objSrc);
+		
+		objBack.style.left = pos[0] + 'px';
+		objBack.style.top = pos[1] + 'px';
+		objBack.style.width = objSrc.offsetWidth + 'px';
+		objBack.style.height = objSrc.offsetHeight + 'px';
+		
+		//Element.clonePosition('xpwiki_loading', id);
 		
 		Element.show('xpwiki_loading');
 	} else {
