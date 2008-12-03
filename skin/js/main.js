@@ -203,7 +203,7 @@ function wikihelper_hide_helper() {
 	var helper = $("wikihelper_base");
 	if (helper) {
 		Element.hide(helper);
-		if (wikihelper_WinIE && ! XpWiki.isIE7) {
+		if (wikihelper_WinIE && XpWiki.isIE6) {
 			oElements = document.getElementsByTagName("select");
 			for (i = 0; i < oElements.length; i++)
 			{
