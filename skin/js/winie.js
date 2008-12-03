@@ -264,7 +264,7 @@ function wikihelper_setActive(elem)
 		helper.style.left = offset[0] + "px";
 		helper.style.top = ( offset[1] - helper.offsetHeight - 1 ) + "px";
 		XpWiki.setUploadVar(wikihelper_elem);
-		if (! XpWiki.isIE7) {
+		if (XpWiki.isIE6) {
 			oElements = document.getElementsByTagName("select");
 			for (i = 0; i < oElements.length; i++)
 			{
