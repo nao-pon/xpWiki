@@ -29,10 +29,12 @@ var XpWiki = {
 	RendererDir: '',
 	RendererPage: '',
 	
-	isIE7: (typeof(document.documentElement.style.msInterpolationMode) != "undefined"),
-	isIE6: (Prototype.Browser.IE && ! this.isIE7),
+	isIE8: (Prototype.Browser.IE && typeof(window.localStorage) != "undefined"),
+	isIE7: (Prototype.Browser.IE && typeof(document.documentElement.style.msInterpolationMode) != "undefined" && typeof(window.localStorage) == "undefined"),
+	isIE6: (Prototype.Browser.IE && typeof(document.documentElement.style.msInterpolationMode) == "undefined"),
 	
 	onDomLoaded: function () {
+		this.IEVer = this.isIE8? 8 : (this.isIE7? 7 : (this.isIE6? 6 : 0));
 		this.MyUrl = XpWikiModuleUrl;
 		this.EncHint = XpWikiEncHint;
 
@@ -441,7 +443,7 @@ var XpWiki = {
 		for (var i = 0; i < x.snapshotLength; i++) {
 			if (time_limit < new Date().getTime()) break;
 			var obj = x.snapshotItem(i);
-			if (obj.className == this.faviconSetClass && obj.firstChild && obj.firstChild.nodeName != 'IMG') {
+			if (obj.className == this.faviconSetClass && obj.firstChild && obj.firstChild.nodeName.toUpperCase() != 'IMG') {
 				var height = Element.getStyle(obj ,'fontSize');
 				if (height.match(/%$/)) {
 					height = parseFloat(height)/100 * pxPerEm;
@@ -485,12 +487,12 @@ var XpWiki = {
 	},
 	
 	checkUseHelper: function (obj) {
-		if (!! this.UseWikihelperAtAll || obj.id.match(/^xpwiki/)) {
+		if (!!this.UseWikihelperAtAll || obj.id.match(/^xpwiki/)) {
 			return true;
 		} else {
 			var scripts = document.getElementsByTagName('script');
 			for (var i=0; i<scripts.length; i++){
-				if (!! scripts[i].src && scripts[i].src.match(/wikihelper_loader\.js$/)) {
+				if (!!scripts[i].src && scripts[i].src.match(/wikihelper_loader\.js$/)) {
 					return true;
 				}
 			}
@@ -514,7 +516,7 @@ var XpWiki = {
 		var tareas = obj.getElementsByTagName('textarea');
 		for (var i=0; i<tareas.length; i++){
 			if (tareas[i].style.display == 'none') continue;
-			if (! tareas[i].getAttribute('rel') && ! tareas[i].getAttribute('readonly') && this.checkUseHelper(tareas[i])) {
+			if (!tareas[i].getAttribute('rel') && !tareas[i].getAttribute('readonly') && this.checkUseHelper(tareas[i])) {
 				tareas[i].setAttribute("rel", "wikihelper");
 			}
 			if (!tareas[i].id) {
@@ -527,49 +529,30 @@ var XpWiki = {
 	},
 
 	initDomExtension: function (obj) {
-		var elems = obj.getElementsByTagName('div');
 		var pres = new Array();
 		var pNode;
 		var inTable;
 		var tocId = 0;
 		var tocCond = this.cookieLoad('_xwtoc');
-		for (var i=0; i<elems.length; i++){
-			if (elems[i].className == 'pre' && elems[i].style.overflow == 'auto') {
+
+		var x = document.evaluate('//div[@class="pre"]', document.body, null, 6, null);
+		var n = 0;
+		for (var i = 0; i < x.snapshotLength; i++) {
+			var obj = x.snapshotItem(i);
+			var overflow = (obj.style.overflow || obj.style.overflowX);
+			if (overflow.toUpperCase() == 'AUTO') {
 				inTable = false;
-				pNode = elems[i].parentNode;
+				pNode = obj.parentNode;
 				do {
-					if (pNode.nodeName == 'TD') {
+					if (pNode.nodeName.toUpperCase() == 'TD' || this.isIE6) {
 						inTable = true;
 						break;
 					}
 					pNode = pNode.parentNode;
 				} while(pNode);
-				if (inTable && elems[i].offsetParent) {
-					elems[i].style.width = '500px';
-					pres.push(elems[i]);
-				}
-			}
-			if (elems[i].className === "toc_header") {
-				var toc_childlen = elems[i].parentNode.getElementsByTagName('div');
-				var toc_body = null;
-				for (var toc_i=0; toc_i<toc_childlen.length; toc_i++){
-					if (toc_childlen[toc_i].className === "toc_body") {
-						toc_body = toc_childlen[toc_i];
-						toc_body.id = 'xpwiki_toc_body' + tocId;
-						break;
-					}
-				}
-				if (toc_body) {
-					var toc_marker = document.createElement('span');
-					toc_marker.id = 'xpwiki_toc_marker' + tocId;
-					elems[i].insertBefore(toc_marker, elems[i].firstChild);
-					eval( 'elems[i].onclick = function(){ XpWiki.tocToggle("' + tocId + '"); };');
-					elems[i].style.cursor = 'pointer';
-					this.tocSetMarker(toc_body, toc_marker);
-					if (tocCond == '+') {
-						this.tocToggle(tocId);
-					}
-					tocId++;
+				if (inTable && obj.offsetParent) {
+					obj.style.width = '500px';
+					pres.push(obj);
 				}
 			}
 		}
@@ -577,6 +560,64 @@ var XpWiki = {
 			var width = pres[i].offsetParent.offsetWidth - pres[i].offsetLeft - 30;
 			if (width > 0) {
 				pres[i].style.width = width + 'px';
+			}
+		}
+
+		var x = document.evaluate('//div[@class="toc_header"]', document.body, null, 6, null);
+		var n = 0;
+		for (var i = 0; i < x.snapshotLength; i++) {
+			var obj = x.snapshotItem(i);
+			obj.id = 'xpwiki_toc_header' + tocId;
+			var base = obj.parentNode;
+			base.id = 'xpwiki_toc_base' + tocId;
+			var toc_childlen = base.getElementsByTagName('div');
+			var toc_body = null;
+			for (var toc_i=0; toc_i<toc_childlen.length; toc_i++){
+				if (toc_childlen[toc_i].className === "toc_body") {
+					toc_body = toc_childlen[toc_i];
+					toc_body.id = 'xpwiki_toc_body' + tocId;
+					break;
+				}
+			}
+			if (toc_body) {
+				var toc_marker = document.createElement('span');
+				toc_marker.id = 'xpwiki_toc_marker' + tocId;
+				toc_marker.title = 'Toggle';
+				obj.insertBefore(toc_marker, obj.firstChild);
+				eval( 'obj.onclick = function(){ XpWiki.tocToggle("' + tocId + '"); };');
+				this.tocSetMarker(toc_body, toc_marker);
+				if (tocCond == '+') {
+					this.tocToggle(tocId);
+				}
+				
+				var lis = toc_body.getElementsByTagName('li');
+				var licnt = 0;
+				for (var li_i=0; li_i<lis.length; li_i++) {
+					var li = lis[li_i];
+					var ul = li.getElementsByTagName('ul');
+					if (ul.length && li.firstChild.nodeName.toUpperCase() != 'UL') {
+						var handle = document.createElement('div');
+						handle.innerHTML = '<img src="' + wikihelper_root_url + '/skin/loader.php?src=minus.gif" />';
+						handle.id = 'xpwiki_toc_hd' + tocId + '_' + licnt;
+						handle.className = 'toc_handle';
+						eval( 'handle.onclick = function(){ XpWiki.listTreeToggle("' + handle.id + '"); };');
+						li.insertBefore(handle, li.firstChild);
+						li.style.listStyleType = 'none';
+						licnt++;
+					}
+				}
+				
+				if (!this.isIE6) {
+					var toc_pin = document.createElement('div');
+					toc_pin.className = 'toc_pin';
+					toc_pin.id = 'xpwiki_toc_pin' + tocId;
+					toc_pin.title = 'Fix';
+					toc_body.insertBefore(toc_pin, toc_body.firstChild);
+					eval( 'toc_pin.onclick = function(e){ XpWiki.tocFix("' + tocId + '"); };');
+					obj.style.cursor = 'pointer';
+				}
+				
+				tocId++;
 			}
 		}
 	},
@@ -599,6 +640,56 @@ var XpWiki = {
 		}
 		marker.innerHTML = '<span>' + cond + '</span>';
 		this.cookieSave('_xwtoc', cond, 90, '/');
+	},
+	
+	tocFix: function (tocId) {
+		Element.remove($('xpwiki_toc_pin' + tocId));
+		var base = $('xpwiki_toc_base' + tocId);
+		var width = base.getWidth();
+		var pos = base.cumulativeOffset();
+		var offset = [0,0];
+		offset[0] = parseInt(base.getStyle('paddingLeft'));
+		offset[1] = parseInt(base.getStyle('paddingTop'));
+		base.style.width = (width - offset[0] - parseInt(base.getStyle('paddingRight'))) + 'px';
+		base.className = base.className + ' contentsFixed';
+		base.style.left = (pos[0] + offset[0] - (document.documentElement.scrollLeft || document.body.scrollLeft || 0))+ 'px';
+		base.style.top = (pos[1] + offset[1] - (document.documentElement.scrollTop || document.body.scrollTop || 0)) + 'px';
+		base.style.zIndex = '1000';
+		base.style.right = '';
+		base.style.bottom = '';
+		base.style.padding = '0';
+
+		var handle = base;
+		
+		var body = $('xpwiki_toc_body' + tocId);
+		
+		var ul = body.getElementsByTagName('ul')[0];
+		if (!Prototype.Browser.IE || this.IEVer > 7) {
+			body.style.maxHeight = (document.viewport.getHeight() - 40) + 'px';
+			body.style.overflowY = 'auto';
+			handle = ul;
+		}
+		handle.style.cursor = 'move';
+		
+		new Draggable(base, { handle:handle });
+		new Resizable(base, { mode:'x', element:base.id });
+
+	},
+	
+	listTreeToggle: function (id) {
+		var elms = $(id).parentNode.childNodes;
+		for (var i=0; i<elms.length; i++) {
+			if (elms[i].nodeName.toUpperCase() == 'UL' || elms[i].nodeName.toUpperCase() == 'OL') {
+				Element.toggle(elms[i]);
+				if (elms[i].style.display == 'none') {
+					var src = 'plus';
+				} else {
+					var src = 'minus';
+				}
+				$(id).innerHTML = '<img src="' + wikihelper_root_url + '/skin/loader.php?src=' + src + '.gif" />';
+				break;
+			}
+		}
 	},
 	
 	htmlspecialchars: function (str) {
@@ -754,7 +845,7 @@ var XpWiki = {
 				var form;
 				var element = elm;
 				 while (element = element.parentNode) {
-					if (element.nodeName == 'FORM') {
+					if (element.nodeName.toUpperCase() == 'FORM') {
 						form = element;
 						break;
 					}		
@@ -768,7 +859,7 @@ var XpWiki = {
 					}
 				}
 			} else {
-				if (elm.nodeName == 'TEXTAREA' && this.RendererDir && this.RendererPage) {
+				if (elm.nodeName.toUpperCase() == 'TEXTAREA' && this.RendererDir && this.RendererPage) {
 					this.UploadDir = this.RendererDir;
 					this.UploadPage = this.RendererPage;
 				}
@@ -777,7 +868,7 @@ var XpWiki = {
 	},
 	
 	refInsert: function(file, type) {
-		if (! wikihelper_elem) {
+		if (!wikihelper_elem) {
 			alert(wikihelper_msg_elem);
 			return false;
 		}
