@@ -1,6 +1,6 @@
 <?php
 // PukiWiki - Yet another WikiWikiWeb clone.
-// $Id: pukiwiki.skin.php,v 1.38 2008/10/09 08:19:20 nao-pon Exp $
+// $Id: pukiwiki.skin.php,v 1.39 2008/12/03 23:45:47 nao-pon Exp $
 // Copyright (C)
 //   2002-2006 PukiWiki Developers Team
 //   2001-2002 Originally written by yu-ji
@@ -178,7 +178,11 @@ EOD;
 
 <?php if ($page_comments) { ?>
 <?php echo $this->root->hr ?>
-<div class="commentbody"><?php echo $page_comments ?></div>
+<div class="commentbody">
+ <div style="width:100%;">
+  <?php echo $page_comments ?>
+ </div>
+</div>
 <?php } ?>
 
 <?php echo $system_notification ?>
