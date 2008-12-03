@@ -17,9 +17,11 @@ function rawurlencode(str) {
 
 document.observe("dom:loaded", function() {
 
-	var treeObj = document.getElementsByClassName("xpwiki_ajaxtree");
-	for(var i=0; i<treeObj.length; i++){
-    	var obj = treeObj[i]; 
+	var x = document.evaluate('//div[@class="xpwiki_ajaxtree"]', document.body, null, 6, null);
+	var n = 0;
+	for (var i = 0; i < x.snapshotLength; i++) {
+		var obj = x.snapshotItem(i);
+
 		if (typeof(obj.onclick) != 'function') {
 		
 			obj.onclick = function(event) {
