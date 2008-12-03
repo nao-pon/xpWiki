@@ -1,6 +1,6 @@
 //
 // Created on 2007/10/03 by nao-pon http://hypweb.net/
-// $Id: resizable.js,v 1.13 2008/11/27 00:04:14 nao-pon Exp $
+// $Id: resizable.js,v 1.14 2008/12/03 23:49:07 nao-pon Exp $
 //
 
 var Resizable = Class.create();
@@ -322,7 +322,7 @@ Resizable.prototype = {
 			this.setHeight(newY);
 			this.curY = event.clientY;
 		}
-		if (Prototype.Browser.WebKit && oldX == this.sizeX) {
+		if (this.tagName == 'TEXTAREA' && Prototype.Browser.WebKit && oldX == this.sizeX) {
 			// For Safari's bug?
 			this.setWidth(this.base.offsetWidth + 1);
 			this.setWidth(this.base.offsetWidth - 1);
@@ -372,7 +372,9 @@ Resizable.prototype = {
 		val = parseInt(val);
 		if (val > 0) {
 			this.base.style.width = val + "px";
-			this.elem.style.width = (val - this.elem._Left) + "px";
+			if (this.base.id != this.elem.id) {
+				this.elem.style.width = (val - this.elem._Left) + "px";
+			}
 			this.sizeX = val;
 		}
 	},
@@ -381,7 +383,9 @@ Resizable.prototype = {
 		val = parseInt(val);
 		if (val > 0) {
 			this.base.style.height = val + "px";
-			this.elem.style.height = (val - this.elem._Top) + "px";
+			if (this.base.id != this.elem.id) {
+				this.elem.style.height = (val - this.elem._Top) + "px";
+			}
 			this.sizeY = val;
 		}
 	}
