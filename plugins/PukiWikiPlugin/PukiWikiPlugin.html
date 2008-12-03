@@ -137,6 +137,7 @@ function HtmlSpecialChar(str) {
 
 function LoadSelected() {
 	if (eSelected && eSelected.className == 'plugin') {
+		FCKSelection.SelectNode(eSelected);
 		var text = eSelected.innerHTML;
 		if (eSelected.tagName == 'DIV') {
 			text = text.match(/^#([0-9a-z_]+)(\((.*?)\))?(\{+<BR>(.*?)<BR>\}+)?$/i);
@@ -212,6 +213,11 @@ function Ok() {
 	PukiWikiPlugin.Add(sValue);
 	return true;
 }
+
+function Cancel() {
+	FCKSelection.Collapse();
+}
+
 
 function OnNameSelect(element) {
 	if (element.selectedIndex != '0') {
