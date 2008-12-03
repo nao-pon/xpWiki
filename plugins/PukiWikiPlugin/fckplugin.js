@@ -143,6 +143,9 @@ PukiWikiPlugin.SetupElement = function(element, sValue) {
 		element = this.SetupAttachment(element, sValue);
 	}
 	
+	FCKSelection.SelectNode(element);
+	FCKSelection.Collapse();
+	
 	element.className = sValue['class'];
 	if (element.nodeName == 'IMG') {
 		element.contentEditable = true;
@@ -388,9 +391,11 @@ FCK.Events.AttachEvent('OnAfterSetHTML', PukiWikiPlugin.Redraw);
 //	ダブルクリック イベント
 PukiWikiPlugin.OnDoubleClick = function(element) {
 	if (element.className == 'plugin') {
+		if (FCKBrowserInfo.IsOpera || FCKBrowserInfo.IsSafari) FCKSelection.Collapse();
 		FCKCommands.GetCommand('PukiWikiPlugin').Execute();
 	}
 	else if (element.className == 'ref') {
+		//if (FCKBrowserInfo.IsOpera || FCKBrowserInfo.IsSafari) FCKSelection.Collapse();
 		FCKCommands.GetCommand('Attachment').Execute();
 	}
 }
@@ -451,7 +456,7 @@ PukiWikiPlugin.GetSelectedElement2 = function() {
 				elm = selImg;
 			} else {
 				var parent = FCKSelection.GetParentElement();
-				if (parent.tagName == 'SPAN') {
+				if (parent.tagName == 'SPAN' || parent.tagName == 'DIV') {
 					elm = parent;
 				}
 			}
