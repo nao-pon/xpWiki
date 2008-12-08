@@ -1,2 +1,2 @@
 <?php
-$fckxpwiki_version = '20081204';
+$fckxpwiki_version = '20081209';
