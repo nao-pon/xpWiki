@@ -2,7 +2,7 @@
 /*
  * Created on 2008/11/10 by nao-pon http://hypweb.net/
  * License: GPL v2 or (at your option) any later version
- * $Id: pluginlist.lng.php,v 1.3 2008/11/27 00:09:13 nao-pon Exp $
+ * $Id: pluginlist.lng.php,v 1.4 2008/12/08 23:47:35 nao-pon Exp $
  */
 
 $msg = array(
@@ -105,6 +105,11 @@ $msg = array(
 		'title' => 'Image list',
 		'block_usage' => '#exifshowcase([<Extraction pattern>][,Left|,Center|,Right][,Wrap|,Nowrap][,Around][,nolink][,noimg][,<Width>x<Height>][,<Ratio>%][,info][,nomapi][,nokash][,noexif][,reverse][,sort][,col:<Cols>][,row:<Rows>][,<Rows>])',
 		'inline_usage' => '&exifshowcase([<Extraction pattern>][,nolink][,noimg][,<Width>x<Height>][,<Ratio>%][,info][,nomapi][,nokash][,noexif][,reverse][,sort][,col:<Cols>][,row:<Rows>][,<Rows>]);'
+	),
+	'footnotes' => array(
+		'title' => 'Show or Config footnotes',
+		'block_usage' => '#footnotes([<Catrgory>:<Mark>:][,<Catrgory>:<Mark>:]...)'."\n".'#footnotes([nohr][,nobr][,noclear][,<Target category>[,catrgory]]...)',
+		'inline_usage' => ''
 	),
 	'fusen' => array(
 		'title' => 'Tag panel',

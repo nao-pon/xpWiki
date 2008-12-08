@@ -1,7 +1,7 @@
 <?php
 /*
  * Created on 2008/03/25 by nao-pon http://hypweb.net/
- * $Id: pluginlist.inc.php,v 1.3 2008/11/13 00:18:10 nao-pon Exp $
+ * $Id: pluginlist.inc.php,v 1.4 2008/12/08 23:47:35 nao-pon Exp $
  */
 
 class xpwiki_plugin_pluginlist extends xpwiki_plugin {
@@ -22,6 +22,7 @@ class xpwiki_plugin_pluginlist extends xpwiki_plugin {
 			'build_js',
 			'easylogin',
 			'endregion',
+			'fckxpwikiver',
 			'font',
 			'freeze',
 			'hr',
@@ -44,6 +45,8 @@ class xpwiki_plugin_pluginlist extends xpwiki_plugin {
 			'setlinebreak',
 			'size',
 			'stationary',
+			'sub',
+			'sup',
 			'topicpath',
 			'version',
 			'versionlist',
