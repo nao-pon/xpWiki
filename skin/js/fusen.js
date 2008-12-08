@@ -9,7 +9,7 @@
 //
 // fusen.js for xpWiki by nao-pon
 // http://hypweb.net
-// $Id: fusen.js,v 1.15 2008/11/26 23:59:18 nao-pon Exp $
+// $Id: fusen.js,v 1.16 2008/12/08 23:34:17 nao-pon Exp $
 // 
 var fusenVar = new Array();
 var fusenMsgs = new Array();
@@ -532,11 +532,17 @@ function fusen_editbox_hide() {
 	fusenMovingObj = null;
 	//$('edit_name').style.visibility = "hidden";
 	fusen_hide('fusen_editbox');
+	fusen_FCK2normal();
 	fusen_set_timer();
 }
 
 function fusen_save()
 {
+	//fusen_FCK2normal();
+	if (typeof FCKeditorAPI == "object") {
+		var oEditor = FCKeditorAPI.GetInstance(fusenVar['textarea']);
+		oEditor.UpdateLinkedField();
+	}
 	if ($('edit_mode').value == 'edit' && !$(fusenVar['textarea']).value) {
 		alert(fusenMsgs['err_nottext']);
 		return;
@@ -545,6 +551,16 @@ function fusen_save()
 	fusen_postdata(false);
 	fusen_init(1);
 	fusen_hide('fusen_editbox');
+	fusen_FCK2normal();
+}
+
+function fusen_FCK2normal() {
+	if (typeof FCKeditorAPI == "object") {
+		var tArea = $(fusenVar['textarea']);
+		if (tArea.style.display == 'none') {
+			XpWiki.toggleFCK(fusenVar['textarea']);
+		} 
+	}
 }
 
 function fusen_setpos(id,auto)
