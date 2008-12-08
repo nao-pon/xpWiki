@@ -348,7 +348,11 @@ EOD;
 		
 		static $noteStr;
 		
-		$base_id = $this->xpwiki->pid . '_' . $this->root->rtf['oid'];
+		if ($this->root->render_mode === 'render') {
+			$base_id = '__PID_OID__';
+		} else {
+			$base_id = $this->xpwiki->pid . '_' . $this->root->rtf['oid'];
+		}
 		
 		list (, $body) = $this->splice($arr);
 
@@ -363,19 +367,55 @@ EOD;
 		if (preg_match('/^(?:e|i|s):[0-9a-f]{4}$/', $body)) {
 			$name = '((' . $body . '))';
 		} else {
-			if (isset($noteStr[$base_id][md5($body)])) {
-				list($id, $title) = $noteStr[$base_id][md5($body)];
+			$category = '';
+			if (preg_match('/^:([^\s]+?)\|(.+?)$/', $body, $match)) {
+				$defkey = $match[1];
+				$body = $match[2];
+			} else {
+				if (isset($noteStr[$base_id][$body])) {
+					$defkey = $body;
+				} else {
+					$defkey = md5($body);
+				}
+			}
+			if (isset($noteStr[$base_id][$defkey])) {
+				list($id, $title) = $noteStr[$base_id][$defkey];
 				$elm_id = '';
 			} else {
-				$id = ++ $this->root->rtf['note_id'];
+				$idType = '*$1';
+				if (!empty($this->root->footnote_categories)) {
+					$catpos = strpos($body, ':');
+					if ($catpos) {
+						$category = substr($body, 0, $catpos);
+						if (isset($this->root->footnote_categories[$category])) {
+							$idType = $this->root->footnote_categories[$category];
+							$body = substr($body, $catpos + 1);
+						}
+						$category = '<!--' . $category . '-->';
+					}
+				}
+				if (preg_match('/^(.+?):([\w!#$%\'()=-^~|`@{}\[\]+;*:,.?\/ ]{1,2}):$/', $body, $match)) {
+					$body = $match[1];
+					$idType = $match[2];
+					if (strlen($idType) === 1) {
+						$idType .= '$1';
+					} else {
+						$idType = $idType[0] . '$1' . $idType[1];
+					}
+				}
+				if (! isset($this->root->rtf['note_id'][$idType])) {
+					$this->root->rtf['note_id'][$idType] = 0;
+				}
+				$id = ++ $this->root->rtf['note_id'][$idType];
+				$id = str_replace('$1', $id, $idType);
 				$note = $this->func->make_link($body);
 		
 				// Footnote
-				$footNum = '<a id="notefoot_'.$base_id.'_'.$id.'" name="notefoot_'.$base_id.'_'.$id.'" href="'.$script.'#notetext_'.$base_id.'_'.$id.'" class="note_super">*'.$id.'</a>';
+				$footNum = '<a id="notefoot_'.$base_id.'_'.$id.'" name="notefoot_'.$base_id.'_'.$id.'" href="'.$script.'#notetext_'.$base_id.'_'.$id.'" class="note_super">'.$id.'</a>';
 				if ($this->cont['UA_PROFILE'] === 'keitai') {
 					$footNum = '<span style="vertical-align:super;font-size:xx-small">' . $footNum . '</span>';
 				}
-				$this->root->foot_explain[$id] = $footNum."\n".'<span class="small">'.$note.'</span><br />';
+				$this->root->foot_explain[$id] = $category.$footNum."\n".'<span class="small">'.$note.'</span><br />';
 
 				// A hyperlink, content-body to footnote
 				if (!is_numeric($this->cont['PKWK_FOOTNOTE_TITLE_MAX']) || $this->cont['PKWK_FOOTNOTE_TITLE_MAX'] <= 0) {
@@ -388,12 +428,12 @@ EOD;
 					$title = ' title="'.$title.$abbr.'"';
 				}
 
-				$noteStr[$base_id][md5($body)] = array($id, $title);
+				$noteStr[$base_id][$defkey] = array($id, $title);
 				
 				$elm_id = 'notetext_'.$base_id.'_'.$id;
 			}
 			
-			$name = '<a id="'.$elm_id.'" name="'.$elm_id.'" href="'.$script.'#notefoot_'.$base_id.'_'.$id.'" class="note_super"'.$title.'>*'.$id.'</a>';
+			$name = '<a id="'.$elm_id.'" name="'.$elm_id.'" href="'.$script.'#notefoot_'.$base_id.'_'.$id.'" class="note_super"'.$title.'>'.$id.'</a>';
 			if ($this->cont['UA_PROFILE'] === 'keitai') {
 				$name = '<span style="vertical-align:super;font-size:xx-small">' . $name . '</span>';
 			}
