@@ -18,8 +18,8 @@
 	<script type="text/javascript" charset="UTF-8">
 
 var oEditor = window.parent.InnerDialogLoaded() ;
-
 var oDOM = oEditor.FCK.EditorDocument ;
+var XpWiki = window.parent.window.parent.XpWiki;
 
 var aCells = oEditor.FCKTableHandler.GetSelectedCells() ;
 
@@ -73,7 +73,7 @@ function Ok() {
 		SetAttribute(aCells[i], 'align', GetE('selHAlign').value);
 
 		if (GetE('txtFontSize').value.length) {
-			aCells[i].style.fontSize = GetE('txtFontSize').value + 'px';
+			aCells[i].style.fontSize = XpWiki.str2num(GetE('txtFontSize').value) + 'px';
 		}
 		else {
 			RemoveStyle(aCells[i], 'font-size');
@@ -83,7 +83,7 @@ function Ok() {
 		aCells[i].style.backgroundColor = GetE('txtBackColor').value;
 
 		if (GetE('txtBorder').value) {
-			aCells[i].style.border = GetE('txtBorder').value + 'px';
+			aCells[i].style.border = XpWiki.str2num(GetE('txtBorder').value) + 'px';
 			aCells[i].style.borderStyle = GetE('selBorferStyle').value
 		}
 	
@@ -92,7 +92,7 @@ function Ok() {
 		}
 		
 		if (GetE('txtCellSpacing').value) {
-			aCells[i].style.padding = GetE('txtCellSpacing').value + 'px';
+			aCells[i].style.padding = XpWiki.str2num(GetE('txtCellSpacing').value) + 'px';
 		}
 	}
 

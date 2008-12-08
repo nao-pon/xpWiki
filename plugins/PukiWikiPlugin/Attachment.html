@@ -120,11 +120,11 @@ function Ok()
 	sValue['type'] = GetE('div').checked ? 'DIV' : 'SPAN';
 	sValue['othor'] = GetE('othor').value;
 	sValue['alt'] = GetE('alt').value;
-	sValue['width'] = GetE('width').value;
-	sValue['height'] = GetE('height').value;
+	sValue['width'] = XpWiki.str2num(GetE('width').value);
+	sValue['height'] = XpWiki.str2num(GetE('height').value);
 	sValue['mw'] = GetE('mw').value;
 	sValue['mh'] = GetE('mh').value;
-	sValue['size'] = GetE('size').value;
+	sValue['size'] = XpWiki.str2num(GetE('size').value);
 	sValue['align'] = GetE('align').value;
 	sValue['nolink'] = GetE('nolink').checked;
 	sValue['noicon'] = GetE('noicon').checked;
