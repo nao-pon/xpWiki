@@ -31,7 +31,7 @@
 //
 // fusen.inc.php for xpWiki by nao-pon
 // http://xoops.hypweb.net
-// $Id: fusen.inc.php,v 1.26 2008/10/09 08:19:20 nao-pon Exp $
+// $Id: fusen.inc.php,v 1.27 2008/12/08 23:38:39 nao-pon Exp $
 // 
 
 class xpwiki_plugin_fusen extends xpwiki_plugin {
@@ -547,7 +547,7 @@ EOD;
 		$str_ary = preg_split("/<p>###fusen_data_convert###/",$str);
 		array_shift($str_ary);
 		foreach ($str_ary as $str) {
-			list($id,$dat) = explode("\n",$str,2);
+			list($id,$dat) = array_pad(explode("\n",$str,2), 2, '');
 			$data[rtrim($id,'</p>')]['disp'] = trim($dat);
 		}
 		
