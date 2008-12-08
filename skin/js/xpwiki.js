@@ -1015,13 +1015,21 @@ var XpWiki = {
 		return wait;
 	},
 	
+	str2num: function(string) {
+		if (typeof string == 'string' && !string) {
+			return '';
+		} else {
+			return parseFloat(this.z2h_digit(string));
+		}
+	},
+	
 	// Copyright (c) 2003 AOK <soft@aokura.com>
 	z2h_digit: function(src) {
 		var str = new String;
 		var len = src.length;
 		for (var i = 0; i < len; i++) {
 			var c = src.charCodeAt(i);
-			if (c >= 65296 && c <= 65305) {
+			if (c == 65294 || (c >= 65296 && c <= 65305)) {
 				str += String.fromCharCode(c - 65248);
 			} else {
 				str += src.charAt(i);
