@@ -1,7 +1,7 @@
 <?php
 //
 // Created on 2006/09/29 by nao-pon http://hypweb.net/
-// $Id: root.php,v 1.16 2008/09/16 04:20:49 nao-pon Exp $
+// $Id: root.php,v 1.17 2008/12/08 23:44:30 nao-pon Exp $
 //
 class XpWikiRoot {
 
@@ -141,7 +141,7 @@ class XpWikiRoot {
 	function init() {
 		$this->rtf          = array();  // Run time flag
 		$this->foot_explain = array();	// Footnotes
-		$this->rtf['note_id'] = 0;      // Footnotes id 
+		$this->rtf['note_id'] = array();// Footnotes id 
 		$this->related      = array();	// Related pages
 		$this->notyets      = array();	// Not yet pages
 		$this->head_tags    = array();	// XHTML tags in <head></head>

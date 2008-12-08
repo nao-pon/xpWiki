@@ -1,7 +1,7 @@
 <?php
 //
 // Created on 2006/10/02 by nao-pon http://hypweb.net/
-// $Id: pukiwiki_func.php,v 1.191 2008/11/18 04:10:40 nao-pon Exp $
+// $Id: pukiwiki_func.php,v 1.192 2008/12/08 23:44:30 nao-pon Exp $
 //
 class XpWikiPukiWikiFunc extends XpWikiBaseFunc {
 
@@ -960,7 +960,7 @@ class XpWikiPukiWikiFunc extends XpWikiBaseFunc {
 
 //----- Start convert_html.php -----//
 	// PukiWiki - Yet another WikiWikiWeb clone
-	// $Id: pukiwiki_func.php,v 1.191 2008/11/18 04:10:40 nao-pon Exp $
+	// $Id: pukiwiki_func.php,v 1.192 2008/12/08 23:44:30 nao-pon Exp $
 	// Copyright (C)
 	//   2002-2005 PukiWiki Developers Team
 	//   2001-2002 Originally written by yu-ji
@@ -1214,7 +1214,7 @@ class XpWikiPukiWikiFunc extends XpWikiBaseFunc {
 
 //----- Start func.php -----//
 	// PukiWiki - Yet another WikiWikiWeb clone.
-	// $Id: pukiwiki_func.php,v 1.191 2008/11/18 04:10:40 nao-pon Exp $
+	// $Id: pukiwiki_func.php,v 1.192 2008/12/08 23:44:30 nao-pon Exp $
 	// Copyright (C)
 	//   2002-2006 PukiWiki Developers Team
 	//   2001-2002 Originally written by yu-ji
@@ -2040,7 +2040,7 @@ EOD;
 
 //----- Start make_link.php -----//
 	// PukiWiki - Yet another WikiWikiWeb clone.
-	// $Id: pukiwiki_func.php,v 1.191 2008/11/18 04:10:40 nao-pon Exp $
+	// $Id: pukiwiki_func.php,v 1.192 2008/12/08 23:44:30 nao-pon Exp $
 	// Copyright (C)
 	//   2003-2005 PukiWiki Developers Team
 	//   2001-2002 Originally written by yu-ji
@@ -3017,7 +3017,7 @@ EOD;
 
 //----- Start html.php -----//
 	// PukiWiki - Yet another WikiWikiWeb clone.
-	// $Id: pukiwiki_func.php,v 1.191 2008/11/18 04:10:40 nao-pon Exp $
+	// $Id: pukiwiki_func.php,v 1.192 2008/12/08 23:44:30 nao-pon Exp $
 	// Copyright (C)
 	//   2002-2006 PukiWiki Developers Team
 	//   2001-2002 Originally written by yu-ji
@@ -3187,7 +3187,7 @@ EOD;
 		$related  = ($this->root->related_link && $is_read) ? $this->make_related($_page, '', $this->root->related_show_max) : '';
 	
 		// List of footnotes
-		ksort($this->root->foot_explain, SORT_NUMERIC);
+		natsort($this->root->foot_explain);
 		$notes = ! empty($this->root->foot_explain) ? $this->root->note_hr . join("\n", $this->root->foot_explain) : '';
 		
 		// Head Tags
@@ -3726,7 +3726,7 @@ EOD;
 
 //----- Start mail.php -----//
 	// PukiWiki - Yet another WikiWikiWeb clone.
-	// $Id: pukiwiki_func.php,v 1.191 2008/11/18 04:10:40 nao-pon Exp $
+	// $Id: pukiwiki_func.php,v 1.192 2008/12/08 23:44:30 nao-pon Exp $
 	// Copyright (C)
 	//   2003-2005 PukiWiki Developers Team
 	//   2003      Originally written by upk
@@ -4029,7 +4029,7 @@ EOD;
 
 //----- Start link.php -----//
 	// PukiWiki - Yet another WikiWikiWeb clone
-	// $Id: pukiwiki_func.php,v 1.191 2008/11/18 04:10:40 nao-pon Exp $
+	// $Id: pukiwiki_func.php,v 1.192 2008/12/08 23:44:30 nao-pon Exp $
 	// Copyright (C) 2003-2006 PukiWiki Developers Team
 	// License: GPL v2 or (at your option) any later version
 	//
