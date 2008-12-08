@@ -2,7 +2,7 @@
 /*
  * Created on 2008/11/10 by nao-pon http://hypweb.net/
  * License: GPL v2 or (at your option) any later version
- * $Id: pluginlist.lng.php,v 1.3 2008/11/27 00:09:13 nao-pon Exp $
+ * $Id: pluginlist.lng.php,v 1.4 2008/12/08 23:47:35 nao-pon Exp $
  */
 
 $msg = array(
@@ -105,6 +105,11 @@ $msg = array(
 		'title' => '画像一覧',
 		'block_usage' => '#exifshowcase([<抽出パターン>][,Left|,Center|,Right][,Wrap|,Nowrap][,Around][,nolink][,noimg][,<幅>x<高さ>][,<拡大率>%][,info][,nomapi][,nokash][,noexif][,reverse][,sort][,col:<カラム数>][,row:<列数>][,<列数>])',
 		'inline_usage' => '&exifshowcase([<抽出パターン>][,nolink][,noimg][,<幅>x<高さ>][,<拡大率>%][,info][,nomapi][,nokash][,noexif][,reverse][,sort][,col:<カラム数>][,row:<列数>][,<列数>]);'
+	),
+	'footnotes' => array(
+		'title' => '脚注設定・表示',
+		'block_usage' => '#footnotes([<カテゴリ>:<記号>:][,<カテゴリ名>:<記号>:]...)'."\n".'#footnotes([nohr][,nobr][,noclear][,<対象カテゴリ>[,catrgory]]...)',
+		'inline_usage' => ''
 	),
 	'fusen' => array(
 		'title' => '付箋パネル',

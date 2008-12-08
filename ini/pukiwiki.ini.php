@@ -1,6 +1,6 @@
 <?php
 // PukiWiki - Yet another WikiWikiWeb clone
-// $Id: pukiwiki.ini.php,v 1.86 2008/11/13 00:30:22 nao-pon Exp $
+// $Id: pukiwiki.ini.php,v 1.87 2008/12/08 23:47:35 nao-pon Exp $
 // Copyright (C)
 //   2002-2006 PukiWiki Developers Team
 //   2001-2002 Originally written by yu-ji
@@ -461,6 +461,10 @@ $root->auto_template_rules = array(
 	'((.+)\/([^\/]+))' => array('\2/template', ':template/\2', 'template', ':template/default') ,
 	'(()(.+))'         => array('template', ':template/default') ,
 );
+
+// Setting of footnote categories
+// ex. $root->footnote_categories = array('Note' => '($1)', 'Reference' => '[$1]');
+$root->footnote_categories = array();
 
 /////////////////////////////////////////////////
 // Number of heading that inserts "#contents" automatically
