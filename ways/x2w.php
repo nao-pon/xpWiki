@@ -2,7 +2,7 @@
 /*
  * Created on 2008/10/23 by nao-pon http://hypweb.net/
  * License: GPL v2 or (at your option) any later version
- * $Id: x2w.php,v 1.11 2008/11/20 05:32:14 nao-pon Exp $
+ * $Id: x2w.php,v 1.12 2008/12/08 23:25:47 nao-pon Exp $
  */
 
 //
@@ -714,6 +714,13 @@ class XHTML2Wiki
 	
 	// インライン要素
 	function Inline($line) {
+		// 数値参照文字(10進)
+		$pattern = "/<span\s[^>]*?class=\"chrref10\"[^>]*?".">(.*?)<\/span>/";
+		$line = preg_replace_callback($pattern, array(&$this, 'CharacterRef10'), $line);
+		// 文字実体参照
+		$pattern = "/<span\s[^>]*?class=\"chrref\"[^>]*?".">(.*?)<\/span>/";
+		$line = preg_replace_callback($pattern, array(&$this, 'CharacterRef'), $line);
+
 		$line = $this->EncodeSpecialChars($line);
 		$line = preg_replace("/\n/", "", $line);
 		
@@ -729,9 +736,6 @@ class XHTML2Wiki
 		$line = preg_replace_callback($pattern, array(&$this, 'InlinePluginRef'), $line);
 		$pattern = "/<img([^>]*?)class=\"ref\"([^>]*?)>/";
 		$line = preg_replace_callback($pattern, array(&$this, 'InlinePluginRef'), $line);
-		// 参照文字
-		$pattern = "/<span\s[^>]*?class=\"chrref\"[^>]*?>(.*?)<\/span>/";
-		$line = preg_replace_callback($pattern, array(&$this, 'CharacterRef'), $line);
 		// リンク
 		$line = preg_replace_callback("/<a .*?href=\"(.*?)\".*?>(.*?)<\/a>/", array(&$this, 'Link'), $line);
 		// アンカー
@@ -747,6 +751,9 @@ class XHTML2Wiki
 		$line = preg_replace("/<\/?u>/", "%%%", $line);
 		// 取消線
 		$line = preg_replace("/<\/?strike>/", "%%", $line);
+		// 上付き・添え字
+		$line = preg_replace('#<su(p|b)[^>]*>#', '&su$1{', $line);
+		$line = str_replace(array('</sup>', '</sub>'), '};', $line);
 		// 文字装飾 <span> の入れ子をシンプルにする
 		$line = str_replace('</span>', "\x08", $line);
 		while(preg_match('/((?:<span style=\".+?\">){2,})([^\08]+?)(\x08{2,})/iS', $line)) {
@@ -776,16 +783,10 @@ class XHTML2Wiki
 
 		// タグの除去
 		$line = strip_tags($line);
-		// スペース
-		//$line = preg_replace("/&nbsp;/", " ", $line);
-		// 特殊文字
-		//$line = preg_replace("/&quot;/", '"', $line);
+
 		if ($this->GetDiv() == 'Heading' || $this->GetDiv() == 'Table') {
 			$line = preg_replace("/\n/", '', $line);
-			//$line = preg_replace("/&lt;/", "<", $line);
-			//$line = preg_replace("/&gt;/", ">", $line);
-		}
-		else {
+		} else {
 			$line = preg_replace("/\s+$/", '', $line);
 			$line = preg_replace("/^\s+/m", '', $line);
 		}
@@ -934,17 +935,19 @@ class XHTML2Wiki
 	}
 		
 	// 参照文字
+	function CharacterRef10($matches) {
+		$map = array(0, 0x10FFFF, 0, 0xFFFFFF);
+		return mb_encode_numericentity(str_replace('&amp;', '&', $matches[1]), $map, 'UTF-8');
+	}
 	function CharacterRef($matches) {
-		return str_replace(array('\'', '&'), array('&#039;', '&amp;'), $matches[1]);
+		return str_replace('&', '&amp;', $matches[1]);
 	}
 	
 	// ブロック要素の開始
 	function StartDiv($element) {
 		array_unshift($this->parent_div, $element);
 		array_unshift($this->level_array, $this->div_level);
-		//if (substr($this->GetDiv(), -4) !== 'List' || substr($element, -4) !== 'List') {
-			$this->div_level = 0;
-		//}
+		$this->div_level = 0;
 	}
 	
 	// ブロック要素の終了
@@ -966,10 +969,6 @@ class XHTML2Wiki
 			$line = $this->Inline($line);
 		}
 		$_h = $head[0];
-		//if (in_array($_h, array('*', '#'))) {
-		//	$head = "\n" . $head;
-		//	$foot .= "\n";
-		//}
 		if (in_array($_h, array('*', '-', '+', '>')) && $line) {
 			$head .= ' ';
 		}
@@ -984,20 +983,20 @@ class XHTML2Wiki
 
 	// エンコード
 	function EncodeSpecialChars($line) {
-		static $pattern = array("/\%\%/", "/\'\'/", "/\[\[/", "/\]\]/", "/\{/", "/\|/", "/\}/");
-		static $replace = array("&#037;&#037;", "&#039;&#039;", "&#091;&#091;",
-								"&#093;&#093;", "&#123;", "&#124;", "&#125;");
+		static $pattern = array('%%', '\'\'', '[[', ']]');
+		static $replace = array('&#037;&#037;', '&#039;&#039;', '&#091;&#091;', '&#093;&#093;');
 
-		return preg_replace($pattern, $replace, $line);
+		if ($this->GetDiv() === 'Table' || $this->GetDiv() === 'DList') {
+			$line = str_replace('|', '&#124;', $line);
+		}
+		return str_replace($pattern, $replace, $line);
 	}
 
 	// 特殊な HTML エンティティを文字に戻す
 	function DecodeSpecialChars($line) {
-		static $pattern = array("/&lt;/", "/&gt;/", "/&quot;/", "/&nbsp;/", "/&amp;/");
+		static $pattern = array('&lt;', '&gt;', '&quot;', '&nbsp;', '&amp;');
 		static $replace = array('<', '>', '"', ' ', '&');
-		//static $pattern = array("/&amp;/", "/&lt;/", "/&gt;/", "/&quot;/");
-		//static $replace = array('&', '<', '>', '"');
 		
-		return preg_replace($pattern, $replace, $line);
+		return str_replace($pattern, $replace, $line);
 	}
 }

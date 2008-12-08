@@ -2,7 +2,7 @@
 /*
  * Created on 2008/10/23 by nao-pon http://hypweb.net/
  * License: GPL v2 or (at your option) any later version
- * $Id: w2x.php,v 1.9 2008/11/20 12:10:40 nao-pon Exp $
+ * $Id: w2x.php,v 1.10 2008/12/08 23:25:47 nao-pon Exp $
  */
 
 //
@@ -313,8 +313,11 @@ class InlineConverterEx {
 		// 色の変換
 		$pattern = "/<sapn\sstyle=\"color:([#0-9a-z]+)(; background-color:([#0-9a-z]+))?\">/";
 		$line = preg_replace_callback($pattern, array(&$this, 'convert_color'), $line);
-		// 参照文字
-		$line = preg_replace('/&amp;(#?[a-z0-9]+);/', "<span class=\"chrref\">&$1;</span>", $line);
+		// 数値参照文字(10進)
+		$line = preg_replace('/(&amp;#[0-9]+?;)+/e', '"<span class=\"chrref10\">".str_replace(\'&amp;\',\'&\',\'$0\')."</span>"', $line);
+		// 文字実体参照
+		$line = preg_replace('/(&amp;[a-z]+?;)+/ie', '"<span class=\"chrref\">".str_replace(\'&amp;\',\'&\',\'$0\')."</span>"', $line);
+
 		
 		// リンク
 		if ($link) {
@@ -454,9 +457,14 @@ class InlineConverterEx {
 			case 'ref':
 				$aryargs[] = $body;
 				return guiedit_convert_ref($aryargs, FALSE);
+			case 'sub':
+				return '<sub>' . $this->convert($body, TRUE, FALSE) . '</sub>';
+			case 'sup':
+				return '<sup>' . $this->convert($body, TRUE, FALSE) . '</sup>';
+
 		}
 		
-		$inner = '&' . $matches[1] . ($matches[2] ? "($matches[2])" : '') . ($body ? '{' . "$body}" : '') . ";";
+		$inner = '&amp;' . $matches[1] . ($matches[2] ? "($matches[2])" : '') . ($body ? '{' . "$body}" : '') . ";";
 		$style = (MSIE) ? ' style="cursor:default"' : '';
 		
 		return "<span class=\"plugin\" contenteditable=\"true\"$style>$inner</span>";

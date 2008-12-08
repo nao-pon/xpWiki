@@ -69,17 +69,16 @@ FCKConfig.Keystrokes = [
 
 //	Tollbar
 FCKConfig.ToolbarSets["Default"] = [
-	['Source','-','Cut','Copy','Paste','PasteText','PasteWord','-',
-	'Undo','Redo','-','Find','Replace','-','SelectAll','RemoveFormat'],
-	['Link','Unlink','Anchor','-',
-	'InsertText','Attachment','Table','Rule','Smiley','SpecialChar','PukiWikiPlugin','-',
-	'FitWindow','ShowBlocks','-','About'],
+	['Cut','Copy','Paste','PasteText','PasteWord'],
+	['Undo','Redo','-','Find','Replace','-','SelectAll','RemoveFormat'],
+	['InsertText','Attachment','Table','Rule','Smiley','SpecialChar','PukiWikiPlugin'],
 	'/',
-	['FontFormat','FontSize'],
-	['Bold','Italic','Underline','StrikeThrough','-',
-	'JustifyLeft','JustifyCenter','JustifyRight','-',
-	'OrderedList','UnorderedList','DList','Blockquote','-','Outdent','Indent','-',
-	'TextColor','BGColor']
+	['Bold','Italic','Underline','StrikeThrough','-','Subscript','Superscript'],
+	['OrderedList','UnorderedList','DList','Blockquote','-','Outdent','Indent'],
+	['JustifyLeft','JustifyCenter','JustifyRight'],
+	['Link','Unlink','Anchor'],
+	['FontFormat','FontSize','TextColor','BGColor'],
+	['Source','-','FitWindow','ShowBlocks','-','About']
 ] ;
 
 //	ContextMenu
