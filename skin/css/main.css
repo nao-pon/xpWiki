@@ -191,6 +191,18 @@ $class dt {
 	margin-left:1em;
 }
 
+$class sub {
+	vertical-align: text-bottom;
+	font-size: 70%;
+	line-height: 100%;
+}
+
+$class sup {
+	vertical-align: text-top;
+	font-size: 70%;
+	line-height: 100%;
+}
+
 /* contents */
 $class div.contents {
 	float: right;
@@ -433,12 +445,13 @@ $class hr.full_hr {
 	border-width:1px 0px;
 }
 $class hr.note_hr {
-	width:90%;
-	border-style:ridge;
-	border-color:#333333;
-	border-width:1px 0px;
-	text-align:center;
+	/*width:90%;
+	text-align:center;*/
 	margin:1em auto 0em auto;
+	border-width: 1px 0px 0px 0px;
+	border-style: dotted;
+	border-color: #333333;
+	height: 1px;
 }
 
 $class span.size1 {
@@ -654,6 +667,21 @@ $class div.footnotes {
 	clear:both;
 	padding:0px;
 	margin:0px;
+}
+
+$class div.footnote_category {
+	margin-top: 0.5em;
+	margin-bottom: 0.3em;
+	font-size: 85%;
+}
+
+$class div.footnote_category_nobr {
+	display: inline;
+	width: auto;
+	margin-top: 0;
+	margin-bottom: 0;
+	margin-left: 1em;
+	margin-right: 0.5em;
 }
 
 $class div.attach {
