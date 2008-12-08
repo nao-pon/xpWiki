@@ -1,5 +1,5 @@
 <?php
-// $Id: ref.inc.php,v 1.38 2008/11/14 12:01:21 nao-pon Exp $
+// $Id: ref.inc.php,v 1.39 2008/12/08 23:42:17 nao-pon Exp $
 /*
 
 	*プラグイン ref
@@ -265,6 +265,9 @@ class xpwiki_plugin_ref extends xpwiki_plugin {
 			return $params;
 		}
 
+		// 残りの引数の処理
+		$this->fetch_options($params, $args, $lvar);
+
 		// ファイルタイプの設定
 		$this->get_type($lvar, $args, $params);
 
@@ -286,9 +289,6 @@ class xpwiki_plugin_ref extends xpwiki_plugin {
 			return $params;
 		}
 
-		// 残りの引数の処理
-		$this->fetch_options($params, $args, $lvar);
-		
 		// サムネイルを作成せず表示する最大サイズ
 		if (!$params['_size']) {
 			$params['_size'] = true;
@@ -303,6 +303,8 @@ class xpwiki_plugin_ref extends xpwiki_plugin {
 			$params['fsize'] = sprintf('%01.1f', round(filesize($lvar['file'])/1024, 1)) . 'KB';
 			$lvar['info'] = $this->func->get_date('Y/m/d H:i:s', filemtime($lvar['file']) - $this->cont['LOCALZONE']) .
 				' ' . $params['fsize'];
+		} else {
+			$params['fsize'] = '';
 		}
 
 		// Flash以外
@@ -489,13 +491,16 @@ class xpwiki_plugin_ref extends xpwiki_plugin {
 				}
 				// 画像ファイル
 				$params['_body'] = '<img src="' . $lvar['url'] . '" alt="' . $lvar['title'] . '" title="' . $lvar['title'] . '"' . $img['class'] . $img['info'] . $_size . $align . ' />';
-				if ($lvar['link']) {
+				if (!$params['nolink'] && $lvar['link']) {
 					$params['_body'] = '<a href="' . $lvar['link'] . '" title="' . $lvar['title'] . '" type="img">' . $params['_body'] . '</a>';
 				}
 			} else {
 				// その他ファイル
 				$icon = $params['noicon'] ? '' : $this->cont['FILE_ICON'];
-				$params['_body'] = '<a href="' . $lvar['link'] . '" title="' . $lvar['title'] . '">' . $icon . $lvar['text'] .'</a>';
+				$params['_body'] = $icon . $lvar['text'];
+				if (!$params['nolink']) {
+					$params['_body'] = '<a href="' . $lvar['link'] . '" title="' . $lvar['title'] . '">' . $params['_body'] .'</a>';
+				}
 			}
 
 			return $params;
@@ -630,13 +635,13 @@ _HTML_;
 		if ($this->func->is_url($lvar['name'])) {
 			$lvar['isurl'] = $lvar['name'];
 			// URL
-			$lvar['nocache'] = array_search('nocache', $args);
-			if (! $this->cont['PKWK_DISABLE_INLINE_IMAGE_FROM_URI'] &&
+			if (! $params['noimg'] &&
+				! $this->cont['PKWK_DISABLE_INLINE_IMAGE_FROM_URI'] &&
 				preg_match($this->cont['PLUGIN_REF_IMAGE_REGEX'], $lvar['name'])) {
 				// 画像
-				if ($lvar['nocache']) {
+				if ($params['nocache']) {
 					// キャッシュしない指定
-					$lvar['type'] = 1;
+					$lvar['type'] = 2;
 				} else {
 					// キャッシュする
 					$this->cache_image_fetch($lvar);
