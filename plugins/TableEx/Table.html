@@ -18,8 +18,8 @@
 	<script type="text/javascript" charset="UTF-8">
 
 var oEditor = window.parent.InnerDialogLoaded() ;
-
 var oDOM = oEditor.FCK.EditorDocument ;
+var XpWiki = window.parent.window.parent.XpWiki;
 
 var table ;
 var e = oEditor.FCKSelection.MoveToAncestorNode('TABLE');
@@ -126,13 +126,13 @@ function Ok() {
 		}
 	}
 	
-	SetAttribute( table, 'cellSpacing'	, GetE('txtCellSpacing').value ) ;
+	SetAttribute( table, 'cellSpacing'	, XpWiki.str2num(GetE('txtCellSpacing').value) ) ;
 	
 	var style = '';
 	SetAttribute( table, 'style', '');
 
 	if (GetE('selWidthType').value != 'auto' && GetE('txtWidth').value) {
-		table.style.width = GetE('txtWidth').value + ((GetE('selWidthType').value == 'pixels')? 'px' : '%');
+		table.style.width = XpWiki.str2num(GetE('txtWidth').value) + ((GetE('selWidthType').value == 'pixels')? 'px' : '%');
 	}
 
 	if (GetE('selAlignment').value == 'center') {
@@ -156,7 +156,7 @@ function Ok() {
 	}
 
 	if (GetE('txtBorder').value) {
-		table.style.border = GetE('txtBorder').value + 'px';
+		table.style.border = XpWiki.str2num(GetE('txtBorder').value) + 'px';
 		table.style.borderStyle = GetE('selBorferStyle').value
 	}
 
@@ -168,8 +168,8 @@ function Ok() {
 		table.style.backgroundColor = GetE('txtBackColor').value;
 	}
 	
-	var iRows = GetE('txtRows').value;
-	var iCols = GetE('txtColumns').value;
+	var iRows = XpWiki.str2num(GetE('txtRows').value);
+	var iCols = XpWiki.str2num(GetE('txtColumns').value);
 	var oRow;
 	
 	if (!bExists) {

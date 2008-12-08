@@ -18,8 +18,8 @@
 	<script type="text/javascript">
 
 var oEditor = window.parent.InnerDialogLoaded();
-
 var oDOM = oEditor.FCK.EditorDocument;
+var XpWiki = window.parent.window.parent.XpWiki;
 
 var oCell = oEditor.FCKTableHandler.GetSelectedCells()[0];
 var oTable = oEditor.FCKSelection.MoveToAncestorNode('TABLE');
@@ -80,7 +80,7 @@ function Ok() {
 	
 	//	セルの幅
 	if (GetE('txtWidth').value.length > 0) {
-		oCol.width = GetE('txtWidth').value;
+		oCol.width = XpWiki.str2num(GetE('txtWidth').value);
 	}
 	else {
 		oCol.removeAttribute('width', 0);
@@ -91,7 +91,7 @@ function Ok() {
 
 	//	文字サイズ
 	if (GetE('txtFontSize').value.length) {
-		oCol.style.fontSize = GetE('txtFontSize').value + 'px';
+		oCol.style.fontSize = XpWiki.str2num(GetE('txtFontSize').value) + 'px';
 	}
 	else {
 		RemoveStyle(oCol, 'font-size');
