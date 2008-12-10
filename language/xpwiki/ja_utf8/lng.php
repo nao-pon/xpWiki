@@ -1,6 +1,6 @@
 <?php
 // PukiWiki - Yet another WikiWikiWeb clone.
-// $Id: lng.php,v 1.14 2008/10/31 07:16:51 nao-pon Exp $
+// $Id: lng.php,v 1.15 2008/12/10 08:51:03 nao-pon Exp $
 // Copyright (C)
 //   2002-2005 PukiWiki Developers Team
 //   2001-2002 Originally written by yu-ji
@@ -447,7 +447,8 @@ $root->_rename_messages  = array(
 	'err_already_below' => '以下のファイルがすでに存在します。',
 	'msg_title'      => 'ページ名の変更',
 	'msg_page'       => '変更元ページを指定',
-	'msg_regex'      => '正規表現で置換',
+	'msg_regex'      => '正規表現',
+	'msg_part_rep'   => '部分一致置換',
 	'msg_related'    => '関連ページ',
 	'msg_do_related' => '関連ページもリネームする',
 	'msg_rename'     => '%sの名前を変更します。',
