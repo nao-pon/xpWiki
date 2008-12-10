@@ -1,6 +1,6 @@
 <?php
 // PukiWiki - Yet another WikiWikiWeb clone.
-// $Id: lng.php,v 1.14 2008/10/13 12:30:06 nao-pon Exp $
+// $Id: lng.php,v 1.15 2008/12/10 08:51:02 nao-pon Exp $
 // Copyright (C)
 //   2002-2005 PukiWiki Developers Team
 //   2001-2002 Originally written by yu-ji
@@ -447,6 +447,8 @@ $root->_rename_messages  = array(
 	'msg_title'      => 'Rename page',
 	'msg_page'       => 'specify source page name',
 	'msg_regex'      => 'rename with regular expressions.',
+	'msg_regex'      => 'Regular expressions',
+	'msg_part_rep'   => 'Replaces partial matches',
 	'msg_related'    => 'related pages',
 	'msg_do_related' => 'A related page is also renamed.',
 	'msg_rename'     => 'rename %s',

@@ -1,6 +1,6 @@
 <?php
 // PukiWiki - Yet another WikiWikiWeb clone.
-// $Id: lng.php,v 1.10 2008/10/13 12:30:06 nao-pon Exp $
+// $Id: lng.php,v 1.11 2008/12/10 08:51:03 nao-pon Exp $
 // Copyright (C)
 //   2002-2005 PukiWiki Developers Team
 //   2001-2002 Originally written by yu-ji
@@ -450,7 +450,8 @@ $root->_rename_messages  = array(
 	'err_already_below' => 'TDie folgenden Seiten existieren bereits.',
 	'msg_title'      => 'Seite umbenennen',
 	'msg_page'       => 'spezifiziere Quell Seiten Namen',
-	'msg_regex'      => 'umbenennen mit den (regular) Bezeichnungen.',
+	'msg_regex'      => 'Regular expressions',
+	'msg_part_rep'   => 'Umbenennen mit den Bezeichnungen.',
 	'msg_related'    => 'verknüpfte Seiten',
 	'msg_do_related' => 'Eine verknüpfte Seite wurde ebenfalls umbenannt.',
 	'msg_rename'     => 'umbenennen %s',

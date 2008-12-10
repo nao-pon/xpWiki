@@ -1,6 +1,6 @@
 <?php
 // PukiWiki - Yet another WikiWikiWeb clone
-// $Id: rename.inc.php,v 1.13 2008/11/17 02:34:23 nao-pon Exp $
+// $Id: rename.inc.php,v 1.14 2008/12/10 08:51:03 nao-pon Exp $
 //
 // Rename plugin: Rename page-name and related data
 //
@@ -20,11 +20,18 @@ class xpwiki_plugin_rename extends xpwiki_plugin {
 		}
 	
 		$method = $this->plugin_rename_getvar('method');
+		$regex = $this->plugin_rename_getvar('regex');
+
 		if ($method == 'regex') {
 			$src = $this->plugin_rename_getvar('src');
 			if ($src == '') return $this->plugin_rename_phase1();
 	
-			$src_pattern = '/' . preg_quote($src, '/') . '/';
+			if ($regex) {
+				$src_pattern = '#' . $src . '#';
+			} else {
+				$src_pattern = '/' . preg_quote($src, '/') . '/';
+			}
+			
 			$arr0 = preg_grep($src_pattern, $this->func->get_existpages());
 			if (! is_array($arr0) || empty($arr0))
 				return $this->plugin_rename_phase1('nomatch');
@@ -118,11 +125,14 @@ $msg
 <form action="{$script}" method="post">
  <div>
   <input type="hidden" name="plugin" value="rename" />
-  <input type="radio"  name="method" id="_p_rename_page" value="page"$radio_page />
-  <label for="_p_rename_page">{$this->root->_rename_messages['msg_page']}:</label>$select_refer<br />
-  <input type="radio"  name="method" id="_p_rename_regex" value="regex"$radio_regex />
-  <label for="_p_rename_regex">{$this->root->_rename_messages['msg_regex']}:</label><br />
-  <label for="_p_rename_from">From:</label><br />
+  <input type="radio" name="method" id="_p_rename_method_page" value="page"$radio_page />
+  <label for="_p_rename_method_page">{$this->root->_rename_messages['msg_page']}:</label>$select_refer<br />
+  <input type="radio" name="method" id="_p_rename_method_reg" value="regex"$radio_regex />
+  <label for="_p_rename_method_reg">{$this->root->_rename_messages['msg_part_rep']}:</label>
+  <input type="checkbox" value="1" name="regex" id="_p_rename_regex"><label for="_p_rename_regex"> {$this->root->_rename_messages['msg_regex']}</label>
+  <br />
+  <label for="_p_rename_from">From:</label>
+  <br />
   <input type="text" name="src" id="_p_rename_from" size="80" value="$s_src" /><br />
   <label for="_p_rename_to">To:</label><br />
   <input type="text" name="dst" id="_p_rename_to"   size="80" value="$s_dst" /><br />
@@ -254,7 +264,7 @@ EOD;
 		if ($method == 'regex') {
 			$s_src = htmlspecialchars($this->plugin_rename_getvar('src'));
 			$s_dst = htmlspecialchars($this->plugin_rename_getvar('dst'));
-			$msg   .= $this->root->_rename_messages['msg_regex'] . '<br />';
+			$msg   .= $this->root->_rename_messages['msg_part_rep'] . '<br />';
 			$input .= '<input type="hidden" name="method" value="regex" />';
 			$input .= '<input type="hidden" name="src"    value="' . $s_src . '" />';
 			$input .= '<input type="hidden" name="dst"    value="' . $s_dst . '" />';
@@ -373,7 +383,7 @@ EOD;
 		$postdata = $this->func->get_source($this->cont['PLUGIN_RENAME_LOGPAGE']);
 		$postdata[] = '*' . $this->root->now . "\n";
 		if ($this->plugin_rename_getvar('method') == 'regex') {
-			$postdata[] = '-' . $this->root->_rename_messages['msg_regex'] . "\n";
+			$postdata[] = '-' . $this->root->_rename_messages['msg_part_rep'] . "\n";
 			$postdata[] = '--From:[[' . $this->plugin_rename_getvar('src') . ']]' . "\n";
 			$postdata[] = '--To:[['   . $this->plugin_rename_getvar('dst') . ']]' . "\n";
 		} else {
