@@ -2,7 +2,7 @@
 /*
  * Created on 2008/11/10 by nao-pon http://hypweb.net/
  * License: GPL v2 or (at your option) any later version
- * $Id: pluginlist.lng.php,v 1.4 2008/12/08 23:47:35 nao-pon Exp $
+ * $Id: pluginlist.lng.php,v 1.5 2008/12/10 08:52:19 nao-pon Exp $
  */
 
 $msg = array(
@@ -108,7 +108,7 @@ $msg = array(
 	),
 	'footnotes' => array(
 		'title' => 'Show or Config footnotes',
-		'block_usage' => '#footnotes([<Catrgory>:<Mark>:][,<Catrgory>:<Mark>:]...)'."\n".'#footnotes([nohr][,nobr][,noclear][,<Target category>[,catrgory]]...)',
+		'block_usage' => '#footnotes([<Catrgory>:<Mark>:][,<Catrgory>:<Mark>:]...)'."\n".'#footnotes([force][,nobr][,nohr][,<Target category>[,catrgory]]...)',
 		'inline_usage' => ''
 	),
 	'fusen' => array(

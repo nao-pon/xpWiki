@@ -371,6 +371,9 @@ EOD;
 			if (preg_match('/^:([^\s]+?)\|(.+?)$/', $body, $match)) {
 				$defkey = $match[1];
 				$body = $match[2];
+			} else if ($pos = strpos($body, '|')) {
+				$defkey = substr($body, $pos + 1);
+				$body = substr($body, 0, $pos);
 			} else {
 				if (isset($noteStr[$base_id][$body])) {
 					$defkey = $body;
@@ -381,6 +384,16 @@ EOD;
 			if (isset($noteStr[$base_id][$defkey])) {
 				list($id, $title) = $noteStr[$base_id][$defkey];
 				$elm_id = '';
+				$foot_id = 'notefoot_'.$base_id.'_'.$id;
+				if (isset($this->root->foot_explain_disabled[$id])) {
+					$foot_explain = $this->root->foot_explain_disabled[$id];
+					unset($this->root->foot_explain_disabled[$id]);
+					preg_match('/id="notefoot_(.+?)"/', $foot_explain, $match);
+					$newid = $match[1] . '.';
+					$this->root->foot_explain[$id] = preg_replace('/(<a[^>]+?>)/e', 'str_replace("'.$match[1].'","'.$newid.'","$1")', $foot_explain);
+					$elm_id  = 'notetext_' . $newid;
+					$foot_id = 'notefoot_' . $newid;
+				}
 			} else {
 				$idType = '*$1';
 				if (!empty($this->root->footnote_categories)) {
@@ -430,10 +443,11 @@ EOD;
 
 				$noteStr[$base_id][$defkey] = array($id, $title);
 				
-				$elm_id = 'notetext_'.$base_id.'_'.$id;
+				$elm_id  = 'notetext_'.$base_id.'_'.$id;
+				$foot_id = 'notefoot_'.$base_id.'_'.$id;
 			}
 			
-			$name = '<a id="'.$elm_id.'" name="'.$elm_id.'" href="'.$script.'#notefoot_'.$base_id.'_'.$id.'" class="note_super"'.$title.'>'.$id.'</a>';
+			$name = '<a id="'.$elm_id.'" name="'.$elm_id.'" href="'.$script.'#'.$foot_id.'" class="note_super"'.$title.'>'.$id.'</a>';
 			if ($this->cont['UA_PROFILE'] === 'keitai') {
 				$name = '<span style="vertical-align:super;font-size:xx-small">' . $name . '</span>';
 			}
