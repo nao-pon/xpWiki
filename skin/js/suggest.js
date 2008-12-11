@@ -37,7 +37,7 @@ XpWikiUnameSuggest.prototype = {
 			var tagSpan = document.createElement('span');
 			var tagText = document.createTextNode(tag + ' ');
 			
-			//@todo is #text better to be replaced?
+			// @todo is #text better to be replaced?
 			tagSpan.insertBefore(tagText, null);
 			this.list.insertBefore(tagSpan, null);
 			
@@ -107,7 +107,7 @@ XpWikiUnameSuggest.prototype = {
 		var tags = Array();
 		for(var i=0;i<this.list.childNodes.length;i++){
 			if(this.list.childNodes[i].nodeName == 'SPAN'){
-			    //@ref http://developer.mozilla.org/en/docs/Whitespace_in_the_DOM
+			    // @ref http://developer.mozilla.org/en/docs/Whitespace_in_the_DOM
 				tags[tags.length] = this.list.childNodes[i].firstChild.data.replace(/[\t\n\r ]+/g, "");
 				var tag = this.list.childNodes[i];
 				tag.onclick = this.remove.bindAsEventListener(this);
@@ -153,7 +153,7 @@ XpWikiUnameSuggest.prototype = {
 			
 			var tagText = document.createTextNode(tag + ' ');
 			
-			//@todo is #text better to be replaced?
+			// @todo is #text better to be replaced?
 			tagSpan.insertBefore(tagText, null);			
 			this.list.insertBefore(tagSpan, null);
 			
@@ -318,7 +318,7 @@ XpWikiSuggest.prototype = {
 		{
 			for(var i=0;i<this.finishedTagList.childNodes.length;i++){
 				if(this.finishedTagList.childNodes[i].nodeName == 'SPAN'){
-				    //@ref http://developer.mozilla.org/en/docs/Whitespace_in_the_DOM
+				    // @ref http://developer.mozilla.org/en/docs/Whitespace_in_the_DOM
 					tags[tags.length] = this.finishedTagList.childNodes[i].firstChild.data.replace(/[\t\n\r ]+/g, "");
 				}
 			}
