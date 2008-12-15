@@ -1,5 +1,5 @@
 <?php
-// $Id: moblog.inc.php,v 1.6 2008/05/08 00:10:00 nao-pon Exp $
+// $Id: moblog.inc.php,v 1.7 2008/12/15 00:08:11 nao-pon Exp $
 // Author: nao-pon http://hypweb.net/
 // Bace script is pop.php of mailbbs by Let's PHP!
 // Let's PHP! Web: http://php.s3.to/
@@ -42,7 +42,7 @@ class xpwiki_plugin_moblog extends xpwiki_plugin {
 		$this->config['maxbyte'] = "1048576"; //1MB
 		
 		// 本文文字制限（半角で
-		$this->config['body_limit'] = 1000;
+		$this->config['body_limit'] = 6000;
 		
 		// 最小自動更新間隔（分）
 		$this->config['refresh_min'] = 5;
@@ -161,20 +161,26 @@ class xpwiki_plugin_moblog extends xpwiki_plugin {
 	
 		for($j=1;$j<=$num;$j++) {
 			$write = true;
-			$subject = $from = $text = $atta = $part = $attach = $filename = "";
+			$subject = $from = $text = $atta = $part = $attach = $filename = $charset = '';
 			$filenames = array();
 			$rotate = 0;
 			list($head, $body) = $this->plugin_moblog_mime_split($dat[$j]);
+
 			// To:ヘッダ確認
 			$treg = array();
+			$to_ok = FALSE;
 			if (preg_match("/(?:^|\n|\r)To:[ \t]*([^\r\n]+)/i", $head, $treg)){
-				$toreg = "/".quotemeta($mail)."/";
-				if (!preg_match($toreg,$treg[1])) $write = false; //投稿アドレス以外
-				$this->debug[] = 'Bad to addr.';
-			} else {
-				// To: ヘッダがない
+				if ($mail === $treg[1]) {
+					$to_ok = TRUE;
+				} else if (preg_match("/(?:^|\n|\r)X-Forwarded-To:[ \t]*([^\r\n]+)/i", $head, $treg)) {
+					if ($mail === $treg[1]) {
+						$to_ok = TRUE;
+					}
+				}
+			}
+			if (! $to_ok) {
 				$write = false;
-				$this->debug[] = 'To: not found.';
+				$this->debug[] = 'Bad To: addr.';
 			}
 			
 			// Received-SPF: のチェック
@@ -196,9 +202,10 @@ class xpwiki_plugin_moblog extends xpwiki_plugin {
 				}
 			}
 			// キャラクターセットのチェック
-			if ($write && (eregi("charset[\s]*=[\s]*([^\r\n]+)", $head, $mreg))) {
+			if ($write && (preg_match('/charset\s*=\s*"?([^"\r\n]+)/i', $head, $mreg))) {
+				$charset = $mreg[1];
 				if ($deny_lang){
-					if (preg_match($deny_lang,$mreg[1])) $write = false;
+					if (preg_match($deny_lang,$charset)) $write = false;
 					$this->debug[] = 'Bad charset.';
 				}
 			}
@@ -207,36 +214,7 @@ class xpwiki_plugin_moblog extends xpwiki_plugin {
 			eregi("Date:[ \t]*([^\r\n]+)", $head, $datereg);
 			$now = strtotime($datereg[1]);
 			if ($now == -1) $now = $this->cont['UTC'];
-			// サブジェクトの抽出
-			$subreg = array();
-			if (preg_match("/\nSubject:[ \t]*(.+?)(\n[\w-_]+:|$)/is", $head, $subreg)) {
-				// 改行文字削除
-				$subject = str_replace(array("\r","\n"),"",$subreg[1]);
-				// エンコード文字間の空白を削除
-				$subject = preg_replace("/\?=[\s]+?=\?/","?==?",$subject);
-				$regs = array();
-				while (eregi("(.*)=\?iso-[^\?]+\?B\?([^\?]+)\?=(.*)",$subject,$regs)) {//MIME B
-					$subject = $regs[1].base64_decode($regs[2]).$regs[3];
-				}
-				$regs = array();
-				while (eregi("(.*)=\?iso-[^\?]+\?Q\?([^\?]+)\?=(.*)",$subject,$regs)) {//MIME Q
-					$subject = $regs[1].quoted_printable_decode($regs[2]).$regs[3];
-				}
-				$subject = trim(mb_convert_encoding($subject,"EUC-JP","AUTO"));
-				
-				//回転指定コマンド検出
-				if (preg_match("/(.*)(?:(r|l)@)$/i",$subject,$match))
-				{
-					$subject = rtrim($match[1]);
-					$rotate = (strtolower($match[2]) == "r")? 1 : 3;
-				}
-				
-				// 未承諾広告カット
-				if ($write && $deny_title){
-					if (preg_match($deny_title,$subject)) $write = false;
-					$this->debug[] = 'Bad title.';
-				}
-			}
+
 			// 送信者アドレスの抽出
 			$freg = array();
 			if (eregi("From:[ \t]*([^\r\n]+)", $head, $freg)) {
@@ -245,6 +223,45 @@ class xpwiki_plugin_moblog extends xpwiki_plugin {
 				$from = $this->plugin_moblog_addr_search($freg[1]);
 			} elseif (eregi("Return-Path:[ \t]*([^\r\n]+)", $head, $freg)) {
 				$from = $this->plugin_moblog_addr_search($freg[1]);
+			}
+
+			// サブジェクトの抽出
+			$subreg = array();
+			if (preg_match("/\nSubject:[ \t]*(.+?)(\n[\w-_]+:|$)/is", $head, $subreg)) {
+				// 改行文字削除
+				$subject = str_replace(array("\r","\n"),"",$subreg[1]);
+				// エンコード文字間の空白を削除
+				$subject = preg_replace("/\?=[\s]+?=\?/","?==?",$subject);
+				$regs = array();
+				while (eregi("(.*)=\?[^\?]+\?B\?([^\?]+)\?=(.*)",$subject,$regs)) {//MIME B
+					$subject = $regs[1].base64_decode($regs[2]).$regs[3];
+				}
+				$regs = array();
+				while (eregi("(.*)=\?[^\?]+\?Q\?([^\?]+)\?=(.*)",$subject,$regs)) {//MIME Q
+					$subject = $regs[1].quoted_printable_decode($regs[2]).$regs[3];
+				}
+				//回転指定コマンド検出
+				if (preg_match("/(.*)(?:(r|l)@)$/i",$subject,$match))
+				{
+					$subject = rtrim($match[1]);
+					$rotate = (strtolower($match[2]) == "r")? 1 : 3;
+				}
+				
+				if (HypCommonFunc::get_version() >= '20081215') {
+					if (! class_exists('MobilePictogramConverter')) {
+						HypCommonFunc::loadClass('MobilePictogramConverter');
+					}
+					$mpc =& MobilePictogramConverter::factory_common();
+					$subject = $mpc->mail2ModKtai($subject, $from, $charset);
+				}
+				
+				$subject = trim(mb_convert_encoding($subject,$this->cont['SOURCE_ENCODING'],"AUTO"));
+				
+				// 未承諾広告カット
+				if ($write && $deny_title){
+					if (preg_match($deny_title,$subject)) $write = false;
+					$this->debug[] = 'Bad title.';
+				}
 			}
 			
 			$today = getdate($now);
@@ -304,9 +321,10 @@ class xpwiki_plugin_moblog extends xpwiki_plugin {
 					$filename = '';
 					$m_body = ereg_replace("\r\n\.\r\n$", "", $m_body);
 					// キャラクターセットのチェック
-					if ($write && (eregi("charset[\s]*=[\s]*([^\r\n]+)", $m_head, $mreg))) {
+					if ($write && (preg_match('/charset\s*=\s*"?([^"\r\n]+)/i', $m_head, $mreg))) {
+						$charset = $mreg[1];
 						if ($deny_lang){
-							if (preg_match($deny_lang,$mreg[1])) $write = false;
+							if (preg_match($deny_lang,$charset)) $write = false;
 							$this->debug[] = 'Bad charset.';
 						}
 					}
@@ -319,6 +337,17 @@ class xpwiki_plugin_moblog extends xpwiki_plugin {
 							$m_body = base64_decode($m_body);
 						if (eregi("Content-Transfer-Encoding:.*quoted-printable", $m_head)) 
 							$m_body = quoted_printable_decode($m_body);
+						
+						if (HypCommonFunc::get_version() >= '20081215') {
+							if (! isset($mpc)) {
+								if (! class_exists('MobilePictogramConverter')) {
+									HypCommonFunc::loadClass('MobilePictogramConverter');
+								}
+								$mpc =& MobilePictogramConverter::factory_common();
+							}
+							$m_body = $mpc->mail2ModKtai($m_body, $from, $charset);
+						}
+						
 						$text = trim(mb_convert_encoding($m_body, $this->cont['SOURCE_ENCODING'], 'AUTO'));
 						if ($sub == "html") $text = strip_tags($text);
 						$text = str_replace(array("\r\n", "\r"), "\n", $text);
