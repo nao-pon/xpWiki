@@ -2,7 +2,7 @@
 /*
  * Created on 2008/12/07 by nao-pon http://hypweb.net/
  * License: GPL v2 or (at your option) any later version
- * $Id: footnotes.inc.php,v 1.2 2008/12/10 08:52:19 nao-pon Exp $
+ * $Id: footnotes.inc.php,v 1.3 2009/01/04 11:43:46 nao-pon Exp $
  */
 
 class xpwiki_plugin_footnotes extends xpwiki_plugin {
@@ -46,6 +46,9 @@ class xpwiki_plugin_footnotes extends xpwiki_plugin {
 			}
 		}
 		if ($this->root->foot_explain || ! empty($this->root->foot_explain_disabled)) {
+			if (! isset($this->root->foot_explain_disabled)) {
+				$this->root->foot_explain_disabled = array();
+			}
 			$notes = $this->root->foot_explain;
 			if ($options['force'] && ! empty($this->root->foot_explain_disabled)) {
 				$disabled = $this->root->foot_explain_disabled;
