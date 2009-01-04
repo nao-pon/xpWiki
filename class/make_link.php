@@ -364,7 +364,7 @@ EOD;
 
 		$page = isset ($this->root->vars['page']) ? rawurlencode($this->root->vars['page']) : '';
 		
-		if (preg_match('/^(?:e|i|s):[0-9a-f]{4}$/', $body)) {
+		if (preg_match('/^[eis]:[0-9a-f]{4}$/', $body)) {
 			$name = '((' . $body . '))';
 		} else {
 			$category = '';
@@ -721,6 +721,8 @@ EOD;
 			$this->otherObj =& $url;
 			return parent :: setParam($page, htmlspecialchars($_param), '', 'pagename', $alias == '' ? $name.':'.$this->param : $alias);
 		}
+		
+		$this->otherObj = NULL;
 
 		if (!$url) return false;
 		$this->url = htmlspecialchars($url);
