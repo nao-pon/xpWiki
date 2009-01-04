@@ -1,7 +1,7 @@
 <?php
 //
 // Created on 2006/10/02 by nao-pon http://hypweb.net/
-// $Id: xpwiki_func.php,v 1.197 2008/11/18 04:10:40 nao-pon Exp $
+// $Id: xpwiki_func.php,v 1.198 2009/01/04 11:38:52 nao-pon Exp $
 //
 class XpWikiFunc extends XpWikiXoopsWrapper {
 
@@ -1449,6 +1449,19 @@ EOD;
 	}
 	
 	function output_ajax ($body) {
+		// K-Tai EMOJI
+		if (defined('HYP_K_TAI_RENDER') && preg_match('/\(\([eis]:[0-9a-f]{4}\)\)/S', $body)) {
+			if (! class_exists('MobilePictogramConverter')) {
+				HypCommonFunc::loadClass('MobilePictogramConverter');
+			}
+			if (class_exists('MobilePictogramConverter')) {
+				$mpc =& MobilePictogramConverter::factory_common();
+				$mpc->setImagePath(XOOPS_URL . '/images/emoji');
+				$mpc->setString($body, FALSE);
+				$body = $mpc->autoConvertModKtai();
+			}
+		}
+
 		// Head Tags
 		list($head_pre_tag, $head_tag) = $this->get_additional_headtags();
 		$body = str_replace(']]>', ']]&gt;', $body);
@@ -3333,9 +3346,11 @@ EOD;
 		natcasesort($this->root->page_aliases);
 		
 		$dat = "\$root->page_aliases = array(\n";
+		$quote['from'] = array('\\',   "'",);
+		$quote['to']   = array('\\\\', "\\'");
 		foreach($this->root->page_aliases as $_alias => $_page) {
-			$_alias = str_replace("'", "\\'", $_alias);
-			$_page = str_replace("'", "\\'", $_page);
+			$_alias = str_replace($quote['from'], $quote['to'], $_alias);
+			$_page = str_replace($quote['from'], $quote['to'], $_page);
 			$dat .= "\t'{$_alias}' => '{$_page}',\n";
 		}
 		$dat.= ");";
