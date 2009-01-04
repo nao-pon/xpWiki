@@ -2,7 +2,7 @@
 /////////////////////////////////////////////////
 // PukiWiki - Yet another WikiWikiWeb clone.
 //
-// $Id: menu.inc.php,v 1.10 2008/09/03 08:08:27 nao-pon Exp $
+// $Id: menu.inc.php,v 1.11 2009/01/04 11:45:14 nao-pon Exp $
 //
 
 class xpwiki_plugin_menu extends xpwiki_plugin {
@@ -81,27 +81,33 @@ class xpwiki_plugin_menu extends xpwiki_plugin {
 	
 	function plugin_menu_convert() {
 		static $menu = array();
-		if (!isset($menu[$this->xpwiki->pid])) {$menu[$this->xpwiki->pid] = NULL;}
+		if (!isset($menu[$this->root->mydirname])) {$menu[$this->root->mydirname] = NULL;}
 	
 		$num = func_num_args();
 		if ($num > 0) {
 			// Try to change default 'MenuBar' page name (only)
 			if ($num > 1)       return '#menu(): Zero or One argument needed';
-			if ($menu[$this->xpwiki->pid] !== NULL) return '#menu(): Already set: ' . htmlspecialchars($menu[$this->xpwiki->pid]);
+			if ($menu[$this->root->mydirname] !== NULL) return '#menu(): Already set: ' . htmlspecialchars($menu[$this->root->mydirname]);
 			$args = func_get_args();
+			$args[0] = $this->func->get_fullname($args[0], $this->root->vars['page']);
 			if (! $this->func->is_page($args[0])) {
-				return '#menu(): No such page: ' . htmlspecialchars($args[0]);
+				return '#menu(): No such page: ' . $this->func->make_pagelink($args[0]);
 			} else {
-				$menu[$this->xpwiki->pid] = $args[0]; // Set
+				$menu[$this->root->mydirname] = $args[0]; // Set
 				return '';
 			}
 	
 		} else {
 			// Output menubar page data
-			$page = ($menu[$this->xpwiki->pid] === NULL) ? $this->root->menubar : $menu[$this->xpwiki->pid];
+			$page = ($menu[$this->root->mydirname] === NULL) ? $this->root->menubar : $menu[$this->root->mydirname];
 	
 			if ($this->cont['MENU_ENABLE_SUBMENU']) {
-				$path = explode('/', $this->func->strip_bracket($this->root->vars['page']));
+				if ($this->root->render_mode === 'block') {
+					$tmppage = $GLOBALS['Xpwiki_'.$this->root->mydirname]['page'];
+				} else {
+					$tmppage = $this->func->strip_bracket($this->root->vars['page']);
+				}
+				$path = explode('/', $tmppage);
 				while(! empty($path)) {
 					$_page = join('/', $path) . '/' . $this->cont['MENU_SUBMENUBAR'];
 					if ($this->func->is_page($_page)) {
