@@ -2,7 +2,7 @@
 /*
  * Created on 2008/10/23 by nao-pon http://hypweb.net/
  * License: GPL v2 or (at your option) any later version
- * $Id: w2x.php,v 1.10 2008/12/08 23:25:47 nao-pon Exp $
+ * $Id: w2x.php,v 1.11 2009/01/04 11:32:31 nao-pon Exp $
  */
 
 //
@@ -297,8 +297,9 @@ class InlineConverterEx {
 		if ($enc) {
 			$line = htmlspecialchars($line);
 		}
-		
-		$line = preg_replace('/\{\{([^}\|]*)([^}]*)\}\}/', '&amp;ref($1){$2};', $line);
+
+		// easy ref ( {{filename|alias}} )
+		$line = preg_replace('/\{\{([^{}\|]*)([^{}]*)\}\}/', '&amp;ref($1){$2};', $line);
 		
 		// インライン・プラグイン
 		$pattern = '/&amp;(\w+)(?:\(((?:(?!\)[;{]).)*)\))?(?:\{((?:(?R)|(?!};).)*)\})?;/';
