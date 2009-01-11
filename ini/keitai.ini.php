@@ -1,6 +1,6 @@
 <?php
 // PukiWiki - Yet another WikiWikiWeb clone.
-// $Id: keitai.ini.php,v 1.18 2008/09/25 00:21:46 nao-pon Exp $
+// $Id: keitai.ini.php,v 1.19 2009/01/11 14:01:27 nao-pon Exp $
 // Copyright (C)
 //   2002-2005 PukiWiki Developers Team
 //   2001-2002 Originally written by yu-ji
@@ -440,6 +440,17 @@ if (class_exists('HypCommonPreLoad')) {
 	$dummy = NULL;
 	$hyp_preload = new HypCommonPreLoad($dummy);
 	$root->k_tai_conf = $hyp_preload->k_tai_conf;
+
+	// Reset each site values. 
+	foreach (array_keys($root->k_tai_conf) as $key) {
+		if (strpos($key, '#') === FALSE) {
+			$sitekey = $key . '#' . XOOPS_URL;
+			if (isset($root->k_tai_conf[$sitekey])) {
+				$root->k_tai_conf[$key] = $root->k_tai_conf[$sitekey];
+			}
+		}
+	}
+
 	mb_convert_variables($const['SOURCE_ENCODING'], $hyp_preload->configEncoding, $root->k_tai_conf['msg']);
 } else {
 	// インラインイメージを表示するホスト名(後方一致)
@@ -451,6 +462,9 @@ if (class_exists('HypCommonPreLoad')) {
 	// Google Adsense 設定
 	$root->k_tai_conf['googleAdsense']['config'] = $const['TRUST_PATH'] . 'class/hyp_common/ktairender/adsenseConf.php';
 	$root->k_tai_conf['googleAdsense']['below'] = 'header';
+	
+	// Google Analytics 設定
+	$root->k_tai_conf['googleAnalyticsId'] = '';
 	
 	// リダイレクトスクリプト
 	$root->k_tai_conf['redirect'] = $this->cont['HOME_URL'] . 'gate.php?way=redirect_SJIS&amp;xmode=2&amp;l=';
