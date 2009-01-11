@@ -1,6 +1,6 @@
 <?php
 // PukiWiki - Yet another WikiWikiWeb clone.
-// $Id: keitai.skin.php,v 1.22 2008/09/26 09:10:41 nao-pon Exp $
+// $Id: keitai.skin.php,v 1.23 2009/01/11 14:01:27 nao-pon Exp $
 // Copyright (C) 2003-2006 PukiWiki Developers Team
 // License: GPL v2 or (at your option) any later version
 //
@@ -225,12 +225,22 @@ if (HypCommonFunc::get_version() >= '20080617.2') {
 		$r->Config_googleAdSenseBelow = $this->root->k_tai_conf['googleAdsense']['below'];
 	}
 
+	$googleAnalytics = '';
+	if ($this->root->k_tai_conf['googleAnalyticsId']) {
+		$googleAnalytics = $r->googleAnalyticsGetImgTag($this->root->k_tai_conf['googleAnalyticsId'], $title);
+	}
+
 	$r->inputEncode = $this->cont['SOURCE_ENCODING'];
 	$r->outputEncode = 'SJIS';
 	$r->outputMode = 'xhtml';
 	$r->langcode = $this->cont['LANG'];
 
-	$r->contents['header'] = $header;
+	if (! empty($_SESSION['hyp_redirect_message'])){
+		$header = $this->root->k_tai_conf['rebuilds']['redirectMessage']['above'] . $_SESSION['hyp_redirect_message'] . $this->root->k_tai_conf['rebuilds']['redirectMessage']['below'] . $header;
+		unset($_SESSION['hyp_redirect_message']);
+	}
+
+	$r->contents['header'] = $header . $googleAnalytics;
 	$r->contents['body'] = $body . $pageinfo;
 	$r->contents['footer'] = $footer;
 
