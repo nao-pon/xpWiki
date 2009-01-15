@@ -1,6 +1,6 @@
 <?php
 // PukiWiki - Yet another WikiWikiWeb clone.
-// $Id: search.inc.php,v 1.9 2008/11/17 02:34:23 nao-pon Exp $
+// $Id: search.inc.php,v 1.10 2009/01/15 03:00:26 nao-pon Exp $
 //
 // Search plugin
 class xpwiki_plugin_search extends xpwiki_plugin {
@@ -12,7 +12,10 @@ class xpwiki_plugin_search extends xpwiki_plugin {
 	
 		$this->cont['PLUGIN_SEARCH_MAX_LENGTH'] =  80;
 		$this->cont['PLUGIN_SEARCH_MAX_BASE'] =    16; // #search(1,2,3,...,15,16)
-
+		
+		$this->config['context'] = 'conv'; // ( '': none or 'db': Use database (light) or 'conv': Convert (heavy) )
+		$this->config['resultMax'] = 500;
+		
 		// Load Language
 		$this->load_language();
 	}
@@ -63,7 +66,14 @@ class xpwiki_plugin_search extends xpwiki_plugin {
 			}
 			
 			$msg  = str_replace('$1', $s_word, $this->root->_title_result);
-			$options = array('field' => $filed, 'spZen' => TRUE, 'context' => TRUE);
+			$options = array(
+				'field' => $filed,
+				'limit' => 0,
+				'spZen' => TRUE,
+				'context' => $this->config['context'],
+				'resultMax' => $this->config['resultMax'],
+				'msg_more_search' => str_replace('$1', $this->config['resultMax'], $this->msg['msg_more_search']),
+			);
 			$body = $this->func->do_search($this->root->vars['word'], $type, FALSE, $base, $options);
 		} else {
 			// Init
