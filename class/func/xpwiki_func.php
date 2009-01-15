@@ -1,7 +1,7 @@
 <?php
 //
 // Created on 2006/10/02 by nao-pon http://hypweb.net/
-// $Id: xpwiki_func.php,v 1.198 2009/01/04 11:38:52 nao-pon Exp $
+// $Id: xpwiki_func.php,v 1.199 2009/01/15 03:03:45 nao-pon Exp $
 //
 class XpWikiFunc extends XpWikiXoopsWrapper {
 
@@ -454,7 +454,7 @@ class XpWikiFunc extends XpWikiXoopsWrapper {
 			$body  = $this->convert_html($this->get_source($page));
 			$this->root->content_title = $this->get_heading($page);
 			// キャッシュ保存
-			if (!empty($this->root->rtf['use_cache_always']) || ($this->root->userinfo['uid'] === 0 && $this->root->pagecache_min > 0)) {
+			if ($this->cont['UA_PROFILE'] !== 'keitai' && (! empty($this->root->rtf['use_cache_always']) || ($this->root->userinfo['uid'] === 0 && $this->root->pagecache_min > 0))) {
 				$fp = fopen($cache_file, "wb");
 				fwrite($fp, serialize(
 					array(
@@ -2135,6 +2135,73 @@ EOD;
 		return md5($src);
 	}
 	
+	function get_page_context ($page, $words = NULL, $highlight = FALSE, $contextLength = 255, $contextKeys = 3, $delimiter='...') {
+		if (is_null($words)) {
+			$words = array($page, $this->basename($page));
+		}
+		$words = array_unique($words);
+		$cache_file = $this->cont['CACHE_DIR']."page/".$this->encode($page).".".$this->cont['UI_LANG'];
+		if (is_file($cache_file)) {
+			$cache_dat = unserialize(file_get_contents($cache_file));
+			$text = $cache_dat['body'];
+		} else {
+			$pobj = & XpWiki::getSingleton($this->root->mydirname);
+			$pobj->init($page);
+			$GLOBALS['Xpwiki_'.$this->root->mydirname]['cache'] = null;
+			$pobj->root->rtf['use_cache_always'] = TRUE;
+			$pobj->execute();
+			$text = $pobj->body;
+		}
+		$text = preg_replace('/<(script|style).+?<\/\\1>/i', '', $text);
+		$text = str_replace($this->root->hierarchy_insert, '', $text);
+		$context = HypCommonFunc::make_context(strip_tags( $text ), $words, $contextLength, $contextKeys, $delimiter);
+		if ($highlight) {
+			$context = $this->word_highlight($context, join(' ',$words));
+		}
+		return '<div class="context">' . $context . '</div>';
+	}
+	
+	function word_highlight ($body, $word) {
+		// BugTrack2/106: Only variables can be passed by reference from PHP 5.0.5
+		// with array_splice(), array_flip()
+		$words = preg_split('/\s+/', $word, -1, PREG_SPLIT_NO_EMPTY);
+		$words = array_splice($words, 0, 10); // Max: 10 words
+		$words = array_flip($words);
+
+		$keys = array();
+		foreach ($words as $word=>$id) $keys[$word] = strlen($word);
+		arsort($keys, SORT_NUMERIC);
+		$keys = $this->get_search_words(array_keys($keys), TRUE);
+		$id = 0;
+		foreach ($keys as $key=>$pattern) {
+			$s_key    = htmlspecialchars($key);
+			$pattern  = '/' .
+				'<(textarea|script|style)[^>]*>.*?<\/\\1>' .	// Ignore textareas
+				'|' . '<[^>]*>' .			// Ignore tags
+				'|' . ( preg_match('/^(&?#?[\d]+|#?[\d]+;|&#?|#|;)$/', $key)?
+				'&[^;]+;' :					// Ignore entities
+				'&#[^\d]+;' ) .				// Ignore entities (Not numerical entities only)
+				'|' . '(' . $pattern . ')' .		// $matches[1]: Regex for a search word
+				'/sS';
+			$decorate_Nth_word = create_function(
+				'$matches',
+				'return (isset($matches[2])) ? ' .
+					'\'<strong class="word' .
+						$id .
+					'">\' . $matches[2] . \'</strong>\' : ' .
+					'$matches[0];'
+			);
+			if (is_array($body)) {
+				foreach ($body as $key => $val) {
+					$body[$key] = preg_replace_callback($pattern, $decorate_Nth_word, $body[$key]);
+				}
+			} else {
+				$body  = preg_replace_callback($pattern, $decorate_Nth_word, $body);
+			}
+			++$id;
+		}
+		return $body;
+	}
 /*----- DB Functions -----*/ 
 	// Over write pukiwiki_func
 	function is_freeze($page, $clearcache = FALSE) {
@@ -2583,6 +2650,9 @@ EOD;
 				)
 			);
 
+			// Clear page cache
+			$this->clear_page_cache($page);
+			
 			$pobj = & XpWiki::getSingleton($this->root->mydirname);
 			$pobj->init($page);
 			$GLOBALS['Xpwiki_'.$this->root->mydirname]['cache'] = null;
@@ -2740,12 +2810,8 @@ EOD;
 					if ($pgid == $refid || !$refid) {continue;}
 					$query = "INSERT INTO ".$this->xpwiki->db->prefix($this->root->mydirname."_rel")." (pgid,relid) VALUES(".$refid.",".$pgid.");";
 					$result=$this->xpwiki->db->queryF($query);
-					// PlainテキストDB 更新予約を設定
-					//$this->need_update_plaindb($_page);
 					// 相手先ページも更新
 					$this->plain_db_write($_page, 'update', FALSE, TRUE);
-					// ページHTMLキャッシュを削除
-					$this->clear_page_cache($_page);
 				}
 			}
 			
@@ -2926,12 +2992,15 @@ EOD;
 	}
 	
 	// データベースからリンクされているページを得る
-	function links_get_related_db($page)
+	function links_get_related_db($page, $start = 0, $max = 0)
 	{
 		static $links = array();
 		
-		if (isset($links[$this->root->mydirname][$page])) {return $links[$this->root->mydirname][$page];}
-		$links[$this->root->mydirname][$page] = array();
+		if (isset($links[$this->root->mydirname][$page])) {
+			return $links[$this->root->mydirname][$page];
+		}
+		
+		$limit = $max? ' LIMIT ' . $start . ',' . $max : '';
 		
 		$where = "`relid` = ".$this->get_pgid_by_name($page)." AND p.pgid = r.pgid";
 		$r_where = $this->get_readable_where('p.');
@@ -2940,21 +3009,52 @@ EOD;
 		}
 		$where = " WHERE " . $where;
 		
-		$query = "SELECT p.name, p.editedtime FROM `".$this->xpwiki->db->prefix($this->root->mydirname."_rel")."` AS r, `".$this->xpwiki->db->prefix($this->root->mydirname."_pginfo")."` AS p ".$where;
+		$query = "SELECT p.name, p.editedtime FROM `".$this->xpwiki->db->prefix($this->root->mydirname."_rel")."` AS r, `".$this->xpwiki->db->prefix($this->root->mydirname."_pginfo")."` AS p " . $where . $limit;
 		$result = $this->xpwiki->db->query($query);
 		//echo $query;
 		
-		if ($result)
-		{
-			while(list($name,$time) = $this->xpwiki->db->fetchRow($result))
-			{
-				$links[$this->root->mydirname][$page][$name] = $time;
+		$ret = array();
+		if ($result) {
+			while(list($name,$time) = $this->xpwiki->db->fetchRow($result)) {
+				$ret[$name] = $time;
 			}
+		}
+		
+		if (! $limit) {
+			$links[$this->root->mydirname][$page] = $ret;
+		}
+		
+		return $ret;
+	}
+
+	// データベースからリンクされているページ数を得る
+	function links_count_related_db($page)
+	{
+		static $links = array();
+		
+		if (isset($links[$this->root->mydirname][$page])) {
+			return $links[$this->root->mydirname][$page];
+		}
+		
+		$where = "`relid` = ".$this->get_pgid_by_name($page)." AND p.pgid = r.pgid";
+		$r_where = $this->get_readable_where('p.');
+		if ($r_where) {
+			$where = "($where AND ($r_where))";
+		}
+		$where = " WHERE " . $where;
+		
+		$query = "SELECT COUNT(*) FROM `".$this->xpwiki->db->prefix($this->root->mydirname."_rel")."` AS r, `".$this->xpwiki->db->prefix($this->root->mydirname."_pginfo")."` AS p " . $where . $limit;
+		$result = $this->xpwiki->db->query($query);
+		//echo $query;
+		
+		$links[$this->root->mydirname][$page] = 0;
+		if ($result) {
+			list($links[$this->root->mydirname][$page]) = $this->xpwiki->db->fetchRow($result);
 		}
 		
 		return $links[$this->root->mydirname][$page];
 	}
-
+	
 	// データベースからリンクしているページを得る
 	function links_get_linked_db($page)
 	{
@@ -3057,7 +3157,9 @@ EOD;
 			'offset' => 0,
 			'userid' => 0,
 			'spZen'  => FALSE,
-			'context'   => FALSE,
+			'context'    => '',
+			'resultMax' => 0,
+			'msg_more_search' => '',
 		);
 		
 		$options = array_merge($def_options, $options);
@@ -3083,7 +3185,7 @@ EOD;
 			$where = "$where AND ($where_readable)";
 		}
 		
-		$sel_desc = ($options['context'])? ', t.plain' : '';
+		$sel_desc = ($options['context'] === 'db')? ', t.plain' : '';
 		
 		$sql = 'SELECT p.name, p.editedtime, p.title'.$sel_desc.' FROM '.$this->xpwiki->db->prefix($this->root->mydirname."_pginfo")." p INNER JOIN ".$this->xpwiki->db->prefix($this->root->mydirname."_plain")." t ON t.pgid=p.pgid WHERE ($where) ";
 		if ( $options['userid'] != 0 ) {
@@ -3129,7 +3231,7 @@ EOD;
 		}
 		while($myrow = $this->xpwiki->db->fetchArray($result)) {
 			$pages[$myrow['name']] = array($myrow['editedtime'], $myrow['title']);
-			if ($options['context']) $pages[$myrow['name']][2] = $myrow['plain'];
+			if ($options['context'] === 'db') $pages[$myrow['name']][2] = $myrow['plain'];
 		}
 		
 		if ($non_format) return array_keys($pages);
@@ -3143,6 +3245,11 @@ EOD;
 		ksort($pages);
 		
 		$count = count($this->get_existpages());
+		$resCount = count($pages);
+		
+		if ($options['resultMax'] && $resCount > $options['resultMax']) {
+			$pages = array_splice($pages, 0, $options['resultMax']);
+		}
 		
 		$retval = '<ul>' . "\n";
 		foreach ($pages as $page => $data) {
@@ -3152,15 +3259,20 @@ EOD;
 			$passage = $this->root->show_passage ? ' ' . $this->get_passage($data[0]) : '';
 			$retval .= ' <li><a href="' . $this->get_page_uri($page, TRUE) . ($this->root->static_url ? '?' : '&amp;') . 'word=' . $r_word . '">' . $s_page .
 				'</a><small>' . $passage . '</small> [ ' . htmlspecialchars($data[1]) . ' ]' . "\n";
-			if ($options['context']) {
+			if ($options['context'] === 'db') {
 				$retval .= '<div class="context">' . HypCommonFunc::make_context($data[2], $keywords) . '</div>';
+			} else if ($options['context'] === 'conv') {
+				$retval .= $this->get_page_context($page, $keywords);
 			}
 			$retval .= '</li>';
 		}
 		$retval .= '</ul>' . "\n";
 	
-		$retval .= str_replace('$1', $s_word, str_replace('$2', count($pages),
+		$retval .= str_replace('$1', $s_word, str_replace('$2', $resCount,
 			str_replace('$3', $count, ($andor === 'AND') ? $this->root->_msg_andresult : $this->root->_msg_orresult)));
+		if ($options['msg_more_search'] && $options['resultMax'] && $resCount > $options['resultMax']) {
+			$retval .= $options['msg_more_search'];
+		}
 	
 		return $retval;
 	}

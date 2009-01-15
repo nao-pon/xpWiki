@@ -2,24 +2,42 @@
 class xpwiki_plugin_related extends xpwiki_plugin {
 	function plugin_related_init () {
 
-
+		$this->config['showContextAction'] = TRUE;
+		$this->config['showMaxAction'] = 100;
 
 	}
 	// PukiWiki - Yet another WikiWikiWeb clone
-	// $Id: related.inc.php,v 1.3 2007/09/19 11:27:15 nao-pon Exp $
+	// $Id: related.inc.php,v 1.4 2009/01/15 03:03:45 nao-pon Exp $
 	//
 	// Related plugin: Show Backlinks for the page
 	
 	function plugin_related_convert()
 	{
-		$args[0] = 0;
+		$options = array(
+			'max' => 0,
+			'backlink' => FALSE,
+			'nopassage' => FALSE,
+			'notitle' => FALSE,
+			'context' => '',
+			'separate' => FALSE,
+			'highlight' => FALSE,
+		);
+
 		if (func_num_args()) {
 			$args  = func_get_args();
-			$args[0] = intval($args[0]);
+			$this->fetch_options($options, $args, array('max'));
 		}
-		$max = ($args[0])? $args[0] : 0;
-	
-		return $this->func->make_related($this->root->vars['page'], 'p', $max);
+		if ($options['separate']) {
+			$options['delimiter'] = "\x08";
+		}
+		
+		$ret = $this->func->make_related($this->root->vars['page'], 'p', $options['max'], $options);
+		
+		if ($options['separate']) {
+			$ret = str_replace(array(">\x08", "\x08<", "\x08"), array('>...', '...<', '...</div><div class="context">...'), $ret);
+		}
+		
+		return $ret;
 	}
 	
 	// Show Backlinks: via related caches for the page
@@ -28,25 +46,45 @@ class xpwiki_plugin_related extends xpwiki_plugin {
 	//	global $vars, $script, $defaultpage, $whatsnew;
 	
 		$_page = isset($this->root->vars['page']) ? $this->root->vars['page'] : '';
+		$showcontent = isset($this->root->vars['context']) ? (bool)$this->root->vars['context'] : $this->config['showContextAction'];
+		//$pnum = isset($this->root->vars['pnum']) ? max(intval($this->root->vars['pnum']), 1) : 1;
+		//$start = ($pnum - 1) * $this->config['showMaxAction'];
+		$start = isset($this->root->vars['start']) ? max(intval($this->root->vars['start']), 0) : 0;
+		
 		if ($_page === '') $_page = $this->root->defaultpage;
 	
 		// Get related from cache
-		$data = $this->func->links_get_related_db($_page);
+		$count = $this->func->links_count_related_db($_page);
+		$max = ($count > $this->config['showMaxAction'])? $this->config['showMaxAction'] : 0;
+		
+		if ($max) {
+			$pnavObj = $this->func->getPageNav($count, $max, $start);
+			$pnavObj->url = '?plugin=related&amp;page=' . rawurlencode($_page) . '&amp;start=';
+			$pnav = '<div class="pagenav">Total: ' . $count . ' pages&nbsp;&nbsp;' . $pnavObj->renderNav() . '</div>';
+		} else {
+			$pnav = ($count > 3)? '<div class="pagenav">Total: ' . $count . ' pages</div>' : '';
+		}
+		
+		$data = $this->func->links_get_related_db($_page, $start, $max);
 		if (! empty($data)) {
 			// Hide by array keys (not values)
 			foreach(array_keys($data) as $page)
-				if ($page === $this->root->whatsnew ||
-				    $this->func->check_non_list($page))
+				if (
+					$page === $this->root->whatsnew
+					|| ! $this->func->is_page($page)
+					|| $this->func->check_non_list($page)
+				) {
 					unset($data[$page]);
+				}
 		}
 	
 		// Result
-		$r_word = rawurlencode($_page);
 		$s_word = htmlspecialchars($_page);
 		$msg = 'Backlinks for: ' . $s_word;
-		$retval  = '<a href="' . $this->root->script . '?' . $r_word . '">' .
-		'Return to ' . $s_word .'</a><br />'. "\n";
-	
+		$retval = $this->func->make_pagelink($_page, 'Return to ' . $s_word) . '<br />'. "\n";
+		
+		$retval .= $pnav;
+		
 		if (empty($data)) {
 			$retval .= '<ul><li>No related pages found.</li></ul>' . "\n";	
 		} else {
@@ -54,15 +92,23 @@ class xpwiki_plugin_related extends xpwiki_plugin {
 			ksort($data);
 			$retval .= '<ul>' . "\n";
 			foreach ($data as $page=>$time) {
-				//$r_page  = rawurlencode($page);
-				//$s_page  = htmlspecialchars($page);
-				//$passage = $this->func->get_passage($time);
-				//$retval .= ' <li><a href="' . $this->root->script . '?' . $r_page . '">' . $s_page .
-				//'</a> ' . $passage . '</li>' . "\n";
-				$retval .= ' <li>' . $this->func->make_pagelink($page) . '</li>' . "\n";
+				$context = '';
+				$passage = ' <small>' . $this->func->get_passage($time) . '</small>';
+				$title = $this->func->get_heading($page);
+				if ($title) {
+					$title = ' [ ' . $title . ' ]';
+				}
+				if ($showcontent) {
+					$words = array_unique(array_merge(array($_page, $this->func->basename($_page)), $this->func->get_page_alias($_page, TRUE)));
+					$context = $this->func->get_page_context($page, $words);
+					// for highlight
+					$this->root->vars['word'] = join(' ',$words);
+				}
+				$retval .= ' <li>' . $this->func->make_pagelink($page, $page) . $passage . $title . $context . '</li>' . "\n";
 			}
 			$retval .= '</ul>' . "\n";
 		}
+		$retval .= $pnav;
 		return array('msg'=>$msg, 'body'=>$retval);
 	}
 }
