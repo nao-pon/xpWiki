@@ -1,7 +1,7 @@
 <?php
 //
 // Created on 2006/10/11 by nao-pon http://hypweb.net/
-// $Id: xoops_wrapper.php,v 1.47 2008/09/10 04:37:37 nao-pon Exp $
+// $Id: xoops_wrapper.php,v 1.48 2009/01/15 03:00:54 nao-pon Exp $
 //
 class XpWikiXoopsWrapper extends XpWikiBackupFunc {
 	
@@ -593,6 +593,12 @@ class XpWikiXoopsWrapper extends XpWikiBackupFunc {
 	
 	function onPageWriteAfter ($page, $postdata, $notimestamp, $mode, $diffdata, $deletecache) {
 
+	}
+	
+	function getPageNav ($total_items, $items_perpage, $current_start, $start_name="start", $extra_arg="") {
+		include_once XOOPS_ROOT_PATH . '/class/pagenav.php';
+		$obj = new XoopsPageNav($total_items, $items_perpage, $current_start, $start_name, $extra_arg);
+		return $obj;
 	}
 }
 ?>
