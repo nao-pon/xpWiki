@@ -1,7 +1,7 @@
 <?php
 //
 // Created on 2006/10/02 by nao-pon http://hypweb.net/
-// $Id: pukiwiki_func.php,v 1.192 2008/12/08 23:44:30 nao-pon Exp $
+// $Id: pukiwiki_func.php,v 1.193 2009/01/15 03:03:45 nao-pon Exp $
 //
 class XpWikiPukiWikiFunc extends XpWikiBaseFunc {
 
@@ -960,7 +960,7 @@ class XpWikiPukiWikiFunc extends XpWikiBaseFunc {
 
 //----- Start convert_html.php -----//
 	// PukiWiki - Yet another WikiWikiWeb clone
-	// $Id: pukiwiki_func.php,v 1.192 2008/12/08 23:44:30 nao-pon Exp $
+	// $Id: pukiwiki_func.php,v 1.193 2009/01/15 03:03:45 nao-pon Exp $
 	// Copyright (C)
 	//   2002-2005 PukiWiki Developers Team
 	//   2001-2002 Originally written by yu-ji
@@ -1214,7 +1214,7 @@ class XpWikiPukiWikiFunc extends XpWikiBaseFunc {
 
 //----- Start func.php -----//
 	// PukiWiki - Yet another WikiWikiWeb clone.
-	// $Id: pukiwiki_func.php,v 1.192 2008/12/08 23:44:30 nao-pon Exp $
+	// $Id: pukiwiki_func.php,v 1.193 2009/01/15 03:03:45 nao-pon Exp $
 	// Copyright (C)
 	//   2002-2006 PukiWiki Developers Team
 	//   2001-2002 Originally written by yu-ji
@@ -2040,7 +2040,7 @@ EOD;
 
 //----- Start make_link.php -----//
 	// PukiWiki - Yet another WikiWikiWeb clone.
-	// $Id: pukiwiki_func.php,v 1.192 2008/12/08 23:44:30 nao-pon Exp $
+	// $Id: pukiwiki_func.php,v 1.193 2009/01/15 03:03:45 nao-pon Exp $
 	// Copyright (C)
 	//   2003-2005 PukiWiki Developers Team
 	//   2001-2002 Originally written by yu-ji
@@ -3017,7 +3017,7 @@ EOD;
 
 //----- Start html.php -----//
 	// PukiWiki - Yet another WikiWikiWeb clone.
-	// $Id: pukiwiki_func.php,v 1.192 2008/12/08 23:44:30 nao-pon Exp $
+	// $Id: pukiwiki_func.php,v 1.193 2009/01/15 03:03:45 nao-pon Exp $
 	// Copyright (C)
 	//   2002-2006 PukiWiki Developers Team
 	//   2001-2002 Originally written by yu-ji
@@ -3204,39 +3204,7 @@ EOD;
 			      . preg_replace('/&amp;#(\d+;)/', '&#$1', htmlspecialchars($this->root->vars['word']))
 			      . '</div>' . $this->root->hr . "\n" . $body;
 	
-			// BugTrack2/106: Only variables can be passed by reference from PHP 5.0.5
-			// with array_splice(), array_flip()
-			$words = preg_split('/\s+/', $this->root->vars['word'], -1, PREG_SPLIT_NO_EMPTY);
-			$words = array_splice($words, 0, 10); // Max: 10 words
-			$words = array_flip($words);
-	
-			$keys = array();
-			foreach ($words as $word=>$id) $keys[$word] = strlen($word);
-			arsort($keys, SORT_NUMERIC);
-			$keys = $this->get_search_words(array_keys($keys), TRUE);
-			$id = 0;
-			foreach ($keys as $key=>$pattern) {
-				$s_key    = htmlspecialchars($key);
-				$pattern  = '/' .
-					'<(textarea|script|style)[^>]*>.*?<\/\\1>' .	// Ignore textareas
-					'|' . '<[^>]*>' .			// Ignore tags
-					'|' . ( preg_match('/^(&?#?[\d]+|#?[\d]+;|&#?|#|;)$/', $key)?
-					'&[^;]+;' :					// Ignore entities
-					'&#[^\d]+;' ) .				// Ignore entities (Not numerical entities only)
-					'|' . '(' . $pattern . ')' .		// $matches[1]: Regex for a search word
-					'/sS';
-				$decorate_Nth_word = create_function(
-					'$matches',
-					'return (isset($matches[2])) ? ' .
-						'\'<strong class="word' .
-							$id .
-						'">\' . $matches[2] . \'</strong>\' : ' .
-						'$matches[0];'
-				);
-				$body  = preg_replace_callback($pattern, $decorate_Nth_word, $body);
-				$notes = preg_replace_callback($pattern, $decorate_Nth_word, $notes);
-				++$id;
-			}
+			list($body, $notes) = $this->word_highlight(array($body, $notes), $this->root->vars['word']);
 		}
 	
 		$longtaketime = $this->getmicrotime() - $this->cont['MUTIME'];
@@ -3460,9 +3428,29 @@ EOD;
 	}
 	
 	// Related pages
-	function make_related($page, $tag = '', $max = 0)
+	function make_related($page, $tag = '', $max = 0, $options = array())
 	{
-		$links = $this->links_get_related($page);
+		$def_options = array(
+			'backlink' => FALSE,
+			'nopassage' => FALSE,
+			'notitle' => FALSE,
+			'context' => '',
+			'delimiter' => '...',
+			'highlight' => FALSE,
+		);
+		
+		$options = array_merge($def_options, $options);
+		
+		$context = ($options['context']);
+		$contextLength = 255;
+		$contextKeys = 3;
+		if (is_string($options['context'])) {
+			list($contextLength, $contextKeys) = array_pad(explode('/', $context), 2, 0);
+			$contextLength = (!$contextLength)? 255 : intval($contextLength);
+			$contextKeys = (!$contextKeys)? 3 : intval($contextKeys);
+		}
+		
+		$links = ($options['backlink'])? $this->links_get_related_db($page) : $this->links_get_related($page);
 	
 		if (!$max && $tag) {
 			ksort($links);
@@ -3471,6 +3459,7 @@ EOD;
 		}
 	
 		$_links = array();
+		$contexts = array();
 		$i = 0;
 		foreach ($links as $_page=>$lastmod) {
 			if ($this->check_non_list($_page)) continue;
@@ -3484,12 +3473,22 @@ EOD;
 			//	$s_page . ' ' . $passage . '">' . $s_page . '</a>' :
 			//	'<a href="' . $this->root->script . '?' . $r_page . '">' .
 			//	$s_page . '</a>' . $passage;
+			$passage = ($tag === 'p' && ! $options['nopassage'])? ' <small>' . $this->get_passage($lastmod) . '</small>' : '';
+			$title = ($tag === 'p' && ! $options['notitle'])? $this->get_heading($_page) : '';
+			if ($title) {
+				$title = ' [ ' . $title . ' ]';
+			}
 			if ($max && $i > $max) {
 				$_links[] = '[ <a href="' . $this->root->script . '?cmd=related&amp;page='.rawurlencode($page).'">Show All</a> ]';
 				break;
 			}
-			$_dirname = $this->page_dirname($_page);
-			$_links[] = $this->make_pagelink($_page, ($_dirname ? '#compact:'.$_dirname : ''));
+			$_context = '';
+			if ($context) {
+				$words = array_unique(array_merge(array($page, $this->basename($page)), $this->get_page_alias($page, TRUE)));
+				$_context = $this->get_page_context($_page, $words, $options['highlight'], $contextLength, $contextKeys, $options['delimiter']);
+			}
+			$_dirname = $tag? '' : $this->page_dirname($_page);
+			$_links[] = $this->make_pagelink($_page, ($_dirname ? ('#compact:'.$_dirname) : $_page)) . $passage . $title . $_context;
 		}
 		if (empty($_links)) return ''; // Nothing
 	
@@ -3726,7 +3725,7 @@ EOD;
 
 //----- Start mail.php -----//
 	// PukiWiki - Yet another WikiWikiWeb clone.
-	// $Id: pukiwiki_func.php,v 1.192 2008/12/08 23:44:30 nao-pon Exp $
+	// $Id: pukiwiki_func.php,v 1.193 2009/01/15 03:03:45 nao-pon Exp $
 	// Copyright (C)
 	//   2003-2005 PukiWiki Developers Team
 	//   2003      Originally written by upk
@@ -4029,7 +4028,7 @@ EOD;
 
 //----- Start link.php -----//
 	// PukiWiki - Yet another WikiWikiWeb clone
-	// $Id: pukiwiki_func.php,v 1.192 2008/12/08 23:44:30 nao-pon Exp $
+	// $Id: pukiwiki_func.php,v 1.193 2009/01/15 03:03:45 nao-pon Exp $
 	// Copyright (C) 2003-2006 PukiWiki Developers Team
 	// License: GPL v2 or (at your option) any later version
 	//
