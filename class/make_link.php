@@ -105,7 +105,7 @@ class XpWikiInlineConverter {
 			$obj = $this->get_converter($match);
 			if ($obj->set($match, $page) !== FALSE) {
 				$arr[] = $this->get_clone($obj);
-				if ($obj->body != '')
+				if ($obj->body !== '')
 					$arr = array_merge($arr, $this->get_objects($obj->body, $page));
 			}
 		}
@@ -114,7 +114,7 @@ class XpWikiInlineConverter {
 
 	function & get_converter(& $arr) {
 		foreach (array_keys($this->converters) as $start) {
-			if ($arr[$start] == $arr[0])
+			if ($arr[$start] === $arr[0])
 				return $this->converters[$start];
 		}
 		return NULL;
@@ -196,7 +196,7 @@ class XpWikiLink {
 				$alias = preg_replace('/\s*title="[^"]*"/', '', $alias);
 			}
 		} else
-			if ($alias != '') {
+			if ($alias !== '') {
 				if ($converter === NULL)
 					$converter = new XpWikiInlineConverter($this->xpwiki, array ('plugin'));
 
@@ -264,7 +264,7 @@ EOD;
 
 		// Re-get true plugin name and patameters (for PHP 4.1.2)
 		$matches = array ();
-		if (preg_match('/^'.$this->pattern.'/x', $all, $matches) && $matches[1] != $this->plain)
+		if (preg_match('/^'.$this->pattern.'/x', $all, $matches) && $matches[1] !== $this->plain)
 			list (, $this->plain, $name, $this->param) = $matches;
 
 		return parent :: setParam($page, $name, $body, 'plugin');
@@ -489,7 +489,7 @@ EOD;
 		list (,, $alias, $name) = $this->splice($arr);
 		// https?:/// -> $this->cont['ROOT_URL']
 		$name = preg_replace('#^https?:///#', $this->cont['ROOT_URL'], $name);
-		return parent :: setParam($page, htmlspecialchars($name), '', 'url', $alias == '' ? $name : $alias);
+		return parent :: setParam($page, htmlspecialchars($name), '', 'url', $alias === '' ? $name : $alias);
 	}
 
 	function toString() {
@@ -619,7 +619,7 @@ EOD;
 
 	function set($arr, $page) {
 		list (, $alias, $name) = $this->splice($arr);
-		return parent :: setParam($page, $name, '', 'mailto', $alias == '' ? $name : $alias);
+		return parent :: setParam($page, $name, '', 'mailto', $alias === '' ? $name : $alias);
 	}
 
 	function toString() {
@@ -660,7 +660,7 @@ EOD;
 		} else if (!$alias && strtolower(substr($host, 0, 4)) === 'xn--') {
 			$orginalname = $toname . $this->func->convertIDN($host, 'decode');
 		}
-		return parent :: setParam($page, $name, '', 'mailto', $alias == '' ? $orginalname : $alias);
+		return parent :: setParam($page, $name, '', 'mailto', $alias === '' ? $orginalname : $alias);
 	}
 
 	function toString() {
@@ -719,7 +719,7 @@ EOD;
 		
 		if (is_object($url)) {
 			$this->otherObj =& $url;
-			return parent :: setParam($page, htmlspecialchars($_param), '', 'pagename', $alias == '' ? $name.':'.$this->param : $alias);
+			return parent :: setParam($page, htmlspecialchars($_param), '', 'pagename', $alias === '' ? $name.':'.$this->param : $alias);
 		}
 		
 		$this->otherObj = NULL;
@@ -727,7 +727,7 @@ EOD;
 		if (!$url) return false;
 		$this->url = htmlspecialchars($url);
 
-		return parent :: setParam($page, htmlspecialchars($name.':'.$this->param), '', 'InterWikiName', $alias == '' ? $name.':'.$this->param : $alias);
+		return parent :: setParam($page, htmlspecialchars($name.':'.$this->param), '', 'InterWikiName', $alias === '' ? $name.':'.$this->param : $alias);
 	}
 
 	function toString() {
@@ -776,13 +776,28 @@ EOD;
 		//		global $WikiName;
 
 		list (, $alias,, $name, $this->anchor) = $this->splice($arr);
-		if ($name == '' && $this->anchor == '')
+		if ($name === '' && $this->anchor === '')
 			return FALSE;
 
-		if ($name == '' || !preg_match('/^'.$this->root->WikiName.'$/', $name)) {
-			if ($alias == '')
-				$alias = $name.$this->anchor;
-			if ($name != '') {
+		if ($name === '' || !preg_match('/^'.$this->root->WikiName.'$/', $name)) {
+			if ($alias === '') {
+				if ($name[0] === '.') {
+					if ($this->root->relative_path_bracketname === 'remove') {
+						$alias = preg_replace('#^(?:\.?\./)+#', '', $name);
+						if (! $alias && $name !== './') {
+							$alias = $this->func->get_fullname($name, $page);
+						}
+					} else if ($this->root->relative_path_bracketname === 'full') {
+						$alias = $this->func->get_fullname($name, $page);
+					} else {
+						$alias = $name;
+					}
+				} else {
+					$alias = $name;
+				}
+				$alias .= $this->anchor;
+			}
+			if ($name !== '') {
 				$name = $this->func->get_fullname($name, $page);
 				if (!$this->func->is_pagename($name))
 					return FALSE;
@@ -890,7 +905,7 @@ class XpWikiLink_autoalias extends XpWikiLink {
 
 		parent :: XpWikiLink($xpwiki, $start);
 
-		if (!$this->root->autoalias || !file_exists($this->cont['CACHE_DIR'].$this->cont['PKWK_AUTOALIAS_REGEX_CACHE']) || $this->page == $this->root->aliaspage) {
+		if (!$this->root->autoalias || !file_exists($this->cont['CACHE_DIR'].$this->cont['PKWK_AUTOALIAS_REGEX_CACHE']) || $this->page === $this->root->aliaspage) {
 			return;
 		}
 
@@ -917,7 +932,7 @@ class XpWikiLink_autoalias extends XpWikiLink {
 
 	function toString() {
 		$this->alias = $this->func->get_autoaliases($this->name);
-		if ($this->alias != '') {
+		if ($this->alias !== '') {
 			$link = '[['.$this->name.'>'.$this->alias.']]';
 			return $this->func->make_link($link);
 		}

@@ -1,6 +1,6 @@
 <?php
 // PukiWiki - Yet another WikiWikiWeb clone
-// $Id: pukiwiki.ini.php,v 1.87 2008/12/08 23:47:35 nao-pon Exp $
+// $Id: pukiwiki.ini.php,v 1.88 2009/01/19 01:17:35 nao-pon Exp $
 // Copyright (C)
 //   2002-2006 PukiWiki Developers Team
 //   2001-2002 Originally written by yu-ji
@@ -726,6 +726,7 @@ $const['SKIN_CHANGER'] = 1;
 $root->referer = 0;
 $root->allow_pagecomment = 1;
 $root->nowikiname = 0;
+$root->relative_path_bracketname = 'remove'; //'remove', 'full', 'as is'
 $root->pagename_num2str = 1;
 $root->pagelink_topicpath = 0;
 $root->static_url = 0; // 0 or 1, 2, 3
