@@ -3,7 +3,7 @@ class xpwiki_plugin_block extends xpwiki_plugin {
 	function plugin_block_init () {
 
 
-	// $Id: block.inc.php,v 1.5 2008/05/26 01:59:12 nao-pon Exp $
+	// $Id: block.inc.php,v 1.6 2009/01/19 08:43:05 nao-pon Exp $
 	
 	/*
 	 * countdown.inc.php
@@ -82,13 +82,17 @@ class xpwiki_plugin_block extends xpwiki_plugin {
 		$tate = $params['tate'];
 		$height = $params['h'];
 		
+		if ($params['class']) {
+			$block_class .= ' ' . trim(htmlspecialchars($params['class']));
+		}
+		
 		//$b_count[$this->xpwiki->pid]++;
 		//$b_tag[$this->xpwiki->pid][$b_count[$this->xpwiki->pid]]++;
 		
 		if ($tate)
 		{
 			$this->load_language();
-			$block_class = "wiki_body_block_tate";
+			$block_class .= " wiki_body_block_tate";
 			//$tate_div = "<div class=\"tate\">";
 			//$b_tag[$b_count]++;
 			$tate_style = " style=\"writing-mode:tb-rl;\"";
