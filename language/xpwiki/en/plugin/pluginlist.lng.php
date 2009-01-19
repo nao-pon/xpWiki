@@ -2,7 +2,7 @@
 /*
  * Created on 2008/11/10 by nao-pon http://hypweb.net/
  * License: GPL v2 or (at your option) any later version
- * $Id: pluginlist.lng.php,v 1.5 2008/12/10 08:52:19 nao-pon Exp $
+ * $Id: pluginlist.lng.php,v 1.6 2009/01/19 08:44:53 nao-pon Exp $
  */
 
 $msg = array(
@@ -268,7 +268,12 @@ $msg = array(
 	),
 	'related' => array(
 		'title' => 'Back link list',
-		'block_usage' => '#related',
+		'block_usage' => '#related([<Max count>[,nopassage][,notitle][,context][,context:<Max bytes>/<Max Parts>][,separate][,highlight]])',
+		'inline_usage' => ''
+	),
+	'relatedview' => array(
+		'title' => 'Back link list (with referer anchor)',
+		'block_usage' => '#relatedview([noautolink][,nowikiname][,eachpage][,search:<PageName or Regex with "#">][,nosearch:<PageName or Regex with "#">])',
 		'inline_usage' => ''
 	),
 	'rsslink' => array(
