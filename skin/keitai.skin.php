@@ -1,6 +1,6 @@
 <?php
 // PukiWiki - Yet another WikiWikiWeb clone.
-// $Id: keitai.skin.php,v 1.23 2009/01/11 14:01:27 nao-pon Exp $
+// $Id: keitai.skin.php,v 1.24 2009/01/19 01:13:04 nao-pon Exp $
 // Copyright (C) 2003-2006 PukiWiki Developers Team
 // License: GPL v2 or (at your option) any later version
 //
@@ -52,8 +52,9 @@ if ($heads) {
 	$body ='<div style="text-align:right;font-size:x-small">[ ' . join(' ', $heads) . ' ]</div><hr>' . $body;
 }
 
-// Ignore &dagger;s
-$body = preg_replace('#<a[^>]+>' . preg_quote($this->root->_symbol_anchor, '#') . '</a>#S', '', $body);
+// Ignore _symbol_anchor
+$body = preg_replace('#<a[^>]+?>' . preg_quote($this->root->_symbol_anchor, '#') . '</a>#S', '', $body);
+$body = preg_replace('/<a href="#'.$this->root->mydirname.'_navigator"[^>]*?>.+?<\/a>/sS', '', $body);
 
 $body = str_replace($this->root->_symbol_noexists, '<span style="font-size:xx-small">((i:f9be))</span>', $body);
 
