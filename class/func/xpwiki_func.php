@@ -1,7 +1,7 @@
 <?php
 //
 // Created on 2006/10/02 by nao-pon http://hypweb.net/
-// $Id: xpwiki_func.php,v 1.199 2009/01/15 03:03:45 nao-pon Exp $
+// $Id: xpwiki_func.php,v 1.200 2009/01/19 01:14:39 nao-pon Exp $
 //
 class XpWikiFunc extends XpWikiXoopsWrapper {
 
@@ -3043,7 +3043,7 @@ EOD;
 		}
 		$where = " WHERE " . $where;
 		
-		$query = "SELECT COUNT(*) FROM `".$this->xpwiki->db->prefix($this->root->mydirname."_rel")."` AS r, `".$this->xpwiki->db->prefix($this->root->mydirname."_pginfo")."` AS p " . $where . $limit;
+		$query = "SELECT COUNT(*) FROM `".$this->xpwiki->db->prefix($this->root->mydirname."_rel")."` AS r, `".$this->xpwiki->db->prefix($this->root->mydirname."_pginfo")."` AS p " . $where;
 		$result = $this->xpwiki->db->query($query);
 		//echo $query;
 		
