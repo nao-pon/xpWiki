@@ -1,7 +1,7 @@
 <?php
 /*
  * Created on 2008/01/24 by nao-pon http://hypweb.net/
- * $Id: conf.lng.php,v 1.10 2008/11/13 00:30:22 nao-pon Exp $
+ * $Id: conf.lng.php,v 1.11 2009/01/19 01:17:35 nao-pon Exp $
  */
 
 $msg = array(
@@ -97,6 +97,14 @@ $msg = array(
 	'nowikiname' => array(
 		'caption'     => 'WikiName を無効にする',
 		'description' => 'WikiName への自動リンク機能を無効にします。',
+	),
+
+	'relative_path_bracketname' => array(
+		'caption'     => 'ブラケットネームの相対パス',
+		'description' => 'ブラケットネームにて相対パスでページ名を指定した場合の相対パス部分の表示方法を設定します。',
+		'remove'      => '取り除く',
+		'full'        => 'フルパスに変換',
+		'as is'       => 'そのまま',
 	),
 
 	'pagename_num2str' => array(

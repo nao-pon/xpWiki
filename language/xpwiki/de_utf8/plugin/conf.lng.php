@@ -1,7 +1,7 @@
 <?php
 /*
  * Created on 2008/01/24 by nao-pon http://hypweb.net/
- * $Id: conf.lng.php,v 1.6 2008/11/13 00:30:22 nao-pon Exp $
+ * $Id: conf.lng.php,v 1.7 2009/01/19 01:17:35 nao-pon Exp $
  */
 //
 // German Translation Version 1.0 (11.03.2008)
@@ -101,6 +101,14 @@ $msg = array(
 	'nowikiname' => array(
 		'caption'     => 'Ist der WikiName ungültig?',
 		'description' => 'Eine automatische Link-Funktion für ungültige Wiki-Links.',
+	),
+
+	'relative_path_bracketname' => array(
+		'caption'     => 'Relative path of BracketName',
+		'description' => 'The method of displaying the relative path part when page name is specified by the relative path in the bracket name is set.',
+		'remove'      => 'Remove',
+		'full'        => 'Show real path',
+		'as is'       => 'As is',
 	),
 
 	'pagename_num2str' => array(

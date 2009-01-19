@@ -1,7 +1,7 @@
 <?php
 /*
  * Created on 2008/01/24 by nao-pon http://hypweb.net/
- * $Id: conf.lng.php,v 1.10 2008/11/13 00:30:22 nao-pon Exp $
+ * $Id: conf.lng.php,v 1.11 2009/01/19 01:17:35 nao-pon Exp $
  */
 
 $msg = array(
@@ -98,6 +98,14 @@ each use page can be provided.<br />'
 	'nowikiname' => array(
 		'caption'     => 'Is WikiName invalid?',
 		'description' => 'The automatic link function to WikiName is invalidated.',
+	),
+
+	'relative_path_bracketname' => array(
+		'caption'     => 'Relative path of BracketName',
+		'description' => 'The method of displaying the relative path part when page name is specified by the relative path in the bracket name is set.',
+		'remove'      => 'Remove',
+		'full'        => 'Show real path',
+		'as is'       => 'As is',
 	),
 
 	'pagename_num2str' => array(

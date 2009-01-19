@@ -1,7 +1,7 @@
 <?php
 /*
  * Created on 2008/01/24 by nao-pon http://hypweb.net/
- * $Id: conf.inc.php,v 1.13 2008/11/13 00:30:22 nao-pon Exp $
+ * $Id: conf.inc.php,v 1.14 2009/01/19 01:17:35 nao-pon Exp $
  */
 
 class xpwiki_plugin_conf extends xpwiki_plugin {
@@ -83,6 +83,16 @@ class xpwiki_plugin_conf extends xpwiki_plugin {
 				'kind' => 'root',
 				'type' => 'integer',
 				'form' => 'yesno',
+			),
+			'relative_path_bracketname' => array(
+				'kind' => 'root',
+				'type' => 'string',
+				'form' => 'radio',
+				'list' => array(
+					$this->msg['relative_path_bracketname']['remove'] => 'remove',
+					$this->msg['relative_path_bracketname']['full'] => 'full',
+					$this->msg['relative_path_bracketname']['as is'] => 'as is',
+				),
 			),
 			'pagename_num2str' => array(
 				'kind' => 'root',
@@ -348,7 +358,7 @@ EOD;
 					$form = join(' | ', $forms);
 					break;
 				case 'textarea':
-					$form = '<textarea name="'.$name4disp.'" '.$attr.'>'.$value4disp.'</textarea>';
+					$form = '<textarea name="'.$name4disp.'" '.$attr.' rel="nowikihelper">'.$value4disp.'</textarea>';
 					break;
 				case 'text':
 				default:
