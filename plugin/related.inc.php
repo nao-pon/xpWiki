@@ -1,4 +1,11 @@
 <?php
+// PukiWiki - Yet another WikiWikiWeb clone
+// $Id: related.inc.php,v 1.6 2009/01/19 08:43:56 nao-pon Exp $
+//
+// Related plugin: Show Backlinks for the page
+
+// #related([<Max count>[,nopassage][,notitle][,context][,context:<Max bytes>/<Max Parts>][,separate][,highlight]])
+
 class xpwiki_plugin_related extends xpwiki_plugin {
 	function plugin_related_init () {
 
@@ -7,10 +14,6 @@ class xpwiki_plugin_related extends xpwiki_plugin {
 		$this->config['showMaxConvert'] = 100;
 
 	}
-	// PukiWiki - Yet another WikiWikiWeb clone
-	// $Id: related.inc.php,v 1.5 2009/01/19 01:15:24 nao-pon Exp $
-	//
-	// Related plugin: Show Backlinks for the page
 	
 	function plugin_related_convert()
 	{
