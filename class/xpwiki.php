@@ -1,7 +1,7 @@
 <?php
 //
 // Created on 2006/09/29 by nao-pon http://hypweb.net/
-// $Id: xpwiki.php,v 1.88 2008/12/08 23:44:30 nao-pon Exp $
+// $Id: xpwiki.php,v 1.89 2009/01/19 01:10:56 nao-pon Exp $
 //
 
 class XpWiki {
@@ -99,6 +99,11 @@ class XpWiki {
 		$this->root->get    = $_GET;
 		$this->root->post   = $_POST;
 		$this->root->cookie = $_COOKIE;
+
+		// For Ajax mode
+		if (isset($this->root->get['ajax']) || isset($this->root->post['ajax'])) {
+			error_reporting(0);
+		}
 
 		// ini ファイル読み込み
 		$this->func->load_ini();
