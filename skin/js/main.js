@@ -308,7 +308,8 @@ function xpwiki_ajax_edit(url, id) {
 		{
 			method: 'get',
 			parameters: pars,
-			onComplete: xpwiki_ajax_edit_show
+			onSuccess: xpwiki_ajax_edit_show,
+			onFailure: function(){	location.href = url + '&' + pars.replace('&ajax=1', ''); }
 		});
 	return false;
 }
@@ -379,15 +380,21 @@ function xpwiki_ajax_edit_submit(IsTemplate) {
 	}
 	postdata += '&ajax=1';
 	
+	var failure = false;
 	var myAjax = new Ajax.Request(
 		url, 
 		{
 			asynchronous: false,
 			method: 'post',
-			parameters: postdata
+			parameters: postdata,
+			onSuccess: xpwiki_ajax_edit_post,
+			onFailure: function(){
+					xpwiki_ajax_edit_var["html"] = '';
+					failure = true;
+				}
 		});
 
-	return xpwiki_ajax_edit_post(myAjax.transport);
+	return failure;
 }
 
 function xpwiki_ajax_edit_post(orgRequest) {
@@ -397,7 +404,7 @@ function xpwiki_ajax_edit_post(orgRequest) {
 		return false;
 	} else {
 		var xmlRes = orgRequest.responseXML;
-		if(xmlRes.getElementsByTagName("xpwiki").length) {
+		if(xmlRes && xmlRes.getElementsByTagName("xpwiki").length) {
 			var item = xmlRes.getElementsByTagName("xpwiki")[0];
 			var str = item.getElementsByTagName("content")[0].firstChild.nodeValue;
 			xpwiki_ajax_edit_var['mode'] = item.getElementsByTagName("mode")[0].firstChild.nodeValue;
@@ -409,8 +416,8 @@ function xpwiki_ajax_edit_post(orgRequest) {
 				xpwiki_ajax_edit_var['mode'] = '';
 				xpwiki_ajax_edit_var['html'] = '';
 				if (str.match(/<script[^>]+src=/)) {
-					location.reload();
 					orgRequest = null;
+					location.reload(true);
 					return false;
 				}
 				$('xpwiki_body').innerHTML = str;
@@ -440,6 +447,16 @@ function xpwiki_ajax_edit_post(orgRequest) {
 				XpWiki.addWrapButton(textarea[0]);
 				
 				wikihelper_initTexts($(xpwiki_ajax_edit_var["id"]));
+			}
+		} else {
+			// alert(orgRequest.responseText); // for dubug
+			if (xpwiki_ajax_edit_var['mode'] != 'preview') {
+				orgRequest = null;
+				xpwiki_ajax_edit_var['html'] = '';
+				location.reload();
+				return false;
+			} else {
+				alert('Response error.');
 			}
 		}
 	}
@@ -499,6 +516,7 @@ window.onbeforeunload = function(e) {
 	e = e || window.event;
 	if (_save) _save(e);
 	if (xpwiki_ajax_edit_var["html"]) {
+		xpwiki_ajax_edit_var["html"] = '';
 		return wikihelper_msg_notsave;
 	}
 };

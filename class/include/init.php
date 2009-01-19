@@ -1,7 +1,7 @@
 <?php
 //
 // Created on 2006/10/13 by nao-pon http://hypweb.net/
-// $Id: init.php,v 1.60 2008/11/26 23:39:29 nao-pon Exp $
+// $Id: init.php,v 1.61 2009/01/19 01:10:56 nao-pon Exp $
 //
 
 $root = & $this->root;
@@ -200,6 +200,9 @@ if (isset($const['page_show'])) {
 	if ($const['page_show'] === '#RenderMode') {
 		$root->render_mode = 'render';
 	}
+	
+	unset($root->get['plugin'], $root->post['plugin'], $root->vars['plugin']);
+	
 	$root->get['page'] = $root->post['page'] = $root->vars['page'] = $const['page_show'];
 	$const['page_show'] = TRUE;
 
@@ -376,7 +379,7 @@ if (isset($const['page_show'])) {
 			$arg = '';
 		}
 	}
-	
+
 	// GET + POST = $root->vars
 	if (empty($root->post)) {
 		$root->vars = $root->get;  // Major pattern: Read-only access via GET
@@ -473,17 +476,18 @@ if (isset($const['page_show'])) {
 	// 入力チェック: 'cmd=' prohibits nasty 'plugin='
 	if (isset($root->vars['cmd']) && isset($root->vars['plugin']))
 		unset($root->get['plugin'], $root->post['plugin'], $root->vars['plugin']);
-	
+
 	if (! isset($root->vars['cmd'])) {
 		$root->get['cmd'] = $root->post['cmd'] = $root->vars['cmd'] = '';
 	}
-	
-	// Set displayed page name.
-	if (! empty($root->vars['page'])) {
-		$const['PAGENAME'] = $root->vars['page'];
-	}
 
 }
+
+// Set displayed page name.
+if (! empty($root->vars['page'])) {
+	$const['PAGENAME'] = $root->vars['page'];
+}
+
 
 /////////////////////////////////////////////////
 // 初期設定(ユーザ定義ルール読み込み)
