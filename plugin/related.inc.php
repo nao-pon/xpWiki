@@ -4,18 +4,23 @@ class xpwiki_plugin_related extends xpwiki_plugin {
 
 		$this->config['showContextAction'] = TRUE;
 		$this->config['showMaxAction'] = 100;
+		$this->config['showMaxConvert'] = 100;
 
 	}
 	// PukiWiki - Yet another WikiWikiWeb clone
-	// $Id: related.inc.php,v 1.4 2009/01/15 03:03:45 nao-pon Exp $
+	// $Id: related.inc.php,v 1.5 2009/01/19 01:15:24 nao-pon Exp $
 	//
 	// Related plugin: Show Backlinks for the page
 	
 	function plugin_related_convert()
 	{
+		if (! empty($this->root->rtf['is_init'])) {
+			return FALSE;
+		}
+		
 		$options = array(
-			'max' => 0,
-			'backlink' => FALSE,
+			'max' => $this->config['showMaxConvert'],
+			'backlink' => TRUE,
 			'nopassage' => FALSE,
 			'notitle' => FALSE,
 			'context' => '',
@@ -27,8 +32,15 @@ class xpwiki_plugin_related extends xpwiki_plugin {
 			$args  = func_get_args();
 			$this->fetch_options($options, $args, array('max'));
 		}
+		
+		$options['backlink'] = TRUE;
+		
 		if ($options['separate']) {
 			$options['delimiter'] = "\x08";
+		}
+		
+		if ($options['max'] < 1) {
+			$options['max'] = $this->config['showMaxConvert'];
 		}
 		
 		$ret = $this->func->make_related($this->root->vars['page'], 'p', $options['max'], $options);
@@ -36,7 +48,6 @@ class xpwiki_plugin_related extends xpwiki_plugin {
 		if ($options['separate']) {
 			$ret = str_replace(array(">\x08", "\x08<", "\x08"), array('>...', '...<', '...</div><div class="context">...'), $ret);
 		}
-		
 		return $ret;
 	}
 	
