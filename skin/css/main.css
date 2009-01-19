@@ -109,27 +109,8 @@ $class div.level5 {
 $class div.level6 {
 	margin-left: 4em;
 }
-$class div.level1_highlight {
+$class .highlight {
 	background-color: #ffe4e1;
-}
-$class div.level2_highlight {
-	background-color: #ffe4e1;
-}
-$class div.level3_highlight {
-	background-color: #ffe4e1;
-	margin-left: 1em;
-}
-$class div.level4_highlight {
-	background-color: #ffe4e1;
-	margin-left: 2em;
-}
-$class div.level5_highlight {
-	background-color: #ffe4e1;
-	margin-left: 3em;
-}
-$class div.level6_highlight {
-	background-color: #ffe4e1;
-	margin-left: 4em;
 }
 
 $class h1,
@@ -782,18 +763,6 @@ $class span.calendar_viewer_right {
 	background-color:inherit;
 	float:right;
 }
-
-/* areaedit.inc.php */
-$class ._highlight
-{
-	background-color: #ffe4e1;
-}
-/*
-$class .area_off
-{
-	background-color: transparent;
-}
-*/
 
 /* clear.inc.php */
 $class .clear {

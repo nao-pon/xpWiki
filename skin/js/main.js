@@ -143,9 +143,9 @@ function wikihelper_load_cookie(arg){
 
 function wikihelper_area_highlite(id,mode) {
 	if (mode) {
-		$(id).className += '_highlight';
+		$(id).className += ' highlight';
 	} else {
-		$(id).className = $(id).className.replace(/_highlight$/, '');
+		$(id).className = $(id).className.replace(/ ?highlight$/, '');
 	}
 	
 }
