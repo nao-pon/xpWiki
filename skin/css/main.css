@@ -16,7 +16,11 @@ $class dl,
 $class p,
 $class blockquote { line-height:150%; }
 
-$class p { margin-left: 1em; }
+$class p {
+	margin-left: 1em;
+	margin-top: 1em;
+	margin-bottom: 1em;
+}
 
 $class blockquote { margin-left:32px; }
 
@@ -389,6 +393,24 @@ $class ol.list2 li { list-style-type:lower-roman; }
 
 $class ul.list3 li { list-style-type:square; }
 $class ol.list3 li { list-style-type:lower-alpha; }
+
+$class ul.list4 li { list-style-type:disc; }
+$class ol.list4 li { list-style-type:decimal; }
+
+$class ul.list5 li { list-style-type:circle; }
+$class ol.list5 li { list-style-type:lower-roman; }
+
+$class ul.list6 li { list-style-type:square; }
+$class ol.list6 li { list-style-type:lower-alpha; }
+
+$class ul.list7 li { list-style-type:disc; }
+$class ol.list7 li { list-style-type:decimal; }
+
+$class ul.list8 li { list-style-type:circle; }
+$class ol.list8 li { list-style-type:lower-roman; }
+
+$class ul.list9 li { list-style-type:square; }
+$class ol.list9 li { list-style-type:lower-alpha; }
 
 $class div.ie5 { text-align:center; }
 
