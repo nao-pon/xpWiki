@@ -1,7 +1,7 @@
 <?php
 //
 // Created on 2006/10/02 by nao-pon http://hypweb.net/
-// $Id: xpwiki_func.php,v 1.200 2009/01/19 01:14:39 nao-pon Exp $
+// $Id: xpwiki_func.php,v 1.201 2009/01/25 00:56:07 nao-pon Exp $
 //
 class XpWikiFunc extends XpWikiXoopsWrapper {
 
@@ -1584,7 +1584,7 @@ EOD;
 		return $ret;
 	}
 
-	function compare_diff ($old, $cur, $title) {
+	function compare_diff ($old, $cur, $titles = array()) {
 		$this->add_tag_head('compare_diff.css');
 		include_once $this->root->mytrustdirpath . '/include/DifferenceEngine.php';
 		
@@ -1594,13 +1594,21 @@ EOD;
 		$df  = new Diff($old, $cur);
 		$tdf = new TableDiffFormatter();
 		$html = $tdf->format($df);
+		
+		if ($titles) {
+			$title = <<<EOD
+<tr>
+<th colspan="2">{$titles[0]}</th>
+<th colspan="2">{$titles[1]}</th>
+</tr>
+EOD;
+		} else {
+			$title = '';
+		}
 
 		return <<<EOD
 <table class="diff">
-<tr>
-<th colspan="2">{$title[0]}</th>
-<th colspan="2">{$title[1]}</th>
-</tr>
+$title
 $html
 </table>
 EOD;
@@ -2202,6 +2210,14 @@ EOD;
 		}
 		return $body;
 	}
+	
+	function remove_bom($src) {
+		if ($this->cont['SOURCE_ENCODING'] === 'UTF-8') {
+			$src = str_replace("\xEF\xBB\xBF", '', $src);
+		}
+		return $src;
+	}
+
 /*----- DB Functions -----*/ 
 	// Over write pukiwiki_func
 	function is_freeze($page, $clearcache = FALSE) {

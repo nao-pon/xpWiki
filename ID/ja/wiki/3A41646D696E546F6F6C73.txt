@@ -1,5 +1,5 @@
 #freeze
-#pginfo(0			3	all	all	3	all	all	1	jq33qDkZyYM	web-master	1	)
+#pginfo(0			3	all	all	3	all	all	1	eR1cAu1dhq6	web-master	1	)
 #xoopsadmin
 
 * 管理用ツール一覧 [#i95b71f6]
@@ -8,6 +8,7 @@
 
 -[[ページ名変更>[[cmd:rename]]]]
 -[[複数ページ一括削除>[[cmd:deldel]]]]
+-[[ページ内容の一括置換>[[cmd:replacer]]]]
 -[[ページ権限の規定値設定>[[cmd:pginfo]]]]
 -[[バックアップ・リストア>[[cmd:dump]]]]
 -[[データーベースシンクロ>[[cmd:dbsync]]]]

@@ -2,7 +2,7 @@
 /*
  * Created on 2008/11/10 by nao-pon http://hypweb.net/
  * License: GPL v2 or (at your option) any later version
- * $Id: pluginlist.lng.php,v 1.6 2009/01/19 08:44:53 nao-pon Exp $
+ * $Id: pluginlist.lng.php,v 1.7 2009/01/25 00:56:07 nao-pon Exp $
  */
 
 $msg = array(
@@ -272,7 +272,7 @@ $msg = array(
 		'inline_usage' => ''
 	),
 	'relatedview' => array(
-		'title' => '参照ページ一覧(参照元アンカー付)',
+		'title' => '参照元引用一覧',
 		'block_usage' => '#relatedview([noautolink][,nowikiname][,eachpage][,search:<ページ名またはデリミタ"#"の正規表現)>][,nosearch:<ページ名またはデリミタ"#"の正規表現>])',
 		'inline_usage' => ''
 	),
