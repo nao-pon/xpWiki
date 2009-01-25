@@ -281,19 +281,19 @@ function xpwiki_now_loading(mode, id) {
 
 function xpwiki_ajax_edit(url, id) {
 	url = location.pathname.replace(/[^\/]+$/, '')+'?page='+url;
-	if (xpwiki_ajax_edit_var["id"] && xpwiki_ajax_edit_var["id"] != id) {
+	if (xpwiki_ajax_edit_var['id'] && xpwiki_ajax_edit_var['id'] != id) {
 		if (! confirm(wikihelper_msg_notsave)) {
 			return false;
 		}
-		XpWiki.removeFCK(xpwiki_ajax_edit_var["id"]);
-		$(xpwiki_ajax_edit_var["id"]).innerHTML = xpwiki_ajax_edit_var["html"];
-		$(xpwiki_ajax_edit_var["id"]).style.clear = xpwiki_ajax_edit_var["clear"];
+		XpWiki.removeFCK(xpwiki_ajax_edit_var['id']);
+		$(xpwiki_ajax_edit_var['id']).innerHTML = xpwiki_ajax_edit_var['html'];
+		$(xpwiki_ajax_edit_var['id']).style.clear = xpwiki_ajax_edit_var['clear'];
 	}
 	if ($(id)) {
 		wikihelper_area_highlite(id, 0);
-		xpwiki_ajax_edit_var["id"] = id;
+		xpwiki_ajax_edit_var['id'] = id;
 	} else {
-		xpwiki_ajax_edit_var["id"] = 'xpwiki_body';
+		xpwiki_ajax_edit_var['id'] = 'xpwiki_body';
 		id = '';
 	}
 	
@@ -316,8 +316,8 @@ function xpwiki_ajax_edit(url, id) {
 
 function xpwiki_ajax_edit_show(orgRequest) {
 	xpwiki_now_loading(false);
-	xpwiki_ajax_edit_var["html"] = $(xpwiki_ajax_edit_var["id"]).innerHTML;
-	xpwiki_ajax_edit_var["clear"] = $(xpwiki_ajax_edit_var["id"]).style.clear;
+	xpwiki_ajax_edit_var['html'] = $(xpwiki_ajax_edit_var['id']).innerHTML;
+	xpwiki_ajax_edit_var['clear'] = $(xpwiki_ajax_edit_var['id']).style.clear;
 	var xmlRes = orgRequest.responseXML;
 	if(xmlRes.getElementsByTagName("editform").length) {
 		var str = xmlRes.getElementsByTagName("editform")[0].firstChild.nodeValue;
@@ -330,15 +330,15 @@ function xpwiki_ajax_edit_show(orgRequest) {
 		$(textarea[0]).setAttribute("rel", "wikihelper");
 		XpWiki.addWrapButton(textarea[0]);
 		
-		wikihelper_initTexts($(xpwiki_ajax_edit_var["id"]));
+		wikihelper_initTexts($(xpwiki_ajax_edit_var['id']));
 
-		new Effect.ScrollTo(xpwiki_ajax_edit_var["id"], {duration:0.3});
+		new Effect.ScrollTo(xpwiki_ajax_edit_var['id'], {duration:0.3});
 	}
 	orgRequest = null;
 }
 
 function xpwiki_ajax_edit_submit(IsTemplate) {
-	xpwiki_now_loading(true, xpwiki_ajax_edit_var["id"]);
+	xpwiki_now_loading(true, xpwiki_ajax_edit_var['id']);
 	url = location.pathname.replace(/[^\/]+$/, '');
 	var frm = $('xpwiki_edit_form');
 	var re = /input|textarea|select/i;
@@ -387,9 +387,11 @@ function xpwiki_ajax_edit_submit(IsTemplate) {
 			asynchronous: false,
 			method: 'post',
 			parameters: postdata,
-			onSuccess: xpwiki_ajax_edit_post,
+			onSuccess: function(req){
+				failure = xpwiki_ajax_edit_post(req);
+			},
 			onFailure: function(){
-					xpwiki_ajax_edit_var["html"] = '';
+					xpwiki_ajax_edit_var['html'] = '';
 					failure = true;
 				}
 		});
@@ -410,30 +412,32 @@ function xpwiki_ajax_edit_post(orgRequest) {
 			xpwiki_ajax_edit_var['mode'] = item.getElementsByTagName("mode")[0].firstChild.nodeValue;
 			if (xpwiki_ajax_edit_var['mode'] == 'write') {
 				if (xpwiki_ajax_edit_var['id']) {
-					new Effect.ScrollTo(xpwiki_ajax_edit_var["id"], {duration:0.3});
+					new Effect.ScrollTo(xpwiki_ajax_edit_var['id'], {duration:0.3});
 				}
-				xpwiki_ajax_edit_var["id"] = '';
 				xpwiki_ajax_edit_var['mode'] = '';
 				xpwiki_ajax_edit_var['html'] = '';
 				if (str.match(/<script[^>]+src=/)) {
 					orgRequest = null;
+					xpwiki_now_loading(true, xpwiki_ajax_edit_var['id']);
 					location.reload(true);
 					return false;
 				}
+				xpwiki_ajax_edit_var['id'] = '';
 				$('xpwiki_body').innerHTML = str;
 				wikihelper_initTexts($('xpwiki_body'));
 			} else if (xpwiki_ajax_edit_var['mode'] == 'delete') {
 				$('xpwiki_body').innerHTML = str;
-				xpwiki_ajax_edit_var["id"] = '';
+				xpwiki_ajax_edit_var['id'] = '';
 				xpwiki_ajax_edit_var['mode'] = '';
 				xpwiki_ajax_edit_var['html'] = '';
 				location.href = item.getElementsByTagName("url")[0].firstChild.nodeValue;
 			} else if (xpwiki_ajax_edit_var['mode'] == 'preview') {
 				if (xpwiki_ajax_edit_var['id']) {
-					new Effect.ScrollTo(xpwiki_ajax_edit_var["id"], {duration:0.3});
+					new Effect.ScrollTo(xpwiki_ajax_edit_var['id'], {duration:0.3});
 				}
 				if (str.match(/<script[^>]+src=/)) {
 					xpwiki_ajax_edit_var['html'] = '';
+					xpwiki_now_loading(true, xpwiki_ajax_edit_var['id']);
 					orgRequest = null;
 					return true;
 				}
@@ -446,13 +450,14 @@ function xpwiki_ajax_edit_post(orgRequest) {
 				$(textarea[0]).setAttribute("rel", "wikihelper");
 				XpWiki.addWrapButton(textarea[0]);
 				
-				wikihelper_initTexts($(xpwiki_ajax_edit_var["id"]));
+				wikihelper_initTexts($(xpwiki_ajax_edit_var['id']));
 			}
 		} else {
 			// alert(orgRequest.responseText); // for dubug
 			if (xpwiki_ajax_edit_var['mode'] != 'preview') {
 				orgRequest = null;
 				xpwiki_ajax_edit_var['html'] = '';
+				xpwiki_now_loading(true, xpwiki_ajax_edit_var['id']);
 				location.reload();
 				return false;
 			} else {
@@ -465,18 +470,18 @@ function xpwiki_ajax_edit_post(orgRequest) {
 }
 
 function xpwiki_ajax_edit_cancel() {
-	if (xpwiki_ajax_edit_var["id"]) {
-		if (xpwiki_ajax_edit_var["html"].match(/<script[^>]+src=/)) {
-			xpwiki_ajax_edit_var["html"] = '';
+	if (xpwiki_ajax_edit_var['id']) {
+		if (xpwiki_ajax_edit_var['html'].match(/<script[^>]+src=/)) {
+			xpwiki_ajax_edit_var['html'] = '';
 			location.reload();
 			return false;
 		}
 		
-		var wait = XpWiki.removeFCK(xpwiki_ajax_edit_var["id"]);
+		var wait = XpWiki.removeFCK(xpwiki_ajax_edit_var['id']);
 		// wait for IE (Crash prevention)
-		var id = xpwiki_ajax_edit_var["id"];
-		var html = xpwiki_ajax_edit_var["html"];
-		var clear = xpwiki_ajax_edit_var["clear"];
+		var id = xpwiki_ajax_edit_var['id'];
+		var html = xpwiki_ajax_edit_var['html'];
+		var clear = xpwiki_ajax_edit_var['clear'];
 		setTimeout(function () {
 			$(id).innerHTML = html;
 			$(id).style.clear = clear;
@@ -484,7 +489,7 @@ function xpwiki_ajax_edit_cancel() {
 			wikihelper_initTexts($(id));
 		}, wait);
 	}
-	xpwiki_ajax_edit_var["id"] = '';
+	xpwiki_ajax_edit_var['id'] = '';
 	xpwiki_ajax_edit_var['mode'] = '';
 	xpwiki_ajax_edit_var['html'] = '';
 	return false;
@@ -515,8 +520,8 @@ _save = (window.onbeforeunload)? window.onbeforeunload : '';
 window.onbeforeunload = function(e) {
 	e = e || window.event;
 	if (_save) _save(e);
-	if (xpwiki_ajax_edit_var["html"]) {
-		xpwiki_ajax_edit_var["html"] = '';
+	if (xpwiki_ajax_edit_var['html']) {
+		xpwiki_ajax_edit_var['html'] = '';
 		return wikihelper_msg_notsave;
 	}
 };
