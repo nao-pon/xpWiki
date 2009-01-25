@@ -1,7 +1,7 @@
 <?php
 /*
  * Created on 2008/03/25 by nao-pon http://hypweb.net/
- * $Id: pluginlist.inc.php,v 1.4 2008/12/08 23:47:35 nao-pon Exp $
+ * $Id: pluginlist.inc.php,v 1.5 2009/01/25 00:56:07 nao-pon Exp $
  */
 
 class xpwiki_plugin_pluginlist extends xpwiki_plugin {
@@ -41,6 +41,7 @@ class xpwiki_plugin_pluginlist extends xpwiki_plugin {
 			'pluginlist',
 			'ref',
 			'renderattach',
+			'replacer',
 			'server',
 			'setlinebreak',
 			'size',
@@ -58,17 +59,27 @@ class xpwiki_plugin_pluginlist extends xpwiki_plugin {
 	}
 	
 	function plugin_pluginlist_action () {
-		list($plugins, $blocks, $inlines, $cmds) = $this->get_plugins();
-		$out = '{';
-		foreach ($plugins as $plugin) {
-			if (! in_array($plugin, $this->config['disabled']) && (in_array($plugin, $blocks) || in_array($plugin, $inlines))) {
-				$block_usage = (in_array($plugin, $blocks))? '"' . $this->json_encode(@ $this->msg[$plugin]['block_usage']) . '"' : 'false';
-				$inline_usage = (in_array($plugin, $inlines))? '"' . $this->json_encode(@ $this->msg[$plugin]['inline_usage'])  . '"' : 'false';
-				$out .= '"' . $this->json_encode($plugin) . '":{"title":"' . $this->json_encode(@ $this->msg[$plugin]['title']) . '","block_usage":' . $block_usage . ',"inline_usage":' . $inline_usage . '},';
-			}
+		if (isset($this->root->vars['clearcache'])) {
+			$this->func->cache_del_db('pluginsJSON', 'pluginlist');
 		}
-		$out = rtrim($out, ',');
-		$out .= '}';
+		
+		$out = $this->func->cache_get_db('pluginsJSON', 'pluginlist');
+		
+		if (!$out) {
+			list($plugins, $blocks, $inlines, $cmds) = $this->get_plugins();
+			$out = '{';
+			foreach ($plugins as $plugin) {
+				if (! in_array($plugin, $this->config['disabled']) && (in_array($plugin, $blocks) || in_array($plugin, $inlines))) {
+					$block_usage = (in_array($plugin, $blocks))? '"' . $this->json_encode(@ $this->msg[$plugin]['block_usage']) . '"' : 'false';
+					$inline_usage = (in_array($plugin, $inlines))? '"' . $this->json_encode(@ $this->msg[$plugin]['inline_usage'])  . '"' : 'false';
+					$out .= '"' . $this->json_encode($plugin) . '":{"title":"' . $this->json_encode(@ $this->msg[$plugin]['title']) . '","block_usage":' . $block_usage . ',"inline_usage":' . $inline_usage . '},';
+				}
+			}
+			$out = rtrim($out, ',');
+			$out .= '}';
+			$this->func->cache_save_db($out, 'pluginlist', 86400, 'pluginsJSON');
+		}
+		
 		// clear output buffer
 		while( ob_get_level() ) {
 			ob_end_clean() ;

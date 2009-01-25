@@ -1,7 +1,7 @@
 <?php
 //
 // Created on 2006/10/02 by nao-pon http://hypweb.net/
-// $Id: pukiwiki_func.php,v 1.194 2009/01/19 01:15:24 nao-pon Exp $
+// $Id: pukiwiki_func.php,v 1.195 2009/01/25 00:56:07 nao-pon Exp $
 //
 class XpWikiPukiWikiFunc extends XpWikiBaseFunc {
 
@@ -278,26 +278,28 @@ class XpWikiPukiWikiFunc extends XpWikiBaseFunc {
 				);
 			}
 			
-			// System notification
-			$tags['POST_URL'] = $this->get_page_uri($page, true);
-			$tags['PAGE_NAME'] = $page;
-			$tags['POST_DATA'] = $postdata;
-			$tags['POSTER_NAME'] = $this->root->userinfo['uname'];
-			$tags['POST_DIFF'] = preg_replace('/^/m', ' ', $diff_compact);
-			if ($mode === 'insert') {
-				$tags['POST_DIFF'] = 'New page.';
-			} else if ($mode === 'update') {
+			if (empty($this->root->rtf['no_system_notification'])) {
+				// System notification
+				$tags['POST_URL'] = $this->get_page_uri($page, true);
+				$tags['PAGE_NAME'] = $page;
+				$tags['POST_DATA'] = $postdata;
+				$tags['POSTER_NAME'] = $this->root->userinfo['uname'];
+				$tags['POST_DIFF'] = preg_replace('/^/m', ' ', $diff_compact);
+				if ($mode === 'insert') {
+					$tags['POST_DIFF'] = 'New page.';
+				} else if ($mode === 'update') {
 
-			} else	if ($mode === 'delete') {
-				$tags['POST_DATA'] = 'Page deleted.';
+				} else	if ($mode === 'delete') {
+					$tags['POST_DATA'] = 'Page deleted.';
+				}
+				$this->system_notification($page, 'page', $this->get_pgid_by_name($page), 'page_update', $tags);
+				
+				list($pgid1, $pgid2) = $this->get_pgids_by_name($page);
+				$this->system_notification($page, 'page1', $pgid1, 'page_update', $tags);
+				if ($pgid2) $this->system_notification($page, 'page2', $pgid2, 'page_update', $tags);
+				
+				$this->system_notification($page, 'global', 0, 'page_update', $tags);
 			}
-			$this->system_notification($page, 'page', $this->get_pgid_by_name($page), 'page_update', $tags);
-			
-			list($pgid1, $pgid2) = $this->get_pgids_by_name($page);
-			$this->system_notification($page, 'page1', $pgid1, 'page_update', $tags);
-			if ($pgid2) $this->system_notification($page, 'page2', $pgid2, 'page_update', $tags);
-			
-			$this->system_notification($page, 'global', 0, 'page_update', $tags);
 		}
 		
 		ignore_user_abort($_user_abort_last);
@@ -960,7 +962,7 @@ class XpWikiPukiWikiFunc extends XpWikiBaseFunc {
 
 //----- Start convert_html.php -----//
 	// PukiWiki - Yet another WikiWikiWeb clone
-	// $Id: pukiwiki_func.php,v 1.194 2009/01/19 01:15:24 nao-pon Exp $
+	// $Id: pukiwiki_func.php,v 1.195 2009/01/25 00:56:07 nao-pon Exp $
 	// Copyright (C)
 	//   2002-2005 PukiWiki Developers Team
 	//   2001-2002 Originally written by yu-ji
@@ -1214,7 +1216,7 @@ class XpWikiPukiWikiFunc extends XpWikiBaseFunc {
 
 //----- Start func.php -----//
 	// PukiWiki - Yet another WikiWikiWeb clone.
-	// $Id: pukiwiki_func.php,v 1.194 2009/01/19 01:15:24 nao-pon Exp $
+	// $Id: pukiwiki_func.php,v 1.195 2009/01/25 00:56:07 nao-pon Exp $
 	// Copyright (C)
 	//   2002-2006 PukiWiki Developers Team
 	//   2001-2002 Originally written by yu-ji
@@ -1995,6 +1997,7 @@ EOD;
 			return array_map(array(& $this, 'input_filter'), $param);
 		} else {
 			$result = str_replace("\0", '', $param);
+			$result = $this->remove_bom($result);
 			if ($magic_quotes_gpc) $result = stripslashes($result);
 			return $result;
 		}
@@ -2040,7 +2043,7 @@ EOD;
 
 //----- Start make_link.php -----//
 	// PukiWiki - Yet another WikiWikiWeb clone.
-	// $Id: pukiwiki_func.php,v 1.194 2009/01/19 01:15:24 nao-pon Exp $
+	// $Id: pukiwiki_func.php,v 1.195 2009/01/25 00:56:07 nao-pon Exp $
 	// Copyright (C)
 	//   2003-2005 PukiWiki Developers Team
 	//   2001-2002 Originally written by yu-ji
@@ -2832,21 +2835,25 @@ EOD;
 		$backups = $this->get_backup($page);
 		$count = count($backups);
 
-		// Are those who update it different from last time?
-		$pginfo_last = $this->get_pginfo($page);
-		$diff_user = ! (($this->root->userinfo['uid'] && $pginfo_last['lastuid'] === $this->root->userinfo['uid']) || ($this->root->userinfo['ucd'] && $pginfo_last['lastucd'] === $this->root->userinfo['ucd']));		
-
-		// Rotation judgment
-		if (! $diff_user && $notimestamp) {
-			// The time stamp was not renewed in last time and the same user.
-			$rotate = FALSE;
-		} else if ($diff_user && $this->root->backup_everytime_others) {
-			// Setting that rotates without fail when different user updating.
+		if (! empty($this->root->rtf['force_backup'])) {
 			$rotate = TRUE;
 		} else {
-			// Normal rotation judgment
-			$lastmod = $this->_backup_get_filetime($page);
-			$rotate = $lastmod === 0 || $this->cont['UTIME'] - $lastmod > 60 * 60 * $this->root->cycle;
+			// Are those who update it different from last time?
+			$pginfo_last = $this->get_pginfo($page);
+			$diff_user = ! (($this->root->userinfo['uid'] && $pginfo_last['lastuid'] === $this->root->userinfo['uid']) || ($this->root->userinfo['ucd'] && $pginfo_last['lastucd'] === $this->root->userinfo['ucd']));		
+	
+			// Rotation judgment
+			if (! $diff_user && $notimestamp) {
+				// The time stamp was not renewed in last time and the same user.
+				$rotate = FALSE;
+			} else if ($diff_user && $this->root->backup_everytime_others) {
+				// Setting that rotates without fail when different user updating.
+				$rotate = TRUE;
+			} else {
+				// Normal rotation judgment
+				$lastmod = $this->_backup_get_filetime($page);
+				$rotate = $lastmod === 0 || $this->cont['UTIME'] - $lastmod > 60 * 60 * $this->root->cycle;
+			}
 		}
 
 		if ($rotate) {
@@ -3017,7 +3024,7 @@ EOD;
 
 //----- Start html.php -----//
 	// PukiWiki - Yet another WikiWikiWeb clone.
-	// $Id: pukiwiki_func.php,v 1.194 2009/01/19 01:15:24 nao-pon Exp $
+	// $Id: pukiwiki_func.php,v 1.195 2009/01/25 00:56:07 nao-pon Exp $
 	// Copyright (C)
 	//   2002-2006 PukiWiki Developers Team
 	//   2001-2002 Originally written by yu-ji
@@ -3717,7 +3724,7 @@ EOD;
 
 //----- Start mail.php -----//
 	// PukiWiki - Yet another WikiWikiWeb clone.
-	// $Id: pukiwiki_func.php,v 1.194 2009/01/19 01:15:24 nao-pon Exp $
+	// $Id: pukiwiki_func.php,v 1.195 2009/01/25 00:56:07 nao-pon Exp $
 	// Copyright (C)
 	//   2003-2005 PukiWiki Developers Team
 	//   2003      Originally written by upk
@@ -4020,7 +4027,7 @@ EOD;
 
 //----- Start link.php -----//
 	// PukiWiki - Yet another WikiWikiWeb clone
-	// $Id: pukiwiki_func.php,v 1.194 2009/01/19 01:15:24 nao-pon Exp $
+	// $Id: pukiwiki_func.php,v 1.195 2009/01/25 00:56:07 nao-pon Exp $
 	// Copyright (C) 2003-2006 PukiWiki Developers Team
 	// License: GPL v2 or (at your option) any later version
 	//
