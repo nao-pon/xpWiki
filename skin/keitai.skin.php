@@ -1,6 +1,6 @@
 <?php
 // PukiWiki - Yet another WikiWikiWeb clone.
-// $Id: keitai.skin.php,v 1.24 2009/01/19 01:13:04 nao-pon Exp $
+// $Id: keitai.skin.php,v 1.25 2009/01/25 00:49:50 nao-pon Exp $
 // Copyright (C) 2003-2006 PukiWiki Developers Team
 // License: GPL v2 or (at your option) any later version
 //
@@ -213,6 +213,9 @@ if (HypCommonFunc::get_version() >= '20080617.2') {
 	$r->Config_emojiDir = $this->cont['ROOT_URL'] . 'images/emoji';
 	if (! empty($this->root->k_tai_conf['showImgHosts'])) {
 		$r->Config_showImgHosts = $this->root->k_tai_conf['showImgHosts'];
+	}
+	if (! empty($this->root->k_tai_conf['directImgHosts'])) {
+		$r->Config_directImgHosts = $this->root->k_tai_conf['directImgHosts'];
 	}
 	if (! empty($this->root->k_tai_conf['directLinkHosts'])) {
 		$r->Config_directLinkHosts = $this->root->k_tai_conf['directLinkHosts'];
