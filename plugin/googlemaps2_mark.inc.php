@@ -209,7 +209,12 @@ class xpwiki_plugin_googlemaps2_mark extends xpwiki_plugin {
 		//携帯デバイス用リスト出力
 		if (!$p_googlemaps2->plugin_googlemaps2_is_supported_profile()) {
 			if ($nolist == false) {
-				$imgurl = $p_googlemaps2->get_static_image_url($lat, $lng, $zoom);
+				$markers = $lat . ',' . $lng;
+				if (!empty($this->root->replaces_finish['__GOOGLE_MAPS_STATIC_PARAMS_' . $map]) && $this->root->replaces_finish['__GOOGLE_MAPS_STATIC_MARKERS_' . $map]) {
+					$this->root->replaces_finish['__GOOGLE_MAPS_STATIC_PARAMS_' . $map] = '';
+				}
+				$this->root->replaces_finish['__GOOGLE_MAPS_STATIC_MARKERS_' . $map] .= $markers . '|';
+				$imgurl = $p_googlemaps2->get_static_image_url($lat, $lng, $zoom, $markers);
 				$title = '<a href="'.$imgurl.'">'.$title.' [Map]</a>';
 				return $this->plugin_googlemaps_mark_simple_format_listhtml(
 					$formatlist, $title, $caption, $maxcontentfull);
