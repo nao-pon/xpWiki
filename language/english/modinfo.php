@@ -27,6 +27,9 @@ define( $constpref.'_ADMIN_TOOLS' , 'Admin Tools' ) ;
 
 define( $constpref.'_COM_DIRNAME','Comment-integration: dirname of d3forum');
 define( $constpref.'_COM_FORUM_ID','Comment-integration: forum ID');
+define( $constpref.'_COM_VIEW','View of comment-integration');
+define( $constpref.'_COM_ORDER','Order of comment-integration');
+define( $constpref.'_COM_POSTSNUM','Max posts displayed in comment-integration');
 
 // Notify Replaces
 define($constpref.'_NOTCAT_REPLASE2MODULENAME', 'this module');

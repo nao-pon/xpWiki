@@ -1,7 +1,7 @@
 <?php
 //
 // Created on 2006/10/11 by nao-pon http://hypweb.net/
-// $Id: xoops_wrapper.php,v 1.48 2009/01/15 03:00:54 nao-pon Exp $
+// $Id: xoops_wrapper.php,v 1.49 2009/01/25 00:58:20 nao-pon Exp $
 //
 class XpWikiXoopsWrapper extends XpWikiBackupFunc {
 	
@@ -387,7 +387,8 @@ class XpWikiXoopsWrapper extends XpWikiBackupFunc {
 		$tpl->assign(
 			array(
 				'mod_config' => $this->root->module['config'] ,
-				'content' => array (
+				'mydirname'  => $this->root->mydirname,
+				'content'    => array (
 								'id' => $pgid,
 								'subject' => $page,
 							),

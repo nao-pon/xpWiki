@@ -1,5 +1,7 @@
 <?php
 
+require_once XOOPS_TRUST_PATH.'/modules/d3forum/class/D3commentAbstract.class.php' ;
+
 // a class for d3forum comment integration
 class xpWikiD3commentContent extends D3commentAbstract {
 
@@ -74,6 +76,28 @@ function validate_id( $link_id )
 	}
 	$check[$this->mydirname][$link_id] = $ret;
 	return $ret;
+}
+
+// get id from <{$content.id}>
+function external_link_id( $params )
+{
+	if (is_object($this->smarty)) {
+		$content = $this->smarty->get_template_vars( 'content' ) ;
+		return intval( $content['id'] ) ;
+	} else {
+		return @$params['id'] ;
+	}
+}
+
+// get escaped subject from <{$content.subject}>
+function getSubjectRaw( $params )
+{
+	if (is_object($this->smarty)) {
+		$content = $this->smarty->get_template_vars( 'content' ) ;
+		return $this->unhtmlspecialchars( $content['subject'] , ENT_QUOTES ) ;
+	} else {
+		return empty( $params['subject_escaped'] ) ? @$params['subject'] : $this->unhtmlspecialchars( @$params['subject'] ) ;
+	}
 }
 
 }
