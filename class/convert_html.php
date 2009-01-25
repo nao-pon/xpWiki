@@ -1030,7 +1030,6 @@ class XpWikiBody extends XpWikiElement {
 					// <div style="text-align:...">
 					$this->last = & $this->last->add(new XpWikiAlign($this->xpwiki, strtolower($matches[1])));
 					if ($matches[2] === '') {
-						$last_level = 0;
 						continue;
 					}
 					$line = $matches[2];
@@ -1077,7 +1076,6 @@ class XpWikiBody extends XpWikiElement {
 			case ' ':
 			case "\t":
 				$this->last = & $this->last->add(new XpWikiPre($this, $line));
-				$last_level = 0;
 				continue 2;
 				break;
 			
@@ -1113,15 +1111,24 @@ class XpWikiBody extends XpWikiElement {
 			// Other Character
 			if (isset ($this->factories[$head])) {
 				$this->root->rtf['contntId'] = $this->id;
+				
+				if ($head === ':') {
+					$this_level = strspn($line, $head);
+					if ($this_level - $last_level > 1) {
+						for($_lev = $last_level+1; $_lev < $this_level; $_lev++ ) {
+							$this->last = & $this->last->add($this->func->Factory_DList(':|'));
+						}
+					}
+					$last_level = $this_level;
+				}
+				
 				$factoryname = 'Factory_'.$this->factories[$head];
 				$this->last = & $this->last->add($this->func->$factoryname($line));
-				$last_level = 0;
 				continue;
 			}
 
 			// Default
 			$this->last = & $this->last->add($this->func->Factory_Inline($line));
-			$last_level = 0;
 		}
 	}
 
