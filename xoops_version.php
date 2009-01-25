@@ -111,6 +111,36 @@ $modversion['config'][] = array(
 	'options'		=> array()
 ) ;
 
+$modversion['config'][] = array(
+	'name'			=> 'comment_order' ,
+	'title'			=> $constpref.'_COM_ORDER' ,
+	'description'	=> '' ,
+	'formtype'		=> 'select' ,
+	'valuetype'		=> 'text' ,
+	'default'		=> 'desc' ,
+	'options'		=> array( '_OLDESTFIRST' => 'asc' , '_NEWESTFIRST' => 'desc' )
+) ;
+
+$modversion['config'][] = array(
+	'name'			=> 'comment_view' ,
+	'title'			=> $constpref.'_COM_VIEW' ,
+	'description'	=> '' ,
+	'formtype'		=> 'select' ,
+	'valuetype'		=> 'text' ,
+	'default'		=> 'listposts_flat' ,
+	'options'		=> array( '_FLAT' => 'listposts_flat' , '_THREADED' => 'listtopics' )
+) ;
+
+$modversion['config'][] = array(
+	'name'			=> 'comment_posts_num' ,
+	'title'			=> $constpref.'_COM_POSTSNUM' ,
+	'description'	=> '' ,
+	'formtype'		=> 'textbox' ,
+	'valuetype'		=> 'int' ,
+	'default'		=> '10' ,
+	'options'		=> array()
+) ;
+
 // Notification
 $modversion['hasNotification'] = 1;
 $modversion['notification'] = array(

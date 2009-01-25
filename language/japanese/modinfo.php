@@ -27,6 +27,9 @@ define( $constpref.'_ADMIN_TOOLS' , '管理用ツール一覧' ) ;
 
 define( $constpref.'_COM_DIRNAME','コメント統合するd3forumのdirname');
 define( $constpref.'_COM_FORUM_ID','コメント統合するフォーラムの番号');
+define( $constpref.'_COM_ORDER','コメント統合の表示順序');
+define( $constpref.'_COM_VIEW','コメント統合の表示方法');
+define( $constpref.'_COM_POSTSNUM','コメント統合のフラット表示における最大表示件数');
 
 // Notify Replaces
 define($constpref.'_NOTCAT_REPLASE2MODULENAME', 'モジュール');
