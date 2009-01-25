@@ -212,16 +212,25 @@ EOD;
 		return $this->lastmap_name;
 	}
 	
-	function get_static_image_url($lat, $lng, $zoom) {
+	function get_static_image_url($lat, $lng, $zoom, $markers = '') {
 		if ($zoom > 10) {
 			$zoom = $zoom - 1;
 		}
-		$url = 'http://maps.google.com/staticmap?center='.$lat.','.$lng.'&amp;zoom='.$zoom.'&amp;size='.$this->conf['StaticMapSize'].'&amp;type=mobile&amp;key='.$this->cont['PLUGIN_GOOGLEMAPS2_DEF_KEY'];
+		$params = ($lng)? 'center='.$lat.','.$lng.'&amp;zoom='.$zoom.'&amp;' : $lat;
+		$url = 'http://maps.google.com/staticmap?'.$params.'size='.$this->conf['StaticMapSize'].'&amp;type=mobile&amp;key='.$this->cont['PLUGIN_GOOGLEMAPS2_DEF_KEY'];
+		if ($markers) {
+			$url .= '&amp;markers=' . htmlspecialchars($markers);
+		}
 		return $url;
 	}
 	
 	function make_static_maps($lat, $lng, $zoom) {
-		$imgurl = $this->get_static_image_url($lat, $lng, $zoom);
+		$markers = '__GOOGLE_MAPS_STATIC_MARKERS_' . $this->lastmap_name;
+		$this->root->replaces_finish[$markers] = '';
+		$params = '__GOOGLE_MAPS_STATIC_PARAMS_' . $this->lastmap_name;
+		$_zoom = ($zoom > 10)? ($zoom - 1) : $zoom;
+		$this->root->replaces_finish[$params] = 'center='.$lat.','.$lng.'&amp;zoom='.$_zoom.'&amp;';
+		$imgurl = $this->get_static_image_url($params, '', 0, $markers);
 		$img = '<img src="'.$imgurl.'" />';
 		return '<div style="text-align:center;">' . $img . '</div>';
 	}
@@ -577,7 +586,7 @@ EOD;
 	}
 	
 	function plugin_googlemaps2_init_output($key, $noiconname) {
-		$this->func->add_js_head('http://maps.google.co.jp/maps?file=api&amp;v='.$this->conf['ApiVersion'].'&amp;key='.$key, false, 'UTF-8');
+		$this->func->add_js_head('http://maps.google.co.jp/maps?file=api&amp;v='.$this->conf['ApiVersion'].'&amp;key='.$key, true, 'UTF-8');
 		$this->func->add_tag_head('googlemaps2.js');
 		return;
 	}
