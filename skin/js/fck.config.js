@@ -78,7 +78,7 @@ FCKConfig.ToolbarSets["Default"] = [
 	['JustifyLeft','JustifyCenter','JustifyRight'],
 	['Link','Unlink','Anchor'],
 	['FontFormat','FontSize','TextColor','BGColor'],
-	['Source','-','FitWindow','ShowBlocks','-','About']
+	['FitWindow','ShowBlocks','-','About']
 ] ;
 
 //	ContextMenu
