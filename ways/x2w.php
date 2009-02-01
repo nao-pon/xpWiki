@@ -2,7 +2,7 @@
 /*
  * Created on 2008/10/23 by nao-pon http://hypweb.net/
  * License: GPL v2 or (at your option) any later version
- * $Id: x2w.php,v 1.12 2008/12/08 23:25:47 nao-pon Exp $
+ * $Id: x2w.php,v 1.13 2009/02/01 08:09:59 nao-pon Exp $
  */
 
 //
@@ -26,6 +26,10 @@ error_reporting(0);
 
 $post = isset($_POST['s'])? $_POST['s'] : $_GET['s'];
 $line_break = isset($_POST['lb'])? $_POST['lb'] : $_GET['lb'];
+
+if (get_magic_quotes_gpc()) {
+	$post = stripslashes($post);
+}
 
 define('DEBUG', (! empty($_GET['debug'])));
 
@@ -76,7 +80,7 @@ function xhtml2wiki($source)
 	$body = $obj->Convert($source);
 	
 	// 先頭の無駄な空白を削除
-	$body = preg_replace('/^(?:[\r\n]* [\r\n]+)+/', '', $body);
+	$body = preg_replace('/^(?:\n* \n+)+/', '', $body);
 	
 	return $body;
 }
@@ -93,6 +97,7 @@ class XHTML2Wiki
 	var $list_level;
 	var $last_div;
 	var $basicStyles;
+	var $comment;
 	
 	//	初期化
 	function XHTML2Wiki() {
@@ -107,14 +112,17 @@ class XHTML2Wiki
 	// 変換メソッド
 	function Convert($source) {
 		$this->body = '';
-		
-		$source = preg_replace('#(<BR[^>]*?>)\n#iS', '$1', $source);
-		$source = preg_replace('#(<P>&nbsp;</P>\s*)+$#iS', '', $source);
-		$source = preg_replace('#\s*<P>&nbsp;</P>\s*#iS', "\n<br class=\"block\" />\n", $source);
-		$source = preg_replace('#\s*(<(?:FORM|TABLE|TBODY|THEAD|TFOOT|TR|COLGROUP|P|DIV|H[1-6]|PRE|OL|UL|LI|DL|DT|DD|TD|TH|BLOCKQUOTE)[^>]*?>)#iS', "\n$1", $source);
-		$source = preg_replace('#(</(?:FORM|TABLE|TBODY|THEAD|TFOOT|TR|COLGROUP|P|DIV|H[1-6]|PRE|OL|UL|LI|DL|DT|DD|TD|TH|BLOCKQUOTE)>)\s*#iS', "$1\n", $source);
-		$source = preg_replace('#(<BLOCKQUOTE[^>]*?>)\s*#iS', "$1\n", $source);
-		$source = preg_replace('#\s*(</BLOCKQUOTE>)#iS', "\n$1", $source);
+
+		// タグを小文字に統一
+		$source = preg_replace('#</?[a-zA-Z]+#e', 'strtolower("$0")', $source);
+	
+		$source = preg_replace('#(<br[^>]*?>)\n#s', '$1', $source);
+		$source = preg_replace('#(<p>&nbsp;</p>\s*)+$#s', '', $source);
+		$source = preg_replace('#\s*<p>&nbsp;</p>\s*#s', "\n<br class=\"block\" />\n", $source);
+		$source = preg_replace('#\s*(<(?:form|table|tbody|thead|tfoot|tr|colgroup|p|div|h[1-6]|pre|ol|ul|li|dl|dt|dd|td|th|blockquote)[^>]*?>)#s', "\n$1", $source);
+		$source = preg_replace('#(</(?:form|table|tbody|thead|tfoot|tr|colgroup|p|div|h[1-6]|pre|ol|ul|li|dl|dt|dd|td|th|blockquote)>)\s*#s', "$1\n", $source);
+		$source = preg_replace('#(<blockquote[^>]*?>)\s*#s', "$1\n", $source);
+		$source = preg_replace('#\s*(</blockquote>)#s', "\n$1", $source);
 		
 		//debug($source);
 		
@@ -130,8 +138,9 @@ class XHTML2Wiki
 		$body = implode('', $this->body);
 		
 		// 構文補正
-		$body = preg_replace("/\n\n\n+/", "\n\n", $body);
-		$body = str_replace("\r", '', $body);
+		$body = preg_replace('/(\n\n)\n+/', '$1', $body);
+		$body = preg_replace('/(-|\+)\n~/', '$1 ~', $body);
+		//$body = str_replace("\r", '', $body);
 		$body = rtrim($body);
 		
 		return $body;
@@ -143,7 +152,7 @@ class XHTML2Wiki
 			return;
 		}
 		
-		$line = preg_replace('/ *(<(?:FORM|TABLE|TBODY|THEAD|TFOOT|TR|UL|OL))/i', '$1', $line);
+		$line = preg_replace('/ *(<(?:form|table|tbody|thead|tfoot|tr|ul|ol))/', '$1', $line);
 		
 		if ($this->GetDiv() == 'Table') {
 			$this->Table($line);
@@ -151,19 +160,29 @@ class XHTML2Wiki
 		}
 		
 		// 整形済みテキスト
-		if (preg_match("/<pre>/", $line, $matches)) {
+		if (preg_match("/<pre([^>]*?)>/", $line, $matches)) {
 			$this->StartDiv('Pre');
+			if (strpos($matches[1], 'class="comment"') !== false) {
+				$this->comment = true;
+			} else {
+				$this->comment = false;
+			}
 		}
 		else if ($this->GetDiv() == 'Pre') {
 			if (preg_match("/(.*)<\/pre>/", $line, $matches)) {
 				$line = $matches[1];
 				$this->EndDiv();
-			} else {
-				//if (! $line) $line = " \r\n";
 			}
-			$line = preg_replace("/<br[^>]*?>/", "\r\n ", $line);
+			$line = preg_replace("/<br[^>]*?>/", "\n ", $line);
 			$line = strip_tags($line);
-			$this->OutputLine(' ' . $this->DecodeSpecialChars($line));
+			if (! $this->comment) {
+				$this->OutputLine(' ' . $this->DecodeSpecialChars($line));
+				if (! $this->GetDiv()) {
+					$this->OutputLine();
+				}
+			} else {
+				$this->OutputLine($this->DecodeSpecialChars($line));
+			}
 		}
 		// 見出し
 		else if (preg_match("/<h([2-6])(.*?)>(.*)/", $line, $matches)) {
@@ -180,7 +199,7 @@ class XHTML2Wiki
 		}
 		// ブロック型プラグイン
 		else if (preg_match("/<div\s([^>]*?)class=\"(plugin|ref)\"(.*?)>(.*)/", $line)) {
-			$line = preg_replace("/<br[^>]*?>/", "\r\n", $line);
+			$line = preg_replace("/<br[^>]*?>/", "\n", $line);
 			$line = strip_tags($line);
 			$this->OutputLine($this->DecodeSpecialChars($line));
 		}
@@ -197,7 +216,8 @@ class XHTML2Wiki
 			$element = strtoupper($matches[1]) . 'List';
 			$this->StartDiv($element);
 			$this->div_level++;
-			if ($element === 'OList' || $element === 'UList') $this->list_level++;
+			//if ($element === 'OList' || $element === 'UList') $this->list_level++;
+			$this->list_level++;
 		}
 		// テーブル
 		else if (preg_match("/<table(.*?)>/", $line, $matches)) {
@@ -211,6 +231,7 @@ class XHTML2Wiki
 			}
 			else {
 				$this->OutputLine('----');
+				$this->OutputLine();
 			}
 		}
 		// 改行
@@ -248,7 +269,7 @@ class XHTML2Wiki
 				$this->OutputLine();
 			}
 		}
-		else if (preg_match("/^(<li([^>]*?)>)?(.*?)(<\/li>)?$/", $line, $matches)) {
+		else if (preg_match("/^(<li([^>]*?)>)?(.*?)(<\/li>)?$/S", $line, $matches)) {
 			$head = '';
 			if ($matches[1] && (empty($matches[2]) || strpos($matches[2], 'class="list_none"') === false)) {
 				//$head = str_repeat("+", $this->GetLevel());
@@ -273,7 +294,7 @@ class XHTML2Wiki
 				$this->OutputLine();
 			}
 		}
-		else if (preg_match("/^(<li([^>]*?)>)?(.*?)(<\/li>)?$/", $line, $matches)) {
+		else if (preg_match("/^(<li([^>]*?)>)?(.*?)(<\/li>)?$/S", $line, $matches)) {
 			$head = '';
 			if ($matches[1] && (empty($matches[2]) || strpos($matches[2], 'class="list_none"') === false)) {
 				$head = str_repeat("-", $this->list_level);
@@ -291,17 +312,20 @@ class XHTML2Wiki
 	function DList($line) {
 		if (preg_match("/<\/dl>/", $line)) {
 			$this->div_level--;
-			if ($this->div_level == 0) {
-				$this->EndDiv();
+			$this->list_level--;
+			$this->EndDiv();
+			//if ($this->div_level == 0) {
+				//$this->EndDiv();
 				if ($this->GetDiv() == '') {
 					$this->OutputLine();
 				}
-			}
+			//}
 		}
-		else if (preg_match("/^\s*(<d(t|d)>)?(.*?)(<\/d(t|d)>)?\s*$/", $line, $matches)) {
+		else if (preg_match("/^\s*(<d(t|d)>)?(.*?)(<\/d(t|d)>)?\s*$/S", $line, $matches)) {
 			$text = $matches[3];
 			if ($matches[2] == 't') {
-				$this->OutputLine(str_repeat(':', $this->GetLevel()), $text, '|');
+				//$this->OutputLine(str_repeat(':', $this->GetLevel()), $text, '|');
+				$this->OutputLine(str_repeat(':', $this->list_level), $text, '|');
 			}
 			else if ($text) {
 				$this->OutputLine('', $text);
@@ -320,7 +344,7 @@ class XHTML2Wiki
 				$this->EndDiv();
 			}
 		}
-		else if (preg_match("/(<p.*?>)?(.*?)(<\/p>)?$/", $line, $matches)) {
+		else if (preg_match("/(<p.*?>)?(.*?)(<\/p>)?$/S", $line, $matches)) {
 			if (!$matches[1] && !$matches[3]) {
 				$this->Paragraph($line);
 			}
@@ -373,7 +397,7 @@ class XHTML2Wiki
 		
 		// セル
 		if ($is_cell) {
-			if (preg_match("/(.*)<\/t(d|h)>/", $line, $matches)) {
+			if (preg_match("/(.*)<\/t(d|h)>/S", $line, $matches)) {
 				$cells[$row][$col] .= trim($matches[1], "\n");
 				$col++;
 				$is_cell = false;
@@ -672,12 +696,12 @@ class XHTML2Wiki
 		$head = $this->list_level? '~' : '';
 		$align = '';
 		$p = false;
-		if (preg_match("/<(?:p|div)([^>]*)(?:text-align:\s*(left|center|right))([^>]*)>/", $line, $matches)) {
+		if (preg_match("/<(?:p|div)([^>]*?)(?:text-align:\s*(left|center|right))([^>]*)>/", $line, $matches)) {
 			if (strpos($matches[1], 'class="ie5"') === false && strpos($matches[3], 'class="ie5"') === false) {
 				$align = strtoupper($matches[2]) . ':';
 			}
 		}
-		if (preg_match("/<(p|div)[^>]*>(.*)/", $line, $matches)) {
+		if (preg_match("/<(p|div)[^>]*?>(.*)/", $line, $matches)) {
 			$p = true;
 			if (! $head && $matches[1] == 'p') {
 				$this->OutputLine();
@@ -687,7 +711,7 @@ class XHTML2Wiki
 			}
 			$line = $align . $matches[2];
 		}
-		if (preg_match("/(.*)<\/(p|div)>/", $line, $matches)) {
+		if (preg_match("/(.*)<\/(p|div)>/S", $line, $matches)) {
 			if ($matches[1]) {
 				$this->OutputLine($head, $matches[1]);
 			}
@@ -702,11 +726,12 @@ class XHTML2Wiki
 				if ($this->list_level) {
 					if ($this->GetDiv() === 'UList') {
 						$this->OutputLine(str_repeat('-', $this->list_level));
-						$this->OutputLine($line);
+						//$this->OutputLine($line);
 					} else if ($this->GetDiv() === 'OList') {
 						$this->OutputLine(str_repeat('+', $this->list_level));
-						$this->OutputLine($line);
+						//$this->OutputLine($line);
 					}
+					$this->OutputLine('', $line);
 				}
 			}
 		}
@@ -760,8 +785,8 @@ class XHTML2Wiki
 			$line = preg_replace_callback('/((?:<span style=\"[^\"]+?\">){2,})([^\08]+?)(\x08{2,})/iS', array(&$this, 'SpanSimplify'), $line);
 		}
 		// 文字のサイズ・色
-		while(preg_match('/<span[^>]*?>[^\x08]*\x08/iS', $line)) {
-			$line = preg_replace_callback('/<span([^>]*?)>([^\x08]*)\x08/iS', array(&$this, 'Font'), $line);
+		while(preg_match('/<span[^>]*?>[^\x08]*\x08/', $line)) {
+			$line = preg_replace_callback('/<span([^>]*?)>([^\x08]*)\x08/', array(&$this, 'Font'), $line);
 		}
 		// 改行
 		global $line_break;
@@ -797,8 +822,9 @@ class XHTML2Wiki
 	// リンク
 	function Link($matches) {
 		$url = $matches[1];
-		//$alias = strip_tags($matches[2]);
 		$alias = $matches[2];
+		$alias = preg_replace("/<br[^>]*?>/", '&br;', $alias);
+		$alias = preg_replace('/ ?&zwnj;/', '', $alias);
 		return "[[" . (($url == $alias) ? '' : "$alias>") . "$url]]";
 	}
 	
@@ -807,7 +833,7 @@ class XHTML2Wiki
 		$open = substr_count($matches[1], '<span');
 		$close = strlen($matches[3]);
 		$style = '';
-		if (preg_match_all('/style="(.+?)"/', $matches[1], $styles, PREG_PATTERN_ORDER)) {
+		if (preg_match_all('/style="(.+?)"/i', $matches[1], $styles, PREG_PATTERN_ORDER)) {
 			$style = join(';', $styles[1]);
 		}
 		return '<span style="' . $style . '">' . $matches[2] . str_repeat("\x08", $close - $open + 1);

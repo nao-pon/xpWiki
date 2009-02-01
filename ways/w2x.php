@@ -2,7 +2,7 @@
 /*
  * Created on 2008/10/23 by nao-pon http://hypweb.net/
  * License: GPL v2 or (at your option) any later version
- * $Id: w2x.php,v 1.11 2009/01/04 11:32:31 nao-pon Exp $
+ * $Id: w2x.php,v 1.12 2009/02/01 08:09:59 nao-pon Exp $
  */
 
 //
@@ -27,6 +27,11 @@ error_reporting(0);
 $source = isset($_POST['s'])? $_POST['s'] : '';
 $line_break = isset($_POST['lb'])? strval($_POST['lb']) : '';
 $page = isset($_POST['page'])? $_POST['page'] : '';
+
+if (get_magic_quotes_gpc()) {
+	$source = stripslashes($source);
+	$page = stripslashes($page);
+}
 
 define('DEBUG', (! empty($_GET['debug'])));
 
@@ -118,7 +123,7 @@ function Send_xml($body, $line_break)
 //	PukiWiki の構文を XHTML に変換
 function guiedit_convert_html($source) {
 	if (DEBUG) error_reporting(E_ALL);
-	
+
 	if ($source) {
 		$lines = explode("\n", $source);
 		$body = & new BodyEx();
@@ -277,6 +282,24 @@ function guiedit_make_line_rules($line) {
 	return preg_replace($pattern, $replace, $line);
 }
 
+// Explode Comma-Separated Values to an array
+function csv_explode($separator, $string)
+{
+	$retval = $matches = array();
+
+	$_separator = preg_quote($separator, '/');
+	if (! preg_match_all('/("[^"]*(?:""[^"]*)*"|[^' . $_separator . ']*)' .
+	    $_separator . '/', $string . $separator, $matches))
+		return array();
+
+	foreach ($matches[1] as $str) {
+		$len = strlen($str);
+		if ($len > 1 && $str{0} == '"' && $str{$len - 1} == '"')
+			$str = str_replace('""', '"', substr($str, 1, -1));
+		$retval[] = $str;
+	}
+	return $retval;
+}
 
 // インライン変換クラス
 class InlineConverterEx {
@@ -609,7 +632,7 @@ function & Factory_DListEx(& $root, $text)
 {
 	$out = explode('|', ltrim($text), 2);
 	if (count($out) < 2) {
-		$ret = Factory_InlineEx($text);
+		$ret = & Factory_InlineEx($text);
 	} else {
 		$ret = & new DListEx($out);
 	}
@@ -620,7 +643,7 @@ function & Factory_DListEx(& $root, $text)
 function & Factory_TableEx(& $root, $text)
 {
 	if (! preg_match('/^\|(.+)\|([hHfFcC]?)$/', $text, $out)) {
-		$ret = Factory_InlineEx($text);
+		$ret = & Factory_InlineEx($text);
 	} else {
 		$ret = & new TableEx($out);
 	}
@@ -631,7 +654,7 @@ function & Factory_TableEx(& $root, $text)
 function & Factory_YTableEx(& $root, $text)
 {
 	if ($text == ',') {
-		$ret = Factory_InlineEx($text);
+		$ret = & Factory_InlineEx($text);
 	} else {
 		$ret = & new YTableEx(csv_explode(',', substr($text, 1)));
 	}
@@ -973,8 +996,7 @@ class BQuoteEx extends ElementEx
 	{
 		// BugTrack/521, BugTrack/545
 		if (is_a($obj, 'InlineEx')) {
-			$ret = parent::insert($obj->toPara(' class="quotation"'));
-			return $ret;
+			return parent::insert($obj->toPara(' class="quotation"'));
 		}
 
 		if (is_a($obj, 'BQuoteEx') && $obj->level == $this->level && count($obj->elements)) {
@@ -983,8 +1005,7 @@ class BQuoteEx extends ElementEx
 				$obj = & $obj->elements[0];
 			}
 		}
-		$ret = parent::insert($obj);
-		return $ret;
+		return parent::insert($obj);
 	}
 
 	function toString()
@@ -1599,6 +1620,7 @@ class PreEx extends ElementEx
 		parent::ElementEx();
 		$this->elements[] = htmlspecialchars(
 			(! $preformat_ltrim || $text == '' || $text{0} != ' ') ? $text : substr($text, 1));
+		$this->class = $root->comment? ' class="comment"' : '';
 	}
 
 	function canContain(& $obj)
@@ -1614,7 +1636,7 @@ class PreEx extends ElementEx
 
 	function toString()
 	{
-		return $this->wrap(join("\n", $this->elements), 'pre');
+		return $this->wrap(join("\n", $this->elements), 'pre', $this->class);
 	}
 }
 
@@ -1721,7 +1743,9 @@ class BodyEx extends ElementEx
 		
 		while (! empty($lines)) {
 			$line = rtrim(array_shift($lines), "\r\n");
-
+			
+			$this->comment = false;
+			
 			// Empty
 			if ($line === '') {
 				$this->last = & $this;
@@ -1731,9 +1755,19 @@ class BodyEx extends ElementEx
 			
 			// Escape comments
 			//if (substr($line, 0, 2) == '//') continue;
+			if (substr($line, 0, 2) === '//') {
+				$this->comment = true;
+				$line = ' ' . $line;
+			}
 
 			// The first character
 			$head = $line[0];
+
+			if ($head === ',') {
+				$this->comment = true;
+				$line = ' ' . $line;
+				$head = ' ';
+			}
 
 			// LEFT, CENTER, RIGHT
 			if ($head === 'R' || $head === 'C' || $head === 'L') {
@@ -1742,7 +1776,6 @@ class BodyEx extends ElementEx
 					// <div style="text-align:...">
 					$this->last = & $this->last->add(new AlignEx(strtolower($matches[1])));
 					if ($matches[2] === '') {
-						$last_level = 0;
 						continue;
 					}
 					$line = $matches[2];
@@ -1790,7 +1823,6 @@ class BodyEx extends ElementEx
 			case ' ':
 			case "\t":
 				$this->last = & $this->last->add(new PreEx($this, $line));
-				$last_level = 0;
 				continue 2;
 				break;
 
@@ -1825,23 +1857,31 @@ class BodyEx extends ElementEx
 
 			// Other Character
 			if (isset($this->factories[$head])) {
+				
+				if ($head === ':') {
+					$this_level = strspn($line, $head);
+					if ($this_level - $last_level > 1) {
+						for($_lev = $last_level+1; $_lev < $this_level; $_lev++ ) {
+							$this->last = & $this->last->add(Factory_DListEx($this, ':|'));
+						}
+					}
+					$last_level = $this_level;
+				}
+				
 				$factoryname = 'Factory_' . $this->factories[$head];
 				$this->last  = & $this->last->add($factoryname($this, $line));
-				$last_level = 0;
 				continue;
 			}
 
 			// Default
 			$this->last = & $this->last->add(Factory_InlineEx($line));
-			$last_level = 0;
 		}
 	}
 
 	function & insert(& $obj)
 	{
 		if (is_a($obj, 'InlineEx')) $obj = & $obj->toPara();
-		$ret = parent::insert($obj);
-		return $ret;
+		return parent::insert($obj);
 	}
 
 	function toString()
