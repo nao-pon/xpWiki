@@ -56,9 +56,16 @@ class XpWikiElement {
 			if ($ret !== '') $ret .= "\n";
 			$ret .= $value->toString();
 		}
+		$this->GC();
 		return $ret;
 	}
-
+	
+	function GC() {
+		// Garbage Collection
+		$this->elements = NULL;
+		$this->last = NULL;
+	}
+	
 	function dump($indent = 0) {
 		$ret = str_repeat(' ', $indent).get_class($this)."\n";
 		$indent += 2;
@@ -87,7 +94,9 @@ class XpWikiInline extends XpWikiElement {
 	}
 
 	function toString() {
-		return join(($this->root->line_break ? '<br />'."\n" : "\n"), $this->elements);
+		$ret = join(($this->root->line_break ? '<br />'."\n" : "\n"), $this->elements);
+		$this->GC();
+		return $ret;
 	}
 
 	function & toPara($class = '') {
@@ -172,6 +181,7 @@ class XpWikiHRule extends XpWikiElement {
 	}
 
 	function toString() {
+		$this->GC();
 		return $this->root->hr;
 	}
 }
@@ -690,11 +700,9 @@ class XpWikiTable extends XpWikiElement {
 			}
 			$string .= $this->wrap($part_string, $part);
 		}
-		//$string = $this->wrap($string, 'table', ' class="style_table" cellspacing="1" border="0"');
-
-		//return $this->wrap($string, 'div', ' class="ie5"');
-		
 		$string = $this->wrap($string, 'table', ' class="style_table"'."$this->table_style style=\"$this->table_sheet\"");
+		
+		$this->GC();
 		
 		return $this->wrap($string, 'div', ' class="ie5" '.$this->div_style).$this->table_around;
 
@@ -896,6 +904,9 @@ class XpWikiYTable extends XpWikiElement {
 			$rows .= "\n".'<tr class="style_tr">'.$str.'</tr>'."\n";
 		}
 		$rows = $this->wrap($rows, 'table', ' class="style_table" cellspacing="1" border="0"');
+		
+		$this->GC();
+		
 		return $this->wrap($rows, 'div', ' class="ie5"');
 	}
 }
@@ -921,7 +932,11 @@ class XpWikiPre extends XpWikiElement {
 	}
 
 	function toString() {
-		return $this->wrap($this->wrap(join("\n", $this->elements), 'pre'), 'div', ' class="pre"');
+		$ret = $this->wrap($this->wrap(join("\n", $this->elements), 'pre'), 'div', ' class="pre"');
+		
+		$this->GC();
+		
+		return $ret;
 	}
 }
 
@@ -943,6 +958,7 @@ class XpWikiDiv extends XpWikiElement {
 	}
 
 	function toString() {
+		$this->GC();
 		return $this->body;
 	}
 }
@@ -991,7 +1007,7 @@ class XpWikiBody extends XpWikiElement {
 		parent :: XpWikiElement($xpwiki);
 	}
 
-	function parse(& $lines) {
+	function parse($lines) {
 		$this->last = & $this;
 		$matches = array ();
 		$ext_title_find = (false || $this->root->render_mode === 'render');
@@ -1183,7 +1199,10 @@ class XpWikiBody extends XpWikiElement {
 		}
 		
 		$text = preg_replace_callback('/<#_contents_>/', array (& $this, 'replace_contents'), $text);
-
+		
+		$this->contents_last = NULL;
+		$this->contents = NULL;
+		
 		return $text."\n";
 	}
 

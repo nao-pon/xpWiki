@@ -1,7 +1,7 @@
 <?php
 //
 // Created on 2006/09/29 by nao-pon http://hypweb.net/
-// $Id: xpwiki.php,v 1.89 2009/01/19 01:10:56 nao-pon Exp $
+// $Id: xpwiki.php,v 1.90 2009/02/01 08:01:01 nao-pon Exp $
 //
 
 class XpWiki {
@@ -113,6 +113,9 @@ class XpWiki {
 
 		// 各パラメーターを初期化
 		$this->func->init();
+		
+		// プラグインインスタンスを初期化
+		$this->func->get_plugin_instance(NULL); 
 		
 		// オプション設定
 		if (!empty($this->iniVar['root'])) {

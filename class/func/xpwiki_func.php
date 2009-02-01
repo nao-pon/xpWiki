@@ -1,7 +1,7 @@
 <?php
 //
 // Created on 2006/10/02 by nao-pon http://hypweb.net/
-// $Id: xpwiki_func.php,v 1.201 2009/01/25 00:56:07 nao-pon Exp $
+// $Id: xpwiki_func.php,v 1.202 2009/02/01 08:01:01 nao-pon Exp $
 //
 class XpWikiFunc extends XpWikiXoopsWrapper {
 
@@ -49,6 +49,15 @@ class XpWikiFunc extends XpWikiXoopsWrapper {
 	
 	function & get_plugin_instance ($name) {
 		static $instance = array();
+		
+		if (is_null($name) && ! empty($instance[$this->xpwiki->pid])) {
+			$keys = array_keys($instance[$this->xpwiki->pid]);
+			foreach($keys as $key) {
+				unset($instance[$this->xpwiki->pid][$key]);
+			}
+			$ret = NULL;
+			return $ret;
+		}
 		
 		if (!isset($instance[$this->xpwiki->pid][$name])) {
 			if ($class = $this->exist_plugin($name)) {
@@ -476,6 +485,7 @@ class XpWikiFunc extends XpWikiXoopsWrapper {
 					)
 				));
 				fclose($fp);
+				clearstatcache();
 			}
 		}
 		if (!empty($this->root->rtf['use_cache_always'])) {
@@ -2153,13 +2163,18 @@ EOD;
 			$cache_dat = unserialize(file_get_contents($cache_file));
 			$text = $cache_dat['body'];
 		} else {
-			$pobj = & XpWiki::getSingleton($this->root->mydirname);
-			$pobj->init($page);
-			$GLOBALS['Xpwiki_'.$this->root->mydirname]['cache'] = null;
-			$pobj->root->rtf['use_cache_always'] = TRUE;
-			$pobj->execute();
-			$text = $pobj->body;
+			$text = '';
+			if (empty($this->root->rtf['from_get_page_context'])) {
+				$pobj = & XpWiki::getSingleton($this->root->mydirname);
+				$pobj->init($page);
+				$GLOBALS['Xpwiki_'.$this->root->mydirname]['cache'] = null;
+				$pobj->root->rtf['use_cache_always'] = TRUE;
+				$pobj->root->rtf['from_get_page_context'] = TRUE;
+				$pobj->execute();
+				$text = $pobj->body;
+			}
 		}
+		$text = preg_replace('#<div class="context">.+?</div>#s', '', $text);
 		$text = preg_replace('/<(script|style).+?<\/\\1>/i', '', $text);
 		$text = str_replace($this->root->hierarchy_insert, '', $text);
 		$context = HypCommonFunc::make_context(strip_tags( $text ), $words, $contextLength, $contextKeys, $delimiter);
@@ -2634,7 +2649,7 @@ EOD;
 		if (!$pgid = $this->get_pgid_by_name($page)) return false;
 
 		// For AutoLink
-		if ($action !== 'update'){
+		if (! $init && $action !== 'update'){
 			$this->autolink_dat_update();
 		}
 
@@ -2762,7 +2777,7 @@ EOD;
 					$this->xpwiki->db->queryF($query);
 				}
 				
-				if ($notimestamp === FALSE && $this->check_readable_page($page, FALSE, FALSE, 0)) {
+				if (! $init && $notimestamp === FALSE && $this->check_readable_page($page, FALSE, FALSE, 0)) {
 					// Send update ping
 					$this->send_update_ping();
 				}
@@ -2798,7 +2813,7 @@ EOD;
 			
 			//リンク元ページ
 			// $pageがAutoLinkの対象となり得る場合
-			if ($this->root->autolink
+			if (! $init && $this->root->autolink
 				and (preg_match('/^'.$this->root->WikiName.'$/',$page) ? $this->root->nowikiname : strlen($page) >= $this->root->autolink))
 			{
 				// $pageを参照していそうなページに一気に追加
