@@ -962,6 +962,7 @@ var XpWiki = {
 			Element.hide(id + '_FckBtn');
 			wikihelper_hide_helper();
 		} else {
+			xpwiki_now_loading(false);
 			$(id + '_FckBtn').innerHTML = 'x';
 		}
 	},
@@ -980,7 +981,6 @@ var XpWiki = {
 					oEditorIns.EditingArea.Textarea.value = tArea.value;
 				});
 			}
-			if ( bIsWysiwyg ) oEditorIns.SwitchEditMode(); //switch to plain
 			var text = oEditorIns.GetData( oEditorIns.Config.FormatSource );
 			tArea.value = text;
 			oEditorIframe.style.display = 'none';
@@ -989,9 +989,8 @@ var XpWiki = {
 			Element.show(id + '_FckBtn');
 			Element.show(id + '_WrapBtn');
 		} else {
-			if ( bIsWysiwyg ) oEditorIns.SwitchEditMode(); //switch to plain
-			oEditorIns.EditingArea.Textarea.value = tArea.value
-			if ( !bIsWysiwyg ) oEditorIns.SwitchEditMode(); //switch to WYSIWYG
+			oEditorIns.SetData(tArea.value, false);
+			if ( ! bIsWysiwyg ) oEditorIns.SwitchEditMode(); //switch to WYSIWYG
 			tArea.style.display = 'none';
 			oEditorIframe.style.display = '';
 			$(id + '_FckBtn').innerHTML = wikihelper_msg_normal_editor;
