@@ -1,18 +1,31 @@
 <?php
 //
 // Created on 2006/11/17 by nao-pon http://hypweb.net/
-// $Id: dbsync.inc.php,v 1.33 2008/11/17 02:34:23 nao-pon Exp $
+// $Id: dbsync.inc.php,v 1.34 2009/02/01 07:55:32 nao-pon Exp $
 //
 
 class xpwiki_plugin_dbsync extends xpwiki_plugin {
 
+	function plugin_dbsync_init() {
+		$this->conf['timelimit'] = 120;
+		$this->conf['time_margin'] = 10;
+	}
+	
 	function plugin_dbsync_action()
 	{
 		// 権限チェック
 		if (!$this->root->userinfo['admin']) {
 			return $this->action_msg_admin_only();
 		}
-
+		
+		$max_execution_time = ini_get('max_execution_time');
+		
+		if ($max_execution_time < $this->conf['timelimit']) {
+			@ set_time_limit($this->conf['timelimit']);
+			$max_execution_time = ini_get('max_execution_time');
+		}
+		$this->conf['timelimit'] = min($max_execution_time, $this->conf['timelimit']) - $this->conf['time_margin'];
+		
 		// 言語ファイルの読み込み
 		$this->load_language();
 		
@@ -34,13 +47,10 @@ class xpwiki_plugin_dbsync extends xpwiki_plugin {
 	function show_admin_form () {
 		//error_reporting(E_ERROR);
 		
-		@set_time_limit(120);
-		
-		//if (empty($this->root->post['action']) or !$this->root->userinfo['admin'])
-		//{
-			$this->msg['msg_usage'] = str_replace(array("%1d","%2d"),array(ini_get('max_execution_time'),ini_get('max_execution_time') - 5),$this->msg['msg_usage']);
-			$body = $this->func->convert_html($this->msg['msg_usage']);
-		//}
+		$timelimit = $this->conf['timelimit'];
+		$this->msg['msg_usage'] = str_replace(array("%1d","%2d"),array(ini_get('max_execution_time'), $timelimit),$this->msg['msg_usage']);
+		$body = $this->func->convert_html($this->msg['msg_usage']);
+
 		if ($this->root->userinfo['admin'])
 		{
 			$not = array();
@@ -130,8 +140,12 @@ function xpwiki_dbsync_setmsg(id,msg)
   &nbsp;&#9492;<input type="radio" name="plain_all" value="on" />{$this->msg['msg_plain_init_all']}<br />
   &nbsp;&nbsp;&nbsp;&nbsp;<input type="checkbox" name="plain_bg" value="on" />{$this->msg['msg_background']}
  </div>
-  <br />
-  <input id="xpwiki_dbsync_submit" type="submit" value="{$this->msg['btn_submit']}" onClick="xpwiki_dbsync_blink('start');return true;" />
+  <p>
+   Time limit: <input type="text" size="4" name="timelimit" value="{$this->conf['timelimit']}" /> sec ( Max {$this->conf['timelimit']} )
+  </p>
+  <p>
+   <input id="xpwiki_dbsync_submit" type="submit" value="{$this->msg['btn_submit']}" onClick="xpwiki_dbsync_blink('start');return true;" />
+  </p>
  </div>
 </form>
 <div id="xpwiki_dbsync_doing" style="color:red;background-color:white;visibility:hidden;width:500px;text-align:center;">{$this->msg['msg_now_doing']}</div>
@@ -151,13 +165,14 @@ __EOD__;
 			$xoopsErrorHandler =& XoopsErrorHandler::getInstance();
 			$xoopsErrorHandler->activate(true);
 		}
-		error_reporting(E_ALL);
+		error_reporting(E_ERROR);
+		//error_reporting(E_ALL);
 		
 		if (! $this->func->refcheck()) {
 			exit('Invalid REFERER.');
 		}
 		
-		$this->root->post['start_time'] = $this->cont['UTC'];
+		$this->conf['start_time'] = $this->cont['UTC'];
 		
 		header ("Content-Type: text/html; charset=".$this->cont['CONTENT_CHARSET']);
 		
@@ -182,6 +197,9 @@ __EOD__;
 		$this->root->post['attach'] = (!empty($this->root->post['attach']))? "on" : "";
 		$this->root->post['p_info'] = (!empty($this->root->post['p_info']))? "on" : "";
 		$this->root->post['plain_bg'] = (!empty($this->root->post['plain_bg']))? "on" : "";
+		$this->root->post['timelimit'] = (!empty($this->root->post['timelimit']))? intval($this->root->post['timelimit']) : $this->conf['timelimit'];
+		
+		$this->conf['timelimit'] = min( $this->root->post['timelimit'], $this->conf['timelimit']);
 		
 		if ($this->root->post['init']) $this->pginfo_db_init();
 		if ($this->root->post['count']) $this->count_db_init();
@@ -386,7 +404,7 @@ __EOD__;
 					
 				}
 				
-				if ($this->root->post['start_time'] + (ini_get('max_execution_time') - 5) < time())
+				if ($this->check_time_limit())
 				{
 					// 処理済ファイルリスト保存
 					if ($fp = fopen($work,"wb"))
@@ -504,7 +522,7 @@ __EOD__;
 				
 				$dones[1][] = $file;
 				
-				if ($this->root->post['start_time'] + (ini_get('max_execution_time') - 5) < time())
+				if ($this->check_time_limit())
 				{
 					// 処理済ファイルリスト保存
 					if ($fp = fopen($work,"wb"))
@@ -637,7 +655,7 @@ __EOD__;
 					$memory_full = false;
 				}
 				
-				if ($memory_full || $this->root->post['start_time'] + (ini_get('max_execution_time') - 5) < time())
+				if ($memory_full || $this->check_time_limit())
 				{
 					// 処理済ファイルリスト保存
 					if ($fp = fopen($work,"wb"))
@@ -652,6 +670,7 @@ __EOD__;
 			closedir($dir);
 			$this->root->vars['page']=$this->root->get['page']=$this->root->post['page'] = "";
 			$this->root->post['plain'] = "";
+			$this->func->autolink_dat_update();
 			echo " ( Done ".$counter." Pages !)<hr />";
 			if (!empty($debug['donepage']) && $this->root->post['p_info']) {
 				echo join('<br />', $debug['donepage']);
@@ -767,7 +786,7 @@ __EOD__;
 					$dones[0][] = $file;
 				}
 				
-				if ($this->root->post['start_time'] + (ini_get('max_execution_time') - 5) < time())
+				if ($this->check_time_limit())
 				{
 					// 処理済ファイルリスト保存
 					if ($fp = fopen($work,"wb"))
@@ -785,7 +804,7 @@ __EOD__;
 			
 			@unlink ($work);
 		}
-		$this->root->post['atatch'] = "";
+		$this->root->post['attach'] = "";
 	}
 	
 	function plugin_dbsync_next_do()
@@ -809,6 +828,7 @@ __EOD__;
   <input type="hidden" name="attach" value="{$this->root->post['attach']}" />
   <input type="hidden" name="p_info" value="{$this->root->post['p_info']}" />
   <input type="hidden" name="plain_bg" value="{$this->root->post['plain_bg']}" />
+  <input type="hidden" name="timelimit" value="{$this->conf['timelimit']}" />
   <input type="submit" value="{$this->msg['btn_next_do']}" onClick="parent.xpwiki_dbsync_blink('start');return true;" />
  </div>
 </form>
@@ -822,6 +842,10 @@ __EOD__;
 		echo $html;
 		
 		exit();
+	}
+	
+	function check_time_limit() {
+		return ($this->conf['start_time'] + $this->conf['timelimit'] < time());
 	}
 }
 ?>
