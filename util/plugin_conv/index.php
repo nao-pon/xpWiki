@@ -76,7 +76,7 @@ if (!$files && !$plugin) {
 	
 	echo <<<EOD
 <h1>Convert the xpWiki Plugin from "trust" to "html"</h1>
-<form enctype="multipart/form-data" action="index.php?page=plugin_conv&amp;mode=s2u" method="POST">
+<form action="index.php?page=plugin_conv&amp;mode=s2u" method="POST">
     Select xpWiki plugin: {$select}
     <p>
     <input type="checkbox" name="initonly" value="on" checked="checked" /> plugin_<i>xxx</i>_init() Only.<br />
