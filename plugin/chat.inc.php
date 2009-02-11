@@ -1,6 +1,6 @@
 <?php
 //
-// $Id: chat.inc.php,v 1.2 2008/11/13 23:56:10 nao-pon Exp $
+// $Id: chat.inc.php,v 1.3 2009/02/11 06:20:51 nao-pon Exp $
 //
 	
 class xpwiki_plugin_chat extends xpwiki_plugin {
@@ -27,7 +27,7 @@ class xpwiki_plugin_chat extends xpwiki_plugin {
 	}
 	function plugin_chat_convert()
 	{
-		$this->root->replaces_finish['_uI_LANg_'] = $this->cont['UI_LANG'];
+		$this->root->replaces_finish['_uI_LANg_'] = $this->get_accept_language();
 		$lang = '&amp;lang=_uI_LANg_';
 		
 		if ($this->root->userinfo['uname'] !== $this->root->siteinfo['anonymous']) {
@@ -56,5 +56,24 @@ class xpwiki_plugin_chat extends xpwiki_plugin {
 		}
 		
 		return ($pgid)? '<iframe src="' . $this->config['url'] . 'ajaxchat.htm?id=' . $chatid . $stay . $lang . $uname . '" width="100%" height="' . $height . '" style="border:none;" frameborder="0" border="0" allowtransparency="true" scrolling="no"></iframe>' : $this->msg['err_pgid'];
+	}
+
+	// Get HTTP_ACCEPT_LANGUAGE
+	function get_accept_language () {
+		$accept = @ $_SERVER["HTTP_ACCEPT_LANGUAGE"];
+		// cookie に指定があればそれを優先
+		if (!empty($this->root->cookie['lang'])) {
+			$accept = $this->root->cookie['lang'] . "," . $accept;
+		}
+		if (!empty($accept))
+		{
+			if (preg_match_all("/([\w\-]+)/i",$accept,$match,PREG_PATTERN_ORDER)) {
+				foreach($match[1] as $lang) {
+					$lang = strtolower($lang);
+					return $lang;
+				}
+			}
+		}
+		return $this->cont['LANG']; // 規定値
 	}
 }
