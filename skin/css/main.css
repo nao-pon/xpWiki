@@ -230,36 +230,10 @@ $class div.toc_body {
 	border-top: none;
 	padding: 0.4em 0.2em 0 0.4em;
 }
-$class div.toc_pin {
-	float: right;
-	width: 16px;
-	height: 16px;
-	background-image : url(loader.php?src=pin.gif);
-    filter: alpha(opacity=80);
-    -moz-opacity: 0.8;
-    opacity: 0.8;
-	cursor: pointer;
-}
-$class div.toc_handle {
-	float: left;
-	margin-left: -1.3em;
-	margin-right: 0.5em;
-	padding-top: 4px;
-	cursor: pointer;
-}
 $class div.contents ul,
 $class div.contents ol {
 	margin-left: 0.5em;
 	padding-left: 0.5em;
-}
-$class div.contentsFixed {
-	float: none;
-	border: none;
-	margin: 0px;
-	position: fixed;
-    filter: alpha(opacity=80);
-    -moz-opacity: 0.8;
-    opacity: 0.8;
 }
 
 /* Pre base */
