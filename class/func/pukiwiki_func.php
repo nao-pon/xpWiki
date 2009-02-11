@@ -1,7 +1,7 @@
 <?php
 //
 // Created on 2006/10/02 by nao-pon http://hypweb.net/
-// $Id: pukiwiki_func.php,v 1.196 2009/02/02 04:13:34 nao-pon Exp $
+// $Id: pukiwiki_func.php,v 1.197 2009/02/11 06:07:13 nao-pon Exp $
 //
 class XpWikiPukiWikiFunc extends XpWikiBaseFunc {
 
@@ -962,7 +962,7 @@ class XpWikiPukiWikiFunc extends XpWikiBaseFunc {
 
 //----- Start convert_html.php -----//
 	// PukiWiki - Yet another WikiWikiWeb clone
-	// $Id: pukiwiki_func.php,v 1.196 2009/02/02 04:13:34 nao-pon Exp $
+	// $Id: pukiwiki_func.php,v 1.197 2009/02/11 06:07:13 nao-pon Exp $
 	// Copyright (C)
 	//   2002-2005 PukiWiki Developers Team
 	//   2001-2002 Originally written by yu-ji
@@ -1118,9 +1118,8 @@ class XpWikiPukiWikiFunc extends XpWikiBaseFunc {
 		// ページ数が多い場合は、セパレータ \t で複数パターンに分割されている
 		$auto = explode("\t",trim($auto));
 		foreach($auto as $pat) {
-			if (preg_match('/' . $pat . '/S', '') !== false) {
-				$pattern = $pat_pre.$pat.$pat_aft;
-				$str = preg_replace_callback($pattern, array(& $this, 'int_auto_link_replace'), $str);
+			if ($pat) {
+				$str = preg_replace_callback($pat_pre . $pat . $pat_aft, array(& $this, 'int_auto_link_replace'), $str);
 			}
 		}
 		
@@ -1218,7 +1217,7 @@ class XpWikiPukiWikiFunc extends XpWikiBaseFunc {
 
 //----- Start func.php -----//
 	// PukiWiki - Yet another WikiWikiWeb clone.
-	// $Id: pukiwiki_func.php,v 1.196 2009/02/02 04:13:34 nao-pon Exp $
+	// $Id: pukiwiki_func.php,v 1.197 2009/02/11 06:07:13 nao-pon Exp $
 	// Copyright (C)
 	//   2002-2006 PukiWiki Developers Team
 	//   2001-2002 Originally written by yu-ji
@@ -1782,6 +1781,11 @@ EOD;
 	}
 	
 	function get_matcher_regex_safe ($pages, $spliter = "\t", $array_fix = true, $nest = 0) {
+		static $pat_pre;
+		static $pat_aft;
+		if (! $pat_pre) {
+			list($pat_pre, $pat_aft) = $this->get_autolink_regex_pre_after($this->root->page_case_insensitive);
+		}
 		
 		if ($array_fix) {
 			$pages = array_map('trim', $pages);
@@ -1802,7 +1806,8 @@ EOD;
 		while (list($key, $pat) = each($regs)) {
 			list($key, $val) = each($regs);
 			if (!$val) $val = count($pages);
-			if (@ preg_match('/' . $pat. '/', '') === false) {
+			if (@ preg_match($pat_pre . $pat . $pat_aft , '') === false) {
+			//if (@ preg_match('/' . $pat . '/S' , '') === false) {
 				if ($nest <= 10) {
 					$count = $val - $index;
 					$split = floor(($val - $index) / 2);
@@ -1822,7 +1827,7 @@ EOD;
 	function get_matcher_regex_safe_sub (& $array, $offset = 0, $sentry = NULL, $pos = 0, $nest = 0)
 	{
 		++$nest;
-		$limit = 1024 * 32 - 10;
+		$limit = 1024 * 31;
 		
 		if (empty($array)) return '(?!)'; // Zero
 		if ($sentry === NULL) $sentry = count($array);
@@ -2045,7 +2050,7 @@ EOD;
 
 //----- Start make_link.php -----//
 	// PukiWiki - Yet another WikiWikiWeb clone.
-	// $Id: pukiwiki_func.php,v 1.196 2009/02/02 04:13:34 nao-pon Exp $
+	// $Id: pukiwiki_func.php,v 1.197 2009/02/11 06:07:13 nao-pon Exp $
 	// Copyright (C)
 	//   2003-2005 PukiWiki Developers Team
 	//   2001-2002 Originally written by yu-ji
@@ -3026,7 +3031,7 @@ EOD;
 
 //----- Start html.php -----//
 	// PukiWiki - Yet another WikiWikiWeb clone.
-	// $Id: pukiwiki_func.php,v 1.196 2009/02/02 04:13:34 nao-pon Exp $
+	// $Id: pukiwiki_func.php,v 1.197 2009/02/11 06:07:13 nao-pon Exp $
 	// Copyright (C)
 	//   2002-2006 PukiWiki Developers Team
 	//   2001-2002 Originally written by yu-ji
@@ -3726,7 +3731,7 @@ EOD;
 
 //----- Start mail.php -----//
 	// PukiWiki - Yet another WikiWikiWeb clone.
-	// $Id: pukiwiki_func.php,v 1.196 2009/02/02 04:13:34 nao-pon Exp $
+	// $Id: pukiwiki_func.php,v 1.197 2009/02/11 06:07:13 nao-pon Exp $
 	// Copyright (C)
 	//   2003-2005 PukiWiki Developers Team
 	//   2003      Originally written by upk
@@ -4029,7 +4034,7 @@ EOD;
 
 //----- Start link.php -----//
 	// PukiWiki - Yet another WikiWikiWeb clone
-	// $Id: pukiwiki_func.php,v 1.196 2009/02/02 04:13:34 nao-pon Exp $
+	// $Id: pukiwiki_func.php,v 1.197 2009/02/11 06:07:13 nao-pon Exp $
 	// Copyright (C) 2003-2006 PukiWiki Developers Team
 	// License: GPL v2 or (at your option) any later version
 	//
