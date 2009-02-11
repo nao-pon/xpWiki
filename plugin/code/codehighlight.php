@@ -1207,7 +1207,7 @@ class XpWikiCodeHighlight {
 		else
 			$html = substr($html, 0, -1);
 
-		$end = substr_count($html, "\n") + $begin;
+		if (is_null($end)) $end = substr_count($html, "\n") + $begin - 1;
 		$html = array('src' => $html, 'number' => '', 'outline' => '', 'blocknum' => $this->blockno);
 		if($option['outline']) 
 			return $this->makeOutline($html, $option['number'],$end, $begin); // 最後に改行を削除したため -1
