@@ -1,6 +1,6 @@
 <?php
 // PukiWiki - Yet another WikiWikiWeb clone.
-// $Id: keitai.ini.php,v 1.19 2009/01/11 14:01:27 nao-pon Exp $
+// $Id: keitai.ini.php,v 1.20 2009/02/22 01:38:03 nao-pon Exp $
 // Copyright (C)
 //   2002-2005 PukiWiki Developers Team
 //   2001-2002 Originally written by yu-ji
@@ -31,6 +31,10 @@ $root->use_ajax_edit = 0;
 /////////////////////////////////////////////////
 // 雛形とするページの読み込みを可能にする
 $root->load_template_func = 0;
+
+/////////////////////////////////////////////////
+// 編集フォームの詳細オプションを折りたたむ
+$root->hide_extra_option_editform = 0;
 
 /////////////////////////////////////////////////
 // 編集フォームに添付ファイルリストを表示する

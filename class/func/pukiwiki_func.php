@@ -1,7 +1,7 @@
 <?php
 //
 // Created on 2006/10/02 by nao-pon http://hypweb.net/
-// $Id: pukiwiki_func.php,v 1.197 2009/02/11 06:07:13 nao-pon Exp $
+// $Id: pukiwiki_func.php,v 1.198 2009/02/22 01:38:03 nao-pon Exp $
 //
 class XpWikiPukiWikiFunc extends XpWikiBaseFunc {
 
@@ -962,7 +962,7 @@ class XpWikiPukiWikiFunc extends XpWikiBaseFunc {
 
 //----- Start convert_html.php -----//
 	// PukiWiki - Yet another WikiWikiWeb clone
-	// $Id: pukiwiki_func.php,v 1.197 2009/02/11 06:07:13 nao-pon Exp $
+	// $Id: pukiwiki_func.php,v 1.198 2009/02/22 01:38:03 nao-pon Exp $
 	// Copyright (C)
 	//   2002-2005 PukiWiki Developers Team
 	//   2001-2002 Originally written by yu-ji
@@ -1217,7 +1217,7 @@ class XpWikiPukiWikiFunc extends XpWikiBaseFunc {
 
 //----- Start func.php -----//
 	// PukiWiki - Yet another WikiWikiWeb clone.
-	// $Id: pukiwiki_func.php,v 1.197 2009/02/11 06:07:13 nao-pon Exp $
+	// $Id: pukiwiki_func.php,v 1.198 2009/02/22 01:38:03 nao-pon Exp $
 	// Copyright (C)
 	//   2002-2006 PukiWiki Developers Team
 	//   2001-2002 Originally written by yu-ji
@@ -2050,7 +2050,7 @@ EOD;
 
 //----- Start make_link.php -----//
 	// PukiWiki - Yet another WikiWikiWeb clone.
-	// $Id: pukiwiki_func.php,v 1.197 2009/02/11 06:07:13 nao-pon Exp $
+	// $Id: pukiwiki_func.php,v 1.198 2009/02/22 01:38:03 nao-pon Exp $
 	// Copyright (C)
 	//   2003-2005 PukiWiki Developers Team
 	//   2001-2002 Originally written by yu-ji
@@ -3031,7 +3031,7 @@ EOD;
 
 //----- Start html.php -----//
 	// PukiWiki - Yet another WikiWikiWeb clone.
-	// $Id: pukiwiki_func.php,v 1.197 2009/02/11 06:07:13 nao-pon Exp $
+	// $Id: pukiwiki_func.php,v 1.198 2009/02/22 01:38:03 nao-pon Exp $
 	// Copyright (C)
 	//   2002-2006 PukiWiki Developers Team
 	//   2001-2002 Originally written by yu-ji
@@ -3204,6 +3204,9 @@ EOD;
 		natsort($this->root->foot_explain);
 		$notes = ! empty($this->root->foot_explain) ? $this->root->note_hr . join("\n", $this->root->foot_explain) : '';
 		
+		// Set Skin Name for FCKeditor.
+		$this->add_js_var_head('XpWiki.SkinName["'.$this->root->mydirname.'"]', $this->cont['SKIN_NAME']);
+		
 		// Head Tags
 		list($head_pre_tag, $head_tag) = $this->get_additional_headtags();
 		$cssprefix = $this->root->css_prefix ? 'pre=' . rawurlencode($this->root->css_prefix) . '&amp;' : '';
@@ -3284,7 +3287,13 @@ EOD;
 		$s_id        = isset($this->root->vars['paraid']) ? htmlspecialchars($this->root->vars['paraid']) : '';
 		
 		if (!$s_id) {
-			$othor_option = '<input type="checkbox" id="xpwiki_othor_option" name="other" onclick="Element.toggle($(\'xpwiki_edit_other\'));" /><label for="xpwiki_othor_option"> ' . $this->root->_btn_other_op . '</label>';
+			if (isset($_COOKIE['_xweop'])) {
+				$other_option_checked = ($_COOKIE['_xweop']);
+			} else {
+				$other_option_checked = !($this->root->hide_extra_option_editform);
+			}
+			$other_option_checked = ($other_option_checked)? ' checked="checked"' : '';
+			$other_option = '<input type="checkbox" id="xpwiki_other_option" name="other"' . $other_option_checked . ' onclick="var option=$(\'xpwiki_edit_other\');Element.toggle(option);XpWiki.cookieSave(\'_xweop\',(option.style.display==\'none\')?\'0\':\'1\',90,\'/\');" /><label for="xpwiki_other_option"> ' . $this->root->_btn_other_op . '</label>';
 
 			// Othor options
 			if (!empty($this->root->rtf['preview'])) {
@@ -3322,7 +3331,7 @@ EOD;
 			}
 			$title = '<h3>'.str_replace('$1', $s_page, $this->root->_title_edit).'</h3>';
 		} else {
-			$othor_option = $pgtitle = $reading = $attaches = $alias = $pageorder = '';
+			$other_option_checked = $other_option = $pgtitle = $reading = $attaches = $alias = $pageorder = '';
 			$title = '<h3>'.str_replace('$1', '# '.$this->root->vars['paraid'], $this->root->_title_edit).'</h3>';
 		}
 		
@@ -3366,21 +3375,20 @@ EOD;
 			          . '<input type="hidden" name="charset" value="UTF-8" />';
 			$attaches = '';
 			if ($s_id) {
-				$othor_option = $template = $reading = $alias = $pageorder = '';
+				$other_option = $template = $reading = $alias = $pageorder = '';
 				$form_class = 'edit_form_ajax';
 			} else {
 				$form_class = 'edit_form';
 			}
-			$othor_hide = 'style="display:none;"';
-			$othor_hide_js = '';
+			$other_hide = (! $other_option_checked)? 'style="display:none;"' : '';
+			$other_hide_js = '';
 		} else {
-			$nonconvert = $ajax_submit = $ajax_cancel = $enc_hint = $othor_hide = '';
+			$nonconvert = $ajax_submit = $ajax_cancel = $enc_hint = $other_hide = '';
 			$form_class = 'edit_form';
-			$othor_hide_js = '<script type="text/javascript">$(\'xpwiki_edit_other\').style.display = \'none\';</script>';
+			$other_hide_js = (! $other_option_checked)? '<script type="text/javascript">$(\'xpwiki_edit_other\').style.display = \'none\';</script>' : '';
 		}
 		
 		// textarea id
-		//$tareaId = $this->root->mydirname . ':xpwiki_edit_textarea';
 		$tareaId = 'xpwiki_edit_textarea';
 		
 		// 'margin-bottom', 'float:left', and 'margin-top'
@@ -3392,8 +3400,8 @@ EOD;
  <form action="{$script}" method="post" style="margin-bottom:0px;" id="xpwiki_edit_form"{$ajax_submit}>
   $template
   $addtag
-  $othor_option
-  <div id="xpwiki_edit_other" {$othor_hide}>
+  $other_option
+  <div id="xpwiki_edit_other" {$other_hide}>
   $pgtitle
   $reading
   $pageorder
@@ -3416,7 +3424,7 @@ EOD;
    $add_notimestamp
   </div>
  </form>
- $othor_hide_js
+ $other_hide_js
  <div id="xpwiki_cancel_form">
  <form action="{$script}" method="post" style="margin-top:0px;"{$ajax_cancel}>
   <input type="hidden" name="cmd"    value="edit" />
@@ -3731,7 +3739,7 @@ EOD;
 
 //----- Start mail.php -----//
 	// PukiWiki - Yet another WikiWikiWeb clone.
-	// $Id: pukiwiki_func.php,v 1.197 2009/02/11 06:07:13 nao-pon Exp $
+	// $Id: pukiwiki_func.php,v 1.198 2009/02/22 01:38:03 nao-pon Exp $
 	// Copyright (C)
 	//   2003-2005 PukiWiki Developers Team
 	//   2003      Originally written by upk
@@ -4034,7 +4042,7 @@ EOD;
 
 //----- Start link.php -----//
 	// PukiWiki - Yet another WikiWikiWeb clone
-	// $Id: pukiwiki_func.php,v 1.197 2009/02/11 06:07:13 nao-pon Exp $
+	// $Id: pukiwiki_func.php,v 1.198 2009/02/22 01:38:03 nao-pon Exp $
 	// Copyright (C) 2003-2006 PukiWiki Developers Team
 	// License: GPL v2 or (at your option) any later version
 	//
