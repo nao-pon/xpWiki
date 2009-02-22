@@ -1,6 +1,6 @@
 <?php
 // PukiWiki - Yet another WikiWikiWeb clone
-// $Id: calendar_viewer.inc.php,v 1.13 2008/04/24 00:16:40 nao-pon Exp $
+// $Id: calendar_viewer.inc.php,v 1.14 2009/02/22 02:01:56 nao-pon Exp $
 //
 // Calendar viewer plugin - List pages that calendar/calnedar2 plugin created
 // (Based on calendar and recent plugin)
@@ -51,6 +51,10 @@ class xpwiki_plugin_calendar_viewer extends xpwiki_plugin {
 			'#calendar_viewer(pagename,this|yyyy-mm|n|x*y[,mode[,separater]])';
 	}
 	
+	function can_call_otherdir_convert() {
+		return 1;
+	}
+
 	function plugin_calendar_viewer_convert()
 	{
 		static $viewed = array();

@@ -2,13 +2,17 @@
 /////////////////////////////////////////////////
 // PukiWiki - Yet another WikiWikiWeb clone.
 //
-// $Id: rsslink.inc.php,v 1.4 2008/05/07 08:40:10 nao-pon Exp $
+// $Id: rsslink.inc.php,v 1.5 2009/02/22 02:01:56 nao-pon Exp $
 //
 class xpwiki_plugin_rsslink extends xpwiki_plugin {
 	function plugin_rsslink_init () {
 
 	}
 	
+	function can_call_otherdir_inline() {
+		return 1;
+	}
+
 	function plugin_rsslink_inline()
 	{
 		$list_count = 0;

@@ -2,7 +2,7 @@
 /////////////////////////////////////////////////
 // PukiWiki - Yet another WikiWikiWeb clone.
 //
-// $Id: popular.inc.php,v 1.10 2008/08/30 06:00:36 nao-pon Exp $
+// $Id: popular.inc.php,v 1.11 2009/02/22 02:01:56 nao-pon Exp $
 //
 
 /*
@@ -36,6 +36,10 @@ class xpwiki_plugin_popular extends xpwiki_plugin {
 		$this->cont['PLUGIN_POPULAR_DEFAULT'] =  10;
 	}
 	
+	function can_call_otherdir_convert() {
+		return 4;
+	}
+
 	function plugin_popular_convert()
 	{
 		
@@ -135,7 +139,7 @@ class xpwiki_plugin_popular extends xpwiki_plugin {
 			foreach ($counters as $page=>$count) {
 				//Newマーク付加
 				if ($this->func->exist_plugin_inline('new'))
-					$new_mark = $this->func->do_plugin_inline('new', $page . ',nolink', $_dum);
+					$new_mark = $this->func->do_plugin_inline('new', $page . ',nolink');
 				
 				if ($compact)
 					$page = $this->func->make_pagelink($page,$this->func->basename($page));

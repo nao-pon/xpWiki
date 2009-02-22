@@ -1,6 +1,6 @@
 <?php
 // PukiWiki - Yet another WikiWikiWeb clone.
-// $Id: include.inc.php,v 1.5 2008/01/29 23:54:36 nao-pon Exp $
+// $Id: include.inc.php,v 1.6 2009/02/22 02:01:56 nao-pon Exp $
 //
 // Include-once plugin
 
@@ -93,11 +93,10 @@ class xpwiki_plugin_include extends xpwiki_plugin {
 		
 		$targetObj = NULL;
 		$isThis = TRUE;
-		if (strpos($page, ':') !== FALSE) {
+		if (intval(strpos($page, ':')) > 0) {
 			list($other_dir, $_page) = explode(':', $page, 2);
-			$targetObj =& XpWiki::getSingleton($other_dir);
+			$targetObj =& XpWiki::getInitedSingleton($other_dir);
 			if ($targetObj->isXpWiki) {
-				$targetObj->init('#RenderMode');
 				$page = $_page;
 				$isThis = FALSE;
 			} else {
@@ -148,17 +147,11 @@ class xpwiki_plugin_include extends xpwiki_plugin {
 			
 			if ($this->otherIncludeMode === 'html') {
 				if (!$isThis) {
-					$targetObj->root->rtf = $this->root->rtf;
-					$targetObj->root->foot_explain = $this->root->foot_explain;
-					$targetObj->head_pre_tags = $this->root->head_pre_tags;
-					$targetObj->root->head_tags = $this->root->head_tags;
+					$this->swap_global_vars($this->xpwiki, $targetObj);
 				}
-				$body = $targetObj->func->convert_html($targetObj->func->get_source($page), $page);
+				$body = '<div class="xpwiki_r_'.$other_dir.'">' . $targetObj->func->convert_html($targetObj->func->get_source($page), $page) . '</div>';
 				if (!$isThis) {
-					$this->root->rtf = $targetObj->root->rtf;
-					$this->root->foot_explain = $targetObj->root->foot_explain;
-					$this->root->head_pre_tags = $targetObj->root->head_pre_tags;
-					$this->root->head_tags = $targetObj->root->head_tags;
+					$this->swap_global_vars($this->xpwiki, $targetObj);
 				}
 			} else {
 				$body = $this->func->convert_html($targetObj->func->get_source($page), $page);

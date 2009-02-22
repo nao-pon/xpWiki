@@ -1,5 +1,5 @@
 <?php
-// $Id: calendar2.inc.php,v 1.11 2008/05/20 06:16:13 nao-pon Exp $
+// $Id: calendar2.inc.php,v 1.12 2009/02/22 02:01:56 nao-pon Exp $
 //
 // Calendar2 plugin
 //
@@ -11,7 +11,11 @@ class xpwiki_plugin_calendar2 extends xpwiki_plugin {
 	function plugin_calendar2_init () {
 
 	}
-	
+
+	function can_call_otherdir_convert() {
+		return 1;
+	}
+
 	function plugin_calendar2_convert() {		
 		$this->func->add_tag_head('calendar.css');
 		

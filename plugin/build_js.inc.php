@@ -2,7 +2,7 @@
 /*
  * Created on 2008/10/09 by nao-pon http://hypweb.net/
  * License: GPL v2 or (at your option) any later version
- * $Id: build_js.inc.php,v 1.4 2008/11/24 02:07:40 nao-pon Exp $
+ * $Id: build_js.inc.php,v 1.5 2009/02/22 02:01:56 nao-pon Exp $
  */
 
 class xpwiki_plugin_build_js extends xpwiki_plugin {
@@ -26,6 +26,10 @@ class xpwiki_plugin_build_js extends xpwiki_plugin {
 			if ($this->root->vars['refer'] !== $this->root->vars['base']) {
 				$args[1] = $this->root->vars['refer'] . '/' . $args[1];
 			}
+			if ($this->root->vars['basedir'] !== $this->root->mydirname) {
+				$args[1] = $this->root->mydirname . ':' . $args[1];
+			}
+
 			$obj = (empty($_GET['winop']))? 'parent' : 'opener.window';
 			if (! empty($_GET['mode']) && $_GET['mode'] === 'fck') {
 				$jsfunc = $obj . '.XpWiki.FCKrefInsert';

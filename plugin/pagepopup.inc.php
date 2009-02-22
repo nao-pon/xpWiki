@@ -1,7 +1,7 @@
 <?php
 /*
  * Created on 2007/10/05 by nao-pon http://hypweb.net/
- * $Id: pagepopup.inc.php,v 1.3 2007/10/21 04:29:26 nao-pon Exp $
+ * $Id: pagepopup.inc.php,v 1.4 2009/02/22 02:01:56 nao-pon Exp $
  */
 
 class xpwiki_plugin_pagepopup extends xpwiki_plugin {
@@ -16,6 +16,10 @@ class xpwiki_plugin_pagepopup extends xpwiki_plugin {
 		);
 	}
 	
+	function can_call_otherdir_inline() {
+		return 1;
+	}
+
 	function plugin_pagepopup_inline()
 	{
 		$op = func_get_args();

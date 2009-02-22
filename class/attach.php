@@ -1,7 +1,7 @@
 <?php
 /*
  * Created on 2008/03/24 by nao-pon http://hypweb.net/
- * $Id: attach.php,v 1.12 2008/11/24 02:07:39 nao-pon Exp $
+ * $Id: attach.php,v 1.13 2009/02/22 02:01:56 nao-pon Exp $
  */
 
 //-------- クラス
@@ -181,7 +181,7 @@ class XpWikiAttachFile
 		$info = $count = '';
 		if ($showinfo) {
 			$_title = str_replace('$1',rawurlencode($this->file),$this->root->_attach_messages['msg_info']);
-			if (isset($this->root->vars['popup'])) {
+			if (isset($this->root->vars['popup']) && $this->root->vars['cmd'] !== 'read') {
 				$info = '[ &build_js(refInsert,"'.htmlspecialchars($this->file).'",'.$this->type.'); ]';
 			} else {
 				if ($mode == "imglist") {
@@ -265,8 +265,7 @@ EOD;
 			// refプラグインで表示
 			if ($this->func->exist_plugin_inline("ref"))
 			{
-				$_dum = '';
-				$ref .= "<dd><hr /></dd><dd>".$this->func->do_plugin_inline("ref", $this->page."/".$this->file.$this->cont['ATTACH_CONFIG_REF_OPTION'],$_dum)."</dd>\n";
+				$ref .= "<dd><hr /></dd><dd>".$this->func->do_plugin_inline("ref", $this->page."/".$this->file.$this->cont['ATTACH_CONFIG_REF_OPTION'])."</dd>\n";
 			}
 			
 			if ($this->status['freeze'])
@@ -688,7 +687,7 @@ class XpWikiAttachFiles
 		$this->func   =& $xpwiki->func;
 
 		$this->page = $page;
-		$this->is_popup = isset($this->root->vars['popup']);
+		$this->is_popup = (isset($this->root->vars['popup']) && $this->root->vars['cmd'] !== 'read');
 	}
 	function add($file,$age)
 	{
@@ -714,7 +713,13 @@ class XpWikiAttachFiles
 		$pcmd = ($mode == "imglist")? "imglist" : "list";
 		$pcmd2 = ($mode == "imglist")? "list" : "imglist";
 		
-		$otherkeys = array('cols', 'max', 'popup', 'base', 'mode', 'winop');
+		$otherkeys = array('cols', 'max', 'base', 'mode', 'winop', 'basedir', 'encode_hint');
+		if ($this->is_popup) {
+			$otherkeys[] = 'popup';
+		}
+		if (! isset($this->root->vars['basedir'])) {
+			$this->root->vars['basedir'] = $this->root->mydirname;
+		}
 		$otherparm = '';
 		$otherprams = array();
 		foreach($otherkeys as $key) {
@@ -725,6 +730,7 @@ class XpWikiAttachFiles
 		if ($otherprams) {
 			$otherparm = '&amp;' . join('&amp;', $otherprams);
 		}
+		$otherUrl = 'http://xoops.hypweb.net/modules/UsersWiki/'."?plugin=attach&amp;pcmd=imglist&amp;refer=FrontPage".$otherparm;
 		
 		if (!$fromall)
 		{
@@ -825,8 +831,37 @@ class XpWikiAttachFiles
 			$ret = "<ul>\n$ret</ul>";
 		}
 		
-		$select = $form = '';
+		$otherDir = $select = $form = '';
 		if ($this->is_popup) {
+			$dirs = $otherDirs = array();
+			if ($handle = opendir($this->cont['MODULE_PATH'])) {
+				while (false !== ($dir = readdir($handle))) {
+					if (is_dir($this->cont['MODULE_PATH'].$dir) && $dir[0] !== '.' && $this->func->isXpWikiDirname($dir)) {
+						$other = XpWiki::getInitedSingleton($dir);
+						if ($other->isXpWiki) {
+							if ($other->root->pages_for_attach) {
+								list($dirs[$dir]['defaultpage']) = explode('#', $other->root->pages_for_attach);
+							} else {
+								$dirs[$dir]['defaultpage'] = $other->root->defaultpage;
+							}
+							$dirs[$dir]['title'] = $other->root->module['title'];
+						}
+					}
+				}
+			}
+			if (count($dirs) > 1) {
+				ksort($dirs);
+				foreach($dirs as $dir => $val) {
+					$defaultpage = $val['defaultpage'];
+					$selected = ($dir === $this->root->mydirname)? ' selected="selected"' : '';
+					if ($this->root->vars['basedir'] === $dir) {
+						$defaultpage = $this->root->vars['base'];
+					}
+					$otherDirs[] = '<option value="' . $dir . '#' . htmlspecialchars($defaultpage) . '"' . $selected . '>' . htmlspecialchars($val['title']) . '</option>';
+				}
+				$otherDir = '<form>Dir: <select name="otherdir" onchange="xpwiki_dir_selector_change(this.options[this.selectedIndex].value)">' . join('', $otherDirs) . '</select></form>';
+			}
+			
 			$otherPages = array();
 			$shown = array($this->root->vars['base']);
 			if ($this->root->pages_for_attach) {
@@ -855,25 +890,32 @@ class XpWikiAttachFiles
 				$otherPages[] = '</optgroup>';
 			}
 			if ($otherPages) {
-				$select_js = <<<EOD
+				if ($this->root->vars['basedir'] === $this->root->mydirname) {
+					$thisPage = htmlspecialchars($this->root->vars['base']);
+					$thisPage = '<option value="'.$thisPage.'">' . $thisPage . $this->root->_attach_messages['msg_select_current'] . '</option>';
+				} else {
+					$thisPage = '';
+				}
+				$select = '<form><select name="othorpage" onchange="xpwiki_file_selector_change(this.options[this.selectedIndex].value)">' . $thisPage . join('', $otherPages) . '</select></form>';
+			}
+			$select_js = <<<EOD
 <script>
 <!--
 function xpwiki_file_selector_change(page) {
 	if (page) {
-		if (XpWiki.isIE6) {
-			opener.window.XpWiki.PopupBodyUrl = location.href = location.href.replace(/&refer=[^&]+/, '&refer=' + encodeURIComponent(page));
-		} else {
-			parent.XpWiki.PopupBodyUrl = parent.$('XpWikiPopupBody').src = parent.XpWiki.PopupBodyUrl.replace(/&refer=[^&]+/, '&refer=' + encodeURIComponent(page));
-		}
+		//opener.window.XpWiki.PopupBodyUrl = location.href = location.href.replace(/&refer=[^&]+/, '&refer=' + encodeURIComponent(page)).replace(/&start=[^&]+/, '');
+		location.href = location.href.replace(/&refer=[^&]+/, '&refer=' + encodeURIComponent(page)).replace(/&start=[^&]+/, '');
+	}
+}
+function xpwiki_dir_selector_change(dir) {
+	if (dir) {
+		var arr = dir.split('#');
+		location.href = location.href.replace(/\/modules\/[^\/]+/, '/modules/' + arr[0]).replace(/&refer=[^&]+/, '&refer=' + encodeURIComponent(arr[1])).replace(/&start=[^&]+/, '');
 	}
 }
 -->
 </script>
 EOD;
-				$thisPage = htmlspecialchars($this->root->vars['base']);
-				$thisPage = '<option value="'.$thisPage.'">' . $thisPage . $this->root->_attach_messages['msg_select_current'] . '</option>';
-				$select = $select_js . '<form><select name="othorpage" onchange="xpwiki_file_selector_change(this.options[this.selectedIndex].value)">' . $thisPage . join('', $otherPages) . '</select></form>';
-			}
 			
 			if (empty($this->root->vars['start'])) {
 				$attach =& $this->func->get_plugin_instance('attach');
@@ -885,7 +927,8 @@ EOD;
 		$showall = ($fromall && $this->max < $this->count)? " [ <a href=\"{$this->root->script}?plugin=attach&amp;pcmd={$pcmd}&amp;refer=".rawurlencode($this->page)."\">Show All</a> ]" : "";
 		$allpages = ($this->is_popup || $fromall)? "" : " [ <a href=\"{$this->root->script}?plugin=attach&amp;pcmd={$pcmd}\" />All Pages</a> ]";
 		$body = $this->is_popup? $ret : "<div class=\"filelist_page\">".$this->func->make_pagelink($this->page)."<small> (".$this->count." file".(($this->count===1)?"":"s").")".$showall.$allpages."</small></div>\n$ret";
-		return $select.$form.$navi.($navi? "<hr />":"").$body.($navi? "<hr />":"")."$navi\n";
+		
+		return $select_js.$otherDir.$select.$form.$navi.($navi? "<hr />":"").$body.($navi? "<hr />":"")."$navi\n";
 	}
 	// ファイル一覧を取得(inline)
 	function to_flat()
@@ -946,7 +989,7 @@ class XpWikiAttachPages
 			// WHERE句
 			$where = array();
 			$where[] = "`pgid` = {$pgid}";
-			if (isset($this->root->vars['popup'])) $where[] = '`name` != "fusen.dat"';
+			if (isset($this->root->vars['popup']) && $this->root->vars['cmd'] !== 'read') $where[] = '`name` != "fusen.dat"';
 			if (!$isbn) $where[] = "`mode` != '1'";
 			if (!is_null($age)) $where[] = "`age` = $age";
 			//if ($mode == "imglist") $where[] = "`type` LIKE 'image%' AND `age` = 0";

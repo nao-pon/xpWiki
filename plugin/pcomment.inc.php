@@ -1,6 +1,6 @@
 <?php
 // PukiWiki - Yet another WikiWikiWeb clone
-// $Id: pcomment.inc.php,v 1.17 2008/11/18 07:45:02 nao-pon Exp $
+// $Id: pcomment.inc.php,v 1.18 2009/02/22 02:01:56 nao-pon Exp $
 //
 // pcomment plugin - Show/Insert comments into specified (another) page
 //
@@ -94,6 +94,10 @@ EOD;
 		$this->func->send_location('', '', $back);
 	}
 	
+	function can_call_otherdir_convert() {
+		return 1;
+	}
+
 	function plugin_pcomment_convert()
 	{
 		$ret = '';

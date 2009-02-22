@@ -1,7 +1,7 @@
 <?php
 //
 // Created on 2006/10/05 by nao-pon http://hypweb.net/
-// $Id: plugin.php,v 1.16 2008/11/18 07:46:08 nao-pon Exp $
+// $Id: plugin.php,v 1.17 2009/02/22 02:01:56 nao-pon Exp $
 //
 
 
@@ -118,6 +118,35 @@ class xpwiki_plugin {
 		$count[$this->root->mydirname][$pgid][$plugin][$name]++;
 		$dirname = $withDirname? $this->root->mydirname . ':' : '';
 		return $dirname . $this->root->mydirname .'_' . $plugin . '_' . $name . '_' . $pgid . '_' . $count[$this->root->mydirname][$pgid][$plugin][$name];
+	}
+	
+	function swap_global_vars (& $a, & $b) {
+		$rtf = $a->root->rtf;
+		$foot_explain = $a->root->foot_explain;
+		$head_pre_tags = $a->root->head_pre_tags;
+		$head_tags = $a->root->head_tags;
+		
+		$a->root->rtf = $b->root->rtf;
+		$a->root->foot_explain = $b->root->foot_explain;
+		$a->root->head_pre_tags = $b->root->head_pre_tags;
+		$a->root->head_tags = $b->root->head_tags;
+		
+		$b->root->rtf = $rtf;
+		$b->root->foot_explain = $foot_explain;
+		$b->root->head_pre_tags = $head_pre_tags;
+		$b->root->head_tags = $head_tags;
+	}
+	
+	// Can call convert() from xpWiki of another directory?
+	// If it can be done, override this in each plugin, and the order of the argument is returned.
+	function can_call_otherdir_convert() {
+		return FALSE;
+	}
+
+	// Can call inline() from xpWiki of another directory?
+	// If it can be done, override this in each plugin, and the order of the argument is returned.
+	function can_call_otherdir_inline() {
+		return FALSE;
 	}
 }
 

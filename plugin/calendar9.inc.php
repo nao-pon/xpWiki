@@ -1,45 +1,46 @@
 <?php
 /*
  * Created on 2007/08/30 by nao-pon http://hypweb.net/
- * $Id: calendar9.inc.php,v 1.13 2008/05/22 14:12:55 nao-pon Exp $
+ * $Id: calendar9.inc.php,v 1.14 2009/02/22 02:01:56 nao-pon Exp $
  */
+
+// $Id: calendar9.inc.php Ver.1.5
+// *引数にoffと書くことで今日の日記を表示しないようにした。
+// * calendar3を改造しました。
+
+// http://www.sakasama.com/dive/
+// Karino Taro
+
+// 変更内容
+//   PageName/DayOff に設定した休日情報を元に休日を表示する
+//   月末が週の途中の場合は週末までの翌月データを表示する
+//   prototype.js を使用してAJAX対応に
+//  2007/07/17 Ver.1.1
+//   読込み中に編集できないように修正
+//   Ajaxの通信をXML形式にしてSafari対応
+//   文字コード指定(SOURCE_ENCODING)対応
+//   週の開始日の指定に対応
+//  2007/07/19 Ver.1.2
+//   週の開始日をパラメータからも指定できるようにした
+//   休日判定の精度を上げた
+//  2007/08/17 Ver.1.3
+//   Ajaxで読込むXMLデータに & < > ' " の文字があるときに読込めないバグを修正
+//  2007/08/20 Ver.1.4
+//   スキン使用時にきれいに表示されない現象の対応
+//  2007/08/21 Ver.1.5
+//   凍結されたページをチェックしないで更新していたので更新できないように修正
+//
 
 class xpwiki_plugin_calendar9 extends xpwiki_plugin {
 	function plugin_calendar9_init () {
-
-
-	// $Id: calendar9.inc.php Ver.1.5
-	// *引数にoffと書くことで今日の日記を表示しないようにした。
-	// * calendar3を改造しました。
-	
-	// 変更内容
-	//   PageName/DayOff に設定した休日情報を元に休日を表示する
-	//   月末が週の途中の場合は週末までの翌月データを表示する
-	//   prototype.js を使用してAJAX対応に
-	//  2007/07/17 Ver.1.1
-	//   読込み中に編集できないように修正
-	//   Ajaxの通信をXML形式にしてSafari対応
-	//   文字コード指定(SOURCE_ENCODING)対応
-	//   週の開始日の指定に対応
-	//  2007/07/19 Ver.1.2
-	//   週の開始日をパラメータからも指定できるようにした
-	//   休日判定の精度を上げた
-	//  2007/08/17 Ver.1.3
-	//   Ajaxで読込むXMLデータに & < > ' " の文字があるときに読込めないバグを修正
-	//  2007/08/20 Ver.1.4
-	//   スキン使用時にきれいに表示されない現象の対応
-	//  2007/08/21 Ver.1.5
-	//   凍結されたページをチェックしないで更新していたので更新できないように修正
-	//
-	
-	// prototype.js の指定
-	//	$this->cont['PROTOTYPEJS_FILE'] =  DATA_HOME . 'skin/prototype.js';
-	
-	// 週の開始日 0:日 1:月 2:火 3:水 4:木 5:金 6:土
+		// 週の開始日 0:日 1:月 2:火 3:水 4:木 5:金 6:土
 		$this->cont['BEGINNING_DAY_OF_WEEK'] =  0;
-
 	}
 	
+	function can_call_otherdir_convert() {
+		return 1;
+	}
+
 	function plugin_calendar9_convert()
 	{
 		$this->func->add_tag_head('calendar.css');
@@ -270,7 +271,7 @@ EOD;
 					
 						// ボックスに入れるテキストを作成する。
 						$href = $this->func->get_page_uri($_page, true);
-						$linkstr = '<a href="' . $href . '" onclick="return xpwiki_cal9_day_edit(\''.$_page.'\',\'read\',event);">' . $this->func->get_heading($_page) . '</a>'."\n";
+						$linkstr = '<a href="' . $href . '" onclick="return xpwiki_cal9_day_edit(\''.$this->root->mydirname.':'.$_page.'\',\'read\',event);">' . $this->func->get_heading($_page) . '</a>'."\n";
 						if ($this->func->check_editable($_page, false, false)) {
 							$short = htmlspecialchars('Edit');
 							$title = htmlspecialchars(str_replace('$1', $s_page.$page, $this->root->_title_edit));
@@ -278,7 +279,7 @@ EOD;
 								'" width="9" height="9" alt="' .
 								$short . '" title="' . $title . '" /> ';
 							$r_page = rawurlencode($_page);
-							$onclick = (!empty($this->root->rtf['preview']))? '' : " onclick=\"return xpwiki_cal9_day_edit('$_page','edit',event);\"";
+							$onclick = (!empty($this->root->rtf['preview']))? '' : " onclick=\"return xpwiki_cal9_day_edit('{$this->root->mydirname}:{$_page}','edit',event);\"";
 							$linkstr .= "<a href=\"{$this->root->script}?cmd=edit&amp;page=$r_page\"{$onclick}>$icon</a>";
 						}
 						
@@ -302,7 +303,7 @@ EOD;
 			if ($this->func->check_editable($_page, false, false) && $freeze !== 1) {
 				$r_page = rawurlencode($_page);
 				$link = "<a href=\"{$this->root->script}?cmd=edit&amp;page=$r_page\" title=\"$s_page\" style=\"font-weight:bold;\">$day</a>";
-				$js = " onmouseover=\"xpwiki_cal9_day_focus('$dt')\" onmouseout=\"xpwiki_cal9_day_unfocus('$dt', '$style')\" onclick=\"xpwiki_cal9_day_unfocus('$dt', '$style');return xpwiki_cal9_day_edit('$_page');\"";
+				$js = " onmouseover=\"xpwiki_cal9_day_focus('$dt')\" onmouseout=\"xpwiki_cal9_day_unfocus('$dt', '$style')\" onclick=\"xpwiki_cal9_day_unfocus('$dt', '$style');return xpwiki_cal9_day_edit('{$this->root->mydirname}:{$_page}');\"";
 			} else {
 				$link = "<span style=\"font-weight:bold;\">$day</span>";
 				$js = '';

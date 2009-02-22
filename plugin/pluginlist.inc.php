@@ -1,7 +1,7 @@
 <?php
 /*
  * Created on 2008/03/25 by nao-pon http://hypweb.net/
- * $Id: pluginlist.inc.php,v 1.5 2009/01/25 00:56:07 nao-pon Exp $
+ * $Id: pluginlist.inc.php,v 1.6 2009/02/22 02:01:56 nao-pon Exp $
  */
 
 class xpwiki_plugin_pluginlist extends xpwiki_plugin {
@@ -59,25 +59,27 @@ class xpwiki_plugin_pluginlist extends xpwiki_plugin {
 	}
 	
 	function plugin_pluginlist_action () {
+		$cacheKey = 'pluginsJSON_' . $this->cont['UI_LANG'];
+		
 		if (isset($this->root->vars['clearcache'])) {
-			$this->func->cache_del_db('pluginsJSON', 'pluginlist');
+			$this->func->cache_del_db($cacheKey, 'pluginlist');
 		}
 		
-		$out = $this->func->cache_get_db('pluginsJSON', 'pluginlist');
-		
+		$out = $this->func->cache_get_db($cacheKey, 'pluginlist');
+
 		if (!$out) {
 			list($plugins, $blocks, $inlines, $cmds) = $this->get_plugins();
 			$out = '{';
 			foreach ($plugins as $plugin) {
 				if (! in_array($plugin, $this->config['disabled']) && (in_array($plugin, $blocks) || in_array($plugin, $inlines))) {
-					$block_usage = (in_array($plugin, $blocks))? '"' . $this->json_encode(@ $this->msg[$plugin]['block_usage']) . '"' : 'false';
-					$inline_usage = (in_array($plugin, $inlines))? '"' . $this->json_encode(@ $this->msg[$plugin]['inline_usage'])  . '"' : 'false';
+					$block_usage = (in_array($plugin, $blocks))? '"' . $this->json_encode($this->add_otherDir($plugin, 'convert', @ $this->msg[$plugin]['block_usage'])) . '"' : 'false';
+					$inline_usage = (in_array($plugin, $inlines))? '"' . $this->json_encode($this->add_otherDir($plugin, 'inline', @ $this->msg[$plugin]['inline_usage']))  . '"' : 'false';
 					$out .= '"' . $this->json_encode($plugin) . '":{"title":"' . $this->json_encode(@ $this->msg[$plugin]['title']) . '","block_usage":' . $block_usage . ',"inline_usage":' . $inline_usage . '},';
 				}
 			}
 			$out = rtrim($out, ',');
 			$out .= '}';
-			$this->func->cache_save_db($out, 'pluginlist', 86400, 'pluginsJSON');
+			$this->func->cache_save_db($out, 'pluginlist', 86400, $cacheKey);
 		}
 		
 		// clear output buffer
@@ -97,6 +99,22 @@ class xpwiki_plugin_pluginlist extends xpwiki_plugin {
 			$str = mb_convert_encoding($str, 'UTF-8', $this->cont['SOURCE_ENCODING']);
 		}
 		return $str;
+	}
+	
+	function add_otherDir ($name, $mode, $usage) {
+		if ($usage) {
+			$plugin = & $this->func->get_plugin_instance($name);
+			$func = 'can_call_otherdir_'. $mode;
+			if ($num = $plugin->$func()) {
+				if ($num > 1) {
+					$reg = '/^((?:[^,]+,){'. ($num - 1) .'}\[*)(.+)$/';
+				} else {
+					$reg = '/^([^\(]+\(\[*)(.+)$/';
+				}
+				$usage = preg_replace($reg, '$1[<'.$this->msg['dirname'].'>:]$2', $usage);
+			}
+		}
+		return $usage;
 	}
 	
 	function plugin_pluginlist_convert () {
