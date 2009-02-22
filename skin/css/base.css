@@ -113,7 +113,7 @@ div.xpwikiFckBtn {
 }
 
 /* contents (Functionality) */
-$class div.toc_pin {
+div.toc_pin {
 	float: right;
 	width: 16px;
 	height: 16px;
@@ -123,14 +123,14 @@ $class div.toc_pin {
 	opacity: 0.8;
 	cursor: pointer;
 }
-$class div.toc_handle {
+div.toc_handle {
 	float: left;
 	margin-left: -1.3em;
 	margin-right: 0.5em;
 	padding-top: 4px;
 	cursor: pointer;
 }
-$class div.contentsFixed {
+div.contentsFixed {
 	float: none;
 	border: none;
 	margin: 0px;
