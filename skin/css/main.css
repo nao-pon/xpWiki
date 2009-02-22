@@ -850,9 +850,8 @@ $class ul.recent_list {
 }
 
 /* ref.inc.php */
-$class div.img_margin {
-	margin-left:32px;
-	margin-right:32px;
+$class .img_margin {
+	margin: 10px;
 }
 
 /* vote.inc.php */
