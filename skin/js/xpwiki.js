@@ -28,6 +28,7 @@ var XpWiki = {
 	UploadPage: '',
 	RendererDir: '',
 	RendererPage: '',
+	SkinName: [],
 	
 	isIE8: (Prototype.Browser.IE && typeof(window.localStorage) != "undefined"),
 	isIE7: (Prototype.Browser.IE && typeof(document.documentElement.style.msInterpolationMode) != "undefined" && typeof(window.localStorage) == "undefined"),
@@ -788,6 +789,7 @@ var XpWiki = {
 		var url = this.MyUrl + '/' + this.dir + '/?plugin=attach&pcmd=imglist&refer=';
 		url += encodeURIComponent(this.UploadPage);
 		url += '&base=' + encodeURIComponent(this.UploadPage);
+		url += '&basedir=' + this.dir;
 		url += '&popup=_self';
 		url += '&cols=1';
 		url += '&max=10';
@@ -841,7 +843,7 @@ var XpWiki = {
 	setUploadVar: function (elm) {
 		if (!!elm) {
 			elm = $(elm);
-			if (elm.id.match(/^[a-z_]+:/i)) {
+			if (elm.id.match(/^[a-z0-9_-]+:/i)) {
 				var form;
 				var element = elm;
 				 while (element = element.parentNode) {
@@ -851,7 +853,7 @@ var XpWiki = {
 					}		
 				}
 				if (form && (typeof form.page != 'undefined' || typeof form.refer != 'undefined')) {
-					var dir = elm.id.replace(/^([a-z_]+):.+$/i, "$1");
+					var dir = elm.id.replace(/^([a-z0-9_-]+):.+$/i, "$1");
 					var reg = new RegExp('/'+dir);
 					if (form.action.match(reg)) {
 						this.UploadDir = dir;
@@ -951,7 +953,15 @@ var XpWiki = {
 			oFCKeditor.Height = "100%";
 			
 			oFCKeditor.Config['CustomConfigurationsPath'] = myDir + "/skin/loader.php?src=fck.config.js";
-			oFCKeditor.Config['EditorAreaCSS'] = myDir + "/skin/loader.php?src=main+fckeditor.css&f=1";
+			var skinName = (!! XpWiki.SkinName[dir])? XpWiki.SkinName[dir] : '';
+
+			if (skinName.substr(0, 3) == 'tD-') {
+				skinName = skinName.substr(3, (skinName.length - 3));
+				oFCKeditor.Config['EditorAreaCSS'] = [myDir + "/skin/tdiary_theme/"+skinName+"/"+skinName+".css", myDir + "/skin/tdiary_theme/tdiary.css.php"];
+			} else {
+				oFCKeditor.Config['EditorAreaCSS'] = myDir + "/skin/loader.php?skin="+skinName+"&src=main+fckeditor.css&f=1";
+			}
+
 			oFCKeditor.Config['SkinPath'] = this.FCKxpwiki_path + "skin/";
 			oFCKeditor.Config['PluginsPath'] = this.FCKxpwiki_path + "plugins/";
 			oFCKeditor.Config['SmileyImages'] = this.FCKSmileys;
@@ -968,29 +978,30 @@ var XpWiki = {
 	},
 	
 	toggleFCK: function(id) {
-		var oEditorIns = FCKeditorAPI.GetInstance(id);
-		var oEditorIframe = $(id + '___Frame');
-		var tArea = $(id);
-		var bIsWysiwyg = ( oEditorIns.EditMode == FCK_EDITMODE_WYSIWYG );
 		Element.hide(id + '_WrapBtn');
 		Element.hide(id + '_FckBtn');
+		var FCK = FCKeditorAPI.GetInstance(id);
+		var oEditorIframe = $(id + '___Frame');
+		var tArea = $(id);
+		var bIsWysiwyg = ( FCK.EditMode == FCK_EDITMODE_WYSIWYG );
 		if (tArea.style.display == 'none') {
 			if (!tArea._FCKBlurRegisted) {
 				tArea._FCKBlurRegisted = true;
 				Event.observe(tArea, 'blur', function(){
-					oEditorIns.EditingArea.Textarea.value = tArea.value;
+					var FCK = FCKeditorAPI.GetInstance(this.id);
+					FCK.EditMode = FCK_EDITMODE_SOURCE;
+					FCK.SetData(tArea.value, true);
 				});
 			}
-			var text = oEditorIns.GetData( oEditorIns.Config.FormatSource );
-			tArea.value = text;
+			tArea.value = FCK.GetData( FCK.Config.FormatSource );
 			oEditorIframe.style.display = 'none';
 			tArea.style.display = '';
 			$(id + '_FckBtn').innerHTML = wikihelper_msg_rich_editor;
 			Element.show(id + '_FckBtn');
 			Element.show(id + '_WrapBtn');
 		} else {
-			oEditorIns.SetData(tArea.value, false);
-			if ( ! bIsWysiwyg ) oEditorIns.SwitchEditMode(); //switch to WYSIWYG
+			FCK.EditMode = FCK_EDITMODE_WYSIWYG;
+			FCK.SetData(tArea.value, true);
 			tArea.style.display = 'none';
 			oEditorIframe.style.display = '';
 			$(id + '_FckBtn').innerHTML = wikihelper_msg_normal_editor;
@@ -1078,7 +1089,7 @@ var XpWiki = {
 			element = element.offsetParent;
 		} while (element);
 		return Element._returnOffset(valueL, valueT);
-  }
+	}
 };
 
 // For FCKeditor
