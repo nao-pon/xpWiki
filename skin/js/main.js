@@ -3,6 +3,9 @@ var wikihelper_elem;
 var wikihelper_mapLoad=0;
 var wikihelper_initLoad=0;
 var wikihelper_root_url = '$wikihelper_root_url';
+var wikihelper_mouseover = false;
+var wikihelper_hide_timer;
+var wikihelper_over_timer;
 var XpWikiModuleUrl = '$module_url';
 var XpWikiEncHint = '$encode_hint';
 var XpWikiCharSet = '$charset';
@@ -69,8 +72,15 @@ function wikihelper_show_fontset_img()
 		src = document.createElement('div');
 		src.innerHTML = map;
 		src.zIndex = 1000;
+		if (! Prototype.Browser.IE) {
+			src.observe('mouseover', function(){wikihelper_mouseover = true;});
+			src.observe('mouseout', function(){wikihelper_mouseover = false;});
+		}
 		document.body.appendChild(src);
-
+		
+		$('wikihelper_base').observe('mouseover', function(){wikihelper_mouseover = true;});
+		$('wikihelper_base').observe('mouseout', function(){wikihelper_mouseover = false;});
+		
 		new Draggable('wikihelper_base');
 
 	}
@@ -93,7 +103,7 @@ function wikihelper_show_fontset_img()
 		str = str + '<small> [&nbsp;<a href="#" title="'+wikihelper_msg_to_adv_t+'" onClick="javascript:wikihelper_adv_swich(); return false;">' + 'Adv.' + '<'+'/'+'a>&nbsp;]<'+'/'+'small>';
 	}
 
-	str += ' <a href="#" title="Close" onClick="javascript:wikihelper_hide_helper(); return false;"><img src="$wikihelper_root_url/skin/loader.php?src=close.gif" border="0" alt="Close" '+'/'+'><'+'/'+'a>';
+	str += ' <a href="#" title="Close" onclick="javascript:wikihelper_mouseover=false;wikihelper_hide_helper();return false;"><img src="$wikihelper_root_url/skin/loader.php?src=close.gif" border="0" alt="Close" '+'/'+'><'+'/'+'a>';
 
 	var wikihelper_helper_img = 
 		'<img src="$wikihelper_root_url/image/buttons.gif" width="103" height="16" border="0" usemap="#map_button" tabindex="-1" '+'/'+'>'+
@@ -199,7 +209,160 @@ function wikihelper_cumulativeOffset(forElement) {
 	return Element._returnOffset(valueL, valueT);
 }
 
-function wikihelper_hide_helper() {
+function wikihelper_initTexts(obj)
+{
+	if (!obj) {
+		if (wikihelper_initLoad) return;
+		obj = document;
+	}
+	var oElements;
+	var oElement;
+	wikihelper_initLoad = 1;
+	wikihelper_elem = null;
+	wikihelper_show_fontset_img();
+	
+	if (Prototype.Browser.IE) {
+		var oElements = obj.getElementsByTagName("form");
+		for (i = 0; i < oElements.length; i++)
+		{
+			oElement = oElements[i];
+			var onkeyup = oElement.onkeyup;
+			var onmouseup = oElement.onmouseup;
+			oElement.onkeyup = function()
+			{
+				if (onkeyup) onkeyup();
+				wikihelper_pos();
+			};
+			oElement.onmouseup = function()
+			{
+				if (onmouseup) onmouseup();
+				wikihelper_pos();
+			};
+		}
+	}
+	
+	var setup = function(oElements) {
+		for (i = 0; i < oElements.length; i++)
+		{
+			oElement = oElements[i];
+			var rel = String(oElement.getAttribute('rel'));
+			if (rel == "wikihelper") {
+				Element.observe(oElement, 'focus',
+					function(elm){
+						return	function(){
+							elm._focused = true;
+							wikihelper_setActive(elm, false);
+						};
+					}(oElement)
+				);
+				Element.observe(oElement, 'mouseover',
+					function(elm){
+						return	function(){
+							wikihelper_setActive(elm, false);
+						};
+					}(oElement)
+				);
+				Element.observe(oElement, 'blur',
+					function(elm){
+						return	function(){
+							elm._focused = false;
+							wikihelper_hide_helper();
+						}
+					}(oElement)
+				);
+				Element.observe(oElement, 'mouseout',
+					function(){
+						wikihelper_mouseover = false;
+						wikihelper_hide_helper(500);
+					}
+				);
+			} else {
+				Element.observe(oElement, 'focus',
+					function(){
+						wikihelper_mouseover = false;
+						wikihelper_hide_helper();
+					}
+				);
+			}
+		}
+	};
+	
+	oElements = obj.getElementsByTagName("input");
+	setup(oElements);
+
+	oElements = obj.getElementsByTagName("textarea");
+	setup(oElements);
+
+	oElements = obj.getElementsByTagName("select");
+	for (i = 0; i < oElements.length; i++)
+	{
+		oElement = oElements[i];
+		Element.observe(oElement, 'focus', wikihelper_hide_helper);
+	}
+}
+
+function wikihelper_setActive(elem, istimer)
+{
+	if (! istimer) {
+		wikihelper_mouseover = true;
+		setTimeout(function(elem){return function(){wikihelper_setActive(elem, true)}}(elem), 500);
+		return;
+	}
+	
+	if (! wikihelper_mouseover) return;
+	
+	var helper = $("wikihelper_base");
+	if (helper.style.display == 'none' || wikihelper_elem != elem) {
+		if (! elem._focused) {
+			elem.focus();
+			return;
+		}
+
+		XpWiki.UploadDir = '';
+		XpWiki.UploadPage = '';
+		if ($('XpWikiPopup')) {
+			//Element.hide('XpWikiPopup');
+		}
+
+		Element.show(helper);
+		if (wikihelper_elem != elem) {
+			wikihelper_elem = elem;
+			var offset = wikihelper_cumulativeOffset(wikihelper_elem);
+			helper.style.left = offset[0] + "px";
+			helper.style.top = ( offset[1] - helper.offsetHeight - 1 ) + "px";
+			wikihelper_pos();
+		}
+
+		XpWiki.setUploadVar(wikihelper_elem);
+
+		if (XpWiki.isIE6) {
+			oElements = document.getElementsByTagName("select");
+			for (i = 0; i < oElements.length; i++)
+			{
+				oElement = oElements[i];
+				oElement.style.visibility = "hidden";
+			}
+		}
+	}
+}
+
+function wikihelper_hide_helper(time) {
+	if (wikihelper_mouseover) {
+		if (wikihelper_hide_timer) {
+			clearTimeout(wikihelper_hide_timer);
+		}
+		wikihelper_hide_timer = setTimeout(wikihelper_hide_helper, 500);
+		return;
+	}
+
+	if (typeof time == 'number' && time) {
+		if (wikihelper_hide_timer) {
+			clearTimeout(wikihelper_hide_timer);
+		}
+		wikihelper_hide_timer = setTimeout(wikihelper_hide_helper, time);
+		return;
+	}
+	
 	var helper = $("wikihelper_base");
 	if (helper) {
 		Element.hide(helper);
