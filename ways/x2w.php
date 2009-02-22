@@ -2,7 +2,7 @@
 /*
  * Created on 2008/10/23 by nao-pon http://hypweb.net/
  * License: GPL v2 or (at your option) any later version
- * $Id: x2w.php,v 1.13 2009/02/01 08:09:59 nao-pon Exp $
+ * $Id: x2w.php,v 1.14 2009/02/22 01:52:37 nao-pon Exp $
  */
 
 //
@@ -98,6 +98,7 @@ class XHTML2Wiki
 	var $last_div;
 	var $basicStyles;
 	var $comment;
+	var $tempvars = array();
 	
 	//	初期化
 	function XHTML2Wiki() {
@@ -413,6 +414,7 @@ class XHTML2Wiki
 		}
 		// テーブルの終了
 		else if (preg_match("/<\/table>/", $line)) {
+			$this->tempvars['tablecol'] = 0;
 			$cells = null;
 			$this->EndDiv();
 			if (! $this->list_level) $this->body[] = "\n";
@@ -678,14 +680,20 @@ class XHTML2Wiki
 	// テーブルを出力
 	function OutputTable($cells, $type) {
 		$row = count($cells);
-		$col = count($cells[1]);
+		$colCount = array();
+		for ($i = 1; $i <= $row; $i++) {
+			$colCount[] = count($cells[$i]);
+		}
+		$col = max($colCount);
+		$this->tempvars['tablecol'] = max($col, $this->tempvars['tablecol']);
+
 		if ($this->tableStyle) {
 			$this->body[] = '|' . $this->tableStyle . str_repeat('|', $col)  . "c\n";
 			$this->tableStyle = '';
 		}
 		for ($i = 1; $i <= $row; $i++) {
-			for ($j = 1; $j <= $col; $j++) {
-				$this->body[] = "|" . $this->Inline($cells[$i][$j]);
+			for ($j = 1; $j <= $this->tempvars['tablecol']; $j++) {
+				$this->body[] = "|" . $this->Inline(@ $cells[$i][$j]);
 			}
 			$this->body[] = "|" . $type . "\n";
 		}
