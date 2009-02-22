@@ -2,7 +2,7 @@
 /////////////////////////////////////////////////
 // PukiWiki - Yet another WikiWikiWeb clone.
 //
-//  $Id: attach.inc.php,v 1.45 2008/11/17 02:34:23 nao-pon Exp $
+//  $Id: attach.inc.php,v 1.46 2009/02/22 02:01:56 nao-pon Exp $
 //  ORG: attach.inc.php,v 1.31 2003/07/27 14:15:29 arino Exp $
 //
 /*
@@ -97,6 +97,10 @@ class xpwiki_plugin_attach extends xpwiki_plugin {
 
 	}
 	
+	function can_call_otherdir_convert() {
+		return 1;
+	}
+
 	//-------- convert
 	function plugin_attach_convert()
 	{
@@ -108,11 +112,18 @@ class xpwiki_plugin_attach extends xpwiki_plugin {
 		}
 		
 		$noattach = $nolist = $noform = FALSE;
+		$page = $this->root->vars['page'];
 		
 		if (func_num_args() > 0)
 		{
-			foreach (func_get_args() as $arg)
+			foreach (func_get_args() as $key => $arg)
 			{
+				if ($key === 0) {
+					if ($this->func->is_page($arg)) {
+						$page = $arg;
+						continue;
+					}
+				}
 				$arg = strtolower($arg);
 				$nolist |= ($arg == 'nolist');
 				$noform |= ($arg == 'noform');
@@ -127,13 +138,13 @@ class xpwiki_plugin_attach extends xpwiki_plugin {
 		}
 		if (!$nolist)
 		{
-			$obj = &new XpWikiAttachPages($this->xpwiki, $this->root->vars['page']);
-			$ret .= $obj->toString($this->root->vars['page'],FALSE);
+			$obj = &new XpWikiAttachPages($this->xpwiki, $page);
+			$ret .= $obj->toString($page, FALSE);
 			$this->listed = TRUE;
 		}
 		if (!$noform)
 		{
-			$ret .= $this->attach_form($this->root->vars['page']);
+			$ret .= $this->attach_form($page);
 		}
 		
 		return $ret;

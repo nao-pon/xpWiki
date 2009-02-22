@@ -1,7 +1,7 @@
 <?php
 // PukiWiki - Yet another WikiWikiWeb clone.
 //
-// $Id: ls2.inc.php,v 1.14 2008/10/31 07:10:10 nao-pon Exp $
+// $Id: ls2.inc.php,v 1.15 2009/02/22 02:01:56 nao-pon Exp $
 //
 // List plugin 2
 
@@ -91,6 +91,10 @@ class xpwiki_plugin_ls2 extends xpwiki_plugin {
 		'msg'=>str_replace('$1', htmlspecialchars($prefix), $this->root->_ls2_msg_title));
 	}
 	
+	function can_call_otherdir_convert() {
+		return 1;
+	}
+
 	function plugin_ls2_convert() {
 		$params = $this->params;
 	
@@ -106,19 +110,6 @@ class xpwiki_plugin_ls2 extends xpwiki_plugin {
 		
 		$prefix = ($params['prefix'])? $prefix = $params['prefix'] : '';
 
-		// Other xpWiki dir
-		if (strpos($prefix, ':') !== FALSE) {
-			list($dir, $_prefix) = explode(':', $prefix, 2);
-			if ($_prefix && $this->func->isXpWikiDirname($dir)) {
-				$args[0] = $_prefix;
-				$otherObj = & XpWiki::getSingleton($dir);
-				if ($otherObj->isXpWiki) {
-					$otherObj->init('#RenderMode');
-					return $otherObj->func->do_plugin_convert('ls2', $this->func->csv_implode(',', $args));
-				}
-			}
-		}
-		
 		if ($prefix === '') $prefix = $this->func->strip_bracket($this->root->vars['page']) . '/';
 		if ($prefix === '/') $prefix = '';
 		$params['_base_lev'] = substr_count($prefix, '/');
@@ -272,9 +263,9 @@ class xpwiki_plugin_ls2 extends xpwiki_plugin {
 		$href = $this->func->get_page_uri($page, true);
 
 		// New!
-		$_dum = $new_mark = '';
+		$new_mark = '';
 		if ($this->func->is_page($page) && !$params['nonew'] && $this->func->exist_plugin_inline("new"))
-			$new_mark = $this->func->do_plugin_inline("new","{$page},nolink",$_dum);
+			$new_mark = $this->func->do_plugin_inline("new","{$page},nolink");
 		
 		// Child count
 		$child_count = (!empty($params['_child_counts'][$page]) && ($params['depth'] !== FALSE) && (substr_count($page, '/') - $params['_parent_depth']) === intval($params['depth']))? ' [<a href="' . $this->root->script .  str_replace('$prefix', rawurlencode($page.'/'), $params['_link_query']) . '">+' . $params['_child_counts'][$page] . '</a>]' : '';

@@ -2,10 +2,11 @@
 /*
  * Created on 2008/11/10 by nao-pon http://hypweb.net/
  * License: GPL v2 or (at your option) any later version
- * $Id: pluginlist.lng.php,v 1.7 2009/01/25 00:56:07 nao-pon Exp $
+ * $Id: pluginlist.lng.php,v 1.8 2009/02/22 02:01:56 nao-pon Exp $
  */
 
 $msg = array(
+	'dirname' => 'DirName',
 	'addline' => array(
 		'title' => 'Add fixed contents',
 		'block_usage' => '#addline(Config name[,above|,below|,up|,down][,number|,nonumber][,btn:<Button text>][,ltext:<Left text>][,rtext:<Right text>])',
@@ -243,7 +244,7 @@ $msg = array(
 	),
 	'popular' => array(
 		'title' => 'Several popular',
-		'block_usage' => '#popular([[Number],[Off the page],[true|false],[today|1|yesterday|-1|total|0],[<Base page name>],[0|1]])',
+		'block_usage' => '#popular([[Number],[Off the page],[today|1|yesterday|-1|total|0],[<Base page name>],[0|1]])',
 		'inline_usage' => ''
 	),
 	'pre' => array(

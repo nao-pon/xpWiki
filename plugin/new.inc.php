@@ -1,6 +1,6 @@
 <?php
 // PukiWiki - Yet another WikiWikiWeb clone.
-// $Id: new.inc.php,v 1.5 2008/04/24 00:02:15 nao-pon Exp $
+// $Id: new.inc.php,v 1.6 2009/02/22 02:01:56 nao-pon Exp $
 //
 // New! plugin
 //
@@ -24,6 +24,10 @@ class xpwiki_plugin_new extends xpwiki_plugin {
 		$this->func->set_plugin_messages($messages);
 	}
 	
+	function can_call_otherdir_inline() {
+		return 1;
+	}
+
 	function plugin_new_inline()
 	{
 	

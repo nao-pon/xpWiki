@@ -2,10 +2,11 @@
 /*
  * Created on 2008/11/10 by nao-pon http://hypweb.net/
  * License: GPL v2 or (at your option) any later version
- * $Id: pluginlist.lng.php,v 1.7 2009/01/25 00:56:07 nao-pon Exp $
+ * $Id: pluginlist.lng.php,v 1.8 2009/02/22 02:01:56 nao-pon Exp $
  */
 
 $msg = array(
+	'dirname' => 'ディレクトリ名',
 	'addline' => array(
 		'title' => '定型文追加',
 		'block_usage' => '#addline(設定名[,above|,below|,up|,down][,number|,nonumber][,btn:<ボタンテキスト>][,ltext:<左テキスト>][,rtext:<右テキスト>])',
@@ -243,7 +244,7 @@ $msg = array(
 	),
 	'popular' => array(
 		'title' => '人気の数件',
-		'block_usage' => '#popular([[件数],[対象外ページ],[true|false],[today|1|yesterday|-1|total|0],[<ベースページ名>],[0|1]])',
+		'block_usage' => '#popular([[件数],[対象外ページ],[today|1|yesterday|-1|total|0],[<ベースページ名>],[0|1]])',
 		'inline_usage' => ''
 	),
 	'pre' => array(

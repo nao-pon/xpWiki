@@ -1,6 +1,6 @@
 <?php
 // PukiWiki - Yet another WikiWikiWeb clone.
-// $Id: search.inc.php,v 1.10 2009/01/15 03:00:26 nao-pon Exp $
+// $Id: search.inc.php,v 1.11 2009/02/22 02:01:56 nao-pon Exp $
 //
 // Search plugin
 class xpwiki_plugin_search extends xpwiki_plugin {
@@ -18,6 +18,10 @@ class xpwiki_plugin_search extends xpwiki_plugin {
 		
 		// Load Language
 		$this->load_language();
+	}
+
+	function can_call_otherdir_convert() {
+		return 1;
 	}
 	
 	// Show a search box on a page

@@ -1,7 +1,7 @@
 <?php
 //
 // Created on 2006/10/02 by nao-pon http://hypweb.net/
-// $Id: xpwiki_func.php,v 1.202 2009/02/01 08:01:01 nao-pon Exp $
+// $Id: xpwiki_func.php,v 1.203 2009/02/22 02:01:56 nao-pon Exp $
 //
 class XpWikiFunc extends XpWikiXoopsWrapper {
 
@@ -207,27 +207,50 @@ class XpWikiFunc extends XpWikiXoopsWrapper {
 	}
 	
 	// Call API 'convert' of the plugin
-	function do_plugin_convert($name, $args = '') {
+	function do_plugin_convert($name, $args = '', $body = NULL) {
+		
+		$plugin = & $this->get_plugin_instance($name);
+
 		if (! $this->cont['PKWKEXP_DISABLE_MULTILINE_PLUGIN_HACK']) {
 			// Multiline plugin?
 			$pos  = strpos($args, "\r"); // "\r" is just a delimiter
-				if ($pos !== FALSE) {
-					$body = substr($args, $pos + 1);
-					$args = substr($args, 0, $pos);
-				}
+			if ($pos !== FALSE) {
+				$body = substr($args, $pos + 1);
+				$args = substr($args, 0, $pos);
 			}
+		}
 	
 		if ($args === '') {
 			$aryargs = array();                 // #plugin()
 		} else {
 			$aryargs = $this->csv_explode(',', $args); // #plugin(A,B,C,D)
 		}
+		
+		if ($aryargs && $_num = $plugin->can_call_otherdir_convert()) {
+			// Other xpWiki dir
+			$_num = intval($_num) - 1;
+			if (intval(strpos($aryargs[$_num], ':')) > 0) {
+				list($dir, $arg) = explode(':', $aryargs[$_num], 2);
+				if ($this->root->mydirname === $dir) {
+					$aryargs[$_num] = $arg;
+				} else if ($this->isXpWikiDirname($dir)) {
+					$other = & XpWiki::getInitedSingleton($dir);
+					if ($other->isXpWiki) {
+						$aryargs[$_num] = $arg;
+						$plugin->swap_global_vars($this, $other);
+						$ret = $other->func->do_plugin_convert($name, $this->csv_implode(',', $aryargs), $body);
+						$plugin->swap_global_vars($this, $other);
+						return '<div class="xpwiki_r_' . $dir . '">' . $ret . '</div>';
+					}
+				}
+			}
+		}
+		
 		if (! $this->cont['PKWKEXP_DISABLE_MULTILINE_PLUGIN_HACK']) {
-			if (isset($body)) $aryargs[] = & $body;     // #plugin(){{body}}
+			if (!is_null($body)) $aryargs[] = $body;     // #plugin(){{body}}
 		}
 
 		$_digest = $this->root->digest;
-		$plugin = & $this->get_plugin_instance($name);
 		$retvar  = call_user_func_array(array(& $plugin, 'plugin_' . $name . '_convert'), $aryargs);
 		$this->root->digest  = $_digest; // Revert
 	
@@ -245,18 +268,39 @@ class XpWikiFunc extends XpWikiXoopsWrapper {
 	}
 	
 	// Call API 'inline' of the plugin
-	function do_plugin_inline($name, $args, & $body) {
+	function do_plugin_inline($name, $args = '', $body = '') {
+		$plugin = & $this->get_plugin_instance($name);
+
 		if ($args !== '') {
 			$aryargs = $this->csv_explode(',', $args);
 		} else {
 			$aryargs = array();
 		}
 
+		if ($aryargs && $_num = $plugin->can_call_otherdir_inline()) {
+			// Other xpWiki dir
+			$_num = intval($_num) - 1;
+			if (intval(strpos($aryargs[$_num], ':')) > 0) {
+				list($dir, $arg) = explode(':', $aryargs[$_num], 2);
+				if ($this->root->mydirname === $dir) {
+					$aryargs[$_num] = $arg;
+				} else if ($this->isXpWikiDirname($dir)) {
+					$other = & XpWiki::getInitedSingleton($dir);
+					if ($other->isXpWiki) {
+						$aryargs[$_num] = $arg;
+						$plugin->swap_global_vars($this, $other);
+						$ret = $other->func->do_plugin_inline($name, $this->csv_implode(',', $aryargs), $body);
+						$plugin->swap_global_vars($this, $other);
+						return $ret;
+					}
+				}
+			}
+		}
+
 		// NOTE: A reference of $body is always the last argument
-		$aryargs[] = & $body; // func_num_args() != 0
+		$aryargs[] = $body; // func_num_args() != 0
 	
 		$_digest = $this->root->digest;
-		$plugin = & $this->get_plugin_instance($name);
 		$retvar  = call_user_func_array(array(& $plugin, 'plugin_' . $name . '_inline'), $aryargs);
 
 		$this->root->digest  = $_digest; // Revert
@@ -1755,7 +1799,7 @@ EOD;
 	}
 	
 	function isXpWikiDirname ($dirname) {
-		return (file_exists($this->cont['ROOT_PATH'].$this->cont['MOD_DIR_NAME'].$dirname.'/private/ini/pukiwiki.ini.php'));
+		return (preg_match('/^[a-z0-9_-]+$/i', $dirname) && file_exists($this->cont['ROOT_PATH'].$this->cont['MOD_DIR_NAME'].$dirname.'/private/ini/pukiwiki.ini.php'));
 	}
 
 	

@@ -1,5 +1,5 @@
 <?php
-// $Id: lsx.inc.php,v 1.10 2008/08/23 05:46:00 nao-pon Exp $
+// $Id: lsx.inc.php,v 1.11 2009/02/22 02:01:56 nao-pon Exp $
 
 class xpwiki_plugin_lsx extends xpwiki_plugin {
 	
@@ -40,6 +40,10 @@ class xpwiki_plugin_lsx extends xpwiki_plugin {
 		$this->plugin_lsx->plugin_new	   = 'new';
 	}
 	
+	function can_call_otherdir_convert() {
+		return 1;
+	}
+
 	function plugin_lsx_convert()
 	{
 		$args = func_get_args();
@@ -833,11 +837,16 @@ class XpWikiPluginLsxOptionParser
 		if ($this->error !== "") { return; }
 
 		$newargs = array();
-		foreach ($args as $arg) {
+		foreach ($args as $num => $arg) {
 			list($key, $val) = array_pad(explode("=", $arg, 2), 2, '');
 			if (! isset($options[$key])) {
-				$this->error = "No such a option, $key. ";
-				return;
+				if ($num === 0) {
+					$val = $key;
+					$key = 'prefix';
+				} else {
+					$this->error = "No such a option, $key. ";
+					return;
+				}
 			}
 			$newargs[$key] = $val;
 		}

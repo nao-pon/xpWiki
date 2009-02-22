@@ -4,7 +4,7 @@
 //
 //
 // ref.inc.php,v 1.20をベースに作成
-// $Id: exifshowcase.inc.php,v 1.5 2008/11/27 00:00:22 nao-pon Exp $
+// $Id: exifshowcase.inc.php,v 1.6 2009/02/22 02:01:56 nao-pon Exp $
 //
 
 /*
@@ -370,8 +370,7 @@ EOD;
 			$sztype = $eh > $ew ? "height": "width";
 	
 			if ( $this->config['THUMB_USE'] ) {
-				$_body = '';
-				$img = $this->func->do_plugin_inline('ref', $page . '/' . $aname . ',mh:'. $this->config['DEFAULT_MH']. ',mw:'.$this->config['DEFAULT_MW'] , $_body);
+				$img = $this->func->do_plugin_inline('ref', $page . '/' . $aname . ',mh:'. $this->config['DEFAULT_MH']. ',mw:'.$this->config['DEFAULT_MW']);
 			}
 	
 			$img = "<a href=\"{$url}\">" . 

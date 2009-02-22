@@ -1,5 +1,5 @@
 <?php
-// $Id: ref.inc.php,v 1.39 2008/12/08 23:42:17 nao-pon Exp $
+// $Id: ref.inc.php,v 1.40 2009/02/22 02:01:56 nao-pon Exp $
 /*
 
 	*プラグイン ref
@@ -31,7 +31,7 @@
 
 class xpwiki_plugin_ref extends xpwiki_plugin {
 	var $flg_lightbox_loaded = false;
-	
+
 	function plugin_ref_init () {
 		// File icon image
 		if (! isset($this->cont['FILE_ICON']))
@@ -180,6 +180,10 @@ class xpwiki_plugin_ref extends xpwiki_plugin {
 		exit;
 	}
 
+	function can_call_otherdir_inline() {
+		return 1;
+	}
+	
 	function plugin_ref_inline() {
 		//エラーチェック
 		if (!func_num_args()) return 'no argument(s).';
@@ -193,6 +197,10 @@ class xpwiki_plugin_ref extends xpwiki_plugin {
 		}
 		
 		return $ret;
+	}
+	
+	function can_call_otherdir_convert() {
+		return 1;
 	}
 	
 	function plugin_ref_convert() {

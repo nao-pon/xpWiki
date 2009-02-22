@@ -116,6 +116,10 @@ function xpwiki_cal9_day_edit(id,mode,event) {
 
 	xpwiki_ajax_edit_var['id'] = 'xpwiki_cal9_popupmain';
 	
+	var args = id.split(":");
+	var dir = args[0];
+	id = args[1];
+
 	// HTML BODYオブジェクト取得
 	var objBody = document.getElementsByTagName('body').item(0);
 	
@@ -157,7 +161,7 @@ function xpwiki_cal9_day_edit(id,mode,event) {
 		insobj.style.textAlign = 'center';
 		
 		var objLoadingImage = document.createElement('img');
-		objLoadingImage.setAttribute('src', wikihelper_root_url + '/skin/loader.php?src=loading.gif');
+		objLoadingImage.setAttribute('src', XpWiki.MyUrl + '/' + dir + '/skin/loader.php?src=loading.gif');
 		insobj.appendChild(objLoadingImage);
 		
 		objPopup.appendChild(insobj);
@@ -183,7 +187,7 @@ function xpwiki_cal9_day_edit(id,mode,event) {
 
 	var popupW = (viewport.width - 300);
 	var popupH = (viewport.height - 80);
-
+	
 	var editHtml = '<div style="text-align:center;"> [ <span id="pagename">' + id + '</span> ] Now loading...</div>';
 	Element.update($('xpwiki_cal9_editarea'), editHtml);
 
@@ -200,7 +204,7 @@ function xpwiki_cal9_day_edit(id,mode,event) {
 	//Element.setStyle(objPopup, 'position: fixed');
 	
 	// ページ情報を読込み反映する
-	var url = wikihelper_root_url + '/?cmd=' + mode;
+	var url = XpWiki.MyUrl + '/' + dir + '/?cmd=' + mode;
 	var pars = '';
 	pars += 'page=' + encodeURIComponent(id);
 	pars += '&ajax=1';

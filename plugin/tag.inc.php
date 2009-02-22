@@ -13,7 +13,7 @@ class xpwiki_plugin_tag extends xpwiki_plugin {
 	//	global $plugin_tag;
 		$this->root->plugin_tag = new XpWikiPluginTag($this->xpwiki);
 	}
-	
+
 	function plugin_tag_inline()
 	{
 	//	global $plugin_tag;
@@ -21,6 +21,10 @@ class xpwiki_plugin_tag extends xpwiki_plugin {
 		return call_user_func_array(array($this->root->plugin_tag, 'inline'), $args);
 	}
 	
+	function can_call_otherdir_convert() {
+		return 1;
+	}
+
 	function plugin_tag_convert()
 	{
 	//	global $plugin_tag;
@@ -64,7 +68,7 @@ class xpwiki_plugin_tag extends xpwiki_plugin {
 	}
 
 }
-	// $Id: tag.inc.php,v 1.12 2008/09/17 08:29:29 nao-pon Exp $
+	// $Id: tag.inc.php,v 1.13 2009/02/22 02:01:56 nao-pon Exp $
 	
 class XpWikiPluginTag
 {

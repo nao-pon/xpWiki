@@ -1,6 +1,6 @@
 <?php
 // PukiWiki - Yet another WikiWikiWeb clone
-// $Id: tracker.inc.php,v 1.18 2008/11/17 02:34:23 nao-pon Exp $
+// $Id: tracker.inc.php,v 1.19 2009/02/22 02:01:56 nao-pon Exp $
 // ORG: tracker.inc.php,v 1.57 2007/09/20 15:17:20 henoheno Exp $
 // Issue tracker plugin (See Also bugtrack plugin)
 
@@ -37,6 +37,10 @@ class xpwiki_plugin_tracker extends xpwiki_plugin
 		$this->cont['PLUGIN_TRACKER_LIST_SORT_DEFAULT'] = $this->cont['PLUGIN_TRACKER_LIST_SORT_ASC'];
 	}
 	
+	function can_call_otherdir_convert() {
+		return 2;
+	}
+
 	// Show a form
 	function plugin_tracker_convert()
 	{
