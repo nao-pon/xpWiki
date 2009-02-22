@@ -1,7 +1,7 @@
 <?php
 //
 // Created on 2006/10/25 by nao-pon http://hypweb.net/
-// $Id: loader.php,v 1.56 2008/11/27 00:10:01 nao-pon Exp $
+// $Id: loader.php,v 1.57 2009/02/22 01:54:04 nao-pon Exp $
 //
 
 ignore_user_abort(FALSE);
@@ -116,13 +116,13 @@ switch ($type) {
 			// CSS over write (css dir)
 			$addcss_file = "{$skin_dirname}/{$basedir}css/{$_src}.css";
 			if (is_file($addcss_file)) {
-				$addcss[] = $addcss_file;
+				$addcss[$_src][] = $addcss_file;
 				$addtime = filemtime($addcss_file);
 			}
 			// CSS over write (skin dir)
 			$addcss_file = "{$skin_dirname}/{$basedir}{$skin}/{$_src}.css";
 			if (is_file($addcss_file)) {
-				$addcss[] = $addcss_file;
+				$addcss[$_src][] = $addcss_file;
 				$addtime = max($addtime, filemtime($addcss_file));
 			}
 			if ($prefix) {
@@ -130,13 +130,13 @@ switch ($type) {
 				// CSS over write (css dir)
 				$addcss_file = "{$skin_dirname}/{$basedir}css/{$css_src}.css";
 				if (is_file($addcss_file)) {
-					$addcss[] = $addcss_file;
+					$addcss[$_src][] = $addcss_file;
 					$addtime = max($addtime, filemtime($addcss_file));
 				}
 				// CSS over write (skin dir)
 				$addcss_file = "{$skin_dirname}/{$basedir}{$skin}/{$css_src}.css";
 				if (is_file($addcss_file)) {
-					$addcss[] = $addcss_file;
+					$addcss[$_src][] = $addcss_file;
 					$addtime = max($addtime, filemtime($addcss_file));
 				}
 			}
@@ -294,40 +294,39 @@ if ($type === 'js' || $type === 'css' || is_file($src_file)) {
 			xpwiki_pagecss_filter($out);
 			
 			if ($pre_id) $pre_id .= ' ';
-			$addcss_src = '';
-			if ($addcss) {
-				foreach ($addcss as $_file) {
-					$addcss_src .= file_get_contents($_file) . "\n";
-				}
-			}
+			
 			$out = str_replace(array('$dir', '$class', '$pre_width', '$charset'),
 								array($dir, $pre_id.'div.xpwiki_'.$dir, $pre_width, $charset),
-								$out . "\n" . $addcss_src);
+								$out);
 		}
 		if ($type === 'css') {
 			$out = '';
 			if ($pre_id) $pre_id .= ' ';
+			$conf_file = "{$skin_dirname}/{$basedir}{$skin}/css.conf";
+			if (is_file($conf_file)) {
+				$conf = parse_ini_file($conf_file, true);
+			} else {
+				$conf = array();
+			}
+
 			foreach($src_file as $_src => $_file) {
 				
 				$replace_src = 0;
 				
-				$conf_file = "{$skin_dirname}/{$basedir}{$skin}/css.conf";
-				if (is_file($conf_file)) {
-					$conf = parse_ini_file($conf_file, true);
-					if (! empty($conf[$_src]['replace'])) {
-						$replace_src = 1;
-						$_file = "{$skin_dirname}/{$basedir}{$skin}/{$_src}.css";
-					}
+				if (! empty($conf[$_src]['replace'])) {
+					$replace_src = 1;
+					$_file = "{$skin_dirname}/{$basedir}{$skin}/{$_src}.css";
 				}
 				
 				$_out = file_get_contents($_file);
 				
 				$addcss_src = '';
-				if (! $replace_src && $addcss) {
-					foreach ($addcss as $_file) {
+				if (! $replace_src && $addcss[$_src]) {
+					foreach ($addcss[$_src] as $_file) {
 						$addcss_src .= file_get_contents($_file) . "\n";
 					}
 				}
+				
 				$class = ($prefix === 'fck')? 'body' : $pre_id.'div.xpwiki_'.$dir;
 				$_out = str_replace(array('$dir', '$class', '$pre_width', '$charset'),
 									array($dir, $class, $pre_width, $charset),
