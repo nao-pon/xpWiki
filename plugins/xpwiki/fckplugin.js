@@ -43,11 +43,16 @@ FCK.DataProcessor =
 		sendRequest(
 			{
 				onload : function (oj){
-					var xmlData = oj.responseXML;
-					var res = xmlData.getElementsByTagName("res");
-					var lb = xmlData.getElementsByTagName("lb");
-					body = res[0].firstChild.nodeValue;
-					FCKConfig.xpWiki_LineBreak = lb[0].firstChild.nodeValue;
+					if (! oj.responseXML) {
+						alert("Response error.\n\n" + oj.responseText);
+						body = data;
+					} else {
+						var xmlData = oj.responseXML;
+						var res = xmlData.getElementsByTagName("res");
+						var lb = xmlData.getElementsByTagName("lb");
+						body = res[0].firstChild.nodeValue;
+						FCKConfig.xpWiki_LineBreak = lb[0].firstChild.nodeValue;
+					}
 					oj = null;
 				}
 			},
@@ -85,8 +90,13 @@ FCK.DataProcessor =
 		sendRequest(
 			{
 				onload : function (oj){
-					var doc = oj.responseXML;
-					data = doc.documentElement.firstChild.nodeValue;
+					if (! oj.responseXML) {
+						alert("Response error.\n\n" + oj.responseText);
+						data = FCK.LinkedField.value;
+					} else {
+						var doc = oj.responseXML;
+						data = doc.documentElement.firstChild.nodeValue;
+					}
 					oj = null;
 				}
 			},
