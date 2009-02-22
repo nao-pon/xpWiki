@@ -77,6 +77,7 @@ FCKConfig.ToolbarSets["Default"] = [
 	['OrderedList','UnorderedList','DList','Blockquote','-','Outdent','Indent'],
 	['JustifyLeft','JustifyCenter','JustifyRight'],
 	['Link','Unlink','Anchor'],
+	'/',
 	['FontFormat','FontSize','TextColor','BGColor'],
 	['FitWindow','ShowBlocks','-','About']
 ] ;
@@ -110,4 +111,3 @@ FCKConfig.SmileyWindowHeight	= 200 ;
 //FCKConfig.UseBROnCarriageReturn = true ; // IE only.
 //FCKConfig.FormatOutput = true ;
 //FCKConfig.FormatSource = true ;
-
