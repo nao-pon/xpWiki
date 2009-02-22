@@ -63,7 +63,9 @@ class XpWikiElement {
 	function GC() {
 		// Garbage Collection
 		$this->elements = NULL;
-		$this->last = NULL;
+		if (! is_a($this->last, 'XpWikiBody')) {
+			$this->last = NULL;
+		}
 	}
 	
 	function dump($indent = 0) {
@@ -404,15 +406,17 @@ class XpWikiTableCell extends XpWikiElement {
 				$text = $matches[2];
 			} else if ($this->root->space_cell_align && preg_match('/^(\s+)?(.+?)(\s+)?$/', $text, $matches)) {
 			// Text alignment with 1 or more spaces.
-				if (! empty($matches[1]) && ! empty($matches[3])) {
-					$this->style['align'] = 'text-align:center;';
-				} else if (! empty($matches[1])) {
-					$this->style['align'] = 'text-align:right;';
-				} else if (! empty($matches[3])) {
-					$this->style['align'] = 'text-align:left;';
-				}
-				if (! empty($this->style['align'])) {
-					$text = $matches[2];
+				if ($matches[2] !== '~') {
+					if (! empty($matches[1]) && ! empty($matches[3])) {
+						$this->style['align'] = 'text-align:center;';
+					} else if (! empty($matches[1])) {
+						$this->style['align'] = 'text-align:right;';
+					} else if (! empty($matches[3])) {
+						$this->style['align'] = 'text-align:left;';
+					}
+					if (! empty($this->style['align'])) {
+						$text = $matches[2];
+					}
 				}
 			}
 		}
