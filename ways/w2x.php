@@ -2,7 +2,7 @@
 /*
  * Created on 2008/10/23 by nao-pon http://hypweb.net/
  * License: GPL v2 or (at your option) any later version
- * $Id: w2x.php,v 1.12 2009/02/01 08:09:59 nao-pon Exp $
+ * $Id: w2x.php,v 1.13 2009/02/22 01:51:43 nao-pon Exp $
  */
 
 //
@@ -243,7 +243,6 @@ function guiedit_convert_ref($args, $div = TRUE) {
 		$inner = "&ref($options)$argbody;";
 		$attribute .= ' _source="' . htmlspecialchars($inner) . '"';
 		$html = get_ref_html($args_org, false);
-		//debug($html);
 		if (preg_match('#^<img[^>]+?'.'>$#', $html)) {
 			$attribute = str_replace('contenteditable="false"', 'contenteditable="true"', $attribute);
 			$tags = str_replace('<img', '<img ' . $attribute, $html);
@@ -257,12 +256,11 @@ function guiedit_convert_ref($args, $div = TRUE) {
 
 function get_ref_html($args, $div = TRUE) {
 	global $xpwiki;
-	$plugin = & $xpwiki->func->get_plugin_instance('ref');
 	mb_convert_variables($xpwiki->cont['SOURCE_ENCODING'], 'UTF-8', $args);
 	if (! $div) {
-		$retvar  = call_user_func_array(array(& $plugin, 'plugin_ref_inline'), $args);
+		$retvar = $xpwiki->func->do_plugin_inline('ref', csv_implode(',', $args));
 	} else {
-		$retvar  = call_user_func_array(array(& $plugin, 'plugin_ref_convert'), $args);
+		$retvar = $xpwiki->func->do_plugin_convert('ref', csv_implode(',', $args));
 	}
 	$retvar = mb_convert_encoding($retvar, 'UTF-8', $xpwiki->cont['SOURCE_ENCODING']);
 	$retvar = trim(preg_replace('#</?a[^>]*?'.'>#is', '', $retvar));
@@ -299,6 +297,35 @@ function csv_explode($separator, $string)
 		$retval[] = $str;
 	}
 	return $retval;
+}
+
+// Implode an array with CSV data format (escape double quotes)
+function csv_implode($glue, $pieces)
+{
+	$_glue = ($glue !== '') ? '\\' . $glue{0} : '';
+	$arr = array();
+	foreach ($pieces as $str) {
+		if (ereg('[' . $_glue . '"' . "\n\r" . ']', $str))
+			$str = '"' . str_replace('"', '""', $str) . '"';
+		$arr[] = $str;
+	}
+	return join($glue, $arr);
+}
+
+function unhtmlspecialchars ($str, $quote_style = ENT_COMPAT) {
+	$fr = array('&lt;', '&gt;');
+	$tr = array('<',    '>');
+	if ($quote_style !== ENT_NOQUOTES) {
+		$fr[] = '&quot;';
+		$tr[] = '"';
+	}
+	if ($quote_style === ENT_QUOTES) {
+		$fr[] = '&#039;';
+		$tr[] = '\'';
+	}
+	$fr[] = '&amp;';
+	$tr[] = '&';
+	return str_replace($fr, $tr, $str);
 }
 
 // インライン変換クラス
@@ -397,7 +424,7 @@ class InlineConverterEx {
 	
 	// インラインプラグイン処理メソッド
 	function convert_plugin($matches) {
-		$aryargs = (isset($matches[2]) && $matches[2] !== '') ? explode(',', $matches[2]) : array();
+		$aryargs = (isset($matches[2]) && $matches[2] !== '') ? csv_explode(',', unhtmlspecialchars($matches[2])) : array();
 		$name = strtolower($matches[1]);
 		$body = (isset($matches[3]))? $matches[3] : '';
 		
@@ -1078,15 +1105,17 @@ class TableCellEx extends ElementEx
 				$text = $matches[2];
 			} else if ($xpwiki->root->space_cell_align && preg_match('/^(\s+)?(.+?)(\s+)?$/', $text, $matches)) {
 			// Text alignment with 1 or more spaces.
-				if (! empty($matches[1]) && ! empty($matches[3])) {
-					$this->style['align'] = ' align="center"';
-				} else if (! empty($matches[1])) {
-					$this->style['align'] = ' align="right"';
-				} else if (! empty($matches[3])) {
-					$this->style['align'] = ' align="left"';
-				}
-				if (! empty($this->style['align'])) {
-					$text = $matches[2];
+				if ($matches[2] !== '~') {
+					if (! empty($matches[1]) && ! empty($matches[3])) {
+						$this->style['align'] = ' align="center"';
+					} else if (! empty($matches[1])) {
+						$this->style['align'] = ' align="right"';
+					} else if (! empty($matches[3])) {
+						$this->style['align'] = ' align="left"';
+					}
+					if (! empty($this->style['align'])) {
+						$text = $matches[2];
+					}
 				}
 			}
 		}
@@ -1667,7 +1696,7 @@ class DivEx extends ElementEx
 			case 'hr':
 				return '<hr class="short_line" />';
 			case 'ref':
-				$param = ($this->param != '') ? explode(',', $this->param) : array();
+				$param = ($this->param != '') ? csv_explode(',', $this->param) : array();
 				return guiedit_convert_ref($param);
 			case 'clear':
 				$styles[] = 'clear:both;';
