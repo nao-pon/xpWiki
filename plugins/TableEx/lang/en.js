@@ -10,6 +10,7 @@
 //	FCKeditor : Copyright (C) 2003-2007 Frederico Caldeira Knabben
 //
 
+FCKLang.TableCellHeadToggle			= 'Toggle Head/Normal';
 
 FCKLang.TableDlgHead				= 'Header';
 FCKLang.TableDlgFoot				= 'Footer';

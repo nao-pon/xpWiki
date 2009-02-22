@@ -78,56 +78,6 @@ function TableInsertCell(insertBefore) {
 	FCKUndo.SaveUndoStep();
 }
 
-
-//	列挿入
-
-FCKCommands.GetCommand('TableInsertColumnBefore').Execute = function() {
-	TableInsertCol(true);
-}
-
-FCKCommands.GetCommand('TableInsertColumnAfter').Execute = function() {
-	TableInsertCol(false);
-}
-
-function TableInsertCol(insertBefore) {
-	var oCell = FCKSelection.MoveToAncestorNode('TD') || FCKSelection.MoveToAncestorNode('TH');
-	if (!oCell) {
-		return;
-	}
-	
-	FCKUndo.SaveUndoStep();
-	
-	var oTable = FCKTools.GetElementAscensor(oCell, 'TABLE');
-	var aTableMap = FCKTableHandler._CreateTableMap(oTable);
-	var nColIndex = FCKTableHandler._GetCellIndexSpan(aTableMap, oCell.parentNode.rowIndex, oCell);
-	
-	FCKTableHandler.InsertColumn(insertBefore);
-	
-	var aColGroups = oTable.getElementsByTagName('COLGROUP');
-	var aCols;
-	if (!aColGroups.length) {
-		return;
-	}
-	
-	if (!insertBefore) {
-		nColIndex++;
-	}
-	
-	var oCol = FCK.EditorDocument.createElement('COL');
-	for (i = 0; i < aColGroups.length; i++) {
-		aCols = aColGroups[i].getElementsByTagName('COL');
-		if (aCols.length <= nColIndex) {
-			aColGroups[i].appendChild(oCol);
-		}
-		else {
-			aColGroups[i].insertBefore(oCol, aCols[nColIndex + 1]);
-		}
-	}
-	
-	FCKUndo.SaveUndoStep();
-}
-
-
 //	列削除
 FCKCommands.GetCommand('TableDeleteColumns').Execute = function() {
 	var oCell = FCKSelection.MoveToAncestorNode('TD') || FCKSelection.MoveToAncestorNode('TH');
@@ -157,89 +107,26 @@ FCKCommands.GetCommand('TableDeleteColumns').Execute = function() {
 	FCKUndo.SaveUndoStep();
 }
 
-
-//	右のセルと連結
-FCKCommands.RegisterCommand('TableMergeRightCell', {
-	Execute : function() {
-		var oCell = FCKSelection.MoveToAncestorNode('TD') || FCKSelection.MoveToAncestorNode('TH');
-		var oRow = oCell.parentNode;
-		if (!oCell || (oCell.cellIndex + 1 == oRow.cells.length)) {
-			return;
-		}
-		
-		var oRightCell = oRow.cells[oCell.cellIndex + 1];
-		if (oCell.rowSpan != oRightCell.rowSpan) {
-			return;
-		}
-		
-		FCKUndo.SaveUndoStep();
-		
-		oCell.innerHTML += oRightCell.innerHTML;
-		oCell.colSpan += oRightCell.colSpan;
-		oRow.removeChild(oRightCell);
-		
-		FCKUndo.SaveUndoStep();
-	},
-	
-	GetState : function() { return FCK_TRISTATE_OFF; }
-})
-
-
-//	下のセルと連結
-FCKCommands.RegisterCommand('TableMergeLowerCell', {
-	Execute : function() {
-		var oCell = FCKSelection.MoveToAncestorNode('TD') || FCKSelection.MoveToAncestorNode('TH');
-		var oRow = oCell.parentNode;
-		if (!oCell || (oRow.rowIndex + oCell.rowSpan == oRow.parentNode.rows.length)) {
-			return;
-		}
-		
-		var oTable = FCKTools.GetElementAscensor(oCell, 'TABLE');
-		var aTableMap = FCKTableHandler._CreateTableMap(oTable);
-		var nColIndex = FCKTableHandler._GetCellIndexSpan(aTableMap, oRow.rowIndex, oCell);
-		var nLowerRow = oRow.rowIndex + oCell.rowSpan;
-		var oLowerCell = aTableMap[nLowerRow][nColIndex];
-		
-		if (!oLowerCell || oCell.colSpan != oLowerCell.colSpan) {
-			return;
-		}
-
-		FCKUndo.SaveUndoStep();
-		
-		oCell.rowSpan += oLowerCell.rowSpan;
-		oCell.innerHTML += oLowerCell.innerHTML;
-		oLowerCell.parentNode.removeChild(oLowerCell);
-		
-		FCKUndo.SaveUndoStep();
-	},
-	
-	GetState : function() { return FCK_TRISTATE_OFF; }
-})
-
-
 //	セルを左右に分割
 FCKCommands.RegisterCommand('TableSplitCellRightLeft', {
 	Execute : function() {
-		var oCell = FCKSelection.MoveToAncestorNode('TD') || FCKSelection.MoveToAncestorNode('TH');
-		if (!oCell || oCell.colSpan == 1) {
-			return;
-		}
+		var cells = FCKTableHandler.GetSelectedCells();
+		if ( cells.length != 1 )
+			return ;
 		
 		FCKUndo.SaveUndoStep();
 		
-		var oRightCell = FCK.EditorDocument.createElement('TD');
-		oRightCell.className = 'style_td';
-		if (FCKBrowserInfo.IsGeckoLike) {
-			FCKTools.AppendBogusBr(oRightCell);
-		}
+		FCKTableHandler.HorizontalSplitCell();
 		
-		if (oCell.cellIndex == oCell.parentNode.cells.length - 1) {
-			oCell.parentNode.appendChild(oRightCell);
+		var refBase = cells[0].parentNode.parentNode;
+		var tag = cells[0].nodeName;
+		var elems = refBase.getElementsByTagName(tag);
+		var name = 'style_' + cells[0].nodeName.toLowerCase();
+		for (var i=0; i<elems.length; i++) {
+			if (! elems[i].className) {
+				elems[i].className = name;
+			}
 		}
-		else {
-			oCell.parentNode.insertBefore(oRightCell, oCell.nextSibling);
-		}
-		oCell.colSpan--;
 		
 		FCKUndo.SaveUndoStep();
 	},
@@ -251,40 +138,23 @@ FCKCommands.RegisterCommand('TableSplitCellRightLeft', {
 //	セルを上下に分割
 FCKCommands.RegisterCommand('TableSplitCellTopBottom', {
 	Execute : function() {
-		var oCell = FCKSelection.MoveToAncestorNode('TD') || FCKSelection.MoveToAncestorNode('TH');
-		if (!oCell || oCell.rowSpan == 1) {
-			return;
-		}
-		
+		var cells = FCKTableHandler.GetSelectedCells();
+		if ( cells.length != 1 )
+			return ;
+			
 		FCKUndo.SaveUndoStep();
 		
-		var oNewCell = FCK.EditorDocument.createElement('TD');
-		oNewCell.className = 'style_td';
-		if (FCKBrowserInfo.IsGeckoLike) {
-			oEditor.FCKTools.AppendBogusBr(oNewCell);
-		}
+		FCKTableHandler.VerticalSplitCell();
 		
-		var oTable = FCKTools.GetElementAscensor(oCell, 'TABLE');
-		var aTableMap = FCKTableHandler._CreateTableMap(oTable);
-		var oRow = oCell.parentNode;
-		var nColIndex = FCKTableHandler._GetCellIndexSpan(aTableMap, oRow.rowIndex, oCell);
-		var oLowerCell = null;
-		
-		for (i = nColIndex + 1; i < aTableMap[0].length; i++) {
-			oLowerCell = aTableMap[oRow.rowIndex + 1][i];
-			if (oLowerCell.parentNode.rowIndex == oRow.rowIndex + 1) {
-				break;
+		var refBase = cells[0].parentNode.parentNode;
+		var tag = cells[0].nodeName;
+		var elems = refBase.getElementsByTagName(tag);
+		var name = 'style_' + cells[0].nodeName.toLowerCase();
+		for (var i=0; i<elems.length; i++) {
+			if (! elems[i].className) {
+				elems[i].className = name;
 			}
-			oLowerCell = null;
 		}
-
-		if (!oLowerCell) {
-			oTable.rows[oRow.rowIndex + 1].appendChild(oNewCell);
-		}
-		else {
-			oLowerCell.parentNode.insertBefore(oNewCell, oLowerCell);
-		}
-		oCell.rowSpan--;
 		
 		FCKUndo.SaveUndoStep();
 	},
@@ -292,7 +162,53 @@ FCKCommands.RegisterCommand('TableSplitCellTopBottom', {
 	GetState : function() { return FCK_TRISTATE_OFF; }
 })
 
+// FCKeditorのバグ対策 ([Firefox]セル結合でリンクを含むセルが消える)
+FCKCommands.RegisterCommand('TableMergeGecko', {
+	Execute : function() {
+		var cells = FCKTableHandler.GetSelectedCells();
+		for (var i=0; i<cells.length; i++) {
+			var elems = cells[i].getElementsByTagName('a');
+			for (var i2=0; i2<elems.length; i2++) {
+				if (! elems[i2].className) {
+					elems[i2].setAttribute('_moz_dirty', '');
+				}
+			}		
+		}
+		
+		FCKUndo.SaveUndoStep();
+		
+		FCKTableHandler.MergeCells();
+		
+		FCKUndo.SaveUndoStep();
+	},
+	
+	GetState : function() { return FCK_TRISTATE_OFF; }
+})
 
+// セル 見出し/通常 反転
+FCKCommands.RegisterCommand('TableCellHeadToggle', {
+	Execute : function() {
+		var aCells = FCKTableHandler.GetSelectedCells();
+		
+		FCKUndo.SaveUndoStep();
+		
+		for (var i=0; i<aCells.length; i++) {
+			var tag = (aCells[i].tagName.toLowerCase() == 'td')? 'TH' : 'TD';
+			//	タグの置換
+			oElement = FCK.EditorDocument.createElement(tag);
+			oElement.className = (tag == 'TH') ? 'style_th' : 'style_td';
+			oElement.innerHTML = aCells[i].innerHTML;
+			oElement.colSpan = aCells[i].colSpan;
+			oElement.rowSpan = aCells[i].rowSpan;
+			oElement.setAttribute('style', aCells[i].getAttribute('style'));
+			aCells[i] = aCells[i].parentNode.replaceChild(oElement, aCells[i]);
+		}
+		
+		FCKUndo.SaveUndoStep();
+	},
+	
+	GetState : function() { return FCK_TRISTATE_OFF; }
+})
 
 ///////////////////////////////////////////////////////////
 //	ツールバー
@@ -312,19 +228,20 @@ FCK.ContextMenu.RegisterListener( {
 		if (bIsCell) {
 			menu.AddSeparator();
 			var oItem = menu.AddItem('Cell', FCKLang.CellCM);
+			oItem.AddItem('TableCellHeadToggle', FCKLang.TableCellHeadToggle, 39);
 			oItem.AddItem('TableInsertCellBefore', FCKLang.InsertCellBefore, 69);
 			oItem.AddItem('TableInsertCellAfter', FCKLang.InsertCellAfter, 58);
 			oItem.AddItem('TableDeleteCells', FCKLang.DeleteCells, 59);
 			if ( FCKBrowserInfo.IsGecko ) {
-				oItem.AddItem( 'TableMergeCells'	, FCKLang.MergeCells, 60,
+				oItem.AddItem( 'TableMergeGecko'	, FCKLang.MergeCells, 60,
 					FCKCommands.GetCommand( 'TableMergeCells' ).GetState() == FCK_TRISTATE_DISABLED ) ;
 			}
 			else {
-				oItem.AddItem('TableMergeRightCell', FCKLang.MergeRight, 60);
-				oItem.AddItem('TableMergeLowerCell', FCKLang.MergeDown, 60);
+				oItem.AddItem('TableMergeRight', FCKLang.MergeRight, 60);
+				oItem.AddItem('TableMergeDown', FCKLang.MergeDown, 60);
 			}
-			oItem.AddItem('TableSplitCellRightLeft', FCKLang.HorizontalSplitCell, 61);
-			oItem.AddItem('TableSplitCellTopBottom', FCKLang.VerticalSplitCell, 61);
+			oItem.AddItem('TableSplitCellRightLeft', FCKLang.HorizontalSplitCell, 61, FCKCommands.GetCommand( 'TableHorizontalSplitCell' ).GetState() == FCK_TRISTATE_DISABLED );
+			oItem.AddItem('TableSplitCellTopBottom', FCKLang.VerticalSplitCell, 61, FCKCommands.GetCommand( 'TableVerticalSplitCell' ).GetState() == FCK_TRISTATE_DISABLED);
 			oItem.AddSeparator();
 			oItem.AddItem('TableCellProp', FCKLang.CellProperties, 57);
 
@@ -350,5 +267,3 @@ FCK.ContextMenu.RegisterListener( {
 		}
 	}}
 );
-
-

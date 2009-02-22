@@ -11,6 +11,10 @@
 //
 
 
+FCKLang.InsertRowBefore				= 'この上に追加';
+FCKLang.InsertRowAfter				= 'この下に追加';
+FCKLang.TableCellHeadToggle			= '見出し/通常 反転';
+
 FCKLang.TableDlgHead				= 'ヘッダ行';
 FCKLang.TableDlgFoot				= 'フッタ行';
 FCKLang.TableDlgAlign				= '配置'; 
