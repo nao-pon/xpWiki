@@ -67,6 +67,9 @@ function Ok() {
 			oElement = oDOM.createElement(tag);
 			oElement.className = (tag == 'TH') ? 'style_th' : 'style_td';
 			oElement.innerHTML = aCells[i].innerHTML;
+			oElement.colSpan = aCells[i].colSpan;
+			oElement.rowSpan = aCells[i].rowSpan;
+			oElement.setAttribute('style', aCells[i].getAttribute('style'));
 			aCells[i] = aCells[i].parentNode.replaceChild(oElement, aCells[i]);
 		}
 		
