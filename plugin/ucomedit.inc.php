@@ -1,6 +1,6 @@
 <?php
 // 添付されたExif画像ファイルのUserCommentを編集するプラグイン
-// $Id: ucomedit.inc.php,v 1.1 2008/11/26 23:54:54 nao-pon Exp $
+// $Id: ucomedit.inc.php,v 1.2 2009/02/22 01:41:35 nao-pon Exp $
 // $ORG: ucomedit.inc.php,v 1.12 2004/03/09 10:10:00 m-arai Exp $
 // 
 // ＊注意＊
@@ -82,8 +82,7 @@ EOD;
 		}
 	
 		$width = $this->config['UCOMED_WIDTH'];
-		$_body = '';
-		$img = $this->func->do_plugin_inline('ref', $page . '/' . $fname . ',mw:'.$width , $_body);
+		$img = $this->func->do_plugin_inline('ref', $page . '/' . $fname . ',mw:'.$width);
 		
 		$pre = <<<EOD
 <div style="align:right;">
