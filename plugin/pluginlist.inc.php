@@ -1,7 +1,7 @@
 <?php
 /*
  * Created on 2008/03/25 by nao-pon http://hypweb.net/
- * $Id: pluginlist.inc.php,v 1.6 2009/02/22 02:01:56 nao-pon Exp $
+ * $Id: pluginlist.inc.php,v 1.7 2009/02/23 09:00:01 nao-pon Exp $
  */
 
 class xpwiki_plugin_pluginlist extends xpwiki_plugin {
@@ -107,9 +107,9 @@ class xpwiki_plugin_pluginlist extends xpwiki_plugin {
 			$func = 'can_call_otherdir_'. $mode;
 			if ($num = $plugin->$func()) {
 				if ($num > 1) {
-					$reg = '/^((?:[^,]+,){'. ($num - 1) .'}\[*)(.+)$/';
+					$reg = '/^((?:[^,]+,){'. ($num - 1) .'}\[*)(.+)$/s';
 				} else {
-					$reg = '/^([^\(]+\(\[*)(.+)$/';
+					$reg = '/^([^\(]+\(\[*)(.+)$/s';
 				}
 				$usage = preg_replace($reg, '$1[<'.$this->msg['dirname'].'>:]$2', $usage);
 			}
