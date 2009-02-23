@@ -983,14 +983,13 @@ var XpWiki = {
 		var FCK = FCKeditorAPI.GetInstance(id);
 		var oEditorIframe = $(id + '___Frame');
 		var tArea = $(id);
-		var bIsWysiwyg = ( FCK.EditMode == FCK_EDITMODE_WYSIWYG );
 		if (tArea.style.display == 'none') {
 			if (!tArea._FCKBlurRegisted) {
 				tArea._FCKBlurRegisted = true;
 				Event.observe(tArea, 'blur', function(){
 					var FCK = FCKeditorAPI.GetInstance(this.id);
-					FCK.EditMode = FCK_EDITMODE_SOURCE;
-					FCK.SetData(tArea.value, true);
+					FCK.EditingArea.Mode = FCK.EditMode = FCK_EDITMODE_SOURCE;
+					FCK.EditingArea.Start( tArea.value ) ;
 				});
 			}
 			tArea.value = FCK.GetData( FCK.Config.FormatSource );
@@ -1000,10 +999,10 @@ var XpWiki = {
 			Element.show(id + '_FckBtn');
 			Element.show(id + '_WrapBtn');
 		} else {
-			FCK.EditMode = FCK_EDITMODE_WYSIWYG;
-			FCK.SetData(tArea.value, true);
 			tArea.style.display = 'none';
 			oEditorIframe.style.display = '';
+			FCK.EditMode = FCK_EDITMODE_WYSIWYG;
+			FCK.SetData(tArea.value, true);
 			$(id + '_FckBtn').innerHTML = wikihelper_msg_normal_editor;
 			Element.show(id + '_FckBtn');
 		}
