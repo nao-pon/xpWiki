@@ -2,7 +2,7 @@
 /*
  * Created on 2008/10/23 by nao-pon http://hypweb.net/
  * License: GPL v2 or (at your option) any later version
- * $Id: x2w.php,v 1.14 2009/02/22 01:52:37 nao-pon Exp $
+ * $Id: x2w.php,v 1.15 2009/02/23 09:04:49 nao-pon Exp $
  */
 
 //
@@ -79,8 +79,9 @@ function xhtml2wiki($source)
 	// 変換メソッドの呼び出し
 	$body = $obj->Convert($source);
 	
-	// 先頭の無駄な空白を削除
+	// 先頭と末尾の無駄な空白を削除
 	$body = preg_replace('/^(?:\n* \n+)+/', '', $body);
+	$body = preg_replace('/(?:\s*#br\s*)+$/', "\n", $body);
 	
 	return $body;
 }
@@ -99,6 +100,7 @@ class XHTML2Wiki
 	var $basicStyles;
 	var $comment;
 	var $tempvars = array();
+	var $SavedOutputLine;
 	
 	//	初期化
 	function XHTML2Wiki() {
@@ -108,6 +110,7 @@ class XHTML2Wiki
 		$this->list_level = 0;
 		$this->last_div = '';
 		$this->text = '';
+		$this->SavedOutputLine = '';
 	}
 	
 	// 変換メソッド
@@ -139,9 +142,11 @@ class XHTML2Wiki
 		$body = implode('', $this->body);
 		
 		// 構文補正
-		$body = preg_replace('/(\n\n)\n+/', '$1', $body);
+		$body = preg_replace('/ \n\n/', "\n", $body);
+		$body = preg_replace('/\n{3,}+/', "\n\n", $body);
+		$body = preg_replace('/(?:(?:-|\+)+\s*\n){2,}/', '', $body);
 		$body = preg_replace('/(-|\+)\n~/', '$1 ~', $body);
-		//$body = str_replace("\r", '', $body);
+		$body = str_replace("\r", '', $body);
 		$body = rtrim($body);
 		
 		return $body;
@@ -200,7 +205,7 @@ class XHTML2Wiki
 		}
 		// ブロック型プラグイン
 		else if (preg_match("/<div\s([^>]*?)class=\"(plugin|ref)\"(.*?)>(.*)/", $line)) {
-			$line = preg_replace("/<br[^>]*?>/", "\n", $line);
+			$line = preg_replace("/<br[^>]*?>/", "\r\n", $line);
 			$line = strip_tags($line);
 			$this->OutputLine($this->DecodeSpecialChars($line));
 		}
@@ -210,14 +215,13 @@ class XHTML2Wiki
 				$this->StartDiv('Blockquote');
 			}
 			$this->div_level++;
-			//$this->OutputLine(str_repeat('>', $this->GetLevel()));
+			$this->SavedOutputLine = str_repeat('>', $this->GetLevel());
 		}
 		// リスト
 		else if (preg_match("/<(o|u|d)l(.*?)>/", $line, $matches)) {
 			$element = strtoupper($matches[1]) . 'List';
 			$this->StartDiv($element);
 			$this->div_level++;
-			//if ($element === 'OList' || $element === 'UList') $this->list_level++;
 			$this->list_level++;
 		}
 		// テーブル
@@ -226,17 +230,18 @@ class XHTML2Wiki
 			$this->GetTableStyle($matches[1]);
 		}
 		// 水平線
-		else if (preg_match("/^<hr(\sclass=\"(full_hr|short_line)\")?\s*\/?>$/", $line, $matches)) {
-			if ($matches[2] == 'short_line') {
+		else if (preg_match("/^<hr(?:\s+class=\"(full_hr|short_line)\")?\s*\/?>$/", $line, $matches)) {
+			if ($matches[1] == 'short_line') {
 				$this->OutputLine("#hr");
 			}
 			else {
+				$this->OutputLine();
 				$this->OutputLine('----');
 				$this->OutputLine();
 			}
 		}
 		// 改行
-		else if (preg_match('/^<br[^>]*?class="block"[^>]*?>$/', $line, $matches)) {
+		else if (preg_match('/^(?:<p[^>]*?'.'>)?<br[^>]*?class="block"[^>]*?'.'>(?:&nbsp;)*(?:<\/p>)?$/', $line, $matches)) {
 			$this->OutputLine("#br");
 		}
 		else {
@@ -273,7 +278,6 @@ class XHTML2Wiki
 		else if (preg_match("/^(<li([^>]*?)>)?(.*?)(<\/li>)?$/S", $line, $matches)) {
 			$head = '';
 			if ($matches[1] && (empty($matches[2]) || strpos($matches[2], 'class="list_none"') === false)) {
-				//$head = str_repeat("+", $this->GetLevel());
 				$head = str_repeat("+", $this->list_level);
 			}
 			if (!$matches[1] && $matches[3]) {
@@ -315,17 +319,13 @@ class XHTML2Wiki
 			$this->div_level--;
 			$this->list_level--;
 			$this->EndDiv();
-			//if ($this->div_level == 0) {
-				//$this->EndDiv();
-				if ($this->GetDiv() == '') {
-					$this->OutputLine();
-				}
-			//}
+			if ($this->GetDiv() == '') {
+				$this->OutputLine();
+			}
 		}
 		else if (preg_match("/^\s*(<d(t|d)>)?(.*?)(<\/d(t|d)>)?\s*$/S", $line, $matches)) {
 			$text = $matches[3];
 			if ($matches[2] == 't') {
-				//$this->OutputLine(str_repeat(':', $this->GetLevel()), $text, '|');
 				$this->OutputLine(str_repeat(':', $this->list_level), $text, '|');
 			}
 			else if ($text) {
@@ -351,6 +351,7 @@ class XHTML2Wiki
 			}
 			else if ($matches[2]) {
 				$head = $matches[1] ? str_repeat('>', $this->GetLevel()) : '';
+				$this->SavedOutputLine = '';
 				$this->OutputLine($head, $matches[2]);
 			}
 		}
@@ -679,6 +680,11 @@ class XHTML2Wiki
 	
 	// テーブルを出力
 	function OutputTable($cells, $type) {
+		if ($this->SavedOutputLine) {
+			$out = $this->SavedOutputLine;
+			$this->SavedOutputLine = '';
+			$this->OutputLine($out);
+		}
 		$row = count($cells);
 		$colCount = array();
 		for ($i = 1; $i <= $row; $i++) {
@@ -999,6 +1005,11 @@ class XHTML2Wiki
 	
 	// １行出力
 	function OutputLine($head = '', $line = '', $foot = '') {
+		if ($this->SavedOutputLine) {
+			$out = $this->SavedOutputLine;
+			$this->SavedOutputLine = '';
+			$this->OutputLine($out);
+		}
 		if ($line != '') {
 			$line = $this->Inline($line);
 		}
