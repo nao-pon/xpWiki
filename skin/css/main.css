@@ -22,7 +22,15 @@ $class p {
 	margin-bottom: 1em;
 }
 
-$class blockquote { margin-left:32px; }
+$class blockquote {
+	border: 1px dotted gray;
+	margin-left: 32px;
+}
+/* for render mode on XOOPS */
+$class div.xoopsQuote blockquote {
+	border: none;
+	margin: 0;
+}
 
 $class table { width: auto; }
 
@@ -126,6 +134,7 @@ $class h2 {
 	border:0px;
 	margin:0px 0px .5em 0px;
 	text-align: left;
+	clear:none !important;
 }
 $class h3 {
 	font-family:verdana, arial, helvetica, Sans-Serif;
@@ -331,8 +340,10 @@ $class ul,
 $class ol {
 	margin-left: 1em;
 	padding-left: 1em;
-/*	margin-top:.5em;
-	margin-bottom:.5em;*/
+	margin-top: 0;
+	margin-bottom: 0;
+	padding-top: 0;
+	padding-bottom: 0;
 	line-height:150%;
 	
 	list-style-type:inherit;
@@ -342,12 +353,19 @@ $class ol {
 	color: inherit;
 }
 
+$class ul.list1,
+$class ol.list1 {
+	margin-top: 1em;
+	margin-bottom: 1em;
+}
+
 $class li {
 	list-style-type:inherit;
 	list-style-position:outside;
 	list-style-image:none;
 	marker-offset:auto;
 	color: inherit;
+	margin: 0.3em 0;
 }
 
 $class li.list_none {
