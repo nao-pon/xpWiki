@@ -48,7 +48,7 @@ window.onload = function ()
 function Ok() {
 	oEditor.FCKUndo.SaveUndoStep();
 
-	var html = GetE('text').value.replace(/(<BR\s?\/?>)?\n/gi, "<br />");
+	var html = GetE('text').value.replace(/(<BR[^>]*?>)?\n/gi, "<br />");
 	
 	if (GetE('inline').checked) {
 		oEditor.FCK.InsertHtml(html);
@@ -82,9 +82,9 @@ function Ok() {
 								<fieldset>
 									<legend><span fckLang="InsertTextDlgType">Type</span></legend>
 									<input id="inline" type="radio" name="type" checked>
-									<label for="inline" fckLang="InsertTextDlgInline">Inline</label><br>
+									<label for="inline" fckLang="InsertTextDlgInline">Inline</label><br />
 									<input id="div" type="radio" name="type">
-									<label for="div" fckLang="InsertTextDlgDiv">Div</label><br>
+									<label for="div" fckLang="InsertTextDlgDiv">Div</label><br />
 									<input id="pre" type="radio" name="type">
 									<label for="pre" fckLang="InsertTextDlgPre">Pre</label>
 								</fieldset>
