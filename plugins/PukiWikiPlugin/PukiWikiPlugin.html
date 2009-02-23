@@ -123,7 +123,7 @@ function MakeUsageText(str) {
 	str = str.replace(/((?:(?:#|&amp;)[a-z0-9_]+)|(?:};)|[(),{}])/ig, '<span style="color:gray;font-weight:bold;">$1</span>');
 	str = str.replace(/([|\[\]])/g, '<span style="color:black;">$1</span>');
 	str = str.replace(/(&lt;.+?&gt;)/g, '<span style="color:#ff8c00;">$1</span>');
-	str = str.replace(/(\r\n|\r|\n)/g, '<br>');
+	str = str.replace(/(\r\n|\r|\n)/g, '<br />');
 	return str;
 }
 
@@ -140,7 +140,7 @@ function LoadSelected() {
 		FCKSelection.SelectNode(eSelected);
 		var text = eSelected.innerHTML;
 		if (eSelected.tagName == 'DIV') {
-			text = text.match(/^#([0-9a-z_]+)(\((.*?)\))?(\{+<BR>(.*?)<BR>\}+)?$/i);
+			text = text.match(/^#([0-9a-z_]+)(\((.*?)\))?(\{+<BR[^>]*>(.*?)<BR[^>]*>\}+)?$/i);
 		}
 		else {
 			text = text.match(/^&amp;([0-9a-z_]+)(\((.*?)\))?(\{(.*)\})?;$/i);
@@ -161,7 +161,7 @@ function LoadSelected() {
 		}
 		if (inline) {
 			inline = HTMLDecode(inline);
-			GetE('text').value = inline.replace(/<BR>/gi, "\n");
+			GetE('text').value = inline.replace(/<BR[^>]*?>/gi, "\n");
 		}
 		
 		if (eSelected.tagName == 'SPAN') {
@@ -184,7 +184,7 @@ function Ok() {
 	sValue['option1'] = GetE('option1').value;
 	sValue['option2'] = GetE('option2').value;
 	sValue['option3'] = GetE('option3').value;
-	sValue['text'] = GetE('text').value;
+	sValue['text'] = GetE('text').value.replace(/&nbsp;/g, ' ');
 
 	if (sValue['name'].length == 0) {
 		alert(FCKLang.PukiWikiPluginErrNoName);

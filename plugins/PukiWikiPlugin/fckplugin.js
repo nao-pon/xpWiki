@@ -173,11 +173,11 @@ PukiWikiPlugin.SetupPlugin = function(element, sValue) {
 	
 	if (sValue['text']) {
 		text = FCKTools.HTMLEncode(sValue['text']);
-		text = text.replace(/\n/g, "<BR>");
+		text = text.replace(/\n/g, "<br />");
 	}
 	
 	if (sValue['type'] == 'DIV') {
-		html = '#' + sValue['name'] + (option ? '(' + option + ')' : '') + (text ? "{{<BR>" + text + "<BR>}}" : '');
+		html = '#' + sValue['name'] + (option ? '(' + option + ')' : '') + (text ? "{{<br />" + text + "<br />}}" : '');
 	}
 	else {
 		html = '&amp;' + sValue['name'] + (option ? '(' + option + ')' : '') + (text ? "{" + text + "}" : '') + ';';
