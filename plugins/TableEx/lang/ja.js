@@ -29,7 +29,7 @@ FCKLang.TableDlgBorder_inset		= '凹面';
 FCKLang.TableDlgBorder_outset		= '凸面';
 FCKLang.TableDlgBorder_dashed		= '破線';
 FCKLang.TableDlgBorder_dotted		= '点線';
-FCKLang.TableDlgTranceparent		= '透明';
+FCKLang.TableDlgTransparent			= '透明';
 FCKLang.TableDlgTableBackColor		= 'テーブル背景色';
 
 FCKLang.TableCellDlgAlign			= '整列';

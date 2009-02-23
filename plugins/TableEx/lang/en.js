@@ -26,7 +26,7 @@ FCKLang.TableDlgBorder_inset		= 'Inset';
 FCKLang.TableDlgBorder_outset		= 'Outset';
 FCKLang.TableDlgBorder_dashed		= 'Dashed';
 FCKLang.TableDlgBorder_dotted		= 'Dotted';
-FCKLang.TableDlgTranceparent		= 'Tranceparent';
+FCKLang.TableDlgTransparent			= 'Transparent';
 FCKLang.TableDlgTableBackColor		= 'Table BG Color';
 
 FCKLang.TableCellDlgAlign			= 'Alignment';
