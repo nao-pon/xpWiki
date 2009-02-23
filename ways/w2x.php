@@ -2,7 +2,7 @@
 /*
  * Created on 2008/10/23 by nao-pon http://hypweb.net/
  * License: GPL v2 or (at your option) any later version
- * $Id: w2x.php,v 1.13 2009/02/22 01:51:43 nao-pon Exp $
+ * $Id: w2x.php,v 1.14 2009/02/23 09:03:19 nao-pon Exp $
  */
 
 //
@@ -701,7 +701,7 @@ function & Factory_DivEx(& $root, $text)
 		}
 	} else {
 		// Hack code
-		if (preg_match('/^#([^\(\{]+)(?:\(([^\r]*)\))?(\{*)/', $text, $matches)) {
+		if (preg_match('/^#([^\(\{]+)(?:\(([^\r]*)\))?(\{*)\s*$/', $text, $matches)) {
 			$len  = strlen($matches[3]);
 			$body = array();
 			if ($len == 0) {
@@ -874,7 +874,7 @@ class ListContainerEx extends ElementEx
 
 		$style = '';
 		if (substr($text, -1) === "\x08") {
-			$tag2 = '';
+			$tag2 = 'li';
 			$style = ' class="list_none"';
 			$text = '';
 		}
@@ -1692,7 +1692,7 @@ class DivEx extends ElementEx
 		$styles = array();
 		switch ($this->name) {
 			case 'br':
-				return '<p>&nbsp;</p>';
+				return '<p><br class="block" /></p>';
 			case 'hr':
 				return '<hr class="short_line" />';
 			case 'ref':
