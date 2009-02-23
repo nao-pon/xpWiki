@@ -14,7 +14,14 @@
 FCKCommands.GetCommand('Rule').Execute = function() {
 	var oElement = FCK.CreateElement('HR');
 	
-	oElement.className = 'full_hr';
+	var tags = new Array('UL', 'OL', 'DL');
+	for (i = 0; i < tags.length; i++) {
+		if (FCKSelection.HasAncestorNode(tags[i])) {
+			oElement.className = 'short_line';
+			break;
+		}
+	}
+	if (! oElement.className) oElement.className = 'full_hr';
 	FCKTools.AddEventListener(oElement, 'resizestart', HRuleEx.OnResizeStart);
 }
 
@@ -23,7 +30,7 @@ FCKCommands.GetCommand('Rule').GetState = function() {
 	if ( FCK.EditMode != FCK_EDITMODE_WYSIWYG || ! FCK.EditorWindow )
 		return FCK_TRISTATE_DISABLED ;
 
-	var tags = new Array('H2', 'H3', 'H4', 'H5', 'H6', 'PRE', 'TABLE', 'DT');
+	var tags = new Array('H2', 'H3', 'H4', 'H5', 'H6', 'PRE', 'TABLE');
 	for (i = 0; i < tags.length; i++) {
 		if (FCKSelection.HasAncestorNode(tags[i])) {
 			return FCK_TRISTATE_DISABLED;
