@@ -24,7 +24,7 @@ FCKCommands.GetCommand('Table').GetState = function() {
 	if ( FCK.EditMode != FCK_EDITMODE_WYSIWYG || ! FCK.EditorWindow )
 		return FCK_TRISTATE_DISABLED ;
 
-	var tags = new Array('H2', 'H3', 'H4', 'H5', 'H6', 'PRE', 'OL', 'UL', 'DL', 'BLOCKQUOTE');
+	var tags = new Array('H2', 'H3', 'H4', 'H5', 'H6', 'PRE', 'TABLE');
 	for (i = 0; i < tags.length; i++) {
 		if (FCKSelection.HasAncestorNode(tags[i])) {
 			return FCK_TRISTATE_DISABLED;
