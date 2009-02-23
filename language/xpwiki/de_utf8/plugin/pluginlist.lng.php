@@ -2,7 +2,7 @@
 /*
  * Created on 2008/11/10 by nao-pon http://hypweb.net/
  * License: GPL v2 or (at your option) any later version
- * $Id: pluginlist.lng.php,v 1.8 2009/02/22 02:01:56 nao-pon Exp $
+ * $Id: pluginlist.lng.php,v 1.9 2009/02/23 09:00:01 nao-pon Exp $
  */
 
 $msg = array(
@@ -180,7 +180,7 @@ $msg = array(
 	'new' => array(
 		'title' => 'Newly arrived formating',
 		'block_usage' => '',
-		'inline_usage' => "&new([nodate]){<Date string>};\n&new([<Page name>][,nolink]);"
+		'inline_usage' => "&new([<Page name>][,nolink]);\n&new([nodate][,class:<Class name>]){<Date string>};"
 	),
 	'navi' => array(
 		'title' => 'Page navigation',

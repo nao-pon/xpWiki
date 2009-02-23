@@ -1,6 +1,6 @@
 <?php
 // PukiWiki - Yet another WikiWikiWeb clone.
-// $Id: new.inc.php,v 1.6 2009/02/22 02:01:56 nao-pon Exp $
+// $Id: new.inc.php,v 1.7 2009/02/23 09:00:01 nao-pon Exp $
 //
 // New! plugin
 //
@@ -15,7 +15,8 @@ class xpwiki_plugin_new extends xpwiki_plugin {
 	
 	function plugin_new_init()
 	{
-		$this->cont['PLUGIN_NEW_DATE_FORMAT'] =  '<span class="comment_date">%s</span>';
+		$this->conf['Format'] =  '<span class="$ClassName$">%s</span>';
+		$this->conf['ClassName'] = 'comment_date';
 
 		// Elapsed time => New! message with CSS
 		$messages['_plugin_new_elapses'] = array(
@@ -33,25 +34,35 @@ class xpwiki_plugin_new extends xpwiki_plugin {
 	
 		$retval = '';
 		$args = func_get_args();
-		$date = $this->func->strip_autolink(array_pop($args)); // {date} always exists
+		$date = array_pop($args); // {date} always exists
 	
+		$options = array(
+			'nodate' => FALSE,
+			'nolink' => FALSE,
+			'class'  => $this->conf['ClassName'],
+		);
+		
+		$this->fetch_options($options, $args);
+		
+		$options['class'] = htmlspecialchars($options['class']);
+		
 		if($date !== '') {
 			// Show 'New!' message by the time of the $date string
 			if (func_num_args() > 2) return '&new([nodate]){date};';
 	
-			$_date = preg_replace('/\([^)]+\)/', '', $date);
+			$_date = strip_tags(preg_replace('/\([^)]+\)/', '', $date));
 			$timestamp = strtotime($_date);
-			if ($timestamp === -1 || $timestamp === FALSE) return '&new([nodate]){date};: Invalid date string "'.htmlspecialchars($date).'"';
+			if ($timestamp === -1 || $timestamp === FALSE) return '&new([nodate][,class:<Class name>]){date};: Invalid date string "'.$date.'"';
 			$timestamp -= $this->cont['ZONETIME'];
 	
-			$retval = in_array('nodate', $args) ? '' : htmlspecialchars($date);
+			$retval = $options['nodate']? '' : $date;
 		} else {
 			// Show 'New!' message by the timestamp of the page
 			if (func_num_args() > 3) return '&new(pagename[,nolink]);';
 	
 			$name = $this->func->strip_bracket(! empty($args) ? array_shift($args) : $this->root->vars['page']);
 			$page = $this->func->get_fullname($name, $this->root->vars['page']);
-			$nolink = in_array('nolink', $args);
+			$nolink = $options['nolink'];
 	
 			if (substr($page, -1) == '/') {
 				// Check multiple pages started with "$page"
@@ -95,7 +106,7 @@ class xpwiki_plugin_new extends xpwiki_plugin {
 	
 		if($date !== '') {
 			// Show a date string
-			return sprintf($this->cont['PLUGIN_NEW_DATE_FORMAT'], $retval);
+			return sprintf(str_replace('$ClassName$', $options['class'], $this->conf['Format']), $retval);
 		} else {
 			// Show a page name
 			return $retval;
