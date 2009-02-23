@@ -347,18 +347,16 @@ function wikihelper_setActive(elem, istimer)
 }
 
 function wikihelper_hide_helper(time) {
+	if (wikihelper_hide_timer) {
+		clearTimeout(wikihelper_hide_timer);
+	}
+
 	if (wikihelper_mouseover) {
-		if (wikihelper_hide_timer) {
-			clearTimeout(wikihelper_hide_timer);
-		}
 		wikihelper_hide_timer = setTimeout(wikihelper_hide_helper, 500);
 		return;
 	}
 
 	if (typeof time == 'number' && time) {
-		if (wikihelper_hide_timer) {
-			clearTimeout(wikihelper_hide_timer);
-		}
 		wikihelper_hide_timer = setTimeout(wikihelper_hide_helper, time);
 		return;
 	}
