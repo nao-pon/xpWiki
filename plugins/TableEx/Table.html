@@ -235,7 +235,7 @@ function InsertCells(oRow, iCols) {
 function SelectBackColor(color) {
 	if (color && color.length > 0) {
 		GetE('txtBackColor').value = color;
-		GetE('selTranceparent').checked = false;
+		GetE('selTransparent').checked = false;
 	}
 }
 
@@ -282,9 +282,9 @@ function CorrectFiledData(cmd) {
 			GetE('txtWidth').value = '';
 		}
 	}
-	if (cmd == 'tranceparent') {
-		if (GetE('selTranceparent').checked) {
-			GetE('txtBackColor').value = 'tranceparent';
+	if (cmd == 'transparent') {
+		if (GetE('selTransparent').checked) {
+			GetE('txtBackColor').value = 'transparent';
 		} else {
 			GetE('txtBackColor').value = '';
 		}
@@ -409,8 +409,8 @@ function TableEx_num2hex(num) {
 					<tr>
 						<td>&nbsp;</td>
 						<td colspan="2">
-							&nbsp;<input id="selTranceparent" name="selTranceparent" type="checkbox" value="1"
-								onclick="CorrectFiledData('tranceparent');"><label for="selTranceparent" fcklang="TableDlgTranceparent">Tranceparent</label>
+							&nbsp;<input id="selTransparent" name="selTransparent" type="checkbox" value="1"
+								onclick="CorrectFiledData('transparent');"><label for="selTransparent" fcklang="TableDlgTransparent">Transparent</label>
 						</td>
 					</tr>
 				</table>
