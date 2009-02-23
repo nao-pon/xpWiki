@@ -16,10 +16,11 @@ FCKCommands.GetCommand('Indent').GetState = function() {
 	if ( FCK.EditMode != FCK_EDITMODE_WYSIWYG || ! FCK.EditorWindow )
 		return FCK_TRISTATE_DISABLED ;
 
-	var tags = new Array('OL', 'UL', 'DL');
+	var tags = new Array('ol', 'ul');
 	for (i = 0; i < tags.length; i++) {
 		if (FCKSelection.HasAncestorNode(tags[i])) {
-			return FCK.GetNamedCommandState(this.Name);
+			this.temp = FCKIndentCommand.prototype.GetState;
+			return this.temp();
 		}
 	}
 
@@ -31,20 +32,13 @@ FCKCommands.GetCommand('Outdent').GetState = function() {
 	if ( FCK.EditMode != FCK_EDITMODE_WYSIWYG || ! FCK.EditorWindow )
 		return FCK_TRISTATE_DISABLED ;
 
-	var tags = new Array('OL', 'UL', 'DL');
+	var tags = new Array('ol', 'ul');
 	for (i = 0; i < tags.length; i++) {
 		if (FCKSelection.HasAncestorNode(tags[i])) {
-			return FCK.GetNamedCommandState(this.Name);
+			this.temp = FCKIndentCommand.prototype.GetState;
+			return this.temp();
 		}
 	}
 
 	return FCK_TRISTATE_DISABLED;
-}
-
-FCKCommands.GetCommand('Indent').Execute = function() {
-	FCK.ExecuteNamedCommand(this.Name);
-}
-
-FCKCommands.GetCommand('Outdent').Execute = function() {
-	FCK.ExecuteNamedCommand(this.Name);
 }
