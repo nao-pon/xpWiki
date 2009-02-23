@@ -210,6 +210,7 @@ class XpWikiListContainer extends XpWikiElement {
 
 		$style = '';
 		if (substr($text, -1) === "\x08") {
+			$tag2 = 'li';
 			$style = ' class="list_none"';
 			$text = '';
 		}
