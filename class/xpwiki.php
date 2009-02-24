@@ -1,7 +1,7 @@
 <?php
 //
 // Created on 2006/09/29 by nao-pon http://hypweb.net/
-// $Id: xpwiki.php,v 1.90 2009/02/01 08:01:01 nao-pon Exp $
+// $Id: xpwiki.php,v 1.91 2009/02/24 00:08:51 nao-pon Exp $
 //
 
 class XpWiki {
@@ -308,6 +308,8 @@ class XpWiki {
 				}
 			}
 		}
+		// Set Skin Name for FCKeditor.
+		$this->func->add_js_var_head('XpWiki.SkinName["'.$this->root->mydirname.'"]', $this->cont['SKIN_NAME']);
 
 		// catbody
 		ob_start();
@@ -399,6 +401,8 @@ class XpWiki {
 				}
 			}
 		}
+		// Set Skin Name for FCKeditor.
+		$this->func->add_js_var_head('XpWiki.SkinName["'.$this->root->mydirname.'"]', $this->cont['SKIN_NAME']);
 
 		// List of footnotes
 		natsort($this->root->foot_explain);

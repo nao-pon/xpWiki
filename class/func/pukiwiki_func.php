@@ -1,7 +1,7 @@
 <?php
 //
 // Created on 2006/10/02 by nao-pon http://hypweb.net/
-// $Id: pukiwiki_func.php,v 1.198 2009/02/22 01:38:03 nao-pon Exp $
+// $Id: pukiwiki_func.php,v 1.199 2009/02/24 00:08:52 nao-pon Exp $
 //
 class XpWikiPukiWikiFunc extends XpWikiBaseFunc {
 
@@ -962,7 +962,7 @@ class XpWikiPukiWikiFunc extends XpWikiBaseFunc {
 
 //----- Start convert_html.php -----//
 	// PukiWiki - Yet another WikiWikiWeb clone
-	// $Id: pukiwiki_func.php,v 1.198 2009/02/22 01:38:03 nao-pon Exp $
+	// $Id: pukiwiki_func.php,v 1.199 2009/02/24 00:08:52 nao-pon Exp $
 	// Copyright (C)
 	//   2002-2005 PukiWiki Developers Team
 	//   2001-2002 Originally written by yu-ji
@@ -1217,7 +1217,7 @@ class XpWikiPukiWikiFunc extends XpWikiBaseFunc {
 
 //----- Start func.php -----//
 	// PukiWiki - Yet another WikiWikiWeb clone.
-	// $Id: pukiwiki_func.php,v 1.198 2009/02/22 01:38:03 nao-pon Exp $
+	// $Id: pukiwiki_func.php,v 1.199 2009/02/24 00:08:52 nao-pon Exp $
 	// Copyright (C)
 	//   2002-2006 PukiWiki Developers Team
 	//   2001-2002 Originally written by yu-ji
@@ -2050,7 +2050,7 @@ EOD;
 
 //----- Start make_link.php -----//
 	// PukiWiki - Yet another WikiWikiWeb clone.
-	// $Id: pukiwiki_func.php,v 1.198 2009/02/22 01:38:03 nao-pon Exp $
+	// $Id: pukiwiki_func.php,v 1.199 2009/02/24 00:08:52 nao-pon Exp $
 	// Copyright (C)
 	//   2003-2005 PukiWiki Developers Team
 	//   2001-2002 Originally written by yu-ji
@@ -3031,7 +3031,7 @@ EOD;
 
 //----- Start html.php -----//
 	// PukiWiki - Yet another WikiWikiWeb clone.
-	// $Id: pukiwiki_func.php,v 1.198 2009/02/22 01:38:03 nao-pon Exp $
+	// $Id: pukiwiki_func.php,v 1.199 2009/02/24 00:08:52 nao-pon Exp $
 	// Copyright (C)
 	//   2002-2006 PukiWiki Developers Team
 	//   2001-2002 Originally written by yu-ji
@@ -3203,9 +3203,6 @@ EOD;
 		// List of footnotes
 		natsort($this->root->foot_explain);
 		$notes = ! empty($this->root->foot_explain) ? $this->root->note_hr . join("\n", $this->root->foot_explain) : '';
-		
-		// Set Skin Name for FCKeditor.
-		$this->add_js_var_head('XpWiki.SkinName["'.$this->root->mydirname.'"]', $this->cont['SKIN_NAME']);
 		
 		// Head Tags
 		list($head_pre_tag, $head_tag) = $this->get_additional_headtags();
@@ -3739,7 +3736,7 @@ EOD;
 
 //----- Start mail.php -----//
 	// PukiWiki - Yet another WikiWikiWeb clone.
-	// $Id: pukiwiki_func.php,v 1.198 2009/02/22 01:38:03 nao-pon Exp $
+	// $Id: pukiwiki_func.php,v 1.199 2009/02/24 00:08:52 nao-pon Exp $
 	// Copyright (C)
 	//   2003-2005 PukiWiki Developers Team
 	//   2003      Originally written by upk
@@ -4042,7 +4039,7 @@ EOD;
 
 //----- Start link.php -----//
 	// PukiWiki - Yet another WikiWikiWeb clone
-	// $Id: pukiwiki_func.php,v 1.198 2009/02/22 01:38:03 nao-pon Exp $
+	// $Id: pukiwiki_func.php,v 1.199 2009/02/24 00:08:52 nao-pon Exp $
 	// Copyright (C) 2003-2006 PukiWiki Developers Team
 	// License: GPL v2 or (at your option) any later version
 	//
