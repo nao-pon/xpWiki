@@ -19,6 +19,7 @@ XpWiki.RendererPage = '$RendererPage';
 XpWiki.FCKSmileys = $fck_smileys;
 XpWiki.FCKeditor_path = '$fckeditor_path';
 XpWiki.FCKxpwiki_path = '$fckxpwiki_path';
+$skinname
 
 var xpwiki_ajax_edit_var = new Object();
 xpwiki_ajax_edit_var['id'] = '';
