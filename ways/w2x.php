@@ -2,7 +2,7 @@
 /*
  * Created on 2008/10/23 by nao-pon http://hypweb.net/
  * License: GPL v2 or (at your option) any later version
- * $Id: w2x.php,v 1.14 2009/02/23 09:03:19 nao-pon Exp $
+ * $Id: w2x.php,v 1.15 2009/02/24 00:18:01 nao-pon Exp $
  */
 
 //
@@ -344,12 +344,16 @@ class InlineConverterEx {
 	}
 
 	function convert($line, $link = TRUE, $enc = TRUE) {
+		global $xpwiki;
+		
 		if ($enc) {
 			$line = htmlspecialchars($line);
 		}
 
 		// easy ref ( {{filename|alias}} )
-		$line = preg_replace('/\{\{([^{}\|]*)([^{}]*)\}\}/', '&amp;ref($1){$2};', $line);
+		if ($xpwiki->root->easy_ref_syntax) {
+			$line = preg_replace('/\{\{([^{}\r\n]+?)(?:\|([^{}\r\n]*?))?\}\}/', '&amp;ref($1){$2};', $line);
+		}
 		
 		// インライン・プラグイン
 		$pattern = '/&amp;(\w+)(?:\(((?:(?!\)[;{]).)*)\))?(?:\{((?:(?R)|(?!};).)*)\})?;/';
@@ -701,7 +705,7 @@ function & Factory_DivEx(& $root, $text)
 		}
 	} else {
 		// Hack code
-		if (preg_match('/^#([^\(\{]+)(?:\(([^\r]*)\))?(\{*)\s*$/', $text, $matches)) {
+		if (preg_match('/^#([^\(\{]+)(?:\(([^\r]*)\))?(\{*)/', $text, $matches)) {
 			$len  = strlen($matches[3]);
 			$body = array();
 			if ($len == 0) {
@@ -709,6 +713,8 @@ function & Factory_DivEx(& $root, $text)
 			} else if (preg_match('/\{{' . $len . '}\s*\r(.*)\r\}{' . $len . '}/', $text, $body)) { 
 				$matches[3] .= "\r" . $body[1] . "\r" . str_repeat('}', $len);
 				$ret = & new DivEx($matches); // Seems multiline-enabled block plugin
+			} else {
+				$ret = & new ParagraphEx($text);
 			}
 			return $ret;
 		}
