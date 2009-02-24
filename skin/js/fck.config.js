@@ -108,6 +108,5 @@ FCKConfig.SmileyColumns = 8 ;
 FCKConfig.SmileyWindowWidth		= 320 ;
 FCKConfig.SmileyWindowHeight	= 200 ;
 
-//FCKConfig.UseBROnCarriageReturn = true ; // IE only.
-//FCKConfig.FormatOutput = true ;
-//FCKConfig.FormatSource = true ;
+// Non Protect
+FCKConfig.ProtectedSource.RegexEntries = [];
