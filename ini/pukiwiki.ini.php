@@ -1,6 +1,6 @@
 <?php
 // PukiWiki - Yet another WikiWikiWeb clone
-// $Id: pukiwiki.ini.php,v 1.89 2009/03/02 01:38:51 nao-pon Exp $
+// $Id: pukiwiki.ini.php,v 1.90 2009/03/02 09:28:17 nao-pon Exp $
 // Copyright (C)
 //   2002-2006 PukiWiki Developers Team
 //   2001-2002 Originally written by yu-ji
@@ -670,6 +670,10 @@ $root->agents = array(
 	// Sample: "Mozilla/5.0 (Windows; U; Windows NT 5.0; ja-JP; rv:1.7) Gecko/20040803 Firefox/0.9.3"
 	array('pattern'=>'#\b(Firefox)/([0-9\.]+)\b#',	'profile'=>'default'),
 	
+	// Google Chrome
+	// Sample: "Mozilla/5.0 (Windows; U; Windows NT 5.1; en-US) AppleWebKit/525.19 (KHTML, like Gecko) Chrome/1.0.154.48 Safari/525.19"
+    array('pattern'=>'#\b(Chrome)(?:/([0-9\.]+))?\b#',	'profile'=>'default'),
+
 	// Mac Safari
 	// Sample: "Mozilla/5.0 (Macintosh; U; PPC Mac OS X; ja-jp) AppleWebKit/416.11 (KHTML, like Gecko) Safari/416.12"
     array('pattern'=>'#\b(Safari)(?:/([0-9\.]+))?\b#',	'profile'=>'default'),
