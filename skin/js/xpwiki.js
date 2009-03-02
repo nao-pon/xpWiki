@@ -702,6 +702,15 @@ var XpWiki = {
 		replace(/'/g,"&#039;");
 	},
 
+	unhtmlspecialchars: function (str) {
+		return str.
+		replace(/&lt;/g,"<").
+		replace(/&gt;/g,">").
+		replace(/&quot;/g,"\"").
+		replace(/&#039;/g,"'").
+		replace(/&amp;/g,"&");
+	},
+	
 	rawurlencode: function (str) {
 		try {
 			return encodeURIComponent(str)
@@ -889,7 +898,11 @@ var XpWiki = {
 		if (this.isIE6) {
 			this.PopupHide();
 		}
-		var v = "&ref("+file+size+");";
+		file = this.unhtmlspecialchars(file);
+		if (file.match(/[",]/)) {
+			file = '"' + file.replace('"', '""') + '"';
+		}
+		var v = '&ref('+file+size+');';
 		wikihelper_ins(v);
 		
 		return false;
