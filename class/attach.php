@@ -1,7 +1,7 @@
 <?php
 /*
  * Created on 2008/03/24 by nao-pon http://hypweb.net/
- * $Id: attach.php,v 1.14 2009/03/02 01:41:30 nao-pon Exp $
+ * $Id: attach.php,v 1.15 2009/03/02 09:29:15 nao-pon Exp $
  */
 
 //-------- クラス
@@ -620,35 +620,42 @@ EOD;
 		
 		$filename = $this->status['org_fname'];
 
+		$format = 'name="%1$s"';
+		$encode = $this->cont['SOURCE_ENCODING'];
 		// Care for Japanese-character-included file name
 		if ($this->cont['LANG'] === 'ja') {
 			switch($this->cont['UA_NAME']){
-				//case 'Safari':
-				//	$filename = '';
-				//	break;
+				case 'Opera':
+				case 'Firefox':
+					// RFC 2231 ( http://www.ietf.org/rfc/rfc2231.txt )
+					$format = 'name*=%2$s\'ja\'%1$s';
+					$filename = rawurlencode($filename);
+					break;
 				case 'MSIE':
 					$filename = mb_convert_encoding($filename, 'SJIS-WIN', $this->cont['SOURCE_ENCODING']);
 					break;
 				default:
-					// Care for using _auto-encode-detecting_ function
-					$filename = mb_convert_encoding($filename, 'UTF-8', $this->cont['SOURCE_ENCODING']);
+					$format = 'name="%1$s"; charset=UTF-8';
+					$encode = 'UTF-8';
+					$filename = mb_convert_encoding($filename, $encode, $this->cont['SOURCE_ENCODING']);
 			}
 		}
 		if (strpos(strtolower($this->root->ua), 'windows') !== FALSE) {
 			$filename = str_replace(array(':', '*', '?', '"', '<', '>', '|'), '_', $filename);
 		}
-
+		$filename = sprintf($format, $filename, $encode);
+		
 		ini_set('default_charset','');
 		mb_http_output('pass');
 		
 		// 画像以外(管理者所有を除く)はダウンロード扱いにする(XSS対策)
 		if ($this->is_allow_inline()) {
-			header('Content-Disposition: inline; filename="'.$filename.'"');
+			header('Content-Disposition: inline; file' . $filename);
 		} else 	{
-			header('Content-Disposition: attachment; filename="'.$filename.'"');
+			header('Content-Disposition: attachment; file' . $filename);
 		}
 		header('Content-Length: '.$this->size);
-		header('Content-Type: '.$this->type);
+		header('Content-Type: '.$this->type.'; '.$filename);
 		header('Last-Modified: '  . gmdate( "D, d M Y H:i:s", $this->time ) . " GMT" );
 		header('Etag: '. $etag);
 		header('Cache-Control: private');
