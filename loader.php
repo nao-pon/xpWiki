@@ -1,7 +1,7 @@
 <?php
 //
 // Created on 2006/10/25 by nao-pon http://hypweb.net/
-// $Id: loader.php,v 1.58 2009/02/24 00:10:10 nao-pon Exp $
+// $Id: loader.php,v 1.59 2009/03/02 01:57:50 nao-pon Exp $
 //
 
 ignore_user_abort(FALSE);
@@ -73,6 +73,8 @@ if ($type !== 'css') {
 		exit();
 	}
 }
+
+define('UNIX_TIME', (isset($_SERVER['REQUEST_TIME'])? $_SERVER['REQUEST_TIME'] : time()));
 
 switch ($type) {
 	case 'css':
@@ -177,9 +179,9 @@ switch ($type) {
 				}
 			} else 	if ($_src === 'main') {
 				$js_replaces[] = $_src;
-				$face_remake = (!is_file($face_cache) || filemtime($face_cache) + $face_tag_maxage < time());
+				$face_remake = (!is_file($face_cache) || filemtime($face_cache) + $face_tag_maxage < UNIX_TIME);
 				if ($face_remake) {
-					$addtime = time();
+					$addtime = UNIX_TIME;
 				} else {
 					$chk = array();
 					$chk[] = $face_cache;
@@ -232,6 +234,8 @@ if (!$src_file) {
 	$src_file = dirname(__FILE__)."/skin/{$basedir}{$type}/".preg_replace("/[^\w.]/","",$src.$pre_id).".$type";
 }
 
+$expires = 'Expires: ' . gmdate( "D, d M Y H:i:s", UNIX_TIME + $maxage ) . ' GMT';
+
 if ($type === 'js' || $type === 'css' || is_file($src_file)) {
 
 	$filetime = max(filemtime(__FILE__), get_filemtime($src_file), $addtime);
@@ -278,6 +282,7 @@ if ($type === 'js' || $type === 'css' || is_file($src_file)) {
 		header( 'Content-Type: ' . $c_type );
 		header( 'Last-Modified: ' . gmdate( 'D, d M Y H:i:s', $filetime ) . ' GMT' );
 		header( 'Cache-Control: max-age=' . $maxage );
+		header( $expires );
 		header( 'Etag: '. $etag );
 		header( 'Content-length: '.filesize($cache_file) );
 		
@@ -433,6 +438,7 @@ if ($type === 'js' || $type === 'css' || is_file($src_file)) {
 		header( 'Pragma: no-cache' );
 	} else {
 		header( 'Cache-Control: public, max-age=' . $maxage );
+		header( $expires );
 	}
 	header( 'Etag: '. $etag );
 	header( 'Content-length: '.$length );
@@ -481,8 +487,13 @@ function xpwiki_make_facemarks (& $wiki, $skin_dirname, $cache, $face_tag_ver) {
 }
 
 function xpwiki_pagecss_filter (& $css, $chrctor) {
-	if (! extension_loaded('mbstring') && ! class_exists('HypMBString')) {
-		include(XOOPS_TRUST_PATH . '/class/hyp_common/mbemulator/mb-emulator.php');
+	if (! extension_loaded('mbstring')) {
+		if (! function_exists('XC_CLASS_EXISTS')) {
+			include XOOPS_TRUST_PATH . '/class/hyp_common/XC_CLASS_EXISTS.inc.php';
+		}
+		if (! XC_CLASS_EXISTS('HypMBString')) {
+			include XOOPS_TRUST_PATH . '/class/hyp_common/mbemulator/mb-emulator.php';
+		}
 	}
 	$css = mb_convert_kana($css, 'asKV', mb_detect_encoding($css));
 	$css = preg_replace('/(expression|javascript|vbscript|@import|cookie|eval|behavior|behaviour|binding|include-source|@i|[\x00-\x08\x0e-\x1f\x7f]+|\\\(?![\'"{};:()#A*]))/i', '', $css);
