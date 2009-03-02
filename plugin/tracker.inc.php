@@ -1,6 +1,6 @@
 <?php
 // PukiWiki - Yet another WikiWikiWeb clone
-// $Id: tracker.inc.php,v 1.19 2009/02/22 02:01:56 nao-pon Exp $
+// $Id: tracker.inc.php,v 1.20 2009/03/02 01:31:22 nao-pon Exp $
 // ORG: tracker.inc.php,v 1.57 2007/09/20 15:17:20 henoheno Exp $
 // Issue tracker plugin (See Also bugtrack plugin)
 
@@ -234,7 +234,7 @@ EOD;
 			// $field[3]: Option ("size", "cols", "rows", etc)
 			// $field[4]: Default value
  			$class = 'XpWikiTracker_field_'.$field[2];
-			if (!class_exists($class)) {
+			if (!XC_CLASS_EXISTS($class)) {
 				// Default
 				$field[2] = 'text';
 				$class    = 'XpWikiTracker_field_' . $field[2];

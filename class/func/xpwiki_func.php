@@ -1,7 +1,7 @@
 <?php
 //
 // Created on 2006/10/02 by nao-pon http://hypweb.net/
-// $Id: xpwiki_func.php,v 1.203 2009/02/22 02:01:56 nao-pon Exp $
+// $Id: xpwiki_func.php,v 1.204 2009/03/02 01:31:22 nao-pon Exp $
 //
 class XpWikiFunc extends XpWikiXoopsWrapper {
 
@@ -121,13 +121,13 @@ class XpWikiFunc extends XpWikiXoopsWrapper {
 			if (isset($plugin_files['system'])) {
 				require_once($plugin_files['system']);
 				$class_name = "xpwiki_plugin_{$name}";
-				if (class_exists($class_name)) {
+				if (XC_CLASS_EXISTS($class_name)) {
 					$count[$this->xpwiki->pid][$name] = 1;
 					$ret = $class_name;
 					if (isset($plugin_files['user'])) {
 						require_once($plugin_files['user']);
 						$class_name = "xpwiki_".$this->root->mydirname."_plugin_{$name}";
-						if (class_exists($class_name)) {
+						if (XC_CLASS_EXISTS($class_name)) {
 							$ret = $class_name;
 						}
 					}
@@ -1505,10 +1505,10 @@ EOD;
 	function output_ajax ($body) {
 		// K-Tai EMOJI
 		if (defined('HYP_K_TAI_RENDER') && preg_match('/\(\([eis]:[0-9a-f]{4}\)\)/S', $body)) {
-			if (! class_exists('MobilePictogramConverter')) {
+			if (! XC_CLASS_EXISTS('MobilePictogramConverter')) {
 				HypCommonFunc::loadClass('MobilePictogramConverter');
 			}
-			if (class_exists('MobilePictogramConverter')) {
+			if (XC_CLASS_EXISTS('MobilePictogramConverter')) {
 				$mpc =& MobilePictogramConverter::factory_common();
 				$mpc->setImagePath(XOOPS_URL . '/images/emoji');
 				$mpc->setString($body, FALSE);

@@ -1,7 +1,7 @@
 <?php
 //
 // Created on 2006/11/17 by nao-pon http://hypweb.net/
-// $Id: dbsync.inc.php,v 1.34 2009/02/01 07:55:32 nao-pon Exp $
+// $Id: dbsync.inc.php,v 1.35 2009/03/02 01:31:22 nao-pon Exp $
 //
 
 class xpwiki_plugin_dbsync extends xpwiki_plugin {
@@ -161,7 +161,7 @@ __EOD__;
 	
 	function do_dbupdate() {
 		
-		if (class_exists('XoopsErrorHandler')) {
+		if (XC_CLASS_EXISTS('XoopsErrorHandler')) {
 			$xoopsErrorHandler =& XoopsErrorHandler::getInstance();
 			$xoopsErrorHandler->activate(true);
 		}
