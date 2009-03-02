@@ -1,7 +1,7 @@
 <?php
 /*
  * Created on 2008/03/24 by nao-pon http://hypweb.net/
- * $Id: attach.php,v 1.13 2009/02/22 02:01:56 nao-pon Exp $
+ * $Id: attach.php,v 1.14 2009/03/02 01:41:30 nao-pon Exp $
  */
 
 //-------- クラス
@@ -27,7 +27,8 @@ class XpWikiAttachFile
 			'md5'      => '',
 			'admins'   => 0,
 			'org_fname'=> '',
-			'imagesize'=> NULL
+			'imagesize'=> NULL,
+			'noinline' => 0
 		);
 	var $action = 'update';
 	var $dbinfo = array();
@@ -69,7 +70,7 @@ class XpWikiAttachFile
 		// ログファイル取得
 		if (file_exists($this->logname))
 		{
-			$data = file($this->logname);
+			$data = array_pad(file($this->logname), count($this->status), '');
 			foreach ($this->status as $key=>$value)
 			{
 				$this->status[$key] = chop(array_shift($data));
@@ -85,7 +86,14 @@ class XpWikiAttachFile
 		}
 		$this->time_str = $this->func->get_date('Y/m/d H:i:s',$this->time);
 		$this->size = isset($this->dbinfo['size'])? $this->dbinfo['size'] : filesize($this->filename);
-		$this->size_str = sprintf('%01.1f',round($this->size)/1024,1).'KB';
+		if ($this->size < 103) {
+			$this->size_str = round($this->size) . 'B';
+		} else if ($this->size < 1024 * 1024) {
+			$this->size_str = sprintf('%01.1f',$this->size/1024,1).'KB';
+		} else {
+			$this->size_str = sprintf('%01.1f',$this->size/(1024*1024),1).'MB';
+		}
+		//$this->size_str = sprintf('%01.1f',round($this->size)/1024,1).'KB';
 		$this->type = isset($this->dbinfo['type'])? $this->dbinfo['type'] : xpwiki_plugin_attach::attach_mime_content_type($this->filename, $this->status);
 		$this->owner_id = intval($this->status['owner']);
 		$user = $this->func->get_userinfo_by_id($this->status['owner']);
@@ -125,12 +133,6 @@ class XpWikiAttachFile
 	// Get attachDB info
 	function get_dbinfo () {
 		$this->dbinfo = $this->func->get_attachdbinfo($this->id);
-		/*
-		$query = 'SELECT `type`, `mtime`, `size` FROM '.$this->xpwiki->db->prefix($this->root->mydirname.'_attach').' WHERE `id`=\''.$this->id.'\' LIMIT 1';
-		if ($result = $this->xpwiki->db->query($query)) {
-			$this->dbinfo = $this->xpwiki->db->fetchArray($result);
-		}
-		*/
 	}
 	
 	// attach DB 更新
@@ -182,7 +184,7 @@ class XpWikiAttachFile
 		if ($showinfo) {
 			$_title = str_replace('$1',rawurlencode($this->file),$this->root->_attach_messages['msg_info']);
 			if (isset($this->root->vars['popup']) && $this->root->vars['cmd'] !== 'read') {
-				$info = '[ &build_js(refInsert,"'.htmlspecialchars($this->file).'",'.$this->type.'); ]';
+				$info = '[ &build_js(refInsert,"'.str_replace('|', '&#124;', htmlspecialchars($this->file, ENT_QUOTES)).'",'.$this->type.'); ]';
 			} else {
 				if ($mode == "imglist") {
 					$info = "[ [[{$this->root->_attach_messages['btn_info']}:{$this->root->script}?plugin=attach&pcmd=info".str_replace("&amp;","&", ($param . $param2))."]] ]";
@@ -197,7 +199,7 @@ class XpWikiAttachFile
 			if ($this->age) {
 				return "&size(12){".$label.$info."};";
 			} else {
-				return "&size(12){&ref(\"".$this->func->strip_bracket($this->page)."/".$this->file."\"".$this->cont['ATTACH_CONFIG_REF_OPTION'].");&br();".$info."};";
+				return "&size(12){&ref(\"".str_replace(array('"', '|'), array('""', '&#124;'), $this->page."/".$this->file)."\"".$this->cont['ATTACH_CONFIG_REF_OPTION'].");&br();".$info."};";
 			}
 		} else {
 			return "<a href=\"{$this->cont['HOME_URL']}gate.php?way=attach&amp;_noumb{$param}open{$param2}\" title=\"{$title}\">{$label}</a>{$count}{$info}";
@@ -265,7 +267,7 @@ EOD;
 			// refプラグインで表示
 			if ($this->func->exist_plugin_inline("ref"))
 			{
-				$ref .= "<dd><hr /></dd><dd>".$this->func->do_plugin_inline("ref", $this->page."/".$this->file.$this->cont['ATTACH_CONFIG_REF_OPTION'])."</dd>\n";
+				$ref .= "<dd><hr /></dd><dd>".$this->func->do_plugin_inline("ref", '"'. $this->page.'/'.str_replace('"', '""', $this->file) . '"' . $this->cont['ATTACH_CONFIG_REF_OPTION'])."</dd>\n";
 			}
 			
 			if ($this->status['freeze'])
@@ -297,6 +299,17 @@ EOD;
 					$msg_copyright  = '<input type="radio" id="pcmd_c" name="pcmd" value="copyright1" /><label for="pcmd_c">'.$this->root->_attach_messages['msg_copyright'].'</label>';
 				}
 				$msg_copyright .= $msg_require.'<br />';
+				if ($this->root->userinfo['admin']) {
+					$allow_inlne = $this->is_allow_inline()? '1' : '-1';
+					$noinline_m = $noinline = (intval($this->status['noinline']) === 0)? $allow_inlne : '0';
+					if ($noinline === '0') {
+						$noinline_m .= $allow_inlne;
+					}
+					$msg_noinline = '<input type="radio" id="pcmd_n" name="pcmd" value="noinline'.$noinline.'" /><label for="pcmd_n">'.$this->root->_attach_messages['msg_noinline'.$noinline_m].'</label>';
+					$msg_noinline .= '<br />';
+				} else {
+					$msg_noinline = '';
+				}
 			}
 		}
 		$info = $this->toString(TRUE,FALSE);
@@ -356,10 +369,12 @@ EOD;
   <input type="hidden" name="refer" value="$s_page" />
   <input type="hidden" name="file" value="$s_file" />
   <input type="hidden" name="age" value="{$this->age}" />
+  <input type="hidden" name="docmd" value="1" />
   $msg_delete
   $msg_freeze
   $msg_rename
   $msg_copyright
+  $msg_noinline
   $pass
   <input type="submit" value="{$this->root->_attach_messages['btn_submit']}" />
  </div>
@@ -555,9 +570,46 @@ EOD;
 		
 		return array('msg'=>$this->root->_attach_messages[$copyright ? 'msg_copyrighted' : 'msg_uncopyrighted'],'redirect'=>$redirect);
 	}
+	function noinline($noinline,$pass)
+	{
+		$uid = $this->func->get_pg_auther($this->root->vars['page']);
+		if (!$this->root->userinfo['admin'])
+		// 管理者以外
+		{
+			if (! $this->func->pkwk_login($pass)) {
+				return xpwiki_plugin_attach::attach_info('err_adminpass');
+			}
+		}
+		
+		$this->getstatus();
+		$this->status['noinline'] = $noinline;
+		$this->putstatus();
+		
+		$param  = '&file='.rawurlencode($this->file).'&refer='.rawurlencode($this->page).
+			($this->age ? '&age='.$this->age : '');
+		$redirect = "{$this->root->script}?plugin=attach&pcmd=info$param";
+		
+		return array('msg'=>$this->root->_attach_messages[$noinline != 0 ? 'msg_noinlined' : 'msg_unnoinlined'],'redirect'=>$redirect);
+	}
+
 	function open()
 	{
 		$this->getstatus();
+
+		// clear output buffer
+		while( ob_get_level() ) {
+			ob_end_clean() ;
+		}
+		$etag = $this->status['md5'] . ($this->status['copyright']? '1' : '0') . $this->status['noinline'];
+		$expires = 'Expires: ' . gmdate( "D, d M Y H:i:s", $this->cont['UTC'] + $this->cont['BROWSER_CACHE_MAX_AGE'] ) . ' GMT';
+		if ($etag == @ $_SERVER["HTTP_IF_NONE_MATCH"]) {
+			header('HTTP/1.1 304 Not Modified' );
+			header('Cache-Control: private');
+			header('Pragma:');
+			header($expires);
+			exit();
+		}
+
 		if (!$this->is_owner())
 		{
 			if ($this->status['copyright'])
@@ -569,47 +621,40 @@ EOD;
 		$filename = $this->status['org_fname'];
 
 		// Care for Japanese-character-included file name
-		if ($this->cont['LANG'] == 'ja') {
-			switch($this->cont['UA_NAME'] . '/' . $this->cont['UA_PROFILE']){
-			case 'Opera/default':
-				// Care for using _auto-encode-detecting_ function
-				$filename = mb_convert_encoding($filename, 'UTF-8', 'auto');
-				break;
-			case 'MSIE/default':
-				$filename = mb_convert_encoding($filename, 'SJIS', 'auto');
-				break;
+		if ($this->cont['LANG'] === 'ja') {
+			switch($this->cont['UA_NAME']){
+				//case 'Safari':
+				//	$filename = '';
+				//	break;
+				case 'MSIE':
+					$filename = mb_convert_encoding($filename, 'SJIS-WIN', $this->cont['SOURCE_ENCODING']);
+					break;
+				default:
+					// Care for using _auto-encode-detecting_ function
+					$filename = mb_convert_encoding($filename, 'UTF-8', $this->cont['SOURCE_ENCODING']);
 			}
 		}
-		$filename = htmlspecialchars($filename);
-
-		// clear output buffer
-		while( ob_get_level() ) {
-			ob_end_clean() ;
+		if (strpos(strtolower($this->root->ua), 'windows') !== FALSE) {
+			$filename = str_replace(array(':', '*', '?', '"', '<', '>', '|'), '_', $filename);
 		}
 
 		ini_set('default_charset','');
 		mb_http_output('pass');
 		
-		// SSL環境にIEでアクセスするとファイルが開けないバグ対策 orz...
-		if ($this->cont['UA_NAME'] === 'MSIE' && strtolower($this->cont['HOME_URL']{4}) === 's') {
-			header('Pragma:');
-			header('Cache-Control:');
-		}
-		
 		// 画像以外(管理者所有を除く)はダウンロード扱いにする(XSS対策)
-		$_i_size = getimagesize($this->filename);
-		if (! isset($_i_size[2]) || $_i_size[2] === 4) $_i_size[2] = FALSE;
-		if ($this->status['admins'] || $_i_size[2])
-		{
+		if ($this->is_allow_inline()) {
 			header('Content-Disposition: inline; filename="'.$filename.'"');
-		}
-		else
-		{
+		} else 	{
 			header('Content-Disposition: attachment; filename="'.$filename.'"');
 		}
-		
 		header('Content-Length: '.$this->size);
 		header('Content-Type: '.$this->type);
+		header('Last-Modified: '  . gmdate( "D, d M Y H:i:s", $this->time ) . " GMT" );
+		header('Etag: '. $etag);
+		header('Cache-Control: private');
+		header('Pragma:');
+		header($expires);
+
 		@readfile($this->filename);
 		exit;
 	}
@@ -665,6 +710,45 @@ EOD;
 			if ($this->root->userinfo['ucd'] === $this->status['ucd']) return TRUE;
 		}
 		return FALSE;
+	}
+	
+	function is_allow_inline () {
+		$status = $this->status;
+		$noinline = intval($status['noinline']);
+
+		$return = false;
+		if ($noinline > 0) {
+			$return = false;
+		} else if ($noinline < 0) {
+			$return = true;
+		} else {
+			if ($status['imagesize']) {
+				if ($status['imagesize'][2] === 4 || $status['imagesize'][2] === 13) {
+					// Flash のインライン表示権限チェック
+					if ($this->cont['PLUGIN_REF_FLASH_INLINE'] === 3) {
+						// すべて許可
+						$return = true;
+					} else if ($this->cont['PLUGIN_REF_FLASH_INLINE'] === 2) {
+						// 登録ユーザー所有のみ許可
+						if ($status['owner'] > 0) {
+							$return = true;
+						}
+					} else if ($this->cont['PLUGIN_REF_FLASH_INLINE'] === 1) {
+						// 管理人所有のみ許可
+						if ($status['admins']) {
+							$return = true;
+						}
+					}
+				} else {
+					$return = true;
+				}
+			} else {
+				if ($status['admins']) {
+					$return = true;
+				}
+			}
+		}
+		return $return;
 	}
 }
 	
@@ -730,7 +814,6 @@ class XpWikiAttachFiles
 		if ($otherprams) {
 			$otherparm = '&amp;' . join('&amp;', $otherprams);
 		}
-		$otherUrl = 'http://xoops.hypweb.net/modules/UsersWiki/'."?plugin=attach&amp;pcmd=imglist&amp;refer=FrontPage".$otherparm;
 		
 		if (!$fromall)
 		{
@@ -831,7 +914,7 @@ class XpWikiAttachFiles
 			$ret = "<ul>\n$ret</ul>";
 		}
 		
-		$otherDir = $select = $form = '';
+		$select_js = $otherDir = $select = $form = '';
 		if ($this->is_popup) {
 			$dirs = $otherDirs = array();
 			if ($handle = opendir($this->cont['MODULE_PATH'])) {

@@ -1,5 +1,5 @@
 <?php
-// $Id: ref.inc.php,v 1.40 2009/02/22 02:01:56 nao-pon Exp $
+// $Id: ref.inc.php,v 1.41 2009/03/02 01:41:30 nao-pon Exp $
 /*
 
 	*プラグイン ref
@@ -75,7 +75,8 @@ class xpwiki_plugin_ref extends xpwiki_plugin {
 		// Flash ファイルのインライン表示設定
 		// ファイルオーナーが...すべて禁止:0 , 管理人のみ:1 , 登録ユーザーのみ:2 , すべて許可:3
 		// セキュリティ上、0 or 1 での運用を強く奨励
-		$this->cont['PLUGIN_REF_FLASH_INLINE'] = 1;
+		// $this->cont['PLUGIN_REF_FLASH_INLINE'] = 1;
+		// 上記設定は pukiwiki.ini.php に移動しました。
 		
 		// Exif データを取得し title属性に付加する (TRUE or FALSE)
 		$this->cont['PLUGIN_REF_GET_EXIF'] = FALSE;
@@ -93,21 +94,40 @@ class xpwiki_plugin_ref extends xpwiki_plugin {
 		
 		$page     = $this->root->vars['page'];
 		$filename = $this->root->vars['src'] ;
+		$ref = $this->cont['UPLOAD_DIR'] . $this->func->encode($page) . '_' . $this->func->encode(preg_replace('#^.*/#', '', $filename));
 		
+		$mtime = filemtime($ref);
+		$etag = '"' . $mtime . '"';
+		$expires = 'Expires: ' . gmdate( "D, d M Y H:i:s", $this->cont['UTC'] + $this->cont['BROWSER_CACHE_MAX_AGE'] ) . ' GMT';
+				
+		if ($etag == @ $_SERVER["HTTP_IF_NONE_MATCH"]) {
+			// clear output buffer
+			while( ob_get_level() ) {
+				ob_end_clean() ;
+			}
+			header('HTTP/1.1 304 Not Modified' );
+			header('Cache-Control: private, max-age=' . $this->cont['BROWSER_CACHE_MAX_AGE']);
+			header('Pragma:');
+			header($expires);
+			exit();
+		}
+
 		if (!$this->func->check_readable($page, true, true)) {
 			return array('msg'=>'Not readable.', 'body'=>"\n");
 		}
 		
-		$ref = $this->cont['UPLOAD_DIR'] . $this->func->encode($page) . '_' . $this->func->encode(preg_replace('#^.*/#', '', $filename));
 		if(! file_exists($ref))
 			return array('msg'=>'Attach file not found', 'body'=>$usage);
 		
-		if ($this->check_copyright($ref))
+		// ログファイル取得
+		$status = $this->get_fileinfo($ref);
+
+		if ($status['copyright'])
 			return array('msg'=>'Can not show', 'body'=>$usage);
 		
-		$got = $this->getimagesize($ref);
-		if (! isset($got[2])) $got[2] = FALSE;
-		switch ($got[2]) {
+		$imgtype = isset($status['imagesize'][2])? $status['imagesize'][2] : false;
+		if ($status['noinline'] > 0) $imgtype = false;
+		switch ($imgtype) {
 		case 1: $type = 'image/gif' ; break;
 		case 2: $type = 'image/jpeg'; break;
 		case 3: $type = 'image/png' ; break;
@@ -116,20 +136,22 @@ class xpwiki_plugin_ref extends xpwiki_plugin {
 			$type = 'application/x-shockwave-flash';
 			$noimg = FALSE;
 			// Flash のインライン表示権限チェック
-			if ($this->cont['PLUGIN_REF_FLASH_INLINE'] === 0) {
-				// すべて禁止
-				$noimg = TRUE;
-			} else if ($this->cont['PLUGIN_REF_FLASH_INLINE'] === 1) {
-				// 管理人所有のみ許可
-				if (! $this->is_admins($ref)) {
+			if ($status['noinline'] > -1) {
+				if ($this->cont['PLUGIN_REF_FLASH_INLINE'] === 0) {
+					// すべて禁止
 					$noimg = TRUE;
-				}
-			} else if ($this->cont['PLUGIN_REF_FLASH_INLINE'] === 2) {
-				// 登録ユーザー所有のみ許可
-				if (! $this->is_users($ref)) {
-					$noimg = TRUE;
-				}
-			} 
+				} else if ($this->cont['PLUGIN_REF_FLASH_INLINE'] === 1) {
+					// 管理人所有のみ許可
+					if (! $status['admins']) {
+						$noimg = TRUE;
+					}
+				} else if ($this->cont['PLUGIN_REF_FLASH_INLINE'] === 2) {
+					// 登録ユーザー所有のみ許可
+					if (! $status['owner']) {
+						$noimg = TRUE;
+					}
+				} 
+			}
 			if ($noimg) return array('msg'=>'Can not show this Flash', 'body'=>$usage);
 			break;
 		default:
@@ -137,46 +159,41 @@ class xpwiki_plugin_ref extends xpwiki_plugin {
 		}
 	
 		// Care for Japanese-character-included file name
-		if ($this->cont['LANG'] == 'ja') {
-			switch($this->cont['UA_NAME'] . '/' . $this->cont['UA_PROFILE']){
-			case 'Opera/default':
-				// Care for using _auto-encode-detecting_ function
-				$filename = mb_convert_encoding($filename, 'UTF-8', 'auto');
-				break;
-			case 'MSIE/default':
-				$filename = mb_convert_encoding($filename, 'SJIS', 'auto');
-				break;
+		if ($this->cont['LANG'] === 'ja') {
+			switch($this->cont['UA_NAME']){
+				//case 'Safari':
+				//	$filename = '';
+				//	break;
+				case 'MSIE':
+					$filename = mb_convert_encoding($filename, 'SJIS-WIN', $this->cont['SOURCE_ENCODING']);
+					break;
+				default:
+					// Care for using _auto-encode-detecting_ function
+					$filename = mb_convert_encoding($filename, 'UTF-8', $this->cont['SOURCE_ENCODING']);
 			}
 		}
+		if (strpos(strtolower($this->root->ua), 'windows') !== FALSE) {
+			$filename = str_replace(array(':', '*', '?', '"', '<', '>', '|'), '_', $filename);
+		}
 		
+		$size = filesize($ref);
+
+		// Output
 		// clear output buffer
 		while( ob_get_level() ) {
 			ob_end_clean() ;
 		}
-
-		$etag = filemtime($ref);
-		if ($etag == @$_SERVER["HTTP_IF_NONE_MATCH"]) {
-			header('HTTP/1.1 304 Not Modified' );
-			header('Etag: '. $etag );
-			header('Cache-Control: private');
-			header('Pragma: ');
-			exit();
-		}		
-		
-		$file = htmlspecialchars($filename);
-		$size = filesize($ref);
-
-		// Output
 		$this->func->pkwk_common_headers();
 		header('Content-Disposition: inline; filename="' . $filename . '"');
 		header('Content-Length: ' . $size);
 		header('Content-Type: '   . $type);
-		header('Last-Modified: '  . gmdate( "D, d M Y H:i:s", filemtime($ref) ) . " GMT" );
+		header('Last-Modified: '  . gmdate( "D, d M Y H:i:s", $mtime ) . " GMT" );
 		header('Etag: '           . $etag );
-		header('Cache-Control: private');
-		header('Pragma: ');
+		header('Cache-Control: private, max-age=' . $this->cont['BROWSER_CACHE_MAX_AGE']);
+		header('Pragma:');
+		header($expires);
 		
-		@readfile($ref);
+		@ readfile($ref);
 		exit;
 	}
 
@@ -308,7 +325,15 @@ class xpwiki_plugin_ref extends xpwiki_plugin {
 		
 		if ($lvar['type'] > 2 ) {
 			// ファイル情報
-			$params['fsize'] = sprintf('%01.1f', round(filesize($lvar['file'])/1024, 1)) . 'KB';
+			$params['fsize'] = filesize($lvar['file']);
+			if ($params['fsize'] < 103) {
+				$params['fsize'] = round($params['fsize']) . 'B';
+			} else if ($params['fsize'] < 1024 * 1024) {
+				$params['fsize'] = sprintf('%01.1f',$params['fsize']/1024,1).'KB';
+			} else {
+				$params['fsize'] = sprintf('%01.1f',$params['fsize']/(1024*1024),1).'MB';
+			}
+			//$params['fsize'] = sprintf('%01.1f', round(filesize($lvar['file'])/1024, 1)) . 'KB';
 			$lvar['info'] = $this->func->get_date('Y/m/d H:i:s', filemtime($lvar['file']) - $this->cont['LOCALZONE']) .
 				' ' . $params['fsize'];
 		} else {
@@ -316,7 +341,7 @@ class xpwiki_plugin_ref extends xpwiki_plugin {
 		}
 
 		// Flash以外
-		if ($lvar['type'] !== 4) {
+		if ($lvar['type'] !== 4 || $lvar['status']['copyright']) {
 			// $img パラメーターセット
 			$img = array(
 				'org_w' => 0,
@@ -369,8 +394,7 @@ class xpwiki_plugin_ref extends xpwiki_plugin {
 				}
 				$lvar['title'][] = (preg_match('/([^\/]+)$/', $lvar['status']['org_fname']? $lvar['status']['org_fname'] : $lvar['name'], $match))? $match[1] : '';
 				
-				$copyright = $this->check_copyright($lvar['file']);
-				if ($copyright) {
+				if ($lvar['status']['copyright']) {
 					//著作権保護されている場合はサイズ$this->cont['PLUGIN_REF_COPYRIGHT_IMG_MAX%']%以内かつ縦横 $this->cont['PLUGIN_REF_COPYRIGHT_IMG_MAX']px 以内で表示
 					$params['_size'] = TRUE;
 					if ($img['org_w'] > $this->cont['PLUGIN_REF_COPYRIGHT_IMG_MAX'] || $img['org_h'] > $this->cont['PLUGIN_REF_COPYRIGHT_IMG_MAX'] ) {
@@ -437,7 +461,7 @@ class xpwiki_plugin_ref extends xpwiki_plugin {
 						// Try direct-access, if possible
 						$lvar['url'] = $lvar['file'];
 					}
-				} else if (!$copyright) {
+				} else if (! $lvar['status']['copyright']) {
 					// リンク先を指定
 					// URI for in-line image output
 					if (! $this->cont['PLUGIN_REF_DIRECT_ACCESS']) {
@@ -458,8 +482,8 @@ class xpwiki_plugin_ref extends xpwiki_plugin {
 					$lvar['title'] = htmlspecialchars(join(', ', $lvar['title']));
 					$lvar['title'] = $this->func->make_line_rules($lvar['title']);
 				}
-			} else if ($lvar['type'] === 5) {
-				// 添付その他
+			} else {
+				// 著作権設定されたFlashと添付その他
 				$lvar['url'] = '';
 				$lvar['link'] = $this->cont['HOME_URL'] . 'gate.php?way=attach&amp;_noumb' . '&amp;refer=' . rawurlencode($lvar['page']) .
 						'&amp;openfile=' . rawurlencode($lvar['name']); // Show its filename at the last
@@ -468,7 +492,7 @@ class xpwiki_plugin_ref extends xpwiki_plugin {
 					$lvar['text'] = htmlspecialchars(join(', ', $lvar['title']));
 					$lvar['title'] = htmlspecialchars(preg_replace('/([^\/]+)$/', "$1", $lvar['status']['org_fname']? $lvar['status']['org_fname'] : $lvar['name']) . ', ' . $lvar['info']);
 				} else {
-					$lvar['text'] = preg_replace('/([^\/]+)$/', "$1", $lvar['status']['org_fname']? $lvar['status']['org_fname'] : $lvar['name']);
+					$lvar['text'] = htmlspecialchars(preg_replace('/([^\/]+)$/', "$1", $lvar['status']['org_fname']? $lvar['status']['org_fname'] : $lvar['name']));
 					$lvar['title'] = htmlspecialchars($lvar['info']);
 				}
 			}
@@ -750,34 +774,28 @@ _HTML_;
 			}
 			
 			// ログファイル取得
-			$lvar['status'] = array('count'=>array(0),'age'=>'','pass'=>'','freeze'=>FALSE,'copyright'=>FALSE,'owner'=>0,'ucd'=>'','uname'=>'','md5'=>'','admins'=>0,'org_fname'=>'');
+			$lvar['status'] = $this->get_fileinfo($lvar['file']);
 			
-			if (file_exists($lvar['file'].'.log'))
-			{
-				$data = file($lvar['file'].'.log');
-				foreach ($lvar['status'] as $key=>$value)
-				{
-					$lvar['status'][$key] = chop(array_shift($data));
+			if ($lvar['status']['noinline'] > 0) {
+				$params['noimg'] = TRUE;
+			} else if ($lvar['status']['noinline'] > -1) {
+				if ($this->is_flash($lvar['file'])) {
+					// Flash のインライン表示権限チェック
+					if ($this->cont['PLUGIN_REF_FLASH_INLINE'] === 0) {
+						// すべて禁止
+						$params['noimg'] = TRUE;
+					} else if ($this->cont['PLUGIN_REF_FLASH_INLINE'] === 1) {
+						// 管理人所有のみ許可
+						if (! $lvar['status']['admins']) {
+							$params['noimg'] = TRUE;
+						}
+					} else if ($this->cont['PLUGIN_REF_FLASH_INLINE'] === 2) {
+						// 登録ユーザー所有のみ許可
+						if (! $lvar['status']['owner']) {
+							$params['noimg'] = TRUE;
+						}
+					} 
 				}
-				$lvar['status']['count'] = explode(',',$lvar['status']['count']);
-			}
-			
-			if ($this->is_flash($lvar['file'])) {
-				// Flash のインライン表示権限チェック
-				if ($this->cont['PLUGIN_REF_FLASH_INLINE'] === 0) {
-					// すべて禁止
-					$params['noimg'] = TRUE;
-				} else if ($this->cont['PLUGIN_REF_FLASH_INLINE'] === 1) {
-					// 管理人所有のみ許可
-					if (! $this->is_admins($lvar['file'])) {
-						$params['noimg'] = TRUE;
-					}
-				} else if ($this->cont['PLUGIN_REF_FLASH_INLINE'] === 2) {
-					// 登録ユーザー所有のみ許可
-					if (! $this->is_users($lvar['file'])) {
-						$params['noimg'] = TRUE;
-					}
-				} 
 			}
 
 			if (!$params['noimg'] && $this->is_picture($lvar['file'])) {
@@ -852,14 +870,6 @@ _HTML_;
 		$img['width'] = $width;
 		$img['height'] = $height;
 	}
-
-	// 著作権情報を調べる
-	function check_copyright($filename)
-	{
-		$status = $this->get_fileinfo($filename);
-		$copyright = $status['copyright'];
-		return $copyright;
-	}
 	
 	// 添付ファイル情報取得
 	function get_fileinfo($file)
@@ -868,21 +878,40 @@ _HTML_;
 		
 		if (isset($ret[$this->xpwiki->pid][$file])) return $ret[$this->xpwiki->pid][$file];
 		
-		$ret[$this->xpwiki->pid][$file] = $this->func->get_attachstatus($file);
+		$ret[$this->xpwiki->pid][$file] = $this->load_attach_log($file);
+		//$ret[$this->xpwiki->pid][$file] = $this->func->get_attachstatus($file);
 		
 		return $ret[$this->xpwiki->pid][$file];
 	}
-	
-	// ファイルは管理者所有?
-	function is_admins ($file) {
-		$info = $this->get_fileinfo($file);
-		return $info['admins'];
-	}
-	
-	// ファイルはログインユーザー所有?
-	function is_users ($file) {
-		$info = $this->get_fileinfo($file);
-		return $info['owner'];
+
+	// attach ログファイル取得
+	function load_attach_log($file) {
+		$status = array(
+			'count'    => array(0),
+			'age'      => '',
+			'pass'     => '',
+			'freeze'   => FALSE,
+			'copyright'=> FALSE,
+			'owner'    => 0,
+			'ucd'      => '',
+			'uname'    => '',
+			'md5'      => '',
+			'admins'   => 0,
+			'org_fname'=> '',
+			'imagesize'=> NULL,
+			'noinline' => 0
+		);			
+		if (file_exists($file.'.log'))
+		{
+			$data = array_pad(file($file.'.log'), count($status), '');
+			foreach ($status as $key=>$value)
+			{
+				$status[$key] = chop(array_shift($data));
+			}
+			$status['count'] = explode(',',$status['count']);
+			$status['imagesize'] = @ unserialize($status['imagesize']);
+		}
+		return $status;
 	}
 
 	// イメージサイズを取得
