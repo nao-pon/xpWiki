@@ -1,6 +1,6 @@
 <?php
 // PukiWiki - Yet another WikiWikiWeb clone
-// $Id: pukiwiki.ini.php,v 1.88 2009/01/19 01:17:35 nao-pon Exp $
+// $Id: pukiwiki.ini.php,v 1.89 2009/03/02 01:38:51 nao-pon Exp $
 // Copyright (C)
 //   2002-2006 PukiWiki Developers Team
 //   2001-2002 Originally written by yu-ji
@@ -40,10 +40,21 @@ $const['PKWK_DISABLE_INLINE_IMAGE_FROM_URI'] = 0;
 // 外部サイトのファイルは ref プラグインを使用して表示する
 $const['SHOW_EXTIMG_BY_REF'] = TRUE;
 
+// In-line display setting of Flash file
+// The file owner is ... Disable of all: 0, Only the manager: 1, Only the registered user :2, Allow of all: 3. 
+// 0 or 1 is strongly encouraged. 
+// Flash ファイルのインライン表示設定
+// ファイルオーナーが...すべて禁止:0 , 管理人のみ:1 , 登録ユーザーのみ:2 , すべて許可:3
+// セキュリティ上、0 or 1 での運用を強く奨励
+$const['PLUGIN_REF_FLASH_INLINE'] = 1;
+
 // PKWK_QUERY_STRING_MAX
 //   Max length of GET method, prohibits some worm attack ASAP
 //   NOTE: Keep (page-name + attach-file-name) <= PKWK_QUERY_STRING_MAX
 $const['PKWK_QUERY_STRING_MAX'] = 640; // Bytes, 0 = OFF
+
+// ref, attach ブラウザキャッシュ (秒)
+$const['BROWSER_CACHE_MAX_AGE'] = 864000; // 10 days
 
 /////////////////////////////////////////////////
 // Experimental features
