@@ -2,7 +2,7 @@
 /////////////////////////////////////////////////
 // PukiWiki - Yet another WikiWikiWeb clone.
 //
-//  $Id: attach.inc.php,v 1.46 2009/02/22 02:01:56 nao-pon Exp $
+//  $Id: attach.inc.php,v 1.47 2009/03/02 01:41:30 nao-pon Exp $
 //  ORG: attach.inc.php,v 1.31 2003/07/27 14:15:29 arino Exp $
 //
 /*
@@ -169,10 +169,14 @@ class xpwiki_plugin_attach extends xpwiki_plugin {
 		$age = array_key_exists('age',$this->root->vars) ? $this->root->vars['age'] : 0;
 		$pcmd = array_key_exists('pcmd',$this->root->vars) ? $this->root->vars['pcmd'] : '';
 		
-		if (!empty($this->root->vars['refer']) && $this->func->is_page($this->root->vars['refer']) && empty($pcmd))
+		if (empty($pcmd) && !empty($this->root->vars['refer']) && $this->func->is_page($this->root->vars['refer']))
 		{
-			//ページが指定されていて pcmd がない時は 'upload' にする
-			$pcmd = 'upload';
+			if (empty($this->root->vars['docmd'])) {
+				//ページが指定されていて pcmd がない時は 'upload' にする
+				$pcmd = 'upload';
+			} else {
+				$pcmd = 'nopcmd';
+			}
 		}
 		
 		if (empty($this->root->vars['refer']) && $pcmd === 'upload') {
@@ -269,6 +273,10 @@ class xpwiki_plugin_attach extends xpwiki_plugin {
 			case 'copyright0': return $this->attach_copyright(FALSE, $pass);
 			case 'copyright1': return $this->attach_copyright(TRUE, $pass);
 			case 'rotate'    : return $this->attach_rotate($pass);
+			case 'noinline0' : return $this->attach_noinline('0', $pass);
+			case 'noinline1' : return $this->attach_noinline('1', $pass);
+			case 'noinline-1': return $this->attach_noinline('-1', $pass);
+			case 'nopcmd'    : return $this->attach_nopcmd();
 		}
 		if (empty($this->root->vars['page']) || !$this->func->is_page($this->root->vars['page']))
 		{
@@ -660,6 +668,36 @@ class xpwiki_plugin_attach extends xpwiki_plugin {
 	
 	}
 	
+	// インラインコントロール
+	function attach_noinline($noinline, $pass)
+	{
+		foreach (array('refer','file','age','pass') as $var)
+		{
+			$$var = array_key_exists($var,$this->root->vars) ? $this->root->vars[$var] : '';
+		}
+		
+		if ($this->cont['ATTACH_UPLOAD_EDITER_ONLY'] and !$this->func->is_editable($refer))
+		{
+			return array('msg'=>$this->root->_attach_messages['err_noparm']);
+		}
+		
+		$obj = &new XpWikiAttachFile($this->xpwiki, $refer,$file,$age);
+		return $obj->getstatus() ? $obj->noinline($noinline,$pass) : array('msg'=>$this->root->_attach_messages['err_notfound']);
+	}
+	
+	// pcmd が指定されていない
+	function attach_nopcmd() {
+		foreach (array('refer','file','age') as $var) {
+			$$var = array_key_exists($var,$this->root->vars) ? $this->root->vars[$var] : '';
+		}
+
+		$param  = '&file='.rawurlencode($file).'&refer='.rawurlencode($refer).
+			($age ? '&age='.$age : '');
+		$redirect = "{$this->root->script}?plugin=attach&pcmd=info$param";
+		
+		return array('msg'=>$this->root->_attach_messages['msg_nopcmd'],'redirect'=>$redirect);
+	}
+
 	//ダウンロード
 	function attach_open()
 	{
@@ -955,19 +993,21 @@ EOD;
 		return $files;	
 	}
 	
-	function regularize_fname ($fname, $page) {
+	function regularize_fname (& $fname, $page) {
 		// ファイル名 文字数のチェック
+		$fname = str_replace(array('/', '\\'), '_', $fname);
 		$page_enc = $this->func->encode($page) . '_';
 		$fnlen = strlen($page_enc . $this->func->encode($fname));
 		$maxlen = 255 - 14; // 14 = xxx_yyy + .log (strlen(encode(A string as x . '_' . age as yy) . '.log'))
 		if (DIRECTORY_SEPARATOR == '\\') {
 			$maxlen -= strlen($this->cont['UPLOAD_DIR']);
 		}
-		while (mb_strlen($fname) > 1 && $fnlen > $maxlen) {
-			$fname = mb_substr($fname, 0, mb_strlen($fname) - 1);
-			$fnlen = strlen($page_enc . $this->func->encode($fname));
+		$newname = $fname;
+		while (mb_strlen($newname) > 1 && $fnlen > $maxlen) {
+			$newname = mb_substr($newname, 0, mb_strlen($newname) - 1);
+			$fnlen = strlen($page_enc . $this->func->encode($newname));
 		}
-		return $fname;
+		return $newname;
 	}
 	
 	function get_allow_extensions () {
