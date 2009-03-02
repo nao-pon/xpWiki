@@ -731,6 +731,8 @@ EOD;
 
 	function toString() {
 		if (is_object($this->otherObj)) {
+			$this->otherObj->root->show_passage = $this->root->show_passage;
+			$this->otherObj->root->link_compact = $this->root->link_compact;
 			return $this->otherObj->func->make_pagelink($this->name, $this->alias, $this->anchor, $this->page);
 		} else {
 			$rel = ($this->root->nofollow_extlink)? ' rel="nofollow"' : '';
