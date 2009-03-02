@@ -623,8 +623,10 @@ class XpWikiTable extends XpWikiElement {
 		}
 		
 		$row = array ();
-		foreach ($cells as $cell)
+		foreach ($cells as $cell) {
+			$cell = str_replace('&#124;', '|', $cell);
 			$row[] = & new XpWikiTableCell($this->xpwiki, $cell, $is_template);
+		}
 		$this->elements[] = $row;
 	}
 
