@@ -1,6 +1,6 @@
 <?php
 // PukiWiki - Yet another WikiWikiWeb clone.
-// $Id: edit.inc.php,v 1.64 2009/01/04 11:43:06 nao-pon Exp $
+// $Id: edit.inc.php,v 1.65 2009/03/02 01:31:22 nao-pon Exp $
 // Copyright (C) 2001-2006 PukiWiki Developers Team
 // License: GPL v2 or (at your option) any later version
 //
@@ -168,10 +168,10 @@ EOD;
 			$body = $title.$body;
 
 			if (defined('HYP_K_TAI_RENDER') && preg_match('/\(\([eis]:[0-9a-f]{4}\)\)/S', $body)) {
-				if (! class_exists('MobilePictogramConverter')) {
+				if (! XC_CLASS_EXISTS('MobilePictogramConverter')) {
 					HypCommonFunc::loadClass('MobilePictogramConverter');
 				}
-				if (class_exists('MobilePictogramConverter')) {
+				if (XC_CLASS_EXISTS('MobilePictogramConverter')) {
 					$mpc =& MobilePictogramConverter::factory_common();
 					$mpc->setImagePath(XOOPS_URL . '/images/emoji');
 					$mpc->setString($body, FALSE);
@@ -446,10 +446,10 @@ EOD;
 				}
 				
 				if (defined('HYP_K_TAI_RENDER') && preg_match('/\(\([eis]:[0-9a-f]{4}\)\)/S', $body)) {
-					if (! class_exists('MobilePictogramConverter')) {
+					if (! XC_CLASS_EXISTS('MobilePictogramConverter')) {
 						HypCommonFunc::loadClass('MobilePictogramConverter');
 					}
-					if (class_exists('MobilePictogramConverter')) {
+					if (XC_CLASS_EXISTS('MobilePictogramConverter')) {
 						$mpc =& MobilePictogramConverter::factory_common();
 						$mpc->setImagePath(XOOPS_URL . '/images/emoji');
 						$mpc->setString($body, FALSE);

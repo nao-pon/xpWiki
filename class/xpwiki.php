@@ -1,7 +1,7 @@
 <?php
 //
 // Created on 2006/09/29 by nao-pon http://hypweb.net/
-// $Id: xpwiki.php,v 1.91 2009/02/24 00:08:51 nao-pon Exp $
+// $Id: xpwiki.php,v 1.92 2009/03/02 01:31:23 nao-pon Exp $
 //
 
 class XpWiki {
@@ -436,7 +436,7 @@ EOD;
 					include_once($base."/".$file);
 					$name = $match[1];
 					$class = "XPWikiExtension_".$name;
-					if (class_exists($class)) {
+					if (XC_CLASS_EXISTS($class)) {
 						$this->extension->$name = new $class($this);
 					}
 				}
@@ -455,7 +455,7 @@ EOD;
 			if (preg_match("/^[\w-]+$/",$name)) {
 				include_once($base."/".$name.".php");
 				$class = "XPWikiExtension_".$name;
-				if (class_exists($class)) {
+				if (XC_CLASS_EXISTS($class)) {
 					$this->extension->$name = new $class($this);
 				}
 			}

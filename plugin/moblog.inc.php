@@ -1,5 +1,5 @@
 <?php
-// $Id: moblog.inc.php,v 1.8 2009/01/04 11:47:40 nao-pon Exp $
+// $Id: moblog.inc.php,v 1.9 2009/03/02 01:31:22 nao-pon Exp $
 // Author: nao-pon http://hypweb.net/
 // Bace script is pop.php of mailbbs by Let's PHP!
 // Let's PHP! Web: http://php.s3.to/
@@ -230,7 +230,7 @@ class xpwiki_plugin_moblog extends xpwiki_plugin {
 			if (preg_match("/\nSubject:[ \t]*(.+?)(\n[\w-_]+:|$)/is", $head, $subreg)) {
 
 				if (HypCommonFunc::get_version() >= '20081215') {
-					if (! class_exists('MobilePictogramConverter')) {
+					if (! XC_CLASS_EXISTS('MobilePictogramConverter')) {
 						HypCommonFunc::loadClass('MobilePictogramConverter');
 					}
 					$mpc =& MobilePictogramConverter::factory_common();
@@ -345,7 +345,7 @@ class xpwiki_plugin_moblog extends xpwiki_plugin {
 						
 						if (HypCommonFunc::get_version() >= '20081215') {
 							if (! isset($mpc)) {
-								if (! class_exists('MobilePictogramConverter')) {
+								if (! XC_CLASS_EXISTS('MobilePictogramConverter')) {
 									HypCommonFunc::loadClass('MobilePictogramConverter');
 								}
 								$mpc =& MobilePictogramConverter::factory_common();

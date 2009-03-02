@@ -1,6 +1,6 @@
 <?php
 // PukiWiki - Yet another WikiWikiWeb clone
-// $Id: showrss.inc.php,v 1.9 2008/05/14 04:28:41 nao-pon Exp $
+// $Id: showrss.inc.php,v 1.10 2009/03/02 01:31:22 nao-pon Exp $
 //  Id:showrss.inc.php,v 1.40 2003/03/18 11:52:58 hiro Exp
 // Copyright (C):
 //     2002-2006 PukiWiki Developers Team
@@ -63,7 +63,7 @@ class xpwiki_plugin_showrss extends xpwiki_plugin {
 		$class = ($template == '' || $template == 'default') ? 'XpWikiShowRSS_html' : 'XpWikiShowRSS_html_' . $template;
 		if (! is_numeric($cachehour))
 			return '#showrss: Cache-lifetime seems not numeric: ' . htmlspecialchars($cachehour) . '<br />' . "\n";
-		if (! class_exists($class))
+		if (! XC_CLASS_EXISTS($class))
 			return '#showrss: Template not found: ' . htmlspecialchars($template) . '<br />' . "\n";
 		if (! $this->func->is_url($uri))
 			return '#showrss: Seems not URI: ' . htmlspecialchars($uri) . '<br />' . "\n";

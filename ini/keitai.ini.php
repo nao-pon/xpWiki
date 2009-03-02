@@ -1,6 +1,6 @@
 <?php
 // PukiWiki - Yet another WikiWikiWeb clone.
-// $Id: keitai.ini.php,v 1.20 2009/02/22 01:38:03 nao-pon Exp $
+// $Id: keitai.ini.php,v 1.21 2009/03/02 01:36:08 nao-pon Exp $
 // Copyright (C)
 //   2002-2005 PukiWiki Developers Team
 //   2001-2002 Originally written by yu-ji
@@ -440,7 +440,7 @@ switch ($root->ua_name) {
 
 }
 
-if (class_exists('HypCommonPreLoad')) {
+if (XC_CLASS_EXISTS('HypCommonPreLoad')) {
 	$dummy = NULL;
 	$hyp_preload = new HypCommonPreLoad($dummy);
 	$root->k_tai_conf = $hyp_preload->k_tai_conf;

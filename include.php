@@ -1,16 +1,21 @@
 <?php
 //
 // Created on 2006/10/03 by nao-pon http://hypweb.net/
-// $Id: include.php,v 1.12 2008/04/04 23:40:32 nao-pon Exp $
+// $Id: include.php,v 1.13 2009/03/02 01:31:22 nao-pon Exp $
 //
 
 if (! defined('_XPWIKI_FILES_LOADED')) {
 	$mytrustdirpath = dirname( __FILE__ );
 	
 	define('_XPWIKI_FILES_LOADED', TRUE);
+	
+	if (! function_exists('XC_CLASS_EXISTS')) {
+		include dirname(dirname($mytrustdirpath)) . '/class/hyp_common/XC_CLASS_EXISTS.inc.php';
+	}
+	
 	// Load & check a class HypCommonFunc
-	if(!class_exists('HypCommonFunc')) {
-		include(dirname(dirname($mytrustdirpath)).'/class/hyp_common/hyp_common_func.php');
+	if(! XC_CLASS_EXISTS('HypCommonFunc')) {
+		include dirname(dirname($mytrustdirpath)) . '/class/hyp_common/hyp_common_func.php';
 	}
 	
 	// Set 'memory_limit'

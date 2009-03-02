@@ -1,11 +1,11 @@
 <?php
 //
 // Created on 2006/10/16 by nao-pon http://hypweb.net/
-// $Id: compat.php,v 1.6 2008/02/11 01:02:41 nao-pon Exp $
+// $Id: compat.php,v 1.7 2009/03/02 01:31:23 nao-pon Exp $
 //
 
 //// mbstring ////
-if (! extension_loaded('mbstring') && ! class_exists('HypMBString')) {
+if (! extension_loaded('mbstring') && ! XC_CLASS_EXISTS('HypMBString')) {
 	if (file_exists(XOOPS_TRUST_PATH . '/class/hyp_common/mbemulator/mb-emulator.php')) {
 		require_once(XOOPS_TRUST_PATH . '/class/hyp_common/mbemulator/mb-emulator.php');
 	} else {
