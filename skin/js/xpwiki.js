@@ -913,6 +913,10 @@ var XpWiki = {
 		if (r) {
 			var base = (r.snapshotItem(0).contentWindow.document || r.snapshotItem(0).contentDocument);
 			var fckdialog = (base.getElementById('frmMain').contentWindow.document || base.getElementById('frmMain').contentDocument);
+			file = this.unhtmlspecialchars(file);
+			if (file.match(/[",]/)) {
+				file = '"' + file.replace('"', '""') + '"';
+			}
 			fckdialog.getElementById('name').value = file;
 		}
 		this.PopupHide();
