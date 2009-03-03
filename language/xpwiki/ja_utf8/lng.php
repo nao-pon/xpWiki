@@ -1,6 +1,6 @@
 <?php
 // PukiWiki - Yet another WikiWikiWeb clone.
-// $Id: lng.php,v 1.16 2009/03/02 01:41:30 nao-pon Exp $
+// $Id: lng.php,v 1.17 2009/03/03 06:45:20 nao-pon Exp $
 // Copyright (C)
 //   2002-2005 PukiWiki Developers Team
 //   2001-2002 Originally written by yu-ji
@@ -235,10 +235,13 @@ $root->_attach_messages = array(
 	'msg_copyright0' => 'このファイルは 私の著作物 または 著作権フリー です。',
 	'msg_copyright_s'=> '他人の著作物',
 	'err_copyright'  => 'このファイルは著作権上、保護されているため 表示・ダウンロード はできません。',
-	'msg_noinline'   => 'ダウンロード限定を設定します。',
-	'msg_noinline0'  => 'ダウンロード限定を解除します。',
-	'msg_noinlined'  => 'ダウンロード限定を設定しました。',
-	'msg_unnoinlined'=> 'ダウンロード限定を解除しました。',
+	'msg_noinline1'  => 'インライン表示を禁止。',
+	'msg_noinline0-1'=> 'インライン表示禁止を解除。',
+	'msg_noinline-1' => 'インライン表示を許可。',
+	'msg_noinline01' => 'インライン表示許可を解除。',
+	'msg_noinlined'  => '添付ファイルのインライン表示の設定を登録しました。',
+	'msg_unnoinlined'=> '添付ファイルのインライン表示の設定を解除しました。',
+	'msg_nopcmd'     => '動作が指定されていません。',
 	'err_extension'=> 'このページのオーナー権限がないため、拡張子が $1 のファイルは添付できません。',
 	'msg_set_css'  => '$1 へスタイルシートを設定しました。',
 	'msg_unset_css'=> '$1 のスタイルシートを解除しました。',

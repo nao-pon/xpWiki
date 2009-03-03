@@ -1,6 +1,6 @@
 <?php
 // PukiWiki - Yet another WikiWikiWeb clone.
-// $Id: lng.php,v 1.15 2008/12/10 08:51:02 nao-pon Exp $
+// $Id: lng.php,v 1.16 2009/03/03 06:45:19 nao-pon Exp $
 // Copyright (C)
 //   2002-2005 PukiWiki Developers Team
 //   2001-2002 Originally written by yu-ji
@@ -231,9 +231,16 @@ $root->_attach_messages = array(
 	'btn_submit'   => 'Submit',
 	'msg_copyrighted'  => 'The attached file was copyrighting protected.',
 	'msg_uncopyrighted'=> 'The copyright protection of the attached file was released.',
-	'msg_copyright' => 'The attached file was copyrighting protected.',
+	'msg_copyright'  => 'The attached file was copyrighting protected.',
 	'msg_copyright0' => 'This file is mine or copyright-free.',
-	'err_copyright'=> 'This file cannot not be displayed and be downloaded because it is not protected by the copyright.',
+	'err_copyright'  => 'This file cannot not be displayed and be downloaded because it is not protected by the copyright.',
+	'msg_noinline1'  => 'Prohibit the inline display.',
+	'msg_noinline0-1'=> 'Release the inline display prohibition.',
+	'msg_noinline-1' => 'Permit the inline display.',
+	'msg_noinline01' => 'Release the inline display permission.',
+	'msg_noinlined'  => 'The setting of the inline display of the attached file was registered.',
+	'msg_unnoinlined'=> 'The setting of the inline display of the attached file was released.',
+	'msg_nopcmd'     => 'Operation is not specified.',
 	'err_extension'=> 'The extension cannot append the file of $1 because there is no ownerd authority on this page.',
 	'msg_set_css'  => '$1 style sheet was set up.',
 	'msg_unset_css'=> '$1 style sheet was canceled.',

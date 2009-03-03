@@ -1,7 +1,7 @@
 <?php
 /*
  * Created on 2008/03/24 by nao-pon http://hypweb.net/
- * $Id: attach.php,v 1.15 2009/03/02 09:29:15 nao-pon Exp $
+ * $Id: attach.php,v 1.16 2009/03/03 06:45:17 nao-pon Exp $
  */
 
 //-------- クラス
@@ -93,7 +93,6 @@ class XpWikiAttachFile
 		} else {
 			$this->size_str = sprintf('%01.1f',$this->size/(1024*1024),1).'MB';
 		}
-		//$this->size_str = sprintf('%01.1f',round($this->size)/1024,1).'KB';
 		$this->type = isset($this->dbinfo['type'])? $this->dbinfo['type'] : xpwiki_plugin_attach::attach_mime_content_type($this->filename, $this->status);
 		$this->owner_id = intval($this->status['owner']);
 		$user = $this->func->get_userinfo_by_id($this->status['owner']);
@@ -162,9 +161,6 @@ class XpWikiAttachFile
 	}
 	function toString($showicon,$showinfo,$mode="")
 	{
-//		global $script,$date_format,$time_format,$weeklabels;
-//		global $_attach_messages;
-		
 		$this->getstatus();
 		$param = '&amp;refer='.rawurlencode($this->page)
 		       . ($this->age ? '&amp;age='.$this->age : '')
@@ -202,7 +198,10 @@ class XpWikiAttachFile
 				return "&size(12){&ref(\"".str_replace(array('"', '|'), array('""', '&#124;'), $this->page."/".$this->file)."\"".$this->cont['ATTACH_CONFIG_REF_OPTION'].");&br();".$info."};";
 			}
 		} else {
-			return "<a href=\"{$this->cont['HOME_URL']}gate.php?way=attach&amp;_noumb{$param}open{$param2}\" title=\"{$title}\">{$label}</a>{$count}{$info}";
+			$filename = $this->status['org_fname'];
+			$filename = str_replace(array(':', '*', '?', '"', '<', '>', '|'), '_', $filename);
+			$filename = '/' . rawurlencode($filename);
+			return "<a href=\"{$this->cont['HOME_URL']}gate.php{$filename}?way=attach&amp;_noumb{$param}open{$param2}\" title=\"{$title}\">{$label}</a>{$count}{$info}";
 		}
 	}
 	// 情報表示
@@ -318,7 +317,6 @@ EOD;
 		$retval = array('msg'=>sprintf($this->root->_attach_messages['msg_info'],htmlspecialchars($this->file)));
 		$page_link = $this->func->make_pagelink($s_page);
 		//EXIF DATA
-		//$exif_data = $this->func->get_exif_data($this->filename, TRUE);
 		$exif_data = $this->func->get_exif_data($this->filename);
 		$exif_tags = '';
 		if ($exif_data){
@@ -385,8 +383,6 @@ EOD;
 	}
 	function delete($pass)
 	{
-//		global $adminpass,$_attach_messages,$vars,$X_admin,$X_uid,$script;
-				
 		if ($this->status['freeze'])
 		{
 			return xpwiki_plugin_attach::attach_info('msg_isfreeze');
@@ -447,8 +443,6 @@ EOD;
 	
 	function rename($pass, $newname)
 	{
-//		global $_attach_messages, $notify, $notify_subject;
-
 		if ($this->status['freeze']) return xpwiki_plugin_attach::attach_info('msg_isfreeze');
 
 		if (! $this->func->pkwk_login($pass)) {
@@ -494,8 +488,6 @@ EOD;
 
 	function freeze($freeze,$pass)
 	{
-//		global $adminpass,$vars,$X_admin,$X_uid,$_attach_messages,$script;
-		
 		$uid = $this->func->get_pg_auther($this->root->vars['page']);
 		if (!$this->is_owner())
 		// 管理者とページ作成者とファイル所有者以外
@@ -517,8 +509,6 @@ EOD;
 	}
 	function rotate($count,$pass)
 	{
-//		global $adminpass,$vars,$X_admin,$X_uid,$_attach_messages,$script;
-		
 		$uid = $this->func->get_pg_auther($this->root->vars['page']);
 		if (!$this->is_owner())
 		// 管理者とページ作成者とファイル所有者以外
@@ -548,8 +538,6 @@ EOD;
 	}
 	function copyright($copyright,$pass)
 	{
-//		global $adminpass,$vars,$X_admin,$X_uid,$_attach_messages,$script;
-		
 		$uid = $this->func->get_pg_auther($this->root->vars['page']);
 		if (!$this->is_owner())
 		// 管理者とページ作成者とファイル所有者以外
@@ -635,10 +623,16 @@ EOD;
 					$filename = mb_convert_encoding($filename, 'SJIS-WIN', $this->cont['SOURCE_ENCODING']);
 					break;
 				default:
-					$format = 'name="%1$s"; charset=UTF-8';
-					$encode = 'UTF-8';
-					$filename = mb_convert_encoding($filename, $encode, $this->cont['SOURCE_ENCODING']);
-			}
+					if ($this->cont['SOURCE_ENCODING'] === 'UTF-8') {
+						// RFC 2231 ( http://www.ietf.org/rfc/rfc2231.txt )
+						$format = 'name*=%2$s\'ja\'%1$s';
+						$filename = rawurlencode($filename);
+					} else {
+						$format = 'name="%1$s"; charset=UTF-8';
+						$encode = 'UTF-8';
+						$filename = mb_convert_encoding($filename, $encode, $this->cont['SOURCE_ENCODING']);
+					}
+				}
 		}
 		if (strpos(strtolower($this->root->ua), 'windows') !== FALSE) {
 			$filename = str_replace(array(':', '*', '?', '"', '<', '>', '|'), '_', $filename);
@@ -993,7 +987,6 @@ class XpWikiAttachFiles
 <!--
 function xpwiki_file_selector_change(page) {
 	if (page) {
-		//opener.window.XpWiki.PopupBodyUrl = location.href = location.href.replace(/&refer=[^&]+/, '&refer=' + encodeURIComponent(page)).replace(/&start=[^&]+/, '');
 		location.href = location.href.replace(/&refer=[^&]+/, '&refer=' + encodeURIComponent(page)).replace(/&start=[^&]+/, '');
 	}
 }
@@ -1023,7 +1016,6 @@ EOD;
 	// ファイル一覧を取得(inline)
 	function to_flat()
 	{
-//		global $script;
 		$ret = '';
 		$files = array();
 		foreach (array_keys($this->files) as $file)
@@ -1034,7 +1026,6 @@ EOD;
 			}
 		}
 		uasort($files,array('XpWikiAttachFile','datecomp'));
-		//if ($max) $files = array_slice($files,$start,$max);
 		
 		foreach (array_keys($files) as $file)
 		{
@@ -1137,8 +1128,6 @@ class XpWikiAttachPages
 			$query = "SELECT DISTINCT p.name FROM ".$this->xpwiki->db->prefix($this->root->mydirname."_pginfo")." p INNER JOIN ".$this->xpwiki->db->prefix($this->root->mydirname."_attach")." a ON p.pgid=a.pgid{$where}{$order}{$limit};";
 			if (!$result = $this->xpwiki->db->query($query)) echo "QUERY ERROR : ".$query;
 			
-			//if ($this->root->userinfo['admin']) echo $query;
-			
 			while($_row = $this->xpwiki->db->fetchRow($result))
 			{
 				$this->XpWikiAttachPages($this->xpwiki,$_row[0],$age,$isbn,20,0,TRUE,$f_order,$mode);
@@ -1147,7 +1136,6 @@ class XpWikiAttachPages
 	}
 	function toString($page='',$flat=FALSE)
 	{
-//		global $script;
 		if ($page !== '')
 		{
 			if (!array_key_exists($page,$this->pages))
@@ -1188,13 +1176,10 @@ class XpWikiAttachPages
 		
 		$ret = "";
 		$pages = array_keys($this->pages);
-		//sort($pages);
 		foreach ($pages as $page)
 		{
-			//$ret .= '<li>'.$this->pages[$page]->toString($flat)."</li>\n";
 			$ret .= $this->pages[$page]->toString($flat,TRUE,$this->mode)."\n";
 		}
-		//return "\n<ul>\n".$ret."</ul>\n";
 		return "\n$navi".($navi? "<hr />":"")."\n$ret\n".($navi? "<hr />":"")."$navi\n";
 		
 	}
