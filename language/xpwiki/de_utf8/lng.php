@@ -1,6 +1,6 @@
 <?php
 // PukiWiki - Yet another WikiWikiWeb clone.
-// $Id: lng.php,v 1.11 2008/12/10 08:51:03 nao-pon Exp $
+// $Id: lng.php,v 1.12 2009/03/03 06:45:20 nao-pon Exp $
 // Copyright (C)
 //   2002-2005 PukiWiki Developers Team
 //   2001-2002 Originally written by yu-ji
@@ -235,9 +235,16 @@ $root->_attach_messages = array(
 	'btn_submit'   => 'Speichern',
 	'msg_copyrighted'  => 'Die angehängte Datei ist kopiergeschützt.',
 	'msg_uncopyrighted'=> 'Der Kopierschutz der angehängten Datei wurde freigegeben.',
-	'msg_copyright' => 'Die angehängte Datei war kopiergeschützt.',
+	'msg_copyright'  => 'Die angehängte Datei war kopiergeschützt.',
 	'msg_copyright0' => 'Diese Datei ist mine oder ohne Kopierschutz.',
-	'err_copyright'=> 'Diese Datei kann nicht angezeigt oder heruntergeladen werden weil sie nicht copyright geschützt ist.',
+	'err_copyright'  => 'Diese Datei kann nicht angezeigt oder heruntergeladen werden weil sie nicht copyright geschützt ist.',
+	'msg_noinline1'  => 'Prohibit the inline display.',
+	'msg_noinline0-1'=> 'Release the inline display prohibition.',
+	'msg_noinline-1' => 'Permit the inline display.',
+	'msg_noinline01' => 'Release the inline display permission.',
+	'msg_noinlined'  => 'The setting of the inline display of the attached file was registered.',
+	'msg_unnoinlined'=> 'The setting of the inline display of the attached file was released.',
+	'msg_nopcmd'     => 'Operation is not specified.',
 	'err_extension'=> 'Die Erweiterung kann nicht angehängt werden an das File von $1 weil keine Inhaber-Befugnis auf dieser Seite besteht.',
 	'msg_set_css'  => '$1 style sheet wurde eingerichtet.',
 	'msg_unset_css'=> '$1 style sheet wurde abgebrochen.',

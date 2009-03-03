@@ -2,7 +2,7 @@
 /////////////////////////////////////////////////
 // PukiWiki - Yet another WikiWikiWeb clone.
 //
-//  $Id: attach.inc.php,v 1.47 2009/03/02 01:41:30 nao-pon Exp $
+//  $Id: attach.inc.php,v 1.48 2009/03/03 06:45:19 nao-pon Exp $
 //  ORG: attach.inc.php,v 1.31 2003/07/27 14:15:29 arino Exp $
 //
 /*
@@ -344,9 +344,10 @@ class xpwiki_plugin_attach extends xpwiki_plugin {
 			$etars = $this->untar( $file['tmp_name'], $this->cont['UPLOAD_DIR']);
 	
 			// 展開されたファイルを全てアップロードファイルとして追加
+			$enc = (strpos(strtolower($this->root->ua), 'windows') !== FALSE)? 'SJIS-WIN' : 'AUTO';
 			foreach ( $etars as $efile ) {
 				$res = $this->do_upload( $page,
-				mb_convert_encoding($efile['extname'], $this->cont['SOURCE_ENCODING'],"auto"),
+				mb_convert_encoding($efile['extname'], $this->cont['SOURCE_ENCODING'], $enc),
 				$efile['tmpname'],$copyright,$pass);
 				if ( ! $res['result'] ) {
 					unlink( $efile['tmpname']);
@@ -367,7 +368,7 @@ class xpwiki_plugin_attach extends xpwiki_plugin {
 		$changelog = (isset($options['changelog']))? $options['changelog'] : '';
 		
 		// ファイル名の正規化
-		$fname = preg_replace('/[[:cntrl:]]+/', '', $fname);
+		$fname = str_replace("\0", '', $fname);
 		$fname = $this->func->basename(str_replace("\\","/",$fname));
 		
 		$_action = 'insert';

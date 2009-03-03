@@ -1,5 +1,5 @@
 <?php
-// $Id: ref.inc.php,v 1.41 2009/03/02 01:41:30 nao-pon Exp $
+// $Id: ref.inc.php,v 1.42 2009/03/03 06:45:19 nao-pon Exp $
 /*
 
 	*プラグイン ref
@@ -485,7 +485,10 @@ class xpwiki_plugin_ref extends xpwiki_plugin {
 			} else {
 				// 著作権設定されたFlashと添付その他
 				$lvar['url'] = '';
-				$lvar['link'] = $this->cont['HOME_URL'] . 'gate.php?way=attach&amp;_noumb' . '&amp;refer=' . rawurlencode($lvar['page']) .
+				$filename = $lvar['status']['org_fname'];
+				$filename = str_replace(array(':', '*', '?', '"', '<', '>', '|'), '_', $filename);
+				$filename = '/' . rawurlencode($filename);
+				$lvar['link'] = $this->cont['HOME_URL'] . 'gate.php' . $filename . '?way=attach&amp;_noumb' . '&amp;refer=' . rawurlencode($lvar['page']) .
 						'&amp;openfile=' . rawurlencode($lvar['name']); // Show its filename at the last
 				if (! empty($lvar['title'])) {
 					// タイトルが指定されている
