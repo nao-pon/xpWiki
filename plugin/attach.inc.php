@@ -2,7 +2,7 @@
 /////////////////////////////////////////////////
 // PukiWiki - Yet another WikiWikiWeb clone.
 //
-//  $Id: attach.inc.php,v 1.48 2009/03/03 06:45:19 nao-pon Exp $
+//  $Id: attach.inc.php,v 1.49 2009/03/13 08:11:27 nao-pon Exp $
 //  ORG: attach.inc.php,v 1.31 2003/07/27 14:15:29 arino Exp $
 //
 /*
@@ -76,7 +76,8 @@ class xpwiki_plugin_attach extends xpwiki_plugin {
 		$this->cont['ATTACH_CONFIG_PAGE_MIME'] = 'plugin/attach/mime-type';
 	
 		// 詳細情報・ファイル一覧(イメージモード)で使用する ref プラグインの追加オプション
-		$this->cont['ATTACH_CONFIG_REF_OPTION'] = ',mw:160,mh:120';
+		$this->cont['ATTACH_CONFIG_REF_OPTION'] = ',noinline';
+		$this->cont['ATTACH_CONFIG_REF_OPTION_IMG'] = ',mw:160,mh:120';
 		
 		// ref プラグインの添付リンクから呼び出された場合のサムネイル作成サイズ規定値(px)
 		$this->cont['ATTACH_CONFIG_REF_THUMB'] = 240;
