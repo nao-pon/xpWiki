@@ -1,5 +1,5 @@
 <?php
-// $Id: ref.inc.php,v 1.42 2009/03/03 06:45:19 nao-pon Exp $
+// $Id: ref.inc.php,v 1.43 2009/03/13 08:16:59 nao-pon Exp $
 /*
 
 	*プラグイン ref
@@ -152,10 +152,16 @@ class xpwiki_plugin_ref extends xpwiki_plugin {
 					}
 				} 
 			}
-			if ($noimg) return array('msg'=>'Can not show this Flash', 'body'=>$usage);
+			if ($noimg) exit('Can not show this Flash');
 			break;
 		default:
-			return array('msg'=>'Seems not an image', 'body'=>$usage);
+			//return array('msg'=>'Seems not an image', 'body'=>$usage);
+			$noimg = TRUE;
+			if ($status['noinline'] < 0 || ($status['admins'] && $status['noinline'] < 1)) {
+				list($ext, $type) = $this->get_file_extention($filename);
+				if ($type) $noimg = FALSE;
+			}
+			if ($noimg) exit('Seems not an image');
 		}
 	
 		// Care for Japanese-character-included file name
@@ -245,35 +251,38 @@ class xpwiki_plugin_ref extends xpwiki_plugin {
 	function get_body($args, $inline = false){
 		// 初期化
 		$params = array(
-			'left'   => FALSE, // 左寄せ
-			'center' => FALSE, // 中央寄せ
-			'right'  => FALSE, // 右寄せ
-			'wrap'   => FALSE, // TABLEで囲む
-			'nowrap' => FALSE, // TABLEで囲まない
-			'around' => FALSE, // 回り込み
-			'noicon' => FALSE, // アイコンを表示しない
-			'nolink' => FALSE, // 元ファイルへのリンクを張らない
-			'noimg'  => FALSE, // 画像を展開しない
-			'zoom'   => FALSE, // 縦横比を保持する
-			'nocache'=> FALSE, // URLの場合にキャッシュしない
-			'btn'    => '',    // アップロードリンクのテキスト指定
-			'auth'   => FALSE, // アップロードリンク表示時編集権限チェック
-			'_size'  => FALSE, // サイズ指定あり
-			'_w'     => 0,     // 幅
-			'_h'     => 0,     // 高さ
-			'_%'     => 0,     // 拡大率
-			'_align' => $this->cont['PLUGIN_REF_DEFAULT_ALIGN'],
-			'_args'  => array(),
-			'_body' => '',
-			'_error' => ''
+			'left'    => FALSE, // 左寄せ
+			'center'  => FALSE, // 中央寄せ
+			'right'   => FALSE, // 右寄せ
+			'wrap'    => FALSE, // TABLEで囲む
+			'nowrap'  => FALSE, // TABLEで囲まない
+			'around'  => FALSE, // 回り込み
+			'noicon'  => FALSE, // アイコンを表示しない
+			'nolink'  => FALSE, // 元ファイルへのリンクを張らない
+			'noimg'   => FALSE, // 画像を展開しない
+			'zoom'    => FALSE, // 縦横比を保持する
+			'nocache' => FALSE, // URLの場合にキャッシュしない
+			'noinline'=> FALSE, // インライン表示しない
+			'btn'     => '',    // アップロードリンクのテキスト指定
+			'auth'    => FALSE, // アップロードリンク表示時編集権限チェック
+			'_size'   => FALSE, // サイズ指定あり
+			'_w'      => 0,     // 幅
+			'_h'      => 0,     // 高さ
+			'_%'      => 0,     // 拡大率
+			'_align'  => $this->cont['PLUGIN_REF_DEFAULT_ALIGN'],
+			'_args'   => array(),
+			'_body'   => '',
+			'_title'  => array(),
+			'_error'  => ''
 		);
 		
 		// local var
 		$lvar = array(
 			'refid' => '',
-			'page'  => $this->root->vars['page'], // ページ名
+			'page'  => $this->cont['PageForRef'], // ページ名
 			'name'  => array_shift($args), // 添付ファイル名を取得(第一引数)
 			'isurl' => FALSE,
+			'title' => array()
 		);
 
 		if ($lvar['page'] === '#RenderMode') {
@@ -340,208 +349,228 @@ class xpwiki_plugin_ref extends xpwiki_plugin {
 			$params['fsize'] = '';
 		}
 
-		// Flash以外
-		if ($lvar['type'] !== 4 || $lvar['status']['copyright']) {
-			// $img パラメーターセット
-			$img = array(
-				'org_w' => 0,
-				'org_h' => 0,
-				'width' => 0,
-				'height' => 0,
-				'info' => '',
-				'title' => array(),
-				'class' => ' class="img_margin"'
-			);
-			
-			// 
-			if ($lvar['type'] === 1) {
-				// URL画像
-				if ($this->cont['PLUGIN_REF_URL_GET_IMAGE_SIZE'] && (bool)ini_get('allow_url_fopen')) {
-					$size = $this->getimagesize($lvar['name']);
-					if (is_array($size)) {
-						$img['org_w'] = $size[0];
-						$img['org_h'] = $size[1];
-					}
-				}
-				
-				// イメージ表示サイズの取得
-				$this->get_show_imagesize($img, $params);
-				$lvar['img'] = $img;
-				$lvar['url'] = htmlspecialchars($lvar['name']);
-				$lvar['link'] = $lvar['url'];
-				$lvar['text'] = '';
-				$lvar['title'][] =  (preg_match('/([^\/]+)$/', $lvar['name'], $match))? $match[1] : '';
-				$lvar['title'] = htmlspecialchars(join(', ', $lvar['title']));
-			} else if ($lvar['type'] === 2) {
-				// URL画像以外
-				$lvar['url'] = '';
-				$lvar['link'] = htmlspecialchars($lvar['name']);
-				$lvar['text'] = htmlspecialchars($lvar['name']);
-				$lvar['title'][] = (preg_match('/([^\/]+)$/', $lvar['name'], $match))? $match[1] : '';
-				$lvar['title'] = htmlspecialchars(join(', ', $lvar['title']));
-			} else if ($lvar['type'] === 3) {
-				// 添付画像
-				$size = $this->getimagesize($lvar['file']);
+		// $img パラメーターセット
+		$img = array(
+			'org_w' => 0,
+			'org_h' => 0,
+			'width' => 0,
+			'height' => 0,
+			'info' => '',
+			'title' => array(),
+			'class' => ' class="img_margin"'
+		);
+		
+		// 
+		if ($lvar['type'] === 1) {
+			// URL画像
+			if ($this->cont['PLUGIN_REF_URL_GET_IMAGE_SIZE'] && (bool)ini_get('allow_url_fopen')) {
+				$size = $this->getimagesize($lvar['name']);
 				if (is_array($size)) {
 					$img['org_w'] = $size[0];
 					$img['org_h'] = $size[1];
 				}
-				
-				if ($lvar['isurl']) {
-					$lvar['link'] = htmlspecialchars($lvar['isurl']);
-				} else {
-					$lvar['link'] = '';
-				}
-				$lvar['title'][] = (preg_match('/([^\/]+)$/', $lvar['status']['org_fname']? $lvar['status']['org_fname'] : $lvar['name'], $match))? $match[1] : '';
-				
-				if ($lvar['status']['copyright']) {
-					//著作権保護されている場合はサイズ$this->cont['PLUGIN_REF_COPYRIGHT_IMG_MAX%']%以内かつ縦横 $this->cont['PLUGIN_REF_COPYRIGHT_IMG_MAX']px 以内で表示
-					$params['_size'] = TRUE;
-					if ($img['org_w'] > $this->cont['PLUGIN_REF_COPYRIGHT_IMG_MAX'] || $img['org_h'] > $this->cont['PLUGIN_REF_COPYRIGHT_IMG_MAX'] ) {
-						$params['_h'] = $params['_w'] = $this->cont['PLUGIN_REF_COPYRIGHT_IMG_MAX'];
-						$params['zoom'] = TRUE;
-						$params['_%'] = '';
-					} else {
-						$params['_%'] = $this->cont['PLUGIN_REF_COPYRIGHT_IMG_MAX%'];
-					}
-				}
-				
-				// イメージ表示サイズの取得
-				$this->get_show_imagesize($img, $params);
-				
-				// 携帯用画像サイズ再設定
-				if ($this->cont['UA_PROFILE'] === 'keitai') {
-					if ($img['width'] > $this->root->keitai_img_px || $img['height'] > $this->root->keitai_img_px) {
-						$params['_h'] = $params['_w'] = $this->root->keitai_img_px;
-						$params['zoom'] = TRUE;
-						$params['_%'] = '';
-						$this->get_show_imagesize($img, $params);
-					}
-				}
-				
-				$lvar['img'] = $img;
-				$lvar['title'][] = $img['title'];
-
-				//EXIF DATA
-				if ($this->cont['PLUGIN_REF_GET_EXIF']) {
-					$exif_data = $this->func->get_exif_data($lvar['file']);
-					if ($exif_data){
-						$lvar['title'][] = $exif_data['title'];
-						foreach($exif_data as $key => $value){
-							if ($key != "title") $lvar['title'][] = "$key: $value";
-						}
-					}
-				}
-				
-				$lvar['url'] = $lvar['file'];
-				if ($params['_%'] && $params['_%'] < 95) {
-					$_file = preg_split('/(\.[a-zA-Z]+)?$/', $lvar['name'], -1, PREG_SPLIT_DELIM_CAPTURE);
-					// Check original filename extention (for Renderer mode)
-					if (! $_file[1] && preg_match('/(\.[a-zA-Z]+)$/', $lvar['status']['org_fname'], $_match)) {
-						$_file[1] = $_match[1];
-					} 
-					$s_file = $this->cont['UPLOAD_DIR']."s/".$this->func->encode($lvar['page']).'_'.$params['_%']."_".$this->func->encode($_file[0]).$_file[1];
-					if (file_exists($s_file)) {
-						//サムネイル作成済みならそれを参照
-						$lvar['url'] = $s_file;
-					} else {
-						//サムネイル作成
-						$lvar['url'] = $this->make_thumb($lvar['file'], $s_file, $img['width'], $img['height']);
-					}
-				}
-				
-				// 元ファイルを表示
-				if ($lvar['url'] === $lvar['file']) {
-					// URI for in-line image output
-					if (! $this->cont['PLUGIN_REF_DIRECT_ACCESS']) {
-						// With ref plugin (faster than attach)
-						$lvar['url'] = $this->cont['DATA_HOME'] . 'gate.php?way=ref&amp;_nodos&amp;_noumb&amp;page=' . rawurlencode($lvar['page']) .
-						'&amp;src=' . rawurlencode($lvar['name']); // Show its filename at the last
-					} else {
-						// Try direct-access, if possible
-						$lvar['url'] = $lvar['file'];
-					}
-				} else if (! $lvar['status']['copyright']) {
-					// リンク先を指定
-					// URI for in-line image output
-					if (! $this->cont['PLUGIN_REF_DIRECT_ACCESS']) {
-						// With ref plugin (faster than attach)
-						$lvar['link'] = $this->cont['DATA_HOME'] . 'gate.php?way=ref&amp;_nodos&amp;_noumb&amp;page=' . rawurlencode($lvar['page']) .
-						'&amp;src=' . rawurlencode($lvar['name']); // Show its filename at the last
-					} else {
-						// Try direct-access, if possible
-						$lvar['link'] = $lvar['file'];
-					}
-				}
-				
-				// URL のローカルパスをURIパスに変換
-				$lvar['url'] = str_replace($this->cont['DATA_HOME'], $this->cont['HOME_URL'], $lvar['url']);
-				if ($lvar['link']) $lvar['link'] = str_replace($this->cont['DATA_HOME'], $this->cont['HOME_URL'], $lvar['link']);
-				$lvar['text'] = '';
-				if (! empty($lvar['title'])) {
-					$lvar['title'] = htmlspecialchars(join(', ', $lvar['title']));
-					$lvar['title'] = $this->func->make_line_rules($lvar['title']);
-				}
+			}
+			
+			// イメージ表示サイズの取得
+			$this->get_show_imagesize($img, $params);
+			$lvar['img'] = $img;
+			$lvar['url'] = htmlspecialchars($lvar['name']);
+			$lvar['link'] = $lvar['url'];
+			$lvar['text'] = '';
+			$lvar['title'][] =  (preg_match('/([^\/]+)$/', $lvar['name'], $match))? $match[1] : '';
+			$lvar['title'] = htmlspecialchars(join(', ', $lvar['title'] + $params['_title']));
+		} else if ($lvar['type'] === 2) {
+			// URL画像以外
+			$lvar['url'] = '';
+			$lvar['link'] = htmlspecialchars($lvar['name']);
+			$lvar['text'] = htmlspecialchars($lvar['name']);
+			$lvar['title'][] = (preg_match('/([^\/]+)$/', $lvar['name'], $match))? $match[1] : '';
+			$lvar['title'] = htmlspecialchars(join(', ', $lvar['title'] + $params['_title']));
+		} else if ($lvar['type'] === 3) {
+			// 添付画像
+			$size = $this->getimagesize($lvar['file']);
+			if (is_array($size)) {
+				$img['org_w'] = $size[0];
+				$img['org_h'] = $size[1];
+			}
+			
+			if ($lvar['isurl']) {
+				$lvar['link'] = htmlspecialchars($lvar['isurl']);
 			} else {
-				// 著作権設定されたFlashと添付その他
-				$lvar['url'] = '';
-				$filename = $lvar['status']['org_fname'];
-				$filename = str_replace(array(':', '*', '?', '"', '<', '>', '|'), '_', $filename);
-				$filename = '/' . rawurlencode($filename);
-				$lvar['link'] = $this->cont['HOME_URL'] . 'gate.php' . $filename . '?way=attach&amp;_noumb' . '&amp;refer=' . rawurlencode($lvar['page']) .
-						'&amp;openfile=' . rawurlencode($lvar['name']); // Show its filename at the last
-				if (! empty($lvar['title'])) {
-					// タイトルが指定されている
-					$lvar['text'] = htmlspecialchars(join(', ', $lvar['title']));
-					$lvar['title'] = htmlspecialchars(preg_replace('/([^\/]+)$/', "$1", $lvar['status']['org_fname']? $lvar['status']['org_fname'] : $lvar['name']) . ', ' . $lvar['info']);
+				$lvar['link'] = '';
+			}
+			$lvar['title'][] = (preg_match('/([^\/]+)$/', $lvar['status']['org_fname']? $lvar['status']['org_fname'] : $lvar['name'], $match))? $match[1] : '';
+			
+			if ($lvar['status']['copyright']) {
+				//著作権保護されている場合はサイズ$this->cont['PLUGIN_REF_COPYRIGHT_IMG_MAX%']%以内かつ縦横 $this->cont['PLUGIN_REF_COPYRIGHT_IMG_MAX']px 以内で表示
+				$params['_size'] = TRUE;
+				if ($img['org_w'] > $this->cont['PLUGIN_REF_COPYRIGHT_IMG_MAX'] || $img['org_h'] > $this->cont['PLUGIN_REF_COPYRIGHT_IMG_MAX'] ) {
+					$params['_h'] = $params['_w'] = $this->cont['PLUGIN_REF_COPYRIGHT_IMG_MAX'];
+					$params['zoom'] = TRUE;
+					$params['_%'] = '';
 				} else {
-					$lvar['text'] = htmlspecialchars(preg_replace('/([^\/]+)$/', "$1", $lvar['status']['org_fname']? $lvar['status']['org_fname'] : $lvar['name']));
-					$lvar['title'] = htmlspecialchars($lvar['info']);
+					$params['_%'] = $this->cont['PLUGIN_REF_COPYRIGHT_IMG_MAX%'];
 				}
 			}
 			
-			// 出力組み立て
-			if ($lvar['url']) {
-				// 画像
-				// lightbox
-				if (! $this->flg_lightbox_loaded && $this->root->ref_use_lightbox) {
-					$this->flg_lightbox_loaded = true;
-					$this->func->add_tag_head('lightbox.css');
-					$this->func->add_tag_head('lightbox.js');
-				}
-				$_size = '';
-				if ($img['width']) {
-					$_size .= ' width="' . $img['width'] . '"';
-				}
-				if ($img['height']) {
-					$_size .= ' height="' . $img['height'] . '"';
-				}
-				$align = '';
-				if ($inline) {
-					if ($params['right']) {
-						$align = ' align="right" style="float:right;"';
-					} else if ($params['left']) {
-						$align = ' align="left" style="float:left;"';
-					}
-				}
-				// 画像ファイル
-				$params['_body'] = '<img src="' . $lvar['url'] . '" alt="' . $lvar['title'] . '" title="' . $lvar['title'] . '"' . $img['class'] . $img['info'] . $_size . $align . ' />';
-				if (!$params['nolink'] && $lvar['link']) {
-					$params['_body'] = '<a href="' . $lvar['link'] . '" title="' . $lvar['title'] . '" type="img">' . $params['_body'] . '</a>';
-				}
-			} else {
-				// その他ファイル
-				$icon = $params['noicon'] ? '' : $this->cont['FILE_ICON'];
-				$params['_body'] = $icon . $lvar['text'];
-				if (!$params['nolink']) {
-					$params['_body'] = '<a href="' . $lvar['link'] . '" title="' . $lvar['title'] . '">' . $params['_body'] .'</a>';
+			// イメージ表示サイズの取得
+			$this->get_show_imagesize($img, $params);
+			
+			// 携帯用画像サイズ再設定
+			if ($this->cont['UA_PROFILE'] === 'keitai') {
+				if ($img['width'] > $this->root->keitai_img_px || $img['height'] > $this->root->keitai_img_px) {
+					$params['_h'] = $params['_w'] = $this->root->keitai_img_px;
+					$params['zoom'] = TRUE;
+					$params['_%'] = '';
+					$this->get_show_imagesize($img, $params);
 				}
 			}
+			
+			$lvar['img'] = $img;
+			$lvar['title'][] = $img['title'];
 
-			return $params;
+			//EXIF DATA
+			if ($this->cont['PLUGIN_REF_GET_EXIF']) {
+				$exif_data = $this->func->get_exif_data($lvar['file']);
+				if ($exif_data){
+					$lvar['title'][] = $exif_data['title'];
+					foreach($exif_data as $key => $value){
+						if ($key != "title") $lvar['title'][] = "$key: $value";
+					}
+				}
+			}
+			
+			$lvar['url'] = $lvar['file'];
+			if ($params['_%'] && $params['_%'] < 95) {
+				$_file = preg_split('/(\.[a-zA-Z]+)?$/', $lvar['name'], -1, PREG_SPLIT_DELIM_CAPTURE);
+				// Check original filename extention (for Renderer mode)
+				if (! $_file[1] && preg_match('/(\.[a-zA-Z]+)$/', $lvar['status']['org_fname'], $_match)) {
+					$_file[1] = $_match[1];
+				} 
+				$s_file = $this->cont['UPLOAD_DIR']."s/".$this->func->encode($lvar['page']).'_'.$params['_%']."_".$this->func->encode($_file[0]).$_file[1];
+				if (file_exists($s_file)) {
+					//サムネイル作成済みならそれを参照
+					$lvar['url'] = $s_file;
+				} else {
+					//サムネイル作成
+					$lvar['url'] = $this->make_thumb($lvar['file'], $s_file, $img['width'], $img['height']);
+				}
+			}
+			
+			// 元ファイルを表示
+			if ($lvar['url'] === $lvar['file']) {
+				// URI for in-line image output
+				if (! $this->cont['PLUGIN_REF_DIRECT_ACCESS']) {
+					// With ref plugin (faster than attach)
+					$lvar['url'] = $this->cont['DATA_HOME'] . 'gate.php?way=ref&amp;_nodos&amp;_noumb&amp;page=' . rawurlencode($lvar['page']) .
+					'&amp;src=' . rawurlencode($lvar['name']); // Show its filename at the last
+				} else {
+					// Try direct-access, if possible
+					$lvar['url'] = $lvar['file'];
+				}
+			} else if (! $lvar['status']['copyright']) {
+				// リンク先を指定
+				// URI for in-line image output
+				if (! $this->cont['PLUGIN_REF_DIRECT_ACCESS']) {
+					// With ref plugin (faster than attach)
+					$lvar['link'] = $this->cont['DATA_HOME'] . 'gate.php?way=ref&amp;_nodos&amp;_noumb&amp;page=' . rawurlencode($lvar['page']) .
+					'&amp;src=' . rawurlencode($lvar['name']); // Show its filename at the last
+				} else {
+					// Try direct-access, if possible
+					$lvar['link'] = $lvar['file'];
+				}
+			}
+			
+			// URL のローカルパスをURIパスに変換
+			$lvar['url'] = str_replace($this->cont['DATA_HOME'], $this->cont['HOME_URL'], $lvar['url']);
+			if ($lvar['link']) $lvar['link'] = str_replace($this->cont['DATA_HOME'], $this->cont['HOME_URL'], $lvar['link']);
+			$lvar['text'] = '';
+			$lvar['title'] = $lvar['title'] + $params['_title'];
+			if (! empty($lvar['title'])) {
+				$lvar['title'] = htmlspecialchars(join(', ', $lvar['title']));
+				$lvar['title'] = $this->func->make_line_rules($lvar['title']);
+			}
+		} else {
+			// Flashと添付その他
+			$lvar['url'] = '';
+			$filename = $lvar['status']['org_fname'];
+			$filename = str_replace(array(':', '*', '?', '"', '<', '>', '|'), '_', $filename);
+			$filename = '/' . rawurlencode($filename);
+			$noinline = ($params['noinline'])? '&amp;ni=1' : '';
+			$lvar['link'] = $this->cont['HOME_URL'] . 'gate.php' . $filename . '?way=attach&amp;_noumb' . $noinline . '&amp;refer=' . rawurlencode($lvar['page']) .
+					'&amp;openfile=' . rawurlencode($lvar['name']); // Show its filename at the last
+			if ($lvar['type'] !== 4) $lvar['title'] = $lvar['title'] + $params['_title'];
+			if (! empty($lvar['title'])) {
+				// タイトルが指定されている
+				$lvar['text'] = htmlspecialchars(join(', ', $lvar['title']));
+				$lvar['title'] = htmlspecialchars(preg_replace('/([^\/]+)$/', "$1", $lvar['status']['org_fname']? $lvar['status']['org_fname'] : $lvar['name']) . ', ' . $lvar['info']);
+			} else {
+				$lvar['text'] = htmlspecialchars(preg_replace('/([^\/]+)$/', "$1", $lvar['status']['org_fname']? $lvar['status']['org_fname'] : $lvar['name']));
+				$lvar['title'] = htmlspecialchars($lvar['info']);
+			}
 		}
 		
-		// ここからは Flash 専用
+		// 出力組み立て
+		if ($lvar['url']) {
+			// 画像
+			// lightbox
+			if (! $this->flg_lightbox_loaded && $this->root->ref_use_lightbox) {
+				$this->flg_lightbox_loaded = true;
+				$this->func->add_tag_head('lightbox.css');
+				$this->func->add_tag_head('lightbox.js');
+			}
+			$_size = '';
+			if ($img['width']) {
+				$_size .= ' width="' . $img['width'] . '"';
+			}
+			if ($img['height']) {
+				$_size .= ' height="' . $img['height'] . '"';
+			}
+			$align = '';
+			if ($inline) {
+				if ($params['right']) {
+					$align = ' align="right" style="float:right;"';
+				} else if ($params['left']) {
+					$align = ' align="left" style="float:left;"';
+				}
+			}
+			// 画像ファイル
+			$params['_body'] = '<img src="' . $lvar['url'] . '" alt="' . $lvar['title'] . '" title="' . $lvar['title'] . '"' . $img['class'] . $img['info'] . $_size . $align . ' />';
+			if (!$params['nolink'] && $lvar['link']) {
+				$params['_body'] = '<a href="' . $lvar['link'] . '" title="' . $lvar['title'] . '" type="img">' . $params['_body'] . '</a>';
+			}
+		} else {
+			// その他ファイル
+			$icon = $params['noicon'] ? '' : $this->cont['FILE_ICON'];
+			$params['_body'] = $icon . $lvar['text'];
+			if (!$params['nolink']) {
+				$params['_body'] = '<a href="' . $lvar['link'] . '" title="' . $lvar['title'] . '">' . $params['_body'] .'</a>';
+			}
+			if ($lvar['type'] === 4) {
+				$this->set_flash_tag ($params, $lvar);
+			} else if (isset($lvar['status']) && ! $params['noinline'] && ($lvar['status']['noinline'] < 0 || ($lvar['status']['admins'] && $lvar['status']['noinline'] < 1))) {
+				$lvar['url'] = $this->cont['HOME_URL'] . 'gate.php?way=ref&amp;_nodos&amp;_noumb&amp;page=' . rawurlencode($lvar['page']) .
+				'&amp;src=' . rawurlencode($lvar['name']); // Show its filename at the last
+
+
+				$width = ($params['_w'])? ' width="'.$params['_w'].'"' : '';
+				$height = ($params['_h'])? ' height="'.$params['_h'].'"' : '';
+				list($ext, $type) = $this->get_file_extention($lvar['name']);
+				if ($type) {
+					if ($ext === 'svg') {
+						//$this->func->add_js_var_head('XpWikiIeDomLoadedDisable', true);
+						$this->func->add_tag_head('sie-mini.js', FALSE, 'UTF-8', TRUE);
+					}
+					$params['_body'] = '<object data="'.$lvar['url'].'" type="'.$type.'"'.$width.$height.'><param name="src" value="'.$lvar['url'].'"></object>';
+				}
+			}
+		}
+
+		return $params;
+	}
+
+	function set_flash_tag (&$params, $lvar) {
+		// Flash
 		// $img パラメーターセット
 		$img = array(
 			'org_w' => 0,
@@ -561,82 +590,59 @@ class xpwiki_plugin_ref extends xpwiki_plugin {
 		$this->get_show_imagesize($img, $params);
 		
 		//初期化
-		$params['_qp']  =
-		$params['_q']   =
-		$params['_pp']  =
-		$params['_p']   =
-		$params['_lp']  =
-		$params['_l']   =
-		$params['_w']   =
-		$params['_h']   =
-		$params['_a']   =
-		$params['_bp']  =
-		$params['_b']   =
-		$params['_scp'] =
-		$params['_sc']  =
-		$params['_sap'] =
-		$params['_sa']  =
-		$params['_mp']  =
-		$params['_m']   =
-		$params['_wmp'] = "";
+		$f_a = $f_p = array();
 		
 		foreach ($params['_args'] as $arg){
 			$m = array();
+			if (preg_match("/^a(?:lign)?:(left|right|top|bottom)$/i",$arg,$m)){
+				$f_a['_a'] = "align:\"{$m[1]}\"";
+			}
 			if (preg_match("/^q(?:uality)?:((auto)?(high|low|best|medium))$/i",$arg,$m)){
-				$params['_qp'] = "<param name=\"quality\" value=\"{$m[1]}\">";
-				$params['_q']  = " quality=\"{$m[1]}\"";
+				$f_p['_q']  = "quality:\"{$m[1]}\"";
 			}
 			if (preg_match("/^p(?:lay)?:(TRUE|FALSE)$/i",$arg,$m)){
-				$params['_pp'] = "<param name=\"play\" value=\"{$m[1]}\">";
-				$params['_p']  = " play=\"{$m[1]}\"";
+				$f_p['_p']  = "play:\"{$m[1]}\"";
 			}
 			if (preg_match("/^l(?:oop)?:(TRUE|FALSE)$/i",$arg,$m)){
-				$params['_lp'] = "<param name=\"loop\" value=\"{$m[1]}\">";
-				$params['_l']  = " loop=\"{$m[1]}\"";
-			}
-			//if (preg_match("/^w(?:idth)?:([0-9]+)$/i",$arg,$m)){
-			//	$params['_w'] = " width=".$m[1];
-			//}
-			//if (preg_match("/^h(?:eight)?:([0-9]+)$/i",$arg,$m)){
-			//	$params['_h'] = " height=".$m[1];
-			//}
-			if (preg_match("/^a(?:lign)?:(l|r|t|b)$/i",$arg,$m)){
-				$params['_a'] = " align=\"{$m[1]}\"";
+				$f_p['_l']  = "loop:\"{$m[1]}\"";
 			}
 			if (preg_match("/^b(?:gcolor)?:#?([abcdef\d]{6,6})$/i",$arg,$m)){
-				$params['_bp'] = "<param name=\"bgcolor\" value=\"{$m[1]}\">";
-				$params['_b']  = " bgcolor=\"#{$m[1]}\"";
+				$f_p['_b']  = "bgcolor:\"#{$m[1]}\"";
 			}
 			if (preg_match("/^sc(?:ale)?:(showall|noborder|exactfit|noscale)$/i",$arg,$m)){
-				$params['_scp'] = "<param name=\"scale\" value=\"{$m[1]}\">";
-				$params['_sc']  = " scale=\"{$m[1]}\"";
+				$f_p['_sc']  = "scale:\"{$m[1]}\"";
 			}
 			if (preg_match("/^sa(?:lign)?:(l|r|t|b|tl|tr|bl|br)$/i",$arg,$m)){
-				$params['_sap'] = "<param name=\"salign\" value=\"{$m[1]}\">";
-				$params['_sa']  = " salign=\"{$m[1]}\"";
+				$f_p['_sa']  = "salign:\"{$m[1]}\"";
 			}
 			if (preg_match("/^m(?:enu)?:(TRUE|FALSE)$/i",$arg,$m)){
-				$params['_mp'] = "<param name=\"menu\" value=\"{$m[1]}\">";
-				$params['_m']  = " menu=\"{$m[1]}\"";
+				$f_p['_m']  = "menu:\"{$m[1]}\"";
 			}
 			if (preg_match("/^wm(?:ode)?:(window|opaque|transparent)$/i",$arg,$m)){
-				$params['_wmp'] = "<param name=\"wmode\" value=\"{$m[1]}\">";
+				$f_p['_wmp'] = "wmode:\"{$m[1]}\"";
 			}
 		}
 		$params['_w'] = " width=".$img['width'];
 		$params['_h'] = " height=".$img['height'];
 
-		$f_file = $this->root->script . '?plugin=ref' . '&amp;page=' . rawurlencode($lvar['page']) .
-			'&amp;src=' . rawurlencode($lvar['name']); // Show its filename at the last
-		$params['_body'] = <<<_HTML_
-<object classid="clsid:D27CDB6E-AE6D-11cf-96B8-444553540000" codebase="http://download.macromedia.com/pub/shockwave/cabs/flash/swflash.cab#version=6,0,79,0"{$params['_w']}{$params['_h']}{$params['_a']}>
-<param name="movie" value="{$f_file}">
-{$params['_qp']}{$params['_lp']}{$params['_pp']}{$params['_scp']}{$params['_sap']}{$params['_mp']}{$params['_wmp']}
-<embed src="{$f_file}" type="application/x-shockwave-flash" pluginspage="http://www.macromedia.com/jp/shockwave/download/index.cgi?P1_Prod_Version=ShockwaveFlash"{$params['_w']}{$params['_h']}{$params['_a']}{$params['_p']}{$params['_l']}{$params['_q']}{$params['_b']}{$params['_sc']}{$params['_sa']}{$params['_m']}>
-</embed>
-</object>
+		$cid = $this->root->mydirname . '_' . basename($lvar['file']);
+		$params['_body'] = '<span id="'.$cid.'">'.$params['_body'].'</span>';
+
+		$this->func->add_tag_head('swfobject.js');
+		$f_file = $this->cont['HOME_URL'] . 'gate.php?way=ref&_nodos&page=' . rawurlencode($lvar['page']) .
+					'&src=' . rawurlencode($lvar['name']);
+		$obj_p = 'var params = {' . join(',', $f_p) . '};';
+		$obj_a = 'var attributes = {' . join(',', $f_a) . '};';
+		$js = <<<_HTML_
+
+// <![CDATA[
+(function(){var flashvars = {}; {$obj_p} {$obj_a}
+swfobject.embedSWF("$f_file", "$cid", "{$img['width']}", "{$img['height']}", "9.0.0", "{$this->cont['HOME_URL']}skin/loader.php?src=expressInstall.swf",flashvars,params,attributes);})();
+// ]]>
+
 _HTML_;
-		return $params;
+		$this->func->add_js_var_head($js);
+		$this->func->add_js_var_head($js);
 	}
 
 	// divで包む
@@ -778,8 +784,8 @@ _HTML_;
 			
 			// ログファイル取得
 			$lvar['status'] = $this->get_fileinfo($lvar['file']);
-			
-			if ($lvar['status']['noinline'] > 0) {
+
+			if ($lvar['status']['noinline'] > 0 || $params['noinline']) {
 				$params['noimg'] = TRUE;
 			} else if ($lvar['status']['noinline'] > -1) {
 				if ($this->is_flash($lvar['file'])) {
@@ -803,8 +809,13 @@ _HTML_;
 
 			if (!$params['noimg'] && $this->is_picture($lvar['file'])) {
 				$lvar['type'] = 3;
-			} else if (!$params['noimg'] && $this->is_flash($lvar['file'])) {
-				$lvar['type'] = 4;
+			} else if ($this->is_flash($lvar['file'])) {
+				$params['_title'] = array();
+				if ($lvar['status']['copyright'] || $params['noimg']) {
+					$lvar['type'] = 5;
+				} else {
+					$lvar['type'] = 4;
+				}
 			} else {
 				$lvar['type'] = 5;
 			}
@@ -1009,7 +1020,23 @@ _HTML_;
 	{
 		return HypCommonFunc::make_thumb($url,$s_file,$width,$height,"1,95");
 	}
+	
+	function get_file_extention($filename) {
+		$ext = strtolower(preg_replace('/^.*\.([^.]+)$/', '$1', $filename));
+		switch($ext) {
+			case 'svg':
+				$type = 'image/svg+xml';
+				break;
+			//case 'pdf':
+			//	$type = 'application/pdf';
+			//	break;
+			default:
+				$type = '';
+		}
+		return array($ext, $type);
+	}
 
+/*
 	// オプションを解析する
 	function check_arg($val, & $params)
 	{
@@ -1026,6 +1053,7 @@ _HTML_;
 	
 		$params['_args'][] = $val;
 	}
+*/
 
 	// 拡張パラメーターの処理
 	function check_arg_ex (& $params, & $lvar) {
@@ -1051,7 +1079,7 @@ _HTML_;
 				$params['_w'] = $m[1];
 				$params['_h'] = $m[2];
 			} else {
-				$lvar['title'][] = $arg;
+				$params['_title'][] = $arg;
 			}
 		}
 	}
