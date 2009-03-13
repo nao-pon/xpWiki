@@ -1,8 +1,8 @@
 var XpWiki = {
 	Version: '20081003',
 	
-	MyUrl: '',
-	EncHint: '',
+	MyUrl: XpWikiModuleUrl,
+	EncHint: XpWikiEncHint,
 	
 	PopupDiv: null,
 	
@@ -12,6 +12,7 @@ var XpWiki = {
 	PopupRight:  '',
 	PopupHeight: '80%',
 	PopupWidth:  '300px',
+	PopupUrl: '',
 
 	fileupPopupTop:    '0px',
 	fileupPopupBottom: '',
@@ -30,11 +31,23 @@ var XpWiki = {
 	RendererPage: '',
 	SkinName: [],
 	
+	domInitFunctions: [],
+	isDomLoaded: true,
+	domInitDone: false,
+	
 	isIE8: (Prototype.Browser.IE && typeof(window.localStorage) != "undefined"),
 	isIE7: (Prototype.Browser.IE && typeof(document.documentElement.style.msInterpolationMode) != "undefined" && typeof(window.localStorage) == "undefined"),
 	isIE6: (Prototype.Browser.IE && typeof(document.documentElement.style.msInterpolationMode) == "undefined"),
 	
 	onDomLoaded: function () {
+		if (Prototype.Browser.IE && XpWikiIeDomLoadedDisable && this.isDomLoaded) {
+			this.isDomLoaded = false;
+			return;
+		}
+
+		if (this.domInitDone) return;
+		this.domInitDone = true;
+		
 		this.IEVer = this.isIE8? 8 : (this.isIE7? 7 : (this.isIE6? 6 : 0));
 		this.MyUrl = XpWikiModuleUrl;
 		this.EncHint = XpWikiEncHint;
@@ -46,10 +59,22 @@ var XpWiki = {
 		this.addCssInHead('base.css');
 
 		var body = document.getElementsByTagName('body')[0];
-		this.remakeTextArea(body);
-		wikihelper_initTexts(body);
+		if (!this.isIE6 || !this.ie6JsPass) {
+			this.remakeTextArea(body);
+			wikihelper_initTexts(body);
+		}
+
 		this.initDomExtension(body);
-		this.faviconSet(body);
+
+		if (this.domInitFunctions) {
+			while (this.domInitFunctions.length > 0) {
+				this.domInitFunctions.shift()();
+			}
+		}
+
+		if (!this.isIE6 || !this.ie6JsPass) {
+			this.faviconSet(body);
+		}
 	},
 	
 	initPopupDiv: function (arg) {
@@ -195,27 +220,28 @@ var XpWiki = {
 		if (!arg.dir || !arg.page) return true;
 		
 		if (typeof(document.body.style.maxHeight) != 'undefined') {
-			if (!!$('XpWikiPopup') && this.dir == arg.dir && this.page == arg.page) {
-				Element.show(this.PopupDiv);
-				return false;
-			}
-			
 			this.dir = arg.dir;
 			this.page = arg.page.replace(/(#[^#]+)?$/, '');
 			var hash = arg.page.replace(/^[^#]+/, '');
-			
-			this.title = this.htmlspecialchars(this.page);
-			
-			this.initPopupDiv(arg);
-			$('XpWikiPopupHeaderTitle').innerHTML = 'Now loading...';
-	
+
 			var url = this.MyUrl + '/' + this.dir + '/?cmd=read';
 			url += '&page=' + encodeURIComponent(this.page);
 			url += '&popup=1';
 			url += '&encode_hint=' + encodeURIComponent(this.EncHint);
 			url += hash;
+
+			if (!!$('XpWikiPopup') && url == this.PopupUrl) {
+				Element.show(this.PopupDiv);
+				return false;
+			}
 			
-			$('XpWikiPopupBody').src = url;
+			this.PopupUrl = url;
+			
+			this.title = this.htmlspecialchars(this.page);
+			
+			this.initPopupDiv(arg);
+			$('XpWikiPopupHeaderTitle').innerHTML = 'Now loading...';
+			$('XpWikiPopupBody').src = this.PopupUrl;
 			Element.show(this.PopupDiv);
 		} else {
 			this.dir = arg.dir;
@@ -805,6 +831,8 @@ var XpWiki = {
 		url += '&mode=' + mode;
 		url += '&encode_hint=' + encodeURIComponent(this.EncHint);
 		
+		this.PopupUrl = url;
+		
 		if (this.isIE6) {
 			url += '&winop=1';
 			if (!window.self.name) {
@@ -866,7 +894,7 @@ var XpWiki = {
 					var reg = new RegExp('/'+dir);
 					if (form.action.match(reg)) {
 						this.UploadDir = dir;
-						this.UploadPage = (form.page || form.refer).value;
+						this.UploadPage = (form.uploadpage || form.page || form.refer).value;
 					}
 				}
 			} else {
@@ -1120,4 +1148,74 @@ function FCKeditor_OnComplete(editorInstance) {
 		$(editorInstance.Name).value = '&nbsp;';
 	}
 
+}
+
+if (typeof addEventListener == 'undefined') {
+	/* 
+	 * Bugfix of IE's Event
+	 * http://www.yabooo.org/archives/122
+	 */
+	if(Prototype.Browser.IE)(function() {
+		var eventCache ={};
+		var wrapperCache = {};
+		function getEventCache(elementID,eventName){
+			if(!eventCache[elementID])eventCache[elementID]={};
+			if(!eventCache[elementID][eventName])eventCache[elementID][eventName]=[];
+			return eventCache[elementID][eventName];
+		}
+		function createFixedOrderWrapper(elementID,eventName){
+			var wrapper= function(event){
+				getEventCache(elementID,eventName).each(function(func){
+					func(event);
+				});
+			};
+			if(!wrapperCache[elementID])wrapperCache[elementID]= {};
+			wrapperCache[elementID][eventName] = wrapper;
+			return wrapper;
+		}
+		function getEventId(element) {
+			return element._prototypeEventID || element._eventID;
+		}
+		function addEventListenerIE(element,eventName,func,capture){
+			var id = getEventId(element);
+			var length =getEventCache(id,eventName).push(func);
+			if(length == 1){
+				element.attachEvent('on'+eventName,createFixedOrderWrapper(id,eventName));
+			}
+		}
+		function removeEventListenerIE(element,eventName,func,capture){
+			var id = getEventId(element);
+			var cache =getEventCache(id,eventName);
+			if(cache.length>0){
+				eventCache[id][eventName]=cache.without(func);
+				if(eventCache[id][eventName].length == 0){
+					element.detachEvent('on'+eventName,wrapperCache[id][eventName]);
+				}
+			}
+		}
+		Element.addMethods({
+			addEventListener:addEventListenerIE,
+			removeEventListener:removeEventListenerIE
+		});
+		Object.extend(window, {
+			addEventListener: addEventListenerIE.methodize(),
+			removeEventListener: removeEventListenerIE.methodize()
+		});
+		Object.extend(document, {
+			addEventListener: addEventListenerIE.methodize(),
+			removeEventListener: removeEventListenerIE.methodize()
+		});
+		(function(){
+			var flag =true;
+			Event.observe(window,'load',function(){
+				if(flag){
+					document.fire('dom:loaded');
+					document.stopObserving('dom:loaded');
+				}
+			});
+			document.observe('dom:loaded',function(evt){
+				flag =false;
+			});
+		})();
+	})();
 }
