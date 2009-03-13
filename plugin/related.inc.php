@@ -1,6 +1,6 @@
 <?php
 // PukiWiki - Yet another WikiWikiWeb clone
-// $Id: related.inc.php,v 1.6 2009/01/19 08:43:56 nao-pon Exp $
+// $Id: related.inc.php,v 1.7 2009/03/13 08:18:49 nao-pon Exp $
 //
 // Related plugin: Show Backlinks for the page
 
@@ -46,7 +46,7 @@ class xpwiki_plugin_related extends xpwiki_plugin {
 			$options['max'] = $this->config['showMaxConvert'];
 		}
 		
-		$ret = $this->func->make_related($this->root->vars['page'], 'p', $options['max'], $options);
+		$ret = $this->func->make_related($this->cont['PageForRef'], 'p', $options['max'], $options);
 		
 		if ($options['separate']) {
 			$ret = str_replace(array(">\x08", "\x08<", "\x08"), array('>...', '...<', '...</div><div class="context">...'), $ret);

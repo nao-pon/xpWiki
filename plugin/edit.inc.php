@@ -1,6 +1,6 @@
 <?php
 // PukiWiki - Yet another WikiWikiWeb clone.
-// $Id: edit.inc.php,v 1.65 2009/03/02 01:31:22 nao-pon Exp $
+// $Id: edit.inc.php,v 1.66 2009/03/13 08:18:49 nao-pon Exp $
 // Copyright (C) 2001-2006 PukiWiki Developers Team
 // License: GPL v2 or (at your option) any later version
 //
@@ -442,6 +442,10 @@ EOD;
 					$body = '<script src="" />';
 				} else {
 					$body = $obj->body;
+					// set target
+					if (isset($this->root->vars['popup'])) {
+						$body = preg_replace('/(<a[^>]+)(href=(?:"|\')[^#])/isS', '$1target="' . ((intval($this->root->vars['popup']) === 1)? '_parent' : htmlspecialchars(substr($this->root->vars['popup'],0,30))) . '" $2', $body);
+					}
 					$body = str_replace(array('<![CDATA[', ']]>'), '', $body);
 				}
 				

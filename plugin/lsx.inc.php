@@ -1,5 +1,5 @@
 <?php
-// $Id: lsx.inc.php,v 1.11 2009/02/22 02:01:56 nao-pon Exp $
+// $Id: lsx.inc.php,v 1.12 2009/03/13 08:18:49 nao-pon Exp $
 
 class xpwiki_plugin_lsx extends xpwiki_plugin {
 	
@@ -160,13 +160,13 @@ class XpWikiPluginLsx
 			// best is to change only default to off at tag option, though. 
 		} else {
 			if ($this->options['prefix'][1] == '') {
-				$this->options['prefix'][1] = $this->root->vars['page'] != '' ? $this->root->vars['page'] . '/' : '';
+				$this->options['prefix'][1] = $this->cont['PageForRef'] !== '' ? $this->cont['PageForRef'] . '/' : '';
 			}
 		}
 		if ($this->options['prefix'][1] == '/') {
 			$this->options['prefix'][1] = '';
 		} elseif ($this->options['prefix'][1] != '') {
-			$this->options['prefix'][1] = $this->get_fullname($this->options['prefix'][1], $this->root->vars['page']);
+			$this->options['prefix'][1] = $this->get_fullname($this->options['prefix'][1], $this->cont['PageForRef']);
 		}
 
 		if ($this->options['sort'][1] == 'date') {
@@ -290,9 +290,9 @@ class XpWikiPluginLsx
 				$diff = $depth - $pdepth;
 				$html .= str_repeat('<ul><li style="list-style:none">', $diff - 1);
 				if ($depth == 1) { // or $first flag
-					$html .= '<ul class="' . $this->plugin . '"><li>';
+					$html .= '<ul class="list1 ' . $this->plugin . '"><li>';
 				} else {
-					$html .= '<ul><li>';
+					$html .= '<ul class="list'.$depth.'"><li>';
 				}
 				$ul += $diff;
 			} elseif ($depth == $pdepth) {

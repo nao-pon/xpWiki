@@ -1,7 +1,7 @@
 <?php
 //
 // Created on 2006/10/02 by nao-pon http://hypweb.net/
-// $Id: xpwiki_func.php,v 1.204 2009/03/02 01:31:22 nao-pon Exp $
+// $Id: xpwiki_func.php,v 1.205 2009/03/13 08:18:49 nao-pon Exp $
 //
 class XpWikiFunc extends XpWikiXoopsWrapper {
 
@@ -504,7 +504,7 @@ class XpWikiFunc extends XpWikiXoopsWrapper {
 		} else {
 			// 通常のレンダリング
 			$this->root->rtf['convert_nest'] = 0;
-			$body  = $this->convert_html($this->get_source($page));
+			$body = $this->convert_html($this->get_source($page));
 			$this->root->content_title = $this->get_heading($page);
 			// キャッシュ保存
 			if ($this->cont['UA_PROFILE'] !== 'keitai' && (! empty($this->root->rtf['use_cache_always']) || ($this->root->userinfo['uid'] === 0 && $this->root->pagecache_min > 0))) {
@@ -663,6 +663,11 @@ EOD;
 		
 		// サイト規定値読み込み
 		$pginfo = $this->root->pginfo;
+		
+		// Noteページ?
+		if (strpos($page, $this->root->notepage . '/') === 0) {
+			$page = substr($page, strlen($this->root->notepage) + 1) . '/';
+		}
 		
 		$done['edit'] = $done['view'] = 0;
 		while ($done['edit'] < 2 && $done['view'] < 2) {
@@ -923,6 +928,7 @@ EOD;
 	function add_js_var_head ($name, $var = NULL, $pre = FALSE) {
 		if (is_null($var)) {
 			$src = $name;
+			$key = md5($src);
 		} else {
 			if (is_numeric($var)) {
 				// Do nothing
@@ -931,17 +937,16 @@ EOD;
 			} else {
 				$var = '"' . htmlspecialchars($var) . '"';
 			}
-			$src = $name . ' = ' . $var . ';';
+			$key = $src = $name . ' = ' . $var . ';';
 		}
 		$target = $pre? 'head_pre_tags' : 'head_tags';
-		$_src = $src;
 		if ($this->root->render_mode === 'render') {
 			$src = '<!--' . "\n" . $src . '//-->';
 		}
-		$this->root->{$target}[$_src] = '<script type="text/javascript">' . $src . '</script>';
+		$this->root->{$target}[$key] = '<script type="text/javascript">' . $src . '</script>';
 	}
 	
-	function add_tag_head ($file, $pre = FALSE, $charset = '') {
+	function add_tag_head ($file, $pre = FALSE, $charset = '', $defer = false) {
 		static $done = array();
 		if ($this->root->render_mode !== 'render') {
 			if (isset($done[$this->xpwiki->pid][$file])) { return; }
@@ -973,11 +978,12 @@ EOD;
 				}
 				
 			} else if ($match[2] === 'js') {
-				$key = 'js:' . $charset;
+				$defer = $defer? ' defer="defer"' : '';
+				$key = 'js:' . $charset . $defer;
 				if (isset($this->root->{$target}[$key])) {
 					$this->root->{$target}[$key] = str_replace('.js"', ',' . $match[1] . '.js"', $this->root->{$target}[$key]);
 				} else {
-					$this->root->{$target}[$key] = '<script type="text/javascript" src="'.$this->cont['LOADER_URL'].'?src='.$match[1].'.js"' . $charset . '></script>';
+					$this->root->{$target}[$key] = '<script type="text/javascript" src="'.$this->cont['LOADER_URL'].'?src='.$match[1].'.js"' . $charset . $defer . '></script>';
 				}
 				if (empty($this->root->rtf['HeadJsAjaxSafe'])) {
 					$this->root->rtf['useJavascriptInHead'] = TRUE;
@@ -989,7 +995,7 @@ EOD;
 		}
 	}
 
-	function add_js_head ($file, $pre = FALSE, $charset = '') {
+	function add_js_head ($file, $pre = FALSE, $charset = '', $defer = false) {
 		static $done = array();
 		if ($this->root->render_mode !== 'render') {
 			if (isset($done[$this->xpwiki->pid][$file])) { return; }
@@ -997,9 +1003,10 @@ EOD;
 		}
 		
 		if ($charset) $charset = ' charset="' . $charset . '"';
-		$target = $pre? 'head_pre_tags' : 'head_tags';
+		$defer = $defer? ' defer="defer"' : '';
+		$target = $pre? 'head_pre_tags' : 'head_tags'; 
 		
-		$this->root->{$target}['js'.$file] = '<script type="text/javascript" src="' . $file . '"' . $charset . '></script>';
+		$this->root->{$target}['js'.$file] = '<script type="text/javascript" src="' . $file . '"' . $charset . $defer . '></script>';
 		if (empty($this->root->rtf['HeadJsAjaxSafe'])) {
 			$this->root->rtf['useJavascriptInHead'] = TRUE;
 			$this->root->rtf['HeadJsAjaxSafe'] = NULL;
@@ -1532,7 +1539,7 @@ EOD;
 	
 	function output_popup ($body) {
 		// set target
-		$body = preg_replace('/(<a[^>]+)(href=(?:"|\')[^#])/isS', '$1target="' . ((intval($this->root->get['popup']) === 1)? '_parent' : htmlspecialchars(substr($this->root->get['popup'],0,30))) . '" $2', $body);
+		$body = preg_replace('/(<a[^>]+)(href=(?:"|\')[^#])/isS', '$1target="' . ((intval($this->root->vars['popup']) === 1)? '_parent' : htmlspecialchars(substr($this->root->vars['popup'],0,30))) . '" $2', $body);
 		
 		// Head Tags
 		list($head_pre_tag, $head_tag) = $this->get_additional_headtags();
@@ -1829,6 +1836,14 @@ EOD;
 		// For Safari
 		if ($this->cont['UA_NAME'] === 'Safari') {
 			$body = preg_replace('/(<form)([^>]*>)/' , '$1 accept-charset="UTF-8"$2', $body);
+		}
+		
+		if ($this->root->viewmode === 'popup') {
+			$body = preg_replace('/(<form[^>]*?>)/' , '$1<input type="hidden" name="popup" value="1" />', $body);
+		}
+		
+		if ($this->cont['PageForRef'] !== $this->cont['PAGENAME']) {
+			$body = preg_replace('/(<form[^>]*?>)/' , '$1<input type="hidden" name="uploadpage" value="'.htmlspecialchars($this->cont['PageForRef']).'" />', $body);
 		}
 		
 		// TextArea id

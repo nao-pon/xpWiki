@@ -9,7 +9,7 @@ class xpwiki_plugin_ls extends xpwiki_plugin {
 	 * CopyRight 2002 Y.MASUI GPL2
 	 * http://masui.net/pukiwiki/ masui@masui.net
 	 *
-	 * $Id: ls.inc.php,v 1.5 2008/03/12 23:59:25 nao-pon Exp $
+	 * $Id: ls.inc.php,v 1.6 2009/03/13 08:18:49 nao-pon Exp $
 		 */
 
 	}
@@ -26,7 +26,7 @@ class xpwiki_plugin_ls extends xpwiki_plugin {
 			$with_title = in_array('title',$args);
 		}
 	
-		$prefix = $this->root->vars['page'].'/';
+		$prefix = $this->cont['PageForRef'].'/';
 	
 		$pages = array();
 		foreach ($this->func->get_existpages(FALSE, $prefix) as $page)
