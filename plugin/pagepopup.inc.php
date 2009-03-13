@@ -1,7 +1,7 @@
 <?php
 /*
  * Created on 2007/10/05 by nao-pon http://hypweb.net/
- * $Id: pagepopup.inc.php,v 1.4 2009/02/22 02:01:56 nao-pon Exp $
+ * $Id: pagepopup.inc.php,v 1.5 2009/03/13 08:14:45 nao-pon Exp $
  */
 
 class xpwiki_plugin_pagepopup extends xpwiki_plugin {
@@ -26,7 +26,7 @@ class xpwiki_plugin_pagepopup extends xpwiki_plugin {
 		
 		$alias = array_pop($op);
 		
-		$page = (isset($op[0]))? $op[0] : '';
+		$page = (isset($op[0]))? $op[0] : $this->root->vars['page'];
 		list($page, $anchor) = array_pad(explode('#', $page), 2, '');
 		if ($anchor) $anchor = '#' . $anchor;
 		$nocheck = (empty($op[1]))? FALSE : TRUE;
