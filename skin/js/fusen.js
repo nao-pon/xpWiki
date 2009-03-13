@@ -9,7 +9,7 @@
 //
 // fusen.js for xpWiki by nao-pon
 // http://hypweb.net
-// $Id: fusen.js,v 1.16 2008/12/08 23:34:17 nao-pon Exp $
+// $Id: fusen.js,v 1.17 2009/03/13 08:03:17 nao-pon Exp $
 // 
 var fusenVar = new Array();
 var fusenMsgs = new Array();
@@ -1703,16 +1703,14 @@ function fusen_init(mode)
 
 function fusen_set_elements()
 {
+	var hobj = $('fusen_help');
 	var html;
 	html = '[<a href="javascript:fusen_hide(\'fusen_help\')" title="' + fusenMsgs['close'] + '">&#215;</a>]'
 + fusenMsgs['help_html'];
-	var hobj = $('fusen_help');
 	hobj.innerHTML = html;
 	hobj.style.width = 'auto';
 	hobj.style.width = hobj.offsetWidth + 'px';
 	var eobj = $('fusen_editbox');
-	//eobj.style.width = 'auto';
-	//eobj.style.width = eobj.offsetWidth + 'px';
 }
 
 function fusen_size_init(obj)
@@ -1796,7 +1794,7 @@ function fusen_list_make()
 	return;
 }
 
-document.observe("dom:loaded", function() {
+function fusen_onload() {
 	//$('fusen_area').style.width = '1000px;'
 
 	if (fusenVar['base']) {
@@ -1838,5 +1836,7 @@ document.observe("dom:loaded", function() {
 			fusenVar['mouseX'] = e.pageX;
 			fusenVar['mouseY'] = e.pageY;
 		}
-	};
-});
+	}
+}
+
+XpWiki.domInitFunctions.push(fusen_onload);

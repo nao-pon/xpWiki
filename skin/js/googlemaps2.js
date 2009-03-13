@@ -598,7 +598,7 @@ function p_googlemaps_auto_zoom (page, mapname) {
 		map.setCenter( gb.getCenter(), map.getBoundsZoomLevel( gb ) );
 }
 
-document.observe("dom:loaded", function() {
+XpWiki.domInitFunctions.push(function() {
 	if (GBrowserIsCompatible()) {
 		while (onloadfunc.length > 0) {
 			onloadfunc.shift()();
