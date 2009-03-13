@@ -1,7 +1,7 @@
 <?php
 // PukiWiki - Yet another WikiWikiWeb clone.
 //
-// $Id: ls2.inc.php,v 1.15 2009/02/22 02:01:56 nao-pon Exp $
+// $Id: ls2.inc.php,v 1.16 2009/03/13 08:18:49 nao-pon Exp $
 //
 // List plugin 2
 
@@ -110,7 +110,7 @@ class xpwiki_plugin_ls2 extends xpwiki_plugin {
 		
 		$prefix = ($params['prefix'])? $prefix = $params['prefix'] : '';
 
-		if ($prefix === '') $prefix = $this->func->strip_bracket($this->root->vars['page']) . '/';
+		if ($prefix === '') $prefix = $this->func->strip_bracket($this->cont['PageForRef']) . '/';
 		if ($prefix === '/') $prefix = '';
 		$params['_base_lev'] = substr_count($prefix, '/');
 		

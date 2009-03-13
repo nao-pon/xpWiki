@@ -1,6 +1,6 @@
 <?php
 // PukiWiki - Yet another WikiWikiWeb clone
-// $Id: pukiwiki.ini.php,v 1.90 2009/03/02 09:28:17 nao-pon Exp $
+// $Id: pukiwiki.ini.php,v 1.91 2009/03/13 08:18:49 nao-pon Exp $
 // Copyright (C)
 //   2002-2006 PukiWiki Developers Team
 //   2001-2002 Originally written by yu-ji
@@ -147,6 +147,7 @@ $root->interwiki    = 'InterWikiName'; // Set InterWiki definition here
 $root->aliaspage    = 'AutoAliasName'; // Set AutoAlias definition here
 $root->menubar      = 'MenuBar';       // Menu
 $root->render_attach= ':RenderAttaches';
+$root->notepage     = ':Note';
 
 $const['PLUGIN_RENAME_LOGPAGE'] = ':RenameLog'; // Rename Log page
 
@@ -156,6 +157,28 @@ $root->pages_for_attach = '';
 
 // Guest user's name (It will be overwrite by xoops setting.)
 $root->anonymous = 'anonymous';
+
+// ページポップアップ CSS
+$root->page_popup_position = array(
+	// Array values are value of the CSS.
+	'top'    => '',
+	'bottom' => '',
+	'left'   => '',
+	'right'  => '',
+	'width'  => '',
+	'height' => ''
+);
+
+// Noteポップアップ CSS
+$root->note_popup_position = array(
+	// Array values are value of the CSS.
+	'top'    => '0px',
+	'bottom' => '',
+	'left'   => '0px',
+	'right'  => '',
+	'width'  => '40%',
+	'height' => '300px'
+);
 
 /////////////////////////////////////////////////
 // Always output "nofollow,noindex" attribute
@@ -469,7 +492,8 @@ $root->filelist_only_admin = 0;
 
 $root->auto_template_func = 1;
 $root->auto_template_rules = array(
-	'((.+)\/([^\/]+))' => array('\2/template', ':template/\2', 'template', ':template/default') ,
+	'((.+)\/([^\/]+))' => array('\2/template', ':template/\2') ,
+	//'(([^\/]+)\/(?:[^\/]+\/)*([^\/]+))' => array('\2/template', ':template/\2') ,
 	'(()(.+))'         => array('template', ':template/default') ,
 );
 
@@ -531,6 +555,8 @@ $root->css_prefix = '';
 // ie で Dom:loaded を使わず window.loaded を使う
 $root->ieDomLoadedDisabled = 0;
 
+// IE6 では、いくつかの重い JavaScript を無効にする
+$root->ie6JsPass = 1;
 
 /////////////////////////////////////////////////
 // レンダラーモード用設定

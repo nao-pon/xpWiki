@@ -2,7 +2,7 @@
 /*
  * Created on 2009/01/19 by nao-pon http://hypweb.net/
  * License: GPL v2 or (at your option) any later version
- * $Id: relatedview.inc.php,v 1.1 2009/01/19 08:44:53 nao-pon Exp $
+ * $Id: relatedview.inc.php,v 1.2 2009/03/13 08:18:49 nao-pon Exp $
  */
 
 // #relatedview([noautolink][,nowikiname][,eachpage][,search:<PageName or Regex with "#">][,nosearch:<PageName or Regex with "#">])
@@ -97,7 +97,7 @@ class xpwiki_plugin_relatedview extends xpwiki_plugin {
 				return '<p>relatedview : unknown option(s). '.htmlspecialchars(join(',', $args['_args'])).'</p>';
 			}
 		}
-		$category = isset($this->root->vars['page']) ? $this->func->strip_bracket($this->root->vars['page']) : '';
+		$category = isset($this->cont['PageForRef']) ? $this->func->strip_bracket($this->cont['PageForRef']) : '';
 		$q_category = preg_quote($category, '/');
 		if(! empty($args['search']) && !preg_match('/^#.*#$/', $args['search']))
 			$args['search'] = '#^'.preg_quote($this->func->get_fullname($args['search'], $category), '#').'#';

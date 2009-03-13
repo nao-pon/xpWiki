@@ -1,7 +1,7 @@
 <?php
 //
 // Created on 2006/10/11 by nao-pon http://hypweb.net/
-// $Id: xoops_wrapper.php,v 1.50 2009/02/22 01:38:58 nao-pon Exp $
+// $Id: xoops_wrapper.php,v 1.51 2009/03/13 08:18:49 nao-pon Exp $
 //
 class XpWikiXoopsWrapper extends XpWikiBackupFunc {
 	
@@ -418,6 +418,9 @@ class XpWikiXoopsWrapper extends XpWikiBackupFunc {
 	function redirect_header($url, $wait = 3, $title = '', $addredirect = true) {
 		$url = $this->href_give_session_id($url);
 		$url = str_replace('&amp;', '&', $url);
+		if ($this->root->viewmode === 'popup') {
+			$url .= (strpos($url, '?')? '&' : '?') . 'popup=1';
+		}
 		redirect_header($url, $wait, $title, $addredirect);
 		exit;
 	}

@@ -1,6 +1,6 @@
 <?php
 // PukiWiki - Yet another WikiWikiWeb clone.
-// $Id: pukiwiki.skin.php,v 1.40 2009/02/22 01:29:32 nao-pon Exp $
+// $Id: pukiwiki.skin.php,v 1.41 2009/03/13 08:18:49 nao-pon Exp $
 // Copyright (C)
 //   2002-2006 PukiWiki Developers Team
 //   2001-2002 Originally written by yu-ji
@@ -134,6 +134,7 @@ EOD;
 
 <div class="navigator_info">
  <span id="xpwiki_fusenlist" style="display:none;">[ <!--FU--><!--SEN--> ]</span>
+ <?php if ($subnote) echo $this->do_plugin_inline('subnote', 'format:[ %s ],popup', 'Note'); ?>
 <?php if ($this->root->trackback) { ?>
  [ <?php $navigator($this,'trackback', $lang['trackback'] . '(' . $this->tb_count($_page) . ')',
  	($trackback_javascript == 1) ? 'onclick="OpenTrackback(this.href); return false"' : '') ?> ]

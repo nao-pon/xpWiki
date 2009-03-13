@@ -1,7 +1,7 @@
 <?php
 //
 // Created on 2006/10/02 by nao-pon http://hypweb.net/
-// $Id: pukiwiki_func.php,v 1.199 2009/02/24 00:08:52 nao-pon Exp $
+// $Id: pukiwiki_func.php,v 1.200 2009/03/13 08:18:49 nao-pon Exp $
 //
 class XpWikiPukiWikiFunc extends XpWikiBaseFunc {
 
@@ -962,7 +962,7 @@ class XpWikiPukiWikiFunc extends XpWikiBaseFunc {
 
 //----- Start convert_html.php -----//
 	// PukiWiki - Yet another WikiWikiWeb clone
-	// $Id: pukiwiki_func.php,v 1.199 2009/02/24 00:08:52 nao-pon Exp $
+	// $Id: pukiwiki_func.php,v 1.200 2009/03/13 08:18:49 nao-pon Exp $
 	// Copyright (C)
 	//   2002-2005 PukiWiki Developers Team
 	//   2001-2002 Originally written by yu-ji
@@ -1217,7 +1217,7 @@ class XpWikiPukiWikiFunc extends XpWikiBaseFunc {
 
 //----- Start func.php -----//
 	// PukiWiki - Yet another WikiWikiWeb clone.
-	// $Id: pukiwiki_func.php,v 1.199 2009/02/24 00:08:52 nao-pon Exp $
+	// $Id: pukiwiki_func.php,v 1.200 2009/03/13 08:18:49 nao-pon Exp $
 	// Copyright (C)
 	//   2002-2006 PukiWiki Developers Team
 	//   2001-2002 Originally written by yu-ji
@@ -1333,34 +1333,41 @@ class XpWikiPukiWikiFunc extends XpWikiBaseFunc {
 	{
 		if (! $this->root->auto_template_func) return '';
 	
+		$basename = $this->page_basename($page);
 		$body = '';
 		$matches = array();
 		foreach ($this->root->auto_template_rules as $rule => $template) {
 			$rule_pattrn = '/' . $rule . '/';
-	
-			if (! preg_match($rule_pattrn, $page, $matches)) continue;
-			
-			if (!is_array($template)) {
-				$template = array($template);
+			$template_page = '';
+			if (preg_match($rule_pattrn, $page, $matches)) {
+				if (!is_array($template)) {
+					$template = array($template);
+				}
+				do {
+					foreach($template as $_template) {
+						$template_page = preg_replace($rule_pattrn, $_template, $page);
+						if ($this->is_page($template_page)) break(2);
+					}
+					if ($page = $this->page_dirname($this->page_dirname($page))) {
+						$page .= '/' . $basename;
+					}
+				} while($page);
 			}
-			foreach($template as $_template) {
-				$template_page = preg_replace($rule_pattrn, $_template, $page);
-				if ($this->is_page($template_page)) break;
-			}
 			
-			if (! $this->is_page($template_page)) continue;
+			if (! $template_page || ! $this->is_page($template_page)) continue;
 			
 			$body = $this->get_source($template_page, TRUE, TRUE);
-	
+			
 			// Remove fixed-heading anchors, '#freeze' etc.
 			$this->cleanup_template_source($body);
-	
+			
 			$count = count($matches);
-			for ($i = 0; $i < $count; $i++)
+			for ($i = 0; $i < $count; $i++) {
 				$body = str_replace('$' . $i, $matches[$i], $body);
-	
+			}
 			break;
 		}
+
 		return $body;
 	}
 	
@@ -2050,7 +2057,7 @@ EOD;
 
 //----- Start make_link.php -----//
 	// PukiWiki - Yet another WikiWikiWeb clone.
-	// $Id: pukiwiki_func.php,v 1.199 2009/02/24 00:08:52 nao-pon Exp $
+	// $Id: pukiwiki_func.php,v 1.200 2009/03/13 08:18:49 nao-pon Exp $
 	// Copyright (C)
 	//   2003-2005 PukiWiki Developers Team
 	//   2001-2002 Originally written by yu-ji
@@ -2171,9 +2178,37 @@ EOD;
 		if (! isset($this->root->notyets[$page]) && $page !== $this->root->vars['page'] && !$this->is_page($page))
 			$this->root->notyets[$page] = TRUE;
 
+		// Popup link (renderer)
+		if ($this->root->render_mode === 'render' && ($this->root->render_popuplink === 1 || ($this->root->render_popuplink === 2 && $class === 'autolink')) && !isset($options['popup']['use'])) {
+			$options['popup']['use'] = 1;
+			static $popup_pos = NULL;
+			if (is_null($popup_pos)) {
+				$popup_pos = '';
+				foreach(array('top', 'left', 'bottom', 'right', 'width', 'height') as $_prm) {
+					if (isset($this->root->render_popuplink_position[$_prm])) {
+						if (preg_match('/^(\d+)(%|p(?:x|c|t)|e(?:m|x)|in|(?:c|m)m)?/', $this->root->render_popuplink_position[$_prm], $_match)) {
+						 	if (empty($_match[2])) $_match[2] = 'px';
+						 	$popup_pos .= ',' . $_prm . ':\'' . $_match[1] . $_match[2] . '\'';
+						}
+					}
+				}
+			}
+			$options['popup']['position'] = $popup_pos;
+		}
+		
+		// Popup link
+		$onclick = '';
+		if (isset($options['popup']['use'])) {
+			$onclick = ' onclick="return XpWiki.pagePopup({dir:\'' . htmlspecialchars($this->root->mydirname, ENT_QUOTES) .
+			'\',page:\'' . htmlspecialchars($page . $anchor, ENT_QUOTES) . '\'' .
+			(isset($options['popup']['position'])? $options['popup']['position'] : '' ) .
+			'});"';
+			$class .= '_popup';
+		}
+
 		if ($class === 'autolink' || !empty($options['nocheck']) || $this->is_page($page)) {
 			// ownpage
-			if ($this->root->vars['cmd'] === 'read' && $this->cont['PAGENAME'] === $page && $anchor === '') {
+			if ($this->root->vars['cmd'] === 'read' && $this->cont['PAGENAME'] === $page && $anchor === '' && !$onclick) {
 				return $basepath . '<span class="thispage">' . $s_alias . '</span>';
 			}
 			
@@ -2191,35 +2226,7 @@ EOD;
 			} else {
 				$al_left = $al_right = '';
 			}
-			
-			// Popup link (renderer)
-			if ($this->root->render_mode === 'render' && ($this->root->render_popuplink === 1 || ($this->root->render_popuplink === 2 && $class === 'autolink')) && !isset($options['popup']['use'])) {
-				$options['popup']['use'] = 1;
-				static $popup_pos = NULL;
-				if (is_null($popup_pos)) {
-					$popup_pos = '';
-					foreach(array('top', 'left', 'bottom', 'right', 'width', 'height') as $_prm) {
-						if (isset($this->root->render_popuplink_position[$_prm])) {
-							if (preg_match('/^(\d+)(%|p(?:x|c|t)|e(?:m|x)|in|(?:c|m)m)?/', $this->root->render_popuplink_position[$_prm], $_match)) {
-							 	if (empty($_match[2])) $_match[2] = 'px';
-							 	$popup_pos .= ',' . $_prm . ':\'' . $_match[1] . $_match[2] . '\'';
-							}
-						}
-					}
-				}
-				$options['popup']['position'] = $popup_pos;
-			}
-			
-			// Popup link
-			$onclick = '';
-			if (isset($options['popup']['use'])) {
-				$onclick = ' onclick="return XpWiki.pagePopup({dir:\'' . htmlspecialchars($this->root->mydirname, ENT_QUOTES) .
-				'\',page:\'' . htmlspecialchars($page . $anchor, ENT_QUOTES) . '\'' .
-				(isset($options['popup']['position'])? $options['popup']['position'] : '' ) .
-				'});"';
-				$class .= '_popup';
-			}
-			
+
 			$link = ($this->root->vars['cmd'] === 'read' && $this->cont['PAGENAME'] === $page)? '' : $this->get_page_uri($page, TRUE);
 			
 			return $basepath . $al_left . '<a ' . 'href="' . $link . $anchor .
@@ -2230,7 +2237,7 @@ EOD;
 			
 			$title = htmlspecialchars(str_replace('$1', $page, $this->root->_title_edit));
 			$retval = $basepath . $s_alias . '<a href="' .
-				$this->root->script . '?cmd=edit&amp;page=' . $r_page . $r_refer . '" class="' . $class . '" title="' . $title . '">' .
+				$this->root->script . '?cmd=edit&amp;page=' . $r_page . $r_refer . '" class="' . $class . '" title="' . $title . '"' . $onclick . '>' .
 				$this->root->_symbol_noexists . '</a>';
 	
 			if ($this->root->link_compact) {
@@ -3031,7 +3038,7 @@ EOD;
 
 //----- Start html.php -----//
 	// PukiWiki - Yet another WikiWikiWeb clone.
-	// $Id: pukiwiki_func.php,v 1.199 2009/02/24 00:08:52 nao-pon Exp $
+	// $Id: pukiwiki_func.php,v 1.200 2009/03/13 08:18:49 nao-pon Exp $
 	// Copyright (C)
 	//   2002-2006 PukiWiki Developers Team
 	//   2001-2002 Originally written by yu-ji
@@ -3059,6 +3066,12 @@ EOD;
 		// #nopagecomment
 		if (isset($this->root->nonflag['pagecomment'])) {
 			$this->root->allow_pagecomment = FALSE;
+		}
+		
+		// #nosubnote
+		$subnote = true;
+		if (isset($this->root->nonflag['subnote'])) {
+			$subnote = false;
 		}
 
 		if ($this->cont['UA_PROFILE'] !== 'keitai') $body = '<div id="xpwiki_body">'.$body.'</div>';
@@ -3240,7 +3253,7 @@ EOD;
 		// Newly generate $digest or not
 		if ($digest === FALSE) $digest = $this->get_digests($this->get_source($page, TRUE, TRUE));
 	
-		$refer = $template = '';
+		$tareaStyle = $refer = $template = '';
 	 
 	 	// Add plugin
 		$addtag = $add_top = '';
@@ -3363,10 +3376,13 @@ EOD;
 		
 		// popup
 		$popup = ($this->root->viewmode === 'popup')? '<input type="hidden" name="popup" value="1" />' : '';
+		if ($ajax || $popup) {
+			$tareaStyle .= 'width:99%;';
+		}
 		
 		if ($ajax) {
-			$ajax_submit = ' onSubmit="return xpwiki_ajax_edit_submit()"';
-			$ajax_cancel = ' onSubmit="return xpwiki_ajax_edit_cancel()"';
+			$ajax_submit = ' onsubmit="return xpwiki_ajax_edit_submit()"';
+			$ajax_cancel = ' onsubmit="return xpwiki_ajax_edit_cancel()"';
 			$nonconvert = (empty($this->vars['nonconvert']))? '' : '<input type="hidden" name="nonconvert" value="1" />';
 			$enc_hint = '<input type="hidden" name="encode_hint" value="' . $this->cont['PKWK_ENCODING_HINT'] . '" />'
 			          . '<input type="hidden" name="charset" value="UTF-8" />';
@@ -3381,13 +3397,25 @@ EOD;
 			$other_hide_js = '';
 		} else {
 			$nonconvert = $ajax_submit = $ajax_cancel = $enc_hint = $other_hide = '';
-			$form_class = 'edit_form';
+			$form_class = $popup? 'edit_form_ajax' : 'edit_form';
+			$ajax_cancel = $popup? ' onsubmit="window.parent.XpWiki.PopupHide();return false;"' : '';
 			$other_hide_js = (! $other_option_checked)? '<script type="text/javascript">$(\'xpwiki_edit_other\').style.display = \'none\';</script>' : '';
 		}
 		
 		// textarea id
 		$tareaId = 'xpwiki_edit_textarea';
 		
+		// help
+		if (isset($this->root->vars['help'])) {
+			$help = $this->root->hr . $this->catrule();
+		} else {
+			$sdir = htmlspecialchars($this->root->mydirname, ENT_QUOTES);
+			$help = '<ul><li><a class="pagelink_popup" href="' .
+				$this->root->script . '?cmd=edit&amp;help=true&amp;page=' . $r_page .
+				'" onclick="return XpWiki.pagePopup({dir:\''.$sdir.'\',page:\'FormattingRules\'});">' . $this->root->_msg_help . '</a></li></ul>';
+		}
+		$help = '<div style="clear:left;">' . $help . '</div>';
+
 		// 'margin-bottom', 'float:left', and 'margin-top'
 		// are for layout of 'cancel button'
 		$script = $this->get_script_uri();
@@ -3412,7 +3440,7 @@ EOD;
   <input type="hidden" name="digest" value="$s_digest" />
   <input type="hidden" name="paraid" value="$s_id" />
   <input type="hidden" name="orgkey" value="$originalkey" />
-  <textarea id="{$tareaId}" name="msg" rows="{$this->root->rows}" cols="{$this->root->cols}">$s_postdata</textarea>
+  <textarea id="{$tareaId}" name="msg" rows="{$this->root->rows}" cols="{$this->root->cols}" style="{$tareaStyle}">$s_postdata</textarea>
   $riddle
   <div style="float:left;">
    <input type="submit" name="preview" value="$btn_preview" accesskey="p" id="edit_preview" onmousedown="(function(){if(\$('edit_write_hidden')){Element.remove(\$('edit_write_hidden'))};xpwiki_ajax_edit_var['mode']='preview';})();" />
@@ -3422,8 +3450,8 @@ EOD;
   </div>
  </form>
  $other_hide_js
- <div id="xpwiki_cancel_form">
- <form action="{$script}" method="post" style="margin-top:0px;"{$ajax_cancel}>
+ <div id="xpwiki_cancel_form" class="edit_form_cancel">
+ <form action="{$script}" method="post" style="margin-top:0px;display:inline;"{$ajax_cancel}>
   <input type="hidden" name="cmd"    value="edit" />
   <input type="hidden" name="page"   value="$s_page" />
   <input type="hidden" name="paraid" value="$s_id" />
@@ -3432,17 +3460,8 @@ EOD;
  </div>
 </div>
 $attaches
+$help
 EOD;
-	
-		if (isset($this->root->vars['help'])) {
-			$body .= $this->root->hr . $this->catrule();
-		} else {
-			$sdir = htmlspecialchars($this->root->mydirname, ENT_QUOTES);
-			$body .= '<ul><li><a class="pagelink_popup" href="' .
-				$this->root->script . '?cmd=edit&amp;help=true&amp;page=' . $r_page .
-				'" onclick="return XpWiki.pagePopup({dir:\''.$sdir.'\',page:\'FormattingRules\'});">' . $this->root->_msg_help . '</a></li></ul>';
-		}
-	
 		return $body;
 	}
 	
@@ -3736,7 +3755,7 @@ EOD;
 
 //----- Start mail.php -----//
 	// PukiWiki - Yet another WikiWikiWeb clone.
-	// $Id: pukiwiki_func.php,v 1.199 2009/02/24 00:08:52 nao-pon Exp $
+	// $Id: pukiwiki_func.php,v 1.200 2009/03/13 08:18:49 nao-pon Exp $
 	// Copyright (C)
 	//   2003-2005 PukiWiki Developers Team
 	//   2003      Originally written by upk
@@ -4039,7 +4058,7 @@ EOD;
 
 //----- Start link.php -----//
 	// PukiWiki - Yet another WikiWikiWeb clone
-	// $Id: pukiwiki_func.php,v 1.199 2009/02/24 00:08:52 nao-pon Exp $
+	// $Id: pukiwiki_func.php,v 1.200 2009/03/13 08:18:49 nao-pon Exp $
 	// Copyright (C) 2003-2006 PukiWiki Developers Team
 	// License: GPL v2 or (at your option) any later version
 	//

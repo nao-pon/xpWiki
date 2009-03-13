@@ -1,7 +1,7 @@
 <?php
 //
 // Created on 2006/10/13 by nao-pon http://hypweb.net/
-// $Id: init.php,v 1.61 2009/01/19 01:10:56 nao-pon Exp $
+// $Id: init.php,v 1.62 2009/03/13 08:18:49 nao-pon Exp $
 //
 
 $root = & $this->root;
@@ -485,7 +485,10 @@ if (isset($const['page_show'])) {
 
 // Set displayed page name.
 if (! empty($root->vars['page'])) {
-	$const['PAGENAME'] = $root->vars['page'];
+	$const['PageForRef'] = $const['PAGENAME'] = $root->vars['page'];
+	if ($const['PAGENAME'] !== $this->root->notepage && strpos($const['PAGENAME'], $this->root->notepage . '/') === 0) {
+		$const['PageForRef'] = substr($const['PAGENAME'], strlen($this->root->notepage) + 1);
+	}
 }
 
 
