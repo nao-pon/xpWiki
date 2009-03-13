@@ -53,7 +53,6 @@ function xpwiki_cal9_showResponse(orgRequest) {
 				}
 			}
 */
-
 			var ins;
 			ins = document.createElement('div');
 			Element.update(ins, item.getElementsByTagName('headPreTag')[0].firstChild.nodeValue);
@@ -138,13 +137,13 @@ function xpwiki_cal9_day_edit(id,mode,event) {
 		
 		objBack.style.top = 0;
 		objBack.style.left = 0;
+		objBack.style.width = '100%';
+		objBack.style.height = objBody.getHeight() + 'px';
 		objBody.appendChild(objBack);
 	} else {
 		var objBack = $('xpwiki_cal9_popupback');
 	}
 	
-	Position.clone(objBody, objBack);
-
 	// 入力ボックスオブジェクト作成
 	if (!$('xpwiki_cal9_popupmain')) {
 		var objPopup = document.createElement('div');
