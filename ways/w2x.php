@@ -2,7 +2,7 @@
 /*
  * Created on 2008/10/23 by nao-pon http://hypweb.net/
  * License: GPL v2 or (at your option) any later version
- * $Id: w2x.php,v 1.15 2009/02/24 00:18:01 nao-pon Exp $
+ * $Id: w2x.php,v 1.16 2009/03/13 07:40:04 nao-pon Exp $
  */
 
 //
@@ -356,7 +356,7 @@ class InlineConverterEx {
 		}
 		
 		// インライン・プラグイン
-		$pattern = '/&amp;(\w+)(?:\(((?:(?!\)[;{]).)*)\))?(?:\{((?:(?R)|(?!};).)*)\})?;/';
+		$pattern = '/&amp;([0-9a-zA-Z_-]+)(?:\(((?:(?!\)[;{]).)*)\))?(?:\{((?:(?R)|(?!};).)*)\})?;/';
 		$line = preg_replace_callback($pattern, array(&$this, 'convert_plugin'), $line);
 
 		// ルールの変換
@@ -368,11 +368,6 @@ class InlineConverterEx {
 		// 色の変換
 		$pattern = "/<sapn\sstyle=\"color:([#0-9a-z]+)(; background-color:([#0-9a-z]+))?\">/";
 		$line = preg_replace_callback($pattern, array(&$this, 'convert_color'), $line);
-		// 数値参照文字(10進)
-		$line = preg_replace('/(&amp;#[0-9]+?;)+/e', '"<span class=\"chrref10\">".str_replace(\'&amp;\',\'&\',\'$0\')."</span>"', $line);
-		// 文字実体参照
-		$line = preg_replace('/(&amp;[a-z]+?;)+/ie', '"<span class=\"chrref\">".str_replace(\'&amp;\',\'&\',\'$0\')."</span>"', $line);
-
 		
 		// リンク
 		if ($link) {
@@ -435,6 +430,10 @@ class InlineConverterEx {
 		//	プラグインが存在しない場合はそのまま返す。
 		global $xpwiki;
 		if (! $xpwiki->func->exist_plugin_inline($name)) {
+			// 数値参照文字(10進)
+			$matches[0] = preg_replace('/(&amp;#[0-9]+?;)+/e', '"<span class=\"chrref10\">".str_replace(\'&amp;\',\'&\',\'$0\')."</span>"', $matches[0]);
+			// 文字実体参照
+			$matches[0] = preg_replace('/(&amp;[a-z]+?;)+/ie', '"<span class=\"chrref\">".str_replace(\'&amp;\',\'&\',\'$0\')."</span>"', $matches[0]);
 			return $matches[0];
 		}
 
