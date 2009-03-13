@@ -19,6 +19,7 @@ XpWiki.RendererPage = '$RendererPage';
 XpWiki.FCKSmileys = $fck_smileys;
 XpWiki.FCKeditor_path = '$fckeditor_path';
 XpWiki.FCKxpwiki_path = '$fckxpwiki_path';
+XpWiki.ie6JsPass = $ie6JsPass;
 $skinname
 
 var xpwiki_ajax_edit_var = new Object();
@@ -242,63 +243,56 @@ function wikihelper_initTexts(obj)
 		}
 	}
 	
-	var setup = function(oElements) {
-		for (i = 0; i < oElements.length; i++)
-		{
-			oElement = oElements[i];
-			var rel = String(oElement.getAttribute('rel'));
-			if (rel == "wikihelper") {
-				Element.observe(oElement, 'focus',
-					function(elm){
-						return	function(){
-							elm._focused = true;
-							wikihelper_setActive(elm, false);
-						};
-					}(oElement)
-				);
-				Element.observe(oElement, 'mouseover',
-					function(elm){
-						return	function(){
-							wikihelper_setActive(elm, false);
-						};
-					}(oElement)
-				);
-				Element.observe(oElement, 'blur',
-					function(elm){
-						return	function(){
-							elm._focused = false;
-							wikihelper_hide_helper();
-						}
-					}(oElement)
-				);
-				Element.observe(oElement, 'mouseout',
-					function(){
-						wikihelper_mouseover = false;
-						wikihelper_hide_helper(500);
-					}
-				);
-			} else {
-				Element.observe(oElement, 'focus',
-					function(){
-						wikihelper_mouseover = false;
-						wikihelper_hide_helper();
-					}
-				);
+	var helperOn = function(oElement) {
+		Element.observe(oElement, 'focus',
+			function(elm){
+				return	function(){
+					elm._focused = true;
+					wikihelper_setActive(elm, false);
+				};
+			}(oElement)
+		);
+		Element.observe(oElement, 'mouseover',
+			function(elm){
+				return	function(){
+					wikihelper_setActive(elm, false);
+				};
+			}(oElement)
+		);
+		Element.observe(oElement, 'blur',
+			function(elm){
+				return	function(){
+					elm._focused = false;
+					wikihelper_hide_helper();
+				}
+			}(oElement)
+		);
+		Element.observe(oElement, 'mouseout',
+			function(){
+				wikihelper_mouseover = false;
+				wikihelper_hide_helper(500);
 			}
-		}
+		);
 	};
 	
-	oElements = obj.getElementsByTagName("input");
-	setup(oElements);
-
-	oElements = obj.getElementsByTagName("textarea");
-	setup(oElements);
-
-	oElements = obj.getElementsByTagName("select");
-	for (i = 0; i < oElements.length; i++)
-	{
-		oElement = oElements[i];
-		Element.observe(oElement, 'focus', wikihelper_hide_helper);
+	var helperOff = function(oElement) {
+		Element.observe(oElement, 'focus',
+			function(){
+				wikihelper_mouseover = false;
+				wikihelper_hide_helper();
+			}
+		);
+	};
+	
+	var x = document.evaluate('//input[@type!="hidden"] | //textarea[@rel="wikihelper"] | //select', obj, null, 6, null);
+	var n = 0;
+	for (var i = 0; i < x.snapshotLength; i++) {
+		var elm = x.snapshotItem(i);
+		if (String(elm.getAttribute('rel')) == 'wikihelper') {
+			helperOn(elm);
+		} else {
+			helperOff(elm);
+		}
 	}
 }
 
@@ -541,6 +535,9 @@ function xpwiki_ajax_edit_submit(IsTemplate) {
 		postdata = postdata.replace(/&preview=[^&]+/,'');
 	}
 	postdata += '&ajax=1';
+	if (location.href.match('&popup=1')) {
+		postdata += '&popup=1';
+	}
 	
 	var failure = false;
 	var myAjax = new Ajax.Request(
@@ -688,12 +685,13 @@ window.onbeforeunload = function(e) {
 	}
 };
 
-
-if (Prototype.Browser.IE && XpWikiIeDomLoadedDisable) {
+if (Prototype.Browser.IE) {
 	Event.observe(window, "load", function() {
+		XpWiki.isDomLoaded = false;
 		XpWiki.onDomLoaded();
 	});
-} else {
+}
+if (! Prototype.Browser.IE || (!XpWikiIeDomLoadedDisable && !XpWiki.isIE6)) {
 	document.observe("dom:loaded", function() {
 		XpWiki.onDomLoaded();
 	});

@@ -15,8 +15,7 @@ function rawurlencode(str) {
   }
 }
 
-document.observe("dom:loaded", function() {
-
+XpWiki.domInitFunctions.push(function() {
 	var x = document.evaluate('//div[@class="xpwiki_ajaxtree"]', document.body, null, 6, null);
 	var n = 0;
 	for (var i = 0; i < x.snapshotLength; i++) {
