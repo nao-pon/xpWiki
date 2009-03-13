@@ -1,7 +1,7 @@
 <?php
 /*
  * Created on 2008/03/24 by nao-pon http://hypweb.net/
- * $Id: attach.php,v 1.16 2009/03/03 06:45:17 nao-pon Exp $
+ * $Id: attach.php,v 1.17 2009/03/13 08:11:26 nao-pon Exp $
  */
 
 //-------- クラス
@@ -195,7 +195,8 @@ class XpWikiAttachFile
 			if ($this->age) {
 				return "&size(12){".$label.$info."};";
 			} else {
-				return "&size(12){&ref(\"".str_replace(array('"', '|'), array('""', '&#124;'), $this->page."/".$this->file)."\"".$this->cont['ATTACH_CONFIG_REF_OPTION'].");&br();".$info."};";
+				$ref_option = ($this->status['imagesize'] && $this->status['imagesize'][2] !== 4 && $this->status['imagesize'][2] !== 13)? $this->cont['ATTACH_CONFIG_REF_OPTION_IMG'] : $this->cont['ATTACH_CONFIG_REF_OPTION'];
+				return "&size(12){&ref(\"".str_replace(array('"', '|'), array('""', '&#124;'), $this->page."/".$this->file)."\"".$ref_option.");&br();".$info."};";
 			}
 		} else {
 			$filename = $this->status['org_fname'];
@@ -223,7 +224,7 @@ class XpWikiAttachFile
 			$pass = $title.': <input type="password" name="pass" size="8" />';
 			$msg_require = $this->root->_attach_messages['msg_require'];
 		}
-
+		$ref_option = $this->cont['ATTACH_CONFIG_REF_OPTION'];
 		$msg_rename = '';
 		if ($this->age)
 		{
@@ -237,8 +238,9 @@ class XpWikiAttachFile
 		{
 			// イメージファイルの場合
 			$isize = @getimagesize($this->filename);
-			if (is_array($isize) && $isize[2] !== 4)
+			if (is_array($isize) && $isize[2] !== 4 && $isize[2] !== 13)
 			{
+				$ref_option = $this->cont['ATTACH_CONFIG_REF_OPTION_IMG'];
 				$img_info = "Image: {$isize[0]} x {$isize[1]} px";
 				if ($is_editable && (defined('HYP_JPEGTRAN_PATH') || $isize[2] == 2))
 				{
@@ -266,7 +268,7 @@ EOD;
 			// refプラグインで表示
 			if ($this->func->exist_plugin_inline("ref"))
 			{
-				$ref .= "<dd><hr /></dd><dd>".$this->func->do_plugin_inline("ref", '"'. $this->page.'/'.str_replace('"', '""', $this->file) . '"' . $this->cont['ATTACH_CONFIG_REF_OPTION'])."</dd>\n";
+				$ref .= "<dd><hr /></dd><dd>".$this->func->do_plugin_inline("ref", '"'. $this->page.'/'.str_replace('"', '""', $this->file) . '"' . $ref_option)."</dd>\n";
 			}
 			
 			if ($this->status['freeze'])
@@ -714,6 +716,8 @@ EOD;
 	}
 	
 	function is_allow_inline () {
+		if (!empty($this->root->get['ni'])) return false;
+		
 		$status = $this->status;
 		$noinline = intval($status['noinline']);
 
