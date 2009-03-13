@@ -1,7 +1,7 @@
 <?php
 /*
  * Created on 2008/03/25 by nao-pon http://hypweb.net/
- * $Id: pluginlist.inc.php,v 1.7 2009/02/23 09:00:01 nao-pon Exp $
+ * $Id: pluginlist.inc.php,v 1.8 2009/03/13 08:15:00 nao-pon Exp $
  */
 
 class xpwiki_plugin_pluginlist extends xpwiki_plugin {
@@ -118,7 +118,7 @@ class xpwiki_plugin_pluginlist extends xpwiki_plugin {
 	}
 	
 	function plugin_pluginlist_convert () {
-		return '<p>' . $this->build_list() . '</p>';
+		return $this->build_list();
 	}
 	
 	function build_list () {

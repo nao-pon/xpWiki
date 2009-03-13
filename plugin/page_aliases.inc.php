@@ -1,7 +1,7 @@
 <?php
 /*
  * Created on 2007/08/30 by nao-pon http://hypweb.net/
- * $Id: page_aliases.inc.php,v 1.1 2007/08/30 05:39:05 nao-pon Exp $
+ * $Id: page_aliases.inc.php,v 1.2 2009/03/13 08:14:05 nao-pon Exp $
  */
 
 class xpwiki_plugin_page_aliases extends xpwiki_plugin {
@@ -25,8 +25,7 @@ class xpwiki_plugin_page_aliases extends xpwiki_plugin {
 //		foreach($this->root->page_aliases as $_alias => $_page) {
 //			$ret .= "|[[{$_alias}]]|[[{$_page}]]|\n";
 //		}
-		$ret = $this->func->convert_html($ret);
-		return '<p>'.$ret.'</p>';
+		return $this->func->convert_html($ret);
 	}
 }
 ?>
