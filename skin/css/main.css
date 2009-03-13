@@ -373,8 +373,8 @@ $class li.list_none {
 	margin: 0px !important;
 	padding: 0px !important;
 	display: inline;
-	height: 0px;
-	width: 0px;
+	/*height: 0px;
+	width: 0px;*/
 }
 
 $class ul.list1 li { list-style-type:disc; }
@@ -578,7 +578,10 @@ $class div.context {
 }
 
 /* html.php/edit_form() */
-$class .edit_form {	clear: both; }
+$class .edit_form {
+	clear: both;
+	/*overflow-y: auto;*/
+}
 $class .edit_form textarea {
 	font-size: 100%;
 	width: 98%;
@@ -590,6 +593,7 @@ $class .edit_form textarea {
 $class .edit_form_ajax {
 	border: 1px gray solid;
 	padding: 5px;
+	overflow-y: auto;
 }
 $class .edit_form_ajax textarea {
 	font-size: 100%;
@@ -598,6 +602,9 @@ $class .edit_form_ajax textarea {
 	margin: 0px;
 	padding: 0px;
 	line-height: 1.5;
+}
+$class div.edit_form_cancel {
+	float: left;
 }
 
 /* pukiwiki.skin.php */
