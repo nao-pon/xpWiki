@@ -1,7 +1,7 @@
 <?php
 class xpwiki_plugin_yahoo extends xpwiki_plugin {
 	// PukiWiki - Yet another WikiWikiWeb clone.
-	// $Id: yahoo.inc.php,v 1.2 2008/11/14 07:59:42 nao-pon Exp $
+	// $Id: yahoo.inc.php,v 1.3 2009/03/13 08:07:08 nao-pon Exp $
 	/////////////////////////////////////////////////
 	
 	// #yahoo([Format Filename],[Mode],[Key Word],[Node Number],[Sort Mode])
@@ -88,7 +88,7 @@ class xpwiki_plugin_yahoo extends xpwiki_plugin {
 <a href="http://developer.yahoo.co.jp/about" target="'.$this->root->link_target.'"><img src="http://i.yimg.jp/images/yjdn/yjdn_attbtn2_105_17.gif" width="105" height="17" title="'.$this->msg['msg_websvc'].' by Yahoo! JAPAN" alt="'.$this->msg['msg_websvc'].' by Yahoo! JAPAN" border="0" style="margin:15px 15px 15px 15px"></a>
 <!-- End Yahoo! JAPAN Web Services Attribution Snippet -->';
 	
-		return "<p><div class='pwm_yahoo'>{$ret}</div>{$cr}{$more}{$youtube}</p>";
+		return "<div class='pwm_yahoo'>{$ret}</div>{$cr}{$more}{$youtube}";
 	
 	}
 	
