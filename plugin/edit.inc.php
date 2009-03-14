@@ -1,6 +1,6 @@
 <?php
 // PukiWiki - Yet another WikiWikiWeb clone.
-// $Id: edit.inc.php,v 1.66 2009/03/13 08:18:49 nao-pon Exp $
+// $Id: edit.inc.php,v 1.67 2009/03/14 08:57:45 nao-pon Exp $
 // Copyright (C) 2001-2006 PukiWiki Developers Team
 // License: GPL v2 or (at your option) any later version
 //
@@ -235,14 +235,15 @@ EOD;
 		// $s_page fixed
 		$isfreeze = $this->func->is_freeze($s_page);
 		$ispage   = $this->func->is_page($s_page);
-		if ($_paraedit && ($isfreeze || !$is_editable)) return ''; // Show nothing
+		//if ($_paraedit && ($isfreeze || !$is_editable)) return ''; // Show nothing
+		if ($isfreeze || !$is_editable) return ''; // Show nothing
 	
 		// Paragraph edit enabled or not
 		$short = htmlspecialchars('Edit');
 		$js = $ajax = '';
+		$ajaxurl = htmlspecialchars(rawurlencode($s_page), ENT_QUOTES);
 		if ($this->root->fixed_heading_anchor_edit && $editable && $ispage && ! $isfreeze) {
 			// Paragraph editing
-			$ajaxurl = htmlspecialchars(rawurlencode($s_page), ENT_QUOTES);
 			$js = ' onmouseover="wikihelper_area_highlite(\'' . htmlspecialchars($id) . '\',1);"' .
 					' onmouseout="wikihelper_area_highlite(\'' . htmlspecialchars($id) . '\',0);"';
 			$ajax = ($this->root->use_ajax_edit && $this->root->render_mode === 'main')? ' onclick="return xpwiki_ajax_edit(\'' . $ajaxurl . '\',\'' . htmlspecialchars($id) . '\');"' : '';
@@ -261,6 +262,7 @@ EOD;
 			} else {
 				$title = 'Edit %s';
 				$icon  = 'edit.png';
+				$ajax = ($this->root->use_ajax_edit && $this->root->render_mode === 'main')? ' onclick="return xpwiki_ajax_edit(\'' . $ajaxurl . '\');"' : '';
 			}
 			$title = htmlspecialchars(sprintf($title, $s_page));
 			$icon = '<img src="' . $this->cont['IMAGE_DIR'] . $icon .
