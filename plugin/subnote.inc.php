@@ -1,7 +1,7 @@
 <?php
 /*
  * Created on 2007/10/05 by nao-pon http://hypweb.net/
- * $Id: subnote.inc.php,v 1.1 2009/03/13 08:18:49 nao-pon Exp $
+ * $Id: subnote.inc.php,v 1.2 2009/03/14 08:59:03 nao-pon Exp $
  */
 
 class xpwiki_plugin_subnote extends xpwiki_plugin {
@@ -20,11 +20,15 @@ class xpwiki_plugin_subnote extends xpwiki_plugin {
 	//}
 	
 	function plugin_subnote_convert() {
+		if (strpos($this->root->vars['page'],  $this->root->notepage . '/') === 0) {
+			return '#subnote can not use in the Note page.';
+		}
+		
 		$page = $this->root->notepage . '/' . $this->root->vars['page'];
 		
 		if (! $this->func->check_readable($page, false, false)) return '';
 		
-		$anchor = '';		
+		$anchor = '';
 		$popup_pos = '';
 		$op = func_get_args();
 		$parames = $this->config['parames'];
@@ -48,9 +52,9 @@ class xpwiki_plugin_subnote extends xpwiki_plugin {
 	function plugin_subnote_inline() {
 		$op = func_get_args();
 		
-		$alias = array_pop($op);
+		list($alias, $alias_main) = array_pad(explode('|', array_pop($op)), 2, '');
 		$anchor = '';
-		if ($op[0][0] === '#') {
+		if (isset($op[0]) && $op[0][0] === '#') {
 			$anchor = array_shift($op);
 		}
 		
@@ -58,6 +62,8 @@ class xpwiki_plugin_subnote extends xpwiki_plugin {
 		
 		$parames = $this->config['parames'];
 		$this->fetch_options($parames, $op);
+		
+		$parames['format'] = htmlspecialchars($parames['format']);
 		
 		$prefix = $this->root->notepage . '/';
 		$page = $this->cont['PAGENAME'];
@@ -80,6 +86,7 @@ class xpwiki_plugin_subnote extends xpwiki_plugin {
 		if (strpos($page, $prefix) === 0) {
 			// Note ¥Ú¡¼¥¸
 			$page = substr($page, strlen($prefix));
+			$alias = $alias_main? $alias_main : $alias;
 			$alias = $alias? $alias : '#compact:'.$this->func->page_dirname($page);
 			return sprintf($parames['format'], $this->func->make_pagelink($page, $alias, $anchor, '', 'pagelink', $options));
 		}
