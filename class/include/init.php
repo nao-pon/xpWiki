@@ -1,7 +1,7 @@
 <?php
 //
 // Created on 2006/10/13 by nao-pon http://hypweb.net/
-// $Id: init.php,v 1.62 2009/03/13 08:18:49 nao-pon Exp $
+// $Id: init.php,v 1.63 2009/03/14 08:56:55 nao-pon Exp $
 //
 
 $root = & $this->root;
@@ -484,13 +484,13 @@ if (isset($const['page_show'])) {
 }
 
 // Set displayed page name.
+$const['PageForRef'] = $const['PAGENAME'] = '';
 if (! empty($root->vars['page'])) {
 	$const['PageForRef'] = $const['PAGENAME'] = $root->vars['page'];
 	if ($const['PAGENAME'] !== $this->root->notepage && strpos($const['PAGENAME'], $this->root->notepage . '/') === 0) {
 		$const['PageForRef'] = substr($const['PAGENAME'], strlen($this->root->notepage) + 1);
 	}
 }
-
 
 /////////////////////////////////////////////////
 // 初期設定(ユーザ定義ルール読み込み)
