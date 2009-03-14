@@ -1,6 +1,6 @@
 <?php
 // PukiWiki - Yet another WikiWikiWeb clone.
-// $Id: keitai.skin.php,v 1.26 2009/03/13 08:18:49 nao-pon Exp $
+// $Id: keitai.skin.php,v 1.27 2009/03/14 09:04:15 nao-pon Exp $
 // Copyright (C) 2003-2006 PukiWiki Developers Team
 // License: GPL v2 or (at your option) any later version
 //
@@ -40,7 +40,7 @@ $dirname = $this->root->mydirname;
 // Modify
 $heads = array();
 
-if ($subnote && $subnote = $this->do_plugin_inline('subnote', 'format:%s', 'Note')) {
+if ($subnote && $subnote = $this->do_plugin_inline('subnote', 'format:%s', 'Note|Main')) {
 	$heads[] = $subnote;
 }
 if ($page_comments_count) {
