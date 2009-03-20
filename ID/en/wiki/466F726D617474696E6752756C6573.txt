@@ -59,7 +59,7 @@ It may seem difficult explained like this, but it's probably more simple than it
  Inline Elements
 PukiWiki assumes that each new Block is the beginning of a new paragraph, unless you instruct it to format the text differently, by using the formatting codes of other Block Elements.  
  ~Inline Elements
-A line that starts with "~" indicates the beginning of a new paragraph. "~" also enables you escape the special characters (~、-、+、:、>、|、#、//) that are normally used as "Formatting Characters". Normally, these characters indicate the beginning of another kind of Element. Thus, the only way to put the special characters as a normal text at the beginning of a Paragraph is by putting a "~" in front of them.
+A line that starts with "~" indicates the beginning of a new paragraph. "~" also enables you escape the special characters (~, -, +, :, >, |, #, //) that are normally used as "Formatting Characters". Normally, these characters indicate the beginning of another kind of Element. Thus, the only way to put the special characters as a normal text at the beginning of a Paragraph is by putting a "~" in front of them.
 -The first line of a Paragraph and a Paragraph in a Definition List are indented. But neiher a List nor a Quotation are indented.
 -Each Paragraph continues until the appearance of a new Block Element.
 -Paragraphs ''can'' be Child Elements of other Block Elements.
@@ -171,7 +171,7 @@ no cell to the left.)
 -As a general rule, a Table may not contain other Block Element.
 
 ***&aname(csv);CSV Style Table [#b1645d3b]
- ,Inline Element,Inline Element,…
+ ,Inline Element,Inline Element,...
 ~Inline Elements that are separated by ","(comma), will be formatted as a Table. Note that you must write "," before the first Element of the CSV Style Table.
 //#br
 -You may enclose Inline Elements with Double Quotation ("), which enables you to contain comma(,) in Inline Elements.
@@ -216,7 +216,7 @@ Four or more "-" placed at the beginning of a line are shown as a horizontal rul
 
 ***&aname(space);Line Break [#oa1708ba]
  #br
-"#br" placed at the beginning of a line makes a line break in a block element or between block elements. ((#br placed right after an empty line next to a block element makes a line break that separates blocks. #br placed right after a block element makes a line break inside that block element. Unlike a line break in a wiki text, #br preserves the format of the line following it.))。
+"#br" placed at the beginning of a line makes a line break in a block element or between block elements. ((#br placed right after an empty line next to a block element makes a line break that separates blocks. #br placed right after a block element makes a line break inside that block element. Unlike a line break in a wiki text, #br preserves the format of the line following it.)).
 //#br
 -Line Break may not be contained by other Block Elements. Horizontal Line terminates other Block Elements.
 -Line Break may not contain other Block Elements.
@@ -361,12 +361,9 @@ Inline elements enclosed with &#40;&#40; and &#41;&#41; makes a footnote. A link
 //#br
 -Footnote may be contained by another inline elements EXCEPT another footnote.
 -Footnote may contain other inline elements.
-// 原文意味不明・・・
-//-注釈は、他のインライン要素の子要素になることができます。親要素は注釈文ではなく、注釈へのリンクに反映されます。
-//-注釈は、他のインライン要素を子要素にすることができます。子要素は注釈文に反映されます。
 
-// &p;
-//&#38;p; written inside a footnote breaks a paragraph. ((Although a paragraph break is supposed to be a block element, since PukiWiki treats a footnote as an inline element, it must be placed inline. It must not be contained in other inline elements.))。
+//&p;
+//&#38;p; written inside a footnote breaks a paragraph. ((Although a paragraph break is supposed to be a block element, since PukiWiki treats a footnote as an inline element, it must be placed inline. It must not be contained in other inline elements.)).
 //#br
 //-Paragraph break inside a footnot must not be contained by another inline elements.
 //-Paragraph break inside a footnot must not contain other inline elements.
@@ -383,7 +380,7 @@ Inline elements enclosed with &#40;&#40; and &#41;&#41; makes a footnote. A link
 - When the attached file name is omitted, it becomes a link for the file up-loading. When the file is up-loaded by using the link, it is substituted for the file display that the link part appended.
 -&#38;ref can have the following parameters, separated by cammas. Default values are used for unspecified parameters.
  The page where the attachment file is uploaded.
---This parameter defines the page (WikiName、 BracketName) where the attachment file is stored. The default is the current page.
+--This parameter defines the page (WikiName, BracketName) where the attachment file is stored. The default is the current page.
 --This parameter must be set right after the file name.
 -- The attached file name can be assumed to be "Page name/attached file name".
 -

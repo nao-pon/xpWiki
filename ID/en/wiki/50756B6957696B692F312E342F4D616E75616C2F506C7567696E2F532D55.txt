@@ -234,7 +234,7 @@ It does not do anything other than displaying a simple text.
 '')''
 :Description|
 ~Display an input form for creating stylized pages.
-~Unlike the [[bugtrack>../A-D#a83293e8]] plugin, in which the items are fixed, the tracker plugin can create arbitrary input fields on the stylized page. The potential use of this plugin is to create FAQ¡¤BBS¡¤book reviews¡¤TODO list, etc.
+~Unlike the [[bugtrack>../A-D#a83293e8]] plugin, in which the items are fixed, the tracker plugin can create arbitrary input fields on the stylized page. The potential use of this plugin is to create FAQ, BBS, book reviews, TODO list, etc.
 ~The input fields can be defined by creating a template page under :config/plugin/tracker/ according to specific formats. For a reference, the template equivalent to the [[bugtrack>../A-D#a83293e8]] pluging is placed at :config/plugin/tracker/default.
 :Parameters|
 ~'''TemplateName''' - the template template name (e.g., #tracker(hoge)). If omitted, :config/plugin/tracker/default is used.

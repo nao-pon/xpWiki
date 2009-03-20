@@ -58,12 +58,12 @@
 --deltitle - Delete the corresponding title cache.
 --delete - Delete both the image cache and the title cache.
 :Constants|
---PLUGIN_AMAZON_AID　Amazon affiliate ID (anonymous user when not specified)
+--PLUGIN_AMAZON_AID Amazon affiliate ID (anonymous user when not specified)
 --PLUGIN_AMAZON_EXPIRE_IMAGECACHE expire Valid period of the image cache in days
 --PLUGIN_AMAZON_EXPIRE_TITLECACHE expire Valid period of the title cache in days
---PLUGIN_AMAZON_NO_IMAGE　Default image
---PLUGIN_AMAZON_SHOP_URI　URL of Amazon
---PLUGIN_AMAZON_XML　URI for the Amazon product info query
+--PLUGIN_AMAZON_NO_IMAGE Default image
+--PLUGIN_AMAZON_SHOP_URI URL of Amazon
+--PLUGIN_AMAZON_XML URI for the Amazon product info query
 :Note|
 ~Check the copyright issues at the Amazon affiliate program site.
 ~The default image is used when an image is not available in Amazon. By default, image/noimage.jpg is used.
@@ -279,7 +279,7 @@
 ------------------------------
 * C [#y43dfe74]
 
-**calendar、calendar_edit、calendar_read [#v5a54211]
+**calendar, calendar_edit, calendar_read [#v5a54211]
 :Plugin type|
 ~Block type
 :Importance|
@@ -333,7 +333,7 @@ If the page name is omitted, the current page is used.
 ~n - the number of pages to be displayed
 ~x*y - display y pages starting from the page x (the first page is 0).
 ~this - display the pages for this month
-~past、future、view - select the pages to be displayed. The default is past.
+~past, future, view - select the pages to be displayed. The default is past.
 --past - Display the past pages including today
 --future - Display the future pages including today
 --view - Display all pages
