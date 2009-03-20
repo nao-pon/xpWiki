@@ -3,7 +3,7 @@ class xpwiki_plugin_block extends xpwiki_plugin {
 	function plugin_block_init () {
 
 
-	// $Id: block.inc.php,v 1.6 2009/01/19 08:43:05 nao-pon Exp $
+	// $Id: block.inc.php,v 1.7 2009/03/20 06:13:58 nao-pon Exp $
 	
 	/*
 	 * countdown.inc.php
@@ -122,7 +122,7 @@ class xpwiki_plugin_block extends xpwiki_plugin {
 		}
 		
 		if ($params['around'])
-			$style = " style='float:{$align};{$_style}'";
+			$style = " style='float:{$align};display:inline;{$_style}'";
 		else
 		{
 			if ($params['left'])
