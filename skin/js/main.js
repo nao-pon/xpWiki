@@ -22,6 +22,9 @@ XpWiki.FCKxpwiki_path = '$fckxpwiki_path';
 XpWiki.ie6JsPass = $ie6JsPass;
 $skinname
 
+// Load CSS
+XpWiki.addCssInHead('base.css');
+
 var xpwiki_ajax_edit_var = new Object();
 xpwiki_ajax_edit_var['id'] = '';
 xpwiki_ajax_edit_var['html'] = '';
