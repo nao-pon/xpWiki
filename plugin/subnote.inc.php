@@ -1,7 +1,7 @@
 <?php
 /*
  * Created on 2007/10/05 by nao-pon http://hypweb.net/
- * $Id: subnote.inc.php,v 1.2 2009/03/14 08:59:03 nao-pon Exp $
+ * $Id: subnote.inc.php,v 1.3 2009/03/20 06:27:32 nao-pon Exp $
  */
 
 class xpwiki_plugin_subnote extends xpwiki_plugin {
@@ -106,6 +106,7 @@ class xpwiki_plugin_subnote extends xpwiki_plugin {
 			}
 		}
 		
+		$alias = $alias? $alias : htmlspecialchars($page);
 		return sprintf($parames['format'], $this->func->make_pagelink($page, $alias, $anchor, '', 'pagelink', $options).$new);
 	}
 }
