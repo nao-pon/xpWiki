@@ -67,7 +67,7 @@
 ~Button name:The caption displayed in the button is specified. Omitting it is 'Lookup'. 
 ~Initial value of input column:To specify an initial value, it fills it in. When omitting it, it becomes a null character string. 
 :Constants|~
---PLUGIN_LOOKUP_USAGE　Help displayed when Parameters is unspecified
+--PLUGIN_LOOKUP_USAGE Help displayed when Parameters is unspecified
 
 **ls [#b596a628]
 :Plugin type|
@@ -119,9 +119,9 @@ the same system, with "&font(Blue,b){Dirctory Name};&font(Red,b){:};&font(Blue,b
 --link - The link is displayed instead of displaying the list at the position in which #ls2 was written. When this link is selected, the list of the page is displayed on another screen. 
 :|~The character string of taking the place of the character string displayed when parameter link is specified is specified for the display of the alias of link. When omitting it, it becomes ''List of pages which begin with '...' ''. 
 :Constants|~
---PLUGIN_LS2_ANCHOR_PREFIX　Finding anchor's Synopsis.
---PLUGIN_LS2_ANCHOR_ORIGIN　Finding anchor's beginning number.
---PLUGIN_LS2_LIST_COMPACT　When the compact option is omitted, is the finding level adjusted?
+--PLUGIN_LS2_ANCHOR_PREFIX Finding anchor's Synopsis.
+--PLUGIN_LS2_ANCHOR_ORIGIN Finding anchor's beginning number.
+--PLUGIN_LS2_LIST_COMPACT When the compact option is omitted, is the finding level adjusted?
 :Note|
 ~About unlike with the ls plugin.
 --The page that becomes a starting point on the hierarchized page can be specified by the parameter in ls2 in ls though is described page fixation.
@@ -150,7 +150,7 @@ the same system, with "&font(Blue,b){Dirctory Name};&font(Red,b){:};&font(Blue,b
 --&refer=PageName - The page that becomes a starting point is specified. The top page of the site (It is FrontPage usually) becomes a starting point when omitting it.  
 --&reverse=true - Having a look it doesn't link with where, and where it is linked is displayed. Pages that have not been linked are displayed collectively in the latter half of the screen where. 
 :Constants|~
---PLUGIN_MAP_SHOW_HIDDEN　Whether a page off the subject for the display is listed or not?
+--PLUGIN_MAP_SHOW_HIDDEN Whether a page off the subject for the display is listed or not?
 
 **md5 [#wec9aa1f]
 :Plugin type|
@@ -278,7 +278,7 @@ customization possible with the installer.
 ~PageName end is / was the case, the page that starts with PageName group in the last modified date within the prescribed time, when highlighted.
 --nolink - PageName is not displayed. When omitting it, PageName (PageName renewed at the end when specifying it in page group) is displayed. 
 :Constants|~
---PLUGIN_NEW_DATE_FORMAT　Display format
+--PLUGIN_NEW_DATE_FORMAT Display format
 :Note|
 ~The date character string should be Synopsis that can recognize PHP function 'strtotime()'.
 

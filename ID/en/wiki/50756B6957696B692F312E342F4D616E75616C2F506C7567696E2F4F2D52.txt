@@ -104,7 +104,7 @@ This parameter must be placed after the comment page name. If you don't want to 
 ~When a comment is posted, the plugin displays the message indicating that the page where the plugin is placed has been updated. However, it is the comment page that has been actually updated.
 ~Since the page containing #pcomment is not updated, it doesn't show up on the "recent changes" page.
 ~Avoid using a relative reference (e.g. [ [../] ]) in comments, as it may not be converted as expected. (Keep in mind that the page in which you are writing comment is different from the page that will display it.)
-~The logging of the old comments is invoked when the number of comments reached to (PLUGIN_PCOMMENT_AUTO_LOG ¡Ü PLUGIN_PCOMMENT_NUM_COMMENTS).
+~The logging of the old comments is invoked when the number of comments reached to (PLUGIN_PCOMMENT_AUTO_LOG + PLUGIN_PCOMMENT_NUM_COMMENTS).
 
 **popular [#aa6d5e99]
 :Plugin type|
