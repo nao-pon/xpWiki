@@ -1,7 +1,7 @@
 <?php
 //
 // Created on 2006/10/11 by nao-pon http://hypweb.net/
-// $Id: xoops_wrapper.php,v 1.51 2009/03/13 08:18:49 nao-pon Exp $
+// $Id: xoops_wrapper.php,v 1.52 2009/03/20 06:29:27 nao-pon Exp $
 //
 class XpWikiXoopsWrapper extends XpWikiBackupFunc {
 	
@@ -82,8 +82,9 @@ class XpWikiXoopsWrapper extends XpWikiBackupFunc {
 			$this->root->userinfo['admin'] = $xoopsUser->isAdmin($this->root->module['mid']);
 			$this->root->userinfo['uid'] = (int)$xoopsUser->uid();
 			$this->root->userinfo['email'] = $xoopsUser->email();
-			$this->root->userinfo['uname'] = $this->unhtmlspecialchars($xoopsUser->uname(), ENT_QUOTES);
+			$this->root->userinfo['uname'] = $xoopsUser->uname('n');
 			$this->root->userinfo['uname_s'] = htmlspecialchars($this->root->userinfo['uname']);
+			$this->root->userinfo['name'] = $xoopsUser->name('s');
 			$this->root->userinfo['gids'] = $xoopsUser->getGroups();
 		}
 		else
