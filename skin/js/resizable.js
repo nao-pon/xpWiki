@@ -1,6 +1,6 @@
 //
 // Created on 2007/10/03 by nao-pon http://hypweb.net/
-// $Id: resizable.js,v 1.15 2009/03/13 07:46:15 nao-pon Exp $
+// $Id: resizable.js,v 1.16 2009/03/20 06:39:27 nao-pon Exp $
 //
 
 var Resizable = Class.create();
@@ -60,7 +60,8 @@ Resizable.prototype = {
 				this.initWidth = initW;
 			}
 			*/
-			this.initWidth = this.base.style.width = '98%';
+			this.initWidth = '%';
+			this.base.style.width = '98%';
 			this.elem.style.width = '100%';
 
 			
@@ -85,6 +86,9 @@ Resizable.prototype = {
 			if (!!options.element) {
 				this.base = target;
 				this.elem = $(options.element);
+				if (!!this.base.style.width && this.base.style.width.match('%')) {
+					this.initWidth = '%';
+				}
 			} else {
 				this.base = target;
 				
@@ -114,13 +118,13 @@ Resizable.prototype = {
 		} else {
 			return false;
 		}
-		with(this.base.style) {
-			overflow = 'visible';
-			maxHeight = 'none';
-			maxWidth = 'none';
-			marginBottom = (XpWiki.isIE7)? '2em' : '5px';
-			marginRight = '5px';
-		}
+		
+		this.base.style.overflow = 'visible';
+		this.base.style.maxHeight = 'none';
+		if (this.initWidth != '%') this.base.style.maxWidth = 'none';
+		this.base.style.marginBottom = (XpWiki.isIE7)? '2em' : '5px';
+		this.base.style.marginRight = '5px';
+		
 		if (!!this.elem.getStyle) {
 			this.elem._Top = parseInt(this.elem.getStyle('top'));
 			if (isNaN(this.elem._Top)) this.elem._Top = 0;
@@ -179,7 +183,7 @@ Resizable.prototype = {
 			this.elem.style.maxWidth = (Prototype.Browser.WebKit)? '100%' : 'none';
 			
 			if (this.initWidth) {
-				if (!!this.initWidth.match && this.initWidth.match('%')) {
+				if (this.initWidth == '%') {
 					this.elem.style.width = '100%';
 				} else {
 					this.setWidth(this.initWidth);
