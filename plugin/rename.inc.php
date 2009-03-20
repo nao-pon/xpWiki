@@ -1,12 +1,23 @@
 <?php
 // PukiWiki - Yet another WikiWikiWeb clone
-// $Id: rename.inc.php,v 1.14 2008/12/10 08:51:03 nao-pon Exp $
+// $Id: rename.inc.php,v 1.15 2009/03/20 06:20:39 nao-pon Exp $
 //
 // Rename plugin: Rename page-name and related data
 //
 // Usage: http://path/to/pukiwikiphp?plugin=rename[&refer=page_name]
 
 class xpwiki_plugin_rename extends xpwiki_plugin {
+	function plugin_rename_init() {
+		$this->conf['popup'] = array(
+			'top' => '0px',
+			'right' => '0px',
+			'left' => '',
+			'bottom' => '',
+			'width' => '300px',
+			'height' => '98%'
+		);
+	}
+	
 	function plugin_rename_action()
 	{
 	//	global $whatsnew;
@@ -18,7 +29,19 @@ class xpwiki_plugin_rename extends xpwiki_plugin {
 		if ($this->root->userinfo['admin'] && $this->root->module['platform'] == "xoops") {
 			$this->root->runmode = "xoops_admin";
 		}
-	
+		
+		$popup_pos = '';
+		foreach(array('top', 'left', 'bottom', 'right', 'width', 'height') as $_prm) {
+			if (isset($this->conf['popup'][$_prm])) {
+				if (preg_match('/^(\d+)(%|p(?:x|c|t)|e(?:m|x)|in|(?:c|m)m)?/', $this->conf['popup'][$_prm], $_match)) {
+				 	if (empty($_match[2])) $_match[2] = 'px';
+				 	$popup_pos .= ',' . $_prm . ':\'' . $_match[1] . $_match[2] . '\'';
+				}
+			}
+		}
+		$this->make_pagelink_options = array('popup' => array('use' => true, 'position' => $popup_pos));
+
+		
 		$method = $this->plugin_rename_getvar('method');
 		$regex = $this->plugin_rename_getvar('regex');
 
@@ -159,7 +182,7 @@ EOD;
 			$msg_related = '<label for="_p_rename_related">' . $this->root->_rename_messages['msg_do_related'] . '</label>' .
 		'<input type="checkbox" name="related" id="_p_rename_related" value="1" checked="checked" /><br />';
 	
-		$msg_rename = sprintf($this->root->_rename_messages['msg_rename'], $this->func->make_pagelink($refer));
+		$msg_rename = sprintf($this->root->_rename_messages['msg_rename'], $this->func->make_pagelink($refer, htmlspecialchars($refer), '', '', 'pagelink', $this->make_pagelink_options));
 		$s_page  = htmlspecialchars($page);
 		$s_refer = htmlspecialchars($refer);
 		$script = $this->func->get_script_uri();
@@ -183,7 +206,7 @@ EOD;
 			$ret['body'] .= '<hr /><p>' . $this->root->_rename_messages['msg_related'] . '</p><ul>';
 			sort($related);
 			foreach ($related as $name)
-				$ret['body'] .= '<li>' . $this->func->make_pagelink($name) . '</li>';
+				$ret['body'] .= '<li>' . $this->func->make_pagelink($name, htmlspecialchars($name), '', '', 'pagelink', $this->make_pagelink_options) . '</li>';
 			$ret['body'] .= '</ul>';
 		}
 		return $ret;
@@ -282,9 +305,10 @@ EOD;
 		if (! empty($exists)) {
 			$msg .= $this->root->_rename_messages['err_already_below'] . '<ul>';
 			foreach ($exists as $page=>$arr) {
-				$msg .= '<li>' . $this->func->make_pagelink($this->func->decode($page));
+				$pname = $this->func->decode($page);
+				$msg .= '<li>' . $this->func->make_pagelink($pname, htmlspecialchars($pname), '', '', 'pagelink', $this->make_pagelink_options);
 				$msg .= $this->root->_rename_messages['msg_arrow'];
-				$msg .= htmlspecialchars($this->func->decode($pages[$page]));
+				$msg .= htmlspecialchars($pname);
 				if (! empty($arr)) {
 					$msg .= '<ul>' . "\n";
 					foreach ($arr as $ofile=>$nfile)
@@ -326,7 +350,8 @@ EOD;
 		ksort($pages);
 		$ret['body'] .= '<ul>' . "\n";
 		foreach ($pages as $old=>$new)
-			$ret['body'] .= '<li>' .  $this->func->make_pagelink($this->func->decode($old)) .
+			$oldname = $this->func->decode($old);
+			$ret['body'] .= '<li>' .  $this->func->make_pagelink($oldname, htmlspecialchars($oldname), '', '', 'pagelink',$this->make_pagelink_options) .
 			$this->root->_rename_messages['msg_arrow'] .
 			htmlspecialchars($this->func->decode($new)) .  '</li>' . "\n";
 		$ret['body'] .= '</ul>' . "\n";
