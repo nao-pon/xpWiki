@@ -1,7 +1,7 @@
 <?php
 //
 // Created on 2006/10/02 by nao-pon http://hypweb.net/
-// $Id: xpwiki_func.php,v 1.205 2009/03/13 08:18:49 nao-pon Exp $
+// $Id: xpwiki_func.php,v 1.206 2009/03/20 06:31:29 nao-pon Exp $
 //
 class XpWikiFunc extends XpWikiXoopsWrapper {
 
@@ -636,18 +636,18 @@ EOD;
 			{
 				$pginfo['uid'] = $this->root->userinfo['uid'];
 				$pginfo['ucd'] = $this->root->userinfo['ucd'];
-				$pginfo['uname'] = htmlspecialchars($this->root->userinfo['uname']);
+				$pginfo['uname'] = $this->root->userinfo['uname_s'];
 			}
 			$pginfo['pgorder'] = 1;
 		}
 		
 		if ($pginfo['uid'] && !$pginfo['uname']) {
 			$_uinfo = $this->get_userinfo_by_id($pginfo['uid']);
-			$pginfo['uname'] = htmlspecialchars($_uinfo['uname']);
+			$pginfo['uname'] = $_uinfo['uname_s'];
 		}
 		if ($pginfo['lastuid'] && !$pginfo['lastuname']) {
 			$_uinfo = $this->get_userinfo_by_id($pginfo['lastuid']);
-			$pginfo['lastuname'] = htmlspecialchars($_uinfo['uname']);
+			$pginfo['lastuname'] = $_uinfo['uname_s'];
 		}
 
 		$pginfo['reading'] = '';
@@ -1943,12 +1943,18 @@ EOD;
 	
 	function get_autolink_regex_pre_after ($ci = false) {
 		$utf8 = ($this->cont['SOURCE_ENCODING'] === 'UTF-8')? 'u' : '';
-		if ($ci) {
-			$pat_pre = '/(<(script|a|textarea|style|option).*?<\/\\2>|<!--NA-->.+?(?:<!--\/NA-->|$)|<[^>]*>|&(?:#[0-9]+|#x[0-9a-f]+|[0-9a-z]+);)|(?<=\W)(';
-			$pat_aft = ')(?=\W)/isS' . $utf8;
+		if ($this->root->autolink_as_word) {
+			$asWord1 = '(?<=\W)';
+			$asWord2 = '(?=\W)';
 		} else {
-			$pat_pre = '/(<([sS][cC][rR][iI][pP][tT]|[a|A]|[tT][eE][xX][tT][aA][rR][eE][aA]|[sS][tT][yY][lL][eE]|[oO][pP][tT][iI][oO][nN]).*?<\/\\2>|<!--NA-->.+?(?:<!--\/NA-->|$)|<[^>]*>|&(?:#[0-9]+|#x[0-9a-fA-F]+|[0-9a-zA-Z]+);)|(?<=\W)(';
-			$pat_aft = ')(?=\W)/sS' . $utf8;
+			$asWord1 = $asWord2 = '';
+		}
+		if ($ci) {
+			$pat_pre = '/(<(script|a|textarea|style|option).*?<\/\\2>|<!--NA-->.+?(?:<!--\/NA-->|$)|<[^>]*>|&(?:#[0-9]+|#x[0-9a-f]+|[0-9a-z]+);)|'.$asWord1.'(';
+			$pat_aft = ')'.$asWord2.'/isS' . $utf8;
+		} else {
+			$pat_pre = '/(<([sS][cC][rR][iI][pP][tT]|[a|A]|[tT][eE][xX][tT][aA][rR][eE][aA]|[sS][tT][yY][lL][eE]|[oO][pP][tT][iI][oO][nN]).*?<\/\\2>|<!--NA-->.+?(?:<!--\/NA-->|$)|<[^>]*>|&(?:#[0-9]+|#x[0-9a-fA-F]+|[0-9a-zA-Z]+);)|'.$asWord1.'(';
+			$pat_aft = ')'.$asWord2.'/sS' . $utf8;
 		}
 		return array($pat_pre, $pat_aft);	
 	}
@@ -3341,7 +3347,7 @@ EOD;
 			$pages = array_splice($pages, 0, $options['resultMax']);
 		}
 		
-		$retval = '<ul>' . "\n";
+		$retval = '<ul class="list1">' . "\n";
 		foreach ($pages as $page => $data) {
 			if (empty($data[0])) $data[0] = $this->get_filetime($page);
 			if (empty($data[1])) $data[1] = $this->get_heading($page);
