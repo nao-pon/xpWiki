@@ -1,6 +1,6 @@
 <?php
 // PukiWiki - Yet another WikiWikiWeb clone
-// $Id: pukiwiki.ini.php,v 1.91 2009/03/13 08:18:49 nao-pon Exp $
+// $Id: pukiwiki.ini.php,v 1.92 2009/03/20 06:31:29 nao-pon Exp $
 // Copyright (C)
 //   2002-2006 PukiWiki Developers Team
 //   2001-2002 Originally written by yu-ji
@@ -227,6 +227,10 @@ $root->favicon_replace_classname = 'extWithFavicon';
 
 /////////////////////////////////////////////////
 // AutoLink feature
+
+// Matches only words
+// 英数字は単語単位でマッチさせる
+$root->autolink_as_word = 1;
 
 // An upper layer hierarchical name is priority when assuming that it is possible to omit it.
 // 上層階層名は省略可能とした場合の優先度
