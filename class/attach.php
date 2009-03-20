@@ -1,7 +1,7 @@
 <?php
 /*
  * Created on 2008/03/24 by nao-pon http://hypweb.net/
- * $Id: attach.php,v 1.17 2009/03/13 08:11:26 nao-pon Exp $
+ * $Id: attach.php,v 1.18 2009/03/20 06:17:38 nao-pon Exp $
  */
 
 //-------- ¥¯¥é¥¹
@@ -96,7 +96,7 @@ class XpWikiAttachFile
 		$this->type = isset($this->dbinfo['type'])? $this->dbinfo['type'] : xpwiki_plugin_attach::attach_mime_content_type($this->filename, $this->status);
 		$this->owner_id = intval($this->status['owner']);
 		$user = $this->func->get_userinfo_by_id($this->status['owner']);
-		$user = htmlspecialchars($user['uname']);
+		$user = $user['uname_s'];
 		if (!$this->status['owner']) {
 			if ($this->status['uname']) {
 				$user = htmlspecialchars($this->status['uname']);

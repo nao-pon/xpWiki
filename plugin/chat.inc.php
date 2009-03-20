@@ -1,6 +1,6 @@
 <?php
 //
-// $Id: chat.inc.php,v 1.3 2009/02/11 06:20:51 nao-pon Exp $
+// $Id: chat.inc.php,v 1.4 2009/03/20 06:17:38 nao-pon Exp $
 //
 	
 class xpwiki_plugin_chat extends xpwiki_plugin {
@@ -30,8 +30,8 @@ class xpwiki_plugin_chat extends xpwiki_plugin {
 		$this->root->replaces_finish['_uI_LANg_'] = $this->get_accept_language();
 		$lang = '&amp;lang=_uI_LANg_';
 		
-		if ($this->root->userinfo['uname'] !== $this->root->siteinfo['anonymous']) {
-			$uname_enc = rawurlencode(mb_convert_encoding($this->root->userinfo['uname'], 'UTF-8', $this->cont['SOURCE_ENCODING']));
+		if ($this->root->userinfo['uname_s'] !== $this->root->siteinfo['anonymous']) {
+			$uname_enc = rawurlencode(mb_convert_encoding($this->root->userinfo['uname_s'], 'UTF-8', $this->cont['SOURCE_ENCODING']));
 		} else {
 			$uname_enc = '';
 		}

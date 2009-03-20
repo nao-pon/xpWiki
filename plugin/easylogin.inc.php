@@ -2,7 +2,7 @@
 /*
  * Created on 2008/06/20 by nao-pon http://hypweb.net/
  * License: GPL v2 or (at your option) any later version
- * $Id: easylogin.inc.php,v 1.3 2008/09/25 00:20:11 nao-pon Exp $
+ * $Id: easylogin.inc.php,v 1.4 2009/03/20 06:17:38 nao-pon Exp $
  */
 
 class xpwiki_plugin_easylogin extends xpwiki_plugin
@@ -42,7 +42,7 @@ class xpwiki_plugin_easylogin extends xpwiki_plugin
 					return '<a href="' . $url . '">' . $msg['easylogin'] . '</a>';
 				} else {
 					$guid = ($r->vars['ua']['carrier'] === 'docomo')? '&amp;guid=ON' : '';
-					return '<a href="' . XOOPS_URL . '/userinfo.php?uid=' . $this->root->userinfo['uid'] . $guid . '">' . htmlspecialchars($this->root->userinfo['uname']) . '</a> <a href="' . XOOPS_URL . '/user.php?op=logout">' . $msg['logout'] . '</a>';
+					return '<a href="' . XOOPS_URL . '/userinfo.php?uid=' . $this->root->userinfo['uid'] . $guid . '">' . $this->root->userinfo['uname_s'] . '</a> <a href="' . XOOPS_URL . '/user.php?op=logout">' . $msg['logout'] . '</a>';
 				}
 			}
 		}
