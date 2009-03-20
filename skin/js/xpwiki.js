@@ -56,8 +56,6 @@ var XpWiki = {
 		wikihelper_adv = wikihelper_load_cookie("__whlp");
 		if (wikihelper_adv) wikihelper_save_cookie("__whlp",wikihelper_adv,90,"/");
 
-		this.addCssInHead('base.css');
-
 		var body = document.getElementsByTagName('body')[0];
 		if (!this.isIE6 || !this.ie6JsPass) {
 			this.remakeTextArea(body);
@@ -561,7 +559,7 @@ var XpWiki = {
 		var inTable;
 		var tocId = 0;
 		var tocCond = this.cookieLoad('_xwtoc');
-
+		
 		var x = document.evaluate('//div[@class="pre"]', document.body, null, 6, null);
 		var n = 0;
 		for (var i = 0; i < x.snapshotLength; i++) {
