@@ -1,7 +1,7 @@
 <?php
 //
 // Created on 2006/10/02 by nao-pon http://hypweb.net/
-// $Id: pukiwiki_func.php,v 1.200 2009/03/13 08:18:49 nao-pon Exp $
+// $Id: pukiwiki_func.php,v 1.201 2009/03/20 06:32:46 nao-pon Exp $
 //
 class XpWikiPukiWikiFunc extends XpWikiBaseFunc {
 
@@ -962,7 +962,7 @@ class XpWikiPukiWikiFunc extends XpWikiBaseFunc {
 
 //----- Start convert_html.php -----//
 	// PukiWiki - Yet another WikiWikiWeb clone
-	// $Id: pukiwiki_func.php,v 1.200 2009/03/13 08:18:49 nao-pon Exp $
+	// $Id: pukiwiki_func.php,v 1.201 2009/03/20 06:32:46 nao-pon Exp $
 	// Copyright (C)
 	//   2002-2005 PukiWiki Developers Team
 	//   2001-2002 Originally written by yu-ji
@@ -982,7 +982,7 @@ class XpWikiPukiWikiFunc extends XpWikiBaseFunc {
 		
 		if ($page_as !== '') {
 			$_page = $this->root->vars['page'];
-			$this->root->vars['page'] = $this->root->post['page'] = $this->root->get['page'] = $page_as;
+			$this->cont['PageForRef'] = $this->root->vars['page'] = $this->root->post['page'] = $this->root->get['page'] = $page_as;
 		}
 		
 		// Set nest level
@@ -1097,7 +1097,7 @@ class XpWikiPukiWikiFunc extends XpWikiBaseFunc {
 		$this->cont['PKWK_READONLY'] = $_PKWK_READONLY;
 
 		if ($page_as) {
-			$this->root->vars['page'] = $this->root->post['page'] = $this->root->get['page'] = $_page;
+			$this->cont['PageForRef'] = $this->root->vars['page'] = $this->root->post['page'] = $this->root->get['page'] = $_page;
 		}
 		
 		--$this->root->rtf['convert_nest'];
@@ -1217,7 +1217,7 @@ class XpWikiPukiWikiFunc extends XpWikiBaseFunc {
 
 //----- Start func.php -----//
 	// PukiWiki - Yet another WikiWikiWeb clone.
-	// $Id: pukiwiki_func.php,v 1.200 2009/03/13 08:18:49 nao-pon Exp $
+	// $Id: pukiwiki_func.php,v 1.201 2009/03/20 06:32:46 nao-pon Exp $
 	// Copyright (C)
 	//   2002-2006 PukiWiki Developers Team
 	//   2001-2002 Originally written by yu-ji
@@ -1498,7 +1498,7 @@ class XpWikiPukiWikiFunc extends XpWikiBaseFunc {
 	
 		ksort($pages, SORT_STRING);
 	
-		$retval = '<ul>' . "\n";
+		$retval = '<ul class="list1">' . "\n";
 		foreach (array_keys($pages) as $page) {
 			$r_page  = rawurlencode($page);
 			$s_page  = htmlspecialchars($page);
@@ -1590,7 +1590,7 @@ class XpWikiPukiWikiFunc extends XpWikiBaseFunc {
 	
 			if ($withfilename) {
 				$s_file = htmlspecialchars($file);
-				$str .= "\n" . '    <ul><li>' . $s_file . '</li></ul>' .
+				$str .= "\n" . '    <ul class="list3"><li>' . $s_file . '</li></ul>' .
 					"\n" . '   ';
 			}
 			$str .= '</li>';
@@ -1625,7 +1625,7 @@ class XpWikiPukiWikiFunc extends XpWikiBaseFunc {
 	
 		$cnt = 0;
 		$arr_index = array();
-		$retval .= '<ul>' . "\n";
+		$retval .= '<ul class="list1">' . "\n";
 		foreach ($list as $head=>$pages) {
 			if ($head === $symbol) {
 				$head = $this->root->_msg_symbol;
@@ -1640,7 +1640,7 @@ class XpWikiPukiWikiFunc extends XpWikiBaseFunc {
 					$head . '</strong>&nbsp;</a>';
 				$retval .= ' <li><a id="head_' . $cnt . '" href="#top_' . $cnt .
 					'"><strong>' . $head . '</strong></a>' . "\n" .
-					'  <ul>' . "\n";
+					'  <ul class="list2">' . "\n";
 			}
 			ksort($pages);
 			$retval .= join("\n", $pages);
@@ -1788,10 +1788,10 @@ EOD;
 	}
 	
 	function get_matcher_regex_safe ($pages, $spliter = "\t", $array_fix = true, $nest = 0) {
-		static $pat_pre;
-		static $pat_aft;
-		if (! $pat_pre) {
-			list($pat_pre, $pat_aft) = $this->get_autolink_regex_pre_after($this->root->page_case_insensitive);
+		static $pat_pre = array();
+		static $pat_aft = array();
+		if (! isset($pat_pre[$this->root->mydirname])) {
+			list($pat_pre[$this->root->mydirname], $pat_aft[$this->root->mydirname]) = $this->get_autolink_regex_pre_after($this->root->page_case_insensitive);
 		}
 		
 		if ($array_fix) {
@@ -1813,8 +1813,7 @@ EOD;
 		while (list($key, $pat) = each($regs)) {
 			list($key, $val) = each($regs);
 			if (!$val) $val = count($pages);
-			if (@ preg_match($pat_pre . $pat . $pat_aft , '') === false) {
-			//if (@ preg_match('/' . $pat . '/S' , '') === false) {
+			if (@ preg_match($pat_pre[$this->root->mydirname] . $pat . $pat_aft[$this->root->mydirname] , '') === false) {
 				if ($nest <= 10) {
 					$count = $val - $index;
 					$split = floor(($val - $index) / 2);
@@ -1828,13 +1827,13 @@ EOD;
 				$pats[] = $pat;
 			}
 		}
-		return join($spliter, $pats);
+		return join($spliter, array_reverse($pats));
 	}
 	
 	function get_matcher_regex_safe_sub (& $array, $offset = 0, $sentry = NULL, $pos = 0, $nest = 0)
 	{
 		++$nest;
-		$limit = 1024 * 31;
+		$limit = 31744; //1024 * 31
 		
 		if (empty($array)) return '(?!)'; // Zero
 		if ($sentry === NULL) $sentry = count($array);
@@ -2010,7 +2009,7 @@ EOD;
 		if (is_array($param)) {
 			return array_map(array(& $this, 'input_filter'), $param);
 		} else {
-			$result = str_replace("\0", '', $param);
+			$result = str_replace(array("\0", '&#8203;', "\xE2\x80\x8B"), '', $param);
 			$result = $this->remove_bom($result);
 			if ($magic_quotes_gpc) $result = stripslashes($result);
 			return $result;
@@ -2057,7 +2056,7 @@ EOD;
 
 //----- Start make_link.php -----//
 	// PukiWiki - Yet another WikiWikiWeb clone.
-	// $Id: pukiwiki_func.php,v 1.200 2009/03/13 08:18:49 nao-pon Exp $
+	// $Id: pukiwiki_func.php,v 1.201 2009/03/20 06:32:46 nao-pon Exp $
 	// Copyright (C)
 	//   2003-2005 PukiWiki Developers Team
 	//   2001-2002 Originally written by yu-ji
@@ -3038,7 +3037,7 @@ EOD;
 
 //----- Start html.php -----//
 	// PukiWiki - Yet another WikiWikiWeb clone.
-	// $Id: pukiwiki_func.php,v 1.200 2009/03/13 08:18:49 nao-pon Exp $
+	// $Id: pukiwiki_func.php,v 1.201 2009/03/20 06:32:46 nao-pon Exp $
 	// Copyright (C)
 	//   2002-2006 PukiWiki Developers Team
 	//   2001-2002 Originally written by yu-ji
@@ -3337,7 +3336,7 @@ EOD;
 			if (!$ajax && $this->root->show_attachlist_editform && $this->is_page($page)) {
 				$plugin = & $this->get_plugin_instance("attach");
 				$attaches = ($plugin) ? $plugin->attach_filelist() : '';
-				if ($attaches) $attaches = $this->root->hr . '<p>' . $attaches . '</p>';
+				if ($attaches) $attaches = '<div>' . $this->root->hr . $attaches . '</div>';
 			}
 			$title = '<h3>'.str_replace('$1', $s_page, $this->root->_title_edit).'</h3>';
 		} else {
@@ -3410,7 +3409,7 @@ EOD;
 			$help = $this->root->hr . $this->catrule();
 		} else {
 			$sdir = htmlspecialchars($this->root->mydirname, ENT_QUOTES);
-			$help = '<ul><li><a class="pagelink_popup" href="' .
+			$help = '<ul class="list1"><li><a class="pagelink_popup" href="' .
 				$this->root->script . '?cmd=edit&amp;help=true&amp;page=' . $r_page .
 				'" onclick="return XpWiki.pagePopup({dir:\''.$sdir.'\',page:\'FormattingRules\'});">' . $this->root->_msg_help . '</a></li></ul>';
 		}
@@ -3459,8 +3458,8 @@ EOD;
  </form>
  </div>
 </div>
-$attaches
 $help
+$attaches
 EOD;
 		return $body;
 	}
@@ -3755,7 +3754,7 @@ EOD;
 
 //----- Start mail.php -----//
 	// PukiWiki - Yet another WikiWikiWeb clone.
-	// $Id: pukiwiki_func.php,v 1.200 2009/03/13 08:18:49 nao-pon Exp $
+	// $Id: pukiwiki_func.php,v 1.201 2009/03/20 06:32:46 nao-pon Exp $
 	// Copyright (C)
 	//   2003-2005 PukiWiki Developers Team
 	//   2003      Originally written by upk
@@ -4058,7 +4057,7 @@ EOD;
 
 //----- Start link.php -----//
 	// PukiWiki - Yet another WikiWikiWeb clone
-	// $Id: pukiwiki_func.php,v 1.200 2009/03/13 08:18:49 nao-pon Exp $
+	// $Id: pukiwiki_func.php,v 1.201 2009/03/20 06:32:46 nao-pon Exp $
 	// Copyright (C) 2003-2006 PukiWiki Developers Team
 	// License: GPL v2 or (at your option) any later version
 	//
