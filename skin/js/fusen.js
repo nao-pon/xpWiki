@@ -9,7 +9,7 @@
 //
 // fusen.js for xpWiki by nao-pon
 // http://hypweb.net
-// $Id: fusen.js,v 1.17 2009/03/13 08:03:17 nao-pon Exp $
+// $Id: fusen.js,v 1.18 2009/03/20 06:37:00 nao-pon Exp $
 // 
 var fusenVar = new Array();
 var fusenMsgs = new Array();
@@ -290,8 +290,6 @@ function fusen_getdata(mod)
 					try
 					{
 						var obj = $('fusen_area');
-						//obj.style.display = 'none';
-						//obj.style.visibility = 'hidden';
 						if (fusenVar['base']) {
 							var pobj = $(fusenVar['base']);
 						} else if (fusenVar['FromSkin']) {
@@ -425,8 +423,6 @@ function fusen_getdata(mod)
 						}
 						if (change_status) fusen_list_make();
 						fusen_set_timer();
-						//obj.style.display = '';
-						//obj.style.visibility = 'visible';
 					} catch(e) {
 						er = fusenMsgs['err_baddata'];
 						fusenLastModified = '';
@@ -530,7 +526,6 @@ function fusen_new(dblclick)
 
 function fusen_editbox_hide() {
 	fusenMovingObj = null;
-	//$('edit_name').style.visibility = "hidden";
 	fusen_hide('fusen_editbox');
 	fusen_FCK2normal();
 	fusen_set_timer();
@@ -630,7 +625,6 @@ function fusen_edit(id)
 	$('edit_l').value = parseInt(obj.style.left.replace("px",""));
 	$('edit_t').value = parseInt(obj.style.top.replace("px",""));
 	$('edit_ln').value = (fusenObj[id].ln) ? 'id' + fusenObj[id].ln : '';
-	//$('edit_name').style.visibility = "hidden";
 	$('edit_name').value = fusenObj[id].name;
 	$(fusenVar['textarea']).value = text_body;
 	$('edit_mode').value = 'edit';
@@ -1322,6 +1316,14 @@ function fusen_setline2(fromid, toid)
 	}
 	
 	var obj = fusen_drawLine2(lx, ly, lw, lh, '#000000', lineid, border);
+	if (!fusenVar['IE']) {
+		obj.observe('mouseover', function(){
+			obj.style.visibility = 'hidden';
+			setTimeout(function(){obj.style.visibility = 'visible'}, 5000);
+		});
+		fobj.observe('mouseover', function(){obj.style.visibility = 'visible'});
+		tobj.observe('mouseover', function(){obj.style.visibility = 'visible'});
+	}
 	document.getElementById('fusen_area').appendChild(obj);
 	}
 	catch(e) {
@@ -1775,9 +1777,16 @@ function fusen_list_make()
 	tmp = menu + tmp;
 	
 	if (!listcount) tmp += '<li>' + fusenMsgs['notag'] + '</li>';
-	if (listcount && $('xpwiki_fusenlist')) {
-		$('xpwiki_fusenlist').style.display = '';
-		$('xpwiki_fusenlist').innerHTML = $('xpwiki_fusenlist').innerHTML.replace(/(<!--FU-->).*(<!--SEN-->)/, '$1<a href="JavaScript:fusen_show(\'fusen_list\')">' + fusenMsgs['fusen'] + '(' + listcount + ')</a>$2');
+	if ($('xpwiki_fusenlist')) {
+		if (listcount) {
+			var display = '';
+			var count_str = '<a href="JavaScript:fusen_show(\'fusen_list\')">' + fusenMsgs['fusen'] + '(' + listcount + ')</a>';
+		} else {
+			var display = 'none';
+			var count_str = '';
+		}
+		$('xpwiki_fusenlist').style.display = display;
+		$('xpwiki_fusenlist').innerHTML = $('xpwiki_fusenlist').innerHTML.replace(/(<!--FU-->).*(<!--SEN-->)/, '$1' + count_str + '$2');
 	}
 	tmp += '</form></ul>';
 	
