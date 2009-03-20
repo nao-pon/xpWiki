@@ -2,7 +2,7 @@
 /////////////////////////////////////////////////
 // PukiWiki - Yet another WikiWikiWeb clone.
 //
-// $Id: pginfo.inc.php,v 1.28 2008/11/17 02:34:23 nao-pon Exp $
+// $Id: pginfo.inc.php,v 1.29 2009/03/20 06:17:38 nao-pon Exp $
 //
 
 class xpwiki_plugin_pginfo extends xpwiki_plugin {
@@ -73,7 +73,7 @@ class xpwiki_plugin_pginfo extends xpwiki_plugin {
 					$userinfo = $this->func->get_userinfo_by_id($uid);
 					if ($userinfo['uid']) {
 						$pginfo['uid'] = $uid;
-						$pginfo['uname'] = $userinfo['uname'];
+						$pginfo['uname'] = $userinfo['uname_s'];
 						$change_uid = TRUE;
 					}
 				}
