@@ -91,7 +91,7 @@ class XpWikiCodeHighlight {
 
 			if ($option['number']) {
 				if ($end === null) // 行数を得る
-					$end = substr_count($src, "\n");
+					$end = substr_count($src, "\n") + $begin - 1;
 				if ($src[strlen($src)-1] == "\n")
 					$src = substr($src,0,-1);
 				$data = array('number' => '');
@@ -636,7 +636,7 @@ class XpWikiCodeHighlight {
 		else
 			$html = substr($html, 0, -1);
 		
-		$end = substr_count($html, "\n") + $begin;
+		if (is_null($end)) $end = substr_count($html, "\n") + $begin - 1;
 		$html = array('src' => $html, 'number' => '', 'outline' => '', 'blocknum' => $this->blockno);
 		if($option['outline']) 
 			return $this->makeOutline($html, $option['number'],$end, $begin);
