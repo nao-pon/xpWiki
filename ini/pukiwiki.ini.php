@@ -1,6 +1,6 @@
 <?php
 // PukiWiki - Yet another WikiWikiWeb clone
-// $Id: pukiwiki.ini.php,v 1.92 2009/03/20 06:31:29 nao-pon Exp $
+// $Id: pukiwiki.ini.php,v 1.93 2009/04/04 04:28:24 nao-pon Exp $
 // Copyright (C)
 //   2002-2006 PukiWiki Developers Team
 //   2001-2002 Originally written by yu-ji
@@ -47,6 +47,11 @@ $const['SHOW_EXTIMG_BY_REF'] = TRUE;
 // ファイルオーナーが...すべて禁止:0 , 管理人のみ:1 , 登録ユーザーのみ:2 , すべて許可:3
 // セキュリティ上、0 or 1 での運用を強く奨励
 $const['PLUGIN_REF_FLASH_INLINE'] = 1;
+
+// image, video, audio の添付ファイルオープン時にリファラをチェックする
+// 0:チェックしない, 1:未定義は許可, 2:未定義も不許可
+// 未設定 = URL直打ち, ノートンなどでリファラを遮断 など。
+$const['OPEN_MEDIA_REFCHECK'] = 1;
 
 // PKWK_QUERY_STRING_MAX
 //   Max length of GET method, prohibits some worm attack ASAP
@@ -489,7 +494,7 @@ $root->non_list = '^\:';
 $root->search_non_list = 1;
 
 // Show page's filelist only admin.
-$root->filelist_only_admin = 0;
+$root->filelist_only_admin = 1;
 
 /////////////////////////////////////////////////
 // Template setting
@@ -759,7 +764,7 @@ $const['PKWK_PGINFO_REGEX'] = '/^(?:#pginfo\(.*\)[\r\n]*)+/m';
 $const['PKWK_READONLY'] = 0; // 0 or 1
 $root->function_freeze = 1;
 $root->adminpass = '{x-php-md5}!';
-$root->html_head_title = '$page_title$content_title - $module_title';
+$root->html_head_title = '$content_title [$page_title] - $module_title';
 $root->modifier = 'anonymous';
 $root->modifierlink = 'http://pukiwiki.example.com/';
 $root->notify = 0;
@@ -767,9 +772,11 @@ $root->notify_diff_only = 1;
 $root->defaultpage  = 'FrontPage';
 $root->page_case_insensitive = 0;
 $const['SKIN_NAME'] = 'default';
+$root->skin_navigator_cmds = 'add, atom, attaches, back, backup, copy, diff, edit, filelist, freeze, help, list, new, newsub, pginfo, rdf, recent, refer, related, reload, rename, rss, rss10, rss20, search, top, topage, trackback, unfreeze, upload';
 $const['SKIN_CHANGER'] = 1;
 $root->referer = 0;
 $root->allow_pagecomment = 1;
+$root->use_title_make_search = 0;
 $root->nowikiname = 0;
 $root->relative_path_bracketname = 'remove'; //'remove', 'full', 'as is'
 $root->pagename_num2str = 1;
