@@ -96,7 +96,10 @@ class xpwiki_plugin_googlemaps2 extends xpwiki_plugin {
 		
 		// This plugins config
 		$this->conf['ApiVersion'] = '2';
-		$this->conf['StaticMapSize'] = '200x200';
+		$this->conf['StaticMapSizeW'] = 240;
+		$this->conf['StaticMapSizeH'] = 200;
+		
+		$this->conf['StaticMapSize'] = $this->conf['StaticMapSizeW'] . 'x' . $this->conf['StaticMapSizeH'];
 	}
 	
 	function plugin_googlemaps2_is_supported_profile () {
@@ -161,7 +164,7 @@ class xpwiki_plugin_googlemaps2 extends xpwiki_plugin {
 	//	global $vars;
 		$action = isset($this->root->vars['action']) ? $this->root->vars['action'] : '';
 		$page = isset($this->root->vars['page']) ? $this->root->vars['page'] : '';
-	
+
 		switch($action) {
 			case '':
 				break;
@@ -187,10 +190,122 @@ $body
 </div>
 EOD;
 				break;
+			case 'static':
+				$ret = $this->action_static();
+				if ($ret) return array('msg' => 'Mobile Map', 'body' => $ret);
 		}
 		exit;
 	}
+
+	function action_static() {
+		////////////////////////////////////////////////////////////
+		// This part is based on GNAVI (http://xoops.iko-ze.net/) //
+		////////////////////////////////////////////////////////////
+		
+		$this->root->rtf['no_accesskey'] = TRUE;
+		
+		$default_lat  = empty( $this->root->get['lat'] )  ? $this->cont['PLUGIN_GOOGLEMAPS2_DEF_LAT']  : floatval( $this->root->get['lat'] ) ;
+		$default_lng  = empty( $this->root->get['lng'] )  ? $this->cont['PLUGIN_GOOGLEMAPS2_DEF_LNG']  : floatval( $this->root->get['lng'] ) ;
+		$default_zoom = empty( $this->root->get['zoom'] ) ? $this->cont['PLUGIN_GOOGLEMAPS2_DEF_ZOOM'] : intval( $this->root->get['zoom'] ) ;
+		
+		$markers = isset($this->root->get['markers'])? '&amp;markers=' . htmlspecialchars($this->root->get['markers']) : '';
+		$refer = isset($this->root->get['refer'])? $this->root->get['refer'] : '';
+		
+		$back = '';
+		if ($refer) {
+			$refer = htmlspecialchars(preg_replace('#^[a-zA-Z]+://[^/]+#', '', $refer));
+			$back = '[ <a href="'.$this->root->siteinfo['host'].$refer.'">' . $this->root->_msg_back_word . '</a> ]';
+			$refer = '&amp;refer=' . $refer;
+		}
+		
+		$other = $markers . $refer;
+		
+		$google_staticmap = 'http://maps.google.com/staticmap';
+		$mymap="$google_staticmap?center=$default_lat,$default_lng&zoom=$default_zoom&size={$this->conf['StaticMapSize']}&maptype=mobile&key={$this->cont['PLUGIN_GOOGLEMAPS2_DEF_KEY']}{$markers}";
+
+		/*啕蘸反 -90蘸 ℅ +90蘸及�炾洃芊８陓暀� -180蘸 ℅ +180蘸及�炾洃佷�引月方丹卞*/
+
+		$movex=$this->conf['StaticMapSizeW']/pow(2,$default_zoom);
+		$movey=$this->conf['StaticMapSizeH']/pow(2,$default_zoom);
+
+		//Amount of movement on Mini map . set bigger than 0 and 1 or less. (0 < value <=1).
+		$mobile_mapmove_raito = 0.6;  
+
+		$latup = $this->latlnground($default_lat+$movey * $mobile_mapmove_raito);
+		$latdown = $this->latlnground($default_lat-$movey * $mobile_mapmove_raito);
+		$lngup = $this->latlnground($default_lng+$movex * $mobile_mapmove_raito);
+		$lngdown = $this->latlnground($default_lng-$movex * $mobile_mapmove_raito);
+
+		$latup =   $latup   > 90  ? $latup  -180 : ($latup   < -90  ? $latup   + 180 : $latup   );
+		$latdown = $latdown > 90  ? $latdown-180 : ($latdown < -90  ? $latdown + 180 : $latdown );
+		$lngup =   $lngup   > 180 ? $lngup  -360 : ($lngup   < -180 ? $lngup   + 360 : $lngup   );
+		$lngdown = $lngdown > 180 ? $lngdown-360 : ($lngdown < -180 ? $lngdown + 360 : $lngdown );
+
+		$mapkeys=array(
+				'zoom' => $default_zoom,
+				'zoomdown' => ($default_zoom-1 > 1 ? $default_zoom-1 : 1 ),
+				'zoomup' => ($default_zoom+1 < 18 ? $default_zoom+1 : 18) ,
+				'doublezoomdown' => ($default_zoom-3 > 1 ? $default_zoom-4 : 1 ),
+				'doublezoomup' => ($default_zoom+3 < 18 ? $default_zoom+4 : 18) ,
+				'lat' => $default_lat,
+				'lng' => $default_lng,
+				'latup' =>   $latup  ,
+				'latdown' => $latdown  ,
+				'lngup' =>   $lngup  ,
+				'lngdown' => $lngdown  ,
+			);
+
+		$maplink = $this->root->script . '?plugin=googlemaps2&amp;action=static&amp;';
+		
+		if ($default_zoom < 18) {
+			$zoomup = <<<EOD
+<a href="{$maplink}&amp;zoom={$mapkeys['zoomup']}&amp;lng={$mapkeys['lng']}&amp;lat={$mapkeys['lat']}{$other}"  accesskey="5" ></a>
+<a href="{$maplink}&amp;zoom={$mapkeys['doublezoomup']}&amp;lng={$mapkeys['lng']}&amp;lat={$mapkeys['lat']}{$other}"  accesskey="*" ></a>
+EOD;
+		} else {
+			$zoomup = '';
+		}
+
+		if ($default_zoom > 1) {
+			$zoomdown = <<<EOD
+<a href="{$maplink}&amp;zoom={$mapkeys['zoomdown']}&amp;lng={$mapkeys['lng']}&amp;lat={$mapkeys['lat']}{$other}"  accesskey="0" ></a>
+<a href="{$maplink}&amp;zoom={$mapkeys['doublezoomdown']}&amp;lng={$mapkeys['lng']}&amp;lat={$mapkeys['lat']}{$other}"  accesskey="#" ></a>
+EOD;
+		} else {
+			$zoomdown = '';
+		}
+		
+		$ret = <<<EOD
+<a href="{$maplink}&amp;zoom={$mapkeys['zoom']}&amp;lng={$mapkeys['lngdown']}&amp;lat={$mapkeys['latup']}{$other}"  accesskey="1" ></a>
+<a href="{$maplink}&amp;zoom={$mapkeys['zoom']}&amp;lng={$mapkeys['lng']}&amp;lat={$mapkeys['latup']}{$other}"  accesskey="2" ></a>
+<a href="{$maplink}&amp;zoom={$mapkeys['zoom']}&amp;lng={$mapkeys['lngup']}&amp;lat={$mapkeys['latup']}{$other}"  accesskey="3" ></a>
+<a href="{$maplink}&amp;zoom={$mapkeys['zoom']}&amp;lng={$mapkeys['lngdown']}&amp;lat={$mapkeys['lat']}{$other}"  accesskey="4" ></a>
+<a href="{$maplink}&amp;zoom={$mapkeys['zoom']}&amp;lng={$mapkeys['lngup']}&amp;lat={$mapkeys['lat']}{$other}"  accesskey="6" ></a>
+<a href="{$maplink}&amp;zoom={$mapkeys['zoom']}&amp;lng={$mapkeys['lngdown']}&amp;lat={$mapkeys['latdown']}{$other}"  accesskey="7" ></a>
+<a href="{$maplink}&amp;zoom={$mapkeys['zoom']}&amp;lng={$mapkeys['lng']}&amp;lat={$mapkeys['latdown']}{$other}"  accesskey="8" ></a>
+<a href="{$maplink}&amp;zoom={$mapkeys['zoom']}&amp;lng={$mapkeys['lngup']}&amp;lat={$mapkeys['latdown']}{$other}"  accesskey="9" ></a>
+{$zoomup}
+{$zoomdown}
+
+<div style="text-align:center">
+	<img src="{$mymap}"><br />
+	<img src="{$this->cont['LOADER_URL']}?src=mnavi.gif">
+	<hr />
+	{$back}
+</div>
+
+EOD;
+		return $ret;
+	}
 	
+
+	function latlnground($value){
+		////////////////////////////////////////////////////////////
+		// This part is based on GNAVI (http://xoops.iko-ze.net/) //
+		////////////////////////////////////////////////////////////
+		return round(floatval($value)*1000000)/1000000 ;
+	}
+
 	function plugin_googlemaps2_getbool($val) {
 		if ($val == false) return 0;
 		if (!strcasecmp ($val, "false") || 
@@ -201,6 +316,7 @@ EOD;
 	
 	function plugin_googlemaps2_addprefix($page, $name) {
 		$page = $this->get_pgid($page);
+		//if (!$page) $page = uniqid('r_');
 		if ($name === $this->cont['PLUGIN_GOOGLEMAPS2_DEF_MAPNAME']) {
 			if (!isset($this->map_count[$page])) {
 				$this->map_count[$page] = 0;
@@ -212,12 +328,16 @@ EOD;
 		return $this->lastmap_name;
 	}
 	
-	function get_static_image_url($lat, $lng, $zoom, $markers = '') {
-		if ($zoom > 10) {
-			$zoom = $zoom - 1;
+	function get_static_image_url($lat, $lng, $zoom, $markers = '', $useAction = FALSE) {
+		if ($useAction) {
+			$url = $this->root->script . '?plugin=googlemaps2&amp;action=static&amp;lat='.$lat.'&amp;lng='.$lng.'&amp;zoom='.$zoom.'&amp;refer='.htmlspecialchars(@ $_SERVER['REQUEST_URI']);
+		} else {
+			if ($zoom > 10) {
+				$zoom = $zoom - 1;
+			}
+			$params = ($lng)? 'center='.$lat.','.$lng.'&amp;zoom='.$zoom.'&amp;' : $lat;
+			$url = 'http://maps.google.com/staticmap?'.$params.'size='.$this->conf['StaticMapSize'].'&amp;type=mobile&amp;key='.$this->cont['PLUGIN_GOOGLEMAPS2_DEF_KEY'];
 		}
-		$params = ($lng)? 'center='.$lat.','.$lng.'&amp;zoom='.$zoom.'&amp;' : $lat;
-		$url = 'http://maps.google.com/staticmap?'.$params.'size='.$this->conf['StaticMapSize'].'&amp;type=mobile&amp;key='.$this->cont['PLUGIN_GOOGLEMAPS2_DEF_KEY'];
 		if ($markers) {
 			$url .= '&amp;markers=' . htmlspecialchars($markers);
 		}
@@ -232,7 +352,8 @@ EOD;
 		$this->root->replaces_finish[$params] = 'center='.$lat.','.$lng.'&amp;zoom='.$_zoom.'&amp;';
 		$imgurl = $this->get_static_image_url($params, '', 0, $markers);
 		$img = '<img src="'.$imgurl.'" />';
-		return '<div style="text-align:center;">' . $img . '</div>';
+		$map = '<br />[ <a href="'.$this->get_static_image_url($lat, $lng, $zoom, '__GOOGLE_MAPS_STATIC_MARKERS_' . $this->lastmap_name, TRUE).'">Map</a> ]';
+		return '<div style="text-align:center;">' . $img . $map . '</div>';
 	}
 	
 	function plugin_googlemaps2_output($doInit, $params) {

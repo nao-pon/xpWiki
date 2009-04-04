@@ -77,7 +77,7 @@ class xpwiki_plugin_googlemaps2_mark extends xpwiki_plugin {
 	function plugin_googlemaps2_mark_convert() {
 		$args = func_get_args();
 		if (sizeof($args)<2) {
-			return "error: plugin googlemaps2_mark wrong args\n";
+			return $this->wrap_plugin_error('error: plugin googlemaps2_mark wrong args')."\n";
 		}
 		return $this->plugin_googlemaps2_mark_output($args[0], $args[1], array_slice($args, 2));
 	}
@@ -89,7 +89,7 @@ class xpwiki_plugin_googlemaps2_mark extends xpwiki_plugin {
 			$args[] = 'caption2=' . $caption;
 		}
 		if (sizeof($args)<2) {
-			return "error: plugin googlemaps2_mark wrong args\n";
+			return $this->wrap_plugin_error('error: plugin googlemaps2_mark wrong args')."\n";
 		}
 		return $this->plugin_googlemaps2_mark_output($args[0], $args[1], array_slice($args, 2));
 	}
@@ -105,7 +105,7 @@ class xpwiki_plugin_googlemaps2_mark extends xpwiki_plugin {
 		$p_googlemaps2 =& $this->func->get_plugin_instance('googlemaps2');
 				
 		if ($p_googlemaps2->plugin_googlemaps2_is_supported_profile() && !$p_googlemaps2->lastmap_name) {
-			return "googlemaps2_mark: {$p_googlemaps2->msg['err_need_googlemap2']}";
+			return $this->wrap_plugin_error("googlemaps2_mark: {$p_googlemaps2->msg['err_need_googlemap2']}");
 		}
 		
 		$defoptions = $this->plugin_googlemaps2_mark_get_default();
@@ -214,7 +214,7 @@ class xpwiki_plugin_googlemaps2_mark extends xpwiki_plugin {
 					$this->root->replaces_finish['__GOOGLE_MAPS_STATIC_PARAMS_' . $map] = '';
 				}
 				$this->root->replaces_finish['__GOOGLE_MAPS_STATIC_MARKERS_' . $map] .= $markers . '|';
-				$imgurl = $p_googlemaps2->get_static_image_url($lat, $lng, $zoom, $markers);
+				$imgurl = $p_googlemaps2->get_static_image_url($lat, $lng, $zoom, $markers, TRUE);
 				$title = '<a href="'.$imgurl.'">'.$title.' [Map]</a>';
 				return $this->plugin_googlemaps_mark_simple_format_listhtml(
 					$formatlist, $title, $caption, $maxcontentfull);
