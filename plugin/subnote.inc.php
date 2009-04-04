@@ -1,7 +1,7 @@
 <?php
 /*
  * Created on 2007/10/05 by nao-pon http://hypweb.net/
- * $Id: subnote.inc.php,v 1.3 2009/03/20 06:27:32 nao-pon Exp $
+ * $Id: subnote.inc.php,v 1.4 2009/04/04 07:11:44 nao-pon Exp $
  */
 
 class xpwiki_plugin_subnote extends xpwiki_plugin {
@@ -10,9 +10,11 @@ class xpwiki_plugin_subnote extends xpwiki_plugin {
 		$this->config['parames']['format'] = '%s';
 		$this->config['parames']['nonew'] = FALSE;
 		$this->config['parames']['popup'] = FALSE;
+		$this->config['parames']['icon'] = FALSE;
 		$this->config['elapses'] = array(
 			60 * 60 * 24 * 1 => ' <span class="new1" title="%s">New!</span>',  // 1day
 			60 * 60 * 24 * 5 => ' <span class="new5" title="%s">New</span>');  // 5days
+		$this->config['icon'] = $this->cont['LOADER_URL'] . '?src=note.png';
 	}
 	
 	//function can_call_otherdir_inline() {
@@ -82,13 +84,18 @@ class xpwiki_plugin_subnote extends xpwiki_plugin {
 		} else {
 			$options = array();
 		}
-
+		
+		$icon = '';
+		if ($parames['icon'] && $this->config['icon']) {
+			$icon = '<img src="'.$this->config['icon'].'" alt="" width="20" height="20" />';
+		}
+		
 		if (strpos($page, $prefix) === 0) {
 			// Note ¥Ú¡¼¥¸
 			$page = substr($page, strlen($prefix));
 			$alias = $alias_main? $alias_main : $alias;
 			$alias = $alias? $alias : '#compact:'.$this->func->page_dirname($page);
-			return sprintf($parames['format'], $this->func->make_pagelink($page, $alias, $anchor, '', 'pagelink', $options));
+			return sprintf('<span class="nowrap">' . $parames['format'] . '</span>', $icon . $this->func->make_pagelink($page, $alias, $anchor, '', 'pagelink', $options));
 		}
 		
 		$page = $prefix . $page;
@@ -107,7 +114,7 @@ class xpwiki_plugin_subnote extends xpwiki_plugin {
 		}
 		
 		$alias = $alias? $alias : htmlspecialchars($page);
-		return sprintf($parames['format'], $this->func->make_pagelink($page, $alias, $anchor, '', 'pagelink', $options).$new);
+		return sprintf('<span class="nowrap">' . $parames['format'] . '</span>', $icon . $this->func->make_pagelink($page, $alias, $anchor, '', 'pagelink', $options).$new);
 	}
 }
 ?>
