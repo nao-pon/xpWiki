@@ -1,7 +1,7 @@
 <?php
 //
 // Created on 2006/10/13 by nao-pon http://hypweb.net/
-// $Id: init.php,v 1.63 2009/03/14 08:56:55 nao-pon Exp $
+// $Id: init.php,v 1.64 2009/04/04 04:11:20 nao-pon Exp $
 //
 
 $root = & $this->root;
@@ -436,6 +436,10 @@ if (isset($const['page_show'])) {
 	
 		if (isset($_SERVER['PATH_INFO']) && $_SERVER['PATH_INFO'] !== '') {
 			$arg = trim($_SERVER['PATH_INFO'], '/');
+			// ! defined('PROTECTOR_VERSION') = (Protector < 3.33)
+			if (! defined('PROTECTOR_VERSION') && defined('PROTECTOR_PRECHECK_INCLUDED')) {
+				$arg = str_replace('%27', '\'', $arg);
+			}
 		} else {
 			// Remove any "[key]=[val]"
 			$arg = preg_replace('/(?:^|&)[^&=]+=[^&]*/i', '', $arg);
