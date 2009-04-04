@@ -2,7 +2,7 @@
 /////////////////////////////////////////////////
 // PukiWiki - Yet another WikiWikiWeb clone.
 //
-// $Id: isbn.inc.php,v 1.10 2008/08/30 05:58:12 nao-pon Exp $
+// $Id: isbn.inc.php,v 1.11 2009/04/04 11:59:04 nao-pon Exp $
 //
 // *0.5: URL が存在しない場合、画像を表示しない。
 //			 Thanks to reimy.
@@ -213,7 +213,7 @@ class xpwiki_plugin_isbn extends xpwiki_plugin {
 			$off = " ({$off}% Off)";
 		}
 		if (@$data[9])
-			$data[9] = '<a href="'.str_replace('_ISBN_',$isbn,$this->config['ISBN_AMAZON_USED']).'" target="_blank" alt="Amazon Used Serach" title="Amazon Used Serach">'.$data[9].'円〜</a>';
+			$data[9] = '<a href="'.str_replace('_ISBN_',$isbn,$this->config['ISBN_AMAZON_USED']).'" target="_blank" alt="Amazon Used Serach" title="Amazon Used Serach">'.str_replace('$1',$data[9],$this->msg['currency_from']).'</a>';
 	
 		$td_title_style = " style=\"text-align:right;\" nowrap=\"true\"";
 		
