@@ -1,6 +1,6 @@
 <?php
 // PukiWiki - Yet another WikiWikiWeb clone.
-// $Id: backup.inc.php,v 1.16 2008/11/17 02:34:23 nao-pon Exp $
+// $Id: backup.inc.php,v 1.17 2009/04/04 04:36:10 nao-pon Exp $
 // Copyright (C)
 //   2002-2005 PukiWiki Developers Team
 //   2001-2002 Originally written by yu-ji
@@ -328,7 +328,8 @@ EOD;
 			$this->func->_backup_delete($page);
 			return array(
 				'msg'  => str_replace('$1', $page, $this->root->_msg_backup_deleted),
-				'body' => ''
+				'body' => '',
+				'redirect' => $this->root->script . '?cmd=backup'
 			);
 		}
 	
