@@ -1,6 +1,6 @@
 <?php
 // PukiWiki - Yet another WikiWikiWeb clone.
-// $Id: pukiwiki.skin.php,v 1.42 2009/03/14 09:04:15 nao-pon Exp $
+// $Id: pukiwiki.skin.php,v 1.43 2009/04/04 12:47:17 nao-pon Exp $
 // Copyright (C)
 //   2002-2006 PukiWiki Developers Team
 //   2001-2002 Originally written by yu-ji
@@ -30,6 +30,33 @@ if (! isset($this->cont['PKWK_SKIN_SHOW_NAVBAR']))
 // NOTE: This is not stop their functionalities!
 if (! isset($this->cont['PKWK_SKIN_SHOW$toolbar']))
 	$this->cont['PKWK_SKIN_SHOW$toolbar'] = 1; // 1, 0
+
+// Set toolbar-specific images
+$this->root->_IMAGE['skin']['reload']   = 'reload.png';
+$this->root->_IMAGE['skin']['new']      = 'new.png';
+$this->root->_IMAGE['skin']['newsub']   = 'src=newsub.png';
+$this->root->_IMAGE['skin']['edit']     = 'edit.png';
+$this->root->_IMAGE['skin']['freeze']   = 'freeze.png';
+$this->root->_IMAGE['skin']['unfreeze'] = 'unfreeze.png';
+$this->root->_IMAGE['skin']['diff']     = 'diff.png';
+$this->root->_IMAGE['skin']['back']     = 'diff.png';
+$this->root->_IMAGE['skin']['upload']   = 'file.png';
+$this->root->_IMAGE['skin']['copy']     = 'copy.png';
+$this->root->_IMAGE['skin']['rename']   = 'rename.png';
+$this->root->_IMAGE['skin']['top']      = 'top.png';
+$this->root->_IMAGE['skin']['list']     = 'list.png';
+$this->root->_IMAGE['skin']['search']   = 'search.png';
+$this->root->_IMAGE['skin']['recent']   = 'recentchanges.png';
+$this->root->_IMAGE['skin']['backup']   = 'backup.png';
+$this->root->_IMAGE['skin']['help']     = 'help.png';
+$this->root->_IMAGE['skin']['rss']      = 'feed-rss.png';
+$this->root->_IMAGE['skin']['rss10']    = 'feed-rss1.png';
+$this->root->_IMAGE['skin']['rss20']    = 'feed-rss2.png';
+$this->root->_IMAGE['skin']['atom']     = 'feed-atom.png';
+$this->root->_IMAGE['skin']['rdf']      = 'rdf.png';
+$this->root->_IMAGE['skin']['refer']    = 'src=referer.png';
+$this->root->_IMAGE['skin']['topage']   = 'src=topage.gif';
+$this->root->_IMAGE['skin']['pginfo']   = 'src=pginfo.gif';
 
 // ------------------------------------------------------------
 // Code start
@@ -69,83 +96,94 @@ EOD;
 
 <?php if($this->cont['PKWK_SKIN_SHOW_NAVBAR']) { ?>
 
-<div class="navigator_wiki">
- [
- <?php if ($rw) { ?>
-	<?php $navigator($this,'new') ?> |
- <?php } ?>
- <?php if ($this->arg_check('list')) { ?>
-	<?php $navigator($this,'filelist') ?> |
-	<?php $navigator($this,'attaches') ?> |
- <?php } else { ?>
-   <?php $navigator($this,'list') ?> |
- <?php } ?>
- <?php $navigator($this,'search') ?> |
- <?php $navigator($this,'recent') ?> |
- <?php $navigator($this,'help')   ?>
- ]
-</div><!--/navigator_wiki-->
-
 <div class="header" id="<?php echo $dirname ?>_header">
 
- <h1 class="title"><?php echo $page ?></h1>
+<div class="navigator_page">
+<div class="navigator_wiki">
+ |
+ <?php if ($rw) { ?>
+	<?php if ($is_newable) { ?>
+		<?php $navigator($this,'new','','',TRUE) ?>
+	<?php } ?>
+	<?php if ($is_newable2) { ?>
+		<?php $navigator($this,'newsub','','',TRUE) ?>
+	<?php } ?>
+ <?php } ?>
+ <?php if ($this->arg_check('list')) { ?>
+	<?php $navigator($this,'filelist','','',TRUE) ?>
+	<?php $navigator($this,'attaches','','',TRUE) ?>
+ <?php } else { ?>
+   <?php $navigator($this,'list','','',TRUE) ?>
+ <?php } ?>
+ <?php $navigator($this,'search','','',TRUE) ?>
+ <?php $navigator($this,'recent','','',TRUE) ?>
+ <?php $navigator($this,'rss','','','icon',14,14) ?>
+ <?php $navigator($this,'help','','',TRUE)   ?>
+</div><!--/navigator_wiki-->
+<?php if ($is_page) { ?>
+ <?php if (! $is_read) {
+ 	$navigator($this,'topage','','',TRUE);?>
+ <?php } ?>
+ <?php if ($rw) { ?>
+	<?php if (!$is_freeze && $is_editable) { ?>
+		<?php $navigator($this,'edit','',$ajax_edit_js,TRUE) ?>
+	<?php } ?>
+	<?php if ($is_owner) { ?>
+		<?php if ($is_read && $this->root->function_freeze) { ?>
+			<?php (! $is_freeze) ? $navigator($this,'freeze','','',TRUE) : $navigator($this,'unfreeze','','',TRUE) ?>
+		<?php } ?>
+		<?php $navigator($this,'pginfo','','',TRUE) ?>
+	<?php } ?>
+	<?php if ($is_newable) { ?>
+		<?php $navigator($this,'copy','','',TRUE) ?>
+	<?php } ?>
+	<?php if ($is_owner) { ?>
+		<?php $navigator($this,'rename','','',TRUE) ?>
+	<?php } ?>
+ <?php } ?>
+ <?php $navigator($this,'back','','',TRUE) ?>
+ <?php if ($can_attach) { ?>
+	<?php $navigator($this,'upload','',$upload_js,TRUE) ?>
+ <?php } ?>
+ <?php if ($subnote) echo $this->do_plugin_inline('subnote', 'format:%s,popup,icon', 'Note|Main'); ?>
+ <?php if ($this->root->referer) { ?>
+  <?php $navigator($this,'refer','','',TRUE) ?>
+ <?php } ?>
+<?php } else { ?>
+ <?php $navigator($this,'top','','',TRUE)?>
+<?php } ?>
+</div><!--/navigator_page-->
+
+<div class="navigator_info">
+ <span id="xpwiki_fusenlist" style="display:none;"><span class="button"><!--FU--><!--SEN--></span></span>
+<?php if ($this->root->trackback) { ?>
+ [ <?php $navigator($this,'trackback', $lang['trackback'] . '(' . $this->tb_count($_page) . ')',
+ 	($trackback_javascript == 1) ? 'onclick="OpenTrackback(this.href); return false"' : '') ?> ]
+<?php } ?>
+<?php if ($page_comments_count)   { ?>
+ <span class="button"><?php echo $page_comments_count ?></span>
+<?php } ?>
+</div><!--/navigator_info-->
+
+<h1 class="title"><?php echo $page ?></h1>
+
+<div class="navigator_path">
 
 <?php if ($is_page) { ?>
  <?php if($this->cont['SKIN_DEFAULT_DISABLE_TOPICPATH']) { ?>
    <a href="<?php echo $link['reload'] ?>"><span class="small"><?php echo $link['reload'] ?></span></a>
  <?php } else if (!$is_top) { ?>
-   <span class="small">
-   <?php echo $this->do_plugin_inline('topicpath'); ?>
-   </span>
+   <?php echo $this->do_plugin_inline('topicpath', '/'); ?>
  <?php } ?>
 <?php } ?>
 
+</div><!--/navigator_path-->
+
+</div><!--/header-->
+
+<div class="navigator_hr">
+	<div> </div><hr />
 </div>
-
-<div class="navigator_page">
-<?php if ($is_page) { ?>
- [
- <?php if ($rw) { ?>
-	<?php if (!$is_freeze && $is_editable) { ?>
-		<?php $navigator($this,'edit','',$ajax_edit_js) ?> |
-	<?php } ?>
-	<?php if ($is_read && $this->root->function_freeze) { ?>
-		<?php (! $is_freeze) ? $navigator($this,'freeze') : $navigator($this,'unfreeze') ?> |
-	<?php } ?>
-	<?php if ($is_owner) { ?>
-		<?php $navigator($this,'pginfo') ?> |
-	<?php } ?>
- <?php } ?>
- <?php $navigator($this,'diff') ?>
- <?php if ($this->root->do_backup) { ?>
-	| <?php $navigator($this,'backup') ?>
- <?php } ?>
- <?php if ($can_attach) { ?>
-	| <?php $navigator($this,'upload','',$upload_js) ?>
- <?php } ?>
- <?php if ($this->is_page($_page)) { ?> | <?php $navigator($this,'reload'); } ?>
- ] &nbsp;
-<?php } else { ?>
- [ <?php $navigator($this, 'top')?> ]
-<?php } ?>
-</div><!--/navigator_page-->
-
-<hr style="clear: both;" />
-
-<div class="navigator_info">
- <span id="xpwiki_fusenlist" style="display:none;">[ <!--FU--><!--SEN--> ]</span>
- <?php if ($subnote) echo $this->do_plugin_inline('subnote', 'format:[ %s ],popup', 'Note|Main'); ?>
-<?php if ($this->root->trackback) { ?>
- [ <?php $navigator($this,'trackback', $lang['trackback'] . '(' . $this->tb_count($_page) . ')',
- 	($trackback_javascript == 1) ? 'onclick="OpenTrackback(this.href); return false"' : '') ?> ]
-<?php } ?>
-<?php if ($this->root->referer)   { ?>
- [ <?php $navigator($this,'refer') ?> ]
-<?php } ?>
-<?php if ($page_comments_count)   { ?>
- [ <?php echo $page_comments_count ?> ]
-<?php } ?>
-</div><!--/navigator_info-->
 
 <?php } // PKWK_SKIN_SHOW_NAVBAR ?>
 </div><!--/navigator-->
@@ -193,31 +231,7 @@ EOD;
 <?php if ($this->cont['PKWK_SKIN_SHOW$toolbar']) { ?>
 <!-- Toolbar -->
 <div class="toolbar">
-<?php
 
-// Set toolbar-specific images
-$this->root->_IMAGE['skin']['reload']   = 'reload.png';
-$this->root->_IMAGE['skin']['new']      = 'new.png';
-$this->root->_IMAGE['skin']['edit']     = 'edit.png';
-$this->root->_IMAGE['skin']['freeze']   = 'freeze.png';
-$this->root->_IMAGE['skin']['unfreeze'] = 'unfreeze.png';
-$this->root->_IMAGE['skin']['diff']     = 'diff.png';
-$this->root->_IMAGE['skin']['upload']   = 'file.png';
-$this->root->_IMAGE['skin']['copy']     = 'copy.png';
-$this->root->_IMAGE['skin']['rename']   = 'rename.png';
-$this->root->_IMAGE['skin']['top']      = 'top.png';
-$this->root->_IMAGE['skin']['list']     = 'list.png';
-$this->root->_IMAGE['skin']['search']   = 'search.png';
-$this->root->_IMAGE['skin']['recent']   = 'recentchanges.png';
-$this->root->_IMAGE['skin']['backup']   = 'backup.png';
-$this->root->_IMAGE['skin']['help']     = 'help.png';
-$this->root->_IMAGE['skin']['rss']      = 'feed-rss.png';
-$this->root->_IMAGE['skin']['rss10']    = 'feed-rss1.png';
-$this->root->_IMAGE['skin']['rss20']    = 'feed-rss2.png';
-$this->root->_IMAGE['skin']['atom']     = 'feed-atom.png';
-$this->root->_IMAGE['skin']['rdf']      = 'rdf.png';
-
-?>
  <?php $toolbar($this, 'top') ?>
 
 <?php if ($is_page) { ?>

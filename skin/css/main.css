@@ -115,12 +115,31 @@ $class div.level3 {
 $class div.level4 {
 	margin-left: 2em;
 }
+$class div.level3 div.level4 {
+	margin-left: 1em;
+}
 $class div.level5 {
 	margin-left: 3em;
+}
+$class div.level3 div.level5 {
+	margin-left: 2em;
+}
+$class div.level4 div.level5 {
+	margin-left: 1em;
 }
 $class div.level6 {
 	margin-left: 4em;
 }
+$class div.level3 div.level6 {
+	margin-left: 3em;
+}
+$class div.level4 div.level6 {
+	margin-left: 2em;
+}
+$class div.level5 div.level6 {
+	margin-left: 1em;
+}
+
 $class .highlight {
 	background-color: #ffe4e1;
 }
@@ -129,43 +148,68 @@ $class h1,
 $class h2 {
 	font-family:verdana, arial, helvetica, Sans-Serif;
 	color:inherit;
-	background-color:#DDEEFF;
-	padding:.3em;
-	border:0px;
+	/*background-color:lightgrey;*/
+	background: #F5F5F5 url(./loader.php?src=shadow.png) repeat-x scroll center bottom;
+	border-top:     0px solid lightgrey;
+	border-bottom:  none;
+	border-left:   20px solid lightgrey;
+	border-right: none;
+	-moz-border-radius: 10px;
+	-webkit-border-radius: 10px;
+	border-radius: 10px;
+	padding: .3em .3em .5em .5em;
 	margin:0px 0px .5em 0px;
 	text-align: left;
 	clear:none !important;
 }
+* html $class h1,
+* html $class h2 {
+	/* for < IE6 */
+	background-image: url(./loader.php?src=shadow.gif);
+}
+
 $class h3 {
 	font-family:verdana, arial, helvetica, Sans-Serif;
-	border-bottom:  3px solid #DDEEFF;
-	border-top:     1px solid #DDEEFF;
-	border-left:   10px solid #DDEEFF;
-	border-right:   5px solid #DDEEFF;
-
+	border-top:     0px solid lightgrey;
+	border-bottom:  2px dotted lightgrey;
+	border-left:   15px solid lightgrey;
+	border-right: none;
+	-moz-border-radius: 8px;
+	-webkit-border-radius: 8px;
+	border-radius: 8px;
 	color:inherit;
-	background-color:#FFFFFF;
-	padding:.3em;
+	/*background-color:#FFFFFF;*/
+	padding: .3em .3em .1em .5em;
 	margin:0px 0px .5em 0px;
 	text-align: left;
 }
 $class h4 {
 	font-family:verdana, arial, helvetica, Sans-Serif;
-	border-left:   18px solid #DDEEFF;
-
+	border-top:     0px solid lightgrey;
+	border-bottom:  1px dotted lightgrey;
+	border-left:   10px solid lightgrey;
+	-moz-border-radius: 5px;
+	-webkit-border-radius: 5px;
+	border-radius: 5px;
 	color:inherit;
 	background-color:#FFFFFF;
-	padding:.3em;
+	padding: .3em .3em .1em .5em;
 	margin:0px 0px .5em 0px;
 	text-align: left;
 }
 $class h5,
 $class h6 {
+	font-size: 100%;
 	font-family:verdana, arial, helvetica, Sans-Serif;
 	color:inherit;
-	background-color:#DDEEFF;
- 	padding:.3em;
- 	border:0px;
+	/*background-color:#DDEEFF;*/
+ 	padding: .3em .3em .1em .5em;
+	border-top:     0px solid lightgrey;
+	border-bottom:  1px dotted lightgrey;
+	border-left:   5px solid lightgrey;
+	-moz-border-radius: 3px;
+	-webkit-border-radius: 3px;
+	border-radius: 3px;
  	margin:0px 0px .5em 0px;
 	text-align: left;
 }
@@ -174,9 +218,22 @@ $class h1.title {
 	font-size: 30px;
 	font-weight:bold;
 	background-color:transparent;
-	padding: 10px 0px 0px 0px;
+	background-image: none;
+	padding: 0px 0px 0px 0px;
 	border: 0px;
-	margin: 10px 0px 0px 0px;
+	margin: 0px 0px 15px 0px;
+}
+
+$class h1.none,
+$class h2.none,
+$class h3.none,
+$class h4.none,
+$class h5.none,
+$class h6.none {
+	background: none;
+	border: none;
+	padding: 0;
+	margin: 0;
 }
 
 $class dt {
@@ -231,6 +288,9 @@ $class div.toc_header {
 	background-color: #F5F5F5;
 	border: gray 1px solid;
 	padding: 2px 2px 2px 5px;
+	-moz-border-radius: 5px 5px 0 0;
+	-webkit-border-radius: 5px 5px 0 0;
+	border-radius: 5px 5px 0 0;
 }
 $class div.toc_body {
 	font-weight: normal;
@@ -238,12 +298,22 @@ $class div.toc_body {
 	border: gray 1px solid;
 	border-top: none;
 	padding: 0.4em 0.2em 0 0.4em;
+	-moz-border-radius: 0 0 5px 5px;
+	-webkit-border-radius: 0 0 5px 5px;
+	border-radius: 0 0 5px 5px;
 }
 $class div.contents ul,
 $class div.contents ol {
 	margin-left: 0.5em;
 	padding-left: 0.5em;
 }
+
+$class div.contents ul.list1,
+$class div.contents ol.list1 {
+	margin-top: 0;
+	margin-bottom: 0;
+}
+
 
 /* Pre base */
 $class div.pre {
@@ -404,6 +474,10 @@ $class ol.list8 li { list-style-type:lower-roman; }
 $class ul.list9 li { list-style-type:square; }
 $class ol.list9 li { list-style-type:lower-alpha; }
 
+$class li.pcmt {
+	list-style-type: none !important;
+}
+
 $class div.ie5 { text-align:center; }
 
 $class span.noexists {
@@ -498,7 +572,18 @@ $class div.commentbody {
 }
 
 $class div.commentbody h2 {
+	font-size: 13pt;
+	border-top:     0px solid lightgrey;
+	border-bottom:  2px dotted lightgrey;
+	border-left:   15px solid lightgrey;
+	border-right: none;
+	background-image: none;
 	background-color: transparent;
+	-moz-border-radius: 8px;
+	-webkit-border-radius: 8px;
+	border-radius: 8px;
+	padding: .3em .3em .1em .5em;
+	margin:0px 0px .5em 0px;
 }
 
 $class div.commentbody textarea {
@@ -609,14 +694,18 @@ $class div.edit_form_cancel {
 
 /* pukiwiki.skin.php */
 $class div.header {
+	font-weight: normal;
 	padding:0px;
 	margin:0px;
 	background-color: transparent;
 }
+$class div.header a {
+	font-weight: normal;
+}
 
 $class div.navigator {
 	clear:both;
-	padding:4px 0px 0px 0px;
+	padding:0px 0px 0px 0px;
 	margin:0px;
 	font-size:90%;
 }
@@ -624,17 +713,81 @@ $class div.navigator {
 $class div.navigator_wiki {
 	width: auto;
 	float: right;
-	padding-top: 15px;
+	/*padding-top: 15px;*/
 	padding-left: 1em;
 }
 
 $class div.navigator_page {
-	text-align: center;
+	text-align: left;
+	font-size: 12px;
+	color: gray;
+	background: #F5F5F5 url(./loader.php?src=shadow.png) repeat-x scroll center bottom;
+	padding: 2px 10px;
+	margin: 0 0 8px 0;
+	-moz-border-radius: 5px;
+	-webkit-border-radius: 5px;
+	border-radius: 5px;
+}
+* html $class div.navigator_page {
+	/* for < IE6 */
+	background-image: url(./loader.php?src=shadow.gif);
+}
+
+$class div.navigator_page a {
+	background-color: transparent;
+}
+
+$class div.navigator_page span.noexists {
+	background-color: transparent;
+}
+
+$class div.navigator_path {
+	font-size: 85%;
 }
 
 $class div.navigator_info {
+	float: right;
 	text-align: right;
 	margin-bottom: 10px;
+}
+
+$class div.navigator_hr {
+	clear: both;
+	margin: 0 0 2em 0;
+	height: 15px;
+	background: #FFF url(./loader.php?src=buttonbg.gif) repeat-x scroll center bottom;
+}
+
+$class div.navigator_hr hr {
+	border: none;
+	height: 0;
+	margin: 7px 0 0 0 ;
+	padding: 0;
+	color: transparent;
+}
+
+$class span.button {
+	color: black;
+	font-size: 11px;
+	font-weight: normal;
+	margin-top: 2px;
+	margin-right: 1px;
+	padding: 1px 5px;
+	border: 1px solid gray;
+	cursor: pointer;
+	background: #F5F5F5 url(./loader.php?src=buttonbg.gif) repeat-x scroll center bottom;
+	-moz-border-radius: 4px;
+	-webkit-border-radius: 4px;
+	border-radius: 4px;
+}
+$class span.button:hover {
+	padding: 0px 4px;
+	border: 2px solid orange;
+	border-top-color: gold;
+	border-left-color: gold;
+}
+$class span.button a {
+	color: black;
 }
 
 $class td.menubar {
@@ -731,6 +884,7 @@ $class table.footer_pginfo {
 $class table.footer_pginfo th,
 $class table.footer_pginfo td {
 	font-size: x-small;
+	padding: 0;
 }
 
 $class div.banner {
@@ -877,6 +1031,12 @@ $class ul.recent_list {
 /* ref.inc.php */
 $class .img_margin {
 	margin: 10px;
+}
+
+/* ruby.inc.php */
+$class rt, $class rp {
+	font-size: 65%;
+	font-weight: normal;
 }
 
 /* vote.inc.php */
