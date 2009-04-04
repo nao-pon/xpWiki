@@ -138,12 +138,19 @@ class XpWikiHeading extends XpWikiElement {
 	var $id;
 	var $paraid;
 	var $msg_top;
+	var $class;
 
 	function XpWikiHeading(& $root, $text) {
 		parent :: XpWikiElement($root->xpwiki);
 
 		$this->level = min(5, strspn($text, '*'));
-		list ($text, $this->msg_top, $this->id, $this->paraid) = $root->getAnchor($text, $this->level);
+		list ($text, $anchor, $this->msg_top, $this->id, $this->paraid) = $root->getAnchor($text, $this->level);
+		if (! trim($text)) {
+			$this->class = ' class="none"';
+		} else {
+			$this->class = '';
+		}
+		$text .= $anchor;
 		$this->insert($root->func->Factory_Inline($text));
 		$this->level++; // h2,h3,h4
 	}
@@ -165,7 +172,7 @@ class XpWikiHeading extends XpWikiElement {
 		// Area div id 
 		$this->root->rtf['div_area_open'][$this->root->rtf['convert_nest']][$this->level][] = $this->paraid;
 
-		return $area_div . $this->msg_top . $this->wrap(parent :: toString(), 'h'.$this->level, ' id="'.$this->id.'"');
+		return $area_div . $this->msg_top . $this->wrap(parent :: toString(), 'h'.$this->level, ' id="'.$this->id.'"'.$this->class);
 	}
 }
 
@@ -488,20 +495,20 @@ class XpWikiTableCell extends XpWikiElement {
 		}
 
 		// セル背景色
-		if (preg_match("/(?:SC|CC):(#?[0-9abcdef]{6}?|$colors_reg|0) ?/i",$cells[0],$tmp)) {
+		if (preg_match("/(?:[SCB]C):(#?[0-9abcdef]{6}?|$colors_reg|0) ?/i",$cells[0],$tmp)) {
 			if ($tmp[1]==="0") $tmp[1]="transparent";
 			$this->style['background-color'] = "background-color:".$tmp[1].";";
-			$cells[0] = preg_replace("/(?:SC|CC):(#?[0-9abcdef]{6}?|$colors_reg|0)(\(([^),]*)(,(?:no|one(?:ce)?|1))?\)) ?/i","CC:$2",$cells[0]);
-			$cells[0] = preg_replace("/(?:SC|CC):(#?[0-9abcdef]{6}?|$colors_reg|0) ?/i","",$cells[0]);
+			$cells[0] = preg_replace("/(?:[SCB]C):(#?[0-9abcdef]{6}?|$colors_reg|0)(\(([^),]*)(,(?:no|one(?:ce)?|1))?\)) ?/i","CC:$2",$cells[0]);
+			$cells[0] = preg_replace("/(?:[SCB]C):(#?[0-9abcdef]{6}?|$colors_reg|0) ?/i","",$cells[0]);
 		}
 		// セル背景画
-		if (preg_match("/(?:SC|CC):\(([^),]*)(,once|,1)?\) ?/i",$cells[0],$tmp)) {
+		if (preg_match("/(?:[SCB]C):\(([^),]*)(,once|,1)?\) ?/i",$cells[0],$tmp)) {
 			if (strpos($tmp[1], $this->cont['ROOT_URL']) === 0) {
 				$tmp[1] = htmlspecialchars($tmp[1]);
 				$this->style['background-image'] .= "background-image: url(".$tmp[1].");";
 				if (!empty($tmp[2])) $this->style['background-image'] .= "background-repeat: no-repeat;";
 			}
-			$cells[0] = preg_replace("/(?:SC|CC):\(([^),]*)(,once|,1)?\) ?/i","",$cells[0]);
+			$cells[0] = preg_replace("/(?:[SCB]C):\(([^),]*)(,once|,1)?\) ?/i","",$cells[0]);
 		}
 		// ボーダー
 		if (preg_match("/K:([0-9]+),?([0-9]*)\(?(one|s(?:olid)?|da(?:sh(?:ed)?)?|do(?:tt(?:ed)?)?|two|d(?:ouble)?|boko|g(?:roove)?|deko|r(?:idge)?|in?(?:set)?|o(?:ut(?:set)?)?)?\)? ?/i",$cells[0],$tmp)) {
@@ -1162,21 +1169,22 @@ class XpWikiBody extends XpWikiElement {
 			if ($this->root->fixed_heading_anchor_edit && empty($this->root->rtf['convert_html_multiline'])) $anchor .= " &edit(#$id,paraedit);";
 		}
 
-		$text = ' '.$text;
+		if (trim($text)) {
+			$text = ' '.$text;
 
-		// Add 'page contents' link to its heading
-		if ($level - $this->contents->last_level > 1) {
-			for($_lev = $this->contents->last_level+1; $_lev < $level; $_lev++ ) {
-				$this->contents_last = & $this->contents_last->add(new XpWikiContents_UList($this->xpwiki, '', $_lev, NULL));
+			// Add 'page contents' link to its heading
+			if ($level - $this->contents->last_level > 1) {
+				for($_lev = $this->contents->last_level+1; $_lev < $level; $_lev++ ) {
+					$this->contents_last = & $this->contents_last->add(new XpWikiContents_UList($this->xpwiki, '', $_lev, NULL));
+				}
 			}
+			$this->contents->last_level = $level;
+			$this->contents->count++;
+		
+			$this->contents_last = & $this->contents_last->add(new XpWikiContents_UList($this->xpwiki, $text, $level, $id));
 		}
-		$this->contents->last_level = $level;
-		$this->contents->count++;
-		
-		$this->contents_last = & $this->contents_last->add(new XpWikiContents_UList($this->xpwiki, $text, $level, $id));
-		
 		// Add heding
-		return array ($text.$anchor, ($this->count > 1 ? $this->root->top : ''), $autoid, $id);
+		return array ($text, $anchor, ($this->count > 1 ? $this->root->top : ''), $autoid, $id);
 	}
 
 	function & insert(& $obj) {
