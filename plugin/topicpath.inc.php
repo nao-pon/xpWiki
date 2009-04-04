@@ -1,6 +1,6 @@
 <?php
 // PukiWiki - Yet another WikiWikiWeb clone
-// $Id: topicpath.inc.php,v 1.8 2008/08/10 03:03:57 nao-pon Exp $
+// $Id: topicpath.inc.php,v 1.9 2009/04/04 07:12:54 nao-pon Exp $
 //
 // 'topicpath' plugin for PukiWiki, available under GPL
 
@@ -74,10 +74,13 @@ class xpwiki_plugin_topicpath extends xpwiki_plugin {
 			$topic_path[] = strip_tags($this->xpwiki->title);
 		}
 	
-		if ($this->cont['PLUGIN_TOPICPATH_TOP_DISPLAY'])
-			$topic_path[] = $this->func->make_pagelink($this->root->defaultpage, $this->cont['PLUGIN_TOPICPATH_TOP_LABEL']);
-	
-		$ret = join($this->cont['PLUGIN_TOPICPATH_TOP_SEPARATOR'], array_reverse($topic_path));
+		$ret = '';
+		if ($this->cont['PLUGIN_TOPICPATH_TOP_DISPLAY']) {
+			$ret = $this->func->make_pagelink($this->root->defaultpage, (($sep === '/')? $this->root->mydirname : $this->cont['PLUGIN_TOPICPATH_TOP_LABEL']));
+			$ret .= ($sep === '/')? ':' : $sep;
+		}
+		
+		$ret .= join($this->cont['PLUGIN_TOPICPATH_TOP_SEPARATOR'], array_reverse($topic_path));
 		
 		if ($page !== '' && $this->root->vars['cmd'] !== 'read') {
 			$title = strip_tags($this->xpwiki->title);
