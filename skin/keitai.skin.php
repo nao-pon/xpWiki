@@ -1,6 +1,6 @@
 <?php
 // PukiWiki - Yet another WikiWikiWeb clone.
-// $Id: keitai.skin.php,v 1.27 2009/03/14 09:04:15 nao-pon Exp $
+// $Id: keitai.skin.php,v 1.28 2009/04/04 12:16:08 nao-pon Exp $
 // Copyright (C) 2003-2006 PukiWiki Developers Team
 // License: GPL v2 or (at your option) any later version
 //
@@ -36,6 +36,14 @@ $lang = $_LANG['skin'];
 $rw = ! $this->cont['PKWK_READONLY'];
 $dirname = $this->root->mydirname;
 
+$no_accesskey = isset($this->root->rtf['no_accesskey']);
+
+foreach($lang as $key => $val) {
+	if (isset($lang[$key.'_s'])) {
+		$lang[$key] = $lang[$key.'_s'];
+	}
+}
+
 // ----
 // Modify
 $heads = array();
@@ -64,25 +72,28 @@ $body = str_replace($this->root->_symbol_noexists, '<span style="font-size:xx-sm
 $head = '<head><title>' . mb_convert_encoding($title, 'SJIS', $this->cont['SOURCE_ENCODING']) . '</title></head>';
 
 $header = '';
-$header .= sprintf('<div style="%s" id="header">%s <a href="%s" %s="1">%s</a></div>',
-	$style['siteTitle'],
-	$this->make_link('&pb1;'),
-	$this->cont['ROOT_URL'],
-	$this->root->accesskey,
-	htmlspecialchars($this->root->siteinfo['sitename']) );
 
-$header .= sprintf('<div style="%s">%s</div>',
-	$style['easyLogin'],
-	$this->do_plugin_convert('easylogin') );
-
-$header .= sprintf('<div style="%s">%s <a href="%s" %s="3">%s</a><a href="%s">%s</a></div>',
-	$style['wikiTitle'],
-	$this->make_link('&pb3;'),
-	$link['top'],
-	$this->root->accesskey,
-	htmlspecialchars($this->root->module['title']),
-	$link['rss'],
-	'((e:f699))' );
+if (! $no_accesskey) {
+	$header .= sprintf('<div style="%s" id="header">%s <a href="%s" %s="1">%s</a></div>',
+		$style['siteTitle'],
+		$this->make_link('&pb1;'),
+		$this->cont['ROOT_URL'],
+		$this->root->accesskey,
+		htmlspecialchars($this->root->siteinfo['sitename']) );
+	
+	$header .= sprintf('<div style="%s">%s</div>',
+		$style['easyLogin'],
+		$this->do_plugin_convert('easylogin') );
+	
+	$header .= sprintf('<div style="%s">%s <a href="%s" %s="3">%s</a><a href="%s">%s</a></div>',
+		$style['wikiTitle'],
+		$this->make_link('&pb3;'),
+		$link['top'],
+		$this->root->accesskey,
+		htmlspecialchars($this->root->module['title']),
+		$link['rss'],
+		'((e:f699))' );
+}
 
 if ($read && $pagename) {
 	$pageTitle = $this->make_pagelink($pagename) . '<a href="' . $link['related'] . '">((i:f981))</a>';
@@ -93,75 +104,77 @@ $header .= sprintf('<div style="%s">%s</div>',
 	$style['pageTitle'],
 	$pageTitle );
 
-$header .= '<div style="' . $style['pageMenu'] . '">';
-$header .= '<table align="center"><tr><td>';
-$header .= '<div style="' . $style['pageMenu'] . '">';
-
-$header .= sprintf('%s <a href="#header" %s="2">%s</a><br />',
-$this->make_link('&pb2;'),
-$this->root->accesskey,
-$lang['header']
-);
-
-$header .= sprintf('%s <a href="#footer" %s="8">%s</a><br />',
-$this->make_link('&pb8;'),
-$this->root->accesskey,
-$lang['footer']
-);
-
-if ($pagename) {
-	$header .= sprintf('%s <a href="%s?cmd=menu&amp;refer=%s" %s="5">%s</a><br />',
-	$this->make_link('&pb5;'),
-	$this->root->script,
-	rawurlencode($pagename),
+if (! $no_accesskey) {
+	$header .= '<div style="' . $style['pageMenu'] . '">';
+	$header .= '<table align="center"><tr><td>';
+	$header .= '<div style="' . $style['pageMenu'] . '">';
+	
+	$header .= sprintf('%s <a href="#header" %s="2">%s</a><br />',
+	$this->make_link('&pb2;'),
 	$this->root->accesskey,
-	$lang['menu']
+	$lang['header']
 	);
-} else {
-	$header .= '<br />';
-}
-
-if (!$is_freeze && $is_editable) {
-	$header .= sprintf('%s <a href="%s" %s="9">%s</a><br />',
-	$this->make_link('&pb9;'),
-	$link['edit'],
+	
+	$header .= sprintf('%s <a href="#footer" %s="8">%s</a><br />',
+	$this->make_link('&pb8;'),
 	$this->root->accesskey,
-	$lang['edit']
+	$lang['footer']
 	);
-} else {
-	$header .= '<br />';
+	
+	if ($pagename) {
+		$header .= sprintf('%s <a href="%s?cmd=menu&amp;refer=%s" %s="5">%s</a><br />',
+		$this->make_link('&pb5;'),
+		$this->root->script,
+		rawurlencode($pagename),
+		$this->root->accesskey,
+		$lang['menu']
+		);
+	} else {
+		$header .= '<br />';
+	}
+	
+	if (!$is_freeze && $is_editable) {
+		$header .= sprintf('%s <a href="%s" %s="9">%s</a><br />',
+		$this->make_link('&pb9;'),
+		$link['edit'],
+		$this->root->accesskey,
+		$lang['edit']
+		);
+	} else {
+		$header .= '<br />';
+	}
+	$header .= '</div>';
+	$header .= '</td><td style="background-color:#fff"> </td><td>';
+	$header .= '<div style="' . $style['pageMenu'] . ';text-align:right">';
+	
+	$header .= sprintf('<a href="%s" %s="7">%s</a> %s<br />',
+	$link['new'],
+	$this->root->accesskey,
+	$lang['new'],
+	$this->make_link('&pb7;') );
+	
+	$header .= sprintf('<a href="%s" %s="*">%s</a> %s<br />',
+	$link['search'],
+	$this->root->accesskey,
+	$lang['search'],
+	'[*]' );
+	
+	$header .= sprintf('<a href="%s" %s="0">%s</a> %s<br />',
+	$link['recent'],
+	$this->root->accesskey,
+	$lang['recent'],
+	$this->make_link('&pb0;') );
+	
+	$header .= sprintf('<a href="%s" %s="#">%s</a> %s<br />',
+	$link['list'],
+	$this->root->accesskey,
+	$lang['list'],
+	$this->make_link('&pb#;') );
+	
+	$header .= '</div>';
+	$header .= '</td></tr></table>';
+	$header .= '</div>';
 }
-$header .= '</div>';
-$header .= '</td><td style="background-color:#fff"> </td><td>';
-$header .= '<div style="' . $style['pageMenu'] . ';text-align:right">';
-
-$header .= sprintf('<a href="%s" %s="7">%s</a> %s<br />',
-$link['new'],
-$this->root->accesskey,
-$lang['new'],
-$this->make_link('&pb7;') );
-
-$header .= sprintf('<a href="%s" %s="*">%s</a> %s<br />',
-$link['search'],
-$this->root->accesskey,
-$lang['search_s'],
-'[*]' );
-
-$header .= sprintf('<a href="%s" %s="0">%s</a> %s<br />',
-$link['recent'],
-$this->root->accesskey,
-$lang['recent_s'],
-$this->make_link('&pb0;') );
-
-$header .= sprintf('<a href="%s" %s="#">%s</a> %s<br />',
-$link['list'],
-$this->root->accesskey,
-$lang['list'],
-$this->make_link('&pb#;') );
-
-$header .= '</div>';
-$header .= '</td></tr></table>';
-$header .= '</div>';
 
 $footnotes = '<hr />';
 if ($notes) {
