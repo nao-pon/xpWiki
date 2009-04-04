@@ -2,7 +2,7 @@
 /*
  * Created on 2008/11/10 by nao-pon http://hypweb.net/
  * License: GPL v2 or (at your option) any later version
- * $Id: pluginlist.lng.php,v 1.9 2009/02/23 09:00:01 nao-pon Exp $
+ * $Id: pluginlist.lng.php,v 1.10 2009/04/04 04:20:00 nao-pon Exp $
  */
 
 $msg = array(
@@ -299,7 +299,7 @@ $msg = array(
 	),
 	'showrss' => array(
 		'title' => '外部RSS表示',
-		'block_usage' => '#showrss(<RSS URL>[,[default|menubar|recent][,[<キャッシュ生存時間>][,0|1[,0|1[,<表示件数>]]]]])',
+		'block_usage' => '#showrss(<RSS URL>[,[default|menubar|recent][,[<キャッシュ生存時間>[,<更新日時表示;0|1>[,<Discription表示;0|1>[,<表示件数>]]]]])',
 		'inline_usage' => ''
 	),
 	'siteimage' => array(
