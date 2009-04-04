@@ -1,6 +1,6 @@
 <?php
 // PukiWiki - Yet another WikiWikiWeb clone
-// $Id: showrss.inc.php,v 1.10 2009/03/02 01:31:22 nao-pon Exp $
+// $Id: showrss.inc.php,v 1.11 2009/04/04 07:05:34 nao-pon Exp $
 //  Id:showrss.inc.php,v 1.40 2003/03/18 11:52:58 hiro Exp
 // Copyright (C):
 //     2002-2006 PukiWiki Developers Team
@@ -74,7 +74,7 @@ class xpwiki_plugin_showrss extends xpwiki_plugin {
 		$time_str = '';
 		if ($timestamp > 0) {
 			$time_str = '<p style="font-size:10px; font-weight:bold">Last-Modified:' .
-			$this->func->get_date('Y/m/d H:i:s', $time) .  '</p>';
+			$this->func->get_date('Y/m/d H:i:s', $time) . '</p>';
 		}
 	
 		$obj = new $class($this->xpwiki, $rss, $show_description, $max);
@@ -88,7 +88,7 @@ class xpwiki_plugin_showrss extends xpwiki_plugin {
 		$time = NULL;
 		if ($cachehour) {
 			// Get the cache not expired
-			$filename = $this->cont['CACHE_DIR'] . 'plugin/' . $this->func->encode($target) . '.showrss';
+			$filename = $this->cont['CACHE_DIR'] . 'plugin/' . md5($target) . '.showrss';
 			
 			if (is_readable($filename) && (filemtime($filename) + $cachehour * 60 * 60) > $this->cont['UTC']) {
 				$data  = unserialize(file_get_contents($filename));
@@ -284,6 +284,7 @@ class XpWikiShowRSS_XML
 	var $is_item;
 	var $tag;
 	var $encoding;
+	var $pass;
 	
 	function XpWikiShowRSS_XML(& $xpwiki)
 	{
@@ -299,6 +300,7 @@ class XpWikiShowRSS_XML
 		$this->item    = array();
 		$this->is_item = FALSE;
 		$this->tag     = '';
+		$this->pass    = FALSE;
 
 		// Detect encoding
 		$matches = array();
@@ -348,10 +350,14 @@ class XpWikiShowRSS_XML
 	{
 		if ($this->is_item) {
 			$this->tag     = $name;
-		} else if ($name == 'ITEM' || $name == 'ENTRY') {
+			if ($name === 'SOURCE') {
+				// for ATOM feed
+				$this->pass = TRUE;
+			}
+		} else if ($name === 'ITEM' || $name === 'ENTRY') {
 			$this->is_item = TRUE;
 		}
-		if ($this->is_item && $name === 'LINK') {
+		if (! $this->pass && $this->is_item && $name === 'LINK') {
 			if ((isset($attrs['REL']) && strtoupper($attrs['REL']) === 'ALTERNATE') || !isset($attrs['REL']) && isset($attrs['HREF'])) {
 				$this->item['LINK'] = $attrs['HREF'];
 			}
@@ -361,7 +367,12 @@ class XpWikiShowRSS_XML
 	// Tag end
 	function end_element($parser, $name)
 	{
-		if (! $this->is_item || ($name != 'ITEM' && $name != 'ENTRY')) return;
+		if ($name === 'SOURCE') {
+			// for ATOM feed
+			$this->pass = FALSE;
+		}
+
+		if (! $this->is_item || ($name !== 'ITEM' && $name !== 'ENTRY')) return;
 
 		$item = array_map(array(& $this, 'escape'), $this->item);
 		$this->item = array();
