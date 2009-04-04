@@ -2,7 +2,7 @@
 /*
  * Created on 2008/10/23 by nao-pon http://hypweb.net/
  * License: GPL v2 or (at your option) any later version
- * $Id: w2x.php,v 1.16 2009/03/13 07:40:04 nao-pon Exp $
+ * $Id: w2x.php,v 1.17 2009/04/04 02:57:05 nao-pon Exp $
  */
 
 //
@@ -512,10 +512,21 @@ class InlineConverterEx {
 				$aryargs[] = $body;
 				return guiedit_convert_ref($aryargs, FALSE);
 			case 'sub':
-				return '<sub>' . $this->convert($body, TRUE, FALSE) . '</sub>';
+				if (! $body && isset($aryargs[0])) {
+					$body = htmlspecialchars($aryargs[0]);
+				}
+				if ($body) {
+					return '<sub>' . $this->convert($body, TRUE, FALSE) . '</sub>';
+				}
+				break;
 			case 'sup':
-				return '<sup>' . $this->convert($body, TRUE, FALSE) . '</sup>';
-
+				if (! $body && isset($aryargs[0])) {
+					$body = htmlspecialchars($aryargs[0]);
+				}
+				if ($body) {
+					return '<sup>' . $this->convert($body, TRUE, FALSE) . '</sup>';
+				}
+				break;
 		}
 		
 		$inner = '&amp;' . $matches[1] . ($matches[2] ? "($matches[2])" : '') . ($body ? '{' . "$body}" : '') . ";";
@@ -1217,20 +1228,20 @@ class TableCellEx extends ElementEx
 			$cells[0] = preg_replace("/FC:(#?[0-9abcdef]{6}?|$colors_reg|0) ?/i","",$cells[0]);
 		}
 		// セル規定背景色指定
-		if (preg_match("/(?:SC|CC):(#?[0-9abcdef]{6}?|$colors_reg|0) ?/i",$cells[0],$tmp)) {
+		if (preg_match("/(?:[SCB]C):(#?[0-9abcdef]{6}?|$colors_reg|0) ?/i",$cells[0],$tmp)) {
 			if ($tmp[1]==="0") $tmp[1]="transparent";
 			$this->style['background-color'] = "background-color:".$tmp[1].";";
-			$cells[0] = preg_replace("/(?:SC|CC):(#?[0-9abcdef]{6}?|$colors_reg|0)(\(([^),]*)(,(?:no|one(?:ce)?|1))?\) ?)/i","CC:$2",$cells[0]);
-			$cells[0] = preg_replace("/(?:SC|CC):(#?[0-9abcdef]{6}?|$colors_reg|0) ?/i","",$cells[0]);
+			$cells[0] = preg_replace("/(?:[SCB]C):(#?[0-9abcdef]{6}?|$colors_reg|0)(\(([^),]*)(,(?:no|one(?:ce)?|1))?\) ?)/i","CC:$2",$cells[0]);
+			$cells[0] = preg_replace("/(?:[SCB]C):(#?[0-9abcdef]{6}?|$colors_reg|0) ?/i","",$cells[0]);
 		}
 		// セル規定背景画指定
-		if (preg_match("/(?:SC|CC):\(([^),]*)(,(?:no|one(?:ce)?|1))?\) ?/i",$cells[0],$tmp)) {
+		if (preg_match("/(?:[SCB]C):\(([^),]*)(,(?:no|one(?:ce)?|1))?\) ?/i",$cells[0],$tmp)) {
 			if (strpos($tmp[1], $xpwiki->cont['ROOT_URL']) === 0) {
 				$tmp[1] = htmlspecialchars($tmp[1]);
 				$this->style['background-image'] = "background-image: url(".$tmp[1].");";
 				if (!empty($tmp[2])) $this->style['bgcolor'] .= "background-repeat: no-repeat;";
 			}
-			$cells[0] = preg_replace("/(?:SC|CC):\(([^),]*)(,(?:no|one(?:ce)?|1))?\) ?/i","",$cells[0]);
+			$cells[0] = preg_replace("/(?:[SCB]C):\(([^),]*)(,(?:no|one(?:ce)?|1))?\) ?/i","",$cells[0]);
 		}
 		// セル ボーダー
 		if (preg_match("/K:([0-9]+),?([0-9]*)\(?(one|s(?:olid)?|da(?:sh(?:ed)?)?|do(?:tt(?:ed)?)?|two|d(?:ouble)?|boko|g(?:roove)?|deko|r(?:idge)?|in?(?:set)?|o(?:ut(?:set)?)?)?\)? ?/i",$cells[0],$tmp)) {
