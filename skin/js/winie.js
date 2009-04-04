@@ -20,7 +20,12 @@ function wikihelper_pos(){
 	}
 	
 	wikihelper_elem = document.activeElement;
-	wikihelper_elem.caretPos = document.selection.createRange().duplicate();
+}
+
+function wikihwlper_caretPos() {
+	if (!!wikihelper_elem && !!document.selection) {
+		wikihelper_elem.caretPos = document.selection.createRange().duplicate();
+	}
 }
 
 function wikihelper_eclr(){
@@ -91,7 +96,6 @@ function wikihelper_face(v)
 
 function wikihelper_tag(v)
 {
-	if (!document.selection || !wikihelper_elem)
 	if (!wikihelper_elem || !wikihelper_elem.caretPos)
 	{
 		alert(wikihelper_msg_elem);
@@ -111,7 +115,6 @@ function wikihelper_tag(v)
 	
 	wikihelper_elem.caretPos.text = str;
 	wikihelper_elem.focus();
-	wikihelper_pos();
 }
 
 function wikihelper_linkPrompt(v)
