@@ -1,7 +1,7 @@
 <?php
 //
 // Created on 2006/10/02 by nao-pon http://hypweb.net/
-// $Id: pukiwiki_func.php,v 1.201 2009/03/20 06:32:46 nao-pon Exp $
+// $Id: pukiwiki_func.php,v 1.202 2009/04/04 04:17:26 nao-pon Exp $
 //
 class XpWikiPukiWikiFunc extends XpWikiBaseFunc {
 
@@ -962,7 +962,7 @@ class XpWikiPukiWikiFunc extends XpWikiBaseFunc {
 
 //----- Start convert_html.php -----//
 	// PukiWiki - Yet another WikiWikiWeb clone
-	// $Id: pukiwiki_func.php,v 1.201 2009/03/20 06:32:46 nao-pon Exp $
+	// $Id: pukiwiki_func.php,v 1.202 2009/04/04 04:17:26 nao-pon Exp $
 	// Copyright (C)
 	//   2002-2005 PukiWiki Developers Team
 	//   2001-2002 Originally written by yu-ji
@@ -1217,7 +1217,7 @@ class XpWikiPukiWikiFunc extends XpWikiBaseFunc {
 
 //----- Start func.php -----//
 	// PukiWiki - Yet another WikiWikiWeb clone.
-	// $Id: pukiwiki_func.php,v 1.201 2009/03/20 06:32:46 nao-pon Exp $
+	// $Id: pukiwiki_func.php,v 1.202 2009/04/04 04:17:26 nao-pon Exp $
 	// Copyright (C)
 	//   2002-2006 PukiWiki Developers Team
 	//   2001-2002 Originally written by yu-ji
@@ -1279,10 +1279,10 @@ class XpWikiPukiWikiFunc extends XpWikiBaseFunc {
 		return $cache[$this->root->mydirname][$page];
 	}
 	
-	function is_editable($page)
+	function is_editable($page, $allowEmpty = FALSE)
 	{
 		static $is_editable = array();
-	
+		if ($allowEmpty && (! $page || strpos($page, '#') !== FALSE)) return TRUE;
 		if (! isset($is_editable[$this->root->mydirname][$page])) {
 			$is_editable[$this->root->mydirname][$page] = (
 				$this->is_pagename($page) &&
@@ -1863,17 +1863,17 @@ EOD;
 
 			// How many continuous keys have the same letter
 			// at the same position?
-			for ($i = $index; $i < $sentry; $i++)
+			for ($i = $index; $i < $sentry; ++$i)
 				if (mb_substr($array[$i], $pos, 1) !== $char) break;
 			
 			if ($index < ($i - 1)) {
 				// Some more keys found
 				// Recurse
-				$regex .= str_replace(' ', '\\ ', preg_quote($char, '/')) .
+				$regex .= str_replace(array(' ', '#'), array('\\ ', '\\#'), preg_quote($char, '/')) .
 				$this->get_matcher_regex_safe_sub($array, $index, $i, $pos + 1, $nest);
 			} else {
 				// Not found
-				$regex .= str_replace(' ', '\\ ',
+				$regex .= str_replace(array(' ', '#'), array('\\ ', '\\#'),
 				preg_quote(mb_substr($array[$index], $pos), '/'));
 			}
 			$index = $i;
@@ -2056,7 +2056,7 @@ EOD;
 
 //----- Start make_link.php -----//
 	// PukiWiki - Yet another WikiWikiWeb clone.
-	// $Id: pukiwiki_func.php,v 1.201 2009/03/20 06:32:46 nao-pon Exp $
+	// $Id: pukiwiki_func.php,v 1.202 2009/04/04 04:17:26 nao-pon Exp $
 	// Copyright (C)
 	//   2003-2005 PukiWiki Developers Team
 	//   2001-2002 Originally written by yu-ji
@@ -2726,7 +2726,7 @@ EOD;
 	// Check edit-permission
 	function check_editable($page, $auth_flag = TRUE, $exit_flag = TRUE)
 	{
-		if ($this->edit_auth($page, $auth_flag, $exit_flag) && $this->is_editable($page)) {
+		if ($this->edit_auth($page, $auth_flag, $exit_flag) && $this->is_editable($page, TRUE)) {
 			// Editable
 			return TRUE;
 		} else {
@@ -3037,7 +3037,7 @@ EOD;
 
 //----- Start html.php -----//
 	// PukiWiki - Yet another WikiWikiWeb clone.
-	// $Id: pukiwiki_func.php,v 1.201 2009/03/20 06:32:46 nao-pon Exp $
+	// $Id: pukiwiki_func.php,v 1.202 2009/04/04 04:17:26 nao-pon Exp $
 	// Copyright (C)
 	//   2002-2006 PukiWiki Developers Team
 	//   2001-2002 Originally written by yu-ji
@@ -3081,7 +3081,8 @@ EOD;
 		if ($this->root->trackback && $this->root->trackback_javascript) $this->root->javascript = 1; // Set something If you want
 		if (! $this->cont['PKWK_ALLOW_JAVASCRIPT']) unset($this->root->javascript);
 	
-		$_page  = isset($this->root->vars['page']) ? $this->root->vars['page'] : '';
+		$_page = isset($this->root->vars['page']) ? $this->root->vars['page'] : '';
+		if (! $_page && isset($this->root->vars['refer'])) $_page = $this->root->vars['refer'];
 		$r_page = rawurlencode($_page);
 		
 		// Page infomation
@@ -3101,13 +3102,14 @@ EOD;
 
 		
 		// Set skin functions
-		$navigator = create_function('&$this, $key, $value = \'\', $javascript = \'\'',    'return XpWikiFunc::skin_navigator($this, $key, $value, $javascript);');
+		$navigator = create_function('&$this, $key, $value = \'\', $javascript = \'\', $withIcon = FALSE, $x = 20, $y = 20',    'return XpWikiFunc::skin_navigator($this, $key, $value, $javascript, $withIcon, $x, $y);');
 		$toolbar   = create_function('&$this, $key, $x = 20, $y = 20, $javascript = \'\'', 'return XpWikiFunc::skin_toolbar($this, $key, $x, $y, $javascript);');
 		$ajax_edit_js = ($this->root->use_ajax_edit)? ' onclick="return xpwiki_ajax_edit(\''.htmlspecialchars($r_page, ENT_QUOTES).'\');"' : '';
 		
 		// Set $_LINK for skin
 		$_LINK['add']      = "{$this->root->script}?cmd=add&amp;page=$r_page#{$this->root->mydirname}_header";
 		$_LINK['backup']   = "{$this->root->script}?cmd=backup&amp;page=$r_page#{$this->root->mydirname}_header";
+		$_LINK['back']     = "{$this->root->script}?cmd=backup&amp;page=$r_page&amp;action=diff#{$this->root->mydirname}_header";
 		$_LINK['copy']     = "{$this->root->script}?plugin=template&amp;refer=$r_page#{$this->root->mydirname}_header";
 		$_LINK['diff']     = "{$this->root->script}?cmd=backup&amp;page=$r_page&amp;action=diff#{$this->root->mydirname}_header";
 		$_LINK['edit']     = "{$this->root->script}?cmd=edit&amp;page=$r_page#{$this->root->mydirname}_header";
@@ -3118,6 +3120,7 @@ EOD;
 		$_LINK['help']     = "{$this->root->script}?" . rawurlencode($this->root->help_page) . "#{$this->root->mydirname}_header";
 		$_LINK['list']     = "{$this->root->script}?cmd=list#{$this->root->mydirname}_header";
 		$_LINK['new']      = "{$this->root->script}?plugin=newpage&amp;refer=$r_page#{$this->root->mydirname}_header";
+		$_LINK['newsub']   = "{$this->root->script}?plugin=newpage&amp;base=$r_page&amp;refer=$r_page#{$this->root->mydirname}_header";
 		$_LINK['rdf']      = "{$this->root->script}?cmd=rss&amp;ver=1.0";
 		$_LINK['recent']   = "{$this->root->script}?" . rawurlencode($this->root->whatsnew) . "#{$this->root->mydirname}_header";
 		$_LINK['refer']    = "{$this->root->script}?plugin=referer&amp;page=$r_page#{$this->root->mydirname}_header";
@@ -3129,14 +3132,15 @@ EOD;
 		$_LINK['rss20']    = "{$this->root->script}?cmd=rss&amp;ver=2.0";
 		$_LINK['atom']     = "{$this->root->script}?cmd=rss&amp;ver=atom";
 		$_LINK['search']   = "{$this->root->script}?cmd=search#{$this->root->mydirname}_header";
-		$_LINK['top']      = $this->get_page_uri($this->root->defaultpage, true);
+		$_LINK['top']      = $this->get_page_uri($this->root->defaultpage, true)."#{$this->root->mydirname}_header";
 		if ($this->root->trackback) {
 			$tb_id = $this->tb_get_id($_page);
 			$_LINK['trackback'] = "{$this->root->script}?plugin=tb&amp;__mode=view&amp;tb_id=$tb_id";
 		}
 		$_LINK['unfreeze'] = "{$this->root->script}?cmd=unfreeze&amp;page=$r_page#{$this->root->mydirname}_header";
 		$_LINK['upload']   = "{$this->root->script}?plugin=attach&amp;pcmd=upload&amp;page=$r_page#{$this->root->mydirname}_header";
-		
+		$_LINK['topage']   = $this->get_page_uri($_page, true)."#{$this->root->mydirname}_header";
+				
 		// Compat: Skins for 1.4.4 and before
 		$link_add       = & $_LINK['add'];
 		$link_new       = & $_LINK['new'];	// New!
@@ -3163,12 +3167,14 @@ EOD;
 	
 		// Init flags
 		// ブロック用にglobal変数にも保存
-		$GLOBALS['Xpwiki_'.$this->root->mydirname]['is_page']     = $is_page = ($this->is_pagename($_page) && ! $this->arg_check('backup') && $_page !== $this->root->whatsnew);
+		$GLOBALS['Xpwiki_'.$this->root->mydirname]['is_page']     = $is_page = ($this->is_pagename($_page) && $_page !== $this->root->whatsnew);
 		$GLOBALS['Xpwiki_'.$this->root->mydirname]['is_read']     = $is_read = ($this->arg_check('read') && $this->is_page($_page));
 		$GLOBALS['Xpwiki_'.$this->root->mydirname]['is_freeze']   = $is_freeze = $this->is_freeze($_page);
 		$GLOBALS['Xpwiki_'.$this->root->mydirname]['is_admin']    = $is_admin = $this->root->userinfo['admin'];
 		$GLOBALS['Xpwiki_'.$this->root->mydirname]['is_owner']    = $is_owner = $this->is_owner($_page);
 		$GLOBALS['Xpwiki_'.$this->root->mydirname]['is_editable'] = $is_editable = $this->check_editable($_page, FALSE, FALSE);
+		$GLOBALS['Xpwiki_'.$this->root->mydirname]['is_newable']  = $is_newable = $this->check_editable('', FALSE, FALSE);
+		$GLOBALS['Xpwiki_'.$this->root->mydirname]['is_newable2'] = $is_newable2 = $this->check_editable($_page.'/#', FALSE, FALSE);
 		$GLOBALS['Xpwiki_'.$this->root->mydirname]['is_top']      = $is_top = ($_page === $this->root->defaultpage)? TRUE : FALSE;
 		$GLOBALS['Xpwiki_'.$this->root->mydirname]['page']        = $_page;
 		$GLOBALS['Xpwiki_'.$this->root->mydirname]['pgid']        = (int)@$this->root->get['pgid'];
@@ -3197,6 +3203,11 @@ EOD;
 		// Countup counter
 		if ($is_page && $this->exist_plugin_convert('counter')) {
 			$this->do_plugin_convert('counter');
+		}
+		
+		// Show filelist?
+		if ($this->root->filelist_only_admin && ! $is_admin) {
+			$this->root->skin_navigator_cmds = str_replace('filelist', '', $this->root->skin_navigator_cmds);
 		}
 		
 		// Last modification date (string) of the page
@@ -3583,9 +3594,15 @@ EOD;
 	{
 		$s_page = htmlspecialchars($page);
 		$r_page = rawurlencode($page);
-	
+		
+		$title = sprintf($this->root->_title_backlink, $s_page);
+		if ($this->root->use_title_make_search) {
+			$s_page = $this->get_heading($page);
+		}
+		$str = str_replace('/', $this->root->hierarchy_insert . '/', $s_page);
+
 		return '<a href="' . $this->root->script . '?plugin=related&amp;page=' . $r_page .
-			'" title="Backlinks for: ' . $s_page . '">' . str_replace('/', $this->root->hierarchy_insert . '/', $s_page) . '</a> ';
+			'" title="' . $title . '">' . $str . '</a> ';
 	}
 	
 	// Make heading string (remove heading-related decorations from Wiki text)
@@ -3754,7 +3771,7 @@ EOD;
 
 //----- Start mail.php -----//
 	// PukiWiki - Yet another WikiWikiWeb clone.
-	// $Id: pukiwiki_func.php,v 1.201 2009/03/20 06:32:46 nao-pon Exp $
+	// $Id: pukiwiki_func.php,v 1.202 2009/04/04 04:17:26 nao-pon Exp $
 	// Copyright (C)
 	//   2003-2005 PukiWiki Developers Team
 	//   2003      Originally written by upk
@@ -4057,7 +4074,7 @@ EOD;
 
 //----- Start link.php -----//
 	// PukiWiki - Yet another WikiWikiWeb clone
-	// $Id: pukiwiki_func.php,v 1.201 2009/03/20 06:32:46 nao-pon Exp $
+	// $Id: pukiwiki_func.php,v 1.202 2009/04/04 04:17:26 nao-pon Exp $
 	// Copyright (C) 2003-2006 PukiWiki Developers Team
 	// License: GPL v2 or (at your option) any later version
 	//
