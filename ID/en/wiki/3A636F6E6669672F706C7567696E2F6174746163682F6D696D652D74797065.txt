@@ -14,6 +14,8 @@ The definisions in this table are used by attach.inc.php for the determination o
 |video/quicktime|mov|quicktime video file|
 |video/avi|avi|avi video file|
 |video/x-ms-wmv|wmv|Windows Media video file|
+|video/3gpp2|3g2|3g2 video file|
+|video/3gpp|3gp|3gp video file|
 |audio/mp3|mp3|MP3 sound file|
 |audio/wav|wav wave|wave sound file|
 |audio/vnd.rn-realaudio|ra ram|RealAudio sound file|
@@ -28,7 +30,7 @@ The definisions in this table are used by attach.inc.php for the determination o
 |application/x-tar|tar|tar archive|
 |text/plain|txt text dat jis euc sjis sjs asc utf utf8 csv|plain text|
 |text/html|html htm|html document|
-|image/svg-xml|svg|svg(Scalable Vector Graphics)|
+|image/svg+xml|svg|svg(Scalable Vector Graphics)|
 |application/ms-download|exe|Windows executable file|
 |application/ms-word|doc|MS-Word document file|
 |application/ms-excel|xls|MS-Excel document file|
