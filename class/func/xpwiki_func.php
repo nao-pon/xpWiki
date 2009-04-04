@@ -1,7 +1,7 @@
 <?php
 //
 // Created on 2006/10/02 by nao-pon http://hypweb.net/
-// $Id: xpwiki_func.php,v 1.206 2009/03/20 06:31:29 nao-pon Exp $
+// $Id: xpwiki_func.php,v 1.207 2009/04/04 04:15:43 nao-pon Exp $
 //
 class XpWikiFunc extends XpWikiXoopsWrapper {
 
@@ -604,18 +604,22 @@ EOD;
 			if ($page === '') { return; }
 		}
 		
+		if ($page === '') $page = '#';
+		
 		if (isset($info[$this->root->mydirname][$page])) { return $info[$this->root->mydirname][$page]; }
 		
 		if ($src) {
 			if (is_array($src)) {
 				$src = join('', $src);
 			}
-		} else {
+		} else if (strpos($page, '#') === FALSE){
 			$src = $this->get_source($page, TRUE, 1024);
+		} else {
+			$src = '';
 		}
 		
 		// inherit = 0:継承指定なし, 1:規定値継承指定, 2:強制継承指定, 3:規定値継承した値, 4:強制継承した値
-		if (preg_match("/^#pginfo\((.+)\)\s*/m", $src, $match)) {
+		if ($src && preg_match("/^#pginfo\((.+)\)\s*/m", $src, $match)) {
 			$_tmp = array_pad(explode("\t",$match[1]), 13, '');
 			$pginfo['uid']       = (int)$_tmp[0];
 			$pginfo['ucd']       = $_tmp[1];
@@ -1016,8 +1020,8 @@ EOD;
 	// リファラチェック $blank = 1 で未設定も不許可(デフォルトで未設定は許可)
 	function refcheck($blank = 0, $ref = NULL)
 	{
-		if (is_null($ref)) $ref = @$_SERVER['HTTP_REFERER'];
-		if (!$blank && !$ref) return true;
+		if (is_null($ref) && isset($_SERVER['HTTP_REFERER'])) $ref = $_SERVER['HTTP_REFERER'];
+		if (!$blank && !$ref) return TRUE;
 		if (strpos($ref, $this->cont['ROOT_URL']) === 0 ) return TRUE;
 		
 		return FALSE;
@@ -1141,7 +1145,7 @@ EOD;
 		}
 		
 		if ($ret) {
-			$ret = strip_tags($this->convert_html($ret));
+			$ret = strip_tags(preg_replace('#<script.+?/script>|<span class="plugin_error">.+?</span>#is', '', $this->convert_html($ret, $page)));
 			$ret = str_replace(array("\r","\n","\t", '&dagger;', '?', '&nbsp;'),' ',$ret);
 			$ret = preg_replace('/\s+/',' ',$ret);
 			$ret = trim($ret);
@@ -1284,6 +1288,11 @@ EOD;
 						if ($this->root->url_encode_utf8) {
 							$page = mb_convert_encoding($page, 'UTF-8', $this->cont['SOURCE_ENCODING']);
 						}
+						// ! defined('PROTECTOR_VERSION') = (Protector < 3.33)
+						if (! defined('PROTECTOR_VERSION') && defined('PROTECTOR_PRECHECK_INCLUDED') && strpos($page, '%27') !== FALSE) {
+							$link = '?' . rawurlencode($page);
+							break;
+						}
 						$page = str_replace('%2F', '/', rawurlencode($page));
 						$link = $this->root->path_info_script . (($this->root->static_url === 2)? '' : '.php') . '/' . $page;
 						break;
@@ -1303,22 +1312,37 @@ EOD;
 	}
 	
 	// SKIN Function
-	function skin_navigator ($obj, $key, $value = '', $javascript = '') {
-		$lang = & $obj->root->_LANG['skin'];
-		$link = & $obj->root->_LINK;
-		if (! isset($lang[$key])) { echo $key.' LANG NOT FOUND'; return FALSE; }
-		if (! isset($link[$key])) { echo $key.' LINK NOT FOUND'; return FALSE; }
-		if (! $obj->cont['PKWK_ALLOW_JAVASCRIPT']) $javascript = '';
-	
-		echo '<a href="' . $link[$key] . '" ' . $javascript . '>' .
-			(($value === '') ? $lang[$key] : $value) .
-			'</a>';
-	
+	function skin_navigator (& $obj, $key, $value = '', $javascript = '', $withIcon = FALSE, $x = 20, $y = 20) {
+		static $cmds = NULL;
+		if (is_null($cmds)) {
+			$cmds = explode(',', $obj->root->skin_navigator_cmds);
+			$cmds = array_map('trim', $cmds);
+			$cmds = array_flip($cmds);
+		}
+		if (isset($cmds[$key])) {
+			$lang = & $obj->root->_LANG['skin'];
+			$link = & $obj->root->_LINK;
+			if (! isset($lang[$key])) { echo $key.' LANG NOT FOUND'; return FALSE; }
+			if (! isset($link[$key])) { echo $key.' LINK NOT FOUND'; return FALSE; }
+			if (! $obj->cont['PKWK_ALLOW_JAVASCRIPT']) $javascript = '';
+			
+			$title = (isset($lang[$key]))? htmlspecialchars($lang[$key]) : '';
+			$ret = ($withIcon? $obj->skin_getIcon($obj, $key, $x, $y) : '');
+			if ($withIcon !== 'icon') {
+				$ret .= ($value === '') ? (isset($lang[$key.'_s'])? $lang[$key.'_s'] : $lang[$key]) : $value;
+			}
+			if (!$obj->arg_check($key)) {
+				$ret = '<a href="' . $link[$key] . '" title="' . $title . '"' . $javascript . '>' . $ret . '</a>';
+			} else {
+				$ret = '<span class="navigator_current">' . $ret . '</span>';
+			}
+			echo '<span class="nowrap">' . $ret . '</span>';
+		}
 		return TRUE;
 	}
 
 	// SKIN Function
-	function skin_toolbar ($obj, $key, $x = 20, $y = 20, $javascript = '') {
+	function skin_toolbar (& $obj, $key, $x = 20, $y = 20, $javascript = '') {
 		$lang  = & $obj->root->_LANG['skin'];
 		$link  = & $obj->root->_LINK;
 		$image = & $obj->root->_IMAGE['skin'];
@@ -1327,13 +1351,23 @@ EOD;
 		if (! isset($image[$key])) { echo $key.' IMAGE NOT FOUND'; return FALSE; }
 	
 		echo '<a href="' . $link[$key] . '" ' . $javascript . '>' .
-			'<img src="' . $obj->cont['IMAGE_DIR'] . $image[$key] . '" width="' . $x . '" height="' . $y . '" ' .
-				'alt="' . $lang[$key] . '" title="' . $lang[$key] . '" />' .
+			$obj->skin_getIcon($obj, $key, $x, $y) .
 			'</a>';
 	
 		return TRUE;
 	}
-
+	
+	// SKIN Function
+	function skin_getIcon(&$obj, $key, $x = 20, $y = 20) {
+		$lang  = & $obj->root->_LANG['skin'];
+		$image = & $obj->root->_IMAGE['skin'];
+		if (! isset($image[$key])) return ' | ';
+		$alt = (isset($lang[$key]))? htmlspecialchars($lang[$key]) : '';
+		$src = (strpos($image[$key], 'src=') === 0)? $obj->cont['LOADER_URL'] . '?' . $image[$key] : $obj->cont['IMAGE_DIR'] . $image[$key];
+		return '<img src="' . $src . '" width="' . $x . '" height="' . $y . '" ' .
+				'alt="' . $alt . '" title="' . $alt . '" />';
+	}
+	
 	// Breadcrumbs
 	function get_breadcrumbs_array ($page, $name = 'name', $url = 'url') {
 		$parts = explode('/', $page);
@@ -2388,6 +2422,7 @@ EOD;
 		$res = $db->query($query);
 		if (!$res) return "";
 		$_ret = $db->fetchRow($res);
+		if ($_ret[0] === '- no title -') $_ret[0] = $page;
 		$_ret = preg_replace('/&amp;(#?[a-z0-9]+?);/i', '&$1;', htmlspecialchars($_ret[0], ENT_QUOTES));
 		return $ret[$this->root->mydirname][$page] = ($_ret || $init)? $_ret : htmlspecialchars($page,ENT_NOQUOTES);
 	}
