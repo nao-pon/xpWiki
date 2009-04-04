@@ -1,7 +1,7 @@
 <?php
 /*
  * Created on 2007/06/29 by nao-pon http://hypweb.net/
- * $Id: gate.php,v 1.6 2008/11/13 00:30:22 nao-pon Exp $
+ * $Id: gate.php,v 1.7 2009/04/04 02:59:44 nao-pon Exp $
  */
 
 /*
@@ -23,34 +23,47 @@ $way = (isset($_GET['way']))? $_GET['way'] : ((isset($_POST['way']))? $_POST['wa
 $way = preg_replace( '/[^a-zA-Z0-9_-]/' , '' , $way);
 
 if ($xwGateOption['xmode']) {
-	if (!in_array($way, $xwGateOption['nocommonAllowWays'])) xpWikiGate_goOut('Bad request.');
+	if (!in_array($way, $xwGateOption['nocommonAllowWays'])) xpWikiGate_goOut(400);
 }
 
 if ($xwGateOption['nodos']) {
-	if (!in_array($way, $xwGateOption['nodosAllowWays'])) xpWikiGate_goOut('Bad request.');
+	if (!in_array($way, $xwGateOption['nodosAllowWays'])) xpWikiGate_goOut(400);
 }
 
 if ($xwGateOption['noumb']) {
-	if (!in_array($way, $xwGateOption['noumbAllowWays'])) xpWikiGate_goOut('Bad request.');
+	if (!in_array($way, $xwGateOption['noumbAllowWays'])) xpWikiGate_goOut(400);
 }
 
 if (isset($xwGateOption['hypmode']) && $xwGateOption['hypmode']) {
-	if (!in_array($way, $xwGateOption['hypmodeAllowWays'])) xpWikiGate_goOut('Bad request.');
+	if (!in_array($way, $xwGateOption['hypmodeAllowWays'])) xpWikiGate_goOut(400);
 }
 
 $file_php = $mytrustdirpath . '/ways/' . $way . '.php';
 if (file_exists($file_php)) {
 	include $file_php;
 } else {
-	xpWikiGate_goOut('File not found.');
+	xpWikiGate_goOut(204);
 }
 
-function xpWikiGate_goOut($str = '') {
+function xpWikiGate_goOut($err) {
 	error_reporting(0);
 	while( ob_get_level() ) {
 		ob_end_clean() ;
 	}
-	header("HTTP/1.0 404 Not Found");
+	$str = '';
+	switch($err) {
+		case 204:
+			header( 'HTTP/1.0 204 No Content' );
+			break;
+		case 400:
+			header( 'HTTP/1.0 400 Bad Request' );
+			$str = 'Bad Request.';
+			break;
+		default:
+			header( 'HTTP/1.0 404 Not Found' );
+			$str = 'Not Found.';
+	}
+	header( 'Content-Length: ' . strlen($str) );
 	exit($str);
 }
 ?>
