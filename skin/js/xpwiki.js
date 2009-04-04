@@ -547,7 +547,9 @@ var XpWiki = {
 			if (!tareas[i].id) {
 				tareas[i].id = 'textarea_autoid_' + i;
 			}
-			new Resizable(tareas[i].id, {mode:'xy'});
+			if (!tareas[i].style.width.match('%') || !tareas[i].style.height.match('%')) {
+				new Resizable(tareas[i].id, {mode:'xy'});
+			}
 			
 			this.addWrapButton(tareas[i].id);
 		}
@@ -1123,7 +1125,7 @@ var XpWiki = {
 		do {
 			valueT += element.offsetTop  || 0;
 			valueL += element.offsetLeft || 0;
-			if (Prototype.Browser.IE &&
+			if (Prototype.Browser.IE &&  this.IEVer < 8 &&
 				element == tgtElement && 
 				element.tagName.toUpperCase() == 'DIV') {
 				valueL -= element.offsetLeft || 0;

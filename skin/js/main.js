@@ -86,6 +86,10 @@ function wikihelper_show_fontset_img()
 		$('wikihelper_base').observe('mouseover', function(){wikihelper_mouseover = true;});
 		$('wikihelper_base').observe('mouseout', function(){wikihelper_mouseover = false;});
 		
+		if (Prototype.Browser.IE) {
+			$('wikihelper_base').observe('mousedown', function(){wikihwlper_caretPos();});
+		}
+		
 		new Draggable('wikihelper_base');
 
 	}
@@ -93,11 +97,11 @@ function wikihelper_show_fontset_img()
 	// Helper image tag set
 	var wikihelper_adv_tag = '';
 
-	var str = '<small> [&nbsp;<a href="#" onClick="javascript:wikihelper_show_hint(); return false;">' + wikihelper_msg_hint + '<'+'/'+'a>&nbsp;]<'+'/'+'small>';
+	var str = '<span class="button" onclick="wikihelper_show_hint()">' + wikihelper_msg_hint + '<'+'/'+'span>';
 	
 	if (wikihelper_adv == "on")
 	{
-		str = str + '<small> [&nbsp;<a href="#" title="'+wikihelper_msg_to_easy_t+'" onClick="javascript:wikihelper_adv_swich(); return false;">' + 'Easy' + '<'+'/'+'a>&nbsp;]<'+'/'+'small>';
+		str = str + '<span class="button" title="'+wikihelper_msg_to_easy_t+'" onclick="wikihelper_adv_swich()">' + 'Easy' + '<'+'/'+'span>';
 
 		wikihelper_adv_tag =
 			'<img src="$wikihelper_root_url/image/clip.png" width="18" height="16" border="0" title="'+wikihelper_msg_attach+'" alt="&amp;ref;" onClick="javascript:wikihelper_ins(\'&ref();\'); return false;" '+'/'+'>'+
@@ -105,7 +109,7 @@ function wikihelper_show_fontset_img()
 			'<img src="$wikihelper_root_url/image/br.gif" width="18" height="16" border="0" title="&amp;br;" alt="&amp;br;" onClick="javascript:wikihelper_ins(\'&br;\'); return false;" '+'/'+'>'+
 			'<img src="$wikihelper_root_url/image/iplugin.gif" width="18" height="16" border="0" title="Inline Plugin" alt="Inline Plugin" onClick="javascript:wikihelper_ins(\'&(){};\'); return false;" '+'/'+'>';
 	} else {
-		str = str + '<small> [&nbsp;<a href="#" title="'+wikihelper_msg_to_adv_t+'" onClick="javascript:wikihelper_adv_swich(); return false;">' + 'Adv.' + '<'+'/'+'a>&nbsp;]<'+'/'+'small>';
+		str = str + '<span class="button" title="'+wikihelper_msg_to_adv_t+'" onclick="wikihelper_adv_swich()">' + 'Adv.' + '<'+'/'+'span>';
 	}
 
 	str += ' <a href="#" title="Close" onclick="javascript:wikihelper_mouseover=false;wikihelper_hide_helper();return false;"><img src="$wikihelper_root_url/skin/loader.php?src=close.gif" border="0" alt="Close" '+'/'+'><'+'/'+'a>';
@@ -258,7 +262,7 @@ function wikihelper_initTexts(obj)
 		Element.observe(oElement, 'mouseover',
 			function(elm){
 				return	function(){
-					wikihelper_setActive(elm, false);
+					if (elm._focused) wikihelper_setActive(elm, false);
 				};
 			}(oElement)
 		);
@@ -319,7 +323,7 @@ function wikihelper_setActive(elem, istimer)
 		XpWiki.UploadDir = '';
 		XpWiki.UploadPage = '';
 		if ($('XpWikiPopup')) {
-			//Element.hide('XpWikiPopup');
+		//	Element.hide('XpWikiPopup');
 		}
 
 		Element.show(helper);
