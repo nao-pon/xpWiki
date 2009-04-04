@@ -1,7 +1,7 @@
 <?php
 /*
  * Created on 2008/02/28 by nao-pon http://hypweb.net/
- * $Id: aws.inc.php,v 1.5 2008/08/30 05:58:12 nao-pon Exp $
+ * $Id: aws.inc.php,v 1.6 2009/04/04 12:02:53 nao-pon Exp $
  */
 
 /////////////////////////////////////////////////
@@ -36,6 +36,7 @@ class xpwiki_plugin_aws extends xpwiki_plugin {
 		if ($k) {
 			$more = (!$noheader) ? '<h4>' . $more_link . '</h4>' : '';
 		}
+		
 		return $more . '<div' . $style . '>' . $ret . '</div>';
 	}
 	
@@ -75,6 +76,9 @@ class xpwiki_plugin_aws extends xpwiki_plugin {
 			if ($k) $ret = $ama->makeSearchLink($k, sprintf($this->msg['more_search'], htmlspecialchars($k)), TRUE);
 			$ret .= "\x08" . $ama->getHTML($f);
 			$ama = NULL;
+			
+			// remove wrong characters
+			$ret = mb_convert_encoding($ret, $this->cont['SOURCE_ENCODING'], $this->cont['SOURCE_ENCODING']);
 			
 			if ($fp = @fopen($cache_file,"wb")) {
 				fputs($fp,$ret);
