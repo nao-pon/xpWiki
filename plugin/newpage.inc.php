@@ -1,18 +1,15 @@
 <?php
+// $Id: newpage.inc.php,v 1.6 2009/04/04 06:55:22 nao-pon Exp $
+//
+// Newpage plugin
+
 class xpwiki_plugin_newpage extends xpwiki_plugin {
 	function plugin_newpage_init () {
 
-
-
 	}
-	// $Id: newpage.inc.php,v 1.5 2008/11/17 02:34:23 nao-pon Exp $
-	//
-	// Newpage plugin
 	
 	function plugin_newpage_convert()
 	{
-	//	global $script, $vars, $_btn_edit, $_msg_newpage, $BracketName;
-	//	static $id = 0;
 		static $id = array();
 		if (!isset($id[$this->xpwiki->pid])) {$id[$this->xpwiki->pid] = 0;}
 	
@@ -51,13 +48,13 @@ EOD;
 	
 	function plugin_newpage_action()
 	{
-	//	global $vars, $_btn_edit, $_msg_newpage;
 	
 		if ($this->cont['PKWK_READONLY']) $this->func->die_message('PKWK_READONLY prohibits editing');
 	
 		if ($this->root->vars['page'] == '') {
+			$base = (empty($this->root->vars['base']))? '' : $this->root->vars['base'] . '/';
 			$retvars['msg']  = $this->root->_msg_newpage;
-			$retvars['body'] = $this->plugin_newpage_convert();
+			$retvars['body'] = $this->plugin_newpage_convert($base);
 			return $retvars;
 		} else {
 			$base = (empty($this->root->vars['base']))? '' : $this->root->vars['base'] . '/';
