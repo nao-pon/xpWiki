@@ -1,5 +1,5 @@
 <?php
-// $Id: ref.inc.php,v 1.43 2009/03/13 08:16:59 nao-pon Exp $
+// $Id: ref.inc.php,v 1.44 2009/04/04 04:30:40 nao-pon Exp $
 /*
 
 	*プラグイン ref
@@ -89,7 +89,7 @@ class xpwiki_plugin_ref extends xpwiki_plugin {
 		$usage = 'Usage: plugin=ref&amp;page=page_name&amp;src=attached_image_name';
 	
 		if (! isset($this->root->vars['page']) || ! isset($this->root->vars['src']))
-			return array('msg'=>'Invalid argument', 'body'=>$usage);
+			return array(array('header' => 'HTTP/1.0 404 Not Found', 'msg' => 'File Not Found.'));
 		
 		
 		$page     = $this->root->vars['page'];
@@ -112,18 +112,20 @@ class xpwiki_plugin_ref extends xpwiki_plugin {
 			exit();
 		}
 
-		if (!$this->func->check_readable($page, true, true)) {
-			return array('msg'=>'Not readable.', 'body'=>"\n");
+		if (! $this->func->check_readable($page, true, true)) {
+			return array('header' => 'HTTP/1.0 403 Forbidden', 'msg' => '403 Forbidden.');
 		}
 		
-		if(! file_exists($ref))
-			return array('msg'=>'Attach file not found', 'body'=>$usage);
+		if(! file_exists($ref)) {
+			return array('header' => 'HTTP/1.0 404 Not Found', 'msg' => 'File Not Found.');
+		}
 		
 		// ログファイル取得
 		$status = $this->get_fileinfo($ref);
 
-		if ($status['copyright'])
-			return array('msg'=>'Can not show', 'body'=>$usage);
+		if ($status['copyright']) {
+			return array('header' => 'HTTP/1.0 403 Forbidden', 'msg' => '403 Forbidden.');
+		}
 		
 		$imgtype = isset($status['imagesize'][2])? $status['imagesize'][2] : false;
 		if ($status['noinline'] > 0) $imgtype = false;
@@ -152,16 +154,22 @@ class xpwiki_plugin_ref extends xpwiki_plugin {
 					}
 				} 
 			}
-			if ($noimg) exit('Can not show this Flash');
+			if ($noimg) return array('header' => 'HTTP/1.0 403 Forbidden', 'msg' => '403 Forbidden.');
 			break;
 		default:
-			//return array('msg'=>'Seems not an image', 'body'=>$usage);
 			$noimg = TRUE;
 			if ($status['noinline'] < 0 || ($status['admins'] && $status['noinline'] < 1)) {
 				list($ext, $type) = $this->get_file_extention($filename);
 				if ($type) $noimg = FALSE;
 			}
-			if ($noimg) exit('Seems not an image');
+			if ($noimg) return array('header' => 'HTTP/1.0 403 Forbidden', 'msg' => '403 Forbidden.');
+		}
+
+		// Check Referer
+		if ($this->cont['OPEN_MEDIA_REFCHECK']) {
+			if (! $this->func->refcheck($this->cont['OPEN_MEDIA_REFCHECK'] - 1)) {
+				return array('header' => 'HTTP/1.0 404 Not Found', 'msg' => 'File Not Found.');
+			}
 		}
 	
 		// Care for Japanese-character-included file name
