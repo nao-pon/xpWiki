@@ -1,7 +1,7 @@
 <?php
 //
 // Created on 2006/10/11 by nao-pon http://hypweb.net/
-// $Id: xoops_wrapper.php,v 1.52 2009/03/20 06:29:27 nao-pon Exp $
+// $Id: xoops_wrapper.php,v 1.53 2009/04/04 04:09:55 nao-pon Exp $
 //
 class XpWikiXoopsWrapper extends XpWikiBackupFunc {
 	
@@ -121,7 +121,7 @@ class XpWikiXoopsWrapper extends XpWikiBackupFunc {
 	{
 		//	global $script, $_title_cannotedit, $_msg_unfreeze;
 	
-		if ($this->edit_auth($page, $auth_flag, $exit_flag) && $this->is_editable($page)) {
+		if ($this->is_editable($page, TRUE) && $this->edit_auth($page, $auth_flag, $exit_flag)) {
 			// Editable
 			return TRUE;
 		} else {
