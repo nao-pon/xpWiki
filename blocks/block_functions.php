@@ -165,6 +165,7 @@ function b_xpwiki_menubar_show( $options )
 	$src = <<<EOD
 #menu
 EOD;
+	$options['menubar'] = TRUE;
 	return b_xpwiki_block_show( $options, $src, true );
 }
 
@@ -196,7 +197,12 @@ function b_xpwiki_block_show( $options, $src, $nocache = false )
 	
 	// ブロック用として取得 (引数: Wikiソース, 表示幅)
 	list($str, $head) = $xw->get_html_for_block($arg, $width, $div_class, $css, $configs, TRUE);
-	 
+	
+	// MenuBar の ページCSS を読み込み
+	if (isset($options['menubar'])) {
+		$head .= $xw->func->get_page_css_tag('MenuBar');
+	}
+	
 	// オブジェクトを破棄
 	$xw = null;
 	unset($xw); 
