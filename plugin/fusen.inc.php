@@ -31,7 +31,7 @@
 //
 // fusen.inc.php for xpWiki by nao-pon
 // http://xoops.hypweb.net
-// $Id: fusen.inc.php,v 1.27 2008/12/08 23:38:39 nao-pon Exp $
+// $Id: fusen.inc.php,v 1.28 2009/04/04 04:35:02 nao-pon Exp $
 // 
 
 class xpwiki_plugin_fusen extends xpwiki_plugin {
@@ -50,11 +50,18 @@ class xpwiki_plugin_fusen extends xpwiki_plugin {
 		$this->cont['FUSEN_STYLE_BORDER_DEL'] =  '#333333 1px dotted';
 		// Selected
 		$this->cont['FUSEN_STYLE_BORDER_SELECT'] =  'red 1px solid';
-
+		
+		$this->conf['spliter'] = '###fusen_data_convert###';
 	}
 	
 	function plugin_fusen_convert() {
 
+		$prms = func_get_args();
+		if (isset($prms[0]) && $prms[0] === 'spliter' && isset($prms[1])) {
+			$id = intval($prms[1]);
+			return '<!--NA-->' . $this->conf['spliter'] . $id . '<!--/NA-->';
+		}
+		
 		$base = '';
 		$divclass = 'xpwiki_' . $this->root->mydirname;
 		$res = array();
@@ -272,8 +279,7 @@ EOD;
 			|| $id < 0
 			|| !in_array($this->root->vars['mode'],array('set','del','lock','unlock','recover','edit','burn','del_m'))
 		) {
-			ob_clean();
-			exit;
+			$this->_exit();
 		}
 		
 		$this->cont['PKWK_READONLY'] = $_PKWK_READONLY;
@@ -407,20 +413,21 @@ EOD;
 					if (!$this->root->userinfo['uid']) {
 						$match = array();
 						// 最大文字数(1000文字以上)
-						if (strlen($txt) > $plugin_fusen_setting['max_chr']) exit();
+						if (strlen($txt) > $plugin_fusen_setting['max_chr']) $this->_exit();
 						// <a>タグ検出
 						if (preg_match_all("#<a[^>]*>#i",$txt,$match,PREG_PATTERN_ORDER)) {
-							if (count($match[0]) > $plugin_fusen_setting['max_a_tag']) exit();
+							if (count($match[0]) > $plugin_fusen_setting['max_a_tag']) $this->_exit();
 						}
 						// http:// の個数(5個以上)
 						if (preg_match_all("#https?://#i",$txt,$match,PREG_PATTERN_ORDER)) {
-							if (count($match[0]) > $plugin_fusen_setting['max_link']) exit();
+							if (count($match[0]) > $plugin_fusen_setting['max_link']) $this->_exit();
 						}
 					}
 					
 					$txt = preg_replace('/^#fusen/m', '&#35;fusen', $txt);
 					//$txt = $this->func->user_rules_str($this->func->auto_br($txt));
 					$txt = rtrim($txt);
+					if (!$txt) $this->_exit();
 					
 					$et = date("ymdHis");
 					$fix = (!empty($this->root->vars['fix']))? (int)$this->root->vars['fix'] : 0;
@@ -472,7 +479,7 @@ EOD;
 		if ($auth) {
 			//書き込み
 			if (!$this->func->exist_plugin('attach')) {
-				exit ('attach.inc.php not found or not correct version.');
+				$this->_exit('attach.inc.php not found or not correct version.');
 			}
 			
 			$atatch_obj = $this->func->get_plugin_instance('attach');
@@ -498,12 +505,11 @@ EOD;
 			}
 			
 			// コンバートして再読み込み
-			$dat = $this->plugin_fusen_data($refer);
+			$dat = $this->plugin_fusen_data($refer, true);
 			// JSONファイル書き込み
-			$this->plugin_fusen_putjson($dat,$refer);
+			$this->plugin_fusen_putjson($dat, $refer);
 		}
-		ob_clean();
-		exit;
+		$this->_exit();
 	}
 	
 	//添付ファイル読み込み
@@ -534,21 +540,20 @@ EOD;
 		// 一括してコンバートする
 		$str = '';
 		foreach ($data as $k => $dat) {
-			$str .= "###fusen_data_convert###{$k}\n\n".$dat['txt']."\n\n";
+			$str .= "#fusen(spliter,{$k})\n\n".$dat['txt']."\n\n";
 		}
 		
 		$_PKWK_READONLY = $this->cont['PKWK_READONLY'];
 		$this->cont['PKWK_READONLY'] = 2;
 		$this->fusen_convert_html($str,$page);
 		$this->cont['PKWK_READONLY'] = $_PKWK_READONLY;
-		
 		$str = trim(str_replace("\r","",$str));
-		
-		$str_ary = preg_split("/<p>###fusen_data_convert###/",$str);
+		$str = str_replace(array('<!--NA-->', '<!--/NA-->'), '', $str);
+		$str_ary = preg_split('/'.preg_quote($this->conf['spliter'], '/').'/',$str);
 		array_shift($str_ary);
 		foreach ($str_ary as $str) {
-			list($id,$dat) = array_pad(explode("\n",$str,2), 2, '');
-			$data[rtrim($id,'</p>')]['disp'] = trim($dat);
+			list($id, $dat) = array_pad(explode("\n", $str, 2), 2, '');
+			$data[rtrim($id)]['disp'] = trim($dat);
 		}
 		
 		return $data;
@@ -739,6 +744,13 @@ EOD;
 		$this->cont['UI_LANG'] = $_UI_LANG;
 		
 		return $str;
+	}
+	
+	function _exit($out = null) {
+		while( ob_get_level() ) {
+			ob_end_clean() ;
+		}
+		exit($out);
 	}
 }
 ?>
