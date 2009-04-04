@@ -1,7 +1,7 @@
 <?php
 //
 // Created on 2006/09/29 by nao-pon http://hypweb.net/
-// $Id: xpwiki.php,v 1.92 2009/03/02 01:31:23 nao-pon Exp $
+// $Id: xpwiki.php,v 1.93 2009/04/04 04:07:58 nao-pon Exp $
 //
 
 class XpWiki {
@@ -197,6 +197,17 @@ class XpWiki {
 		}
 
 		if ($retvars !== FALSE) {
+			if (isset($retvars['header'])) {
+				while( ob_get_level() ) {
+					ob_end_clean() ;
+				}
+				header($retvars['header']);
+				if (isset($retvars['msg'])) {
+					header('Content-Length: ' . strlen($retvars['msg']));
+					echo $retvars['msg'];
+				}
+				exit();
+			}
 			$title = htmlspecialchars($func->strip_bracket($base));
 			$page  = $func->make_search($base);
 
@@ -245,12 +256,12 @@ class XpWiki {
 			if ($root->viewmode === 'normal') {
 				$page_title = strip_tags($title);
 				$content_title = (!empty($root->content_title) && $title !== $root->content_title)?
-					' ['.$func->unhtmlspecialchars($root->content_title, ENT_QUOTES).']' : '';
+					$func->unhtmlspecialchars($root->content_title, ENT_QUOTES) : '';
 				
-				$root->pagetitle = str_replace(
+				$root->pagetitle = trim(str_replace(
 										array('$page_title', '$content_title', '$module_title'),
 										array($page_title, $content_title, $root->module_title),
-										$root->html_head_title);
+										$root->html_head_title));
 	
 				$this->title         = $title;
 				$this->page          = $base;
