@@ -1,6 +1,6 @@
 <?php
 // PukiWiki - Yet another WikiWikiWeb clone
-// $Id: rss.inc.php,v 1.31 2009/03/13 08:18:49 nao-pon Exp $
+// $Id: rss.inc.php,v 1.32 2009/04/04 07:03:46 nao-pon Exp $
 //
 // RSS plugin: Publishing RSS of RecentChanges
 //
@@ -138,7 +138,7 @@ class xpwiki_plugin_rss extends xpwiki_plugin {
 			$items = $rdf_li = '';
 			
 			// ゲスト扱いで一覧を取得
-			$nolisting = ($base[0] !== ':');
+			$nolisting = (!$base || $base[0] !== ':');
 			$lines = $this->func->get_existpages(FALSE, ($base ? $base . '/' : ''), array('limit' => $count, 'order' => ' ORDER BY editedtime DESC', 'nolisting' => $nolisting, 'withtime' => TRUE, 'asguest' => TRUE));
 			
 			foreach ($lines as $line) {
