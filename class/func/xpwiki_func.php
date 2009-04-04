@@ -1,7 +1,7 @@
 <?php
 //
 // Created on 2006/10/02 by nao-pon http://hypweb.net/
-// $Id: xpwiki_func.php,v 1.207 2009/04/04 04:15:43 nao-pon Exp $
+// $Id: xpwiki_func.php,v 1.208 2009/04/04 12:05:03 nao-pon Exp $
 //
 class XpWikiFunc extends XpWikiXoopsWrapper {
 
@@ -1975,8 +1975,15 @@ EOD;
 		if ($deletecache) $this->delete_caches();
 	}
 	
-	function get_autolink_regex_pre_after ($ci = false) {
-		$utf8 = ($this->cont['SOURCE_ENCODING'] === 'UTF-8')? 'u' : '';
+	function get_autolink_regex_pre_after ($ci = false, $str = '') {
+		$utf8 = '';
+		// Check wrong character as UTF-8
+		if ($this->cont['SOURCE_ENCODING'] === 'UTF-8') {
+			if (! $str || preg_replace('/(?!)/u', '', $str, 1)) {
+				$utf8 = 'u';
+			}
+		}
+
 		if ($this->root->autolink_as_word) {
 			$asWord1 = '(?<=\W)';
 			$asWord2 = '(?=\W)';
