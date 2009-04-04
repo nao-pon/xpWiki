@@ -2,7 +2,7 @@
 /*
  * Created on 2008/10/23 by nao-pon http://hypweb.net/
  * License: GPL v2 or (at your option) any later version
- * $Id: x2w.php,v 1.15 2009/02/23 09:04:49 nao-pon Exp $
+ * $Id: x2w.php,v 1.16 2009/04/04 02:58:16 nao-pon Exp $
  */
 
 //
@@ -327,9 +327,10 @@ class XHTML2Wiki
 			$text = $matches[3];
 			if ($matches[2] == 't') {
 				$this->OutputLine(str_repeat(':', $this->list_level), $text, '|');
-			}
-			else if ($text) {
-				$this->OutputLine('', $text);
+			} else if ($text) {
+				if ($text !== '<div class="ie5">') {
+					$this->OutputLine('', $text);
+				}
 			}
 		}
 	}
@@ -740,10 +741,8 @@ class XHTML2Wiki
 				if ($this->list_level) {
 					if ($this->GetDiv() === 'UList') {
 						$this->OutputLine(str_repeat('-', $this->list_level));
-						//$this->OutputLine($line);
 					} else if ($this->GetDiv() === 'OList') {
 						$this->OutputLine(str_repeat('+', $this->list_level));
-						//$this->OutputLine($line);
 					}
 					$this->OutputLine('', $line);
 				}
