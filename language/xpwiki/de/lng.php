@@ -1,6 +1,6 @@
 <?php
 // PukiWiki - Yet another WikiWikiWeb clone.
-// $Id: lng.php,v 1.12 2009/03/03 06:45:19 nao-pon Exp $
+// $Id: lng.php,v 1.13 2009/04/04 04:22:05 nao-pon Exp $
 // Copyright (C)
 //   2002-2005 PukiWiki Developers Team
 //   2001-2002 Originally written by yu-ji
@@ -37,6 +37,7 @@ $root->_title_help       = 'Hilfe';
 $root->_title_invalidwn  = 'Das ist kein gültiger WikiName';
 $root->_title_backuplist = 'Backup Liste';
 $root->_title_ng_riddle  = 'Fehler in der Q & A Prüfung.<br />Vorschau von  $1';
+$root->_title_backlink   = 'Backlinks for: %s';
 
 ///////////////////////////////////////
 // Messages
@@ -124,17 +125,23 @@ $root->contents_title = 'Table of contents';
 // Skin
 /////////////////////////////////////////////////
 
+$root->_LANG['skin']['topage']    = 'Back to page';
 $root->_LANG['skin']['add']       = 'AHinzufügen';
 $root->_LANG['skin']['backup']    = 'Backup';
 $root->_LANG['skin']['copy']      = 'Kopieren';
 $root->_LANG['skin']['diff']      = 'Diff';
+$root->_LANG['skin']['back']      = 'History';
 $root->_LANG['skin']['edit']      = 'Ändern';
-$root->_LANG['skin']['filelist']  = 'Liste der Seiten-Dateien';	// List of filenames
+$root->_LANG['skin']['filelist']  = 'Seiten-Dateien Liste';	// List of filenames
 $root->_LANG['skin']['attaches']  = 'Anhänge';
 $root->_LANG['skin']['freeze']    = 'Sperren';
 $root->_LANG['skin']['help']      = 'Hilfe';
-$root->_LANG['skin']['list']      = 'Liste der Seiten';
-$root->_LANG['skin']['new']       = 'Neu';
+$root->_LANG['skin']['list']      = 'Seiten Liste';
+$root->_LANG['skin']['list_s']    = 'Liste';
+$root->_LANG['skin']['new']       = 'Neu Page';
+$root->_LANG['skin']['new_s']     = 'Neu';
+$root->_LANG['skin']['newsub']    = 'Neu SubPage';
+$root->_LANG['skin']['newsub_s']  = 'Sub';
 $root->_LANG['skin']['menu']      = 'Menu';
 $root->_LANG['skin']['header']    = 'Header';
 $root->_LANG['skin']['footer']    = 'Foter';

@@ -1,6 +1,6 @@
 <?php
 // PukiWiki - Yet another WikiWikiWeb clone.
-// $Id: lng.php,v 1.16 2009/03/02 01:41:30 nao-pon Exp $
+// $Id: lng.php,v 1.17 2009/04/04 04:22:05 nao-pon Exp $
 // Copyright (C)
 //   2002-2005 PukiWiki Developers Team
 //   2001-2002 Originally written by yu-ji
@@ -33,6 +33,7 @@ $root->_title_help       = 'ヘルプ';
 $root->_title_invalidwn  = '有効なWikiNameではありません';
 $root->_title_backuplist = 'バックアップ一覧';
 $root->_title_ng_riddle  = 'Q & A 認証に失敗しました<br />$1 をプレビューします';
+$root->_title_backlink   = '%s へのリンクページ一覧';
 
 ///////////////////////////////////////
 // Messages
@@ -120,27 +121,33 @@ $root->contents_title = 'ページ内コンテンツ';
 // Skin
 /////////////////////////////////////////////////
 
+$root->_LANG['skin']['topage']    = 'ページへ戻る';
 $root->_LANG['skin']['add']       = '追加';
 $root->_LANG['skin']['backup']    = 'バックアップ';
 $root->_LANG['skin']['copy']      = '複製';
 $root->_LANG['skin']['diff']      = '差分';
+$root->_LANG['skin']['back']      = '履歴';
 $root->_LANG['skin']['edit']      = '編集';
 $root->_LANG['skin']['filelist']  = 'ファイル名一覧';	// List of filenames
 $root->_LANG['skin']['attaches']  = '添付ファイル一覧';
 $root->_LANG['skin']['freeze']    = '凍結';
 $root->_LANG['skin']['help']      = 'ヘルプ';
-$root->_LANG['skin']['list']      = '一覧';	// List of pages
-$root->_LANG['skin']['new']       = '新規';
+$root->_LANG['skin']['list']      = '全ページ一覧';
+$root->_LANG['skin']['list_s']    = '一覧';	// List of pages
+$root->_LANG['skin']['new']       = 'ページ新規作成';
+$root->_LANG['skin']['new_s']     = '新規';
+$root->_LANG['skin']['newsub']    = '下位ページ新規作成';
+$root->_LANG['skin']['newsub_s']  = '下位';
 $root->_LANG['skin']['menu']      = 'メニュー';
 $root->_LANG['skin']['header']    = '頁上';
 $root->_LANG['skin']['footer']    = '頁下';
 $root->_LANG['skin']['rdf']       = '最終更新のRDF';	// RDF of RecentChanges
-$root->_LANG['skin']['recent']    = '最終更新';	// RecentChanges
+$root->_LANG['skin']['recent']    = '最新ページの一覧';	// RecentChanges
 $root->_LANG['skin']['recent_s']  = '最新';
 $root->_LANG['skin']['refer']     = 'リンク元';	// Show list of referer
 $root->_LANG['skin']['reload']    = 'リロード';
 $root->_LANG['skin']['rename']    = '名前変更';	// Rename a page (and related)
-$root->_LANG['skin']['rss']       = '最終更新のRSS';	// RSS of RecentChanges
+$root->_LANG['skin']['rss']       = '最新ページのRSS';	// RSS of RecentChanges
 $root->_LANG['skin']['rss10']     = $root->_LANG['skin']['rss'] . ' 1.0';
 $root->_LANG['skin']['rss20']     = $root->_LANG['skin']['rss'] . ' 2.0';
 $root->_LANG['skin']['atom']      = $root->_LANG['skin']['rss'] . ' Atom';

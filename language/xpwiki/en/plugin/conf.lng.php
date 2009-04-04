@@ -1,7 +1,7 @@
 <?php
 /*
  * Created on 2008/01/24 by nao-pon http://hypweb.net/
- * $Id: conf.lng.php,v 1.11 2009/01/19 01:17:35 nao-pon Exp $
+ * $Id: conf.lng.php,v 1.12 2009/04/04 04:21:26 nao-pon Exp $
  */
 
 $msg = array(
@@ -77,6 +77,12 @@ $msg = array(
 		'tdiarytheme' => 't-Diary\'s themes', 
 	),
 	
+	'skin_navigator_cmds' => array(
+		'caption'     => 'Menus on Skin',
+		'description' => 'The command name of the menu assumed to be able to display by the skin is input by comma (,) delimitation.<br />'
+		               . '" add, atom, attaches, back, backup, copy, diff, edit, filelist, freeze, help, list, new, newsub, pginfo, rdf, recent, refer, related, reload, rename, rss, rss10, rss20, search, top, topage, trackback, unfreeze, upload " can be specified. However, it is controlled whether displayed by the skin.' ,
+	),
+	
 	'SKIN_CHANGER' => array(
 		'caption'     => 'Is the skin\'s change permitted?',
 		'description' => 'The user comes to be able to select skin by selecting "Yes".<br />'
@@ -93,6 +99,11 @@ $msg = array(
 		'description' => 'The comment integration of d3forum modules is provided and the comment function of 
 each use page can be provided.<br />'
 		               . 'It is necessary to set the comment integration by a general setting to actually use it.',
+	),
+
+	'use_title_make_search' => array(
+		'caption'     => 'Use Page title',
+		'description' => 'The display of the title part of contents is changed from page name to page title.',
 	),
 
 	'nowikiname' => array(

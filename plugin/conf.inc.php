@@ -1,7 +1,7 @@
 <?php
 /*
  * Created on 2008/01/24 by nao-pon http://hypweb.net/
- * $Id: conf.inc.php,v 1.14 2009/01/19 01:17:35 nao-pon Exp $
+ * $Id: conf.inc.php,v 1.15 2009/04/04 04:21:26 nao-pon Exp $
  */
 
 class xpwiki_plugin_conf extends xpwiki_plugin {
@@ -64,6 +64,11 @@ class xpwiki_plugin_conf extends xpwiki_plugin {
 				'type' => 'string',
 				'form' => 'select,size="1"',
 			),
+			'skin_navigator_cmds' => array(
+				'kind' => 'root',
+				'type' => 'string',
+				'form' => 'textarea,style="width:100%;height:5em;"',
+			),
 			'SKIN_CHANGER' => array(
 				'kind' => 'const',
 				'type' => 'integer',
@@ -75,6 +80,11 @@ class xpwiki_plugin_conf extends xpwiki_plugin {
 				'form' => 'yesno',
 			),
 			'allow_pagecomment' => array(
+				'kind' => 'root',
+				'type' => 'integer',
+				'form' => 'yesno',
+			),
+			'use_title_make_search' => array(
 				'kind' => 'root',
 				'type' => 'integer',
 				'form' => 'yesno',
