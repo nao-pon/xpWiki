@@ -1,7 +1,7 @@
 <?php
 /*
  * Created on 2008/03/24 by nao-pon http://hypweb.net/
- * $Id: attach.php,v 1.18 2009/03/20 06:17:38 nao-pon Exp $
+ * $Id: attach.php,v 1.19 2009/04/04 04:27:11 nao-pon Exp $
  */
 
 //-------- クラス
@@ -646,6 +646,13 @@ EOD;
 		
 		// 画像以外(管理者所有を除く)はダウンロード扱いにする(XSS対策)
 		if ($this->is_allow_inline()) {
+			// リファラチェック
+			if ($this->cont['OPEN_MEDIA_REFCHECK']
+			 && in_array(strtolower(substr($this->type, 0, 5)), array('image','audio','video'))) {
+				if (! $this->func->refcheck($this->cont['OPEN_MEDIA_REFCHECK'] - 1)) {
+					exit('Access Denied!');
+				}
+			}
 			header('Content-Disposition: inline; file' . $filename);
 		} else 	{
 			header('Content-Disposition: attachment; file' . $filename);
