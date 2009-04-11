@@ -1,5 +1,5 @@
 <?php
-// $Id: newpage.inc.php,v 1.7 2009/04/11 00:53:10 nao-pon Exp $
+// $Id: newpage.inc.php,v 1.8 2009/04/11 01:40:54 nao-pon Exp $
 //
 // Newpage plugin
 
@@ -51,7 +51,7 @@ EOD;
 	
 		if ($this->cont['PKWK_READONLY']) $this->func->die_message('PKWK_READONLY prohibits editing');
 	
-		if ($this->root->vars['page'] == '') {
+		if ($this->root->vars['page'] === '') {
 			$base = (empty($this->root->vars['base']))? '' : rtrim($this->root->vars['base'], '/') . '/';
 			$retvars['msg']  = $this->root->_msg_newpage;
 			$retvars['body'] = $this->plugin_newpage_convert($base);
