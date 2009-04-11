@@ -1,5 +1,5 @@
 <?php
-// $Id: calendar2.inc.php,v 1.12 2009/02/22 02:01:56 nao-pon Exp $
+// $Id: calendar2.inc.php,v 1.13 2009/04/11 00:53:10 nao-pon Exp $
 //
 // Calendar2 plugin
 //
@@ -9,7 +9,7 @@
 
 class xpwiki_plugin_calendar2 extends xpwiki_plugin {
 	function plugin_calendar2_init () {
-
+		$this->conf['NaviTitle'] = 'Archives';
 	}
 
 	function can_call_otherdir_convert() {
@@ -23,16 +23,19 @@ class xpwiki_plugin_calendar2 extends xpwiki_plugin {
 		$base     = $this->func->strip_bracket($this->root->vars['page']);
 		
 		$today_view = TRUE;
-		$date_view = false;
+		$date_view = FALSE;
+		$navi_view = FALSE;
 		if (func_num_args()) {
 			$args = func_get_args();
 			foreach ($args as $arg) {
 				if (is_numeric($arg) && (strlen($arg) == 6 || strlen($arg) == 8)) {
 					$date_str = $arg;
-					$date_view = true;
-				} else if ($arg == 'off') {
+					$date_view = TRUE;
+				} else if ($arg === 'off') {
 					$today_view = FALSE;
-				
+				} else if ($arg === 'navi') {
+					$navi_view = TRUE;
+					
 				// for PukiWikiMod compat
 				} else if(strtolower(substr($arg,0,9)) == "category:"){
 					$category_view = htmlspecialchars(substr($arg,8));
@@ -96,18 +99,24 @@ class xpwiki_plugin_calendar2 extends xpwiki_plugin {
 		$is_editable = $this->func->check_editable($base . '/1', FALSE, FALSE);
 		
 		$ret = '';
+
+		if ($navi_view) {
+			$ret .= $this->getNavi($prefix);
+		}
+
 		if ($today_view) {
 			$ret = '<table border="0" summary="calendar frame">' . "\n" .
 			' <tr>' . "\n" .
 			'  <td valign="top">' . "\n";
 		}
 		$ret .= <<<EOD
-   <table class="style_calendar" cellspacing="1" summary="calendar body">
-    <tr>
-     <td class="style_td_caltop" colspan="7">
-      <a href="{$this->root->script}?plugin=calendar2&amp;file=$r_base&amp;date=$prev_date_str">&lt;&lt;</a>
-      <strong>$m_name</strong>
-      <a href="{$this->root->script}?plugin=calendar2&amp;file=$r_base&amp;date=$next_date_str">&gt;&gt;</a>
+<div class="calendar_calendar">
+ <table class="style_calendar" cellspacing="1" summary="calendar body">
+  <tr>
+   <td class="style_td_caltop" colspan="7">
+    <a href="{$this->root->script}?plugin=calendar2&amp;file=$r_base&amp;date=$prev_date_str">&lt;&lt;</a>
+    <strong>$m_name</strong>
+    <a href="{$this->root->script}?plugin=calendar2&amp;file=$r_base&amp;date=$next_date_str">&gt;&gt;</a>
 EOD;
 	
 		if ($prefix) $ret .= "\n" .
@@ -177,8 +186,9 @@ EOD;
 			while ($wday++ < 7) // Blank
 				$ret .= '     <td class="style_td_blank">&nbsp;</td>' . "\n";
 	
-		$ret .= '    </tr>'   . "\n" .
-			'   </table>' . "\n";
+		$ret .= '  </tr>'   . "\n" .
+				' </table>' . "\n" .
+				'</div>' . "\n";
 	
 		if ($today_view) {
 			$tpage = $prefix . sprintf('%4d-%02d-%02d', $today['year'],	$today['mon'], $today['mday']);
@@ -198,9 +208,10 @@ EOD;
 			$ret .= '  </td>' . "\n" .
 				'  <td valign="top">' . $str . '</td>' . "\n" .
 				' </tr>'   . "\n" .
-				'</table>' . "\n";
+				'</table>' . "\n" .
+				'</div>' . "\n";
 		}
-	
+
 		return $ret;
 	}
 	
@@ -220,7 +231,7 @@ EOD;
 			$aryargs = array($this->root->vars['page'], $date);
 		} else {
 			$yy = sprintf("%04d.%02d",substr($date,0,4),substr($date,4,2));
-			$aryargs = array($this->root->vars['page'], $date, 'off');
+			$aryargs = array($this->root->vars['page'], $date, 'off', 'navi');
 		}
 	
 		//$aryargs = array($this->root->vars['page'], $date, 'off');
@@ -245,6 +256,44 @@ EOD;
 		$this->root->vars['page'] = $page;
 	
 		return $ret;
+	}
+	
+	function getNavi($base) {
+		$base = trim($base, '/');
+		$ret = $res = array();
+		foreach($this->func->get_existpages(FALSE, $base . '/') as $page) {
+			$arr = explode('-', $this->func->basename($page));
+			if (isset($arr[1])) {
+				$y = intval($arr[0]);
+				$m = intval($arr[1]);
+				if ($y && $m && $y > 1900 && $m < 13) {
+					if (isset($res[$y][$m])) {
+						++$res[$y][$m];
+					} else {
+						$res[$y][$m] = 1;
+					}
+				}
+			}
+		}
+		if ($res) {
+			$link = $this->root->script . '?plugin=calendar2&amp;file=' . rawurlencode($base) . '&amp;date=';
+			ksort($res);
+			foreach ($res as $y => $mArr) {
+				$ret[] = '<dl><dt>' . $y . '<dt><dd>';
+				$mRet = array();
+				for ($m = 1; $m < 13; $m++) {
+					if (! empty($mArr[$m])) {
+						$_m = '<a href="' . $link . sprintf('%04d%02d', $y, $m) . '" title="' . sprintf('%d-%d (%d)', $y, $m, $mArr[$m]) . '">' . $m . '</a>';
+						$mRet[] = '<span class="calendar_navi_have"> ' . $_m . ' </span>';;
+					} else {
+						$mRet[] = '<span class="calendar_navi_empty"> ' . $m . ' </span>';
+					}
+				}
+				$ret[] = join('', $mRet);
+				$ret[] = '</dd></dl>';
+			}
+		}
+		return '<div class="calendar_navi"><div class="calendar_navi_title">' . $this->conf['NaviTitle'] . '</div>' . join('', $ret) . '</div>';
 	}
 }
 ?>

@@ -312,14 +312,14 @@ function wikihelper_setActive(elem, istimer)
 	}
 	
 	if (! wikihelper_mouseover) return;
-	
+	//if (Prototype.Browser.IE) {alert('hoge');}
 	var helper = $("wikihelper_base");
 	if (helper.style.display == 'none' || wikihelper_elem != elem) {
 		if (! elem._focused) {
 			elem.focus();
 			return;
 		}
-
+		
 		XpWiki.UploadDir = '';
 		XpWiki.UploadPage = '';
 		if ($('XpWikiPopup')) {

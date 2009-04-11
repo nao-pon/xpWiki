@@ -1,6 +1,6 @@
 <?php
 // PukiWiki - Yet another WikiWikiWeb clone.
-// $Id: backup.inc.php,v 1.17 2009/04/04 04:36:10 nao-pon Exp $
+// $Id: backup.inc.php,v 1.18 2009/04/11 00:53:10 nao-pon Exp $
 // Copyright (C)
 //   2002-2005 PukiWiki Developers Team
 //   2001-2002 Originally written by yu-ji
@@ -274,13 +274,21 @@ EOD;
 				$data = join('', $backups[$s_age]['data']);
 			}
 			$sorce = htmlspecialchars($this->func->remove_pginfo($data));
-			$body .=<<<EOD
+			if ($this->root->viewmode === 'print') {
+				$body .=<<<EOD
+<pre class="code">
+{$sorce}
+</pre>
+EOD;
+			} else {
+				$body .=<<<EOD
 <div class="edit_form">
  <form>
   <textarea id="xpwiki_backup_textarea" readonly="readonly" rows="{$this->root->rows}" cols="{$this->root->cols}">{$sorce}</textarea>
  </form>
 </div>
 EOD;
+			}
 		} else {
 			if (! $isowner && $this->cont['PLUGIN_BACKUP_DISABLE_BACKUP_RENDERING']) {
 				$this->func->die_message('This feature is prohibited');

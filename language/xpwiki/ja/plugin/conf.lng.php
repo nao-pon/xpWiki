@@ -1,7 +1,7 @@
 <?php
 /*
  * Created on 2008/01/24 by nao-pon http://hypweb.net/
- * $Id: conf.lng.php,v 1.12 2009/04/04 04:21:26 nao-pon Exp $
+ * $Id: conf.lng.php,v 1.13 2009/04/11 00:53:11 nao-pon Exp $
  */
 
 $msg = array(
@@ -80,13 +80,14 @@ $msg = array(
 	'skin_navigator_cmds' => array(
 		'caption'     => 'スキンで表示するメニュー',
 		'description' => 'スキンで表示可とするメニューのコマンド名をカンマ(,)区切りで入力します。<br />'
-	                   . '" add, atom, attaches, back, backup, copy, diff, edit, filelist, freeze, help, list, new, newsub, pginfo, rdf, recent, refer, related, reload, rename, rss, rss10, rss20, search, top, topage, trackback, unfreeze, upload " が指定できますが、表示されるか否かはスキンにより左右されます。' ,
+	                   . 'すべてのメニューを表示可とする場合は all と入力します。<br />'
+	                   . '" add, atom, attaches, back, backup, copy, diff, edit, filelist, freeze, help, list, new, newsub, pginfo, print, rdf, recent, refer, related, reload, rename, rss, rss10, rss20, search, top, topage, trackback, unfreeze, upload " が指定できますが、表示されるか否かはスキンにより左右されます。' ,
 	),
 	
-	'SKIN_CHANGER' => array(
-		'caption'     => 'スキンの変更を許可する',
-		'description' => '「はい」を選択するとユーザーがスキンを選択できるようになります。<br />'
-		               . 'また、tdiary プラグインなどを使いページ毎で指定することも可能になります。',
+	'skin_navigator_disabled' => array(
+		'caption'     => 'スキンで表示しないメニュー',
+		'description' => 'スキンで表示不可とするメニューのコマンド名をカンマ(,)区切りで入力します。<br />'
+	                   . '指定可能なコマンドは「スキンで表示するメニュー」と同じです。' ,
 	),
 	
 	'referer' => array(

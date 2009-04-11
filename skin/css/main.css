@@ -30,6 +30,20 @@ $class blockquote {
 $class div.xoopsQuote blockquote {
 	border: none;
 	margin: 0;
+	padding-left: 1em;
+}
+
+$class div.xoopsQuote p {
+	margin-left: 0;
+	margin-bottom: 0;
+}
+
+$class blockquote > p:first-child {
+	margin-top: 0;
+}
+
+$class div.paragraph {
+	margin: 1em;
 }
 
 $class table { width: auto; }
@@ -150,7 +164,7 @@ $class h2 {
 	color:inherit;
 	/*background-color:lightgrey;*/
 	background: #F5F5F5 url(./loader.php?src=shadow.png) repeat-x scroll center bottom;
-	border-top:     0px solid lightgrey;
+	border-top:     none;
 	border-bottom:  none;
 	border-left:   20px solid lightgrey;
 	border-right: none;
@@ -158,7 +172,7 @@ $class h2 {
 	-webkit-border-radius: 10px;
 	border-radius: 10px;
 	padding: .3em .3em .5em .5em;
-	margin:0px 0px .5em 0px;
+	margin:0px 0px 1.5em 0px;
 	text-align: left;
 	clear:none !important;
 }
@@ -170,7 +184,7 @@ $class h2 {
 
 $class h3 {
 	font-family:verdana, arial, helvetica, Sans-Serif;
-	border-top:     0px solid lightgrey;
+	border-top:     none;
 	border-bottom:  2px dotted lightgrey;
 	border-left:   15px solid lightgrey;
 	border-right: none;
@@ -180,12 +194,12 @@ $class h3 {
 	color:inherit;
 	/*background-color:#FFFFFF;*/
 	padding: .3em .3em .1em .5em;
-	margin:0px 0px .5em 0px;
+	margin:0px 0px 1em 0px;
 	text-align: left;
 }
 $class h4 {
 	font-family:verdana, arial, helvetica, Sans-Serif;
-	border-top:     0px solid lightgrey;
+	border-top:     none;
 	border-bottom:  1px dotted lightgrey;
 	border-left:   10px solid lightgrey;
 	-moz-border-radius: 5px;
@@ -194,7 +208,7 @@ $class h4 {
 	color:inherit;
 	background-color:#FFFFFF;
 	padding: .3em .3em .1em .5em;
-	margin:0px 0px .5em 0px;
+	margin:0px 0px 1em 0px;
 	text-align: left;
 }
 $class h5,
@@ -204,7 +218,7 @@ $class h6 {
 	color:inherit;
 	/*background-color:#DDEEFF;*/
  	padding: .3em .3em .1em .5em;
-	border-top:     0px solid lightgrey;
+	border-top:     none;
 	border-bottom:  1px dotted lightgrey;
 	border-left:   5px solid lightgrey;
 	-moz-border-radius: 3px;
@@ -220,7 +234,7 @@ $class h1.title {
 	background-color:transparent;
 	background-image: none;
 	padding: 0px 0px 0px 0px;
-	border: 0px;
+	border: none;
 	margin: 0px 0px 15px 0px;
 }
 
@@ -289,8 +303,10 @@ $class div.toc_header {
 	border: gray 1px solid;
 	padding: 2px 2px 2px 5px;
 	-moz-border-radius: 5px 5px 0 0;
-	-webkit-border-radius: 5px 5px 0 0;
-	border-radius: 5px 5px 0 0;
+	-webkit-border-top-left-radius: 5px;
+	-webkit-border-top-right-radius: 5px;
+	border-top-left-radius: 5px;
+	border-top-right-radius: 5px;
 }
 $class div.toc_body {
 	font-weight: normal;
@@ -299,8 +315,10 @@ $class div.toc_body {
 	border-top: none;
 	padding: 0.4em 0.2em 0 0.4em;
 	-moz-border-radius: 0 0 5px 5px;
-	-webkit-border-radius: 0 0 5px 5px;
-	border-radius: 0 0 5px 5px;
+	-webkit-border-bottom-left-radius: 5px;
+	-webkit-border-bottom-right-radius: 5px;
+	border-bottom-left-radius: 5px;
+	border-bottom-right-radius: 5px;
 }
 $class div.contents ul,
 $class div.contents ol {
@@ -427,6 +445,8 @@ $class ul.list1,
 $class ol.list1 {
 	margin-top: 1em;
 	margin-bottom: 1em;
+	margin-left: 1.5em;
+	padding-left: 1.5em;
 }
 
 $class li {
@@ -756,12 +776,15 @@ $class div.navigator_hr {
 	margin: 0 0 2em 0;
 	height: 15px;
 	background: #FFF url(./loader.php?src=buttonbg.gif) repeat-x scroll center bottom;
+	overflow: hidden;
 }
 
 $class div.navigator_hr hr {
+	position: relative;
+	top: 7px;
 	border: none;
 	height: 0;
-	margin: 7px 0 0 0 ;
+	margin: 0;
 	padding: 0;
 	color: transparent;
 }

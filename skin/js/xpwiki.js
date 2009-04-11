@@ -35,6 +35,8 @@ var XpWiki = {
 	isDomLoaded: true,
 	domInitDone: false,
 	
+	printing: false,
+	
 	isIE8: (Prototype.Browser.IE && typeof(window.localStorage) != "undefined"),
 	isIE7: (Prototype.Browser.IE && typeof(document.documentElement.style.msInterpolationMode) != "undefined" && typeof(window.localStorage) == "undefined"),
 	isIE6: (Prototype.Browser.IE && typeof(document.documentElement.style.msInterpolationMode) == "undefined"),
@@ -45,7 +47,7 @@ var XpWiki = {
 			return;
 		}
 
-		if (this.domInitDone) return;
+		if (this.domInitDone || this.printing) return;
 		this.domInitDone = true;
 		
 		this.IEVer = this.isIE8? 8 : (this.isIE7? 7 : (this.isIE6? 6 : 0));

@@ -11,7 +11,7 @@ $switchHash['/'] = $this->cont['PLUGIN_CODE_COMMENT'];    //  コメントは /* から
 $code_comment = Array(
 	'/' => Array(
 				 Array('/^\/\*/', '*/', 2),
-				 Array('/^\/\+/', '+/', 2),
+				 Array('/^\/\+/', '#/\+((?:[^+/]|\+(?!/)|/(?!\+)|(?R))+)\+/#', 'reg'),
 				 Array('/^\/\//', "\n", 1),
 	)
 );

@@ -1,5 +1,5 @@
 <?php
-// $Id: newpage.inc.php,v 1.6 2009/04/04 06:55:22 nao-pon Exp $
+// $Id: newpage.inc.php,v 1.7 2009/04/11 00:53:10 nao-pon Exp $
 //
 // Newpage plugin
 
@@ -52,12 +52,12 @@ EOD;
 		if ($this->cont['PKWK_READONLY']) $this->func->die_message('PKWK_READONLY prohibits editing');
 	
 		if ($this->root->vars['page'] == '') {
-			$base = (empty($this->root->vars['base']))? '' : $this->root->vars['base'] . '/';
+			$base = (empty($this->root->vars['base']))? '' : rtrim($this->root->vars['base'], '/') . '/';
 			$retvars['msg']  = $this->root->_msg_newpage;
 			$retvars['body'] = $this->plugin_newpage_convert($base);
 			return $retvars;
 		} else {
-			$base = (empty($this->root->vars['base']))? '' : $this->root->vars['base'] . '/';
+			$base = (empty($this->root->vars['base']))? '' : rtrim($this->root->vars['base'], '/') . '/';
 			$page    = $base . $this->func->strip_bracket($this->root->vars['page']);
 			$r_page  = rawurlencode(isset($this->root->vars['refer']) ?
 				$this->func->get_fullname($page, $this->root->vars['refer']) : $page);

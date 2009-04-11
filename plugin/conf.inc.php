@@ -1,7 +1,7 @@
 <?php
 /*
  * Created on 2008/01/24 by nao-pon http://hypweb.net/
- * $Id: conf.inc.php,v 1.15 2009/04/04 04:21:26 nao-pon Exp $
+ * $Id: conf.inc.php,v 1.16 2009/04/11 00:53:10 nao-pon Exp $
  */
 
 class xpwiki_plugin_conf extends xpwiki_plugin {
@@ -67,7 +67,12 @@ class xpwiki_plugin_conf extends xpwiki_plugin {
 			'skin_navigator_cmds' => array(
 				'kind' => 'root',
 				'type' => 'string',
-				'form' => 'textarea,style="width:100%;height:5em;"',
+				'form' => 'textarea,style="width:98%;height:5em;"',
+			),
+			'skin_navigator_disabled' => array(
+				'kind' => 'root',
+				'type' => 'string',
+				'form' => 'textarea,style="width:98%;height:5em;"',
 			),
 			'SKIN_CHANGER' => array(
 				'kind' => 'const',
@@ -227,7 +232,7 @@ class xpwiki_plugin_conf extends xpwiki_plugin {
 			'update_ping_servers' => array(
 				'kind' => 'root',
 				'type' => 'string',
-				'form' => 'textarea,style="width:100%;height:6em;"',
+				'form' => 'textarea,style="width:98%;height:6em;"',
 			),
 			'pagereading_enable' => array(
 				'kind' => 'root',
