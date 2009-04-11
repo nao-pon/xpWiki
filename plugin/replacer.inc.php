@@ -1,7 +1,7 @@
 <?php
 /*
  * Created on 2008/03/25 by nao-pon http://hypweb.net/
- * $Id: replacer.inc.php,v 1.2 2009/04/11 00:53:10 nao-pon Exp $
+ * $Id: replacer.inc.php,v 1.3 2009/04/11 01:44:14 nao-pon Exp $
  */
 
 class xpwiki_plugin_replacer extends xpwiki_plugin {
@@ -222,7 +222,7 @@ EOD;
 
 		$rep = $this->vars['rword'];
 		$rep = str_replace(array('\\\\n', '\\\\t', '\\n', '\\t'), array('\\'."\x08".'n', '\\'."\x08".'t', "\n", "\t"), $rep);
-		$rep = str_replace(array('\\'."\x08".'n', '\\'."\x08".'t'), array('\\n', '\\t'), $rep);
+		$rep = str_replace("\x08", '', $rep);
 		
 		$base = $this->cont['DATA_DIR'];
 		$ret = array();
