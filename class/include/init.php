@@ -1,7 +1,7 @@
 <?php
 //
 // Created on 2006/10/13 by nao-pon http://hypweb.net/
-// $Id: init.php,v 1.64 2009/04/04 04:11:20 nao-pon Exp $
+// $Id: init.php,v 1.65 2009/04/11 00:51:30 nao-pon Exp $
 //
 
 $root = & $this->root;
@@ -425,6 +425,9 @@ if (isset($const['page_show'])) {
 	} else if (!empty($root->vars['popup'])) {
 		$this->root->viewmode = 'popup';
 		$arg = preg_replace('/[&?]popup=?[^&]*/', '', $arg);
+	} else if (!empty($root->vars['print'])) {
+		$this->root->viewmode = 'print';
+		$arg = preg_replace('/[&?]print=?[^&]*/', '', $arg);
 	} else {
 		$this->root->viewmode = 'normal';
 	}
