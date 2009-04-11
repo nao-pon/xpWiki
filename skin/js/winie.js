@@ -19,7 +19,7 @@ function wikihelper_pos(){
 		return;
 	}
 	
-	wikihelper_elem = document.activeElement;
+	//wikihelper_elem = document.activeElement;
 }
 
 function wikihwlper_caretPos() {

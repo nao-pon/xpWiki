@@ -1,7 +1,7 @@
 <?php
 //
 // Created on 2006/10/25 by nao-pon http://hypweb.net/
-// $Id: code.inc.php,v 1.20 2008/10/31 07:06:37 nao-pon Exp $
+// $Id: code.inc.php,v 1.21 2009/04/11 00:53:10 nao-pon Exp $
 //
 
 class xpwiki_plugin_code extends xpwiki_plugin {
@@ -120,6 +120,7 @@ class xpwiki_plugin_code extends xpwiki_plugin {
 						'noicon'      => 0,  // アイコンを表示しない
 						'link'        => 0,  // オートリンク 有効
 						'nolink'      => 0,  // オートリンク 無効
+						'title'       => '',
 						);
 
 	    $num_of_arg = func_num_args();
@@ -142,11 +143,18 @@ class xpwiki_plugin_code extends xpwiki_plugin {
 			if (! $this->_plugin_code_check_argment($args[$i], $option))
 				$this->_plugin_code_get_region($args[$i], $end, $begin);
 		}
+				
 		$data = array();
 		$multiline = $this->_plugin_code_multiline_argment($arg, $data, $lang, $option, $end, $begin);
 
 		if (isset($data['_error']) && $data['_error'] != '') {
 			return $data['_error'];
+		}
+
+		// For keitai
+		if ($this->cont['UA_PROFILE'] === 'keitai') {
+			$option['nonumber'] = TRUE;
+			$option['nooutline'] = TRUE;
 		}
 		
 		if ($this->cont['PLUGIN_CODE_CACHE'] && ! $multiline) {
@@ -158,7 +166,7 @@ class xpwiki_plugin_code extends xpwiki_plugin {
 				return $html;
 			}
 		}
-
+		
 		$data['data'] = rtrim($data['data']) . "\n";
 		$line_cnt = count(explode("\n", $data['data']));
 		
@@ -182,9 +190,9 @@ class xpwiki_plugin_code extends xpwiki_plugin {
 		$styles[] = 'overflow:auto;';
 		
 		if ($lang === 'pre') {
-			$lines = '<div class="'.$lang.'" style="'.join('',$styles).'">'.$lines.'</div>';
+			$lines = '<div class="'.$lang.' notranslate" style="'.join('',$styles).'">'.$lines.'</div>';
 		} else {
-			$lines = '<div class="pre" style="'.join('',$styles).'"><div class="'.$lang.'">'.$lines.'</div></div>';
+			$lines = '<div class="pre notranslate" style="'.join('',$styles).'"><div class="'.$lang.'">'.$lines.'</div></div>';
 		}
 
 		if ($option['outline']) {
@@ -213,14 +221,15 @@ class xpwiki_plugin_code extends xpwiki_plugin {
 		if (preg_match('#^(.+)/([^/]+)$#', $fname, $matches)) {
 			if ($matches[1] == '.' || $matches[1] == '..')
 				$matches[1] .= '/'; // Restore relative paths
-				$fname = $matches[2];
-				$page = $this->func->get_fullname($this->func->strip_bracket($matches[1]), $page); // strip is a compat
-				$file = $this->func->encode($page) . '_' . $this->func->encode($fname);
-		} else {
-			// Simple single argument
-			$file =  $this->func->encode($page) . '_' . $this->func->encode($fname);
+			$fname = $matches[2];
+			$page = $this->func->get_fullname($this->func->strip_bracket($matches[1]), $page); // strip is a compat
+		//	$file = $this->func->encode($page) . '_' . $this->func->encode($fname);
+		//} else {
+		//	// Simple single argument
+		//	$file =  $this->func->encode($page) . '_' . $this->func->encode($fname);
 		}
-
+		$file = $this->func->encode($page) . '_' . $this->func->encode($fname);
+		
 		// md5ハッシュ取得
 		list(,,,,,,,,$md5) = array_pad(@file($this->cont['UPLOAD_DIR'].$file.".log"),9,"");
 		$md5 = trim($md5);
@@ -228,7 +237,7 @@ class xpwiki_plugin_code extends xpwiki_plugin {
 		$html = $this->func->strip_MyHostUrl($html);
 		$data = serialize(array($html, $option, $md5));
 
-		$fp = fopen($this->cont['CACHE_DIR'].'plugin/'.$file.'.code', 'wb') or
+		$fp = fopen($this->cont['CACHE_DIR'].'plugin/'.$file.(($this->cont['UA_PROFILE'] === 'keitai')? '.k' : '').'.code', 'wb') or
 			$this->func->die_message('Cannot write cache file ' .
 					$this->cont['CACHE_DIR'].'plugin/'. $file .'.code'.
 					'<br />Maybe permission is not writable or filename is too long');
@@ -268,12 +277,13 @@ class xpwiki_plugin_code extends xpwiki_plugin {
 		// md5
 		list(,,,,,,,,$md5) = array_pad(@ file($this->cont['UPLOAD_DIR'].$file.".log"), 9, '');
 		$md5 = trim($md5);
-
-		if (!file_exists($this->cont['CACHE_DIR'].'plugin/'.$file.'.code')) {
+		
+		$cache = $this->cont['CACHE_DIR'].'plugin/'.$file.(($this->cont['UA_PROFILE'] === 'keitai')? '.k' : '').'.code';
+		if (!file_exists($cache)) {
 			$option['id'] = $md5;
 			return false;
 		}
-		$fdata = file_get_contents($this->cont['CACHE_DIR'].'plugin/'.$file.'.code');
+		$fdata = file_get_contents($cache);
 
 		$dat = unserialize($fdata);
 		//md5ハッシュの検査
@@ -307,6 +317,7 @@ class xpwiki_plugin_code extends xpwiki_plugin {
 					  'noicon'      => 0,  // アイコンを表示しない
 	                  'link'        => 0,  // オートリンク 有効
 	                  'nolink'      => 0,  // オートリンク 無効
+	                  'title'       => '',
 	              );
 	    $num_of_arg = func_num_args();
 		$args = func_get_args();
@@ -431,6 +442,7 @@ class xpwiki_plugin_code extends xpwiki_plugin {
 
 		} else {
 			$data['data'] = $arg;
+			if ($option['title']) $data['title'] = '<h5 class="'.$this->cont['PLUGIN_CODE_HEADER'].'title">'.htmlspecialchars($option['title']).'</h5>'."\n";
 			return 1;
 		}
 		return 0;
@@ -593,6 +605,9 @@ class xpwiki_plugin_code extends xpwiki_plugin {
 	    $arg = strtolower($arg);
 	    if (isset($option[$arg])) {
 	        $option[$arg] = 1;
+			return 1;
+		} else if (strpos($arg, 'title') === 0) {
+			$option['title'] = substr($arg, 6);
 			return 1;
 		}
 		return 0;

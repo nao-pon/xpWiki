@@ -1,6 +1,6 @@
 <?php
 // PukiWiki - Yet another WikiWikiWeb clone
-// $Id: pukiwiki.ini.php,v 1.93 2009/04/04 04:28:24 nao-pon Exp $
+// $Id: pukiwiki.ini.php,v 1.94 2009/04/11 00:52:04 nao-pon Exp $
 // Copyright (C)
 //   2002-2006 PukiWiki Developers Team
 //   2001-2002 Originally written by yu-ji
@@ -772,7 +772,8 @@ $root->notify_diff_only = 1;
 $root->defaultpage  = 'FrontPage';
 $root->page_case_insensitive = 0;
 $const['SKIN_NAME'] = 'default';
-$root->skin_navigator_cmds = 'add, atom, attaches, back, backup, copy, diff, edit, filelist, freeze, help, list, new, newsub, pginfo, rdf, recent, refer, related, reload, rename, rss, rss10, rss20, search, top, topage, trackback, unfreeze, upload';
+$root->skin_navigator_cmds = 'all';
+$root->skin_navigator_disabled = '';
 $const['SKIN_CHANGER'] = 1;
 $root->referer = 0;
 $root->allow_pagecomment = 1;

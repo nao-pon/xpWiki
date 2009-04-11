@@ -758,14 +758,24 @@ class XpWikiCodeHighlight {
 				$result = substr($string, $str_pos);
 				foreach($code_comment[$code] as $pattern) {
 					if (($switchHash[$code] == $this->cont['PLUGIN_CODE_COMMENT'] || $startline) && preg_match($pattern[0], $result)) {
-						$pos = strpos($result, $pattern[1]);
-						if ($pos === false) { // 見つからないときは終わりまで
-							$str_pos = $str_len;
-							//$result = $result; ってことで何もしない
+						if ($pattern[2] === 'reg') {
+							if (preg_match($pattern[1], $result, $match)) {
+								$result = $match[0];
+								$str_pos += strlen($result);
+							} else {
+								// 見つからないときは終わりまで
+								$str_pos = $str_len;
+							}
 						} else {
-							$pos += $pattern[2];
-							$str_pos += $pos;
-							$result = substr($result, 0, $pos);
+							$pos = strpos($result, $pattern[1]);
+							if ($pos === false) { // 見つからないときは終わりまで
+								$str_pos = $str_len;
+								//$result = $result; ってことで何もしない
+							} else {
+								$pos += $pattern[2];
+								$str_pos += $pos;
+								$result = substr($result, 0, $pos);
+							}
 						}
 						// ライン数カウント
 						$commentlines = substr_count($result,"\n");
@@ -835,14 +845,24 @@ class XpWikiCodeHighlight {
 				$result = substr($string, $str_pos);
 				foreach($code_comment[$code] as $pattern) {
 					if (preg_match($pattern[0], $result)) {
-						$pos = strpos($result, $pattern[1]);
-						if ($pos === false) { // 見つからないときは終わりまで
-							$str_pos = $str_len;
-							//$result = $result; ってことで何もしない
+						if ($pattern[2] === 'reg') {
+							if (preg_match($pattern[1], $result, $match)) {
+								$result = $match[0];
+								$str_pos += strlen($result);
+							} else {
+								// 見つからないときは終わりまで
+								$str_pos = $str_len;
+							}
 						} else {
-							$pos += $pattern[2];
-							$str_pos += $pos;
-							$result = substr($result, 0, $pos);
+							$pos = strpos($result, $pattern[1]);
+							if ($pos === false) { // 見つからないときは終わりまで
+								$str_pos = $str_len;
+								//$result = $result; ってことで何もしない
+							} else {
+								$pos += $pattern[2];
+								$str_pos += $pos;
+								$result = substr($result, 0, $pos);
+							}
 						}
 
 						if($str_continue != $this->cont['PLUGIN_CODE_COMMENT']) {

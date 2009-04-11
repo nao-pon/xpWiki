@@ -1,6 +1,6 @@
 <?php
 // PukiWiki - Yet another WikiWikiWeb clone.
-// $Id: pukiwiki.skin.php,v 1.43 2009/04/04 12:47:17 nao-pon Exp $
+// $Id: pukiwiki.skin.php,v 1.44 2009/04/11 00:53:10 nao-pon Exp $
 // Copyright (C)
 //   2002-2006 PukiWiki Developers Team
 //   2001-2002 Originally written by yu-ji
@@ -57,6 +57,7 @@ $this->root->_IMAGE['skin']['rdf']      = 'rdf.png';
 $this->root->_IMAGE['skin']['refer']    = 'src=referer.png';
 $this->root->_IMAGE['skin']['topage']   = 'src=topage.gif';
 $this->root->_IMAGE['skin']['pginfo']   = 'src=pginfo.gif';
+$this->root->_IMAGE['skin']['print']    = 'src=print.png';
 
 // ------------------------------------------------------------
 // Code start
@@ -149,16 +150,18 @@ EOD;
  <?php if ($this->root->referer) { ?>
   <?php $navigator($this,'refer','','',TRUE) ?>
  <?php } ?>
+ <?php $navigator($this,'print','','',TRUE) ?>
 <?php } else { ?>
  <?php $navigator($this,'top','','',TRUE)?>
+ <?php $navigator($this,'print','','',TRUE) ?>
 <?php } ?>
 </div><!--/navigator_page-->
 
 <div class="navigator_info">
  <span id="xpwiki_fusenlist" style="display:none;"><span class="button"><!--FU--><!--SEN--></span></span>
 <?php if ($this->root->trackback) { ?>
- [ <?php $navigator($this,'trackback', $lang['trackback'] . '(' . $this->tb_count($_page) . ')',
- 	($trackback_javascript == 1) ? 'onclick="OpenTrackback(this.href); return false"' : '') ?> ]
+ <span class="button"><?php $navigator($this,'trackback', $lang['trackback'] . '(' . $this->tb_count($_page) . ')',
+ 	($trackback_javascript == 1) ? 'onclick="OpenTrackback(this.href); return false"' : '') ?></span>
 <?php } ?>
 <?php if ($page_comments_count)   { ?>
  <span class="button"><?php echo $page_comments_count ?></span>
@@ -182,7 +185,7 @@ EOD;
 </div><!--/header-->
 
 <div class="navigator_hr">
-	<div> </div><hr />
+	<hr />
 </div>
 
 <?php } // PKWK_SKIN_SHOW_NAVBAR ?>
@@ -255,8 +258,9 @@ EOD;
 	<?php $toolbar($this, 'copy') ?>
 	<?php $toolbar($this, 'rename') ?>
 <?php } ?>
- <?php if ($is_page) { $toolbar($this, 'reload'); } ?>
+ <?php $toolbar($this, 'reload') ?>
 <?php } ?>
+<?php $toolbar($this, 'print') ?>
  &nbsp;
 <?php if ($rw) { ?>
 	<?php $toolbar($this, 'new') ?>

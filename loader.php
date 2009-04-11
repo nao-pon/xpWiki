@@ -1,7 +1,7 @@
 <?php
 //
 // Created on 2006/10/25 by nao-pon http://hypweb.net/
-// $Id: loader.php,v 1.60 2009/03/13 07:20:52 nao-pon Exp $
+// $Id: loader.php,v 1.61 2009/04/11 00:53:10 nao-pon Exp $
 //
 
 ignore_user_abort(FALSE);
@@ -153,7 +153,7 @@ switch ($type) {
 		$src_file = $src_files;
 		
 		$replace = true;
-		$cache_file = $cache_path.$skin.'_'.$src.'_'.$dir.($pre_width?'_'.$pre_width:'').($charset?'_'.$charset:'').'.'.$type;
+		$cache_file = $cache_path.$skin.'_'.$src.'_'.$dir.($pre_width?'_'.$pre_width:'').($pre_id?'_'.$pre_id:'').($charset?'_'.$charset:'').'.'.$type;
 		$gzip_fname = $cache_file.'.gz';
 		break;
 	case 'js':

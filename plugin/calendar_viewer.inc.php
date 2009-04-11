@@ -1,6 +1,6 @@
 <?php
 // PukiWiki - Yet another WikiWikiWeb clone
-// $Id: calendar_viewer.inc.php,v 1.14 2009/02/22 02:01:56 nao-pon Exp $
+// $Id: calendar_viewer.inc.php,v 1.15 2009/04/11 00:53:10 nao-pon Exp $
 //
 // Calendar viewer plugin - List pages that calendar/calnedar2 plugin created
 // (Based on calendar and recent plugin)
@@ -49,6 +49,9 @@ class xpwiki_plugin_calendar_viewer extends xpwiki_plugin {
 	
 		$this->cont['PLUGIN_CALENDAR_VIEWER_USAGE'] = 
 			'#calendar_viewer(pagename,this|yyyy-mm|n|x*y[,mode[,separater]])';
+		
+		$this->conf['Use_boxdate'] = 1;
+		$this->conf['MinimumHeaderLevel'] = 2;
 	}
 	
 	function can_call_otherdir_convert() {
@@ -57,6 +60,8 @@ class xpwiki_plugin_calendar_viewer extends xpwiki_plugin {
 
 	function plugin_calendar_viewer_convert()
 	{
+		$this->func->add_tag_head('calendar.css');
+		
 		static $viewed = array();
 		if (!isset($viewed[$this->xpwiki->pid])) {$viewed[$this->xpwiki->pid] = array();}
 	
@@ -65,18 +70,26 @@ class xpwiki_plugin_calendar_viewer extends xpwiki_plugin {
 	
 		$func_args = func_get_args();
 
+		$min_header = $this->conf['MinimumHeaderLevel'];
+		
 		// for PukiWikiMod compat
 		$_options = array();
 		foreach($func_args as $option) {
-			if (strtolower($option) == "notoday")
-				$notoday = true;
-			else if(strtolower(substr($option,0,9)) == "contents:")
-				$contents_lev = (int)substr($option,9);
-			else
+			$option = trim($option);
+			if (strtolower($option) == 'notoday') {
+				//$notoday = true;
+			} else if(strtolower(substr($option, 0, 9)) === 'contents:') {
+				//$contents_lev = (int)substr($option, 9);
+			} else if(strtolower(substr($option, 0, 7)) === 'header:') {
+				$min_header = (int)substr($option, 7);
+			} else {
 				$_options[] = $option;
+			}
 		}
 		$func_args = $_options;	
-
+		
+		$min_header = max(1, min(5, $min_header));
+		
 		// Default values
 		$pagename    = $func_args[0];	// 基準となるページ名
 		if (strtolower($pagename) === "this") {
@@ -176,34 +189,49 @@ class xpwiki_plugin_calendar_viewer extends xpwiki_plugin {
 	
 			$page = $pagelist[$tmp];
 	
-			$body = $this->func->convert_html($this->func->get_source($page), $page);
-	
-			if ($this->cont['PLUGIN_CALENDAR_VIEWER_DATE_FORMAT'] !== FALSE) {
-				$time = strtotime($this->func->basename($page)); // $date_sep must be assumed '-' or ''!
-				if ($time == -1) {
-					$s_page = htmlspecialchars($page); // Failed. Why?
-				} else {
-					$week   = $this->root->weeklabels[date('w', $time)];
-					$s_page = htmlspecialchars(str_replace(
-							array('$w' ),
-						array($week),
-						date($this->cont['PLUGIN_CALENDAR_VIEWER_DATE_FORMAT'], $time)
-						));
-				}
-			} else {
-				$s_page = htmlspecialchars($page);
+			$src = $this->func->get_source($page);
+			
+			$src = preg_replace_callback('/^\*{1,5}/m', create_function('$match',
+					'return substr($match[0] . str_repeat("*", ('.$min_header.' - 1)), 0, 5);'
+					), $src);
+			
+			if ($this->conf['Use_boxdate']) {
+				$src = preg_replace('/^#boxdate(\(.*?\))?\n/m', '', $src, 1);
 			}
 			
-			$edit = "";
-			$link = $this->func->get_page_uri($page, TRUE);
+			$body = $this->func->convert_html($src, $page);
+	
+			if ($this->conf['Use_boxdate']) {
+				$s_page = $this->func->do_plugin_convert('boxdate', 'link,page:' . $page);
+			} else {
+				if ($this->cont['PLUGIN_CALENDAR_VIEWER_DATE_FORMAT'] !== FALSE) {
+					$time = strtotime($this->func->basename($page)); // $date_sep must be assumed '-' or ''!
+					if ($time === -1 || $time === FALSE) {
+						$s_page = htmlspecialchars($page); // Failed. Why?
+					} else {
+						$week   = $this->root->weeklabels[date('w', $time)];
+						$D      = date('D', $time);
+						$s_page = str_replace(
+								array('$w', '$D'),
+								array($week, $D),
+								date($this->cont['PLUGIN_CALENDAR_VIEWER_DATE_FORMAT'], $time)
+								);
+					}
+
+				} else {
+					$s_page = htmlspecialchars($page);
+				}
+				$s_page = $this->func->make_pagelink($page, $s_page);
+			}
+			
+			$edit = '';
 			if (!$this->cont['PKWK_READONLY'] && $this->func->check_editable($page, FALSE, FALSE)) {
 				$edit = $this->root->script . '?cmd=edit&amp;page=' . rawurlencode($page);
 				$edit = '<div style="float:right;padding-right:10px;font-size:90%;"> (<a href="' . $edit . '">' . $this->root->_LANG['skin']['edit'] . '</a>)</div>';
 			}
-			$link   = '<a href="' . $link . '">' . $s_page . '</a>';
-	
-			$head   = $edit . '<h1>' . $link . '</h1>' . "\n";
-			$return_body .= $head . $body . $this->root->hr;
+			
+			$head   = $edit . $s_page . "\n";
+			$return_body .= '<div class="calendar_entry_base">' . $head . '<div class="calendar_entry">' . $body . '</div></div><div class="calendar_hr"><hr /></div>';
 	
 			++$tmp;
 		}
@@ -322,8 +350,8 @@ class xpwiki_plugin_calendar_viewer extends xpwiki_plugin {
 		--$this->root->rtf['convert_nest'];
 		
 		//$return_vars_array['msg'] = 'calendar_viewer ' . $vars['page'] . '/' . $page_YM;
-		$return_vars_array['msg'] = 'calendar_viewer ' . htmlspecialchars($this->root->vars['page']);
-		if ($this->root->vars['page'] != '') $return_vars_array['msg'] .= '/';
+		$return_vars_array['msg'] = 'Calendar view ' . $this->func->make_pagelink($this->root->vars['page'], htmlspecialchars($this->root->vars['page']));
+		if ($this->root->vars['page'] != '') $return_vars_array['msg'] .= ' : ';
 		if (preg_match('/\*/', $page_YM)) {
 			// うーん、n件表示の時はなんてページ名にしたらいい？
 		} else {
@@ -331,6 +359,7 @@ class xpwiki_plugin_calendar_viewer extends xpwiki_plugin {
 		}
 	
 		$this->root->vars['page'] = $page;
+
 		return $return_vars_array;
 	}
 	

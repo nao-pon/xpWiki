@@ -1,6 +1,6 @@
 //
 // Created on 2007/10/03 by nao-pon http://hypweb.net/
-// $Id: resizable.js,v 1.17 2009/04/04 03:02:40 nao-pon Exp $
+// $Id: resizable.js,v 1.18 2009/04/11 00:53:10 nao-pon Exp $
 //
 
 var Resizable = Class.create();
@@ -64,7 +64,7 @@ Resizable.prototype = {
 				}
 				pNode = pNode.parentNode;
 			} while(pNode);
-			if (inTable) {
+			if (XpWiki.isIE8 || inTable) {
 				var initW = this.elem.getWidth();
 				if (!!initW && initW != 'none') {
 					this.initWidth = initW;
@@ -79,7 +79,7 @@ Resizable.prototype = {
 			this.elem.style.padding = '0px';
 			parent.replaceChild(this.base, target);
 
-			if (Prototype.Browser.IE) {
+			if (Prototype.Browser.IE && ! XpWiki.IEVer < 8) {
 				// for IE CSS bug.
 				// See http://blog.netscraps.com/internet-explorer-bugs/ie6-ie7-margin-inheritance-bug.html
 				var fake = document.createElement('div');

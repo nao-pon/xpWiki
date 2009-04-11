@@ -1,7 +1,7 @@
 <?php
 /*
  * Created on 2008/01/24 by nao-pon http://hypweb.net/
- * $Id: conf.lng.php,v 1.12 2009/04/04 04:21:26 nao-pon Exp $
+ * $Id: conf.lng.php,v 1.13 2009/04/11 00:53:10 nao-pon Exp $
  */
 
 $msg = array(
@@ -80,9 +80,16 @@ $msg = array(
 	'skin_navigator_cmds' => array(
 		'caption'     => 'Menus on Skin',
 		'description' => 'The command name of the menu assumed to be able to display by the skin is input by comma (,) delimitation.<br />'
-		               . '" add, atom, attaches, back, backup, copy, diff, edit, filelist, freeze, help, list, new, newsub, pginfo, rdf, recent, refer, related, reload, rename, rss, rss10, rss20, search, top, topage, trackback, unfreeze, upload " can be specified. However, it is controlled whether displayed by the skin.' ,
+	                   . 'All menus are enabled to be displayed when "all" is input.<br />'
+		               . '" add, atom, attaches, back, backup, copy, diff, edit, filelist, freeze, help, list, new, newsub, pginfo, print, rdf, recent, refer, related, reload, rename, rss, rss10, rss20, search, top, topage, trackback, unfreeze, upload " can be specified. However, it is controlled whether displayed by the skin.' ,
 	),
 	
+	'skin_navigator_disabled' => array(
+		'caption'     => 'Dsabled menus on Skin',
+		'description' => 'The command name of the menu assumed not to be able to display by the skin is input by comma (,) delimitation. <br />'
+	                   . 'The command that can be specified is the same as "Menus on Skin". ' ,
+	),
+
 	'SKIN_CHANGER' => array(
 		'caption'     => 'Is the skin\'s change permitted?',
 		'description' => 'The user comes to be able to select skin by selecting "Yes".<br />'

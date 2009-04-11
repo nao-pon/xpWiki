@@ -2,7 +2,7 @@
 /////////////////////////////////////////////////
 // PukiWiki - Yet another WikiWikiWeb clone.
 //
-// $Id: region.inc.php,v 1.12 2008/05/23 04:12:18 nao-pon Exp $
+// $Id: region.inc.php,v 1.13 2009/04/11 00:53:10 nao-pon Exp $
 //
 
 class xpwiki_plugin_region extends xpwiki_plugin {
@@ -169,6 +169,7 @@ EOD;
 			$js = <<<EOD
 <script type="text/javascript">
 //<![CDATA[
+if (! XpWiki.printing)
 \$('rgn_content{$this->elemid}').style.display='none';
 //]]>
 </script>
