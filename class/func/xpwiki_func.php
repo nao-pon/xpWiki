@@ -1,7 +1,7 @@
 <?php
 //
 // Created on 2006/10/02 by nao-pon http://hypweb.net/
-// $Id: xpwiki_func.php,v 1.208 2009/04/04 12:05:03 nao-pon Exp $
+// $Id: xpwiki_func.php,v 1.209 2009/04/11 00:51:09 nao-pon Exp $
 //
 class XpWikiFunc extends XpWikiXoopsWrapper {
 
@@ -1145,8 +1145,19 @@ EOD;
 		}
 		
 		if ($ret) {
-			$ret = strip_tags(preg_replace('#<script.+?/script>|<span class="plugin_error">.+?</span>#is', '', $this->convert_html($ret, $page)));
-			$ret = str_replace(array("\r","\n","\t", '&dagger;', '?', '&nbsp;'),' ',$ret);
+			$_readonly = $this->cont['PKWK_READONLY'];
+			$_symbol_anchor = $this->root->_symbol_anchor;
+			
+			$this->cont['PKWK_READONLY'] = 1;
+			$this->root->_symbol_anchor = '';
+
+			$ret = $this->convert_html($ret, $page);
+			
+			$this->root->_symbol_anchor = $_symbol_anchor;
+			$this->cont['PKWK_READONLY'] = $_readonly;
+			
+			$ret = strip_tags(preg_replace('#<script.+?/script>|<span class="plugin_error">.+?</span>#is', '', $ret));
+			$ret = str_replace(array("\r","\n","\t", '&nbsp;'),' ',$ret);
 			$ret = preg_replace('/\s+/',' ',$ret);
 			$ret = trim($ret);
 			$ret = $this->unhtmlspecialchars($ret, ENT_QUOTES);
@@ -1314,12 +1325,17 @@ EOD;
 	// SKIN Function
 	function skin_navigator (& $obj, $key, $value = '', $javascript = '', $withIcon = FALSE, $x = 20, $y = 20) {
 		static $cmds = NULL;
+		static $disabled = NULL;
 		if (is_null($cmds)) {
 			$cmds = explode(',', $obj->root->skin_navigator_cmds);
 			$cmds = array_map('trim', $cmds);
 			$cmds = array_flip($cmds);
+
+			$disabled = explode(',', $obj->root->skin_navigator_disabled);
+			$disabled = array_map('trim', $disabled);
+			$disabled = array_flip($disabled);
 		}
-		if (isset($cmds[$key])) {
+		if (!isset($disabled[$key]) && (isset($cmds['all']) || isset($cmds[$key]))) {
 			$lang = & $obj->root->_LANG['skin'];
 			$link = & $obj->root->_LINK;
 			if (! isset($lang[$key])) { echo $key.' LANG NOT FOUND'; return FALSE; }
@@ -1368,6 +1384,30 @@ EOD;
 				'alt="' . $alt . '" title="' . $alt . '" />';
 	}
 	
+	// SKIN Function
+	function skin_link_extractor($arr) {
+		static $i = 0;
+		$head = $arr[1];
+		$attr = $arr[2];
+		$text = $arr[3];
+		if (preg_match('/href=(["\'])(.+?)\\1/', $attr, $match)) {
+			$link = $match[2];
+			if ($link[0] !== '#') {
+				if (!isset($this->root->rtf['SkinLinks'][$link])) {
+					$i++;
+					$this->root->rtf['SkinLinks'][$link] = $i;
+					$this->root->rtf['SkinTexts'][$this->root->rtf['SkinLinks'][$link]][] = $text;
+				}
+				$this->root->rtf['SkinTexts'][$this->root->rtf['SkinLinks'][$link]][] = $text;
+				return $arr[1] . $arr[3]. '<sup class="linkslist">[' . $this->root->rtf['SkinLinks'][$link] . ']</sup></a>';
+			} else {
+				return $arr[3];
+			}
+		} else {
+			return $arr[0];
+		}
+	}
+
 	// Breadcrumbs
 	function get_breadcrumbs_array ($page, $name = 'name', $url = 'url') {
 		$parts = explode('/', $page);
@@ -1494,14 +1534,14 @@ EOD;
 		}
 		if (empty($parsed_url['host']) || ($parsed_url['host'] === $parsed_base['host'] && $parsed_url['scheme'] === $parsed_base['scheme'])) {
 			$url = preg_replace('/(?:\?|&(?:amp;)?)' . preg_quote($session_name, '/') . '=[^&#>]+/', '', $url);
-			$url = preg_replace('/(?:\?|&(?:amp;)?)' . preg_quote($this->hashkey, '/') . '=[^&#>]+/', '', $url);
+			//$url = preg_replace('/(?:\?|&(?:amp;)?)' . preg_quote($this->hashkey, '/') . '=[^&#>]+/', '', $url);
 			
 			list($href, $hash) = array_pad(explode('#', $url, 2), 2, '');
 			
 			if (!$href) {
 				$href = isset($_SERVER['QUERY_STRING'])? '?' . $_SERVER['QUERY_STRING'] : '';
 				$href = preg_replace('/(?:\?|&(?:amp;)?)' . preg_quote($session_name, '/') . '=[^&]+/', '', $href);
-				$href = preg_replace('/(?:\?|&(?:amp;)?)' . preg_quote($this->hashkey, '/') . '=[^&]+/', '', $href);
+				//$href = preg_replace('/(?:\?|&(?:amp;)?)' . preg_quote($this->hashkey, '/') . '=[^&]+/', '', $href);
 			};
 			
 			$href .= ((strpos($href, "?") === FALSE)? '?' : '&amp;') . '&amp;' . SID;
