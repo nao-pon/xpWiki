@@ -1,7 +1,7 @@
 <?php
 //
 // Created on 2006/09/29 by nao-pon http://hypweb.net/
-// $Id: xpwiki.php,v 1.93 2009/04/04 04:07:58 nao-pon Exp $
+// $Id: xpwiki.php,v 1.94 2009/04/11 00:49:00 nao-pon Exp $
 //
 
 class XpWiki {
@@ -253,7 +253,7 @@ class XpWiki {
 			}
 			
 			// Outputas normal
-			if ($root->viewmode === 'normal') {
+			if ($root->viewmode === 'normal' || $root->viewmode === 'print') {
 				$page_title = strip_tags($title);
 				$content_title = (!empty($root->content_title) && $title !== $root->content_title)?
 					$func->unhtmlspecialchars($root->content_title, ENT_QUOTES) : '';
@@ -295,7 +295,7 @@ class XpWiki {
 			$this->cont['SKIN_DIR'] = 'skin/' . $this->cont['SKIN_NAME'] . '/';
 			$this->cont['SKIN_FILE'] = $this->cont['DATA_HOME'] . $this->cont['SKIN_DIR'] . 'pukiwiki.skin.php';
 		}
-
+		
 		// SKIN select from Cookie or Plugin.
 		if ($this->cont['SKIN_CHANGER'] && $this->cont['UA_PROFILE'] !== 'keitai' && (!empty($this->root->cookie['skin']) || is_string($this->cont['SKIN_CHANGER']))) {
 			$this->cont['SKIN_NAME'] = empty($this->root->cookie['skin'])? $this->cont['SKIN_CHANGER'] : $this->root->cookie['skin'];
@@ -319,6 +319,23 @@ class XpWiki {
 				}
 			}
 		}
+
+		if ($this->root->viewmode === 'print') {
+			if (empty($this->cont['TDIARY_THEME'])) {
+				$skindir = 'skin/default/';
+			} else {
+				$skindir = 'skin/' . $this->cont['SKIN_NAME'] . '/';
+			}
+			$skin = $this->cont['DATA_HOME'] . $skindir . 'print.skin.php';
+			if (file_exists($skin)) {
+				$this->cont['SKIN_DIR'] = $skindir;
+				$this->cont['SKIN_FILE'] = $skin;
+			} else {
+				$this->cont['SKIN_DIR'] = 'skin/default/';
+				$this->cont['SKIN_FILE'] = $this->root->mytrustdirpath . '/skin/print.skin.php';
+			}
+		}
+		
 		// Set Skin Name for FCKeditor.
 		$this->func->add_js_var_head('XpWiki.SkinName["'.$this->root->mydirname.'"]', $this->cont['SKIN_NAME']);
 
@@ -489,7 +506,7 @@ EOD;
 			if (!empty($this->iniVar['const'])) {
 				$op .= serialize($this->iniVar['const']);
 			}
-			$cache = $this->cont['RENDER_CACHE_DIR'] . 'render_' . sha1($text.$op) . '.' .  $this->cont['UI_LANG'];
+			$cache = $this->cont['RENDER_CACHE_DIR'] . 'render_' . sha1($text.$op) . '.' .  $this->cont['UI_LANG'] . (($this->cont['UA_PROFILE'] === 'default')? '' : '.' . $this->cont['UA_PROFILE']);
 			if (file_exists($cache) &&
 				@ filemtime($this->cont['CACHE_DIR'] . 'pagemove.time') < filemtime($cache) &&
 				(empty($this->root->render_cache_min) || ((filemtime($cache) +  $this->root->render_cache_min * 60) > $this->cont['UTC']))
