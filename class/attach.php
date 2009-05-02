@@ -1,7 +1,7 @@
 <?php
 /*
  * Created on 2008/03/24 by nao-pon http://hypweb.net/
- * $Id: attach.php,v 1.19 2009/04/04 04:27:11 nao-pon Exp $
+ * $Id: attach.php,v 1.20 2009/05/02 02:18:24 nao-pon Exp $
  */
 
 //-------- クラス
@@ -63,13 +63,10 @@ class XpWikiAttachFile
 	// ファイル情報取得
 	function getstatus()
 	{
-		if (!$this->exist)
-		{
+		if (! $this->exist && ! file_exists($this->logname)) {
 			return FALSE;
-		}
-		// ログファイル取得
-		if (file_exists($this->logname))
-		{
+		} else {
+			// ログファイル取得
 			$data = array_pad(file($this->logname), count($this->status), '');
 			foreach ($this->status as $key=>$value)
 			{
@@ -193,7 +190,7 @@ class XpWikiAttachFile
 		}
 		if ($mode == "imglist") {
 			if ($this->age) {
-				return "&size(12){".$label.$info."};";
+				return '&size(12){'.$label.' '.$info.'};';
 			} else {
 				$ref_option = ($this->status['imagesize'] && $this->status['imagesize'][2] !== 4 && $this->status['imagesize'][2] !== 13)? $this->cont['ATTACH_CONFIG_REF_OPTION_IMG'] : $this->cont['ATTACH_CONFIG_REF_OPTION'];
 				return "&size(12){&ref(\"".str_replace(array('"', '|'), array('""', '&#124;'), $this->page."/".$this->file)."\"".$ref_option.");&br();".$info."};";
@@ -217,10 +214,15 @@ class XpWikiAttachFile
 		$script = $this->func->get_script_uri();
 		$pass = '';
 		$msg_require = '';
+		$msg_copyright = '';
+		$msg_noinline = '';
+		$msg_freezed = '';
+		$msg_freeze  = '';
 		$is_editable = $this->is_owner();
+		$is_owner = $this->is_owner(TRUE);
 		if ($this->cont['ATTACH_PASSWORD_REQUIRE'] && !$this->cont['ATTACH_UPLOAD_ADMIN_ONLY'] && !$is_editable)
 		{
-			$title = $this->root->_attach_messages[$this->cont['ATTACH_UPLOAD_ADMIN_ONLY'] ? 'msg_adminpass' : 'msg_password'];
+			$title = $this->root->_attach_messages[$this->cont['ATTACH_UPLOAD_ADMIN_ONLY'] ? 'msg_adminpass' : 'msg_password2'];
 			$pass = $title.': <input type="password" name="pass" size="8" />';
 			$msg_require = $this->root->_attach_messages['msg_require'];
 		}
@@ -228,11 +230,8 @@ class XpWikiAttachFile
 		$msg_rename = '';
 		if ($this->age)
 		{
-			$msg_freezed = '';
 			$msg_delete  = '<input type="radio" id="pcmd_d" name="pcmd" value="delete" /><label for="pcmd_d">'.$this->root->_attach_messages['msg_delete'].'</label>';
-			$msg_delete .= $this->root->_attach_messages['msg_require'];
 			$msg_delete .= '<br />';
-			$msg_freeze  = '';
 		}
 		else
 		{
@@ -275,16 +274,24 @@ EOD;
 			{
 				$msg_freezed = "<dd>{$this->root->_attach_messages['msg_isfreeze']}</dd>";
 				$msg_delete = '';
-				$msg_freeze  = '<input type="radio" id="pcmd_u" name="pcmd" value="unfreeze" /><label for="pcmd_u">'.$this->root->_attach_messages['msg_unfreeze'].'</label>';
-				$msg_freeze .= $msg_require.'<br />';
+				if ($is_owner) {
+					$msg_freeze  = '<input type="radio" id="pcmd_u" name="pcmd" value="unfreeze" /><label for="pcmd_u">'.$this->root->_attach_messages['msg_unfreeze'].'</label>';
+					$msg_freeze .= $msg_require.'<br />';
+				}
 			}
 			else
 			{
+				$backup_checked = (! $is_owner || ! $this->cont['ATTACH_DELETE_ADMIN_NOBACKUP'])? ' checked="checked"' : '';
+				$backup_disabled = (! $is_owner)? ' disabled="disabled"' : '';
+				$msg_backup = '(<input type="checkbox" id="backup" name="backup" value="1"'.$backup_checked.$backup_disabled.' /><label for="backup">'.$this->root->_attach_messages['msg_backup'].'</label>)';
 				$msg_freezed = '';
 				$msg_delete = '<input type="radio" id="pcmd_d" name="pcmd" value="delete" /><label for="pcmd_d">'.$this->root->_attach_messages['msg_delete'].'</label>';
+				$msg_delete .= $msg_backup;
 				$msg_delete .= $msg_require.'<br />';
-				$msg_freeze  = '<input type="radio" id="pcmd_f" name="pcmd" value="freeze" /><label for="pcmd_f">'.$this->root->_attach_messages['msg_freeze'].'</label>';
-				$msg_freeze .= $msg_require.'<br />';
+				if ($is_owner) {
+					$msg_freeze  = '<input type="radio" id="pcmd_f" name="pcmd" value="freeze" /><label for="pcmd_f">'.$this->root->_attach_messages['msg_freeze'].'</label>';
+					$msg_freeze .= $msg_require.'<br />';
+				}
 				if ($this->cont['PLUGIN_ATTACH_RENAME_ENABLE']) {
 					$msg_rename  = '<input type="radio" name="pcmd" id="_p_attach_rename" value="rename" />' .
 						'<label for="_p_attach_rename">' .  $this->root->_attach_messages['msg_rename'] .
@@ -391,39 +398,32 @@ EOD;
 		}
 		
 		$uid = $this->func->get_pg_auther($this->root->vars['page']);
-		$admin = FALSE;
-		if (!$this->is_owner())
-		// 管理者とページ作成者とファイル所有者以外
-		{
+
+		if (! $this->is_owner()) {
+			// 管理者とページ作成者とファイル所有者以外
 			if (! $this->func->pkwk_login($pass)) {
-				if (($this->cont['ATTACH_PASSWORD_REQUIRE'] and (!$pass || md5($pass) != $this->status['pass'])) || $this->status['owner'])
+				if (($this->cont['ATTACH_PASSWORD_REQUIRE'] && (!$pass || md5($pass) != $this->status['pass'])) || $this->status['owner'])
 					return xpwiki_plugin_attach::attach_info('err_password');
 				
-				if ($this->cont['ATTACH_DELETE_ADMIN_ONLY'] or $this->age)
+				if ($this->cont['ATTACH_DELETE_ADMIN_ONLY'] || $this->age)
 					return xpwiki_plugin_attach::attach_info('err_adminpass');
 			}
 		}
-		else
-			$admin = TRUE;
 
 		//バックアップ
-		if ($this->age or 
-			($admin and $this->cont['ATTACH_DELETE_ADMIN_NOBACKUP']))
-		{
+		if ($this->age || 
+			//($this->is_owner(TRUE) && $this->cont['ATTACH_DELETE_ADMIN_NOBACKUP'])) {
+			($this->is_owner(TRUE) && empty($this->root->vars['backup']))) {
 			@unlink($this->filename);
 			$this->del_thumb_files();
-			$this->func->attach_db_write(array('pgid'=>$this->pgid,'name'=>$this->file),"delete");
-		}
-		else
-		{
-			do
-			{
+			$this->func->attach_db_write(array('pgid'=>$this->pgid,'name'=>$this->file,'status'=>array('age'=>$this->age)),"delete");
+		} else {
+			$this->status['age'] = max(array_keys($this->status['count']));
+			do {
 				$age = ++$this->status['age'];
-			}
-			while (file_exists($this->basename.'.'.$age));
+			} while (file_exists($this->basename.'.'.$age));
 			
-			if (!rename($this->basename,$this->basename.'.'.$age))
-			{
+			if (!rename($this->basename,$this->basename.'.'.$age)) {
 				// 削除失敗 why?
 				return array('msg'=>$this->root->_attach_messages['err_delete']);
 			}
@@ -432,10 +432,9 @@ EOD;
 			
 			$this->status['count'][$age] = $this->status['count'][0];
 			$this->status['count'][0] = 0;
-			$this->putstatus();
+			$this->putstatus(TRUE);
 		}
-		if ($this->func->is_page($this->page))
-		{
+		if ($this->func->is_page($this->page)) {
 			$this->func->pkwk_touch_file($this->func->get_filename($this->page));
 			$this->func->touch_db($this->page);
 		}
@@ -448,7 +447,7 @@ EOD;
 		if ($this->status['freeze']) return xpwiki_plugin_attach::attach_info('msg_isfreeze');
 
 		if (! $this->func->pkwk_login($pass)) {
-			if ($this->cont['PLUGIN_ATTACH_DELETE_ADMIN_ONLY'] || $this->age) {
+			if ($this->cont['PLUGIN_ATTACH_DELETE_ADMIN_ONLY']) {
 				return xpwiki_plugin_attach::attach_info('err_adminpass');
 			} else if ($this->cont['PLUGIN_ATTACH_PASSWORD_REQUIRE'] &&
 				md5($pass) != $this->status['pass']) {
@@ -457,12 +456,12 @@ EOD;
 		}
 
 		$fname = xpwiki_plugin_attach::regularize_fname ($newname, $this->page);
-		if ($fname !== $newname) {
-			$this->status['org_fname'] = $newname;
-		} else {
-			$this->status['org_fname'] = '';
-		}
 
+		$hasBackup = count($this->status['count']) - 1;
+		
+		$this->status['count'] = array($this->status['count'][0]);
+		$this->status['org_fname'] = $newname;
+		
 		$newbase = $this->cont['UPLOAD_DIR'] . $this->func->encode($this->page) . '_' . $this->func->encode($fname);
 		if (file_exists($newbase)) {
 			return array('msg'=>$this->root->_attach_messages['err_exists']);
@@ -471,7 +470,7 @@ EOD;
 			return array('msg'=>$this->root->_attach_messages['err_rename']);
 		}
 		
-		@unlink($this->logname);
+		if (! $hasBackup) @unlink($this->logname);
 		
 		//$this->rename_thumb_files($fname);
 		$this->del_thumb_files();
@@ -480,6 +479,14 @@ EOD;
 		$this->basename = $newbase;
 		$this->filename = $this->basename;
 		$this->logname  = $this->basename . '.log';
+		
+		if (file_exists($this->logname)) {
+			// found backup
+			$_arr = file($this->logname);
+			$counts = explode(',', rtrim($_arr[0]));
+			$counts[0] = $this->status['count'][0];
+			$this->status['count'] = $counts;
+		}
 		
 		$this->action = 'update';
 		
@@ -712,12 +719,14 @@ EOD;
 */
 	
 	// 管理者、ページ作成者またはファイル所有者か？
-	function is_owner() {
+	function is_owner($real = FALSE) {
 		if ($this->func->is_owner($this->page)) return TRUE;
+		if ($this->age) return FALSE;
 		if ($this->owner_id) {
 			if ($this->root->userinfo['uid'] === $this->owner_id) return TRUE;
 		} else {
-			if ($this->root->userinfo['ucd'] === $this->status['ucd']) return TRUE;
+			if ((! $real && ! $this->age && ! $this->cont['ATTACH_PASSWORD_REQUIRE'] && $this->status['uname'] !== 'System') ||
+				$this->root->userinfo['ucd'] === $this->status['ucd']) return TRUE;
 		}
 		return FALSE;
 	}
@@ -882,10 +891,16 @@ class XpWikiAttachFiles
 			$_files = array();
 			foreach (array_keys($this->files[$file]) as $age)
 			{
+				if ($this->is_popup && $age > 0) {
+					continue;
+				}
 				$_files[$age] = $this->files[$file][$age]->toString(FALSE,TRUE,$mode);
 			}
 			if (!array_key_exists(0,$_files))
 			{
+				if ($this->is_popup) {
+					continue;
+				}
 				$_files[0] = htmlspecialchars($file);
 			}
 			ksort($_files);
@@ -896,7 +911,7 @@ class XpWikiAttachFiles
 				$ret .= "|$_file";
 				if (count($_files))
 				{
-					$ret .= "~\n".join("~\n-",$_files);
+					$ret .= "&br;- ".join("&br;- ",$_files);
 				}
 				$mod = $col % $cols;
 				if ($mod === 0)
