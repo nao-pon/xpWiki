@@ -1,7 +1,7 @@
 <?php
 //
 // Created on 2006/10/02 by nao-pon http://hypweb.net/
-// $Id: xpwiki_func.php,v 1.209 2009/04/11 00:51:09 nao-pon Exp $
+// $Id: xpwiki_func.php,v 1.210 2009/05/02 03:43:43 nao-pon Exp $
 //
 class XpWikiFunc extends XpWikiXoopsWrapper {
 
@@ -390,7 +390,7 @@ class XpWikiFunc extends XpWikiXoopsWrapper {
 	
 	function save_cookie () {
 		$data =    $this->root->cookie['ucd'].
-			"\t" . $this->root->cookie['name'].
+			"\t" . (($this->root->siteinfo['anonymous'] === $this->root->cookie['name'])? '' : $this->root->cookie['name']).
 			"\t" . $this->root->cookie['skin'].
 			"\t" . $this->root->cookie['lang'];
 		$url = parse_url ( $this->cont['ROOT_URL'] );
@@ -3077,7 +3077,7 @@ EOD;
 		// ファイル削除
 		elseif ($action == "delete")
 		{
-			$q_name = ($name)? " AND name='{$name}' LIMIT 1" : "";
+			$q_name = ($name)? " AND name='{$name}' AND age='{$age}' LIMIT 1" : "";
 			
 			$ret = array();
 			$query = "SELECT name FROM ".$this->xpwiki->db->prefix($this->root->mydirname."_attach")." WHERE `pgid` = {$pgid}{$q_name};";
