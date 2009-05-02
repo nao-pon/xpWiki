@@ -1,7 +1,7 @@
 <?php
 //
 // Created on 2006/10/02 by nao-pon http://hypweb.net/
-// $Id: pukiwiki_func.php,v 1.204 2009/04/11 00:49:23 nao-pon Exp $
+// $Id: pukiwiki_func.php,v 1.205 2009/05/02 03:42:20 nao-pon Exp $
 //
 class XpWikiPukiWikiFunc extends XpWikiBaseFunc {
 
@@ -161,7 +161,8 @@ class XpWikiPukiWikiFunc extends XpWikiBaseFunc {
 				}
 				// :config/AutoLink
 				if ($page === $this->cont['PKWK_CONFIG_PREFIX'] . 'AutoLink') {
-					$need_autolink_update = TRUE;
+					$this->autolink_dat_update();
+					$this->delete_caches();
 				}
 			}
 			// ページ情報
@@ -178,8 +179,11 @@ class XpWikiPukiWikiFunc extends XpWikiBaseFunc {
 				$pginfo['lastuid'] = $this->root->userinfo['uid'];
 				$pginfo['lastucd'] = $this->root->userinfo['ucd'];
 				$pginfo['lastuname'] = $this->root->userinfo['uname'];
-				if ($this->root->userinfo['uname'] !== $this->root->cookie['name'] && $this->root->cookie['name']) {
-					$pginfo['lastuname'] = $this->root->cookie['name'].'('.$pginfo['lastuname'].')';
+				if ($this->root->cookie['name'] && $this->root->userinfo['uname'] !== $this->root->cookie['name']) {
+					$pginfo['lastuname'] = $this->root->cookie['name'];
+					if ($this->root->siteinfo['anonymous'] !== $this->root->cookie['name']){
+						$pginfo['lastuname'] .= '('.$pginfo['lastuname'].')';
+					}
 				}
 				$pginfo['lastuname'] = htmlspecialchars($pginfo['lastuname']);
 				if (! is_null($pgorder)) $pginfo['pgorder'] = $pgorder;
@@ -241,7 +245,8 @@ class XpWikiPukiWikiFunc extends XpWikiBaseFunc {
 			*/
 			
 			// Update autoalias.dat (AutoAliasName)
-			if ($this->root->autoalias && $page === $this->root->aliaspage) {
+			if ($this->root->autoalias
+			     && ($page === $this->root->aliaspage || $page === $this->cont['PKWK_CONFIG_PREFIX'] . 'AutoLink')) {
 				$aliases = $this->get_autoaliases();
 				if (empty($aliases)) {
 					// Remove
@@ -249,7 +254,7 @@ class XpWikiPukiWikiFunc extends XpWikiBaseFunc {
 				} else {
 					// Create or Update
 					$this->autolink_pattern_write($this->cont['CACHE_DIR'] . $this->cont['PKWK_AUTOALIAS_REGEX_CACHE'],
-						$this->get_autolink_pattern(array_keys($aliases), $this->root->autoalias, true));
+						$this->get_autolink_pattern(array_keys($aliases), $this->root->autoalias, false));
 				}
 			}
 			
@@ -959,7 +964,7 @@ class XpWikiPukiWikiFunc extends XpWikiBaseFunc {
 
 //----- Start convert_html.php -----//
 	// PukiWiki - Yet another WikiWikiWeb clone
-	// $Id: pukiwiki_func.php,v 1.204 2009/04/11 00:49:23 nao-pon Exp $
+	// $Id: pukiwiki_func.php,v 1.205 2009/05/02 03:42:20 nao-pon Exp $
 	// Copyright (C)
 	//   2002-2005 PukiWiki Developers Team
 	//   2001-2002 Originally written by yu-ji
@@ -1112,6 +1117,17 @@ class XpWikiPukiWikiFunc extends XpWikiBaseFunc {
 		
 		list($pat_pre, $pat_aft) = $this->get_autolink_regex_pre_after($this->root->page_case_insensitive, $str);
 		
+		// AutoAlias
+		if ($this->root->autoalias) {
+			@ list ($autoalias) = file($this->cont['CACHE_DIR'].$this->cont['PKWK_AUTOALIAS_REGEX_CACHE']);
+			$autoalias = explode("\t",trim($autoalias));
+			foreach($autoalias as $pat) {
+				if ($pat) {
+					$str = preg_replace_callback($pat_pre . $pat . $pat_aft, array(& $this, 'int_auto_alias_replace'), $str);
+				}
+			}
+		}
+
 		// ページ数が多い場合は、セパレータ \t で複数パターンに分割されている
 		$auto = explode("\t",trim($auto));
 		foreach($auto as $pat) {
@@ -1132,6 +1148,19 @@ class XpWikiPukiWikiFunc extends XpWikiBaseFunc {
 		if (in_array(($this->root->page_case_insensitive ? strtolower($name) : $name), $this->rt_global['forceignorepages'])) { return $match[0]; }
 		
 		return $this->make_pagelink($name, $alias, '', '', 'autolink');
+	}
+
+	function int_auto_alias_replace($match)
+	{
+		if (!empty($match[1])) return $match[1];
+		$name = $match[3];
+		$alias = $this->get_autoaliases($name);
+
+		// 無視リストに含まれているページを捨てる
+		if (!$alias || in_array(($this->root->page_case_insensitive ? strtolower($name) : $name), $this->rt_global['forceignorepages'])) { return $match[0]; }
+		
+		$link = '[['.$name.'>'.$alias.']]';
+		return $this->make_link($link);
 	}
 	
 	// Returns inline-related object
@@ -1214,7 +1243,7 @@ class XpWikiPukiWikiFunc extends XpWikiBaseFunc {
 
 //----- Start func.php -----//
 	// PukiWiki - Yet another WikiWikiWeb clone.
-	// $Id: pukiwiki_func.php,v 1.204 2009/04/11 00:49:23 nao-pon Exp $
+	// $Id: pukiwiki_func.php,v 1.205 2009/05/02 03:42:20 nao-pon Exp $
 	// Copyright (C)
 	//   2002-2006 PukiWiki Developers Team
 	//   2001-2002 Originally written by yu-ji
@@ -2053,7 +2082,7 @@ EOD;
 
 //----- Start make_link.php -----//
 	// PukiWiki - Yet another WikiWikiWeb clone.
-	// $Id: pukiwiki_func.php,v 1.204 2009/04/11 00:49:23 nao-pon Exp $
+	// $Id: pukiwiki_func.php,v 1.205 2009/05/02 03:42:20 nao-pon Exp $
 	// Copyright (C)
 	//   2003-2005 PukiWiki Developers Team
 	//   2001-2002 Originally written by yu-ji
@@ -3034,7 +3063,7 @@ EOD;
 
 //----- Start html.php -----//
 	// PukiWiki - Yet another WikiWikiWeb clone.
-	// $Id: pukiwiki_func.php,v 1.204 2009/04/11 00:49:23 nao-pon Exp $
+	// $Id: pukiwiki_func.php,v 1.205 2009/05/02 03:42:20 nao-pon Exp $
 	// Copyright (C)
 	//   2002-2006 PukiWiki Developers Team
 	//   2001-2002 Originally written by yu-ji
@@ -3367,16 +3396,34 @@ EOD;
 		$b_preview   = isset($this->root->vars['preview']); // TRUE when preview
 		$btn_preview = $b_preview ? $this->root->_btn_repreview : $this->root->_btn_preview;
 		
+		// uname
+		if ($this->root->userinfo['uid']) {
+			$uname = '<input type="hidden" name="uname" value="'.$this->cont['USER_NAME_REPLACE'].'" />';
+		} else {
+			$_uname = (!empty($this->root->rtf['preview']))? htmlspecialchars($this->root->vars['uname']) : $this->cont['USER_NAME_REPLACE'];
+			$_anonymous = (!empty($this->root->rtf['preview']))? htmlspecialchars($this->root->vars['anonymous']) : $this->root->cookie['name'];
+			$_anonymous_checked = (!empty($this->root->vars['anonymous']))? ' checked="checked"' : '';
+			$uname = '<label for="_edit_form_uname"><strong>'
+			       . $this->root->_btn_name . '</strong></label>';
+			if ($this->root->cookie['name']) {
+				$uname .= '<input type="text" name="uname" value="' . $_uname . '" id="_edit_form_uname" size="15" onkeyup="if(this.value)$(\'_edit_form_anonymous\').checked=\'\'" />'
+				        . '<input type="checkbox" name="anonymous" id="_edit_form_anonymous" value="' . $_anonymous . '" onclick="$(\'_edit_form_uname\').value=this.checked?\'\':this.value"' . $_anonymous_checked . ' />'
+			            . '<label for="_edit_form_anonymous"><span class="small">' . $this->root->siteinfo['anonymous'] . '</span></label>';
+			} else {
+				$uname .= '<input type="text" name="uname" value="' . $_uname . '" id="_edit_form_uname" size="15" />';
+			}
+		}
+		
 		// Q & A 認証
 		$riddle = '';
 		if (isset($options['riddle'])) {
-			$riddle = '<p>' . $this->root->_btn_riddle . '<br />' .
+			$riddle = '<div><br />' . $this->root->_btn_riddle . '<br />' .
 				'&nbsp;&nbsp;<strong>Q:</strong> ' . htmlspecialchars($options['riddle']) . '<br />' .
 				'&nbsp;&nbsp;<strong>A:</strong> <input type="text" name="riddle'.md5($this->cont['HOME_URL'].$options['riddle']) .
-				'" size="30" value="" autocomplete="off" onkeyup="(function(e){if(e.value&&!$(\'edit_write_hidden\')){var w=document.createElement(\'input\');w.id=\'edit_write_hidden\';w.type=\'hidden\';w.name=\'write\';e.parentNode.appendChild(w);}})(this)" /><br />' .
-				'</p>';	
+				'" size="30" value="" autocomplete="off" onkeyup="(function(e){if(e.value&&!$(\'edit_write_hidden\')){var w=document.createElement(\'input\');w.id=\'edit_write_hidden\';w.type=\'hidden\';w.name=\'write\';e.parentNode.appendChild(w);}})(this)" />' .
+				'</div>';
 		}
-	
+		
 		// Checkbox 'do not change timestamp'
 		$add_notimestamp = '&nbsp; ';
 		if ($this->is_page($page) && ($this->root->notimeupdate === 1 || ($this->root->notimeupdate > 1 && $this->root->userinfo['admin']))) {
@@ -3458,6 +3505,7 @@ EOD;
   <textarea id="{$tareaId}" name="msg" rows="{$this->root->rows}" cols="{$this->root->cols}" style="{$tareaStyle}">$s_postdata</textarea>
   $riddle
   <div style="float:left;">
+  $uname
    <input type="submit" name="preview" value="$btn_preview" accesskey="p" id="edit_preview" onmousedown="(function(){if(\$('edit_write_hidden')){Element.remove(\$('edit_write_hidden'))};xpwiki_ajax_edit_var['mode']='preview';})();" />
    <input type="submit" name="write"   value="{$this->root->_btn_update}" accesskey="s" id="edit_write" onmousedown="(function(){if(\$('edit_write_hidden')){Element.remove(\$('edit_write_hidden'))};xpwiki_ajax_edit_var['mode']='write';})();" />
    $add_top
@@ -3776,7 +3824,7 @@ EOD;
 
 //----- Start mail.php -----//
 	// PukiWiki - Yet another WikiWikiWeb clone.
-	// $Id: pukiwiki_func.php,v 1.204 2009/04/11 00:49:23 nao-pon Exp $
+	// $Id: pukiwiki_func.php,v 1.205 2009/05/02 03:42:20 nao-pon Exp $
 	// Copyright (C)
 	//   2003-2005 PukiWiki Developers Team
 	//   2003      Originally written by upk
@@ -4079,7 +4127,7 @@ EOD;
 
 //----- Start link.php -----//
 	// PukiWiki - Yet another WikiWikiWeb clone
-	// $Id: pukiwiki_func.php,v 1.204 2009/04/11 00:49:23 nao-pon Exp $
+	// $Id: pukiwiki_func.php,v 1.205 2009/05/02 03:42:20 nao-pon Exp $
 	// Copyright (C) 2003-2006 PukiWiki Developers Team
 	// License: GPL v2 or (at your option) any later version
 	//
