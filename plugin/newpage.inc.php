@@ -1,11 +1,11 @@
 <?php
-// $Id: newpage.inc.php,v 1.8 2009/04/11 01:40:54 nao-pon Exp $
+// $Id: newpage.inc.php,v 1.9 2009/05/02 04:14:37 nao-pon Exp $
 //
 // Newpage plugin
 
 class xpwiki_plugin_newpage extends xpwiki_plugin {
 	function plugin_newpage_init () {
-
+		$this->conf['listmax'] = 200;
 	}
 	
 	function plugin_newpage_convert()
@@ -24,19 +24,18 @@ class xpwiki_plugin_newpage extends xpwiki_plugin {
 		if (! preg_match('/^' . $this->root->BracketName . '$/', $newpage)) $newpage = '';
 		
 	
-		$s_page    = htmlspecialchars(isset($this->root->vars['refer']) ? $this->root->vars['refer'] : $this->root->vars['page']);
-		$s_newpage = htmlspecialchars($newpage);
-		$base = (empty($s_newpage))? '' : $s_newpage ;
+		$s_page = htmlspecialchars(isset($this->root->vars['refer']) ? $this->root->vars['refer'] : $this->root->vars['page']);
 		
 		++$id[$this->xpwiki->pid];
+		$base_form = $newpage? $this->get_base_form($newpage, $id[$this->xpwiki->pid]) : '<label for="_p_newpage_'.$id[$this->xpwiki->pid].'">' . $this->root->_msg_newpage . ': </label>';
+		
 		$script = $this->func->get_script_uri();
 		$ret = <<<EOD
 <form action="{$script}" method="post">
  <div>
   <input type="hidden" name="plugin" value="newpage" />
   <input type="hidden" name="refer" value="$s_page" />
-  <input type="hidden" name="base" value="$s_newpage" />
-  <label for="_p_newpage_{$id[$this->xpwiki->pid]}">{$this->root->_msg_newpage}: {$base}</label>
+  $base_form
   <input type="text"   name="page" id="_p_newpage_{$id[$this->xpwiki->pid]}" value="" size="30" />
   <input type="submit" value="{$this->root->_btn_edit}" />
  </div>
@@ -66,6 +65,31 @@ EOD;
 			$this->func->send_location('', '', $this->func->get_script_uri() .
 			'?cmd=read&page=' . $r_page . '&refer=' . $r_refer);
 		}
+	}
+	
+	function get_base_form($base, $id) {
+		$base = rtrim($base, '/');
+		$options = array(
+			'order' => ' ORDER BY `editedtime` DESC ',
+			'limit' => $this->conf['listmax']
+		);
+		$pages = $this->func->get_existpages(FALSE, $base . '/', $options);
+		natcasesort($pages);
+		
+		$form = array();
+		$base = htmlspecialchars($base) . '/';
+		if (count($pages) < 2) {
+			$form[] = '<input type="hidden" name="base" value="' . $base . '" />';
+			$form[] = '<label for="_p_newpage_'.$id.'">'.$base.'</label>';
+		} else {
+			$form[] = '<select name="base" size="1" onchange="$(\'_p_newpage_'.$id.'\').focus();">';
+			$form[] = '<option selected="selected">' . $base . '</option>';
+			foreach($pages as $page) {
+				$form[] = '<option>' . htmlspecialchars($page) . '/</option>';
+			}
+			$form[] = '</select>';
+		}
+		return join("\n", $form);
 	}
 }
 ?>
