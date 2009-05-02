@@ -1,6 +1,6 @@
 <?php
 // PukiWiki - Yet another WikiWikiWeb clone
-// $Id: related.inc.php,v 1.7 2009/03/13 08:18:49 nao-pon Exp $
+// $Id: related.inc.php,v 1.8 2009/05/02 04:17:20 nao-pon Exp $
 //
 // Related plugin: Show Backlinks for the page
 
@@ -76,7 +76,7 @@ class xpwiki_plugin_related extends xpwiki_plugin {
 			$pnavObj->url = '?plugin=related&amp;page=' . rawurlencode($_page) . '&amp;start=';
 			$pnav = '<div class="pagenav">Total: ' . $count . ' pages&nbsp;&nbsp;' . $pnavObj->renderNav() . '</div>';
 		} else {
-			$pnav = ($count > 3)? '<div class="pagenav">Total: ' . $count . ' pages</div>' : '';
+			$pnav = ($count > 3)? '<div class="pagenav">Total: ' . number_format($count) . ' pages</div>' : '';
 		}
 		
 		$data = $this->func->links_get_related_db($_page, $start, $max);
