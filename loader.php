@@ -1,7 +1,7 @@
 <?php
 //
 // Created on 2006/10/25 by nao-pon http://hypweb.net/
-// $Id: loader.php,v 1.61 2009/04/11 00:53:10 nao-pon Exp $
+// $Id: loader.php,v 1.62 2009/05/02 02:06:50 nao-pon Exp $
 //
 
 ignore_user_abort(FALSE);
@@ -66,11 +66,11 @@ if (!$type || !$src) {
 
 $basedir = ($type === 'png' || $type === 'gif')? 'image/' : '';
 
-// CSS 以外は html側に指定ファイルがあれば、それにリダイレクト
-//if ($type !== 'css') {
+// 'js','png','gif','swf' は html側に指定ファイルがあれば、それにリダイレクト
 if (in_array($type, array('js','png','gif','swf'))) {
-	if (is_file($skin_dirname.'/'.$basedir.$type.'/'.$src.$type)) {
-		header('Location: '.$basedir.$type.'/'.$src.$type);
+	$_localFile = $basedir.$type.'/'.$src.'.'.$type;
+	if (is_file($skin_dirname.'/'.$_localFile)) {
+		header('Location: '.$_localFile);
 		exit();
 	}
 }
