@@ -1,23 +1,25 @@
 <?php
+// $Id: referer.inc.php,v 1.9 2009/05/02 04:16:44 nao-pon Exp $
+/*
+ * PukiWiki Referer プラグイン(リンク元表示プラグイン)
+ * (C) 2003, Katsumi Saito <katsumi@jo1upk.ymt.prug.or.jp>
+ * License: GPL
+ */
+
 class xpwiki_plugin_referer extends xpwiki_plugin {
 	function plugin_referer_init () {
-
-
-	// $Id: referer.inc.php,v 1.8 2008/02/17 14:27:06 nao-pon Exp $
-	/*
-	 * PukiWiki Referer プラグイン(リンク元表示プラグイン)
-	 * (C) 2003, Katsumi Saito <katsumi@jo1upk.ymt.prug.or.jp>
-	 * License: GPL
-		*/
-	
 		$this->cont['CONFIG_REFERER'] =  'plugin/referer/config';
 
+		$this->config['ShowMax'] = 100;
+		//$this->config['Threshold'] = array(
+		//	'100'  => 1,
+		//	'500'  => 2,
+		//	'1000' => 3,
+		//);
 	}
 	
 	function plugin_referer_action()
 	{
-	//	global $vars, $referer;
-	//	global $_referer_msg;
 		// CSS
 		$this->func->add_tag_head('referer.css');
 		
@@ -37,14 +39,13 @@ class xpwiki_plugin_referer extends xpwiki_plugin {
 		} else {
 			return array(
 				'msg'  => 'referer list',
-			'body' => $this->func->page_list($pages, 'referer', FALSE));
+				'body' => $this->func->page_list($pages, 'referer', FALSE));
 		}
 	}
 	
 	// Referer 明細行編集
 	function plugin_referer_body($page, $sort)
 	{
-	//	global $script, $_referer_msg;
 	
 		$data = $this->func->tb_get($this->func->tb_get_filename($page, '.ref'));
 
@@ -108,11 +109,42 @@ class xpwiki_plugin_referer extends xpwiki_plugin {
 	
 		$body = '';
 		$i = 0;
+		$total = count($data);
+		
+		$max = $this->config['ShowMax'];
+		$start = isset($this->root->get['start'])? intval($this->root->get['start']) : '0';
+		
+		$arg = array();
+		$arg[] = 'plugin=referer';
+		$arg[] = 'page=' . rawurlencode($page);
+		if (isset($this->root->vars['sort'])){ $arg[] = 'sort=' . htmlspecialchars($this->root->vars['sort']); }
+		
+		$nav = $this->func->getPageNav($total, $max, $start,  'start', join('&amp;', $arg));
+		$navi = 'Total: ' . number_format($total) . ' links ' . $nav->renderNav();
+		
+		$data = array_slice($data, $start, $max);
+		
+		/*
+		$threshold = 0;
+		krsort($this->config['Threshold']);
+		foreach ($this->config['Threshold'] as $key => $val) {
+			if ($total > $key) {
+				$threshold = $val;
+				break;
+			}
+		}
+		$info = '<div>Total: <span>'.$total.'</span> | Threshold: <span>'.$threshold.'</span></div>';
+		*/
+		
+		
 		foreach ($data as $arr) {
-			$i++;
 			// 0:最終更新日時, 1:初回登録日時, 2:参照カウンタ, 3:Referer ヘッダ, 4:利用可否フラグ(1は有効)
 			list($ltime, $stime, $count, $url, $enable) = $arr;
 	
+			//if ($count <= $threshold) continue;
+			
+			$i++;
+			
 			// 非ASCIIキャラクタ(だけ)をURLエンコードしておく BugTrack/440
 			$e_url = htmlspecialchars(preg_replace('/([" \x80-\xff]+)/e', 'rawurlencode("$1")', $url));
 			$s_url = htmlspecialchars(mb_convert_encoding(rawurldecode($url), $this->cont['SOURCE_ENCODING'], 'auto'));
@@ -149,6 +181,7 @@ class xpwiki_plugin_referer extends xpwiki_plugin {
 		return <<<EOD
 $title
 $list
+<div class="pagenav">$navi</div>
 <table style="" border="1" cellspacing="1" summary="Referer" class="referer">
  <tr class="head">
   <th style="background-color:$color_last" colspan="2">
@@ -166,6 +199,7 @@ $list
  </tr>
  $body
 </table>
+<div class="pagenav">$navi</div>
 EOD;
 	}
 	
