@@ -1,6 +1,6 @@
 <?php
 // PukiWiki - Yet another WikiWikiWeb clone.
-// $Id: default.ini.php,v 1.10 2009/02/22 01:38:03 nao-pon Exp $
+// $Id: default.ini.php,v 1.11 2009/05/02 03:47:43 nao-pon Exp $
 // Copyright (C)
 //   2003-2005 PukiWiki Developers Team
 //   2001-2002 Originally written by yu-ji
@@ -108,6 +108,13 @@ $root->show_passage = 1;
 // * ページに対するハイパーリンクからタイトルを外す
 // * Dangling linkのCSSを外す
 $root->link_compact = 0;
+
+/////////////////////////////////////////////////
+// Attributes "alt"" & "title" of <img> by plugin "ref"
+// Can set "title", "name", "size", "exif" join by ","
+// Please set "$this->cont['PLUGIN_REF_GET_EXIF'] = TRUE;" in "plugin_ref_init()" if you use "exif". 
+$root->ref_img_alt = 'title,name';
+$root->ref_img_title = 'title,name,size';
 
 /////////////////////////////////////////////////
 // フェイスマークを使用する

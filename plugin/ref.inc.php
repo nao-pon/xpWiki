@@ -1,5 +1,5 @@
 <?php
-// $Id: ref.inc.php,v 1.44 2009/04/04 04:30:40 nao-pon Exp $
+// $Id: ref.inc.php,v 1.45 2009/05/02 03:47:43 nao-pon Exp $
 /*
 
 	*プラグイン ref
@@ -31,7 +31,15 @@
 
 class xpwiki_plugin_ref extends xpwiki_plugin {
 	var $flg_lightbox_loaded = false;
-
+	
+	function xpwiki_plugin_ref(& $func) {
+		parent::xpwiki_plugin($func);
+		$this->conf['imgAlts'] = explode(',', $this->root->ref_img_alt);
+		$this->conf['imgTitles'] = explode(',', $this->root->ref_img_title);
+		$this->conf['imgAlts'] = array_map('trim', $this->conf['imgAlts']);
+		$this->conf['imgTitles'] = array_map('trim', $this->conf['imgTitles']);
+	}
+	
 	function plugin_ref_init () {
 		// File icon image
 		if (! isset($this->cont['FILE_ICON']))
@@ -368,7 +376,11 @@ class xpwiki_plugin_ref extends xpwiki_plugin {
 			'class' => ' class="img_margin"'
 		);
 		
-		// 
+		if ($lvar['type'] !== 4) {
+			// Not Flash
+			$lvar['title'] = array_merge($lvar['title'], $params['_title']); 
+		}
+		
 		if ($lvar['type'] === 1) {
 			// URL画像
 			if ($this->cont['PLUGIN_REF_URL_GET_IMAGE_SIZE'] && (bool)ini_get('allow_url_fopen')) {
@@ -385,15 +397,30 @@ class xpwiki_plugin_ref extends xpwiki_plugin {
 			$lvar['url'] = htmlspecialchars($lvar['name']);
 			$lvar['link'] = $lvar['url'];
 			$lvar['text'] = '';
-			$lvar['title'][] =  (preg_match('/([^\/]+)$/', $lvar['name'], $match))? $match[1] : '';
-			$lvar['title'] = htmlspecialchars(join(', ', $lvar['title'] + $params['_title']));
+			
+			if (in_array('title', $this->conf['imgTitles'])) {
+				$lvar['title'] = $lvar['title'];
+			} else {
+				$lvar['title'] = array();
+			}
+			if (in_array('title', $this->conf['imgAlts'])) {
+				$lvar['alt'] = $lvar['title'];
+			} else {
+				$lvar['alt'] = array();
+			}
+			
+			$_filename = (preg_match('/([^\/]+)$/', $lvar['status']['org_fname']? $lvar['status']['org_fname'] : $lvar['name'], $match))? $match[1] : '';
+			if (in_array('name', $this->conf['imgTitles'])) $lvar['title'][] = $_filename;
+			if (in_array('name', $this->conf['imgAlts'])) $lvar['alt'][] = $_filename;
+
+			$lvar['title'] = htmlspecialchars(join(', ', $lvar['title']));
 		} else if ($lvar['type'] === 2) {
 			// URL画像以外
 			$lvar['url'] = '';
 			$lvar['link'] = htmlspecialchars($lvar['name']);
 			$lvar['text'] = htmlspecialchars($lvar['name']);
 			$lvar['title'][] = (preg_match('/([^\/]+)$/', $lvar['name'], $match))? $match[1] : '';
-			$lvar['title'] = htmlspecialchars(join(', ', $lvar['title'] + $params['_title']));
+			$lvar['title'] = htmlspecialchars(join(', ', $lvar['title']));
 		} else if ($lvar['type'] === 3) {
 			// 添付画像
 			$size = $this->getimagesize($lvar['file']);
@@ -407,7 +434,21 @@ class xpwiki_plugin_ref extends xpwiki_plugin {
 			} else {
 				$lvar['link'] = '';
 			}
-			$lvar['title'][] = (preg_match('/([^\/]+)$/', $lvar['status']['org_fname']? $lvar['status']['org_fname'] : $lvar['name'], $match))? $match[1] : '';
+
+			if (in_array('title', $this->conf['imgTitles'])) {
+				$lvar['title'] = $lvar['title'];
+			} else {
+				$lvar['title'] = array();
+			}
+			if (in_array('title', $this->conf['imgAlts'])) {
+				$lvar['alt'] = $lvar['title'];
+			} else {
+				$lvar['alt'] = array();
+			}
+
+			$_filename = (preg_match('/([^\/]+)$/', $lvar['status']['org_fname']? $lvar['status']['org_fname'] : $lvar['name'], $match))? $match[1] : '';
+			if (in_array('name', $this->conf['imgTitles'])) $lvar['title'][] = $_filename;
+			if (in_array('name', $this->conf['imgAlts'])) $lvar['alt'][] = $_filename;
 			
 			if ($lvar['status']['copyright']) {
 				//著作権保護されている場合はサイズ$this->cont['PLUGIN_REF_COPYRIGHT_IMG_MAX%']%以内かつ縦横 $this->cont['PLUGIN_REF_COPYRIGHT_IMG_MAX']px 以内で表示
@@ -435,16 +476,20 @@ class xpwiki_plugin_ref extends xpwiki_plugin {
 			}
 			
 			$lvar['img'] = $img;
-			$lvar['title'][] = $img['title'];
+			if (in_array('size', $this->conf['imgTitles'])) $lvar['title'][] = $img['title'];
+			if (in_array('size', $this->conf['imgAlts'])) $lvar['alt'][] = $img['title'];
 
 			//EXIF DATA
 			if ($this->cont['PLUGIN_REF_GET_EXIF']) {
 				$exif_data = $this->func->get_exif_data($lvar['file']);
-				if ($exif_data){
-					$lvar['title'][] = $exif_data['title'];
+				if ($exif_data) {
+					$_exif = array();
+					$_exif[] = $exif_data['title'];
 					foreach($exif_data as $key => $value){
-						if ($key != "title") $lvar['title'][] = "$key: $value";
+						$_exif[] = "$key: $value";
 					}
+					if (in_array('exif', $this->conf['imgTitles'])) $lvar['title'] = array_merge($lvar['title'], $_exif);
+					if (in_array('exif', $this->conf['imgAlts'])) $lvar['alt'] = array_merge($lvar['alt'], $_exif);
 				}
 			}
 			
@@ -493,10 +538,15 @@ class xpwiki_plugin_ref extends xpwiki_plugin {
 			$lvar['url'] = str_replace($this->cont['DATA_HOME'], $this->cont['HOME_URL'], $lvar['url']);
 			if ($lvar['link']) $lvar['link'] = str_replace($this->cont['DATA_HOME'], $this->cont['HOME_URL'], $lvar['link']);
 			$lvar['text'] = '';
-			$lvar['title'] = $lvar['title'] + $params['_title'];
 			if (! empty($lvar['title'])) {
-				$lvar['title'] = htmlspecialchars(join(', ', $lvar['title']));
-				$lvar['title'] = $this->func->make_line_rules($lvar['title']);
+				$lvar['title'] = $this->func->make_line_rules(htmlspecialchars(join(', ', $lvar['title'])));
+			} else {
+				$lvar['title'] = '';
+			}
+			if (! empty($lvar['alt'])) {
+				$lvar['alt'] = $this->func->make_line_rules(htmlspecialchars(join(', ', $lvar['alt'])));
+			} else {
+				$lvar['alt'] = '';
 			}
 		} else {
 			// Flashと添付その他
@@ -507,7 +557,6 @@ class xpwiki_plugin_ref extends xpwiki_plugin {
 			$noinline = ($params['noinline'])? '&amp;ni=1' : '';
 			$lvar['link'] = $this->cont['HOME_URL'] . 'gate.php' . $filename . '?way=attach&amp;_noumb' . $noinline . '&amp;refer=' . rawurlencode($lvar['page']) .
 					'&amp;openfile=' . rawurlencode($lvar['name']); // Show its filename at the last
-			if ($lvar['type'] !== 4) $lvar['title'] = $lvar['title'] + $params['_title'];
 			if (! empty($lvar['title'])) {
 				// タイトルが指定されている
 				$lvar['text'] = htmlspecialchars(join(', ', $lvar['title']));
@@ -543,7 +592,7 @@ class xpwiki_plugin_ref extends xpwiki_plugin {
 				}
 			}
 			// 画像ファイル
-			$params['_body'] = '<img src="' . $lvar['url'] . '" alt="' . $lvar['title'] . '" title="' . $lvar['title'] . '"' . $img['class'] . $img['info'] . $_size . $align . ' />';
+			$params['_body'] = '<img src="' . $lvar['url'] . '" alt="' . $lvar['alt'] . '" title="' . $lvar['title'] . '"' . $img['class'] . $img['info'] . $_size . $align . ' />';
 			if (!$params['nolink'] && $lvar['link']) {
 				$params['_body'] = '<a href="' . $lvar['link'] . '" title="' . $lvar['title'] . '" type="img">' . $params['_body'] . '</a>';
 			}

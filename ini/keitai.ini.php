@@ -1,6 +1,6 @@
 <?php
 // PukiWiki - Yet another WikiWikiWeb clone.
-// $Id: keitai.ini.php,v 1.21 2009/03/02 01:36:08 nao-pon Exp $
+// $Id: keitai.ini.php,v 1.22 2009/05/02 03:47:54 nao-pon Exp $
 // Copyright (C)
 //   2002-2005 PukiWiki Developers Team
 //   2001-2002 Originally written by yu-ji
@@ -109,6 +109,13 @@ $root->show_passage = 0;
 // * ページに対するハイパーリンクからタイトルを外す
 // * Dangling linkのCSSを外す
 $root->link_compact = 1;
+
+/////////////////////////////////////////////////
+// Attributes "alt"" & "title" of <img> by plugin "ref"
+// Can set "title", "name", "size", "exif" join by ","
+// Please set "$this->cont['PLUGIN_REF_GET_EXIF'] = TRUE;" in "plugin_ref_init()" if you use "exif". 
+$root->ref_img_alt = '';
+$root->ref_img_title = '';
 
 /////////////////////////////////////////////////
 // フェイスマークを絵文字に変換する (※i-mode, Vodafone, EzWebなど携帯電話限定)
