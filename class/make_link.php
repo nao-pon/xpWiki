@@ -44,10 +44,10 @@ class XpWikiInlineConverter {
 				'url_interwiki', // URLs (interwiki definition)
 				'mailto_i18n',   // mailto: URL schemes
 				'interwikiname', // InterWikiNames
-				'autoalias',     // AutoAlias
+				//'autoalias',     // AutoAlias
 				'bracketname',   // BracketNames
 				'wikiname',      // WikiNames
-				'autoalias_a',   // AutoAlias(alphabet)
+				//'autoalias_a',   // AutoAlias(alphabet)
 			);
 		}
 
@@ -210,7 +210,7 @@ class XpWikiLink {
 	}
 	
 	function getATagAttr ($url) {
-		if (strpos($url, $this->cont['ROOT_URL']) === FALSE) {
+		if (! in_array($url[0], array('.', '/')) && strpos($url, $this->cont['ROOT_URL']) === FALSE) {
 			$rel = ($this->root->nofollow_extlink)? ' rel="nofollow"' : '';
 			$class = ($this->root->class_extlink)? ' class="' . $this->root->class_extlink . '"' : '';
 			$target = ($this->root->link_target)? ' target="' . $this->root->link_target . '"' : '';
