@@ -1,7 +1,7 @@
 <?php
 //
 // Created on 2006/09/29 by nao-pon http://hypweb.net/
-// $Id: xpwiki.php,v 1.94 2009/04/11 00:49:00 nao-pon Exp $
+// $Id: xpwiki.php,v 1.95 2009/05/02 02:13:27 nao-pon Exp $
 //
 
 class XpWiki {
@@ -321,8 +321,8 @@ class XpWiki {
 		}
 
 		if ($this->root->viewmode === 'print') {
-			if (empty($this->cont['TDIARY_THEME'])) {
-				$skindir = 'skin/default/';
+			if (! empty($this->cont['TDIARY_THEME'])) {
+				$skindir = 'skin/tdiary_theme/';
 			} else {
 				$skindir = 'skin/' . $this->cont['SKIN_NAME'] . '/';
 			}
