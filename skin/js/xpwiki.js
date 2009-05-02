@@ -379,11 +379,14 @@ var XpWiki = {
 	
 	addWrapButton: function (id) {
 		var txtarea = $(id);
+		
 		id = txtarea.id;
 		
-		if (typeof(txtarea.XpWiki_addWrap_done) != 'undefined') return false;
+		if (typeof(txtarea.XpWiki_addWrap_done) != 'undefined') return;
 		txtarea.XpWiki_addWrap_done = true;
 
+		if (txtarea.style.display == 'inline') return;
+		
 		var btn = document.createElement('div');
 		btn.id = id + '_WrapBtn';
 		btn.className = 'xpwikiWrapBtn';
@@ -395,7 +398,7 @@ var XpWiki = {
 		var refNode = ($(id + '_resize_base_resizeXY'))? $(id + '_resize_base_resizeXY') : $(id);
 		this.DOMNode_insertAfter(btn, refNode);
 		
-		if (txtarea.getAttribute("rel") == "wikihelper") {
+		if (txtarea.getAttribute("rel") == "wikihelper" && ! txtarea.className.match('norich')) {
 			if (id.match(/^[a-z0-9_-]+:/i)) {
 				var mydir = id.replace(/^([a-z0-9_-]+):.+$/i, "$1");
 			} else {
@@ -559,27 +562,20 @@ var XpWiki = {
 
 	initDomExtension: function (obj) {
 		var pres = new Array();
-		var pNode;
-		var inTable;
 		var tocId = 0;
 		var tocCond = this.cookieLoad('_xwtoc');
 		
-		var x = document.evaluate('//div[@class="pre"]', document.body, null, 6, null);
+		if (this.isIE6) {
+			var x = document.evaluate('//div[@class="pre notranslate" or @class="pre"]', document.body, null, 6, null);
+		} else {
+			var x = document.evaluate('//div[@class="pre notranslate" or @class="pre"][ancestor::td]', document.body, null, 6, null);
+		}
 		var n = 0;
 		for (var i = 0; i < x.snapshotLength; i++) {
 			var obj = x.snapshotItem(i);
 			var overflow = (obj.style.overflow || obj.style.overflowX);
 			if (overflow.toUpperCase() == 'AUTO') {
-				inTable = false;
-				pNode = obj.parentNode;
-				do {
-					if (pNode.nodeName.toUpperCase() == 'TD' || this.isIE6) {
-						inTable = true;
-						break;
-					}
-					pNode = pNode.parentNode;
-				} while(pNode);
-				if (inTable && obj.offsetParent) {
+				if (obj.offsetParent) {
 					obj.style.width = '500px';
 					pres.push(obj);
 				}
