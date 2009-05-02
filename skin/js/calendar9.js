@@ -138,7 +138,7 @@ function xpwiki_cal9_day_edit(id,mode,event) {
 		objBack.style.top = 0;
 		objBack.style.left = 0;
 		objBack.style.width = '100%';
-		objBack.style.height = objBody.getHeight() + 'px';
+		objBack.style.height = objBody.offsetHeight + 'px';
 		objBody.appendChild(objBack);
 	} else {
 		var objBack = $('xpwiki_cal9_popupback');
