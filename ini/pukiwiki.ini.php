@@ -1,6 +1,6 @@
 <?php
 // PukiWiki - Yet another WikiWikiWeb clone
-// $Id: pukiwiki.ini.php,v 1.94 2009/04/11 00:52:04 nao-pon Exp $
+// $Id: pukiwiki.ini.php,v 1.95 2009/05/02 03:48:23 nao-pon Exp $
 // Copyright (C)
 //   2002-2006 PukiWiki Developers Team
 //   2001-2002 Originally written by yu-ji
@@ -735,7 +735,6 @@ $const['PKWK_HTTP_REQUEST_URL_REDIRECT_MAX'] = 2;
 $const['PKWK_CIDR_NETWORK_REGEX'] = '/^(\d{1,3}\.\d{1,3}\.\d{1,3}\.\d{1,3}';
 $const['PLUGIN_TRACKBACK_VERSION'] = 'PukiWiki/TrackBack 0.3';
 $const['PKWK_PASSPHRASE_LIMIT_LENGTH'] = 512;
-$const['PKWK_CONFIG_PREFIX'] = ':config/';
 $const['PKWK_DIFF_SHOW_CONFLICT_DETAIL'] = 1;
 $const['PKWK_MAXSHOW_ALLOWANCE'] = 10;
 $const['PKWK_MAXSHOW_CACHE'] = 'recent.dat';
