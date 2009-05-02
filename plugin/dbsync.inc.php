@@ -1,7 +1,7 @@
 <?php
 //
 // Created on 2006/11/17 by nao-pon http://hypweb.net/
-// $Id: dbsync.inc.php,v 1.35 2009/03/02 01:31:22 nao-pon Exp $
+// $Id: dbsync.inc.php,v 1.36 2009/05/02 04:11:08 nao-pon Exp $
 //
 
 class xpwiki_plugin_dbsync extends xpwiki_plugin {
@@ -758,6 +758,7 @@ __EOD__;
 				$data['size'] = $obj->size;
 				$data['type'] = $obj->type;
 				$data['status'] = $obj->status;
+				$data['status']['age'] = $age;
 				
 				// ページが存在しない
 				if (! $data['pgid']) {
