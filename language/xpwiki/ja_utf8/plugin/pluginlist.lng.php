@@ -2,7 +2,7 @@
 /*
  * Created on 2008/11/10 by nao-pon http://hypweb.net/
  * License: GPL v2 or (at your option) any later version
- * $Id: pluginlist.lng.php,v 1.10 2009/04/04 04:20:00 nao-pon Exp $
+ * $Id: pluginlist.lng.php,v 1.11 2009/05/02 04:10:42 nao-pon Exp $
  */
 
 $msg = array(
@@ -84,7 +84,7 @@ $msg = array(
 	),
 	'comment' => array(
 		'title' => '一行コメント',
-		'block_usage' => '#comment([noname][,nodate][,above|,below])',
+		'block_usage' => '#comment([noname][,nodate][,above|,below][,cols:<桁数>][,multi:<行数>])',
 		'inline_usage' => ''
 	),
 	'contents' => array(
@@ -239,7 +239,7 @@ $msg = array(
 	),
 	'pcomment' => array(
 		'title' => '拡張一行コメント',
-		'block_usage' => '#pcomment([コメント記録ページ][,表示件数][,noname][,nodate][,above|,below][,reply])',
+		'block_usage' => '#pcomment([コメント記録ページ][,表示件数][,noname][,nodate][,above|,below][,reply][,cols:<桁数>][,multi:<行数>])',
 		'inline_usage' => ''
 	),
 	'popular' => array(
