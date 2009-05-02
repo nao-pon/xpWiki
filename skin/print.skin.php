@@ -3,7 +3,7 @@
 $this->root->runmode = "standalone";
 
 // PukiWiki - Yet another WikiWikiWeb clone.
-// $Id: print.skin.php,v 1.1 2009/04/11 00:53:10 nao-pon Exp $
+// $Id: print.skin.php,v 1.2 2009/05/02 03:50:44 nao-pon Exp $
 // Copyright (C)
 //   2002-2006 PukiWiki Developers Team
 //   2001-2002 Originally written by yu-ji
@@ -99,6 +99,8 @@ if (! $nolinks) {
 		$thisHost = '(This host) = ' . htmlspecialchars($this->root->siteinfo['host']);
 		//$links = '<hr /><dl><dt>Links list <sub>'.$thisHost.'</sub><dt><dd>' . join('<br />', $links) . '</dd></dl>';
 		$links = '<hr /><h2>Links list</h2><p><small>'.$thisHost.'</small></p><ol class="list1 links"><li>' . join('</li><li>', $links) . '</li></ol>';
+	} else {
+		$links = '';
 	}
 } else {
 	$switchLinksURL = $link['print'] . $nocomments_org;
@@ -225,7 +227,9 @@ EOD;
 
 <div class="printButton">
 <p><span class="button"><a href="<?php echo $backURL ?>"><?php echo $lang['topage'] ?></a></span></p>
+<?php if ($links || $nolinks) { ?>
 <p><span class="button"><a href="<?php echo $switchLinksURL ?>"><?php echo $switchLinks ?></a></span></p>
+<?php } ?>
 <?php if ($hasComments) { ?>
 <p><span class="button"><a href="<?php echo $switchCommentsURL ?>"><?php echo $switchComments ?></a></span></p>
 <?php } ?>
