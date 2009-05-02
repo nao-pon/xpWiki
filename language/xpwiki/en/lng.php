@@ -1,6 +1,6 @@
 <?php
 // PukiWiki - Yet another WikiWikiWeb clone.
-// $Id: lng.php,v 1.18 2009/04/11 00:53:10 nao-pon Exp $
+// $Id: lng.php,v 1.19 2009/05/02 03:48:55 nao-pon Exp $
 // Copyright (C)
 //   2002-2005 PukiWiki Developers Team
 //   2001-2002 Originally written by yu-ji
@@ -210,8 +210,10 @@ $root->_attach_messages = array(
 	'msg_maxsize'  => 'Maximum file size is %s.',
 	'msg_count'    => ' <span class="small">%sDL</span>',
 	'msg_password' => 'Password to this file (required)',
+	'msg_password2'=> 'Password for this file',
 	'msg_adminpass'=> 'Administrator password',
 	'msg_delete'   => 'Delete file.',
+	'msg_backup'   => 'Make backup',
 	'msg_freeze'   => 'Freeze file.',
 	'msg_unfreeze' => 'Unfreeze file.',
 	'msg_isfreeze' => 'File is frozen.',
