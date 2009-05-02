@@ -3,7 +3,7 @@ class xpwiki_plugin_memo extends xpwiki_plugin {
 	function plugin_memo_init () {
 
 
-	// $Id: memo.inc.php,v 1.5 2008/11/24 02:03:39 nao-pon Exp $
+	// $Id: memo.inc.php,v 1.6 2009/05/02 04:13:27 nao-pon Exp $
 	//
 	// Memo box plugin
 	
@@ -55,7 +55,7 @@ class xpwiki_plugin_memo extends xpwiki_plugin {
  <div>
   <input type="hidden" name="refer"  value="$s_refer" />
   <input type="hidden" name="digest" value="$s_digest" />
-  <textarea name="msg" rows="{$this->root->rows}" cols="{$this->root->cols}" id="textarea">$s_postdata_input</textarea><br />
+  <textarea name="msg" class="norich" rows="{$this->root->rows}" cols="{$this->root->cols}" id="textarea">$s_postdata_input</textarea><br />
  </div>
 </form>
 EOD;
@@ -108,7 +108,7 @@ EOD;
   <input type="hidden" name="refer"   value="$s_page" />
   <input type="hidden" name="plugin"  value="memo" />
   <input type="hidden" name="digest"  value="$s_digest" />
-  <textarea name="msg" rows="$s_rows" cols="$s_cols">$data</textarea>
+  <textarea name="msg" class="norich" rows="$s_rows" cols="$s_cols">$data</textarea>
   <div>$_submit</div>
  </div>
 </form>
