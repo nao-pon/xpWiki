@@ -1,7 +1,7 @@
 <?php
 //
 // Created on 2006/10/13 by nao-pon http://hypweb.net/
-// $Id: init.php,v 1.65 2009/04/11 00:51:30 nao-pon Exp $
+// $Id: init.php,v 1.66 2009/05/02 02:16:37 nao-pon Exp $
 //
 
 $root = & $this->root;
@@ -44,6 +44,9 @@ if (substr($const['SKIN_NAME'],0,3) === "tD-") {
 	// Normal skin
 	$const['SKIN_DIR'] = 'skin/' . $const['SKIN_NAME'] . '/';
 }
+
+// Compat
+$root->anonymous = $root->_no_name = $root->siteinfo['anonymous'];
 
 // アクセスユーザーの情報読み込み
 $this->set_userinfo();
