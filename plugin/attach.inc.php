@@ -2,7 +2,7 @@
 /////////////////////////////////////////////////
 // PukiWiki - Yet another WikiWikiWeb clone.
 //
-//  $Id: attach.inc.php,v 1.50 2009/04/04 04:30:40 nao-pon Exp $
+//  $Id: attach.inc.php,v 1.51 2009/05/02 03:58:07 nao-pon Exp $
 //  ORG: attach.inc.php,v 1.31 2003/07/27 14:15:29 arino Exp $
 //
 /*
@@ -42,7 +42,7 @@ class xpwiki_plugin_attach extends xpwiki_plugin {
 		// ゲストユーザーのアップロード/削除時にパスワードを要求する
 		// (ADMIN_ONLYが優先 TRUE を強く奨励)
 		$this->cont['ATTACH_PASSWORD_REQUIRE'] = TRUE; // FALSE or TRUE
-
+		
 		// 添付ファイル名を変更できるようにする
 		$this->cont['PLUGIN_ATTACH_RENAME_ENABLE'] =  TRUE; // FALSE or TRUE
 
@@ -381,9 +381,9 @@ class xpwiki_plugin_attach extends xpwiki_plugin {
 					}
 					else
 					{
-						// 外部ファイルの参照を禁止するための書き換え
+						// 外部ファイルの参照を禁止するなどの書き換え
 						$_data = file_get_contents($_pagecss_file);
-						$_data = preg_replace("#(ht|f)tps?://#","",$_data);
+						$_data = preg_replace('#(?:(ht|f)tps?://|boudary)#i', '',$_data);
 						if ($fp = fopen($_pagecss_file,"wb"))
 						{
 							fputs($fp,$_data);
@@ -403,12 +403,21 @@ class xpwiki_plugin_attach extends xpwiki_plugin {
 		$allow_extensions = $this->get_allow_extensions();
 		if (empty($options['asSystem']) && !$overwrite && $allow_extensions && !$this->func->is_owner($page)
 			 && !preg_match("/\.(".join("|",$allow_extensions).")$/i",$fname)) {
-			return array('result'=>FALSE,'msg'=>str_replace('$1',preg_replace('/.*\.([^.]*)$/',"$1",$fname),$this->root->_attach_messages['err_extension']));
+			return array('result'=>FALSE,'msg'=>str_replace('$1',htmlspecialchars(preg_replace('/.*\.([^.]*)$/',"$1",$fname)),$this->root->_attach_messages['err_extension']));
 		}
 		
+		$_size = @ getimagesize($tmpname);
+		
+		// イメージファイルの内容をチェック
+		if ($_size) {
+			$checkStr = file_get_contents($tmpname, FILE_BINARY, NULL, 0, 10240);
+			if (preg_match('/<(?:script|\?php)/i', $checkStr)) {
+				return array('result' => FALSE, 'msg' => 'It isn\'t a image file.');
+			}
+		}
+
 		// Flashファイルの検査
 		if ($this->cont['ATTACH_UPLOAD_FLASH_ADMIN_ONLY']) {
-			$_size = @getimagesize($tmpname);
 			if (!$this->root->userinfo['admin'] && ($_size[2] === 4 || $_size[2] === 13)) {
 				return array('result'=>FALSE,'msg'=>$this->root->_attach_messages['err_isflash']);
 			}
@@ -492,6 +501,7 @@ class xpwiki_plugin_attach extends xpwiki_plugin {
 		}
 		
 		$obj->getstatus();
+		$obj->status['age'] = 0;
 		$obj->status['pass'] = ($pass !== TRUE and $pass !== NULL) ? $pass : '';
 		$obj->status['copyright'] = $copyright;
 		$obj->status['owner'] = $_uid;
@@ -654,7 +664,7 @@ class xpwiki_plugin_attach extends xpwiki_plugin {
 		$obj = & new XpWikiAttachFile($this->xpwiki, $refer, $file, $age);
 		if (! $obj->getstatus())
 			return array('msg'=>$this->root->_attach_messages['err_notfound']);
-	
+		
 		return $obj->rename($pass, $newname);
 	
 	}
