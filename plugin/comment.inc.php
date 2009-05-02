@@ -1,39 +1,45 @@
 <?php
+// PukiWiki - Yet another WikiWikiWeb clone
+// $Id: comment.inc.php,v 1.9 2009/05/02 04:10:42 nao-pon Exp $
+// Copyright (C)
+//   2002-2005 PukiWiki Developers Team
+//   2001-2002 Originally written by yu-ji
+// License: GPL v2 or (at your option) any later version
+
 class xpwiki_plugin_comment extends xpwiki_plugin {
 	function plugin_comment_init () {
 
 
-	// PukiWiki - Yet another WikiWikiWeb clone
-	// $Id: comment.inc.php,v 1.8 2008/11/18 04:10:40 nao-pon Exp $
-	// Copyright (C)
-	//   2002-2005 PukiWiki Developers Team
-	//   2001-2002 Originally written by yu-ji
-	// License: GPL v2 or (at your option) any later version
-	//
-	// Comment plugin
+		// Comment plugin
 	
 		$this->cont['PLUGIN_COMMENT_DIRECTION_DEFAULT'] =  '1'; // 1: above 0: below
 		$this->cont['PLUGIN_COMMENT_SIZE_MSG'] =   70;
 		$this->cont['PLUGIN_COMMENT_SIZE_NAME'] =  15;
 	
-	// ----
+		// ----
 		$this->cont['PLUGIN_COMMENT_FORMAT_MSG'] =   '$msg';
 		$this->cont['PLUGIN_COMMENT_FORMAT_NAME'] =  '[[$name]]';
 		$this->cont['PLUGIN_COMMENT_FORMAT_NOW'] =   '&new{$now};';
 		$this->cont['PLUGIN_COMMENT_FORMAT_STRING'] =  "\x08MSG\x08 -- \x08NAME\x08 \x08NOW\x08";
-
+		
+		$this->options = array(
+			'auth'   => FALSE,
+			'noname' => FALSE,
+			'nodate' => FALSE,
+			'above'  => FALSE,
+			'below'  => FALSE,
+			'cols'   => $this->cont['PLUGIN_COMMENT_SIZE_MSG'],
+			'multi'  => FALSE
+		);
 	}
 	
 	function plugin_comment_action()
 	{
-	//	global $script, $vars, $now, $_title_updated, $_no_name;
-	//	global $_msg_comment_collided, $_title_comment_collided;
-	
 		if ($this->cont['PKWK_READONLY']) $this->func->die_message('PKWK_READONLY prohibits editing');
 	
 		if (! isset($this->root->vars['msg'])) return array('msg'=>'', 'body'=>''); // Do nothing
 	
-		$this->root->vars['msg'] = str_replace("\n", '', $this->root->vars['msg']); // Cut LFs
+		$this->root->vars['msg'] = str_replace(array("\r\n", "\r", "\n"), '&br;', rtrim($this->root->vars['msg'])); // LFs
 		$head = '';
 		$match = array();
 		if (preg_match('/^(-{1,2})-*\s*(.*)/', $this->root->vars['msg'], $match)) {
@@ -97,13 +103,8 @@ class xpwiki_plugin_comment extends xpwiki_plugin {
 	
 	function plugin_comment_convert()
 	{
-	//	global $vars, $digest, $_btn_comment, $_btn_name, $_msg_comment;
-	//	static $numbers = array();
 		static $numbers = array();
 		if (!isset($numbers[$this->xpwiki->pid])) {$numbers[$this->xpwiki->pid] = array();}
-	//	static $comment_cols = PLUGIN_COMMENT_SIZE_MSG;
-		static $comment_cols = array();
-		if (!isset($comment_cols[$this->xpwiki->pid])) {$comment_cols[$this->xpwiki->pid] = $this->cont['PLUGIN_COMMENT_SIZE_MSG'];}
 	
 		if ($this->cont['PKWK_READONLY']) return ''; // Show nothing
 	
@@ -112,8 +113,15 @@ class xpwiki_plugin_comment extends xpwiki_plugin {
 		
 		$domid = $this->get_domid('msg', true);
 			
-		$options = func_num_args() ? func_get_args() : array();
-		if (in_array('noname', $options)) {
+		$args = func_num_args() ? func_get_args() : array();
+		
+		$options = $this->options;
+		$this->fetch_options ($options, $args);
+		if ($options['auth'] && ! $this->func->check_editable($this->root->vars['page'], FALSE, FALSE)) {
+			return '';
+		}
+		
+		if ($options['noname']) {
 			$nametags = '<label for="'. $domid . '">' .
 			$this->root->_msg_comment . '</label>';
 		} else {
@@ -123,10 +131,16 @@ class xpwiki_plugin_comment extends xpwiki_plugin {
 			$comment_no .  '" size="' . $this->cont['PLUGIN_COMMENT_SIZE_NAME'] .
 			'" />' . "\n";
 		}
-		$nodate = in_array('nodate', $options) ? '1' : '0';
-		$above  = in_array('above',  $options) ? '1' :
-			(in_array('below', $options) ? '0' : $this->cont['PLUGIN_COMMENT_DIRECTION_DEFAULT']);
-	
+		$nodate = $options['nodate'] ? '1' : '0';
+		$above  = $options['above']? '1' :
+			($options['below']? '0' : $this->cont['PLUGIN_COMMENT_DIRECTION_DEFAULT']);
+		$cols = max(10, min(80, intval($options['cols'])));
+		
+		if ($options['multi']) $rows = max(1, min(20, intval($options['multi'])));
+		$tArea = $options['multi']? 
+			'<textarea name="msg" id="'.$domid.'" class="norich" style="display:inline;" cols="'.($cols * 0.8).'" rows="'.$rows.'"></textarea>'
+			: '<input type="text"   name="msg" rel="wikihelper" id="'.$domid.'" size="'.$cols.'" />';
+		
 		$script = $this->func->get_script_uri();
 		$s_page = htmlspecialchars($this->root->vars['page']);
 		$string = <<<EOD
@@ -140,7 +154,7 @@ class xpwiki_plugin_comment extends xpwiki_plugin {
   <input type="hidden" name="above"  value="$above" />
   <input type="hidden" name="digest" value="{$this->root->digest}" />
   $nametags
-  <input type="text"   name="msg" rel="wikihelper" id="{$domid}" size="{$comment_cols[$this->xpwiki->pid]}" />
+  $tArea
   <input type="submit" name="comment" value="{$this->root->_btn_comment}" />
  </div>
 </form>

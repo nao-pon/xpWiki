@@ -1,6 +1,6 @@
 <?php
 // PukiWiki - Yet another WikiWikiWeb clone
-// $Id: pcomment.inc.php,v 1.18 2009/02/22 02:01:56 nao-pon Exp $
+// $Id: pcomment.inc.php,v 1.19 2009/05/02 04:10:42 nao-pon Exp $
 //
 // pcomment plugin - Show/Insert comments into specified (another) page
 //
@@ -76,6 +76,7 @@ EOD;
 	
 		if ($this->cont['PKWK_READONLY']) $this->func->die_message('PKWK_READONLY prohibits editing');
 	
+		$this->root->vars['msg'] = str_replace(array("\r\n", "\r", "\n"), '&br;', rtrim($this->root->vars['msg'])); // LFs
 		if (! isset($this->root->vars['msg']) || $this->root->vars['msg'] == '') return array();
 		$refer = isset($this->root->vars['refer']) ? $this->root->vars['refer'] : '';
 	
@@ -109,6 +110,8 @@ EOD;
 			'above' =>FALSE,
 			'reply' =>FALSE,
 			'template' => $this->conf['TEMPLATE_DEFAULT'],
+			'cols'   => $this->conf['SIZE_MSG'],
+			'multi' =>FALSE,
 			'_args' =>array()
 		);
 	
@@ -155,8 +158,12 @@ EOD;
 	
 			$radio   = $params['reply'] ?
 				'<input type="radio" name="reply" value="0" tabindex="0" checked="checked" />' : '';
-
-			$comment = '<input type="text" name="msg" id="' . $this->get_domid('msg', true) . '" rel="wikihelper" size="' . $this->conf['SIZE_MSG'] . '" />';
+			
+			$cols = max(10, min(80, intval($params['cols'])));
+			
+			if ($params['multi']) $rows = max(1, min(20, intval($params['multi'])));
+			$comment = $params['multi']? '<textarea name="msg" id="' . $this->get_domid('msg', true) . '" class="norich" style="display:inline;" cols="' . ($cols * 0.8) . '" rows="' . $rows . '"></textarea>'
+					: '<input type="text" name="msg" id="' . $this->get_domid('msg', true) . '" rel="wikihelper" size="' . $cols . '" />';
 	
 			$s_page   = htmlspecialchars($_page);
 			if ($this->root->render_mode !== 'render') {
