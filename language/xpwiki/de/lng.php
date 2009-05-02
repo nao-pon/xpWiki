@@ -1,6 +1,6 @@
 <?php
 // PukiWiki - Yet another WikiWikiWeb clone.
-// $Id: lng.php,v 1.14 2009/04/11 00:53:11 nao-pon Exp $
+// $Id: lng.php,v 1.15 2009/05/02 03:48:55 nao-pon Exp $
 // Copyright (C)
 //   2002-2005 PukiWiki Developers Team
 //   2001-2002 Originally written by yu-ji
@@ -214,8 +214,10 @@ $root->_attach_messages = array(
 	'msg_maxsize'  => 'Maximale Dateigröße %s.',
 	'msg_count'    => ' <span class="small">%sDL</span>',
 	'msg_password' => 'Paßwort zu dieser Akte (verlangen)',
+	'msg_password2'=> 'Paßwort für diese Akte',
 	'msg_adminpass'=> 'Administrator Passwort',
 	'msg_delete'   => 'Datei löschen.',
+	'msg_backup'   => 'Unterstützen',
 	'msg_freeze'   => 'Datei sperren.',
 	'msg_unfreeze' => 'Datei entsperren.',
 	'msg_isfreeze' => 'Datei ist gesperrt.',
