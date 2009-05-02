@@ -1,6 +1,6 @@
 <?php
 // PukiWiki - Yet another WikiWikiWeb clone.
-// $Id: edit.inc.php,v 1.67 2009/03/14 08:57:45 nao-pon Exp $
+// $Id: edit.inc.php,v 1.68 2009/05/02 04:12:27 nao-pon Exp $
 // Copyright (C) 2001-2006 PukiWiki Developers Team
 // License: GPL v2 or (at your option) any later version
 //
@@ -29,7 +29,7 @@ class xpwiki_plugin_edit extends xpwiki_plugin {
 		}
 		
 		$this->func->check_editable($page, true, true);
-		
+
 		if (isset($this->root->vars['write'])) {
 			if ($this->func->check_riddle()) {
 				return $this->plugin_edit_write();
@@ -308,6 +308,16 @@ EOD;
 	// Write, add, or insert new comment
 	function plugin_edit_write()
 	{
+		$_uname = (empty($this->root->vars['uname']) || !empty($this->root->vars['anonymous']))? $this->root->siteinfo['anonymous'] : $this->root->vars['uname'];
+		if ($_uname) { 
+			if (! empty($this->root->vars['anonymous'])) {
+				$this->root->cookie['name'] = $_uname;
+			} else {
+				// save name to cookie
+				$this->func->save_name2cookie($_uname);
+			}
+		}
+		
 		$page   = isset($this->root->vars['page'])   ? $this->root->vars['page']   : '';
 		$add    = isset($this->root->vars['add'])    ? $this->root->vars['add']    : '';
 		$digest = isset($this->root->vars['digest']) ? $this->root->vars['digest'] : '';
@@ -439,6 +449,7 @@ EOD;
 			} else {
 				$obj = new XpWiki($this->root->mydirname);
 				$obj->init($page);
+				$obj->root->userinfo['uname_s'] = htmlspecialchars($this->root->cookie['name']);
 				$obj->execute();
 				if (isset($obj->root->rtf['useJavascriptInHead'])) {
 					$body = '<script src="" />';
