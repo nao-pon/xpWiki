@@ -2,7 +2,7 @@
 /*
  * Created on 2008/10/23 by nao-pon http://hypweb.net/
  * License: GPL v2 or (at your option) any later version
- * $Id: x2w.php,v 1.16 2009/04/04 02:58:16 nao-pon Exp $
+ * $Id: x2w.php,v 1.17 2009/05/25 04:16:12 nao-pon Exp $
  */
 
 //
@@ -780,6 +780,7 @@ class XHTML2Wiki
 		$line = preg_replace("/<a\sname=\"(.*?)\"><\/a>/", "&aname($1);", $line);
 		$line = preg_replace("/<a\sname=\"(.*?)\">(.*?)<\/a>/", "&aname($1){" . "$2" . "};", $line);
 		// 顔文字
+		$line = preg_replace("/^(<img\s.*?alt=\"\[?.*?\]?\".*?>)/", '&amp;nbsp;$1', $line);
 		$line = preg_replace("/\s?<img\s.*?alt=\"(\[)?(.*?)(\])?\".*?>/e", '"$1" ? "&$2;" : " $2"', $line);
 		// 太字
 		$line = preg_replace("/<\/?strong>/", "''", $line);
