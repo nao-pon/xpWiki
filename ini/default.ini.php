@@ -1,6 +1,6 @@
 <?php
 // PukiWiki - Yet another WikiWikiWeb clone.
-// $Id: default.ini.php,v 1.11 2009/05/02 03:47:43 nao-pon Exp $
+// $Id: default.ini.php,v 1.12 2009/05/25 04:36:07 nao-pon Exp $
 // Copyright (C)
 //   2003-2005 PukiWiki Developers Team
 //   2001-2002 Originally written by yu-ji
@@ -135,7 +135,7 @@ $root->show_menu_bar = 0;
 $root->hierarchy_insert = '&#8203;';
 
 // Long word break limit
-$root->word_break_limit = 40;
+$root->word_break_limit = 0;
 
 // WordBeark ('&#8203;' or '<wbr>' or '' etc.)
 $root->word_breaker = '&#8203;';
