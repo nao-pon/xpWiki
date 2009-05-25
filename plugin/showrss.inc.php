@@ -1,6 +1,6 @@
 <?php
 // PukiWiki - Yet another WikiWikiWeb clone
-// $Id: showrss.inc.php,v 1.12 2009/05/25 07:30:49 nao-pon Exp $
+// $Id: showrss.inc.php,v 1.13 2009/05/25 08:55:00 nao-pon Exp $
 //  Id:showrss.inc.php,v 1.40 2003/03/18 11:52:58 hiro Exp
 // Copyright (C):
 //     2002-2006 PukiWiki Developers Team
@@ -81,7 +81,7 @@ class xpwiki_plugin_showrss extends xpwiki_plugin {
 			$this->func->get_date('Y/m/d H:i:s', $time) . '</p>';
 		}
 	
-		$data = array($uri, $rss, $this->conf);
+		$data = array($uri, $rss, $this->conf, $this->func->is_editable_only_admin($this->root->vars['page']));
 		$obj = new $class($this->xpwiki, $data, $show_description, $max, $uri);
 		return $obj->toString($time_str);
 	}
@@ -181,19 +181,22 @@ class XpWikiShowRSS_html
 		$this->func   =& $xpwiki->func;
 		
 		$count = 1;
-		list($url, $rss, $conf) = $data;
+		list($url, $rss, $conf, $is_editable_admin_only) = $data;
 		
 		$allow_html = FALSE;
 		
-		if ($show_description === 'html' && $conf['allow_html_urls']) {
-			foreach($conf['allow_html_urls'] as $_url) {
-				if (strpos($url, $_url) === 0) {
-					$allow_html = TRUE;
-					break;
+		if ($is_editable_admin_only) {
+			$allow_html = TRUE;
+		} else {
+			if ($show_description === 'html' && $conf['allow_html_urls']) {
+				foreach($conf['allow_html_urls'] as $_url) {
+					if (strpos($url, $_url) === 0) {
+						$allow_html = TRUE;
+						break;
+					}
 				}
 			}
 		}
-		
 
 		if ($rss && is_array($rss)) {
 			foreach ($rss as $date=>$items) {
