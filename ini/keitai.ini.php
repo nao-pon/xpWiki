@@ -1,6 +1,6 @@
 <?php
 // PukiWiki - Yet another WikiWikiWeb clone.
-// $Id: keitai.ini.php,v 1.22 2009/05/02 03:47:54 nao-pon Exp $
+// $Id: keitai.ini.php,v 1.23 2009/05/25 04:37:29 nao-pon Exp $
 // Copyright (C)
 //   2002-2005 PukiWiki Developers Team
 //   2001-2002 Originally written by yu-ji
@@ -273,55 +273,55 @@ switch ($root->ua_name) {
 
 	$root->facemark_rules = array(
 	// Face marks
-	'\s(\:\))'	=>	'&#63893;',	// smile
-	'\s(\:D)'	=>	'&#63893;',	// bigsmile
+	'\s(\:\))'	=>	'&#xE6F0;',	// smile
+	'\s(\:D)'	=>	'&#xE6F0;',	// bigsmile
 	'\s(\:p)'	=>	'&#xE728;',	// huh
 	'\s(\:d)'	=>	'&#xE728;',	// huh
-	'\s(XD)'	=>	'&#63895;',	// oh
-	'\s(X\()'	=>	'&#63895;',	// oh
+	'\s(XD)'	=>	'&#xE6F2;',	// oh
+	'\s(X\()'	=>	'&#xE6F2;',	// oh
 	'\s(;\))'	=>	'&#xE729;',	// wink
-	'\s(;\()'	=>	'&#63894;',	// sad
-	'\s(\:\()'	=>	'&#63894;',	// sad
-	'&amp;(smile);'	=>	'&#63893;',
-	'&amp;(bigsmile);'=>	'&#63893;',
+	'\s(;\()'	=>	'&#xE6F1;',	// sad
+	'\s(\:\()'	=>	'&#xE6F1;',	// sad
+	'&amp;(smile);'	=>	'&#xE6F0;',
+	'&amp;(bigsmile);'=>	'&#xE6F0;',
 	'&amp;(huh);'	=>	'&#xE728;',
-	'&amp;(oh);'	=>	'&#63895;',
+	'&amp;(oh);'	=>	'&#xE6F25;',
 	'&amp;(wink);'	=>	'&#xE729;',
-	'&amp;(sad);'	=>	'&#63894;',
-	'&amp;(heart);'	=>	'&#63889;',
+	'&amp;(sad);'	=>	'&#xE6F3;',
+	'&amp;(heart);'	=>	'&#xE6EC;',
 	'&amp;(worried);'=>	'&#xE722;',
 
 	// Face marks, Japanese style
-	'\s(\(\^\^\))'	=>	'&#63893;',	// smile
-	'\s(\(\^-\^)'	=>	'&#63893;',	// smile
-	'\s(\(\.\.;)'	=>	'&#63895;',	// oh
+	'\s(\(\^\^\))'	=>	'&#xE6F0;',	// smile
+	'\s(\(\^-\^)'	=>	'&#xE6F0;',	// smile
+	'\s(\(\.\.;)'	=>	'&#xE6F2;',	// oh
 	'\s(\(\^_-\))'	=>	'&#xE729;',	// wink
-	'\s(\(--;)'	=>	'&#63894;',	// sad
+	'\s(\(--;)'		=>	'&#xE6F2;',	// sad
 	'\s(\(\^\^;\))'	=>	'&#xE722;',	// worried
 	'\s(\(\^\^;)'	=>	'&#xE722;',	// worried
 
 	// Push buttons, 0-9 and sharp
-	'&amp;(pb1);'	=>	'&#63879;',
-	'&amp;(pb2);'	=>	'&#63880;',
-	'&amp;(pb3);'	=>	'&#63881;',
-	'&amp;(pb4);'	=>	'&#63882;',
-	'&amp;(pb5);'	=>	'&#63883;',
-	'&amp;(pb6);'	=>	'&#63884;',
-	'&amp;(pb7);'	=>	'&#63885;',
-	'&amp;(pb8);'	=>	'&#63886;',
-	'&amp;(pb9);'	=>	'&#63887;',
-	'&amp;(pb0);'	=>	'&#63888;',
-	'&amp;(pb#);'	=>	'&#63877;',
+	'&amp;(pb1);'	=>	'&#xE6E2;',
+	'&amp;(pb2);'	=>	'&#xE6E3;',
+	'&amp;(pb3);'	=>	'&#xE6E4;',
+	'&amp;(pb4);'	=>	'&#xE6E5;',
+	'&amp;(pb5);'	=>	'&#xE6E6;',
+	'&amp;(pb6);'	=>	'&#xE6E7;',
+	'&amp;(pb7);'	=>	'&#xE6E8;',
+	'&amp;(pb8);'	=>	'&#xE6E9;',
+	'&amp;(pb9);'	=>	'&#xE6EA;',
+	'&amp;(pb0);'	=>	'&#xE6EB;',
+	'&amp;(pb#);'	=>	'&#xE6E0;',
 
 	// Others
-	'&amp;(zzz);'	=>	'&#63910;',
-	'&amp;(man);'	=>	'&#63829;',
-	'&amp;(clock);'	=>	'&#63838;',
-	'&amp;(mail);'	=>	'&#63863;',
-	'&amp;(mailto);'=>	'&#63859;',
-	'&amp;(phone);'	=>	'&#63720;',
-	'&amp;(phoneto);'=>	'&#63858;',
-	'&amp;(faxto);'	=>	'&#63860;',
+	'&amp;(zzz);'	=>	'&#xE701;',
+	'&amp;(man);'	=>	'&#xE6B1;',
+	'&amp;(clock);'	=>	'&#xE6BA;',
+	'&amp;(mail);'	=>	'&#xE6D3;',
+	'&amp;(mailto);'=>	'&#xE6CF;',
+	'&amp;(phone);'	=>	'&#xE687;',
+	'&amp;(phoneto);'=>	'&#xE6CE;',
+	'&amp;(faxto);'	=>	'&#xE6D0;',
 	);
 	break;
 
