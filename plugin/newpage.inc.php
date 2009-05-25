@@ -1,5 +1,5 @@
 <?php
-// $Id: newpage.inc.php,v 1.9 2009/05/02 04:14:37 nao-pon Exp $
+// $Id: newpage.inc.php,v 1.10 2009/05/25 04:46:56 nao-pon Exp $
 //
 // Newpage plugin
 
@@ -69,16 +69,20 @@ EOD;
 	
 	function get_base_form($base, $id) {
 		$base = rtrim($base, '/');
-		$options = array(
-			'order' => ' ORDER BY `editedtime` DESC ',
-			'limit' => $this->conf['listmax']
-		);
-		$pages = $this->func->get_existpages(FALSE, $base . '/', $options);
-		natcasesort($pages);
+		if ($this->conf['listmax'] > 1) {
+			$options = array(
+				'order' => ' ORDER BY `editedtime` DESC ',
+				'limit' => $this->conf['listmax'] - 1
+			);
+			$pages = $this->func->get_existpages(FALSE, $base . '/', $options);
+			natcasesort($pages);
+		} else {
+			$pages = array();
+		}
 		
 		$form = array();
 		$base = htmlspecialchars($base) . '/';
-		if (count($pages) < 2) {
+		if (count($pages) < 1) {
 			$form[] = '<input type="hidden" name="base" value="' . $base . '" />';
 			$form[] = '<label for="_p_newpage_'.$id.'">'.$base.'</label>';
 		} else {
