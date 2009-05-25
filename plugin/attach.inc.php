@@ -2,7 +2,7 @@
 /////////////////////////////////////////////////
 // PukiWiki - Yet another WikiWikiWeb clone.
 //
-//  $Id: attach.inc.php,v 1.51 2009/05/02 03:58:07 nao-pon Exp $
+//  $Id: attach.inc.php,v 1.52 2009/05/25 04:28:45 nao-pon Exp $
 //  ORG: attach.inc.php,v 1.31 2003/07/27 14:15:29 arino Exp $
 //
 /*
@@ -33,6 +33,10 @@ class xpwiki_plugin_attach extends xpwiki_plugin {
 		// ATTACH_UPLOAD_EDITER_ONLY = FALSE のときに使用
 		$this->cont['ATTACH_UPLOAD_EXTENSION'] = 'jpg, jpeg, gif, png, txt, spch';
 
+		// ファイルの所有者チェックを行わない
+		// チェックを行わないとアクセスできるすべての人がファイルを削除したりできます。
+		$this->cont['ATTACH_DISABLED_OWNER_CHECK'] = FALSE; // FALSE or TRUE
+		
 		// 管理者とページ作成者だけが添付ファイルを削除できるようにする
 		$this->cont['ATTACH_DELETE_ADMIN_ONLY'] = FALSE; // FALSE or TRUE
 	

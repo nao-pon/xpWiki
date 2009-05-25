@@ -1,7 +1,7 @@
 <?php
 /*
  * Created on 2008/03/24 by nao-pon http://hypweb.net/
- * $Id: attach.php,v 1.20 2009/05/02 02:18:24 nao-pon Exp $
+ * $Id: attach.php,v 1.21 2009/05/25 04:28:45 nao-pon Exp $
  */
 
 //-------- クラス
@@ -720,6 +720,7 @@ EOD;
 	
 	// 管理者、ページ作成者またはファイル所有者か？
 	function is_owner($real = FALSE) {
+		if (! $real && $this->cont['ATTACH_DISABLED_OWNER_CHECK']) return TRUE;
 		if ($this->func->is_owner($this->page)) return TRUE;
 		if ($this->age) return FALSE;
 		if ($this->owner_id) {
@@ -1034,7 +1035,7 @@ EOD;
 		}
 		
 		$showall = ($fromall && $this->max < $this->count)? " [ <a href=\"{$this->root->script}?plugin=attach&amp;pcmd={$pcmd}&amp;refer=".rawurlencode($this->page)."\">Show All</a> ]" : "";
-		$allpages = ($this->is_popup || $fromall)? "" : " [ <a href=\"{$this->root->script}?plugin=attach&amp;pcmd={$pcmd}\" />All Pages</a> ]";
+		$allpages = ($this->is_popup || $fromall)? "" : " [ <a href=\"{$this->root->script}?plugin=attach&amp;pcmd={$pcmd}\">All Pages</a> ]";
 		$body = $this->is_popup? $ret : "<div class=\"filelist_page\">".$this->func->make_pagelink($this->page)."<small> (".$this->count." file".(($this->count===1)?"":"s").")".$showall.$allpages."</small></div>\n$ret";
 		
 		return $select_js.$otherDir.$select.$form.$navi.($navi? "<hr />":"").$body.($navi? "<hr />":"")."$navi\n";
