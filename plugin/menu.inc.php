@@ -2,7 +2,7 @@
 /////////////////////////////////////////////////
 // PukiWiki - Yet another WikiWikiWeb clone.
 //
-// $Id: menu.inc.php,v 1.11 2009/01/04 11:45:14 nao-pon Exp $
+// $Id: menu.inc.php,v 1.12 2009/05/25 04:45:39 nao-pon Exp $
 //
 
 class xpwiki_plugin_menu extends xpwiki_plugin {
@@ -21,7 +21,8 @@ class xpwiki_plugin_menu extends xpwiki_plugin {
 		$links = array(
 			'upload'   => '?plugin=attach&amp;pcmd=upload',
 			'attaches' => '?plugin=attach&amp;pcmd=list',
-			'diff'     => '?cmd=backup&amp;action=diff',
+			'back'     => '?cmd=backup&amp;action=diff',
+			'refer'    => '?plugin=referer',
 		);
 		$docmd = (isset($links[$cmd]))? $links[$cmd] : '?cmd=' . $cmd;
 		return '<a href="' . $this->cont['HOME_URL'] . $docmd . '&amp;page=' . rawurlencode($page) . '">' . $this->root->_LANG['skin'][$cmd] . '</a>';
@@ -57,11 +58,7 @@ class xpwiki_plugin_menu extends xpwiki_plugin {
 				$page_menus[] = $this->make_pgmenu('pginfo', $_page);
 			}
 			
-			$page_menus[] = $this->make_pgmenu('diff', $_page);
-			
-			if ($this->root->do_backup) {
-				$page_menus[] = $this->make_pgmenu('backup', $_page);
-			}
+			$page_menus[] = $this->make_pgmenu('back', $_page);
 			
 			if ($can_attach) {
 				$page_menus[] = $this->make_pgmenu('upload', $_page);
@@ -70,7 +67,8 @@ class xpwiki_plugin_menu extends xpwiki_plugin {
 			if ($use_attach) {
 				$page_menus[] = $this->make_pgmenu('attaches', $_page);
 			}
-
+			
+			$page_menus[] = $this->make_pgmenu('refer', $_page);
 		}
 		$page_menu = ($page_menus) ? '<h2>Page Menu</h2><div>[ ' . $this->func->make_pagelink($_page) . ' ]</div><ul><li>' . join('</li><li>', $page_menus)  . '</li></ul><hr />': '';
 		
