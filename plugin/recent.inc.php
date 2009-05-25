@@ -1,5 +1,5 @@
 <?php
-// $Id: recent.inc.php,v 1.16 2009/03/13 08:18:49 nao-pon Exp $
+// $Id: recent.inc.php,v 1.17 2009/05/25 04:51:18 nao-pon Exp $
 // Copyright (C)
 //   2002-2006 PukiWiki Developers Team
 //   2002      Y.MASUI http://masui.net/pukiwiki/ masui@masui.net
@@ -42,7 +42,8 @@ class xpwiki_plugin_recent extends xpwiki_plugin {
 			$args = func_get_args();
 			$recent_lines = (int)$args[0];
 			$prefix = $args[0];
-			$prefix = preg_replace("/\/$/","",$prefix);
+			$nochild = (substr($prefix, -1) === '/');
+			$prefix = rtrim($prefix, '/');
 			if ($this->func->is_page($prefix) || ! $prefix)
 			{
 				if (isset($args[1]) && is_numeric($args[1]))
@@ -82,7 +83,7 @@ class xpwiki_plugin_recent extends xpwiki_plugin {
 	
 		// Get latest N changes
 		$nolisting = (!$_prefix || $_prefix[0] !== ':');
-		$lines = $this->func->get_existpages(FALSE, $_prefix, array('limit' =>$recent_lines, 'order' => ' ORDER BY editedtime DESC', 'nolisting' => $nolisting, 'withtime' =>TRUE));
+		$lines = $this->func->get_existpages(FALSE, $_prefix, array('limit' =>$recent_lines, 'order' => ' ORDER BY editedtime DESC', 'nolisting' => $nolisting, 'withtime' =>TRUE, 'nochild' => $nochild));
 		
 		$date = $items = '';
 		foreach ($lines as $line) {
