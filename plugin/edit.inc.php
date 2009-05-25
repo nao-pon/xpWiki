@@ -1,6 +1,6 @@
 <?php
 // PukiWiki - Yet another WikiWikiWeb clone.
-// $Id: edit.inc.php,v 1.68 2009/05/02 04:12:27 nao-pon Exp $
+// $Id: edit.inc.php,v 1.69 2009/05/25 04:44:49 nao-pon Exp $
 // Copyright (C) 2001-2006 PukiWiki Developers Team
 // License: GPL v2 or (at your option) any later version
 //
@@ -167,13 +167,13 @@ EOD;
 			$title = '<h3>'.str_replace('$1', htmlspecialchars($page), $title).'</h3>';
 			$body = $title.$body;
 
-			if (defined('HYP_K_TAI_RENDER') && preg_match('/\(\([eis]:[0-9a-f]{4}\)\)/S', $body)) {
+			if (defined('HYP_K_TAI_RENDER') && preg_match('/\(\([eisv]:[0-9a-f]{4}\)\)|\[emj:\d{1,4}(?::(?:im|ez|sb))?\]/S', $body)) {
 				if (! XC_CLASS_EXISTS('MobilePictogramConverter')) {
 					HypCommonFunc::loadClass('MobilePictogramConverter');
 				}
 				if (XC_CLASS_EXISTS('MobilePictogramConverter')) {
 					$mpc =& MobilePictogramConverter::factory_common();
-					$mpc->setImagePath(XOOPS_URL . '/images/emoji');
+					$mpc->setImagePath($this->cont['ROOT_URL'] . 'images/emoji');
 					$mpc->setString($body, FALSE);
 					$body = $mpc->autoConvertModKtai();
 				}
@@ -462,13 +462,13 @@ EOD;
 					$body = str_replace(array('<![CDATA[', ']]>'), '', $body);
 				}
 				
-				if (defined('HYP_K_TAI_RENDER') && preg_match('/\(\([eis]:[0-9a-f]{4}\)\)/S', $body)) {
+				if (defined('HYP_K_TAI_RENDER') && preg_match('/\(\([eisv]:[0-9a-f]{4}\)\)|\[emj:\d{1,4}(?::(?:im|ez|sb))?\]/S', $body)) {
 					if (! XC_CLASS_EXISTS('MobilePictogramConverter')) {
 						HypCommonFunc::loadClass('MobilePictogramConverter');
 					}
 					if (XC_CLASS_EXISTS('MobilePictogramConverter')) {
 						$mpc =& MobilePictogramConverter::factory_common();
-						$mpc->setImagePath(XOOPS_URL . '/images/emoji');
+						$mpc->setImagePath($this->cont['ROOT_URL'] . 'images/emoji');
 						$mpc->setString($body, FALSE);
 						$body = $mpc->autoConvertModKtai();
 					}
