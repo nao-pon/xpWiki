@@ -1,7 +1,7 @@
 <?php
 //
 // Created on 2006/10/02 by nao-pon http://hypweb.net/
-// $Id: pukiwiki_func.php,v 1.205 2009/05/02 03:42:20 nao-pon Exp $
+// $Id: pukiwiki_func.php,v 1.206 2009/05/25 04:27:23 nao-pon Exp $
 //
 class XpWikiPukiWikiFunc extends XpWikiBaseFunc {
 
@@ -964,7 +964,7 @@ class XpWikiPukiWikiFunc extends XpWikiBaseFunc {
 
 //----- Start convert_html.php -----//
 	// PukiWiki - Yet another WikiWikiWeb clone
-	// $Id: pukiwiki_func.php,v 1.205 2009/05/02 03:42:20 nao-pon Exp $
+	// $Id: pukiwiki_func.php,v 1.206 2009/05/25 04:27:23 nao-pon Exp $
 	// Copyright (C)
 	//   2002-2005 PukiWiki Developers Team
 	//   2001-2002 Originally written by yu-ji
@@ -1243,7 +1243,7 @@ class XpWikiPukiWikiFunc extends XpWikiBaseFunc {
 
 //----- Start func.php -----//
 	// PukiWiki - Yet another WikiWikiWeb clone.
-	// $Id: pukiwiki_func.php,v 1.205 2009/05/02 03:42:20 nao-pon Exp $
+	// $Id: pukiwiki_func.php,v 1.206 2009/05/25 04:27:23 nao-pon Exp $
 	// Copyright (C)
 	//   2002-2006 PukiWiki Developers Team
 	//   2001-2002 Originally written by yu-ji
@@ -1758,10 +1758,10 @@ EOD;
 	{
 		static $units = array('m'=>60, 'h'=>24, 'd'=>1);
 	
-		$time = max(0, ($this->cont['UTIME'] - $time) / 60); // minutes
+		$time = ($this->cont['UTIME'] - $time) / 60; // minutes
 	
 		foreach ($units as $unit=>$card) {
-			if ($time < $card) break;
+			if (abs($time) < $card) break;
 			$time /= $card;
 		}
 		$time = floor($time) . $unit;
@@ -2082,7 +2082,7 @@ EOD;
 
 //----- Start make_link.php -----//
 	// PukiWiki - Yet another WikiWikiWeb clone.
-	// $Id: pukiwiki_func.php,v 1.205 2009/05/02 03:42:20 nao-pon Exp $
+	// $Id: pukiwiki_func.php,v 1.206 2009/05/25 04:27:23 nao-pon Exp $
 	// Copyright (C)
 	//   2003-2005 PukiWiki Developers Team
 	//   2001-2002 Originally written by yu-ji
@@ -3063,7 +3063,7 @@ EOD;
 
 //----- Start html.php -----//
 	// PukiWiki - Yet another WikiWikiWeb clone.
-	// $Id: pukiwiki_func.php,v 1.205 2009/05/02 03:42:20 nao-pon Exp $
+	// $Id: pukiwiki_func.php,v 1.206 2009/05/25 04:27:23 nao-pon Exp $
 	// Copyright (C)
 	//   2002-2006 PukiWiki Developers Team
 	//   2001-2002 Originally written by yu-ji
@@ -3401,7 +3401,7 @@ EOD;
 			$uname = '<input type="hidden" name="uname" value="'.$this->cont['USER_NAME_REPLACE'].'" />';
 		} else {
 			$_uname = (!empty($this->root->rtf['preview']))? htmlspecialchars($this->root->vars['uname']) : $this->cont['USER_NAME_REPLACE'];
-			$_anonymous = (!empty($this->root->rtf['preview']))? htmlspecialchars($this->root->vars['anonymous']) : $this->root->cookie['name'];
+			$_anonymous = (!empty($this->root->rtf['preview']) && !empty($this->root->vars['anonymous']))? htmlspecialchars($this->root->vars['anonymous']) : $this->root->cookie['name'];
 			$_anonymous_checked = (!empty($this->root->vars['anonymous']))? ' checked="checked"' : '';
 			$uname = '<label for="_edit_form_uname"><strong>'
 			       . $this->root->_btn_name . '</strong></label>';
@@ -3442,6 +3442,9 @@ EOD;
 			$tareaStyle .= 'width:99%;';
 		}
 		
+		// textarea id
+		$tareaId = 'xpwiki_edit_textarea';
+
 		if ($ajax) {
 			$ajax_submit = ' onsubmit="return xpwiki_ajax_edit_submit()"';
 			$ajax_cancel = ' onsubmit="return xpwiki_ajax_edit_cancel()"';
@@ -3464,8 +3467,7 @@ EOD;
 			$other_hide_js = (! $other_option_checked)? '<script type="text/javascript">$(\'xpwiki_edit_other\').style.display = \'none\';</script>' : '';
 		}
 		
-		// textarea id
-		$tareaId = 'xpwiki_edit_textarea';
+		$emojipad = $this->get_emoji_pad($tareaId, TRUE);
 		
 		// help
 		if (isset($this->root->vars['help'])) {
@@ -3503,6 +3505,7 @@ EOD;
   <input type="hidden" name="paraid" value="$s_id" />
   <input type="hidden" name="orgkey" value="$originalkey" />
   <textarea id="{$tareaId}" name="msg" rows="{$this->root->rows}" cols="{$this->root->cols}" style="{$tareaStyle}">$s_postdata</textarea>
+  $emojipad
   $riddle
   <div style="float:left;">
   $uname
@@ -3824,7 +3827,7 @@ EOD;
 
 //----- Start mail.php -----//
 	// PukiWiki - Yet another WikiWikiWeb clone.
-	// $Id: pukiwiki_func.php,v 1.205 2009/05/02 03:42:20 nao-pon Exp $
+	// $Id: pukiwiki_func.php,v 1.206 2009/05/25 04:27:23 nao-pon Exp $
 	// Copyright (C)
 	//   2003-2005 PukiWiki Developers Team
 	//   2003      Originally written by upk
@@ -4127,7 +4130,7 @@ EOD;
 
 //----- Start link.php -----//
 	// PukiWiki - Yet another WikiWikiWeb clone
-	// $Id: pukiwiki_func.php,v 1.205 2009/05/02 03:42:20 nao-pon Exp $
+	// $Id: pukiwiki_func.php,v 1.206 2009/05/25 04:27:23 nao-pon Exp $
 	// Copyright (C) 2003-2006 PukiWiki Developers Team
 	// License: GPL v2 or (at your option) any later version
 	//
