@@ -1,6 +1,6 @@
 <?php
 // PukiWiki - Yet another WikiWikiWeb clone.
-// $Id: lng.php,v 1.20 2009/05/02 03:48:55 nao-pon Exp $
+// $Id: lng.php,v 1.21 2009/05/25 04:21:59 nao-pon Exp $
 // Copyright (C)
 //   2002-2005 PukiWiki Developers Team
 //   2001-2002 Originally written by yu-ji
@@ -90,6 +90,7 @@ $root->_btn_riddle    = '<strong>Q &amp; A 認証</strong>: ページ更新時�
 $root->_btn_pgtitle   = 'ページタイトル( 空白で自動設定 )';
 $root->_btn_pgorder   = 'ページ並び順( 0-9 小数可 標準:1 )';
 $root->_btn_other_op  = '詳細な入力項目を表示';
+$root->_btn_emojipad  = '絵文字パッド';
 
 ///////////////////////////////////////
 // Authentication

@@ -3,7 +3,7 @@ class xpwiki_plugin_article extends xpwiki_plugin {
 	function plugin_article_init () {
 
 
-	// $Id: article.inc.php,v 1.9 2008/11/18 04:10:40 nao-pon Exp $
+	// $Id: article.inc.php,v 1.10 2009/05/25 04:22:25 nao-pon Exp $
 	// Copyright (C)
 	//   2002-2005 PukiWiki Developers Team
 	//   2002      Originally written by OKAWARA,Satoshi <kawara@dml.co.jp>
@@ -170,6 +170,8 @@ EOD;
 		$article_rows = $this->cont['PLUGIN_ARTICLE_ROWS'];
 		$article_cols = $this->cont['PLUGIN_ARTICLE_COLS'];
 		$script = $this->func->get_script_uri();
+		$domid = $this->get_domid('msg', true);
+		$emojipad = $this->func->get_emoji_pad($domid, FALSE);
 		$string = <<<EOD
 <form action="{$script}" method="post">
  <div>
@@ -181,7 +183,8 @@ EOD;
   <input type="text" name="name" id="_p_article_name_$article_no" size="$name_cols" value="{$this->cont['USER_NAME_REPLACE']}" /><br />
   <label for="_p_article_subject_$article_no">{$this->root->_btn_subject}</label>
   <input type="text" name="subject" rel="wikihelper" id="_p_article_subject_$article_no" size="$subject_cols" /><br />
-  <textarea name="msg" rows="$article_rows" cols="$article_cols">\n</textarea><br />
+  <textarea id="$domid" name="msg" rows="$article_rows" cols="$article_cols">\n</textarea>
+  $emojipad<br />
   <input type="submit" name="article" value="{$this->root->_btn_article}" />
  </div>
 </form>

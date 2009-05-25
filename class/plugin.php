@@ -1,7 +1,7 @@
 <?php
 //
 // Created on 2006/10/05 by nao-pon http://hypweb.net/
-// $Id: plugin.php,v 1.18 2009/04/04 04:05:26 nao-pon Exp $
+// $Id: plugin.php,v 1.19 2009/05/25 04:24:44 nao-pon Exp $
 //
 
 
@@ -113,15 +113,8 @@ class xpwiki_plugin {
 	}
 	
 	function get_domid ($name, $withDirname = false) {
-		static $count = array();
-		$pgid = $this->func->get_pgid_by_name($this->root->vars['page']);
 		$plugin = substr(get_class($this), 14);
-		if (! isset($count[$this->root->mydirname][$pgid][$plugin][$name])) {
-			$count[$this->root->mydirname][$pgid][$plugin][$name] = 0;
-		}
-		$count[$this->root->mydirname][$pgid][$plugin][$name]++;
-		$dirname = $withDirname? $this->root->mydirname . ':' : '';
-		return $dirname . $this->root->mydirname .'_' . $plugin . '_' . $name . '_' . $pgid . '_' . $count[$this->root->mydirname][$pgid][$plugin][$name];
+		return $this->func->get_domid($plugin, $name, $withDirname);
 	}
 	
 	function swap_global_vars (& $a, & $b) {

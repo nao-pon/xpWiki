@@ -1,6 +1,6 @@
 <?php
 // PukiWiki - Yet another WikiWikiWeb clone
-// $Id: comment.inc.php,v 1.9 2009/05/02 04:10:42 nao-pon Exp $
+// $Id: comment.inc.php,v 1.10 2009/05/25 04:22:25 nao-pon Exp $
 // Copyright (C)
 //   2002-2005 PukiWiki Developers Team
 //   2001-2002 Originally written by yu-ji
@@ -29,7 +29,9 @@ class xpwiki_plugin_comment extends xpwiki_plugin {
 			'above'  => FALSE,
 			'below'  => FALSE,
 			'cols'   => $this->cont['PLUGIN_COMMENT_SIZE_MSG'],
-			'multi'  => FALSE
+			'multi'  => FALSE,
+			'emoji'  => TRUE,
+			'noemoji'=> FALSE,
 		);
 	}
 	
@@ -140,6 +142,7 @@ class xpwiki_plugin_comment extends xpwiki_plugin {
 		$tArea = $options['multi']? 
 			'<textarea name="msg" id="'.$domid.'" class="norich" style="display:inline;" cols="'.($cols * 0.8).'" rows="'.$rows.'"></textarea>'
 			: '<input type="text"   name="msg" rel="wikihelper" id="'.$domid.'" size="'.$cols.'" />';
+		$emojipad = (! $options['emoji'] || $options['noemoji'])? '' : '<div style="margin-left:10em;">' . $this->func->get_emoji_pad($domid, FALSE) . '</div>';
 		
 		$script = $this->func->get_script_uri();
 		$s_page = htmlspecialchars($this->root->vars['page']);
@@ -156,6 +159,7 @@ class xpwiki_plugin_comment extends xpwiki_plugin {
   $nametags
   $tArea
   <input type="submit" name="comment" value="{$this->root->_btn_comment}" />
+  $emojipad
  </div>
 </form>
 EOD;
