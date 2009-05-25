@@ -1,7 +1,7 @@
 <?php
 //
 // Created on 2006/10/02 by nao-pon http://hypweb.net/
-// $Id: xpwiki_func.php,v 1.212 2009/05/25 08:41:39 nao-pon Exp $
+// $Id: xpwiki_func.php,v 1.213 2009/05/25 08:44:16 nao-pon Exp $
 //
 class XpWikiFunc extends XpWikiXoopsWrapper {
 
@@ -775,7 +775,7 @@ EOD;
 	}
 	
 	// 管理者のみ編集可能か
-	function is_editable_admin_only ($page) {
+	function is_editable_only_admin ($page) {
 		$pginfo = $this->get_pginfo($page);
 		return ($pginfo['egids'] === 'none' && $pginfo['eaids'] === 'none');
 	}
