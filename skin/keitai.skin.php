@@ -1,6 +1,6 @@
 <?php
 // PukiWiki - Yet another WikiWikiWeb clone.
-// $Id: keitai.skin.php,v 1.28 2009/04/04 12:16:08 nao-pon Exp $
+// $Id: keitai.skin.php,v 1.29 2009/05/25 04:38:13 nao-pon Exp $
 // Copyright (C) 2003-2006 PukiWiki Developers Team
 // License: GPL v2 or (at your option) any later version
 //
@@ -106,7 +106,7 @@ $header .= sprintf('<div style="%s">%s</div>',
 
 if (! $no_accesskey) {
 	$header .= '<div style="' . $style['pageMenu'] . '">';
-	$header .= '<table align="center"><tr><td>';
+	$header .= '<table><tr><td>';
 	$header .= '<div style="' . $style['pageMenu'] . '">';
 	
 	$header .= sprintf('%s <a href="#header" %s="2">%s</a><br />',
