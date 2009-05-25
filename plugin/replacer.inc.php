@@ -1,7 +1,7 @@
 <?php
 /*
  * Created on 2008/03/25 by nao-pon http://hypweb.net/
- * $Id: replacer.inc.php,v 1.3 2009/04/11 01:44:14 nao-pon Exp $
+ * $Id: replacer.inc.php,v 1.4 2009/05/25 04:52:36 nao-pon Exp $
  */
 
 class xpwiki_plugin_replacer extends xpwiki_plugin {
@@ -21,6 +21,7 @@ class xpwiki_plugin_replacer extends xpwiki_plugin {
 			'nn'      => 1,
 			'max'     => 10,
 		);
+		$this->config['doneCache'] = $this->cont['CACHE_DIR'] . 'plugin/done.replacer';
 	}
 	
 	function plugin_replacer_action () {
@@ -85,6 +86,8 @@ class xpwiki_plugin_replacer extends xpwiki_plugin {
 	}
 	
 	function make_form() {
+		$this->clear_done();
+		
 		$script = $this->func->get_script_uri();
 		
 		$spage = htmlspecialchars($this->vars['spage']);
@@ -241,7 +244,7 @@ EOD;
 			while (($file = readdir($dh)) !== false && $max > $this->found) {
 				if (preg_match('/^([a-f0-9]+)\.txt$/i', $file, $match)) {
 					$page = $this->func->decode($match[1]);
-					if ($regpage && ! preg_match($regpage, $page)) {
+					if ($this->check_done($page) || ($regpage && ! preg_match($regpage, $page))) {
 						continue;
 					}
 					$src = file_get_contents($base . $file);
@@ -266,6 +269,7 @@ EOD;
 						$ret[$page]['result'] = $src;
 						if ($this->vars['pcmd'] === 'do') {
 							$this->func->page_write($page, $src, $this->vars['nt']);
+							$this->save_done($page);
 						}
 					}
 				}
@@ -289,12 +293,14 @@ EOD;
 			} else {
 				$retstr = '<p>' . sprintf($this->msg['replaceDone'], $this->found) . '</p>';
 				$this->vars['pcmd'] = 'test';
+				$this->check_done(FALSE);
 				$this->doit();
 				if ($this->found) {
 					$retstr .= '<p>' . $this->msg['replaceNext'] . '</p>';
 					$retstr .= $this->make_do_btn();
 					$retstr .= $this->result;
 				} else {
+					$this->clear_done();
 					$retstr .= $this->make_goFirst();
 				}
 			}
@@ -308,6 +314,33 @@ EOD;
 	
 	function make_goFirst() {
 		return '<p><a href="' . $this->root->script . '?cmd=replacer#'.$this->root->mydirname.'_header">' . $this->msg['goFirst'] . '</a></p>';
+	}
+	
+	function check_done($page) {
+		static $dones = NULL;
+		if ($page === FALSE) {
+			$dones = NULL;
+		}
+		if (is_null($dones)) {
+			if (file_exists($this->config['doneCache'])) {
+				$dones = file($this->config['doneCache']);
+				$dones = array_map('trim', $dones);
+			} else {
+				$dones = array();
+			}
+		}
+		return (in_array($page, $dones));
+	}
+	
+	function save_done($page) {
+		if ($fp = fopen($this->config['doneCache'], 'a')) {
+			fwrite($fp, $page . "\n");
+			fclose($fp);
+		}
+	}
+	
+	function clear_done() {
+		@ unlink($this->config['doneCache']);
 	}
 	
 	function get_err_regex($reg, $msg) {
