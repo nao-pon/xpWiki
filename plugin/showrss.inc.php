@@ -1,6 +1,6 @@
 <?php
 // PukiWiki - Yet another WikiWikiWeb clone
-// $Id: showrss.inc.php,v 1.11 2009/04/04 07:05:34 nao-pon Exp $
+// $Id: showrss.inc.php,v 1.12 2009/05/25 07:30:49 nao-pon Exp $
 //  Id:showrss.inc.php,v 1.40 2003/03/18 11:52:58 hiro Exp
 // Copyright (C):
 //     2002-2006 PukiWiki Developers Team
@@ -16,8 +16,12 @@
 class xpwiki_plugin_showrss extends xpwiki_plugin {
 	function plugin_showrss_init () {
 
-		$this->cont['PLUGIN_SHOWRSS_USAGE'] =  '#showrss(URI-to-RSS[,default|menubar|recent[,Cache-lifetime[,Show-timestamp]]])';
-		$this->max = 10;
+		$this->conf['PLUGIN_SHOWRSS_USAGE'] =  '#showrss(URI-to-RSS[,default|menubar|recent[,Cache-lifetime[,Show-timestamp]]])';
+		$this->conf['max'] = 10;
+		$this->conf['allow_html_urls'] = array(
+			// URL of which it is effective is html is judged from an agreement forward.
+			// 'http://...',
+		);
 	}
 	
 	// Show related extensions are found or not
@@ -44,18 +48,18 @@ class xpwiki_plugin_showrss extends xpwiki_plugin {
 		if (! $_xml) return '#showrss: xml extension is not found<br />' . "\n";
 	
 		$num = func_num_args();
-		if ($num == 0) return $this->cont['PLUGIN_SHOWRSS_USAGE'] . '<br />' . "\n";
+		if ($num == 0) return $this->conf['PLUGIN_SHOWRSS_USAGE'] . '<br />' . "\n";
 	
 		$argv = func_get_args();
 		$timestamp = FALSE;
 		$cachehour = 0;
 		$show_description = $template = $uri = '';
-		$max = $this->max;
+		$max = $this->conf['max'];
 		switch ($num) {
-		case 6: $max = trim($argv[5]);
+		case 6: $max       = intval(trim($argv[5]));
 		case 5: $show_description = strtolower(trim($argv[4]));
-		case 4: $timestamp = (trim($argv[3]) == '1');	/*FALLTHROUGH*/
-		case 3: $cachehour = trim($argv[2]);		/*FALLTHROUGH*/
+		case 4: $timestamp = (trim($argv[3]) == '1');   /*FALLTHROUGH*/
+		case 3: $cachehour = intval(trim($argv[2]));    /*FALLTHROUGH*/
 		case 2: $template  = strtolower(trim($argv[1]));/*FALLTHROUGH*/
 		case 1: $uri       = trim($argv[0]);
 		}
@@ -77,7 +81,8 @@ class xpwiki_plugin_showrss extends xpwiki_plugin {
 			$this->func->get_date('Y/m/d H:i:s', $time) . '</p>';
 		}
 	
-		$obj = new $class($this->xpwiki, $rss, $show_description, $max);
+		$data = array($uri, $rss, $this->conf);
+		$obj = new $class($this->xpwiki, $data, $show_description, $max, $uri);
 		return $obj->toString($time_str);
 	}
 	
@@ -168,7 +173,7 @@ class XpWikiShowRSS_html
 	var $items = array();
 	var $class = '';
 
-	function XpWikiShowRSS_html(& $xpwiki, $rss, $show_description = '', $max = 10)
+	function XpWikiShowRSS_html(& $xpwiki, $data, $show_description = '', $max = 10)
 	{
 		$this->xpwiki =& $xpwiki;
 		$this->root   =& $xpwiki->root;
@@ -176,6 +181,20 @@ class XpWikiShowRSS_html
 		$this->func   =& $xpwiki->func;
 		
 		$count = 1;
+		list($url, $rss, $conf) = $data;
+		
+		$allow_html = FALSE;
+		
+		if ($show_description === 'html' && $conf['allow_html_urls']) {
+			foreach($conf['allow_html_urls'] as $_url) {
+				if (strpos($url, $_url) === 0) {
+					$allow_html = TRUE;
+					break;
+				}
+			}
+		}
+		
+
 		if ($rss && is_array($rss)) {
 			foreach ($rss as $date=>$items) {
 				if ($count > $max) break;
@@ -196,10 +215,17 @@ class XpWikiShowRSS_html
 							if (!isset($item['DESCRIPTION'])) {
 								$item['DESCRIPTION'] = $item['CONTENT'];
 							}
-							$item['DESCRIPTION'] = strip_tags(str_replace(array('&lt;', '&gt;'), array('<', '>'), $item['DESCRIPTION']));
-							$item['DESCRIPTION'] = mb_substr($item['DESCRIPTION'], 0, 255, 'UTF-8');
+							
+							$item['DESCRIPTION'] = $this->func->unhtmlspecialchars($item['DESCRIPTION'], ENT_QUOTES);
+							
+							if (! $allow_html) {
+								$item['DESCRIPTION'] = strip_tags($item['DESCRIPTION']);
+								$item['DESCRIPTION'] = htmlspecialchars(mb_substr($item['DESCRIPTION'], 0, 255, 'UTF-8'));
+							}
+							
 							$this->func->encode_numericentity($item['DESCRIPTION'], $this->cont['SOURCE_ENCODING'], 'UTF-8');
 							$item['DESCRIPTION'] = mb_convert_encoding($item['DESCRIPTION'], $this->cont['SOURCE_ENCODING'], 'UTF-8');
+							
 							$link .= '<br />' . '<div class="quotation">' . $item['DESCRIPTION'] . '</div>';
 						}
 					}
