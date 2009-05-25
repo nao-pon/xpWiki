@@ -363,7 +363,7 @@ EOD;
 
 		$page = isset ($this->root->vars['page']) ? rawurlencode($this->root->vars['page']) : '';
 		
-		if (preg_match('/^[eis]:[0-9a-f]{4}$/', $body)) {
+		if (preg_match('/^[eisv]:[0-9a-f]{4}$/i', $body)) {
 			$name = '((' . $body . '))';
 		} else {
 			$category = '';
