@@ -1,7 +1,7 @@
 <?php
 /*
  * Created on 2007/08/30 by nao-pon http://hypweb.net/
- * $Id: calendar9.inc.php,v 1.14 2009/02/22 02:01:56 nao-pon Exp $
+ * $Id: calendar9.inc.php,v 1.15 2009/05/25 04:43:26 nao-pon Exp $
  */
 
 // $Id: calendar9.inc.php Ver.1.5
@@ -96,19 +96,19 @@ class xpwiki_plugin_calendar9 extends xpwiki_plugin {
 		
 		// 休日読み込み
 		$dayoff_list = array();
-		$day_type = array();		// 0:祝日、休日 1:記念日(タイトルのみ) 2:土曜スタイル
+		$day_type = array();		// 0:祝日 or 休日, 1:記念日(タイトルのみ), 2:土曜スタイル
 		$day_title = array();
 		$page = $prefix.'DayOff';
 		$r_page = rawurlencode($page);
 		$s_page = htmlspecialchars($page);
 		foreach ($this->func->get_source($s_page) as $line) {
-			$line = rtrim($line, "\n");
-			$d = split(",", $line);
-			$dayoff_list[] = $d[0];
-			if($d[2] != "") {
-				$day_type[$d[0]] = $d[2];
-			}
-			if($d[1] != "") {
+			$line = trim($line);
+			if (! $line || $line[0] === '/') continue;
+			$d = array_pad(explode(',', $line), 3, '');
+			$d = array_map('trim', $d);
+			if (preg_match('/^\d+$/', $d[0])) {
+				$dayoff_list[] = $d[0];
+				$day_type[$d[0]] = intval($d[2]);
 				$day_title[$d[0]] = $d[1];
 			}
 		}
