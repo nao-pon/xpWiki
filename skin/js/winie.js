@@ -37,7 +37,6 @@ function wikihelper_ins(v)
 	if(!wikihelper_elem)
 	{
 		alert(wikihelper_msg_elem);
-		wikihelper_elem.focus();
 		return;	
 	}
 	

@@ -1,6 +1,6 @@
 <?php
 // PukiWiki - Yet another WikiWikiWeb clone.
-// $Id: lng.php,v 1.19 2009/05/02 03:48:55 nao-pon Exp $
+// $Id: lng.php,v 1.20 2009/05/25 04:21:59 nao-pon Exp $
 // Copyright (C)
 //   2002-2005 PukiWiki Developers Team
 //   2001-2002 Originally written by yu-ji
@@ -90,6 +90,7 @@ $root->_btn_riddle    = '<strong>Q &amp; A Verification</strong>: Please answer 
 $root->_btn_pgtitle   = 'Page title( Auto with blank )';
 $root->_btn_pgorder   = 'Page order( 0-9 Decimal Default:1 )';
 $root->_btn_other_op  = 'Show detailed input items.';
+$root->_btn_emojipad  = 'Pictogram pad';
 
 ///////////////////////////////////////
 // Authentication

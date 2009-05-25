@@ -1,7 +1,7 @@
 <?php
 //
 // Created on 2006/10/02 by nao-pon http://hypweb.net/
-// $Id: xpwiki_func.php,v 1.210 2009/05/02 03:43:43 nao-pon Exp $
+// $Id: xpwiki_func.php,v 1.211 2009/05/25 04:24:44 nao-pon Exp $
 //
 class XpWikiFunc extends XpWikiXoopsWrapper {
 
@@ -1585,7 +1585,7 @@ EOD;
 	
 	function output_ajax ($body) {
 		// K-Tai EMOJI
-		if (defined('HYP_K_TAI_RENDER') && preg_match('/\(\([eis]:[0-9a-f]{4}\)\)/S', $body)) {
+		if (defined('HYP_K_TAI_RENDER') && preg_match('/\(\([eisv]:[0-9a-f]{4}\)\)|\[emj:\d{1,4}(?::(?:im|ez|sb))?\]/S', $body)) {
 			if (! XC_CLASS_EXISTS('MobilePictogramConverter')) {
 				HypCommonFunc::loadClass('MobilePictogramConverter');
 			}
@@ -1926,7 +1926,9 @@ EOD;
 			$_func = <<<EOD
 static \$i = 0;
 if (strpos(\$match[2], ' id="') !== FALSE) {
-	\$match[2] = str_replace(' id="', ' id="{$this->root->mydirname}:', \$match[2]);
+	if (strpos(\$match[2], ' id="{$this->root->mydirname}:') === FALSE) {
+		\$match[2] = str_replace(' id="', ' id="{$this->root->mydirname}:', \$match[2]);
+	}
 	return \$match[1] . \$match[2] . '>';
 } else {
 	\$i++;
@@ -1950,6 +1952,25 @@ EOD;
 		$favicon = '<img src="'.$this->cont['LOADER_URL'].'?src=favicon&amp;url='.rawurlencode($url).'" width="'.$size.'" height="'.$size.'" border="0" alt="'.htmlspecialchars($alt).'" class="'.$class.'" />';
 		
 		return $favicon;
+	}
+
+	function get_domid ($plugin, $name, $withDirname = false) {
+		static $count = array();
+		$pgid = $this->get_pgid_by_name($this->root->vars['page']);
+		if (! isset($count[$this->root->mydirname][$pgid][$plugin][$name])) {
+			$count[$this->root->mydirname][$pgid][$plugin][$name] = 0;
+		}
+		$count[$this->root->mydirname][$pgid][$plugin][$name]++;
+		$dirname = $withDirname? $this->root->mydirname . ':' : '';
+		return $dirname . $this->root->mydirname .'_' . $plugin . '_' . $name . '_' . $pgid . '_' . $count[$this->root->mydirname][$pgid][$plugin][$name];
+	}
+	
+	function get_emoji_pad ($id, $is_textarea = FALSE, $emj_array = NULL) {
+		if (! defined('HYP_K_TAI_RENDER') || HypCommonFunc::get_version() < '20090525') return '';
+		if ($is_textarea && strpos($id, $this->root->mydirname . ':') !== 0) {
+			$id = $this->root->mydirname . ':' . $id;
+		}
+		return  HypCommonFunc::make_emoji_pad($id, $this->root->_btn_emojipad, '', $this->cont['ROOT_URL'] . 'images/emoji', (! isset($this->root->vars['ajax'])), $emj_array);
 	}
 	
 	function get_LC_CTYPE() {
@@ -2495,7 +2516,7 @@ EOD;
 			'limit'     => 0,
 			'order'     => '',
 			'nolisting' => FALSE,
-			'nochiled'  => FALSE,
+			'nochild'  => FALSE,
 			'nodelete'  => TRUE,
 			'withtime'  => FALSE,
 			'select'    => array(),
@@ -2513,10 +2534,11 @@ EOD;
 		$aryret = array();
 		
 		if (!$nocheck) {
+			$readable_where = $this->get_readable_where();
 			if ($where)
-				$where = " (" . $this->get_readable_where() . ") AND ($where)";
+				$where = $readable_where? " (" . $readable_where . ") AND ($where)" : $where;
 			else
-				$where = $this->get_readable_where();
+				$where = $readable_where;
 		}
 		
 		if ($base)
@@ -2524,17 +2546,15 @@ EOD;
 			if (substr($base,-1) == '/')
 			{
 				$base = addslashes(substr($base,0,-1));
-				if ($nochiled)
-					//$base_where = "name = '$base' OR ( name LIKE '$base/%' AND name NOT LIKE '$base/%/%' )";
+				if ($nochild)
 					$base_where = "name LIKE '$base/%' AND name NOT LIKE '$base/%/%'";
 				else
-					//$base_where = "name = '$base' OR name LIKE '$base/%'";
 					$base_where = "name LIKE '$base/%'";
 			}
 			else
 			{
 				$base = addslashes($this->strip_bracket($base));
-				if ($nochiled)
+				if ($nochild)
 					$base_where = "name LIKE '$base%' AND name NOT LIKE '$base%/%'";
 				else
 					$base_where = "name LIKE '$base%'";
@@ -2547,7 +2567,7 @@ EOD;
 		}
 		else
 		{
-			if ($nochiled)
+			if ($nochild)
 			{
 				$base_where = "name NOT LIKE '%/%'";
 	

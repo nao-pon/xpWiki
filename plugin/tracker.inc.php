@@ -1,6 +1,6 @@
 <?php
 // PukiWiki - Yet another WikiWikiWeb clone
-// $Id: tracker.inc.php,v 1.20 2009/03/02 01:31:22 nao-pon Exp $
+// $Id: tracker.inc.php,v 1.21 2009/05/25 04:22:25 nao-pon Exp $
 // ORG: tracker.inc.php,v 1.57 2007/09/20 15:17:20 henoheno Exp $
 // Issue tracker plugin (See Also bugtrack plugin)
 
@@ -497,7 +497,9 @@ class XpWikiTracker_field_textarea extends XpWikiTracker_field
 		$s_cols = htmlspecialchars($this->values[0]);
 		$s_rows = htmlspecialchars($this->values[1]);
 		$s_value = htmlspecialchars($this->default_value);
-		return "<textarea name=\"$s_name\" cols=\"$s_cols\" rows=\"$s_rows\">$s_value</textarea>";
+		$domid = $this->func->get_domid('tracker', $s_name, true);
+		$emoji = (in_array('emoji', $this->values))? $this->func->get_emoji_pad($domid, FALSE) : '';
+		return "<textarea id=\"$domid\" name=\"$s_name\" cols=\"$s_cols\" rows=\"$s_rows\">$s_value</textarea>$emoji";
 	}
 	
 	function format_cell($str) {

@@ -1,6 +1,6 @@
 <?php
 // PukiWiki - Yet another WikiWikiWeb clone
-// $Id: pcomment.inc.php,v 1.19 2009/05/02 04:10:42 nao-pon Exp $
+// $Id: pcomment.inc.php,v 1.20 2009/05/25 04:22:25 nao-pon Exp $
 //
 // pcomment plugin - Show/Insert comments into specified (another) page
 //
@@ -68,7 +68,20 @@ EOD;
 
 #navi(../)
 EOD;
-
+		
+		$this->conf['options'] = array(
+			'noname'=>FALSE,
+			'nodate'=>FALSE,
+			'below' =>FALSE,
+			'above' =>FALSE,
+			'reply' =>FALSE,
+			'template' => $this->conf['TEMPLATE_DEFAULT'],
+			'cols'   => $this->conf['SIZE_MSG'],
+			'multi' =>FALSE,
+			'emoji' => TRUE,
+			'noemoji'=> FALSE,
+			'_args' =>array()
+		);
 	}
 	
 	function plugin_pcomment_action()
@@ -103,17 +116,7 @@ EOD;
 	{
 		$ret = '';
 	
-		$params = array(
-			'noname'=>FALSE,
-			'nodate'=>FALSE,
-			'below' =>FALSE,
-			'above' =>FALSE,
-			'reply' =>FALSE,
-			'template' => $this->conf['TEMPLATE_DEFAULT'],
-			'cols'   => $this->conf['SIZE_MSG'],
-			'multi' =>FALSE,
-			'_args' =>array()
-		);
+		$params = $this->conf['options'];
 	
 		$args = func_get_args();
 		$this->fetch_options($params, $args, array('page'));
@@ -162,9 +165,12 @@ EOD;
 			$cols = max(10, min(80, intval($params['cols'])));
 			
 			if ($params['multi']) $rows = max(1, min(20, intval($params['multi'])));
-			$comment = $params['multi']? '<textarea name="msg" id="' . $this->get_domid('msg', true) . '" class="norich" style="display:inline;" cols="' . ($cols * 0.8) . '" rows="' . $rows . '"></textarea>'
-					: '<input type="text" name="msg" id="' . $this->get_domid('msg', true) . '" rel="wikihelper" size="' . $cols . '" />';
-	
+			$domid = $this->get_domid('msg', true);
+			$comment = $params['multi']? '<textarea name="msg" id="' . $domid . '" class="norich" style="display:inline;" cols="' . ($cols * 0.8) . '" rows="' . $rows . '"></textarea>'
+					: '<input type="text" name="msg" id="' . $domid . '" rel="wikihelper" size="' . $cols . '" />';
+			
+			$emojipad = (! $params['emoji'] || $params['noemoji'])? '' : '<div style="margin-left:13em;">' . $this->func->get_emoji_pad($domid, FALSE) . '</div>';
+			
 			$s_page   = htmlspecialchars($_page);
 			if ($this->root->render_mode !== 'render') {
 				$s_refer = htmlspecialchars($vars_page);
@@ -186,6 +192,7 @@ EOD;
   <input type="hidden" name="temp"   value="$temp" />
   $radio $title $name $comment
   <input type="submit" value="{$this->root->_pcmt_messages['btn_comment']}" />
+  $emojipad
   </div>
 EOD;
 			$form_end = '</form>' . "\n";

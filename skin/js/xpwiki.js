@@ -1014,6 +1014,7 @@ var XpWiki = {
 			Element.hide(id + '_WrapBtn');
 			Element.hide(id + '_FckBtn');
 			wikihelper_hide_helper();
+			this.toggle_norich(id);
 		} else {
 			xpwiki_now_loading(false);
 			$(id + '_FckBtn').innerHTML = 'x';
@@ -1026,6 +1027,7 @@ var XpWiki = {
 		var FCK = FCKeditorAPI.GetInstance(id);
 		var oEditorIframe = $(id + '___Frame');
 		var tArea = $(id);
+		this.toggle_norich(id);
 		if (tArea.style.display == 'none') {
 			if (!tArea._FCKBlurRegisted) {
 				tArea._FCKBlurRegisted = true;
@@ -1067,12 +1069,35 @@ var XpWiki = {
 		return wait;
 	},
 	
+	toggle_norich: function(id) {
+		var form = this.getParentForm(id);
+		if (form) {
+			var x = document.evaluate('//*[@class="norich"]', form, null, 6, null);
+			for (var i = 0; i < x.snapshotLength; i++) {
+				var obj = x.snapshotItem(i);
+				Element.toggle(obj);
+			}
+		}
+	},
+	
 	str2num: function(string) {
 		if (typeof string == 'string' && !string) {
 			return '';
 		} else {
 			return parseFloat(this.z2h_digit(string));
 		}
+	},
+	
+	getParentForm: function(element) {
+		form = null;
+		element = $(element);
+		while (element = element.parentNode) {
+			if (element.nodeName.toUpperCase() == 'FORM') {
+				form = element;
+				break;
+			}
+		}
+		return form;
 	},
 	
 	// Copyright (c) 2003 AOK <soft@aokura.com>
@@ -1146,6 +1171,14 @@ function FCKeditor_OnComplete(editorInstance) {
 		$(editorInstance.Name).value = '&nbsp;';
 	}
 
+}
+
+// For Emoji pad
+if (typeof hypEmojiPadSet != 'function') {
+	var hypEmojiPadSet = function(id, emjCode) {
+		wikihelper_ins("[emj:"+emjCode+"]");
+		return;
+	};
 }
 
 if (typeof addEventListener == 'undefined') {
