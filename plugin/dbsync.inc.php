@@ -1,7 +1,7 @@
 <?php
 //
 // Created on 2006/11/17 by nao-pon http://hypweb.net/
-// $Id: dbsync.inc.php,v 1.36 2009/05/02 04:11:08 nao-pon Exp $
+// $Id: dbsync.inc.php,v 1.37 2009/05/25 04:43:58 nao-pon Exp $
 //
 
 class xpwiki_plugin_dbsync extends xpwiki_plugin {
@@ -18,13 +18,17 @@ class xpwiki_plugin_dbsync extends xpwiki_plugin {
 			return $this->action_msg_admin_only();
 		}
 		
-		$max_execution_time = ini_get('max_execution_time');
+		$max_execution_time = intval(ini_get('max_execution_time'));
 		
 		if ($max_execution_time < $this->conf['timelimit']) {
 			@ set_time_limit($this->conf['timelimit']);
-			$max_execution_time = ini_get('max_execution_time');
+			$max_execution_time = intval(ini_get('max_execution_time'));
 		}
-		$this->conf['timelimit'] = min($max_execution_time, $this->conf['timelimit']) - $this->conf['time_margin'];
+		if ($max_execution_time < 1) {
+			$this->conf['timelimit'] -= $this->conf['time_margin'];
+		} else {
+			$this->conf['timelimit'] = min($max_execution_time, $this->conf['timelimit']) - $this->conf['time_margin'];
+		}
 		
 		// 言語ファイルの読み込み
 		$this->load_language();
