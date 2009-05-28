@@ -1,7 +1,7 @@
 <?php
 //
 // Created on 2006/10/11 by nao-pon http://hypweb.net/
-// $Id: xoops_wrapper.php,v 1.54 2009/05/02 02:14:54 nao-pon Exp $
+// $Id: xoops_wrapper.php,v 1.55 2009/05/28 01:47:38 nao-pon Exp $
 //
 class XpWikiXoopsWrapper extends XpWikiBackupFunc {
 	
@@ -100,19 +100,21 @@ class XpWikiXoopsWrapper extends XpWikiBackupFunc {
 		$config_handler =& xoops_gethandler('config');
 		$xoopsConfig =& $config_handler->getConfigsByCat(XOOPS_CONF);
 
-		$module_handler =& xoops_gethandler('module');
-		$XoopsModule =& $module_handler->getByDirname($this->root->mydirname);
-
 		$result = parent::get_userinfo_by_id($uid, $xoopsConfig['anonymous']);
-		$user_handler =& xoops_gethandler('user');
-		$user =& $user_handler->get( $uid );
-		if (is_object($user)) {
-			$result['admin'] = $user->isAdmin($XoopsModule->mid());
-			$result['email'] = $user->email();
-			$result['uname'] = $user->uname('n');
-			$result['uname_s'] = htmlspecialchars($result['uname']);
-			$result['uid'] = $uid;
-			$result['gids'] = $user->getGroups();
+		
+		if ($uid) {
+			$module_handler =& xoops_gethandler('module');
+			$XoopsModule =& $module_handler->getByDirname($this->root->mydirname);
+			$user_handler =& xoops_gethandler('user');
+			$user =& $user_handler->get( $uid );
+			if (is_object($user)) {
+				$result['admin'] = $user->isAdmin($XoopsModule->mid());
+				$result['email'] = $user->email();
+				$result['uname'] = $user->uname('n');
+				$result['uname_s'] = htmlspecialchars($result['uname']);
+				$result['uid'] = $uid;
+				$result['gids'] = $user->getGroups();
+			}
 		}
 		return $result;
 	}
@@ -355,6 +357,7 @@ class XpWikiXoopsWrapper extends XpWikiBackupFunc {
 		
 		$XoopsModule =& $module_handler->getByDirname($this->root->mydirname);
 		$xoopsUser =& $member_handler->getUser($uid);
+		if (! is_object($xoopsUser)) return FALSE;
 		return $xoopsUser->isAdmin($XoopsModule->mid());
 	}
 	
