@@ -1,6 +1,6 @@
 <?php
 // PukiWiki - Yet another WikiWikiWeb clone.
-// $Id: include.inc.php,v 1.6 2009/02/22 02:01:56 nao-pon Exp $
+// $Id: include.inc.php,v 1.7 2009/05/28 01:54:20 nao-pon Exp $
 //
 // Include-once plugin
 
@@ -105,6 +105,7 @@ class xpwiki_plugin_include extends xpwiki_plugin {
 		}
 		if (is_null($targetObj)) {
 			$targetObj =& $this;
+			$other_dir = '';
 		}
 		
 		// Include A page, that probably includes another pages
@@ -146,10 +147,15 @@ class xpwiki_plugin_include extends xpwiki_plugin {
 			}
 			
 			if ($this->otherIncludeMode === 'html') {
+				$body = '';
 				if (!$isThis) {
 					$this->swap_global_vars($this->xpwiki, $targetObj);
+					$body .= '<div class="xpwiki_r_'.$other_dir.'">';
+				} else {
+					$body .= '<div>';
 				}
-				$body = '<div class="xpwiki_r_'.$other_dir.'">' . $targetObj->func->convert_html($targetObj->func->get_source($page), $page) . '</div>';
+				$body .= $targetObj->func->convert_html($targetObj->func->get_source($page), $page);
+				$body .= '</div>';
 				if (!$isThis) {
 					$this->swap_global_vars($this->xpwiki, $targetObj);
 				}
