@@ -1,7 +1,7 @@
 <?php
 //
 // Created on 2006/10/02 by nao-pon http://hypweb.net/
-// $Id: xpwiki_func.php,v 1.213 2009/05/25 08:44:16 nao-pon Exp $
+// $Id: xpwiki_func.php,v 1.214 2009/05/28 01:48:27 nao-pon Exp $
 //
 class XpWikiFunc extends XpWikiXoopsWrapper {
 
@@ -776,8 +776,12 @@ EOD;
 	
 	// 管理者のみ編集可能か
 	function is_editable_only_admin ($page) {
+		if ($this->cont['PKWK_READONLY'] === 1) return TRUE;
 		$pginfo = $this->get_pginfo($page);
-		return ($pginfo['egids'] === 'none' && $pginfo['eaids'] === 'none');
+		$owner_ok = (! $pginfo['uid'] || $this->check_admin($pginfo['uid']));
+		return ($owner_ok && 
+			(($pginfo['egids'] === 'none' && $pginfo['eaids'] === 'none')
+			|| $this->is_freeze($page)));
 	}
 	
 	// ページ毎閲覧権限チェック
