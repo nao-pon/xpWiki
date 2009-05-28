@@ -1,6 +1,6 @@
 <?php
 // PukiWiki - Yet another WikiWikiWeb clone
-// $Id: showrss.inc.php,v 1.13 2009/05/25 08:55:00 nao-pon Exp $
+// $Id: showrss.inc.php,v 1.14 2009/05/28 01:57:37 nao-pon Exp $
 //  Id:showrss.inc.php,v 1.40 2003/03/18 11:52:58 hiro Exp
 // Copyright (C):
 //     2002-2006 PukiWiki Developers Team
@@ -185,14 +185,16 @@ class XpWikiShowRSS_html
 		
 		$allow_html = FALSE;
 		
-		if ($is_editable_admin_only) {
-			$allow_html = TRUE;
-		} else {
-			if ($show_description === 'html' && $conf['allow_html_urls']) {
-				foreach($conf['allow_html_urls'] as $_url) {
-					if (strpos($url, $_url) === 0) {
-						$allow_html = TRUE;
-						break;
+		if ($show_description === 'html') {
+			if ($is_editable_admin_only) {
+				$allow_html = TRUE;
+			} else {
+				if ($conf['allow_html_urls']) {
+					foreach($conf['allow_html_urls'] as $_url) {
+						if (strpos($url, $_url) === 0) {
+							$allow_html = TRUE;
+							break;
+						}
 					}
 				}
 			}
@@ -224,6 +226,7 @@ class XpWikiShowRSS_html
 							if (! $allow_html) {
 								$item['DESCRIPTION'] = strip_tags($item['DESCRIPTION']);
 								$item['DESCRIPTION'] = htmlspecialchars(mb_substr($item['DESCRIPTION'], 0, 255, 'UTF-8'));
+								$item['DESCRIPTION'] = preg_replace('/&amp;#(\d+);/', '&#$1;', $item['DESCRIPTION']);
 							}
 							
 							$this->func->encode_numericentity($item['DESCRIPTION'], $this->cont['SOURCE_ENCODING'], 'UTF-8');
@@ -241,7 +244,7 @@ class XpWikiShowRSS_html
 
 	function format_link($link)
 	{
-		return $link . '<br />' . "\n";
+		return '<div style="clear:both;">' . $link . '</div>' . "\n";
 	}
 
 	function format_list($date, $str)
@@ -251,7 +254,7 @@ class XpWikiShowRSS_html
 
 	function format_body($str)
 	{
-		return $str;
+		return '<div>' . $str . '</div>';
 	}
 
 	function toString($timestamp)
@@ -279,7 +282,7 @@ class XpWikiShowRSS_html_menubar extends XpWikiShowRSS_html
 	//}
 	
 	function format_link($link) {
-		return '<li>' . $link . '</li>' . "\n";
+		return '<li style="clear:both;">' . $link . '</li>' . "\n";
 	}
 
 	function format_body($str) {
@@ -296,12 +299,12 @@ class XpWikiShowRSS_html_recent extends XpWikiShowRSS_html
 	//}
 	
 	function format_link($link) {
-		return '<li>' . $link . '</li>' . "\n";
+		return '<li style="clear:both;">' . $link . '</li>' . "\n";
 	}
 
 	function format_list($date, $str) {
-		return '<strong>' . $date . '</strong>' . "\n" .
-			'<ul class="recent_list">' . "\n" . $str . '</ul>' . "\n";
+		return '<div style="clear:both;"><strong>' . $date . '</strong>' . "\n" .
+			'<ul class="recent_list">' . "\n" . $str . '</ul></div>' . "\n";
 	}
 }
 	
