@@ -1,6 +1,6 @@
 <?php
 // PukiWiki - Yet another WikiWikiWeb clone.
-// $Id: keitai.ini.php,v 1.23 2009/05/25 04:37:29 nao-pon Exp $
+// $Id: keitai.ini.php,v 1.24 2009/06/25 23:48:49 nao-pon Exp $
 // Copyright (C)
 //   2002-2005 PukiWiki Developers Team
 //   2001-2002 Originally written by yu-ji
@@ -156,7 +156,16 @@ $root->max_size = 5;	// SKINで使用, KByte
 $root->cols = 22; $root->rows = 5;	// i_mode
 
 // ref でのイメージサイズの最大px
-$root->keitai_img_px = 128;
+$root->keitai_display_width = 240;
+$root->keitai_img_px = 200;
+$root->keitai_imageTwiceDisplayWidth = 0;
+if (HypCommonFunc::get_version() >= '20090611') {
+	$ktairender =& HypKTaiRender::getSingleton();
+	if (! empty($ktairender->vars['ua']['width'])) {
+		$root->keitai_display_width = $ktairender->vars['ua']['width'];
+		$root->keitai_imageTwiceDisplayWidth = $ktairender->Config_imageTwiceDisplayWidth;
+	}
+}
 
 /////////////////////////////////////////////////
 // ブラウザに合わせた調整
@@ -200,7 +209,7 @@ switch ($root->ua_name) {
 		}
 		$root->cols = 24; $root->rows = 20;
 		// 識別番号の削除
-		$root->ua = preg_replace('#/SN[^ ]+#', '', $root->ua);
+		$root->ua = preg_replace('#/SN[^ ]+#', '[SerialNumber]', $root->ua);
 		break;
 
 	case 'Vodafone':
@@ -212,7 +221,7 @@ switch ($root->ua_name) {
 		}
 		$root->cols = 24; $root->rows = 20;
 		// 識別番号の削除
-		$root->ua = preg_replace('#/SN[^ ]+#', '', $root->ua);
+		$root->ua = preg_replace('#/SN[^ ]+#', '[SerialNumber]', $root->ua);
 		break;
 
 	// UP.Browser
