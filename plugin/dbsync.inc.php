@@ -1,7 +1,7 @@
 <?php
 //
 // Created on 2006/11/17 by nao-pon http://hypweb.net/
-// $Id: dbsync.inc.php,v 1.37 2009/05/25 04:43:58 nao-pon Exp $
+// $Id: dbsync.inc.php,v 1.38 2009/06/26 00:26:58 nao-pon Exp $
 //
 
 class xpwiki_plugin_dbsync extends xpwiki_plugin {
@@ -27,6 +27,9 @@ class xpwiki_plugin_dbsync extends xpwiki_plugin {
 		if ($max_execution_time < 1) {
 			$this->conf['timelimit'] -= $this->conf['time_margin'];
 		} else {
+			if ($max_execution_time < $this->conf['time_margin'] * 2) {
+				$this->conf['time_margin'] = intval($max_execution_time * 0.2);
+			}
 			$this->conf['timelimit'] = min($max_execution_time, $this->conf['timelimit']) - $this->conf['time_margin'];
 		}
 		
