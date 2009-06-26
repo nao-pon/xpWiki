@@ -1,5 +1,5 @@
 <?php
-// $Id: ref.inc.php,v 1.45 2009/05/02 03:47:43 nao-pon Exp $
+// $Id: ref.inc.php,v 1.46 2009/06/26 00:33:07 nao-pon Exp $
 /*
 
 	*プラグイン ref
@@ -617,6 +617,8 @@ class xpwiki_plugin_ref extends xpwiki_plugin {
 					if ($ext === 'svg') {
 						//$this->func->add_js_var_head('XpWikiIeDomLoadedDisable', true);
 						$this->func->add_tag_head('sie-mini.js', FALSE, 'UTF-8', TRUE);
+						// IE8 を互換モードにする (標準モードでは表示に時間が掛かる場合がある？)
+						if (! headers_sent()) header('X-UA-Compatible:IE=EmulateIE7');
 					}
 					$params['_body'] = '<object data="'.$lvar['url'].'" type="'.$type.'"'.$width.$height.'><param name="src" value="'.$lvar['url'].'"></object>';
 				}
