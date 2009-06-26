@@ -99,6 +99,10 @@ class xpwiki_plugin_googlemaps2 extends xpwiki_plugin {
 		$this->conf['StaticMapSizeW'] = 240;
 		$this->conf['StaticMapSizeH'] = 200;
 		
+		$this->conf['mapsize'] = ($this->root->keitai_imageTwiceDisplayWidth && $this->root->keitai_display_width >= $this->root->keitai_display_width)? 'width="480" height="400"' : 'width="240" height="200"';
+		$this->conf['navsize'] = 'width="60" height="40"';
+
+		
 		$this->conf['StaticMapSize'] = $this->conf['StaticMapSizeW'] . 'x' . $this->conf['StaticMapSizeH'];
 	}
 	
@@ -288,8 +292,8 @@ EOD;
 {$zoomdown}
 
 <div style="text-align:center">
-	<img src="{$mymap}"><br />
-	<img src="{$this->cont['LOADER_URL']}?src=mnavi.gif">
+	<img src="{$mymap}" {$this->conf['mapsize']} /><br />
+	<img src="{$this->cont['LOADER_URL']}?src=mnavi.gif" {$this->conf['navsize']} />
 	<hr />
 	{$back}
 </div>
@@ -351,7 +355,7 @@ EOD;
 		$_zoom = ($zoom > 10)? ($zoom - 1) : $zoom;
 		$this->root->replaces_finish[$params] = 'center='.$lat.','.$lng.'&amp;zoom='.$_zoom.'&amp;';
 		$imgurl = $this->get_static_image_url($params, '', 0, $markers);
-		$img = '<img src="'.$imgurl.'" />';
+		$img = '<img src="'.$imgurl.'" '.$this->conf['mapsize'].' />';
 		$map = '<br />[ <a href="'.$this->get_static_image_url($lat, $lng, $zoom, '__GOOGLE_MAPS_STATIC_MARKERS_' . $this->lastmap_name, TRUE).'">Map</a> ]';
 		return '<div style="text-align:center;">' . $img . $map . '</div>';
 	}
