@@ -120,7 +120,7 @@ function xpwiki_cal9_day_edit(id,mode,event) {
 	id = args[1];
 
 	// HTML BODYオブジェクト取得
-	var objBody = document.getElementsByTagName('body').item(0);
+	var objBody = XpWiki.getDomBody();
 	
 	// 背景半透明オブジェクト作成
 	if (!$('xpwiki_cal9_popupback')) {
@@ -256,7 +256,7 @@ function xpwiki_cal9_showReload(orgRequest) {
 		if (!!$('wikihelper_base')) {
 			var helper = $('wikihelper_base');
 			Element.remove($('wikihelper_base'));
-			document.body.appendChild(helper);
+			XpWiki.getDomBody().appendChild(helper);
 		}
 		Element.remove($('xpwiki_cal9_popupback'));
 		Element.remove($('xpwiki_cal9_loading_base'));

@@ -11,6 +11,10 @@ var XpWikiEncHint = '$encode_hint';
 var XpWikiCharSet = '$charset';
 var XpWikiIeDomLoadedDisable = $ieDomLoadedDisabled;
 
+if (XpWiki.isIE6) {
+	XpWikiIeDomLoadedDisable = true;
+}
+
 XpWiki.faviconSetClass = '$faviconSetClass';
 XpWiki.faviconReplaceClass = '$faviconReplaceClass';
 XpWiki.UseWikihelperAtAll = $UseWikihelperAtAll;
@@ -81,7 +85,7 @@ function wikihelper_show_fontset_img()
 			src.observe('mouseover', function(){wikihelper_mouseover = true;});
 			src.observe('mouseout', function(){wikihelper_mouseover = false;});
 		}
-		document.body.appendChild(src);
+		XpWiki.getDomBody().appendChild(src);
 		
 		$('wikihelper_base').observe('mouseover', function(){wikihelper_mouseover = true;});
 		$('wikihelper_base').observe('mouseout', function(){wikihelper_mouseover = false;});
@@ -191,7 +195,7 @@ function wikihelper_check(f) {
 function wikihelper_cumulativeOffset(forElement) {
 
 	var valueT = 0, valueL = 0;
-	var base = document.body;
+	var base = XpWiki.getDomBody();
 	var element = forElement;
 	do {
 		if (Element.getStyle(element, 'position') == 'absolute') {
@@ -291,7 +295,7 @@ function wikihelper_initTexts(obj)
 		);
 	};
 	
-	var x = document.evaluate('//input[@type!="hidden"] | //textarea[@rel="wikihelper"] | //select', obj, null, 6, null);
+	var x = document.evaluate('descendant::input[@type!="hidden"] | descendant::textarea[@rel="wikihelper"] | descendant::select', obj, null, 6, null);
 	var n = 0;
 	for (var i = 0; i < x.snapshotLength; i++) {
 		var elm = x.snapshotItem(i);
@@ -411,7 +415,7 @@ function xpwiki_now_loading(mode, id) {
 		
 		wikihelper_hide_helper();
 		if (!$("xpwiki_loading")) {
-			var objBody = document.body;
+			var objBody = XpWiki.getDomBody();
 			var objBack = document.createElement("div");
 			objBack.id = 'xpwiki_loading';
 			objBack.style.display = 'none';
@@ -698,7 +702,7 @@ if (Prototype.Browser.IE) {
 		XpWiki.onDomLoaded();
 	});
 }
-if (! Prototype.Browser.IE || (!XpWikiIeDomLoadedDisable && !XpWiki.isIE6)) {
+if (! Prototype.Browser.IE || !XpWikiIeDomLoadedDisable) {
 	document.observe("dom:loaded", function() {
 		XpWiki.onDomLoaded();
 	});
