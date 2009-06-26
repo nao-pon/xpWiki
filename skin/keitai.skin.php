@@ -1,6 +1,6 @@
 <?php
 // PukiWiki - Yet another WikiWikiWeb clone.
-// $Id: keitai.skin.php,v 1.29 2009/05/25 04:38:13 nao-pon Exp $
+// $Id: keitai.skin.php,v 1.30 2009/06/26 00:12:31 nao-pon Exp $
 // Copyright (C) 2003-2006 PukiWiki Developers Team
 // License: GPL v2 or (at your option) any later version
 //
@@ -218,10 +218,10 @@ ob_end_clean();
 $ctype = 'text/html';
 if (HypCommonFunc::get_version() >= '20080617.2') {
 	HypCommonFunc::loadClass('HypKTaiRender');
-	if (HypCommonFunc::get_version() < '20080925') {
-		$r = new HypKTaiRender();
-	} else {
+	if (HypCommonFunc::get_version() >= '20080925') {
 		$r =& HypKTaiRender::getSingleton();
+	} else {
+		$r = new HypKTaiRender();
 	}
 	$r->set_myRoot($this->root->siteinfo['host']);
 	$r->Config_hypCommonURL = $this->cont['ROOT_URL'] . 'class/hyp_common';
