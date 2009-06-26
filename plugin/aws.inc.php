@@ -1,7 +1,7 @@
 <?php
 /*
  * Created on 2008/02/28 by nao-pon http://hypweb.net/
- * $Id: aws.inc.php,v 1.8 2009/06/26 00:24:20 nao-pon Exp $
+ * $Id: aws.inc.php,v 1.9 2009/06/26 09:17:23 nao-pon Exp $
  */
 
 /////////////////////////////////////////////////
@@ -134,7 +134,7 @@ class xpwiki_plugin_aws extends xpwiki_plugin {
 				fputs($fp,$ret);
 				fclose($fp);
 			} else {
-				$ret .= $ama->url;
+				//$ret .= $ama->url;
 			}
 			if ($this->options['timestamp'] && empty($this->root->rtf['preview']) && $ama->newestTime && ! empty($this->root->vars['page'])) {
 				$this->func->touch_page($this->root->vars['page'], $ama->newestTime);
