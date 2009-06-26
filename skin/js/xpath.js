@@ -308,7 +308,7 @@ BaseExprHasPredicates.parsePredicates = function(lexer, expr) {
     }
 };
 
-BaseExprHasPredicates.prototyps = new BaseExpr();
+BaseExprHasPredicates.prototype = new BaseExpr();
 
 BaseExprHasPredicates.prototype.evaluatePredicates = function(nodeset, start) {
     var predicates, predicate, nodes, node, nodeset, position, reverse;
@@ -1026,7 +1026,7 @@ NodeUtil = {
                 else if (test.type == 0) name = '*';
 
                 if (name != '*') {
-                    all = all.tags(name);
+                    all = (typeof all.tags.nodeName == 'undefined')? all.tags(name) : node.getElementsByTagName(name);
                     if (!all) {
                         return nodeset;
                     }
@@ -1146,7 +1146,7 @@ NodeUtil = {
                 else if (test.type == 0) name = '*';
 
                 if (name != '*') {
-                    children = children.tags(name);
+                    children = (typeof children.tags.nodeName == 'undefined')? children.tags(name) : node.getElementsByTagName(name);
                     if (!children) {
                         return nodeset;
                     }
