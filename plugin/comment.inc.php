@@ -1,6 +1,6 @@
 <?php
 // PukiWiki - Yet another WikiWikiWeb clone
-// $Id: comment.inc.php,v 1.10 2009/05/25 04:22:25 nao-pon Exp $
+// $Id: comment.inc.php,v 1.11 2009/06/26 00:33:34 nao-pon Exp $
 // Copyright (C)
 //   2002-2005 PukiWiki Developers Team
 //   2001-2002 Originally written by yu-ji
@@ -72,7 +72,7 @@ class xpwiki_plugin_comment extends xpwiki_plugin {
 		$this->func->escape_multiline_pre($postdata_old, TRUE);
 		foreach ($postdata_old as $line) {
 			if (! $above) $postdata .= $line;
-			if (preg_match('/^#comment/i', $line) && $comment_no++ == $this->root->vars['comment_no']) {
+			if (preg_match('/^\|?#comment/i', $line) && $comment_no++ == $this->root->vars['comment_no']) {
 				if ($above) {
 					$postdata = rtrim($postdata) . "\n" .
 					$comment . "\n" .
