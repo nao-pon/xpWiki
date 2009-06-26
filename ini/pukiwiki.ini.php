@@ -1,6 +1,6 @@
 <?php
 // PukiWiki - Yet another WikiWikiWeb clone
-// $Id: pukiwiki.ini.php,v 1.95 2009/05/02 03:48:23 nao-pon Exp $
+// $Id: pukiwiki.ini.php,v 1.96 2009/06/26 00:19:26 nao-pon Exp $
 // Copyright (C)
 //   2002-2006 PukiWiki Developers Team
 //   2001-2002 Originally written by yu-ji
@@ -155,6 +155,9 @@ $root->render_attach= ':RenderAttaches';
 $root->notepage     = ':Note';
 
 $const['PLUGIN_RENAME_LOGPAGE'] = ':RenameLog'; // Rename Log page
+
+// InterWiki scheme regex (delimiter is '/')
+$root->interwikinameRegex = '(?:(?:https?|ftp|news):\/\/|\.\.?\/|skype:)';
 
 // ファイル添付用として表示するページ(複数は # で区切る)
 // Page displayed for file uploading. ( The plural is delimited by "#" )

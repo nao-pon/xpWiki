@@ -566,7 +566,7 @@ class XpWikiLink_url_interwiki extends XpWikiLink {
 		return<<<EOD
 \[       # open bracket
 (        # (1) url
- (?:(?:https?|ftp|news):\/\/|\.\.?\/)[!~*'();\/?:\@&=+\$,%#\w.-]*
+ {$this->root->interwikinameRegex}[!~*'();\/?:\@&=+\$,%#\w.-]*
 )
 \s
 ([^\]]+) # (2) alias
