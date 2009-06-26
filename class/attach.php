@@ -1,7 +1,7 @@
 <?php
 /*
  * Created on 2008/03/24 by nao-pon http://hypweb.net/
- * $Id: attach.php,v 1.21 2009/05/25 04:28:45 nao-pon Exp $
+ * $Id: attach.php,v 1.22 2009/06/26 00:23:01 nao-pon Exp $
  */
 
 //-------- クラス
@@ -819,7 +819,7 @@ class XpWikiAttachFiles
 		$pcmd = ($mode == "imglist")? "imglist" : "list";
 		$pcmd2 = ($mode == "imglist")? "list" : "imglist";
 		
-		$otherkeys = array('cols', 'max', 'base', 'mode', 'winop', 'basedir', 'encode_hint');
+		$otherkeys = array('cols', 'max', 'base', 'mode', 'winop', 'basedir', 'encode_hint', 'word');
 		if ($this->is_popup) {
 			$otherkeys[] = 'popup';
 		}
@@ -830,7 +830,7 @@ class XpWikiAttachFiles
 		$otherprams = array();
 		foreach($otherkeys as $key) {
 			if (isset($this->root->vars[$key])) {
-				$otherprams[] = htmlspecialchars($key) . '=' . rawurlencode($this->root->vars[$key]);
+				$otherprams[] = rawurlencode($key) . '=' . rawurlencode($this->root->vars[$key]);
 			}
 		}
 		if ($otherprams) {
@@ -937,96 +937,16 @@ class XpWikiAttachFiles
 		{
 			if ($mod) $ret .= str_repeat("|>", $cols - $mod)."|\n";
 			$ret = '|' . str_repeat('CENTER:|', $cols) . "c\n".$ret;
+		 	$_refer = $this->root->vars['refer'];
+		 	$this->root->vars['refer'] = $this->page;
 		 	$ret = $this->func->convert_html($ret);
+		 	$this->root->vars['refer'] = $_refer;
 		} else {
 			$ret = "<ul>\n$ret</ul>";
 		}
 		
-		$select_js = $otherDir = $select = $form = '';
-		if ($this->is_popup) {
-			$dirs = $otherDirs = array();
-			if ($handle = opendir($this->cont['MODULE_PATH'])) {
-				while (false !== ($dir = readdir($handle))) {
-					if (is_dir($this->cont['MODULE_PATH'].$dir) && $dir[0] !== '.' && $this->func->isXpWikiDirname($dir)) {
-						$other = XpWiki::getInitedSingleton($dir);
-						if ($other->isXpWiki) {
-							if ($other->root->pages_for_attach) {
-								list($dirs[$dir]['defaultpage']) = explode('#', $other->root->pages_for_attach);
-							} else {
-								$dirs[$dir]['defaultpage'] = $other->root->defaultpage;
-							}
-							$dirs[$dir]['title'] = $other->root->module['title'];
-						}
-					}
-				}
-			}
-			if (count($dirs) > 1) {
-				ksort($dirs);
-				foreach($dirs as $dir => $val) {
-					$defaultpage = $val['defaultpage'];
-					$selected = ($dir === $this->root->mydirname)? ' selected="selected"' : '';
-					if ($this->root->vars['basedir'] === $dir) {
-						$defaultpage = $this->root->vars['base'];
-					}
-					$otherDirs[] = '<option value="' . $dir . '#' . htmlspecialchars($defaultpage) . '"' . $selected . '>' . htmlspecialchars($val['title']) . '</option>';
-				}
-				$otherDir = '<form>Dir: <select name="otherdir" onchange="xpwiki_dir_selector_change(this.options[this.selectedIndex].value)">' . join('', $otherDirs) . '</select></form>';
-			}
-			
-			$otherPages = array();
-			$shown = array($this->root->vars['base']);
-			if ($this->root->pages_for_attach) {
-				$otherPages[] = '<optgroup label="' . $this->root->_attach_messages['msg_select_useful'] . '">';
-				foreach(explode('#', $this->root->pages_for_attach) as $_page) {
-					if ($this->func->check_readable($_page, false, false)) {
-						$selected = ($_page === $this->page)? ' selected="selected"' : '';
-						$shown[] = $_page;
-						$_page = htmlspecialchars($_page);
-						$otherPages[] = '<option value="' . $_page . '"' . $selected . '>' . $_page . '</option>';
-					}
-				}
-				$otherPages[] = '</optgroup>';
-			}
-			$query = 'SELECT p.name, count( * ) AS count FROM `' . $this->xpwiki->db->prefix($this->root->mydirname.'_pginfo') . '` p INNER JOIN `' . $this->xpwiki->db->prefix($this->root->mydirname.'_attach') . '` a ON p.pgid = a.pgid WHERE a.age =0 AND a.name != "fusen.dat" GROUP BY a.pgid ORDER BY count DESC, p.name ASC LIMIT 0 , 50';
-			if ($result = $this->xpwiki->db->query($query)) {
-				$otherPages[] = '<optgroup label="' . $this->root->_attach_messages['msg_select_manyitems'] . '">';
-				while($row = $this->xpwiki->db->fetchRow($result)) {
-					if ($this->func->check_readable($row[0], false, false)) {
-						if (in_array($row[0], $shown)) continue;
-						$selected = ($row[0] === $this->page)? ' selected="selected"' : '';
-						$_page = htmlspecialchars($row[0]);
-						$otherPages[] = '<option value="' . $_page . '"' . $selected . '>' . $_page . ' (' . $row[1] . ')</option>';
-					}
-				}
-				$otherPages[] = '</optgroup>';
-			}
-			if ($otherPages) {
-				if ($this->root->vars['basedir'] === $this->root->mydirname) {
-					$thisPage = htmlspecialchars($this->root->vars['base']);
-					$thisPage = '<option value="'.$thisPage.'">' . $thisPage . $this->root->_attach_messages['msg_select_current'] . '</option>';
-				} else {
-					$thisPage = '';
-				}
-				$select = '<form><select name="othorpage" onchange="xpwiki_file_selector_change(this.options[this.selectedIndex].value)">' . $thisPage . join('', $otherPages) . '</select></form>';
-			}
-			$select_js = <<<EOD
-<script>
-<!--
-function xpwiki_file_selector_change(page) {
-	if (page) {
-		location.href = location.href.replace(/&refer=[^&]+/, '&refer=' + encodeURIComponent(page)).replace(/&start=[^&]+/, '');
-	}
-}
-function xpwiki_dir_selector_change(dir) {
-	if (dir) {
-		var arr = dir.split('#');
-		location.href = location.href.replace(/\/modules\/[^\/]+/, '/modules/' + arr[0]).replace(/&refer=[^&]+/, '&refer=' + encodeURIComponent(arr[1])).replace(/&start=[^&]+/, '');
-	}
-}
--->
-</script>
-EOD;
-			
+		$form = '';
+		if ($this->is_popup && !$fromall) {
 			if (empty($this->root->vars['start'])) {
 				$attach =& $this->func->get_plugin_instance('attach');
 				$form = $attach->attach_form($this->page);
@@ -1034,11 +954,21 @@ EOD;
 			}
 		}
 		
-		$showall = ($fromall && $this->max < $this->count)? " [ <a href=\"{$this->root->script}?plugin=attach&amp;pcmd={$pcmd}&amp;refer=".rawurlencode($this->page)."\">Show All</a> ]" : "";
-		$allpages = ($this->is_popup || $fromall)? "" : " [ <a href=\"{$this->root->script}?plugin=attach&amp;pcmd={$pcmd}\">All Pages</a> ]";
-		$body = $this->is_popup? $ret : "<div class=\"filelist_page\">".$this->func->make_pagelink($this->page)."<small> (".$this->count." file".(($this->count===1)?"":"s").")".$showall.$allpages."</small></div>\n$ret";
+		$filecount = '<small> (' . $this->count . '&nbsp;file' . (($this->count>1)?'s':'') . ')</small>';
+		$showall_href = "{$this->root->script}?plugin=attach&amp;pcmd={$pcmd}{$otherparm}&amp;refer=".rawurlencode($this->page);
+		$showall = ($fromall && $this->max < $this->count)? " [&nbsp;<a href=\"{$showall_href}\">Show All</a>&nbsp;]" : "";
+		if ($this->is_popup) {
+			if ($fromall) {
+				$showall = "<div class=\"filelist_page\"><a href=\"{$showall_href}\">" . htmlspecialchars($this->page) . '</a>' . $filecount . '<small>' . $showall . '</small></div>';
+			} else {
+				$showall = '';
+			}
+		}
+		$allpages = ($this->is_popup || $fromall)? "" : " [ <a href=\"{$this->root->script}?plugin=attach&amp;pcmd={$pcmd}{$otherparm}\">All Pages</a> ]";
 		
-		return $select_js.$otherDir.$select.$form.$navi.($navi? "<hr />":"").$body.($navi? "<hr />":"")."$navi\n";
+		$body = $this->is_popup? $showall . $ret : "<div class=\"filelist_page\">".$this->func->make_pagelink($this->page).$filecount.$showall.$allpages."</div>\n$ret";
+		
+		return $form.$navi.($navi? "<hr />":"").$body.($navi? "<hr />":"")."$navi\n";
 	}
 	// ファイル一覧を取得(inline)
 	function to_flat()
@@ -1084,6 +1014,9 @@ class XpWikiAttachPages
 		}
 		
 		$this->mode = $mode;
+
+		$this->is_popup = (isset($this->root->vars['popup']) && $this->root->vars['cmd'] !== 'read');
+
 		if ($page)
 		{
 			// 閲覧権限チェック
@@ -1102,6 +1035,11 @@ class XpWikiAttachPages
 			if (!is_null($age)) $where[] = "`age` = $age";
 			//if ($mode == "imglist") $where[] = "`type` LIKE 'image%' AND `age` = 0";
 			//if ($mode == "imglist") $where[] = "`age` = 0";
+			if (!empty($this->root->vars['word'])) {
+				foreach(explode(' ', mb_convert_kana($this->root->vars['word']), 's') as $search) {
+					$where[] = '`name` LIKE \'%'.addslashes($search).'%\'';
+				}
+			}
 			$where = " WHERE ".join(' AND ',$where);
 			
 			// このページの添付ファイル数取得
@@ -1134,9 +1072,17 @@ class XpWikiAttachPages
 		else
 		{
 			// WHERE句
-			$where = $this->func->get_readable_where('p.');
-			
-			if ($where) $where = ' WHERE '.$where;
+			$where = array();
+			if ($_readable_where = $this->func->get_readable_where('p.')) {
+				$where[] = $_readable_where;
+			}
+			if (isset($this->root->vars['popup']) && $this->root->vars['cmd'] !== 'read') $where[] = 'a.`name` != "fusen.dat"';
+			if (!empty($this->root->vars['word'])) {
+				foreach(explode(' ', mb_convert_kana($this->root->vars['word']), 's') as $search) {
+					$where[] = 'a.`name` LIKE \'%'.addslashes($search).'%\'';
+				}
+			}
+			$where = $where? " WHERE ".join(' AND ',$where) : '';
 			
 			// 添付ファイルのあるページ数カウント
 			$query = "SELECT DISTINCT p.pgid FROM ".$this->xpwiki->db->prefix($this->root->mydirname."_pginfo")." p INNER JOIN ".$this->xpwiki->db->prefix($this->root->mydirname."_attach")." a ON p.pgid=a.pgid{$where}";
@@ -1163,23 +1109,172 @@ class XpWikiAttachPages
 	}
 	function toString($page='',$flat=FALSE)
 	{
+		$pcmd = ($this->mode == "imglist")? "imglist" : "list";
+		$pcmd2 = ($this->mode == "imglist")? "list" : "imglist";
+
+		$otherkeys = array('cols', 'max', 'base', 'mode', 'winop', 'basedir', 'encode_hint', 'word');
+		if ($this->is_popup) {
+			$otherkeys[] = 'popup';
+		}
+		if (! isset($this->root->vars['basedir'])) {
+			$this->root->vars['basedir'] = $this->root->mydirname;
+		}
+		$otherparm = '';
+		$otherprams = array();
+		$hiddens = array();
+		$hiddens['plugin'] = 'attach';
+		$hiddens['pcmd'] = $pcmd;
+		$hiddens['refer'] = (isset($this->root->vars['refer']))? htmlspecialchars($this->root->vars['refer']) : '';
+		foreach($otherkeys as $key) {
+			if (isset($this->root->vars[$key])) {
+				$otherprams[] = rawurlencode($key) . '=' . rawurlencode($this->root->vars[$key]);
+				$hiddens[htmlspecialchars($key)] = htmlspecialchars($this->root->vars[$key]);
+			}
+		}
+		
+		$select_js = $otherDir = $select = '';
+		if ($this->is_popup) {
+			$dirs = $otherDirs = array();
+			if ($handle = opendir($this->cont['MODULE_PATH'])) {
+				while (false !== ($dir = readdir($handle))) {
+					if (is_dir($this->cont['MODULE_PATH'].$dir) && $dir[0] !== '.' && $this->func->isXpWikiDirname($dir)) {
+						$other = XpWiki::getInitedSingleton($dir);
+						if ($other->isXpWiki) {
+							if ($other->root->pages_for_attach) {
+								list($dirs[$dir]['defaultpage']) = explode('#', $other->root->pages_for_attach);
+							} else {
+								$dirs[$dir]['defaultpage'] = $other->root->defaultpage;
+							}
+							$dirs[$dir]['title'] = $other->root->module['title'];
+						}
+					}
+				}
+			}
+			if (count($dirs) > 1) {
+				ksort($dirs);
+				foreach($dirs as $dir => $val) {
+					$defaultpage = $val['defaultpage'];
+					$selected = ($dir === $this->root->mydirname)? ' selected="selected"' : '';
+					if ($this->root->vars['basedir'] === $dir) {
+						$defaultpage = $this->root->vars['base'];
+					}
+					$otherDirs[] = '<option value="' . $dir . '#' . htmlspecialchars($defaultpage) . '"' . $selected . '>' . htmlspecialchars($val['title']) . '</option>';
+				}
+				$otherDir = '<form><img src="' . $this->cont['LOADER_URL'] . '?src=folder_go.png" alt="Dir" /> <select name="otherdir" style="max-width:85%;" onchange="xpwiki_dir_selector_change(this.options[this.selectedIndex].value)">' . join('', $otherDirs) . '</select></form>';
+			}
+
+			$where = array();
+			if (!empty($this->root->vars['word'])) {
+				foreach(explode(' ', mb_convert_kana($this->root->vars['word']), 's') as $search) {
+					$where[] = 'a.`name` LIKE \'%'.addslashes($search).'%\'';
+				}
+			}
+			$where = $where? ' AND ' . join(' AND ', $where) : '';
+
+			$otherPages = array();
+			$shown = array($this->root->vars['base']);
+			if ($this->root->pages_for_attach) {
+				$otherPages[] = '<optgroup label="' . $this->root->_attach_messages['msg_select_useful'] . '">';
+				foreach(explode('#', $this->root->pages_for_attach) as $_page) {
+					if ($this->func->check_readable($_page, false, false)) {
+						$selected = ($_page === $page)? ' selected="selected"' : '';
+						$shown[] = $_page;
+						$_pgid = $this->func->get_pgid_by_name($_page);
+						if ($_pgid) {
+							$query = 'SELECT count( * ) FROM `' . $this->xpwiki->db->prefix($this->root->mydirname.'_attach') . '` a WHERE a.pgid="' . $_pgid . '" AND a.age = 0 AND a.name != "fusen.dat"' . $where . ' LIMIT 1';
+							$count = '';
+							if ($result = $this->xpwiki->db->query($query)) {
+								$row = $this->xpwiki->db->fetchRow($result);
+								$count = ' (' . $row[0] . ')';
+							}
+						} else {
+							$count = ' (0)';
+						}
+						//echo $query;
+						$_page = htmlspecialchars($_page);
+						$otherPages[] = '<option value="' . $_page . '"' . $selected . '>' . $_page . $count . '</option>';
+					}
+				}
+				$otherPages[] = '</optgroup>';
+			}
+
+			$query = 'SELECT p.name, count( * ) AS count FROM `' . $this->xpwiki->db->prefix($this->root->mydirname.'_pginfo') . '` p INNER JOIN `' . $this->xpwiki->db->prefix($this->root->mydirname.'_attach') . '` a ON p.pgid = a.pgid WHERE a.age =0 AND a.name != "fusen.dat"' . $where . ' GROUP BY a.pgid ORDER BY count DESC, p.name ASC LIMIT 0 , 50';
+			if ($result = $this->xpwiki->db->query($query)) {
+				$otherPages[] = '<optgroup label="' . $this->root->_attach_messages['msg_select_manyitems'] . '">';
+				while($row = $this->xpwiki->db->fetchRow($result)) {
+					if ($this->func->check_readable($row[0], false, false)) {
+						if (in_array($row[0], $shown)) continue;
+						$selected = ($row[0] === $page)? ' selected="selected"' : '';
+						$_page = htmlspecialchars($row[0]);
+						$otherPages[] = '<option value="' . rawurlencode($_page) . '"' . $selected . '>' . $_page . ' (' . $row[1] . ')</option>';
+					}
+				}
+				$otherPages[] = '</optgroup>';
+			}
+			if ($otherPages) {
+				$thisPage = '<option value="">--- ' . $this->root->_attach_messages['msg_page_select'] . ' ---</option>';
+				if ($this->root->vars['basedir'] === $this->root->mydirname) {
+					$selected = ($this->root->vars['base'] === $page)? ' selected="selected"' : '';
+					$thisPage .= '<option value="'.rawurlencode($this->root->vars['base']).'"' . $selected . '>' . htmlspecialchars($this->root->vars['base']) . $this->root->_attach_messages['msg_select_current'] . '</option>';
+				}
+				if (! empty($this->root->vars['refer'])) $thisPage .= '<option value="#">'.$this->root->_attach_messages['msg_show_all_pages'].'</option>';
+				$select = '<form><img src="' . $this->cont['LOADER_URL'] . '?src=page_attach.png" alt="Pages" /> <select name="othorpage" style="max-width:85%;" onchange="xpwiki_file_selector_change(this.options[this.selectedIndex].value)">' . $thisPage . join('', $otherPages) . '</select></form>';
+			}
+			$select_js = <<<EOD
+<script>
+function xpwiki_file_selector_change(page) {
+	if (page) {
+		if (page == '#') page = '';
+		var href = location.href;
+		if (! href.match(/&refer=[^&]*/)) {
+			href += '&refer=';
+		}
+		location.href = href.replace(/&refer=[^&]*/, '&refer=' + page).replace(/&start=[^&]+/, '');
+	}
+}
+function xpwiki_dir_selector_change(dir) {
+	if (dir) {
+		var arr = dir.split('#');
+		//location.href = location.href.replace(/\/modules\/[^\/]+/, '/modules/' + arr[0]).replace(/&refer=[^&]*/, '&refer=' + encodeURIComponent(arr[1])).replace(/&start=[^&]+/, '');
+		location.href = location.href.replace(/\/modules\/[^\/]+/, '/modules/' + arr[0]).replace(/&refer=[^&]*/, '&refer=').replace(/&start=[^&]+/, '');
+	}
+}
+-->
+</script>
+EOD;
+		}
+
+		$sword = (isset($this->root->vars['word']))? htmlspecialchars($this->root->vars['word']) : '';
+		$hidden = '';
+		unset($hiddens['word']);
+		foreach($hiddens as $key=> $val) {
+			$hidden .= sprintf('<input type="hidden" name="%s" value="%s" />', $key, $val);
+		}
+		$search = ($flat)? '' : '<div><form method="get" action="' . $this->root->script . '"><img src="' . $this->cont['LOADER_URL'] . '?src=find.png" alt="Search" /> <input size="15" type="text" name="word" value="' . $sword  . '" /><input type="submit" value="' . $this->root->_btn_search . '" />' . $hidden . '</form></div>';
+
 		if ($page !== '')
 		{
 			if (!array_key_exists($page,$this->pages))
 			{
 				return '';
 			}
-			return $this->pages[$page]->toString($flat,FALSE,$this->mode);
+			return $select_js  . $otherDir . $search . $select . $this->pages[$page]->toString($flat,FALSE,$this->mode);
 		}
-		$pcmd = ($this->mode == "imglist")? "imglist" : "list";
-		$pcmd2 = ($this->mode == "imglist")? "list" : "imglist";
-		$url = $this->root->script."?plugin=attach&amp;pcmd={$pcmd}&amp;order=".$this->order."&amp;start=";
-		$url2 = $this->root->script."?plugin=attach&amp;pcmd={$pcmd}&amp;start=";
-		$url3 = $this->root->script."?plugin=attach&amp;pcmd={$pcmd2}&amp;order=".$this->order."&amp;start=".$this->start;
+		
+		if ($otherprams) {
+			$otherparm = '&amp;' . join('&amp;', $otherprams);
+		}
+
+		$url = $this->root->script."?plugin=attach&amp;pcmd={$pcmd}{$otherparm}&amp;order=".$this->order."&amp;start=";
+		$url2 = $this->root->script."?plugin=attach&amp;pcmd={$pcmd}{$otherparm}&amp;start=";
+		$url3 = $this->root->script."?plugin=attach&amp;pcmd={$pcmd2}{$otherparm}&amp;order=".$this->order."&amp;start=".$this->start;
 		$sort_time = ($this->order == "name")? " [ <a href=\"{$url2}0&amp;order=time\">{$this->root->_attach_messages['msg_sort_time']}</a> |" : " [ <b>{$this->root->_attach_messages['msg_sort_time']}</b> |";
 		$sort_name = ($this->order == "name")? " <b>{$this->root->_attach_messages['msg_sort_name']}</b> ] " : " <a href=\"{$url2}0&amp;order=name\">{$this->root->_attach_messages['msg_sort_name']}</a> ] ";
-		$mode_tag = ($this->mode == "imglist")? "[ <a href=\"$url3\">{$this->root->_attach_messages['msg_list_view']}<a> ]":"[ <a href=\"$url3\">{$this->root->_attach_messages['msg_image_view']}</a> ]";
-		
+		if ($this->is_popup) {
+			$mode_tag = '';
+		} else {
+			$mode_tag = ($this->mode == "imglist")? "[ <a href=\"$url3\">{$this->root->_attach_messages['msg_list_view']}<a> ]":"[ <a href=\"$url3\">{$this->root->_attach_messages['msg_image_view']}</a> ]";
+		}
 		$_start = $this->start + 1;
 		$_end = $this->start + $this->max;
 		$_end = min($_end,$this->count);
@@ -1203,11 +1298,16 @@ class XpWikiAttachPages
 		
 		$ret = "";
 		$pages = array_keys($this->pages);
-		foreach ($pages as $page)
-		{
-			$ret .= $this->pages[$page]->toString($flat,TRUE,$this->mode)."\n";
+		if ($pages) {
+			foreach ($pages as $page)
+			{
+				$ret .= $this->pages[$page]->toString($flat,TRUE,$this->mode)."\n";
+			}
+		} else {
+			$navi = '';
 		}
-		return "\n$navi".($navi? "<hr />":"")."\n$ret\n".($navi? "<hr />":"")."$navi\n";
+		
+		return "\n$select_js$otherDir$search$select$navi".($navi? "<hr />":"")."\n$ret\n".($navi? "<hr />":"")."$navi\n";
 		
 	}
 }
