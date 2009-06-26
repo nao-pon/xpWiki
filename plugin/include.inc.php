@@ -1,6 +1,6 @@
 <?php
 // PukiWiki - Yet another WikiWikiWeb clone.
-// $Id: include.inc.php,v 1.7 2009/05/28 01:54:20 nao-pon Exp $
+// $Id: include.inc.php,v 1.8 2009/06/26 00:29:39 nao-pon Exp $
 //
 // Include-once plugin
 
@@ -107,6 +107,10 @@ class xpwiki_plugin_include extends xpwiki_plugin {
 			$targetObj =& $this;
 			$other_dir = '';
 		}
+
+		$with_title = ($options['title']? TRUE : ($options['notitle']? FALSE : $this->cont['PLUGIN_INCLUDE_WITH_TITLE']));
+		$s_page = htmlspecialchars($page);
+		$r_page = rawurlencode($page);
 		
 		// Include A page, that probably includes another pages
 		if ($targetObj->func->check_readable($page, false, false)) {
@@ -117,10 +121,7 @@ class xpwiki_plugin_include extends xpwiki_plugin {
 //				case 'notitle': $with_title = FALSE; break;
 //				}
 //			}
-			$with_title = ($options['title']? TRUE : ($options['notitle']? FALSE : $this->cont['PLUGIN_INCLUDE_WITH_TITLE']));
 		
-			$s_page = htmlspecialchars($page);
-			$r_page = rawurlencode($page);
 			$link = '<a href="' . $this->func->get_page_uri($page, TRUE) . '">' . $s_page . '</a>'; // Read link
 		
 			// I'm stuffed
