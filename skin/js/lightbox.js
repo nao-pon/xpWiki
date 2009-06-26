@@ -16,7 +16,7 @@
 // -----------------------------------------------------------------------------------
 //
 //  edited by nao-pon - http://hypweb.net/
-//  $Id: lightbox.js,v 1.16 2009/03/13 08:03:17 nao-pon Exp $
+//  $Id: lightbox.js,v 1.17 2009/06/26 00:11:59 nao-pon Exp $
 //
 // -----------------------------------------------------------------------------------
 
@@ -123,7 +123,8 @@ Lightbox.prototype = {
 		this.myhost = this.myhost.replace(reg, "##__BACK_SLASH__##$1").replace(/##__BACK_SLASH__##/g, '\\');
 		this.myhost = new RegExp("^"+this.myhost,"i");
 		
-		var r = document.evaluate('//a[@type="img"]', document, null, 7, null);
+		var objBody = document.getElementsByTagName('body')[0];
+		var r = document.evaluate('descendant::a[@type="img"]', objBody, null, 7, null);
 		for (var i=0; i<r.snapshotLength; i++){
 			var anchor = r.snapshotItem(i);
 			if (anchor.getAttribute('href')) {
@@ -131,8 +132,6 @@ Lightbox.prototype = {
 				anchor.onclick = function () {myLightbox.start(this); return false;}
 			}
 		}
-		
-		var objBody = document.getElementsByTagName("body").item(0);
 		
 		if ($('lightbox')) {
 			Element.remove($('lightbox'));
@@ -268,7 +267,7 @@ Lightbox.prototype = {
 			// if image is part of a set..
 
 			// loop through anchors, find other images in set, and add them to imageArray
-			var r = document.evaluate('//a[@rel="'+myrel+'"]', document, null, 7, null);
+			var r = document.evaluate('descendant::a[@rel="'+myrel+'"]', document, null, 7, null);
 			for (var i=0; i<r.snapshotLength; i++){
 				var anchor = r.snapshotItem(i);
 				if (anchor.getAttribute('href')) {

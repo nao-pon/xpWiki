@@ -16,10 +16,16 @@ function rawurlencode(str) {
 }
 
 XpWiki.domInitFunctions.push(function() {
-	var x = document.evaluate('//div[@class="xpwiki_ajaxtree"]', document.body, null, 6, null);
+	var body = document.getElementsByTagName('body')[0];
+	if (this.useSelector) {
+		var x = body.querySelectorAll('div.xpwiki_ajaxtree');
+		x.snapshotLength = x.length;
+	} else {
+		var x = document.evaluate('descendant::div[@class="xpwiki_ajaxtree"]', body, null, 6, null);
+	}
 	var n = 0;
 	for (var i = 0; i < x.snapshotLength; i++) {
-		var obj = x.snapshotItem(i);
+		var obj = (this.useSelector)? x[i] : x.snapshotItem(i);
 
 		if (typeof(obj.onclick) != 'function') {
 		
