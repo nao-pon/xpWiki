@@ -34,12 +34,14 @@ var XpWiki = {
 	domInitFunctions: [],
 	isDomLoaded: true,
 	domInitDone: false,
-	
+	DomBody: null,
 	printing: false,
 	
 	isIE8: (Prototype.Browser.IE && typeof(window.localStorage) != "undefined"),
 	isIE7: (Prototype.Browser.IE && typeof(document.documentElement.style.msInterpolationMode) != "undefined" && typeof(window.localStorage) == "undefined"),
 	isIE6: (Prototype.Browser.IE && typeof(document.documentElement.style.msInterpolationMode) == "undefined"),
+	
+	useSelector: (Prototype.Browser.IE && typeof document.querySelector == 'object'),
 	
 	onDomLoaded: function () {
 		if (Prototype.Browser.IE && XpWikiIeDomLoadedDisable && this.isDomLoaded) {
@@ -47,24 +49,30 @@ var XpWiki = {
 			return;
 		}
 
-		if (this.domInitDone || this.printing) return;
+		if (this.domInitDone) return;
 		this.domInitDone = true;
 		
-		this.IEVer = this.isIE8? 8 : (this.isIE7? 7 : (this.isIE6? 6 : 0));
+		if (this.isIE8) {
+			this.IEVer = document.documentMode;
+		} else {
+			this.IEVer = this.isIE7? 7 : (this.isIE6? 6 : 0);
+		}
 		this.MyUrl = XpWikiModuleUrl;
 		this.EncHint = XpWikiEncHint;
-
+		this.DomBody = document.getElementsByTagName('body')[0];
+		
+		if (this.printing) return;
+		
 		// cookie
 		wikihelper_adv = wikihelper_load_cookie("__whlp");
 		if (wikihelper_adv) wikihelper_save_cookie("__whlp",wikihelper_adv,90,"/");
 
-		var body = document.getElementsByTagName('body')[0];
 		if (!this.isIE6 || !this.ie6JsPass) {
-			this.remakeTextArea(body);
-			wikihelper_initTexts(body);
+			this.remakeTextArea(this.DomBody);
+			wikihelper_initTexts(this.DomBody);
 		}
 
-		this.initDomExtension(body);
+		this.initDomExtension(this.DomBody);
 
 		if (this.domInitFunctions) {
 			while (this.domInitFunctions.length > 0) {
@@ -73,7 +81,7 @@ var XpWiki = {
 		}
 
 		if (!this.isIE6 || !this.ie6JsPass) {
-			this.faviconSet(body);
+			this.faviconSet(this.DomBody);
 		}
 	},
 	
@@ -148,7 +156,7 @@ var XpWiki = {
 					'<span id="XpWikiPopupHeaderTitle" style="padding-left:5px;"></span>';
 			this.PopupDiv.appendChild(elem);
 			
-			var objBody = $('xpwiki_body') || document.getElementsByTagName('body').item(0);
+			var objBody = $('xpwiki_body') || this.DomBody;
 			objBody.appendChild(this.PopupDiv);
 
 			if (!!arg.bottom) {
@@ -468,11 +476,16 @@ var XpWiki = {
 		this.faviconSetDone = true;
 		var time_limit = 3000; // (ms)
 		time_limit += new Date().getTime();
-		var x = document.evaluate('//a[@class="' + this.faviconSetClass + '"]', body, null, 6, null);
+		if (this.useSelector) {
+			var x = body.querySelectorAll('a.' + this.faviconSetClass);
+			x.snapshotLength = x.length;
+		} else {
+			var x = document.evaluate('descendant::a[@class="' + this.faviconSetClass + '"]', body, null, 6, null);
+		}
 		var n = 0;
 		for (var i = 0; i < x.snapshotLength; i++) {
 			if (time_limit < new Date().getTime()) break;
-			var obj = x.snapshotItem(i);
+			var obj = (this.useSelector)? x[i] : x.snapshotItem(i);
 			if (obj.className == this.faviconSetClass && obj.firstChild && obj.firstChild.nodeName.toUpperCase() != 'IMG') {
 				var height = Element.getStyle(obj ,'fontSize');
 				if (height.match(/%$/)) {
@@ -560,15 +573,15 @@ var XpWiki = {
 		}
 	},
 
-	initDomExtension: function (obj) {
+	initDomExtension: function (target) {
 		var pres = new Array();
 		var tocId = 0;
 		var tocCond = this.cookieLoad('_xwtoc');
 		
 		if (this.isIE6) {
-			var x = document.evaluate('//div[@class="pre notranslate" or @class="pre"]', document.body, null, 6, null);
+			var x = document.evaluate('descendant::div[contains(@class,"pre")]', target, null, 6, null);
 		} else {
-			var x = document.evaluate('//div[@class="pre notranslate" or @class="pre"][ancestor::td]', document.body, null, 6, null);
+			var x = document.evaluate('descendant::div[contains(@class,"pre")][ancestor::td]', target, null, 6, null);
 		}
 		var n = 0;
 		for (var i = 0; i < x.snapshotLength; i++) {
@@ -588,10 +601,15 @@ var XpWiki = {
 			}
 		}
 
-		var x = document.evaluate('//div[@class="toc_header"]', document.body, null, 6, null);
+		if (this.useSelector) {
+			var x = target.querySelectorAll('div.toc_header');
+			x.snapshotLength = x.length;
+		} else {
+			var x = document.evaluate('descendant::div[@class="toc_header"]', target, null, 6, null);
+		}
 		var n = 0;
 		for (var i = 0; i < x.snapshotLength; i++) {
-			var obj = x.snapshotItem(i);
+			var obj = (this.useSelector)? x[i] : x.snapshotItem(i);
 			obj.id = 'xpwiki_toc_header' + tocId;
 			var base = obj.parentNode;
 			base.id = 'xpwiki_toc_base' + tocId;
@@ -935,7 +953,7 @@ var XpWiki = {
 	},
 	
 	FCKrefInsert: function(file, type) {
-		var r = document.evaluate('//iframe[contains(@src,\'/editor/fckdialog.html\')]', document, null, 7, null);
+		var r = document.evaluate('descendant::iframe[contains(@src,\'/editor/fckdialog.html\')]', document, null, 7, null);
 		if (r) {
 			var base = (r.snapshotItem(0).contentWindow.document || r.snapshotItem(0).contentDocument);
 			var fckdialog = (base.getElementById('frmMain').contentWindow.document || base.getElementById('frmMain').contentDocument);
@@ -971,7 +989,7 @@ var XpWiki = {
 				};
 			}
 			sc.src = this.FCKeditor_path + 'fckeditor.js';
-			document.body.appendChild(sc);
+			this.DomBody.appendChild(sc);
 		} else if (typeof FCKeditor == "function") {
 			if (typeof FCKeditorAPI == "object" && FCKeditorAPI.GetInstance(id)) {
 				return this.toggleFCK(id);
@@ -1072,9 +1090,14 @@ var XpWiki = {
 	toggle_norich: function(id) {
 		var form = this.getParentForm(id);
 		if (form) {
-			var x = document.evaluate('//*[@class="norich"]', form, null, 6, null);
+			if (this.useSelector) {
+				var x = form.querySelectorAll('.norich');
+				x.snapshotLength = x.length;
+			} else {
+				var x = document.evaluate('descendant::*[@class="norich"]', form, null, 6, null);
+			}
 			for (var i = 0; i < x.snapshotLength; i++) {
-				var obj = x.snapshotItem(i);
+				var obj = (this.useSelector)? x[i] : x.snapshotItem(i);
 				Element.toggle(obj);
 			}
 		}
@@ -1149,6 +1172,7 @@ var XpWiki = {
 			valueT += element.offsetTop  || 0;
 			valueL += element.offsetLeft || 0;
 			if (Prototype.Browser.IE &&  this.IEVer < 8 &&
+			//if (Prototype.Browser.IE &&
 				element == tgtElement && 
 				element.tagName.toUpperCase() == 'DIV') {
 				valueL -= element.offsetLeft || 0;
@@ -1156,6 +1180,10 @@ var XpWiki = {
 			element = element.offsetParent;
 		} while (element);
 		return Element._returnOffset(valueL, valueT);
+	},
+	
+	getDomBody: function() {
+		return (this.DomBody || document.getElementsByTagName('body')[0]);
 	}
 };
 
