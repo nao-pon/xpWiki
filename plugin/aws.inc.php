@@ -1,7 +1,7 @@
 <?php
 /*
  * Created on 2008/02/28 by nao-pon http://hypweb.net/
- * $Id: aws.inc.php,v 1.7 2009/05/25 04:41:30 nao-pon Exp $
+ * $Id: aws.inc.php,v 1.8 2009/06/26 00:24:20 nao-pon Exp $
  */
 
 /////////////////////////////////////////////////
@@ -9,6 +9,8 @@
 
 class xpwiki_plugin_aws extends xpwiki_plugin {
 
+	var $options_default = array();
+	
 	function plugin_aws_init() {
 		//////// Config ///////
 		$this->config['AccessKeyId']     = '';
@@ -19,6 +21,14 @@ class xpwiki_plugin_aws extends xpwiki_plugin {
 			// Template mapping
 			'From name' => 'To name',
 		);
+
+		$this->options_default = array(
+			'search'    => 'keywords',
+			'timestamp' => FALSE,
+			'makepage'  => FALSE,
+			'maxdepth'  => 3,
+		);
+
 	}
 
 	function plugin_aws_convert() {
@@ -33,12 +43,16 @@ class xpwiki_plugin_aws extends xpwiki_plugin {
 		
 		$this->load_language();
 
-		$this->options = array(
-			'search'    => 'keywords',
-			'timestamp' => FALSE,
-			'makepage'  => FALSE,
-		);
-		
+		if (! $this->options_default) {
+			$this->options_default = array(
+				'search'    => 'keywords',
+				'timestamp' => FALSE,
+				'makepage'  => FALSE,
+				'maxdepth'  => 3,
+			);
+		}
+		$this->options = $this->options_default;
+
 		$args = array_pad(func_get_args(), 6, '');
 		$f = array_shift($args);
 		$m = array_shift($args);
@@ -126,7 +140,7 @@ class xpwiki_plugin_aws extends xpwiki_plugin {
 				$this->func->touch_page($this->root->vars['page'], $ama->newestTime);
 			}
 			
-			if (! $ama->error && empty($this->root->rtf['preview']) && $this->options['makepage'] && ! empty($this->root->vars['page'])) {
+			if (! $ama->error && empty($this->root->rtf['preview']) && $this->options['makepage'] && ! empty($this->root->vars['page']) && substr_count($this->root->vars['page'], '/') + 1 < $this->options['maxdepth']) {
 				$wait = 0;
 				$checkUTIME = $this->cont['UTC'] - 86400;
 				foreach($ama->compactArray['Items'] as $item) {
