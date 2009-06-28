@@ -21,9 +21,6 @@
  * This is a sample implementation for a custom Data Processor for basic BBCode.
  */
 
-// Load Ajax LIB
-document.write( '<scr' + 'ipt type="text/javascript" src="' + FCKConfig.xpWiki_FCKxpwikiPath + 'jslb_ajax.js"><\/scr' + 'ipt>' );
-
 FCK.DataProcessor =
 {
 	/*
@@ -39,10 +36,19 @@ FCK.DataProcessor =
 		window.parent.xpwiki_now_loading(true, FCK.LinkedField.parentNode);
 		
 		var body;
-		
-		sendRequest(
+		var url = FCKConfig.xpWiki_myPath + "gate.php";
+		var pars = "way=w2x";
+		pars += "&s=" + encodeURIComponent(data);
+		pars += "&lb=" + encodeURIComponent(FCKConfig.xpWiki_LineBreak);
+		pars += "&_hypmode=1";
+		pars += "&page=" + encodeURIComponent(FCKConfig.xpWiki_PageName);
+		var myAjax = new window.parent.Ajax.Request(
+			url, 
 			{
-				onload : function (oj){
+				method: 'post',
+				postBody: pars,
+				asynchronous : false,
+				onSuccess: function (oj){
 					if (! oj.responseXML) {
 						alert("Response error.\n\n" + oj.responseText);
 						body = data;
@@ -55,15 +61,7 @@ FCK.DataProcessor =
 					}
 					oj = null;
 				}
-			},
-			{ way: "w2x", s: data, lb: FCKConfig.xpWiki_LineBreak, _hypmode: 1, page: FCKConfig.xpWiki_PageName },
-			'POST',
-			FCKConfig.xpWiki_myPath + "gate.php",
-			false,
-			false
-		);
-		
-		//alert(body);
+			});
 		
 		window.parent.xpwiki_now_loading(false, FCK.LinkedField.parentNode);
 		
@@ -84,12 +82,18 @@ FCK.DataProcessor =
 		window.parent.xpwiki_now_loading(true, FCK.LinkedField.parentNode);
 		
 		var data = FCKXHtml.GetXHTML( rootNode, false, false ) ;
-
-		//alert(data);
-		
-		sendRequest(
+		var url = FCKConfig.xpWiki_myPath + "gate.php";
+		var pars = "way=x2w";
+		pars += "&s=" + encodeURIComponent(data);
+		pars += "&lb=" + encodeURIComponent(FCKConfig.xpWiki_LineBreak);
+		pars += "&_xmode=2";
+		var myAjax = new window.parent.Ajax.Request(
+			url, 
 			{
-				onload : function (oj){
+				method: 'post',
+				postBody: pars,
+				asynchronous : false,
+				onSuccess: function (oj){
 					if (! oj.responseXML) {
 						alert("Response error.\n\n" + oj.responseText);
 						data = FCK.LinkedField.value;
@@ -99,13 +103,7 @@ FCK.DataProcessor =
 					}
 					oj = null;
 				}
-			},
-			{ way: "x2w", s: data, lb: FCKConfig.xpWiki_LineBreak, _xmode: 2 },
-			'POST',
-			FCKConfig.xpWiki_myPath + "gate.php",
-			false,
-			false
-		);
+			});
 
 		window.parent.xpwiki_now_loading(false, FCK.LinkedField.parentNode);
 

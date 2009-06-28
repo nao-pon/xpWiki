@@ -254,23 +254,33 @@ PukiWikiPlugin.SetupAttachment = function(element, sValue) {
 	var source = text.replace('&amp;', '&');
 	
 	if (sValue['type'] != 'DIV') {
-		sendRequest(
+		var url = FCKConfig.xpWiki_myPath + "gate.php";
+		var pars = "way=w2x";
+		pars += "&s=" + encodeURIComponent(source);
+		pars += "&lb=" + encodeURIComponent(FCKConfig.xpWiki_LineBreak);
+		pars += "&_hypmode=1";
+		pars += "&page=" + encodeURIComponent(FCKConfig.xpWiki_PageName);
+		var myAjax = new window.parent.Ajax.Request(
+			url, 
 			{
-				onload : function (oj){
-					var xmlData = oj.responseXML;
-					var res = xmlData.getElementsByTagName("res");
-					var lb = xmlData.getElementsByTagName("lb");
-					html = res[0].firstChild.nodeValue;
-					FCKConfig.xpWiki_LineBreak = lb[0].firstChild.nodeValue;
+				method: 'post',
+				postBody: pars,
+				asynchronous : false,
+				onSuccess: function (oj){
+					if (! oj.responseXML) {
+						alert("Response error.\n\n" + oj.responseText);
+						body = data;
+					} else {
+						var xmlData = oj.responseXML;
+						var res = xmlData.getElementsByTagName("res");
+						var lb = xmlData.getElementsByTagName("lb");
+						html = res[0].firstChild.nodeValue;
+						FCKConfig.xpWiki_LineBreak = lb[0].firstChild.nodeValue;
+					}
 					oj = null;
 				}
-			},
-			{ way: "w2x", s: source, lb: FCKConfig.xpWiki_LineBreak, _hypmode: 1, page: FCKConfig.xpWiki_PageName },
-			'POST',
-			FCKConfig.xpWiki_myPath + "gate.php",
-			false,
-			false
-		);
+			});
+
 		if (!!html) {
 			var temp = document.createElement('DIV');
 			temp.innerHTML = html;

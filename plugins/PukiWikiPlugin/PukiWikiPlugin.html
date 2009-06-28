@@ -34,9 +34,6 @@ var blocks = '';
 var inlines = '';
 var usage = {};
 
-// Load Ajax LIB
-document.write( '<scr' + 'ipt type="text/javascript" src="' + FCKConfig.xpWiki_FCKxpwikiPath + 'jslb_ajax.js"><\/scr' + 'ipt>' );
-
 window.onload = function ()
 {
 	// First of all, translate the dialog box texts
@@ -56,9 +53,12 @@ window.onload = function ()
 
 function BuildPluginSelect() {
 	var plugins;
-	sendRequest(
+	var myAjax = new dialog.window.parent.Ajax.Request(
+		FCKConfig.xpWiki_myPath + "?plugin=pluginlist", 
 		{
-			onload : function (oj){
+			method: 'get',
+			asynchronous : true,
+			onSuccess: function (oj){
 				var jsonData = oj.responseText;
 				if (!!jsonData) {
 					plugins = eval('(' + jsonData + ')');
@@ -86,13 +86,7 @@ function BuildPluginSelect() {
 					SetPluginSelect();
 				}
 			}
-		},
-		{},
-		'GET',
-		FCKConfig.xpWiki_myPath + "?plugin=pluginlist",
-		true,
-		false
-	);
+		});
 }
 
 function SetPluginSelect() {
