@@ -1,6 +1,6 @@
 <?php
 // PukiWiki - Yet another WikiWikiWeb clone.
-// $Id: keitai.ini.php,v 1.24 2009/06/25 23:48:49 nao-pon Exp $
+// $Id: keitai.ini.php,v 1.25 2009/06/30 23:37:49 nao-pon Exp $
 // Copyright (C)
 //   2002-2005 PukiWiki Developers Team
 //   2001-2002 Originally written by yu-ji
@@ -160,6 +160,7 @@ $root->keitai_display_width = 240;
 $root->keitai_img_px = 200;
 $root->keitai_imageTwiceDisplayWidth = 0;
 if (HypCommonFunc::get_version() >= '20090611') {
+	HypCommonFunc::loadClass('HypKTaiRender');
 	$ktairender =& HypKTaiRender::getSingleton();
 	if (! empty($ktairender->vars['ua']['width'])) {
 		$root->keitai_display_width = $ktairender->vars['ua']['width'];
