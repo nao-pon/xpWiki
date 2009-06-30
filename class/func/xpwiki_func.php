@@ -1,7 +1,7 @@
 <?php
 //
 // Created on 2006/10/02 by nao-pon http://hypweb.net/
-// $Id: xpwiki_func.php,v 1.214 2009/05/28 01:48:27 nao-pon Exp $
+// $Id: xpwiki_func.php,v 1.215 2009/06/30 23:43:31 nao-pon Exp $
 //
 class XpWikiFunc extends XpWikiXoopsWrapper {
 
@@ -3009,8 +3009,15 @@ EOD;
 					}
 				}
 				
+				// Page Aliases
+				$andor = 'AND';
+				if ($alias = join(' ', $this->get_page_alias($page, TRUE))) {
+					$andor = 'OR';
+					$lookup_page .= ' ' . $alias;
+				}
+				
 				// ¸¡º÷¼Â¹Ô
-				$pages = (! empty($this->root->rtf['is_init']))? $this->do_source_search($lookup_page,'AND',TRUE) : $this->do_search($lookup_page,'AND',TRUE);
+				$pages = (! empty($this->root->rtf['is_init']))? $this->do_source_search($lookup_page,$andor,TRUE) : $this->do_search($lookup_page,$andor,TRUE);
 				
 				foreach ($pages as $_page)
 				{
