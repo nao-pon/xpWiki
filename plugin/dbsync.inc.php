@@ -1,7 +1,7 @@
 <?php
 //
 // Created on 2006/11/17 by nao-pon http://hypweb.net/
-// $Id: dbsync.inc.php,v 1.38 2009/06/26 00:26:58 nao-pon Exp $
+// $Id: dbsync.inc.php,v 1.39 2009/06/30 23:44:45 nao-pon Exp $
 //
 
 class xpwiki_plugin_dbsync extends xpwiki_plugin {
@@ -610,7 +610,7 @@ __EOD__;
 					continue;
 				}
 				
-				$id = $this->func->get_pgid_by_name($page);
+				$id = $this->func->get_pgid_by_name($page, FALSE, TRUE);
 				$query = "SELECT plain FROM `".$this->xpwiki->db->prefix($this->root->mydirname."_plain")."` WHERE `pgid` = ".$id.";";
 				$result = $this->xpwiki->db->query($query);
 				if ($result && mysql_num_rows($result))
