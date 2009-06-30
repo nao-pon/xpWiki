@@ -1,7 +1,7 @@
 <?php
 //
 // Created on 2006/11/28 by nao-pon http://hypweb.net/
-// $Id: hypcommonver.inc.php,v 1.1 2008/09/21 05:30:27 nao-pon Exp $
+// $Id: hypcommonver.inc.php,v 1.2 2009/06/30 23:35:18 nao-pon Exp $
 //
 class xpwiki_plugin_hypcommonver extends xpwiki_plugin {
 
@@ -26,7 +26,7 @@ class xpwiki_plugin_hypcommonver extends xpwiki_plugin {
 			return file_get_contents($c_file);
 		}
 		
-		$url = 'http://cvs.sourceforge.jp/cgi-bin/viewcvs.cgi/*checkout*/hypweb/XOOPS_TRUST/class/hyp_common/version.php?content-type=text%2Fplain';
+		$url = 'http://sourceforge.jp/cvs/view/hypweb/XOOPS_TRUST/class/hyp_common/version.php?view=co&content-type=text%2Fplain';
 		
 		$dat = $this->func->http_request($url);
 		

@@ -2,7 +2,7 @@
 /*
  * Created on 2008/12/05 by nao-pon http://hypweb.net/
  * License: GPL v2 or (at your option) any later version
- * $Id: fckxpwikiver.inc.php,v 1.1 2008/12/08 23:38:01 nao-pon Exp $
+ * $Id: fckxpwikiver.inc.php,v 1.2 2009/06/30 23:35:18 nao-pon Exp $
  */
 class xpwiki_plugin_fckxpwikiver extends xpwiki_plugin {
 
@@ -27,7 +27,7 @@ class xpwiki_plugin_fckxpwikiver extends xpwiki_plugin {
 			return file_get_contents($c_file);
 		}
 		
-		$url = 'http://cvs.sourceforge.jp/cgi-bin/viewcvs.cgi/*checkout*/hypweb/XOOPS_HTML/common/fckxpwiki/version.php?content-type=text%2Fplain';
+		$url = 'http://sourceforge.jp/cvs/view/hypweb/XOOPS_HTML/common/fckxpwiki/version.php?view=co&content-type=text%2Fplain';
 		
 		$dat = $this->func->http_request($url);
 		
