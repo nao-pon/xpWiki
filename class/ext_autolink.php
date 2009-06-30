@@ -1,7 +1,7 @@
 <?php
 /*
  * Created on 2007/04/23 by nao-pon http://hypweb.net/
- * $Id: ext_autolink.php,v 1.29 2009/04/04 12:05:03 nao-pon Exp $
+ * $Id: ext_autolink.php,v 1.30 2009/06/30 23:41:07 nao-pon Exp $
  */
 class XpWikiPukiExtAutoLink {
 	// External AutoLinks
@@ -107,7 +107,8 @@ class XpWikiPukiExtAutoLink {
 			'title'   => 'Ext:[KEY]' ,
 			'pat'     => '',
 			'a_target'=> '',
-			'a_class' => ''
+			'a_class' => '',
+			'option'  => ''
 		);
 		$autolink = array_merge($inits, $autolink);
 		
@@ -133,7 +134,7 @@ class XpWikiPukiExtAutoLink {
 				mb_convert_encoding($autolink['base'], $autolink['enc'], $this->cont['CONTENT_CHARSET']) : $autolink['base'];
 			$target = $autolink['url'].'?plugin=api&pcmd=autolink&base='.rawurlencode($target);
 		}
-		$cache = $this->cont['CACHE_DIR'].sha1($target).'.extautolink';
+		$cache = $this->cont['CACHE_DIR'].sha1($target . $autolink['option']).'.extautolink';
 		
 		// 重複登録チェック
 		if (isset($this->root->rtf['get_ext_autolink_done'][$target])) {
@@ -167,7 +168,15 @@ class XpWikiPukiExtAutoLink {
 					// Cache しない
 					$cache = false;
 				}
-				$pat = $plugin->autolink(true, $autolink['base']);
+				$options = array();
+				if ($autolink['option']) {
+					$_options = $this->func->csv_explode(',', $autolink['option']);
+					foreach($_options as $option) {
+						list($key, $val) = array_pad(explode(':', $option, 2), 2, TRUE);
+						$options[trim($key)] = trim($val);
+					}
+				}
+				$pat = $plugin->autolink(true, $autolink['base'], $options);
 			} else {
 				$data = $this->func->http_request($target);
 				if ($data['rc'] !== 200) {
