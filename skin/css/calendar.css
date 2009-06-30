@@ -73,6 +73,10 @@ $class span.boxdate span.year {
 	display: block;
 }
 
+$class span.boxdate a {
+	color: inherit;
+}
+
 $class div.boxdate_spacer {
 	margin: 0;
 	padding: 0;
