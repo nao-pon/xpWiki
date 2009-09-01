@@ -1,6 +1,6 @@
 <?php
 // PukiWiki - Yet another WikiWikiWeb clone.
-// $Id: pukiwiki.skin.php,v 1.44 2009/04/11 00:53:10 nao-pon Exp $
+// $Id: pukiwiki.skin.php,v 1.45 2009/09/01 03:07:32 nao-pon Exp $
 // Copyright (C)
 //   2002-2006 PukiWiki Developers Team
 //   2001-2002 Originally written by yu-ji
@@ -77,9 +77,9 @@ $css_charset = $this->cont['CSS_CHARSET'];
 $favicon = ($image['favicon'])? "<link rel=\"SHORTCUT ICON\" href=\"{$image['favicon']}\" />" : "";
 $dirname = $this->root->mydirname;
 $rsstitle = 'RSS of ' . htmlspecialchars($this->root->module['title']);
-$s_page = htmlspecialchars($_page, ENT_QUOTES);
+$s_page = htmlspecialchars($_page);
 
-$upload_js = ' onclick="return XpWiki.fileupFormPopup(\''.$dirname.'\',\''.$s_page.'\')"';
+$upload_js = ' onclick="return XpWiki.fileupFormPopup(\''.$dirname.'\',\''.str_replace('\'', '\\\'', $s_page).'\')"';
 
 $this->root->html_header = <<<EOD
 $favicon
