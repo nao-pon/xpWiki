@@ -1,7 +1,7 @@
 <?php
 //
 // Created on 2006/10/02 by nao-pon http://hypweb.net/
-// $Id: xpwiki_func.php,v 1.215 2009/06/30 23:43:31 nao-pon Exp $
+// $Id: xpwiki_func.php,v 1.216 2009/09/01 03:04:41 nao-pon Exp $
 //
 class XpWikiFunc extends XpWikiXoopsWrapper {
 
@@ -1160,11 +1160,13 @@ EOD;
 			
 			$this->cont['PKWK_READONLY'] = 1;
 			$this->root->_symbol_anchor = '';
+			$this->root->rtf['GET_HEADING_INIT'] = TRUE;
 
 			$ret = $this->convert_html($ret, $page);
 			
 			$this->root->_symbol_anchor = $_symbol_anchor;
 			$this->cont['PKWK_READONLY'] = $_readonly;
+			unset($this->root->rtf['GET_HEADING_INIT']);
 			
 			$ret = strip_tags(preg_replace('#<script.+?/script>|<span class="plugin_error">.+?</span>#is', '', $ret));
 			$ret = str_replace(array("\r","\n","\t", '&nbsp;'),' ',$ret);
@@ -1223,6 +1225,8 @@ EOD;
 		}	
 
 		$txt = preg_replace('/^\+(.*\s*)$/m', '$1', $txt);
+		$txt = preg_replace('/^#pginfo.+/m', '', $txt);
+		$txt = preg_replace('/^#/m', '&#35;', $txt);
 		
 		// ゲスト扱いにする
 		$_userinfo = $this->root->userinfo;
@@ -1232,10 +1236,13 @@ EOD;
 		$this->root->userinfo['uname_s'] = '';
 		$this->root->userinfo['gids'] = array();
 		
-		$txt = rtrim($this->convert_html($txt));
+		$this->root->rtf['PUSH_PAGE_CHANGES'] = TRUE;
+		$txt = rtrim($this->convert_html($txt, $page));
+		unset($this->root->rtf['PUSH_PAGE_CHANGES']);
 		
 		$this->root->userinfo = $_userinfo;
 		
+		$txt = preg_replace('#</?a\b[^>]*>|<(script|style)\b.+?</\\1>#is', '', $txt);
 		if (!$txt) {return;}
 	
 		$sep = "&#182;<!--ADD_TEXT_SEP-->\n";
@@ -2587,12 +2594,20 @@ EOD;
 					$where = " $base_where";
 			}
 		}
-		if ($nolisting)
+		if ($nolisting && $this->root->non_list_like)
 		{
+			static $nolist_like = array();
+			if (! isset($nolist_like[$this->root->mydirname])) {
+				$_nolist_like = array();
+				foreach (explode('#', $this->root->non_list_like) as $_like) {
+					$_nolist_like[] = 'name NOT LIKE \'' . addslashes($_like) . '\'';
+				}
+				$nolist_like[$this->root->mydirname] = ' (' . join(' AND ', $_nolist_like) . ')';
+			}
 			if ($where)
-				$where = " (name NOT LIKE ':%') AND ($where)";
+				$where = $nolist_like[$this->root->mydirname] . " AND ($where)";
 			else
-				$where = " (name NOT LIKE ':%')";
+				$where = $nolist_like[$this->root->mydirname];
 		}
 		if ($nodelete)
 		{

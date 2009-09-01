@@ -1,7 +1,7 @@
 <?php
 /*
  * Created on 2007/07/11 by nao-pon http://hypweb.net/
- * $Id: sitemap.plugin.php,v 1.3 2008/02/08 02:56:31 nao-pon Exp $
+ * $Id: sitemap.plugin.php,v 1.4 2009/09/01 03:04:41 nao-pon Exp $
  */
 
 function b_sitemap_xpwiki( $mydirname ) {
@@ -14,11 +14,8 @@ function b_sitemap_xpwiki( $mydirname ) {
 	include_once dirname(dirname(__FILE__)).'/include.php';
 
 	$xpwiki =& XpWiki::getInitedSingleton($mydirname);
-
-	$where = $xpwiki->func->get_readable_where();
-	$where = ($where)? " WHERE (editedtime!=0) AND (name NOT LIKE ':%') AND ($where)" : " WHERE (editedtime!=0) AND (name NOT LIKE ':%')";
-	$query = "SELECT pgid, name, title FROM ".$xpwiki->db->prefix($xpwiki->root->mydirname."_pginfo").$where." ORDER BY editedtime DESC LIMIT 5;";
-	$result = $xpwiki->db->query($query);
+	
+	$result = $xpwiki->func->get_existpages(FALSE, '', array('limit' => 5, 'order' => ' ORDER BY editedtime DESC', 'select' => array('title'), 'nolisting' => TRUE));
 	
 	$ret = array();
 	
@@ -29,7 +26,10 @@ function b_sitemap_xpwiki( $mydirname ) {
 		$ret['title'] = $xpwiki->root->_LANG['skin']['recent'];
 		$ret['url'] = '?' . rawurlencode($xpwiki->root->whatsnew);
 	}
-	while( list( $pgid, $page, $title ) = $xpwiki->db->fetchRow( $result ) ) {
+	foreach($result as $_res) {
+		$pgid = $_res['pgid'];
+		$page = $_res['name'];
+		$title = $_res['title'];
 		$title = ($xpwiki->root->pagename_num2str) ? preg_replace('/\/(?:[0-9\-]+|[B0-9][A-Z0-9]{9})$/','/'.$xpwiki->func->get_heading($page),$page) : $page;
 		$ret[$show_cat][] = array(
 			"id" => intval( $pgid ) ,
