@@ -992,6 +992,7 @@ class XpWikiBody extends XpWikiElement {
 	var $count = 0;
 	var $contents;
 	var $contents_last;
+	var $contents_body;
 	var $classes = array (
 		'-' => 'XpWikiUList',
 		'+' => 'XpWikiOList',
@@ -1208,8 +1209,11 @@ class XpWikiBody extends XpWikiElement {
 			$text = preg_replace('/<h\d/', '<#_contents_>'."\n".'$0', $text, 1);
 		}
 		
-		$text = preg_replace_callback('/<#_contents_>/', array (& $this, 'replace_contents'), $text);
-		
+		if (strpos($text, '<#_contents_>') !== FALSE) {
+			$this->contents_body = $this->contents->toString();
+			$text = preg_replace_callback('/<#_contents_>/', array (& $this, 'replace_contents'), $text);
+		}
+		$this->contents_body = NULL;
 		$this->contents_last = NULL;
 		$this->contents = NULL;
 		
@@ -1217,14 +1221,13 @@ class XpWikiBody extends XpWikiElement {
 	}
 
 	function replace_contents($arr) {
-		$contents = $this->contents->toString();
 		return <<<EOD
 <div class="contents">
  <div class="toc_header">
   {$this->root->contents_title}
  </div>
  <div class="toc_body">
-  $contents
+  {$this->contents_body}
  </div>
 </div>
 EOD;
