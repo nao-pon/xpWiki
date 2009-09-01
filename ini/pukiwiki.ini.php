@@ -1,6 +1,6 @@
 <?php
 // PukiWiki - Yet another WikiWikiWeb clone
-// $Id: pukiwiki.ini.php,v 1.96 2009/06/26 00:19:26 nao-pon Exp $
+// $Id: pukiwiki.ini.php,v 1.97 2009/09/01 03:04:41 nao-pon Exp $
 // Copyright (C)
 //   2002-2006 PukiWiki Developers Team
 //   2001-2002 Originally written by yu-ji
@@ -492,6 +492,8 @@ $root->pop_passwd = '';
 
 // Regex of ignore pages
 $root->non_list = '^\:';
+// MySQL expr LIKE of non_list (split by #)
+$root->non_list_like = ':%';
 
 // Search ignored pages
 $root->search_non_list = 1;

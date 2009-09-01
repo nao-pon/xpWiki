@@ -1,5 +1,5 @@
 <?php
-// $Id: recent.inc.php,v 1.17 2009/05/25 04:51:18 nao-pon Exp $
+// $Id: recent.inc.php,v 1.18 2009/09/01 03:04:41 nao-pon Exp $
 // Copyright (C)
 //   2002-2006 PukiWiki Developers Team
 //   2002      Y.MASUI http://masui.net/pukiwiki/ masui@masui.net
@@ -38,6 +38,7 @@ class xpwiki_plugin_recent extends xpwiki_plugin {
 
 		$prefix = "";
 		$recent_lines = 0;
+		$nochild = FALSE;
 		if(func_num_args()>0) {
 			$args = func_get_args();
 			$recent_lines = (int)$args[0];
@@ -82,7 +83,7 @@ class xpwiki_plugin_recent extends xpwiki_plugin {
 		}
 	
 		// Get latest N changes
-		$nolisting = (!$_prefix || $_prefix[0] !== ':');
+		$nolisting = (!$_prefix || !$this->func->check_non_list($_prefix));
 		$lines = $this->func->get_existpages(FALSE, $_prefix, array('limit' =>$recent_lines, 'order' => ' ORDER BY editedtime DESC', 'nolisting' => $nolisting, 'withtime' =>TRUE, 'nochild' => $nochild));
 		
 		$date = $items = '';
