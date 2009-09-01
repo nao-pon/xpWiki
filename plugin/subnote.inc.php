@@ -1,7 +1,7 @@
 <?php
 /*
  * Created on 2007/10/05 by nao-pon http://hypweb.net/
- * $Id: subnote.inc.php,v 1.4 2009/04/04 07:11:44 nao-pon Exp $
+ * $Id: subnote.inc.php,v 1.5 2009/09/01 03:07:32 nao-pon Exp $
  */
 
 class xpwiki_plugin_subnote extends xpwiki_plugin {
@@ -43,7 +43,7 @@ class xpwiki_plugin_subnote extends xpwiki_plugin {
 		}
 
 		$js = 'XpWiki.domInitFunctions.push(function(){XpWiki.pagePopup({dir:\'' . htmlspecialchars($this->root->mydirname, ENT_QUOTES) .
-			'\',page:\'' . htmlspecialchars($page . $anchor, ENT_QUOTES) . '\'' .
+			'\',page:\'' . htmlspecialchars(str_replace('\'', '\\\'', $page) . $anchor) . '\'' .
 			$popup_pos . '});});';
 		
 		$this->func->add_js_var_head($js);

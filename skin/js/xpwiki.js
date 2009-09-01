@@ -204,7 +204,7 @@ var XpWiki = {
 			
 			$('XpWikiPopupBody').src = '';
 			$('XpWikiPopupBody').observe("load", function(){
-				$('XpWikiPopupHeaderTitle').innerHTML = this.title.replace(/(\w)/g, "$1&#8203;");
+				$('XpWikiPopupHeaderTitle').innerHTML = this.title.replace(/(\w|&#[0-9A-Za-z]+;)/g, "$1&#8203;");
 			}.bind(this));
 
 			Element.hide('XpWikiPopupCover');
@@ -352,7 +352,7 @@ var XpWiki = {
 			height: this.PopupHeight,
 			width: this.PopupWidth
 		});
-		$('XpWikiPopupHeaderTitle').innerHTML = title.replace(/([\w])/g, "$1&#8203;");
+		$('XpWikiPopupHeaderTitle').innerHTML = title.replace(/(\w|&#[0-9A-Za-z]+;)/g, "$1&#8203;");
 		$('XpWikiPopupBody').innerHTML = '<div style="margin:10px;">' + body + '</div>';
 		//wikihelper_initTexts(this.PopupDiv.id);
 		Element.show(this.PopupDiv);
