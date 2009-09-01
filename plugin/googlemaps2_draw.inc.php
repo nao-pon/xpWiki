@@ -68,6 +68,7 @@ class xpwiki_plugin_googlemaps2_draw extends xpwiki_plugin {
 	}
 	
 	function plugin_googlemaps2_draw_inline() {
+		if (isset($this->root->rtf['GET_HEADING_INIT'])) return 'Google Maps';
 		$args = func_get_args();
 		$str = array_pop($args);
 		if (sizeof($args)<2) {
@@ -80,7 +81,7 @@ class xpwiki_plugin_googlemaps2_draw extends xpwiki_plugin {
 	
 		$p_googlemaps2 =& $this->func->get_plugin_instance('googlemaps2');
 				
-		if ($p_googlemaps2->plugin_googlemaps2_is_supported_profile() && !$p_googlemaps2->lastmap_name) {
+		if (! isset($this->root->rtf['PUSH_PAGE_CHANGES']) && $p_googlemaps2->plugin_googlemaps2_is_supported_profile() && !$p_googlemaps2->lastmap_name) {
 			return "googlemaps2_draw: {$p_googlemaps2->msg['err_need_googlemap2']}";
 		}
 		

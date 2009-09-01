@@ -1,7 +1,7 @@
 <?php
 /*
  * Created on 2007/12/13 by nao-pon http://hypweb.net/
- * $Id: googlemaps2_insertmarker.lng.php,v 1.1 2007/12/14 00:03:25 nao-pon Exp $
+ * $Id: googlemaps2_insertmarker.lng.php,v 1.2 2009/09/01 01:53:08 nao-pon Exp $
  */
 
 $msg = array(
@@ -17,6 +17,7 @@ $msg = array(
 	'cap_marker'      => 'Show marker in',
 	'cap_zoommin'     => 'Min zoom',
 	'cap_zoommax'     => 'Max zoom',
+	'cap_addr'        => 'Address',
 	'cap_note'        => 'Note',
 	'btn_mark'        => 'Set marker',
 	'err_noinline'    => 'Inline type is not implemented. A block of type "#googlemaps2_insertmarker" using please.',
