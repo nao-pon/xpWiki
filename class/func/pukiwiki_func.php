@@ -1,7 +1,7 @@
 <?php
 //
 // Created on 2006/10/02 by nao-pon http://hypweb.net/
-// $Id: pukiwiki_func.php,v 1.209 2009/06/30 23:43:31 nao-pon Exp $
+// $Id: pukiwiki_func.php,v 1.210 2009/09/01 03:10:59 nao-pon Exp $
 //
 class XpWikiPukiWikiFunc extends XpWikiBaseFunc {
 
@@ -78,6 +78,7 @@ class XpWikiPukiWikiFunc extends XpWikiBaseFunc {
 	// Put a data(wiki text) into a physical file(diff, backup, text)
 	function page_write($page, $postdata, $notimestamp = FALSE)
 	{
+		$is_freeze = $this->is_freeze($page);
 		if (
 			$this->cont['PKWK_READONLY']
 			||
@@ -86,13 +87,18 @@ class XpWikiPukiWikiFunc extends XpWikiBaseFunc {
 				(
 				! $this->check_readable_page($page, FALSE, FALSE)
 				||
-				($this->root->plugin_follow_freeze && $this->is_freeze($page))
+				($this->root->plugin_follow_freeze && $is_freeze)
 				||
 				($this->root->plugin_follow_editauth && ! $this->check_editable_page($page, FALSE, FALSE))
 				)
 			)
 		) {
 			return; // Do nothing
+		}
+		
+		if (isset($this->root->rtf['no_checkauth_on_write']) && $this->root->rtf['no_checkauth_on_write'] === 'dofreeze') {
+			$is_freeze = TRUE;
+			$this->pginfo_freeze_db_write($page, 1);
 		}
 		
 		$oldpostdata = $this->is_page($page) ? $this->get_source($page, TRUE, TRUE) : '';
@@ -106,7 +112,7 @@ class XpWikiPukiWikiFunc extends XpWikiBaseFunc {
 		
 		$postdata = trim($postdata, "\r\n");
 		
-		if (! $this->root->plugin_follow_freeze) {
+		if ($is_freeze) {		
 			// remove "#freeze"
 			$postdata = preg_replace('/^#freeze\n/', '', $postdata);
 		}
@@ -131,7 +137,6 @@ class XpWikiPukiWikiFunc extends XpWikiBaseFunc {
 		$this->do_onPageWriteBefore ($page, $postdata, $notimestamp, $mode);
 
 		$postdata = $this->make_str_rules($postdata);
-		//$oldpostdata = $this->is_page($page) ? $this->get_source($page, TRUE, TRUE) : '';
 		
 		// Page aliases
 		$need_autolink_update = false;
@@ -191,12 +196,10 @@ class XpWikiPukiWikiFunc extends XpWikiBaseFunc {
 				if ($reading) {
 					$pginfo['reading'] = $reading;
 				}
-				if (! $this->root->plugin_follow_freeze) {
-					// Is freeze?
-					if ($this->is_freeze($page)) {
-						$postdata = '#freeze' . "\n" . $postdata; 
-					}
-				}
+			}
+			// Is freeze?
+			if ($is_freeze) {
+				$postdata = '#freeze' . "\n" . $postdata;
 			}
 		}
 		
@@ -581,16 +584,21 @@ class XpWikiPukiWikiFunc extends XpWikiBaseFunc {
 		if ($this->cont['PKWK_READONLY'] || $limit === 0 || $page === '' || $recentpage === '' ||
 		    $this->check_non_list($page) || !$this->check_readable_page($page, FALSE, FALSE, 0)) return;
 		
-		// set mode
-		$mode = ($this->is_page($recentpage))? 'update' : 'insert';
-		$pginfo = $this->get_pginfo($recentpage);
-		
 		// Load
-		$lines = $matches = array();
-		foreach ($this->get_source($recentpage) as $line)
-			if (preg_match('/^-(.+) - (\[\[.+\]\])$/', $line, $matches))
+		$heads = $lines = $matches = array();
+		
+		$heads['title'] = $root->title_setting_string . $recentpage . "\n";
+		foreach ($this->get_source($recentpage) as $line) {
+			// TITLE:
+			if (preg_match($this->root->title_setting_regex, $line)) {
+				$heads['title'] = $line;
+			}
+			
+			if (preg_match('/^-(.+) - (\[\[.+\]\])$/', $line, $matches)) {
 				$lines[$matches[2]] = $line;
-	
+			}
+		}
+
 		$_page = '[[' . $page . ']]';
 	
 		// Remove a report about the same page
@@ -602,25 +610,15 @@ class XpWikiPukiWikiFunc extends XpWikiBaseFunc {
 	
 		// Get latest $limit reports
 		$lines = array_splice($lines, 0, $limit);
-	
-		// Update
-		$fp = fopen($this->get_filename($recentpage), 'w') or
-			$this->die_message('Cannot write page file ' .
-			htmlspecialchars($recentpage) .
-			'<br />Maybe permission is not writable or filename is too long');
-		set_file_buffer($fp, 0);
-		flock($fp, LOCK_EX);
-		rewind($fp);
-		fputs($fp, '#freeze'    . "\n");
-		fputs($fp, '#norelated' . "\n"); // :)
-		fputs($fp, join('', $lines));
-		fclose($fp);
-		
-		// Clear fstat cache.
-		clearstatcache();
 				
-		// pginfo DB write
-		$this->pginfo_db_write($recentpage, $mode, $pginfo);
+		// Update
+		$postdata = '';
+		$postdata .= join('', $heads);
+		$postdata .= '#norelated' . "\n"; // :)
+		$postdata .= join('', $lines);
+		
+		$this->root->rtf['no_checkauth_on_write'] = 'dofreeze';
+		$this->page_write($recentpage, $postdata);	
 	}
 	
 	// Re-create PKWK_MAXSHOW_CACHE (Heavy)
@@ -962,7 +960,7 @@ class XpWikiPukiWikiFunc extends XpWikiBaseFunc {
 
 //----- Start convert_html.php -----//
 	// PukiWiki - Yet another WikiWikiWeb clone
-	// $Id: pukiwiki_func.php,v 1.209 2009/06/30 23:43:31 nao-pon Exp $
+	// $Id: pukiwiki_func.php,v 1.210 2009/09/01 03:10:59 nao-pon Exp $
 	// Copyright (C)
 	//   2002-2005 PukiWiki Developers Team
 	//   2001-2002 Originally written by yu-ji
@@ -1241,7 +1239,7 @@ class XpWikiPukiWikiFunc extends XpWikiBaseFunc {
 
 //----- Start func.php -----//
 	// PukiWiki - Yet another WikiWikiWeb clone.
-	// $Id: pukiwiki_func.php,v 1.209 2009/06/30 23:43:31 nao-pon Exp $
+	// $Id: pukiwiki_func.php,v 1.210 2009/09/01 03:10:59 nao-pon Exp $
 	// Copyright (C)
 	//   2002-2006 PukiWiki Developers Team
 	//   2001-2002 Originally written by yu-ji
@@ -2080,7 +2078,7 @@ EOD;
 
 //----- Start make_link.php -----//
 	// PukiWiki - Yet another WikiWikiWeb clone.
-	// $Id: pukiwiki_func.php,v 1.209 2009/06/30 23:43:31 nao-pon Exp $
+	// $Id: pukiwiki_func.php,v 1.210 2009/09/01 03:10:59 nao-pon Exp $
 	// Copyright (C)
 	//   2003-2005 PukiWiki Developers Team
 	//   2001-2002 Originally written by yu-ji
@@ -2223,7 +2221,7 @@ EOD;
 		$onclick = '';
 		if (isset($options['popup']['use'])) {
 			$onclick = ' onclick="return XpWiki.pagePopup({dir:\'' . htmlspecialchars($this->root->mydirname, ENT_QUOTES) .
-			'\',page:\'' . htmlspecialchars($page . $anchor, ENT_QUOTES) . '\'' .
+			'\',page:\'' . htmlspecialchars(str_replace('\'', '\\\'', $page) . $anchor) . '\'' .
 			(isset($options['popup']['position'])? $options['popup']['position'] : '' ) .
 			'});"';
 			$class .= '_popup';
@@ -2394,6 +2392,20 @@ EOD;
 			return $false;
 			
 			break;
+		
+		// Rakuten affiliate
+		case 'rakuten':
+			$param = '?pc=http%3A%2F%2Fesearch.rakuten.co.jp%2Frms%2Fsd%2Fesearch%2Fvc%3Fsv%3D2%26sitem%3D'
+			       . urlencode(urlencode(mb_convert_encoding($param, 'EUC-JP', $this->cont['SOURCE_ENCODING'])))
+			       . '&m=http%3A%2F%2Fs.j.rakuten.co.jp%2Fr%2Fs%2Fwb%3Fws%3D1%26w%3D'
+			       . urlencode(urlencode(mb_convert_encoding($param, 'SJIS', $this->cont['SOURCE_ENCODING'])));
+			break;
+		
+		// ewords
+		case 'ewords':
+			$param = str_replace(array('%','.'), array('','2E'), urlencode(mb_convert_encoding($param,'UTF-8',$this->cont['SOURCE_ENCODING'])));
+			break;
+		
 		default:
 			// Alias conversion of $opt
 			if (isset($encode_aliases[$opt])) $opt = & $encode_aliases[$opt];
@@ -3061,7 +3073,7 @@ EOD;
 
 //----- Start html.php -----//
 	// PukiWiki - Yet another WikiWikiWeb clone.
-	// $Id: pukiwiki_func.php,v 1.209 2009/06/30 23:43:31 nao-pon Exp $
+	// $Id: pukiwiki_func.php,v 1.210 2009/09/01 03:10:59 nao-pon Exp $
 	// Copyright (C)
 	//   2002-2006 PukiWiki Developers Team
 	//   2001-2002 Originally written by yu-ji
@@ -3825,7 +3837,7 @@ EOD;
 
 //----- Start mail.php -----//
 	// PukiWiki - Yet another WikiWikiWeb clone.
-	// $Id: pukiwiki_func.php,v 1.209 2009/06/30 23:43:31 nao-pon Exp $
+	// $Id: pukiwiki_func.php,v 1.210 2009/09/01 03:10:59 nao-pon Exp $
 	// Copyright (C)
 	//   2003-2005 PukiWiki Developers Team
 	//   2003      Originally written by upk
@@ -4128,7 +4140,7 @@ EOD;
 
 //----- Start link.php -----//
 	// PukiWiki - Yet another WikiWikiWeb clone
-	// $Id: pukiwiki_func.php,v 1.209 2009/06/30 23:43:31 nao-pon Exp $
+	// $Id: pukiwiki_func.php,v 1.210 2009/09/01 03:10:59 nao-pon Exp $
 	// Copyright (C) 2003-2006 PukiWiki Developers Team
 	// License: GPL v2 or (at your option) any later version
 	//
