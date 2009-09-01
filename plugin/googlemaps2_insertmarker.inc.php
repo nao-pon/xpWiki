@@ -33,17 +33,24 @@ class xpwiki_plugin_googlemaps2_insertmarker extends xpwiki_plugin {
 		if(is_numeric($this->root->vars['zoom'])) $zoom = $this->root->vars['zoom']; else return;
 		if(is_numeric($this->root->vars['mtype'])) $mtype = $this->root->vars['mtype']; else return;
 		
-		$mtype = ($mtype == 2)? 'hybrid': (($mtype == 1)? 'satellite' : 'normal');
+		$maptypes = array(
+			1 => 'satellite',
+			2 => 'hybrid',
+			3 => 'physical',
+		);
+		$mtypename = isset($maptypes[$mtype])? $maptypes[$mtype] : 'normal';
 	
 		$map    = htmlspecialchars(trim($this->root->vars['map']));
 		$icon   = htmlspecialchars($this->root->vars['icon']);
 		$title   = substr($this->root->vars['title'], 0, $this->cont['PLUGIN_GOOGLEMAPS2_INSERTMARKER_TITLE_MAXLEN']);
-		$caption = substr($this->root->vars['caption'], 0, $this->cont['PLUGIN_GOOGLEMAPS2_INSERTMARKER_CAPTION_MAXLEN']);
+		$caption = substr(trim($this->root->vars['caption']), 0, $this->cont['PLUGIN_GOOGLEMAPS2_INSERTMARKER_CAPTION_MAXLEN']);
 		$image   = substr($this->root->vars['image'], 0, $this->cont['PLUGIN_GOOGLEMAPS2_INSERTMARKER_URL_MAXLEN']);
 		$maxurl  = substr($this->root->vars['maxurl'], 0, $this->cont['PLUGIN_GOOGLEMAPS2_INSERTMARKER_URL_MAXLEN']);
 		
 		$minzoom = $this->root->vars['minzoom'] == '' ? '' : (int)$this->root->vars['minzoom'];
 		$maxzoom = $this->root->vars['maxzoom'] == '' ? '' : (int)$this->root->vars['maxzoom'];
+		
+		$caption .= (isset($this->root->vars['save_addr']))? ($caption? '&br;' : '') . $this->msg['cap_addr'] . ': ' . $this->root->vars['addr'] : '';
 	
 		$title   = htmlspecialchars(str_replace("\n", '', $title));
 		$caption = str_replace("\n", '&br;', $caption);
@@ -60,7 +67,7 @@ class xpwiki_plugin_googlemaps2_insertmarker extends xpwiki_plugin {
 		if ($minzoom != '')  $marker .= ', minzoom='.$minzoom;
 		if ($maxzoom != '')  $marker .= ', maxzoom='.$maxzoom;
 		if (!empty($this->root->vars['save_zoom'])) $marker .= ', zoom='.$zoom;
-		if (!empty($this->root->vars['save_mtype'])) $marker .= ', type='.$mtype;
+		if (!empty($this->root->vars['save_mtype'])) $marker .= ', type='.$mtypename;
 		$marker .= '){'.$caption.'};';
 		
 		$no       = 0;
@@ -132,7 +139,9 @@ class xpwiki_plugin_googlemaps2_insertmarker extends xpwiki_plugin {
 		if ($this->cont['PKWK_READONLY']) {
 			return "read only<br>";
 		}
-	
+		
+		$this->msg['default_icon_caption'] = $p_googlemaps2->msg['default_icon_caption'];
+		
 		//オプション
 		
 		$defoptions = $this->plugin_googlemaps2_insertmarker_get_default();
@@ -196,13 +205,11 @@ class xpwiki_plugin_googlemaps2_insertmarker extends xpwiki_plugin {
   <input type="text" name="title"    id="${imprefix}_title" size="20" />
   {$this->msg['cap_icon']}:
   <select name="icon" id ="${imprefix}_icon">
-  <option value="Default">Default</option>
+  <option value="Default">{$this->msg['default_icon_caption']}</option>
   </select>
   <div class="googlemaps2_optional">
   {$this->msg['cap_image']}:
   <input type="text" name="image"    id="${imprefix}_image" size="20" />
-  {$this->msg['cap_maxurl']}:
-  <input type="text" name="maxurl"   id="${imprefix}_maxurl" size="20" />
   {$this->msg['cap_state']}:[
   <input type="checkbox" name="save_zoom" value="1" checked="checked" /> {$this->msg['cap_zoom']}
   |
@@ -237,9 +244,11 @@ class xpwiki_plugin_googlemaps2_insertmarker extends xpwiki_plugin {
   <option value="16">16</option> <option value="17">17</option>
   </select>
   ]
+  <br />
+  <input type="checkbox" name="save_addr" value="1" checked="checked" />{$this->msg['cap_addr']}: <input type="text" name="addr" id="${imprefix}_addr" size="50" />
   </div>
   {$this->msg['cap_note']}:
-  <textarea id="{$imprefix}_textarea" name="caption" id="${imprefix}_caption" rows="2" cols="55"></textarea>
+  <textarea id="{$imprefix}_textarea" name="caption" id="${imprefix}_caption" class="norich" rows="2" cols="55"></textarea>
   <input type="submit" name="Mark" value="{$this->msg['btn_mark']}" />
 </div>
 </form>
@@ -248,6 +257,7 @@ class xpwiki_plugin_googlemaps2_insertmarker extends xpwiki_plugin {
 //<![CDATA[
 onloadfunc.push(function() {
 	var map = googlemaps_maps['$page']['$map'];
+	var geocoder = new GClientGeocoder();
 	if (!map) {
 		var form = document.getElementById("${imprefix}_form");
 		form.innerHTML = '<div>' + '{$this->msg['err_map_notfind']}'.replace('\$mapname', '{$map}') + '</div>';
@@ -258,6 +268,7 @@ onloadfunc.push(function() {
 		var mtype = document.getElementById("${imprefix}_mtype");
 		var form  = document.getElementById("${imprefix}_form");
 		var icon  = document.getElementById("${imprefix}_icon");
+		var addr  = document.getElementById("${imprefix}_addr");
 		
 		var update_func = function() {
 			lat.value = PGTool.fmtNum(map.getCenter().lat());
@@ -274,12 +285,39 @@ onloadfunc.push(function() {
 					break;
 				}
 			}
+			//geocoder.getLocations(new GLatLng(lat.value, lng.value), set_addr);
 		};
+		
+		var update_addr = function() {
+			geocoder.getLocations(new GLatLng(map.getCenter().lat(), map.getCenter().lng()), set_addr);
+		}
+		
+		var set_addr = function(response) {
+			if (!response || response.Status.code != 200) {
+				addr.value = '';
+			} else {
+				var place = response.Placemark[0];
+				var i = 1;
+				while(place.AddressDetails.Accuracy < 7 && place.AddressDetails.Accuracy > 4) {
+					place = response.Placemark[i++];
+				}
+				if (place.AddressDetails.Country.CountryNameCode == 'JP') {
+					addr.value = place.address.replace(new RegExp('^' + place.AddressDetails.Country.CountryName), '');
+				} else {
+					addr.value = place.address;
+				}
+			}
+		}
 		
 		//Whenever the map is dragged, the parameter is dynamically substituted.
 		GEvent.addListener(map, 'moveend', update_func);
+		GEvent.addListener(map, 'maptypechanged', update_func);
+		GEvent.addListener(map, 'zoom', update_func);
+		
+		GEvent.addListener(map, 'moveend', update_addr);
 		
 		update_func();
+		update_addr();
 		
 		//The position of the map is initialized if there is a cookie. Contents of the cookie are cleared when finishing using it. 
 		(function () {
@@ -352,7 +390,7 @@ onloadfunc.push(function() {
 	//The selection is updated reading all the icon definitions that exist on this page. 
 	onloadfunc.push(function() {
 		for(iconname in googlemaps_icons['$page']) {
-			if (!googlemaps_icons['$page'].hasOwnProperty(iconname)) continue;
+			if (!googlemaps_icons['$page'].hasOwnProperty(iconname) || iconname == 'Default') continue;
 			var opt = document.createElement("option");
 			opt.value = iconname;
 			opt.appendChild(document.createTextNode(iconname));

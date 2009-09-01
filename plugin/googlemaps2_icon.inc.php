@@ -27,6 +27,7 @@ class xpwiki_plugin_googlemaps2_icon extends xpwiki_plugin {
 		$this->cont['PLUGIN_GOOGLEMAPS2_ICON_TRANSPARENT'] =  'http://www.google.com/mapfiles/markerTransparent.png';
 		$this->cont['PLUGIN_GOOGLEMAPS2_ICON_AREA'] =  '1 7 7 0 13 0 19 7 19 12 13 20 12 23 11 34 9 34 8 23 6 19 1 13 1 70';
 
+		$this->cont['PLUGIN_GOOGLEMAPS2_ICON_REGEX'] = '#^http://[a-z]+\.google\.com#i';
 	}
 	
 	function plugin_googlemaps2_icon_get_default () {
@@ -42,13 +43,14 @@ class xpwiki_plugin_googlemaps2_icon extends xpwiki_plugin {
 			'sanchorx'    => $this->cont['PLUGIN_GOOGLEMAPS2_ICON_SANCHORX'],
 			'sanchory'    => $this->cont['PLUGIN_GOOGLEMAPS2_ICON_SANCHORY'],
 			'transparent' => $this->cont['PLUGIN_GOOGLEMAPS2_ICON_TRANSPARENT'],
-			'area'        => $this->cont['PLUGIN_GOOGLEMAPS2_ICON_AREA']
+			'area'        => $this->cont['PLUGIN_GOOGLEMAPS2_ICON_AREA'],
+			'basepage'    => $this->root->vars['page']
 		);
 	}
 	
 	function plugin_googlemaps2_icon_convert() {
 		if (func_num_args() < 1) {
-			$args = array('_default', '');
+			$args = array('Default', '');
 		} else {
 			$args = func_get_args();
 		}
@@ -56,8 +58,9 @@ class xpwiki_plugin_googlemaps2_icon extends xpwiki_plugin {
 	}
 	
 	function plugin_googlemaps2_icon_inline() {
-		if (func_num_args < 1) {
-			$args = array('_default', '');
+		if (isset($this->root->rtf['GET_HEADING_INIT'])) return 'Google Maps';
+		if (func_num_args() < 1) {
+			$args = array('Default', '');
 		} else {
 			$args = func_get_args();
 			array_pop($args);
@@ -69,7 +72,7 @@ class xpwiki_plugin_googlemaps2_icon extends xpwiki_plugin {
 		
 		$p_googlemaps2 =& $this->func->get_plugin_instance('googlemaps2');
 				
-		if ($p_googlemaps2->plugin_googlemaps2_is_supported_profile() && !$p_googlemaps2->lastmap_name) {
+		if (! isset($this->root->rtf['PUSH_PAGE_CHANGES']) && $p_googlemaps2->plugin_googlemaps2_is_supported_profile() && !$p_googlemaps2->lastmap_name) {
 			return "googlemaps2_icon: {$p_googlemaps2->msg['err_need_googlemap2']}";
 		}
 
@@ -100,8 +103,8 @@ class xpwiki_plugin_googlemaps2_icon extends xpwiki_plugin {
 			}
 		}
 		$options = array_merge($defoptions, $coptions, $inoptions);
-		$image       = $options['image'];
-		$shadow      = $options['shadow'];
+		$image       = $this->optimize_image($options['image'], $options['basepage']);
+		$shadow      = $this->optimize_image($options['shadow'], $options['basepage']);
 		$iw          = (integer)$options['iw'];
 		$ih          = (integer)$options['ih'];
 		$sw          = (integer)$options['sw'];
@@ -110,7 +113,7 @@ class xpwiki_plugin_googlemaps2_icon extends xpwiki_plugin {
 		$ianchory    = (integer)$options['ianchory'];
 		$sanchorx    = (integer)$options['sanchorx'];
 		$sanchory    = (integer)$options['sanchory'];
-		$transparent = $options['transparent'];
+		$transparent = $this->optimize_image($options['transparent'], $options['basepage']);
 		$area        = $options['area'];
 	
 		$coords = array();
@@ -137,7 +140,8 @@ class xpwiki_plugin_googlemaps2_icon extends xpwiki_plugin {
 		$page = $p_googlemaps2->get_pgid($this->root->vars['page']);
 	
 		// Output
-		$output = <<<EOD
+		if ($image && $shadow && $transparent) {
+			$output = <<<EOD
 <script type="text/javascript">
 //<![CDATA[
 onloadfunc.push( function () {
@@ -157,7 +161,28 @@ onloadfunc.push( function () {
 </script>
 
 EOD;
-		return $output;
+			return $output;
+		} else {
+			return '';
+		}
+	}
+	
+	function optimize_image($image, $basepage) {
+		if (strtolower(substr($image, 0, 4)) !== 'http') {
+			$image = $this->func->unhtmlspecialchars($image, ENT_QUOTES);
+			if (strpos($image, '/') !== FALSE) {
+				$basepage = $this->func->page_dirname($image);
+				$image = $this->func->page_basename($image);
+			}
+			$image = $this->cont['HOME_URL'].'gate.php?way=ref&_nodos&_noumb&page='.rawurlencode($basepage).'&src='.rawurlencode($image);
+		} else {
+			if ($this->cont['PLUGIN_GOOGLEMAPS2_ICON_REGEX']) {
+				if (strpos($image, $this->root->siteinfo['host']) !== 0 && !preg_match($this->cont['PLUGIN_GOOGLEMAPS2_ICON_REGEX'], $image)) {
+					$image = '';
+				}
+			}
+		}
+		return $image;
 	}
 }
 ?>

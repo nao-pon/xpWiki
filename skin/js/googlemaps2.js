@@ -70,11 +70,12 @@ function PGMarker (point, icon, page, map, hidden, visible, title, maxtitle, max
 			if (map.getZoom() != _zoom) {
 				map.setZoom(_zoom);
 			}
-			map.panTo(this.point);
 		}
-
+		
+		map.panTo(this.point);
+		
 		if ( _html && this.marker ) {
-			
+			//map.panTo(this.point);
 			// Wait while load image.
 			var root = document.createElement('div');
 			root.innerHTML = _html;
@@ -110,7 +111,7 @@ function PGMarker (point, icon, page, map, hidden, visible, title, maxtitle, max
 				}
 			}
 			if (doneOpenInfoWindow == false) {
-				this.marker.openInfoWindow(_html, infowindowopts);
+				this.marker.openInfoWindowHtml(_html, infowindowopts);
                 if (maxcontent) {
                     maxContentDiv.style.width = "100%";
                     maxContentDiv.style.height = "98%";
@@ -119,7 +120,7 @@ function PGMarker (point, icon, page, map, hidden, visible, title, maxtitle, max
                 }
 			}
 		} else {
-			map.panTo(this.point);
+			//map.panTo(this.point);
 		}
 	}
 	
@@ -239,6 +240,18 @@ var PGTool = new function () {
 			break;
 		}
 		return;
+	}
+	
+	this.getMapTypeName = function(type) {
+		if (type == G_HYBRID_MAP) {
+			return 'hybrid';
+		} else if (type == G_SATELLITE_MAP) {
+			return 'satellite';
+		} else if (type == G_PHYSICAL_MAP) {
+			return 'physical';
+		} else {
+			return 'normal';
+		}
 	}
 }
 
@@ -461,7 +474,7 @@ function p_googlemaps_marker_toggle (page, mapname, check, name) {
 	}
 }
 
-function p_googlemaps_togglemarker_checkbox (page, mapname, undefname) {
+function p_googlemaps_togglemarker_checkbox (page, mapname, undefname, defname) {
 	var icons = {};
 	var markers = googlemaps_markers[page][mapname];
 	for (key in markers) {
@@ -492,6 +505,8 @@ function p_googlemaps_togglemarker_checkbox (page, mapname, undefname) {
 		label.htmlFor = id;
 		if (name == "") {
 		label.appendChild(document.createTextNode(undefname));
+		} else if (name == "Default") {
+		label.appendChild(document.createTextNode(defname));
 		} else {
 		label.appendChild(document.createTextNode(name));
 		}

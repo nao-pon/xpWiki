@@ -1,7 +1,7 @@
 <?php
 /*
  * Created on 2007/12/13 by nao-pon http://hypweb.net/
- * $Id: googlemaps2_insertmarker.lng.php,v 1.1 2007/12/14 00:03:25 nao-pon Exp $
+ * $Id: googlemaps2_insertmarker.lng.php,v 1.2 2009/09/01 01:53:08 nao-pon Exp $
  */
 
 $msg = array(
@@ -17,6 +17,7 @@ $msg = array(
 	'cap_marker'      => 'マーカー表示',
 	'cap_zoommin'     => '最小ズーム',
 	'cap_zoommax'     => '最大ズーム',
+	'cap_addr'        => '住所',
 	'cap_note'        => '詳細',
 	'btn_mark'        => 'マーカーをセット',
 	'err_noinline'    => 'インライン型は未実装です。ブロック型の "#googlemaps2_insertmarker" を使ってください。',
