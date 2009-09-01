@@ -2,7 +2,7 @@
 /*
  * Created on 2008/10/23 by nao-pon http://hypweb.net/
  * License: GPL v2 or (at your option) any later version
- * $Id: x2w.php,v 1.17 2009/05/25 04:16:12 nao-pon Exp $
+ * $Id: x2w.php,v 1.18 2009/09/01 01:48:24 nao-pon Exp $
  */
 
 //
@@ -410,7 +410,7 @@ class XHTML2Wiki
 			}
 		}
 		// 行の開始
-		else if (preg_match("/<tr>/", $line)) {
+		else if (preg_match("/<tr\b[^>]*?>/", $line)) {
 			$col = 1;
 			$row++;
 		}
