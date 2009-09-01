@@ -2,7 +2,7 @@
 /*
  * Created on 2009/05/08 by nao-pon http://hypweb.net/
  * License: GPL v2 or (at your option) any later version
- * $Id: piCal.php,v 1.1 2009/05/25 04:30:44 nao-pon Exp $
+ * $Id: piCal.php,v 1.2 2009/09/01 03:00:08 nao-pon Exp $
  */
 
 require_once XOOPS_TRUST_PATH.'/modules/xpwiki/include.php' ;
@@ -31,8 +31,8 @@ if ($xpwiki->isXpWiki) {
 	
 	$include = array();
 	if ($options['include']) {
-		foreach(explode('|', $options['include']) as $_page) {
-			$include[] = '`name` LIKE \''.$_page.'\'';
+		foreach(explode('#', $options['include']) as $_page) {
+			$include[] = '`name` LIKE \''.addslashes($_page).'\'';
 		}
 		$include = 'AND ' . join(' AND ', $include);
 	} else {
@@ -42,7 +42,7 @@ if ($xpwiki->isXpWiki) {
 	$exclude = array();
 	if ($options['exclude']) {
 		foreach(explode('#', $options['exclude']) as $_page) {
-			$exclude[] = '`name` NOT LIKE \''.$_page.'\'';
+			$exclude[] = '`name` NOT LIKE \''.addslashes($_page).'\'';
 		}
 		$exclude = 'AND ' . join(' AND ', $exclude);
 	} else {
