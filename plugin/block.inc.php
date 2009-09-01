@@ -3,7 +3,7 @@ class xpwiki_plugin_block extends xpwiki_plugin {
 	function plugin_block_init () {
 
 
-	// $Id: block.inc.php,v 1.7 2009/03/20 06:13:58 nao-pon Exp $
+	// $Id: block.inc.php,v 1.8 2009/09/01 06:37:24 nao-pon Exp $
 	
 	/*
 	 * countdown.inc.php
@@ -92,6 +92,7 @@ class xpwiki_plugin_block extends xpwiki_plugin {
 		if ($tate)
 		{
 			$this->load_language();
+			$this->func->add_tag_head('block.css');
 			$block_class .= " wiki_body_block_tate";
 			//$tate_div = "<div class=\"tate\">";
 			//$b_tag[$b_count]++;
