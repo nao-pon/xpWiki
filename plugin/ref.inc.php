@@ -1,5 +1,5 @@
 <?php
-// $Id: ref.inc.php,v 1.46 2009/06/26 00:33:07 nao-pon Exp $
+// $Id: ref.inc.php,v 1.47 2009/09/01 03:01:21 nao-pon Exp $
 /*
 
 	*プラグイン ref
@@ -700,7 +700,6 @@ swfobject.embedSWF("$f_file", "$cid", "{$img['width']}", "{$img['height']}", "9.
 // ]]>
 
 _HTML_;
-		$this->func->add_js_var_head($js);
 		$this->func->add_js_var_head($js);
 	}
 
