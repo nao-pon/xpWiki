@@ -1,7 +1,7 @@
 <?php
 /*
  * Created on 2008/02/28 by nao-pon http://hypweb.net/
- * $Id: aws.inc.php,v 1.9 2009/06/26 09:17:23 nao-pon Exp $
+ * $Id: aws.inc.php,v 1.10 2009/09/01 01:44:53 nao-pon Exp $
  */
 
 /////////////////////////////////////////////////
@@ -124,13 +124,13 @@ class xpwiki_plugin_aws extends xpwiki_plugin {
 			}
 			
 			$html = $ama->getHTML($f);
-			$header = ($k && ! $ama->error && $ama->compactArray['totalresults'] > 1)? $ama->makeSearchLink($k, sprintf($this->msg['more_search'], htmlspecialchars($k)), TRUE) : '';
+			$header = ($k && ! is_null($ama->compactArray['totalresults']))? $ama->makeSearchLink($k, sprintf($this->msg['more_search'], htmlspecialchars($k)), TRUE) : '';
 			$ret = $header . "\x08" . $html;
 			
 			// remove wrong characters
 			$ret = mb_convert_encoding($ret, $this->cont['SOURCE_ENCODING'], $this->cont['SOURCE_ENCODING']);
 			
-			if (! $ama->error && empty($this->root->rtf['preview']) && $fp = @fopen($cache_file,"wb")) {
+			if (! is_null($ama->compactArray['totalresults']) && empty($this->root->rtf['preview']) && $fp = @fopen($cache_file,"wb")) {
 				fputs($fp,$ret);
 				fclose($fp);
 			} else {
