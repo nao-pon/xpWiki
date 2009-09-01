@@ -6,7 +6,7 @@ class xpwiki_plugin_read extends xpwiki_plugin {
 
 	}
 	// PukiWiki - Yet another WikiWikiWeb clone.
-	// $Id: read.inc.php,v 1.8 2007/11/07 23:20:07 nao-pon Exp $
+	// $Id: read.inc.php,v 1.9 2009/09/01 01:46:05 nao-pon Exp $
 	//
 	// Read plugin: Show a page and InterWiki
 	
@@ -15,10 +15,14 @@ class xpwiki_plugin_read extends xpwiki_plugin {
 	//	global $vars, $_title_invalidwn, $_msg_invalidiwn;
 	
 		$page = isset($this->root->vars['page']) ? $this->root->vars['page'] : '';
-
+		
 		// check alias page
 		if (!$this->func->is_page($page) && isset($this->root->page_aliases[$page])) {
-			$page = $this->root->vars['page'] = $this->root->get['page'] = $this->root->post['page'] = $this->root->page_aliases[$page];
+			//$page = $this->root->vars['page'] = $this->root->get['page'] = $this->root->post['page'] = $this->root->page_aliases[$page];
+			if (! headers_sent()) {
+				header('HTTP/1.1 301 Moved Permanently');
+			}
+			$this->func->send_location('', '', $this->func->get_page_uri($this->root->page_aliases[$page], TRUE));
 		}
 		
 		// check acepted lang
