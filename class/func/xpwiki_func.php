@@ -1,7 +1,7 @@
 <?php
 //
 // Created on 2006/10/02 by nao-pon http://hypweb.net/
-// $Id: xpwiki_func.php,v 1.216 2009/09/01 03:04:41 nao-pon Exp $
+// $Id: xpwiki_func.php,v 1.217 2009/10/01 23:36:25 nao-pon Exp $
 //
 class XpWikiFunc extends XpWikiXoopsWrapper {
 
@@ -229,7 +229,7 @@ class XpWikiFunc extends XpWikiXoopsWrapper {
 		if ($aryargs && $_num = $plugin->can_call_otherdir_convert()) {
 			// Other xpWiki dir
 			$_num = intval($_num) - 1;
-			if (intval(strpos($aryargs[$_num], ':')) > 0) {
+			if (isset($aryargs[$_num]) && intval(strpos($aryargs[$_num], ':')) > 0) {
 				list($dir, $arg) = explode(':', $aryargs[$_num], 2);
 				if ($this->root->mydirname === $dir) {
 					$aryargs[$_num] = $arg;
@@ -606,7 +606,7 @@ EOD;
 		
 		if ($page === '') $page = '#';
 		
-		if (isset($info[$this->root->mydirname][$page])) { return $info[$this->root->mydirname][$page]; }
+		if ($src === '' && isset($info[$this->root->mydirname][$page])) { return $info[$this->root->mydirname][$page]; }
 		
 		if ($src) {
 			if (is_array($src)) {
