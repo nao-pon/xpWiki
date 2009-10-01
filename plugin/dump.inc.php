@@ -1,5 +1,5 @@
 <?php
-// $Id: dump.inc.php,v 1.8 2008/11/17 02:34:23 nao-pon Exp $
+// $Id: dump.inc.php,v 1.9 2009/10/01 23:34:41 nao-pon Exp $
 //
 // Remote dump / restore plugin
 // Originated as tarfile.inc.php by teanan / Interfair Laboratory 2004.
@@ -16,7 +16,7 @@ class xpwiki_plugin_dump extends xpwiki_plugin {
 		$this->cont['PLUGIN_DUMP_FILENAME_ENCORDING'] =  'SJIS';
 	
 		// 最大アップロードサイズ
-		$this->cont['PLUGIN_DUMP_MAX_FILESIZE'] =  1024; // Kbyte
+		$this->cont['PLUGIN_DUMP_MAX_FILESIZE'] = (int)$this->func->return_bytes(ini_get('upload_max_filesize')) / 1024; // Kbyte
 	
 		/////////////////////////////////////////////////
 		// Internal defines
@@ -29,23 +29,23 @@ class xpwiki_plugin_dump extends xpwiki_plugin {
 	
 		// DATA_DIR (wiki/*.txt)
 		$this->root->_STORAGE['DATA_DIR']['add_filter']     = '^[0-9A-F]+\.txt';
-		$this->root->_STORAGE['DATA_DIR']['extract_filter'] = '^' . preg_quote($this->cont['DATA_DIR'], '/')   . '((?:[0-9A-F])+)(\.txt){0,1}';
+		$this->root->_STORAGE['DATA_DIR']['extract_filter'] = $this->format_extract_filter($this->cont['DATA_DIR'], '((?:[0-9A-F])+)(\.txt){0,1}');
 	
 		// UPLOAD_DIR (attach/*)
 		$this->root->_STORAGE['UPLOAD_DIR']['add_filter']     = '^[0-9A-F_]+';
-		$this->root->_STORAGE['UPLOAD_DIR']['extract_filter'] = '^' . preg_quote($this->cont['UPLOAD_DIR'], '/') . '((?:[0-9A-F]{2})+)_((?:[0-9A-F])+)';
+		$this->root->_STORAGE['UPLOAD_DIR']['extract_filter'] = $this->format_extract_filter($this->cont['UPLOAD_DIR'], '((?:[0-9A-F]{2})+)_((?:[0-9A-F])+)');
 	
 		// COUNTER_DIR (counter/*.count)
 		$this->root->_STORAGE['COUNTER_DIR']['add_filter']     = '^[0-9A-F]+\.count';
-		$this->root->_STORAGE['COUNTER_DIR']['extract_filter'] = '^' . preg_quote($this->cont['COUNTER_DIR'], '/') . '((?:[0-9A-F])+)(\.count){0,1}';
+		$this->root->_STORAGE['COUNTER_DIR']['extract_filter'] = $this->format_extract_filter($this->cont['COUNTER_DIR'], '((?:[0-9A-F])+)(\.count){0,1}');
 
 		// BACKUP_DIR (backup/*.gz)
 		$this->root->_STORAGE['BACKUP_DIR']['add_filter']     = '^[0-9A-F]+\.gz';
-		$this->root->_STORAGE['BACKUP_DIR']['extract_filter'] =  '^' . preg_quote($this->cont['BACKUP_DIR'], '/') . '((?:[0-9A-F])+)(\.gz){0,1}';
+		$this->root->_STORAGE['BACKUP_DIR']['extract_filter'] =  $this->format_extract_filter($this->cont['BACKUP_DIR'], '((?:[0-9A-F])+)(\.gz){0,1}');
 
 		// DIFF_DIR (diff/*.(txt|add))
 		$this->root->_STORAGE['DIFF_DIR']['add_filter']     = '^[0-9A-F]+\.(txt|add)';
-		$this->root->_STORAGE['DIFF_DIR']['extract_filter'] = '^' . preg_quote($this->cont['DIFF_DIR'], '/') . '((?:[0-9A-F])+)(\.txt|add){0,1}';
+		$this->root->_STORAGE['DIFF_DIR']['extract_filter'] = $this->format_extract_filter($this->cont['DIFF_DIR'], '((?:[0-9A-F])+)(\.txt|add){0,1}');
 
 	
 		/////////////////////////////////////////////////
@@ -89,6 +89,10 @@ class xpwiki_plugin_dump extends xpwiki_plugin {
 
 	}
 	
+	function format_extract_filter($fullpath, $filereg) {
+		$path = ltrim(substr($fullpath, strlen($this->cont['DATA_HOME'])), '/');
+		return '(?:^|' . preg_quote($this->cont['DATA_HOME'], '/') . ')' . preg_quote($path, '/') . $filereg;
+	}
 	
 	/////////////////////////////////////////////////
 	// プラグイン本体
@@ -225,9 +229,11 @@ class xpwiki_plugin_dump extends xpwiki_plugin {
 			$this->func->die_message($this->msg['file_notfound']);
 		}
 	
-		$pattern = "(({$this->root->_STORAGE['DATA_DIR']}['extract_filter']})|" .
-		    "({$this->root->_STORAGE['UPLOAD_DIR']}['extract_filter']})|" .
-		    "({$this->root->_STORAGE['BACKUP_DIR']}['extract_filter']}))";
+		$pattern = '(('. $this->root->_STORAGE['DATA_DIR']['extract_filter'] . ')|' .
+		    '(' . $this->root->_STORAGE['UPLOAD_DIR']['extract_filter'] . ')|' .
+		    '(' . $this->root->_STORAGE['COUNTER_DIR']['extract_filter'] . ')|' .
+		    '(' . $this->root->_STORAGE['DIFF_DIR']['extract_filter'] . ')|' .
+		    '(' . $this->root->_STORAGE['BACKUP_DIR']['extract_filter'] . '))';
 		$files = $tar->extract($pattern);
 		if (empty($files)) {
 			@unlink($uploadfile);
@@ -449,11 +455,14 @@ class XpWikitarlib
 		$matches = array();
 		foreach($files as $name)
 		{
+			// DATA_HOME からの相対パスにする
+			$name = ltrim(substr($name, strlen($this->cont['DATA_HOME'])), '/');
+			
 			// Tarに格納するファイル名をdecode
 			if ($decode === FALSE) {
 				$filename = $name;
 			} else {
-				$dirname  = dirname(trim($name)) . '/';
+				$dirname  = dirname($name) . '/';
 				$filename = basename(trim($name));
 				if (preg_match("/^((?:[0-9A-F]{2})+)_((?:[0-9A-F]{2})+)/", $filename, $matches)) {
 					// attachファイル名
@@ -706,6 +715,12 @@ class XpWikitarlib
 				$longname = substr($buff, 0, $size);
 			} else if (preg_match("/$pattern/", $name) ) {
 //			} else if ($type == 0 && preg_match("/$pattern/", $name) ) {
+				// 相対パスの場合の処理
+				$name = '/' . ltrim($name, '/');
+				if (! preg_match('/^' . preg_quote($this->cont['DATA_HOME'], '/') . '/', $name)) {
+					$name = $this->cont['DATA_HOME'] . ltrim($name, '/');
+				}
+							
 				$buff = fread($this->fp, $pdsz);
 
 				// 既に同じファイルがある場合は上書きされる
