@@ -1,6 +1,6 @@
 <?php
 // PukiWiki - Yet another WikiWikiWeb clone.
-// $Id: pukiwiki.skin.php,v 1.45 2009/09/01 03:07:32 nao-pon Exp $
+// $Id: pukiwiki.skin.php,v 1.46 2009/10/01 23:39:04 nao-pon Exp $
 // Copyright (C)
 //   2002-2006 PukiWiki Developers Team
 //   2001-2002 Originally written by yu-ji
@@ -58,6 +58,7 @@ $this->root->_IMAGE['skin']['refer']    = 'src=referer.png';
 $this->root->_IMAGE['skin']['topage']   = 'src=topage.gif';
 $this->root->_IMAGE['skin']['pginfo']   = 'src=pginfo.gif';
 $this->root->_IMAGE['skin']['print']    = 'src=print.png';
+$this->root->_IMAGE['skin']['powered']  = 'src=cog.png';
 
 // ------------------------------------------------------------
 // Code start
@@ -272,6 +273,7 @@ EOD;
  &nbsp; <?php $toolbar($this, 'rss10', 14, 14) ?>
  <?php $toolbar($this, 'rss20', 14, 14) ?>
  <?php $toolbar($this, 'atom', 14, 14) ?>
+ <?php $toolbar($this, 'powered', 16, 16, 'class="ext_noicon"') ?>
 </div>
 <?php } // PKWK_SKIN_SHOW$toolbar ?>
 
