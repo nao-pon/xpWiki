@@ -16,7 +16,7 @@
 // -----------------------------------------------------------------------------------
 //
 //  edited by nao-pon - http://hypweb.net/
-//  $Id: lightbox.js,v 1.17 2009/06/26 00:11:59 nao-pon Exp $
+//  $Id: lightbox.js,v 1.18 2009/10/01 23:37:22 nao-pon Exp $
 //
 // -----------------------------------------------------------------------------------
 
@@ -124,13 +124,11 @@ Lightbox.prototype = {
 		this.myhost = new RegExp("^"+this.myhost,"i");
 		
 		var objBody = document.getElementsByTagName('body')[0];
-		var r = document.evaluate('descendant::a[@type="img"]', objBody, null, 7, null);
+		var r = document.evaluate('descendant::a[@type="img"][@href!=""]', objBody, null, 7, null);
 		for (var i=0; i<r.snapshotLength; i++){
 			var anchor = r.snapshotItem(i);
-			if (anchor.getAttribute('href')) {
-				anchor.setAttribute("rel", "lightbox[stack]");
-				anchor.onclick = function () {myLightbox.start(this); return false;}
-			}
+			anchor.setAttribute("rel", "lightbox[stack]");
+			anchor.onclick = function () {myLightbox.start(this); return false;}
 		}
 		
 		if ($('lightbox')) {
