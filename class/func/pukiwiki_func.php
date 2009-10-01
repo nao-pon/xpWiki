@@ -1,7 +1,7 @@
 <?php
 //
 // Created on 2006/10/02 by nao-pon http://hypweb.net/
-// $Id: pukiwiki_func.php,v 1.210 2009/09/01 03:10:59 nao-pon Exp $
+// $Id: pukiwiki_func.php,v 1.211 2009/10/01 23:39:04 nao-pon Exp $
 //
 class XpWikiPukiWikiFunc extends XpWikiBaseFunc {
 
@@ -960,7 +960,7 @@ class XpWikiPukiWikiFunc extends XpWikiBaseFunc {
 
 //----- Start convert_html.php -----//
 	// PukiWiki - Yet another WikiWikiWeb clone
-	// $Id: pukiwiki_func.php,v 1.210 2009/09/01 03:10:59 nao-pon Exp $
+	// $Id: pukiwiki_func.php,v 1.211 2009/10/01 23:39:04 nao-pon Exp $
 	// Copyright (C)
 	//   2002-2005 PukiWiki Developers Team
 	//   2001-2002 Originally written by yu-ji
@@ -1239,7 +1239,7 @@ class XpWikiPukiWikiFunc extends XpWikiBaseFunc {
 
 //----- Start func.php -----//
 	// PukiWiki - Yet another WikiWikiWeb clone.
-	// $Id: pukiwiki_func.php,v 1.210 2009/09/01 03:10:59 nao-pon Exp $
+	// $Id: pukiwiki_func.php,v 1.211 2009/10/01 23:39:04 nao-pon Exp $
 	// Copyright (C)
 	//   2002-2006 PukiWiki Developers Team
 	//   2001-2002 Originally written by yu-ji
@@ -2078,7 +2078,7 @@ EOD;
 
 //----- Start make_link.php -----//
 	// PukiWiki - Yet another WikiWikiWeb clone.
-	// $Id: pukiwiki_func.php,v 1.210 2009/09/01 03:10:59 nao-pon Exp $
+	// $Id: pukiwiki_func.php,v 1.211 2009/10/01 23:39:04 nao-pon Exp $
 	// Copyright (C)
 	//   2003-2005 PukiWiki Developers Team
 	//   2001-2002 Originally written by yu-ji
@@ -3073,7 +3073,7 @@ EOD;
 
 //----- Start html.php -----//
 	// PukiWiki - Yet another WikiWikiWeb clone.
-	// $Id: pukiwiki_func.php,v 1.210 2009/09/01 03:10:59 nao-pon Exp $
+	// $Id: pukiwiki_func.php,v 1.211 2009/10/01 23:39:04 nao-pon Exp $
 	// Copyright (C)
 	//   2002-2006 PukiWiki Developers Team
 	//   2001-2002 Originally written by yu-ji
@@ -3184,6 +3184,7 @@ EOD;
 		$_LINK['unfreeze'] = "{$this->root->script}?cmd=unfreeze&amp;page=$r_page#{$this->root->mydirname}_header";
 		$_LINK['upload']   = "{$this->root->script}?plugin=attach&amp;pcmd=upload&amp;page=$r_page#{$this->root->mydirname}_header";
 		$_LINK['topage']   = $this->get_page_uri($_page, true)."#{$this->root->mydirname}_header";
+		$_LINK['powered']  = 'http://xoops.hypweb.net/';
 		
 		// Compat: Skins for 1.4.4 and before
 		$link_add       = & $_LINK['add'];
@@ -3837,7 +3838,7 @@ EOD;
 
 //----- Start mail.php -----//
 	// PukiWiki - Yet another WikiWikiWeb clone.
-	// $Id: pukiwiki_func.php,v 1.210 2009/09/01 03:10:59 nao-pon Exp $
+	// $Id: pukiwiki_func.php,v 1.211 2009/10/01 23:39:04 nao-pon Exp $
 	// Copyright (C)
 	//   2003-2005 PukiWiki Developers Team
 	//   2003      Originally written by upk
@@ -4140,7 +4141,7 @@ EOD;
 
 //----- Start link.php -----//
 	// PukiWiki - Yet another WikiWikiWeb clone
-	// $Id: pukiwiki_func.php,v 1.210 2009/09/01 03:10:59 nao-pon Exp $
+	// $Id: pukiwiki_func.php,v 1.211 2009/10/01 23:39:04 nao-pon Exp $
 	// Copyright (C) 2003-2006 PukiWiki Developers Team
 	// License: GPL v2 or (at your option) any later version
 	//

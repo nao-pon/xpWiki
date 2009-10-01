@@ -1,6 +1,6 @@
 <?php
 // PukiWiki - Yet another WikiWikiWeb clone.
-// $Id: lng.php,v 1.21 2009/06/26 00:23:01 nao-pon Exp $
+// $Id: lng.php,v 1.22 2009/10/01 23:39:04 nao-pon Exp $
 // Copyright (C)
 //   2002-2005 PukiWiki Developers Team
 //   2001-2002 Originally written by yu-ji
@@ -176,6 +176,8 @@ $root->_LANG['skin']['perm']['all']  = 'すべての訪問者';
 $root->_LANG['skin']['perm']['none'] = 'なし';
 $root->_LANG['skin']['print']     = '印刷に適した表示';
 $root->_LANG['skin']['print_s']   = '印刷';
+$root->_LANG['skin']['powered']   = 'Powered by xpWiki';
+$root->_LANG['skin']['powered_s'] = 'xpWiki';
 
 ///////////////////////////////////////
 // Plug-in message
