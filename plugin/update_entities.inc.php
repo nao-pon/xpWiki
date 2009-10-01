@@ -1,6 +1,6 @@
 <?php
 // PukiWiki - Yet another WikiWikiWeb clone
-// $Id: update_entities.inc.php,v 1.6 2008/11/17 02:34:23 nao-pon Exp $
+// $Id: update_entities.inc.php,v 1.7 2009/10/01 23:35:35 nao-pon Exp $
 //
 // Update entities plugin - Update XHTML entities from DTD
 // (for admin)
@@ -94,7 +94,7 @@ EOD;
 			$min = min($min, $len);
 		}
 	
-		$pattern = "(?=[a-zA-Z0-9]\{$min,$max})" . $this->func->get_matcher_regex($entities);
+		$pattern = '(?=[a-zA-Z0-9]{' . $min . ',' . $max . '})' . $this->func->get_matcher_regex($entities);
 		$fp = fopen($this->cont['CACHE_DIR']  . $this->cont['PKWK_ENTITIES_REGEX_CACHE'], 'w')
 			or $this->func->die_message('cannot write file PKWK_ENTITIES_REGEX_CACHE<br />' . "\n" .
 			'maybe permission is not writable or filename is too long');
