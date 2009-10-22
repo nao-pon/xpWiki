@@ -1,7 +1,7 @@
 <?php
 /*
  * Created on 2008/01/24 by nao-pon http://hypweb.net/
- * $Id: conf.lng.php,v 1.13 2009/04/11 00:53:10 nao-pon Exp $
+ * $Id: conf.lng.php,v 1.14 2009/10/22 08:50:05 nao-pon Exp $
  */
 
 $msg = array(
@@ -226,6 +226,24 @@ each use page can be provided.<br />'
 		               . 'The range in the chapter is begun by the head line that starts by * of the Wiki format.',
 		'compat'      => 'Up to next',
 		'level'       => 'Up to equality or higher level',
+	),
+
+	'amazon_AssociateTag' => array(
+		'caption'     => 'Amazon AssociateTag',
+		'description' => 'Associate Tag(Tracking ID)<br />'
+		               . 'If empty then uses "trust/class/hyp_common/hsamazon/hyp_simple_amazon.ini" setting.',
+	),
+
+	'amazon_AccessKeyId' => array(
+		'caption'     => 'Amazon AccessKeyId',
+		'description' => 'AccessKey ID (Character string of 20 characters)<br />'
+		               . 'If empty then uses "trust/class/hyp_common/hsamazon/hyp_simple_amazon.ini" setting.',
+	),
+
+	'amazon_SecretAccessKey' => array(
+		'caption'     => 'Amazon SecretAccessKey',
+		'description' => 'Secret AccessKey (Sequence of 40 characters)<br />'
+		               . 'If empty then uses "trust/class/hyp_common/hsamazon/hyp_simple_amazon.ini" setting.',
 	),
 
 	'fckeditor_path' => array(

@@ -1,6 +1,6 @@
 <?php
 // PukiWiki - Yet another WikiWikiWeb clone
-// $Id: pukiwiki.ini.php,v 1.97 2009/09/01 03:04:41 nao-pon Exp $
+// $Id: pukiwiki.ini.php,v 1.98 2009/10/22 08:50:05 nao-pon Exp $
 // Copyright (C)
 //   2002-2006 PukiWiki Developers Team
 //   2001-2002 Originally written by yu-ji
@@ -12,6 +12,7 @@
 // Variable initialize
 $root->ext_autolinks = array();	// External AutoLink
 $root->page_aliases = array(); // Pagename aliases
+$root->page_aliases_i = array(); // Pagename aliases (case-insensitive)
 
 /////////////////////////////////////////////////
 // Functionality settings
@@ -823,6 +824,9 @@ $root->pagereading_chasen_path = '/usr/local/bin/chasen';
 $root->pagereading_kakasi_path = '/usr/local/bin/kakasi';
 $root->pagereading_config_page = ':config/PageReading';
 $root->pagereading_config_dict = ':config/PageReading/dict';
+$root->amazon_AssociateTag = '';
+$root->amazon_AccessKeyId  = '';
+$root->amazon_SecretAccessKey = '';
 
 $root->pginfo = array(
 	'uid'       => 0,     // UserID

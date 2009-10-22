@@ -1,7 +1,7 @@
 <?php
 /*
  * Created on 2008/01/24 by nao-pon http://hypweb.net/
- * $Id: conf.inc.php,v 1.16 2009/04/11 00:53:10 nao-pon Exp $
+ * $Id: conf.inc.php,v 1.17 2009/10/22 08:50:05 nao-pon Exp $
  */
 
 class xpwiki_plugin_conf extends xpwiki_plugin {
@@ -204,6 +204,21 @@ class xpwiki_plugin_conf extends xpwiki_plugin {
 					$this->msg['paraedit_partarea']['level']  => 'level',
 				),
 			),
+			'amazon_AssociateTag' => array(
+				'kind' => 'root',
+				'type' => 'string',
+				'form' => 'text,size="20"',
+			),
+			'amazon_AccessKeyId' => array(
+				'kind' => 'root',
+				'type' => 'string',
+				'form' => 'text,size="30"',
+			),
+			'amazon_SecretAccessKey' => array(
+				'kind' => 'root',
+				'type' => 'string',
+				'form' => 'text,size="50"',
+			),
 			'fckeditor_path' => array(
 				'kind' => 'root',
 				'type' => 'string',
@@ -385,7 +400,7 @@ EOD;
 			}
 			$body .= <<<EOD
 <tr>
- <td style="font-weight:bold;padding-top:0.5em">$caption</td>
+ <td style="font-weight:bold;padding-top:0.5em" id="$key">$caption</td>
  <td style="padding-top:0.5em">{$form}{$extention}</td>
  <td style="padding-top:0.5em"><small>$real</small></td>
 </tr>
