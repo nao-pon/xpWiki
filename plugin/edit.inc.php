@@ -1,6 +1,6 @@
 <?php
 // PukiWiki - Yet another WikiWikiWeb clone.
-// $Id: edit.inc.php,v 1.69 2009/05/25 04:44:49 nao-pon Exp $
+// $Id: edit.inc.php,v 1.70 2009/10/22 08:43:54 nao-pon Exp $
 // Copyright (C) 2001-2006 PukiWiki Developers Team
 // License: GPL v2 or (at your option) any later version
 //
@@ -187,7 +187,7 @@ EOD;
 EOD;
 			$this->func->send_xml($body);
 		} else {
-			$body .= $this->func->edit_form($page, $this->root->vars['msg'], $this->root->vars['digest'], TRUE, $options);
+			$body .= $this->func->edit_form($page, $this->root->vars['msg'], (isset($this->root->vars['digest'])? $this->root->vars['digest'] : FALSE), TRUE, $options);
 		}
 		
 		return array('msg'=>(!$ng_riddle)? $this->root->_title_preview : $this->root->_title_ng_riddle, 'body'=>$body);
