@@ -1,35 +1,35 @@
 <?php
+// PukiWiki - Yet another WikiWikiWeb clone.
+// $Id: read.inc.php,v 1.10 2009/10/22 08:43:00 nao-pon Exp $
+//
+// Read plugin: Show a page and InterWiki
+
 class xpwiki_plugin_read extends xpwiki_plugin {
 	function plugin_read_init () {
 
-
-
 	}
-	// PukiWiki - Yet another WikiWikiWeb clone.
-	// $Id: read.inc.php,v 1.9 2009/09/01 01:46:05 nao-pon Exp $
-	//
-	// Read plugin: Show a page and InterWiki
 	
 	function plugin_read_action()
 	{
-	//	global $vars, $_title_invalidwn, $_msg_invalidiwn;
-	
 		$page = isset($this->root->vars['page']) ? $this->root->vars['page'] : '';
 		
+		if ($this->root->page_case_insensitive) {
+			$page_aliases = $this->root->page_aliases_i;
+			$a_page = strtolower($page);
+		} else {
+			$page_aliases = $this->root->page_aliases;
+			$a_page = $page;
+		}
+		
 		// check alias page
-		if (!$this->func->is_page($page) && isset($this->root->page_aliases[$page])) {
+		if (!$this->func->is_page($page) && isset($page_aliases[$a_page])) {
 			//$page = $this->root->vars['page'] = $this->root->get['page'] = $this->root->post['page'] = $this->root->page_aliases[$page];
 			if (! headers_sent()) {
 				header('HTTP/1.1 301 Moved Permanently');
 			}
-			$this->func->send_location('', '', $this->func->get_page_uri($this->root->page_aliases[$page], TRUE));
+			$this->func->send_location('', '', $this->func->get_page_uri($page_aliases[$a_page], TRUE));
 		}
 		
-		// check acepted lang
-		//if ($this->cont['LANG'] !== $this->cont['UI_LANG'] && substr($page, -3, 1) !== ';' && $this->func->is_page($page . ';' . $this->cont['UI_LANG'])) {
-		//	$page = $this->root->vars['page'] = $this->root->get['page'] = $this->root->post['page'] = $page . ';' . $this->cont['UI_LANG'];
-		//}
-	
 		if ($this->func->is_page($page)) {
 			// ページを表示
 			if ($this->func->check_readable($page, true, true)) {
@@ -55,9 +55,15 @@ class xpwiki_plugin_read extends xpwiki_plugin {
 					return array('msg'=>'', 'body'=>'');
 				}
 			}
-			$this->root->vars['cmd'] = 'edit';
-			return $this->func->do_plugin_action('edit'); // 存在しないので、編集フォームを表示
-	
+			if ($this->root->render_mode === 'block') {
+				// ブロック表示モードは編集リンク
+				return array('msg' => $this->root->_title_edit, 'body' => $this->func->make_pagelink($page));
+			} else {
+				if (! headers_sent()) header('HTTP/1.0 404 Not Found'); // for Serach engines
+				// 存在しないので、編集フォームを表示
+				$this->root->vars['cmd'] = 'edit';
+				return $this->func->do_plugin_action('edit');
+			}
 		} else {
 			// 無効なページ名
 			return array(
