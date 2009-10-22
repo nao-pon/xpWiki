@@ -1,7 +1,7 @@
 <?php
 //
 // Created on 2006/10/16 by nao-pon http://hypweb.net/
-// $Id: compat.php,v 1.7 2009/03/02 01:31:23 nao-pon Exp $
+// $Id: compat.php,v 1.8 2009/10/22 08:51:34 nao-pon Exp $
 //
 
 //// mbstring ////
@@ -96,4 +96,25 @@ if (! function_exists('file_get_contents')) {
 		return $data;
 	}
 }
-?>
+
+// array_change_key_case
+// (PHP 4 >= 4.2.0, PHP 5)
+if(!function_exists("array_change_key_case")){
+	if ( !defined('CASE_LOWER') )define('CASE_LOWER', 0);
+	if ( !defined('CASE_UPPER') )define('CASE_UPPER', 1);
+    function array_change_key_case($input, $case=0){
+        if(!is_array($input))return FALSE;
+        $product = array();
+        foreach($input as $key => $value){
+            if($case){ //Upper
+                $key2 = (  (is_string($key)) ? (strtoupper($key)) : ($key)  );
+                $product[$key2] = $value;
+            }
+            else{ //Lower
+                $key2 = (  (is_string($key)) ? (strtolower($key)) : ($key)  );
+                $product[$key2] = $value;
+            }
+        }
+        return $product;
+    }/* endfunction array_change_key_case */
+}/* endfunction exists array_change_key_case*/
