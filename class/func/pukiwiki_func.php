@@ -1,7 +1,7 @@
 <?php
 //
 // Created on 2006/10/02 by nao-pon http://hypweb.net/
-// $Id: pukiwiki_func.php,v 1.211 2009/10/01 23:39:04 nao-pon Exp $
+// $Id: pukiwiki_func.php,v 1.212 2009/10/22 09:00:53 nao-pon Exp $
 //
 class XpWikiPukiWikiFunc extends XpWikiBaseFunc {
 
@@ -183,7 +183,10 @@ class XpWikiPukiWikiFunc extends XpWikiBaseFunc {
 				$pginfo['lastucd'] = $this->root->userinfo['ucd'];
 				$pginfo['lastuname'] = $this->root->userinfo['uname'];
 				if ($this->root->cookie['name'] && $this->root->userinfo['uname'] !== $this->root->cookie['name']) {
-					$pginfo['lastuname'] = $this->root->cookie['name'];
+					$pginfo['lastuname'] = htmlspecialchars($this->root->cookie['name']);
+					if ($mode === 'insert') {
+						$pginfo['uname'] = $pginfo['lastuname'];
+					}
 					if ($this->root->siteinfo['anonymous'] !== $this->root->cookie['name']){
 						$pginfo['lastuname'] .= '('.$pginfo['lastuname'].')';
 					}
@@ -274,6 +277,16 @@ class XpWikiPukiWikiFunc extends XpWikiBaseFunc {
 				$footer['PAGE']   = $page;
 				$footer['USER_AGENT']  = TRUE;
 				$footer['REMOTE_ADDR'] = TRUE;
+				// K-TAI
+				if ($this->cont['UA_PROFILE'] === 'keitai' && HypCommonFunc::get_version() >= '20080925') {
+					HypCommonFunc::loadClass('HypKTaiRender');
+					$ktai_render =& HypKTaiRender::getSingleton();
+					if ($ktai_render->vars['ua']['uid']) {
+						$footer['KTAI_UID'] = md5($ktai_render->vars['ua']['uid']);
+					} else {
+						$footer['KTAI_UID'] = 'Unknown';
+					}
+				}
 				$this->pkwk_mail_notify(
 					$this->root->notify_subject,
 					$this->get_page_uri($page, true) . "\n\n" . ($this->root->notify_diff_only? $diff_compact : $diffdata),
@@ -960,7 +973,7 @@ class XpWikiPukiWikiFunc extends XpWikiBaseFunc {
 
 //----- Start convert_html.php -----//
 	// PukiWiki - Yet another WikiWikiWeb clone
-	// $Id: pukiwiki_func.php,v 1.211 2009/10/01 23:39:04 nao-pon Exp $
+	// $Id: pukiwiki_func.php,v 1.212 2009/10/22 09:00:53 nao-pon Exp $
 	// Copyright (C)
 	//   2002-2005 PukiWiki Developers Team
 	//   2001-2002 Originally written by yu-ji
@@ -1239,7 +1252,7 @@ class XpWikiPukiWikiFunc extends XpWikiBaseFunc {
 
 //----- Start func.php -----//
 	// PukiWiki - Yet another WikiWikiWeb clone.
-	// $Id: pukiwiki_func.php,v 1.211 2009/10/01 23:39:04 nao-pon Exp $
+	// $Id: pukiwiki_func.php,v 1.212 2009/10/22 09:00:53 nao-pon Exp $
 	// Copyright (C)
 	//   2002-2006 PukiWiki Developers Team
 	//   2001-2002 Originally written by yu-ji
@@ -2078,7 +2091,7 @@ EOD;
 
 //----- Start make_link.php -----//
 	// PukiWiki - Yet another WikiWikiWeb clone.
-	// $Id: pukiwiki_func.php,v 1.211 2009/10/01 23:39:04 nao-pon Exp $
+	// $Id: pukiwiki_func.php,v 1.212 2009/10/22 09:00:53 nao-pon Exp $
 	// Copyright (C)
 	//   2003-2005 PukiWiki Developers Team
 	//   2001-2002 Originally written by yu-ji
@@ -2116,9 +2129,18 @@ EOD;
 		static $path_cache = array();
 		
 		// check alias page
-		if (!$this->is_page($page) && isset($this->root->page_aliases[$page])) {
-			if (!$alias) $alias = $page;
-			$page = $this->root->page_aliases[$page];
+		if (!$this->is_page($page)) {
+			if ($this->root->page_case_insensitive) {
+				$page_aliases = $this->root->page_aliases_i;
+				$a_page = strtolower($page);
+			} else {
+				$page_aliases = $this->root->page_aliases;
+				$a_page = $page;
+			}
+			if (isset($page_aliases[$a_page])) {
+				if (!$alias) $alias = $page;
+				$page = $page_aliases[$a_page];
+			}
 		}
 		
 		$isset_alias = ($alias);
@@ -3073,7 +3095,7 @@ EOD;
 
 //----- Start html.php -----//
 	// PukiWiki - Yet another WikiWikiWeb clone.
-	// $Id: pukiwiki_func.php,v 1.211 2009/10/01 23:39:04 nao-pon Exp $
+	// $Id: pukiwiki_func.php,v 1.212 2009/10/22 09:00:53 nao-pon Exp $
 	// Copyright (C)
 	//   2002-2006 PukiWiki Developers Team
 	//   2001-2002 Originally written by yu-ji
@@ -3362,10 +3384,10 @@ EOD;
 
 			// Othor options
 			if (!empty($this->root->rtf['preview'])) {
-				$pgtitle_str = htmlspecialchars($this->root->vars['pgtitle']);
-				$reading_str = htmlspecialchars($this->root->vars['reading']);
-				$alias_str = htmlspecialchars($this->root->vars['alias']);
-				$order_val = floatval($this->root->vars['pgorder']);
+				$pgtitle_str = isset($this->root->vars['pgtitle'])? htmlspecialchars($this->root->vars['pgtitle']) : '';
+				$reading_str = isset($this->root->vars['reading'])? htmlspecialchars($this->root->vars['reading']) : '';
+				$alias_str = isset($this->root->vars['alias'])? htmlspecialchars($this->root->vars['alias']) : '';
+				$order_val = isset($this->root->vars['pgorder'])? floatval($this->root->vars['pgorder']) : 1;
 			} else {
 				$pgtitle_str = $this->extract_pgtitle($postdata);
 				$reading_str = htmlspecialchars($this->get_page_reading($page));
@@ -3411,7 +3433,7 @@ EOD;
 		if ($this->root->userinfo['uid']) {
 			$uname = '<input type="hidden" name="uname" value="'.$this->cont['USER_NAME_REPLACE'].'" />';
 		} else {
-			$_uname = (!empty($this->root->rtf['preview']))? htmlspecialchars($this->root->vars['uname']) : $this->cont['USER_NAME_REPLACE'];
+			$_uname = (!empty($this->root->rtf['preview']) && isset($this->root->vars['uname']))? htmlspecialchars($this->root->vars['uname']) : $this->cont['USER_NAME_REPLACE'];
 			$_anonymous = (!empty($this->root->rtf['preview']) && !empty($this->root->vars['anonymous']))? htmlspecialchars($this->root->vars['anonymous']) : $this->root->cookie['name'];
 			$_anonymous_checked = (!empty($this->root->vars['anonymous']))? ' checked="checked"' : '';
 			$uname = '<label for="_edit_form_uname"><strong>'
@@ -3838,7 +3860,7 @@ EOD;
 
 //----- Start mail.php -----//
 	// PukiWiki - Yet another WikiWikiWeb clone.
-	// $Id: pukiwiki_func.php,v 1.211 2009/10/01 23:39:04 nao-pon Exp $
+	// $Id: pukiwiki_func.php,v 1.212 2009/10/22 09:00:53 nao-pon Exp $
 	// Copyright (C)
 	//   2003-2005 PukiWiki Developers Team
 	//   2003      Originally written by upk
@@ -4141,7 +4163,7 @@ EOD;
 
 //----- Start link.php -----//
 	// PukiWiki - Yet another WikiWikiWeb clone
-	// $Id: pukiwiki_func.php,v 1.211 2009/10/01 23:39:04 nao-pon Exp $
+	// $Id: pukiwiki_func.php,v 1.212 2009/10/22 09:00:53 nao-pon Exp $
 	// Copyright (C) 2003-2006 PukiWiki Developers Team
 	// License: GPL v2 or (at your option) any later version
 	//
