@@ -1,7 +1,7 @@
 <?php
 /*
  * Created on 2007/11/16 by nao-pon http://hypweb.net/
- * $Id: siteimage.inc.php,v 1.5 2008/07/02 00:04:32 nao-pon Exp $
+ * $Id: siteimage.inc.php,v 1.6 2009/10/22 08:41:10 nao-pon Exp $
  */
 
 class xpwiki_plugin_siteimage extends xpwiki_plugin {
@@ -148,9 +148,9 @@ class xpwiki_plugin_siteimage extends xpwiki_plugin {
 				foreach(array('s', 'm', 'l') as $_size) {
 					@ unlink($this->cont['CACHE_DIR'] . 'ASIN_SITEIMAGE_' . $sha1 . '_' . $_size . '.jpg');
 				}
-			}
-			if ($is_new) {
-				$this->func->pkwk_touch_file($cache, $this->cont['UTC'] - $this->cache_day * 86400 + $this->cache1st_min * 60 );
+				if ($is_new) {
+					$this->func->pkwk_touch_file($cache, $this->cont['UTC'] - $this->cache_day * 86400 + $this->cache1st_min * 60 );
+				}
 			}
 		}
 		
