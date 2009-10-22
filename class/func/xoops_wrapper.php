@@ -1,7 +1,7 @@
 <?php
 //
 // Created on 2006/10/11 by nao-pon http://hypweb.net/
-// $Id: xoops_wrapper.php,v 1.55 2009/05/28 01:47:38 nao-pon Exp $
+// $Id: xoops_wrapper.php,v 1.56 2009/10/22 09:01:39 nao-pon Exp $
 //
 class XpWikiXoopsWrapper extends XpWikiBackupFunc {
 	
@@ -359,6 +359,17 @@ class XpWikiXoopsWrapper extends XpWikiBackupFunc {
 		$xoopsUser =& $member_handler->getUser($uid);
 		if (! is_object($xoopsUser)) return FALSE;
 		return $xoopsUser->isAdmin($XoopsModule->mid());
+	}
+	
+	// 管理者権限があるか調べる(groupid)
+	function check_admin_group ($gid = 0) {
+		if (!$gid) return FALSE;
+		
+		$module_handler =& xoops_gethandler('module');
+		$moduleperm_handler =& xoops_gethandler('groupperm');
+		
+		$XoopsModule =& $module_handler->getByDirname($this->root->mydirname);
+		return $moduleperm_handler->checkRight('module_admin', $XoopsModule->mid(), $gid);
 	}
 	
 	// 最終更新者名を得る
