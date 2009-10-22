@@ -1,6 +1,6 @@
 <?php
 // PukiWiki - Yet another WikiWikiWeb clone.
-// $Id: amazon.inc.php,v 1.9 2008/11/17 02:34:23 nao-pon Exp $
+// $Id: amazon.inc.php,v 1.10 2009/10/22 08:50:05 nao-pon Exp $
 // Id: amazon.inc.php,v 1.1 2003/07/24 13:00:00 閑舎
 //
 // Amazon plugin: Book-review maker via amazon.com/amazon.jp
@@ -55,52 +55,60 @@ class xpwiki_plugin_amazon extends xpwiki_plugin {
 		// Settings
 		
 		// Amazon associate ID
-		$this->cont['PLUGIN_AMAZON_AID'] = '';
+		$this->config['PLUGIN_AMAZON_AID'] = $this->root->amazon_AssociateTag;
 	
 		// Expire caches per ? days
-		$this->cont['PLUGIN_AMAZON_EXPIRE_IMAGECACHE'] =    1;
-		$this->cont['PLUGIN_AMAZON_EXPIRE_TITLECACHE'] =  356;
+		$this->config['PLUGIN_AMAZON_EXPIRE_IMAGECACHE'] =  1;
+		$this->config['PLUGIN_AMAZON_EXPIRE_TITLECACHE'] =  1;
 	
 		// Alternative image for 'Image not found'
-		$this->cont['PLUGIN_AMAZON_NO_IMAGE'] =  $this->cont['IMAGE_DIR'] . 'noimage.png';
+		$this->config['PLUGIN_AMAZON_NO_IMAGE'] =  $this->cont['IMAGE_DIR'] . 'noimage.png';
 	
+		// For confirm (admin only)
+		$this->config['conflink'] = ($this->root->userinfo['admin'])? ' ( <a href="'.$this->cont['HOME_URL'].'?cmd=conf#amazon_AssociateTag" target="_blank">confirm with this link</a> )' : '';
+
 		// URI prefixes
 		switch($this->cont['LANG']){
 		case 'ja':
 			// Amazon shop
-			$this->cont['PLUGIN_AMAZON_SHOP_URI'] =  'http://www.amazon.co.jp/exec/obidos/ASIN/';
+			$this->config['PLUGIN_AMAZON_SHOP_URI'] =  'http://www.amazon.co.jp/exec/obidos/ASIN/';
 	
 			break;
 		default:
 			// Amazon shop
-			$this->cont['PLUGIN_AMAZON_SHOP_URI'] =  'http://www.amazon.com/exec/obidos/ASIN/';
+			$this->config['PLUGIN_AMAZON_SHOP_URI'] =  'http://www.amazon.com/exec/obidos/ASIN/';
 	
 			break;
 		}
+	}
+	
+	function plugin_amazon() {
+		// Amazon associate ID
+		$this->config['PLUGIN_AMAZON_AID'] = $this->root->amazon_AssociateTag;
+	
+		// Expire caches per ? days
+		$this->config['PLUGIN_AMAZON_EXPIRE_IMAGECACHE'] =   1;
+		$this->config['PLUGIN_AMAZON_EXPIRE_TITLECACHE'] =  10;
+	
+		// Alternative image for 'Image not found'
+		$this->config['PLUGIN_AMAZON_NO_IMAGE'] =  $this->cont['IMAGE_DIR'] . 'noimage.png';
+	
+		// For confirm (admin only)
+		$this->config['conflink'] = ($this->root->userinfo['admin'])? ' ( <a href="'.$this->cont['HOME_URL'].'?cmd=conf#amazon_AssociateTag" target="_blank">confirm with this link</a> )' : '';
 
-		if ($this->cont['PLUGIN_AMAZON_AID'] == '') {
-			$this->root->amazon_aid = '';
-		} else {
-			$this->root->amazon_aid = $this->cont['PLUGIN_AMAZON_AID'] . '/';
+		// URI prefixes
+		switch($this->cont['LANG']){
+		case 'ja':
+			// Amazon shop
+			$this->config['PLUGIN_AMAZON_SHOP_URI'] =  'http://www.amazon.co.jp/exec/obidos/ASIN/';
+	
+			break;
+		default:
+			// Amazon shop
+			$this->config['PLUGIN_AMAZON_SHOP_URI'] =  'http://www.amazon.com/exec/obidos/ASIN/';
+	
+			break;
 		}
-		$this->root->amazon_body = <<<EOD
--作者: [[ここ編集のこと]]
--評者: お名前
--日付: &date;
-**お薦め対象
-[[ここ編集のこと]]
-
-#amazon(,clear)
-**感想
-[[ここ編集のこと]]
-
-// まず、このレビューを止める場合、全文を削除し、ページの[更新ボタン]を押してください！(PukiWiki にはもう登録されています)
-// 続けるなら、上の、[[ここ編集のこと]]部分を括弧を含めて削除し、書き直してください。
-// お名前、部分はご自分の名前に変更してください。私だと、閑舎、です。
-// **お薦め対象、より上は、新しい行を追加しないでください。目次作成に使用するので。
-// //で始まるコメント行は、最終的に全部カットしてください。目次が正常に作成できない可能性があります。
-#comment
-EOD;
 	}
 	
 	function plugin_amazon_convert()
@@ -116,6 +124,8 @@ EOD;
 	
 		} else if (func_num_args() == 0) {
 			// レビュー作成
+			$this->load_language();
+			
 			if ($this->cont['PKWK_READONLY']) return ''; // Show nothing
 	
 			$s_page = htmlspecialchars($this->root->vars['page']);
@@ -124,11 +134,11 @@ EOD;
 			$ret = <<<EOD
 <form action="{$script}" method="post">
  <div>
-  <input type="hidden" name="plugin" value="amazon" />
+  <input type="hidden" name="cmd" value="amazon" />
   <input type="hidden" name="refer" value="$s_page" />
-  ASIN:
+  ASIN(ISBN):
   <input type="text" name="asin" size="30" value="" />
-  <input type="submit" value="レビュー編集" /> (ISBN 10 桁 or ASIN 12 桁)
+  <input type="submit" value="{$this->msg['edit_btn']}" /> {$this->msg['edit_caption']}
  </div>
 </form>
 EOD;
@@ -141,7 +151,7 @@ EOD;
 		if ($align == 'clear') return '<div style="clear:both"></div>'; // 改行挿入
 		if ($align != 'left') $align = 'right'; // 配置決定
 	
-		$this->root->asin_all = htmlspecialchars($aryargs[0]);  // for XSS
+		$this->asin_all = htmlspecialchars($aryargs[0]);  // for XSS
 		if ($this->is_asin() == FALSE && $align != 'clear') return FALSE;
 	
 		if ($aryargs[2] != '') {
@@ -149,32 +159,41 @@ EOD;
 			$title = $alt = htmlspecialchars($aryargs[2]); // for XSS
 			if ($alt == 'image') {
 				$alt = $this->plugin_amazon_get_asin_title();
-				if ($alt == '') return FALSE;
+				if ($alt[0] === "\t") {
+					$ret = trim($alt) . $this->config['conflink'];
+				} else if ($alt === '') {
+					$ret = FALSE;
+				}
 				$title = '';
 			} else if ($alt == 'delimage') {
-				if (unlink($this->cont['CACHE_DIR'] . 'ASIN' . $this->root->asin . '.jpg')) {
-					return 'Image of ' . $this->root->asin . ' deleted...';
+				if (unlink($this->cont['CACHE_DIR'] . 'ASIN' . $this->asin . '.jpg')) {
+					$ret = 'Image of ' . $this->asin . ' deleted...';
 				} else {
-					return 'Image of ' . $this->root->asin . ' NOT DELETED...';
+					$ret = 'Image of ' . $this->asin . ' NOT DELETED...';
 				}
 			} elseif ($alt == 'deltitle') {
-				if (unlink($this->cont['CACHE_DIR'] . 'ASIN' . $this->root->asin . '.tit')) {
-					return 'Title of ' . $this->root->asin . ' deleted...';
+				if (unlink($this->cont['CACHE_DIR'] . 'ASIN' . $this->asin . '.tit')) {
+					$ret = 'Title of ' . $this->asin . ' deleted...';
 				} else {
-					return 'Title of ' . $this->root->asin . ' NOT DELETED...';
+					$ret = 'Title of ' . $this->asin . ' NOT DELETED...';
 				}
 			} elseif ($alt == 'delete') {
-				if ((unlink($this->cont['CACHE_DIR'] . 'ASIN' . $this->root->asin . '.jpg') &&
-				     unlink($this->cont['CACHE_DIR'] . 'ASIN' . $this->root->asin . '.tit'))) {
-					return 'Title and Image of ' . $this->root->asin . ' deleted...';
+				if ((unlink($this->cont['CACHE_DIR'] . 'ASIN' . $this->asin . '.jpg') &&
+				     unlink($this->cont['CACHE_DIR'] . 'plugin/' . $this->asin . '.aws'))) {
+					$ret = 'Title and Image of ' . $this->asin . ' deleted...';
 				} else {
-					return 'Title and Image of ' . $this->root->asin . ' NOT DELETED...';
+					$ret = 'Title and Image of ' . $this->asin . ' NOT DELETED...';
 				}
 			}
+			return $ret? ('<div>' . $ret . '</div>') : FALSE;
 		} else {
 			// タイトル自動取得
 			$alt = $title = $this->plugin_amazon_get_asin_title();
-			if ($alt == '') return FALSE;
+			if ($alt[0] === "\t") {
+				return '<div>' . trim($alt) . $this->config['conflink'] . '</div>';
+			} else if ($alt === '') {
+				return FALSE;
+			}
 		}
 	
 		return $this->plugin_amazon_print_object($align, $alt, $title);
@@ -185,17 +204,17 @@ EOD;
 		if ($this->cont['PKWK_READONLY']) $this->func->die_message('PKWK_READONLY prohibits editing');
 	
 		$s_page   = isset($this->root->vars['refer']) ? $this->root->vars['refer'] : '';
-		$this->root->asin_all = isset($this->root->vars['asin']) ?
+		$this->asin_all = isset($this->root->vars['asin']) ?
 			htmlspecialchars(rawurlencode($this->func->strip_bracket($this->root->vars['asin']))) : '';
 	
 		if (! $this->is_asin()) {
-			$retvars['msg']   = 'ブックレビュー編集';
+			$retvars['msg']   = $this->msg['edit_title'];
 			$retvars['refer'] = & $s_page;
 			$retvars['body']  = $this->plugin_amazon_convert();
 			return $retvars;
 	
 		} else {
-			$r_page     = $s_page . '/' . $this->root->asin;
+			$r_page     = $s_page . '/' . $this->asin;
 			$auth_user = isset($_SERVER['PHP_AUTH_USER']) ? $_SERVER['PHP_AUTH_USER'] : '';
 	
 			$this->func->pkwk_headers_sent();
@@ -205,15 +224,19 @@ EOD;
 				$this->func->send_location($r_page);
 			} else {
 				$title = $this->plugin_amazon_get_asin_title();
+				$author = $this->plugin_amazon_get_asin_creator();
 				if ($title == '' || preg_match('#^/#', $s_page)) {
 					// Invalid page name
 					$this->func->send_location($s_page);
 				} else {
-					$body = '#amazon(' . $this->root->asin_all . ',,image)' . "\n" .
-					'*' . $title . "\n" . $this->root->amazon_body;
-					$this->plugin_amazon_review_save($r_page, $body);
-					$this->func->send_location('', '', $this->func->get_script_uri() .
-					'?cmd=edit&page=' . rawurlencode($r_page));
+					$this->load_language();
+					$body = '#amazon(' . $this->asin_all . ',,image)' . "\n" .
+					'*' . $title . "\n" . str_replace(array('$uname', '$author'), array($this->root->userinfo['uname'], $author), $this->msg['edit_body']);
+					
+					$edit =& $this->func->get_plugin_instance('edit');
+					$this->root->vars['page'] = $r_page;
+					$this->root->vars['msg'] = $body;
+					return $edit->plugin_edit_preview();
 				}
 			}
 			exit;
@@ -226,24 +249,26 @@ EOD;
 			return '&amazon require "HypCommonFunc" >= Ver. 20080224';
 		}
 
-		list($this->root->asin_all) = func_get_args();
+		list($this->asin_all) = func_get_args();
 	
-		$this->root->asin_all = htmlspecialchars($this->root->asin_all); // for XSS
+		$this->asin_all = htmlspecialchars($this->asin_all); // for XSS
 		if (! $this->is_asin()) return FALSE;
 	
 		$title = $this->plugin_amazon_get_asin_title();
-		if ($title == '') {
+		if ($title[0] === "\t") {
+			return trim($title) . $this->config['conflink'];
+		} else if ($title === '') {
 			return FALSE;
 		} else {
-			return '<a href="' . $this->cont['PLUGIN_AMAZON_SHOP_URI'] .
-			$this->root->asin . '/' . $this->root->amazon_aid . 'ref=nosim">' . $title . '</a>' . "\n";
+			return '<a href="' . $this->config['PLUGIN_AMAZON_SHOP_URI'] .
+			$this->asin . '/' . $this->config['PLUGIN_AMAZON_AID'] . '/ref=nosim">' . $title . '</a>' . "\n";
 		}
 	}
 	
 	function plugin_amazon_print_object($align, $alt, $title)
 	{
 		$url      = $this->plugin_amazon_cache_image_fetch($this->cont['CACHE_DIR']);
-		$url_shop = $this->cont['PLUGIN_AMAZON_SHOP_URI'] . $this->root->asin . '/' . $this->root->amazon_aid . 'ref=nosim';
+		$url_shop = $this->config['PLUGIN_AMAZON_SHOP_URI'] . $this->asin . '/' . $this->config['PLUGIN_AMAZON_AID'] . '/ref=nosim';
 		$center   = 'text-align:center';
 	
 		if ($title == '') {
@@ -267,35 +292,47 @@ EOD;
 	
 	function plugin_amazon_get_asin($asin)
 	{
-		$false = array('', '');
+		$false = array('', '', '');
 		if (!$asin) return $false;
 	
 		$nocache = $nocachable = 0;
+		$error = $title = $image = $creator = '';
 		
 		$cache_dir = $this->cont['CACHE_DIR'] . 'plugin/';
 		
 		if (file_exists($cache_dir) === FALSE || is_writable($cache_dir) === FALSE) $nocachable = 1; // キャッシュ不可の場合
 	
-		if ($dat = $this->plugin_amazon_cache_fetch($cache_dir, $asin)) {
-			list($title, $image) = $dat;
+		$dat = $this->plugin_amazon_cache_fetch($cache_dir, $asin);
+		
+		if ($dat && count($dat) === 3) {
+			list($title, $image, $author) = $dat;
 		} else {
 			$nocache = 1; // キャッシュ見つからず
 
-			$ama = new HypSimpleAmazon($this->cont['PLUGIN_AMAZON_AID']);
+			$ama = new HypSimpleAmazon($this->config['PLUGIN_AMAZON_AID']);
+			if ($this->root->amazon_AccessKeyId) $ama->AccessKeyId = $this->root->amazon_AccessKeyId;
+			if ($this->root->amazon_SecretAccessKey) $ama->SecretAccessKey= $this->root->amazon_SecretAccessKey;
 			$ama->encoding = ($this->cont['SOURCE_ENCODING'] === 'EUC-JP')? 'EUCJP-win' : $this->cont['SOURCE_ENCODING'];
-			$ama->itemLookup($this->root->asin);
+			$ama->itemLookup($this->asin);
 			$tmpary = $ama->getCompactArray();
+			if ($ama->error) $error = $ama->error;
 			$ama = NULL;
-			$title = $tmpary['Items'][0]['TITLE'];
-			$image = $tmpary['Items'][0]['MIMG'];
+			if (! empty($tmpary['Items'])) {
+				$title = $tmpary['Items'][0]['TITLE'];
+				$image = $tmpary['Items'][0]['MIMG'];
+				$author = preg_replace('/^by: /', '', strip_tags($tmpary['Items'][0]['PRESENTER']));
+			}
 		}
 	
 		if ($title === '') {
+			if ($error) {
+				$false[] = $error;
+			}
 			return $false;
 		} else {
 			if ($nocache == 1 && $nocachable != 1)
-				$this->plugin_amazon_cache_save($title . "\t" . $image, $cache_dir);
-			return array($title, $image);
+				$this->plugin_amazon_cache_save(join("\t", array($title ,$image, $author)), $cache_dir);
+			return array($title, $image, $author, '');
 		}
 	}
 
@@ -307,13 +344,14 @@ EOD;
 		$get_tit = 0;
 		if (! is_readable($filename)) {
 			$get_tit = 1;
-		} elseif ($this->cont['PLUGIN_AMAZON_EXPIRE_TITLECACHE'] * 3600 * 24 < $this->cont['UTC'] - filemtime($filename)) {
+		} elseif ($this->config['PLUGIN_AMAZON_EXPIRE_TITLECACHE'] * 3600 * 24 < $this->cont['UTC'] - filemtime($filename)) {
 			$get_tit = 1;
 		}
 	
 		if ($get_tit) return FALSE;
 	
-		if ($dat = file_get_contents($filename)){
+		$dat = file_get_contents($filename);
+		if ($dat && $dat !== "\t") {
 			return explode("\t", $dat);
 		} else {
 			return FALSE;
@@ -322,16 +360,25 @@ EOD;
 
 	function plugin_amazon_get_asin_title()
 	{
-		if ($this->root->asin == '') return '';
+		if ($this->asin == '') return '';
 	
-		list($title, $image) = $this->plugin_amazon_get_asin($this->root->asin);
+		list($title,,,$error) = $this->plugin_amazon_get_asin($this->asin);
 		
-		return $title;
+		return $error? ("\t" . $error) : trim($title);
+	}
+
+	function plugin_amazon_get_asin_creator()
+	{
+		if ($this->asin == '') return '';
+	
+		list(,, $creator) = $this->plugin_amazon_get_asin($this->asin);
+		
+		return $creator;
 	}
 	
 	function plugin_amazon_cache_save($data, $dir)
 	{
-		$filename = $dir . $this->root->asin_all . '.aws';
+		$filename = $dir . $this->asin . '.aws';
 		$fp = fopen($filename, 'w');
 		fwrite($fp, $data);
 		fclose($fp);
@@ -342,21 +389,21 @@ EOD;
 	// 画像キャッシュがあるか調べる
 	function plugin_amazon_cache_image_fetch($dir)
 	{
-		$filename = $dir . 'ASIN' . $this->root->asin . '.jpg';
+		$filename = $dir . 'ASIN' . $this->asin . '.jpg';
 	
 		$get_img = 0;
 		if (! is_readable($filename)) {
 			$get_img = 1;
-		} elseif ($this->cont['PLUGIN_AMAZON_EXPIRE_IMAGECACHE'] * 3600 * 24 < $this->cont['UTC'] - filemtime($filename)) {
+		} elseif ($this->config['PLUGIN_AMAZON_EXPIRE_IMAGECACHE'] * 3600 * 24 < $this->cont['UTC'] - filemtime($filename)) {
 			$get_img = 1;
 		}
 	
 		if ($get_img) {
-			list($title, $url) = $this->plugin_amazon_get_asin($this->root->asin);
+			list($title, $url) = $this->plugin_amazon_get_asin($this->asin);
 	
 			$body = $url? $this->plugin_amazon_get_page($url) : '';
 			if ($body != '') {
-				$tmpfile = $dir . 'ASIN' . $this->root->asin . '.jpg.0';
+				$tmpfile = $dir . 'ASIN' . $this->asin . '.jpg.0';
 				$fp = fopen($tmpfile, 'wb');
 				fwrite($fp, $body);
 				fclose($fp);
@@ -365,7 +412,7 @@ EOD;
 			}
 			if ($body == '' || $size[1] <= 1) { // 通常は1が返るが念のため0の場合も(reimy)
 				// キャッシュを PLUGIN_AMAZON_NO_IMAGE のコピーとする
-				$fp = fopen($this->cont['PLUGIN_AMAZON_NO_IMAGE'], 'rb');
+				$fp = fopen($this->config['PLUGIN_AMAZON_NO_IMAGE'], 'rb');
 				if (! $fp) return FALSE;
 				
 				$body = '';
@@ -380,27 +427,12 @@ EOD;
 	// Save image cache
 	function plugin_amazon_cache_image_save($data, $dir)
 	{
-		$filename = $dir . 'ASIN' . $this->root->asin . '.jpg';
+		$filename = $dir . 'ASIN' . $this->asin . '.jpg';
 		$fp = fopen($filename, 'wb');
 		fwrite($fp, $data);
 		fclose($fp);
 	
 		return $filename;
-	}
-	
-	// Save book data
-	function plugin_amazon_review_save($page, $data)
-	{
-		$filename = $this->cont['DATA_DIR'] . $this->func->encode($page) . '.txt';
-		if (! is_readable($filename)) {
-			//$fp = fopen($filename, 'w');
-			//fwrite($fp, $data);
-			//fclose($fp);
-			$this->func->page_write($page, $data);
-			return TRUE;
-		} else {
-			return FALSE;
-		}
 	}
 	
 	function plugin_amazon_get_page($url)
@@ -414,11 +446,11 @@ EOD;
 	{
 		include_once XOOPS_TRUST_PATH . '/class/hyp_common/hsamazon/hyp_simple_amazon.php';
 		$ama = new HypSimpleAmazon();
-		$this->root->asin = $ama->ISBN2ASIN($this->root->asin_all);
+		$this->asin = $ama->ISBN2ASIN($this->asin_all);
 		$ama = NULL;
 		
-		if (! preg_match('/[a-z0-9]{10}/i', $this->root->asin)) {
-			$this->root->asin = '';
+		if (! preg_match('/[a-z0-9]{10}/i', $this->asin)) {
+			$this->asin = '';
 			return FALSE;
 		}
 		return TRUE;

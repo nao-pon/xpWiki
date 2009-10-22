@@ -2,7 +2,7 @@
 /////////////////////////////////////////////////
 // PukiWiki - Yet another WikiWikiWeb clone.
 //
-// $Id: isbn.inc.php,v 1.11 2009/04/04 11:59:04 nao-pon Exp $
+// $Id: isbn.inc.php,v 1.12 2009/10/22 08:50:05 nao-pon Exp $
 //
 // *0.5: URL が存在しない場合、画像を表示しない。
 //			 Thanks to reimy.
@@ -13,9 +13,7 @@ class xpwiki_plugin_isbn extends xpwiki_plugin {
 	function plugin_isbn_init () {
 		/////////////////////////////////////////////////
 		// AmazonアソシエイトID
-		$this->config['AMAZON_ASE_ID'] = '';
-		// amazon 商品情報問合せ URI(dev-t はマニュアルのディフォルト値)
-		$this->config['ISBN_AMAZON_XML'] = 'http://xml.amazon.co.jp/onca/xml3?t=webservices-20&dev-t=GTYDRES564THU&type=lite&page=1&f=xml&locale=jp&AsinSearch=';
+		$this->config['AMAZON_ASE_ID'] = $this->root->amazon_AssociateTag;
 		// amazon shop URI (_ISBN_ に商品IDがセットされる)
 		$this->config['ISBN_AMAZON_SHOP'] = 'http://www.amazon.co.jp/exec/obidos/ASIN/_ISBN_/ref=nosim/'.$this->config['AMAZON_ASE_ID'];
 		// amazon UsedShop URI (_ISBN_ に商品IDがセットされる)
@@ -29,11 +27,17 @@ class xpwiki_plugin_isbn extends xpwiki_plugin {
 		// NoImage file.
 		$this->config['NOIMAGE'] = $this->cont['IMAGE_DIR'] . 'noimage.png';
 
-		// 言語ファイルの読み込み
-		$this->load_language();
-	
+		// For confirm (admin only)
+		$this->config['conflink'] = ($this->root->userinfo['admin'])? ' ( <a href="'.$this->cont['HOME_URL'].'?cmd=conf#amazon_AssociateTag" target="_blank">confirm with this link</a> )' : '';
 	}
 	
+	function plugin_isbn() {
+		// For confirm (admin only)
+		$this->config['conflink'] = ($this->root->userinfo['admin'])? ' ( <a href="'.$this->cont['HOME_URL'].'?cmd=conf#amazon_AssociateTag" target="_blank">confirm with this link</a> )' : '';
+
+		// 言語ファイルの読み込み
+		$this->load_language();
+	}
 	
 	function plugin_isbn_convert() {
 		if (HypCommonFunc::get_version() < 20080224) {
@@ -43,6 +47,9 @@ class xpwiki_plugin_isbn extends xpwiki_plugin {
 		if (func_num_args() < 1 or func_num_args() > 3) {
 			return false;
 		}
+		
+		$this->root->rtf['disable_render_cache'] = true;
+		
 		$aryargs = func_get_args();
 		$isbn = htmlspecialchars($aryargs[0]);	// for XSS
 		$isbn = str_replace("-","",$isbn);
@@ -77,6 +84,10 @@ class xpwiki_plugin_isbn extends xpwiki_plugin {
 		if ($isbn)
 		{
 			$tmpary = $this->plugin_isbn_get_isbn_title($isbn);
+			if ($tmpary[0][0] === "\t") {
+				return '<div>' . trim($tmpary[0]) . $this->config['conflink'] . '</div>';
+			}
+			
 			$alt = $this->plugin_isbn_get_caption($tmpary);
 			$price = ($tmpary[2])? "<div style=\"text-align:right;\">".str_replace('$1', $tmpary[2], $this->msg['price'])."</div>" : '';
 			$off = 0;
@@ -112,7 +123,9 @@ class xpwiki_plugin_isbn extends xpwiki_plugin {
 		if (HypCommonFunc::get_version() < 20080224) {
 			return '&amazon require "HypCommonFunc" >= Ver. 20080224';
 		}
-
+		
+		$this->root->rtf['disable_render_cache'] = true;
+		
 		$prms = func_get_args();
 		$body = array_pop($prms); // {}内
 		$body = preg_replace('#</?(a|span)[^>]*>#i','',$body);
@@ -124,6 +137,11 @@ class xpwiki_plugin_isbn extends xpwiki_plugin {
 		
 		$tmpary = array();
 		$tmpary = $this->plugin_isbn_get_isbn_title($isbn);
+
+		if ($tmpary[0][0] === "\t") {
+			return trim($tmpary[0]) . $this->config['conflink'];
+		}
+
 		if ($tmpary[2]) $price = "<div style=\"text-align:right;\">".str_replace('$1', $tmpary[2], $this->msg['currency'])."</div>";
 		$title = $tmpary[0];
 		//$text = htmlspecialchars(preg_replace('#</?(a|span)[^>]*>#i','',$option));
@@ -302,9 +320,9 @@ EOD;
 		$nocache = $nocachable = 0;
 		$title = $category = $price = $author = $artist = $releasedate = $manufacturer = $availability = $listprice = $usedprice = '';
 		if ($title = $this->plugin_isbn_cache_fetch($isbn, $this->cont['CACHE_DIR'].'plugin/', $check)) {
-			list($title,$category,$price,$author,$artist,$releasedate,$manufacturer,$availability,$listprice,$usedprice) = $title;
+			list($title,$category,$price,$author,$artist,$releasedate,$manufacturer,$availability,$listprice,$usedprice) = array_pad($title, 10, '');
 		} else {
-			$title = 'ISBN:' . $isbn;
+			$title = 'ASIN:' . $isbn;
 		}
 		$tmpary = array($title,$category,$price,$author,$artist,$releasedate,$manufacturer,$availability,$listprice,$usedprice);
 		return $tmpary;
@@ -316,23 +334,28 @@ EOD;
 	
 		$filename = $dir . $target . '.isbn';
 		
+		$error = '';
+		
 		if (!file_exists($filename) ||
 			($check && $this->config['ISBN_AMAZON_EXPIRE_TIT'] * 3600 * 24 < $this->cont['UTC'] - filemtime($filename))) {
 			// データを取りに行く
 			include_once XOOPS_TRUST_PATH . '/class/hyp_common/hsamazon/hyp_simple_amazon.php';
 			$ama = new HypSimpleAmazon($this->config['AMAZON_ASE_ID']);
+			if ($this->root->amazon_AccessKeyId) $ama->AccessKeyId = $this->root->amazon_AccessKeyId;
+			if ($this->root->amazon_SecretAccessKey) $ama->SecretAccessKey= $this->root->amazon_SecretAccessKey;
 			$ama->encoding = ($this->cont['SOURCE_ENCODING'] === 'EUC-JP')? 'EUCJP-win' : $this->cont['SOURCE_ENCODING'];
 			$ama->itemLookup($target);
 			$tmpary = $ama->getCompactArray();
+			$error = $ama->error;
 			$ama = NULL;
 			
 			$title = '';
 			if (!empty($tmpary['Items'])) {
 				$tmpary = $tmpary['Items'][0];
-				$title = $tmpary['TITLE'];
+				$title = trim($tmpary['TITLE']);
 				$category = @$tmpary['BINDING'];
 				$price = @$tmpary['PRICE'];
-				$author = @$tmpary['CREATOR'];
+				$author = @$tmpary['PRESENTER'];
 				$artist = '';
 				$releasedate = @$tmpary['RELEASEDATE'];
 				$manufacturer = @ $tmpary['MANUFACTURER'];
@@ -344,7 +367,7 @@ EOD;
 				$limg = $tmpary['LIMG']; //[12]
 			}
 
-			if ($title != '') {				// タイトルがあれば、できるだけキャッシュに保存
+			if (!$error) {				// タイトルがあれば、できるだけキャッシュに保存
 				$title = "$title<>$category<>$price<>$author<>$artist<>$releasedate<>$manufacturer<>$availability<>$listprice<>$usedprice<>$simg<>$mimg<>$limg";
 				$this->plugin_isbn_cache_save($title, $filename);
 			}
@@ -355,10 +378,10 @@ EOD;
 		} else {
 			$title = file_get_contents($filename);
 		}
-		if (strlen($title) > 0) {
+		if (!$error) {
 			return explode("<>",$title);
 		} else {
-			return array();
+			return array("\t" . $error);
 		}
 	}
 	

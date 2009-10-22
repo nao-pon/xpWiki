@@ -1,7 +1,7 @@
 <?php
 /*
  * Created on 2008/02/28 by nao-pon http://hypweb.net/
- * $Id: aws.inc.php,v 1.10 2009/09/01 01:44:53 nao-pon Exp $
+ * $Id: aws.inc.php,v 1.11 2009/10/22 08:50:05 nao-pon Exp $
  */
 
 /////////////////////////////////////////////////
@@ -13,9 +13,9 @@ class xpwiki_plugin_aws extends xpwiki_plugin {
 	
 	function plugin_aws_init() {
 		//////// Config ///////
-		$this->config['AccessKeyId']     = '';
-		$this->config['SecretAccessKey'] = '';
-		$this->config['amazon_t']        = '';   // Associates ID
+		$this->config['AccessKeyId']     = $this->root->amazon_AccessKeyId;
+		$this->config['SecretAccessKey'] = $this->root->amazon_SecretAccessKey;
+		$this->config['amazon_t']        = $this->root->amazon_AssociateTag;// Associates ID
 		$this->config['cache_time']      = 1440; // Cache time (min) 1440min = 24h
 		$this->config['template_map']    = array(
 			// Template mapping
@@ -40,6 +40,8 @@ class xpwiki_plugin_aws extends xpwiki_plugin {
 		if (! empty($this->root->vars['page']) && preg_match('/template/i', $this->root->vars['page'])) {
 			return FALSE;
 		}
+		
+		$this->root->rtf['disable_render_cache'] = true;
 		
 		$this->load_language();
 

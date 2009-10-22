@@ -1,7 +1,7 @@
 <?php
 /*
  * Created on 2008/01/24 by nao-pon http://hypweb.net/
- * $Id: conf.lng.php,v 1.13 2009/04/11 00:53:10 nao-pon Exp $
+ * $Id: conf.lng.php,v 1.14 2009/10/22 08:50:05 nao-pon Exp $
  */
 
 $msg = array(
@@ -225,6 +225,24 @@ $msg = array(
 		               . '章の範囲は、Wiki書式の * で始まる見出し行で開始されます。',
 		'compat'      => '次の見出しまで',
 		'level'       => '同レベル以上の見出しまで',
+	),
+
+	'amazon_AssociateTag' => array(
+		'caption'     => 'Amazon AssociateTag',
+		'description' => 'アソシエイトタグ(トラッキングID)<br />'
+		               . 'この値が空値の場合 "trust/class/hyp_common/hsamazon/hyp_simple_amazon.ini" の設定値を用います。',
+	),
+
+	'amazon_AccessKeyId' => array(
+		'caption'     => 'Amazon AccessKeyId',
+		'description' => 'アクセスキーID（半角英数字で構成された20文字の文字列）<br />'
+		               . 'この値が空値の場合 "trust/class/hyp_common/hsamazon/hyp_simple_amazon.ini" の設定値を用います。',
+	),
+
+	'amazon_SecretAccessKey' => array(
+		'caption'     => 'Amazon SecretAccessKey',
+		'description' => '秘密キー（40文字のシーケンス）<br />'
+		               . 'この値が空値の場合 "trust/class/hyp_common/hsamazon/hyp_simple_amazon.ini" の設定値を用います。',
 	),
 
 	'fckeditor_path' => array(
