@@ -1,7 +1,7 @@
 <?php
 //
 // Created on 2006/10/02 by nao-pon http://hypweb.net/
-// $Id: xpwiki_func.php,v 1.217 2009/10/01 23:36:25 nao-pon Exp $
+// $Id: xpwiki_func.php,v 1.218 2009/10/22 09:05:31 nao-pon Exp $
 //
 class XpWikiFunc extends XpWikiXoopsWrapper {
 
@@ -780,10 +780,36 @@ EOD;
 		$pginfo = $this->get_pginfo($page);
 		$owner_ok = (! $pginfo['uid'] || $this->check_admin($pginfo['uid']));
 		return ($owner_ok && 
-			(($pginfo['egids'] === 'none' && $pginfo['eaids'] === 'none')
+			(($this->check_admin_gids($pginfo['egids']) && $this->check_admin_aids($pginfo['eaids']))
 			|| $this->is_freeze($page)));
 	}
 	
+	// 与えられた $pginfo['eaids'] or $pginfo['vaids'] がすべて管理者であるかチェック
+	function check_admin_aids ($aids) {
+		if ($aids === 'none') return TRUE;
+		$aids = explode('&', trim($aids, '&'));
+		if (! $aids) return FALSE;
+		foreach($aids as $id) {
+			if (! $this->check_admin($id)) {
+				return FALSE;
+			}
+		}
+		return TRUE;
+	}
+	
+	// 与えられた $pginfo['egids'] or $pginfo['vgids'] がすべて管理者であるかチェック
+	function check_admin_gids ($gids) {
+		if ($gids === 'none') return TRUE;
+		$gids = explode('&', trim($gids, '&'));
+		if (! $gids) return FALSE;
+		foreach($gids as $id) {
+			if (! $this->check_admin_group($id)) {
+				return FALSE;
+			}
+		}
+		return TRUE;
+	}
+
 	// ページ毎閲覧権限チェック
 	function check_readable_page ($page, $auth_flag = TRUE, $exit_flag = TRUE, $uid = NULL, $checkOwn = TRUE) {
 		
@@ -2756,7 +2782,8 @@ EOD;
 		elseif ($action == "delete")
 		{
 	
-			$value = "editedtime=0";
+			$value = "`title`='' ," .
+                     "editedtime=0";
 			$query = "UPDATE ".$this->xpwiki->db->prefix($this->root->mydirname."_pginfo")." SET $value WHERE pgid = '$id' LIMIT 1";
 			$result = $this->xpwiki->db->queryF($query);
 		}
@@ -3686,11 +3713,23 @@ EOD;
 
 	function save_page_alias () {
 		natcasesort($this->root->page_aliases);
-		
-		$dat = "\$root->page_aliases = array(\n";
+		$page_aliases_i = array_change_key_case($this->root->page_aliases, CASE_LOWER);
+
 		$quote['from'] = array('\\',   "'",);
 		$quote['to']   = array('\\\\', "\\'");
+		
+		$dat = "\$root->page_aliases = array(\n";
 		foreach($this->root->page_aliases as $_alias => $_page) {
+			$_alias = str_replace($quote['from'], $quote['to'], $_alias);
+			$_page = str_replace($quote['from'], $quote['to'], $_page);
+			$dat .= "\t'{$_alias}' => '{$_page}',\n";
+		}
+		$dat.= ");\n";
+		
+		//$this->save_config('pukiwiki.ini.php', 'page_aliases', $dat);
+
+		$dat .= "\$root->page_aliases_i = array(\n";
+		foreach($page_aliases_i as $_alias => $_page) {
 			$_alias = str_replace($quote['from'], $quote['to'], $_alias);
 			$_page = str_replace($quote['from'], $quote['to'], $_page);
 			$dat .= "\t'{$_alias}' => '{$_page}',\n";
@@ -3698,6 +3737,7 @@ EOD;
 		$dat.= ");";
 		
 		$this->save_config('pukiwiki.ini.php', 'page_aliases', $dat);
+
 		// Clear cache *.api
 		$GLOBALS['xpwiki_cache_deletes'][$this->cont['CACHE_DIR']]['api'] = '*.autolink.api';
 	}
