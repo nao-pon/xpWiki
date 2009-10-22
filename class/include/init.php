@@ -1,7 +1,7 @@
 <?php
 //
 // Created on 2006/10/13 by nao-pon http://hypweb.net/
-// $Id: init.php,v 1.66 2009/05/02 02:16:37 nao-pon Exp $
+// $Id: init.php,v 1.67 2009/10/22 09:02:03 nao-pon Exp $
 //
 
 $root = & $this->root;
@@ -259,6 +259,11 @@ if (isset($const['page_show'])) {
 		if ($temp) {
 			if ($die) $die .= "\n";	// A breath
 			$die .= 'Define(s) not found: (Maybe the old *.ini.php?)' . "\n" . $temp;
+		}
+		
+		// page aliases (case-insensitive data)
+		if ($this->root->page_aliases && ! $this->root->page_aliases_i) {
+			$this->save_page_alias();
 		}
 		
 		if($die) $this->die_message(nl2br("\n\n" . $die));
