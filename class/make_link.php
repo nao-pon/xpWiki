@@ -546,12 +546,18 @@ EOD;
 				$alias = mb_convert_encoding(rawurldecode($alias), $this->cont['SOURCE_ENCODING'], 'AUTO');
 			}
 		}
-		return parent :: setParam($page, htmlspecialchars($name), '', 'url', $alias);
+		return parent :: setParam($page, htmlspecialchars($name), '', ($mail? 'mailto' : 'url'), $alias);
 	}
 
 	function toString() {
-		list($rel, $class, $target, $title) = $this->getATagAttr($this->name);
-		$img = ($this->is_image)? ' type="img"' : '';
+		if ($this->type === 'mailto') {
+			$rel = ' rel="nofollow"';
+			$title = ' title="' . substr($this->name, 7) . '"';
+			$img = $class = $target = '';
+		} else {
+			list($rel, $class, $target, $title) = $this->getATagAttr($this->name);
+			$img = ($this->is_image)? ' type="img"' : '';
+		}
 		return '<a href="'.$this->name.'"'.$title.$rel.$class.$img.$target.'>'.$this->alias.'</a>';
 	}
 }
@@ -663,7 +669,7 @@ EOD;
 	}
 
 	function toString() {
-		return '<a href="mailto:'.$this->name.'" rel="nofollow">'.$this->alias.'</a>';
+		return '<a href="mailto:'.$this->name.'" title="'.$this->name.'" rel="nofollow">'.$this->alias.'</a>';
 	}
 }
 
