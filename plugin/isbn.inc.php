@@ -2,7 +2,7 @@
 /////////////////////////////////////////////////
 // PukiWiki - Yet another WikiWikiWeb clone.
 //
-// $Id: isbn.inc.php,v 1.12 2009/10/22 08:50:05 nao-pon Exp $
+// $Id: isbn.inc.php,v 1.13 2009/10/27 08:46:22 nao-pon Exp $
 //
 // *0.5: URL が存在しない場合、画像を表示しない。
 //			 Thanks to reimy.
@@ -31,12 +31,21 @@ class xpwiki_plugin_isbn extends xpwiki_plugin {
 		$this->config['conflink'] = ($this->root->userinfo['admin'])? ' ( <a href="'.$this->cont['HOME_URL'].'?cmd=conf#amazon_AssociateTag" target="_blank">confirm with this link</a> )' : '';
 	}
 	
-	function plugin_isbn() {
+	function xpwiki_plugin_isbn(& $func) {
+		parent::xpwiki_plugin($func);
+		
+		// Amazon associate ID
+		if (! $this->root->amazon_AssociateTag) {
+			include_once XOOPS_TRUST_PATH . '/class/hyp_common/hsamazon/hyp_simple_amazon.php';
+			$ama = new HypSimpleAmazon();
+			$this->root->amazon_AssociateTag = $ama->AssociateTag;
+			$ama = NULL;
+		}
+		$this->config['AMAZON_ASE_ID'] = $this->root->amazon_AssociateTag;
+
 		// For confirm (admin only)
 		$this->config['conflink'] = ($this->root->userinfo['admin'])? ' ( <a href="'.$this->cont['HOME_URL'].'?cmd=conf#amazon_AssociateTag" target="_blank">confirm with this link</a> )' : '';
 
-		// 言語ファイルの読み込み
-		$this->load_language();
 	}
 	
 	function plugin_isbn_convert() {
@@ -47,6 +56,9 @@ class xpwiki_plugin_isbn extends xpwiki_plugin {
 		if (func_num_args() < 1 or func_num_args() > 3) {
 			return false;
 		}
+
+		// 言語ファイルの読み込み
+		$this->load_language();
 		
 		$this->root->rtf['disable_render_cache'] = true;
 		
@@ -123,6 +135,9 @@ class xpwiki_plugin_isbn extends xpwiki_plugin {
 		if (HypCommonFunc::get_version() < 20080224) {
 			return '&amazon require "HypCommonFunc" >= Ver. 20080224';
 		}
+		
+		// 言語ファイルの読み込み
+		$this->load_language();
 		
 		$this->root->rtf['disable_render_cache'] = true;
 		
