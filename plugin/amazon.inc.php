@@ -1,6 +1,6 @@
 <?php
 // PukiWiki - Yet another WikiWikiWeb clone.
-// $Id: amazon.inc.php,v 1.10 2009/10/22 08:50:05 nao-pon Exp $
+// $Id: amazon.inc.php,v 1.11 2009/10/27 08:46:22 nao-pon Exp $
 // Id: amazon.inc.php,v 1.1 2003/07/24 13:00:00 閑舎
 //
 // Amazon plugin: Book-review maker via amazon.com/amazon.jp
@@ -82,10 +82,18 @@ class xpwiki_plugin_amazon extends xpwiki_plugin {
 		}
 	}
 	
-	function plugin_amazon() {
+	function xpwiki_plugin_amazon(& $func) {
+		parent::xpwiki_plugin($func);
+		
 		// Amazon associate ID
+		if (! $this->root->amazon_AssociateTag) {
+			include_once XOOPS_TRUST_PATH . '/class/hyp_common/hsamazon/hyp_simple_amazon.php';
+			$ama = new HypSimpleAmazon();
+			$this->root->amazon_AssociateTag = $ama->AssociateTag;
+			$ama = NULL;
+		}
 		$this->config['PLUGIN_AMAZON_AID'] = $this->root->amazon_AssociateTag;
-	
+		
 		// Expire caches per ? days
 		$this->config['PLUGIN_AMAZON_EXPIRE_IMAGECACHE'] =   1;
 		$this->config['PLUGIN_AMAZON_EXPIRE_TITLECACHE'] =  10;
@@ -163,6 +171,8 @@ EOD;
 					$ret = trim($alt) . $this->config['conflink'];
 				} else if ($alt === '') {
 					$ret = FALSE;
+				} else {
+					$alt = trim($alt);
 				}
 				$title = '';
 			} else if ($alt == 'delimage') {
@@ -185,7 +195,7 @@ EOD;
 					$ret = 'Title and Image of ' . $this->asin . ' NOT DELETED...';
 				}
 			}
-			return $ret? ('<div>' . $ret . '</div>') : FALSE;
+			if (isset($ret)) return $ret? ('<div>' . $ret . '</div>') : FALSE;
 		} else {
 			// タイトル自動取得
 			$alt = $title = $this->plugin_amazon_get_asin_title();
@@ -308,7 +318,8 @@ EOD;
 			list($title, $image, $author) = $dat;
 		} else {
 			$nocache = 1; // キャッシュ見つからず
-
+			
+			include_once XOOPS_TRUST_PATH . '/class/hyp_common/hsamazon/hyp_simple_amazon.php';
 			$ama = new HypSimpleAmazon($this->config['PLUGIN_AMAZON_AID']);
 			if ($this->root->amazon_AccessKeyId) $ama->AccessKeyId = $this->root->amazon_AccessKeyId;
 			if ($this->root->amazon_SecretAccessKey) $ama->SecretAccessKey= $this->root->amazon_SecretAccessKey;
@@ -407,17 +418,14 @@ EOD;
 				$fp = fopen($tmpfile, 'wb');
 				fwrite($fp, $body);
 				fclose($fp);
-				$size = getimagesize($tmpfile);
+				$size = @ getimagesize($tmpfile);
 				unlink($tmpfile);
 			}
-			if ($body == '' || $size[1] <= 1) { // 通常は1が返るが念のため0の場合も(reimy)
+			if (! $body || $size[1] <= 1) { // 通常は1が返るが念のため0の場合も(reimy)
 				// キャッシュを PLUGIN_AMAZON_NO_IMAGE のコピーとする
-				$fp = fopen($this->config['PLUGIN_AMAZON_NO_IMAGE'], 'rb');
-				if (! $fp) return FALSE;
-				
-				$body = '';
-				while (! feof($fp)) $body .= fread($fp, 4096);
-				fclose ($fp);
+				if (! $body = file_get_contents($this->config['PLUGIN_AMAZON_NO_IMAGE'])) {
+					return FALSE;
+				}
 			}
 			$this->plugin_amazon_cache_image_save($body, $this->cont['CACHE_DIR']);
 		}

@@ -1,7 +1,7 @@
 <?php
 /*
  * Created on 2008/02/28 by nao-pon http://hypweb.net/
- * $Id: aws.inc.php,v 1.11 2009/10/22 08:50:05 nao-pon Exp $
+ * $Id: aws.inc.php,v 1.12 2009/10/27 08:46:22 nao-pon Exp $
  */
 
 /////////////////////////////////////////////////
@@ -29,6 +29,18 @@ class xpwiki_plugin_aws extends xpwiki_plugin {
 			'maxdepth'  => 3,
 		);
 
+	}
+
+	function xpwiki_plugin_aws(& $func) {
+		parent::xpwiki_plugin($func);
+		
+		// Amazon associate ID
+		if (! $this->root->amazon_AssociateTag) {
+			include_once XOOPS_TRUST_PATH . '/class/hyp_common/hsamazon/hyp_simple_amazon.php';
+			$ama = new HypSimpleAmazon();
+			$this->root->amazon_AssociateTag = $ama->AssociateTag;
+			$ama = NULL;
+		}
 	}
 
 	function plugin_aws_convert() {
