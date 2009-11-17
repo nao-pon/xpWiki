@@ -1,6 +1,6 @@
 <?php
 // PukiWiki - Yet another WikiWikiWeb clone.
-// $Id: backup.inc.php,v 1.18 2009/04/11 00:53:10 nao-pon Exp $
+// $Id: backup.inc.php,v 1.19 2009/11/17 09:13:49 nao-pon Exp $
 // Copyright (C)
 //   2002-2005 PukiWiki Developers Team
 //   2001-2002 Originally written by yu-ji
@@ -159,17 +159,20 @@ EOD;
 			foreach($backups as $age => $val) {
 				$s_title = htmlspecialchars(str_replace(array('$1', '$2'), array($page, $age), $title));
 				$date = $this->func->format_date($val['time']);
-				$lasteditor = $this->func->get_lasteditor($this->func->get_pginfo('',$val['data']));
+				$pginfo = $this->func->get_pginfo('',$val['data']);
+				$lasteditor = $this->func->get_lasteditor($pginfo);
+				$esummary = $this->make_esummary($pginfo['esummary']);
 				$list2 .= ($age == $s_age) ?
-					'   <li><em>' . $age . ': ' . $date . ' ' . $lasteditor . '</em></li>' . "\n" :
+					'   <li><em>' . $age . ': ' . $date . ' ' . $lasteditor . '</em>' . $esummary . '</li>' . "\n" :
 					'   <li><a href="' . $script . '?cmd=backup&amp;action=' .
 					$r_action . '&amp;pgid=' . $pgid . '&amp;age=' . $age .
-					'" title="' . $s_title . '">' . $age . ': ' . $date . '</a> ' . $lasteditor . '</li>' . "\n";
+					'" title="' . $s_title . '">' . $age . ': ' . $date . '</a> ' . $lasteditor . $esummary . '</li>' . "\n";
 				if ($age == $s_age) {
 					$header[1] = $this->make_age_label($age, $date, $lasteditor);
 					$header[1] .= ' ' . str_replace('$1', $age, $source_icon);
 					if ($isowner) $header[1] .= ' ' . str_replace('$1', $age, $rewind_icon);
 					if ($editable) $header[1] .= ' ' . str_replace('$1', $age, $edit_icon);
+					$header[1] .= $this->make_esummary($pginfo['esummary'], 'div');
 				}
 			}
 			if ($view_now) {
@@ -182,16 +185,19 @@ EOD;
 				}
 				$s_title = htmlspecialchars(str_replace('$1', $page, $title));
 				$date = $this->func->format_date($this->func->get_filetime($page));
-				$lasteditor = $this->func->get_lasteditor($this->func->get_pginfo($page));
+				$pginfo = $this->func->get_pginfo($page);
+				$esummary = $this->make_esummary($pginfo['esummary']);
+				$lasteditor = $this->func->get_lasteditor($pginfo);
 				$list2 .= ($is_now) ?
-					'   <li><em>' . $this->root->_msg_current . ': ' . $date . ' ' . $lasteditor . '</em></li>' . "\n" :
+					'   <li><em>' . $this->root->_msg_current . ': ' . $date . ' ' . $lasteditor . '</em>' . $esummary . '</li>' . "\n" :
 					'   <li><a href="' . $script . '?cmd=backup&amp;action=' .
 					$r_action . '&amp;pgid=' . $pgid . '&amp;age=Cur'.
-					'" title="' . $s_title . '">' . $this->root->_msg_current . ': ' . $date . '</a> ' . $lasteditor . '</li>' . "\n";
+					'" title="' . $s_title . '">' . $this->root->_msg_current . ': ' . $date . '</a> ' . $lasteditor . $esummary . '</li>' . "\n";
 				if ($is_now) {
 					$header[1] = $this->make_age_label($this->root->_msg_current, $date, $lasteditor);
 					$header[1] .= ' ' . str_replace('$1', 'Cur', $source_icon);
 					if ($editable) $header[1] .= ' ' . str_replace('$1', '0', str_replace($this->root->_msg_backupedit, $this->root->_btn_edit, $edit_icon));
+					$header[1] .= $this->make_esummary($pginfo['esummary'], 'div');
 				}
 			}
 			if ($list2) {
@@ -206,7 +212,8 @@ EOD;
 			if ($s_age > 1 || ($is_now && $backups_count)) {
 				$age = $is_now? $backups_count : $s_age - 1;
 				$date = $this->func->format_date($backups[$age]['time']);
-				$lasteditor = $this->func->get_lasteditor($this->func->get_pginfo('',$backups[$age]['data']));
+				$pginfo = $this->func->get_pginfo('',$backups[$age]['data']);
+				$lasteditor = $this->func->get_lasteditor($pginfo);
 				$title = htmlspecialchars(strip_tags($this->make_age_label($age, $date, $lasteditor)));
 
 				$navi_link[0] = '<a href="'.$nav_href . $age .'" title="' . $title . '">&#171; ' . $this->root->_navi_prev . '</a>';
@@ -215,12 +222,13 @@ EOD;
 				if ($s_age < $backups_count) {
 					$age = $s_age + 1;
 					$date = $this->func->format_date($backups[$age]['time']);
-					$lasteditor = $this->func->get_lasteditor($this->func->get_pginfo('',$backups[$age]['data']));
+					$pginfo = $this->func->get_pginfo('',$backups[$age]['data']);
 				} else {
 					$age = 'Cur';
 					$date = $this->func->format_date($this->func->get_filetime($page));
-					$lasteditor = $this->func->get_lasteditor($this->func->get_pginfo($page));
+					$pginfo = $this->func->get_pginfo($page);
 				}
+				$lasteditor = $this->func->get_lasteditor($pginfo);
 				$title = htmlspecialchars(strip_tags($this->make_age_label($age, $date, $lasteditor)));
 				$navi_link[1] = '<a href="'.$nav_href . $age .'" title="' . $title . '">' . $this->root->_navi_next . ' &#187;</a>';
 			}
@@ -234,12 +242,14 @@ EOD;
 				$val = $is_now ? $backups[$backups_count] : $backups[$s_age - 1];
 				$old = $val['data'];
 				$date = $this->func->format_date($val['time']);
-				$lasteditor = $this->func->get_lasteditor($this->func->get_pginfo('',$val['data']));
+				$pginfo = $this->func->get_pginfo('',$val['data']);
+				$lasteditor = $this->func->get_lasteditor($pginfo);
 				$age = $is_now? $backups_count : ($s_age - 1);
 				$header[0] = $this->make_age_label($age, $date, $lasteditor);
 				$header[0] .= ' ' . str_replace('$1', $age, $source_icon);
 				if ($isowner) $header[0] .= ' ' . str_replace('$1', $age, $rewind_icon);
 				if ($editable) $header[0] .= ' ' . str_replace('$1', $age, $edit_icon);
+				$header[0] .= $this->make_esummary($pginfo['esummary'], 'div');
 			} else {
 				$header[0] = '';
 				$old = array();
@@ -258,10 +268,12 @@ EOD;
 			$title = $this->root->_title_backupnowdiff;
 			$old = $backups[$s_age]['data'];
 			$cur = $this->func->get_source($page);
+			$pginfo = $this->func->get_pginfo($page);
 			$header[0] = $header[1];
-			$header[1] = $this->make_age_label($this->root->_msg_current, $this->func->format_date($this->func->get_filetime($page)), $this->func->get_lasteditor($this->func->get_pginfo($page)));
+			$header[1] = $this->make_age_label($this->root->_msg_current, $this->func->format_date($this->func->get_filetime($page)), $this->func->get_lasteditor($pginfo));
 			$header[1] .= ' ' . str_replace('$1', 'Cur', $source_icon);
 			if ($editable) $header[1] .= ' ' . str_replace('$1', '0', str_replace($this->root->_msg_backupedit, $this->root->_btn_edit, $edit_icon));
+			$header[1] .= $this->make_esummary($pginfo['esummary'], 'div');
 			$old = $this->func->remove_pginfo($old);
 			$cur = $this->func->remove_pginfo($cur);
 			$body .= $this->func->compare_diff($old, $cur, $header);
@@ -274,7 +286,7 @@ EOD;
 				$data = join('', $backups[$s_age]['data']);
 			}
 			$sorce = htmlspecialchars($this->func->remove_pginfo($data));
-			if ($this->root->viewmode === 'print') {
+			if ($this->root->viewmode === 'print' || $this->cont['UA_PROFILE'] === 'keitai') {
 				$body .=<<<EOD
 <pre class="code">
 {$sorce}
@@ -410,7 +422,9 @@ EOD;
 				$_anchor_to   = '</a>';
 			}
 			$date = $this->func->format_date($data['time'], TRUE);
-			$lasteditor = $this->func->get_lasteditor($this->func->get_pginfo('',$data['data']));
+			$pginfo = $this->func->get_pginfo('',$data['data']);
+			$lasteditor = $this->func->get_lasteditor($pginfo);
+			$esummary = $this->make_esummary($pginfo['esummary'], 'list');
 			$retval[1] .= <<<EOD
    <li>$_anchor_from$age $date$_anchor_to
      [ <a href="$href$age&amp;action=diff">{$this->root->_msg_diff}</a>
@@ -418,18 +432,22 @@ EOD;
      | <a href="$href$age&amp;action=source">{$this->root->_msg_source}</a>
      ]
      $lasteditor
+     $esummary
    </li>
 EOD;
 		}
 		$date = $this->func->format_date($this->func->get_filetime($page), TRUE);
 		$page_link = $this->func->make_pagelink($page, $this->root->_msg_current . ' ' . $date);
-		$lasteditor = $this->func->get_lasteditor($this->func->get_pginfo($page));
+		$pginfo = $this->func->get_pginfo($page);
+		$lasteditor = $this->func->get_lasteditor($pginfo);
+		$esummary = $this->make_esummary($pginfo['esummary'], 'list');
 		$retval[1] .= <<<EOD
    <li>$page_link
      [ <a href="{$href}Cur&amp;action=diff">{$this->root->_msg_diff}</a>
      | <a href="{$href}Cur&amp;action=source">{$this->root->_msg_source}</a>
      ]
      $lasteditor
+     $esummary
    </li>
 EOD;
 		return join('', $retval);
@@ -456,10 +474,12 @@ EOD;
 	function do_rewind($page, $age) {
 		$this->root->vars['refer'] = $page;
 		if ($backup = $this->func->get_backup($page, $age, $age)) {
+			$count = count($this->func->get_backup($page));
 			$time = $backup['time'] + $this->cont['ZONETIME'];
 			$data = join('', $backup['data']);
 			$this->func->page_write($page, $data, TRUE);
-			$this->func->touch_page($page, $time);
+			//$this->func->touch_page($page, $time);
+			$this->root->rtf['page_touch'][$page][] = 'Rewound to ' . ($count - $age + 2) . ' ages ago.';
 			$s_page = htmlspecialchars($page);
 			return array(
 				'msg'  => str_replace('$1', $age, $this->root->_msg_rewinded),
@@ -471,6 +491,16 @@ EOD;
 				'body' => ''
 			);			
 		}
+	}
+	
+	function make_esummary($esummary, $mode='ul') {
+		if (! $esummary) return '';
+		switch($mode) {
+			case 'div': $ret = '<div class="edit_summary">' . $esummary . '</div>';
+				break;
+			default: $ret = '<ul><li class="edit_summary">' . $esummary . '</li></ul>';
+		}
+		return $ret;
 	}
 }
 ?>

@@ -1,6 +1,6 @@
 <?php
 // PukiWiki - Yet another WikiWikiWeb clone
-// $Id: pukiwiki.ini.php,v 1.98 2009/10/22 08:50:05 nao-pon Exp $
+// $Id: pukiwiki.ini.php,v 1.99 2009/11/17 09:10:32 nao-pon Exp $
 // Copyright (C)
 //   2002-2006 PukiWiki Developers Team
 //   2001-2002 Originally written by yu-ji
@@ -25,7 +25,7 @@ $const['PKWK_OPTIMISE'] = 0;
 /////////////////////////////////////////////////
 // Security settings
 
-// PKWK_SAFE_MODE - Prohibits some unsafe(but compatible) functions 
+// PKWK_SAFE_MODE - Prohibits some unsafe(but compatible) functions
 // 'auto': Safe mode( The administer is excluded. )
 //     1 : Safe mode
 //     0 : Normal mode
@@ -42,8 +42,8 @@ $const['PKWK_DISABLE_INLINE_IMAGE_FROM_URI'] = 0;
 $const['SHOW_EXTIMG_BY_REF'] = TRUE;
 
 // In-line display setting of Flash file
-// The file owner is ... Disable of all: 0, Only the manager: 1, Only the registered user :2, Allow of all: 3. 
-// 0 or 1 is strongly encouraged. 
+// The file owner is ... Disable of all: 0, Only the manager: 1, Only the registered user :2, Allow of all: 3.
+// 0 or 1 is strongly encouraged.
 // Flash ファイルのインライン表示設定
 // ファイルオーナーが...すべて禁止:0 , 管理人のみ:1 , 登録ユーザーのみ:2 , すべて許可:3
 // セキュリティ上、0 or 1 での運用を強く奨励
@@ -90,7 +90,7 @@ $const['ACCEPT_LANG_REGEX'] = '/(?:^|\W)([a-z]{2}(?:-[a-z]+)?)/i';
 $const['SETLANG'] = $this->get_setlang('setlang');
 
 // COOKIE's key of set lang.
-$const['SETLANG_C'] = $this->get_setlang_c(''); 
+$const['SETLANG_C'] = $this->get_setlang_c('');
 
 /////////////////////////////////////////////////
 // Directory settings I (ended with '/', permission '777')
@@ -225,9 +225,6 @@ $root->path_info_script = 'index';
 $root->accept_not_encoded_query = 0;
 
 /////////////////////////////////////////////////
-// 外部リンクの追加属性
-// Attributes for external link tag <a>.
-
 // favicon auto set class name
 $root->favicon_set_classname = 'ext';
 
@@ -376,6 +373,9 @@ $root->date_format = 'Y-m-d';
 // Time format
 $root->time_format = 'H:i:s';
 
+// no date
+$root->no_date = ' - no date - ';
+
 /////////////////////////////////////////////////
 // Max number of RSS feed
 $root->rss_max = 15;
@@ -402,11 +402,14 @@ $root->backup_everytime_others = 1;
 // Splitter of backup data (NOTE: Too dangerous to change)
 $const['PKWK_SPLITTER'] = '>>>>>>>>>>';
 
-// Use lightdox function(with JavaScript) for open a image. 
+// Use lightdox function(with JavaScript) for open a image.
 $root->ref_use_lightbox = 1;
 
 // Enable easy ref syntax {{...}}
 $root->easy_ref_syntax = 1;
+
+// Edit summary format by plugin.
+$root->plugin_edit_summary = 'With "$name" plugin.';
 
 /////////////////////////////////////////////////
 // Command execution per update
@@ -710,7 +713,7 @@ $root->agents = array(
 	// NOTE: Keep this pattern above Mozilla
 	// Sample: "Mozilla/5.0 (Windows; U; Windows NT 5.0; ja-JP; rv:1.7) Gecko/20040803 Firefox/0.9.3"
 	array('pattern'=>'#\b(Firefox)/([0-9\.]+)\b#',	'profile'=>'default'),
-	
+
 	// Google Chrome
 	// Sample: "Mozilla/5.0 (Windows; U; Windows NT 5.1; en-US) AppleWebKit/525.19 (KHTML, like Gecko) Chrome/1.0.154.48 Safari/525.19"
     array('pattern'=>'#\b(Chrome)(?:/([0-9\.]+))?\b#',	'profile'=>'default'),
@@ -718,7 +721,7 @@ $root->agents = array(
 	// Mac Safari
 	// Sample: "Mozilla/5.0 (Macintosh; U; PPC Mac OS X; ja-jp) AppleWebKit/416.11 (KHTML, like Gecko) Safari/416.12"
     array('pattern'=>'#\b(Safari)(?:/([0-9\.]+))?\b#',	'profile'=>'default'),
-    
+
     // Loose default: Including something Mozilla
 	array('pattern'=>'#^([a-zA-z0-9 ]+)/([0-9\.]+)\b#',	'profile'=>'default'),
 
@@ -753,7 +756,7 @@ $const['PKWK_DIFF_SHOW_CONFLICT_DETAIL'] = 1;
 // Fixed prefix of configuration-page's name
 $const['PKWK_CONFIG_PREFIX'] = ':config/';
 
-// 名前欄の仮文字列(コンバート後にユーザー名に置換) 
+// 名前欄の仮文字列(コンバート後にユーザー名に置換)
 $const['USER_NAME_REPLACE'] = '__uSER_nAME_rEPLACE__';
 $const['USER_CODE_REPLACE'] = '__uSER_cODE_rEPLACE__';
 
@@ -827,6 +830,9 @@ $root->pagereading_config_dict = ':config/PageReading/dict';
 $root->amazon_AssociateTag = '';
 $root->amazon_AccessKeyId  = '';
 $root->amazon_SecretAccessKey = '';
+$root->bitly_login = '';
+$root->bitly_apiKey = '';
+$root->bitly_clickable = 0;
 
 $root->pginfo = array(
 	'uid'       => 0,     // UserID

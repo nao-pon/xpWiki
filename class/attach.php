@@ -1,7 +1,7 @@
 <?php
 /*
  * Created on 2008/03/24 by nao-pon http://hypweb.net/
- * $Id: attach.php,v 1.22 2009/06/26 00:23:01 nao-pon Exp $
+ * $Id: attach.php,v 1.23 2009/11/17 09:09:58 nao-pon Exp $
  */
 
 //-------- クラス
@@ -32,7 +32,7 @@ class XpWikiAttachFile
 		);
 	var $action = 'update';
 	var $dbinfo = array();
-	
+
 	function XpWikiAttachFile(& $xpwiki, $page, $file, $age=0, $pgid=0)
 	{
 		$this->xpwiki =& $xpwiki;
@@ -45,11 +45,11 @@ class XpWikiAttachFile
 		$this->file = $this->func->basename($file);
 		$this->age  = is_numeric($age) ? $age : 0;
 		$this->id   = $this->get_id();
-		
+
 		$this->basename = $this->cont['UPLOAD_DIR'].$this->func->encode($page).'_'.$this->func->encode($this->file);
 		$this->filename = $this->basename . ($age ? '.'.$age : '');
 		$this->logname = $this->basename.'.log';
-		
+
 		if ($this->id) {
 			$this->get_dbinfo();
 			$this->exist = TRUE;
@@ -125,12 +125,12 @@ class XpWikiAttachFile
 	function get_id() {
 		return $this->func->get_attachfile_id($this->page, $this->file, $this->age);
 	}
-	
+
 	// Get attachDB info
 	function get_dbinfo () {
 		$this->dbinfo = $this->func->get_attachdbinfo($this->id);
 	}
-	
+
 	// attach DB 更新
 	function update_db()
 	{
@@ -149,7 +149,7 @@ class XpWikiAttachFile
 		$data['status'] = $this->status;
 
 		$this->func->attach_db_write($data,$this->action);
-		
+
 	}
 	// 日付の比較関数
 	function datecomp($a,$b)
@@ -172,7 +172,7 @@ class XpWikiAttachFile
 				$label .= ' (backup No.'.$this->age.')';
 			}
 		}
-		
+
 		$info = $count = '';
 		if ($showinfo) {
 			$_title = str_replace('$1',rawurlencode($this->file),$this->root->_attach_messages['msg_info']);
@@ -204,7 +204,7 @@ class XpWikiAttachFile
 	}
 	// 情報表示
 	function info($err) {
-		
+
 		$r_page = rawurlencode($this->page);
 		$s_page = htmlspecialchars($this->page);
 		$s_file = htmlspecialchars($this->file);
@@ -269,7 +269,7 @@ EOD;
 			{
 				$ref .= "<dd><hr /></dd><dd>".$this->func->do_plugin_inline("ref", '"'. $this->page.'/'.str_replace('"', '""', $this->file) . '"' . $ref_option)."</dd>\n";
 			}
-			
+
 			if ($this->status['freeze'])
 			{
 				$msg_freezed = "<dd>{$this->root->_attach_messages['msg_isfreeze']}</dd>";
@@ -322,7 +322,7 @@ EOD;
 		}
 		$info = $this->toString(TRUE,FALSE);
 		$copyright = ($this->status['copyright'])? ' checked=TRUE' : '';
-		
+
 		$retval = array('msg'=>sprintf($this->root->_attach_messages['msg_info'],htmlspecialchars($this->file)));
 		$page_link = $this->func->make_pagelink($s_page);
 		//EXIF DATA
@@ -343,7 +343,7 @@ EOD;
 		$v_md5hash  = ($this->status['copyright'])? "" : "<dd>{$this->root->_attach_messages['msg_md5hash']}:{$this->status['md5']}</dd>";
 		if ($img_info) $img_info = "<dd>{$img_info}</dd>";
 		if ($exif_tags) $exif_tags = "<dd>{$exif_tags}</dd>";
-		
+
 		$retval['body'] = <<<EOD
 <p class="small">
  [<a href="{$this->root->script}?plugin=attach&amp;pcmd=list&amp;refer=$r_page">{$this->root->_attach_messages['msg_list']}</a>]
@@ -396,7 +396,7 @@ EOD;
 		{
 			return xpwiki_plugin_attach::attach_info('msg_isfreeze');
 		}
-		
+
 		$uid = $this->func->get_pg_auther($this->root->vars['page']);
 
 		if (! $this->is_owner()) {
@@ -404,14 +404,14 @@ EOD;
 			if (! $this->func->pkwk_login($pass)) {
 				if (($this->cont['ATTACH_PASSWORD_REQUIRE'] && (!$pass || md5($pass) != $this->status['pass'])) || $this->status['owner'])
 					return xpwiki_plugin_attach::attach_info('err_password');
-				
+
 				if ($this->cont['ATTACH_DELETE_ADMIN_ONLY'] || $this->age)
 					return xpwiki_plugin_attach::attach_info('err_adminpass');
 			}
 		}
 
 		//バックアップ
-		if ($this->age || 
+		if ($this->age ||
 			//($this->is_owner(TRUE) && $this->cont['ATTACH_DELETE_ADMIN_NOBACKUP'])) {
 			($this->is_owner(TRUE) && empty($this->root->vars['backup']))) {
 			@unlink($this->filename);
@@ -422,26 +422,26 @@ EOD;
 			do {
 				$age = ++$this->status['age'];
 			} while (file_exists($this->basename.'.'.$age));
-			
+
 			if (!rename($this->basename,$this->basename.'.'.$age)) {
 				// 削除失敗 why?
 				return array('msg'=>$this->root->_attach_messages['err_delete']);
 			}
 
 			$this->del_thumb_files();
-			
+
 			$this->status['count'][$age] = $this->status['count'][0];
 			$this->status['count'][0] = 0;
 			$this->putstatus(TRUE);
 		}
 		if ($this->func->is_page($this->page)) {
-			$this->func->pkwk_touch_file($this->func->get_filename($this->page));
-			$this->func->touch_db($this->page);
+			$this->root->rtf['esummary'] = 'Deleted an attach file: ' . htmlspecialchars($this->file);
+			$this->func->touch_page($this->page, NULL, TRUE);
 		}
-		
+
 		return array('msg'=>$this->root->_attach_messages['msg_deleted'],'redirect'=>$this->root->script."?plugin=attach&pcmd=upload&page=".rawurlencode($this->page));
 	}
-	
+
 	function rename($pass, $newname)
 	{
 		if ($this->status['freeze']) return xpwiki_plugin_attach::attach_info('msg_isfreeze');
@@ -458,10 +458,10 @@ EOD;
 		$fname = xpwiki_plugin_attach::regularize_fname ($newname, $this->page);
 
 		$hasBackup = count($this->status['count']) - 1;
-		
+
 		$this->status['count'] = array($this->status['count'][0]);
 		$this->status['org_fname'] = $newname;
-		
+
 		$newbase = $this->cont['UPLOAD_DIR'] . $this->func->encode($this->page) . '_' . $this->func->encode($fname);
 		if (file_exists($newbase)) {
 			return array('msg'=>$this->root->_attach_messages['err_exists']);
@@ -469,17 +469,17 @@ EOD;
 		if (! $this->cont['PLUGIN_ATTACH_RENAME_ENABLE'] || ! rename($this->basename, $newbase)) {
 			return array('msg'=>$this->root->_attach_messages['err_rename']);
 		}
-		
+
 		if (! $hasBackup) @unlink($this->logname);
-		
+
 		//$this->rename_thumb_files($fname);
 		$this->del_thumb_files();
-		
+
 		$this->file = $fname;
 		$this->basename = $newbase;
 		$this->filename = $this->basename;
 		$this->logname  = $this->basename . '.log';
-		
+
 		if (file_exists($this->logname)) {
 			// found backup
 			$_arr = file($this->logname);
@@ -487,11 +487,11 @@ EOD;
 			$counts[0] = $this->status['count'][0];
 			$this->status['count'] = $counts;
 		}
-		
+
 		$this->action = 'update';
-		
+
 		$this->putstatus();
-				
+
 		return array('msg'=>$this->root->_attach_messages['msg_renamed']);
 	}
 
@@ -509,11 +509,11 @@ EOD;
 		$this->getstatus();
 		$this->status['freeze'] = $freeze;
 		$this->putstatus();
-		
+
 		$param  = '&file='.rawurlencode($this->file).'&refer='.rawurlencode($this->page).
 			($this->age ? '&age='.$this->age : '');
 		$redirect = "{$this->root->script}?plugin=attach&pcmd=info$param";
-		
+
 		return array('msg'=>$this->root->_attach_messages[$freeze ? 'msg_freezed' : 'msg_unfreezed'],'redirect'=>$redirect);
 	}
 	function rotate($count,$pass)
@@ -527,10 +527,10 @@ EOD;
 					return xpwiki_plugin_attach::attach_info('err_password');
 			}
 		}
-		
+
 		$filemtime = filemtime($this->filename);
 		$ret = HypCommonFunc::rotateImage($this->filename, $count);
-		
+
 		if ($ret) {
 			$this->del_thumb_files();
 			$this->func->pkwk_touch_file($this->filename, $filemtime);
@@ -538,11 +538,11 @@ EOD;
 			$this->status['imagesize'] = @ getimagesize($this->filename);
 			$this->putstatus();
 		}
-		
+
 		$param  = '&file='.rawurlencode($this->file).'&refer='.rawurlencode($this->page).
 			($this->age ? '&age='.$this->age : '');
 		$redirect = "{$this->root->script}?plugin=attach&pcmd=info$param";
-		
+
 		return array('msg'=>$this->root->_attach_messages[$ret ? 'msg_rotated_ok' : 'msg_rotated_ng'],'redirect'=>$redirect);
 	}
 	function copyright($copyright,$pass)
@@ -556,15 +556,15 @@ EOD;
 					return xpwiki_plugin_attach::attach_info('err_password');
 			}
 		}
-		
+
 		$this->getstatus();
 		$this->status['copyright'] = $copyright;
 		$this->putstatus();
-		
+
 		$param  = '&file='.rawurlencode($this->file).'&refer='.rawurlencode($this->page).
 			($this->age ? '&age='.$this->age : '');
 		$redirect = "{$this->root->script}?plugin=attach&pcmd=info$param";
-		
+
 		return array('msg'=>$this->root->_attach_messages[$copyright ? 'msg_copyrighted' : 'msg_uncopyrighted'],'redirect'=>$redirect);
 	}
 	function noinline($noinline,$pass)
@@ -577,15 +577,15 @@ EOD;
 				return xpwiki_plugin_attach::attach_info('err_adminpass');
 			}
 		}
-		
+
 		$this->getstatus();
 		$this->status['noinline'] = $noinline;
 		$this->putstatus();
-		
+
 		$param  = '&file='.rawurlencode($this->file).'&refer='.rawurlencode($this->page).
 			($this->age ? '&age='.$this->age : '');
 		$redirect = "{$this->root->script}?plugin=attach&pcmd=info$param";
-		
+
 		return array('msg'=>$this->root->_attach_messages[$noinline != 0 ? 'msg_noinlined' : 'msg_unnoinlined'],'redirect'=>$redirect);
 	}
 
@@ -614,7 +614,7 @@ EOD;
 		}
 		$this->status['count'][$this->age]++;
 		$this->putstatus();
-		
+
 		$filename = $this->status['org_fname'];
 
 		$format = 'name="%1$s"';
@@ -647,10 +647,10 @@ EOD;
 			$filename = str_replace(array(':', '*', '?', '"', '<', '>', '|'), '_', $filename);
 		}
 		$filename = sprintf($format, $filename, $encode);
-		
+
 		ini_set('default_charset','');
 		mb_http_output('pass');
-		
+
 		// 画像以外(管理者所有を除く)はダウンロード扱いにする(XSS対策)
 		if ($this->is_allow_inline()) {
 			// リファラチェック
@@ -680,13 +680,13 @@ EOD;
 	function del_thumb_files(){
 		$dir = opendir($this->cont['UPLOAD_DIR']."s/")
 			or die('directory '.$this->cont['UPLOAD_DIR'].'s/ is not exist or not readable.');
-		
+
 		$root = $this->cont['UPLOAD_DIR']."s/".$this->func->encode($this->page).'_';
 		$_file = preg_split('/(\.[a-zA-Z]+)?$/', $this->file, -1, PREG_SPLIT_DELIM_CAPTURE);
 		// Check original filename extention (for Renderer mode)
 		if (! $_file[1] && preg_match('/(\.[a-zA-Z]+)$/', $this->status['org_fname'], $_match)) {
 			$_file[1] = $_match[1];
-		} 
+		}
 		$_file = $this->func->encode($_file[0]) . $_file[1];
 		for ($i = 1; $i < 100; $i++)
 		{
@@ -697,13 +697,13 @@ EOD;
 			}
 		}
 	}
-	
+
 /* remove
 	// 該当ファイルのサムネイルをリネーム
 	function rename_thumb_files($newname){
 		$dir = opendir($this->cont['UPLOAD_DIR']."s/")
 			or die('directory '.$this->cont['UPLOAD_DIR'].'s/ is not exist or not readable.');
-		
+
 		$root = $this->cont['UPLOAD_DIR']."s/".$this->func->encode($this->page).'_';
 		for ($i = 1; $i < 100; $i++)
 		{
@@ -717,7 +717,7 @@ EOD;
 		}
 	}
 */
-	
+
 	// 管理者、ページ作成者またはファイル所有者か？
 	function is_owner($real = FALSE) {
 		if (! $real && $this->cont['ATTACH_DISABLED_OWNER_CHECK']) return TRUE;
@@ -731,10 +731,10 @@ EOD;
 		}
 		return FALSE;
 	}
-	
+
 	function is_allow_inline () {
 		if (!empty($this->root->get['ni'])) return false;
-		
+
 		$status = $this->status;
 		$noinline = intval($status['noinline']);
 
@@ -773,7 +773,7 @@ EOD;
 		return $return;
 	}
 }
-	
+
 // ファイルコンテナ
 class XpWikiAttachFiles
 {
@@ -784,7 +784,7 @@ class XpWikiAttachFiles
 	var $max = 50;
 	var $start = 0;
 	var $order = "";
-	
+
 	function XpWikiAttachFiles(& $xpwiki, $page)
 	{
 		$this->xpwiki =& $xpwiki;
@@ -810,15 +810,15 @@ class XpWikiAttachFiles
 		{
 			return $this->to_flat();
 		}
-		
+
 		$this->func->add_tag_head('attach.css');
-		
+
 		$ret = '';
 		$files = array_keys($this->files);
 		$navi = "";
 		$pcmd = ($mode == "imglist")? "imglist" : "list";
 		$pcmd2 = ($mode == "imglist")? "list" : "imglist";
-		
+
 		$otherkeys = array('cols', 'max', 'base', 'mode', 'winop', 'basedir', 'encode_hint', 'word');
 		if ($this->is_popup) {
 			$otherkeys[] = 'popup';
@@ -836,7 +836,7 @@ class XpWikiAttachFiles
 		if ($otherprams) {
 			$otherparm = '&amp;' . join('&amp;', $otherprams);
 		}
-		
+
 		if (!$fromall)
 		{
 			$url = $this->root->script."?plugin=attach&amp;pcmd={$pcmd}&amp;refer=".rawurlencode($this->page).$otherparm."&amp;order=".$this->order."&amp;start=";
@@ -844,13 +844,13 @@ class XpWikiAttachFiles
 			$url3 = $this->root->script."?plugin=attach&amp;pcmd={$pcmd2}&amp;refer=".rawurlencode($this->page).$otherparm."&amp;order=".$this->order."&amp;start=".$this->start;
 			$sort_time = ($this->order == "name")? " [ <a href=\"{$url2}0&amp;order=time\">{$this->root->_attach_messages['msg_sort_time']}</a> |" : " [ <b>{$this->root->_attach_messages['msg_sort_time']}</b> |";
 			$sort_name = ($this->order == "name")? " <b>{$this->root->_attach_messages['msg_sort_name']}</b> ] " : " <a href=\"{$url2}0&amp;order=name\">{$this->root->_attach_messages['msg_sort_name']}</a> ] ";
-			
+
 			if ($this->is_popup) {
 				$mode_tag = '';
 			} else {
 				$mode_tag = ($mode == "imglist")? "[ <a href=\"$url3\">{$this->root->_attach_messages['msg_list_view']}<a> ]":"[ <a href=\"$url3\">{$this->root->_attach_messages['msg_image_view']}</a> ]";
 			}
-			
+
 			if ($this->max < $this->count)
 			{
 				$_start = $this->start + 1;
@@ -867,12 +867,12 @@ class XpWikiAttachFiles
 						$navi[] = "<a href=\"".$url.($i - 1) * $this->max."\">$i</a>";
 				}
 				$navi = join(' | ',$navi);
-				
+
 				$prev = max(0,$now - 1);
 				$next = $now;
 				$prev = ($prev)? "<a href=\"".$url.($prev - 1) * $this->max."\" title=\"Prev\"> <img src=\"{$this->cont['LOADER_URL']}?src=prev.png\" width=\"6\" height=\"12\" alt=\"Prev\"> </a>|" : "";
 				$next = ($next < $total)? "|<a href=\"".$url.$next * $this->max."\" title=\"Next\"> <img src=\"{$this->cont['LOADER_URL']}?src=next.png\" width=\"6\" height=\"12\" alt=\"Next\"> </a>" : "";
-				
+
 				$navi = "<div class=\"page_navi\">| $navi |<br />[{$prev} $_start - $_end / ".$this->count." files {$next}]<br />{$sort_time}{$sort_name}{$mode_tag}</div>";
 			}
 			else if ($this->count)
@@ -932,7 +932,7 @@ class XpWikiAttachFiles
 				$ret .= " </li>\n";
 			}
 		}
-		
+
 		if ($mode == "imglist")
 		{
 			if ($mod) $ret .= str_repeat("|>", $cols - $mod)."|\n";
@@ -944,7 +944,7 @@ class XpWikiAttachFiles
 		} else {
 			$ret = "<ul>\n$ret</ul>";
 		}
-		
+
 		$form = '';
 		if ($this->is_popup && !$fromall) {
 			if (empty($this->root->vars['start'])) {
@@ -953,7 +953,7 @@ class XpWikiAttachFiles
 				if ($form) $form .= '<hr />';
 			}
 		}
-		
+
 		$filecount = '<small> (' . $this->count . '&nbsp;file' . (($this->count>1)?'s':'') . ')</small>';
 		$showall_href = "{$this->root->script}?plugin=attach&amp;pcmd={$pcmd}{$otherparm}&amp;refer=".rawurlencode($this->page);
 		$showall = ($fromall && $this->max < $this->count)? " [&nbsp;<a href=\"{$showall_href}\">Show All</a>&nbsp;]" : "";
@@ -965,9 +965,9 @@ class XpWikiAttachFiles
 			}
 		}
 		$allpages = ($this->is_popup || $fromall)? "" : " [ <a href=\"{$this->root->script}?plugin=attach&amp;pcmd={$pcmd}{$otherparm}\">All Pages</a> ]";
-		
+
 		$body = $this->is_popup? $showall . $ret : "<div class=\"filelist_page\">".$this->func->make_pagelink($this->page).$filecount.$showall.$allpages."</div>\n$ret";
-		
+
 		return $form.$navi.($navi? "<hr />":"").$body.($navi? "<hr />":"")."$navi\n";
 	}
 	// ファイル一覧を取得(inline)
@@ -983,7 +983,7 @@ class XpWikiAttachFiles
 			}
 		}
 		uasort($files,array('XpWikiAttachFile','datecomp'));
-		
+
 		foreach (array_keys($files) as $file)
 		{
 			$ret .= $files[$file]->toString(TRUE,TRUE).' ';
@@ -1001,18 +1001,18 @@ class XpWikiAttachPages
 	var $max = 50;
 	var $mode = "";
 	var $err = 0;
-	
+
 	function XpWikiAttachPages(& $xpwiki, $page='',$age=NULL,$isbn=true,$max=50,$start=0,$fromall=FALSE,$f_order="time",$mode="")
 	{
 		$this->xpwiki =& $xpwiki;
 		$this->root   =& $xpwiki->root;
 		$this->cont   =& $xpwiki->cont;
 		$this->func   =& $xpwiki->func;
-		
+
 		if (! empty($this->root->vars['max'])) {
 			$max = max(1, min($max, intval($this->root->vars['max'])));
 		}
-		
+
 		$this->mode = $mode;
 
 		$this->is_popup = (isset($this->root->vars['popup']) && $this->root->vars['cmd'] !== 'read');
@@ -1021,12 +1021,12 @@ class XpWikiAttachPages
 		{
 			// 閲覧権限チェック
 			if (!$fromall && !$this->func->check_readable($page,false,false)) return;
-			
+
 			$this->pages[$page] = &new XpWikiAttachFiles($this->xpwiki, $page);
-			
+
 			$pgid = $this->func->get_pgid_by_name($page);
 			$this->pages[$page]->pgid = $pgid;
-			
+
 			// WHERE句
 			$where = array();
 			$where[] = "`pgid` = {$pgid}";
@@ -1041,7 +1041,7 @@ class XpWikiAttachPages
 				}
 			}
 			$where = " WHERE ".join(' AND ',$where);
-			
+
 			// このページの添付ファイル数取得
 			$query = "SELECT count(*) as count FROM `".$this->xpwiki->db->prefix($this->root->mydirname."_attach")."`{$where};";
 			if (!$result = $this->xpwiki->db->query($query))
@@ -1051,12 +1051,12 @@ class XpWikiAttachPages
 				}
 			list($_count) = $this->xpwiki->db->fetchRow($result);
 			if (!$_count) return;
-			
+
 			$this->pages[$page]->count = $_count;
 			$this->pages[$page]->max = $max;
 			$this->pages[$page]->start = $start;
 			$this->pages[$page]->order = $f_order;
-			
+
 			// ファイル情報取得
 			$order = ($f_order == "name")? " ORDER BY name ASC" : " ORDER BY mtime DESC";
 			$limit = " LIMIT {$start},{$max}";
@@ -1083,24 +1083,24 @@ class XpWikiAttachPages
 				}
 			}
 			$where = $where? " WHERE ".join(' AND ',$where) : '';
-			
+
 			// 添付ファイルのあるページ数カウント
 			$query = "SELECT DISTINCT p.pgid FROM ".$this->xpwiki->db->prefix($this->root->mydirname."_pginfo")." p INNER JOIN ".$this->xpwiki->db->prefix($this->root->mydirname."_attach")." a ON p.pgid=a.pgid{$where}";
 			$result = $this->xpwiki->db->query($query);
-			
+
 			$this->count = $result ? mysql_num_rows($result) : 0;
-			
+
 			$this->max = $max;
 			$this->start = $start;
 			$this->order = $f_order;
-			
+
 			// ページ情報取得
 			$order = ($f_order == "name")? " ORDER BY p.name ASC" : " ORDER BY p.editedtime DESC";
 			$limit = " LIMIT $start,$max";
-			
+
 			$query = "SELECT DISTINCT p.name FROM ".$this->xpwiki->db->prefix($this->root->mydirname."_pginfo")." p INNER JOIN ".$this->xpwiki->db->prefix($this->root->mydirname."_attach")." a ON p.pgid=a.pgid{$where}{$order}{$limit};";
 			if (!$result = $this->xpwiki->db->query($query)) echo "QUERY ERROR : ".$query;
-			
+
 			while($_row = $this->xpwiki->db->fetchRow($result))
 			{
 				$this->XpWikiAttachPages($this->xpwiki,$_row[0],$age,$isbn,20,0,TRUE,$f_order,$mode);
@@ -1131,7 +1131,7 @@ class XpWikiAttachPages
 				$hiddens[htmlspecialchars($key)] = htmlspecialchars($this->root->vars[$key]);
 			}
 		}
-		
+
 		$select_js = $otherDir = $select = '';
 		if ($this->is_popup) {
 			$dirs = $otherDirs = array();
@@ -1260,7 +1260,7 @@ EOD;
 			}
 			return $select_js  . $otherDir . $search . $select . $this->pages[$page]->toString($flat,FALSE,$this->mode);
 		}
-		
+
 		if ($otherprams) {
 			$otherparm = '&amp;' . join('&amp;', $otherprams);
 		}
@@ -1281,7 +1281,7 @@ EOD;
 		$now = $this->start / $this->max + 1;
 		$total = ceil($this->count / $this->max);
 		$navi = array();
-		
+
 		for ($i=1;$i <= $total;$i++)
 		{
 			if ($now == $i)
@@ -1295,7 +1295,7 @@ EOD;
 		$prev = ($prev)? "<a href=\"".$url.($prev - 1) * $this->max."\" title=\"Prev\"> <img src=\"{$this->cont['LOADER_URL']}?src=prev.png\" width=\"6\" height=\"12\" alt=\"Prev\"> </a>|" : "";
 		$next = ($next < $total)? "|<a href=\"".$url.$next * $this->max."\" title=\"Next\"> <img src=\"{$this->cont['LOADER_URL']}?src=next.png\" width=\"6\" height=\"12\" alt=\"Next\"> </a>" : "";
 		$navi = "<div class=\"page_navi\">| $navi |<br />[{$prev} $_start - $_end / ".$this->count." pages {$next}]<br />{$sort_time}{$sort_name}{$mode_tag}</div>";
-		
+
 		$ret = "";
 		$pages = array_keys($this->pages);
 		if ($pages) {
@@ -1306,9 +1306,9 @@ EOD;
 		} else {
 			$navi = '';
 		}
-		
+
 		return "\n$select_js$otherDir$search$select$navi".($navi? "<hr />":"")."\n$ret\n".($navi? "<hr />":"")."$navi\n";
-		
+
 	}
 }
 
