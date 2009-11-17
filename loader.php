@@ -1,14 +1,14 @@
 <?php
 //
 // Created on 2006/10/25 by nao-pon http://hypweb.net/
-// $Id: loader.php,v 1.62 2009/05/02 02:06:50 nao-pon Exp $
+// $Id: loader.php,v 1.63 2009/11/17 06:07:05 nao-pon Exp $
 //
 
 ignore_user_abort(FALSE);
 error_reporting(0);
 
 if (! isset($_GET['src'])) exit();
- 
+
 // ブラウザキャッシュ有効時間(秒)
 $maxage = 86400; // 60*60*24 (1day)
 
@@ -80,9 +80,9 @@ define('UNIX_TIME', (isset($_SERVER['REQUEST_TIME'])? $_SERVER['REQUEST_TIME'] :
 switch ($type) {
 	case 'css':
 		$c_type = 'text/css';
-		
+
 		$pre_id = preg_replace('/[^\w_\-#]+/', '', @ $_GET['pre']);
-		
+
 		// Skin dir
 		$skin = isset($_GET['skin']) ? preg_replace('/[^\w.-]+/','',$_GET['skin'])  : 'default';
 		if (!$skin) $skin = 'default';
@@ -90,7 +90,7 @@ switch ($type) {
 		$_is_tdiary = (substr($skin, 0, 3) === 'tD-');
 
 		$dir = $prefix.basename($root_path);
-		
+
 		$src_files = array();
 		$srcs = array();
 		foreach (explode(',', $src) as $_src) {
@@ -110,12 +110,12 @@ switch ($type) {
 				// Pre Width
 				$pre_width = (isset($_GET['pw']) && preg_match('/^([0-9]{2,4}(px|%)|auto)$/',$_GET['pw']))? $_GET['pw'] : 'auto';
 			}
-			
+
 			// tDiary's Skin
 			if ($_is_tdiary) {
 				$skin = 'tdiary_theme';
 			}
-			
+
 			// CSS over write (css dir)
 			$addcss_file = $skin_dirname.'/'.$basedir.'css/'.$_src.'.css';
 			if (is_file($addcss_file)) {
@@ -151,7 +151,7 @@ switch ($type) {
 		}
 		$src = join(',', $srcs);
 		$src_file = $src_files;
-		
+
 		$replace = true;
 		$cache_file = $cache_path.$skin.'_'.$src.'_'.$dir.($pre_width?'_'.$pre_width:'').($pre_id?'_'.$pre_id:'').($charset?'_'.$charset:'').'.'.$type;
 		$gzip_fname = $cache_file.'.gz';
@@ -192,7 +192,7 @@ switch ($type) {
 					$addtime = get_filemtime($chk);
 				}
 			} else if ($_src === 'wikihelper_loader') {
-				$js_replaces[] = $_src;		
+				$js_replaces[] = $_src;
 			}
 			if (!$src_file) {
 				$src_file = dirname(__FILE__).'/skin/'.$basedir.$type.'/'.$_src.'.'.$type;
@@ -245,7 +245,7 @@ if ($type === 'js' || $type === 'css' || is_file($src_file)) {
 	$filetime = max(filemtime(__FILE__), get_filemtime($src_file), $addtime);
 
 	$etag = md5($type.$dir.$pre_width.$charset.$src.$filetime.$pre_id);
-	
+
 	// ブラウザのキャッシュをチェック
 	if (isset($_SERVER['HTTP_IF_NONE_MATCH']) && $etag === $_SERVER['HTTP_IF_NONE_MATCH']) {
 		header( 'HTTP/1.1 304 Not Modified' );
@@ -267,7 +267,7 @@ if ($type === 'js' || $type === 'css' || is_file($src_file)) {
 	) {
 		$gzip_fname = '';
 	}
-	
+
 	// キャッシュ判定
 	if ($gzip_fname && is_file($gzip_fname) && filemtime($gzip_fname) >= $filetime) {
 		// html側/private/cache に 有効な gzip ファイルがある場合
@@ -278,7 +278,7 @@ if ($type === 'js' || $type === 'css' || is_file($src_file)) {
 		header( 'Content-length: '.filesize($gzip_fname) );
 		header( 'Content-Encoding: gzip' );
 		header( 'Vary: Accept-Encoding' );
-		
+
 		if ($method !== 'HEAD') readfile($gzip_fname);
 		exit();
 	} else if ($replace && is_file($cache_file) && filemtime($cache_file) >= $filetime) {
@@ -289,7 +289,7 @@ if ($type === 'js' || $type === 'css' || is_file($src_file)) {
 		header( $expires );
 		header( 'Etag: '. $etag );
 		header( 'Content-length: '.filesize($cache_file) );
-		
+
 		if ($method !== 'HEAD') readfile($cache_file);
 		exit();
 	}
@@ -297,13 +297,13 @@ if ($type === 'js' || $type === 'css' || is_file($src_file)) {
 	// 置換処理が必要?
 	if ($replace) {
 		if ($type === 'pagecss') {
-			
+
 			$out = file_get_contents($src_file);
-			
+
 			xpwiki_pagecss_filter($out);
-			
+
 			if ($pre_id) $pre_id .= ' ';
-			
+
 			$out = str_replace(array('$dir', '$class', '$pre_width', '$charset'),
 								array($dir, $pre_id.'div.xpwiki_'.$dir, $pre_width, $charset),
 								$out);
@@ -319,28 +319,28 @@ if ($type === 'js' || $type === 'css' || is_file($src_file)) {
 			}
 
 			foreach($src_file as $_src => $_file) {
-				
+
 				$replace_src = 0;
-				
+
 				if (! empty($conf[$_src]['replace'])) {
 					$replace_src = 1;
 					$_file = $skin_dirname.'/'.$basedir.$skin.'/'.$_src.'.css';
 				}
-				
+
 				$_out = file_get_contents($_file);
-				
+
 				$addcss_src = '';
 				if (! $replace_src && $addcss[$_src]) {
 					foreach ($addcss[$_src] as $_file) {
 						$addcss_src .= file_get_contents($_file) . "\n";
 					}
 				}
-				
+
 				$class = ($prefix === 'fck')? 'body' : $pre_id.'div.xpwiki_'.$dir;
 				$_out = str_replace(array('$dir', '$class', '$pre_width', '$charset'),
 									array($dir, $class, $pre_width, $charset),
 									$_out . "\n" . $addcss_src);
-				
+
 				$out .= $_out;
 			}
 		}
@@ -404,8 +404,9 @@ if ($type === 'js' || $type === 'css' || is_file($src_file)) {
 			}
 		}
 		$length = strlen($out);
-		
+
 		// 置換処理した場合は、通常の形式でもキャッシュする
+		@ unlink($cache_file);
 		if ($fp = fopen($cache_file, 'wb')) {
 			fwrite($fp, $out);
 			fclose($fp);
@@ -420,6 +421,7 @@ if ($type === 'js' || $type === 'css' || is_file($src_file)) {
 			$out = file_get_contents($src_file);
 		}
 		if ($gzip_out = gzencode($out)) {
+			@ unlink($gzip_fname);
 			if ($fp = fopen($gzip_fname, 'wb')) {
 				fwrite($fp, $gzip_out);
 				fclose($fp);
@@ -431,9 +433,9 @@ if ($type === 'js' || $type === 'css' || is_file($src_file)) {
 			}
 		}
 	}
-	
+
 	if (!$length) { $length = filesize($src_file); }
-	
+
 	header( 'Content-Type: ' . $c_type );
 	header( 'Last-Modified: ' . gmdate( 'D, d M Y H:i:s', $filetime ) . ' GMT' );
 	if ($nocache) {
@@ -451,7 +453,7 @@ if ($type === 'js' || $type === 'css' || is_file($src_file)) {
 		header( 'Content-Encoding: gzip' );
 		header( 'Vary: Accept-Encoding' );
 	}
-	
+
 	if ($method !== 'HEAD') {
 		if ($replace) {
 			echo $out;
@@ -528,7 +530,7 @@ if (! function_exists('file_get_contents')) {
 			trigger_error('file_get_contents() failed to open stream: No such file or directory', E_USER_WARNING);
 			return false;
 		}
- 
+
 		clearstatcache();
 		if ($fsize = @filesize($filename)) {
 			$data = fread($fh, $fsize);
@@ -538,7 +540,7 @@ if (! function_exists('file_get_contents')) {
 				$data .= fread($fh, 8192);
 			}
 		}
- 
+
 		fclose($fh);
 		return $data;
 	}
