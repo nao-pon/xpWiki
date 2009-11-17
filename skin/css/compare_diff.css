@@ -12,6 +12,7 @@ $class table.diff th {
 	border-bottom:1px dotted #8cacbb;
 	width:50%;
 	text-align:left;
+	vertical-align:top;
 }
 $class table.diff td {
 	font-family:monospace;
@@ -28,4 +29,9 @@ $class td.diff-context {
 $class table.diff td.diff-addedline strong,
 $class table.diff td.diff-deletedline strong {
 	color:red;
+}
+$class table.diff div.edit_summary {
+	font-size: 80%;
+	font-weight: normal;
+	color: green;
 }
