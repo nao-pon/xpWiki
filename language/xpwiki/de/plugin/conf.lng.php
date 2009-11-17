@@ -1,7 +1,7 @@
 <?php
 /*
  * Created on 2008/01/24 by nao-pon http://hypweb.net/
- * $Id: conf.lng.php,v 1.10 2009/10/22 08:50:05 nao-pon Exp $
+ * $Id: conf.lng.php,v 1.11 2009/11/17 09:03:36 nao-pon Exp $
  */
 //
 // German Translation Version 1.0 (11.03.2008)
@@ -48,12 +48,12 @@ $msg = array(
 		'caption'     => 'Name des Administrators',
 		'description' => '',
 	),
-	
+
 	'modifierlink' => array(
 		'caption'     => 'Link zur URL des Administrators',
 		'description' => 'Hier kann eine Internet-Adresse des Administrators hinterlegt werden.',
 	),
-	
+
 	'notify' => array(
 		'caption'     => 'Mail-Benachrichtigung bei Seiten-Aktualisierungen?',
 		'description' => 'Mail wird an den Administrator geschickt, wenn Seiten aktualisiert werden.',
@@ -68,43 +68,43 @@ $msg = array(
 		'caption'     => 'Standard-Seite',
 		'description' => 'Das ist die Standard-Seite, die angezeigt wird, wenn keine Seite festgelegt ist.',
 	),
-	
+
 	'page_case_insensitive' => array(
 		'caption'     => 'Sind Seitennamen unabhängig von Groß- und Kleinschreibung?',
 		'description' => 'Groß- und Kleinschreibung wird in Seitennamen nicht berücksichtigt.',
 	),
-	
+
 	'SKIN_NAME' => array(
 		'caption'     => 'Standard Skin Name',
 		'description' => 'Der standardmäßige Skin-Name wird hier festgelegt.',
 		'normalskin'  => 'Normale Häute',
-		'tdiarytheme' => 't-Diary\'s Themen', 
+		'tdiarytheme' => 't-Diary\'s Themen',
 	),
-	
+
 	'skin_navigator_cmds' => array(
 		'caption'     => 'Menus on Skin',
 		'description' => 'The command name of the menu assumed to be able to display by the skin is input by comma (,) delimitation.<br />'
 	                   . 'All menus are enabled to be displayed when "all" is input.<br />'
 		               . '" add, atom, attaches, back, backup, copy, diff, edit, filelist, freeze, help, list, new, newsub, pginfo, print, rdf, recent, refer, related, reload, rename, rss, rss10, rss20, search, top, topage, trackback, unfreeze, upload " can be specified. However, it is controlled whether displayed by the skin.' ,
 	),
-	
+
 	'skin_navigator_disabled' => array(
 		'caption'     => 'Dsabled menus on Skin',
 		'description' => 'The command name of the menu assumed not to be able to display by the skin is input by comma (,) delimitation. <br />'
 	                   . 'The command that can be specified is the same as "Menus on Skin". ' ,
 	),
-	
+
 	'SKIN_CHANGER' => array(
 		'caption'     => 'Sind Änderungen am Skin erlaubt?',
 		'description' => 'Der Benutzer kann einen Skin wählen wenn hier "Ja" gewählt wird.<br />'
 		               . 'Außerdem , wird es möglich das tdiary-Plugin auf jeder benutzten Seite anzugeben.',
 	),
-	
+
 	'referer' => array(
 		'caption'     => 'Möchtest Du Referer Informationen?',
 		'description' => '´Diese Funktion ermöglicht die Kontrolle für alle Seiten, wer diese besucht hat.',
 	),
-	
+
 	'allow_pagecomment' => array(
 		'caption'     => 'Sollen Kommentare möglich sein?',
 		'description' => 'Die Kommentar-Integration kann hier eingestellt werden.<br />'
@@ -247,6 +247,12 @@ $msg = array(
 		'caption'     => 'Amazon SecretAccessKey',
 		'description' => 'Secret AccessKey (Sequence of 40 characters)<br />'
 		               . 'If empty then uses "trust/class/hyp_common/hsamazon/hyp_simple_amazon.ini" setting.',
+	),
+
+	'bitly_clickable' => array(
+		'caption'     => 'Clickable URL shorten',
+		'description' => 'Automatic links of URL are shortened with <a href="http://bit.ly/" target="_blank">bitly</a>. '
+		               . '"It is necessary to set "Bitly_login" and "Bitly_apiKey".'
 	),
 
 	'fckeditor_path' => array(
