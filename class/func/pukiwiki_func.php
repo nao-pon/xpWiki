@@ -1,13 +1,13 @@
 <?php
 //
 // Created on 2006/10/02 by nao-pon http://hypweb.net/
-// $Id: pukiwiki_func.php,v 1.212 2009/10/22 09:00:53 nao-pon Exp $
+// $Id: pukiwiki_func.php,v 1.213 2009/11/17 09:09:29 nao-pon Exp $
 //
 class XpWikiPukiWikiFunc extends XpWikiBaseFunc {
 
 //----- Start file.php -----//
-	
-	
+
+
 	// Get source(wiki text) data of the page
 	function get_source($page = NULL, $lock = TRUE, $join = FALSE)
 	{
@@ -16,16 +16,16 @@ class XpWikiPukiWikiFunc extends XpWikiBaseFunc {
 			// Compat for "implode('', get_source($file))",
 			// 	-- this is slower than "get_source($file, TRUE, TRUE)"
 			// Compat for foreach(get_source($file) as $line) {} not to warns
-	
+
 		$path = $this->get_filename($page);
 		if (file_exists($path)) {
-	
+
 			if ($lock) {
 				$fp = @fopen($path, 'r');
 				if ($fp === FALSE) return FALSE;
 				flock($fp, LOCK_SH);
 			}
-	
+
 			if ($join) {
 				// Returns a value
 				$size = filesize($path);
@@ -48,36 +48,38 @@ class XpWikiPukiWikiFunc extends XpWikiBaseFunc {
 					// Removing line-feeds
 					$result = str_replace("\r", '', $result);
 				}
-				
+
 				// pginfo取得(キャッシュさせる)
 				#freeze があるかもしれないので先頭の2行で判定
 				$this->get_pginfo($page, array_slice($result,0,2));
 			}
-	
+
 			if ($lock) {
 				@fclose($fp);
 			}
 		}
-	
+
 		return $result;
 	}
-	
+
 	// Get last-modified filetime of the page
 	function get_filetime($page)
 	{
-		return $this->is_page($page) ? filemtime($this->get_filename($page)) - $this->cont['LOCALZONE'] : 
+		return $this->is_page($page) ? filemtime($this->get_filename($page)) - $this->cont['LOCALZONE'] :
 			$this->is_page($this->get_pagename_realcase($page)) ? filemtime($this->get_filename($page)) - $this->cont['LOCALZONE'] : 0;
 	}
-	
+
 	// Get physical file name of the page
 	function get_filename($page)
 	{
 		return $this->cont['DATA_DIR'] . $this->encode($page) . '.txt';
 	}
-	
+
 	// Put a data(wiki text) into a physical file(diff, backup, text)
 	function page_write($page, $postdata, $notimestamp = FALSE)
 	{
+		$_user_abort_last = ignore_user_abort(TRUE);
+
 		$is_freeze = $this->is_freeze($page);
 		if (
 			$this->cont['PKWK_READONLY']
@@ -95,34 +97,35 @@ class XpWikiPukiWikiFunc extends XpWikiBaseFunc {
 		) {
 			return; // Do nothing
 		}
-		
+
 		if (isset($this->root->rtf['no_checkauth_on_write']) && $this->root->rtf['no_checkauth_on_write'] === 'dofreeze') {
 			$is_freeze = TRUE;
 			$this->pginfo_freeze_db_write($page, 1);
 		}
-		
+
 		$oldpostdata = $this->is_page($page) ? $this->get_source($page, TRUE, TRUE) : '';
-		
+		$esummary = '';
+
 		$touch = FALSE;
 		if (is_null($postdata)) {
 			$postdata = $oldpostdata;
 			$touch = TRUE;
-			$notimestamp = FALSE;
+			//$notimestamp = FALSE;
 		}
-		
+
 		$postdata = trim($postdata, "\r\n");
-		
-		if ($is_freeze) {		
+
+		if ($is_freeze) {
 			// remove "#freeze"
-			$postdata = preg_replace('/^#freeze\n/', '', $postdata);
+			$postdata = preg_replace('/^#freeze\s*$/m', '', $postdata);
 		}
-		
+
 		$empty_page_making = FALSE;
 		// set mode. use at custum events.
-		if (!$this->is_page($page) && $postdata) {
+		if (!$this->is_page($page) && ($postdata || $touch)) {
 			$mode = "insert";
 			// Empty page making by plugin.
-			if ($postdata === "\t") {
+			if ($postdata === "\t" || $touch) {
 				$postdata = '';
 				$empty_page_making = TRUE;
 			}
@@ -133,23 +136,25 @@ class XpWikiPukiWikiFunc extends XpWikiBaseFunc {
 			$mode = "update";
 		}
 
-		// onPageWriteBefore
-		$this->do_onPageWriteBefore ($page, $postdata, $notimestamp, $mode);
+		if (! $touch) {
+			// onPageWriteBefore
+			$this->do_onPageWriteBefore ($page, $postdata, $notimestamp, $mode);
 
-		$postdata = $this->make_str_rules($postdata);
-		
-		// Page aliases
-		$need_autolink_update = false;
-		if (isset($this->root->post['alias'])) {
-			$need_autolink_update = $this->put_page_alias($page, $this->root->post['alias']);
+			$postdata = $this->make_str_rules($postdata);
+
+			// Page aliases
+			$need_autolink_update = false;
+			if ($this->root->vars['cmd'] === 'edit' && isset($this->root->post['alias'])) {
+				$need_autolink_update = $this->put_page_alias($page, $this->root->post['alias']);
+			}
 		}
-		
+
 		if ($postdata) {
-			$reading = (!empty($this->root->vars['reading']) && $this->get_page_reading($page) !== $this->root->vars['reading'])? $this->root->vars['reading'] : '';
+			$reading = ($this->root->vars['cmd'] === 'edit' && !empty($this->root->vars['reading']) && $this->get_page_reading($page) !== $this->root->vars['reading'])? $this->root->vars['reading'] : '';
 			$rm_postdata = $this->remove_pginfo($postdata);
 			// Page order
 			$pgorder = NULL;
-			if (isset($this->root->post['pgorder'])) {
+			if ($this->root->vars['cmd'] === 'edit' && isset($this->root->post['pgorder'])) {
 				$pgorder = min(9, max(0, floatval($this->root->post['pgorder'])));
 				if ($this->get_page_order($page) === $pgorder) $pgorder = NULL;
 			}
@@ -168,76 +173,116 @@ class XpWikiPukiWikiFunc extends XpWikiBaseFunc {
 					return;
 				}
 			}
-			// ページ情報
-			if (!($mode === 'insert' && !$rm_postdata)) {
-				$pginfo = $this->get_pginfo($page);
-				if ($mode === 'insert') {
-					if ($pginfo['eaids'] === $this->root->userinfo['uid']) {
-						$pginfo['eaids'] = 'none';
+		}
+
+		// Set edit summary
+		if ($this->root->vars['cmd'] === 'edit' && isset($this->root->vars['esummary'])) {
+			$esummary = $this->root->vars['esummary'];
+			$esummary = str_replace(array("\r", "\n", "\t"), ' ', $esummary);
+			$esummary = htmlspecialchars($esummary);
+			$esummary = str_replace(array('(', ')'), array('&#40;', '&#41;'), $esummary);
+		} else {
+			if (! empty($this->root->rtf['esummary'])) {
+				$esummary = $this->root->rtf['esummary'];
+			} else {
+				$plugin_name = (! empty($this->root->vars['cmd']))? $this->root->vars['cmd'] : ((! empty($this->root->vars['plugin']))? $this->root->vars['plugin'] : '');
+				if ($plugin_name && ! in_array($plugin_name, array('edit', 'read'))) {
+					$esummary = str_replace('$name', $plugin_name, $this->root->plugin_edit_summary);
+					if ($touch) {
+						$esummary .= ' (Only touched)';
+					} else if ($empty_page_making) {
+						$esummary .= ' (Created empty)';
 					}
-					if ($pginfo['vaids'] === $this->root->userinfo['uid']) {
-						$pginfo['vaids'] = 'none';
-					}
-				}
-				$pginfo['lastuid'] = $this->root->userinfo['uid'];
-				$pginfo['lastucd'] = $this->root->userinfo['ucd'];
-				$pginfo['lastuname'] = $this->root->userinfo['uname'];
-				if ($this->root->cookie['name'] && $this->root->userinfo['uname'] !== $this->root->cookie['name']) {
-					$pginfo['lastuname'] = htmlspecialchars($this->root->cookie['name']);
-					if ($mode === 'insert') {
-						$pginfo['uname'] = $pginfo['lastuname'];
-					}
-					if ($this->root->siteinfo['anonymous'] !== $this->root->cookie['name']){
-						$pginfo['lastuname'] .= '('.$pginfo['lastuname'].')';
-					}
-				}
-				$pginfo['lastuname'] = htmlspecialchars($pginfo['lastuname']);
-				if (! is_null($pgorder)) $pginfo['pgorder'] = $pgorder;
-				$pginfo_str = '#pginfo('.join("\t",$pginfo).')'."\n";
-				$postdata = $pginfo_str . $rm_postdata;
-				// ページ頭文字読み
-				if ($reading) {
-					$pginfo['reading'] = $reading;
 				}
 			}
+		}
+
+		// Get pginfo
+		$pginfo = $this->get_pginfo($page);
+
+		// Create backup
+		if (! $this->make_backup($page, ($mode === 'delete'), $notimestamp)) {
+			// no rotate
+			if ($pginfo['esummary']) {
+				if ($esummary && strpos($pginfo['esummary'], $esummary) === FALSE) {
+					$esummary = $pginfo['esummary'] . ', ' . $esummary;
+				} else {
+					$esummary = $pginfo['esummary'];
+				}
+			}
+		}
+		if ($notimestamp && $esummary) {
+			$esummary .= ' at ' . $this->root->now;
+		}
+
+		if ($mode !== 'delete') {
+			// Set pginfo
+			if ($mode === 'insert') {
+				if ($pginfo['eaids'] === $this->root->userinfo['uid']) {
+					$pginfo['eaids'] = 'none';
+				}
+				if ($pginfo['vaids'] === $this->root->userinfo['uid']) {
+					$pginfo['vaids'] = 'none';
+				}
+			}
+			$pginfo['lastuid'] = $this->root->userinfo['uid'];
+			$pginfo['lastucd'] = $this->root->userinfo['ucd'];
+			$pginfo['lastuname'] = $this->root->userinfo['uname'];
+			if ($this->root->cookie['name'] && $this->root->userinfo['uname'] !== $this->root->cookie['name']) {
+				$pginfo['lastuname'] = htmlspecialchars($this->root->cookie['name']);
+				if ($mode === 'insert') {
+					$pginfo['uname'] = $pginfo['lastuname'];
+				}
+				if ($this->root->siteinfo['anonymous'] !== $this->root->cookie['name']){
+					$pginfo['lastuname'] .= '('.$pginfo['lastuname'].')';
+				}
+			}
+			$pginfo['lastuname'] = htmlspecialchars($pginfo['lastuname']);
+			if (! is_null($pgorder)) $pginfo['pgorder'] = $pgorder;
+			$pginfo['esummary'] = $esummary;
+			$pginfo_str = '#pginfo('.join("\t",$pginfo).')'."\n";
+			$postdata = $pginfo_str . $rm_postdata;
+
+			// ページ頭文字読み
+			if ($reading) {
+				$pginfo['reading'] = $reading;
+			}
+
 			// Is freeze?
 			if ($is_freeze) {
 				$postdata = '#freeze' . "\n" . $postdata;
 			}
 		}
-		
-		$_user_abort_last = ignore_user_abort(TRUE);
-		
+
 		// Create and write diff
 		$diffdata = $this->do_diff($oldpostdata, $postdata);
 		$this->file_write($this->cont['DIFF_DIR'], $page, $diffdata);
 
-		// delete recent add data
-		if ($mode === 'delete') { 
-			$this->push_page_changes($page, '', TRUE);
-			// Update RecentDeleted (Add the $page)
-			$this->add_recent($page, $this->root->whatsdeleted, '', $this->root->maxshow_deleted);
-		} else {
-			// 追加履歴保存
-			$this->push_page_changes($page, preg_replace('/^[^+].*\n/m', '', $diffdata));
+		if (! $touch) {
+			// delete recent add data
+			if ($mode === 'delete') {
+				$this->push_page_changes($page, '', TRUE);
+				// Update RecentDeleted (Add the $page)
+				$this->add_recent($page, $this->root->whatsdeleted, '', $this->root->maxshow_deleted);
+			} else {
+				// 追加履歴保存
+				$this->push_page_changes($page, preg_replace('/^[^+].*\n/m', '', $diffdata));
+			}
 		}
-		
-		// Create backup
-		$this->make_backup($page, ($mode === 'delete'), $notimestamp); // Is $postdata null?
-	
+
 		// Create wiki text
 		$this->file_write($this->cont['DATA_DIR'], $page, $postdata, $notimestamp);
-		
+
 		// Clear fstat cache.
 		clearstatcache();
-		
+
 		// pginfo DB write
 		if (empty($pginfo)) {
 			$pginfo = $this->get_pginfo($page);
 		}
 		$this->pginfo_db_write($page, $mode, $pginfo, $notimestamp);
-		
-		if (! $empty_page_making) {
+
+		if (! $empty_page_making && ! $touch) {
 			/*
 			if ($this->root->trackback) {
 				// TrackBack Ping
@@ -247,7 +292,7 @@ class XpWikiPukiWikiFunc extends XpWikiBaseFunc {
 				$this->tb_send($page, $plus, $minus);
 			}
 			*/
-			
+
 			// Update autoalias.dat (AutoAliasName)
 			if ($this->root->autoalias
 			     && ($page === $this->root->aliaspage || $page === $this->cont['PKWK_CONFIG_PREFIX'] . 'AutoLink')) {
@@ -261,12 +306,12 @@ class XpWikiPukiWikiFunc extends XpWikiBaseFunc {
 						$this->get_autolink_pattern(array_keys($aliases), $this->root->autoalias, false));
 				}
 			}
-			
+
 			// Update interwiki.dat
 			if ($this->root->interwiki && $page === $this->root->interwiki) {
 				$this->interwiki_dat_update(explode("\n", $postdata));
 			}
-			
+
 			// onPageWriteAfter
 			$this->do_onPageWriteAfter($page, $postdata, $notimestamp, $mode, $diffdata);
 
@@ -293,7 +338,7 @@ class XpWikiPukiWikiFunc extends XpWikiBaseFunc {
 					$footer
 				);
 			}
-			
+
 			if (empty($this->root->rtf['no_system_notification'])) {
 				// System notification
 				$tags['POST_URL'] = $this->get_page_uri($page, true);
@@ -309,24 +354,24 @@ class XpWikiPukiWikiFunc extends XpWikiBaseFunc {
 					$tags['POST_DATA'] = 'Page deleted.';
 				}
 				$this->system_notification($page, 'page', $this->get_pgid_by_name($page), 'page_update', $tags);
-				
+
 				list($pgid1, $pgid2) = $this->get_pgids_by_name($page);
 				$this->system_notification($page, 'page1', $pgid1, 'page_update', $tags);
 				if ($pgid2) $this->system_notification($page, 'page2', $pgid2, 'page_update', $tags);
-				
+
 				$this->system_notification($page, 'global', 0, 'page_update', $tags);
 			}
 		}
-		
+
 		ignore_user_abort($_user_abort_last);
 	}
-	
+
 	function autolink_dat_update () {
 		if (!$this->root->autolink) return;
-		
+
 		// Get WHOLE page list (always as guest)
 		$pages = $this->get_existpages(FALSE, '', array('asguest' => TRUE));
-		
+
 		$this->autolink_pattern_write($this->cont['CACHE_DIR'] . $this->cont['PKWK_AUTOLINK_REGEX_CACHE'],
 			$this->get_autolink_pattern($pages, $this->root->autolink, false));
 	}
@@ -350,15 +395,15 @@ class XpWikiPukiWikiFunc extends XpWikiBaseFunc {
 		rewind($fp);
 		fwrite($fp, serialize($interwikinames));
 		fclose($fp);
-		
+
 		return $interwikinames;
 	}
-	
+
 	function delete_caches () {
 		if (!empty($GLOBALS['xpwiki_cache_deletes'])) {
 			foreach($GLOBALS['xpwiki_cache_deletes'] as $dir => $targets) {
 				if ($dir_h = @opendir($dir)) {
-					$pats = array();					
+					$pats = array();
 					foreach($targets as $target) {
 						if ($target === '*') {
 							$pats = array('true');
@@ -385,7 +430,7 @@ class XpWikiPukiWikiFunc extends XpWikiBaseFunc {
 			}
 		}
 		$GLOBALS['xpwiki_cache_deletes'] = array();
-		
+
 		if (!empty($GLOBALS['xpwiki_cache_reflash_functions'])) {
 			foreach($GLOBALS['xpwiki_cache_reflash_functions'] as $function) {
 				if (isset($function['name'])) {
@@ -396,7 +441,7 @@ class XpWikiPukiWikiFunc extends XpWikiBaseFunc {
 		}
 		$GLOBALS['xpwiki_cache_reflash_functions'] = array();
 	}
-	
+
 	// Modify original text with user-defined / system-defined rules
 	function make_str_rules($source)
 	{
@@ -404,16 +449,16 @@ class XpWikiPukiWikiFunc extends XpWikiBaseFunc {
 		$this->escape_multiline_pre($source, TRUE);
 		$lines = explode("\n", $source);
 		$count = count($lines);
-	
+
 		$modify    = TRUE;
 		$multiline = 0;
 		$matches   = array();
 		for ($i = 0; $i < $count; $i++) {
 			$line = & $lines[$i]; // Modify directly
-	
+
 			// Ignore null string and preformatted texts
 			if ($line === '' || $line{0} === ' ' || $line{0} === "\t") continue;
-	
+
 			// Modify this line?
 			if ($modify) {
 				if (! $this->cont['PKWKEXP_DISABLE_MULTILINE_PLUGIN_HACK'] &&
@@ -433,11 +478,11 @@ class XpWikiPukiWikiFunc extends XpWikiBaseFunc {
 				}
 			}
 			//if ($modify === FALSE) continue;
-	
+
 			// Replace with $str_rules
 			foreach ($this->root->str_rules as $pattern => $replacement)
 				$line = preg_replace('/' . $pattern . '/', $replacement, $line);
-			
+
 			// Adding fixed anchor into headings
 			if ($this->root->fixed_heading_anchor &&
 			    preg_match('/^(\*{1,5}.*?)(?:\[#([A-Za-z][\w-]*)\]\s*)?$/', $line, $matches) &&
@@ -446,32 +491,32 @@ class XpWikiPukiWikiFunc extends XpWikiBaseFunc {
 				$anchor = $this->generate_fixed_heading_anchor_id($matches[1]);
 				$line = rtrim($matches[1]) . ' [#' . $anchor . ']';
 			}
-			
+
 			// ref プラグインアップロード用ID
 			$anchor = '';
 			$line = preg_replace('/((?:&|#)ref\()UNQ_[\d]{17}/', '$1', $line);
 			while(preg_match('/(?:&|#)ref\((,[^)]+)?\);?/',$line)) {
 				$anchor = $this->generate_fixed_heading_anchor_id($line.$anchor);
-				$line = preg_replace('/((?:&|#)ref\()((,[^)]+)?\);?)/',"$1ID\$".$anchor."$2",$line,1);	
+				$line = preg_replace('/((?:&|#)ref\()((,[^)]+)?\);?)/',"$1ID\$".$anchor."$2",$line,1);
 			}
 			if ($this->root->easy_ref_syntax) {
 				while(preg_match('/\{\{((?:,|\|).*?)?\}\}/',$line)) {
 					$anchor = $this->generate_fixed_heading_anchor_id($line.$anchor);
-					$line = preg_replace('/\{\{((?:,|\|).*?)?\}\}/',"{{ID\$".$anchor."$1}}",$line,1);	
+					$line = preg_replace('/\{\{((?:,|\|).*?)?\}\}/',"{{ID\$".$anchor."$1}}",$line,1);
 				}
 			}
 		}
-	
+
 		// Multiline part has no stopper
 		if (! $this->cont['PKWKEXP_DISABLE_MULTILINE_PLUGIN_HACK'] &&
 		    $modify === FALSE && $multiline !== 0)
 			$lines[] = str_repeat('}', $multiline);
-	
+
 		$lines = implode("\n", $lines);
 		$this->escape_multiline_pre($lines, FALSE);
 		return $lines;
 	}
-	
+
 	// Generate ID
 	function generate_fixed_heading_anchor_id($seed)
 	{
@@ -480,13 +525,13 @@ class XpWikiPukiWikiFunc extends XpWikiBaseFunc {
 			substr(md5(uniqid(substr($seed, 0, 100), TRUE)),
 			mt_rand(0, 24), 7);
 	}
-	
+
 	// Read top N lines as an array
 	// (Use PHP file() function if you want to get ALL lines)
 	function file_head($file, $count = 1, $lock = TRUE, $buffer = 8192)
 	{
 		$array = array();
-	
+
 		$fp = @fopen($file, 'r');
 		if ($fp === FALSE) return FALSE;
 		set_file_buffer($fp, 0);
@@ -499,10 +544,10 @@ class XpWikiPukiWikiFunc extends XpWikiBaseFunc {
 			if (++$index >= $count) break;
 		}
 		if (! fclose($fp)) return FALSE;
-	
+
 		return $array;
 	}
-	
+
 	// Output to a file
 	function file_write($dir, $page, $str, $notimestamp = FALSE)
 	{
@@ -522,50 +567,50 @@ class XpWikiPukiWikiFunc extends XpWikiBaseFunc {
 		) {
 			return; // Do nothing
 		}
-		
+
 		if ($dir !== $this->cont['DATA_DIR'] && $dir !== $this->cont['DIFF_DIR']) die('file_write(): Invalid directory');
-	
+
 		$page = $this->strip_bracket($page);
-		
+
 		// ページキャッシュを破棄
 		if ($dir === $this->cont['DATA_DIR']) {
 			$this->clear_page_cache ($page);
 		}
-		
+
 		$file = $dir . $this->encode($page) . '.txt';
 		$file_exists = file_exists($file);
-	
+
 		// ----
 		// Delete?
-	
+
 		if ($dir === $this->cont['DATA_DIR'] && $str === '') {
 			// Page deletion
 			if (! $file_exists) return; // Ignore null posting for $this->cont['DATA_DIR']
-	
+
 			// Remove the page
 			unlink($file);
-	
+
 			// Clear is_page() cache & clearstatcache()
 			$this->is_page('', TRUE);
-	
+
 			return;
-	
+
 		} else if ($dir === $this->cont['DIFF_DIR'] && $str === " \n") {
 			return; // Ignore null posting for $this->cont['DIFF_DIR']
 		}
-	
+
 		// ----
 		// File replacement (Edit)
-	
+
 		if (! $this->is_pagename($page))
 			$this->die_message(str_replace('$1', htmlspecialchars($page),
 			            str_replace('$2', 'WikiName', $this->root->_msg_invalidiwn)));
-	
+
 		$str = rtrim(preg_replace('/' . "\r" . '/', '', $str)) . "\n";
 		$timestamp = ($file_exists && $notimestamp) ? filemtime($file) : FALSE;
-	
+
 		$fp = fopen($file, 'a') or die('fopen() failed: ' .
-			htmlspecialchars(basename($dir) . '/' . $this->encode($page) . '.txt') .	
+			htmlspecialchars(basename($dir) . '/' . $this->encode($page) . '.txt') .
 			'<br />' . "\n" .
 			'Maybe permission is not writable or filename is too long');
 		set_file_buffer($fp, 0);
@@ -574,77 +619,77 @@ class XpWikiPukiWikiFunc extends XpWikiBaseFunc {
 		rewind($fp);
 		fputs($fp, $str);
 		fclose($fp);
-	
+
 		if ($timestamp) $this->pkwk_touch_file($file, $timestamp);
-	
+
 		// Optional actions
 		if ($dir === $this->cont['DATA_DIR']) {
-	
+
 			// Command execution per update
 			if (isset($this->cont['PKWK_UPDATE_EXEC']) && $this->cont['PKWK_UPDATE_EXEC'])
 				system($this->cont['PKWK_UPDATE_EXEC'] . ' > /dev/null &');
-	
+
 		}
-			
+
 		// Clear $this->is_page() cache & clearstatcache()
 		$this->is_page('', TRUE);
 
 	}
-	
+
 	// Update RecentDeleted
 	function add_recent($page, $recentpage, $subject = '', $limit = 0)
 	{
 		if ($this->cont['PKWK_READONLY'] || $limit === 0 || $page === '' || $recentpage === '' ||
 		    $this->check_non_list($page) || !$this->check_readable_page($page, FALSE, FALSE, 0)) return;
-		
+
 		// Load
 		$heads = $lines = $matches = array();
-		
+
 		$heads['title'] = $root->title_setting_string . $recentpage . "\n";
 		foreach ($this->get_source($recentpage) as $line) {
 			// TITLE:
 			if (preg_match($this->root->title_setting_regex, $line)) {
 				$heads['title'] = $line;
 			}
-			
+
 			if (preg_match('/^-(.+) - (\[\[.+\]\])$/', $line, $matches)) {
 				$lines[$matches[2]] = $line;
 			}
 		}
 
 		$_page = '[[' . $page . ']]';
-	
+
 		// Remove a report about the same page
 		if (isset($lines[$_page])) unset($lines[$_page]);
-	
+
 		// Add
 		array_unshift($lines, '-' . $this->format_date($this->cont['UTIME']) . ' - ' . $_page .
 			htmlspecialchars($subject) . "\n");
-	
+
 		// Get latest $limit reports
 		$lines = array_splice($lines, 0, $limit);
-				
+
 		// Update
 		$postdata = '';
 		$postdata .= join('', $heads);
 		$postdata .= '#norelated' . "\n"; // :)
 		$postdata .= join('', $lines);
-		
+
 		$this->root->rtf['no_checkauth_on_write'] = 'dofreeze';
-		$this->page_write($recentpage, $postdata);	
+		$this->page_write($recentpage, $postdata);
 	}
-	
+
 	// Re-create PKWK_MAXSHOW_CACHE (Heavy)
 	function put_lastmodified()
 	{
 		return;
 	}
-	
+
 	// update autolink data
 	function autolink_pattern_write($filename, $autolink_pattern)
 	{
 		list($pattern, $pattern_a, $forceignorelist) = $autolink_pattern;
-	
+
 		$fp = fopen($filename, 'w') or
 				$this->die_message('Cannot open ' . $filename);
 		set_file_buffer($fp, 0);
@@ -655,18 +700,18 @@ class XpWikiPukiWikiFunc extends XpWikiBaseFunc {
 		fputs($fp, join("\t", $forceignorelist) . "\n");
 		fclose($fp);
 	}
-	
+
 	// Get elapsed date of the page
 	function get_pg_passage($page, $sw = TRUE)
 	{
 		if (! $this->root->show_passage) return '';
-	
+
 		$time = $this->get_filetime($page);
 		$pg_passage = ($time !== 0) ? $this->get_passage($time) : '';
-	
+
 		return $sw ? '<small>' . $pg_passage . '</small>' : ' ' . $pg_passage;
 	}
-	
+
 	// Last-Modified header
 	function header_lastmod($page = NULL)
 	{
@@ -676,25 +721,25 @@ class XpWikiPukiWikiFunc extends XpWikiBaseFunc {
 				date('D, d M Y H:i:s', $this->get_filetime($page)) . ' GMT');
 		}
 	}
-	
+
 	// Get a page list of this wiki
 	function get_existpages($dir = NULL, $ext = '.txt')
 	{
 		// 通常はDB版へ丸投げ
 		//if (!is_string($nocheck) || $nocheck === DATA_DIR)
 		//	return $this->get_existpages_db($nocheck,$base,$limit,$order,$nolisting,$nochiled,$nodelete);
-		
+
 		// PukiWiki 1.4 互換
 		//$dir = ($nocheck === FALSE)? NULL : $nocheck;
 		//$ext = ($base)? $base : '.txt';
-		
+
 		if (is_null($dir)) {$dir = $this->cont['DATA_DIR'];}
 		$aryret = array();
-	
+
 		$pattern = '((?:[0-9A-F]{2})+)';
 		if ($ext !== '') $ext = preg_quote($ext, '/');
 		$pattern = '/^' . $pattern . $ext . '$/';
-	
+
 		$dp = @opendir($dir) or
 			$this->die_message($dir . ' is not found or not readable.');
 		$matches = array();
@@ -705,19 +750,19 @@ class XpWikiPukiWikiFunc extends XpWikiBaseFunc {
 			}
 		}
 		closedir($dp);
-	
+
 		return $aryret;
 	}
-	
+
 	// Get PageReading(pronounce-annotated) data in an array()
 	function get_readings()
 	{
 		$pages = $this->get_existpages();
-	
+
 		$readings = array();
-		foreach ($pages as $page) 
+		foreach ($pages as $page)
 			$readings[$page] = '';
-	
+
 		$deletedPage = FALSE;
 		$matches = array();
 		foreach ($this->get_source($this->root->pagereading_config_page) as $line) {
@@ -732,10 +777,10 @@ class XpWikiPukiWikiFunc extends XpWikiBaseFunc {
 				}
 			}
 		}
-	
+
 		// If enabled ChaSen/KAKASI execution
 		if($this->root->pagereading_enable) {
-	
+
 			// Check there's non-clear-pronouncing page
 			$unknownPage = FALSE;
 			foreach ($readings as $page => $reading) {
@@ -744,14 +789,14 @@ class XpWikiPukiWikiFunc extends XpWikiBaseFunc {
 					break;
 				}
 			}
-	
+
 			// Execute ChaSen/KAKASI, and get annotation
 			if($unknownPage) {
 				switch(strtolower($this->root->pagereading_kanji2kana_converter)) {
 				case 'chasen':
 					if(! file_exists($this->root->pagereading_chasen_path))
 						$this->die_message('ChaSen not found: ' . $this->root->pagereading_chasen_path);
-	
+
 					$tmpfname = tempnam(realpath($this->cont['CACHE_DIR']), 'PageReading');
 					$fp = fopen($tmpfname, 'w') or
 						$this->die_message('Cannot write temporary file "' . $tmpfname . '".' . "\n");
@@ -761,7 +806,7 @@ class XpWikiPukiWikiFunc extends XpWikiBaseFunc {
 							$this->root->pagereading_kanji2kana_encoding, $this->cont['SOURCE_ENCODING']));
 					}
 					fclose($fp);
-	
+
 					$chasen = "{$this->root->pagereading_chasen_path} -F %y $tmpfname";
 					$fp     = popen($chasen, 'r');
 					if($fp === FALSE) {
@@ -770,7 +815,7 @@ class XpWikiPukiWikiFunc extends XpWikiBaseFunc {
 					}
 					foreach ($readings as $page => $reading) {
 						if($reading !== '') continue;
-	
+
 						$line = fgets($fp);
 						$line = mb_convert_encoding($line, $this->cont['SOURCE_ENCODING'],
 							$this->root->pagereading_kanji2kana_encoding);
@@ -778,16 +823,16 @@ class XpWikiPukiWikiFunc extends XpWikiBaseFunc {
 						$readings[$page] = $line;
 					}
 					pclose($fp);
-	
+
 					unlink($tmpfname) or
 						$this->die_message('Temporary file can not be removed: ' . $tmpfname);
 					break;
-	
+
 				case 'kakasi':	/*FALLTHROUGH*/
 				case 'kakashi':
 					if(! file_exists($this->root->pagereading_kakasi_path))
 						$this->die_message('KAKASI not found: ' . $this->root->pagereading_kakasi_path);
-	
+
 					$tmpfname = tempnam(realpath($this->cont['CACHE_DIR']), 'PageReading');
 					$fp       = fopen($tmpfname, 'w') or
 						$this->die_message('Cannot write temporary file "' . $tmpfname . '".' . "\n");
@@ -797,17 +842,17 @@ class XpWikiPukiWikiFunc extends XpWikiBaseFunc {
 							$this->root->pagereading_kanji2kana_encoding, $this->cont['SOURCE_ENCODING']));
 					}
 					fclose($fp);
-	
+
 					$kakasi = "{$this->root->pagereading_kakasi_path} -kK -HK -JK < $tmpfname";
 					$fp     = popen($kakasi, 'r');
 					if($fp === FALSE) {
 						unlink($tmpfname);
 						$this->die_message('KAKASI execution failed: ' . $kakasi);
 					}
-	
+
 					foreach ($readings as $page => $reading) {
 						if($reading !== '') continue;
-	
+
 						$line = fgets($fp);
 						$line = mb_convert_encoding($line, $this->cont['SOURCE_ENCODING'],
 							$this->root->pagereading_kanji2kana_encoding);
@@ -815,11 +860,11 @@ class XpWikiPukiWikiFunc extends XpWikiBaseFunc {
 						$readings[$page] = $line;
 					}
 					pclose($fp);
-	
+
 					unlink($tmpfname) or
 						$this->die_message('Temporary file can not be removed: ' . $tmpfname);
 					break;
-	
+
 				case 'none':
 					$patterns = $replacements = $matches = array();
 					foreach ($this->get_source($this->root->pagereading_config_dict) as $line) {
@@ -831,40 +876,40 @@ class XpWikiPukiWikiFunc extends XpWikiBaseFunc {
 					}
 					foreach ($readings as $page => $reading) {
 						if($reading !== '') continue;
-	
+
 						$readings[$page] = $page;
 						foreach ($patterns as $no => $pattern)
 							$readings[$page] = mb_convert_kana(mb_ereg_replace($pattern,
 								$replacements[$no], $readings[$page]), 'aKCV');
 					}
 					break;
-	
+
 				default:
 					$this->die_message('Unknown kanji-kana converter: ' . $this->root->pagereading_kanji2kana_converter . '.');
 					break;
 				}
 			}
-	
+
 			if($unknownPage || $deletedPage) {
-	
+
 				asort($readings); // Sort by pronouncing(alphabetical/reading) order
 				$body = '';
 				foreach ($readings as $page => $reading)
 					$body .= '-[[' . $page . ']] ' . $reading . "\n";
-	
+
 				$this->page_write($this->root->pagereading_config_page, $body);
 			}
 		}
-	
+
 		// Pages that are not prounouncing-clear, return pagenames of themselves
 		foreach ($pages as $page) {
 			if($readings[$page] === '')
 				$readings[$page] = $page;
 		}
-	
+
 		return $readings;
 	}
-	
+
 	// Get a list of encoded files (must specify a directory and a suffix)
 	function get_existfiles($dir, $ext)
 	{
@@ -877,29 +922,29 @@ class XpWikiPukiWikiFunc extends XpWikiBaseFunc {
 		closedir($dp);
 		return $aryret;
 	}
-	
+
 	// Get a list of related pages of the page
 	function links_get_related($page)
 	{
 		static $links = array();
-	
+
 		if (isset($links[$this->root->mydirname][$page])) return $links[$this->root->mydirname][$page];
-	
+
 		// If possible, merge related pages generated by make_link()
 		$links[$this->root->mydirname][$page] = ($page === $this->root->vars['page']) ? $this->root->related : array();
-	
+
 		// Get repated pages from DB
 		$links[$this->root->mydirname][$page] += $this->links_get_related_db($page);
-	
+
 		return $links[$this->root->mydirname][$page];
 	}
-	
+
 	// _If needed_, re-create the file to change/correct ownership into PHP's
 	// NOTE: Not works for Windows
 	function pkwk_chown($filename, $preserve_time = TRUE)
 	{
 		static $php_uid; // PHP's UID
-	
+
 		if (! isset($php_uid)) {
 			if (extension_loaded('posix')) {
 				$php_uid = posix_getuid(); // Unix
@@ -907,14 +952,14 @@ class XpWikiPukiWikiFunc extends XpWikiBaseFunc {
 				$php_uid = 0; // Windows
 			}
 		}
-	
+
 		// Lock for pkwk_chown()
 		$lockfile = $this->cont['CACHE_DIR'] . 'pkwk_chown.lock';
 		$flock = fopen($lockfile, 'a') or
 			die('pkwk_chown(): fopen() failed for: CACHEDIR/' .
 				basename(htmlspecialchars($lockfile)));
 		flock($flock, LOCK_EX);
-	
+
 		// Check owner
 		$stat = stat($filename) or
 			die('pkwk_chown(): stat() failed for: '  . basename(htmlspecialchars($filename)));
@@ -923,13 +968,13 @@ class XpWikiPukiWikiFunc extends XpWikiBaseFunc {
 			$result = TRUE; // Seems the same UID. Nothing to do
 		} else {
 			$tmp = $filename . '.' . getmypid() . '.tmp';
-	
+
 			// Lock source $filename to avoid file corruption
 			// NOTE: Not 'r+'. Don't check write permission here
 			$ffile = fopen($filename, 'r') or
 				die('pkwk_chown(): fopen() failed for: ' .
 					basename(htmlspecialchars($filename)));
-	
+
 			// Try to chown by re-creating files
 			// NOTE:
 			//   * touch() before copy() is for 'rw-r--r--' instead of 'rwxr-xr-x' (with umask 022).
@@ -939,18 +984,18 @@ class XpWikiPukiWikiFunc extends XpWikiBaseFunc {
 			$result = touch($tmp) && copy($filename, $tmp) &&
 				($preserve_time ? (touch($tmp, $stat[9], $stat[8]) || touch($tmp, $stat[9])) : TRUE) &&
 				rename($tmp, $filename);
-	
+
 			fclose($ffile) or die('pkwk_chown(): fclose() failed');
-	
+
 			if ($result === FALSE) @unlink($tmp);
 		}
-	
+
 		// Unlock for pkwk_chown()
 		fclose($flock) or die('pkwk_chown(): fclose() failed for lock');
-	
+
 		return $result;
 	}
-	
+
 	// touch() with trying pkwk_chown()
 	function pkwk_touch_file($filename, $time = FALSE, $atime = FALSE)
 	{
@@ -973,7 +1018,7 @@ class XpWikiPukiWikiFunc extends XpWikiBaseFunc {
 
 //----- Start convert_html.php -----//
 	// PukiWiki - Yet another WikiWikiWeb clone
-	// $Id: pukiwiki_func.php,v 1.212 2009/10/22 09:00:53 nao-pon Exp $
+	// $Id: pukiwiki_func.php,v 1.213 2009/11/17 09:09:29 nao-pon Exp $
 	// Copyright (C)
 	//   2002-2005 PukiWiki Developers Team
 	//   2001-2002 Originally written by yu-ji
@@ -981,7 +1026,7 @@ class XpWikiPukiWikiFunc extends XpWikiBaseFunc {
 	//
 	// function 'convert_html()', wiki text parser
 	// and related classes-and-functions
-	
+
 	function convert_html($lines, $page_as = '')
 	{
 		static $contents_id = array();
@@ -990,12 +1035,12 @@ class XpWikiPukiWikiFunc extends XpWikiBaseFunc {
 		if (!isset( $contents_id[$this->xpwiki->pid] )) {$contents_id[$this->xpwiki->pid] = 0;}
 		if (!isset( $real_nest[$this->xpwiki->pid] )) {$real_nest[$this->xpwiki->pid] = 0;}
 		if (!isset( $digests[$this->root->mydirname] )) {$digests[$this->root->mydirname] = array();}
-		
+
 		if ($page_as !== '') {
 			$_page = $this->root->vars['page'];
 			$this->cont['PageForRef'] = $this->root->vars['page'] = $this->root->post['page'] = $this->root->get['page'] = $page_as;
 		}
-		
+
 		// Set nest level
 		if (!isset($this->root->rtf['convert_nest'])) {
 			$this->root->rtf['convert_nest'] = 1;
@@ -1003,10 +1048,10 @@ class XpWikiPukiWikiFunc extends XpWikiBaseFunc {
 			++$this->root->rtf['convert_nest'];
 		}
 		++$real_nest[$this->xpwiki->pid];
-		
+
 		// 編集権限がない場合の挙動指定
 		$_PKWK_READONLY = $this->set_readonly_by_editauth($this->root->vars['page']);
-		
+
 		// Set digest
 		if ($this->root->vars['page'] !== '') {
 			if (!isset($digests[$this->root->mydirname][$this->root->vars['page']])) {
@@ -1016,28 +1061,28 @@ class XpWikiPukiWikiFunc extends XpWikiBaseFunc {
 		} else {
 			$this->root->digest = '';
 		}
-		
+
 		if (! is_array($lines)) $lines = explode("\n", $lines);
 
 		// remove pginfo
 		$lines = $this->remove_pginfo($lines);
-		
-		
+
+
 		if ($this->root->render_mode === 'render') {
-			$contentId = uniqid(''); 
-		} else {	
+			$contentId = uniqid('');
+		} else {
 			$contentId = ++$contents_id[$this->xpwiki->pid];
 		}
 		$body = & new XpWikiBody($this->xpwiki, $contentId);
-		
+
 		$body->parse($lines);
-		
+
 		$ret = $body->toString();
-		
+
 		$body->GC();
-		
+
 		$body = null;
-		
+
 		// Auto link
 		if ($real_nest[$this->xpwiki->pid] === 1) {
 
@@ -1047,7 +1092,7 @@ class XpWikiPukiWikiFunc extends XpWikiBaseFunc {
 			if (!isset($this->root->ext_autolinks)) {
 				$this->root->ext_autolinks = array();
 			}
-			
+
 			// Is upper directory hierarchy omissible?
 			if ($this->root->autolink && $this->root->autolink_omissible_upper) {
 				$_omissible_upper = (isset($this->root->vars['page']))? $this->root->vars['page'] : '';
@@ -1061,7 +1106,7 @@ class XpWikiPukiWikiFunc extends XpWikiBaseFunc {
 					);
 				}
 			}
-			
+
 			if (!empty($this->root->ext_autolinks)) {
 				foreach($this->root->ext_autolinks as $_autos) {
 					if (empty($_autos['priority'])) {
@@ -1074,7 +1119,7 @@ class XpWikiPukiWikiFunc extends XpWikiBaseFunc {
 					}
 				}
 			}
-			
+
 			// External AutoLink Pre
 			if ($ext_autolinks_pre) {
 				if (!is_object($ext_autolink_obj)) {
@@ -1089,7 +1134,7 @@ class XpWikiPukiWikiFunc extends XpWikiBaseFunc {
 			if ($this->root->autolink) {
 				$this->int_autolink_proc($ret);
 			}
-			
+
 			// External AutoLink After
 			if (! empty($ext_autolinks_aft)) {
 				if (!is_object($ext_autolink_obj)) {
@@ -1099,33 +1144,33 @@ class XpWikiPukiWikiFunc extends XpWikiBaseFunc {
 				$ext_autolink_obj->ext_autolinks = $ext_autolinks_aft;
 				$ext_autolink_obj->ext_autolink($ret);
 			}
-			
+
 			// Remove No Autolink tags
 			$ret = str_replace(array('<!--NA-->', '<!--/NA-->'), '', $ret);
 		}
-		
+
 		//if ($this->root->rtf['convert_nest'] > 1) $this->cont['PKWK_READONLY'] = $_PKWK_READONLY;
 		$this->cont['PKWK_READONLY'] = $_PKWK_READONLY;
 
 		if ($page_as) {
 			$this->cont['PageForRef'] = $this->root->vars['page'] = $this->root->post['page'] = $this->root->get['page'] = $_page;
 		}
-		
+
 		--$this->root->rtf['convert_nest'];
 		--$real_nest[$this->xpwiki->pid];
 		return $ret;
 	}
-	
+
 	// Internal Autolink
 	function int_autolink_proc (& $str) {
 		if (! $this->root->autolink || ! file_exists($this->cont['CACHE_DIR'].$this->cont['PKWK_AUTOLINK_REGEX_CACHE'])) return ;
-		
+
 		@ list ($auto, $auto_a, $forceignorepages) = file($this->cont['CACHE_DIR'].$this->cont['PKWK_AUTOLINK_REGEX_CACHE']);
 		if ($this->root->page_case_insensitive) $forceignorepages = strtolower($forceignorepages);
 		$this->rt_global['forceignorepages'] = explode("\t", trim($forceignorepages));
-		
+
 		list($pat_pre, $pat_aft) = $this->get_autolink_regex_pre_after($this->root->page_case_insensitive, $str);
-		
+
 		// AutoAlias
 		if ($this->root->autoalias) {
 			@ list ($autoalias) = file($this->cont['CACHE_DIR'].$this->cont['PKWK_AUTOALIAS_REGEX_CACHE']);
@@ -1144,18 +1189,18 @@ class XpWikiPukiWikiFunc extends XpWikiBaseFunc {
 				$str = preg_replace_callback($pat_pre . $pat . $pat_aft, array(& $this, 'int_auto_link_replace'), $str);
 			}
 		}
-		
+
 		return ;
 	}
-	
+
 	function int_auto_link_replace($match)
 	{
 		if (!empty($match[1])) return $match[1];
 		$alias = $name = $match[3];
-		
+
 		// 無視リストに含まれているページを捨てる
 		if (in_array(($this->root->page_case_insensitive ? strtolower($name) : $name), $this->rt_global['forceignorepages'])) { return $match[0]; }
-		
+
 		return $this->make_pagelink($name, $alias, '', '', 'autolink');
 	}
 
@@ -1167,11 +1212,11 @@ class XpWikiPukiWikiFunc extends XpWikiBaseFunc {
 
 		// 無視リストに含まれているページを捨てる
 		if (!$alias || in_array(($this->root->page_case_insensitive ? strtolower($name) : $name), $this->rt_global['forceignorepages'])) { return $match[0]; }
-		
+
 		$link = '[['.$name.'>'.$alias.']]';
 		return $this->make_link($link);
 	}
-	
+
 	// Returns inline-related object
 	function & Factory_Inline($text)
 	{
@@ -1183,7 +1228,7 @@ class XpWikiPukiWikiFunc extends XpWikiBaseFunc {
 		}
 		return $ret;
 	}
-	
+
 	function & Factory_DList($text)
 	{
 		$out = explode('|', ltrim($text), 2);
@@ -1194,7 +1239,7 @@ class XpWikiPukiWikiFunc extends XpWikiBaseFunc {
 			return $ret;
 		}
 	}
-	
+
 	// '|'-separated table
 	function & Factory_Table($text)
 	{
@@ -1205,7 +1250,7 @@ class XpWikiPukiWikiFunc extends XpWikiBaseFunc {
 			return $ret;
 		}
 	}
-	
+
 	// Comma-separated table
 	function & Factory_YTable($text)
 	{
@@ -1216,11 +1261,11 @@ class XpWikiPukiWikiFunc extends XpWikiBaseFunc {
 			return $ret;
 		}
 	}
-	
+
 	function & Factory_Div($text)
 	{
 		$matches = array();
-	
+
 		// Seems block plugin?
 		if ($this->cont['PKWKEXP_DISABLE_MULTILINE_PLUGIN_HACK']) {
 			// Usual code
@@ -1238,7 +1283,7 @@ class XpWikiPukiWikiFunc extends XpWikiBaseFunc {
 				$ret = false;
 				if ($len === 0) {
 					$ret = & new XpWikiDiv($this->xpwiki, $matches); // Seems legacy block plugin
-				} else if (preg_match('/\{{' . $len . '}\s*\r(.*)\r\}{' . $len . '}/', $text, $body)) { 
+				} else if (preg_match('/\{{' . $len . '}\s*\r(.*)\r\}{' . $len . '}/', $text, $body)) {
 					$matches[2] .= "\r" . $body[1] . "\r";
 					$ret = & new XpWikiDiv($this->xpwiki, $matches); // Seems multiline-enabled block plugin
 				}
@@ -1252,25 +1297,25 @@ class XpWikiPukiWikiFunc extends XpWikiBaseFunc {
 
 //----- Start func.php -----//
 	// PukiWiki - Yet another WikiWikiWeb clone.
-	// $Id: pukiwiki_func.php,v 1.212 2009/10/22 09:00:53 nao-pon Exp $
+	// $Id: pukiwiki_func.php,v 1.213 2009/11/17 09:09:29 nao-pon Exp $
 	// Copyright (C)
 	//   2002-2006 PukiWiki Developers Team
 	//   2001-2002 Originally written by yu-ji
 	// License: GPL v2 or (at your option) any later version
 	//
 	// General functions
-	
+
 	function is_interwiki($str)
 	{
 			return preg_match('/^' . $this->root->InterWikiName . '$/', $str);
 	}
-	
+
 	function is_pagename($str)
 	{
 		$is_pagename = (! $this->is_interwiki($str) &&
 			  preg_match('/^(?!\/)' . $this->root->BracketName . '$(?<!\/$)/', $str) &&
 			! preg_match('#(^|/)\.{1,2}(/|$)#', $str));
-	
+
 		if (isset($this->cont['SOURCE_ENCODING'])) {
 			switch($this->cont['SOURCE_ENCODING']){
 			case 'UTF-8': $pattern =
@@ -1283,21 +1328,21 @@ class XpWikiPukiWikiFunc extends XpWikiBaseFunc {
 			if (isset($pattern) && $pattern !== '')
 				$is_pagename = ($is_pagename && preg_match($pattern, $str));
 		}
-	
+
 		return $is_pagename;
 	}
-	
+
 	function is_url($str, $only_http = FALSE)
 	{
 		$scheme = $only_http ? 'https?' : 'https?|ftp|news';
 		return preg_match('/^(' . $scheme . ')(:\/\/[-_.!~*\'()a-zA-Z0-9;\/?:\@&=+\$,%#]*)$/', $str);
 	}
-	
+
 	// If the page exists
 	function is_page($page, $clearcache = FALSE)
 	{
 		static $cache = array();
-		
+
 		if ($clearcache) {
 			if (!$page) {
 				clearstatcache();
@@ -1310,10 +1355,10 @@ class XpWikiPukiWikiFunc extends XpWikiBaseFunc {
 		if (! isset($cache[$this->root->mydirname][$page])) {
 			$cache[$this->root->mydirname][$page] = file_exists($this->get_filename($page));
 		}
-		
+
 		return $cache[$this->root->mydirname][$page];
 	}
-	
+
 	function is_editable($page, $allowEmpty = FALSE)
 	{
 		static $is_editable = array();
@@ -1325,17 +1370,17 @@ class XpWikiPukiWikiFunc extends XpWikiBaseFunc {
 				! in_array($page, $this->root->cantedit)
 			);
 		}
-	
+
 		return $is_editable[$this->root->mydirname][$page];
 	}
-	
+
 	function is_freeze($page, $clearcache = FALSE)
 	{
 		static $is_freeze = array();
-	
+
 		if ($clearcache === TRUE) $is_freeze = array();
 		if (isset($is_freeze[$this->root->mydirname][$page])) return $is_freeze[$this->root->mydirname][$page];
-	
+
 			if (! $this->root->function_freeze || ! $this->is_page($page)) {
 			$is_freeze[$this->root->mydirname][$page] = FALSE;
 			return FALSE;
@@ -1346,12 +1391,12 @@ class XpWikiPukiWikiFunc extends XpWikiBaseFunc {
 			rewind($fp);
 			$buffer = fgets($fp, 9);
 			fclose($fp) or die('is_freeze(): fclose() failed: ' . htmlspecialchars($page));
-	
+
 				$is_freeze[$this->root->mydirname][$page] = ($buffer !== FALSE && rtrim($buffer, "\r\n") === '#freeze');
 			return $is_freeze[$this->root->mydirname][$page];
 		}
 	}
-	
+
 	// Handling $non_list
 	// $non_list will be preg_quote($str, '/') later.
 	function check_non_list($page = '')
@@ -1362,12 +1407,12 @@ class XpWikiPukiWikiFunc extends XpWikiBaseFunc {
 
 		return preg_match($regex[$this->root->mydirname], $page);
 	}
-	
+
 	// Auto template
 	function auto_template($page)
 	{
 		if (! $this->root->auto_template_func) return '';
-	
+
 		$basename = $this->page_basename($page);
 		$body = '';
 		$matches = array();
@@ -1388,14 +1433,14 @@ class XpWikiPukiWikiFunc extends XpWikiBaseFunc {
 					}
 				} while($page);
 			}
-			
+
 			if (! $template_page || ! $this->is_page($template_page)) continue;
-			
+
 			$body = $this->get_source($template_page, TRUE, TRUE);
-			
+
 			// Remove fixed-heading anchors, '#freeze' etc.
 			$this->cleanup_template_source($body);
-			
+
 			$count = count($matches);
 			for ($i = 0; $i < $count; $i++) {
 				$body = str_replace('$' . $i, $matches[$i], $body);
@@ -1405,12 +1450,12 @@ class XpWikiPukiWikiFunc extends XpWikiBaseFunc {
 
 		return $body;
 	}
-	
+
 	// Expand all search-words to regexes and push them into an array
 	function get_search_words($words = array(), $do_escape = FALSE)
 	{
 		static $init, $mb_convert_kana, $pre, $post, $quote = '/';
-	
+
 		if (! isset($init)) {
 			// function: mb_convert_kana() is for Japanese code only
 			if ($this->cont['LANG'] === 'ja' && function_exists('mb_convert_kana')) {
@@ -1431,24 +1476,24 @@ class XpWikiPukiWikiFunc extends XpWikiBaseFunc {
 			}
 			$init = TRUE;
 		}
-	
+
 		if (! is_array($words)) $words = array($words);
-	
+
 		// Generate regex for the words
 		$regex = array();
 		foreach ($words as $word) {
 			$word = trim($word);
 			if ($word === '') continue;
-	
+
 			// Normalize: ASCII letters = to single-byte. Others = to Zenkaku and Katakana
 			$word_nm = $mb_convert_kana($word, 'aKCV');
 			$nmlen   = mb_strlen($word_nm, $this->cont['SOURCE_ENCODING']);
-	
+
 			// Each chars may be served ...
 			$chars = array();
 			for ($pos = 0; $pos < $nmlen; $pos++) {
 				$char = mb_substr($word_nm, $pos, 1, $this->cont['SOURCE_ENCODING']);
-	
+
 				// Just normalized one? (ASCII char or Zenkaku-Katakana?)
 				$or = array(preg_quote($do_escape ? htmlspecialchars($char) : $char, $quote));
 				if (strlen($char) === 1) {
@@ -1467,25 +1512,25 @@ class XpWikiPukiWikiFunc extends XpWikiBaseFunc {
 				}
 				$chars[] = '(?:' . join('|', array_unique($or)) . ')'; // Regex for the character
 			}
-	
+
 			$regex[$word] = $pre . join('', $chars) . $post; // For the word
 		}
-	
+
 		return $regex; // For all words
 	}
-	
+
 	// 'Search' main function
 	function do_search($word, $type = 'AND', $non_format = FALSE, $base = '')
 	{
 		$retval = array();
-	
+
 		$b_type = ($type === 'AND'); // AND:TRUE OR:FALSE
 		$keys = $this->get_search_words(preg_split('/\s+/', $word, -1, PREG_SPLIT_NO_EMPTY));
 		foreach ($keys as $key=>$value)
 			$keys[$key] = '/' . $value . '/S';
-	
+
 		$pages = $this->get_existpages();
-	
+
 		// Avoid
 		if ($base !== '') {
 			$pages = preg_grep('/^' . preg_quote($base, '/') . '/S', $pages);
@@ -1495,11 +1540,11 @@ class XpWikiPukiWikiFunc extends XpWikiBaseFunc {
 		}
 		$pages = array_flip($pages);
 		unset($pages[$this->root->whatsnew]);
-	
+
 		$count = count($pages);
 		foreach (array_keys($pages) as $page) {
 			$b_match = FALSE;
-	
+
 			// Search for page name
 			if (! $non_format) {
 				foreach ($keys as $key) {
@@ -1508,31 +1553,31 @@ class XpWikiPukiWikiFunc extends XpWikiBaseFunc {
 				}
 				if ($b_match) continue;
 			}
-	
+
 			// Search auth for page contents
 			if ($this->root->search_auth && ! $this->check_readable($page, false, false)) {
 				unset($pages[$page]);
 				--$count;
 			}
-	
+
 			// Search for page contents
 			foreach ($keys as $key) {
 				$b_match = preg_match($key, $this->get_source($page, TRUE, TRUE));
 				if ($b_type xor $b_match) break; // OR
 			}
 			if ($b_match) continue;
-	
+
 			unset($pages[$page]); // Miss
 		}
 		if ($non_format) return array_keys($pages);
-	
+
 		$r_word = rawurlencode($word);
 		$s_word = htmlspecialchars($word);
 		if (empty($pages))
 			return str_replace('$1', $s_word, $this->root->_msg_notfoundresult);
-	
+
 		ksort($pages, SORT_STRING);
-	
+
 		$retval = '<ul class="list1">' . "\n";
 		foreach (array_keys($pages) as $page) {
 			$r_page  = rawurlencode($page);
@@ -1543,19 +1588,19 @@ class XpWikiPukiWikiFunc extends XpWikiBaseFunc {
 				'</a>' . $passage . '</li>' . "\n";
 		}
 		$retval .= '</ul>' . "\n";
-	
+
 		$retval .= str_replace('$1', $s_word, str_replace('$2', count($pages),
 			str_replace('$3', $count, $b_type ? $this->root->_msg_andresult : $this->root->_msg_orresult)));
-	
+
 		return $retval;
 	}
-	
+
 	// Argument check for program
 	function arg_check($str)
 	{
 		return isset($this->root->vars['cmd']) && (strpos($this->root->vars['cmd'], $str) === 0);
 	}
-	
+
 	// Encode page-name
 	function encode($str)
 	{
@@ -1564,13 +1609,13 @@ class XpWikiPukiWikiFunc extends XpWikiBaseFunc {
 		// Equal to strtoupper(join('', unpack('H*0', $key)));
 		// But PHP 4.3.10 says 'Warning: unpack(): Type H: outside of string in ...'
 	}
-	
+
 	// Decode page name
 	function decode($str)
 	{
 		return $this->hex2bin($str);
 	}
-	
+
 	// Inversion of bin2hex()
 	function hex2bin($hex_string)
 	{
@@ -1579,7 +1624,7 @@ class XpWikiPukiWikiFunc extends XpWikiBaseFunc {
 		return preg_match('/^[0-9a-f]+$/i', $hex_string) ?
 			pack('H*', (string)$hex_string) : $hex_string;
 	}
-	
+
 	// Remove [[ ]] (brackets)
 	function strip_bracket($str)
 	{
@@ -1590,46 +1635,46 @@ class XpWikiPukiWikiFunc extends XpWikiBaseFunc {
 			return $str;
 		}
 	}
-	
+
 	// Create list of pages
 	function page_list($pages, $cmd = 'read', $withfilename = FALSE)
 	{
 		// ソートキーを決定する。 ' ' < '[a-zA-Z]' < 'zz'という前提。
 		$symbol = ' ';
 		$other = 'zz';
-	
+
 		$retval = '';
-	
+
 		if($this->root->pagereading_enable) {
 			mb_regex_encoding($this->cont['SOURCE_ENCODING']);
 		}
 		list($readings, $titles) = $this->get_readings($pages);
-	
+
 		$list = $matches = array();
-	
+
 		// Shrink URI for read
 		if ($cmd === 'read') {
 			$href = $this->root->script . ($this->root->static_url? '' : '?');
 		} else {
 			$href = $this->root->script . '?cmd=' . $cmd . '&amp;page=';
 		}
-	
+
 		foreach($pages as $file=>$page) {
 			$r_page  = ($cmd === 'read' && $this->root->static_url)? $this->get_page_uri($page) : rawurlencode($page);
 			$s_page  = htmlspecialchars($page, ENT_QUOTES);
 			$passage = $this->get_pg_passage($page);
 			$title = (empty($titles[$page]))? '' : ' [ ' . htmlspecialchars($titles[$page]) . ' ]';
-	
+
 			$str = '   <li><a href="' . $href . $r_page . '">' .
 				$s_page . '</a>' . $passage . $title;
-	
+
 			if ($withfilename) {
 				$s_file = htmlspecialchars($file);
 				$str .= "\n" . '    <ul class="list3"><li>' . $s_file . '</li></ul>' .
 					"\n" . '   ';
 			}
 			$str .= '</li>';
-	
+
 			if($this->root->pagereading_enable) {
 				// WARNING: Japanese code hard-wired
 				$katakana = 'ァ-ヶ';
@@ -1657,7 +1702,7 @@ class XpWikiPukiWikiFunc extends XpWikiBaseFunc {
 			$list[$head][$page] = $str;
 		}
 		ksort($list);
-	
+
 		$cnt = 0;
 		$arr_index = array();
 		$retval .= '<ul class="list1">' . "\n";
@@ -1667,7 +1712,7 @@ class XpWikiPukiWikiFunc extends XpWikiBaseFunc {
 			} else if ($head === $other) {
 				$head = $this->root->_msg_other;
 			}
-	
+
 			if ($this->root->list_index) {
 				++$cnt;
 				$arr_index[] = '<a id="top_' . $cnt .
@@ -1687,13 +1732,13 @@ class XpWikiPukiWikiFunc extends XpWikiBaseFunc {
 			$top = array();
 			while (! empty($arr_index))
 				$top[] = join('|', array_splice($arr_index, 0, 16)) . "\n";
-	
+
 			$retval = '<div id="top" style="text-align:center">' . "\n" .
 				join('<br />', $top) . '</div>' . "\n" . $retval;
 		}
 		return $retval;
 	}
-	
+
 	// Show text formatting rules
 	function catrule()
 	{
@@ -1704,7 +1749,7 @@ class XpWikiPukiWikiFunc extends XpWikiBaseFunc {
 			return $this->convert_html($this->get_source($this->root->rule_page));
 		}
 	}
-	
+
 	// Show (critical) error message
 	function die_message($msg)
 	{
@@ -1713,7 +1758,7 @@ class XpWikiPukiWikiFunc extends XpWikiBaseFunc {
 	<h3>Runtime error</h3>
 	<strong>Error message : $msg</strong>
 EOD;
-	
+
 		$this->pkwk_common_headers();
 		if(isset($this->cont['SKIN_FILE']) && file_exists($this->cont['SKIN_FILE']) && is_readable($this->cont['SKIN_FILE'])) {
 			$this->catbody($title, $page, $body);
@@ -1734,57 +1779,58 @@ EOD;
 		}
 		exit;
 	}
-	
+
 	// Have the time (as microtime)
 	function getmicrotime()
 	{
 		list($usec, $sec) = explode(' ', microtime());
 		return ((float)$sec + (float)$usec);
 	}
-	
+
 	// Get the date
 	function get_date($format, $timestamp = NULL)
 	{
 		$format = preg_replace('/(?<!\\\)T/',	"_\\Z\\ONE_", $format);
-	
+
 		$time = ((preg_match('/(?<!\\\)(O|P|r)/', $format))? date('Z') : $this->cont['ZONETIME']) + (($timestamp !== NULL) ? $timestamp : $this->cont['UTIME']);
-	
+
 		return str_replace("_ZONE_", $this->cont['ZONE'], date($format, $time));
 	}
-	
+
 	// Format date string
 	function format_date($val, $paren = FALSE)
 	{
+		if (! $val) return $this->root->no_date;
 		$date = $this->get_date($this->root->date_format, $val) .
 			' (' . $this->root->weeklabels[$this->get_date('w', $val)] . ') ' .
 			$this->get_date($this->root->time_format, $val);
-	
+
 		return $paren ? '(' . $date . ')' : $date;
 	}
-	
+
 	// Get short string of the passage, 'N seconds/minutes/hours/days/years ago'
 	function get_passage($time, $paren = TRUE)
 	{
 		static $units = array('m'=>60, 'h'=>24, 'd'=>1);
-	
+
 		$time = ($this->cont['UTIME'] - $time) / 60; // minutes
-	
+
 		foreach ($units as $unit=>$card) {
 			if (abs($time) < $card) break;
 			$time /= $card;
 		}
 		$time = floor($time) . $unit;
-	
+
 		return $paren ? '(' . $time . ')' : $time;
 	}
-	
+
 	// Hide <input type="(submit|button|image)"...>
 	function drop_submit($str)
 	{
 		return preg_replace('/<input([^>]+)type="(submit|button|image)"/i',
 			'<input$1type="hidden"', $str);
 	}
-	
+
 	// Generate AutoLink patterns (thx to hirofummy)
 	function get_autolink_pattern(& $pages, $min_len = -1, $make_a = true)
 	{
@@ -1794,18 +1840,18 @@ EOD;
 		$forceignorepages = $config->get('ForceIgnoreList');
 		unset($config);
 		$auto_pages = array_merge($ignorepages, $forceignorepages);
-	
+
 		if ($min_len === -1) {
 			$min_len = $this->root->autolink;	// set $this->root->autolink, when omitted.
 		}
-		
+
 		$_aliases = array_keys(array_intersect($this->root->page_aliases, $pages));
 		foreach (array_merge($pages, $_aliases) as $page) {
 			if (strlen($page) >= $min_len) {
 				$auto_pages[] = $page;
 			}
 		}
-		
+
 		if (empty($auto_pages)) {
 			$result = $result_a = $this->root->nowikiname ? '(?!)' : $this->root->WikiName;
 		} else {
@@ -1821,14 +1867,14 @@ EOD;
 		}
 		return array($result, $result_a, $forceignorepages);
 	}
-	
+
 	function get_matcher_regex_safe ($pages, $spliter = "\t", $array_fix = true, $nest = 0) {
 		static $pat_pre = array();
 		static $pat_aft = array();
 		if (! isset($pat_pre[$this->root->mydirname])) {
 			list($pat_pre[$this->root->mydirname], $pat_aft[$this->root->mydirname]) = $this->get_autolink_regex_pre_after($this->root->page_case_insensitive);
 		}
-		
+
 		if ($array_fix) {
 			$pages = array_map('trim', $pages);
 			if ($this->root->page_case_insensitive) $pages = array_map('strtolower', $pages);
@@ -1838,7 +1884,7 @@ EOD;
 			}
 			sort($pages, SORT_STRING);
 		}
-		
+
 		++$nest;
 		$reg = $this->get_matcher_regex_safe_sub($pages);
 		$regs = preg_split("/(\d+)\x08/", $reg, -1, PREG_SPLIT_DELIM_CAPTURE);
@@ -1864,15 +1910,15 @@ EOD;
 		}
 		return join($spliter, array_reverse($pats));
 	}
-	
+
 	function get_matcher_regex_safe_sub (& $array, $offset = 0, $sentry = NULL, $pos = 0, $nest = 0)
 	{
 		++$nest;
 		$limit = 31744; //1024 * 31
-		
+
 		if (empty($array)) return '(?!)'; // Zero
 		if ($sentry === NULL) $sentry = count($array);
-		
+
 		// Too short. Skip this
 		$skip = ($pos >= mb_strlen($array[$offset]));
 		if ($skip) ++$offset;
@@ -1900,7 +1946,7 @@ EOD;
 			// at the same position?
 			for ($i = $index; $i < $sentry; ++$i)
 				if (mb_substr($array[$i], $pos, 1) !== $char) break;
-			
+
 			if ($index < ($i - 1)) {
 				// Some more keys found
 				// Recurse
@@ -1913,27 +1959,27 @@ EOD;
 			}
 			$index = $i;
 		}
-		
+
 		if ($skip || $multi) $regex = '(?:' . $regex . ')';
 		if ($skip) $regex .= '?'; // Match for $pages[$offset - 1]
 		return $regex;
 	}
-	
+
 	// Generate a regex, that just matches with all $array values
 	// NOTE: All array_keys($array) must be continuous integers, like 0 ... N
 	//       Also, all $array values must be strings.
 	// $offset = (int) $array[$offset] is the first value to check
-	// $sentry = (int) $array[$sentry - 1] is the last value to check  
+	// $sentry = (int) $array[$sentry - 1] is the last value to check
 	// $pos    = (int) Position of letter to start checking. (0 = the first letter)
 	function get_matcher_regex(& $array, $offset = 0, $sentry = NULL, $pos = 0)
 	{
 		if (empty($array)) return '(?!)'; // Zero
 		if ($sentry === NULL) $sentry = count($array);
-	
+
 		// Too short. Skip this
 		$skip = ($pos >= mb_strlen($array[$offset]));
 		if ($skip) ++$offset;
-	
+
 		// Generate regex for each value
 		$regex = '';
 		$index = $offset;
@@ -1943,15 +1989,15 @@ EOD;
 				$multi = TRUE;
 				$regex .= '|'; // OR
 			}
-	
+
 			// Get one character from left side of the value
 			$char = mb_substr($array[$index], $pos, 1);
-	
+
 			// How many continuous keys have the same letter
 			// at the same position?
 			for ($i = $index; $i < $sentry; $i++)
 				if (mb_substr($array[$i], $pos, 1) !== $char) break;
-	
+
 			if ($index < ($i - 1)) {
 				// Some more keys found
 				// Recurse
@@ -1964,10 +2010,10 @@ EOD;
 			}
 			$index = $i;
 		}
-	
+
 		if ($skip || $multi) $regex = '(?:' . $regex . ')';
 		if ($skip) $regex .= '?'; // Match for $pages[$offset - 1]
-	
+
 		return $regex;
 	}
 	// Compat
@@ -1975,12 +2021,12 @@ EOD;
 	{
 		return $this->get_matcher_regex($pages, $start, $end, $pos);
 	}
-	
+
 	// Load/get setting pairs from AutoAliasName
 	function get_autoaliases($word = '')
 	{
 		static $pairs;
-	
+
 		if (! isset($pairs[$this->root->mydirname])) {
 			$pairs[$this->root->mydirname] = array();
 			$pattern = <<<EOD
@@ -2005,7 +2051,7 @@ EOD;
 				}
 			}
 		}
-	
+
 		if ($word === '') {
 			// An array(): All pairs
 			return $pairs[$this->root->mydirname];
@@ -2018,14 +2064,14 @@ EOD;
 			}
 		}
 	}
-	
+
 	// Get absolute-URI of this script
 	function get_script_uri($init_uri = '')
 	{
 		// for compatibility
 		return $this->cont['HOME_URL'] . 'index.php';
 	}
-	
+
 	// Remove null(\0) bytes from variables
 	//
 	// NOTE: PHP had vulnerabilities that opens "hoge.php" via fopen("hoge.php\0.txt") etc.
@@ -2040,7 +2086,7 @@ EOD;
 		static $magic_quotes_gpc = NULL;
 		if ($magic_quotes_gpc === NULL)
 		    $magic_quotes_gpc = get_magic_quotes_gpc();
-	
+
 		if (is_array($param)) {
 			return array_map(array(& $this, 'input_filter'), $param);
 		} else {
@@ -2050,22 +2096,22 @@ EOD;
 			return $result;
 		}
 	}
-	
+
 	// Compat for 3rd party plugins. Remove this later
 	function sanitize($param) {
 		return $this->input_filter($param);
 	}
-	
+
 	// Explode Comma-Separated Values to an array
 	function csv_explode($separator, $string)
 	{
 		$retval = $matches = array();
-	
+
 		$_separator = preg_quote($separator, '/');
 		if (! preg_match_all('/("[^"]*(?:""[^"]*)*"|[^' . $_separator . ']*)' .
 		    $_separator . '/', $string . $separator, $matches))
 			return array();
-	
+
 		foreach ($matches[1] as $str) {
 			$len = strlen($str);
 			if ($len > 1 && $str{0} === '"' && $str{$len - 1} === '"')
@@ -2074,7 +2120,7 @@ EOD;
 		}
 		return $retval;
 	}
-	
+
 	// Implode an array with CSV data format (escape double quotes)
 	function csv_implode($glue, $pieces)
 	{
@@ -2091,22 +2137,22 @@ EOD;
 
 //----- Start make_link.php -----//
 	// PukiWiki - Yet another WikiWikiWeb clone.
-	// $Id: pukiwiki_func.php,v 1.212 2009/10/22 09:00:53 nao-pon Exp $
+	// $Id: pukiwiki_func.php,v 1.213 2009/11/17 09:09:29 nao-pon Exp $
 	// Copyright (C)
 	//   2003-2005 PukiWiki Developers Team
 	//   2001-2002 Originally written by yu-ji
 	// License: GPL v2 or (at your option) any later version
 	//
 	// Hyperlink-related functions
-	
+
 	// Hyperlink decoration
 	function make_link($string, $page = '')
 	{
 		static $converter = array();
 		static $converter_pool = array();
-	
+
 		if (! isset($converter[$this->xpwiki->pid])) $converter[$this->xpwiki->pid] = new XpWikiInlineConverter($this->xpwiki);
-	
+
 		if (! isset($converter_pool[$this->xpwiki->pid])) {
 			$converter_pool[$this->xpwiki->pid] = array();
 			$clone = NULL;
@@ -2116,45 +2162,36 @@ EOD;
 		if ($clone === NULL) {
 			$clone = $converter[$this->xpwiki->pid]->get_clone($converter[$this->xpwiki->pid]);
 		}
-	
+
 		$result = $clone->convert($string, ($page !== '') ? $page : $this->root->vars['page']);
 		$converter_pool[$this->xpwiki->pid][] = $clone; // For recycling
-	
+
 		return $result;
 	}
-	
+
 	// Make hyperlink for the page
 	function make_pagelink($page, $alias = '', $anchor = '', $refer = '', $class = 'pagelink', $options = array())
 	{
 		static $path_cache = array();
-		
+
 		// check alias page
-		if (!$this->is_page($page)) {
-			if ($this->root->page_case_insensitive) {
-				$page_aliases = $this->root->page_aliases_i;
-				$a_page = strtolower($page);
-			} else {
-				$page_aliases = $this->root->page_aliases;
-				$a_page = $page;
-			}
-			if (isset($page_aliases[$a_page])) {
-				if (!$alias) $alias = $page;
-				$page = $page_aliases[$a_page];
-			}
+		if (!$this->is_page($page) && $real = $this->is_alias($page)) {
+			if (!$alias) $alias = $page;
+			$page = $real;
 		}
-		
+
 		$isset_alias = ($alias);
-		
+
 		$s_page = htmlspecialchars($this->strip_bracket($page));
-		
+
 		if ($page && !$this->is_pagename($page)) {
 			return $s_page;
 		}
-		
+
 		if ($this->root->page_case_insensitive) {
 			$this->get_pagename_realcase ($page);
 		}
-		
+
 		$compact_base = false;
 		$base_key = '#none';
 		if (preg_match('/^#compact:(.*)$/', $alias, $match)) {
@@ -2175,7 +2212,7 @@ EOD;
 		if ($this->root->hierarchy_insert) {
 			$s_alias = preg_replace('#((?:^|\G|>)[^<]*?)/#', '$1' . $this->root->hierarchy_insert . '/', $s_alias);
 		}
-		
+
 		// Remake
 		$s_page = htmlspecialchars($page);
 
@@ -2207,17 +2244,17 @@ EOD;
 				}
 			}
 		}
-	
+
 		if ($class === 'autolink' && $page === $this->root->vars['page']) {
 			return $basepath . '<!--NA--><span class="thispage">' . $s_alias . '</span><!--/NA-->';
 		}
-		
+
 		$r_page  = rawurlencode($page);
 		$r_refer = ($refer === '') ? '' : '&amp;refer=' . rawurlencode($refer);
-	
+
 		if (! isset($this->root->related[$page]) && $page !== $this->root->vars['page'] && $this->is_page($page))
 			$this->root->related[$page] = $this->get_filetime($page);
-	
+
 		if (! isset($this->root->notyets[$page]) && $page !== $this->root->vars['page'] && !$this->is_page($page))
 			$this->root->notyets[$page] = TRUE;
 
@@ -2238,7 +2275,7 @@ EOD;
 			}
 			$options['popup']['position'] = $popup_pos;
 		}
-		
+
 		// Popup link
 		$onclick = '';
 		if (isset($options['popup']['use'])) {
@@ -2254,14 +2291,14 @@ EOD;
 			if ($this->root->vars['cmd'] === 'read' && $this->cont['PAGENAME'] === $page && $anchor === '' && !$onclick) {
 				return $basepath . '<span class="thispage">' . $s_alias . '</span>';
 			}
-			
+
 			// Hyperlink to the page
 			if ($this->root->link_compact) {
 				$title   = '';
 			} else {
 				$title   = ' title="' . $s_page . $this->get_pg_passage($page, FALSE) . '"';
 			}
-	
+
 			// AutoLink marker
 			if ($class === 'autolink') {
 				$al_left  = '<!--autolink-->';
@@ -2271,18 +2308,18 @@ EOD;
 			}
 
 			$link = ($this->root->vars['cmd'] === 'read' && $this->cont['PAGENAME'] === $page)? '' : $this->get_page_uri($page, TRUE);
-			
+
 			return $basepath . $al_left . '<a ' . 'href="' . $link . $anchor .
 				'"' . $title . ' class="' . $class . '"' . $onclick . '>' . $s_alias . '</a>' . $al_right;
 		} else {
 			// Dangling link
 			if ($this->cont['PKWK_READONLY'] === 1 || ! $this->check_editable($page,false,false)) return $s_alias; // No dacorations
-			
+
 			$title = htmlspecialchars(str_replace('$1', $page, $this->root->_title_edit));
 			$retval = $basepath . $s_alias . '<a href="' .
 				$this->root->script . '?cmd=edit&amp;page=' . $r_page . $r_refer . '" class="' . $class . '" title="' . $title . '"' . $onclick . '>' .
 				$this->root->_symbol_noexists . '</a>';
-	
+
 			if ($this->root->link_compact) {
 				return $retval;
 			} else {
@@ -2290,31 +2327,31 @@ EOD;
 			}
 		}
 	}
-	
+
 	// Resolve relative / (Unix-like)absolute path of the page
 	function get_fullname($name, $refer)
 	{
 		// 'Here'
 		if ($name === '' || $name === './') return $refer;
-	
+
 		// Absolute path
 		if ($name{0} === '/') {
 			$name = substr($name, 1);
 			return ($name === '') ? $this->root->defaultpage : $name;
 		}
-	
+
 		// Relative path from 'Here'
 		if (substr($name, 0, 2) === './') {
 			$arrn    = preg_split('#/#', $name, -1, PREG_SPLIT_NO_EMPTY);
 			$arrn[0] = $refer;
 			return join('/', $arrn);
 		}
-	
+
 		// Relative path from dirname()
 		if (substr($name, 0, 3) === '../') {
 			$arrn = preg_split('#/#', $name,  -1, PREG_SPLIT_NO_EMPTY);
 			$arrp = preg_split('#/#', $refer, -1, PREG_SPLIT_NO_EMPTY);
-	
+
 			while (! empty($arrn) && $arrn[0] === '..') {
 				array_shift($arrn);
 				array_pop($arrp);
@@ -2322,17 +2359,17 @@ EOD;
 			$name = ! empty($arrp) ? join('/', array_merge($arrp, $arrn)) :
 				(! empty($arrn) ? $this->root->defaultpage . '/' . join('/', $arrn) : $this->root->defaultpage);
 		}
-	
+
 		return $name;
 	}
-	
+
 	// Render an InterWiki into a URL
 	function & get_interwiki_url($name, & $param)
 	{
 		static $interwikinames = array();
 		static $encode_aliases = array('sjis'=>'SJIS', 'euc'=>'EUC-JP', 'utf8'=>'UTF-8');
 		$false = FALSE;
-		
+
 		if (! isset($interwikinames[$this->root->mydirname])) {
 			$interwiki_dat = $this->cont['CACHE_DIR'] . 'interwiki.dat';
 			if (file_exists($interwiki_dat)) {
@@ -2341,7 +2378,7 @@ EOD;
 				$interwikinames[$this->root->mydirname] = $this->interwiki_dat_update($this->get_source($this->root->interwiki));
 			}
 		}
-	
+
 		if (! isset($interwikinames[$this->root->mydirname][$name])) {
 			// Inner other xpwiki
 			if ($this->isXpWikiDirname($name)) {
@@ -2350,27 +2387,27 @@ EOD;
 				return $false;
 			}
 		}
-	
+
 		list($url, $opt) = $interwikinames[$this->root->mydirname][$name];
-		
+
 		// Encoding
 		switch ($opt) {
-	
+
 		case '':    /* FALLTHROUGH */
 		case 'std': // Simply URL-encode the string, whose base encoding is the internal-encoding
 			$param = rawurlencode($param);
 			break;
-	
+
 		case 'asis': /* FALLTHROUGH */
 		case 'raw' : // Truly as-is
 			$param = $param;
 			break;
-	
+
 		case 'yw': // YukiWiki
 			if (! preg_match('/' . $this->root->WikiName . '/', $param))
 				$param = '[[' . mb_convert_encoding($param, 'SJIS', $this->cont['SOURCE_ENCODING']) . ']]';
 			break;
-	
+
 		case 'moin': // MoinMoin
 			$param = str_replace('%', '_', rawurlencode($param));
 			break;
@@ -2379,7 +2416,7 @@ EOD;
 		case 'dbl':
 			$param = rawurlencode(rawurlencode($param));
 			break;
-					
+
 		// HexEncode系
 		case 'hex_utf8':
 		case 'wiki_utf8':
@@ -2393,7 +2430,7 @@ EOD;
 		case 'wiki_euc-jp':
 			$param = $this->encode(mb_convert_encoding($param,'EUC-JP',$this->cont['SOURCE_ENCODING']));
 			break;
-		
+
 		// Inner other xpwiki
 		case 'inner':
 		case 'xpwiki':
@@ -2412,9 +2449,9 @@ EOD;
 				return $otherObj;
 			}
 			return $false;
-			
+
 			break;
-		
+
 		// Rakuten affiliate
 		case 'rakuten':
 			$param = '?pc=http%3A%2F%2Fesearch.rakuten.co.jp%2Frms%2Fsd%2Fesearch%2Fvc%3Fsv%3D2%26sitem%3D'
@@ -2422,48 +2459,48 @@ EOD;
 			       . '&m=http%3A%2F%2Fs.j.rakuten.co.jp%2Fr%2Fs%2Fwb%3Fws%3D1%26w%3D'
 			       . urlencode(urlencode(mb_convert_encoding($param, 'SJIS', $this->cont['SOURCE_ENCODING'])));
 			break;
-		
+
 		// ewords
 		case 'ewords':
 			$param = str_replace(array('%','.'), array('','2E'), urlencode(mb_convert_encoding($param,'UTF-8',$this->cont['SOURCE_ENCODING'])));
 			break;
-		
+
 		default:
 			// Alias conversion of $opt
 			if (isset($encode_aliases[$opt])) $opt = & $encode_aliases[$opt];
-	
+
 			// Encoding conversion into specified encode, and URLencode
 			$param = rawurlencode(mb_convert_encoding($param, $opt, $this->cont['SOURCE_ENCODING']));
 		}
-	
+
 		// Replace or Add the parameter
 		if (strpos($url, '$1') !== $false) {
 			$url = str_replace('$1', $param, $url);
 		} else {
 			$url .= $param;
 		}
-	
+
 		if (! preg_match('/' . $this->root->interwikinameRegex . '[!~*\'();\/?:\@&=+\$,%#\w.-]*/', $url) || strlen($url) > 512) return $false;
-	
+
 		return $url;
 	}
 //----- End make_link.php -----//
 
 //----- Start trackback.php -----//
-	
+
 	// Get TrackBack ID from page name
 	function tb_get_id($page)
 	{
 		return $this->get_pgid_by_name($page);
 	}
-	
+
 	// Get page name from TrackBack ID
 	function tb_id2page($tb_id)
 	{
 		static $pages, $cache = array();
-	
+
 		if (isset($cache[$this->xpwiki->pid][$tb_id])) return $cache[$this->xpwiki->pid][$tb_id];
-	
+
 		if (! isset($pages[$this->xpwiki->pid])) $pages[$this->xpwiki->pid] = $this->get_existpages();
 		foreach ($pages[$this->xpwiki->pid] as $page) {
 			$_tb_id = $this->tb_get_id($page);
@@ -2471,59 +2508,59 @@ EOD;
 			unset($pages[$this->xpwiki->pid][$page]);
 			if ($tb_id === $_tb_id) return $cache[$this->xpwiki->pid][$tb_id]; // Found
 		}
-	
+
 		$cache[$this->xpwiki->pid][$tb_id] = FALSE;
 		return $cache[$this->xpwiki->pid][$tb_id]; // Not found
 	}
-	
+
 	// Get file name of TrackBack ping data
 	function tb_get_filename($page, $ext = '.txt')
 	{
 		return $this->cont['TRACKBACK_DIR'] . $this->encode($page) . $ext;
 	}
-	
+
 	// Count the number of TrackBack pings included for the page
 	function tb_count($page, $ext = '.txt')
 	{
 		$filename = $this->tb_get_filename($page, $ext);
 		return file_exists($filename) ? count(file($filename)) : 0;
 	}
-	
+
 	// Send TrackBack ping(s) automatically
 	// $plus  = Newly added lines may include URLs
 	// $minus = Removed lines may include URLs
 	function tb_send($page, $plus, $minus = '')
 	{
 		$script = $this->cont['HOME_URL'];
-	
+
 		// Disable 'max execution time' (php.ini: max_execution_time)
 		if (ini_get('safe_mode') == '0') set_time_limit(120);
-	
+
 		// Get URLs from <a>(anchor) tag from convert_html()
 		$links = array();
 		$plus  = $this->convert_html($plus); // WARNING: heavy and may cause side-effect
 		preg_match_all('#href="(https?://[^"]+)"#', $plus, $links, PREG_PATTERN_ORDER);
 		$links = array_unique($links[1]);
-	
+
 		// Reject from minus list
 		if ($minus !== '') {
 			$links_m = array();
 			$minus = $this->convert_html($minus); // WARNING: heavy and may cause side-effect
 			preg_match_all('#href="(https?://[^"]+)"#', $minus, $links_m, PREG_PATTERN_ORDER);
 			$links_m = array_unique($links_m[1]);
-	
+
 			$links = array_diff($links, $links_m);
 		}
-	
+
 		// Reject own URL (Pattern _NOT_ started with '$script' and '?')
 		$links = preg_grep('/^(?!' . preg_quote($script, '/') . '\?)./', $links);
-	
+
 		// No link, END
 		if (! is_array($links) || empty($links)) return;
-	
+
 		$r_page  = rawurlencode($page);
 		$excerpt = $this->strip_htmltag($this->convert_html($this->get_source($page)));
-	
+
 		// Sender's information
 		$putdata = array(
 			'title'     => $page, // Title = It's page name
@@ -2532,28 +2569,28 @@ EOD;
 			'blog_name' => $this->root->module_title . ' (' . $this->cont['PLUGIN_TRACKBACK_VERSION'] . ')',
 			'charset'   => $this->cont['SOURCE_ENCODING'] // Ping text encoding (Not defined)
 		);
-	
+
 		foreach ($links as $link) {
 			$tb_id = $this->tb_get_url($link);  // Get Trackback ID from the URL
 			if (empty($tb_id)) continue; // Trackback is not supported
-	
+
 			$result = $this->http_request($tb_id, 'POST', '', $putdata, 2, $this->cont['CONTENT_CHARSET']);
 			// FIXME: Create warning notification space at pukiwiki.skin!
 		}
 	}
-	
+
 	// Remove TrackBack ping data
 	function tb_delete($page)
 	{
 		$filename = $this->tb_get_filename($page);
 		if (file_exists($filename)) @unlink($filename);
 	}
-	
+
 	// Import TrackBack ping data from file
 	function tb_get($file, $key = 1)
 	{
 		if (! file_exists($file)) return array();
-	
+
 		$result = array();
 		$fp = @fopen($file, 'r');
 		set_file_buffer($fp, 0);
@@ -2564,10 +2601,10 @@ EOD;
 			$result[rawurldecode($data[$key])] = $data;
 		}
 		fclose ($fp);
-	
+
 		return $result;
 	}
-	
+
 	// Get a RDF comment to bury TrackBack-ping-URI under HTML(XHTML) output
 	function tb_get_rdf($page)
 	{
@@ -2576,7 +2613,7 @@ EOD;
 		$tb_id  = $this->tb_get_id($page);
 		// $dcdate = substr_replace(get_date('Y-m-d\TH:i:sO', $time), ':', -2, 0);
 		// dc:date="$dcdate"
-	
+
 		return <<<EOD
 	<!--
 	<rdf:RDF xmlns:rdf="http://www.w3.org/1999/02/22-rdf-syntax-ns#"
@@ -2591,7 +2628,7 @@ EOD;
 	-->
 EOD;
 	}
-	
+
 	// HTTP-GET from $uri, and reveal the TrackBack Ping URL
 	function tb_get_url($url)
 	{
@@ -2600,24 +2637,24 @@ EOD;
 		if (empty($parse_url['host']) ||
 		   ($this->root->use_proxy && ! $this->in_the_net($this->root->no_proxy, $parse_url['host'])))
 			return '';
-	
+
 		$data = $this->http_request($url);
 		if ($data['rc'] !== 200) return '';
-	
+
 		$matches = array();
 		if (! preg_match_all('#<rdf:RDF[^>]*xmlns:trackback=[^>]*>(.*?)</rdf:RDF>#si', $data['data'],
 		    $matches, PREG_PATTERN_ORDER))
 			return '';
-	
+
 		$obj = new TrackBack_XML();
 		foreach ($matches[1] as $body) {
 			$tb_url = $obj->parse($body, $url);
 			if ($tb_url !== FALSE) return $tb_url;
 		}
-	
+
 		return '';
 	}
-	
+
 	// Save or update referer data
 	function ref_save($page)
 	{
@@ -2625,21 +2662,21 @@ EOD;
 			! $this->root->referer ||
 			! empty($this->cont['page_show']) ||
 			empty($_SERVER['HTTP_REFERER'])) return TRUE;
-	
+
 		$url = $_SERVER['HTTP_REFERER'];
-	
+
 		// Validate URI (Ignore own)
 		$parse_url = parse_url($url);
 		if (empty($parse_url['host']) || $parse_url['host'] === $_SERVER['HTTP_HOST'])
 			return TRUE;
-	
+
 		if (! is_dir($this->cont['TRACKBACK_DIR']))      die('No such directory: TRACKBACK_DIR');
 		if (! is_writable($this->cont['TRACKBACK_DIR'])) die('Permission denied to write: TRACKBACK_DIR');
-	
+
 		// Update referer data
 		if (ereg("[,\"\n\r]", $url))
 			$url = '"' . str_replace('"', '""', $url) . '"';
-	
+
 		$filename = $this->tb_get_filename($page, '.ref');
 		$data     = $this->tb_get($filename, 3);
 		$d_url    = rawurldecode($url);
@@ -2654,24 +2691,24 @@ EOD;
 		}
 		$data[$d_url][0] = $this->cont['UTIME'];
 		$data[$d_url][2]++;
-	
+
 		$fp = fopen($filename, 'w');
-		if ($fp === FALSE) return FALSE;	
+		if ($fp === FALSE) return FALSE;
 		set_file_buffer($fp, 0);
 		flock($fp, LOCK_EX);
 		rewind($fp);
 		foreach ($data as $line)
 			fwrite($fp, join(',', $line) . "\n");
 		fclose($fp);
-	
+
 		return TRUE;
 	}
 //----- End trackback.php -----//
 
 //----- Start auth.php -----//
-	
+
 	// Passwd-auth related ----
-	
+
 	function pkwk_login($pass = '')
 	{
 		if ($this->root->userinfo['admin']) {
@@ -2684,7 +2721,7 @@ EOD;
 			return FALSE;
 		}
 	}
-	
+
 	// Compute RFC2307 'userPassword' value, like slappasswd (OpenLDAP)
 	// $phrase : Pass-phrase
 	// $scheme : Specify '{scheme}' or '{scheme}salt'
@@ -2693,10 +2730,10 @@ EOD;
 	function pkwk_hash_compute($phrase = '', $scheme = '{x-php-md5}', $prefix = TRUE, $canonical = FALSE)
 	{
 		if (! is_string($phrase) || ! is_string($scheme)) return FALSE;
-	
+
 		if (strlen($phrase) > $this->cont['PKWK_PASSPHRASE_LIMIT_LENGTH'])
 			die('pkwk_hash_compute(): malicious message length');
-	
+
 		// With a {scheme}salt or not
 		$matches = array();
 		if (preg_match('/^(\{.+\})(.*)$/', $scheme, $matches)) {
@@ -2706,40 +2743,40 @@ EOD;
 			$scheme  = ''; // Cleartext
 			$salt    = '';
 		}
-	
+
 		// Compute and add a scheme-prefix
 		switch (strtolower($scheme)) {
-	
+
 		// PHP crypt()
 		case '{x-php-crypt}' :
 			$hash = ($prefix ? ($canonical ? '{x-php-crypt}' : $scheme) : '') .
 				($salt !== '' ? crypt($phrase, $salt) : crypt($phrase));
 			break;
-	
+
 		// PHP md5()
 		case '{x-php-md5}'   :
 			$hash = ($prefix ? ($canonical ? '{x-php-md5}' : $scheme) : '') .
 				md5($phrase);
 			break;
-	
+
 		// PHP sha1()
 		case '{x-php-sha1}'  :
 			$hash = ($prefix ? ($canonical ? '{x-php-sha1}' : $scheme) : '') .
 				sha1($phrase);
 			break;
-	
+
 		// LDAP CRYPT
 		case '{crypt}'       :
 			$hash = ($prefix ? ($canonical ? '{CRYPT}' : $scheme) : '') .
 				($salt !== '' ? crypt($phrase, $salt) : crypt($phrase));
 			break;
-	
+
 		// LDAP MD5
 		case '{md5}'         :
 			$hash = ($prefix ? ($canonical ? '{MD5}' : $scheme) : '') .
 				base64_encode($this->hex2bin(md5($phrase)));
 			break;
-	
+
 		// LDAP SMD5
 		case '{smd5}'        :
 			// MD5 Key length = 128bits = 16bytes
@@ -2747,13 +2784,13 @@ EOD;
 			$hash = ($prefix ? ($canonical ? '{SMD5}' : $scheme) : '') .
 				base64_encode($this->hex2bin(md5($phrase . $salt)) . $salt);
 			break;
-	
+
 		// LDAP SHA
 		case '{sha}'         :
 			$hash = ($prefix ? ($canonical ? '{SHA}' : $scheme) : '') .
 				base64_encode($this->hex2bin(sha1($phrase)));
 			break;
-	
+
 		// LDAP SSHA
 		case '{ssha}'        :
 			// SHA-1 Key length = 160bits = 20bytes
@@ -2761,26 +2798,26 @@ EOD;
 			$hash = ($prefix ? ($canonical ? '{SSHA}' : $scheme) : '') .
 				base64_encode($this->hex2bin(sha1($phrase . $salt)) . $salt);
 			break;
-	
+
 		// LDAP CLEARTEXT and just cleartext
 		case '{cleartext}'   : /* FALLTHROUGH */
 		case ''              :
 			$hash = ($prefix ? ($canonical ? '{CLEARTEXT}' : $scheme) : '') .
 				$phrase;
 			break;
-	
+
 		// Invalid scheme
 		default:
 			$hash = FALSE;
 			break;
 		}
-	
+
 		return $hash;
 	}
-	
-	
+
+
 	// Basic-auth related ----
-	
+
 	// Check edit-permission
 	function check_editable($page, $auth_flag = TRUE, $exit_flag = TRUE)
 	{
@@ -2804,13 +2841,13 @@ EOD;
 			}
 		}
 	}
-	
+
 	// Check read-permission
 	function check_readable($page, $auth_flag = TRUE, $exit_flag = TRUE)
 	{
 		return $this->read_auth($page, $auth_flag, $exit_flag);
 	}
-	
+
 	function edit_auth($page, $auth_flag = TRUE, $exit_flag = TRUE)
 	{
 		if (!$this->check_editable_page($page, $auth_flag, $exit_flag)) {
@@ -2819,7 +2856,7 @@ EOD;
 		return $this->root->edit_auth ?  $this->basic_auth($page, $auth_flag, $exit_flag,
 		$this->root->edit_auth_pages, $this->root->_title_cannotedit) : TRUE;
 	}
-	
+
 	function read_auth($page, $auth_flag = TRUE, $exit_flag = TRUE)
 	{
 		if (!$this->check_readable_page($page, $auth_flag, $exit_flag)) {
@@ -2828,7 +2865,7 @@ EOD;
 		return $this->root->read_auth ?  $this->basic_auth($page, $auth_flag, $exit_flag,
 		$this->root->read_auth_pages, $this->root->_title_cannotread) : TRUE;
 	}
-	
+
 	// Basic authentication
 	function basic_auth($page, $auth_flag, $exit_flag, $auth_pages, $title_cannot)
 	{
@@ -2839,26 +2876,26 @@ EOD;
 		} else if ($this->root->auth_method_type === 'contents') {
 			$target_str = $this->get_source($page, TRUE, TRUE); // Its contents
 		}
-	
+
 		$user_list = array();
 		foreach($auth_pages as $key=>$val)
 			if (preg_match($key, $target_str))
 				$user_list = array_merge($user_list, explode(',', $val));
-	
+
 		if (empty($user_list)) return TRUE; // No limit
-	
+
 		$matches = array();
 		if (! isset($_SERVER['PHP_AUTH_USER']) &&
 			! isset($_SERVER ['PHP_AUTH_PW']) &&
 			isset($_SERVER['HTTP_AUTHORIZATION']) &&
 			preg_match('/^Basic (.*)$/', $_SERVER['HTTP_AUTHORIZATION'], $matches))
 		{
-	
+
 			// Basic-auth with $_SERVER['HTTP_AUTHORIZATION']
 			list($_SERVER['PHP_AUTH_USER'], $_SERVER['PHP_AUTH_PW']) =
 				explode(':', base64_decode($matches[1]));
 		}
-	
+
 		if ($this->cont['PKWK_READONLY'] ||
 			! isset($_SERVER['PHP_AUTH_USER']) ||
 			! in_array($_SERVER['PHP_AUTH_USER'], $user_list) ||
@@ -2891,28 +2928,30 @@ EOD;
 //----- End auth.php -----//
 
 //----- Start backup.php -----//
-	
+
 	function make_backup($page, $delete = FALSE, $notimestamp = FALSE)
 	{
-		if ($this->cont['PKWK_READONLY'] === 1 || ! $this->root->do_backup) return;
-	
+		if ($this->cont['PKWK_READONLY'] === 1 || ! $this->root->do_backup) return TRUE;
+
 		if ($this->root->del_backup && $delete) {
 			$this->_backup_delete($page);
-			return;
+			//return TRUE;
 		}
-	
-		if (! $this->is_page($page)) return;
-		
+
+		if (! $this->is_page($page)) return TRUE;
+
 		$backups = $this->get_backup($page);
 		$count = count($backups);
 
-		if (! empty($this->root->rtf['force_backup'])) {
+		$rotate = FALSE;
+
+		if (! empty($this->root->rtf['force_backup']) || $delete) {
 			$rotate = TRUE;
 		} else {
 			// Are those who update it different from last time?
 			$pginfo_last = $this->get_pginfo($page);
-			$diff_user = ! (($this->root->userinfo['uid'] && $pginfo_last['lastuid'] === $this->root->userinfo['uid']) || ($this->root->userinfo['ucd'] && $pginfo_last['lastucd'] === $this->root->userinfo['ucd']));		
-	
+			$diff_user = ! (($this->root->userinfo['uid'] && $pginfo_last['lastuid'] === $this->root->userinfo['uid']) || ($this->root->userinfo['ucd'] && $pginfo_last['lastucd'] === $this->root->userinfo['ucd']));
+
 			// Rotation judgment
 			if (! $diff_user && $notimestamp) {
 				// The time stamp was not renewed in last time and the same user.
@@ -2932,7 +2971,7 @@ EOD;
 			// The element that exceeds one addition (Maximum - 1) to the immediate aftermath is thrown away.
 			if ($count > $this->root->maxage)
 				array_splice($backups, 0, $count - $this->root->maxage);
-		
+
 			$strout = '';
 			foreach($backups as $age=>$data) {
 				$strout .= $this->cont['PKWK_SPLITTER'] . ' ' . $data['time'] . "\n"; // Splitter format
@@ -2940,13 +2979,13 @@ EOD;
 				unset($backups[$age]);
 			}
 			$strout = preg_replace("/([^\n])\n*$/", "$1\n", $strout);
-	
+
 			// Escape 'lines equal to PKWK_SPLITTER', by inserting a space
 			$body = preg_replace('/^(' . preg_quote($this->cont['PKWK_SPLITTER']) . "\s\d+)$/", '$1 ', $this->get_source($page));
 			$body = $this->cont['PKWK_SPLITTER'] . ' ' . $this->get_filetime($page) . "\n" . join('', $body);
 			//$body = $this->cont['PKWK_SPLITTER'] . ' ' . $this->cont['UTIME'] . "\n" . join('', $body);
 			$body = preg_replace("/\n*$/", "\n", $body);
-	
+
 			$fp = $this->_backup_fopen($page, 'wb')
 				or $this->die_message('Cannot open ' . htmlspecialchars($this->_backup_get_filename($page)) .
 				'<br />Maybe permission is not writable or filename is too long');
@@ -2954,12 +2993,13 @@ EOD;
 			$this->_backup_fputs($fp, $body);
 			$this->_backup_fclose($fp);
 		}
+		return $rotate;
 	}
 	function get_backup($page, $age = 0, $data_age = '')
 	{
 		$lines = $this->_backup_file($page);
 		if (! is_array($lines)) return array();
-		
+
 		$data_ages = explode(',', $data_age);
 
 		$_age = 0;
@@ -2974,7 +3014,7 @@ EOD;
 				// A splitter, tells new data of backup will come
 				++$_age;
 				if ($age > 0 && $_age > $age) return $retvars[$age];
-	
+
 				// Allocate
 				$temp_last = $retvars[$_age] = array('time'=>$match[1], 'data'=>array());
 			} else {
@@ -3001,7 +3041,7 @@ EOD;
 	{
 		return file_exists($this->_backup_get_filename($page));
 	}
-	
+
 	function _backup_get_filetime($page)
 	{
 		return $this->_backup_file_exists($page) ?
@@ -3014,7 +3054,7 @@ EOD;
 //----- End backup.php -----//
 
 //----- Start diff.php -----//
-	
+
 	// Create diff-style data between arrays
 	function do_diff($strlines1, $strlines2)
 	{
@@ -3023,7 +3063,7 @@ EOD;
 		$obj = null;
 		return $str;
 	}
-	
+
 	// Visualize diff-style-text to text-with-CSS
 	//   '+Added'   => '<span added>Added</span>'
 	//   '-Removed' => '<span removed>Removed</span>'
@@ -3035,26 +3075,26 @@ EOD;
 		$str = preg_replace('/^\+(.*)$/m', '<span class="diff_added"  >$1</span>', $str);
 		return preg_replace('/^ (.*)$/m',  '$1', $str);
 	}
-	
+
 	// Merge helper (when it conflicts)
 	function do_update_diff($pagestr, $poststr, $original)
 	{
 		$obj = new XpWikiline_diff();
-	
+
 		$obj->set_str('left', $original, $pagestr);
 		$obj->compare();
 		$diff1 = $obj->toArray();
-	
+
 		$obj->set_str('right', $original, $poststr);
 		$obj->compare();
 		$diff2 = $obj->toArray();
-	
+
 		$arr = $obj->arr_compare('all', $diff1, $diff2);
 
 		$obj = null;
-	
+
 		if ($this->cont['PKWK_DIFF_SHOW_CONFLICT_DETAIL']) {
-	
+
 			$this->root->do_update_diff_table = <<<EOD
 	<p>l : between backup data and stored page data.<br />
 	 r : between backup data and your post data.</p>
@@ -3080,13 +3120,13 @@ EOD;
 			}
 			$this->root->do_update_diff_table .= '</table>' . "\n";
 		}
-	
+
 		$body = '';
 		foreach ($arr as $_obj) {
 			if ($_obj->get('left') !== '-' && $_obj->get('right') !== '-')
 				$body .= $_obj->text();
 		}
-	
+
 		$auto = 1;
 
 		return array(rtrim($body) . "\n", $auto);
@@ -3095,14 +3135,14 @@ EOD;
 
 //----- Start html.php -----//
 	// PukiWiki - Yet another WikiWikiWeb clone.
-	// $Id: pukiwiki_func.php,v 1.212 2009/10/22 09:00:53 nao-pon Exp $
+	// $Id: pukiwiki_func.php,v 1.213 2009/11/17 09:09:29 nao-pon Exp $
 	// Copyright (C)
 	//   2002-2006 PukiWiki Developers Team
 	//   2001-2002 Originally written by yu-ji
 	// License: GPL v2 or (at your option) any later version
 	//
 	// HTML-publishing related functions
-	
+
 	// Show page-content
 	function catbody($title, $page, $body)
 	{
@@ -3112,7 +3152,7 @@ EOD;
 		// #noattach
 		if (isset($this->root->nonflag['attach'])) {
 			$attach =& $this->get_plugin_instance('attach');
-			$attach->listed = TRUE;	
+			$attach->listed = TRUE;
 		}
 
 		// #norelated
@@ -3124,7 +3164,7 @@ EOD;
 		if (isset($this->root->nonflag['pagecomment'])) {
 			$this->root->allow_pagecomment = FALSE;
 		}
-		
+
 		// #nosubnote
 		$subnote = true;
 		if (isset($this->root->nonflag['subnote'])) {
@@ -3132,38 +3172,38 @@ EOD;
 		}
 
 		if ($this->cont['UA_PROFILE'] !== 'keitai') $body = '<div id="xpwiki_body">'.$body.'</div>';
-		
+
 		$_LINK = $this->root->_IMAGE = array();
-	
+
 		// Add JavaScript header when ...
 		if ($this->root->trackback && $this->root->trackback_javascript) $this->root->javascript = 1; // Set something If you want
 		if (! $this->cont['PKWK_ALLOW_JAVASCRIPT']) unset($this->root->javascript);
-	
+
 		$_page = isset($this->root->vars['page']) ? $this->root->vars['page'] : '';
 		if (! $_page && isset($this->root->vars['refer'])) $_page = $this->root->vars['refer'];
 		$r_page = rawurlencode($_page);
-		
+
 		// Page infomation
 		$pginfo = $this->get_pginfo($_page);
-		
+
 		// Pagename alias
 		$pagealiases = $this->get_page_alias($_page, true);
 		$pginfo['alias'] = $pagealiases? join(', ', $pagealiases) : $_LANG['skin']['none'];
-		
+
 		$pginfo['pageowner'] = (! $pginfo['uid'])? ($pginfo['uname']? $pginfo['uname'] : $_LANG['skin']['none']) : $this->make_userlink($pginfo['uid'], $pginfo['uname']);
-		
+
 		// Set auth
 		$pginfo['readableGroups'] = isset($_LANG['skin']['perm'][$pginfo['vgids']])? $_LANG['skin']['perm'][$pginfo['vgids']] : $this->get_groupname($pginfo['vgids']);
 		$pginfo['readableUsers'] = isset($_LANG['skin']['perm'][$pginfo['vaids']])? $_LANG['skin']['perm'][$pginfo['vaids']] : $this->make_userlink($pginfo['vaids']);
 		$pginfo['editableGroups'] = isset($_LANG['skin']['perm'][$pginfo['egids']])? $_LANG['skin']['perm'][$pginfo['egids']] : $this->get_groupname($pginfo['egids']);
 		$pginfo['editableUsers'] = isset($_LANG['skin']['perm'][$pginfo['eaids']])? $_LANG['skin']['perm'][$pginfo['eaids']] : $this->make_userlink($pginfo['eaids']);
 
-		
+
 		// Set skin functions
 		$navigator = create_function('&$this, $key, $value = \'\', $javascript = \'\', $withIcon = FALSE, $x = 20, $y = 20',    'return XpWikiFunc::skin_navigator($this, $key, $value, $javascript, $withIcon, $x, $y);');
 		$toolbar   = create_function('&$this, $key, $x = 20, $y = 20, $javascript = \'\'', 'return XpWikiFunc::skin_toolbar($this, $key, $x, $y, $javascript);');
 		$ajax_edit_js = ($this->root->use_ajax_edit)? ' onclick="return xpwiki_ajax_edit(\''.htmlspecialchars($r_page, ENT_QUOTES).'\');"' : '';
-		
+
 		// Set $_LINK for skin
 		$_LINK['add']      = "{$this->root->script}?cmd=add&amp;page=$r_page#{$this->root->mydirname}_header";
 		$_LINK['backup']   = "{$this->root->script}?cmd=backup&amp;page=$r_page#{$this->root->mydirname}_header";
@@ -3197,8 +3237,8 @@ EOD;
 		} else {
 			$_LINK['print'] = $_SERVER['REQUEST_URI'] . ((strpos($_SERVER['REQUEST_URI'], '?') === FALSE)? '?' : '&') . 'print=1';
 		}
-		$_LINK['print'] = $this->root->siteinfo['host'] . str_replace('&', '&amp;', $_LINK['print']); 
-		
+		$_LINK['print'] = $this->root->siteinfo['host'] . str_replace('&', '&amp;', $_LINK['print']);
+
 		if ($this->root->trackback) {
 			$tb_id = $this->tb_get_id($_page);
 			$_LINK['trackback'] = "{$this->root->script}?plugin=tb&amp;__mode=view&amp;tb_id=$tb_id";
@@ -3207,7 +3247,7 @@ EOD;
 		$_LINK['upload']   = "{$this->root->script}?plugin=attach&amp;pcmd=upload&amp;page=$r_page#{$this->root->mydirname}_header";
 		$_LINK['topage']   = $this->get_page_uri($_page, true)."#{$this->root->mydirname}_header";
 		$_LINK['powered']  = 'http://xoops.hypweb.net/';
-		
+
 		// Compat: Skins for 1.4.4 and before
 		$link_add       = & $_LINK['add'];
 		$link_new       = & $_LINK['new'];	// New!
@@ -3231,7 +3271,7 @@ EOD;
 		$link_template  = & $_LINK['copy'];
 		$link_refer     = & $_LINK['refer'];	// New!
 		$link_rename    = & $_LINK['rename'];
-	
+
 		// Init flags
 		// ブロック用にglobal変数にも保存
 		$GLOBALS['Xpwiki_'.$this->root->mydirname]['is_page']     = $is_page = ($this->is_pagename($_page) && $_page !== $this->root->whatsnew);
@@ -3245,18 +3285,18 @@ EOD;
 		$GLOBALS['Xpwiki_'.$this->root->mydirname]['is_top']      = $is_top = ($_page === $this->root->defaultpage)? TRUE : FALSE;
 		$GLOBALS['Xpwiki_'.$this->root->mydirname]['page']        = $_page;
 		$GLOBALS['Xpwiki_'.$this->root->mydirname]['pgid']        = (int)@$this->root->get['pgid'];
-		
+
 		$trackback_javascript = $this->root->trackback_javascript;
-		
+
 		// nofollow
 		if ($this->root->nofollow || ! $is_read) {
 			$this->root->head_pre_tags[] = '<meta name="robots" content="NOINDEX,NOFOLLOW" />';
 		}
-		
+
 		// Page Comments
 		$page_comments = ($is_read && $this->root->allow_pagecomment && $this->root->enable_pagecomment)? '<div id="pageComments" class="NoWikiHelper">' . $this->get_page_comments($_page) . '</div>' : '';
 		$page_comments_count = ($page_comments)? '<a href="#pageComments">' . $this->root->_LANG['skin']['comments'] . '(' . $this->count_page_comments($_page) . ')</a>': '';
-		
+
 		// System notification
 		if ($this->root->show_system_notification_skin) {
 			$system_notification = $this->get_notification_select();
@@ -3266,72 +3306,72 @@ EOD;
 		} else {
 			$system_notification = '';
 		}
-		
+
 		// Countup counter
 		if ($is_page && $this->exist_plugin_convert('counter')) {
 			$this->do_plugin_convert('counter');
 		}
-		
+
 		// Show filelist?
 		if ($this->root->filelist_only_admin && ! $is_admin) {
 			$this->root->skin_navigator_cmds = str_replace('filelist', '', $this->root->skin_navigator_cmds);
 		}
-		
+
 		// Last modification date (string) of the page
 		$lastmodified = $is_read ?  $this->format_date($this->get_filetime($_page)) .
 			' (' . $this->cont['ZONE'] . ')' .
 			' ' . $this->get_pg_passage($_page, FALSE) : '';
-	
+
 		// List of attached files to the page
 		$plugin = & $this->get_plugin_instance("attach");
 		$attaches = ($this->root->attach_link && $is_read && $this->exist_plugin_action('attach')) ?
 		$plugin->attach_filelist() : '';
-	
+
 		// List of related pages
 		$related  = ($this->root->related_link && $is_read) ? $this->make_related($_page, '', $this->root->related_show_max) : '';
-	
+
 		// List of footnotes
 		natsort($this->root->foot_explain);
 		$notes = ! empty($this->root->foot_explain) ? $this->root->note_hr . join("\n", $this->root->foot_explain) : '';
-		
+
 		// Head Tags
 		list($head_pre_tag, $head_tag) = $this->get_additional_headtags();
 		$cssprefix = $this->root->css_prefix ? 'pre=' . rawurlencode($this->root->css_prefix) . '&amp;' : '';
-		
+
 		// 1.3.x compat
 		// Last modification date (UNIX timestamp) of the page
 		$fmt = $is_read ? $this->get_filetime($_page) + $this->cont['LOCALZONE'] : 0;
-	
+
 		// Search words
 		if ($this->root->search_word_color && isset($this->root->vars['word'])) {
 			$body = '<div class="small">' . $this->root->_msg_word
 			      . preg_replace('/&amp;#(\d+;)/', '&#$1', htmlspecialchars($this->root->vars['word']))
 			      . '</div>' . $this->root->hr . "\n" . $body;
-	
+
 			list($body, $notes) = $this->word_highlight(array($body, $notes), $this->root->vars['word']);
 		}
-	
+
 		$longtaketime = $this->getmicrotime() - $this->cont['MUTIME'];
 		$taketime     = sprintf('%01.03f', $longtaketime);
 		$this->root->_LINK = $_LINK;
 		require($this->cont['SKIN_FILE']);
 	}
-	
+
 	// Show 'edit' form
 	function edit_form($page, $postdata, $digest = FALSE, $b_template = TRUE, $options = array())
 	{
 		$ajax = (isset($this->root->vars['ajax']));
-		
+
 		if (! isset($this->root->vars['orgkey'])) $this->root->vars['orgkey'] = '';
-		
+
 		// #pginfo 削除
 		$postdata = $this->remove_pginfo($postdata);
-		
+
 		// Newly generate $digest or not
 		if ($digest === FALSE) $digest = $this->get_digests($this->get_source($page, TRUE, TRUE));
-	
+
 		$tareaStyle = $refer = $template = '';
-	 
+
 	 	// Add plugin
 		$addtag = $add_top = '';
 		if(isset($this->root->vars['add'])) {
@@ -3343,7 +3383,7 @@ EOD;
 				'<span class="small">' . $this->root->_btn_addtop . '</span>' .
 				'</label>';
 		}
-	
+
 		if($this->root->load_template_func && $b_template) {
 			$pages  = array();
 			foreach($this->get_existpages() as $_page) {
@@ -3364,15 +3404,15 @@ EOD;
 	  <input type="submit" name="template" value="{$this->root->_btn_load}" accesskey="r" onmousedown="(function(){if(\$('edit_write_hidden')){Element.remove(\$('edit_write_hidden'))}})();"{$template_onclick} />
 	  <br />
 EOD;
-	
+
 			if (isset($this->root->vars['refer']) && $this->root->vars['refer'] !== '')
 				$refer = '[[' . $this->strip_bracket($this->root->vars['refer']) . ']]' . "\n\n";
 		}
-		
+
 		$r_page      = rawurlencode($page);
 		$s_page      = htmlspecialchars($page);
 		$s_id        = isset($this->root->vars['paraid']) ? htmlspecialchars($this->root->vars['paraid']) : '';
-		
+
 		if (!$s_id) {
 			if (isset($_COOKIE['_xweop'])) {
 				$other_option_checked = ($_COOKIE['_xweop']);
@@ -3394,9 +3434,9 @@ EOD;
 				$alias_str = htmlspecialchars($this->get_page_alias($page));
 				$order_val = floatval($this->get_page_order($page));
 			}
-			
+
 			$pgtitle = $this->root->_btn_pgtitle . ': <input type="text" name="pgtitle" size="50" value="'.$pgtitle_str.'" /><br />';
-			
+
 			if ($this->root->pagereading_enable) {
 				$reading = $this->root->_btn_reading . ': <input type="text" name="reading" size="15" value="'.$reading_str.'" />&nbsp;&nbsp; ';
 			} else  {
@@ -3405,10 +3445,10 @@ EOD;
 
 			// page order
 			$pageorder = $this->root->_btn_pgorder . ': <input type="text" name="pgorder" size="5" value="'.$order_val.'" /><br />';
-			
+
 			// alias
 			$alias = $this->root->_btn_alias . ': <input type="text" name="alias" size="40" value="'.$alias_str.'" /><br />';
-			
+
 			// 添付ファイルリスト
 			$attaches = '';
 			if (!$ajax && $this->root->show_attachlist_editform && $this->is_page($page)) {
@@ -3421,14 +3461,14 @@ EOD;
 			$other_option_checked = $other_option = $pgtitle = $reading = $attaches = $alias = $pageorder = '';
 			$title = '<h3>'.str_replace('$1', '# '.$this->root->vars['paraid'], $this->root->_title_edit).'</h3>';
 		}
-		
+
 		$originalkey = '';
 		$s_postdata  = htmlspecialchars($refer . $postdata);
 		$originalkey = htmlspecialchars((string)$this->root->vars['orgkey']);
 		$s_digest    = htmlspecialchars($digest);
 		$b_preview   = isset($this->root->vars['preview']); // TRUE when preview
 		$btn_preview = $b_preview ? $this->root->_btn_repreview : $this->root->_btn_preview;
-		
+
 		// uname
 		if ($this->root->userinfo['uid']) {
 			$uname = '<input type="hidden" name="uname" value="'.$this->cont['USER_NAME_REPLACE'].'" />';
@@ -3446,17 +3486,21 @@ EOD;
 				$uname .= '<input type="text" name="uname" value="' . $_uname . '" id="_edit_form_uname" size="15" />';
 			}
 		}
-		
+
+		// edit summary
+		$_esummary = (! empty($this->root->rtf['preview']) && isset($this->root->vars['esummary']))? htmlspecialchars($this->root->vars['esummary']) : '';
+		$esummary = '<div><label for="_edit_form_esummary"><strong>' . $this->root->_btn_esummary . ':</strong></label> <input type="text" name="esummary" id="_edit_form_esummary" value="' . $_esummary . '" size="60" /></div>';
+
 		// Q & A 認証
 		$riddle = '';
 		if (isset($options['riddle'])) {
-			$riddle = '<div><br />' . $this->root->_btn_riddle . '<br />' .
+			$riddle = '<div>' . $this->root->_btn_riddle . '<br />' .
 				'&nbsp;&nbsp;<strong>Q:</strong> ' . htmlspecialchars($options['riddle']) . '<br />' .
 				'&nbsp;&nbsp;<strong>A:</strong> <input type="text" name="riddle'.md5($this->cont['HOME_URL'].$options['riddle']) .
 				'" size="30" value="" autocomplete="off" onkeyup="(function(e){if(e.value&&!$(\'edit_write_hidden\')){var w=document.createElement(\'input\');w.id=\'edit_write_hidden\';w.type=\'hidden\';w.name=\'write\';e.parentNode.appendChild(w);}})(this)" />' .
 				'</div>';
 		}
-		
+
 		// Checkbox 'do not change timestamp'
 		$add_notimestamp = '&nbsp; ';
 		if ($this->is_page($page) && ($this->root->notimeupdate === 1 || ($this->root->notimeupdate > 1 && $this->root->userinfo['admin']))) {
@@ -3468,13 +3512,13 @@ EOD;
 				$add_notimestamp .
 				'&nbsp;';
 		}
-		
+
 		// popup
 		$popup = ($this->root->viewmode === 'popup')? '<input type="hidden" name="popup" value="1" />' : '';
 		if ($ajax || $popup) {
 			$tareaStyle .= 'width:99%;';
 		}
-		
+
 		// textarea id
 		$tareaId = 'xpwiki_edit_textarea';
 
@@ -3499,9 +3543,9 @@ EOD;
 			$ajax_cancel = $popup? ' onsubmit="window.parent.XpWiki.PopupHide();return false;"' : '';
 			$other_hide_js = (! $other_option_checked)? '<script type="text/javascript">$(\'xpwiki_edit_other\').style.display = \'none\';</script>' : '';
 		}
-		
+
 		$emojipad = $this->get_emoji_pad($tareaId, TRUE);
-		
+
 		// help
 		if (isset($this->root->vars['help'])) {
 			$help = $this->root->hr . $this->catrule();
@@ -3539,6 +3583,7 @@ EOD;
   <input type="hidden" name="orgkey" value="$originalkey" />
   <textarea id="{$tareaId}" name="msg" rows="{$this->root->rows}" cols="{$this->root->cols}" style="{$tareaStyle}">$s_postdata</textarea>
   $emojipad
+  $esummary
   $riddle
   <div style="float:left;">
   $uname
@@ -3563,7 +3608,7 @@ $attaches
 EOD;
 		return $body;
 	}
-	
+
 	// Related pages
 	function make_related($page, $tag = '', $max = 0, $options = array())
 	{
@@ -3575,9 +3620,9 @@ EOD;
 			'delimiter' => '...',
 			'highlight' => FALSE,
 		);
-		
+
 		$options = array_merge($def_options, $options);
-		
+
 		$context = ($options['context']);
 		$contextLength = 255;
 		$contextKeys = 3;
@@ -3586,21 +3631,21 @@ EOD;
 			$contextLength = (!$contextLength)? 255 : intval($contextLength);
 			$contextKeys = (!$contextKeys)? 3 : intval($contextKeys);
 		}
-		
+
 		$links = ($options['backlink'])? $this->links_get_related_db($page) : $this->links_get_related($page);
-		
+
 		if ($tag) {
 			ksort($links);
 		} else {
 			arsort($links);
 		}
-	
+
 		$_links = array();
 		$contexts = array();
 		$i = 0;
 		foreach ($links as $_page=>$lastmod) {
 			if ($this->check_non_list($_page)) continue;
-			
+
 			$i++;
 			$passage = ($tag === 'p' && ! $options['nopassage'])? ' <small>' . $this->get_passage($lastmod) . '</small>' : '';
 			$title = ($tag === 'p' && ! $options['notitle'])? $this->get_heading($_page) : '';
@@ -3620,7 +3665,7 @@ EOD;
 			$_links[] = $this->make_pagelink($_page, ($_dirname ? ('#compact:'.$_dirname) : $_page)) . $passage . $title . $_context;
 		}
 		if (empty($_links)) return ''; // Nothing
-	
+
 		if ($tag === 'p') { // From the line-head
 			$margin = $this->root->_ul_left_margin + $this->root->_ul_margin;
 			$style  = sprintf($this->root->_list_pad_str, 1, $margin, $margin);
@@ -3632,37 +3677,37 @@ EOD;
 		} else {
 			$retval = join($this->root->related_str, $_links);
 		}
-	
+
 		return $retval;
 	}
-	
+
 	// User-defined rules (convert without replacing source)
 	function make_line_rules($str)
 	{
 		static $pattern, $replace;
-	
+
 		if (! isset($pattern[$this->xpwiki->pid])) {
 			$pattern[$this->xpwiki->pid] = array_map(create_function('$a',
 				'return \'/\' . $a . \'/\';'), array_keys($this->root->line_rules));
 			$replace[$this->xpwiki->pid] = array_values($this->root->line_rules);
 			unset($this->root->line_rules);
 		}
-	
+
 		return preg_replace($pattern[$this->xpwiki->pid], $replace[$this->xpwiki->pid], $str);
 	}
-	
+
 	// Remove all HTML tags(or just anchor tags), and WikiName-speific decorations
 	function strip_htmltag($str, $all = TRUE)
 	{
 		static $noexists_pattern;
-	
+
 		if (! isset($noexists_pattern[$this->xpwiki->pid]))
 			$noexists_pattern[$this->xpwiki->pid] = '#<span class="noexists">([^<]*)<a[^>]+>' .
 				preg_quote($this->root->_symbol_noexists, '#') . '</a></span>#';
-	
+
 		// Strip Dagnling-Link decoration (Tags and "$_symbol_noexists")
 		$str = preg_replace($noexists_pattern[$this->xpwiki->pid], '$1', $str);
-	
+
 		if ($all) {
 			// All other HTML tags
 			return preg_replace('#<[^>]+>#',        '', $str);
@@ -3671,19 +3716,19 @@ EOD;
 			return preg_replace('#<a[^>]+>|</a>#i', '', $str);
 		}
 	}
-	
+
 	// Remove AutoLink marker with AutLink itself
 	function strip_autolink($str)
 	{
 		return preg_replace('#<!--autolink--><a [^>]+>|</a><!--/autolink-->#', '', $str);
 	}
-	
+
 	// Make a backlink. searching-link of the page name, by the page name, for the page name
 	function make_search($page)
 	{
 		$s_page = htmlspecialchars($page);
 		$r_page = rawurlencode($page);
-		
+
 		$title = sprintf($this->root->_title_backlink, $s_page);
 		if ($this->root->use_title_make_search) {
 			$s_page = $this->get_heading($page);
@@ -3693,7 +3738,7 @@ EOD;
 		return '<a href="' . $this->root->script . '?plugin=related&amp;page=' . $r_page .
 			'" title="' . $title . '">' . $str . '</a> ';
 	}
-	
+
 	// Make heading string (remove heading-related decorations from Wiki text)
 	function make_heading(& $str, $strip = TRUE)
 	{
@@ -3706,50 +3751,50 @@ EOD;
 		} else {
 			$str = preg_replace('/^\*{0,5}/', '', $str);
 		}
-	
+
 		// Cut footnotes and tags
 		if ($strip === TRUE)
 			$str = $this->strip_htmltag($this->make_link(preg_replace($this->root->NotePattern, '', $str)));
-	
+
 		return $id;
 	}
-	
+
 	// Separate a page-name(or URL or null string) and an anchor
 	// (last one standing) without sharp
 	function anchor_explode($page, $strict_editable = FALSE)
 	{
 		$pos = strrpos($page, '#');
 		if ($pos === FALSE) return array($page, '', FALSE);
-	
+
 		// Ignore the last sharp letter
 		if ($pos + 1 === strlen($page)) {
 			$pos = strpos(substr($page, $pos + 1), '#');
 			if ($pos === FALSE) return array($page, '', FALSE);
 		}
-	
+
 		$s_page = substr($page, 0, $pos);
 		$anchor = substr($page, $pos + 1);
-	
+
 		if($strict_editable === TRUE &&  preg_match('/^[a-z][a-f0-9]{7}$/', $anchor)) {
 			return array ($s_page, $anchor, TRUE); // Seems fixed-anchor
 		} else {
 			return array ($s_page, $anchor, FALSE);
 		}
 	}
-	
+
 	// Check HTTP header()s were sent already, or
 	// there're blank lines or something out of php blocks
 	function pkwk_headers_sent($buf_clear = true)
 	{
 		if ($this->cont['PKWK_OPTIMISE']) return;
-		
+
 		if ($buf_clear) {
 			// clear output buffer
 			while( ob_get_level() ) {
 				ob_end_clean() ;
 			}
 		}
-			
+
 		$file = $line = '';
 		if (version_compare(PHP_VERSION, '4.3.0', '>=')) {
 			if (headers_sent($file, $line))
@@ -3761,12 +3806,12 @@ EOD;
 				die('Headers already sent.');
 		}
 	}
-	
+
 	// Output common HTTP headers
 	function pkwk_common_headers()
 	{
 		if (! $this->cont['PKWK_OPTIMISE']) $this->pkwk_headers_sent(false);
-	
+
 		if(isset($this->cont['PKWK_ZLIB_LOADABLE_MODULE'])) {
 			$matches = array();
 			if(ini_get('zlib.output_compression') &&
@@ -3778,17 +3823,17 @@ EOD;
 			}
 		}
 	}
-	
+
 	// Output HTML DTD, <html> start tag. Return content-type.
 	function pkwk_output_dtd($pkwk_dtd = NULL, $charset = NULL)
 	{
 		if (is_null($pkwk_dtd)) {$pkwk_dtd = $this->cont['PKWK_DTD_XHTML_1_1'];}
 		if (is_null($charset)) {$charset = $this->cont['CONTENT_CHARSET'];}
-			
+
 			static $called;
 		if (isset($called[$this->xpwiki->pid])) die('pkwk_output_dtd() already called. Why?');
 		$called[$this->xpwiki->pid] = TRUE;
-	
+
 		$type = $this->cont['PKWK_DTD_TYPE_XHTML'];
 		$option = '';
 		switch($pkwk_dtd){
@@ -3806,7 +3851,7 @@ EOD;
 			$option  = 'Transitional';
 			$dtd     = 'http://www.w3.org/TR/xhtml1/DTD/xhtml1-transitional.dtd';
 			break;
-	
+
 		case $this->cont['PKWK_DTD_HTML_4_01_STRICT']      :
 			$type    = $this->cont['PKWK_DTD_TYPE_HTML'];
 			$version = '4.01';
@@ -3818,16 +3863,16 @@ EOD;
 			$option  = 'Transitional';
 			$dtd     = 'http://www.w3.org/TR/html4/loose.dtd';
 			break;
-	
+
 		default: die('DTD not specified or invalid DTD');
 			break;
 		}
-	
+
 		$charset = htmlspecialchars($charset);
-	
+
 		// Output XML or not
 		if ($type === $this->cont['PKWK_DTD_TYPE_XHTML']) echo '<?xml version="1.0" encoding="' . $charset . '" ?>' . "\n";
-	
+
 		// Output doctype
 		echo '<!DOCTYPE html PUBLIC "-//W3C//DTD ' .
 			($type === $this->cont['PKWK_DTD_TYPE_XHTML'] ? 'XHTML' : 'HTML') . ' ' .
@@ -3836,7 +3881,7 @@ EOD;
 			'//EN" "' .
 			$dtd .
 			'">' . "\n";
-	
+
 		// Output <html> start tag
 		echo '<html';
 		if ($type === $this->cont['PKWK_DTD_TYPE_XHTML']) {
@@ -3847,7 +3892,7 @@ EOD;
 			echo ' lang="' . $this->cont['LANG'] . '"'; // HTML
 		}
 		echo '>' . "\n"; // <html>
-	
+
 		// Return content-type (with MIME type)
 		if ($type === $this->cont['PKWK_DTD_TYPE_XHTML']) {
 			// NOTE: XHTML 1.1 browser will ignore http-equiv
@@ -3860,19 +3905,19 @@ EOD;
 
 //----- Start mail.php -----//
 	// PukiWiki - Yet another WikiWikiWeb clone.
-	// $Id: pukiwiki_func.php,v 1.212 2009/10/22 09:00:53 nao-pon Exp $
+	// $Id: pukiwiki_func.php,v 1.213 2009/11/17 09:09:29 nao-pon Exp $
 	// Copyright (C)
 	//   2003-2005 PukiWiki Developers Team
 	//   2003      Originally written by upk
 	// License: GPL v2 or (at your option) any later version
 	//
 	// E-mail related functions
-	
+
 	// Send a mail to the administrator
 	function pkwk_mail_notify($subject, $message, $footer = array())
 	{
 		static $_to, $_headers, $_after_pop;
-	
+
 		// Init and lock
 		if (! isset($_to[$this->xpwiki->pid])) {
 			if (! $this->cont['PKWK_OPTIMISE']) {
@@ -3891,24 +3936,24 @@ EOD;
 						die($func . 'Redundant \'From:\' in $this->root->notify_header');
 				}
 			}
-	
+
 			$_to[$this->xpwiki->pid]      = $this->root->notify_to;
 			$_headers[$this->xpwiki->pid] =
 				'X-Mailer: PukiWiki/' . $this->cont['S_VERSION'] .
 				' PHP/' . phpversion() . "\r\n" .
 				'From: ' . $this->root->notify_from;
-				
+
 			// Additional header(s) by admin
 			if ($this->root->notify_header !== '') $_headers[$this->xpwiki->pid] .= "\r\n" . $this->root->notify_header;
-	
+
 			$_after_pop[$this->xpwiki->pid] = $this->root->smtp_auth;
 		}
-	
+
 		if ($subject === '' || ($message === '' && empty($footer))) return FALSE;
-	
+
 		// Subject:
 		if (isset($footer['PAGE'])) $subject = str_replace('$page', $footer['PAGE'], $subject);
-	
+
 		// Footer
 		if (isset($footer['REMOTE_ADDR'])) $footer['REMOTE_ADDR'] = & $_SERVER['REMOTE_ADDR'];
 		if (isset($footer['USER_AGENT']))
@@ -3920,13 +3965,13 @@ EOD;
 				$_footer .= $key . ': ' . $value . "\n";
 			$message .= $_footer;
 		}
-	
+
 		// Wait POP/APOP auth completion
 		if ($_after_pop[$this->xpwiki->pid]) {
 			$result = $this->pop_before_smtp();
 			if ($result !== TRUE) die($result);
 		}
-	
+
 		ini_set('SMTP', $this->root->smtp_server);
 		mb_language($this->cont['LANG']);
 		if ($_headers[$this->xpwiki->pid] === '') {
@@ -3935,7 +3980,7 @@ EOD;
 			return mb_send_mail($_to[$this->xpwiki->pid], $subject, $message, $_headers[$this->xpwiki->pid]);
 		}
 	}
-	
+
 	// APOP/POP Before SMTP
 	function pop_before_smtp($pop_userid = '', $pop_passwd = '',
 		$pop_server = 'localhost', $pop_port = 110)
@@ -3946,31 +3991,31 @@ EOD;
 			// Force APOP only, or POP only
 			$pop_auth_use_apop = $must_use_apop = $GLOBALS['pop_auth_use_apop'];
 		}
-	
+
 		// Compat: GLOBALS > function arguments
 		foreach(array('pop_userid', 'pop_passwd', 'pop_server', 'pop_port') as $global) {
 			if(isset($GLOBALS[$global]) && $GLOBALS[$global] !== '')
 				$$global = $GLOBALS[$global];
 		}
-	
+
 		// Check
 		$die = '';
 		foreach(array('pop_userid', 'pop_server', 'pop_port') as $global)
 			if($$global === '') $die .= 'pop_before_smtp(): $' . $global . ' seems blank' . "\n";
 		if ($die) return ($die);
-	
+
 		// Connect
 		$errno = 0; $errstr = '';
 		$fp = @fsockopen($pop_server, $pop_port, $errno, $errstr, 30);
 		if (! $fp) return ('pop_before_smtp(): ' . $errstr . ' (' . $errno . ')');
-	
+
 		// Greeting message from server, may include <challenge-string> of APOP
 		$message = fgets($fp, 1024); // 512byte max
 		if (! preg_match('/^\+OK/', $message)) {
 			fclose($fp);
 			return ('pop_before_smtp(): Greeting message seems invalid');
 		}
-	
+
 		$challenge = array();
 		if ($pop_auth_use_apop &&
 		   (preg_match('/<.*>/', $message, $challenge) || $must_use_apop)) {
@@ -3991,20 +4036,20 @@ EOD;
 			}
 			fputs($fp, 'PASS ' . $pop_passwd . "\r\n");
 		}
-	
+
 		$result = fgets($fp, 1024); // 512byte max, auth result
 		$auth   = preg_match('/^\+OK/', $result);
-	
+
 		if ($auth) {
 			fputs($fp, 'STAT' . "\r\n"); // STAT, trigger SMTP relay!
 			$message = fgets($fp, 1024); // 512byte max
 		}
-	
+
 		// Disconnect anyway
 		fputs($fp, 'QUIT' . "\r\n");
 		$message = fgets($fp, 1024); // 512byte max, last '+OK'
 		fclose($fp);
-	
+
 		if (! $auth) {
 			return ('pop_before_smtp(): ' . $method . ' authentication failed');
 		} else {
@@ -4023,40 +4068,40 @@ EOD;
 	if (is_null($redirect_max)) {$redirect_max = $this->cont['PKWK_HTTP_REQUEST_URL_REDIRECT_MAX'];}
 		$rc  = array();
 		$arr = parse_url($url);
-	
+
 		$via_proxy = $this->root->use_proxy ? ! $this->in_the_net($this->root->no_proxy, $arr['host']) : FALSE;
-	
+
 		// query
 		$arr['query'] = isset($arr['query']) ? '?' . $arr['query'] : '';
 		// port
 		$arr['port']  = isset($arr['port'])  ? $arr['port'] : 80;
-	
+
 		$url_base = $arr['scheme'] . '://' . $arr['host'] . ':' . $arr['port'];
 		$url_path = isset($arr['path']) ? $arr['path'] : '/';
 		$url = ($via_proxy ? $url_base : '') . $url_path . $arr['query'];
-	
+
 		$query = $method . ' ' . $url . ' HTTP/1.0' . "\r\n";
 		$query .= 'Host: ' . $arr['host'] . "\r\n";
 		$query .= 'User-Agent: Mozilla/5.0(xpWiki/' . $this->cont['S_VERSION'] . ")\r\n";
-	
+
 		// Basic-auth for HTTP proxy server
 		if ($this->root->need_proxy_auth && isset($this->root->proxy_auth_user) && isset($this->root->proxy_auth_pass))
 			$query .= 'Proxy-Authorization: Basic '.
 				base64_encode($this->root->proxy_auth_user . ':' . $this->root->proxy_auth_pass) . "\r\n";
-	
+
 		// (Normal) Basic-auth for remote host
 		if (isset($arr['user']) && isset($arr['pass']))
 			$query .= 'Authorization: Basic '.
 				base64_encode($arr['user'] . ':' . $arr['pass']) . "\r\n";
-	
+
 		$query .= $headers;
-	
+
 		if (strtoupper($method) === 'POST') {
 			// 'application/x-www-form-urlencoded', especially for TrackBack ping
 			$POST = array();
 			foreach ($post as $name=>$val) $POST[] = $name . '=' . urlencode($val);
 			$data = join('&', $POST);
-	
+
 			if (preg_match('/^[a-zA-Z0-9_-]+$/', $content_charset)) {
 				// Legacy but simple
 				$query .= 'Content-Type: application/x-www-form-urlencoded' . "\r\n";
@@ -4065,14 +4110,14 @@ EOD;
 				$query .= 'Content-Type: application/x-www-form-urlencoded' .
 					'; charset=' . strtolower($content_charset) . "\r\n";
 			}
-	
+
 			$query .= 'Content-Length: ' . strlen($data) . "\r\n";
 			$query .= "\r\n";
 			$query .= $data;
 		} else {
 			$query .= "\r\n";
 		}
-	
+
 		$errno  = 0;
 		$errstr = '';
 		$fp = fsockopen(
@@ -4091,11 +4136,11 @@ EOD;
 		$response = '';
 		while (! feof($fp)) $response .= fread($fp, 4096);
 		fclose($fp);
-	
+
 		$resp = explode("\r\n\r\n", $response, 2);
 		$rccd = explode(' ', $resp[0], 3); // array('HTTP/1.1', '200', 'OK\r\n...')
 		$rc   = (integer)$rccd[1];
-	
+
 		switch ($rc) {
 		case 301: // Moved Permanently
 		case 302: // Moved Temporarily
@@ -4121,22 +4166,22 @@ EOD;
 			'data'   => $resp[1]  // Data
 		);
 	}
-	
+
 	// Check if the $host is in the specified network(s)
 	function in_the_net($networks = array(), $host = '')
 	{
 		if (empty($networks) || $host === '') return FALSE;
 		if (! is_array($networks)) $networks = array($networks);
-	
+
 		$matches = array();
-	
+
 		if (preg_match($this->cont['PKWK_CIDR_NETWORK_REGEX'], $host, $matches)) {
 			$ip = $matches[1];
 		} else {
 			$ip = gethostbyname($host); // May heavy
 		}
 		$l_ip = ip2long($ip);
-	
+
 		foreach ($networks as $network) {
 			if (preg_match($this->cont['PKWK_CIDR_NETWORK_REGEX'], $network, $matches) &&
 			    is_long($l_ip) && long2ip($l_ip) === $ip) {
@@ -4147,7 +4192,7 @@ EOD;
 				$mask  = is_numeric($mask) ?
 					pow(2, 32) - pow(2, 32 - $mask) : // '8' means '8-bit mask'
 					ip2long($mask);                   // '255.0.0.0' (the same)
-	
+
 				if (($l_ip & $mask) === $l_net) return TRUE;
 			} else {
 				// $host seems not IPv4 address. May be a DNS name like 'foobar.example.com'?
@@ -4156,22 +4201,22 @@ EOD;
 						return TRUE;
 			}
 		}
-	
+
 		return FALSE; // Not found
 	}
 //----- End proxy.php -----//
 
 //----- Start link.php -----//
 	// PukiWiki - Yet another WikiWikiWeb clone
-	// $Id: pukiwiki_func.php,v 1.212 2009/10/22 09:00:53 nao-pon Exp $
+	// $Id: pukiwiki_func.php,v 1.213 2009/11/17 09:09:29 nao-pon Exp $
 	// Copyright (C) 2003-2006 PukiWiki Developers Team
 	// License: GPL v2 or (at your option) any later version
 	//
 	// Backlinks / AutoLinks related functions
-	
+
 	// ------------------------------------------------------------
 	// DATA STRUCTURE of *.ref and *.rel files
-	
+
 	// CACHE_DIR/encode('foobar').ref
 	// ---------------------------------
 	// Page-name1<tab>0<\n>
@@ -4182,40 +4227,40 @@ EOD;
 	//	0 = Added when link(s) to 'foobar' added clearly at this page
 	//	1 = Added when the sentence 'foobar' found from the page
 	//	    by AutoLink feature
-	
+
 	// CACHE_DIR/encode('foobar').rel
 	// ---------------------------------
 	// Page-name1<tab>Page-name2<tab> ... <tab>Page-nameN
 	//
 	//	List of page-names linked from 'foobar'
-	
+
 	// ------------------------------------------------------------
-	
-	
+
+
 	// データベースから関連ページを得る
 	function links_get_related_db($page)
 	{
 		$ref_name = $this->cont['CACHE_DIR'] . $this->encode($page) . '.ref';
 		if (! file_exists($ref_name)) return array();
-	
+
 		$times = array();
 		foreach (file($ref_name) as $line) {
 			list($_page) = explode("\t", rtrim($line));
-			$time = $this->get_filetime($_page);	
+			$time = $this->get_filetime($_page);
 			if($time !== 0) $times[$_page] = $time;
 		}
 		return $times;
 	}
-	
+
 	//ページの関連を更新する
 	function links_update($page)
 	{
 		if ($this->cont['PKWK_READONLY']) return; // Do nothing
-	
+
 		if (ini_get('safe_mode') == '0') set_time_limit(120);
-	
+
 		$time = $this->is_page($page, TRUE) ? $this->get_filetime($page) : 0;
-	
+
 		$rel_old        = array();
 		$rel_file       = $this->cont['CACHE_DIR'] . $this->encode($page) . '.rel';
 		$rel_file_exist = file_exists($rel_file);
@@ -4232,7 +4277,7 @@ EOD;
 			if (! isset($_obj->type) || $_obj->type !== 'pagename' ||
 			    $_obj->name === $page || $_obj->name === '')
 				continue;
-	
+
 			if (is_a($_obj, 'Link_autolink')) { // 行儀が悪い
 				$rel_auto[] = $_obj->name;
 			} else if (is_a($_obj, 'Link_autoalias')) {
@@ -4245,13 +4290,13 @@ EOD;
 			}
 		}
 		$rel_new = array_unique($rel_new);
-		
+
 		// autolinkしか向いていないページ
 		$rel_auto = array_diff(array_unique($rel_auto), $rel_new);
-	
+
 		// 全ての参照先ページ
 		$rel_new = array_merge($rel_new, $rel_auto);
-	
+
 		// .rel:$pageが参照しているページの一覧
 		if ($time) {
 			// ページが存在している
@@ -4262,11 +4307,11 @@ EOD;
 				fclose($fp);
 			}
 		}
-	
+
 		// .ref:$_pageを参照しているページの一覧
 		$this->links_add($page, array_diff($rel_new, $rel_old), $rel_auto);
 		$this->links_delete($page, array_diff($rel_old, $rel_new));
-	
+
 		// $pageが新規作成されたページで、AutoLinkの対象となり得る場合
 		if ($time && ! $rel_file_exist && $this->root->autolink
 			&& (preg_match("/^{$this->root->WikiName}$/", $page) ? $this->root->nowikiname : strlen($page) >= $this->root->autolink))
@@ -4280,44 +4325,44 @@ EOD;
 			}
 		}
 		$ref_file = $this->cont['CACHE_DIR'] . $this->encode($page) . '.ref';
-	
+
 		// $pageが削除されたときに、
 		if (! $time && file_exists($ref_file)) {
 			foreach (file($ref_file) as $line) {
 				list($ref_page, $ref_auto) = explode("\t", rtrim($line));
-	
+
 				// $pageをAutoLinkでしか参照していないページを一斉更新する(おいおい)
 				if ($ref_auto)
 					$this->links_delete($ref_page, array($page));
 			}
 		}
 	}
-	
+
 	// Init link cache (Called from link plugin)
 	function links_init()
 	{
 		if ($this->cont['PKWK_READONLY']) return; // Do nothing
-	
-	
+
+
 		// Init database
 		foreach ($this->get_existfiles($this->cont['CACHE_DIR'], '.ref') as $cache)
 			unlink($cache);
 		foreach ($this->get_existfiles($this->cont['CACHE_DIR'], '.rel') as $cache)
 			unlink($cache);
-	
+
 		$ref   = array(); // 参照元
 		foreach ($this->get_existpages() as $page) {
 			if ($page === $this->root->whatsnew) continue;
-			
+
 			if (ini_get('safe_mode') === '0') set_time_limit(60);
-			
+
 			$rel   = array(); // 参照先
 			$links = $this->links_get_objects($page);
 			foreach ($links as $_obj) {
 				if (! isset($_obj->type) || $_obj->type !== 'pagename' ||
 				    $_obj->name === $page || $_obj->name === '')
 					continue;
-	
+
 				$_name = $_obj->name;
 				if (is_a($_obj, 'Link_autoalias')) {
 					$_alias = $this->get_autoaliases($_name);
@@ -4339,7 +4384,7 @@ EOD;
 				fclose($fp);
 			}
 		}
-	
+
 		foreach ($ref as $page=>$arr) {
 			$fp  = fopen($this->cont['CACHE_DIR'] . $this->encode($page) . '.ref', 'w')
 				or $this->die_message('cannot write ' . htmlspecialchars($this->cont['CACHE_DIR'] . $this->encode($page) . '.ref'));
@@ -4348,18 +4393,18 @@ EOD;
 			fclose($fp);
 		}
 	}
-	
+
 	function links_add($page, $add, $rel_auto)
 	{
 		if ($this->cont['PKWK_READONLY']) return; // Do nothing
-	
+
 		$rel_auto = array_flip($rel_auto);
-		
+
 		foreach ($add as $_page) {
 			$all_auto = isset($rel_auto[$_page]);
 			$is_page  = $this->is_page($_page);
 			$ref      = $page . "\t" . ($all_auto ? 1 : 0) . "\n";
-	
+
 			$ref_file = $this->cont['CACHE_DIR'] . $this->encode($_page) . '.ref';
 			if (file_exists($ref_file)) {
 				foreach (file($ref_file) as $line) {
@@ -4377,18 +4422,18 @@ EOD;
 			}
 		}
 	}
-	
+
 	function links_delete($page, $del)
 	{
 		if ($this->cont['PKWK_READONLY']) return; // Do nothing
-	
+
 		foreach ($del as $_page) {
 			$ref_file = $this->cont['CACHE_DIR'] . $this->encode($_page) . '.ref';
 			if (! file_exists($ref_file)) continue;
-	
+
 			$all_auto = TRUE;
 			$is_page = $this->is_page($_page);
-	
+
 			$ref = '';
 			foreach (file($ref_file) as $line) {
 				list($ref_page, $ref_auto) = explode("\t", rtrim($line));
@@ -4406,14 +4451,14 @@ EOD;
 			}
 		}
 	}
-	
+
 	function & links_get_objects($page, $refresh = FALSE)
 	{
 		static $obj;
-	
+
 		if (! isset($obj) || $refresh)
 			$obj = & new XpWikiInlineConverter($this->xpwiki, NULL, array('note'));
-	
+
 		$result = $obj->get_objects(join('', preg_grep('/^(?!\/\/|\s)./', $this->get_source($page))), $page);
 		return $result;
 	}
