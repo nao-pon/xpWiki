@@ -2,7 +2,7 @@
 /////////////////////////////////////////////////
 // PukiWiki - Yet another WikiWikiWeb clone.
 //
-// $Id: isbn.inc.php,v 1.13 2009/10/27 08:46:22 nao-pon Exp $
+// $Id: isbn.inc.php,v 1.14 2009/11/17 09:14:55 nao-pon Exp $
 //
 // *0.5: URL が存在しない場合、画像を表示しない。
 //			 Thanks to reimy.
@@ -404,10 +404,14 @@ EOD;
 	function plugin_isbn_cache_image_fetch($target, $dir, $check=true) {
 		$_target = $target = strtoupper($target);
 		$filename = $dir."ASIN".$target.".jpg";
-	
+		$getimg = FALSE;
+		
 		if (!is_readable($filename) || (is_readable($filename) && $check && $this->config['ISBN_AMAZON_EXPIRE_IMG'] * 3600 * 24 < $this->cont['UTC'] - filemtime($filename))) {
+			$getimg = TRUE;
 			$size = 'M';
 			$isbn = $target;
+			$data = '';
+			
 			if (preg_match("/^(?:(s|m|l)-)(.+)/i",$target,$match)) {
 				$size = strtoupper($match[1]);
 				$isbn = $match[2];
@@ -425,22 +429,21 @@ EOD;
 				$data = $this->func->http_request($url);
 				if ($data['rc'] == 200 && $data['data']) {
 					$data = $data['data'];
-				} else 	{
-					$data = @join(@file($this->config['NOIMAGE']));
 				}
-			} else {
-				// キャッシュを NOIMAGE のコピーとする
-				$data = @join(@file($this->config['NOIMAGE']));
 			}
+			
 			$this->plugin_isbn_cache_image_save($data, $filename);
+		}
+		if (($getimg && ! $data) || (! $getimg && ! filesize($filename))) {
+			return $this->config['NOIMAGE'];
+		} else {
 			return str_replace($this->cont["DATA_HOME"], $this->cont["HOME_URL"], $filename);
-		} else
-			return str_replace($this->cont["DATA_HOME"], $this->cont["HOME_URL"], $filename);
+		}
 	}
 	
 	// キャッシュを保存
 	function plugin_isbn_cache_save($data, $filename) {
-		$fp = fopen($filename, "w");
+		$fp = fopen($filename, "wb");
 		fwrite($fp, $data);
 		fclose($fp);
 		return $filename;
@@ -448,7 +451,7 @@ EOD;
 	
 	// 画像キャッシュを保存
 	function plugin_isbn_cache_image_save($data, $filename) {
-		$fp = fopen($filename, "w");
+		$fp = fopen($filename, "wb");
 		fwrite($fp, $data);
 		fclose($fp);
 		return $filename;
