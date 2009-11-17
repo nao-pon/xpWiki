@@ -1,6 +1,6 @@
 <?php
 // PukiWiki - Yet another WikiWikiWeb clone.
-// $Id: amazon.inc.php,v 1.11 2009/10/27 08:46:22 nao-pon Exp $
+// $Id: amazon.inc.php,v 1.12 2009/11/17 09:12:44 nao-pon Exp $
 // Id: amazon.inc.php,v 1.1 2003/07/24 13:00:00 閑舎
 //
 // Amazon plugin: Book-review maker via amazon.com/amazon.jp
@@ -413,23 +413,25 @@ EOD;
 			list($title, $url) = $this->plugin_amazon_get_asin($this->asin);
 	
 			$body = $url? $this->plugin_amazon_get_page($url) : '';
-			if ($body != '') {
+			if ($body) {
 				$tmpfile = $dir . 'ASIN' . $this->asin . '.jpg.0';
 				$fp = fopen($tmpfile, 'wb');
 				fwrite($fp, $body);
 				fclose($fp);
 				$size = @ getimagesize($tmpfile);
 				unlink($tmpfile);
-			}
-			if (! $body || $size[1] <= 1) { // 通常は1が返るが念のため0の場合も(reimy)
-				// キャッシュを PLUGIN_AMAZON_NO_IMAGE のコピーとする
-				if (! $body = file_get_contents($this->config['PLUGIN_AMAZON_NO_IMAGE'])) {
-					return FALSE;
+				if ($size[1] <= 1) { // 通常は1が返るが念のため0の場合も(reimy)
+					$body = '';
 				}
 			}
 			$this->plugin_amazon_cache_image_save($body, $this->cont['CACHE_DIR']);
 		}
-		return str_replace($this->cont["DATA_HOME"], $this->cont["HOME_URL"], $filename);
+
+		if (($get_img && ! $body) || (! $get_img && ! filesize($filename))) {
+			return $this->config['PLUGIN_AMAZON_NO_IMAGE'];
+		} else {
+			return str_replace($this->cont["DATA_HOME"], $this->cont["HOME_URL"], $filename);
+		}
 	}
 	
 	// Save image cache
