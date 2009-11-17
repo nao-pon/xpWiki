@@ -2,7 +2,7 @@
 /////////////////////////////////////////////////
 // PukiWiki - Yet another WikiWikiWeb clone.
 //
-// $Id: popular.inc.php,v 1.11 2009/02/22 02:01:56 nao-pon Exp $
+// $Id: popular.inc.php,v 1.12 2009/11/17 09:18:42 nao-pon Exp $
 //
 
 /*
@@ -59,14 +59,17 @@ class xpwiki_plugin_popular extends xpwiki_plugin {
 			$prefix = rtrim($prefix, '/');
 		case 3:
 			if ($array[2]) {
-				$today = $this->func->get_date('Y/m/d');
-				if ($array[2] === 'yesterday' || $array[2] === '-1') {
-					$yesterday = $this->func->get_date('Y/m/d', $this->cont['UTIME'] - 86400);
+				$array[2] = strtolower($array[2]);
+				if ($array[2] !== 'false' && $array[2] !== 'total') {
+					$today = $this->func->get_date('Y/m/d');
+					if ($array[2] === 'yesterday' || $array[2] === '-1') {
+						$yesterday = $this->func->get_date('Y/m/d', $this->cont['UTIME'] - 86400);
+					}
 				}
 			}
 		case 2:
 			$except = $array[1];
-			$except = str_replace(array("&#124;","&#x7c;",' '), '|', $except);
+			$except = str_replace(array("&#124;","&#x7c;",'#'), '|', $except);
 		case 1:
 			$max = (int)$array[0]; 
 			$max = (!$max)? $this->cont['PLUGIN_POPULAR_DEFAULT'] : $max;
@@ -120,7 +123,6 @@ class xpwiki_plugin_popular extends xpwiki_plugin {
 				$counters[$data[0]] = $data[1];
 			}
 		}
-	
 	
 		$items = '';
 		if ($prefix) {
