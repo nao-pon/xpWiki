@@ -2,7 +2,7 @@
 /////////////////////////////////////////////////
 // PukiWiki - Yet another WikiWikiWeb clone.
 //
-//  $Id: attach.inc.php,v 1.52 2009/05/25 04:28:45 nao-pon Exp $
+//  $Id: attach.inc.php,v 1.53 2009/11/17 09:20:56 nao-pon Exp $
 //  ORG: attach.inc.php,v 1.31 2003/07/27 14:15:29 arino Exp $
 //
 /*
@@ -13,22 +13,22 @@
 */
 
 class xpwiki_plugin_attach extends xpwiki_plugin {
-	
+
 	var $listed = FALSE;
-	
+
 	function plugin_attach_init () {
 		// アップロード可能なファイルサイズ(php.iniから取得)
 		$this->cont['PLUGIN_ATTACH_MAX_FILESIZE'] = $this->func->return_bytes(ini_get('upload_max_filesize')); // getini
-		
+
 		// 管理者だけが添付ファイルをアップロードできるようにする
 		$this->cont['ATTACH_UPLOAD_ADMIN_ONLY'] = FALSE; // FALSE or TRUE
-	
+
 		// 管理者だけが ShockwaveFlash ファイルをアップロードできるようにする
 		$this->cont['ATTACH_UPLOAD_FLASH_ADMIN_ONLY'] = FALSE;
 
 		// ページ編集権限がある人のみ添付ファイルをアップロードできるようにする
 		$this->cont['ATTACH_UPLOAD_EDITER_ONLY'] = TRUE; // FALSE or TRUE
-	
+
 		// ページオーナー権限がない場合にアップロードできる拡張子(カンマ区切り)
 		// ATTACH_UPLOAD_EDITER_ONLY = FALSE のときに使用
 		$this->cont['ATTACH_UPLOAD_EXTENSION'] = 'jpg, jpeg, gif, png, txt, spch';
@@ -36,27 +36,27 @@ class xpwiki_plugin_attach extends xpwiki_plugin {
 		// ファイルの所有者チェックを行わない
 		// チェックを行わないとアクセスできるすべての人がファイルを削除したりできます。
 		$this->cont['ATTACH_DISABLED_OWNER_CHECK'] = FALSE; // FALSE or TRUE
-		
+
 		// 管理者とページ作成者だけが添付ファイルを削除できるようにする
 		$this->cont['ATTACH_DELETE_ADMIN_ONLY'] = FALSE; // FALSE or TRUE
-	
+
 		// 管理者とページ作成者が添付ファイルを削除するときは、バックアップを作らない
-		$this->cont['ATTACH_DELETE_ADMIN_NOBACKUP'] = TRUE; // FALSE or TRUE 
-	
+		$this->cont['ATTACH_DELETE_ADMIN_NOBACKUP'] = TRUE; // FALSE or TRUE
+
 		// ゲストユーザーのアップロード/削除時にパスワードを要求する
 		// (ADMIN_ONLYが優先 TRUE を強く奨励)
 		$this->cont['ATTACH_PASSWORD_REQUIRE'] = TRUE; // FALSE or TRUE
-		
+
 		// 添付ファイル名を変更できるようにする
 		$this->cont['PLUGIN_ATTACH_RENAME_ENABLE'] =  TRUE; // FALSE or TRUE
 
-		// ファイルのアクセス権 
-		$this->cont['ATTACH_FILE_MODE'] = 0644; 
-		//define('ATTACH_FILE_MODE',0604); // for XREA.COM 
-	
+		// ファイルのアクセス権
+		$this->cont['ATTACH_FILE_MODE'] = 0644;
+		//define('ATTACH_FILE_MODE',0604); // for XREA.COM
+
 		// イメージファイルのアクセス権
 		if  (ini_get('safe_mode') == "1")
-		{  
+		{
 			//セーフモード時はサムネイル作成と回転のためゲストに書き込み権限が必要
 			$this->cont['ATTACH_IMGFILE_MODE'] =  0606;
 		}
@@ -64,33 +64,33 @@ class xpwiki_plugin_attach extends xpwiki_plugin {
 		{
 			$this->cont['ATTACH_IMGFILE_MODE'] =  $this->cont['ATTACH_FILE_MODE'];
 		}
-	
+
 		// open 時にリファラをチェックする
 		// 0:チェックしない, 1:未定義は許可, 2:未定義も不許可
 		// 未設定 = URL直打ち, ノートンなどでリファラを遮断 など。
 		//$this->cont['ATTACH_REFCHECK'] = 1;
 		// この設定は pukiwiki.ini.php の $const['OPEN_MEDIA_REFCHECK'] へ変更した
-	
+
 		// file icon image
 		if (!isset($this->cont['FILE_ICON']))
 		{
 			$this->cont['FILE_ICON'] = '<img src="' . $this->cont['IMAGE_DIR'] . 'file.png" width="20" height="20" alt="file" style="border-width:0px" />';
 		}
-	
+
 		// mime-typeを記述したページ
 		$this->cont['ATTACH_CONFIG_PAGE_MIME'] = 'plugin/attach/mime-type';
-	
+
 		// 詳細情報・ファイル一覧(イメージモード)で使用する ref プラグインの追加オプション
 		$this->cont['ATTACH_CONFIG_REF_OPTION'] = ',noinline';
 		$this->cont['ATTACH_CONFIG_REF_OPTION_IMG'] = ',mw:160,mh:120';
-		
+
 		// ref プラグインの添付リンクから呼び出された場合のサムネイル作成サイズ規定値(px)
 		$this->cont['ATTACH_CONFIG_REF_THUMB'] = 240;
-	
+
 		// リスト表示する件数
 		$this->cont['ATTACH_LIST_MAX'] = 40;
 		$this->cont['ATTACH_LIST_MAX_SKIN'] = 20;
-		
+
 		// tar
 		$this->cont['TAR_HDR_LEN'] = 512;			// ヘッダの大きさ
 		$this->cont['TAR_BLK_LEN'] = 512;			// 単位ブロック長さ
@@ -102,7 +102,7 @@ class xpwiki_plugin_attach extends xpwiki_plugin {
 		$this->cont['TAR_HDR_TYPE_LEN'] = 1;		// ファイルタイプの長さ
 
 	}
-	
+
 	function can_call_otherdir_convert() {
 		return 1;
 	}
@@ -111,15 +111,15 @@ class xpwiki_plugin_attach extends xpwiki_plugin {
 	function plugin_attach_convert()
 	{
 		$this->converted = TRUE;
-		
+
 		if (!ini_get('file_uploads'))
 		{
 			return 'file_uploads disabled';
 		}
-		
+
 		$noattach = $nolist = $noform = FALSE;
 		$page = $this->root->vars['page'];
-		
+
 		if (func_num_args() > 0)
 		{
 			foreach (func_get_args() as $key => $arg)
@@ -152,10 +152,10 @@ class xpwiki_plugin_attach extends xpwiki_plugin {
 		{
 			$ret .= $this->attach_form($page);
 		}
-		
+
 		return $ret;
 	}
-	
+
 	//-------- action
 	function plugin_attach_action()
 	{
@@ -171,10 +171,10 @@ class xpwiki_plugin_attach extends xpwiki_plugin {
 			$this->root->vars['file'] = $this->root->vars['delfile'];
 		}
 		if (empty($this->root->vars['refer'])) $this->root->vars['refer'] = $this->root->vars['page'];
-		
+
 		$age = array_key_exists('age',$this->root->vars) ? $this->root->vars['age'] : 0;
 		$pcmd = array_key_exists('pcmd',$this->root->vars) ? $this->root->vars['pcmd'] : '';
-		
+
 		if (empty($pcmd) && !empty($this->root->vars['refer']) && $this->func->is_page($this->root->vars['refer']))
 		{
 			if (empty($this->root->vars['docmd'])) {
@@ -184,12 +184,12 @@ class xpwiki_plugin_attach extends xpwiki_plugin {
 				$pcmd = 'nopcmd';
 			}
 		}
-		
+
 		if (empty($this->root->vars['refer']) && $pcmd === 'upload') {
 			// ページ名の指定がない場合は list
 			$pcmd = 'list';
 		}
-		
+
 		// Authentication
 		if (isset($this->root->vars['refer']))
 		{
@@ -211,7 +211,7 @@ class xpwiki_plugin_attach extends xpwiki_plugin {
 						$check = $this->func->check_readable($this->root->vars['refer'], false, false);
 					}
 				}
-				
+
 				if (!$check) {
 					$ret = array(
 						'result' => FALSE,
@@ -235,7 +235,7 @@ class xpwiki_plugin_attach extends xpwiki_plugin {
 								$_files[$_key] = $_FILES['attach_file'][$_key][$i];
 							}
 							$ret = $this->attach_upload($_files,$this->root->vars['refer'],$pass,$copyright);
-						}	
+						}
 					} else {
 						$ret = $this->attach_upload($_FILES['attach_file'],$this->root->vars['refer'],$pass,$copyright);
 					}
@@ -251,7 +251,7 @@ class xpwiki_plugin_attach extends xpwiki_plugin {
 				if (!$this->func->check_readable($this->root->vars['refer'])) return array('result'=>FALSE,'msg'=>$this->root->_attach_messages['err_noparm']);
 			}
 		}
-		
+
 		$pass = (!empty($this->root->vars['pass'])) ? $this->root->vars['pass'] : NULL;
 		switch ($pcmd)
 		{
@@ -276,19 +276,19 @@ class xpwiki_plugin_attach extends xpwiki_plugin {
 		{
 			return $this->attach_list();
 		}
-		
+
 		return false;
 	}
-	
+
 	//-------- call from skin
 	function attach_filelist($isbn=false)
 	{
 	//	global $vars,$_attach_messages;
 		if ($this->listed) return '';
-		
+
 		$obj = &new XpWikiAttachPages($this->xpwiki, $this->root->vars['page'],0,$isbn,20);
 		if ($obj->err === 1) return '<span style="color:red;font-size:150%;font-weight:bold;">DB ERROR!: Please initialize an attach file database on an administrator screen.</span>';
-	
+
 		if (!array_key_exists($this->root->vars['page'],$obj->pages))
 		{
 			return '';
@@ -303,7 +303,7 @@ class xpwiki_plugin_attach extends xpwiki_plugin {
 	{
 		// $pass=NULL : パスワードが指定されていない
 		// $pass=TRUE : アップロード許可
-		
+
 		if ($file['tmp_name'] == '' or !is_uploaded_file($file['tmp_name']) or !$file['size'])
 		{
 			return array('result'=>FALSE);
@@ -333,10 +333,10 @@ class xpwiki_plugin_attach extends xpwiki_plugin {
 
 		if ( strcasecmp(substr($file['name'],-4),".tar") == 0 && $this->root->post['untar_mode'] == "on" ) {
 			// UploadされたTarアーカイブを展開添付する
-	
+
 			// Tarファイル展開
 			$etars = $this->untar( $file['tmp_name'], $this->cont['UPLOAD_DIR']);
-	
+
 			// 展開されたファイルを全てアップロードファイルとして追加
 			$enc = (strpos(strtolower($this->root->ua), 'windows') !== FALSE)? 'SJIS-WIN' : 'AUTO';
 			foreach ( $etars as $efile ) {
@@ -347,7 +347,7 @@ class xpwiki_plugin_attach extends xpwiki_plugin {
 					unlink( $efile['tmpname']);
 				}
 			}
-	
+
 			// 最後の返り値でreturn
 			return $res;
 		} else {
@@ -355,18 +355,18 @@ class xpwiki_plugin_attach extends xpwiki_plugin {
 			return $this->do_upload($page,$file['name'],$file['tmp_name'],$copyright,$pass);
 		}
 	}
-	
+
 	function do_upload($page,$fname,$tmpname,$copyright=FALSE,$pass=NULL,$notouch=FALSE,$options=NULL)
 	{
 		$overwrite = (!empty($options['overwrite']));
 		$changelog = (isset($options['changelog']))? $options['changelog'] : '';
-		
+
 		// ファイル名の正規化
 		$fname = str_replace("\0", '', $fname);
 		$fname = $this->func->basename(str_replace("\\","/",$fname));
-		
+
 		$_action = 'insert';
-		
+
 		// style.css
 		if ($fname === 'style.css' && $this->func->is_owner($page))
 		{
@@ -393,25 +393,25 @@ class xpwiki_plugin_attach extends xpwiki_plugin {
 							fputs($fp,$_data);
 							fclose($fp);
 						}
-						
+
 						return array('result'=>TRUE,'msg'=>$this->root->_attach_messages['msg_set_css']);
 					}
 				}
 				else
 					return array('result'=>FALSE,'msg'=>$this->root->_attach_messages['err_exists']);
-				
+
 			}
 		}
-		
+
 		// ページオーナー権限がない場合は拡張子をチェック
 		$allow_extensions = $this->get_allow_extensions();
 		if (empty($options['asSystem']) && !$overwrite && $allow_extensions && !$this->func->is_owner($page)
 			 && !preg_match("/\.(".join("|",$allow_extensions).")$/i",$fname)) {
 			return array('result'=>FALSE,'msg'=>str_replace('$1',htmlspecialchars(preg_replace('/.*\.([^.]*)$/',"$1",$fname)),$this->root->_attach_messages['err_extension']));
 		}
-		
+
 		$_size = @ getimagesize($tmpname);
-		
+
 		// イメージファイルの内容をチェック
 		if ($_size) {
 			$checkStr = file_get_contents($tmpname, FILE_BINARY, NULL, 0, 10240);
@@ -426,7 +426,7 @@ class xpwiki_plugin_attach extends xpwiki_plugin {
 				return array('result'=>FALSE,'msg'=>$this->root->_attach_messages['err_isflash']);
 			}
 		}
-		
+
 		// オリジナルファイル名
 		$org_fname = $fname;
 
@@ -437,10 +437,10 @@ class xpwiki_plugin_attach extends xpwiki_plugin {
 
 		// 格納ファイル名文字数チェック(SQL varchar(255) - strlen('_\d\d\d'))
 		$fname = (function_exists('mb_strcut'))? mb_strcut($fname, 0, 251) : substr($fname, 0, 251);
-		
+
 		// ファイル名 文字数のチェック
 		$fname = $this->regularize_fname($fname, $page);
-		
+
 		if (!$overwrite) {
 			// ファイル名が存在する場合は、数字を付け加える
 			if (preg_match("/^(.+)(\.[^.]*)$/",$fname,$match)) {
@@ -450,7 +450,7 @@ class xpwiki_plugin_attach extends xpwiki_plugin {
 				$_fname = $fname;
 				$_ext = '';
 			}
-	
+
 			$fi = 0;
 			do {
 				$obj = & new XpWikiAttachFile($this->xpwiki, $page, $fname);
@@ -459,13 +459,13 @@ class xpwiki_plugin_attach extends xpwiki_plugin {
 		} else {
 			$obj = & new XpWikiAttachFile($this->xpwiki, $page, $fname);
 		}
-		
+
 		if ( is_uploaded_file($tmpname) ) {
 			if ($obj->exist)
 			{
 				return array('result'=>FALSE,'msg'=>$this->root->_attach_messages['err_exists']);
 			}
-			
+
 			if (move_uploaded_file($tmpname,$obj->filename)) {
 				$this->attach_chmod($obj->filename);
 			} else {
@@ -482,12 +482,11 @@ class xpwiki_plugin_attach extends xpwiki_plugin {
 				return array('result'=>FALSE,'msg'=>$this->root->_attach_messages['err_exists']);
 			}
 		}
-		
+
 		if ($this->func->is_page($page)) {
 			if (!$notouch) {
-				$this->func->touch_page($page, FALSE, TRUE);
-				if (!$changelog) $changelog = 'Attach file: '.htmlspecialchars($obj->file). ' by '.$this->root->userinfo['uname_s'];
-				$this->func->push_page_changes($page, $changelog);
+				if (!$changelog) $changelog = 'Attached file: ' . htmlspecialchars($obj->file);
+				$this->root->rtf['page_touch'][$page][] = $changelog;
 			}
 			$this->func->clear_page_cache($page);
 		}
@@ -503,7 +502,7 @@ class xpwiki_plugin_attach extends xpwiki_plugin {
 			$_uname= $this->root->userinfo['uname'];
 			$_admins = (int)$this->func->check_admin($this->root->userinfo['uid']);
 		}
-		
+
 		$obj->getstatus();
 		$obj->status['age'] = 0;
 		$obj->status['pass'] = ($pass !== TRUE and $pass !== NULL) ? $pass : '';
@@ -517,18 +516,18 @@ class xpwiki_plugin_attach extends xpwiki_plugin {
 		$obj->status['imagesize'] = @ getimagesize($obj->filename);
 		$obj->action = $_action;
 		$obj->putstatus();
-		
+
 		if (!empty($this->root->vars['refid'])) {
 			$this->ref_replace($page, $this->root->vars['refid'], $obj->file, $obj->status['imagesize']);
 		}
-		
+
 		return array(
 			'result'   => TRUE,
 			'msg'      => $this->root->_attach_messages['msg_uploaded'],
 			'name'     => $obj->file
 		);
 	}
-	
+
 	// ref プラグインのソース置換
 	function ref_replace($page, $refid, $name, $imagesize) {
 		// サムネイルサイズ指定？
@@ -552,9 +551,9 @@ class xpwiki_plugin_attach extends xpwiki_plugin {
 		}
 		if ($_tmp !== $postdata) {
 			$this->func->file_write($this->cont['DATA_DIR'], $page, join('', $postdata), TRUE);
-		}	
+		}
 	}
-	
+
 	// ファイルアクセス権限を設定
 	function attach_chmod($file)
 	{
@@ -564,20 +563,20 @@ class xpwiki_plugin_attach extends xpwiki_plugin {
 		}
 		else
 		{
-			chmod($file, $this->cont['ATTACH_FILE_MODE']);	
+			chmod($file, $this->cont['ATTACH_FILE_MODE']);
 		}
 	}
-	
+
 	//詳細フォームを表示
 	function attach_info($err='')
 	{
 	//	global $vars,$_attach_messages;
-		
+
 		foreach (array('refer','file','age') as $var)
 		{
 			$$var = array_key_exists($var,$this->root->vars) ? $this->root->vars[$var] : '';
 		}
-		
+
 		$obj = &new XpWikiAttachFile($this->xpwiki, $refer,$file,$age);
 		return $obj->getstatus() ? $obj->info($err) : array('msg'=>$this->root->_attach_messages['err_notfound']);
 	}
@@ -585,17 +584,17 @@ class xpwiki_plugin_attach extends xpwiki_plugin {
 	function attach_delete($pass)
 	{
 	//	global $vars,$_attach_messages;
-		
+
 		foreach (array('refer','file','age','pass') as $var)
 		{
 			$$var = array_key_exists($var,$this->root->vars) ? $this->root->vars[$var] : '';
 		}
-		
+
 		if ($this->cont['ATTACH_UPLOAD_EDITER_ONLY'] and !$this->func->is_editable($refer))
 		{
 			return array('msg'=>$this->root->_attach_messages['err_noparm']);
 		}
-		
+
 		$obj = &new XpWikiAttachFile($this->xpwiki, $refer,$file,$age);
 		return $obj->getstatus() ? $obj->delete($pass) : array('msg'=>$this->root->_attach_messages['err_notfound']);
 	}
@@ -603,17 +602,17 @@ class xpwiki_plugin_attach extends xpwiki_plugin {
 	function attach_freeze($freeze,$pass)
 	{
 	//	global $vars,$_attach_messages;
-		
+
 		foreach (array('refer','file','age','pass') as $var)
 		{
 			$$var = array_key_exists($var,$this->root->vars) ? $this->root->vars[$var] : '';
 		}
-		
+
 		if ($this->cont['ATTACH_UPLOAD_EDITER_ONLY'] and !$this->func->is_editable($refer))
 		{
 			return array('msg'=>$this->root->_attach_messages['err_noparm']);
 		}
-		
+
 		$obj = &new XpWikiAttachFile($this->xpwiki, $refer,$file,$age);
 		return $obj->getstatus() ? $obj->freeze($freeze,$pass) : array('msg'=>$this->root->_attach_messages['err_notfound']);
 	}
@@ -625,12 +624,12 @@ class xpwiki_plugin_attach extends xpwiki_plugin {
 		{
 			$$var = array_key_exists($var,$this->root->vars) ? $this->root->vars[$var] : '';
 		}
-		
+
 		if ($this->cont['ATTACH_UPLOAD_EDITER_ONLY'] and !$this->func->is_editable($refer))
 		{
 			return array('msg'=>$this->root->_attach_messages['err_noparm']);
 		}
-		
+
 		$rd = intval($rd);
 		$obj = &new XpWikiAttachFile($this->xpwiki, $refer,$file,$age);
 		return $obj->getstatus() ? $obj->rotate($rd,$pass) : array('msg'=>$this->root->_attach_messages['err_notfound']);
@@ -643,36 +642,36 @@ class xpwiki_plugin_attach extends xpwiki_plugin {
 		{
 			$$var = array_key_exists($var,$this->root->vars) ? $this->root->vars[$var] : '';
 		}
-		
+
 		if ($this->cont['ATTACH_UPLOAD_EDITER_ONLY'] and !$this->func->is_editable($refer))
 		{
 			return array('msg'=>$this->root->_attach_messages['err_noparm']);
 		}
-		
+
 		$obj = &new XpWikiAttachFile($this->xpwiki, $refer,$file,$age);
 		return $obj->getstatus() ? $obj->copyright($copyright,$pass) : array('msg'=>$this->root->_attach_messages['err_notfound']);
 	}
-	
+
 	// リネーム
 	function attach_rename($pass)
 	{
 	//	global $vars, $_attach_messages;
-	
+
 		foreach (array('refer', 'file', 'age', 'pass', 'newname') as $var) {
 			${$var} = isset($this->root->vars[$var]) ? $this->root->vars[$var] : '';
 		}
-	
+
 		if ($this->func->is_freeze($refer) || ! $this->func->is_editable($refer)) {
 			return array('msg'=>$this->root->_attach_messages['err_noparm']);
 		}
 		$obj = & new XpWikiAttachFile($this->xpwiki, $refer, $file, $age);
 		if (! $obj->getstatus())
 			return array('msg'=>$this->root->_attach_messages['err_notfound']);
-		
+
 		return $obj->rename($pass, $newname);
-	
+
 	}
-	
+
 	// インラインコントロール
 	function attach_noinline($noinline, $pass)
 	{
@@ -680,16 +679,16 @@ class xpwiki_plugin_attach extends xpwiki_plugin {
 		{
 			$$var = array_key_exists($var,$this->root->vars) ? $this->root->vars[$var] : '';
 		}
-		
+
 		if ($this->cont['ATTACH_UPLOAD_EDITER_ONLY'] and !$this->func->is_editable($refer))
 		{
 			return array('msg'=>$this->root->_attach_messages['err_noparm']);
 		}
-		
+
 		$obj = &new XpWikiAttachFile($this->xpwiki, $refer,$file,$age);
 		return $obj->getstatus() ? $obj->noinline($noinline,$pass) : array('msg'=>$this->root->_attach_messages['err_notfound']);
 	}
-	
+
 	// pcmd が指定されていない
 	function attach_nopcmd() {
 		foreach (array('refer','file','age') as $var) {
@@ -699,7 +698,7 @@ class xpwiki_plugin_attach extends xpwiki_plugin {
 		$param  = '&file='.rawurlencode($file).'&refer='.rawurlencode($refer).
 			($age ? '&age='.$age : '');
 		$redirect = "{$this->root->script}?plugin=attach&pcmd=info$param";
-		
+
 		return array('msg'=>$this->root->_attach_messages['msg_nopcmd'],'redirect'=>$redirect);
 	}
 
@@ -707,25 +706,25 @@ class xpwiki_plugin_attach extends xpwiki_plugin {
 	function attach_open()
 	{
 	//	global $vars,$_attach_messages;
-		
+
 		foreach (array('refer','file','age') as $var)
 		{
 			$$var = array_key_exists($var,$this->root->vars) ? $this->root->vars[$var] : '';
 		}
-		
+
 		$obj = &new XpWikiAttachFile($this->xpwiki, $refer,$file,$age);
-		
+
 		return $obj->getstatus() ? $obj->open() : array('header' => 'HTTP/1.0 404 Not Found', 'msg' => 'File Not Found.');
 	}
 	//一覧取得
 	function attach_list($mode="")
 	{
 		$refer = isset($this->root->vars['refer'])? $this->root->vars['refer'] : '';
-		
+
 		$this->root->noattach = 1;
-		
+
 		$msg = $this->root->_attach_messages[$refer === '' ? 'msg_listall' : 'msg_listpage'];
-		
+
 		$max = ($refer)? $this->cont['ATTACH_LIST_MAX'] : $this->cont['ATTACH_LIST_MAX_SKIN'];
 		$max = (isset($this->root->vars['max']))? (int)$this->root->vars['max'] : $max;
 		$max = min($this->cont['ATTACH_LIST_MAX'], $max);
@@ -733,10 +732,10 @@ class xpwiki_plugin_attach extends xpwiki_plugin {
 		$start = max(0,$start);
 		$f_order = (isset($this->root->vars['order']))? $this->root->vars['order'] : "";
 		$mode = ($mode == "imglist")? $mode : "";
-	
+
 		$obj = &new XpWikiAttachPages($this->xpwiki, $refer,NULL,TRUE,$max,$start,FALSE,$f_order,$mode);
 		if ($refer && $this->func->is_page($refer) && $obj->err === 1) return array('msg'=>'DB ERROR!','body'=>'Please initialize an attach file database on an administrator screen.');
-		
+
 		$body = ($refer === '' or array_key_exists($refer,$obj->pages)) ?
 			$obj->toString($refer,FALSE) :
 			"<p>".$this->func->make_pagelink($refer)."</p>\n".$this->root->_attach_messages['err_noexist'];
@@ -747,13 +746,13 @@ class xpwiki_plugin_attach extends xpwiki_plugin {
 	{
 	//	global $vars;
 	//	global $_attach_messages;
-		
+
 		$this->root->vars['refer'] = $this->root->vars['page'];
 		$body = ini_get('file_uploads') ? $this->attach_form($this->root->vars['page']) : 'file_uploads disabled.';
-		
+
 		return array('msg'=>$this->root->_attach_messages['msg_upload'],'body'=>$body);
 	}
-	
+
 	//-------- サービス
 	//mime-typeの決定
 	function attach_mime_content_type($filename, $status)
@@ -761,7 +760,7 @@ class xpwiki_plugin_attach extends xpwiki_plugin {
 		$org_fname = $status['org_fname'];
 		$imagesize = $status['imagesize'];
 		$type = 'application/octet-stream'; //default
-		
+
 		if (!file_exists($filename))
 		{
 			return $type;
@@ -781,24 +780,24 @@ class xpwiki_plugin_attach extends xpwiki_plugin {
 					return 'application/x-shockwave-flash';
 			}
 		}
-		
+
 		$matches = array();
 		if (!preg_match('/_((?:[0-9A-F]{2})+)(?:\.\d+)?$/',$filename,$matches))
 		{
 			return $type;
 		}
 		$filename = $org_fname;
-		
+
 		// mime-type一覧表を取得
 		$config = new XpWikiConfig($this->xpwiki, $this->cont['ATTACH_CONFIG_PAGE_MIME']);
 		$table = $config->read() ? $config->get('mime-type') : array();
 		unset($config); // メモリ節約
-		
+
 		foreach ($table as $row)
 		{
 			$_type = trim($row[0]);
 			$exts = preg_split('/\s+|,/',trim($row[1]),-1,PREG_SPLIT_NO_EMPTY);
-			
+
 			foreach ($exts as $ext)
 			{
 				if (preg_match("/\.$ext$/i",$filename))
@@ -807,7 +806,7 @@ class xpwiki_plugin_attach extends xpwiki_plugin {
 				}
 			}
 		}
-		
+
 		return $type;
 	}
 	//アップロードフォーム
@@ -819,23 +818,23 @@ class xpwiki_plugin_attach extends xpwiki_plugin {
 		}
 
 		if (!isset($load[$this->xpwiki->pid])) {$load[$this->xpwiki->pid] = array();}
-		
+
 		$this->func->exist_plugin('attach');
-		
+
 		if (isset($load[$this->xpwiki->pid][$page]))
 			$load[$this->xpwiki->pid][$page]++;
 		else
 			$load[$this->xpwiki->pid][$page] = 0;
-		
+
 		$pgid = $this->func->get_pgid_by_name($page);
-		
+
 		// refid 指定
 		$refid = (!empty($this->root->vars['refid']))? '<input type="hidden" name="refid" value="'.htmlspecialchars($this->root->vars['refid']).'" />' : '';
-		
+
 		if (! empty($this->root->vars['popup'])) {
 			$this->root->vars['returi'] = $_SERVER['REQUEST_URI'];
 		}
-		
+
 		$thumb_px = $this->cont['ATTACH_CONFIG_REF_THUMB'];
 		$thumb = (!empty($this->root->vars['refid']) && !empty($this->root->vars['thumb']))?
 			'<p><input type="checkbox" name="make_thumb" value="1" checked="checked" />' .
@@ -845,11 +844,11 @@ class xpwiki_plugin_attach extends xpwiki_plugin {
 			'H:<input type="text" name="thumb_h" size="3" value="'.$thumb_px.'" />(Max)</p>' : '';
 		$filename = (!empty($this->root->vars['filename']))? '<input type="hidden" name="filename" value="'.htmlspecialchars($this->root->vars['filename']).'" />' : '';
 		$returi = (!empty($this->root->vars['returi']))? '<input type="hidden" name="returi" value="'.htmlspecialchars($this->root->vars['returi']).'" />' : '';
-		
+
 		$r_page = rawurlencode($page);
 		$s_page = htmlspecialchars($page);
 		$is_popup = isset($this->root->vars['popup']);
-		
+
 		$navi = '';
 		if (! $is_popup) {
 			$navi = "<h3>".str_replace('$1', $this->func->make_pagelink($page), $this->root->_attach_messages['msg_upload'])."</h3>";
@@ -860,12 +859,12 @@ class xpwiki_plugin_attach extends xpwiki_plugin {
   </span><br />
 EOD;
 		}
-	
+
 		if (!(bool)ini_get('file_uploads'))
 		{
 			return $navi;
 		}
-		
+
 		$painter = '';
 		if ($this->func->exist_plugin('painter'))
 		{
@@ -899,9 +898,9 @@ EOD;
 		}
 		$maxsize = $this->cont['PLUGIN_ATTACH_MAX_FILESIZE'];
 		$msg_maxsize = sprintf($this->root->_attach_messages['msg_maxsize'],number_format($maxsize/1024)."KB");
-	
+
 		$file_select = '<div id="_p_attach_file">' . $this->root->_attach_messages['msg_file'] . ': <input type="file" name="attach_file[]" /><input type="button" value="More" onclick="XpWiki.insertClone(\'_p_attach_file\', \'_p_attach_more\')" /></div>';
-		
+
 		//$uid = get_pg_auther($this->page);
 		$pass = '';
 		//if (ATTACH_PASSWORD_REQUIRE && !ATTACH_UPLOAD_ADMIN_ONLY && ((!$X_admin && $X_uid !== $uid) || $X_uid == 0))
@@ -910,7 +909,7 @@ EOD;
 			$title = $this->root->_attach_messages[$this->cont['ATTACH_UPLOAD_ADMIN_ONLY'] ? 'msg_adminpass' : 'msg_password'];
 			$pass = '<br />'.$title.': <input type="password" name="pass" size="8" />';
 		}
-		
+
 		$allow_extensions = $this->get_allow_extensions();
 		$antar_tag = "(<label for=\"_p_attach_untar_mode_{$pgid}_{$load[$this->xpwiki->pid][$page]}\">{$this->root->_attach_messages['msg_untar']}</label>:<input type=\"checkbox\" id=\"_p_attach_untar_mode_{$pgid}_{$load[$this->xpwiki->pid][$page]}\" name=\"untar_mode\">)";
 		if ($allow_extensions && !$this->func->is_owner($page)) {
@@ -919,7 +918,7 @@ EOD;
 		} else {
 			$allow_extensions = '';
 		}
-		
+
 		//$filelist = "<hr />".$this->attach_filelist();
 		$filelist = '';
 		$script = $this->func->get_script_uri();
@@ -951,7 +950,7 @@ $painter
 $filelist
 EOD;
 	}
-	
+
 	// $tname: tarファイルネーム
 	// $odir : 展開先ディレクトリ
 	// 返り値: 特に無し。大したチェックはせず、やるだけやって後は野となれ山となれ
@@ -960,7 +959,7 @@ EOD;
 		if (!( $fp = fopen( $tname, "rb") ) ) {
 			return;
 		}
-	
+
 		$files = array();
 		$cnt = 0;
 		while ( strlen($buff=fread( $fp,$this->cont['TAR_HDR_LEN'])) == $this->cont['TAR_HDR_LEN'] ) {
@@ -970,19 +969,19 @@ EOD;
 				$name .= $buff[$i];
 			}
 			$name = $this->func->basename(trim($name)); //ディレクトリお構い無し
-	
+
 			for ( $i=$this->cont['TAR_HDR_SIZE_OFFSET'],$size="";
 					$i<$this->cont['TAR_HDR_SIZE_OFFSET']+$this->cont['TAR_HDR_SIZE_LEN']; $i++ ) {
 				$size .= $buff[$i];
 			}
 			list($size) = sscanf("0".trim($size),"%i"); // サイズは8進数
-	
+
 			// データブロックは512byteでパディングされている
 			$pdsz =  ((int)(($size+($this->cont['TAR_BLK_LEN']-1))/$this->cont['TAR_BLK_LEN']))*$this->cont['TAR_BLK_LEN'];
-	
+
 			// 通常のファイルしか相手にしない
 			$type = $buff[$this->cont['TAR_HDR_TYPE_OFFSET']];
-	
+
 			if ( $name && $type == 0 ) {
 				$buff = fread( $fp, $pdsz);
 				$tname = tempnam( $odir, "tar" );
@@ -994,10 +993,10 @@ EOD;
 			}
 		}
 		fclose( $fp);
-	
-		return $files;	
+
+		return $files;
 	}
-	
+
 	function regularize_fname (& $fname, $page) {
 		// ファイル名 文字数のチェック
 		$fname = str_replace(array('/', '\\'), '_', $fname);
@@ -1014,7 +1013,7 @@ EOD;
 		}
 		return $newname;
 	}
-	
+
 	function get_allow_extensions () {
 		// 添付可能な拡張子を配列化
 		if (!$this->cont['ATTACH_UPLOAD_ADMIN_ONLY'] && $this->cont['ATTACH_UPLOAD_EXTENSION']) {
