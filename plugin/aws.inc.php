@@ -1,7 +1,7 @@
 <?php
 /*
  * Created on 2008/02/28 by nao-pon http://hypweb.net/
- * $Id: aws.inc.php,v 1.12 2009/10/27 08:46:22 nao-pon Exp $
+ * $Id: aws.inc.php,v 1.13 2009/11/17 09:13:30 nao-pon Exp $
  */
 
 /////////////////////////////////////////////////
@@ -10,7 +10,7 @@
 class xpwiki_plugin_aws extends xpwiki_plugin {
 
 	var $options_default = array();
-	
+
 	function plugin_aws_init() {
 		//////// Config ///////
 		$this->config['AccessKeyId']     = $this->root->amazon_AccessKeyId;
@@ -27,13 +27,15 @@ class xpwiki_plugin_aws extends xpwiki_plugin {
 			'timestamp' => FALSE,
 			'makepage'  => FALSE,
 			'maxdepth'  => 3,
+			'pages'     => 1,
+			'start'     => 1,
 		);
 
 	}
 
 	function xpwiki_plugin_aws(& $func) {
 		parent::xpwiki_plugin($func);
-		
+
 		// Amazon associate ID
 		if (! $this->root->amazon_AssociateTag) {
 			include_once XOOPS_TRUST_PATH . '/class/hyp_common/hsamazon/hyp_simple_amazon.php';
@@ -48,13 +50,13 @@ class xpwiki_plugin_aws extends xpwiki_plugin {
 		if (HypCommonFunc::get_version() < 20080224) {
 			return '#aws require "HypCommonFunc" >= Ver. 20080224';
 		}
-		
+
 		if (! empty($this->root->vars['page']) && preg_match('/template/i', $this->root->vars['page'])) {
 			return FALSE;
 		}
-		
+
 		$this->root->rtf['disable_render_cache'] = true;
-		
+
 		$this->load_language();
 
 		if (! $this->options_default) {
@@ -63,7 +65,17 @@ class xpwiki_plugin_aws extends xpwiki_plugin {
 				'timestamp' => FALSE,
 				'makepage'  => FALSE,
 				'maxdepth'  => 3,
+				'pages'     => 1,
+				'start'     => 1,
 			);
+		} else {
+			// for compat
+			if (! isset($this->options_default['pages'])) {
+				$this->options_default['pages'] = 1;
+			}
+			if (! isset($this->options_default['start'])) {
+				$this->options_default['start'] = 1;
+			}
 		}
 		$this->options = $this->options_default;
 
@@ -71,14 +83,14 @@ class xpwiki_plugin_aws extends xpwiki_plugin {
 		$f = array_shift($args);
 		$m = array_shift($args);
 		$k = array_shift($args);
-		$b = intval(array_shift($args));
+		$b = preg_replace('/[^0-9,]+/', '', array_shift($args));
 		$s = array_shift($args);
 		$noheader = array_shift($args);
-		
+
 		$this->fetch_options($this->options, $args);
-	
+
 		list($more_link, $ret) = $this->plugin_aws_get($f, $m, $k, $b, $s);
-		
+
 		$style = ' style="word-break:break-all;"';
 		$more = '';
 		if ($more_link) {
@@ -89,31 +101,31 @@ class xpwiki_plugin_aws extends xpwiki_plugin {
 				$more = ($noheader) ? '<h4>' . $more_link . '</h4>' : '';
 			}
 		}
-		
+
 		return $more . '<div' . $style . '>' . $ret . '</div>';
 	}
-	
+
 	function plugin_aws_get($f, $m, $k, $b, $s) {
 
 		$ret = '';
-		
+
 		if (!$f) $f = 'default';
 		if (!empty($this->config['template_map'])) {
 			if (array_key_exists($f, $this->config['template_map'])) {
 				$f = $this->config['template_map'][$f];
 			}
 		}
-		
+
 		if ($this->options['timestamp'] && ! empty($this->root->vars['page'])) {
 			$this->options['page'] = $this->root->vars['page'];
 		}
 		$cache_file = $this->cont['CACHE_DIR'] . 'plugin/' . md5($f.$m.$k.$b.$s.serialize($this->options)).".aws";
-		
+
 		if (! empty($this->root->rtf['preview'])) {
 			@ unlink($cache_file);
 		}
-		
-		if (is_readable($cache_file) && filemtime($cache_file) + $this->config['cache_time'] * 60 > $this->cont['UTC']) {
+
+		if (is_readable($cache_file) && filemtime($cache_file) + $this->config['cache_time'] * 60 >= $this->cont['UTC']) {
 			$ret = file_get_contents($cache_file);
 		} else {
 			include_once $this->cont['TRUST_PATH'] . 'class/hyp_common/hsamazon/hyp_simple_amazon.php';
@@ -121,13 +133,14 @@ class xpwiki_plugin_aws extends xpwiki_plugin {
 			if ($this->config['AccessKeyId']) $ama->AccessKeyId = $this->config['AccessKeyId'];
 			if ($this->config['SecretAccessKey']) $ama->SecretAccessKey = $this->config['SecretAccessKey'];
 			$ama->encoding = ($this->cont['SOURCE_ENCODING'] === 'EUC-JP')? 'EUCJP-win' : $this->cont['SOURCE_ENCODING'];
-			
+			$ama->getPages = $this->options['pages'];
+
 			$options = array();
-			if ($s && preg_match("/\+?([a-z-]+)/", $s, $s_val))
+			if ($s && preg_match("/\+?([a-z,-]+)/", $s, $s_val))
 			{
 				$options['Sort'] = $s_val[1];
 			}
-	
+
 			if ($k) {
 				if ($m) $ama->setSearchIndex($m, $this->options['search']);
 				if ($b) $options['BrowseNode'] = $b;
@@ -136,14 +149,19 @@ class xpwiki_plugin_aws extends xpwiki_plugin {
 				if ($m) $ama->setSearchIndex($m);
 				$ama->browseNodeSearch($b, $options);
 			}
-			
+
 			$html = $ama->getHTML($f);
+
+			if (! empty($this->root->rtf['preview'])) {
+				$html .= $ama->url;
+			}
+
 			$header = ($k && ! is_null($ama->compactArray['totalresults']))? $ama->makeSearchLink($k, sprintf($this->msg['more_search'], htmlspecialchars($k)), TRUE) : '';
 			$ret = $header . "\x08" . $html;
-			
+
 			// remove wrong characters
 			$ret = mb_convert_encoding($ret, $this->cont['SOURCE_ENCODING'], $this->cont['SOURCE_ENCODING']);
-			
+
 			if (! is_null($ama->compactArray['totalresults']) && empty($this->root->rtf['preview']) && $fp = @fopen($cache_file,"wb")) {
 				fputs($fp,$ret);
 				fclose($fp);
@@ -153,14 +171,19 @@ class xpwiki_plugin_aws extends xpwiki_plugin {
 			if ($this->options['timestamp'] && empty($this->root->rtf['preview']) && $ama->newestTime && ! empty($this->root->vars['page'])) {
 				$this->func->touch_page($this->root->vars['page'], $ama->newestTime);
 			}
-			
-			if (! $ama->error && empty($this->root->rtf['preview']) && $this->options['makepage'] && ! empty($this->root->vars['page']) && substr_count($this->root->vars['page'], '/') + 1 < $this->options['maxdepth']) {
+
+			if (! $ama->error
+			    && empty($this->root->rtf['preview'])
+			    && $this->options['makepage']
+			    && ! empty($this->root->vars['page'])
+			    && substr_count($this->root->vars['page'], '/') + 1 < $this->options['maxdepth']
+			   ) {
 				$wait = 0;
 				$checkUTIME = $this->cont['UTC'] - 86400;
 				foreach($ama->compactArray['Items'] as $item) {
 					if ($checkUTIME <= $item['RELEASEUTIME'] && $this->func->basename($this->root->vars['page']) !== $item['TITLE']) {
 						$newpage = $this->root->vars['page'] . '/' . $item['TITLE'];
-						if (! $this->func->is_page($newpage)) {
+						if (! $this->func->is_page($newpage) && ! $this->func->is_alias($newpage)) {
 							$data = array(
 								'action' => 'plugin_func',
 								'plugin' => 'makepage',
@@ -175,11 +198,13 @@ class xpwiki_plugin_aws extends xpwiki_plugin {
 					}
 				}
 			}
-			
+
 			$ama = NULL;
 
 			// Update plainDB
 			$this->func->need_update_plaindb();
+			// After a day
+			$this->func->need_update_plaindb($this->root->vars['page'], 'update', TRUE, TRUE, $this->config['cache_time'] * 60);
 		}
 		return explode("\x08", $ret, 2);
 	}
