@@ -366,7 +366,7 @@ $class div.xoopsCode pre {
 	margin: 3px;
 	color:black;
 	background-color:transparent;
-	
+
 	white-space: -moz-pre-wrap; /* Mozilla */
 	white-space: -pre-wrap;     /* Opera 4-6 */
 	white-space: -o-pre-wrap;   /* Opera 7 */
@@ -433,7 +433,7 @@ $class ol {
 	padding-top: 0;
 	padding-bottom: 0;
 	line-height:150%;
-	
+
 	list-style-type:inherit;
 	list-style-position:outside;
 	list-style-image:none;
@@ -938,6 +938,13 @@ $class .anchor {}
 $class .anchor_super {
 	font-size:xx-small;
 	vertical-align:super;
+}
+
+/* backup.inc.php */
+$class ul li.edit_summary {
+	list-style-type: none;
+	margin: 0;
+	color: green;
 }
 
 /* br.inc.php */
