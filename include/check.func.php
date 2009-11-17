@@ -1,7 +1,7 @@
 <?php
 //
 // Created on 2006/11/07 by nao-pon http://hypweb.net/
-// $Id: check.func.php,v 1.16 2008/07/03 00:01:42 nao-pon Exp $
+// $Id: check.func.php,v 1.17 2009/11/17 09:22:14 nao-pon Exp $
 //
 
 // when onInstall & onUpdate
@@ -131,18 +131,9 @@ function xpwikifunc_defdata_check ($mydirname, $mode = 'install') {
 							
 							// Was it frozen?
 							$is_freeze = $xpwiki->func->is_freeze($page);
-							$xpwiki->root->rtf['no_checkauth_on_write'] = true;
+							$xpwiki->root->rtf['no_checkauth_on_write'] = ($is_freeze || $src_freeze)? 'dofreeze' : true;
 							$xpwiki->func->page_write($page, $src);
-							if ($is_freeze || $src_freeze) {
-								// Freeze
-								$postdata = $xpwiki->func->get_source($page);
-								array_unshift($postdata, "#freeze\n");
-								$xpwiki->func->file_write($xpwiki->cont['DATA_DIR'], $page, join('', $postdata), TRUE);
-								// Update
-								$xpwiki->func->is_freeze($page, TRUE);
-								// pginfo DB write
-								$xpwiki->func->pginfo_freeze_db_write($page, 1);
-							}
+
 							// touch page
 							$xpwiki->func->touch_page($page, $timestamp[$file]);
 							
