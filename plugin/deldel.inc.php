@@ -1,6 +1,6 @@
 <?php
 /**
- * $Id: deldel.inc.php,v 1.10 2008/11/17 02:34:23 nao-pon Exp $
+ * $Id: deldel.inc.php,v 1.11 2009/11/17 09:14:20 nao-pon Exp $
  * ORG: deldel.inc.php 161 2005-06-28 12:58:13Z okkez $
  *
  * 色んなものを一括削除するプラグイン
@@ -113,7 +113,7 @@ class xpwiki_plugin_deldel extends xpwiki_plugin {
 
 		// 言語ファイルの読み込み
 		$this->load_language();
-		
+
 		// 管理画面モード指定
 		if ($this->root->module['platform'] == "xoops") {
 			$this->root->runmode = "xoops_admin";
@@ -135,7 +135,7 @@ class xpwiki_plugin_deldel extends xpwiki_plugin {
 			{
 				$body .= "<p style=\"color:red;font-size:120%;font-weight:bold;\"><img src=\"image/alert.gif\" width=\"15\" height=\"15\" alt=\"alert\" /> ".$this->msg['msg_auth_error']."</p>";
 			}
-			
+
 			//最初のページ
 			$body .= "<h2>".$this->msg['msg_selectlist']."</h2>";
 			$body .= "<form method='post' action=\"{$script}?cmd=deldel\">";
@@ -145,7 +145,7 @@ class xpwiki_plugin_deldel extends xpwiki_plugin {
 			$body .= "<input type=\"submit\" value=\"{$this->msg['btn_search']}\" />";
 			$body .= "<p>{$this->msg['msg_body_start']}</p>";
 			$body .= "</form>";
-			
+
 			$body .= "<h2>".$this->msg['msg_dirlist']."</h2>";
 			$body .= "<form method='post' action=\"{$script}?cmd=deldel\">";
 			$body .= '<select name="dir" size="1">';
@@ -160,7 +160,7 @@ class xpwiki_plugin_deldel extends xpwiki_plugin {
 			$body .= "<input type=\"submit\" value=\"{$this->msg['btn_search']}\" />";
 			$body .= "<p>{$this->msg['msg_body_start']}</p>";
 			$body .= "</form>";
-	
+
 			return array('msg'=>$this->msg['title_deldel'],'body'=>$body);
 		}elseif(isset($mode) && $mode === 'select'){
 			if($this->root->userinfo['admin']) {
@@ -262,10 +262,10 @@ class xpwiki_plugin_deldel extends xpwiki_plugin {
 							}
 							$moved = true;
 						}
-						
+
 						$pgid = $this->func->get_pgid_by_name($page);
 						$target = $this->func->encode($page);
-						
+
 						if(file_exists($this->func->get_filename($page)) && !$this->func->is_freeze($page)){
 							$flag[$s_page] = true;
 							$this->func->page_write($page, '');
@@ -295,12 +295,12 @@ class xpwiki_plugin_deldel extends xpwiki_plugin {
 							}
 							// CACHE
 							//sweap_cache();
-							
+
 							// 添付ファイルDB
 							$del_files = $this->func->attach_db_write(array('pgid'=>$pgid),'delete');
-							
+
 							$att = $thm = array();
-							
+
 							if (is_array($del_files) && $del_files)
 							{
 								foreach($del_files as $del_file)
@@ -441,13 +441,13 @@ class xpwiki_plugin_deldel extends xpwiki_plugin {
 		// ソートキーを決定する。 ' ' < '[a-zA-Z]' < 'zz'という前提。
 		$symbol = ' ';
 		$other = 'zz';
-	
+
 		if($this->root->pagereading_enable) {
 			mb_regex_encoding($this->cont['SOURCE_ENCODING']);
 			list($readings, $titles) = $this->func->get_readings($pages);
 		}
 		//echo "Pages: ".count($pages);
-	
+
 		$list = $matches = array();
 		foreach($pages as $file=>$page) {
 		//foreach($pages as $page) {
@@ -462,14 +462,14 @@ class xpwiki_plugin_deldel extends xpwiki_plugin {
 		$this->root->script . '?cmd=' . $cmd . '&amp;page=' . $r_page .
 		'">' . $s_page . '</a>' . $passage . $freezed . $exist_page;
 			// ココまで
-	
+
 			if ($withfilename) {
 				$s_file = htmlspecialchars($file);
 				$str .= "\n" . '	<ul><li>' . $s_file . '</li></ul>' .
 			"\n" . '   ';
 			}
 			$str .= '</li>';
-	
+
 			// WARNING: Japanese code hard-wired
 			if($this->root->pagereading_enable) {
 				if(mb_ereg('^([A-Za-z])', mb_convert_kana($page, 'a'), $matches)) {
@@ -485,11 +485,11 @@ class xpwiki_plugin_deldel extends xpwiki_plugin {
 				$head = (preg_match('/^([A-Za-z])/', $page, $matches)) ? $matches[1] :
 				(preg_match('/^([ -~])/', $page, $matches) ? $symbol : $other);
 			}
-	
+
 			$list[$head][$page] = $str;
 		}
 		ksort($list);
-	
+
 		$cnt = 0;
 		$arr_index = array();
 		$retval = '<ul>' . "\n";
@@ -499,7 +499,7 @@ class xpwiki_plugin_deldel extends xpwiki_plugin {
 			} else if ($head === $other) {
 				$head = $this->root->_msg_other;
 			}
-	
+
 			if ($this->root->list_index) {
 				++$cnt;
 				$arr_index[] = '<a id="top_' . $cnt .
@@ -519,7 +519,7 @@ class xpwiki_plugin_deldel extends xpwiki_plugin {
 			$top = array();
 			while (! empty($arr_index))
 			$top[] = join(' | ' . "\n", array_splice($arr_index, 0, 16)) . "\n";
-	
+
 			$retval = '<div id="top" style="text-align:center">' . "\n" .
 		join('<br />', $top) . '</div>' . "\n" . $retval;
 		}
@@ -530,7 +530,7 @@ class xpwiki_plugin_deldel extends xpwiki_plugin {
 		$select = '';
 		if($dir === $this->cont['DATA_DIR']) {
 			$ext = '.txt';
-			
+
 			$_dir = dirname($this->cont['DATA_HOME']);
 			$items = array();
 			if ($dh = opendir($_dir)) {
@@ -551,7 +551,7 @@ class xpwiki_plugin_deldel extends xpwiki_plugin {
 				$select .= $this->msg['msg_move_flag'];
 				$select .= '<select name="movedir">';
 				foreach($items as $_dir) {
-					$select .= '<option value="'.$_dir.'">'.$_dir.'</option>'; 
+					$select .= '<option value="'.$_dir.'">'.$_dir.'</option>';
 				}
 				$select .= '</select></div>';
 			}
@@ -626,13 +626,13 @@ class xpwiki_plugin_deldel extends xpwiki_plugin {
 			$body .= "<input type=\"submit\" value=\"{$this->msg['btn_concern']}\" /></div></form>\n";
 			$body .= $this->msg['msg_check'];
 		}
-	
+
 		return $body;
 	}
 	function make_confirm($cmd, $dir, $pages, $is_cascade=false, $move_to = '')
 	{
 		$is_cascade = ($is_cascade)? "1" : "0";
-		
+
 		$i=0;
 		$script = $this->func->get_script_uri();
 		$body = '';
@@ -686,16 +686,16 @@ class xpwiki_plugin_deldel extends xpwiki_plugin {
 	function attach_list2()
 	{
 	//	global $vars, $_attach_messages;
-	
+
 		$refer = isset($this->root->vars['refer']) ? $this->root->vars['refer'] : '';
-	
+
 		$obj = & new XpWikiAttachPages2($this->xpwiki, $refer);
-	
+
 		$msg = $this->root->_attach_messages[($refer === '') ? 'msg_listall' : 'msg_listpage'];
 		$body = ($refer === '' || isset($obj->pages[$refer])) ?
 		$obj->toString($refer, FALSE) :
 		$this->root->_attach_messages['err_noexist'];
-	
+
 		return array('msg'=>$msg, 'body'=>$body);
 	}
 	function get_filename2($dir, $page, $obj=false)
@@ -743,7 +743,7 @@ class xpwiki_plugin_deldel extends xpwiki_plugin {
 		return array('rel' => $delete_rel,
 				 'ref' => $delete_ref);
 	}
-	
+
 	function move_to ($page, & $to_obj) {
 		if ($to_obj->func->is_page($page)) {
 			return false;
@@ -756,9 +756,9 @@ class xpwiki_plugin_deldel extends xpwiki_plugin {
 				$move_files[$from] = $to;
 			}
 		}
-		
+
 		$pgid = $this->func->get_pgid_by_name($page);
-		
+
 		// Add
 		$from = $this->cont['DIFF_DIR'] . $pgid . '.add' ;
 		if (file_exists($from)) {
@@ -784,13 +784,13 @@ class xpwiki_plugin_deldel extends xpwiki_plugin {
 			$basename = $this->func->encode($page).'_'.$this->func->encode($_row[0]);
 			$filename = $basename . ($_row[1] ? '.'.$_row[1] : '');
 			$logname = $basename.'.log';
-			
+
 			$from = $this->cont['UPLOAD_DIR'].$filename;
 			$to = $to_obj->cont['UPLOAD_DIR'].$filename;
 			if (file_exists($from)) {
 				$move_files[$from] = $to;
 			}
-			
+
 			if (empty($_done[$basename])) {
 				$from = $this->cont['UPLOAD_DIR'].$logname;
 				$to = $to_obj->cont['UPLOAD_DIR'].$logname;
@@ -802,7 +802,7 @@ class xpwiki_plugin_deldel extends xpwiki_plugin {
 		}
 		$ret = true;
 		foreach($move_files as $from => $to) {
-			$ret = ($ret && copy($from, $to));
+			$ret = ($ret && touch($to) && copy($from, $to));
 			touch($to, filemtime($from));
 		}
 		return $ret;
@@ -919,7 +919,7 @@ class XpWikiAttachPages2 extends XpWikiAttachPages
 		}
 		closedir($dir);
 	}
-	
+
 	function toString($page = '', $flat = FALSE)
 	{
 		if ($page !== '') {
