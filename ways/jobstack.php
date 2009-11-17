@@ -1,7 +1,7 @@
 <?php
 /*
  * Created on 2008/05/13 by nao-pon http://hypweb.net/
- * $Id: jobstack.php,v 1.7 2008/06/04 00:44:26 nao-pon Exp $
+ * $Id: jobstack.php,v 1.8 2009/11/17 06:09:46 nao-pon Exp $
  */
 
 error_reporting(0);
@@ -59,7 +59,7 @@ function xpwiki_jobstack_switch (& $xpwiki, $row) {
 			$func = 'xpwiki_jobstack_' . $data['action'];
 			$func($xpwiki, $data);
 			break;
-	}	
+	}
 }
 
 function xpwiki_jobstack_plain_up (& $xpwiki, $data) {
@@ -70,13 +70,13 @@ function xpwiki_jobstack_plain_up (& $xpwiki, $data) {
 		$mode = 'update';
 	}
 	$xpwiki->func->plain_db_write($data['page'], $mode, FALSE, $notimestamp);
-	
+
 	// 古いレンダーキャッシュファイルの削除 (1日1回程度)
 	$pagemove_time = @ filemtime($xpwiki->cont['CACHE_DIR'] . 'pagemove.time');
 	if ($pagemove_time) {
-		$render_cache_clr = @ filemtime($xpwiki->cont['CACHE_DIR'] . 'render_cache_clr.time');	
+		$render_cache_clr = @ filemtime($xpwiki->cont['CACHE_DIR'] . 'render_cache_clr.time');
 		if ($render_cache_clr < $xpwiki->cont['UTC'] - 86400) {
-			touch($xpwiki->cont['CACHE_DIR'] . 'render_cache_clr.time');
+			$xpwiki->func->pkwk_touch_file($xpwiki->cont['CACHE_DIR'] . 'render_cache_clr.time');
 			if ($handle = opendir($xpwiki->cont['RENDER_CACHE_DIR'])) {
 				while (false !== ($file = readdir($handle))) {
 					if (substr($file, 0, 7) === 'render_') {
