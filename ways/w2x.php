@@ -2,7 +2,7 @@
 /*
  * Created on 2008/10/23 by nao-pon http://hypweb.net/
  * License: GPL v2 or (at your option) any later version
- * $Id: w2x.php,v 1.18 2009/05/02 02:01:45 nao-pon Exp $
+ * $Id: w2x.php,v 1.19 2009/11/17 06:09:11 nao-pon Exp $
  */
 
 //
@@ -17,7 +17,7 @@
 //	FCKeditor : Copyright (C) 2003-2008 Frederico Caldeira Knabben
 //
 //
-//	File: 
+//	File:
 //	  wiki2xhtml.php
 //	  PukiWiki の構文を XHTML に変換
 //
@@ -36,7 +36,7 @@ if (get_magic_quotes_gpc()) {
 define('DEBUG', (! empty($_GET['debug'])));
 
 if ($source || $line_break === '') {
-	
+
 	if ($source) {
 		$source = str_replace(array("\r\n", "\r"), "\n", $source);
 		$source = rtrim($source) . "\n";
@@ -47,12 +47,12 @@ if ($source || $line_break === '') {
 	$xpwiki = new XpWiki($mydirname);
 	$xpwiki->root->fckediting = true;
 	$xpwiki->init('#RenderMode');
-	
+
 	if ($page) {
 		$e_page = mb_convert_encoding($page,  $xpwiki->cont['SOURCE_ENCORDING'], 'UTF-8');
-		$xpwiki->root->vars['page'] = $xpwiki->root->post['page'] = $xpwiki->root->get['page'] = $e_page;
+		$xpwiki->cont['PageForRef'] = $xpwiki->root->vars['page'] = $xpwiki->root->post['page'] = $xpwiki->root->get['page'] = $e_page;
 	}
-	
+
 	// 定数設定
 	define('PKWKEXP_DISABLE_MULTILINE_PLUGIN_HACK', $xpwiki->cont['PKWKEXP_DISABLE_MULTILINE_PLUGIN_HACK']);
 	define('MSIE', (strpos($_SERVER['HTTP_USER_AGENT'], 'MSIE') !== FALSE));
@@ -60,7 +60,7 @@ if ($source || $line_break === '') {
 
 	// globals
 	if ($line_break === '') $line_break = $xpwiki->root->line_break;
-	
+
 	$hr = $xpwiki->root->hr;
 	$_ul_left_margin = $xpwiki->root->_ul_left_margin;
 	$_ul_margin = $xpwiki->root->_ul_margin;
@@ -103,7 +103,7 @@ function Send_xml($body, $line_break)
 	$out .= '<res><![CDATA[' . $body . ']]></res>';
 	$out .= '<lb>' . $line_break . '</lb>';
 	$out .= '</data>';
-	
+
 	//	出力
 	header('Expires: Mon, 26 Jul 1997 05:00:00 GMT');
 	header('Last-Modified: '.gmdate('D, d M Y H:i:s').' GMT');
@@ -128,12 +128,12 @@ function guiedit_convert_html($source) {
 		$lines = explode("\n", $source);
 		$body = & new BodyEx();
 		$body->parse($lines);
-	
+
 		$html = $body->toString();
 	} else {
 		$html = '';
 	}
-	
+
 	if (trim($html)) $html = $html . '<div></div>';
 	return $html;
 }
@@ -150,16 +150,16 @@ function guiedit_make_link($line)
 
 // 添付ファイルプラグインの変換
 function guiedit_convert_ref($args, $div = TRUE) {
-	
+
 	$args_org = $args;
 	$body = $argbody = '';
 	if (! $div) {
 		$body = array_pop($args);
 		if ($body) $argbody = '{' . htmlspecialchars($body) . '}';
 	}
-	
+
 	$options = htmlspecialchars(join(',', $args));
-	
+
 	$filename = array_shift($args);
 	$_title = array();
 	$params = array(
@@ -235,7 +235,7 @@ function guiedit_convert_ref($args, $div = TRUE) {
 	$attribute .= ' _noicon="' . $params['noicon'] . '"';
 	$attribute .= ' _noimg="' . $params['noimg'] . '"';
 	$attribute .= ' _zoom="' . $params['zoom'] . '"';
-	
+
 	if ($div) {
 		$attribute .= ' _source="' . htmlspecialchars("#ref($options)") . '"';
 		$tags = "<div $attribute>#ref($options)</div>";
@@ -250,7 +250,7 @@ function guiedit_convert_ref($args, $div = TRUE) {
 			$tags = "<span $attribute>$inner</span>";
 		}
 	}
-	
+
 	return $tags;
 }
 
@@ -270,13 +270,13 @@ function get_ref_html($args, $div = TRUE) {
 function guiedit_make_line_rules($line) {
 	global $guiedit_line_rules;
 	static $pattern, $replace;
-	
+
 	if (!isset($pattern)) {
 		$pattern = array_map(create_function('$a', 'return \'/\' . $a . \'/\';'), array_keys($guiedit_line_rules));
 		$replace = array_values($guiedit_line_rules);
 		unset($guiedit_line_rules);
 	}
-	
+
 	return preg_replace($pattern, $replace, $line);
 }
 
@@ -345,7 +345,7 @@ class InlineConverterEx {
 
 	function convert($line, $link = TRUE, $enc = TRUE) {
 		global $xpwiki;
-		
+
 		if ($enc) {
 			$line = htmlspecialchars($line);
 		}
@@ -354,7 +354,7 @@ class InlineConverterEx {
 		if ($xpwiki->root->easy_ref_syntax) {
 			$line = preg_replace('/\{\{([^{}\r\n]+?)(?:\|([^{}\r\n]*?))?\}\}/', '&amp;ref($1){$2};', $line);
 		}
-		
+
 		// インライン・プラグイン
 		$pattern = '/&amp;([0-9a-zA-Z_-]+)(?:\(((?:(?!\)[;{]).)*)\))?(?:\{((?:(?R)|(?!};).)*)\})?;/';
 		$line = preg_replace_callback($pattern, array(&$this, 'convert_plugin'), $line);
@@ -368,19 +368,19 @@ class InlineConverterEx {
 		// 色の変換
 		$pattern = "/<sapn\sstyle=\"color:([#0-9a-z]+)(; background-color:([#0-9a-z]+))?\">/";
 		$line = preg_replace_callback($pattern, array(&$this, 'convert_color'), $line);
-		
+
 		// リンク
 		if ($link) {
 			$line = $this->make_link($line);
 		}
-		
+
 		return $line;
 	}
 
 	// 文からリンクを検出し、link_replace を呼び出す
 	function make_link($line) {
 		$link_rules = "/(
-			(?:\[\[((?:(?!\]\]).)+):)? 
+			(?:\[\[((?:(?!\]\]).)+):)?
 			((?:https?|ftp|news)(?::\/\/[!~*'();\/?:\@&=+\$,%#\w.-]+))
 			(?(2)\]\])
 			|
@@ -420,13 +420,13 @@ class InlineConverterEx {
 		}
 		return $matches[0];
 	}
-	
+
 	// インラインプラグイン処理メソッド
 	function convert_plugin($matches) {
 		$aryargs = (isset($matches[2]) && $matches[2] !== '') ? csv_explode(',', unhtmlspecialchars($matches[2])) : array();
 		$name = strtolower($matches[1]);
 		$body = (isset($matches[3]))? $matches[3] : '';
-		
+
 		//	プラグインが存在しない場合はそのまま返す。
 		global $xpwiki;
 		if (! $xpwiki->func->exist_plugin_inline($name)) {
@@ -484,9 +484,9 @@ class InlineConverterEx {
 				}
 				if (count($decoration))
 					$style .= "text-decoration:".join(" ",$decoration).";";
-				
+
 				if (! $style && ! $class) return $body;
-				
+
 				return '<span style="' . $style . '"' . $class . '>' . $this->convert($body, TRUE, FALSE) . '</span>';
 			case 'color':
 				$color = $aryargs[0];
@@ -508,7 +508,7 @@ class InlineConverterEx {
 					return '';
 				if (!preg_match('/^\d+$/', $size))
 					return $body;
-				return '<span style="font-size:' . $size . 'px;line-height:130%">' . 
+				return '<span style="font-size:' . $size . 'px;line-height:130%">' .
 				       $this->convert($body, TRUE, FALSE) . "</span>";
 			case 'ref':
 				$aryargs[] = $body;
@@ -530,13 +530,13 @@ class InlineConverterEx {
 				}
 				break;
 		}
-		
+
 		$inner = '&amp;' . $matches[1] . ($matches[2] ? "($matches[2])" : '') . ($body ? '{' . "$body}" : '') . ";";
 		$style = (MSIE) ? ' style="cursor:default"' : '';
-		
+
 		return "<span class=\"plugin\" contenteditable=\"true\"$style>$inner</span>";
 	}
-	
+
 	// 色の変換
 	function convert_color($matches) {
 		$color = $matches[1];
@@ -547,7 +547,7 @@ class InlineConverterEx {
 		if (preg_match("/^#[0-9a-z]{3}$/i", $color)) {
 			$color = preg_replace('/[0-9a-f]/i', "$0$0", $color);
 		}
-		
+
 		return "<sapn\sstyle=\"color:$color$bgcolor\">";
 	}
 
@@ -555,7 +555,7 @@ class InlineConverterEx {
 	function convert_size($matches) {
 		if ($matches[2]) {
 			$size = $matches[2];
-			
+
 			if      ($size <=  8) $size = 8;
 			else if ($size <=  9) $size = 9;
 			else if ($size <= 10) $size = 10;
@@ -571,10 +571,10 @@ class InlineConverterEx {
 			else if ($size <= 44) $size = 40;
 			else if ($size <= 52) $size = 48;
 			else				  $size = 60;
-			
+
 			return '<span style="font-size:' . $size . 'px; line-height:130%">';
 		}
-		
+
 		switch ($matches[3]) {
 			case 1:	$size = "xx-small";
 			case 2: $size = "x-small";
@@ -584,7 +584,7 @@ class InlineConverterEx {
 			case 6:	$size = "x-large";
 			case 7:	$size = "xx-large";
 		}
-		
+
 		return "<span style=\"font-size:$size; line-height:130%\">";
 	}
 }
@@ -722,7 +722,7 @@ function & Factory_DivEx(& $root, $text)
 			$body = array();
 			if ($len == 0) {
 				$ret = & new DivEx($matches); // Seems legacy block plugin
-			} else if (preg_match('/\{{' . $len . '}\s*\r(.*)\r\}{' . $len . '}/', $text, $body)) { 
+			} else if (preg_match('/\{{' . $len . '}\s*\r(.*)\r\}{' . $len . '}/', $text, $body)) {
 				$matches[3] .= "\r" . $body[1] . "\r" . str_repeat('}', $len);
 				$ret = & new DivEx($matches); // Seems multiline-enabled block plugin
 			} else {
@@ -813,13 +813,13 @@ class HeadingEx extends ElementEx
 		parent::ElementEx();
 
 		$this->level = min(5, strspn($text, '*'));
-		
+
 		$text = substr($text, $this->level);
 		if (preg_match('/\s*\[#(\w+)\]/', $text, $matches)) {
 			$this->id = $matches[1];
 		}
 		$text = preg_replace('/\s*\[#\w+\]/', '', $text);
-		
+
 		$this->insert(Factory_InlineEx($text));
 		$this->level++; // h2,h3,h4
 	}
@@ -896,7 +896,7 @@ class ListContainerEx extends ElementEx
 			$style = ' class="list_none"';
 			$text = '';
 		}
-		
+
 		parent::insert(new ListElementEx($this->level, $tag2, $style));
 
 		if ($text !== '') {
@@ -940,7 +940,7 @@ class ListContainerEx extends ElementEx
 		foreach(array_keys($obj->elements) as $key) {
 			parent::insert($obj->elements[$key]);
 		}
-		
+
 		return $this->last;
 	}
 
@@ -1085,11 +1085,11 @@ class TableCellEx extends ElementEx
 		parent::ElementEx();
 		$this->style = $matches = array();
 		$this->is_template = $is_template;
-		
+
 		if ($xpwiki->root->extended_table_format) {
 			$text = $this->get_cell_style($text);
 		}
-		
+
 		while (preg_match('/^(?:(LEFT|CENTER|RIGHT)|(BG)?COLOR\(([#\w]+)\)|SIZE\((\d+)\)):(.*)$/',
 		    $text, $matches)) {
 			if ($matches[1]) {
@@ -1108,7 +1108,7 @@ class TableCellEx extends ElementEx
 				$text = $matches[5];
 			}
 		}
-		
+
 		// Text alignment
 		if (empty($this->style['align'])) {
 			if ($xpwiki->root->symbol_cell_align && preg_match('/^(<|=|>)(.+)$/', rtrim($text), $matches)) {
@@ -1155,7 +1155,7 @@ class TableCellEx extends ElementEx
 				}
 			}
 		}
-		
+
 		if ($is_template) {
 			$this->tag = 'col';
 		}
@@ -1187,7 +1187,7 @@ class TableCellEx extends ElementEx
 
 	function toString()
 	{
-		
+
 		if ($this->is_template) {
 			$param = '';
 		}
@@ -1212,13 +1212,13 @@ class TableCellEx extends ElementEx
 			}
 			$param .= ' style="' . join(' ', $this->style) . '"';
 		}
-		
+
 		return $this->wrap($this->is_template ? '' : parent::toString(), $this->tag, $param, FALSE);
 	}
 
 	function get_cell_style($string) {
 		global $xpwiki;
-		
+
 		$cells = explode('|',$string,2);
 		$colors_reg = COLORS_REG;
 
@@ -1356,7 +1356,7 @@ class TableEx extends ElementEx
 		$this->type  = strtolower($out[2]);
 		$this->types = array($this->type);
 		$is_template = ($this->type == 'c');
-		
+
 		$this->table_style = '';
 		$this->table_sheet = '';
 		$this->div_style = '';
@@ -1364,7 +1364,7 @@ class TableEx extends ElementEx
 		if ($xpwiki->root->extended_table_format && $is_template) {
 			$cells[0] = $this->get_table_style($cells[0]);
 		}
-		
+
 		$row = array();
 		foreach ($cells as $cell)
 			$row[] = & new TableCellEx($cell, $is_template);
@@ -1459,7 +1459,7 @@ class TableEx extends ElementEx
 
 	function get_table_style($string) {
 		global $xpwiki;
-		
+
 		$colors_reg = COLORS_REG;
 		//$this->table_around = "<br clear=all /><br />";
 		$this->table_around = "";
@@ -1515,7 +1515,7 @@ class TableEx extends ElementEx
 			} else {
 				$border_type = "outset";
 			}
-			
+
 			//$this->table_style .= " border=\"".$reg[1]."\"";
 			if (array_key_exists (1,$reg)) {
 				if ($reg[1]==="0"){
@@ -1719,21 +1719,21 @@ class DivEx extends ElementEx
 			case 'clear':
 				$styles[] = 'clear:both;';
 		}
-		
+
 		if ($this->text) {
 			$this->text = str_replace(' ', '&nbsp;',htmlspecialchars($this->text));
 			$this->text = preg_replace("/\r/", "<br />", $this->text);
 		}
-		
+
 		$this->param = htmlspecialchars($this->param);
 		$inner = "#$this->name" . ($this->param ? "($this->param)" : '') . $this->text;
 		if (MSIE) $styles[] = 'cursor:default;';
-		
+
 		$style = '';
 		if ($styles) {
 			$style = ' style="' . join('', $styles) . '"';
 		}
-		
+
 		//$inner = '<pre>'. $inner . '</pre>';
 		global $xpwiki;
 		$attr = ($xpwiki->func->exist_plugin_convert($this->name))? ' class="plugin" contenteditable="true"' : '';
@@ -1787,19 +1787,19 @@ class BodyEx extends ElementEx
 		$this->last = & $this;
 		$matches = array();
 		$last_level = 0;
-		
+
 		while (! empty($lines)) {
 			$line = rtrim(array_shift($lines), "\r\n");
-			
+
 			$this->comment = false;
-			
+
 			// Empty
 			if ($line === '') {
 				$this->last = & $this;
 				$last_level = 0;
 				continue;
 			}
-			
+
 			// Escape comments
 			//if (substr($line, 0, 2) == '//') continue;
 			if (substr($line, 0, 2) === '//') {
@@ -1829,7 +1829,7 @@ class BodyEx extends ElementEx
 					$head = $line[0];
 				}
 			}
-			
+
 			switch ($head) {
 
 			// Horizontal Rule
@@ -1879,13 +1879,13 @@ class BodyEx extends ElementEx
 					$head = '';
 				}
 				break;
-			
+
 			}
-			
+
 			// Line Break
 			if (substr($line, -1) === '~')
 				$line = substr($line, 0, -1) . "\r";
-			
+
 			// Other Character
 			if (isset($this->classes[$head])) {
 				$classname  = $this->classes[$head];
@@ -1904,7 +1904,7 @@ class BodyEx extends ElementEx
 
 			// Other Character
 			if (isset($this->factories[$head])) {
-				
+
 				if ($head === ':') {
 					$this_level = strspn($line, $head);
 					if ($this_level - $last_level > 1) {
@@ -1914,7 +1914,7 @@ class BodyEx extends ElementEx
 					}
 					$last_level = $this_level;
 				}
-				
+
 				$factoryname = 'Factory_' . $this->factories[$head];
 				$this->last  = & $this->last->add($factoryname($this, $line));
 				continue;
