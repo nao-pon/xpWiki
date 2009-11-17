@@ -1,5 +1,5 @@
 <?php
-// $Id: ref.inc.php,v 1.47 2009/09/01 03:01:21 nao-pon Exp $
+// $Id: ref.inc.php,v 1.48 2009/11/17 09:20:21 nao-pon Exp $
 /*
 
 	*プラグイン ref
@@ -31,7 +31,7 @@
 
 class xpwiki_plugin_ref extends xpwiki_plugin {
 	var $flg_lightbox_loaded = false;
-	
+
 	function xpwiki_plugin_ref(& $func) {
 		parent::xpwiki_plugin($func);
 		$this->conf['imgAlts'] = explode(',', $this->root->ref_img_alt);
@@ -39,20 +39,20 @@ class xpwiki_plugin_ref extends xpwiki_plugin {
 		$this->conf['imgAlts'] = array_map('trim', $this->conf['imgAlts']);
 		$this->conf['imgTitles'] = array_map('trim', $this->conf['imgTitles']);
 	}
-	
+
 	function plugin_ref_init () {
 		// File icon image
 		if (! isset($this->cont['FILE_ICON']))
-			$this->cont['FILE_ICON'] = 
+			$this->cont['FILE_ICON'] =
 				'<img src="' . $this->cont['IMAGE_DIR'] . 'file.png" width="20" height="20"' .
 				' alt="file" style="border-width:0px" />';
-	
+
 		// default alignment
 		$this->cont['PLUGIN_REF_DEFAULT_ALIGN'] = 'none'; // 'none','left','center','right'
 
 		// Text wrapping
 		$this->cont['PLUGIN_REF_WRAP_TABLE'] =  FALSE; // TRUE, FALSE
-		
+
 		// URL指定時に画像サイズを取得するか
 		$this->cont['PLUGIN_REF_URL_GET_IMAGE_SIZE'] =  FALSE; // FALSE, TRUE
 
@@ -65,13 +65,13 @@ class xpwiki_plugin_ref extends xpwiki_plugin {
 		// - Apache などでは UPLOAD_DIR/.htaccess を削除する必要があります
 		// - ブラウザによってはインラインイメージの表示や、「インライン
 		//   イメージだけを表示」させた時などに不具合が出る場合があります
-		
+
 		// Image suffixes allowed
 		$this->cont['PLUGIN_REF_IMAGE_REGEX'] =  '/\.(gif|png|jpe?g)$/i';
-		
+
 		// Usage (a part of)
 		$this->cont['PLUGIN_REF_USAGE'] =  "([pagename/]attached-file-name[,parameters, ... ][,title])";
-		
+
 		// サムネイルを作成せずに表示する最大サイズ
 		$this->cont['PLUGIN_REF_IMG_MAX_WIDTH'] = 640;
 		$this->cont['PLUGIN_REF_IMG_MAX_HEIGHT'] = 480;
@@ -79,35 +79,35 @@ class xpwiki_plugin_ref extends xpwiki_plugin {
 		// 著作権保護された画像の最大表示サイズ(px) かつ (%)以内
 		$this->cont['PLUGIN_REF_COPYRIGHT_IMG_MAX'] = 100;
 		$this->cont['PLUGIN_REF_COPYRIGHT_IMG_MAX%'] = 50;
-		
+
 		// Flash ファイルのインライン表示設定
 		// ファイルオーナーが...すべて禁止:0 , 管理人のみ:1 , 登録ユーザーのみ:2 , すべて許可:3
 		// セキュリティ上、0 or 1 での運用を強く奨励
 		// $this->cont['PLUGIN_REF_FLASH_INLINE'] = 1;
 		// 上記設定は pukiwiki.ini.php に移動しました。
-		
+
 		// Exif データを取得し title属性に付加する (TRUE or FALSE)
 		$this->cont['PLUGIN_REF_GET_EXIF'] = FALSE;
-		
+
 	}
 
 	// Output an image (fast, non-logging <==> attach plugin)
 	function plugin_ref_action()
 	{
 		$usage = 'Usage: plugin=ref&amp;page=page_name&amp;src=attached_image_name';
-	
+
 		if (! isset($this->root->vars['page']) || ! isset($this->root->vars['src']))
 			return array(array('header' => 'HTTP/1.0 404 Not Found', 'msg' => 'File Not Found.'));
-		
-		
+
+
 		$page     = $this->root->vars['page'];
 		$filename = $this->root->vars['src'] ;
 		$ref = $this->cont['UPLOAD_DIR'] . $this->func->encode($page) . '_' . $this->func->encode(preg_replace('#^.*/#', '', $filename));
-		
+
 		$mtime = filemtime($ref);
 		$etag = '"' . $mtime . '"';
 		$expires = 'Expires: ' . gmdate( "D, d M Y H:i:s", $this->cont['UTC'] + $this->cont['BROWSER_CACHE_MAX_AGE'] ) . ' GMT';
-				
+
 		if ($etag == @ $_SERVER["HTTP_IF_NONE_MATCH"]) {
 			// clear output buffer
 			while( ob_get_level() ) {
@@ -123,18 +123,18 @@ class xpwiki_plugin_ref extends xpwiki_plugin {
 		if (! $this->func->check_readable($page, true, true)) {
 			return array('header' => 'HTTP/1.0 403 Forbidden', 'msg' => '403 Forbidden.');
 		}
-		
+
 		if(! file_exists($ref)) {
 			return array('header' => 'HTTP/1.0 404 Not Found', 'msg' => 'File Not Found.');
 		}
-		
+
 		// ログファイル取得
 		$status = $this->get_fileinfo($ref);
 
 		if ($status['copyright']) {
 			return array('header' => 'HTTP/1.0 403 Forbidden', 'msg' => '403 Forbidden.');
 		}
-		
+
 		$imgtype = isset($status['imagesize'][2])? $status['imagesize'][2] : false;
 		if ($status['noinline'] > 0) $imgtype = false;
 		switch ($imgtype) {
@@ -160,7 +160,7 @@ class xpwiki_plugin_ref extends xpwiki_plugin {
 					if (! $status['owner']) {
 						$noimg = TRUE;
 					}
-				} 
+				}
 			}
 			if ($noimg) return array('header' => 'HTTP/1.0 403 Forbidden', 'msg' => '403 Forbidden.');
 			break;
@@ -179,7 +179,7 @@ class xpwiki_plugin_ref extends xpwiki_plugin {
 				return array('header' => 'HTTP/1.0 404 Not Found', 'msg' => 'File Not Found.');
 			}
 		}
-	
+
 		// Care for Japanese-character-included file name
 		if ($this->cont['LANG'] === 'ja') {
 			switch($this->cont['UA_NAME']){
@@ -197,7 +197,7 @@ class xpwiki_plugin_ref extends xpwiki_plugin {
 		if (strpos(strtolower($this->root->ua), 'windows') !== FALSE) {
 			$filename = str_replace(array(':', '*', '?', '"', '<', '>', '|'), '_', $filename);
 		}
-		
+
 		$size = filesize($ref);
 
 		// Output
@@ -214,7 +214,7 @@ class xpwiki_plugin_ref extends xpwiki_plugin {
 		header('Cache-Control: private, max-age=' . $this->cont['BROWSER_CACHE_MAX_AGE']);
 		header('Pragma:');
 		header($expires);
-		
+
 		@ readfile($ref);
 		exit;
 	}
@@ -222,47 +222,52 @@ class xpwiki_plugin_ref extends xpwiki_plugin {
 	function can_call_otherdir_inline() {
 		return 1;
 	}
-	
+
 	function plugin_ref_inline() {
 		//エラーチェック
 		if (!func_num_args()) return 'no argument(s).';
-		
+
 		$params = $this->get_body(func_get_args(), true);
-		
-		if ($params['_error']) {
+
+		if ($params['set']) {
+			//return '';
+			$ret = $params['_error'];
+		} else if ($params['_error']) {
 			$ret = $params['_error'];
 		} else {
 			$ret = $params['_body'];
 		}
-		
+
 		return $ret;
 	}
-	
+
 	function can_call_otherdir_convert() {
 		return 1;
 	}
-	
+
 	function plugin_ref_convert() {
-	
+
 		//エラーチェック
 		if (!func_num_args()) return 'no argument(s).';
-		
+
 		$params = $this->get_body(func_get_args());
-		
-		if ($params['_error']) {
+
+		if ($params['set']) {
+			return '';
+		} else if ($params['_error']) {
 			$ret = $params['_error'];
 		} else {
 			$ret = $params['_body'];
 		}
-	
+
 		if (($this->cont['PLUGIN_REF_WRAP_TABLE'] and !$params['nowrap']) or $params['wrap']) {
 			$ret = $this->wrap_table($ret, $params['_align'], $params['around']);
 		}
 		$ret = $this->wrap_div($ret, $params['_align'], $params['around']);
-		
+
 		return $ret;
 	}
-	
+
 	// BodyMake
 	function get_body($args, $inline = false){
 		// 初期化
@@ -281,6 +286,7 @@ class xpwiki_plugin_ref extends xpwiki_plugin {
 			'noinline'=> FALSE, // インライン表示しない
 			'btn'     => '',    // アップロードリンクのテキスト指定
 			'auth'    => FALSE, // アップロードリンク表示時編集権限チェック
+			'set'     => FALSE, // パラメータのセット
 			'_size'   => FALSE, // サイズ指定あり
 			'_w'      => 0,     // 幅
 			'_h'      => 0,     // 高さ
@@ -291,7 +297,12 @@ class xpwiki_plugin_ref extends xpwiki_plugin {
 			'_title'  => array(),
 			'_error'  => ''
 		);
-		
+
+		if (isset($this->conf['set'][$this->root->vars['page']])) {
+			$params = $this->conf['set'][$this->root->vars['page']];
+			$params['set'] = FALSE;
+		}
+
 		// local var
 		$lvar = array(
 			'refid' => '',
@@ -310,13 +321,20 @@ class xpwiki_plugin_ref extends xpwiki_plugin {
 			$lvar['refid'] = substr($lvar['name'], 3);
 			$lvar['name'] = '';
 		}
-		if ($lvar['refid']) {
+		if ($lvar['refid'] && ! in_array('set', $args)) {
 			$this->make_uploadlink($params, $lvar, $args);
 			return $params;
 		}
 
 		// 残りの引数の処理
 		$this->fetch_options($params, $args, $lvar);
+
+		//exit($params['set']);
+		if ($params['set']) {
+			$this->conf['set'][$this->root->vars['page']] = $params;
+			//$params['_error'] = 'set:' . $this->root->vars['page'];
+			return $params;
+		}
 
 		// ファイルタイプの設定
 		$this->get_type($lvar, $args, $params);
@@ -325,7 +343,7 @@ class xpwiki_plugin_ref extends xpwiki_plugin {
 		if ($lvar['page'] !== $this->root->render_attach && ! $this->func->check_readable($lvar['page'], false, false)) {
 			$params['_error'] = '<small>[File display right none]</small>';
 		}
-		
+
 		// エラーあり
 		if ($params['_error']) {
 			if ($params['_error'] === 'File not found.') {
@@ -347,7 +365,7 @@ class xpwiki_plugin_ref extends xpwiki_plugin {
 			$params['_w'] = $this->cont['PLUGIN_REF_IMG_MAX_WIDTH'];
 			$params['_h'] = $this->cont['PLUGIN_REF_IMG_MAX_HEIGHT'];
 		}
-		
+
 		if ($lvar['type'] > 2 ) {
 			// ファイル情報
 			$params['fsize'] = filesize($lvar['file']);
@@ -375,12 +393,12 @@ class xpwiki_plugin_ref extends xpwiki_plugin {
 			'title' => array(),
 			'class' => ' class="img_margin"'
 		);
-		
+
 		if ($lvar['type'] !== 4) {
 			// Not Flash
-			$lvar['title'] = array_merge($lvar['title'], $params['_title']); 
+			$lvar['title'] = array_merge($lvar['title'], $params['_title']);
 		}
-		
+
 		if ($lvar['type'] === 1) {
 			// URL画像
 			if ($this->cont['PLUGIN_REF_URL_GET_IMAGE_SIZE'] && (bool)ini_get('allow_url_fopen')) {
@@ -390,14 +408,14 @@ class xpwiki_plugin_ref extends xpwiki_plugin {
 					$img['org_h'] = $size[1];
 				}
 			}
-			
+
 			// イメージ表示サイズの取得
 			$this->get_show_imagesize($img, $params);
 			$lvar['img'] = $img;
 			$lvar['url'] = htmlspecialchars($lvar['name']);
 			$lvar['link'] = $lvar['url'];
 			$lvar['text'] = '';
-			
+
 			if (in_array('title', $this->conf['imgTitles'])) {
 				$lvar['title'] = $lvar['title'];
 			} else {
@@ -408,7 +426,7 @@ class xpwiki_plugin_ref extends xpwiki_plugin {
 			} else {
 				$lvar['alt'] = array();
 			}
-			
+
 			$_filename = (preg_match('/([^\/]+)$/', $lvar['status']['org_fname']? $lvar['status']['org_fname'] : $lvar['name'], $match))? $match[1] : '';
 			if (in_array('name', $this->conf['imgTitles'])) $lvar['title'][] = $_filename;
 			if (in_array('name', $this->conf['imgAlts'])) $lvar['alt'][] = $_filename;
@@ -428,7 +446,7 @@ class xpwiki_plugin_ref extends xpwiki_plugin {
 				$img['org_w'] = $size[0];
 				$img['org_h'] = $size[1];
 			}
-			
+
 			if ($lvar['isurl']) {
 				$lvar['link'] = htmlspecialchars($lvar['isurl']);
 			} else {
@@ -449,7 +467,7 @@ class xpwiki_plugin_ref extends xpwiki_plugin {
 			$_filename = (preg_match('/([^\/]+)$/', $lvar['status']['org_fname']? $lvar['status']['org_fname'] : $lvar['name'], $match))? $match[1] : '';
 			if (in_array('name', $this->conf['imgTitles'])) $lvar['title'][] = $_filename;
 			if (in_array('name', $this->conf['imgAlts'])) $lvar['alt'][] = $_filename;
-			
+
 			if ($lvar['status']['copyright']) {
 				//著作権保護されている場合はサイズ$this->cont['PLUGIN_REF_COPYRIGHT_IMG_MAX%']%以内かつ縦横 $this->cont['PLUGIN_REF_COPYRIGHT_IMG_MAX']px 以内で表示
 				$params['_size'] = TRUE;
@@ -461,10 +479,10 @@ class xpwiki_plugin_ref extends xpwiki_plugin {
 					$params['_%'] = $this->cont['PLUGIN_REF_COPYRIGHT_IMG_MAX%'];
 				}
 			}
-			
+
 			// イメージ表示サイズの取得
 			$this->get_show_imagesize($img, $params);
-			
+
 			// 携帯用画像サイズ再設定
 			if ($this->cont['UA_PROFILE'] === 'keitai') {
 				if ($img['width'] > $this->root->keitai_img_px || $img['height'] > $this->root->keitai_img_px) {
@@ -474,7 +492,7 @@ class xpwiki_plugin_ref extends xpwiki_plugin {
 					$this->get_show_imagesize($img, $params);
 				}
 			}
-			
+
 			$lvar['img'] = $img;
 			if (in_array('size', $this->conf['imgTitles'])) $lvar['title'][] = $img['title'];
 			if (in_array('size', $this->conf['imgAlts'])) $lvar['alt'][] = $img['title'];
@@ -492,14 +510,14 @@ class xpwiki_plugin_ref extends xpwiki_plugin {
 					if (in_array('exif', $this->conf['imgAlts'])) $lvar['alt'] = array_merge($lvar['alt'], $_exif);
 				}
 			}
-			
+
 			$lvar['url'] = $lvar['file'];
 			if ($params['_%'] && $params['_%'] < 95) {
 				$_file = preg_split('/(\.[a-zA-Z]+)?$/', $lvar['name'], -1, PREG_SPLIT_DELIM_CAPTURE);
 				// Check original filename extention (for Renderer mode)
 				if (! $_file[1] && preg_match('/(\.[a-zA-Z]+)$/', $lvar['status']['org_fname'], $_match)) {
 					$_file[1] = $_match[1];
-				} 
+				}
 				$s_file = $this->cont['UPLOAD_DIR']."s/".$this->func->encode($lvar['page']).'_'.$params['_%']."_".$this->func->encode($_file[0]).$_file[1];
 				if (file_exists($s_file)) {
 					//サムネイル作成済みならそれを参照
@@ -509,7 +527,7 @@ class xpwiki_plugin_ref extends xpwiki_plugin {
 					$lvar['url'] = $this->make_thumb($lvar['file'], $s_file, $img['width'], $img['height']);
 				}
 			}
-			
+
 			// 元ファイルを表示
 			if ($lvar['url'] === $lvar['file']) {
 				// URI for in-line image output
@@ -533,7 +551,7 @@ class xpwiki_plugin_ref extends xpwiki_plugin {
 					$lvar['link'] = $lvar['file'];
 				}
 			}
-			
+
 			// URL のローカルパスをURIパスに変換
 			$lvar['url'] = str_replace($this->cont['DATA_HOME'], $this->cont['HOME_URL'], $lvar['url']);
 			if ($lvar['link']) $lvar['link'] = str_replace($this->cont['DATA_HOME'], $this->cont['HOME_URL'], $lvar['link']);
@@ -566,7 +584,7 @@ class xpwiki_plugin_ref extends xpwiki_plugin {
 				$lvar['title'] = htmlspecialchars($lvar['info']);
 			}
 		}
-		
+
 		// 出力組み立て
 		if ($lvar['url']) {
 			// 画像
@@ -647,10 +665,10 @@ class xpwiki_plugin_ref extends xpwiki_plugin {
 		}
 		// イメージ表示サイズの取得
 		$this->get_show_imagesize($img, $params);
-		
+
 		//初期化
 		$f_a = $f_p = array();
-		
+
 		foreach ($params['_args'] as $arg){
 			$m = array();
 			if (preg_match("/^a(?:lign)?:(left|right|top|bottom)$/i",$arg,$m)){
@@ -730,7 +748,7 @@ _HTML_;
 		// 3:添付画像
 		// 4:添付フラッシュ
 		// 5:添付その他
-		
+
 		if ($this->func->is_url($lvar['name'])) {
 			$lvar['isurl'] = $lvar['name'];
 			// URL
@@ -768,7 +786,7 @@ _HTML_;
 				$params['_error'] = 'No UPLOAD_DIR';
 				return;
 			}
-			
+
 			if (!empty($args[0]))
 			// Try the second argument, as a page-name or a path-name
 			$_page = $this->func->get_fullname($this->func->strip_bracket($args[0]), $lvar['page']); // strip is a compat
@@ -784,12 +802,12 @@ _HTML_;
 				if (preg_match('/^#(\d+)$/', $matches[1], $arg)) {
 					$matches[1] = $this->func->get_name_by_pgid($arg[1]);
 				}
-				
+
 				$lvar['name'] = $matches[2];
 				$lvar['page'] = $this->func->get_fullname($this->func->strip_bracket($matches[1]), $lvar['page']); // strip is a compat
 				$lvar['file'] = $this->cont['UPLOAD_DIR'] . $this->func->encode($lvar['page']) . '_' . $this->func->encode($lvar['name']);
 				$is_file = @ is_file($lvar['file']);
-	
+
 			// 第二引数以降が存在し、それはページ名
 			} else if (!empty($args[0]) && $this->func->is_page($_page)) {
 				$e_name = $this->func->encode($lvar['name']);
@@ -797,7 +815,7 @@ _HTML_;
 				// Try the second argument, as a page-name or a path-name
 				$lvar['file'] = $this->cont['UPLOAD_DIR'] .  $this->func->encode($_page) . '_' . $e_name;
 				$is_file_second = @ is_file($lvar['file']);
-	
+
 				//if ($is_file_second && $is_bracket_bracket) {
 				if ($is_file_second) {
 					// Believe the second argument (compat)
@@ -807,7 +825,7 @@ _HTML_;
 				} else {
 					// Try default page, with default params
 					$is_file_default = @ is_file($this->cont['UPLOAD_DIR'] . $this->func->encode($lvar['page']) . '_' . $e_name);
-	
+
 					// Promote new design
 					if ($is_file_default && $is_file_second) {
 						// Because of race condition NOW
@@ -839,7 +857,7 @@ _HTML_;
 				}
 				return;
 			}
-			
+
 			// ログファイル取得
 			$lvar['status'] = $this->get_fileinfo($lvar['file']);
 
@@ -861,7 +879,7 @@ _HTML_;
 						if (! $lvar['status']['owner']) {
 							$params['noimg'] = TRUE;
 						}
-					} 
+					}
 				}
 			}
 
@@ -880,7 +898,7 @@ _HTML_;
 		}
 		return;
 	}
-	
+
 	// 添付されたファイルが画像かどうか
 	function is_picture($file) {
 		$size = $this->getimagesize($file);
@@ -936,23 +954,23 @@ _HTML_;
 			}
 			$params['_%'] = round($params['_%']);
 		}
-		
+
 		$img['title'] = "SIZE:{$img['org_w']}x{$img['org_h']}({$params['fsize']})";
 		$img['info'] = ($width && $height)? ' width="'.$width.'" height="'.$height.'"' : '';
 		$img['width'] = $width;
 		$img['height'] = $height;
 	}
-	
+
 	// 添付ファイル情報取得
 	function get_fileinfo($file)
 	{
 		static $ret = array();
-		
+
 		if (isset($ret[$this->xpwiki->pid][$file])) return $ret[$this->xpwiki->pid][$file];
-		
+
 		$ret[$this->xpwiki->pid][$file] = $this->load_attach_log($file);
 		//$ret[$this->xpwiki->pid][$file] = $this->func->get_attachstatus($file);
-		
+
 		return $ret[$this->xpwiki->pid][$file];
 	}
 
@@ -972,7 +990,7 @@ _HTML_;
 			'org_fname'=> '',
 			'imagesize'=> NULL,
 			'noinline' => 0
-		);			
+		);
 		if (file_exists($file.'.log'))
 		{
 			$data = array_pad(file($file.'.log'), count($status), '');
@@ -1000,13 +1018,13 @@ _HTML_;
 			return @ getimagesize($file);
 		}
 	}
-	
+
 	// 画像キャッシュがあるか調べる
 	function cache_image_fetch (& $lvar) {
 		$parse = parse_url($lvar['name']);
 		$name = $parse['host']."_".basename($parse['path']);
 		$filename = $this->cont['UPLOAD_DIR'].$this->func->encode($lvar['page'])."_".$this->func->encode($name);
-		
+
 		$cache = FALSE;
 		$size = array();
 		if (!file_exists($filename)) {
@@ -1036,10 +1054,10 @@ _HTML_;
 		if ($cache) {
 			$lvar['name'] = $name;
 			$lvar['file'] = $filename;
-			
+
 			// ログファイル取得
 			$lvar['status'] = array('count'=>array(0),'age'=>'','pass'=>'','freeze'=>FALSE,'copyright'=>FALSE,'owner'=>0,'ucd'=>'','uname'=>'','md5'=>'','admins'=>0,'org_fname'=>'');
-			
+
 			if (file_exists($lvar['file'].'.log'))
 			{
 				$data = file($lvar['file'].'.log');
@@ -1062,14 +1080,14 @@ _HTML_;
 		if (!$attach || !method_exists($attach, 'do_upload')) {
 			return FALSE;
 		}
-		
+
 		$fp = fopen($filename.".tmp", "wb");
 		fwrite($fp, $data);
 		fclose($fp);
-		
+
 		$options = array('asSystem' => TRUE);
 		$attach->do_upload($page,$name,$filename.".tmp",$copyright,NULL,TRUE,$options);
-		
+
 		return TRUE;
 	}
 
@@ -1078,7 +1096,7 @@ _HTML_;
 	{
 		return HypCommonFunc::make_thumb($url,$s_file,$width,$height,"1,95");
 	}
-	
+
 	function get_file_extention($filename) {
 		$ext = strtolower(preg_replace('/^.*\.([^.]+)$/', '$1', $filename));
 		switch($ext) {
@@ -1101,14 +1119,14 @@ _HTML_;
 		if ($val == '') {
 			return;
 		}
-	
+
 		foreach (array_keys($params) as $key) {
 			if (strpos($key, strtolower($val)) === 0) {
 				$params[$key] = TRUE;
 				return;
 			}
 		}
-	
+
 		$params['_args'][] = $val;
 	}
 */
@@ -1141,11 +1159,11 @@ _HTML_;
 			}
 		}
 	}
-	
+
 	function make_uploadlink(& $params, & $lvar, $args) {
-		
+
 		$params['_error'] = '';
-		
+
 		$this->fetch_options($params, $args, $lvar);
 
 		if ($params['btn']) {
@@ -1180,14 +1198,14 @@ _HTML_;
 				$params['btn'].'</a>';
 		}
 	}
-	
+
 	function fetch_options (& $params, $args, & $lvar) {
 		// 残りの引数の処理
 		parent::fetch_options($params, $args);
-		
+
 		// 拡張パラメーターの処理
 		$this->check_arg_ex($params, $lvar);
-		
+
 		//アラインメント判定
 		if ($params['right']) {
 			$params['_align'] = 'right';
