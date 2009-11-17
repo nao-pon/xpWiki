@@ -79,7 +79,7 @@ class XpWikiInlineConverter {
 		$string = preg_replace_callback('/'.$this->pattern.'/xS', array (& $this, 'replace'), $string);
 
 		$retval = $this->func->make_line_rules(htmlspecialchars($string));
-		
+
 		$i = 0;
 		$found = strpos($retval, "\x08");
 		while($found !== FALSE) {
@@ -181,7 +181,7 @@ class XpWikiLink {
 		$this->name = $name;
 		$this->body = $body;
 		$this->type = $type;
-		
+
 		if (!$this->cont['PKWK_DISABLE_INLINE_IMAGE_FROM_URI'] && $this->func->is_url($alias) && preg_match('/\.(gif|png|jpe?g)$/i', $alias)) {
 			if ($this->cont['SHOW_EXTIMG_BY_REF'] && !$this->func->refcheck(0, $alias)) {
 				$alias = $this->func->do_plugin_inline('ref', $alias);
@@ -208,7 +208,7 @@ class XpWikiLink {
 
 		return TRUE;
 	}
-	
+
 	function getATagAttr ($url) {
 		if (! in_array($url[0], array('.', '/')) && strpos($url, $this->cont['ROOT_URL']) === FALSE) {
 			$rel = ($this->root->nofollow_extlink)? ' rel="nofollow"' : '';
@@ -298,7 +298,7 @@ class XpWikiLink_easyref extends XpWikiLink {
 
 	function get_pattern() {
 		if (! $this->root->easy_ref_syntax) return FALSE;
-		
+
 		return<<<EOD
 \{\{
  (.*?)  # (1) parameter
@@ -344,15 +344,15 @@ EOD;
 	}
 
 	function set($arr, $page) {
-		
+
 		static $noteStr;
-		
+
 		if ($this->root->render_mode === 'render') {
 			$base_id = '__PID_OID__';
 		} else {
 			$base_id = $this->xpwiki->pid . '_' . $this->root->rtf['oid'];
 		}
-		
+
 		list (, $body) = $this->splice($arr);
 
 		if ($this->cont['PKWK_ALLOW_RELATIVE_FOOTNOTE_ANCHOR']) {
@@ -362,7 +362,7 @@ EOD;
 		}
 
 		$page = isset ($this->root->vars['page']) ? rawurlencode($this->root->vars['page']) : '';
-		
+
 		if (preg_match('/^[eisv]:[0-9a-f]{4}$/i', $body)) {
 			$name = '((' . $body . '))';
 		} else {
@@ -421,7 +421,7 @@ EOD;
 				$id = ++ $this->root->rtf['note_id'][$idType];
 				$id = str_replace('$1', $id, $idType);
 				$note = $this->func->make_link($body);
-		
+
 				// Footnote
 				$footNum = '<a id="notefoot_'.$base_id.'_'.$id.'" name="notefoot_'.$base_id.'_'.$id.'" href="'.$script.'#notetext_'.$base_id.'_'.$id.'" class="note_super">'.$id.'</a>';
 				if ($this->cont['UA_PROFILE'] === 'keitai') {
@@ -441,17 +441,17 @@ EOD;
 				}
 
 				$noteStr[$base_id][$defkey] = array($id, $title);
-				
+
 				$elm_id  = 'notetext_'.$base_id.'_'.$id;
 				$foot_id = 'notefoot_'.$base_id.'_'.$id;
 			}
-			
+
 			$name = '<a id="'.$elm_id.'" name="'.$elm_id.'" href="'.$script.'#'.$foot_id.'" class="note_super"'.$title.'>'.$id.'</a>';
 			if ($this->cont['UA_PROFILE'] === 'keitai') {
 				$name = '<span style="vertical-align:super;font-size:xx-small">' . $name . '</span>';
 			}
 		}
-		
+
 		return parent :: setParam($page, $name, $body);
 	}
 
@@ -531,7 +531,8 @@ EOD;
 	}
 
 	function set($arr, $page) {
-		list (,, $alias, $scheme, $mail, $host, $uri) = $this->splice($arr);
+		list (,$bracket, $alias, $scheme, $mail, $host, $uri) = $this->splice($arr);
+		$this->has_bracket = (substr($bracket, 0, 2) === '[[');
 		if ($host !== '/' && preg_match('/[^A-Za-z0-9.-]/', $host)) {
 			$host = $this->func->convertIDN($host, 'encode');
 		}
@@ -557,6 +558,10 @@ EOD;
 		} else {
 			list($rel, $class, $target, $title) = $this->getATagAttr($this->name);
 			$img = ($this->is_image)? ' type="img"' : '';
+		}
+		if (! $this->has_bracket && $this->root->bitly_clickable) {
+			$this->name = $this->func->bitly(str_replace('&amp;', '&', $this->name));
+			$this->alias = htmlspecialchars($this->name);
 		}
 		return '<a href="'.$this->name.'"'.$title.$rel.$class.$img.$target.'>'.$this->alias.'</a>';
 	}
@@ -678,7 +683,7 @@ class XpWikiLink_interwikiname extends XpWikiLink {
 	var $url = '';
 	var $param = '';
 	var $anchor = '';
-	
+
 	var $otherObj = NULL;
 
 	function XpWikiLink_interwikiname(& $xpwiki, $start) {
@@ -721,12 +726,12 @@ EOD;
 
 		$_param = $this->param;
 		$url =& $this->func->get_interwiki_url($name, $_param);
-		
+
 		if (is_object($url)) {
 			$this->otherObj =& $url;
 			return parent :: setParam($page, htmlspecialchars($_param), '', 'pagename', $alias === '' ? $name.':'.$this->param : $alias);
 		}
-		
+
 		$this->otherObj = NULL;
 
 		if (!$url) return false;

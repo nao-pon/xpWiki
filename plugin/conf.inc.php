@@ -1,13 +1,13 @@
 <?php
 /*
  * Created on 2008/01/24 by nao-pon http://hypweb.net/
- * $Id: conf.inc.php,v 1.17 2009/10/22 08:50:05 nao-pon Exp $
+ * $Id: conf.inc.php,v 1.18 2009/11/17 09:03:36 nao-pon Exp $
  */
 
 class xpwiki_plugin_conf extends xpwiki_plugin {
 	function plugin_conf_init() {
 		$this->load_language();
-		
+
 		$this->conf = array(
 			'PKWK_READONLY' => array(
 				'kind' => 'const',
@@ -219,6 +219,21 @@ class xpwiki_plugin_conf extends xpwiki_plugin {
 				'type' => 'string',
 				'form' => 'text,size="50"',
 			),
+			'bitly_login' => array(
+				'kind' => 'root',
+				'type' => 'string',
+				'form' => 'text,size="20"',
+			),
+			'bitly_apiKey' => array(
+				'kind' => 'root',
+				'type' => 'string',
+				'form' => 'text,size="40"',
+			),
+			'bitly_clickable' => array(
+				'kind' => 'root',
+				'type' => 'integer',
+				'form' => 'yesno',
+			),
 			'fckeditor_path' => array(
 				'kind' => 'root',
 				'type' => 'string',
@@ -291,7 +306,7 @@ class xpwiki_plugin_conf extends xpwiki_plugin {
 
 		);
 	}
-	
+
 	function plugin_conf_action() {
 		// 権限チェック
 		if (!$this->root->userinfo['admin']) {
@@ -316,14 +331,14 @@ class xpwiki_plugin_conf extends xpwiki_plugin {
 		}
 		return false;
 	}
-	
+
 	function show_form() {
 		$script = $this->func->get_script_uri();
 		$msg_description = str_replace(array('$trust_ini_file', '$html_ini_file'), array($this->root->mytrustdirpath.'/ini/pukiwiki.ini.php',$this->root->mydirpath.'/private/ini/pukiwiki.ini.php'), $this->msg['msg_description']);
 
 		// Get Skin Names
 		$this->conf['SKIN_NAME']['list'] = $this->get_skin_names();
-		
+
 		$body =<<<EOD
 <div>
 <h2>{$this->msg['title_description']}</h2>
@@ -339,7 +354,7 @@ EOD;
 			$description = ! empty($conf['description'])? $conf['description'] : (! empty($this->msg[$key]['description'])? $this->msg[$key]['description'] : '');
 			$description = preg_replace('/\{\$root->(.+?)\}/e', '$this->root->$1', $description);
 			$value = ($conf['kind'] === 'root')? $this->root->$key : $this->cont[$key];
-			$value4disp = htmlspecialchars($value); 
+			$value4disp = htmlspecialchars($value);
 			$name4disp = htmlspecialchars((($conf['kind'] === 'root')? 'root_' : 'const_') . $key);
 			$real = htmlspecialchars(($conf['kind'] === 'root')? '$root->'.$key : '$const[\''.$key.'\']');
 			$extention = ! empty($this->msg[$key]['extention'])? $this->msg[$key]['extention'] : '';
@@ -421,10 +436,10 @@ EOD;
 </div>
 EOD;
 
-		
-		return array('msg'=>$this->msg['title_form'], 'body'=>$body);		
+
+		return array('msg'=>$this->msg['title_form'], 'body'=>$body);
 	}
-	
+
 	function post_save() {
 		$lines = array();
 		foreach ($this->root->post as $_key => $val) {
@@ -433,9 +448,9 @@ EOD;
 			if ($line) $lines[] = $line;
 		}
 		$data = join("\n", $lines);
-		
+
 		$this->func->save_config('pukiwiki.ini.php', 'conf', $data);
-		
+
 		$msg_done = str_replace('$cache_file', $this->cont['CACHE_DIR'].'pukiwiki.ini.php', $this->msg['msg_done']);
 		$body = <<<EOD
 <p>{$msg_done}</p>
@@ -444,12 +459,12 @@ EOD;
 		$body .= '<pre>'.htmlspecialchars($data).'</pre>';
 		return array('msg'=>$this->msg['title_done'], 'body'=>$body);
 	}
-	
+
 	function data_format($key, $val, $kind) {
 		$is_int = false;
 		$line = '';
 		if (!isset($this->conf[$key])) return $line;
-		
+
 		$val = trim($val);
 		if (substr($this->conf[$key]['form'], 0, 8) === 'textarea') {
 			$val = preg_replace('/(\r\n|\r)/', "\n", $val);
@@ -473,10 +488,10 @@ EOD;
 		}
 		return $line;
 	}
-	
+
 	function get_skin_names () {
 		$skinnames = array();
-		
+
 		// SKIN Dirctory
 		$normals = array();
 		$base = $this->cont['DATA_HOME'] . 'skin/';
@@ -505,12 +520,12 @@ EOD;
 		}
 		ksort($normals);
 		ksort($tdiarys);
-		
+
 		if (empty($this->msg['SKIN_NAME']['normalskin'])) $this->msg['SKIN_NAME']['normalskin'] = 'Normal skins';
 		if (empty($this->msg['SKIN_NAME']['tdiarytheme'])) $this->msg['SKIN_NAME']['tdiarytheme'] = 't-Diart\'s themes';
 		$skinnames['group'][$this->msg['SKIN_NAME']['normalskin']] = $normals;
 		$skinnames['group'][$this->msg['SKIN_NAME']['tdiarytheme']] = $tdiarys;
-		
+
 		return $skinnames;
 	}
 }

@@ -1,7 +1,7 @@
 <?php
 /*
  * Created on 2008/01/24 by nao-pon http://hypweb.net/
- * $Id: conf.lng.php,v 1.14 2009/10/22 08:50:05 nao-pon Exp $
+ * $Id: conf.lng.php,v 1.15 2009/11/17 09:03:36 nao-pon Exp $
  */
 
 $msg = array(
@@ -44,12 +44,12 @@ $msg = array(
 		'caption'     => '管理者名',
 		'description' => '',
 	),
-	
+
 	'modifierlink' => array(
 		'caption'     => '管理者のサイトURL',
 		'description' => '',
 	),
-	
+
 	'notify' => array(
 		'caption'     => 'ページ更新時メール通知する',
 		'description' => 'ページか更新されたら、管理者にメール通知します。',
@@ -64,37 +64,37 @@ $msg = array(
 		'caption'     => 'デフォルトページ',
 		'description' => 'ページを指定しない場合に表示されるページ、トップページです。',
 	),
-	
+
 	'page_case_insensitive' => array(
 		'caption'     => 'ページ名の小文字・大文字を区別しない',
 		'description' => 'ページ名の内、英字(アルファベット)の大文字・小文字を区別しません。',
 	),
-	
+
 	'SKIN_NAME' => array(
 		'caption'     => 'デフォルトのスキン名',
 		'description' => 'デフォルトのスキン名を指定します。',
 		'normalskin'  => '通常のスキン',
-		'tdiarytheme' => 't-Diaryのテーマ', 
+		'tdiarytheme' => 't-Diaryのテーマ',
 	),
-	
+
 	'skin_navigator_cmds' => array(
 		'caption'     => 'スキンで表示するメニュー',
 		'description' => 'スキンで表示可とするメニューのコマンド名をカンマ(,)区切りで入力します。<br />'
 	                   . 'すべてのメニューを表示可とする場合は all と入力します。<br />'
 	                   . '" add, atom, attaches, back, backup, copy, diff, edit, filelist, freeze, help, list, new, newsub, pginfo, print, rdf, recent, refer, related, reload, rename, rss, rss10, rss20, search, top, topage, trackback, unfreeze, upload " が指定できますが、表示されるか否かはスキンにより左右されます。' ,
 	),
-	
+
 	'skin_navigator_disabled' => array(
 		'caption'     => 'スキンで表示しないメニュー',
 		'description' => 'スキンで表示不可とするメニューのコマンド名をカンマ(,)区切りで入力します。<br />'
 	                   . '指定可能なコマンドは「スキンで表示するメニュー」と同じです。' ,
 	),
-	
+
 	'referer' => array(
 		'caption'     => '参照元を集計する',
 		'description' => '閲覧者がどこからページに訪れたかをページ毎に集計する機能です。',
 	),
-	
+
 	'allow_pagecomment' => array(
 		'caption'     => 'ページコメント機能を有効にする',
 		'description' => 'd3forum モジュールのコメント統合を使いページ毎にコメント機能を持たせることができます。<br />'
@@ -237,6 +237,12 @@ $msg = array(
 		'caption'     => 'Amazon SecretAccessKey',
 		'description' => '秘密キー（40文字のシーケンス）<br />'
 		               . 'この値が空値の場合 "trust/class/hyp_common/hsamazon/hyp_simple_amazon.ini" の設定値を用います。',
+	),
+
+	'bitly_clickable' => array(
+		'caption'     => 'クリッカブルURL短縮',
+		'description' => 'URLの自動リンクを <a href="http://bit.ly/" target="_blank">bitly</a> を使い短縮する。'
+		               . '"bitly_login", "bitly_apiKey" の設定が必要です。'
 	),
 
 	'fckeditor_path' => array(
