@@ -1,6 +1,6 @@
 <?php
 // PukiWiki - Yet another WikiWikiWeb clone.
-// $Id: lng.php,v 1.22 2009/10/01 23:39:04 nao-pon Exp $
+// $Id: lng.php,v 1.23 2009/11/17 09:11:47 nao-pon Exp $
 // Copyright (C)
 //   2002-2005 PukiWiki Developers Team
 //   2001-2002 Originally written by yu-ji
@@ -91,6 +91,7 @@ $root->_btn_pgtitle   = 'Page title( Auto with blank )';
 $root->_btn_pgorder   = 'Page order( 0-9 Decimal Default:1 )';
 $root->_btn_other_op  = 'Show detailed input items.';
 $root->_btn_emojipad  = 'Pictogram pad';
+$root->_btn_esummary  = 'Edit Summary';
 
 ///////////////////////////////////////
 // Authentication

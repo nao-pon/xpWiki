@@ -1,6 +1,6 @@
 <?php
 // PukiWiki - Yet another WikiWikiWeb clone.
-// $Id: lng.php,v 1.22 2009/10/01 23:39:04 nao-pon Exp $
+// $Id: lng.php,v 1.23 2009/11/17 09:11:47 nao-pon Exp $
 // Copyright (C)
 //   2002-2005 PukiWiki Developers Team
 //   2001-2002 Originally written by yu-ji
@@ -91,6 +91,7 @@ $root->_btn_pgtitle   = 'ページタイトル( 空白で自動設定 )';
 $root->_btn_pgorder   = 'ページ並び順( 0-9 小数可 標準:1 )';
 $root->_btn_other_op  = '詳細な入力項目を表示';
 $root->_btn_emojipad  = '絵文字パッド';
+$root->_btn_esummary  = '編集の要約';
 
 ///////////////////////////////////////
 // Authentication

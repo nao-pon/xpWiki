@@ -1,6 +1,6 @@
 <?php
 // PukiWiki - Yet another WikiWikiWeb clone.
-// $Id: lng.php,v 1.17 2009/10/01 23:39:04 nao-pon Exp $
+// $Id: lng.php,v 1.18 2009/11/17 09:11:47 nao-pon Exp $
 // Copyright (C)
 //   2002-2005 PukiWiki Developers Team
 //   2001-2002 Originally written by yu-ji
@@ -94,6 +94,7 @@ $root->_btn_riddle    = '<strong>Q & A Bestätigung</strong>: Bitte beantworte di
 $root->_btn_pgtitle   = 'Page Titel( Auto mit Lücke )';
 $root->_btn_pgorder   = 'Page Reihenfolge( 0-9 Dezimal Versäumnis:1 )';
 $root->_btn_other_op  = 'Show listete Eingabestücke auf.';
+$root->_btn_esummary  = 'Bearbeiten Zusammenfassung';
 
 ///////////////////////////////////////
 // Authentication
