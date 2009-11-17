@@ -1,18 +1,18 @@
 <?php
 //
 // Created on 2006/10/02 by nao-pon http://hypweb.net/
-// $Id: xpwiki_func.php,v 1.219 2009/10/22 23:25:43 nao-pon Exp $
+// $Id: xpwiki_func.php,v 1.220 2009/11/17 09:09:29 nao-pon Exp $
 //
 class XpWikiFunc extends XpWikiXoopsWrapper {
 
 	// xpWiki functions.
-	// These are functions that need not be overwrited. 
-	
+	// These are functions that need not be overwrited.
+
 	var $xpwiki;
 	var $root;
 	var $cont;
 	var $pid;
-	
+
 	function XpWikiFunc (& $xpwiki) {
 		$this->xpwiki = & $xpwiki;
 		$this->root  = & $xpwiki->root;
@@ -23,10 +23,10 @@ class XpWikiFunc extends XpWikiXoopsWrapper {
 	function load_ini() {
 		$root = & $this->root;
 		$const = & $this->cont;
-		
+
 		/////////////////////////////////////////////////
 		// Require INI_FILE
-		
+
 		$const['INI_FILE'] = $const['DATA_HOME'] . 'private/ini/pukiwiki.ini.php';
 		$die = '';
 		if (! file_exists($const['INI_FILE']) || ! is_readable($const['INI_FILE'])) {
@@ -39,17 +39,17 @@ class XpWikiFunc extends XpWikiXoopsWrapper {
 		}
 
 		if ($die) $this->die_message(nl2br("\n\n" . $die));
-	
+
 	}
 
 	function init() {
 
 		include(dirname(dirname(__FILE__))."/include/init.php");
 	}
-	
+
 	function & get_plugin_instance ($name) {
 		static $instance = array();
-		
+
 		if (is_null($name) && ! empty($instance[$this->xpwiki->pid])) {
 			$keys = array_keys($instance[$this->xpwiki->pid]);
 			foreach($keys as $key) {
@@ -58,7 +58,7 @@ class XpWikiFunc extends XpWikiXoopsWrapper {
 			$ret = NULL;
 			return $ret;
 		}
-		
+
 		if (!isset($instance[$this->xpwiki->pid][$name])) {
 			if ($class = $this->exist_plugin($name)) {
 				$instance[$this->xpwiki->pid][$name] =& new $class($this);
@@ -70,12 +70,12 @@ class XpWikiFunc extends XpWikiXoopsWrapper {
 				$instance[$this->xpwiki->pid][$name] = false;
 			}
 		}
-		
+
 		return $instance[$this->xpwiki->pid][$name];
 	}
-	
+
 	function get_plugin_filename ($name) {
-		
+
 		$files = array();
 		if (file_exists($this->root->mydirpath . '/private/plugin/' . $name . '.inc.php')) {
 			$files['user'] = $this->root->mydirpath . '/private/plugin/' . $name . '.inc.php';
@@ -85,19 +85,19 @@ class XpWikiFunc extends XpWikiXoopsWrapper {
 		}
 		return $files;
 	}
-	
+
 	// Set global variables for plugins
 	function set_plugin_messages($messages) {
 		foreach ($messages as $name=>$val)
 			if (! isset($this->root->$name))
 				$this->root->$name = $val;
 	}
-	
+
 	// Check plugin '$name' is here
 	function exist_plugin($name) {
 		//	global $vars;
 		static $exist = array(), $count = array();
-	
+
 		$name = strtolower($name);
 		if(isset($exist[$this->xpwiki->pid][$name])) {
 			if (++$count[$this->xpwiki->pid][$name] > $this->cont['PKWK_PLUGIN_CALL_TIME_LIMIT'])
@@ -109,13 +109,13 @@ class XpWikiFunc extends XpWikiXoopsWrapper {
 				'<a href="' . $this->cont['HOME_URL'] . '">Return to frontpage</a>');
 			return $exist[$this->xpwiki->pid][$name];
 		}
-	
+
 		$plugin_files = $this->get_plugin_filename ($name);
-		
+
 		$exist[$this->xpwiki->pid][$name] = FALSE;
 		$count[$this->xpwiki->pid][$name] = 1;
 		$ret = FALSE;
-		
+
 		if (preg_match('/^\w{1,64}$/', $name) && $plugin_files ) {
 			$ret =  FALSE;
 			if (isset($plugin_files['system'])) {
@@ -139,31 +139,31 @@ class XpWikiFunc extends XpWikiXoopsWrapper {
 		}
 		return $ret;
 	}
-	
+
 	// Check if plugin API 'action' exists
 	function exist_plugin_action($name) {
 		$plugin = & $this->get_plugin_instance($name);
 		return	is_object($plugin) ? method_exists($plugin, 'plugin_' . $name . '_action') : FALSE;
 	}
-	
+
 	// Check if plugin API 'convert' exists
 	function exist_plugin_convert($name) {
 		$plugin = & $this->get_plugin_instance($name);
 		return	is_object($plugin) ? method_exists($plugin, 'plugin_' . $name . '_convert') : FALSE;
 	}
-	
+
 	// Check if plugin API 'inline' exists
 	function exist_plugin_inline($name) {
 		$plugin = & $this->get_plugin_instance($name);
 		return	is_object($plugin) ? method_exists($plugin, 'plugin_' . $name . '_inline') : FALSE;
 	}
-	
+
 	// Do init the plugin
 	function plugin_init($name, & $plugin) {
 		static $checked = array();
-	
+
 		if (isset($checked[$this->xpwiki->pid][$name])) return $checked[$this->xpwiki->pid][$name];
-		
+
 		$func = 'plugin_' . $name . '_init';
 		if (method_exists($plugin, $func)) {
 			// TRUE or FALSE or NULL (return nothing)
@@ -171,44 +171,54 @@ class XpWikiFunc extends XpWikiXoopsWrapper {
 		} else {
 			$checked[$this->xpwiki->pid][$name] = NULL; // Not exist
 		}
-	
+
 		return $checked[$this->xpwiki->pid][$name];
 	}
-	
+
 	// Compatibility
 	function do_plugin_init($name) {
-		
+
 		$plugin = & $this->get_plugin_instance($name);
-	
+
 		return $this->plugin_init($name, $plugin);
 	}
-	
+
 	// Call API 'action' of the plugin
 	function do_plugin_action($name) {
 		if (! $this->exist_plugin_action($name)) return array();
-		
+
 		$plugin = & $this->get_plugin_instance($name);
-		
+
 		// ブラウザとのコネクションが切れても実行し続ける
 		$_iua = ignore_user_abort(TRUE);
-		
+
+		$this->root->rtf['page_touch'] = array();
 		$retvar = call_user_func(array(& $plugin, 'plugin_' . $name . '_action'));
-		
+		$this->plugin_page_touch($name);
+
 		// ignore_user_abort の設定値戻し
 		ignore_user_abort($_iua);
-		
+
+		// exit 指定
+		if (is_array($retvar) && isset($retvar['exit'])) {
+			while( ob_get_level() ) {
+				ob_end_clean() ;
+			}
+			exit($retvar['exit']);
+		}
+
 		// Insert a hidden field, supports idenrtifying text enconding
-		if ($this->cont['PKWK_ENCODING_HINT'] != '')
-				$retvar =  preg_replace('/(<form[^>]*>)/', '$1' . "\n" .
+		if ($this->cont['PKWK_ENCODING_HINT'] && is_array($retvar) && isset($retvar['body']))
+				$retvar['body'] =  preg_replace('/(<form[^>]*>)/', '$1' . "\n" .
 					'<div><input type="hidden" name="encode_hint" value="' .
-					$this->cont['PKWK_ENCODING_HINT'] . '" /></div>', $retvar);
-	
+					$this->cont['PKWK_ENCODING_HINT'] . '" /></div>', $retvar['body']);
+
 		return $retvar;
 	}
-	
+
 	// Call API 'convert' of the plugin
 	function do_plugin_convert($name, $args = '', $body = NULL) {
-		
+
 		$plugin = & $this->get_plugin_instance($name);
 
 		if (! $this->cont['PKWKEXP_DISABLE_MULTILINE_PLUGIN_HACK']) {
@@ -219,13 +229,13 @@ class XpWikiFunc extends XpWikiXoopsWrapper {
 				$args = substr($args, 0, $pos);
 			}
 		}
-	
+
 		if ($args === '') {
 			$aryargs = array();                 // #plugin()
 		} else {
 			$aryargs = $this->csv_explode(',', $args); // #plugin(A,B,C,D)
 		}
-		
+
 		if ($aryargs && $_num = $plugin->can_call_otherdir_convert()) {
 			// Other xpWiki dir
 			$_num = intval($_num) - 1;
@@ -245,7 +255,7 @@ class XpWikiFunc extends XpWikiXoopsWrapper {
 				}
 			}
 		}
-		
+
 		if (! $this->cont['PKWKEXP_DISABLE_MULTILINE_PLUGIN_HACK']) {
 			if (!is_null($body)) $aryargs[] = $body;     // #plugin(){{body}}
 		}
@@ -253,7 +263,7 @@ class XpWikiFunc extends XpWikiXoopsWrapper {
 		$_digest = $this->root->digest;
 		$retvar  = call_user_func_array(array(& $plugin, 'plugin_' . $name . '_convert'), $aryargs);
 		$this->root->digest  = $_digest; // Revert
-	
+
 		if ($retvar === FALSE) {
 			return htmlspecialchars('#' . $name .
 				($args != '' ? '(' . $args . ')' : ''));
@@ -266,7 +276,7 @@ class XpWikiFunc extends XpWikiXoopsWrapper {
 			return $retvar;
 		}
 	}
-	
+
 	// Call API 'inline' of the plugin
 	function do_plugin_inline($name, $args = '', $body = '') {
 		$plugin = & $this->get_plugin_instance($name);
@@ -299,17 +309,34 @@ class XpWikiFunc extends XpWikiXoopsWrapper {
 
 		// NOTE: A reference of $body is always the last argument
 		$aryargs[] = $body; // func_num_args() != 0
-	
+
 		$_digest = $this->root->digest;
 		$retvar  = call_user_func_array(array(& $plugin, 'plugin_' . $name . '_inline'), $aryargs);
 
 		$this->root->digest  = $_digest; // Revert
-	
+
 		if($retvar === FALSE) {
 		// Do nothing
 		return htmlspecialchars('&' . $name . ($args ? '(' . $args . ')' : '') . ';');
 		} else {
 			return $retvar;
+		}
+	}
+
+	function plugin_page_touch($name) {
+		if (! empty($this->root->rtf['page_touch'])) {
+			foreach($this->root->rtf['page_touch'] as $page => $log) {
+				$log = join(', ', $log);
+				if ($this->is_page($page)) {
+					if ($log) {
+						$this->root->rtf['esummary'] = $log; // $log require htmlspecialchars()
+						$this->push_page_changes($page, $log);
+					} else {
+						$this->root->rtf['esummary'] = str_replace('$name', $name, $this->root->plugin_edit_summary);
+					}
+					$this->touch_page($page, FALSE, TRUE);
+				}
+			}
 		}
 	}
 
@@ -329,12 +356,12 @@ class XpWikiFunc extends XpWikiXoopsWrapper {
 				foreach($match[1] as $lang) {
 					$lang = strtolower($lang);
 					if ($allowall || in_array(substr($lang, 0, 2), $allows)) {
-						if (file_exists($this->root->mytrustdirpath."/language/xpwiki/{$lang}/lng.php")) { 
+						if (file_exists($this->root->mytrustdirpath."/language/xpwiki/{$lang}/lng.php")) {
 							return $lang;
 						}
 						if (strpos($lang, '-') !== FALSE) {
 							$lang = preg_replace('/-.+$/', '', $lang);
-							if (file_exists($this->root->mytrustdirpath."/language/xpwiki/{$lang}/lng.php")) { 
+							if (file_exists($this->root->mytrustdirpath."/language/xpwiki/{$lang}/lng.php")) {
 								return $lang;
 							}
 						}
@@ -344,7 +371,7 @@ class XpWikiFunc extends XpWikiXoopsWrapper {
 		}
 		return $this->cont['LANG']; // 規定値
 	}
-	
+
 	function get_zone_by_time ($time) {
 		$zones = array(
 			-8=>"PST",
@@ -361,7 +388,7 @@ class XpWikiFunc extends XpWikiXoopsWrapper {
 		$time_string = ($time === 0)? "" : ($time > 0)? ("+".$time) : (string)$time;
 		return "UTC".$time_string;
 	}
-	
+
 	function load_cookie () {
 		$cookies = array();
 		if (isset($_COOKIE[$this->root->mydirname])) {
@@ -379,7 +406,7 @@ class XpWikiFunc extends XpWikiXoopsWrapper {
 			}
 			$this->root->userinfo['uname_s'] = htmlspecialchars($this->root->userinfo['uname']);
 		}
-		
+
 		// 他の言語切り替えシステムをチェック
 		if (!empty($this->cont['SETLANG_C']) && !empty($this->root->cookie[$this->cont['SETLANG_C']])) {
 			if (preg_match($this->cont['ACCEPT_LANG_REGEX'], $this->root->cookie[$this->cont['SETLANG_C']], $match)) {
@@ -387,7 +414,7 @@ class XpWikiFunc extends XpWikiXoopsWrapper {
 			}
 		}
 	}
-	
+
 	function save_cookie () {
 		$data =    $this->root->cookie['ucd'].
 			"\t" . (($this->root->siteinfo['anonymous'] === $this->root->cookie['name'])? '' : $this->root->cookie['name']).
@@ -396,20 +423,20 @@ class XpWikiFunc extends XpWikiXoopsWrapper {
 		$url = parse_url ( $this->cont['ROOT_URL'] );
 		setcookie($this->root->mydirname, $data, $this->cont['UTC']+86400*365, $url['path']); // 1年間
 	}
-	
+
 	function load_usercookie () {
-		
-		static $sendcookie = false; 
-		
+
+		static $sendcookie = false;
+
 		// cookieの読み込み
 		$this->load_cookie();
-		
+
 		// user-codeの発行
 		if(!$this->root->cookie['ucd']){
 			$this->root->cookie['ucd'] = md5(getenv("REMOTE_ADDR"). __FILE__ .gmdate("Ymd", $this->cont['UTC']+9*60*60));
 		}
 		$this->root->userinfo['ucd'] = substr(crypt($this->root->cookie['ucd'],($this->root->adminpass)? $this->root->adminpass : 'id'),-11);
-		
+
 		// スキン指定をcookieにセット
 		if (isset($this->root->get['setskin'])) {
 			$this->root->cookie['skin'] = $this->root->get['setskin'];
@@ -432,7 +459,7 @@ class XpWikiFunc extends XpWikiXoopsWrapper {
 		} else {
 			$this->root->cookie['skin'] = '';
 		}
-		
+
 		// 言語指定をcookieにセット
 		if (isset($this->root->get[$this->cont['SETLANG']])) {
 			$this->root->cookie['lang'] = '';
@@ -453,18 +480,18 @@ class XpWikiFunc extends XpWikiXoopsWrapper {
 		if (!$sendcookie) {	$this->save_cookie(); }
 		$sendcookie = TRUE;
 	}
-	
+
 	function save_name2cookie ($name) {
 		$this->root->cookie['name'] = $name;
 		$this->save_cookie();
 	}
-	
+
 	function get_body ($page) {
 
 		// キャッシュ判定
 		$r_mode = ($this->root->render_mode === 'block')? 'b_' : '';
 		$cache_file = $this->cont['CACHE_DIR']."page/".$r_mode.$this->encode($page).".".$this->cont['UI_LANG'];
-		
+
 		// 強制キャッシュ利用指定フラグ判定
 		if (!empty($this->root->rtf['use_cache_always'])) {
 			// ゲスト扱いに固定
@@ -474,10 +501,10 @@ class XpWikiFunc extends XpWikiXoopsWrapper {
 			$this->root->userinfo['uname'] = '';
 			$this->root->userinfo['uname_s'] = '';
 			$this->root->userinfo['gids'] = array();
-			
+
 			$_uaprofile = $this->cont['UA_PROFILE'];
 			$this->cont['UA_PROFILE'] = 'default';
-			
+
 			if (file_exists($cache_file)) {
 				$use_cache = TRUE;
 			} else {
@@ -486,7 +513,7 @@ class XpWikiFunc extends XpWikiXoopsWrapper {
 		} else {
 			$use_cache = ($this->root->userinfo['uid'] === 0 && $this->root->pagecache_min > 0 && file_exists($cache_file) && (filemtime($cache_file) + $this->root->pagecache_min * 60) > $this->cont['UTC']);
 		}
-		
+
 		if ($use_cache) {
 			// キャッシュ利用
 			$cache_dat = unserialize(file_get_contents($cache_file));
@@ -499,7 +526,7 @@ class XpWikiFunc extends XpWikiXoopsWrapper {
 				$this->root->$_key = $_val;
 			}
 			foreach ($cache_dat['cont'] as $_key=>$_val) {
-				$this->cont[$_key] = $_val;	
+				$this->cont[$_key] = $_val;
 			}
 		} else {
 			// 通常のレンダリング
@@ -538,7 +565,7 @@ class XpWikiFunc extends XpWikiXoopsWrapper {
 		}
 		return $body;
 	}
-	
+
 	function clear_page_cache ($page) {
 		// page render html cache
 		$base = $this->root->mytrustdirpath."/language/xpwiki";
@@ -572,7 +599,7 @@ class XpWikiFunc extends XpWikiXoopsWrapper {
 		}
 		return ;
 	}
-	
+
 	function get_additional_headtags () {
 
 		// WikiHelper JavaScript
@@ -583,31 +610,31 @@ EOD;
 
 		// Pre Tags
 		$head_pre_tag = ! empty($this->root->head_pre_tags) ? join("\n", $this->root->head_pre_tags) ."\n" : '';
-		
+
 		// Tags will be inserted into <head></head>
 		$head_tag .= ! empty($this->root->head_tags) ? join("\n", $this->root->head_tags) ."\n" : '';
-		
+
 		// Clear
 		//$this->root->head_pre_tags = $this->root->head_tags = array();
-		
+
 		return array($head_pre_tag, $head_tag);
 	}
-	
+
 	// ページ情報を得る
 	function get_pginfo ($page = '', $src = '', $cache_clr = FALSE) {
 		static $info = array();
-		
+
 		$pginfo = array();
-		
+
 		if ($cache_clr) {
 			$info[$this->root->mydirname] = array();
 			if ($page === '') { return; }
 		}
-		
+
 		if ($page === '') $page = '#';
-		
+
 		if ($src === '' && isset($info[$this->root->mydirname][$page])) { return $info[$this->root->mydirname][$page]; }
-		
+
 		if ($src) {
 			if (is_array($src)) {
 				$src = join('', $src);
@@ -617,10 +644,10 @@ EOD;
 		} else {
 			$src = '';
 		}
-		
+
 		// inherit = 0:継承指定なし, 1:規定値継承指定, 2:強制継承指定, 3:規定値継承した値, 4:強制継承した値
 		if ($src && preg_match("/^#pginfo\((.+)\)\s*/m", $src, $match)) {
-			$_tmp = array_pad(explode("\t",$match[1]), 13, '');
+			$_tmp = array_pad(explode("\t",$match[1]), 14, '');
 			$pginfo['uid']       = (int)$_tmp[0];
 			$pginfo['ucd']       = $_tmp[1];
 			$pginfo['uname']     = $_tmp[2];
@@ -634,8 +661,12 @@ EOD;
 			$pginfo['lastucd']   = $_tmp[10];
 			$pginfo['lastuname'] = $_tmp[11];
 			$pginfo['pgorder']   = min(9, max(0, ($_tmp[12] === '')? 1 : floatval($_tmp[12])));
+			$pginfo['esummary']  = $_tmp[13];
 		} else {
 			$pginfo = $this->pageinfo_inherit($page);
+			$pginfo['pgorder']   = 1;
+			$pginfo['esummary']  = '';
+
 			if (!$this->is_page($page))
 			{
 				$pginfo['uid'] = $this->root->userinfo['uid'];
@@ -644,7 +675,7 @@ EOD;
 			}
 			$pginfo['pgorder'] = 1;
 		}
-		
+
 		if ($pginfo['uid'] && !$pginfo['uname']) {
 			$_uinfo = $this->get_userinfo_by_id($pginfo['uid']);
 			$pginfo['uname'] = $_uinfo['uname_s'];
@@ -660,19 +691,19 @@ EOD;
 		}
 		return $pginfo;
 	}
-	
+
 	// ページ情報の継承を受ける(指定があれば)
 	function pageinfo_inherit ($page) {
 		$is_page = $this->is_page($page);
-		
+
 		// サイト規定値読み込み
 		$pginfo = $this->root->pginfo;
-		
+
 		// Noteページ?
 		if (strpos($page, $this->root->notepage . '/') === 0) {
 			$page = substr($page, strlen($this->root->notepage) + 1) . '/';
 		}
-		
+
 		$done['edit'] = $done['view'] = 0;
 		while ($done['edit'] < 2 && $done['view'] < 2) {
 			if (strpos($page, '/') !== FALSE) {
@@ -735,14 +766,14 @@ EOD;
 		}
 		return $pginfo;
 	}
-	
+
 	// グループ選択フォーム作成
 	function make_grouplist_form ($tagname, $ids = array(), $disabled='', $js='') {
 		$groups = $this->get_group_list();
 		$mygroups = $this->get_mygroups();
-		
+
 		//$disabled = ($disabled)? ' disabled="disabled"' : '';
-		
+
 		$size = min(10, count($groups));
 		$ret = '<select size="'.$size.'" name="'.$tagname.'[]" id="'.$tagname.'[]" multiple="multiple"'.$disabled.$js.'>'."\n";
 		$all = FALSE;
@@ -758,7 +789,7 @@ EOD;
 		$ret .= '</select>';
 		return $ret;
 	}
-	
+
 	// ページオーナー権限があるかどうか
 	function is_owner ($page, $uid = NULL) {
 		if (is_null($uid)) {
@@ -773,18 +804,18 @@ EOD;
 		if ($this->is_page($page) && $pginfo['uid'] && ($pginfo['uid'] === $userinfo['uid'])) { return TRUE; }
 		return FALSE;
 	}
-	
+
 	// 管理者のみ編集可能か
 	function is_editable_only_admin ($page) {
 		if ($this->root->render_mode === 'render') return FALSE;
 		if ($this->cont['PKWK_READONLY'] === 1) return TRUE;
 		$pginfo = $this->get_pginfo($page);
 		$owner_ok = (! $pginfo['uid'] || $this->check_admin($pginfo['uid']));
-		return ($owner_ok && 
+		return ($owner_ok &&
 			(($this->check_admin_gids($pginfo['egids']) && $this->check_admin_aids($pginfo['eaids']))
 			|| $this->is_freeze($page)));
 	}
-	
+
 	// 与えられた $pginfo['eaids'] or $pginfo['vaids'] がすべて管理者であるかチェック
 	function check_admin_aids ($aids) {
 		if ($aids === 'none') return TRUE;
@@ -797,7 +828,7 @@ EOD;
 		}
 		return TRUE;
 	}
-	
+
 	// 与えられた $pginfo['egids'] or $pginfo['vgids'] がすべて管理者であるかチェック
 	function check_admin_gids ($gids) {
 		if ($gids === 'none') return TRUE;
@@ -813,13 +844,13 @@ EOD;
 
 	// ページ毎閲覧権限チェック
 	function check_readable_page ($page, $auth_flag = TRUE, $exit_flag = TRUE, $uid = NULL, $checkOwn = TRUE) {
-		
+
 		if (is_null($uid) && ! $this->root->module['checkRight']) {
 			// for renderer mode
 			$this->root->rtf['disable_render_cache'] = TRUE;
 			return FALSE;
 		}
-		
+
 		if ($checkOwn && $this->is_owner($page, $uid)) {
 			// for renderer mode
 			$this->root->rtf['disable_render_cache'] = TRUE;
@@ -832,7 +863,7 @@ EOD;
 			$uid = intval($uid);
 			$userinfo = $this->get_userinfo_by_id($uid);
 		}
-		
+
 		$ret = FALSE;
 		// #pginfo
 		$pginfo = $this->get_pginfo($page);
@@ -844,9 +875,9 @@ EOD;
 			$_vg = array_merge($vgids, $userinfo['gids']);
 			$vgauth = (count($_vg) === count(array_unique($_vg)))? FALSE : TRUE;
 			if (
-				$pginfo['vgids'] === 'all' || 
+				$pginfo['vgids'] === 'all' ||
 				$pginfo['vaids'] === 'all' ||
-				$vgauth || 
+				$vgauth ||
 				in_array((string)$userinfo['uid'], $vaids, true)
 			) {
 				$ret = TRUE;
@@ -876,7 +907,7 @@ EOD;
 
 	// ページ毎編集権限チェック
 	function check_editable_page ($page, $auth_flag = TRUE, $exit_flag = TRUE, $uid = NULL) {
-		
+
 		if (is_null($uid) && ! $this->root->module['checkRight']) {
 			// for renderer mode
 			$this->root->rtf['disable_render_cache'] = TRUE;
@@ -888,7 +919,7 @@ EOD;
 			$this->root->rtf['disable_render_cache'] = TRUE;
 			return TRUE;
 		}
-		
+
 		if (!$this->check_readable_page ($page, $auth_flag, $exit_flag, $uid, FALSE)) {
 			return FALSE;
 		}
@@ -899,7 +930,7 @@ EOD;
 			$uid = intval($uid);
 			$userinfo = $this->get_userinfo_by_id($uid);
 		}
-		
+
 		$ret = FALSE;
 		// #pginfo
 		$pginfo = $this->get_pginfo($page);
@@ -910,11 +941,11 @@ EOD;
 			$eaids = explode('&', trim($pginfo['eaids'], '&'));
 			$_eg = array_merge($egids, $userinfo['gids']);
 			$eauth = (count($_eg) === count(array_unique($_eg)))? FALSE : TRUE;
-			
+
 			if (
-				$pginfo['egids'] === 'all' || 
+				$pginfo['egids'] === 'all' ||
 				$pginfo['eaids'] === 'all' ||
-				$eauth || 
+				$eauth ||
 				in_array((string)$userinfo['uid'], $eaids, true)
 			) {
 				$ret = TRUE;
@@ -941,7 +972,7 @@ EOD;
 		$this->root->rtf['disable_render_cache'] = TRUE;
 		return FALSE;
 	}
-	
+
 	// なぞなぞ認証をチェック
 	function check_riddle () {
 		$ret = FALSE;
@@ -963,9 +994,9 @@ EOD;
 				break;
 			}
 		}
-		return $ret;	
+		return $ret;
 	}
-	
+
 	function add_js_var_head ($name, $var = NULL, $pre = FALSE) {
 		if (is_null($var)) {
 			$src = $name;
@@ -986,16 +1017,16 @@ EOD;
 		}
 		$this->root->{$target}[$key] = '<script type="text/javascript">' . $src . '</script>';
 	}
-	
+
 	function add_tag_head ($file, $pre = FALSE, $charset = '', $defer = false) {
 		static $done = array();
 		if ($this->root->render_mode !== 'render') {
 			if (isset($done[$this->xpwiki->pid][$file])) { return; }
 			$done[$this->xpwiki->pid][$file] = TRUE;
 		}
-		
+
 		$target = $pre? 'head_pre_tags' : 'head_tags';
-		
+
 		if (preg_match("/^(.+)\.([a-zA-Z]+)$/",$file,$match)) {
 			if ($charset) $charset = ' charset="' . $charset . '"';
 			if ($match[2] === 'css') {
@@ -1007,7 +1038,7 @@ EOD;
 						$mode = '';
 					} else {
 						$mode = ($this->root->render_mode === 'block')?
-							'b=1&amp;' : 
+							'b=1&amp;' :
 							(($this->root->render_mode === 'render')?
 								'r=1&amp;' :
 								''
@@ -1017,7 +1048,7 @@ EOD;
 					$_css = 'skin='.$this->cont['SKIN_NAME'].'&amp;'.$mode.$cssprefix.'src='.$match[1];
 					$this->root->{$target}[$key] = '<link rel="stylesheet" type="text/css" media="all" href="'.$this->cont['LOADER_URL'] . '?' . $_css . '.css"' . $charset . ' />';
 				}
-				
+
 			} else if ($match[2] === 'js') {
 				$defer = $defer? ' defer="defer"' : '';
 				$key = 'js:' . $charset . $defer;
@@ -1042,11 +1073,11 @@ EOD;
 			if (isset($done[$this->xpwiki->pid][$file])) { return; }
 			$done[$this->xpwiki->pid][$file] = TRUE;
 		}
-		
+
 		if ($charset) $charset = ' charset="' . $charset . '"';
 		$defer = $defer? ' defer="defer"' : '';
-		$target = $pre? 'head_pre_tags' : 'head_tags'; 
-		
+		$target = $pre? 'head_pre_tags' : 'head_tags';
+
 		$this->root->{$target}['js'.$file] = '<script type="text/javascript" src="' . $file . '"' . $charset . $defer . '></script>';
 		if (empty($this->root->rtf['HeadJsAjaxSafe'])) {
 			$this->root->rtf['useJavascriptInHead'] = TRUE;
@@ -1060,10 +1091,10 @@ EOD;
 		if (is_null($ref) && isset($_SERVER['HTTP_REFERER'])) $ref = $_SERVER['HTTP_REFERER'];
 		if (!$blank && !$ref) return TRUE;
 		if (strpos($ref, $this->cont['ROOT_URL']) === 0 ) return TRUE;
-		
+
 		return FALSE;
 	}
-	
+
 	// ページ作成者のIDを求める
 	function get_pg_auther ($page) {
 		$pginfo = $this->get_pginfo($page);
@@ -1075,62 +1106,90 @@ EOD;
 	function get_exif_data($file, $alltag = FALSE){
 		$ret = array();
 		if (function_exists('read_exif_data')) {
-			$exif_data = @ read_exif_data($file);
-			if (! $exif_data) return $ret;
-			
-			$ret['title'] = "-- Shot Info --";
+			if ($ret = $this->cache_get_db ($key = sha1($file), 'exif')) {
+				$ret = unserialize($ret);
+			} else {
+				$exif_data = @ read_exif_data($file);
+				if (! $exif_data) return $ret;
 
-			if (isset($exif_data['Model']))
-				$ret['Camera '] = $exif_data['Model'];
-			
-			if (isset($exif_data['DateTimeOriginal']))
-				$ret['Date '] = $exif_data['DateTimeOriginal'];
-			
-			if (isset($exif_data['ExposureTime']))
-				$ret['Shutter Speed '] = $this->get_exif_numbar($exif_data['ExposureTime']).' sec';
-			
-			if (isset($exif_data['ApertureValue'])) {
-				$ret['F(Shot) '] = 'F '.$this->get_exif_numbar($exif_data['ApertureValue'], TRUE);
-			} else if (isset($exif_data['FNumber'])) {
-				$ret['F(Shot) '] = 'F '.$this->get_exif_numbar($exif_data['FNumber']);
-			}
-			
-			if (isset($exif_data['FocalLength']))
-				$ret['Lens '] = $this->get_exif_numbar($exif_data['FocalLength']).' mm';
-					
-			if (isset($exif_data['MaxApertureValue']))
-				@$ret['Lens '] .= '/F '.$this->get_exif_numbar($exif_data['MaxApertureValue'], TRUE);
-			
-			if (isset($exif_data['Flash'])){
-				if ($exif_data['Flash'] == 0) {$ret['Flash '] = "OFF";}
-				else if ($exif_data['Flash'] == 1) {$ret['Flash '] = "ON";}
-				else if ($exif_data['Flash'] == 5) {$ret['Flash '] = "Light(No Reflection)";}
-				else if ($exif_data['Flash'] == 7) {$ret['Flash '] = "Light(Reflection)";}
-				else if ($exif_data['Flash'] == 9) {$ret['Flash '] = "Always ON";}
-				else if ($exif_data['Flash'] == 16) {$ret['Flash '] = "Always OFF";}
-				else if ($exif_data['Flash'] == 24) {$ret['Flash '] = "Auto(None)";}
-				else if ($exif_data['Flash'] == 25) {$ret['Flash '] = "Auto(Light)";}
-				else {$ret['Flash'] = $exif_data['Flash '];}
-			}
-			
-			if ($alltag) {
-				$ret['-- :Orignal Exif'] = '--';
-				foreach ($exif_data as $key=>$sect) {
-					if (is_array($sect) == FALSE) {
-						$ret[$key] = trim($sect);
-					} else {
-						foreach($sect as $name=>$val)	$ret[$key . $name] = trim($val);
+				$ret['title'] = "-- Shot Info --";
+
+				if (isset($exif_data['Model']))
+					$ret['Camera '] = $exif_data['Model'];
+
+				if (isset($exif_data['Make'])) {
+					if (strpos($ret['Camera '], $exif_data['Make']) !== 0){
+						$ret['Camera '] = $exif_data['Make'] . ' ' . $ret['Camera '];
 					}
 				}
-				// 表示しないパラメーター
-				unset($ret['FileName'], $ret['MakerNote']);
-				
+
+
+				if (isset($exif_data['DateTimeOriginal']))
+					$ret['Date '] = $exif_data['DateTimeOriginal'];
+
+				if (isset($exif_data['ExposureTime']))
+					$ret['Exposure '] = $this->get_exif_numbar($exif_data['ExposureTime'], FALSE, 'fraction').' sec';
+
+				if (isset($exif_data['ExposureBiasValue'])) {
+					$ret['Exposure '] .= ' (' . $this->get_exif_numbar($exif_data['ExposureBiasValue'], FALSE).' EV)';
+				}
+
+				if (isset($exif_data['ApertureValue'])) {
+					$ret['Aperture '] = 'F '.$this->get_exif_numbar($exif_data['ApertureValue'], 'A');
+				} else if (isset($exif_data['FNumber'])) {
+					$ret['Aperture '] = 'F '.$this->get_exif_numbar($exif_data['FNumber']);
+				}
+
+				if (isset($exif_data['FocalLength']))
+					$ret['Lens '] = $this->get_exif_numbar($exif_data['FocalLength']).' mm';
+
+				if (isset($exif_data['FocalLengthIn35mmFilm']))
+					$ret['Lens '] .= '(35mm:' . $this->get_exif_numbar($exif_data['FocalLengthIn35mmFilm']).')';
+
+				if (isset($exif_data['MaxApertureValue']))
+					@$ret['Lens '] .= '/F '.$this->get_exif_numbar($exif_data['MaxApertureValue'], 'A');
+
+				if (isset($exif_data['Flash'])){
+					if ($exif_data['Flash'] == 0) {$ret['Flash '] = "OFF";}
+					else if ($exif_data['Flash'] == 1) {$ret['Flash '] = "ON";}
+					else if ($exif_data['Flash'] == 5) {$ret['Flash '] = "Light(No Reflection)";}
+					else if ($exif_data['Flash'] == 7) {$ret['Flash '] = "Light(Reflection)";}
+					else if ($exif_data['Flash'] == 9) {$ret['Flash '] = "Always ON";}
+					else if ($exif_data['Flash'] == 16) {$ret['Flash '] = "Always OFF";}
+					else if ($exif_data['Flash'] == 24) {$ret['Flash '] = "Auto(None)";}
+					else if ($exif_data['Flash'] == 25) {$ret['Flash '] = "Auto(Light)";}
+					else {$ret['Flash '] = $exif_data['Flash'];}
+				}
+
+				if (isset($exif_data['SubjectDistance'])) {
+					$ret['Distance '] = $exif_data['SubjectDistance'].' m';
+				}
+
+				if (count($ret) === 1) {
+					$ret = array();
+				}
+
+				if ($ret && $alltag) {
+					$ret['-- :Orignal Exif'] = '--';
+					foreach ($exif_data as $key=>$sect) {
+						if (is_array($sect) == FALSE) {
+							$ret[$key] = trim($sect);
+						} else {
+							foreach($sect as $name=>$val)	$ret[$key . $name] = trim($val);
+						}
+					}
+					// 表示しないパラメーター
+					unset($ret['FileName'], $ret['MakerNote']);
+
+				}
+
+				$this->cache_save_db(serialize($ret), 'exif', 86400 * 30, $key);
 			}
 		}
 		return $ret;
 	}
-	function get_exif_numbar ($dat, $APEX=FALSE) {
-		if (preg_match('#^([\d]+)/([\d]+)$#',$dat,$match)) {
+	function get_exif_numbar ($dat, $APEX=FALSE, $format='') {
+		if (preg_match('#^([\d.-]+)/([\d.-]+)$#',$dat,$match)) {
 			if ($match[2]) {
 				$dat = $match[1] / $match[2];
 			} else {
@@ -1139,17 +1198,29 @@ EOD;
 		} else {
 			$dat = (float)$dat;
 		}
-		if ($APEX) {
+		if ($APEX == 'T') {
+			$dat = pow(2, $dat);
+		} else if ($APEX) {
 			$dat = pow(sqrt(2), $dat);
 		}
-		if ($dat < 1) {
-			$dat = '1/' . (int)(1/$dat);
-		} else {
-			$dat = round($dat * 100) / 100;
+		if ($format !== 'long') {
+			if ($format === 'fraction' && $dat <= 1) {
+				$dat = '1/' . (int)(1/$dat);
+			} else {
+				$dat = round($dat * 100) / 100;
+			}
 		}
 		return $dat;
 	}
-	
+	function get_exif_ev ($exif_data) {
+		$ev = $this->get_exif_numbar($exif_data['ExposureBiasValue'], FALSE, TRUE);
+		//BrightnessValue+log2(ISOSpeedRatings/3.125)+ExposureBiasValue
+		//$bv = $this->get_exif_numbar($exif_data['BrightnessValue'], FALSE, TRUE);
+		//$sr = $this->get_exif_numbar($exif_data['ISOSpeedRatings'], FALSE, TRUE);
+		//$ev = $bv + log($sr/3.125, 2) + $ev;
+		return $ev;
+	}
+
 	// php.ini の略式文字列からバイト数を得る
 	function return_bytes($val) {
 		$val = trim($val);
@@ -1171,7 +1242,7 @@ EOD;
 	{
 		$_body = $this->get_source($page, TRUE, TRUE);
 		if (!$_body) return '';
-		
+
 		$ret = '';
 		if ($this->root->title_setting_regex && preg_match($this->root->title_setting_regex,$_body,$match)) {
 			$ret = $match[1];
@@ -1180,21 +1251,21 @@ EOD;
 		} else if (preg_match('/^(?! |\s|#|\/\/).+\s*$/m',$_body,$match)) {
 			$ret = $match[0];
 		}
-		
+
 		if ($ret) {
 			$_readonly = $this->cont['PKWK_READONLY'];
 			$_symbol_anchor = $this->root->_symbol_anchor;
-			
+
 			$this->cont['PKWK_READONLY'] = 1;
 			$this->root->_symbol_anchor = '';
 			$this->root->rtf['GET_HEADING_INIT'] = TRUE;
 
 			$ret = $this->convert_html($ret, $page);
-			
+
 			$this->root->_symbol_anchor = $_symbol_anchor;
 			$this->cont['PKWK_READONLY'] = $_readonly;
 			unset($this->root->rtf['GET_HEADING_INIT']);
-			
+
 			$ret = strip_tags(preg_replace('#<script.+?/script>|<span class="plugin_error">.+?</span>#is', '', $ret));
 			$ret = str_replace(array("\r","\n","\t", '&nbsp;'),' ',$ret);
 			$ret = preg_replace('/\s+/',' ',$ret);
@@ -1203,7 +1274,7 @@ EOD;
 		}
 		return ($ret)? $ret : "- no title -";
 	}
-	
+
 	function unhtmlspecialchars ($str, $quote_style = ENT_COMPAT) {
 		$fr = array('&lt;', '&gt;');
 		$tr = array('<',    '>');
@@ -1219,7 +1290,7 @@ EOD;
 		$tr[] = '&';
 		return str_replace($fr, $tr, $str);
 	}
-	
+
 	// ページ頭文字読みの配列を取得
 	function get_readings() {
 		$readings = array();
@@ -1241,20 +1312,20 @@ EOD;
 
 	// ページ内容追加履歴の書き出し
 	function push_page_changes($page, $txt, $del=false) {
-		
+
 		if (!$this->is_page($page)) return;
 		$id = $this->get_pgid_by_name($page);
 		$add_file = $this->cont['DIFF_DIR'].$id.".add";
-	
+
 		if ($del) {
 			@unlink($add_file);
 			return;
-		}	
+		}
 
 		$txt = preg_replace('/^\+(.*\s*)$/m', '$1', $txt);
 		$txt = preg_replace('/^#pginfo.+/m', '', $txt);
 		$txt = preg_replace('/^#/m', '&#35;', $txt);
-		
+
 		// ゲスト扱いにする
 		$_userinfo = $this->root->userinfo;
 		$this->root->userinfo['admin'] = FALSE;
@@ -1262,19 +1333,19 @@ EOD;
 		$this->root->userinfo['uname'] = '';
 		$this->root->userinfo['uname_s'] = '';
 		$this->root->userinfo['gids'] = array();
-		
+
 		$this->root->rtf['PUSH_PAGE_CHANGES'] = TRUE;
 		$txt = rtrim($this->convert_html($txt, $page));
 		unset($this->root->rtf['PUSH_PAGE_CHANGES']);
-		
+
 		$this->root->userinfo = $_userinfo;
-		
+
 		$txt = preg_replace('#</?a\b[^>]*>|<(script|style)\b.+?</\\1>#is', '', $txt);
 		if (!$txt) {return;}
-	
+
 		$sep = "&#182;<!--ADD_TEXT_SEP-->\n";
 		$limit = 5;
-		
+
 		$data = @file_get_contents($add_file);
 		if ($data) {
 			$adds = preg_split("/".preg_quote($sep,"/")."/",$data);
@@ -1282,9 +1353,9 @@ EOD;
 		} else {
 			$adds = array();
 		}
-		
+
 		array_unshift($adds,$txt);
-		
+
 		if ($fp = @fopen($add_file,"wb")) {
 			fputs($fp,join($sep,$adds));
 			fclose($fp);
@@ -1294,7 +1365,7 @@ EOD;
 	// ページ内容追加履歴の取得
 	function get_page_changes ($page) {
 		if (!$this->is_page($page)) return;
-		
+
 		$id = $this->get_pgid_by_name($page);
 		$add_file = $this->cont['DIFF_DIR'].$id.".add";
 		if (file_exists($add_file)) {
@@ -1303,20 +1374,20 @@ EOD;
 			return '';
 		}
 	}
-	
+
 	// ページ専用CSSタグを得る
 	function get_page_css_tag ($page) {
 		$ret = '';
 		$_page = '';
 		$block = ($this->root->render_mode === 'block')? 'b=1&amp;' : '';
-		
+
 		// トップページ
 		$pgid = $this->get_pgid_by_name($this->root->defaultpage);
 		if (file_exists($this->cont['CACHE_DIR'].$pgid.'.css'))
 		{
 			$ret .= '<link rel="stylesheet" type="text/css" media="all" href="'.$this->cont['LOADER_URL'].'?'.$block.'src='.$pgid.'.page.css" />'."\n";
 		}
-		
+
 		foreach(explode('/',$page) as $val)
 		{
 			$_page = ($_page)? $_page."/".$val : $val;
@@ -1330,7 +1401,7 @@ EOD;
 		}
 		return $ret;
 	}
-	
+
 	// ページURIを得る
 	function get_page_uri($page, $full = FALSE) {
 		if ($page === $this->root->defaultpage) {
@@ -1365,7 +1436,7 @@ EOD;
 		}
 		return ($full ? $this->cont['HOME_URL'] : '' ) . $link;
 	}
-	
+
 	// SKIN Function
 	function skin_navigator (& $obj, $key, $value = '', $javascript = '', $withIcon = FALSE, $x = 20, $y = 20) {
 		static $cmds = NULL;
@@ -1385,7 +1456,7 @@ EOD;
 			if (! isset($lang[$key])) { echo $key.' LANG NOT FOUND'; return FALSE; }
 			if (! isset($link[$key])) { echo $key.' LINK NOT FOUND'; return FALSE; }
 			if (! $obj->cont['PKWK_ALLOW_JAVASCRIPT']) $javascript = '';
-			
+
 			$title = (isset($lang[$key]))? htmlspecialchars($lang[$key]) : '';
 			$ret = ($withIcon? $obj->skin_getIcon($obj, $key, $x, $y) : '');
 			if ($withIcon !== 'icon') {
@@ -1409,14 +1480,14 @@ EOD;
 		if (! isset($lang[$key]) ) { echo $key.' LANG NOT FOUND';  return FALSE; }
 		if (! isset($link[$key]) ) { echo $key.' LINK NOT FOUND';  return FALSE; }
 		if (! isset($image[$key])) { echo $key.' IMAGE NOT FOUND'; return FALSE; }
-	
+
 		echo '<a href="' . $link[$key] . '" ' . $javascript . '>' .
 			$obj->skin_getIcon($obj, $key, $x, $y) .
 			'</a>';
-	
+
 		return TRUE;
 	}
-	
+
 	// SKIN Function
 	function skin_getIcon(&$obj, $key, $x = 20, $y = 20) {
 		$lang  = & $obj->root->_LANG['skin'];
@@ -1427,7 +1498,7 @@ EOD;
 		return '<img src="' . $src . '" width="' . $x . '" height="' . $y . '" ' .
 				'alt="' . $alt . '" title="' . $alt . '" />';
 	}
-	
+
 	// SKIN Function
 	function skin_link_extractor($arr) {
 		static $i = 0;
@@ -1455,14 +1526,14 @@ EOD;
 	// Breadcrumbs
 	function get_breadcrumbs_array ($page, $name = 'name', $url = 'url') {
 		$parts = explode('/', $page);
-	
+
 		$self = array_pop($parts); // Remove the page itself
 		$ret = array();
 		//$ret[] = array($name => $self, $url = '');
 		while (! empty($parts)) {
 			$landing = join('/', $parts);
 			$element = htmlspecialchars(array_pop($parts));
-			
+
 			if (! $this->is_page($landing)) {
 				// Page not exists
 				$ret[] = array($name => $element, $url => '');
@@ -1472,11 +1543,11 @@ EOD;
 			}
 		}
 		$ret[] = array($name => $this->root->module['title'], $url => $this->root->script);
-		
+
 		return array_reverse($ret);
-		
+
 	}
-	
+
 	// CACHE_DIR に Config ファイルを保存する
 	function save_config ($file = '', $section = '', $data = '') {
 		if (!$file || !$data || !$section) return;
@@ -1488,19 +1559,19 @@ EOD;
 			$org = file_get_contents($file);
 			$org = preg_replace('/^<\?php\n(.*)\n\?>$/s', '$1', $org);
 		}
-		
+
 		$section_q = preg_quote($section,'#');
 		$org = preg_replace('#//<'.$section_q.'>.*?//<'.$section_q.'/>\n#s', '', $org);
 		$org .= '//<'.$section_q.'>'."\n".$data."\n".'//<'.$section_q.'/>'."\n";
-		
+
 		$org = '<?php' . "\n" . $org . "\n" . '?>';
-		
+
 		if ($fp = fopen($file, 'wb')) {
 			fwrite($fp, $org);
 			fclose($fp);
 		}
 	}
-	
+
 	// ページの親階層を得る
 	function page_dirname ($page) {
 		return preg_replace('/(^|\/)[^\/]*$/', '',$page);
@@ -1536,21 +1607,21 @@ EOD;
 				ob_end_clean() ;
 			}
 		}
-		
+
 		if ($page !== '') {
 			$url = $this->get_page_uri($page, true);
-			if (!$title) {	
+			if (!$title) {
 				$title = str_replace('$1', htmlspecialchars($page), $this->root->_title_updated);
 			}
 		}
 		if (!$url) {
 			$url = $this->cont['HOME_URL'];
 		}
-		
+
 		if ($this->root->viewmode === 'popup') {
 			$url .= ((strpos($url, '?') === FALSE)? '?' : '&') . 'popup=1';
 		}
-		
+
 		if ($hash) {
 			$url .= (($hash{0} !== '#')? '#' : '') . $hash;
 		}
@@ -1568,10 +1639,10 @@ EOD;
 	function href_give_session_id ($url) {
 		$session_name = session_name();
 		if (! defined('SID') || ! SID || isset($_COOKIE[$session_name])) return $url;
-		
+
 		$parsed_base = parse_url($this->cont['ROOT_URL']);
 		$parsed_url = parse_url($url);
-		
+
 		if (strtolower(substr($url, 0, 6)) === 'mailto') {
 			$parsed_url['scheme'] = 'mailto';
 			$parsed_url['host'] = $parsed_base['host'];
@@ -1579,19 +1650,19 @@ EOD;
 		if (empty($parsed_url['host']) || ($parsed_url['host'] === $parsed_base['host'] && $parsed_url['scheme'] === $parsed_base['scheme'])) {
 			$url = preg_replace('/(?:\?|&(?:amp;)?)' . preg_quote($session_name, '/') . '=[^&#>]+/', '', $url);
 			//$url = preg_replace('/(?:\?|&(?:amp;)?)' . preg_quote($this->hashkey, '/') . '=[^&#>]+/', '', $url);
-			
+
 			list($href, $hash) = array_pad(explode('#', $url, 2), 2, '');
-			
+
 			if (!$href) {
 				$href = isset($_SERVER['QUERY_STRING'])? '?' . $_SERVER['QUERY_STRING'] : '';
 				$href = preg_replace('/(?:\?|&(?:amp;)?)' . preg_quote($session_name, '/') . '=[^&]+/', '', $href);
 				//$href = preg_replace('/(?:\?|&(?:amp;)?)' . preg_quote($this->hashkey, '/') . '=[^&]+/', '', $href);
 			};
-			
+
 			$href .= ((strpos($href, "?") === FALSE)? '?' : '&amp;') . '&amp;' . SID;
 			$url = $href . ($hash? '#' . $hash : '');
 		}
-		
+
 		return $url;
 	}
 
@@ -1606,12 +1677,12 @@ EOD;
 <?xml version="{$version}" encoding="{$encode}"?>
 $res
 EOD;
-		
+
 		// clear output buffer
 		while( ob_get_level() ) {
 			ob_end_clean() ;
 		}
-		
+
 		// mbstring setting
 		if (extension_loaded('mbstring')) {
 			mb_language($this->cont['MB_LANGUAGE']);
@@ -1620,13 +1691,13 @@ EOD;
 			mb_http_output('pass');
 			mb_detect_order('auto');
 		}
-		
+
 		header ('Content-type: application/xml; charset='.strtolower($encode)) ;
 		header ('Content-Length: '. strlen($xml));
 		echo $xml;
 		exit;
 	}
-	
+
 	function output_ajax ($body) {
 		// K-Tai EMOJI
 		if (defined('HYP_K_TAI_RENDER') && preg_match('/\(\([eisv]:[0-9a-f]{4}\)\)|\[emj:\d{1,4}(?::(?:im|ez|sb))?\]/S', $body)) {
@@ -1652,20 +1723,20 @@ EOD;
 <headTag><![CDATA[{$head_tag}]]></headTag>
 </xpwiki>
 EOD;
-		$this->send_xml($xml);	
+		$this->send_xml($xml);
 	}
-	
+
 	function output_popup ($body) {
 		// set target
 		$body = preg_replace('/(<a[^>]+)(href=(?:"|\')[^#])/isS', '$1target="' . ((intval($this->root->vars['popup']) === 1)? '_parent' : htmlspecialchars(substr($this->root->vars['popup'],0,30))) . '" $2', $body);
-		
+
 		// Head Tags
 		list($head_pre_tag, $head_tag) = $this->get_additional_headtags();
 		$css_charset = $this->cont['CSS_CHARSET'];
 		$class = 'xpwiki_' . $this->root->mydirname;
 		$navigator = $this->root->mydirname . '_navigator';
 		$cssprefix = $this->root->css_prefix ? 'pre=' . rawurlencode($this->root->css_prefix) . '&amp;' : '';
-		
+
 		header('Content-Type: text/html; charset=' . $this->cont['CONTENT_CHARSET']);
 		// HTML DTD, <html>, and receive content-type
 		if (isset($this->root->pkwk_dtd)) {
@@ -1694,7 +1765,7 @@ $body
 </html>
 EOD;
 		echo $html;
-		exit();	
+		exit();
 	}
 
 	function http_request
@@ -1719,13 +1790,13 @@ EOD;
 				'data'   => ''
 			);
 		}
-		
+
 		if (is_null($redirect_max)) {
 			$redirect_max = $this->cont['PKWK_HTTP_REQUEST_URL_REDIRECT_MAX'];
 		}
-		
+
 		$d = new Hyp_HTTP_Request();
-	
+
 		$d->url = $url;
 		$d->method = $method;
 		$d->headers = $headers;
@@ -1736,44 +1807,44 @@ EOD;
 		$d->connect_try = $retry;
 		$d->connect_timeout = $c_timeout;
 		$d->read_timeout = $r_timeout;
-		
+
 		if (empty($d->iniLoaded)) {
 			$d->use_proxy = $this->root->use_proxy;
 			$d->proxy_host = $this->root->proxy_host;
 			$d->proxy_port = $this->root->proxy_port;
-			
+
 			$d->need_proxy_auth = $this->root->need_proxy_auth;
 			$d->proxy_auth_user = $this->root->proxy_auth_user;
 			$d->proxy_auth_pass = $this->root->proxy_auth_pass;
-			
+
 			$d->no_proxy = $this->root->no_proxy;
 		}
-		
+
 		$d->get();
-		
+
 		$ret = array(
 			'query'  => $d->query,      // Query String
 			'rc'     => $d->rc,         // Result code
 			'header' => $d->header,     // Header
 			'data'   => $d->data        // Data or Error Msg
 		);
-		
+
 		$d = NULL;
-		
+
 		return $ret;
 	}
 
 	function compare_diff ($old, $cur, $titles = array()) {
 		$this->add_tag_head('compare_diff.css');
 		include_once $this->root->mytrustdirpath . '/include/DifferenceEngine.php';
-		
+
 		$this->compare_diff_pre($old);
 		$this->compare_diff_pre($cur);
 
 		$df  = new Diff($old, $cur);
 		$tdf = new TableDiffFormatter();
 		$html = $tdf->format($df);
-		
+
 		if ($titles) {
 			$title = <<<EOD
 <tr>
@@ -1792,7 +1863,7 @@ $html
 </table>
 EOD;
 	}
-	
+
 	function compare_diff_pre (& $str ,$tab = 4) {
 		if (is_array($str)) $str = join('', $str);
 		$str = str_replace(array('<', '>'), array('&lt;', '&gt;'), rtrim(str_replace("\r", '', $str)));
@@ -1807,7 +1878,7 @@ EOD;
 		if ($this->root->paraedit_partarea !== 'level') {
 			$level = 0;
 		}
-		
+
 		for ($_lev = 6; $_lev > 1; $_lev--) {
 			if ($level <= $_lev) {
 				if (!empty($this->root->rtf['div_area_open'][$this->root->rtf['convert_nest']][$_lev])) {
@@ -1818,7 +1889,7 @@ EOD;
 				}
 			}
 		}
-		
+
 		return $areadiv_closer;
 	}
 
@@ -1858,33 +1929,33 @@ EOD;
 						$str .= $org;
 					} else {
 						$str .= mb_encode_numericentity($org, $convmap, $fromencode);
-					} 
+					}
 				}
 				$arg = $str;
 			}
 		}
 		return;
 	}
-	
+
 	function basename($path) {
 		$path = rtrim(str_replace("\\", '/', $path), '/');
 		return preg_replace('#.*/([^/]+)$#', '$1', $path);
 	}
-	
+
 	function set_current_page($page) {
 		// カレントページ
 		$_page = $this->root->vars['page'];
 		$this->root->get['page'] = $this->root->post['page'] = $this->root->vars['page'] = $page;
-		
+
 		// 編集権限がない場合の挙動指定
 		$_PKWK_READONLY = $this->set_readonly_by_editauth($page);
 
 		return array(
 			'page'     => $_page,
-			'readonly' => $_PKWK_READONLY, 
+			'readonly' => $_PKWK_READONLY,
 		);
 	}
-	
+
 	function set_readonly_by_editauth ($page) {
 		// 編集権限がない場合の挙動指定
 		$_PKWK_READONLY = $this->cont['PKWK_READONLY'];
@@ -1899,7 +1970,7 @@ EOD;
 		}
 		return $_PKWK_READONLY;
 	}
-	
+
 	function strip_MyHostUrl ($html) {
 		if (is_array($html)) {
 			foreach($html as $_key => $_val) {
@@ -1922,16 +1993,16 @@ EOD;
 		}
 		return $html;
 	}
-	
+
 	function isXpWikiDirname ($dirname) {
 		return (preg_match('/^[a-z0-9_-]+$/i', $dirname) && file_exists($this->cont['ROOT_PATH'].$this->cont['MOD_DIR_NAME'].$dirname.'/private/ini/pukiwiki.ini.php'));
 	}
 
-	
+
 	function convert_finisher (& $body) {
 		static $uniqueid = 0;
 		$uniqueid++;
-		
+
 		// 長い英数を折り返す
 		if ($this->root->word_break_limit && HypCommonFunc::get_version() >= '20080217') {
 			HypCommonFunc::html_wordwrap($body, $this->root->word_break_limit, $this->root->word_breaker);
@@ -1950,20 +2021,20 @@ EOD;
 			}
 		}
 		$body = str_replace($bef ,$aft , $body);
-		
+
 		// For Safari
 		if ($this->cont['UA_NAME'] === 'Safari') {
 			$body = preg_replace('/(<form)([^>]*>)/' , '$1 accept-charset="UTF-8"$2', $body);
 		}
-		
+
 		if ($this->root->viewmode === 'popup') {
 			$body = preg_replace('/(<form[^>]*?>)/' , '$1<input type="hidden" name="popup" value="1" />', $body);
 		}
-		
+
 		if ($this->cont['PageForRef'] !== $this->cont['PAGENAME']) {
 			$body = preg_replace('/(<form[^>]*?>)/' , '$1<input type="hidden" name="uploadpage" value="'.htmlspecialchars($this->cont['PageForRef']).'" />', $body);
 		}
-		
+
 		// TextArea id
 		if (strpos($body, '<textarea') !== FALSE) {
 
@@ -1983,18 +2054,18 @@ EOD;
 			$body = preg_replace_callback('/(<textarea)([^>]*?)>/', create_function('$match', $_func), $body);
 		}
 	}
-	
+
 	function get_favicon_img ($url, $size = 16, $alt = '', $class = 'xpwikiFavicon') {
 		if ($this->root->can_not_connect_www || HypCommonFunc::get_version() < '20080213') {
 			return '';
 		}
-		
+
 		$url = preg_replace('/\?.*/', '', $url);
-		
+
 		if (!$alt) $alt = $url;
-		
+
 		$favicon = '<img src="'.$this->cont['LOADER_URL'].'?src=favicon&amp;url='.rawurlencode($url).'" width="'.$size.'" height="'.$size.'" border="0" alt="'.htmlspecialchars($alt).'" class="'.$class.'" />';
-		
+
 		return $favicon;
 	}
 
@@ -2008,7 +2079,7 @@ EOD;
 		$dirname = $withDirname? $this->root->mydirname . ':' : '';
 		return $dirname . $this->root->mydirname .'_' . $plugin . '_' . $name . '_' . $pgid . '_' . $count[$this->root->mydirname][$pgid][$plugin][$name];
 	}
-	
+
 	function get_emoji_pad ($id, $is_textarea = FALSE, $emj_array = NULL) {
 		if (! defined('HYP_K_TAI_RENDER') || HypCommonFunc::get_version() < '20090525') return '';
 		if ($is_textarea && strpos($id, $this->root->mydirname . ':') !== 0) {
@@ -2016,7 +2087,7 @@ EOD;
 		}
 		return  HypCommonFunc::make_emoji_pad($id, $this->root->_btn_emojipad, '', $this->cont['ROOT_URL'] . 'images/emoji', (! isset($this->root->vars['ajax'])), $emj_array);
 	}
-	
+
 	function get_LC_CTYPE() {
 		if ($this->cont['CONTENT_CHARSET'] === 'EUC-JP') {
 			return (substr(PHP_OS, 0, 3) === 'WIN')? 'Japanese_Japan.20932' : 'ja_JP.eucJP';
@@ -2029,7 +2100,7 @@ EOD;
 		if (HypCommonFunc::get_version() < '20080226') { return $host; }
 		return HypCommonFunc::convertIDN($host, $mode, $this->cont['SOURCE_ENCODING']);
 	}
-	
+
 	function url_regularization(& $url) {
 		if (HypCommonFunc::get_version() < '20080226') { return $url; }
 		if ($arr = HypCommonFunc::i18n_parse_url($url)) {
@@ -2060,7 +2131,7 @@ EOD;
 		}
 		if ($deletecache) $this->delete_caches();
 	}
-	
+
 	// Process onPageWriteAfter
 	function do_onPageWriteAfter ($page, $postdata, $notimestamp, $mode, $diffdata, $deletecache = TRUE) {
 		$base = $this->root->mytrustdirpath."/events/onPageWriteAfter";
@@ -2079,7 +2150,7 @@ EOD;
 		$this->onPageWriteAfter($page, $postdata, $notimestamp, $mode, $diffdata, $deletecache);
 		if ($deletecache) $this->delete_caches();
 	}
-	
+
 	function get_autolink_regex_pre_after ($ci = false, $str = '') {
 		$utf8 = '';
 		// Check wrong character as UTF-8
@@ -2102,9 +2173,9 @@ EOD;
 			$pat_pre = '/(<([sS][cC][rR][iI][pP][tT]|[a|A]|[tT][eE][xX][tT][aA][rR][eE][aA]|[sS][tT][yY][lL][eE]|[oO][pP][tT][iI][oO][nN]).*?<\/\\2>|<!--NA-->.+?(?:<!--\/NA-->|$)|<[^>]*>|&(?:#[0-9]+|#x[0-9a-fA-F]+|[0-9a-zA-Z]+);)|'.$asWord1.'(';
 			$pat_aft = ')'.$asWord2.'/sS' . $utf8;
 		}
-		return array($pat_pre, $pat_aft);	
+		return array($pat_pre, $pat_aft);
 	}
-	
+
 	// 抜けた階層を補完してソート
 	// The hierarchy that has come off is supplemented and sorted.
 	function complementary_pagesort (& $pages, $sort = 'sort') {
@@ -2128,12 +2199,12 @@ EOD;
 		}
 		return $pages;
 	}
-	
+
 	// page sort with sorter(page order)
 	function pagesort(& $pages, $sort = 'pagesort', $sortflag = SORT_REGULAR) {
 		switch ($sort) {
 			case 'pagesort':
-				// keep original index for plugin lsx. 
+				// keep original index for plugin lsx.
 				$_pages = array();
 				if (asort($pages)) {
 					foreach ($pages as $key => $page) {
@@ -2175,7 +2246,7 @@ EOD;
 		$sortname[$this->root->mydirname][$page] = $name;
 		return $name;
 	}
-	
+
 	function extract_pgtitle (& $postdata) {
 		$pgtitle = '';
 		if (preg_match($this->root->title_setting_regex, $postdata, $match)) {
@@ -2185,21 +2256,21 @@ EOD;
 		return $pgtitle;
 	}
 
-	// Formart finger fixed child of the table cell is deleted. 
+	// Formart finger fixed child of the table cell is deleted.
 	function cell_format_tag_del ($td) {
 		// Regular expression of color name
 		$colors_reg = "aqua|navy|black|olive|blue|purple|fuchsia|red|gray|silver|green|teal|lime|white|maroon|yellow|transparent";
-		
+
 		// Character color specification deletion
 		$td = preg_replace("/FC:(#?[0-9abcdef]{6}?|$colors_reg|0)/i","",$td);
-		
+
 		// Background color specification deletion
 		$td = preg_replace("/(SC|BC):(#?[0-9abcdef]{6}?|$colors_reg|0)(\(([^),]*)(,no|,one|,1)?\))/i","SC:$2",$td);
 		$td = preg_replace("/(SC|BC):(#?[0-9abcdef]{6}?|$colors_reg|0)/i","",$td);
-		
+
 		// Background picture specification deletion
 		$td = preg_replace("/(SC|BC):\(([^),]*)(,once|,1)?\)/i","",$td);
-		
+
 		// Character arrangement specification deletion
 		$tmp = array();
 		if (preg_match("/^(LEFT|CENTER|RIGHT)?(:)(TOP|MIDDLE|BOTTOM)?/i",$td,$tmp)) {
@@ -2246,27 +2317,27 @@ EOD;
 		}
 		return;
 	}
-	
+
 	function convert_html_multiline ($str) {
 		$oldflg = (isset($this->root->rtf['convert_html_multiline']))? $this->root->rtf['convert_html_multiline'] : NULL;
 		$this->root->rtf['convert_html_multiline'] = TRUE;
-		
+
 		$str = str_replace("\r", "\n", $str);
 		$html = $this->convert_html($str);
-		
+
 		if (is_null($oldflg)) {
 			unset($this->root->rtf['convert_html_multiline']);
 		} else {
 			$this->root->rtf['convert_html_multiline'] = $oldflg;
 		}
-		
+
 		return $html;
 	}
-	
+
 	function touch_page ($page, $time = FALSE, $lastuser_update = FALSE) {
 		if (! $this->is_page($page)) return FALSE;
 		if ($lastuser_update) {
-			$this->page_write($page, NULL);
+			$this->page_write($page, NULL, (is_null($time)? TRUE : FALSE));
 		}
 		if (! $lastuser_update || $time) {
 			$this->pkwk_touch_file($this->get_filename($page), $time);
@@ -2277,11 +2348,11 @@ EOD;
 	function send_update_ping () {
 		if ($this->root->update_ping && HypCommonFunc::get_version() >= 20080515) {
 			if (! $this->cache_get_db('xmlrpc_ping_send', 'system')) {
-	
+
 				$this->cache_save_db('done', 'system', 1800, 'xmlrpc_ping_send'); // TTL = 1800 sec.
-				
+
 				$this->unregist_jobstack(array('action' => 'xmlrpc_ping_send'));
-				
+
 				HypCommonFunc::loadClass('HypPinger');
 				$p = new HypPinger(
 					$this->root->module['title'] . ' / ' . $this->root->siteinfo['sitename'],
@@ -2291,18 +2362,18 @@ EOD;
 					''
 				);
 				$p->setEncording($this->cont['SOURCE_ENCODING']);
-				
+
 				foreach(explode("\n", trim($this->root->update_ping_servers)) as $to) {
 					list($url, $extended) = array_pad(explode(' ', trim($to)), 2, '');
 					$url = trim($url);
-					$extended = $extended? TRUE : FALSE; 
+					$extended = $extended? TRUE : FALSE;
 					if ($this->is_url($url, TRUE)) {
 						$p->addSendTo($url, $extended);
 					}
 				}
-				
+
 				$p->send();
-				
+
 				$p = NULL;
 				unset($p);
 			} else {
@@ -2311,7 +2382,7 @@ EOD;
 			}
 		}
 	}
-	
+
 	function cleanup_template_source (& $source) {
 		// 見出しの固有ID部を削除
 		$source = preg_replace('/^(\*{1,5}.*)\[#[A-Za-z][\w-]+\](.*)$/m', '$1$2', $source);
@@ -2322,7 +2393,7 @@ EOD;
 		// #pginfoを削除
 		$source = $this->remove_pginfo($source);
 	}
-	
+
 	function make_empty_page ($page, $asSystem = true) {
 		if ($asSystem) {
 			$_userinfo = $this->root->userinfo;
@@ -2337,7 +2408,7 @@ EOD;
 			$this->root->userinfo = $_userinfo;
 		}
 	}
-	
+
 	function rewrite4move2child ($src) {
 		$src = preg_replace_callback('/((?:#|&)[A-Za-z0-9_-]+\()([^,)]+)/', array(& $this, '_rewrite4move2child_ref'), $src);
 		$from = array('[[./', '[[../');
@@ -2346,7 +2417,7 @@ EOD;
 		$src = preg_replace('#\[\[[^\]>]+>\.\./#', '\0../', $src);
 		return $src;
 	}
-	
+
 	function _rewrite4move2child_ref ($match) {
 		if (strpos($match[2], '/') === FALSE || substr($match[2], 0, 3) === '../') {
 			$match[2] = '../' . $match[2];
@@ -2355,7 +2426,7 @@ EOD;
 		}
 		return $match[1] . $match[2];
 	}
-	
+
 	function get_digests ($src) {
 		if (is_array($src)) {
 			$src = join('', $src);
@@ -2363,7 +2434,7 @@ EOD;
 		$src = $this->remove_pginfo($src);
 		return md5($src);
 	}
-	
+
 	function get_page_context ($page, $words = NULL, $highlight = FALSE, $contextLength = 255, $contextKeys = 3, $delimiter='...') {
 		if (is_null($words)) {
 			$words = array($page, $this->basename($page));
@@ -2394,7 +2465,7 @@ EOD;
 		}
 		return '<div class="context">' . $context . '</div>';
 	}
-	
+
 	function word_highlight ($body, $word) {
 		// BugTrack2/106: Only variables can be passed by reference from PHP 5.0.5
 		// with array_splice(), array_flip()
@@ -2436,7 +2507,7 @@ EOD;
 		}
 		return $body;
 	}
-	
+
 	function remove_bom($src) {
 		if ($this->cont['SOURCE_ENCODING'] === 'UTF-8') {
 			$src = str_replace("\xEF\xBB\xBF", '', $src);
@@ -2444,26 +2515,79 @@ EOD;
 		return $src;
 	}
 
-/*----- DB Functions -----*/ 
+	function twitter_post($username, $password, $msg, $link = '', $convert = TRUE) {
+		if ($link) {
+			$link = $this->bitly($link, TRUE);
+		}
+		$max = $link? (140 - strlen($link) + 1) : 140;
+
+		if ($convert) {
+			$page = isset($this->root->vars['page'])? $this->root->vars['page'] : '';
+			$msg = strip_tags($this->convert_html($msg, $page));
+		}
+		//$msg = preg_replace('/(https?:\/\/[\w\/\@\$()!?&%#:;.,~\'=*+-]+)/ie', "\$this->bitly('$1')", $msg);
+
+		if (mb_strlen($msg) > $max) {
+			$msg = mb_substr($msg, 0, $max - 3) . '...';
+		}
+		if ($link) $msg .= ' ' . $link;
+
+		$url = 'http://'.$username.':'.$password.'@'.'twitter.com/statuses/update.xml?';
+		$url .= 'status='. rawurlencode(mb_convert_encoding($msg, 'UTF-8', $this->cont['SOURCE_ENCODING']));
+		$url .= '&source=xpWiki';
+		$d = new Hyp_HTTP_Request();
+		$d->url = $url;
+		$d->method = 'POST';
+		$d->blocking = FALSE;
+		$d->get();
+		$q = $d->query;
+		$d = NULL;
+	}
+
+	function bitly($url, $returnEmpty = FALSE, $cache = 864000) {
+		$ret = $returnEmpty? '' : $url;
+		if ($this->root->bitly_login && $this->root->bitly_apiKey) {
+			if (strtolower(substr($url, 0, 13)) === 'http://bit.ly') {
+				$ret = $url;
+			} else if (! $cache || ! $ret = $this->cache_get_db($sha1 = sha1($url), 'bitly')) {
+				$q = 'http://api.bit.ly/shorten?version=2.0.1&longUrl=' . urlencode($url);
+				$q .= '&login=' . $this->root->bitly_login . '&apiKey=' . $this->root->bitly_apiKey;
+				$res = $this->http_request($q);
+				if ($res['rc'] === 200 && preg_match('#"shortUrl": "(http://bit.ly/[^"]+)"#', $res['data'], $match))	{
+					$ret = $match[1];
+					if ($cache) {
+						$this->cache_save_db($ret, 'bitly', $cache, $sha1);
+					}
+				}
+			}
+		}
+		return $ret;
+	}
+
+	function bitlize($str) {
+		return preg_replace('/(https?:\/\/[\w\/\@\$()!?&%#:;.,~\'=*+-]+)/ie', "\$this->bitly('$1')", $str);
+	}
+
+/*----- DB Functions -----*/
 	// Over write pukiwiki_func
 	function is_freeze($page, $clearcache = FALSE) {
 		static $is_freeze = array();
-	
+
 		if ($clearcache === TRUE) {
 			unset($is_freeze[$this->root->mydirname][$page]);
 		}
-		
+
 		if (isset($is_freeze[$this->root->mydirname][$page])) return $is_freeze[$this->root->mydirname][$page];
-	
+
 			if (! $this->root->function_freeze || ! $this->is_page($page)) {
 			$is_freeze[$this->root->mydirname][$page] = FALSE;
 			return FALSE;
 		}
-		
+
 		$s_page = addslashes($page);
 		$case = ($this->root->page_case_insensitive)? '_ci' : '';
 		$db =& $this->xpwiki->db;
-		$query = "SELECT `freeze` FROM ".$db->prefix($this->root->mydirname."_pginfo")." WHERE name".$case."='$s_page' LIMIT 1";			
+		$query = "SELECT `freeze` FROM ".$db->prefix($this->root->mydirname."_pginfo")." WHERE name".$case."='$s_page' LIMIT 1";
 
 		if ($res = $db->query($query)) {
 			list($freeze) = $db->fetchRow($res);
@@ -2478,9 +2602,9 @@ EOD;
 	function get_pgid_by_name ($page, $cache = true, $make = false)
 	{
 		if ($cache && isset($this->root->pgids[$page])) return $this->root->pgids[$page];
-		
+
 		$s_page = addslashes($page);
-		
+
 		$case = ($this->root->page_case_insensitive)? '_ci' : '';
 		$db =& $this->xpwiki->db;
 		$query = "SELECT `pgid` FROM ".$db->prefix($this->root->mydirname."_pginfo")." WHERE name".$case."='$s_page' LIMIT 1";
@@ -2496,7 +2620,7 @@ EOD;
 		if ($ret) $this->root->pgids[$page] = $ret;
 		return $ret;
 	}
-	
+
 	// トップ・セカンドレベルのページIDを求める
 	function get_pgids_by_name ($page) {
 		$pages = array_pad(explode('/', $page), 2, '');
@@ -2504,13 +2628,13 @@ EOD;
 		$pgid2 = ($pages[1])? $this->get_pgid_by_name($pages[0].'/'.$pages[1]) : 0;
 		return array($pgid1, $pgid2);
 	}
-	
+
 	//ページIDからページ名を求める
 	function get_name_by_pgid($id)
 	{
 		static $page_name = array();
 		if (isset($page_name[$this->root->mydirname][$id])) return $page_name[$this->root->mydirname][$id];
-		
+
 		$db =& $this->xpwiki->db;
 		$query = "SELECT `name` FROM ".$db->prefix($this->root->mydirname."_pginfo")." WHERE pgid='$id' LIMIT 1";
 		$res = $db->query($query);
@@ -2525,9 +2649,9 @@ EOD;
 	{
 		static $ret = array();
 		$page = $this->strip_bracket($page);
-		
+
 		if (isset($ret[$this->root->mydirname][$page])) return $ret[$this->root->mydirname][$page];
-		
+
 		$page = addslashes($page);
 		$db =& $this->xpwiki->db;
 		$query = "SELECT `title` FROM ".$db->prefix($this->root->mydirname."_pginfo")." WHERE name='$page' LIMIT 1;";
@@ -2538,7 +2662,7 @@ EOD;
 		$_ret = preg_replace('/&amp;(#?[a-z0-9]+?);/i', '&$1;', htmlspecialchars($_ret[0], ENT_QUOTES));
 		return $ret[$this->root->mydirname][$page] = ($_ret || $init)? $_ret : htmlspecialchars($page,ENT_NOQUOTES);
 	}
-	
+
 	// 全ページ名を配列にDB版
 	function get_existpages($nocheck = FALSE, $base = '', $options = array())
 	{
@@ -2546,15 +2670,15 @@ EOD;
 		if (is_string($nocheck) && $nocheck !== $this->cont['DATA_DIR']) {
 			return parent::get_existpages($nocheck,$base);
 		}
-		
+
 		static $_aryret = array();
-		
+
 		if (isset($_aryret[$this->root->mydirname]['pages']) && $nocheck === FALSE && $base === '' && !$options) {
 			$this->root->pgids = $_aryret[$this->root->mydirname]['pgids'];
 			$this->root->pgorders = $_aryret[$this->root->mydirname]['pgorders'];
 			return $_aryret[$this->root->mydirname]['pages'];
 		}
-		
+
 		$keys = array(
 			'where'     => '',
 			'limit'     => 0,
@@ -2569,14 +2693,14 @@ EOD;
 		foreach ($keys as $key => $def) {
 			$$key = (isset($options[$key]))? $options[$key] : $def ;
 		}
-		
+
 		if ($asguest) {
 			$_userinfo = $this->root->userinfo;
 			$this->root->userinfo = $this->get_userinfo_by_id();
 		}
-		
+
 		$aryret = array();
-		
+
 		if (!$nocheck) {
 			$readable_where = $this->get_readable_where();
 			if ($where)
@@ -2584,7 +2708,7 @@ EOD;
 			else
 				$where = $readable_where;
 		}
-		
+
 		if ($base)
 		{
 			if (substr($base,-1) == '/')
@@ -2607,14 +2731,14 @@ EOD;
 				$where = " ($base_where) AND ($where)";
 			else
 				$where = " $base_where";
-				
+
 		}
 		else
 		{
 			if ($nochild)
 			{
 				$base_where = "name NOT LIKE '%/%'";
-	
+
 				if ($where)
 					$where = " ($base_where) AND ($where)";
 				else
@@ -2676,11 +2800,11 @@ EOD;
 			$_aryret[$this->root->mydirname]['pgids'] = $this->root->pgids;
 			$_aryret[$this->root->mydirname]['pgorders'] = $this->root->pgorders;
 		}
-		
+
 		if ($asguest) {
 			$this->root->userinfo = $_userinfo;
 		}
-		
+
 		return $aryret;
 	}
 
@@ -2689,12 +2813,12 @@ EOD;
 	{
 		// pgid
 		$id = $this->get_pgid_by_name($page);
-		
+
 		if ($action !== 'delete') {
 			$file = $this->get_filename($page);
 			$editedtime = filemtime($file) - $this->cont['LOCALZONE'];
 			$s_name = addslashes($page);
-			
+
 			foreach (array('uid', 'ucd', 'uname', 'einherit', 'vinherit', 'lastuid', 'lastucd', 'lastuname', 'reading', 'pgorder') as $key) {
 				$$key = addslashes($pginfo[$key]);
 			}
@@ -2705,23 +2829,23 @@ EOD;
 					$$key = '&'.$pginfo[$key].'&';
 				}
 			}
-		
+
 			// ページ名読み整形
 			// 英数字は半角,カタカナは全角,ひらがなはカタカナに
 			if (function_exists("mb_convert_kana"))
 			{
 				$reading = mb_convert_kana($reading,'aKVC');
 			}
-			
+
 			//最初の見出し行取得
 			$title = addslashes($this->get_heading_init($page));
 		}
-	
+
 		// 新規作成
 		if ($action == "insert")
 		{
 			$buildtime = $editedtime;
-			
+
 			if ($id)
 			{
 				// 以前に削除したページ
@@ -2756,7 +2880,7 @@ EOD;
 			}
 
 			$result = $this->xpwiki->db->queryF($query);
-			
+
 			//投稿数カウントアップ
 			//if ($uid && $countup_xoops)
 			//{
@@ -2765,7 +2889,7 @@ EOD;
 			//}
 		}
 
-		// ページ更新 
+		// ページ更新
 		elseif ($action == "update")
 		{
 			$value = "`title`='$title' ," .
@@ -2778,17 +2902,17 @@ EOD;
 			$query = "UPDATE ".$this->xpwiki->db->prefix($this->root->mydirname."_pginfo")." SET $value WHERE pgid = '$id' LIMIT 1";
 			$result = $this->xpwiki->db->queryF($query);
 		}
-		
+
 		// ページ削除
 		elseif ($action == "delete")
 		{
-	
+
 			$value = "`title`='' ," .
                      "editedtime=0";
 			$query = "UPDATE ".$this->xpwiki->db->prefix($this->root->mydirname."_pginfo")." SET $value WHERE pgid = '$id' LIMIT 1";
 			$result = $this->xpwiki->db->queryF($query);
 		}
-		
+
 		// plain DB update
 		if (empty($this->root->rtf['plaindb_up_now'])) {
 			$this->need_update_plaindb($page, $action, $notimestamp);
@@ -2796,26 +2920,26 @@ EOD;
 			$this->plain_db_write($page, $action, FALSE, $notimestamp);
 		}
 	}
-	
+
 	// freeze情報更新
 	function pginfo_freeze_db_write ($page, $freeze) {
 
 		// pgid
 		$id = $this->get_pgid_by_name($page);
-		
+
 		if ($id) {
-			$value = "`freeze`='$freeze'";	
+			$value = "`freeze`='$freeze'";
 			$query = "UPDATE ".$this->xpwiki->db->prefix($this->root->mydirname."_pginfo")." SET $value WHERE pgid = '$id' LIMIT 1";
 			$result = $this->xpwiki->db->queryF($query);
 		}
 	}
-	
+
 	// 権限情報更新
 	function pginfo_perm_db_write ($page, $pginfo, $change_uid = FALSE) {
 
 		// pgid
 		$id = $this->get_pgid_by_name($page);
-		
+
 		if ($id) {
 			foreach (array('einherit', 'vinherit') as $key) {
 				$$key = addslashes($pginfo[$key]);
@@ -2832,7 +2956,7 @@ EOD;
 					"`egids`='$egids' ," .
 					"`vinherit`='$vinherit' ," .
 					"`vaids`='$vaids' ," .
-					"`vgids`='$vgids'";		
+					"`vgids`='$vgids'";
 			if ($change_uid) {
 				$uname = addslashes($pginfo['uname']);
 				$value .= ",`uid`='{$pginfo['uid']}'";
@@ -2842,7 +2966,7 @@ EOD;
 			$result = $this->xpwiki->db->query($query);
 		}
 	}
-	
+
 	// ページ名のリネーム
 	function pginfo_rename_db_write ($fromname, $toname) {
 		// pgid
@@ -2852,17 +2976,17 @@ EOD;
 			$this->plain_db_write($fromname,"delete");
 
 			$_toname = addslashes($toname);
-			$value = "`name`='$_toname', `name_ci`='$_toname'";		
+			$value = "`name`='$_toname', `name_ci`='$_toname'";
 			$query = "UPDATE ".$this->xpwiki->db->prefix($this->root->mydirname."_pginfo")." SET $value WHERE pgid = '$id' LIMIT 1";
 			//exit($query);
 			$result = $this->xpwiki->db->query($query);
-			
+
 			// リンク情報更新
 			//$this->plain_db_write($toname,"insert");
 			$this->need_update_plaindb($toname,"insert");
 		}
 	}
-	
+
 	// plane_text DB を更新
 	function plain_db_write($page, $action, $init = FALSE, $notimestamp = FALSE)
 	{
@@ -2903,7 +3027,7 @@ EOD;
 
 			// Clear page cache
 			$this->clear_page_cache($page);
-			
+
 			$pobj = & XpWiki::getSingleton($this->root->mydirname);
 			$pobj->init($page);
 			$GLOBALS['Xpwiki_'.$this->root->mydirname]['cache'] = null;
@@ -2922,29 +3046,29 @@ EOD;
 			//$rel_pages = array_merge(array_keys($pobj->related), array_keys($pobj->notyets));
 			$rel_pages = array_keys($pobj->related);
 			$rel_pages = array_unique($rel_pages);
-			
+
 			// 未作成ページ
 			if ($page !== $this->root->whatsdeleted && $page !== $this->cont['PLUGIN_RENAME_LOGPAGE'])
-			{	
+			{
 				$yetlists = array();
 				$notyets = array_keys($pobj->notyets);
-				
+
 				if (file_exists($this->cont['CACHE_DIR']."yetlist.dat"))
 				{
 					$yetlists = unserialize(file_get_contents($this->cont['CACHE_DIR']."yetlist.dat"));
 				}
-				
+
 				// ページ新規作成されたらリストから除外
 				if ($action === 'insert') {
 					if (isset($yetlists[$page])) {unset($yetlists[$page]);}
 				}
-				
+
 				// とりあえず参照元リストから除去
 				foreach($yetlists as $_notyet => $_pages) {
 					$yetlists[$_notyet] = array_diff($_pages, array($page));
 					if (!$yetlists[$_notyet]) { unset($yetlists[$_notyet]); }
-				}	
-				
+				}
+
 				// 削除時以外は参照元リストに追加
 				if ($action !== 'delete' && $notyets) {
 					foreach($notyets as $notyet) {
@@ -2959,7 +3083,7 @@ EOD;
 					fclose($fp);
 				}
 			}
-			
+
 			// 付箋
 			if (empty($GLOBALS['Xpwiki_'.$this->root->mydirname]['cache']['fusen']['loaded'])){
 				if ($fusen = $this->get_plugin_instance('fusen')) {
@@ -2972,7 +3096,7 @@ EOD;
 
 			$data = preg_replace("/".preg_quote("<a href=\"{$this->root->script}?cmd=edit&amp;page=","/")."[^\"]+".preg_quote("\">{$this->root->_symbol_noexists}</a>","/")."/","",$data);
 			$data = str_replace($spc[0],$spc[1],strip_tags($data)).join(',',$rel_pages);
-			
+
 			// 英数字は半角,カタカナは全角,ひらがなはカタカナに
 			if (function_exists("mb_convert_kana"))
 			{
@@ -2996,12 +3120,12 @@ EOD;
 					$query = "INSERT INTO ".$this->xpwiki->db->prefix($this->root->mydirname."_rel")." (pgid,relid) VALUES(".$pgid.",".$relid.");";
 					$this->xpwiki->db->queryF($query);
 				}
-				
+
 				if (! $init && $notimestamp === FALSE && $this->check_readable_page($page, FALSE, FALSE, 0)) {
 					// Send update ping
 					$this->send_update_ping();
 				}
-				
+
 				return true;
 			} else {
 				// Update なのにデータがない模様
@@ -3015,10 +3139,10 @@ EOD;
 			// 念のため削除
 			$query = "DELETE FROM ".$this->xpwiki->db->prefix($this->root->mydirname."_plain")." WHERE `pgid`='$pgid' LIMIT 1";
 			$this->xpwiki->db->queryF($query);
-			
+
 			$query = "INSERT INTO ".$this->xpwiki->db->prefix($this->root->mydirname."_plain")." (pgid,plain) VALUES($pgid,'$data');";
 			$this->xpwiki->db->queryF($query);
-			
+
 			//リンク先ページ
 			// 念のため削除
 			$query = "DELETE FROM ".$this->xpwiki->db->prefix($this->root->mydirname."_rel")." WHERE pgid = ".$pgid.";";
@@ -3030,7 +3154,7 @@ EOD;
 				$query = "INSERT INTO ".$this->xpwiki->db->prefix($this->root->mydirname."_rel")." (pgid,relid) VALUES(".$pgid.",".$relid.");";
 				$this->xpwiki->db->queryF($query);
 			}
-			
+
 			//リンク元ページ
 			// $pageがAutoLinkの対象となり得る場合
 			if (! $init && $this->root->autolink
@@ -3038,7 +3162,7 @@ EOD;
 			{
 				// $pageを参照していそうなページに一気に追加
 				$this->root->search_non_list = 1;
-				
+
 				$lookup_page = $page;
 
 				// 検索ページ名の共通リンクディレクトリを省略
@@ -3047,21 +3171,21 @@ EOD;
 						if (strpos($lookup_page, $autolink['base']) === 0) {
 							$lookup_page = substr($lookup_page, strlen($autolink['base']) + 1);
 							if ($this->root->autolink > strlen($lookup_page)){$lookup_page = $page;}
-							break;							
+							break;
 						}
 					}
 				}
-				
+
 				// Page Aliases
 				$andor = 'AND';
 				if ($alias = join(' ', $this->get_page_alias($page, TRUE))) {
 					$andor = 'OR';
 					$lookup_page .= ' ' . $alias;
 				}
-				
+
 				// 検索実行
 				$pages = (! empty($this->root->rtf['is_init']))? $this->do_source_search($lookup_page,$andor,TRUE) : $this->do_search($lookup_page,$andor,TRUE);
-				
+
 				foreach ($pages as $_page)
 				{
 					$refid = $this->get_pgid_by_name($_page);
@@ -3072,20 +3196,20 @@ EOD;
 					$this->plain_db_write($_page, 'update', FALSE, TRUE);
 				}
 			}
-			
+
 			// Send update ping
 			if ($notimestamp === FALSE && $this->check_readable_page($page, FALSE, FALSE, 0)) {
 				$this->send_update_ping();
 			}
 		}
-		
+
 		// ページ削除
 		elseif ($action === 'delete')
 		{
 			$query = "DELETE FROM ".$this->xpwiki->db->prefix($this->root->mydirname."_plain")." WHERE pgid = $pgid;";
 			$result=$this->xpwiki->db->queryF($query);
 			//if (!$result) echo $query."<hr>";
-			
+
 			//リンクページ
 			$query = "DELETE FROM ".$this->xpwiki->db->prefix($this->root->mydirname."_rel")." WHERE pgid = ".$pgid." OR relid = ".$pgid.";";
 			$result=$this->xpwiki->db->queryF($query);
@@ -3100,7 +3224,7 @@ EOD;
 		}
 		else
 			return false;
-		
+
 		return true;
 	}
 
@@ -3108,9 +3232,9 @@ EOD;
 	function attach_db_write($data,$action)
 	{
 		$ret = TRUE;
-		
+
 		//if (!$pgid = $data['pgid']) return false;
-		
+
 		$id = (int)@$data['id'];
 		$pgid = (int)@$data['pgid'];
 		$name = addslashes(@$data['name']);
@@ -3133,7 +3257,7 @@ EOD;
 			$result=$this->xpwiki->db->queryF($query);
 			//if (!$result) echo $query."<hr>";
 		}
-		
+
 		// 更新
 		elseif ($action == "update")
 		{
@@ -3153,12 +3277,12 @@ EOD;
 			$result=$this->xpwiki->db->queryF($query);
 			//if (!$result) echo $query."<hr>";
 		}
-		
+
 		// ファイル削除
 		elseif ($action == "delete")
 		{
 			$q_name = ($name)? " AND name='{$name}' AND age='{$age}' LIMIT 1" : "";
-			
+
 			$ret = array();
 			$query = "SELECT name FROM ".$this->xpwiki->db->prefix($this->root->mydirname."_attach")." WHERE `pgid` = {$pgid}{$q_name};";
 			if ($result=$this->xpwiki->db->query($query))
@@ -3169,15 +3293,15 @@ EOD;
 				}
 			}
 			if (!$ret) $ret = TRUE;
-			
+
 			$query = "DELETE FROM ".$this->xpwiki->db->prefix($this->root->mydirname."_attach")." WHERE `pgid` = {$pgid}{$q_name};";
-			
+
 			$result=$this->xpwiki->db->queryF($query);
 			//if (!$result) echo $query."<hr>";
 		}
 		else
 			return false;
-		
+
 		return $ret;
 	}
 
@@ -3202,7 +3326,7 @@ EOD;
 		}
 		return $dbinfo;
 	}
-	
+
 	function get_attachstatus ($file) {
 		if (is_array($file)) {
 			$page = $file['page'];
@@ -3229,59 +3353,59 @@ EOD;
 		unset($obj);
 		return $status;
 	}
-	
+
 	// プラグインからplane_text DB を更新を指示(コンバート時)
-	function need_update_plaindb($page = null, $mode = 'update', $notimestamp = TRUE, $soon = TRUE)
+	function need_update_plaindb($page = null, $mode = 'update', $notimestamp = TRUE, $soon = TRUE, $wait = 0)
 	{
 		// Do nothing on plainDB update.
 		if (! empty($this->root->rtf['is_init'])) return;
-		
+
 		if (is_null($page)) $page = $this->root->vars['page'];
-		
+
 		// Regist JobStack
 		if ($mode === 'update' && $notimestamp) {
 			$mode = 'update_notimestamp';
 		}
 		$data = array('action' => 'plain_up', 'page' => $page, 'mode' => $mode);
 		$ttl = ($soon)? 0 : 864000;
-		$this->regist_jobstack($data, $ttl);
+		$this->regist_jobstack($data, $ttl, $wait);
 
 		return;
 	}
-	
+
 	// データベースからリンクされているページを得る
 	function links_get_related_db($page, $start = 0, $max = 0)
 	{
 		static $links = array();
-		
+
 		if (isset($links[$this->root->mydirname][$page])) {
 			return $links[$this->root->mydirname][$page];
 		}
-		
+
 		$limit = $max? ' LIMIT ' . $start . ',' . $max : '';
-		
+
 		$where = "`relid` = ".$this->get_pgid_by_name($page)." AND p.pgid = r.pgid";
 		$r_where = $this->get_readable_where('p.');
 		if ($r_where) {
 			$where = "($where AND ($r_where))";
 		}
 		$where = " WHERE " . $where;
-		
+
 		$query = "SELECT p.name, p.editedtime FROM `".$this->xpwiki->db->prefix($this->root->mydirname."_rel")."` AS r, `".$this->xpwiki->db->prefix($this->root->mydirname."_pginfo")."` AS p " . $where . $limit;
 		$result = $this->xpwiki->db->query($query);
 		//echo $query;
-		
+
 		$ret = array();
 		if ($result) {
 			while(list($name,$time) = $this->xpwiki->db->fetchRow($result)) {
 				$ret[$name] = $time;
 			}
 		}
-		
+
 		if (! $limit) {
 			$links[$this->root->mydirname][$page] = $ret;
 		}
-		
+
 		return $ret;
 	}
 
@@ -3289,49 +3413,49 @@ EOD;
 	function links_count_related_db($page)
 	{
 		static $links = array();
-		
+
 		if (isset($links[$this->root->mydirname][$page])) {
 			return $links[$this->root->mydirname][$page];
 		}
-		
+
 		$where = "`relid` = ".$this->get_pgid_by_name($page)." AND p.pgid = r.pgid";
 		$r_where = $this->get_readable_where('p.');
 		if ($r_where) {
 			$where = "($where AND ($r_where))";
 		}
 		$where = " WHERE " . $where;
-		
+
 		$query = "SELECT COUNT(*) FROM `".$this->xpwiki->db->prefix($this->root->mydirname."_rel")."` AS r, `".$this->xpwiki->db->prefix($this->root->mydirname."_pginfo")."` AS p " . $where;
 		$result = $this->xpwiki->db->query($query);
 		//echo $query;
-		
+
 		$links[$this->root->mydirname][$page] = 0;
 		if ($result) {
 			list($links[$this->root->mydirname][$page]) = $this->xpwiki->db->fetchRow($result);
 		}
-		
+
 		return $links[$this->root->mydirname][$page];
 	}
-	
+
 	// データベースからリンクしているページを得る
 	function links_get_linked_db($page)
 	{
 		static $links = array();
-		
+
 		if (isset($links[$this->root->mydirname][$page])) {return $links[$this->root->mydirname][$page];}
 		$links[$this->root->mydirname][$page] = array();
-		
+
 		$where = "r.pgid = ".$this->get_pgid_by_name($page)." AND p.pgid = r.relid";
 		$r_where = $this->get_readable_where('p.');
 		if ($r_where) {
 			$where = "($where AND ($r_where))";
 		}
 		$where = " WHERE " . $where;
-		
+
 		$query = "SELECT p.name, p.editedtime FROM `".$this->xpwiki->db->prefix($this->root->mydirname."_rel")."` AS r, `".$this->xpwiki->db->prefix($this->root->mydirname."_pginfo")."` AS p ".$where;
 		$result = $this->xpwiki->db->query($query);
 		//echo $query;
-		
+
 		if ($result)
 		{
 			while(list($name,$time) = $this->xpwiki->db->fetchRow($result))
@@ -3339,19 +3463,19 @@ EOD;
 				$links[$this->root->mydirname][$page][$name] = $time;
 			}
 		}
-		
+
 		return $links[$this->root->mydirname][$page];
 	}
-	
+
 	// 閲覧権限チェック用 WHERE句取得
 	function get_readable_where ($table = '', $is_admin = NULL, $uid = NULL) {
 		static $where = array();
-		
+
 		if (is_null($is_admin)) $is_admin = $this->root->userinfo['admin'];
 		if (is_null($uid)) $uid = $this->root->userinfo['uid'];
-		
+
 		$key = ($is_admin)? ("-1".$table) : ("$uid".$table);
-		
+
 		if (!isset($where[$this->root->mydirname][$key]))
 		{
 			if ($is_admin) {
@@ -3375,12 +3499,12 @@ EOD;
 
 	// plain Text を取得する
 	function get_plain_text_db ($page) {
-		
+
 		$pgid = $this->get_pgid_by_name($page);
-		
-		$query = 'SELECT `plain` FROM `'.$this->xpwiki->db->prefix($this->root->mydirname."_plain").'` WHERE `pgid` = \''.$pgid.'\' LIMIT 1';		
+
+		$query = 'SELECT `plain` FROM `'.$this->xpwiki->db->prefix($this->root->mydirname."_plain").'` WHERE `pgid` = \''.$pgid.'\' LIMIT 1';
 		$result = $this->xpwiki->db->query($query);
-		
+
 		$text = '';
 		if ($result)
 		{
@@ -3404,7 +3528,7 @@ EOD;
 			$result = $this->xpwiki->db->queryF($query);
 		}
 	}
-	
+
 	// 'Search' main function (DB版)
 	function do_search($words, $type = 'AND', $non_format = FALSE, $base = '', $options = array())
 	{
@@ -3419,21 +3543,21 @@ EOD;
 			'resultMax' => 0,
 			'msg_more_search' => '',
 		);
-		
+
 		$options = array_merge($def_options, $options);
-		
+
 		if ($this->cont['LANG'] === 'ja' && function_exists("mb_convert_kana") && $options['spZen']) {
 			$words = mb_convert_kana($words, 's');
 		}
-		
+
 		if (!$options['db']) return parent::do_search($words, $type, $non_format, $base);
-		
+
 		$keywords = preg_split('/\s+/', $words, -1, PREG_SPLIT_NO_EMPTY);
-		
+
 		$fields = explode(',', $options['field']);
-		
+
 		$andor = ($type === 'AND')? 'AND' : 'OR';
-		
+
 		$where_readable = $this->get_readable_where('p.');
 		$where = "p.editedtime != 0";
 		if ($base) {
@@ -3442,14 +3566,14 @@ EOD;
 		if ($where_readable) {
 			$where = "$where AND ($where_readable)";
 		}
-		
+
 		$sel_desc = ($options['context'] === 'db')? ', t.plain' : '';
-		
+
 		$sql = 'SELECT p.name, p.editedtime, p.title'.$sel_desc.' FROM '.$this->xpwiki->db->prefix($this->root->mydirname."_pginfo")." p INNER JOIN ".$this->xpwiki->db->prefix($this->root->mydirname."_plain")." t ON t.pgid=p.pgid WHERE ($where) ";
 		if ( $options['userid'] != 0 ) {
 			$sql .= "AND (p.uid=".$options['userid'].") ";
 		}
-		
+
 		if ( is_array($keywords) && $keywords ) {
 			// 英数字は半角,カタカナは全角,ひらがなはカタカナに
 			$sql .= "AND (";
@@ -3473,14 +3597,14 @@ EOD;
 			}
 			$sql .= ") ";
 		}
-		
+
 		$result = $this->xpwiki->db->query($sql, $options['limit'], $options['offset']);
-		
+
 		$ret = array();
-		
+
 		if (!$keywords) $keywords = array();
 		$sword = rawurlencode(join(' ',$keywords));
-		
+
 		$pages = array();
 		if (in_array('source', $fields)) {
 			foreach($this->do_source_search ($word, $type, true, $base) as $page) {
@@ -3491,24 +3615,24 @@ EOD;
 			$pages[$myrow['name']] = array($myrow['editedtime'], $myrow['title']);
 			if ($options['context'] === 'db') $pages[$myrow['name']][2] = $myrow['plain'];
 		}
-		
+
 		if ($non_format) return array_keys($pages);
-	
+
 		$r_word = rawurlencode($words);
 		$s_word = preg_replace('/&amp;#(\d+;)/', '&#$1', htmlspecialchars($words));
-		
+
 		if (empty($pages))
 			return str_replace('$1', $s_word, $this->root->_msg_notfoundresult);
-	
+
 		ksort($pages);
-		
+
 		$count = count($this->get_existpages());
 		$resCount = count($pages);
-		
+
 		if ($options['resultMax'] && $resCount > $options['resultMax']) {
 			$pages = array_splice($pages, 0, $options['resultMax']);
 		}
-		
+
 		$retval = '<ul class="list1">' . "\n";
 		foreach ($pages as $page => $data) {
 			if (empty($data[0])) $data[0] = $this->get_filetime($page);
@@ -3525,13 +3649,13 @@ EOD;
 			$retval .= '</li>';
 		}
 		$retval .= '</ul>' . "\n";
-	
+
 		$retval .= str_replace('$1', $s_word, str_replace('$2', $resCount,
 			str_replace('$3', $count, ($andor === 'AND') ? $this->root->_msg_andresult : $this->root->_msg_orresult)));
 		if ($options['msg_more_search'] && $options['resultMax'] && $resCount > $options['resultMax']) {
 			$retval .= $options['msg_more_search'];
 		}
-	
+
 		return $retval;
 	}
 
@@ -3544,22 +3668,22 @@ EOD;
 	function get_page_reading ($page) {
 		// 無効になっている
 		if (! $this->root->pagereading_enable) return '';
-		
+
 		$reading = '';
 		$pgid = $this->get_pgid_by_name($page);
-		
+
 		if ($pgid) {
-			$query = 'SELECT `reading` FROM `'.$this->xpwiki->db->prefix($this->root->mydirname."_pginfo").'` WHERE `pgid` = \''.$pgid.'\' LIMIT 1';		
+			$query = 'SELECT `reading` FROM `'.$this->xpwiki->db->prefix($this->root->mydirname."_pginfo").'` WHERE `pgid` = \''.$pgid.'\' LIMIT 1';
 			$result = $this->xpwiki->db->query($query);
-	
+
 			if ($result)
 			{
 				list($reading) = $this->xpwiki->db->fetchRow($result);
 			}
 		}
-		
+
 		if ($reading) return $reading;
-				
+
 		// Execute ChaSen/KAKASI, and get annotation
 		switch(strtolower($this->root->pagereading_kanji2kana_converter)) {
 		case 'chasen':
@@ -3645,21 +3769,21 @@ EOD;
 			$page_r[] = mb_substr($_reading, 0, 1);
 		}
 		$reading = join('/', $page_r);
-		
+
 		// DBに保存
 		if ($pgid) {
 			$value = "`reading` = '".addslashes($reading)."'";
 			$query = "UPDATE ".$this->xpwiki->db->prefix($this->root->mydirname."_pginfo")." SET $value WHERE `pgid`='$pgid'";
 			$result = $this->xpwiki->db->queryF($query);
 		}
-		
+
 		return $reading;
 	}
 
 	// ページ別名を取得
 	function get_page_alias ($page, $as_array = false, $clr = false) {
 		static $pg_ary;
-		
+
 		if ($clr || !isset($pg_ary[$this->xpwiki->pid])) {
 			$_tmp = $pg_ary[$this->xpwiki->pid] = array();
 			foreach($this->root->page_aliases as $_alias => $_page) {
@@ -3669,7 +3793,7 @@ EOD;
 				natcasesort($pg_ary[$this->xpwiki->pid][$_page]);
 			}
 		}
-		
+
 		$ret = (isset($pg_ary[$this->xpwiki->pid][$page]))? $pg_ary[$this->xpwiki->pid][$page] : array();
 		if ($as_array) return $ret;
 		return join(':', $ret);
@@ -3678,7 +3802,7 @@ EOD;
 	// ページ別名を保存
 	function put_page_alias ($page, $alias) {
 		if (!$alias && in_array($page, $this->root->page_aliases) === false) return false;
-		
+
 		$alias = trim($alias);
 		$aliases = explode(':', $alias);
 		if ($alias) {
@@ -3686,14 +3810,14 @@ EOD;
 			natcasesort($aliases);
 			$aliases = array_slice($aliases, 0);
 		}
-		
+
 		$aliases_old = $this->get_page_alias($page, true);
 		$aliases_old = array_slice($aliases_old, 0);
-		
+
 		if ($aliases_old === $aliases) return false;
-		
+
 		$this->root->page_aliases = array_diff($this->root->page_aliases, array($page));
-		
+
 		if ($alias) {
 			foreach($aliases as $_alias) {
 				$_check = ($this->root->page_case_insensitive)? $this->get_pagename_realcase($_alias) : $_alias;
@@ -3702,13 +3826,13 @@ EOD;
 				}
 			}
 		}
-		
+
 		// save
 		$this->save_page_alias();
-		
+
 		// Cache remake of get_page_alias()
 		$this->get_page_alias('', true, true);
-		
+
 		return true;
 	}
 
@@ -3718,7 +3842,7 @@ EOD;
 
 		$quote['from'] = array('\\',   "'",);
 		$quote['to']   = array('\\\\', "\\'");
-		
+
 		$dat = "\$root->page_aliases = array(\n";
 		foreach($this->root->page_aliases as $_alias => $_page) {
 			$_alias = str_replace($quote['from'], $quote['to'], $_alias);
@@ -3726,7 +3850,7 @@ EOD;
 			$dat .= "\t'{$_alias}' => '{$_page}',\n";
 		}
 		$dat.= ");\n";
-		
+
 		//$this->save_config('pukiwiki.ini.php', 'page_aliases', $dat);
 
 		$dat .= "\$root->page_aliases_i = array(\n";
@@ -3736,11 +3860,22 @@ EOD;
 			$dat .= "\t'{$_alias}' => '{$_page}',\n";
 		}
 		$dat.= ");";
-		
+
 		$this->save_config('pukiwiki.ini.php', 'page_aliases', $dat);
 
 		// Clear cache *.api
 		$GLOBALS['xpwiki_cache_deletes'][$this->cont['CACHE_DIR']]['api'] = '*.autolink.api';
+	}
+
+	// ページ別名が設定されているか
+	function is_alias($name) {
+		if ($this->root->page_case_insensitive) {
+			$page_aliases = $this->root->page_aliases_i;
+			$name = strtolower($name);
+		} else {
+			$page_aliases = $this->root->page_aliases;
+		}
+		return isset($page_aliases[$name])? $page_aliases[$name] : FALSE;
 	}
 
 	// ページオーダーを取得
@@ -3757,12 +3892,12 @@ EOD;
 		}
 		return $this->root->pgorders[$page];
 	}
-	
+
 	// 大文字小文字を正しいページ名に矯正する
 	function get_pagename_realcase (& $page) {
-		
+
 		if ($this->is_page($page)) return $page;
-		
+
 		$query = 'SELECT `name` FROM `'.$this->xpwiki->db->prefix($this->root->mydirname.'_pginfo').'` WHERE `name_ci` = \''.addslashes($page).'\' LIMIT 1';
 		if ($result = $this->xpwiki->db->query($query)) {
 			list($fixed_page) = $this->xpwiki->db->fetchRow($result);
@@ -3779,7 +3914,7 @@ EOD;
 			$this->get_pagename_realcase($dir);
 			$page = $dir.'/'.$base;
 		}
-		
+
 		return $page;
 	}
 
@@ -3805,18 +3940,18 @@ EOD;
 		$sql = 'SELECT `count` FROM `'.$this->xpwiki->db->prefix($this->root->mydirname."_count").'` WHERE pgid = '.$pgid.' LIMIT 1';
 		$res = $this->xpwiki->db->query($sql);
 		if ($res) {
-			list($count) = $this->xpwiki->db->fetchRow($res);	
+			list($count) = $this->xpwiki->db->fetchRow($res);
 		}
 		return $count;
 	}
-	
+
 	/* やはり fstat(filemtime) のほうが早い模様
 	// Get last-modified filetime of the page (DB版)
 	function get_filetime($page) {
 		static $times;
-		
+
 		if (isset($times[$this->root->mydirname][$page])) return $times[$this->root->mydirname][$page];
-		
+
 		$name = (@ $this->root->page_case_insensitive) ? 'name_ci' : 'name';
 		$time = 0;
 		$query = 'SELECT `editedtime` FROM `'.$this->xpwiki->db->prefix($this->root->mydirname.'_pginfo').'` WHERE `'.$name.'` = \''.addslashes($page).'\' LIMIT 1';
@@ -3824,7 +3959,7 @@ EOD;
 			list($time) = $this->xpwiki->db->fetchRow($result);
 		}
 		$times[$this->root->mydirname][$page] = $time ? $time - $this->cont['LOCALZONE'] : 0;
-		
+
 		return $times[$this->root->mydirname][$page];
 	}
 	*/
@@ -3832,14 +3967,14 @@ EOD;
 	function cache_save_db ($data, $plugin='core', $ttl=86400, $key=NULL, $mtime = NULL) {
 		if (is_null($key)) $key = sha1($data);
 		if (is_null($mtime)) $mtime = $this->cont['UTC'];
-		
+
 		$ret = $key;
 		$key = addslashes($key);
 		$plugin = addslashes($plugin);
 		$data = addslashes($data);
 		$ttl = intval($ttl);
 		$dbtable = $this->xpwiki->db->prefix($this->root->mydirname.'_cache');
-		
+
 		// Old cache delete
 		$sql = 'DELETE FROM `'.$dbtable.'` WHERE `ttl` > 0 AND (`mtime` + `ttl`) < '.$this->cont['UTC'];
 		if ($res = $this->xpwiki->db->queryF($sql)) {
@@ -3874,13 +4009,13 @@ EOD;
 			return FALSE;
 		}
 	}
-	
-	function cache_get_db ($key, $plugin, $delete=FALSE) {
+
+	function cache_get_db ($key, $plugin='core', $delete=FALSE) {
 		$key = addslashes($key);
 		$plugin = addslashes($plugin);
 		$data = '';
 		$dbtable = $this->xpwiki->db->prefix($this->root->mydirname.'_cache');
-		
+
 		$sql = 'SELECT `data` FROM `'.$dbtable.'` WHERE `key`=\''.$key.'\' AND `plugin`=\''.$plugin.'\'';
 		if ($res = $this->xpwiki->db->query($sql)) {
 			list($data) = $this->xpwiki->db->fetchRow($res);
@@ -3891,7 +4026,7 @@ EOD;
 				$this->xpwiki->db->queryF($sql);
 			}
 		}
-		
+
 		return $data;
 	}
 
@@ -3900,26 +4035,26 @@ EOD;
 		$plugin = addslashes($plugin);
 		$data = '';
 		$dbtable = $this->xpwiki->db->prefix($this->root->mydirname.'_cache');
-		
+
 		$sql = 'DELETE FROM `'.$dbtable.'` WHERE `key`=\''.$key.'\' AND `plugin`=\''.$plugin.'\'';
 		$ret = $this->xpwiki->db->queryF($sql);
 		$sql = 'OPTIMIZE TABLE `'.$dbtable.'`';
 		$this->xpwiki->db->queryF($sql);
-		
+
 		return $ret;
 	}
-	
+
 	function regist_jobstack ($data, $ttl = 864000, $wait = 0) {
 		$key = md5(serialize($data));
 		$mtime = $this->cont['UTC'] + $wait;
 		$this->cache_save_db(serialize($data), 'jobstack', $ttl, $key, $mtime);
 	}
-	
+
 	function unregist_jobstack ($data) {
 		$key = md5(serialize($data));
 		$this->cache_del_db($key, 'jobstack');
 	}
-	
+
 	function get_jobstack_imagetag () {
 		$dbtable = $this->xpwiki->db->prefix($this->root->mydirname.'_cache');
 		$sql = 'SELECT COUNT(*) FROM `'.$dbtable.'` WHERE `plugin`=\'jobstack\'';
