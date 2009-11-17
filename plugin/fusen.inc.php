@@ -31,7 +31,7 @@
 //
 // fusen.inc.php for xpWiki by nao-pon
 // http://xoops.hypweb.net
-// $Id: fusen.inc.php,v 1.28 2009/04/04 04:35:02 nao-pon Exp $
+// $Id: fusen.inc.php,v 1.29 2009/11/17 09:20:42 nao-pon Exp $
 // 
 
 class xpwiki_plugin_fusen extends xpwiki_plugin {
@@ -496,7 +496,7 @@ EOD;
 				$options = array('overwrite' => TRUE, 'asSystem' => TRUE);
 				if ($this->root->vars['mode'] == 'edit') {
 					// 編集時はタイムスタンプを更新する
-					$options['changelog'] = '[Fusen:' . $id . ' by ' . htmlspecialchars($name) . ']' . htmlspecialchars($txt);
+					$options['changelog'] = '[Fusen:' . $id . '] ' . htmlspecialchars($txt);
 					$ret = $atatch_obj->do_upload($refer, $this->cont['FUSEN_ATTACH_FILENAME'], $fname.".tmp",FALSE,NULL,FALSE,$options);
 				} else {
 					// その他はタイムスタンプを更新しない
@@ -508,6 +508,8 @@ EOD;
 			$dat = $this->plugin_fusen_data($refer, true);
 			// JSONファイル書き込み
 			$this->plugin_fusen_putjson($dat, $refer);
+			
+			return array('exit' => TRUE);
 		}
 		$this->_exit();
 	}
