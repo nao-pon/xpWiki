@@ -1,6 +1,6 @@
 <?php
 // PukiWiki - Yet another WikiWikiWeb clone
-// $Id: pcomment.inc.php,v 1.21 2009/11/17 09:18:06 nao-pon Exp $
+// $Id: pcomment.inc.php,v 1.22 2010/01/08 13:48:45 nao-pon Exp $
 //
 // pcomment plugin - Show/Insert comments into specified (another) page
 //
@@ -85,6 +85,25 @@ EOD;
 			'multi' =>FALSE,
 			'emoji' => TRUE,
 			'noemoji'=> FALSE,
+			'twitter'=> FALSE,
+			'_args' =>array()
+		);
+	}
+
+	function xpwiki_plugin_pcomment(& $xpwiki) {
+		parent::xpwiki_plugin($xpwiki);
+		$this->conf['options_default'] = array(
+			'noname'=>FALSE,
+			'nodate'=>FALSE,
+			'below' =>FALSE,
+			'above' =>FALSE,
+			'reply' =>FALSE,
+			'template' => '',
+			'cols'   => '',
+			'multi' =>FALSE,
+			'emoji' => TRUE,
+			'noemoji'=> FALSE,
+			'twitter'=> FALSE,
 			'_args' =>array()
 		);
 	}
@@ -121,7 +140,7 @@ EOD;
 	{
 		$ret = '';
 
-		$params = $this->conf['options'];
+		$params = array_merge($this->conf['options_default'], $this->conf['options']);
 
 		$args = func_get_args();
 		$pre_contents = array();
@@ -185,6 +204,24 @@ EOD;
 
 			$emojipad = (! $params['emoji'] || $params['noemoji'])? '' : '<div style="margin-left:13em;">' . $this->func->get_emoji_pad($domid, FALSE) . '</div>';
 
+			$twitter = $twitter_note = $twitter_disabled = $twitter_checked = '';
+			if ($params['twitter']) {
+				if ($this->root->userinfo['uid'] && $this->root->twitter_consumer_key && $this->root->twitter_consumer_secret) {
+					$user_pref = $this->func->get_user_pref($this->root->userinfo['uid']);
+					if (empty($user_pref['twitter_access_token']) || empty($user_pref['twitter_access_token_secret'])) {
+						$twitter_note = str_replace('$1', $this->root->script . '?cmd=user_pref', $this->msg['to_user_pref']);
+						$twitter_disabled = ' disabled="disabled"';
+					} else {
+						$twitter_checked = ' checked="checked"';
+					}
+				} else {
+					$twitter_note = $this->msg['to_login'];
+					$twitter_disabled = ' disabled="disabled"';
+				}
+				$domid = $this->get_domid('twitter', true);
+				$twitter = '<div><!--NA--><input type="checkbox" id="'.$domid.'" name="twitter" value="1"' . $twitter_disabled . $twitter_checked . ' /><label for="'.$domid.'"> ' . $this->msg['with_twitter'] . '</label>' . $twitter_note . '<!--/NA--></div>';
+			}
+
 			$s_page   = htmlspecialchars($_page);
 			if ($this->root->render_mode !== 'render') {
 				$s_refer = htmlspecialchars($vars_page);
@@ -204,6 +241,7 @@ EOD;
   <input type="hidden" name="dir"    value="$dir" />
   <input type="hidden" name="count"  value="$count" />
   <input type="hidden" name="temp"   value="$temp" />
+  $twitter
   $radio $title $name $comment
   <input type="submit" value="{$this->root->_pcmt_messages['btn_comment']}" />
   $emojipad
@@ -253,6 +291,8 @@ EOD;
 		$page  = isset($this->root->vars['page'])  ? $this->root->vars['page']  : '';
 		$template = isset($this->root->vars['temp']) ? $this->root->vars['temp'] : 'default';
 
+		$twitter_msg = '';
+
 		// テンプレート設定
 		foreach ($template_vars as $_vars) {
 			$$_vars = isset($this->conf[$_vars][$template])?
@@ -276,7 +316,10 @@ EOD;
 		$msg = str_replace("\x08" . 'USER_CODE' . "\x08", ($this->root->userinfo['uid']? 'uid:' . $this->root->userinfo['uid'] : 'ucd:' . $this->root->userinfo['ucd']), $msg);
 		$name = (! isset($this->root->vars['name']) || $this->root->vars['name'] == '') ? $this->root->_no_name : $this->root->vars['name'];
 
-		$this->twitter_post($refer, $name, $msg, $this->func->get_page_uri($refer, TRUE));
+		//$this->twitter_post($refer, $name, $msg, $this->func->get_page_uri($refer, TRUE));
+		if (! empty($this->root->post['twitter'])) {
+			$twitter_msg = $msg;
+		}
 
 		// save name to cookie
 		if ($name) { $this->func->save_name2cookie($name); }
@@ -359,6 +402,10 @@ EOD;
 
 		if ($this->conf['TIMESTAMP']) {
 			if ($refer !== '') $this->func->touch_page($refer, FALSE, TRUE);
+		}
+
+		if ($twitter_msg) {
+			$this->func->twitter_update($twitter_msg, $this->func->get_page_uri($refer, TRUE));
 		}
 
 		return $ret;
