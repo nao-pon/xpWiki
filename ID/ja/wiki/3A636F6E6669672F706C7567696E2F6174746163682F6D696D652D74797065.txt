@@ -33,7 +33,7 @@
 |text/html|html htm|html文書|
 |image/svg+xml|svg|svg(Scalable Vector Graphics)|
 |application/ms-download|exe|Windows 実行ファイル|
-|application/ms-word|doc|MS-Word 文書ファイル|
-|application/ms-excel|xls|MS-Excel 文書ファイル|
+|application/ms-word|doc docx docm|MS-Word 文書ファイル|
+|application/ms-excel|xls xlsx xlsm|MS-Excel 文書ファイル|
 |application/ms-access|mdb mde|MS-Access データベース|
-|application/ms-powerpoint|ppt pps|MS-パワーポイントプレゼンテーション|
+|application/ms-powerpoint|ppt pps pptx pptm|MS-パワーポイントプレゼンテーション|

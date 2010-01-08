@@ -32,7 +32,7 @@ The definisions in this table are used by attach.inc.php for the determination o
 |text/html|html htm|html document|
 |image/svg+xml|svg|svg(Scalable Vector Graphics)|
 |application/ms-download|exe|Windows executable file|
-|application/ms-word|doc|MS-Word document file|
-|application/ms-excel|xls|MS-Excel document file|
+|application/ms-word|doc docx docm|MS-Word document file|
+|application/ms-excel|xls xlsx slxm|MS-Excel document file|
 |application/ms-access|mdb mde|MS-Access database file|
-|application/ms-powerpoint|ppt pps|MS-Powerpoint presentation file|
+|application/ms-powerpoint|ppt pps pptx pptm|MS-Powerpoint presentation file|
