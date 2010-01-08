@@ -1,5 +1,5 @@
 <?php
-// $Id: ref.inc.php,v 1.48 2009/11/17 09:20:21 nao-pon Exp $
+// $Id: ref.inc.php,v 1.49 2010/01/08 13:48:04 nao-pon Exp $
 /*
 
 	*プラグイン ref
@@ -1038,7 +1038,7 @@ _HTML_;
 			if ($ht->rc == 200 && $ht->data) {
 				$dat['data'] = $ht->data;
 				// 自サイト外のファイルは著作権保護する
-				$copyright = ! $this->func->refcheck(0,$lvar['name']);
+				$copyright = ! ($this->func->refcheck(0,$lvar['name']) || preg_match($this->cont['NO_REF_EXTIMG_REG'], $lvar['name']));
 			} else {
 				// ファイルが取得できないので noimage とする
 				$copyright = 0;
@@ -1157,6 +1157,7 @@ _HTML_;
 			} else {
 				$params['_title'][] = $arg;
 			}
+			if (! $params['_w'] || ! $params['_h']) $params['zoom'] = TRUE;
 		}
 	}
 
