@@ -1,6 +1,6 @@
 <?php
 // PukiWiki - Yet another WikiWikiWeb clone
-// $Id: pukiwiki.ini.php,v 1.99 2009/11/17 09:10:32 nao-pon Exp $
+// $Id: pukiwiki.ini.php,v 1.100 2010/01/08 15:07:16 nao-pon Exp $
 // Copyright (C)
 //   2002-2006 PukiWiki Developers Team
 //   2001-2002 Originally written by yu-ji
@@ -40,6 +40,9 @@ $const['PKWK_DISABLE_INLINE_IMAGE_FROM_URI'] = 0;
 // $const['PKWK_DISABLE_INLINE_IMAGE_FROM_URI'] = 0 の時、
 // 外部サイトのファイルは ref プラグインを使用して表示する
 $const['SHOW_EXTIMG_BY_REF'] = TRUE;
+
+// ref で内部サイトとみなす URL の正規表現 (PCRE)
+$const['NO_REF_EXTIMG_REG'] = '#^http://[^/]+\.static\.flickr\.com#i';
 
 // In-line display setting of Flash file
 // The file owner is ... Disable of all: 0, Only the manager: 1, Only the registered user :2, Allow of all: 3.
@@ -345,6 +348,13 @@ $root->riddle_auth = 1;
 $root->fckxpwiki_path = 'common/fckxpwiki';
 
 /////////////////////////////////////////////////
+// Users pages separate by '#' or top level is '/'.
+// 個別ユーザー専用エリアとする親ページ(#区切り) ["親ページ/ログインID" 以下はそのユーザー専用ページとなる]
+// :config/user は自動的に追加されます
+$root->users_page = '';
+
+
+/////////////////////////////////////////////////
 // Search auth
 // 0: Disabled (Search read-prohibited page contents)
 // 1: Enabled  (Search only permitted pages for the user)
@@ -510,8 +520,7 @@ $root->filelist_only_admin = 1;
 
 $root->auto_template_func = 1;
 $root->auto_template_rules = array(
-	'((.+)\/([^\/]+))' => array('\2/template', ':template/\2') ,
-	//'(([^\/]+)\/(?:[^\/]+\/)*([^\/]+))' => array('\2/template', ':template/\2') ,
+	'((.+)\/([^\/]+))' => array('\2/template', ':template/\2', ':template/\3') ,
 	'(()(.+))'         => array('template', ':template/default') ,
 );
 
@@ -755,6 +764,7 @@ $const['PKWK_DIFF_SHOW_CONFLICT_DETAIL'] = 1;
 
 // Fixed prefix of configuration-page's name
 $const['PKWK_CONFIG_PREFIX'] = ':config/';
+$const['PKWK_CONFIG_USER'] = 'user';
 
 // 名前欄の仮文字列(コンバート後にユーザー名に置換)
 $const['USER_NAME_REPLACE'] = '__uSER_nAME_rEPLACE__';
@@ -808,6 +818,7 @@ $root->pagecache_min = 0;
 $root->pre_width = 'auto';
 $root->pre_width_ie = '700px';
 $root->fckeditor_path = 'common/fckeditor_2.6';
+$root->use_xmlrpc = 0;
 $root->update_ping = 0;
 $root->update_ping_servers = '
 http://api.my.yahoo.co.jp/RPC2
@@ -830,9 +841,13 @@ $root->pagereading_config_dict = ':config/PageReading/dict';
 $root->amazon_AssociateTag = '';
 $root->amazon_AccessKeyId  = '';
 $root->amazon_SecretAccessKey = '';
+$root->amazon_UseUserPref = 0;
 $root->bitly_login = '';
 $root->bitly_apiKey = '';
 $root->bitly_clickable = 0;
+$root->twitter_consumer_key = '';
+$root->twitter_consumer_secret = '';
+
 
 $root->pginfo = array(
 	'uid'       => 0,     // UserID

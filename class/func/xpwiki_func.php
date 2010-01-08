@@ -1,7 +1,7 @@
 <?php
 //
 // Created on 2006/10/02 by nao-pon http://hypweb.net/
-// $Id: xpwiki_func.php,v 1.220 2009/11/17 09:09:29 nao-pon Exp $
+// $Id: xpwiki_func.php,v 1.221 2010/01/08 15:07:16 nao-pon Exp $
 //
 class XpWikiFunc extends XpWikiXoopsWrapper {
 
@@ -650,7 +650,7 @@ EOD;
 			$_tmp = array_pad(explode("\t",$match[1]), 14, '');
 			$pginfo['uid']       = (int)$_tmp[0];
 			$pginfo['ucd']       = $_tmp[1];
-			$pginfo['uname']     = $_tmp[2];
+			$pginfo['uname']     = $_tmp[2];      // already htmlspecialchars()
 			$pginfo['einherit']  = (int)$_tmp[3];
 			$pginfo['eaids']     = $_tmp[4];
 			$pginfo['egids']     = $_tmp[5];
@@ -659,7 +659,7 @@ EOD;
 			$pginfo['vgids']     = $_tmp[8];
 			$pginfo['lastuid']   = (int)$_tmp[9];
 			$pginfo['lastucd']   = $_tmp[10];
-			$pginfo['lastuname'] = $_tmp[11];
+			$pginfo['lastuname'] = $_tmp[11];     // already htmlspecialchars()
 			$pginfo['pgorder']   = min(9, max(0, ($_tmp[12] === '')? 1 : floatval($_tmp[12])));
 			$pginfo['esummary']  = $_tmp[13];
 		} else {
@@ -698,6 +698,27 @@ EOD;
 
 		// サイト規定値読み込み
 		$pginfo = $this->root->pginfo;
+
+		// Check is user page
+		$user_check = $this->page_dirname($page);
+		if (! $user_check) $user_check = '/';
+		if (in_array($user_check, $this->root->user_pages)) {
+			$uname = $this->page_basename($page);
+			$pginfo['uid'] = $this->get_uid_by_uname($uname);
+			$pginfo['uname']     = htmlspecialchars($uname);
+			$pginfo['einherit']  = 1;
+			$pginfo['eaids']     = $pginfo['uid'];
+			$pginfo['egids']     = 'none';
+			$pginfo['vinherit']  = 1;
+			if ($user_check === $this->cont['PKWK_CONFIG_PREFIX'] . $this->cont['PKWK_CONFIG_USER']) {
+				$pginfo['vaids']     = $pginfo['uid'];
+				$pginfo['vgids']     = 'none';
+			} else {
+				$pginfo['vaids']     = 'all';
+				$pginfo['vgids']     = 'all';
+			}
+			return $pginfo;
+		}
 
 		// Noteページ?
 		if (strpos($page, $this->root->notepage . '/') === 0) {
@@ -1403,7 +1424,8 @@ EOD;
 	}
 
 	// ページURIを得る
-	function get_page_uri($page, $full = FALSE) {
+	function get_page_uri($page, $full = FALSE, $profile=NULL) {
+		$_page = $page;
 		if ($page === $this->root->defaultpage) {
 			$link = '';
 		} else {
@@ -1432,6 +1454,15 @@ EOD;
 				}
 			} else {
 				$link = '?' . rawurlencode($this->root->url_encode_utf8? mb_convert_encoding($page, 'UTF-8', $this->cont['SOURCE_ENCODING']) : $page);
+			}
+			if (is_null($profile)) {
+				$profile = $this->cont['UA_PROFILE'];
+			}
+			if ($profile === 'keitai') {
+				$maxlen = 255;
+				if (strlen($this->cont['HOME_URL'].$link) > $maxlen) {
+					$link = '?pgid=' . $this->get_pgid_by_name($_page);
+				}
 			}
 		}
 		return ($full ? $this->cont['HOME_URL'] : '' ) . $link;
@@ -2517,9 +2548,9 @@ EOD;
 
 	function twitter_post($username, $password, $msg, $link = '', $convert = TRUE) {
 		if ($link) {
-			$link = $this->bitly($link, TRUE);
+			$link = ' ' . $this->bitly($link, TRUE);
 		}
-		$max = $link? (140 - strlen($link) + 1) : 140;
+		$max = $link? (140 - strlen($link)) : 140;
 
 		if ($convert) {
 			$page = isset($this->root->vars['page'])? $this->root->vars['page'] : '';
@@ -2530,7 +2561,7 @@ EOD;
 		if (mb_strlen($msg) > $max) {
 			$msg = mb_substr($msg, 0, $max - 3) . '...';
 		}
-		if ($link) $msg .= ' ' . $link;
+		if ($link) $msg .= $link;
 
 		$url = 'http://'.$username.':'.$password.'@'.'twitter.com/statuses/update.xml?';
 		$url .= 'status='. rawurlencode(mb_convert_encoding($msg, 'UTF-8', $this->cont['SOURCE_ENCODING']));
@@ -2542,6 +2573,39 @@ EOD;
 		$d->get();
 		$q = $d->query;
 		$d = NULL;
+	}
+
+	function twitter_update($msg, $link = '', $convert = TRUE) {
+		if (! $this->root->userinfo['uid']) return;
+
+		if (! $this->root->twitter_consumer_key || ! $this->root->twitter_consumer_secret) return;
+
+		$user_pref = $this->get_user_pref($this->root->userinfo['uid']);
+
+		if (empty($user_pref['twitter_access_token']) || empty($user_pref['twitter_access_token_secret'])) return;
+
+		if (HypCommonFunc::loadClass('TwitterOAuth')) {
+			if ($link) {
+				$link = ' ' . $this->bitly($link, TRUE);
+			}
+			$max = $link? (140 - strlen($link)) : 140;
+
+			if ($convert) {
+				$page = isset($this->root->vars['page'])? $this->root->vars['page'] : '';
+				$msg = strip_tags($this->convert_html($msg, $page));
+			}
+			//$msg = preg_replace('/(https?:\/\/[\w\/\@\$()!?&%#:;.,~\'=*+-]+)/ie', "\$this->bitly('$1')", $msg);
+
+			if (mb_strlen($msg) > $max) {
+				$msg = mb_substr($msg, 0, $max - 3) . '...';
+			}
+			if ($link) $msg .= $link;
+
+			$msg = mb_convert_encoding($msg, 'UTF-8', $this->cont['SOURCE_ENCODING']);
+
+			$to = new TwitterOAuth($this->root->twitter_consumer_key, $this->root->twitter_consumer_secret, $user_pref['twitter_access_token'], $user_pref['twitter_access_token_secret']);
+			$to->OAuthRequest('https://twitter.com/statuses/update.xml', 'POST', array('status' => $msg));
+		}
 	}
 
 	function bitly($url, $returnEmpty = FALSE, $cache = 864000) {
@@ -2673,6 +2737,12 @@ EOD;
 
 		static $_aryret = array();
 
+		// キャッシュクリア
+		if ($base === FALSE) {
+			$_aryret[$this->root->mydirname] = array();
+			return;
+		}
+
 		if (isset($_aryret[$this->root->mydirname]['pages']) && $nocheck === FALSE && $base === '' && !$options) {
 			$this->root->pgids = $_aryret[$this->root->mydirname]['pgids'];
 			$this->root->pgorders = $_aryret[$this->root->mydirname]['pgorders'];
@@ -2767,7 +2837,7 @@ EOD;
 			else
 				$where = " (editedtime !=0)";
 		}
-		if ($where) $where = " WHERE".$where;
+		if ($where) $where = " WHERE ".$where;
 		$limit = ($limit)? " LIMIT $limit" : "";
 		$_select = '';
 		if ($select) {
@@ -2912,6 +2982,9 @@ EOD;
 			$query = "UPDATE ".$this->xpwiki->db->prefix($this->root->mydirname."_pginfo")." SET $value WHERE pgid = '$id' LIMIT 1";
 			$result = $this->xpwiki->db->queryF($query);
 		}
+
+		// get_existpages() のキャッシュクリア
+		$this->get_existpages(FALSE, FALSE);
 
 		// plain DB update
 		if (empty($this->root->rtf['plaindb_up_now'])) {
@@ -3513,6 +3586,21 @@ EOD;
 		return $text;
 	}
 
+	function get_pg_buildtime($page) {
+		$pgid = $this->get_pgid_by_name($page);
+
+		$query = 'SELECT `buildtime` FROM `'.$this->xpwiki->db->prefix($this->root->mydirname."_pginfo").'` WHERE `pgid` = \''.$pgid.'\' LIMIT 1';
+		$result = $this->xpwiki->db->query($query);
+
+		$time = NULL;
+		if ($result)
+		{
+			list($time) = $this->xpwiki->db->fetchRow($result);
+			//$time = $time + $this->cont['LOCALZONE'];
+		}
+		return $time;
+	}
+
 	// ページの最終更新時間を更新
 	function touch_db($page)
 	{
@@ -3964,6 +4052,20 @@ EOD;
 	}
 	*/
 
+	function get_user_pref($uid) {
+		if (!$uid) return array();
+		if ($data = $this->cache_get_db($uid, 'user_pref', FALSE, TRUE)) {
+			return unserialize($data);
+		} else {
+			return array();
+		}
+	}
+
+	function save_user_pref($uid, $array) {
+		$data = serialize($array);
+		$this->cache_save_db($data, 'user_pref', 86400*365, $uid);
+	}
+
 	function cache_save_db ($data, $plugin='core', $ttl=86400, $key=NULL, $mtime = NULL) {
 		if (is_null($key)) $key = sha1($data);
 		if (is_null($mtime)) $mtime = $this->cont['UTC'];
@@ -3996,7 +4098,7 @@ EOD;
 		if ($count) {
 			$sql = 'UPDATE `'.$dbtable.'`';
 			$sql .= ' SET `data`=\''.$data.'\',';
-			$sql .= '`mtime`=\''.$mtime.'\'';
+			$sql .= '`mtime`=\''.$mtime.'\',';
 			$sql .= '`ttl`=\''.$ttl.'\'';
 			$sql .= ' WHERE `key`=\''.$key.'\' AND `plugin`=\''.$plugin.'\'';
 		} else {
@@ -4010,7 +4112,7 @@ EOD;
 		}
 	}
 
-	function cache_get_db ($key, $plugin='core', $delete=FALSE) {
+	function cache_get_db ($key, $plugin='core', $delete=FALSE, $update=TRUE) {
 		$key = addslashes($key);
 		$plugin = addslashes($plugin);
 		$data = '';
@@ -4023,6 +4125,11 @@ EOD;
 				$sql = 'DELETE FROM `'.$dbtable.'` WHERE `key`=\''.$key.'\' AND `plugin`=\''.$plugin.'\'';
 				$this->xpwiki->db->queryF($sql);
 				$sql = 'OPTIMIZE TABLE `'.$dbtable.'`';
+				$this->xpwiki->db->queryF($sql);
+			} else if ($update) {
+				$sql = 'UPDATE `'.$dbtable.'`';
+				$sql .= ' SET `mtime`=\''.$this->cont['UTC'].'\'';
+				$sql .= ' WHERE `key`=\''.$key.'\' AND `plugin`=\''.$plugin.'\'';
 				$this->xpwiki->db->queryF($sql);
 			}
 		}

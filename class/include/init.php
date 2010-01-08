@@ -1,14 +1,14 @@
 <?php
 //
 // Created on 2006/10/13 by nao-pon http://hypweb.net/
-// $Id: init.php,v 1.67 2009/10/22 09:02:03 nao-pon Exp $
+// $Id: init.php,v 1.68 2010/01/08 15:07:16 nao-pon Exp $
 //
 
 $root = & $this->root;
 $const = & $this->cont;
 
 $const['S_VERSION'] = $root->module['version'];
-$const['S_COPYRIGHT'] = 
+$const['S_COPYRIGHT'] =
 	'<strong>xpWiki ' . $const['S_VERSION'] . '</strong>' .
 	' Copyright ' .
 	$root->module['credits'] .
@@ -51,7 +51,7 @@ $root->anonymous = $root->_no_name = $root->siteinfo['anonymous'];
 // アクセスユーザーの情報読み込み
 $this->set_userinfo();
 
-// cookie 用ユーザーコード取得 & cookie読み書き 
+// cookie 用ユーザーコード取得 & cookie読み書き
 $this->load_usercookie();
 
 /////////////////////////////////////////////////
@@ -187,6 +187,9 @@ $root->now = $this->format_date($const['UTIME']);
 //$entity_pattern = '[a-zA-Z0-9]{2,8}';
 $root->entity_pattern = trim(file_get_contents($const['CACHE_DIR'] . $const['PKWK_ENTITIES_REGEX_CACHE']));
 
+// User page
+$root->user_pages = explode('#', $const['PKWK_CONFIG_PREFIX'] . $const['PKWK_CONFIG_USER'] . ($root->users_page? ('#' . $root->users_page) : ''));
+
 if (empty($root->fckediting)) {
 	$root->line_rules = array_merge(array(
 		'&amp;(#[0-9]+|#x[0-9a-f]+|' . $root->entity_pattern . ');' => '&$1;',
@@ -198,14 +201,14 @@ if (empty($root->fckediting)) {
 
 // 指定ページ表示モード
 if (isset($const['page_show'])) {
-	
+
 	$root->get['cmd']  = $root->post['cmd']  = $root->vars['cmd']  = 'read';
 	if ($const['page_show'] === '#RenderMode') {
 		$root->render_mode = 'render';
 	}
-	
+
 	unset($root->get['plugin'], $root->post['plugin'], $root->vars['plugin']);
-	
+
 	$root->get['page'] = $root->post['page'] = $root->vars['page'] = $const['page_show'];
 	$const['page_show'] = TRUE;
 
@@ -224,23 +227,23 @@ if (isset($const['page_show'])) {
 				exit($title);
 			}
 		}
-	
+
 		/////////////////////////////////////////////////
 		// ディレクトリのチェック
-		
+
 		$die = '';
 		foreach(array($const['DATA_DIR'], $const['DIFF_DIR'], $const['BACKUP_DIR'], $const['CACHE_DIR']) as $dir){
 			if (! is_writable($dir))
 				$die .= 'Directory is not found or not writable (' . $dir . ')' . "\n";
 		}
-		
+
 		if (! $this->root->can_not_connect_www && HypCommonFunc::get_version() >= '20080213') {
 			$dir = $const['TRUST_PATH'] . 'class/hyp_common/favicon/cache';
 			if (! is_writable($dir))
 				$die .= 'Directory is not found or not writable (' . $dir . ')' . "\n";
-	
+
 		}
-		
+
 		// 設定ファイルの変数チェック
 		$temp = '';
 		foreach(array('rss_max', 'note_hr', 'related_link', 'show_passage',
@@ -251,7 +254,7 @@ if (isset($const['page_show'])) {
 			if ($die) $die .= "\n";	// A breath
 			$die .= 'Variable(s) not found: (Maybe the old *.ini.php?)' . "\n" . $temp;
 		}
-		
+
 		$temp = '';
 		foreach(array($const['LANG'], $const['PLUGIN_DIR']) as $def){
 			if (! isset($def)) $temp .= $def . "\n";
@@ -260,12 +263,12 @@ if (isset($const['page_show'])) {
 			if ($die) $die .= "\n";	// A breath
 			$die .= 'Define(s) not found: (Maybe the old *.ini.php?)' . "\n" . $temp;
 		}
-		
+
 		// page aliases (case-insensitive data)
 		if ($this->root->page_aliases && ! $this->root->page_aliases_i) {
 			$this->save_page_alias();
 		}
-		
+
 		if($die) $this->die_message(nl2br("\n\n" . $die));
 		unset($die, $temp);
 
@@ -279,17 +282,17 @@ if (isset($const['page_show'])) {
 
 	/////////////////////////////////////////////////
 	// 外部からくる変数のチェック
-	
+
 	// Prohibit $root->get attack
 	foreach (array('msg', 'pass') as $key) {
 		if (isset($root->get[$key])) $this->die_message('Sorry, already reserved: ' . $key . '=');
 	}
-	
+
 	// Remove null character etc.
 	$root->get    = $this->input_filter($root->get);
 	$root->post   = $this->input_filter($root->post);
 	$root->cookie = $this->input_filter($root->cookie);
-	
+
 	if ($root->post) {
 		// 文字コード変換 ($root->post)
 		// <form> で送信された文字 (ブラウザがエンコードしたデータ) のコードを変換
@@ -305,7 +308,7 @@ if (isset($const['page_show'])) {
 				$this->encode_numericentity($root->post, $const['SOURCE_ENCODING'], $encode);
 			}
 			mb_convert_variables($const['SOURCE_ENCODING'], $encode, $root->post);
-		
+
 		} else if (!empty($root->post['charset'])) {
 			// TrackBack Ping で指定されていることがある
 			// うまくいかない場合は自動検出に切り替え
@@ -318,7 +321,7 @@ if (isset($const['page_show'])) {
 			    $root->post['charset'], $root->post) !== $root->post['charset']) {
 				mb_convert_variables($const['SOURCE_ENCODING'], 'auto', $root->post);
 			}
-		
+
 		} else {
 			// 全部まとめて、自動検出／変換
 			mb_convert_variables($const['SOURCE_ENCODING'], 'auto', $root->post);
@@ -336,7 +339,7 @@ if (isset($const['page_show'])) {
 		$encode = mb_detect_encoding($root->get['encode_hint']);
 		mb_convert_variables($const['SOURCE_ENCODING'], $encode, $root->get);
 	}
-	
+
 	/////////////////////////////////////////////////
 	// QUERY_STRINGを取得
 	$arg = '';
@@ -353,7 +356,7 @@ if (isset($const['page_show'])) {
 		exit;
 	}
 	$arg = $this->input_filter($arg); // \0 除去
-	
+
 	// URI を urlencode せずに入力した場合に対処する
 	if ($this->root->accept_not_encoded_query) {
 		// mb_convert_variablesのバグ(?)対策: 配列で渡さないと落ちる
@@ -370,7 +373,7 @@ if (isset($const['page_show'])) {
 		}
 		unset($matches);
 	}
-	
+
 	// pgid でのアクセス
 	if (!empty($root->get['pgid'])) {
 		$page = $this->get_name_by_pgid((int)$root->get['pgid']);
@@ -402,7 +405,7 @@ if (isset($const['page_show'])) {
 		if (isset($root->vars[$var]) && ! preg_match('/^[a-zA-Z][a-zA-Z0-9_]*$/', $root->vars[$var]))
 			unset($root->get[$var], $root->post[$var], $root->vars[$var]);
 	}
-	
+
 	// 整形: page, strip_bracket()
 	if (isset($root->vars['page'])) {
 		$root->vars['page'] = strval($root->vars['page']);
@@ -410,22 +413,22 @@ if (isset($const['page_show'])) {
 	} else {
 		$root->get['page'] = $root->post['page'] = $root->vars['page'] = '';
 	}
-	
+
 	// 整形: msg, 改行を取り除く
 	if (isset($root->vars['msg'])) {
 		$root->get['msg'] = $root->post['msg'] = $root->vars['msg'] = str_replace("\r", '', $root->vars['msg']);
 	}
-	
+
 	// 後方互換性 (?md5=...)
 	if (isset($root->vars['md5']) && $root->vars['md5'] != '') {
 		$root->get['cmd'] = $root->post['cmd'] = $root->vars['cmd'] = 'md5';
 	}
-	
+
 	// TrackBack Ping
 	if (isset($root->vars['tb_id']) && $root->vars['tb_id'] != '') {
 		$root->get['cmd'] = $root->post['cmd'] = $root->vars['cmd'] = 'tb';
 	}
-	
+
 	// Special view mode
 	if (!empty($root->vars['ajax'])) {
 		$this->root->viewmode = 'ajax';
@@ -439,12 +442,12 @@ if (isset($const['page_show'])) {
 	} else {
 		$this->root->viewmode = 'normal';
 	}
-	
+
 	// cmdもpluginも指定されていない場合は、QUERY_STRINGをページ名かInterWikiNameであるとみなす
 	if (! isset($root->vars['cmd']) && ! isset($root->vars['plugin'])) {
-	
+
 		$root->get['cmd']  = $root->post['cmd']  = $root->vars['cmd']  = 'read';
-	
+
 		if (isset($_SERVER['PATH_INFO']) && $_SERVER['PATH_INFO'] !== '') {
 			$arg = trim($_SERVER['PATH_INFO'], '/');
 			// ! defined('PROTECTOR_VERSION') = (Protector < 3.33)
@@ -456,7 +459,7 @@ if (isset($const['page_show'])) {
 			$arg = preg_replace('/(?:^|&)[^&=]+=[^&]*/i', '', $arg);
 			// "&" 以降を削除
 			$arg = preg_replace('/&.*$/', '', $arg);
-			
+
 			$arg = rawurldecode($arg);
 		}
 
@@ -467,10 +470,10 @@ if (isset($const['page_show'])) {
 				$arg = mb_convert_encoding($arg, $const['SOURCE_ENCODING'], 'UTF-8');
 			}
 		}
-		
+
 		$arg = $this->strip_bracket($arg);
 		$arg = $this->input_filter($arg);
-		
+
 		$root->get['page'] = $root->post['page'] = $root->vars['page'] = $arg;
 	}
 

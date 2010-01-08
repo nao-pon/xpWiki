@@ -1,7 +1,7 @@
 <?php
 //
 // Created on 2006/10/02 by nao-pon http://hypweb.net/
-// $Id: pukiwiki_func.php,v 1.213 2009/11/17 09:09:29 nao-pon Exp $
+// $Id: pukiwiki_func.php,v 1.214 2010/01/08 15:07:16 nao-pon Exp $
 //
 class XpWikiPukiWikiFunc extends XpWikiBaseFunc {
 
@@ -180,10 +180,10 @@ class XpWikiPukiWikiFunc extends XpWikiBaseFunc {
 			$esummary = $this->root->vars['esummary'];
 			$esummary = str_replace(array("\r", "\n", "\t"), ' ', $esummary);
 			$esummary = htmlspecialchars($esummary);
-			$esummary = str_replace(array('(', ')'), array('&#40;', '&#41;'), $esummary);
 		} else {
 			if (! empty($this->root->rtf['esummary'])) {
 				$esummary = $this->root->rtf['esummary'];
+				$esummary = str_replace(array("\r", "\n", "\t"), ' ', $esummary);
 			} else {
 				$plugin_name = (! empty($this->root->vars['cmd']))? $this->root->vars['cmd'] : ((! empty($this->root->vars['plugin']))? $this->root->vars['plugin'] : '');
 				if ($plugin_name && ! in_array($plugin_name, array('edit', 'read'))) {
@@ -196,6 +196,7 @@ class XpWikiPukiWikiFunc extends XpWikiBaseFunc {
 				}
 			}
 		}
+		$esummary_this = $esummary;
 
 		// Get pginfo
 		$pginfo = $this->get_pginfo($page);
@@ -211,7 +212,7 @@ class XpWikiPukiWikiFunc extends XpWikiBaseFunc {
 				}
 			}
 		}
-		if ($notimestamp && $esummary) {
+		if ($notimestamp && $esummary_this) {
 			$esummary .= ' at ' . $this->root->now;
 		}
 
@@ -227,7 +228,7 @@ class XpWikiPukiWikiFunc extends XpWikiBaseFunc {
 			}
 			$pginfo['lastuid'] = $this->root->userinfo['uid'];
 			$pginfo['lastucd'] = $this->root->userinfo['ucd'];
-			$pginfo['lastuname'] = $this->root->userinfo['uname'];
+			$pginfo['lastuname'] = $this->root->userinfo['uname_s'];
 			if ($this->root->cookie['name'] && $this->root->userinfo['uname'] !== $this->root->cookie['name']) {
 				$pginfo['lastuname'] = htmlspecialchars($this->root->cookie['name']);
 				if ($mode === 'insert') {
@@ -273,6 +274,9 @@ class XpWikiPukiWikiFunc extends XpWikiBaseFunc {
 		// Create wiki text
 		$this->file_write($this->cont['DATA_DIR'], $page, $postdata, $notimestamp);
 
+		// Clear page cache.
+		$this->clear_page_cache($page);
+
 		// Clear fstat cache.
 		clearstatcache();
 
@@ -316,6 +320,12 @@ class XpWikiPukiWikiFunc extends XpWikiBaseFunc {
 			$this->do_onPageWriteAfter($page, $postdata, $notimestamp, $mode, $diffdata);
 
 			// 更新通知メール
+			$page_url = $this->get_page_uri($page, true, 'default');
+			$page_url_m = $this->get_page_uri($page, true, 'keitai');
+			if ($page_url !== $page_url_m) {
+				$page_url .= ' ( ' . $page_url_m . ' )';
+			}
+
 			$diff_compact = preg_replace('/^[^+-].*\n/m', '', $diffdata);
 			if ($this->root->notify) {
 				$footer['ACTION'] = 'Page update';
@@ -334,14 +344,14 @@ class XpWikiPukiWikiFunc extends XpWikiBaseFunc {
 				}
 				$this->pkwk_mail_notify(
 					$this->root->notify_subject,
-					$this->get_page_uri($page, true) . "\n\n" . ($this->root->notify_diff_only? $diff_compact : $diffdata),
+					$page_url . "\n\n" . ($this->root->notify_diff_only? $diff_compact : $diffdata),
 					$footer
 				);
 			}
 
 			if (empty($this->root->rtf['no_system_notification'])) {
 				// System notification
-				$tags['POST_URL'] = $this->get_page_uri($page, true);
+				$tags['POST_URL'] = $page_url;
 				$tags['PAGE_NAME'] = $page;
 				$tags['POST_DATA'] = $postdata;
 				$tags['POSTER_NAME'] = $this->root->userinfo['uname'];
@@ -360,6 +370,14 @@ class XpWikiPukiWikiFunc extends XpWikiBaseFunc {
 				if ($pgid2) $this->system_notification($page, 'page2', $pgid2, 'page_update', $tags);
 
 				$this->system_notification($page, 'global', 0, 'page_update', $tags);
+			}
+
+			if ($mode !== 'delete' && ! empty($this->root->post['edit_form_twitter'])) {
+				$_page = $this->root->pagename_num2str ? preg_replace('/\/(?:[0-9\-]+|[B0-9][A-Z0-9]{9})$/','/'.$this->get_heading($page), $page) : $page;
+				$twitter_msg = '['.$this->root->module['title'].'] '
+					. $_page
+					. ($esummary_this ? ' - ' . $esummary_this : '');
+				$this->twitter_update($twitter_msg, $page_url);
 			}
 		}
 
@@ -572,11 +590,6 @@ class XpWikiPukiWikiFunc extends XpWikiBaseFunc {
 
 		$page = $this->strip_bracket($page);
 
-		// ページキャッシュを破棄
-		if ($dir === $this->cont['DATA_DIR']) {
-			$this->clear_page_cache ($page);
-		}
-
 		$file = $dir . $this->encode($page) . '.txt';
 		$file_exists = file_exists($file);
 
@@ -645,7 +658,7 @@ class XpWikiPukiWikiFunc extends XpWikiBaseFunc {
 		// Load
 		$heads = $lines = $matches = array();
 
-		$heads['title'] = $root->title_setting_string . $recentpage . "\n";
+		$heads['title'] = $this->root->title_setting_string . $recentpage . "\n";
 		foreach ($this->get_source($recentpage) as $line) {
 			// TITLE:
 			if (preg_match($this->root->title_setting_regex, $line)) {
@@ -1018,7 +1031,7 @@ class XpWikiPukiWikiFunc extends XpWikiBaseFunc {
 
 //----- Start convert_html.php -----//
 	// PukiWiki - Yet another WikiWikiWeb clone
-	// $Id: pukiwiki_func.php,v 1.213 2009/11/17 09:09:29 nao-pon Exp $
+	// $Id: pukiwiki_func.php,v 1.214 2010/01/08 15:07:16 nao-pon Exp $
 	// Copyright (C)
 	//   2002-2005 PukiWiki Developers Team
 	//   2001-2002 Originally written by yu-ji
@@ -1297,7 +1310,7 @@ class XpWikiPukiWikiFunc extends XpWikiBaseFunc {
 
 //----- Start func.php -----//
 	// PukiWiki - Yet another WikiWikiWeb clone.
-	// $Id: pukiwiki_func.php,v 1.213 2009/11/17 09:09:29 nao-pon Exp $
+	// $Id: pukiwiki_func.php,v 1.214 2010/01/08 15:07:16 nao-pon Exp $
 	// Copyright (C)
 	//   2002-2006 PukiWiki Developers Team
 	//   2001-2002 Originally written by yu-ji
@@ -2137,7 +2150,7 @@ EOD;
 
 //----- Start make_link.php -----//
 	// PukiWiki - Yet another WikiWikiWeb clone.
-	// $Id: pukiwiki_func.php,v 1.213 2009/11/17 09:09:29 nao-pon Exp $
+	// $Id: pukiwiki_func.php,v 1.214 2010/01/08 15:07:16 nao-pon Exp $
 	// Copyright (C)
 	//   2003-2005 PukiWiki Developers Team
 	//   2001-2002 Originally written by yu-ji
@@ -3135,7 +3148,7 @@ EOD;
 
 //----- Start html.php -----//
 	// PukiWiki - Yet another WikiWikiWeb clone.
-	// $Id: pukiwiki_func.php,v 1.213 2009/11/17 09:09:29 nao-pon Exp $
+	// $Id: pukiwiki_func.php,v 1.214 2010/01/08 15:07:16 nao-pon Exp $
 	// Copyright (C)
 	//   2002-2006 PukiWiki Developers Team
 	//   2001-2002 Originally written by yu-ji
@@ -3487,9 +3500,18 @@ EOD;
 			}
 		}
 
+		// twitter
+		$twitter = '';
+		if ($this->root->userinfo['uid'] && $this->root->twitter_consumer_key && $this->root->twitter_consumer_secret) {
+			$user_pref = $this->get_user_pref($this->root->userinfo['uid']);
+			if (! empty($user_pref['twitter_access_token']) && ! empty($user_pref['twitter_access_token_secret'])) {
+				$twitter = ' <input type="checkbox" id="_edit_form_twitter" name="edit_form_twitter" value="1" /><label for="_edit_form_twitter"> ' . $this->root->_msg_with_twitter . '</label>';
+			}
+		}
+
 		// edit summary
 		$_esummary = (! empty($this->root->rtf['preview']) && isset($this->root->vars['esummary']))? htmlspecialchars($this->root->vars['esummary']) : '';
-		$esummary = '<div><label for="_edit_form_esummary"><strong>' . $this->root->_btn_esummary . ':</strong></label> <input type="text" name="esummary" id="_edit_form_esummary" value="' . $_esummary . '" size="60" /></div>';
+		$esummary = '<div><label for="_edit_form_esummary"><strong>' . $this->root->_btn_esummary . ':</strong></label> <input type="text" name="esummary" id="_edit_form_esummary" value="' . $_esummary . '" size="60" />'.$twitter.'</div>';
 
 		// Q & A 認証
 		$riddle = '';
@@ -3905,7 +3927,7 @@ EOD;
 
 //----- Start mail.php -----//
 	// PukiWiki - Yet another WikiWikiWeb clone.
-	// $Id: pukiwiki_func.php,v 1.213 2009/11/17 09:09:29 nao-pon Exp $
+	// $Id: pukiwiki_func.php,v 1.214 2010/01/08 15:07:16 nao-pon Exp $
 	// Copyright (C)
 	//   2003-2005 PukiWiki Developers Team
 	//   2003      Originally written by upk
@@ -4208,7 +4230,7 @@ EOD;
 
 //----- Start link.php -----//
 	// PukiWiki - Yet another WikiWikiWeb clone
-	// $Id: pukiwiki_func.php,v 1.213 2009/11/17 09:09:29 nao-pon Exp $
+	// $Id: pukiwiki_func.php,v 1.214 2010/01/08 15:07:16 nao-pon Exp $
 	// Copyright (C) 2003-2006 PukiWiki Developers Team
 	// License: GPL v2 or (at your option) any later version
 	//

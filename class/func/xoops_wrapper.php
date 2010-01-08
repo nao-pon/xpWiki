@@ -1,42 +1,42 @@
 <?php
 //
 // Created on 2006/10/11 by nao-pon http://hypweb.net/
-// $Id: xoops_wrapper.php,v 1.56 2009/10/22 09:01:39 nao-pon Exp $
+// $Id: xoops_wrapper.php,v 1.57 2010/01/08 15:07:16 nao-pon Exp $
 //
 class XpWikiXoopsWrapper extends XpWikiBackupFunc {
-	
+
 	function & get_db_connection () {
 		$db =& Database::getInstance();
 		return $db;
 	}
-	
+
 	function set_moduleinfo () {
-		
+
 		$this->cont['ROOT_PATH'] = XOOPS_ROOT_PATH . "/";
 		$this->cont['MODULE_PATH'] = XOOPS_ROOT_PATH . "/modules/";
 		$this->cont['ROOT_URL']  = XOOPS_URL . "/";
 		$this->cont['MODULE_URL'] = XOOPS_URL . "/modules/";
 		$this->cont['TRUST_PATH']  = XOOPS_TRUST_PATH . "/";
-		
+
 		$module_handler =& xoops_gethandler('module');
 		if ($XoopsModule =& $module_handler->getByDirname($this->root->mydirname)) {
 			$config_handler =& xoops_gethandler('config');
-			
+
 			$this->root->module = $XoopsModule->getInfo();
 			$this->root->module['title'] = $XoopsModule->name();
 			$this->root->module['mid']   = $XoopsModule->mid();
 			$this->root->module['config'] =& $config_handler->getConfigsByCat(0, $XoopsModule->mid());
 			$this->root->module['platform'] = "xoops";
-			
+
 			if (defined('XOOPS_CUBE_LEGACY')) {
 				include dirname(dirname(dirname(__FILE__))) . '/version.php';
 				$this->root->module['version'] = $xpwiki_version;
 			}
-			
+
 			$moduleperm_handler =& xoops_gethandler('groupperm');
 			global $xoopsUser;
 			$this->root->module['checkRight'] = ($moduleperm_handler->checkRight('module_read', $this->root->module['mid'], (is_object($xoopsUser)? $xoopsUser->getGroups() : XOOPS_GROUP_ANONYMOUS)));
-			
+
 		} else {
 			// not installed
 			$this->root->module = array();
@@ -45,7 +45,7 @@ class XpWikiXoopsWrapper extends XpWikiBackupFunc {
 			$this->root->module['config'] = NULL;
 			$this->root->module['platform'] = 'standalone';
 		}
-		
+
 		$this->root->enable_pagecomment = TRUE;
 		if (empty($this->root->module['config']['comment_forum_id']) ||
 			!file_exists(XOOPS_ROOT_PATH . '/modules/' . $this->root->module['config']['comment_dirname'])) {
@@ -54,54 +54,66 @@ class XpWikiXoopsWrapper extends XpWikiBackupFunc {
 	}
 
 	function set_siteinfo () {
-		
+
 		$config_handler =& xoops_gethandler('config');
 		$xoopsConfig =& $config_handler->getConfigsByCat(XOOPS_CONF);
-		
+
 		$this->root->siteinfo['rooturl'] = XOOPS_URL.'/';
 		$this->root->siteinfo['loginurl'] = XOOPS_URL.'/user.php';
 		$this->root->siteinfo['sitename'] = $xoopsConfig['sitename'];
 		$this->root->siteinfo['anonymous'] = $xoopsConfig['anonymous'];
-		
+
 		$parsed_url = parse_url($this->root->siteinfo['rooturl']);
 		$this->root->siteinfo['host'] = $parsed_url['scheme'].'://'.$parsed_url['host'].(isset($parsed_url['port'])? ':' . $parsed_url['port'] : '');
 	}
-		
-	function set_userinfo () {
-		
+
+	function set_userinfo ($uid = NULL) {
+
 		static $cache; // cache for renderer
-		
-		if (isset($cache[$this->root->mydirname])) {
+
+		if (is_null($uid) && isset($cache[$this->root->mydirname])) {
 			$this->root->userinfo = $cache[$this->root->mydirname];
 		}
-		
-		global $xoopsUser;
-		
-		if (is_object($xoopsUser))
+
+		if (is_null($uid) || ! $uid) {
+			global $xoopsUser;
+			$user = $xoopsUser;
+		} else {
+			$module_handler =& xoops_gethandler('module');
+			$XoopsModule =& $module_handler->getByDirname($this->root->mydirname);
+			$user_handler =& xoops_gethandler('user');
+			$user =& $user_handler->get( $uid );
+		}
+
+		if (is_object($user))
 		{
-			$this->root->userinfo['admin'] = $xoopsUser->isAdmin($this->root->module['mid']);
-			$this->root->userinfo['uid'] = (int)$xoopsUser->uid();
-			$this->root->userinfo['email'] = $xoopsUser->email();
-			$this->root->userinfo['uname'] = $xoopsUser->uname('n');
+			$this->root->userinfo['admin'] = $user->isAdmin($this->root->module['mid']);
+			$this->root->userinfo['uid'] = (int)$user->uid();
+			$this->root->userinfo['email'] = $user->email();
+			$this->root->userinfo['uname'] = $user->uname('n');
 			$this->root->userinfo['uname_s'] = htmlspecialchars($this->root->userinfo['uname']);
-			$this->root->userinfo['name'] = $xoopsUser->name('s');
-			$this->root->userinfo['gids'] = $xoopsUser->getGroups();
+			$this->root->userinfo['name'] = $user->name('s');
+			$this->root->userinfo['gids'] = $user->getGroups();
 		}
 		else
 		{
 			parent::set_userinfo();
+			$this->root->userinfo['gids'] = array( XOOPS_GROUP_ANONYMOUS );
 		}
-		
-		$cache[$this->root->mydirname] = $this->root->userinfo;
+
+		if (is_null($uid)) $cache[$this->root->mydirname] = $this->root->userinfo;
 	}
-	
+
 	function get_userinfo_by_id ($uid = 0) {
+		static $cache = array();
+		if (isset($cache[$uid])) return $cache[$uid];
+
 		$uid = intval($uid);
 		$config_handler =& xoops_gethandler('config');
 		$xoopsConfig =& $config_handler->getConfigsByCat(XOOPS_CONF);
 
 		$result = parent::get_userinfo_by_id($uid, $xoopsConfig['anonymous']);
-		
+
 		if ($uid) {
 			$module_handler =& xoops_gethandler('module');
 			$XoopsModule =& $module_handler->getByDirname($this->root->mydirname);
@@ -115,14 +127,36 @@ class XpWikiXoopsWrapper extends XpWikiBackupFunc {
 				$result['uid'] = $uid;
 				$result['gids'] = $user->getGroups();
 			}
+		} else {
+			$result['gids'] = array( XOOPS_GROUP_ANONYMOUS );
 		}
+		$cache[$uid] = $result;
 		return $result;
 	}
-	
+
+	function get_uid_by_uname($uname){
+		$uid = 0;
+		$query = "SELECT `uid` FROM `".XOOPS_DB_PREFIX."_users` WHERE uname='" . addslashes($uname) . "' LIMIT 1";
+		if ($result = $this->xpwiki->db->query($query)) {
+			 list($uid) = $this->xpwiki->db->fetchRow($result);
+		}
+		return $uid;
+	}
+
+	function user_auth($uname, $pass) {
+		$member_handler =& xoops_gethandler('member');
+		if ($user =& $member_handler->loginUser(addslashes($uname), addslashes($pass))) {
+			$uid = $user->getVar('uid');
+		} else {
+			$uid = 0;
+		}
+		return $this->get_userinfo_by_id($uid);
+	}
+
 	function check_editable($page, $auth_flag = TRUE, $exit_flag = TRUE)
 	{
 		//	global $script, $_title_cannotedit, $_msg_unfreeze;
-	
+
 		if ($this->is_editable($page, TRUE) && $this->edit_auth($page, $auth_flag, $exit_flag)) {
 			// Editable
 			return TRUE;
@@ -137,19 +171,19 @@ class XpWikiXoopsWrapper extends XpWikiBackupFunc {
 				if ($this->is_freeze($page))
 					$body .= '(<a href="' . $this->root->script . '?cmd=unfreeze&amp;page=' .
 						rawurlencode($page) . '">' . $this->root->_msg_unfreeze . '</a>)';
-				
+
 				redirect_header($this->root->script."?".rawurlencode($page), 3, $body);
 				exit;
 			}
 		}
 	}
-	
+
 	function get_zonetime () {
 		$config_handler =& xoops_gethandler('config');
 		$xoopsConfig =& $config_handler->getConfigsByCat(XOOPS_CONF);
-		return $xoopsConfig['default_TZ'] * 3600; //default_TZ	
+		return $xoopsConfig['default_TZ'] * 3600; //default_TZ
 	}
-	
+
 	function get_lang ($default) {
 		if (defined('_LANGCODE')) {
 			return _LANGCODE;
@@ -191,22 +225,22 @@ class XpWikiXoopsWrapper extends XpWikiBackupFunc {
 		else if (defined('CUBE_UTILS_ML_PARAM_NAME')) return CUBE_UTILS_ML_PARAM_NAME; // nobunobu's cubeUtils
 		else return $default;
 	}
-	
+
 	function get_setlang_c ($default) {
 		if (defined('EASIESTML_LANGS')) return 'easiestml_lang'; // GIJOE's EMLH
 		else if (defined('SYSUTIL_ML_PARAM_NAME')) return SYSUTIL_ML_PARAM_NAME; // nobunobu's sysutil
 		else if (defined('CUBE_UTILS_ML_PARAM_NAME')) return CUBE_UTILS_ML_PARAM_NAME; // nobunobu's cubeUtils
 		else return $default;
 	}
-	
+
 	function get_content_charset () {
 		return strtoupper(_CHARSET);
 	}
-	
+
 	function pkwk_mail_notify($subject, $message, $footer = array())
 	{
 		static $_to, $_headers, $_after_pop;
-	
+
 		// Init and lock
 		if (! isset($_to[$this->xpwiki->pid])) {
 			if (! $this->cont['PKWK_OPTIMISE']) {
@@ -221,21 +255,21 @@ class XpWikiXoopsWrapper extends XpWikiBackupFunc {
 						die($func . 'Redundant \'From:\' in $this->root->notify_header');
 				}
 			}
-			
+
 			$_to[$this->xpwiki->pid]      = $this->root->notify_to;
 			$_headers[$this->xpwiki->pid] =
 				'X-Mailer: xpWiki/' . $this->cont['S_VERSION'] .
 				' PHP/' . phpversion() . "\r\n";
-							
+
 			// Additional header(s) by admin
 			if ($this->root->notify_header != '') $_headers[$this->xpwiki->pid] .= "\r\n" . $this->root->notify_header;
 		}
-	
+
 		if ($subject == '' || ($message == '' && empty($footer))) return FALSE;
-	
+
 		// Subject:
 		if (isset($footer['PAGE'])) $subject = str_replace('$page', $footer['PAGE'], $subject);
-	
+
 		// Footer
 		$footer['UID'] = $this->root->userinfo['uid'];
 		$footer['UNAME'] = $this->root->userinfo['uname'] . ' [' . $this->root->userinfo['ucd'] . ']';
@@ -249,10 +283,10 @@ class XpWikiXoopsWrapper extends XpWikiBackupFunc {
 				$_footer .= $key . ': ' . $value . "\n";
 			$message .= $_footer;
 		}
-	
+
 		$config_handler =& xoops_gethandler('config');
 		$xoopsConfig =& $config_handler->getConfigsByCat(XOOPS_CONF);
-		
+
 		$xoopsMailer =& getMailer();
 		$xoopsMailer->useMail();
 		$xoopsMailer->setFromEmail($xoopsConfig['adminmail']);
@@ -263,15 +297,19 @@ class XpWikiXoopsWrapper extends XpWikiBackupFunc {
 		$xoopsMailer->headers = explode("\r\n",rtrim($_headers[$this->xpwiki->pid]));
 		$xoopsMailer->send();
 		$xoopsMailer->reset();
-		
+
 		return true;
 	}
 
 	// ユーザーが所属するグループIDを得る
 	function get_mygroups($uid = NULL){
 		if (is_null($uid)) $uid = $this->root->userinfo['uid'];
-		$XM =& xoops_gethandler('member');
-		return $XM->getGroupsByUser($uid);
+		if ($uid) {
+			$XM =& xoops_gethandler('member');
+			return $XM->getGroupsByUser($uid);
+		} else {
+			return array( XOOPS_GROUP_ANONYMOUS );
+		}
 	}
 
 	// グループ一覧を得る
@@ -288,7 +326,7 @@ class XpWikiXoopsWrapper extends XpWikiBackupFunc {
 		}
 		return $ret;
 	}
-	
+
 	// グループ名を得る
 	function get_groupname ($id) {
 		static $list;
@@ -312,7 +350,7 @@ class XpWikiXoopsWrapper extends XpWikiBackupFunc {
 			return '';
 		}
 	}
-	
+
 	// ユーザー名を得る
 	function getUnameFromId ($uid) {
 		static $user = NULL;
@@ -321,7 +359,7 @@ class XpWikiXoopsWrapper extends XpWikiBackupFunc {
 		}
 		return $user->getUnameFromId($uid);
 	}
-	
+
 	// ユーザー情報ページへのリンクを作成
 	function make_userlink ($uid, $uname = '') {
 		if (strpos($uid, '&') !== FALSE) {
@@ -338,43 +376,43 @@ class XpWikiXoopsWrapper extends XpWikiBackupFunc {
 			$uname = $user['uname'];
 		}
 		$uname = htmlspecialchars($uname);
-		
+
 		if (! $uid) {
 			return $uname;
 		} else {
 			return '<a href="'.XOOPS_URL.'/userinfo.php?uid='.$uid.'">' . $uname . '</a>';
 		}
 	}
-	
+
 	// 管理者権限があるか調べる
 	function check_admin ($uid = NULL) {
 		if (is_null($uid)) $uid = $this->root->userinfo['uid'];
-		
+
 		if (!$uid) return FALSE;
-		
+
 		$module_handler =& xoops_gethandler('module');
 		$member_handler =& xoops_gethandler('member');
-		
+
 		$XoopsModule =& $module_handler->getByDirname($this->root->mydirname);
 		$xoopsUser =& $member_handler->getUser($uid);
 		if (! is_object($xoopsUser)) return FALSE;
 		return $xoopsUser->isAdmin($XoopsModule->mid());
 	}
-	
+
 	// 管理者権限があるか調べる(groupid)
 	function check_admin_group ($gid = 0) {
 		if (!$gid) return FALSE;
-		
+
 		$module_handler =& xoops_gethandler('module');
 		$moduleperm_handler =& xoops_gethandler('groupperm');
-		
+
 		$XoopsModule =& $module_handler->getByDirname($this->root->mydirname);
 		return $moduleperm_handler->checkRight('module_admin', $XoopsModule->mid(), $gid);
 	}
-	
+
 	// 最終更新者名を得る
 	function get_lasteditor($pginfo, $withlink = TRUE, $withucd = TRUE) {
-		
+
 		if ($pginfo['lastuid']) {
 			if ($withlink) {
 				$lasteditor = '<a href="'.XOOPS_URL.'/userinfo.php?uid='.$pginfo['lastuid'].'">' . $pginfo['lastuname'] . '</a>';
@@ -392,12 +430,12 @@ class XpWikiXoopsWrapper extends XpWikiBackupFunc {
 	}
 	// ページコメント取得
 	function get_page_comments ($page) {
-		
+
 		if (!$this->root->allow_pagecomment) return '';
-		
+
 		$pgid = $this->get_pgid_by_name($page);
 		if (!$pgid) return '';
-		
+
 		require_once XOOPS_ROOT_PATH.'/class/template.php';
 		$tpl =& new XoopsTpl();
 		// assign
@@ -411,13 +449,13 @@ class XpWikiXoopsWrapper extends XpWikiBackupFunc {
 							),
 			)
 		);
-		return $tpl->fetch( 'db:'.$this->root->mydirname.'_main_d3comment.html' ) ;	
+		return $tpl->fetch( 'db:'.$this->root->mydirname.'_main_d3comment.html' ) ;
 	}
-	
+
 	// ページコメント件数取得
 	function count_page_comments ($page) {
 		if (!$this->root->allow_pagecomment) return 0;
-		
+
 		$pgid = $this->get_pgid_by_name($page);
 		if (!$pgid) return 0;
 
@@ -428,7 +466,7 @@ class XpWikiXoopsWrapper extends XpWikiBackupFunc {
 		}
 		return $count;
 	}
-	
+
 	// リダイレクト
 	function redirect_header($url, $wait = 3, $title = '', $addredirect = true) {
 		$url = $this->href_give_session_id($url);
@@ -439,7 +477,7 @@ class XpWikiXoopsWrapper extends XpWikiBackupFunc {
 		redirect_header($url, $wait, $title, $addredirect);
 		exit;
 	}
-	
+
 	// 追加 フェイスマーク 取得
 	function get_extra_facemark() {
 		$facemarks = array();
@@ -456,7 +494,7 @@ class XpWikiXoopsWrapper extends XpWikiBackupFunc {
 		}
 		return $facemarks;
 	}
-	
+
 	// 通知イベント
 	function system_notification( $page, $category , $item_id , $event , $extra_tags=array() , $user_list=array() , $omit_user_id=null )
 	{
@@ -468,7 +506,7 @@ class XpWikiXoopsWrapper extends XpWikiBackupFunc {
 		$config_handler =& xoops_gethandler('config');
 		$xoopsConfig =& $config_handler->getConfigsByCat(XOOPS_CONF);
 		$mid = $this->root->module['mid'];
-	
+
 		// Check if event is enabled
 		$config_handler =& xoops_gethandler('config');
 		$mod_config =& $config_handler->getConfigsByCat(0,$mid);
@@ -526,7 +564,7 @@ class XpWikiXoopsWrapper extends XpWikiBackupFunc {
 		$tags['X_MODULE_URL'] = $this->root->script;
 		$tags['X_NOTIFY_CATEGORY'] = $category;
 		$tags['X_NOTIFY_EVENT'] = $event;
-	
+
 		$template = $event_info['mail_template'] . '.tpl';
 		$subject = $event_info['mail_subject'];
 
@@ -539,25 +577,25 @@ class XpWikiXoopsWrapper extends XpWikiBackupFunc {
 					// TODO: don't show unsubscribe link if it is 'one-time' ??
 					$tags['X_UNSUBSCRIBE_URL'] = XOOPS_URL . '/notifications.php';
 					$tags = array_merge ($tags, $extra_tags);
-	
+
 					$notification->notifyUser($mail_template_dir, $template, $subject, $tags);
 				}
 			}
 		}
 	}
 
-	
+
 	function get_notification_select ($pgid = null) {
 		static $done;
-		
+
 		if (!$this->root->userinfo['uid'] || isset($done[$this->root->mydirname])) return '';
-		
+
 		$done[$this->root->mydirname] = true;
-		
+
 		require_once XOOPS_ROOT_PATH.'/class/template.php';
-		
+
 		$xoopsTpl =& new XoopsTpl();
-		
+
 		if (function_exists('LegacyRender_smartyfunction_notifications_select')) {
 			$xoopsTpl->register_function("legacy_notifications_select", "LegacyRender_smartyfunction_notifications_select");
 		} else {
@@ -570,7 +608,7 @@ class XpWikiXoopsWrapper extends XpWikiBackupFunc {
 			$xoopsTpl->assign('xoops_url', XOOPS_URL);
 			include XOOPS_ROOT_PATH . '/include/notification_select.php';
 		}
-		
+
 		$ret = $xoopsTpl->fetch( 'db:system_notification_select.html' );
 
 		$page = (is_null($pgid))? $this->root->vars['page'] : $this->get_name_by_pgid($pgid);
@@ -589,7 +627,7 @@ class XpWikiXoopsWrapper extends XpWikiBackupFunc {
 		);
 		return (empty($ret))? '' : str_replace($from, $to, $ret);
 	}
-	
+
 	function onPageWriteBefore ($page, $postdata, $notimestamp, $mode, $deletecache) {
 		// Update Post Count
 		$uid = 0;
@@ -607,15 +645,17 @@ class XpWikiXoopsWrapper extends XpWikiBackupFunc {
 			if (is_object($user)) {
 				$member_handler->updateUserByField($user, 'posts', $user->getVar('posts') + $count);
 			}
-			$user = NULL;
-			unset($user);
+			if ($GLOBALS['xoopsUser'] !== $user) {
+				$user = NULL;
+				unset($user);
+			}
 		}
 	}
-	
+
 	function onPageWriteAfter ($page, $postdata, $notimestamp, $mode, $diffdata, $deletecache) {
 
 	}
-	
+
 	function getPageNav ($total_items, $items_perpage, $current_start, $start_name="start", $extra_arg="") {
 		include_once XOOPS_ROOT_PATH . '/class/pagenav.php';
 		$obj = new XoopsPageNav($total_items, $items_perpage, $current_start, $start_name, $extra_arg);
