@@ -1,6 +1,6 @@
 <?php
 /**
- * $Id: deldel.inc.php,v 1.11 2009/11/17 09:14:20 nao-pon Exp $
+ * $Id: deldel.inc.php,v 1.12 2010/01/08 13:55:27 nao-pon Exp $
  * ORG: deldel.inc.php 161 2005-06-28 12:58:13Z okkez $
  *
  * 色んなものを一括削除するプラグイン
@@ -247,6 +247,10 @@ class xpwiki_plugin_deldel extends xpwiki_plugin {
 			if($this->root->userinfo['admin']) {
 				switch($this->root->vars['dir']){
 				  case 'DATA':
+					// メール通知停止
+					$this->root->notify = 0;
+					$this->root->rtf['no_system_notification'] = TRUE;
+
 					$mes = 'page';
 					foreach($this->root->vars['pages'] as $page)
 					{
