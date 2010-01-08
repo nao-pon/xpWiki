@@ -1,39 +1,39 @@
 <?php
 /*
  * Created on 2007/04/11 by nao-pon http://hypweb.net/
- * $Id: api.inc.php,v 1.8 2009/06/30 23:41:07 nao-pon Exp $
+ * $Id: api.inc.php,v 1.9 2010/01/08 13:39:37 nao-pon Exp $
  */
 
 class xpwiki_plugin_api extends xpwiki_plugin {
 	function plugin_api_init () {
 	}
-	
+
 	function plugin_api_action () {
 
 		$cmd = (isset($this->root->vars['pcmd']))? (string)$this->root->vars['pcmd'] : '';
-		
+
 		switch ($cmd) {
 			case 'autolink':
 				$this->autolink();
 		}
-		
-		exit();
-		
+
+		return array('exit' => 0);
+
 	}
-	
+
 	function autolink ($need_ret = false, $base = null, $options = array()) {
 		if (is_null($base)) {
 			$base = '';
 			$base = (isset($this->root->vars['base']))? (string)$this->root->vars['base'] : '';
 		}
 		$base = trim($base, '/');
-		
+
 		$cache_key = $base;
 		if ($options) {
 			$cache_key .= serialize($options);
 		}
 		$cache = $this->cont['CACHE_DIR'].sha1($cache_key).'.autolink.api';
-		
+
 		if (file_exists($cache)) {
 			$out = file_get_contents($cache);
 		} else {
@@ -43,7 +43,7 @@ class xpwiki_plugin_api extends xpwiki_plugin {
 				$options['asguest'] = TRUE;
 				$options['nolisting'] = TRUE;
 				$pages = $this->func->get_existpages(FALSE, ($base ? ($base . '/') : ''), $options);
-				
+
 				// Get all aliases
 				if (empty($options['noaliases'])) {
 					$all_aliases = array_keys(array_intersect($this->root->page_aliases,  $this->func->get_existpages()));
@@ -64,14 +64,14 @@ class xpwiki_plugin_api extends xpwiki_plugin {
 					$pages = array_merge($pages, $all_aliases);
 				}
 			}
-			
+
 			if ($pages) {
 				//sort($pages, SORT_STRING);
 				$out = $this->func->get_matcher_regex_safe($pages);
 			} else {
 				$out = '(?!)';
 			}
-			
+
 			$fp = fopen($cache, 'w');
 			fwrite($fp, $out);
 			fclose($fp);
@@ -82,8 +82,11 @@ class xpwiki_plugin_api extends xpwiki_plugin {
 			$this->output($out);
 		}
 	}
-	
+
 	function output ($str) {
+		while( ob_get_level() ) {
+			ob_end_clean() ;
+		}
 		header ("Content-Type: text/plain; charset=".$this->cont['CONTENT_CHARSET']);
 		header ("Content-Length: ".strlen($str));
 		echo $str;
