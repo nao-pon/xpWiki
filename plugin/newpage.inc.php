@@ -1,5 +1,5 @@
 <?php
-// $Id: newpage.inc.php,v 1.10 2009/05/25 04:46:56 nao-pon Exp $
+// $Id: newpage.inc.php,v 1.11 2010/01/08 13:50:42 nao-pon Exp $
 //
 // Newpage plugin
 
@@ -7,28 +7,35 @@ class xpwiki_plugin_newpage extends xpwiki_plugin {
 	function plugin_newpage_init () {
 		$this->conf['listmax'] = 200;
 	}
-	
+
 	function plugin_newpage_convert()
 	{
 		static $id = array();
 		if (!isset($id[$this->xpwiki->pid])) {$id[$this->xpwiki->pid] = 0;}
-	
+
 		if ($this->cont['PKWK_READONLY'] === 1) return ''; // Show nothing
-	
+
 		$newpage = '';
-		if (func_num_args()) list($newpage) = func_get_args();
+		if (func_num_args()) list($newpage, $default) = array_pad(func_get_args(), 2, '');
 		if (strtolower($newpage) === 'this') {
 			$newpage = $this->root->vars['page'] . '/';
 		}
-		
+		if ($default) {
+			if ($default === '$uname') {
+				$default = $this->cont['USER_NAME_REPLACE'];
+			} else {
+				$default = htmlspecialchars($default);
+			}
+		}
+
 		if (! preg_match('/^' . $this->root->BracketName . '$/', $newpage)) $newpage = '';
-		
-	
+
+
 		$s_page = htmlspecialchars(isset($this->root->vars['refer']) ? $this->root->vars['refer'] : $this->root->vars['page']);
-		
+
 		++$id[$this->xpwiki->pid];
 		$base_form = $newpage? $this->get_base_form($newpage, $id[$this->xpwiki->pid]) : '<label for="_p_newpage_'.$id[$this->xpwiki->pid].'">' . $this->root->_msg_newpage . ': </label>';
-		
+
 		$script = $this->func->get_script_uri();
 		$ret = <<<EOD
 <form action="{$script}" method="post">
@@ -36,20 +43,20 @@ class xpwiki_plugin_newpage extends xpwiki_plugin {
   <input type="hidden" name="plugin" value="newpage" />
   <input type="hidden" name="refer" value="$s_page" />
   $base_form
-  <input type="text"   name="page" id="_p_newpage_{$id[$this->xpwiki->pid]}" value="" size="30" />
+  <input type="text" value="{$default}" name="page" id="_p_newpage_{$id[$this->xpwiki->pid]}" value="" size="30" />
   <input type="submit" value="{$this->root->_btn_edit}" />
  </div>
 </form>
 EOD;
-	
+
 		return $ret;
 	}
-	
+
 	function plugin_newpage_action()
 	{
-	
+
 		if ($this->cont['PKWK_READONLY']) $this->func->die_message('PKWK_READONLY prohibits editing');
-	
+
 		if ($this->root->vars['page'] === '') {
 			$base = (empty($this->root->vars['base']))? '' : rtrim($this->root->vars['base'], '/') . '/';
 			$retvars['msg']  = $this->root->_msg_newpage;
@@ -61,12 +68,12 @@ EOD;
 			$r_page  = rawurlencode(isset($this->root->vars['refer']) ?
 				$this->func->get_fullname($page, $this->root->vars['refer']) : $page);
 			$r_refer = rawurlencode($this->root->vars['refer']);
-	
+
 			$this->func->send_location('', '', $this->func->get_script_uri() .
 			'?cmd=read&page=' . $r_page . '&refer=' . $r_refer);
 		}
 	}
-	
+
 	function get_base_form($base, $id) {
 		$base = rtrim($base, '/');
 		if ($this->conf['listmax'] > 1) {
@@ -79,7 +86,7 @@ EOD;
 		} else {
 			$pages = array();
 		}
-		
+
 		$form = array();
 		$base = htmlspecialchars($base) . '/';
 		if (count($pages) < 1) {
