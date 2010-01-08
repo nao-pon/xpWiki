@@ -1,5 +1,5 @@
 <?php
-// $Id: moblog.inc.php,v 1.10 2009/11/17 09:16:01 nao-pon Exp $
+// $Id: moblog.inc.php,v 1.11 2010/01/08 13:34:48 nao-pon Exp $
 // Author: nao-pon http://hypweb.net/
 // Bace script is pop.php of mailbbs by Let's PHP!
 // Let's PHP! Web: http://php.s3.to/
@@ -533,6 +533,9 @@ class xpwiki_plugin_moblog extends xpwiki_plugin {
 
 	// エラー出力
 	function plugin_moblog_error_output($str) {
+		while( ob_get_level() ) {
+			ob_end_clean() ;
+		}
 		echo 'error: ' . $str;
 		exit();
 		//header("Content-Type: image/gif");
