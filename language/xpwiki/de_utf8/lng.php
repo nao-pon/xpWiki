@@ -1,6 +1,6 @@
 <?php
 // PukiWiki - Yet another WikiWikiWeb clone.
-// $Id: lng.php,v 1.18 2009/11/17 09:11:47 nao-pon Exp $
+// $Id: lng.php,v 1.19 2010/01/08 14:01:37 nao-pon Exp $
 // Copyright (C)
 //   2002-2005 PukiWiki Developers Team
 //   2001-2002 Originally written by yu-ji
@@ -70,6 +70,7 @@ $root->_msg_content_back_to_top = '<div class="jumpmenu"><a href="#'.$root->mydi
 $root->_msg_word        = 'Diese Suchbegriffe wurden markiert:';
 $root->_msg_not_readable   = 'Du hast keine Berechtigung zum Lesen.';
 $root->_msg_not_editable   = 'Du hast keine Berechtigung zum Ändern.';
+$root->_msg_with_twitter   = 'Benachrichtigt zu Twitter.';
 
 ///////////////////////////////////////
 // Symbols
