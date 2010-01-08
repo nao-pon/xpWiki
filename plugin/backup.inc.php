@@ -1,6 +1,6 @@
 <?php
 // PukiWiki - Yet another WikiWikiWeb clone.
-// $Id: backup.inc.php,v 1.19 2009/11/17 09:13:49 nao-pon Exp $
+// $Id: backup.inc.php,v 1.20 2010/01/08 13:59:06 nao-pon Exp $
 // Copyright (C)
 //   2002-2005 PukiWiki Developers Team
 //   2001-2002 Originally written by yu-ji
@@ -25,14 +25,14 @@ class xpwiki_plugin_backup extends xpwiki_plugin {
 		$this->icons['rewind']['width']  = '16';
 		$this->icons['rewind']['height'] = '16';
 	}
-	
+
 	function plugin_backup_action() {
-	
+
 		if (! $this->root->do_backup) return;
-	
+
 		$page = isset($this->root->vars['page']) ? $this->root->vars['page']  : '';
 		if ($page === '') return array('msg'=>$this->root->_title_backuplist, 'body'=>$this->plugin_backup_get_list_all());
-	
+
 		$this->func->check_readable($page, true, true);
 		$s_page = htmlspecialchars($page);
 		$pgid = $this->func->get_pgid_by_name($page);
@@ -53,21 +53,21 @@ class xpwiki_plugin_backup extends xpwiki_plugin {
 				return $this->action_msg_owner_only();
 			}
 		}
-	
+
 		$s_action = $r_action = '';
 		if ($action != '') {
 			$s_action = htmlspecialchars($action);
 			$r_action = rawurlencode($action);
 		}
-		
+
 		$script = $this->func->get_script_uri();
-		
+
 		$view_now = ($action === 'diff' || $action === 'source');
-		
+
 		$edit_icon = '<a href="' . $this->cont['HOME_URL'] . '?cmd=edit&amp;pgid=' . $pgid . '&amp;backup=$1" title="' . htmlspecialchars($this->root->_msg_backupedit) . '"><img src="' . $this->icons['edit']['url'] . '" alt="' . htmlspecialchars($this->root->_msg_backupedit) . '" width="' . $this->icons['edit']['width'] . '" height="' . $this->icons['edit']['height'] . '" /></a>';
 		$source_icon = '<a href="' . $this->cont['HOME_URL'] . '?cmd=backup&amp;pgid=' . $pgid . '&amp;action=source&amp;age=$1" title="' . htmlspecialchars($this->root->_msg_source) . '"><img src="' . $this->icons['source']['url'] . '" alt="' . htmlspecialchars($this->root->_msg_source) . '" width="' . $this->icons['source']['width'] . '" height="' . $this->icons['source']['height'] . '" /></a>';
 		$rewind_icon = '<a href="' . $this->cont['HOME_URL'] . '?cmd=backup&amp;pgid=' . $pgid . '&amp;action=rewind&amp;age=$1" title="' . htmlspecialchars($this->root->_msg_rewind) . '"><img src="' . $this->icons['rewind']['url'] . '" alt="' . htmlspecialchars($this->root->_msg_rewind) . '" width="' . $this->icons['rewind']['width'] . '" height="' . $this->icons['rewind']['height'] . '" /></a>';
-		
+
 		if ($view_now && ($s_age === 'Cur' || !$s_age)) {
 			$s_age = 'Cur';
 			$is_now = TRUE;
@@ -107,27 +107,27 @@ EOD;
 			$href    = $script . '?cmd=backup&amp;pgid=' . $pgid . '&amp;age=' . $s_age;
 			$is_page = $this->func->is_page($page);
 			$editable = $this->func->check_editable($page, FALSE, FALSE);
-		
+
 			if ($s_age && $is_page && $action != 'diff')
 				$body .= ' <li>' . str_replace('$1', '<a href="' . $href .
 				'&amp;action=diff">' . $this->root->_msg_diff . '</a>',
 				$this->root->_msg_view) . '</li>' . "\n";
-		
+
 			if (is_numeric($s_age) && $is_page && $action != 'nowdiff')
 				$body .= ' <li>' . str_replace('$1', '<a href="' . $href .
 				'&amp;action=nowdiff">' . $this->root->_msg_nowdiff . '</a>',
 				$this->root->_msg_view) . '</li>' . "\n";
-		
+
 			if ($s_age && $action != 'source')
 				$body .= ' <li>' . str_replace('$1', '<a href="' . $href .
 				'&amp;action=source">' . $this->root->_msg_source . '</a>',
 				$this->root->_msg_view) . '</li>' . "\n";
-		
+
 			if (is_numeric($s_age) && (! $this->cont['PLUGIN_BACKUP_DISABLE_BACKUP_RENDERING'] || $isowner) && $action)
 				$body .= ' <li>' . str_replace('$1', '<a href="' . $href .
 				'">' . $this->root->_msg_backup . ' No.' . $s_age . '</a>',
 				$this->root->_msg_view) . '</li>' . "\n";
-		
+
 			if (is_numeric($s_age) && ($action === 'source' || !$action) && $isowner)
 				$body .= ' <li><a href="' . $href .
 				'&amp;action=rewind">' . str_replace('$1', $s_age, $this->root->_msg_dorewind) . '</a></li>' . "\n";
@@ -145,11 +145,11 @@ EOD;
 			}
 			$body .= '</ul>' . "\n";
 		}
-		
+
 		$header[0] = '';
 		$list2 = $list = '';
 		$navi = '';
-		
+
 		$showlist = ($action !== 'rewind' && ($backups_count || $is_now));
 		if ($showlist) {
 			// list
@@ -205,7 +205,7 @@ EOD;
 			} else {
 				$list .= '</li>';
 			}
-			
+
 			// navi
 			$navi_link = array('', '');
 			$nav_href = $script . '?cmd=backup&amp;pgid=' . $pgid . '&amp;action=' . $action . '&amp;age=';
@@ -234,9 +234,9 @@ EOD;
 			}
 			$navi = '<div>' . $navi_link[0] . '&nbsp;&nbsp;' . $navi_link[1] .'</div>';
 		}
-		
+
 		$body .= $navi;
-		
+
 		if ($action === 'diff') {
 			if ($s_age > 1 || ($is_now && $backups_count)) {
 				$val = $is_now ? $backups[$backups_count] : $backups[$s_age - 1];
@@ -311,19 +311,19 @@ EOD;
 					$title = $this->root->_title_backup;
 				}
 				$body .= $this->root->hr . "\n";
-				
+
 				$this->root->rtf['preview'] = TRUE;
 				$src = join('', $backups[$s_age]['data']);
 				$src = $this->func->make_str_rules($src);
 				$src = explode("\n", $src);
-				
+
 				$body .= $this->func->drop_submit($this->func->convert_html($src));
 				$this->func->convert_finisher($body);
 			}
 		}
-		
+
 		$body .= $navi;
-		
+
 		if ($list) {
 			$href = $script . '?cmd=backup&amp;pgid=' . $pgid;
 			$body .= '<hr style="clear:both;" />'. "\n";
@@ -333,13 +333,13 @@ EOD;
 				$body .= '<ul>' . $list . '</ul>';
 			}
 		}
-		
+
 		return array('msg'=>str_replace('$2', $s_age, $title), 'body'=>$body);
 	}
-	
+
 	// Delete backup
 	function plugin_backup_delete($page) {
-	
+
 		if (! $this->func->_backup_file_exists($page))
 			return array('msg'=>$this->root->_title_pagebackuplist, 'body'=>$this->plugin_backup_get_list($page)); // Say "is not found"
 
@@ -352,7 +352,7 @@ EOD;
 				'redirect' => $this->root->script . '?cmd=backup'
 			);
 		}
-	
+
 		$script = $this->func->get_script_uri();
 		$s_page = htmlspecialchars($page);
 		$s_title = str_replace('$1', $s_page, $this->root->_title_backup_delete);
@@ -369,7 +369,7 @@ EOD;
 EOD;
 		return	array('msg'=>$this->root->_title_backup_delete, 'body'=>$body);
 	}
-	
+
 	function plugin_backup_diff($str) {
 		$ul = <<<EOD
 {$this->root->hr}
@@ -378,10 +378,10 @@ EOD;
  <li>{$this->root->_msg_delline}</li>
 </ul>
 EOD;
-	
+
 		return $ul . '<pre>' . $this->func->diff_style_to_css(htmlspecialchars($str)) . '</pre>' . "\n";
 	}
-	
+
 	function plugin_backup_get_list($page) {
 		$script = $this->func->get_script_uri();
 		$s_page = htmlspecialchars($page);
@@ -400,20 +400,20 @@ EOD;
  </li>
 </ul>
 EOD;
-	
+
 		$backups = $this->func->_backup_file_exists($page) ? $this->func->get_backup($page, 0, 'none') : array();
 		if (empty($backups)) {
 			$msg = str_replace('$1', $this->func->make_pagelink($page), $this->root->_msg_nobackup);
 			$retval[1] .= '   <li>' . $msg . '</li>' . "\n";
 			return join('', $retval);
 		}
-	
+
 		if ($this->func->is_owner($page)) {
  			$retval[1] .= '   <li><a href="' . $script . '?cmd=backup&amp;action=delete&amp;pgid=' . $pgid . '">';
 			$retval[1] .= str_replace('$1', $s_page, $this->root->_title_backup_delete);
 			$retval[1] .= '</a></li>' . "\n";
 		}
-	
+
 		$href = $script . '?cmd=backup&amp;pgid=' . $pgid . '&amp;age=';
 		$_anchor_from = $_anchor_to   = '';
 		foreach ($backups as $age=>$data) {
@@ -452,12 +452,12 @@ EOD;
 EOD;
 		return join('', $retval);
 	}
-	
+
 	// List for all pages
 	function plugin_backup_get_list_all($withfilename = FALSE) {
 		// 閲覧権限のないページを省く
 		$pages = array_intersect($this->func->get_existpages($this->cont['BACKUP_DIR'], $this->cont['BACKUP_EXT']), $this->func->get_existpages(FALSE, "", array('nodelete' => FALSE)));
-		
+
 		$pages = array_diff($pages, $this->root->cantedit);
 
 		if (empty($pages)) {
@@ -466,20 +466,22 @@ EOD;
 			return $this->func->page_list($pages, 'backup', $withfilename);
 		}
 	}
-	
+
 	function make_age_label($age, $date, $lasteditor) {
 		return $age . ': ' . $date . ' <small>' . $lasteditor . '</small>';
 	}
-	
+
 	function do_rewind($page, $age) {
 		$this->root->vars['refer'] = $page;
 		if ($backup = $this->func->get_backup($page, $age, $age)) {
 			$count = count($this->func->get_backup($page));
 			$time = $backup['time'] + $this->cont['ZONETIME'];
 			$data = join('', $backup['data']);
+			$this->root->rtf['esummary'] = 'Rewound to ' . ($count - $age + 2) . ' ages ago.';
 			$this->func->page_write($page, $data, TRUE);
-			//$this->func->touch_page($page, $time);
-			$this->root->rtf['page_touch'][$page][] = 'Rewound to ' . ($count - $age + 2) . ' ages ago.';
+			$this->func->touch_page($page, $time);
+			//$this->root->rtf['page_touch'][$page][] = 'Rewound to ' . ($count - $age + 2) . ' ages ago.';
+
 			$s_page = htmlspecialchars($page);
 			return array(
 				'msg'  => str_replace('$1', $age, $this->root->_msg_rewinded),
@@ -489,10 +491,10 @@ EOD;
 			return array(
 				'msg'  => str_replace('$1', $age, $this->root->_msg_nobackupnum),
 				'body' => ''
-			);			
+			);
 		}
 	}
-	
+
 	function make_esummary($esummary, $mode='ul') {
 		if (! $esummary) return '';
 		switch($mode) {
