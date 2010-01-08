@@ -1,6 +1,6 @@
 <?php
 // PukiWiki - Yet another WikiWikiWeb clone.
-// $Id: keitai.skin.php,v 1.30 2009/06/26 00:12:31 nao-pon Exp $
+// $Id: keitai.skin.php,v 1.31 2010/01/08 13:43:37 nao-pon Exp $
 // Copyright (C) 2003-2006 PukiWiki Developers Team
 // License: GPL v2 or (at your option) any later version
 //
@@ -80,11 +80,11 @@ if (! $no_accesskey) {
 		$this->cont['ROOT_URL'],
 		$this->root->accesskey,
 		htmlspecialchars($this->root->siteinfo['sitename']) );
-	
+
 	$header .= sprintf('<div style="%s">%s</div>',
 		$style['easyLogin'],
 		$this->do_plugin_convert('easylogin') );
-	
+
 	$header .= sprintf('<div style="%s">%s <a href="%s" %s="3">%s</a><a href="%s">%s</a></div>',
 		$style['wikiTitle'],
 		$this->make_link('&pb3;'),
@@ -108,19 +108,19 @@ if (! $no_accesskey) {
 	$header .= '<div style="' . $style['pageMenu'] . '">';
 	$header .= '<table><tr><td>';
 	$header .= '<div style="' . $style['pageMenu'] . '">';
-	
+
 	$header .= sprintf('%s <a href="#header" %s="2">%s</a><br />',
 	$this->make_link('&pb2;'),
 	$this->root->accesskey,
 	$lang['header']
 	);
-	
+
 	$header .= sprintf('%s <a href="#footer" %s="8">%s</a><br />',
 	$this->make_link('&pb8;'),
 	$this->root->accesskey,
 	$lang['footer']
 	);
-	
+
 	if ($pagename) {
 		$header .= sprintf('%s <a href="%s?cmd=menu&amp;refer=%s" %s="5">%s</a><br />',
 		$this->make_link('&pb5;'),
@@ -132,7 +132,7 @@ if (! $no_accesskey) {
 	} else {
 		$header .= '<br />';
 	}
-	
+
 	if (!$is_freeze && $is_editable) {
 		$header .= sprintf('%s <a href="%s" %s="9">%s</a><br />',
 		$this->make_link('&pb9;'),
@@ -146,31 +146,31 @@ if (! $no_accesskey) {
 	$header .= '</div>';
 	$header .= '</td><td style="background-color:#fff"> </td><td>';
 	$header .= '<div style="' . $style['pageMenu'] . ';text-align:right">';
-	
+
 	$header .= sprintf('<a href="%s" %s="7">%s</a> %s<br />',
 	$link['new'],
 	$this->root->accesskey,
 	$lang['new'],
 	$this->make_link('&pb7;') );
-	
+
 	$header .= sprintf('<a href="%s" %s="*">%s</a> %s<br />',
 	$link['search'],
 	$this->root->accesskey,
 	$lang['search'],
 	'[*]' );
-	
+
 	$header .= sprintf('<a href="%s" %s="0">%s</a> %s<br />',
 	$link['recent'],
 	$this->root->accesskey,
 	$lang['recent'],
 	$this->make_link('&pb0;') );
-	
+
 	$header .= sprintf('<a href="%s" %s="#">%s</a> %s<br />',
 	$link['list'],
 	$this->root->accesskey,
 	$lang['list'],
 	$this->make_link('&pb#;') );
-	
+
 	$header .= '</div>';
 	$header .= '</td></tr></table>';
 	$header .= '</div>';
@@ -265,6 +265,9 @@ if (HypCommonFunc::get_version() >= '20080617.2') {
 	$r->contents['footer'] = $footer;
 
 	$r->doOptimize();
+
+	$charset = (strtoupper($r->outputEncode) === 'UTF-8')? 'UTF-8' : 'Shift_JIS';
+
 	if (method_exists($r, 'getHtmlDeclaration')) {
 		$htmlDec = $r->getHtmlDeclaration();
 	} else {
@@ -284,7 +287,7 @@ $out = $htmlDec . $head . '<body>' .  $body . '</body></html>';
 // Output HTTP headers
 $this->pkwk_headers_sent();
 // Force Shift JIS encode for Japanese embedded browsers and devices
-header('Content-Type: '.$ctype.'; charset=Shift_JIS');
+header('Content-Type: '.$ctype.'; charset=' . $charset);
 header('Content-Length: ' . strlen($out));
 header('Cache-Control: no-cache');
 
