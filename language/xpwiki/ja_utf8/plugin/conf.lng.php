@@ -1,7 +1,7 @@
 <?php
 /*
  * Created on 2008/01/24 by nao-pon http://hypweb.net/
- * $Id: conf.lng.php,v 1.15 2009/11/17 09:03:36 nao-pon Exp $
+ * $Id: conf.lng.php,v 1.16 2010/01/08 14:01:37 nao-pon Exp $
  */
 
 $msg = array(
@@ -245,10 +245,25 @@ $msg = array(
 		               . 'この値が空値の場合 "trust/class/hyp_common/hsamazon/hyp_simple_amazon.ini" の設定値を用います。',
 	),
 
+	'amazon_UseUserPref' => array(
+		'caption'     => 'ユーザー別 Amazon ID',
+		'description' => 'ユーザー個別設定のアソシエイト ID を有効にする',
+	),
+
 	'bitly_clickable' => array(
 		'caption'     => 'クリッカブルURL短縮',
 		'description' => 'URLの自動リンクを <a href="http://bit.ly/" target="_blank">bitly</a> を使い短縮する。'
 		               . '"bitly_login", "bitly_apiKey" の設定が必要です。'
+	),
+
+	'twitter_consumer_key' => array(
+		'caption'     => 'Twitter Consumer key',
+		'description' => '<a href="https://twitter.com/apps" target="_blank">Applications Using Twitter</a> で得られるカスタマーキー。'
+	),
+
+	'twitter_consumer_secret' => array(
+		'caption'     => 'Twitter Consumer secret',
+		'description' => '<a href="https://twitter.com/apps" target="_blank">Applications Using Twitter</a> で得られるシークレットキー。'
 	),
 
 	'fckeditor_path' => array(

@@ -1,7 +1,7 @@
 <?php
 /*
  * Created on 2008/01/24 by nao-pon http://hypweb.net/
- * $Id: conf.lng.php,v 1.11 2009/11/17 09:03:36 nao-pon Exp $
+ * $Id: conf.lng.php,v 1.12 2010/01/08 14:01:37 nao-pon Exp $
  */
 //
 // German Translation Version 1.0 (11.03.2008)
@@ -249,10 +249,25 @@ $msg = array(
 		               . 'If empty then uses "trust/class/hyp_common/hsamazon/hyp_simple_amazon.ini" setting.',
 	),
 
+	'amazon_UseUserPref' => array(
+		'caption'     => 'User\'s Amazon ID',
+		'description' => 'Enable Associate ID of User preference.',
+	),
+
 	'bitly_clickable' => array(
 		'caption'     => 'Clickable URL shorten',
 		'description' => 'Automatic links of URL are shortened with <a href="http://bit.ly/" target="_blank">bitly</a>. '
 		               . '"It is necessary to set "Bitly_login" and "Bitly_apiKey".'
+	),
+
+	'twitter_consumer_key' => array(
+		'caption'     => 'Twitter Consumer key',
+		'description' => '"Customer key" obtained by <a href="https://twitter.com/apps" target="_blank">Applications Using Twitter</a>.'
+	),
+
+	'twitter_consumer_secret' => array(
+		'caption'     => 'Twitter Consumer secret',
+		'description' => '"Consumer secret key" obtained by <a href="https://twitter.com/apps" target="_blank">Applications Using Twitter</a>.'
 	),
 
 	'fckeditor_path' => array(
