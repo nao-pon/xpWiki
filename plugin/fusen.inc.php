@@ -31,16 +31,16 @@
 //
 // fusen.inc.php for xpWiki by nao-pon
 // http://xoops.hypweb.net
-// $Id: fusen.inc.php,v 1.29 2009/11/17 09:20:42 nao-pon Exp $
-// 
+// $Id: fusen.inc.php,v 1.30 2010/01/08 13:54:42 nao-pon Exp $
+//
 
 class xpwiki_plugin_fusen extends xpwiki_plugin {
 	function plugin_fusen_init () {
 		$this->load_language();
-		
+
 		// Attach filename of FUSEN data.
 		$this->cont['FUSEN_ATTACH_FILENAME'] = 'fusen.dat';
-	
+
 		// FUSEN border style.
 		// Normal
 		$this->cont['FUSEN_STYLE_BORDER_NORMAL'] =  '#000000 1px solid';
@@ -50,10 +50,10 @@ class xpwiki_plugin_fusen extends xpwiki_plugin {
 		$this->cont['FUSEN_STYLE_BORDER_DEL'] =  '#333333 1px dotted';
 		// Selected
 		$this->cont['FUSEN_STYLE_BORDER_SELECT'] =  'red 1px solid';
-		
+
 		$this->conf['spliter'] = '###fusen_data_convert###';
 	}
-	
+
 	function plugin_fusen_convert() {
 
 		$prms = func_get_args();
@@ -61,7 +61,7 @@ class xpwiki_plugin_fusen extends xpwiki_plugin {
 			$id = intval($prms[1]);
 			return '<!--NA-->' . $this->conf['spliter'] . $id . '<!--/NA-->';
 		}
-		
+
 		$base = '';
 		$divclass = 'xpwiki_' . $this->root->mydirname;
 		$res = array();
@@ -69,7 +69,7 @@ class xpwiki_plugin_fusen extends xpwiki_plugin {
 			return '';
 		} else if ($this->root->render_mode === 'block') {
 			if (empty($GLOBALS['Xpwiki_'.$this->root->mydirname]['is_read'])
-				|| 
+				||
 				!empty($GLOBALS['Xpwiki_'.$this->root->mydirname]['cache']['fusen']['loaded'])) {
 				return '';
 			}
@@ -78,16 +78,16 @@ class xpwiki_plugin_fusen extends xpwiki_plugin {
 			$divclass = 'xpwiki_b_' . $this->root->mydirname;
 			$this->root->pagecache_min = 0;
 		}
-		
+
 		$html = $this->get_html(func_get_args(), $base, $divclass);
-		
+
 		if ($res) $this->func->set_current_page($res['page']);
-		
+
 		return $html;
-		
+
 	}
-	
-	function get_html($args, $base, $divclass) {	
+
+	function get_html($args, $base, $divclass) {
 		// パラメータ
 		$off = $from_skin = $refresh = 0;
 		$background = $height = '';
@@ -102,9 +102,9 @@ class xpwiki_plugin_fusen extends xpwiki_plugin {
 			if (strtolower($prm) == 'off')
 				$off = 1;
 		}
-		
+
 		$refer = $this->root->vars['page'];
-		
+
 		//読み込みチェック
 		if ($this->root->rtf['convert_nest'] > 1) {
 			if ($off) return '';
@@ -115,10 +115,10 @@ class xpwiki_plugin_fusen extends xpwiki_plugin {
 		if (!empty($GLOBALS['Xpwiki_'.$this->root->mydirname]['cache']['fusen']['loaded'])) {
 			return '';
 		}
-		
+
 		$GLOBALS['Xpwiki_'.$this->root->mydirname]['cache']['fusen']['loaded'] = true;
 		if ($off) return '';
-		
+
 		// 初期化
 		$this->func->add_tag_head('fusen.css');
 		$this->func->add_tag_head('fusen.js');
@@ -130,15 +130,15 @@ class xpwiki_plugin_fusen extends xpwiki_plugin {
 		$fusen_data = $this->plugin_fusen_data($refer);
 		$name = $this->cont['USER_NAME_REPLACE'];
 		$jname = $this->plugin_fusen_jsencode($name);
-		
+
 		if ($height) {
 			$board = '<div class="fusen_board" style="height:'.$height.'px;"></div>';
 		} else {
 			$board = '';
 		}
-		
+
 		$wiki_helper = '';
-		
+
 		$selected = 0;
 		$refresh_str = '<span class="nowrap">' . $this->msg['cap_refresh'] . ':<select name="fusen_menu_interval" id="fusen_menu_interval" size="1" onchange="fusen_setInterval(this.value);window.focus();">';
 		$refresh_str .= '<option value="0">' . $this->msg['cap_none'] . '</option>';
@@ -155,16 +155,16 @@ class xpwiki_plugin_fusen extends xpwiki_plugin {
 		}
 		$refresh_str .= '</select></span>';
 		$refresh = $selected * 1000;
-		
+
 		$html = $this->plugin_fusen_gethtml($fusen_data, $refer);
-		
+
 		$fusen_post = '/' . $this->root->mydirname . '/';
 		$fusen_url = '/' . $this->root->mydirname . '/skin/loader.php?nc&src=fusen_' . $this->func->get_pgid_by_name($refer) . '.pcache.xml';
 		$X_ucd = ''; //WIKI_UCD_DEF;
 		$js_refer = $this->plugin_fusen_jsencode($refer);
 		$auth = $this->func->is_owner($refer)? 1 : 0;
 		$s_refer = htmlspecialchars($refer);
-		
+
 		$burn = ($auth)? "(<a href=\"javascript:fusen_burn()\" title=\"{$this->msg['cap_dustbox_empty']}\">{$this->msg['cap_empty']}</a>)" : "";
 		$js_massages = '';
 		foreach($this->msg['js_messages'] as $key => $val) {
@@ -172,7 +172,7 @@ class xpwiki_plugin_fusen extends xpwiki_plugin {
 		}
 		$readonly = intval($this->cont['PKWK_READONLY']);
 		$menu_new = ($readonly)? '' : '<span class="nowrap">[<a href="javascript:fusen_new()" title="' . $this->msg['cap_menu_new'] . '">' . $this->msg['btn_menu_new'] . '</a>]</span>';
-		
+
 		return <<<EOD
 <script type="text/javascript">
 //<![CDATA[
@@ -263,16 +263,16 @@ fusenVar['ReadOnly'] = {$readonly};
 {$board}
 EOD;
 	}
-	
-	
+
+
 	function plugin_fusen_action() {
-		
+
 		$id = preg_replace('/id/', '', $this->root->post['id']);
 		$refer = $this->root->vars['page'] = $this->root->post['refer'];
 
 		// 編集権限がない場合の挙動指定
 		$_PKWK_READONLY = $this->func->set_readonly_by_editauth($refer);
-		
+
 		// 規定外のモード
 		if (!$this->func->is_page($refer)
 			|| $this->cont['PKWK_READONLY']
@@ -281,25 +281,25 @@ EOD;
 		) {
 			$this->_exit();
 		}
-		
+
 		$this->cont['PKWK_READONLY'] = $_PKWK_READONLY;
-		
+
 		// ゲストユーザーの投稿制限(SPAM対策)
 		$plugin_fusen_setting['max_chr'] = 500; // 最大文字数
 		$plugin_fusen_setting['max_link'] = 3;  // http:// の最大個数
 		$plugin_fusen_setting['max_a_tag'] = 0; // <a>タグの最大個数
-		
+
 		// コンバートしないでファイル読み込み
 		$dat = $this->plugin_fusen_data($refer,false);
 
 		$auth = false;
-		
+
 		// 一括ゴミ箱モード
 		if ($this->root->vars['mode'] == "del_m") {
 			$ids = explode(",",$id);
 			$id = "";
 		}
-		
+
 		if ($id && array_key_exists($id,$dat)) {
 			if ($this->func->is_owner($refer)) $auth = true;
 			else if ($dat[$id]['uid'] && $dat[$id]['uid'] == $this->root->userinfo['uid']) $auth = true;
@@ -314,7 +314,7 @@ EOD;
 				$auth = true;
 			}
 		}
-		
+
 		// ID確定,データ取得
 		switch ($this->root->vars['mode'])
 		{
@@ -408,7 +408,7 @@ EOD;
 					$name = $this->root->vars['name'];
 					if ($name) { $this->func->save_name2cookie($name); }
 					$txt = str_replace(array("\r\n","\r"),"\n",$this->root->vars['body']);
-					
+
 					// SPAM判定(ゲストのみ)
 					if (!$this->root->userinfo['uid']) {
 						$match = array();
@@ -423,17 +423,17 @@ EOD;
 							if (count($match[0]) > $plugin_fusen_setting['max_link']) $this->_exit();
 						}
 					}
-					
+
 					$txt = preg_replace('/^#fusen/m', '&#35;fusen', $txt);
 					//$txt = $this->func->user_rules_str($this->func->auto_br($txt));
 					$txt = rtrim($txt);
 					if (!$txt) $this->_exit();
-					
+
 					$et = date("ymdHis");
 					$fix = (!empty($this->root->vars['fix']))? (int)$this->root->vars['fix'] : 0;
 					$w = (preg_match('/^\d+$/', $this->root->vars['w']))? $this->root->vars['w'] : 0;
 					$h = (preg_match('/^\d+$/', $this->root->vars['h']))? $this->root->vars['h'] : 0;
-					
+
 					$ma = array();
 					$dat[$id] = array(
 						'ln' => (preg_match('/^(id)?(\d+)$/', $this->root->vars['ln'], $ma) ? $ma[2] : ''),
@@ -456,15 +456,15 @@ EOD;
 						'w' => $w,
 						'h' => $h,
 					);
-					
+
 					ksort($dat);
-					
+
 					// NULLバイト削除
 					$dat = $this->func->input_filter($dat);
-					
+
 					// plane_text DB 更新を指示
 					$this->func->need_update_plaindb($refer, FALSE);
-					
+
 					// ページHTMLキャッシュとRSSキャッシュを削除
 					$this->func->clear_page_cache($refer);
 					$GLOBALS['xpwiki_cache_deletes'][$this->cont['CACHE_DIR'].'plugin/'][] = '*.rss';
@@ -481,11 +481,11 @@ EOD;
 			if (!$this->func->exist_plugin('attach')) {
 				$this->_exit('attach.inc.php not found or not correct version.');
 			}
-			
+
 			$atatch_obj = $this->func->get_plugin_instance('attach');
-			
+
 			if (count($dat) < 1) $dat = array();
-			
+
 			$fname = $this->cont['UPLOAD_DIR'] . $this->func->encode($refer) . '_' . $this->func->encode($this->cont['FUSEN_ATTACH_FILENAME']);
 			$dat = serialize($dat);
 			if ($fp = fopen($fname.".tmp", "wb")) {
@@ -503,27 +503,27 @@ EOD;
 					$ret = $atatch_obj->do_upload($refer, $this->cont['FUSEN_ATTACH_FILENAME'], $fname.".tmp",FALSE,NULL,TRUE,$options);
 				}
 			}
-			
+
 			// コンバートして再読み込み
 			$dat = $this->plugin_fusen_data($refer, true);
 			// JSONファイル書き込み
 			$this->plugin_fusen_putjson($dat, $refer);
-			
-			return array('exit' => TRUE);
+
+			return array('exit' => 0);
 		}
 		$this->_exit();
 	}
-	
+
 	//添付ファイル読み込み
 	function plugin_fusen_data($page, $convert=true)
 	{
 		$fname = $this->func->encode($page) . '_' . $this->func->encode($this->cont['FUSEN_ATTACH_FILENAME']);
 		if (!file_exists($this->cont['UPLOAD_DIR'] . $fname)) return array();
 		$data = file($this->cont['UPLOAD_DIR'] . $fname);
-		
+
 		$head = trim(array_shift($data));
 		if (!$data || strpos($head, $this->cont['FUSEN_ATTACH_FILENAME']) !== 0) return array();
-		
+
 		$data = unserialize(join('',$data));
 
 		$heads = explode("\t", $head);
@@ -534,17 +534,17 @@ EOD;
 				$this->func->encode_numericentity($data[$k]['name'], $this->cont['SOURCE_ENCODING'], $encode);
 				$data[$k]['txt'] = mb_convert_encoding($data[$k]['txt'], $this->cont['SOURCE_ENCODING'], $encode);
 				$data[$k]['name'] = mb_convert_encoding($data[$k]['name'], $this->cont['SOURCE_ENCODING'], $encode);
-			} 
+			}
 		}
-		
+
 		if (!$convert) return $data;
-		
+
 		// 一括してコンバートする
 		$str = '';
 		foreach ($data as $k => $dat) {
 			$str .= "#fusen(spliter,{$k})\n\n".$dat['txt']."\n\n";
 		}
-		
+
 		$_PKWK_READONLY = $this->cont['PKWK_READONLY'];
 		$this->cont['PKWK_READONLY'] = 2;
 		$this->fusen_convert_html($str,$page);
@@ -557,27 +557,27 @@ EOD;
 			list($id, $dat) = array_pad(explode("\n", $str, 2), 2, '');
 			$data[rtrim($id)]['disp'] = trim($dat);
 		}
-		
+
 		return $data;
 	}
-	
+
 	//PHPオブジェクトをJSONへ変換
 	function plugin_fusen_getjson($fusen_data)
 	{
 		// ゲストとして処理
 		$_userinfo = $this->root->userinfo;
 		$this->root->userinfo['uid'] = $this->root->userinfo['admin'] = 0;
-		
+
 		// 付箋・線データ作成
 		$json = '{';
 		foreach ($fusen_data as $k => $dat) {
 			//付箋番号が数字でない場合は飛ばす。
 			if (!preg_match('/\d+/', $k)) continue;
 			$id = 'id' . $k;
-	
+
 			//#fusenプラグインのネスト禁止
 			$dat['txt'] = preg_replace('/^#fusen/m', '&#35;fusen', $dat['txt']);
-	
+
 			// XSS対策(付箋データが直接改ざんされる事態も想定)
 			if (!preg_match('/^\d+$/', $dat['x'])) $dat['x'] = 100 + $k;
 			if (!preg_match('/^\d+$/', $dat['y'])) $dat['y'] = 100 + $k;
@@ -589,13 +589,13 @@ EOD;
 			if (!preg_match('/^(id)?\d+$/', $dat['ln'])) $dat['ln'] = '';
 			if (!preg_match('/^\d+$/', $dat['mt'])) $dat['mt'] = 0;
 			if (!preg_match('/^\d+$/', $dat['et'])) $dat['et'] = 0;
-			
+
 			// ~\n -> \n
 			//$dat['txt'] = preg_replace("/~$/m","",$dat['txt']);
-			
+
 			// 改行文字等除去
 			//$dat['disp'] = str_replace(array("\r","\n","\t"),'',$dat['disp']);
-	
+
 			// JSONの構成
 			if ($json != '{') $json .= ",\n";
 			$json .=  $k . ':{';
@@ -623,13 +623,13 @@ EOD;
 			$json .= '}';
 		}
 		$json .= '}';
-		
+
 		//ログイン情報戻し
 		$this->root->userinfo = $_userinfo;
-		
+
 		return $json;
 	}
-	
+
 	//JSON向けエンコード
 	function plugin_fusen_jsencode($str)
 	{
@@ -637,7 +637,7 @@ EOD;
 		$str = str_replace(array("\x00","\x08","\x09","\x0A","\x0C","\x0D"), array('','\b','\t','\n','\f','\r'), $str);
 		return $str;
 	}
-	
+
 	//PHPオブジェクトをHTMLへ変換
 	function plugin_fusen_gethtml($fusen_data, $page = null)
 	{
@@ -646,17 +646,17 @@ EOD;
 		if (is_null($page)) {
 			$page = @ $this->root->vars['page'];
 		}
-		
+
 		// 付箋・線データ作成
 		$ret = '';
 		foreach ($fusen_data as $k => $dat) {
 			//付箋番号が数字でない場合は飛ばす。
 			if (!preg_match('/\d+/', $k)) continue;
 			$id = 'id' . $k;
-	
+
 			//#fusenプラグインのネスト禁止
 			$dat['txt'] = preg_replace('/^#fusen/m', '&#35;fusen', $dat['txt']);
-	
+
 			// XSS対策(付箋データが直接改ざんされる事態も想定)
 			if (!preg_match('/^\d+$/', $dat['x'])) $dat['x'] = 100 + $k;
 			if (!preg_match('/^\d+$/', $dat['y'])) $dat['y'] = 100 + $k;
@@ -666,20 +666,20 @@ EOD;
 			if (!preg_match('/^#[\dA-F]{6}$/i', $dat['tc'])) $dat['tc'] = '#000000';
 			if (!preg_match('/^(#[\dA-F]{6}|transparent)$/i', $dat['bg'])) $dat['bg'] = '#ffffff';
 			if (!preg_match('/^(id)?\d+$/', $dat['ln'])) $dat['ln'] = '';
-	
+
 			// HTMLの構成
-			
+
 			if ($dat['lk']) $border = $this->cont['FUSEN_STYLE_BORDER_LOCK'];
 			else if (!empty($dat['del'])) $border = $this->cont['FUSEN_STYLE_BORDER_DEL'];
 			else $border = $this->cont['FUSEN_STYLE_BORDER_NORMAL'];
-			
+
 			// SEOスパムと誤認されないように
 			//$del = (empty($dat['del']))? "" : " visibility: hidden;";
 			if (!empty($dat['del'])) continue;
 			$del = '';
-			
+
 			$date = ($dat['et'])? " : ".substr($dat['et'],0,2)."/".substr($dat['et'],2,2)."/".substr($dat['et'],4,2)." ".substr($dat['et'],6,2).":".substr($dat['et'],8,2) : "";
-			
+
 			// Fix?
 			$fix_style = "";
 			if ($dat['fix'])
@@ -689,8 +689,8 @@ EOD;
 				$fix_style .= "width:{$dat['w']}px;";
 				$fix_style .= ($dat['fix'] == 1)? "height:{$dat['h']}px;" : "height:auto;";
 			}
-	
-			
+
+
 			$ret .= "<div class=\"fusen_body_trans\" style=\"left:{$dat['x']}px; top:{$dat['y']}px; color:{$dat['tc']}; background-color:{$dat['bg']}; border:{$border};{$del}{$fix_style}\">\n";
 			$ret .= "<div class=\"fusen_menu\">id.{$k}: </div>\n";
 			$ret .= "<div class=\"fusen_info\"><span class=\"fusen_name\">".$this->func->make_link($dat['name']).'</span> : <span class="fusen_date">'.$date."</span></div>\n";
@@ -699,7 +699,7 @@ EOD;
 		}
 		return $ret;
 	}
-	
+
 	//JSONキャッシュファイル書き込み
 	function plugin_fusen_putjson($dat,$page)
 	{
@@ -707,11 +707,11 @@ EOD;
 		$json = $this->plugin_fusen_getjson($dat);
 		$to = 'UTF-8';
 		$json = '<?xml version="1.0" encoding="UTF-8"?'.'>'."\n".'<fusen><![CDATA[' . str_replace("\0","",mb_convert_encoding($json, $to, $this->cont['SOURCE_ENCODING'])) . ']]></fusen>';
-		
+
 		// 変更チェック
 		$old = @file_get_contents($fname);
 		if ($json == $old) return;
-		
+
 		$fp = false;
 		$count = 0;
 		while(!$fp && ++$count < 6) {
@@ -724,30 +724,32 @@ EOD;
 			}
 		}
 	}
-	
+
 	function fusen_convert_html(&$str,$page)
 	{
 		// グローバル変数退避
 		$_userinfo = $this->root->userinfo;
 		$_related_link = $this->root->related_link;
+		$_cmd = $this->root->vars['cmd'];
 		$_UI_LANG = $this->cont['UI_LANG'];
-		
+
 		$this->root->userinfo['admin'] = $this->root->userinfo['uid'] = 0;	//常にゲスト扱い
 		$this->root->related_link = 0;	// 関連するページをリストアップしない
 		$this->root->vars['cmd'] = "read"; //閲覧モードでコンバート
 		$this->cont['UI_LANG'] = $this->cont['LANG']; // LANGサイト規定値
-		
+
 		$str = $this->func->convert_html($str, $page);
 		$str = $this->func->strip_MyHostUrl($str);
-		
+
 		// グローバル変数戻し
 		$this->root->userinfo = $_userinfo;
 		$this->root->related_link = $_related_link;
+		$this->root->vars['cmd'] = $_cmd;
 		$this->cont['UI_LANG'] = $_UI_LANG;
-		
+
 		return $str;
 	}
-	
+
 	function _exit($out = null) {
 		while( ob_get_level() ) {
 			ob_end_clean() ;
