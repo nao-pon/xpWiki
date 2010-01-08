@@ -1,11 +1,11 @@
 <?php
 class xpwiki_plugin_yahoo extends xpwiki_plugin {
 	// PukiWiki - Yet another WikiWikiWeb clone.
-	// $Id: yahoo.inc.php,v 1.4 2009/04/04 07:13:51 nao-pon Exp $
+	// $Id: yahoo.inc.php,v 1.5 2010/01/08 13:44:40 nao-pon Exp $
 	/////////////////////////////////////////////////
-	
+
 	// #yahoo([Format Filename],[Mode],[Key Word],[Node Number],[Sort Mode])
-	
+
 	function plugin_yahoo_init()
 	{
 		$this->config = array(
@@ -37,33 +37,33 @@ class xpwiki_plugin_yahoo extends xpwiki_plugin {
 		{
 			return "<p>{$this->msg['err_option']}</p>";
 		}
-		
+
 		$this->load_language();
-		
+
 		$mode = array_shift($args);
 		$query = array_shift($args);
 		$youtube = "";
-	
+
 		// mode 判定
 		$mode = trim(strtolower($mode));
 		switch($mode)
 		{
 			case "web":
 				$mode = "web";
-				$more = "http://search.yahoo.co.jp/search?p=".rawurlencode($query)."&ei=".$this->cont['SOURCE_ENCODING']."&b=";
+				$more = "http://search.yahoo.co.jp/search?p=".rawurlencode($query)."&amp;ei=".$this->cont['SOURCE_ENCODING']."&amp;b=";
 				$more_add = 1;
 				break;
 			case "image":
 			case "img":
 				$mode = "img";
-				$more = "http://images.search.yahoo.co.jp/bin/query?p=".rawurlencode($query)."&ei=".$this->cont['SOURCE_ENCODING']."&b=";
-				$more_add = 0;
+				$more = "http://image-search.yahoo.co.jp/search?p=".rawurlencode($query)."&amp;ei=".$this->cont['SOURCE_ENCODING'];
+				$more_add = FALSE;
 				break;
 			case "movie":
 			case "mov":
 				$mode = "mov";
-				$more = "http://video.search.yahoo.co.jp/bin/query?p=".rawurlencode($query)."&ei=".$this->cont['SOURCE_ENCODING']."&b=";
-				$more_add = 0;
+				$more = "http://video.search.yahoo.co.jp/search/video?p=".rawurlencode($query)."&amp;ei=".$this->cont['SOURCE_ENCODING'];
+				$more_add = FALSE;
 				if (!empty($this->config['YouTubeNAVI']))
 				{
 					$youtube = ' [ <a href="http://youtube.navi-gate.org/tag/'.$this->plugin_yahoo_youtube_urlencode(mb_convert_encoding($query,"UTF-8",$this->cont['SOURCE_ENCODING'])).'/" target="'.$this->root->link_target.'">YouTube NAVI: '.htmlspecialchars($query).'</a> ]';
@@ -77,48 +77,48 @@ class xpwiki_plugin_yahoo extends xpwiki_plugin {
 				// web
 				$mode = "web";
 		}
-	
+
 		$prms = array("target"=>$this->root->link_target,"type"=>"and","max"=>$this->config['max_'.$mode],"col"=>$this->config['col_'.$mode]);
 		$this->fetch_options ($prms, $args);
 		$max = (int)$prms['max'];
-		$more = "<a href='".$more.($max+$more_add)."' target='".htmlspecialchars($prms['target'])."'>".sprintf($this->msg['msg_more'],htmlspecialchars($query),$this->msg['msg_'.$mode])."</a>";
-		
+		$more = "<a href='".$more.(($more_add !== FALSE)? ($max + $more_add) : '')."' target='".htmlspecialchars($prms['target'])."'>".sprintf($this->msg['msg_more'],htmlspecialchars($query),$this->msg['msg_'.$mode])."</a>";
+
 		list($ret,$refresh) = $this->plugin_yahoo_get($mode,$query,$prms['type'],$max,$prms['target'],$prms['col']);
-		
+
 		$cr = '<!-- Begin Yahoo! JAPAN Web Services Attribution Snippet -->
 <a href="http://developer.yahoo.co.jp/about" target="'.$this->root->link_target.'"><img src="http://i.yimg.jp/images/yjdn/yjdn_attbtn2_105_17.gif" width="105" height="17" title="'.$this->msg['msg_websvc'].' by Yahoo! JAPAN" alt="'.$this->msg['msg_websvc'].' by Yahoo! JAPAN" border="0" style="margin:15px 15px 15px 15px"></a>
 <!-- End Yahoo! JAPAN Web Services Attribution Snippet -->';
-	
+
 		return "<div class='pwm_yahoo'>{$ret}</div>{$cr}{$more}{$youtube}";
-	
+
 	}
-	
+
 	function plugin_yahoo_get($mode,$query,$type,$max,$target,$col,$do_refresh=FALSE)
 	{
 		$ttl = $this->config['cache_time'] * 60;
 		$key = md5($mode.$query.$type.$max.$target.$col);
-		
+
 		// キャッシュ判定
 		if (! $html = $this->func->cache_get_db($key, 'yahoo')) {
 			$html = $this->plugin_yahoo_gethtml($mode,$query,$type,$max,$target,$col);
-			
+
 			// キャッシュ保存
 			if ($html) {
 				$this->func->cache_save_db($html, 'yahoo', $ttl, $key);
 			}
-			
+
 			// Update plainDB
 			$this->func->need_update_plaindb();
 		}
-		
+
 		return array($html,0);
-	
+
 	}
-	
+
 	function plugin_yahoo_gethtml($mode,$query,$type,$max,$target,$col)
 	{
 		include_once XOOPS_TRUST_PATH. '/class/hyp_common/hyp_simplexml.php';
-		
+
 		$qs = htmlspecialchars($query);
 		// RESTリクエストの構築
 		$query = rawurlencode(mb_convert_encoding(trim($query),"UTF-8",$this->cont['SOURCE_ENCODING']));
@@ -168,7 +168,7 @@ class xpwiki_plugin_yahoo extends xpwiki_plugin {
 				$mode = "web";
 				$url = "http://search.yahooapis.jp/WebSearchService/V1/webSearch?appid={$this->appid}&query={$query}&results={$max}&type={$type}";
 		}
-		
+
 		// データ取得
 		$xml = $this->func->http_request($url);
 		if ($xml['rc'] == 200 && $xml['data'])
@@ -186,28 +186,28 @@ class xpwiki_plugin_yahoo extends xpwiki_plugin {
 		{
 			// データ取得エラー
 			return $this->msg['err_badres'];
-	
+
 		}
-	
+
 		// 該当データなし
 		if (!$xml['totalResultsReturned'])
 		{
 			return sprintf($this->msg['msg_notfound'],$qs,$this->msg['msg_'.$mode]);
 		}
-		
+
 		$func = "plugin_yahoo_build_".$mode;
 		$html = $this->$func($xml,$target,$col);
 		return $html;
 	}
-	
+
 	function plugin_yahoo_build_web($xml,$target,$col)
 	{
 		//$xml['totalResultsAvailable'];
 	    //$xml['totalResultsReturned'];
 	    //$xml['firstResultPosition'];
-		
+
 		$linkurl = 'Url'; // 'URL' or 'ClickUrl'
-		
+
 		$dats = array();
 		if (isset($xml['Result'][0]))
 		{
@@ -217,7 +217,7 @@ class xpwiki_plugin_yahoo extends xpwiki_plugin {
 		{
 			$dats[0] = (empty($xml['Result']))? array() : $xml['Result'];
 		}
-		
+
 		$html = "";
 		if ($dats)
 		{
@@ -242,10 +242,10 @@ class xpwiki_plugin_yahoo extends xpwiki_plugin {
 			}
 			$html .= "</ul>".$ediv;
 		}
-		
+
 		return $html;
 	}
-	
+
 	function plugin_yahoo_build_img($xml,$target,$col)
 	{
 		$dats = array();
@@ -257,7 +257,7 @@ class xpwiki_plugin_yahoo extends xpwiki_plugin {
 		{
 			$dats[0] = (empty($xml['Result']))? array() : $xml['Result'];
 		}
-		
+
 		$html = "";
 		if ($dats)
 		{
@@ -270,7 +270,7 @@ class xpwiki_plugin_yahoo extends xpwiki_plugin {
 				$title = "[".htmlspecialchars($dat['Title'])."]".htmlspecialchars($dat['Summary']);
 				$size = $dat['Width']." x ".$dat['Height']." ".$dat['FileSize'];
 				$site = "[ <a href=\"".htmlspecialchars($dat['RefererUrl'])."\" target='{$target}'>Site</a> ]";
-	
+
 				if ($cnt++ % $col === 0 && $cnt !== 1) $html .= "</tr><tr>";
 				$html .= "<td style='text-align:center;vertical-align:middle;'>";
 				$html .= "<a href=\"".$dat['ClickUrl']."\" target=\"{$target}\" title=\"{$title}\" type=\"img\"><img src=\"{$dat['Thumbnail']['Url']}\" width=\"{$dat['Thumbnail']['Width']}\" height=\"{$dat['Thumbnail']['Height']}\" alt=\"{$title}\" title=\"{$title}\" /></a>";
@@ -279,10 +279,10 @@ class xpwiki_plugin_yahoo extends xpwiki_plugin {
 			}
 			$html .= "</tr></table>";
 		}
-		
+
 		return $html;
 	}
-	
+
 	function plugin_yahoo_build_mov($xml,$target,$col)
 	{
 		$dats = array();
@@ -294,7 +294,7 @@ class xpwiki_plugin_yahoo extends xpwiki_plugin {
 		{
 			$dats[0] = (empty($xml['Result']))? array() : $xml['Result'];
 		}
-		
+
 		$html = "";
 		if ($dats)
 		{
@@ -310,7 +310,7 @@ class xpwiki_plugin_yahoo extends xpwiki_plugin {
 				$min = (int)($dat['Duration'] / 60);
 				$sec = sprintf("%02d",($dat['Duration'] % 60));
 				$length = $min.":".$sec;
-	
+
 				if ($cnt++ % $col === 0 && $cnt !== 1) $html .= "</tr><tr>";
 				$html .= "<td style='text-align:center;vertical-align:middle;'>";
 				$html .= "<a href='".$dat['ClickUrl']."' target='{$target}'><img src='{$dat['Thumbnail']['Url']}' width='{$dat['Thumbnail']['Width']}' height='{$dat['Thumbnail']['Height']}' alt=\"{$title}\" title=\"{$title}\" /></a>";
@@ -319,16 +319,16 @@ class xpwiki_plugin_yahoo extends xpwiki_plugin {
 			}
 			$html .= "</tr></table>";
 		}
-		
+
 		return $html;
 	}
-	
+
 	function plugin_yahoo_build_rel($xml,$target,$col)
 	{
 		$html = '';
 		return $html;
 	}
-	
+
 	function plugin_yahoo_check_ngsite($url)
 	{
 		static $ngsites = array();
@@ -346,7 +346,7 @@ class xpwiki_plugin_yahoo extends xpwiki_plugin {
 		}
 		return false;
 	}
-	
+
 	function plugin_yahoo_youtube_urlencode($tag)
 	{
 		return (preg_match('/^[0-9a-z\-\. ][0-9a-z\-\._ ]*$/i', $tag))? urlencode($tag) : "_".$this->func->encode($tag);
