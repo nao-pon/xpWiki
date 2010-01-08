@@ -1,7 +1,7 @@
 <?php
 /*
  * Created on 2008/01/24 by nao-pon http://hypweb.net/
- * $Id: conf.inc.php,v 1.18 2009/11/17 09:03:36 nao-pon Exp $
+ * $Id: conf.inc.php,v 1.19 2010/01/08 13:56:06 nao-pon Exp $
  */
 
 class xpwiki_plugin_conf extends xpwiki_plugin {
@@ -219,6 +219,11 @@ class xpwiki_plugin_conf extends xpwiki_plugin {
 				'type' => 'string',
 				'form' => 'text,size="50"',
 			),
+			'amazon_UseUserPref' => array(
+				'kind' => 'root',
+				'type' => 'integer',
+				'form' => 'yesno',
+			),
 			'bitly_login' => array(
 				'kind' => 'root',
 				'type' => 'string',
@@ -233,6 +238,16 @@ class xpwiki_plugin_conf extends xpwiki_plugin {
 				'kind' => 'root',
 				'type' => 'integer',
 				'form' => 'yesno',
+			),
+			'twitter_consumer_key' => array(
+				'kind' => 'root',
+				'type' => 'string',
+				'form' => 'text,size="30"',
+			),
+			'twitter_consumer_secret' => array(
+				'kind' => 'root',
+				'type' => 'string',
+				'form' => 'text,size="55"',
 			),
 			'fckeditor_path' => array(
 				'kind' => 'root',
@@ -253,6 +268,11 @@ class xpwiki_plugin_conf extends xpwiki_plugin {
 				'kind' => 'root',
 				'type' => 'string',
 				'form' => 'text,size="6"',
+			),
+			'use_xmlrpc' => array(
+				'kind' => 'root',
+				'type' => 'integer',
+				'form' => 'yesno',
 			),
 			'update_ping' => array(
 				'kind' => 'root',
