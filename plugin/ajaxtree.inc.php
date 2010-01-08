@@ -10,49 +10,49 @@
 
 /*
  * Created on 2008/02/07 by nao-pon http://hypweb.net/
- * $Id: ajaxtree.inc.php,v 1.9 2008/06/26 08:58:36 nao-pon Exp $
+ * $Id: ajaxtree.inc.php,v 1.10 2010/01/08 14:00:51 nao-pon Exp $
  */
 
 class xpwiki_plugin_ajaxtree extends xpwiki_plugin {
-	
+
 	function plugin_ajaxtree_init()
 	{
-	
+
 		// Check the mtime of wiki directory
 		if (!isset($this->cont['PLUGIN_AJAXTREE_CHECK_MTIME'])) {
 			$this->cont['PLUGIN_AJAXTREE_CHECK_MTIME'] =  false;
 		}
-	
+
 		// Display the number of descendant pages
 		if (!isset($this->cont['PLUGIN_AJAXTREE_COUNT_DESCENDANTS'])) {
 			$this->cont['PLUGIN_AJAXTREE_COUNT_DESCENDANTS'] =	true;
 		}
-	
+
 		// Move FrontPage to the top of the tree
 		if (!isset($this->cont['PLUGIN_AJAXTREE_TOP_DEFAULTPAGE'])) {
 			$this->cont['PLUGIN_AJAXTREE_TOP_DEFAULTPAGE'] =  true;
 		}
-	
+
 		// Hide top-level leaf pages such as Help, MenuBar etc.
 		if (!isset($this->cont['PLUGIN_AJAXTREE_HIDE_TOPLEVEL_LEAVES'])) {
 			$this->cont['PLUGIN_AJAXTREE_HIDE_TOPLEVEL_LEAVES'] =  true;
 		}
-	
+
 		// Ignore list
 		if (!isset($this->cont['PLUGIN_AJAXTREE_NON_LIST'])) {
 			$this->cont['PLUGIN_AJAXTREE_NON_LIST'] =  '';
 		}
-	
+
 		// Include list
 		if (!isset($this->cont['PLUGIN_AJAXTREE_INCLUDE_LIST'])) {
 			$this->cont['PLUGIN_AJAXTREE_INCLUDE_LIST'] =  '';
 		}
-	
+
 		// Expand list
 		if (!isset($this->cont['PLUGIN_AJAXTREE_EXPAND_LIST'])) {
 			$this->cont['PLUGIN_AJAXTREE_EXPAND_LIST'] =  '';
 		}
-	
+
 		$messages['_ajaxtree_messages'] = array(
 			'title'	  => 'AjaxTree',
 			'toppage' => $this->root->module['title']
@@ -60,11 +60,17 @@ class xpwiki_plugin_ajaxtree extends xpwiki_plugin {
 		$this->func->set_plugin_messages($messages);
 	}
 
-	function plugin_ajaxtree_get_leaf_flags()
+	function plugin_ajaxtree_get_leaf_flags($clear = FALSE)
 	{
-		static $leaf = array();
+		static $leaf = null;
 
-		if ($leaf === array()) {
+		if ($clear) {
+			$leaf = null;
+			return;
+		}
+
+		if (is_null($leaf)) {
+			$leaf = array();
 			$pages = $this->plugin_ajaxtree_get_pages();
 			foreach ($pages as $page) {
 				if (isset($leaf[$page])) {
@@ -80,17 +86,23 @@ class xpwiki_plugin_ajaxtree extends xpwiki_plugin {
 						break;
 					}
 				}
-				
+
 			}
 		}
 		return $leaf;
 	}
 
-	function plugin_ajaxtree_get_children($current = null)
+	function plugin_ajaxtree_get_children($current = null, $clear = FALSE)
 	{
-		static $children = array();
+		static $children = null;
 
-		if ($children === array()) {
+		if ($clear) {
+			$children = null;
+			return;
+		}
+
+		if (is_null($children)) {
+			$children = array();
 			$pages = $this->plugin_ajaxtree_get_pages();
 			foreach ($pages as $page) {
 				$pos	= strrpos($page, '/');
@@ -102,7 +114,7 @@ class xpwiki_plugin_ajaxtree extends xpwiki_plugin {
 		if ($current === null) {
 			return $children;
 		}
-		
+
 		if (!isset($children[$current])) {
 			$children[$current] = array();
 		}
@@ -111,11 +123,17 @@ class xpwiki_plugin_ajaxtree extends xpwiki_plugin {
 		return $children[$current];
 	}
 
-	function plugin_ajaxtree_get_counts()
+	function plugin_ajaxtree_get_counts($clear = FALSE)
 	{
-		static $counts = array();
+		static $counts = null;
 
-		if ($counts === array()) {
+		if ($clear) {
+			$counts = null;
+			return;
+		}
+
+		if (is_null($counts)) {
+			$counts = array();
 			$pages = $this->plugin_ajaxtree_get_children();
 			foreach ($pages as $page => $children) {
 				$count = count($children);
@@ -132,11 +150,16 @@ class xpwiki_plugin_ajaxtree extends xpwiki_plugin {
 		return $counts;
 	}
 
-	function plugin_ajaxtree_get_pages($reflash = FALSE)
+	function plugin_ajaxtree_get_pages($reflash = FALSE, $clear = FALSE)
 	{
 		static $pages = null;
 
-			if ($reflash || $pages === null) {
+		if ($clear) {
+			$pages = null;
+			return;
+		}
+
+		if ($reflash || is_null($pages)) {
 			$temp[0] = $this->root->userinfo['admin'];
 			$temp[1] = $this->root->userinfo['uid'];
 			$this->root->userinfo['admin'] = FALSE;
@@ -147,7 +170,7 @@ class xpwiki_plugin_ajaxtree extends xpwiki_plugin {
 			} else {
 				$pages = $this->func->get_existpages();
 			}
-		
+
 			$this->root->userinfo['admin'] = $temp[0];
 			$this->root->userinfo['uid'] = $temp[1];
 
@@ -155,11 +178,11 @@ class xpwiki_plugin_ajaxtree extends xpwiki_plugin {
 
 			$this->func->complementary_pagesort($pages);
 		}
-		
+
 		return $pages;
 	}
 
-	
+
 	function plugin_ajaxtree_action()
 	{
 		// 権限チェック
@@ -177,14 +200,14 @@ class xpwiki_plugin_ajaxtree extends xpwiki_plugin {
 			'body' => 'Cache is updated.'
 		);
 	}
-	
+
 	function plugin_ajaxtree_convert()
 	{
 		$args = func_get_args();
 		if (!empty($args[0])) {
 			$this->root->_ajaxtree_messages['title'] = $args[0];
 		}
-		
+
 		$res = array();
 		if ($this->root->render_mode === 'block' && isset($GLOBALS['Xpwiki_'.$this->root->mydirname]['page'])) {
 			$res = $this->func->set_current_page($GLOBALS['Xpwiki_'.$this->root->mydirname]['page']);
@@ -192,26 +215,26 @@ class xpwiki_plugin_ajaxtree extends xpwiki_plugin {
 
 		$html = $this->plugin_ajaxtree_get_html();
 		$this->plugin_ajaxtree_modify_html($html, $this->root->vars['page']);
-		
+
 		if ($res) $this->func->set_current_page($res['page']);
-		
+
 		return $html;
 	}
-	
+
 	function plugin_ajaxtree_get_html()
 	{
 		$file		= $this->plugin_ajaxtree_get_cachename('/');
 		$this->func->add_tag_head('ajaxtree.css');
 		$this->func->add_tag_head('ajaxtree.js');
-	
+
 		$html = '<h5>' . htmlspecialchars($this->root->_ajaxtree_messages['title']) . '</h5>' . "\n"
 		  . '<div id="' . $this->root->mydirname . '_ajaxtree" class="xpwiki_ajaxtree">' . "\n"
 		  . $this->plugin_ajaxtree_read_file($file) . "\n"
 		  . '</div>' . "\n";
-	
+
 		return $html;
 	}
-	
+
 	function plugin_ajaxtree_modify_html(&$html, $current)
 	{
 		if ($this->cont['PLUGIN_AJAXTREE_TOP_DEFAULTPAGE'] && $this->root->defaultpage === $current) {
@@ -226,7 +249,7 @@ class xpwiki_plugin_ajaxtree extends xpwiki_plugin {
 			}
 			$label = end($tokens);
 		}
-	
+
 		$pos = 0;
 		foreach ($ancestors as $ancestor) {
 			$search = '<a title="' . htmlspecialchars($ancestor) . '"';
@@ -234,7 +257,7 @@ class xpwiki_plugin_ajaxtree extends xpwiki_plugin {
 			if ($pos === false) {
 				continue;
 			}
-	
+
 			if ($ancestor === $this->root->vars['page'] || $ancestor === '/') {
 				$search	 = '>';
 				$pos2	 = strpos($html, $search, $pos) + 1;
@@ -245,15 +268,15 @@ class xpwiki_plugin_ajaxtree extends xpwiki_plugin {
 				$length	 = $pos3 - $pos + strlen($search);
 				$html	 = substr_replace($html, $replace, $pos, $length);
 			}
-	
+
 			$search = 'collapsed';
 			$length = strlen($search);
-	
+
 			if (substr($html, $pos - 11, $length) == $search) {
 				$replace = 'expanded';
 				$start	 = $pos - 2 - $length;
 				$html	 = substr_replace($html, $replace, $start, $length);
-	
+
 				$file	 = $this->plugin_ajaxtree_get_cachename($ancestor);
 				$search	 = '</li>';
 				$replace = $this->plugin_ajaxtree_read_file($file);
@@ -262,12 +285,12 @@ class xpwiki_plugin_ajaxtree extends xpwiki_plugin {
 			}
 		}
 	}
-	
+
 	function plugin_ajaxtree_get_script_uri()
 	{
 		return $this->root->script;
 	}
-	
+
 	function plugin_ajaxtree_get_cachename($page)
 	{
 		if ($this->cont['SOURCE_ENCODING'] != 'UTF-8' && $this->cont['SOURCE_ENCODING'] != 'ASCII') {
@@ -275,37 +298,40 @@ class xpwiki_plugin_ajaxtree extends xpwiki_plugin {
 		}
 		return $this->cont['CACHE_DIR'] . 'plugin/ajaxtree_' . rawurlencode($page) . '.pcache.html';
 	}
-	
-	function plugin_ajaxtree_write_after()
+
+	function plugin_ajaxtree_write_after($page)
 	{
+		$this->cache_clear();
+
 		if (@ $this->root->vars['plugin'] === 'rename' || @ $this->root->vars['cmd'] === 'rename') {
 			$this->plugin_ajaxtree_reset_cache();
 			return;
 		}
-	
-		$page = $this->root->vars['page'];
-	
+
 		if ($this->cont['PLUGIN_AJAXTREE_CHECK_MTIME']) {
 			$file = $this->func->get_filename($page);
 			if (filemtime($file) > filemtime($this->cont['DATA_DIR'])) {
 				return;
 			}
 		}
-	
-		for ($i = 0; $i < 2; $i++) {
+
+
+		while ($page !== '/') {
 			$pos  = strrpos($page, '/');
 			$page = $pos ? substr($page, 0, $pos) : '/';
 			if ($page === '/' || $this->func->check_readable_page($page, FALSE, FALSE, 0)) {
 				$this->plugin_ajaxtree_update_cache($page);
 			}
-			if ($page === '/') {
-				break;
-			}
+			//if ($page === '/') {
+			//	break;
+			//}
 		}
 	}
-	
+
 	function plugin_ajaxtree_reset_cache()
 	{
+		$this->cache_clear();
+
 		$pages = $this->plugin_ajaxtree_get_pages(TRUE);
 		$leaf  = $this->plugin_ajaxtree_get_leaf_flags();
 
@@ -316,7 +342,7 @@ class xpwiki_plugin_ajaxtree extends xpwiki_plugin {
 		}
 		$this->plugin_ajaxtree_update_cache('/');
 	}
-	
+
 	function plugin_ajaxtree_update_cache($page)
 	{
 		$file = $this->plugin_ajaxtree_get_cachename($page);
@@ -327,7 +353,7 @@ class xpwiki_plugin_ajaxtree extends xpwiki_plugin {
 		}
 		$this->plugin_ajaxtree_write_file($file, $html);
 	}
-	
+
 	function plugin_ajaxtree_get_root_html()
 	{
 		if ($this->cont['PLUGIN_AJAXTREE_COUNT_DESCENDANTS']) {
@@ -335,7 +361,7 @@ class xpwiki_plugin_ajaxtree extends xpwiki_plugin {
 		} else {
 			$counts = array();
 		}
-	
+
 		$html = '';
 		if ($this->cont['PLUGIN_AJAXTREE_TOP_DEFAULTPAGE']) {
 			if ($this->func->exist_plugin('rewritemap')) {
@@ -348,42 +374,42 @@ class xpwiki_plugin_ajaxtree extends xpwiki_plugin {
 			$count	 = isset($counts['/']) ? ' <span class="count">(' . $counts['/'] . ')</span>' : '';
 			$html	 = '<a title="' . $title . '" href="' . $url . '" class="block">' . $s_label . $count . '</a>' . "\n";
 		}
-	
+
 		$html .= $this->plugin_ajaxtree_get_subtree('/');
-	
+
 		if ($this->cont['PLUGIN_AJAXTREE_EXPAND_LIST']) {
 			$leaf  = $this->plugin_ajaxtree_get_leaf_flags();
 			$pages = $this->plugin_ajaxtree_get_pages();
 			$pages =  preg_grep('/' . $this->cont['PLUGIN_AJAXTREE_EXPAND_LIST'] . '/', $pages);
 			//natcasesort($pages);
 			$this->func->pagesort($pages);
-	
+
 			foreach ($pages as $page) {
 				if ($leaf[$page] === false) {
 					$this->plugin_ajaxtree_modify_html($html, $page);
 				}
 			}
 		}
-	
+
 		return $html;
 	}
-	
+
 	function plugin_ajaxtree_get_subtree($current)
 	{
 		$pages	= $this->plugin_ajaxtree_get_children($current);
 		$leaf	= $this->plugin_ajaxtree_get_leaf_flags();
 		$script =  $this->plugin_ajaxtree_get_script_uri();
-	
+
 		if (! $pages) {
 			return '';
 		}
-		
+
 		if ($this->cont['PLUGIN_AJAXTREE_COUNT_DESCENDANTS']) {
 			$counts = $this->plugin_ajaxtree_get_counts();
 		} else {
 			$counts = array();
 		}
-		
+
 		$depth = substr_count($pages[0], '/');
 		if ($depth === 0) {
 			$offset = 0;
@@ -407,16 +433,16 @@ class xpwiki_plugin_ajaxtree extends xpwiki_plugin {
 			}
 
 			$count	 = isset($counts[$page]) ? ' <span class="count">(' . $counts[$page] . ')</span>' : '';
-	
+
 			$html .= "\n" . $indents;
 			$html .= ($leaf[$page] === true) ? '<li>' : '<li class="collapsed">';
 			$html .= '<a title="' . $title . '" href="' . $url . '" class="block">' . $s_label . $count . '</a></li>';
 		}
 		$html .= '</ul>';
-	
+
 		return $this->func->strip_MyHostUrl($html);
 	}
-	
+
 	function plugin_ajaxtree_filter_pages(&$pages)
 	{
 		if ($this->cont['PLUGIN_AJAXTREE_INCLUDE_LIST'] !== '') {
@@ -424,7 +450,7 @@ class xpwiki_plugin_ajaxtree extends xpwiki_plugin {
 		} else {
 			$includes = array();
 		}
-	
+
 		if ($this->cont['PLUGIN_AJAXTREE_HIDE_TOPLEVEL_LEAVES']) {
 			$leaf = $this->plugin_ajaxtree_get_leaf_flags();
 			foreach ($pages as $key => $page) {
@@ -433,7 +459,7 @@ class xpwiki_plugin_ajaxtree extends xpwiki_plugin {
 				}
 			}
 		}
-	
+
 		if ($this->cont['PLUGIN_AJAXTREE_NON_LIST'] !== '') {
 			$pattern = '/(' . $this->root->non_list . ')|(' . $this->cont['PLUGIN_AJAXTREE_NON_LIST'] . ')/';
 		} else {
@@ -444,17 +470,17 @@ class xpwiki_plugin_ajaxtree extends xpwiki_plugin {
 		} else {
 			$pages = array_diff($pages, preg_grep($pattern, $pages));
 		}
-	
+
 		if ($includes) {
 			$pages += $includes;
 		}
 	}
-	
+
 	function plugin_ajaxtree_read_file($filename)
 	{
-		return file_get_contents($filename);
+		return is_file($filename)? file_get_contents($filename) : '';
 	}
-	
+
 	function plugin_ajaxtree_write_file($filename, $data)
 	{
 		$fp = fopen($filename, file_exists($filename) ? 'r+b' : 'wb');
@@ -470,6 +496,13 @@ class xpwiki_plugin_ajaxtree extends xpwiki_plugin {
 		ignore_user_abort($last);
 		fclose($fp);
 		return true;
+	}
+
+	function cache_clear() {
+		$this->plugin_ajaxtree_get_pages(FALSE, TRUE);
+		$this->plugin_ajaxtree_get_children(null, TRUE);
+		$this->plugin_ajaxtree_get_leaf_flags(TRUE);
+		$this->plugin_ajaxtree_get_counts(TRUE);
 	}
 }
 ?>
