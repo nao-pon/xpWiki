@@ -6,7 +6,7 @@ class xpwiki_plugin_touchgraph extends xpwiki_plugin {
 
 	}
 	// PukiWiki - Yet another WikiWikiWeb clone.
-	// $Id: touchgraph.inc.php,v 1.1 2006/10/13 13:17:49 nao-pon Exp $
+	// $Id: touchgraph.inc.php,v 1.2 2010/01/08 13:34:00 nao-pon Exp $
 	//
 	// Output an index for 'TouchGraph WikiBrowser'
 	// http://www.touchgraph.com/
@@ -19,12 +19,12 @@ class xpwiki_plugin_touchgraph extends xpwiki_plugin {
 	//
 	// Note: -Dfile.encoding=EUC-JP (or UTF-8) may not work with Windows OS
 	//   http://www.simeji.com/wiki/pukiwiki.php?Java%A4%CE%CD%AB%DD%B5 (in Japanese)
-	
-	
+
+
 	function plugin_touchgraph_action()
 	{
 	//	global $vars;
-	
+
 		$this->func->pkwk_headers_sent();
 		header('Content-type: text/plain');
 		if (isset($this->root->vars['reverse'])) {
@@ -32,15 +32,15 @@ class xpwiki_plugin_touchgraph extends xpwiki_plugin {
 		} else {
 			$this->plugin_touchgraph_rel();
 		}
-		exit;
+		return array('exit' => 0);
 	}
-	
+
 	// Normal
 	function plugin_touchgraph_rel()
 	{
 		foreach ($this->func->get_existpages() as $page) {
 			if ($this->func->check_non_list($page)) continue;
-	
+
 			$file = $this->cont['CACHE_DIR'] . $this->func->encode($page) . '.rel';
 			if (file_exists($file)) {
 				echo $page;
@@ -53,13 +53,13 @@ class xpwiki_plugin_touchgraph extends xpwiki_plugin {
 			}
 		}
 	}
-	
+
 	// Reverse
 	function plugin_touchgraph_ref()
 	{
 		foreach ($this->func->get_existpages() as $page) {
 			if ($this->func->check_non_list($page)) continue;
-	
+
 			$file = $this->cont['CACHE_DIR'] . $this->func->encode($page) . '.ref';
 			if (file_exists($file)) {
 				echo $page;

@@ -46,17 +46,17 @@
  */
 
 class xpwiki_plugin_googlemaps2 extends xpwiki_plugin {
-	
+
 	var $map_count = array();
 	var $lastmap_name;
-	
+
 	function plugin_googlemaps2_init () {
 
 		// 言語ファイルの読み込み
 		$this->load_language();
 
 		$this->cont['PLUGIN_GOOGLEMAPS2_DEF_KEY'] =  'ABQIAAAAv2QINn0BFSDyNh38h-ot6RR7mgPdW6gOZV_PvH6uKxrQxi_kMxQdnrNUwY6bBhsUf_q-K_RFktoHsg';
-	
+
 		$this->cont['PLUGIN_GOOGLEMAPS2_DEF_MAPNAME'] =  'map';	  //Map名
 		$this->cont['PLUGIN_GOOGLEMAPS2_DEF_WIDTH'] =  '400px';			  //横幅
 		$this->cont['PLUGIN_GOOGLEMAPS2_DEF_HEIGHT'] =  '400px';			  //縦幅
@@ -81,10 +81,10 @@ class xpwiki_plugin_googlemaps2 extends xpwiki_plugin {
 		$this->cont['PLUGIN_GOOGLEMAPS2_DEF_GOOGLEBAR'] =  false;		   //GoogleBarの表示
 		$this->cont['PLUGIN_GOOGLEMAPS2_DEF_IMPORTICON'] =  '';		   //アイコンを取得するPukiwikiページ
 		$this->cont['PLUGIN_GOOGLEMAPS2_DEF_BACKLINKMARKER'] =  false;	//バックリンクでマーカーを集める
-		
+
 		$this->cont['PLUGIN_GOOGLEMAPS2_DEF_WIKITAG'] = 'hide';	//このマップのWiki記法 (none, hide, show)
 		$this->cont['PLUGIN_GOOGLEMAPS2_DEF_AUTOZOOM'] = false;	//自動ズームですべてのマーカーを表示
-	
+
 		//Pukiwikiは1.4.5から携帯電話などのデバイスごとにプロファイルを用意して
 		//UAでスキンを切り替えて表示できるようになったが、この定数ではGoogleMapsを
 		//表示可能なプロファイルを設定する。
@@ -94,19 +94,19 @@ class xpwiki_plugin_googlemaps2 extends xpwiki_plugin {
 		//またデフォルトのプロファイルを"default"以外の名前にしている場合も変更すること。
 		//注:GoogleMapsは携帯電話で表示できない。
 		$this->cont['PLUGIN_GOOGLEMAPS2_PROFILE'] =  'default';
-		
+
 		// This plugins config
 		$this->conf['ApiVersion'] = '2';
 		$this->conf['StaticMapSizeW'] = 240;
 		$this->conf['StaticMapSizeH'] = 200;
-		
+
 		$this->conf['mapsize'] = (isset($this->root->keitai_imageTwiceDisplayWidth) && $this->root->keitai_imageTwiceDisplayWidth && $this->root->keitai_display_width >= $this->root->keitai_display_width)? 'width="480" height="400"' : 'width="240" height="200"';
 		$this->conf['navsize'] = 'width="60" height="40"';
 
-		
+
 		$this->conf['StaticMapSize'] = $this->conf['StaticMapSizeW'] . 'x' . $this->conf['StaticMapSizeH'];
 	}
-	
+
 	function plugin_googlemaps2_is_supported_profile () {
 		if ($this->cont['UA_PROFILE']) {
 			return in_array($this->cont['UA_PROFILE'], preg_split('/[\s,]+/', $this->cont['PLUGIN_GOOGLEMAPS2_PROFILE']));
@@ -114,7 +114,7 @@ class xpwiki_plugin_googlemaps2 extends xpwiki_plugin {
 			return 1;
 		}
 	}
-	
+
 	function plugin_googlemaps2_get_default () {
 	//	global $vars;
 		return array(
@@ -147,7 +147,7 @@ class xpwiki_plugin_googlemaps2 extends xpwiki_plugin {
 			'physicalctrl'   => $this->cont['PLUGIN_GOOGLEMAPS2_DEF_PHYSICALCTRL'],
 		);
 	}
-	
+
 	function plugin_googlemaps2_convert() {
 		static $init = true;
 		$args = func_get_args();
@@ -155,7 +155,7 @@ class xpwiki_plugin_googlemaps2 extends xpwiki_plugin {
 		$init = false;
 		return $ret;
 	}
-	
+
 	function plugin_googlemaps2_inline() {
 		if (isset($this->root->rtf['GET_HEADING_INIT'])) return 'Google Maps';
 		static $init = true;
@@ -164,9 +164,9 @@ class xpwiki_plugin_googlemaps2 extends xpwiki_plugin {
 		$ret = $this->plugin_googlemaps2_output($init, $args);
 		$init = false;
 		return $ret;
-		
+
 	}
-	
+
 	function plugin_googlemaps2_action() {
 	//	global $vars;
 		$action = isset($this->root->vars['action']) ? $this->root->vars['action'] : '';
@@ -201,32 +201,32 @@ EOD;
 				$ret = $this->action_static();
 				if ($ret) return array('msg' => 'Mobile Map', 'body' => $ret);
 		}
-		exit;
+		return array('exit' => 0);
 	}
 
 	function action_static() {
 		////////////////////////////////////////////////////////////
 		// This part is based on GNAVI (http://xoops.iko-ze.net/) //
 		////////////////////////////////////////////////////////////
-		
+
 		$this->root->rtf['no_accesskey'] = TRUE;
-		
+
 		$default_lat  = empty( $this->root->get['lat'] )  ? $this->cont['PLUGIN_GOOGLEMAPS2_DEF_LAT']  : floatval( $this->root->get['lat'] ) ;
 		$default_lng  = empty( $this->root->get['lng'] )  ? $this->cont['PLUGIN_GOOGLEMAPS2_DEF_LNG']  : floatval( $this->root->get['lng'] ) ;
 		$default_zoom = empty( $this->root->get['zoom'] ) ? $this->cont['PLUGIN_GOOGLEMAPS2_DEF_ZOOM'] : intval( $this->root->get['zoom'] ) ;
-		
+
 		$markers = isset($this->root->get['markers'])? '&amp;markers=' . htmlspecialchars($this->root->get['markers']) : '';
 		$refer = isset($this->root->get['refer'])? $this->root->get['refer'] : '';
-		
+
 		$back = '';
 		if ($refer) {
 			$refer = htmlspecialchars(preg_replace('#^[a-zA-Z]+://[^/]+#', '', $refer));
 			$back = '[ <a href="'.$this->root->siteinfo['host'].$refer.'">' . $this->root->_msg_back_word . '</a> ]';
 			$refer = '&amp;refer=' . $refer;
 		}
-		
+
 		$other = $markers . $refer;
-		
+
 		$google_staticmap = 'http://maps.google.com/staticmap';
 		$mymap="$google_staticmap?center=$default_lat,$default_lng&zoom=$default_zoom&size={$this->conf['StaticMapSize']}&maptype=mobile&key={$this->cont['PLUGIN_GOOGLEMAPS2_DEF_KEY']}{$markers}";
 
@@ -236,7 +236,7 @@ EOD;
 		$movey=$this->conf['StaticMapSizeH']/pow(2,$default_zoom);
 
 		//Amount of movement on Mini map . set bigger than 0 and 1 or less. (0 < value <=1).
-		$mobile_mapmove_raito = 0.6;  
+		$mobile_mapmove_raito = 0.6;
 
 		$latup = $this->latlnground($default_lat+$movey * $mobile_mapmove_raito);
 		$latdown = $this->latlnground($default_lat-$movey * $mobile_mapmove_raito);
@@ -263,7 +263,7 @@ EOD;
 			);
 
 		$maplink = $this->root->script . '?plugin=googlemaps2&amp;action=static&amp;';
-		
+
 		if ($default_zoom < 18) {
 			$zoomup = <<<EOD
 <a href="{$maplink}&amp;zoom={$mapkeys['zoomup']}&amp;lng={$mapkeys['lng']}&amp;lat={$mapkeys['lat']}{$other}"  accesskey="5" ></a>
@@ -281,7 +281,7 @@ EOD;
 		} else {
 			$zoomdown = '';
 		}
-		
+
 		$ret = <<<EOD
 <a href="{$maplink}&amp;zoom={$mapkeys['zoom']}&amp;lng={$mapkeys['lngdown']}&amp;lat={$mapkeys['latup']}{$other}"  accesskey="1" ></a>
 <a href="{$maplink}&amp;zoom={$mapkeys['zoom']}&amp;lng={$mapkeys['lng']}&amp;lat={$mapkeys['latup']}{$other}"  accesskey="2" ></a>
@@ -304,7 +304,7 @@ EOD;
 EOD;
 		return $ret;
 	}
-	
+
 
 	function latlnground($value){
 		////////////////////////////////////////////////////////////
@@ -315,12 +315,12 @@ EOD;
 
 	function plugin_googlemaps2_getbool($val) {
 		if ($val == false) return 0;
-		if (!strcasecmp ($val, "false") || 
+		if (!strcasecmp ($val, "false") ||
 			!strcasecmp ($val, "no"))
 			return 0;
 		return 1;
 	}
-	
+
 	function plugin_googlemaps2_addprefix($page, $name) {
 		$page = $this->get_pgid($page);
 		//if (!$page) $page = uniqid('r_');
@@ -334,7 +334,7 @@ EOD;
 		$this->lastmap_name = 'pukiwikigooglemaps2_'.$page.'_'.$name;
 		return $this->lastmap_name;
 	}
-	
+
 	function get_static_image_url($lat, $lng, $zoom, $markers = '', $useAction = FALSE) {
 		if ($useAction) {
 			$url = $this->root->script . '?plugin=googlemaps2&amp;action=static&amp;lat='.$lat.'&amp;lng='.$lng.'&amp;zoom='.$zoom.'&amp;refer='.htmlspecialchars(@ $_SERVER['REQUEST_URI']);
@@ -350,7 +350,7 @@ EOD;
 		}
 		return $url;
 	}
-	
+
 	function make_static_maps($lat, $lng, $zoom) {
 		$markers = '__GOOGLE_MAPS_STATIC_MARKERS_' . $this->lastmap_name;
 		$this->root->replaces_finish[$markers] = '';
@@ -362,12 +362,12 @@ EOD;
 		$map = '<br />[ <a href="'.$this->get_static_image_url($lat, $lng, $zoom, '__GOOGLE_MAPS_STATIC_MARKERS_' . $this->lastmap_name, TRUE).'">Map</a> ]';
 		return '<div style="text-align:center;">' . $img . $map . '</div>';
 	}
-	
+
 	function plugin_googlemaps2_output($doInit, $params) {
 		$this->root->rtf['disable_render_cache'] = true;
-		
+
 		$defoptions = $this->plugin_googlemaps2_get_default();
-		
+
 		$inoptions = array();
 		$isSetZoom = false;
 		foreach ($params as $param) {
@@ -380,14 +380,14 @@ EOD;
 			if ($index == 'cy') {$cy = (float)$value;}//for old api
 			if ($index == 'zoom') {$isSetZoom = true;}//for old api
 		}
-	
+
 		if (array_key_exists('define', $inoptions)) {
 			$this->root->vars['googlemaps2'][$inoptions['define']] = $inoptions;
 			return "";
 		}
 
 		$this->func->add_tag_head('googlemaps2.css');
-		
+
 		$coptions = array();
 		if (array_key_exists('class', $inoptions)) {
 			$class = $inoptions['class'];
@@ -443,12 +443,12 @@ EOD;
 			if (isset($cx)) $lng = $cx;
 			if (isset($cy)) $lat = $cy;
 		}
-		
+
 		// zoomレベル
 		if ($api < 2 && $isSetZoom) {
 			$zoom = 17 - $zoom;
 		}
-		
+
 		if (!$this->plugin_googlemaps2_is_supported_profile()) {
 			//return "googlemaps2:unsupported device";
 			return $this->make_static_maps($lat, $lng, $zoom);
@@ -457,10 +457,10 @@ EOD;
 		// width, heightの値チェック
 		if (is_numeric($width)) { $width = (int)$width . "px"; }
 		if (is_numeric($height)) { $height = (int)$height . "px"; }
-	
+
 		// Mapタイプの名前を正規化
 		$type = $this->plugin_googlemaps2_get_maptype($type);
-	
+
 		// 初期化処理の出力
 		if ($doInit) {
 			$output = $this->plugin_googlemaps2_init_output($key);
@@ -533,7 +533,7 @@ onloadfunc2.push( function () {
 });
 EOD;
 		}
-		// Show Map Control/Zoom 
+		// Show Map Control/Zoom
 		switch($mapctrl) {
 			case "small":
 				$output .= "map.addControl(new GSmallMapControl());\n";
@@ -548,32 +548,32 @@ EOD;
 				$output .= "map.addControl(new GLargeMapControl());\n";
 				break;
 		}
-		
+
 		// Scale
 		if ($scalectrl != "none") {
 			$_pos = ($googlebar)? ', new GControlPosition(G_ANCHOR_BOTTOM_LEFT, new GSize(90,4))' : '';
 			$output .= "map.addControl(new GScaleControl(){$_pos});\n";
 		}
-		
+
 		// Show Map Type Control and Center
 		if ($typectrl != "none") {
 			$output .= "map.addControl(new GMapTypeControl(true));\n";
 		}
-		
+
 		// Double click zoom
 		if ($dbclickzoom) {
 			$output .= "map.enableDoubleClickZoom();\n";
 		} else {
 			$output .= "map.disableDoubleClickZoom();\n";
 		}
-	
+
 		// Continuous zoom
 		if ($continuouszoom) {
 			$output .= "map.enableContinuousZoom();\n";
 		} else {
 			$output .= "map.disableContinuousZoom();\n";
 		}
-		
+
 		// OverviewMap
 		if ($overviewctrl != "none") {
 			$ovw = preg_replace("/(\d+).*/i", "\$1", $overviewwidth);
@@ -582,12 +582,12 @@ EOD;
 			if ($ovh == "") $ovh = $this->cont['PLUGIN_GOOGLEMAPS2_DEF_OVERVIEWHEIGHT'];
 			$output .= "var ovctrl = new GOverviewMapControl(new GSize($ovw, $ovh));\n";
 			$output .= "map.addControl(ovctrl);\n";
-	
+
 			if ($overviewctrl == "hide") {
 			$output .= "Event.observe(window, \"load\", function(){ovctrl.hide(true);});\n";
 			}
 		}
-	
+
 		// Geo XML
 		if ($geoxml != "") {
 			$output .= "try {\n";
@@ -595,12 +595,12 @@ EOD;
 			$output .= "map.addControl(geoxml);\n";
 			$output .= "} catch (e) {}\n";
 		}
-		
+
 		// GoogleBar
 		if ($googlebar) {
 			$output .= "map.enableGoogleBar();\n";
 		}
-	
+
 		// Center Cross Custom Control
 		if ($crossctrl != "none") {
 			$output .= "var crossctrl = new PGCross();\n";
@@ -619,12 +619,12 @@ EOD;
 			$output .= "crossChangeStyleFunc();\n";
 			$output .= "googlemaps_crossctrl['$page']['$mapname'] = crossctrl;\n";
 		}
-	
+
 		// マーカーの表示非表示チェックボックス
 		if ($togglemarker) {
 			$output .= "onloadfunc.push( function(){p_googlemaps_togglemarker_checkbox('$page', '$mapname', '$noiconname', '{$this->msg['default_icon_caption']}');} );";
 		}
-	
+
 		$output .= "PGTool.transparentGoogleLogo(map);\n";
 		$output .= "googlemaps_maps['$page']['$mapname'] = map;\n";
 		$output .= "googlemaps_markers['$page']['$mapname'] = new Array();\n";
@@ -634,12 +634,12 @@ EOD;
 		if ($wikitag !== 'none') {
 			$maptag  = " + ', zoom=' + googlemaps_maps['$page']['$mapname'].getZoom()";
 			$maptag .= " + ', type=' + PGTool.getMapTypeName(googlemaps_maps['$page']['$mapname'].getCurrentMapType())";
-	
+
 			$mapBlock  = "'#googlemaps2(lat=' + PGTool.fmtNum(googlemaps_maps['$page']['$mapname'].getCenter().lat()) + ', lng=' + PGTool.fmtNum(googlemaps_maps['$page']['$mapname'].getCenter().lng())";
 			$mapBlock .= " + ', width=$width'";
 			$mapBlock .= " + ', height=$height'";
 			$mapBlock .= $maptag;
-	
+
 			$mapBlock .= " + ', mapctrl=$mapctrl'";
 			$mapBlock .= " + ', typectrl=$typectrl'";
 			$mapBlock .= " + ', scalectrl=$scalectrl'";
@@ -648,13 +648,13 @@ EOD;
 			$mapBlock .= " + ', togglemarker=$togglemarker'";
 			$mapBlock .= " + ', googlebar=$googlebar'";
 			$mapBlock .= " + ', wikitag=$wikitag'";
-	
+
 			$mapBlock .= " + ')'";
-			
+
 			$mapMark  = "'&googlemaps2_mark(' + PGTool.fmtNum(googlemaps_maps['$page']['$mapname'].getCenter().lat()) + ', ' + PGTool.fmtNum(googlemaps_maps['$page']['$mapname'].getCenter().lng())";
 			$mapMark .= $maptag;
 			$mapMark .= " + ', title=Here Title){Here Caption};'";
-			
+
 			$upfunc = "function(){\$('$mapname' + '_info').innerHTML = '<p>' + $mapBlock + '</p><p>' + $mapMark + '</p>';}";
 			$output .= "GEvent.addListener(googlemaps_maps['$page']['$mapname'], 'moveend', $upfunc);\n";
 			$output .= "GEvent.addListener(googlemaps_maps['$page']['$mapname'], 'maptypechanged', $upfunc);\n";
@@ -665,7 +665,7 @@ EOD;
 		$output .= "});\n";
 		$output .= "//]]>\n";
 		$output .= "</script>\n";
-		
+
 		// 指定されたPukiwikiページからアイコンを収集する
 		if ($importicon != "") {
 			$lines = $this->func->get_source($this->func->get_fullname($importicon, $this->root->vars['page']));
@@ -677,18 +677,18 @@ EOD;
 				}
 			}
 		}
-	
+
 		// このページのバックリンクからマーカーを収集する。
 		if ($backlinkmarker) {
 			$links = $this->func->links_get_related_db($this->root->vars['page']);
 			if (! empty($links)) {
 				$output .= "<ul>\n";
 				foreach(array_keys($links) as $page) {
-					$ismatch = preg_match('/#googlemaps2_mark\(([^, \)]+), *([^, \)]+)(.*?)\)/i', 
+					$ismatch = preg_match('/#googlemaps2_mark\(([^, \)]+), *([^, \)]+)(.*?)\)/i',
 					$this->func->get_source($page, TRUE, TRUE), $matches);
 					if ($ismatch) {
-						$markersource = "&googlemaps2_mark(" . 
-						$matches[1] . "," . $matches[2] . 
+						$markersource = "&googlemaps2_mark(" .
+						$matches[1] . "," . $matches[2] .
 						", title=" . $page . ", maxcontent=" . $page;
 						if ($matches[3] != "") {
 							preg_match('/caption=[^,]+/', $matches[3], $m_caption);
@@ -707,7 +707,7 @@ EOD;
 		$output .= $this->func->do_plugin_convert('googlemaps2_icon');
 		return $output;
 	}
-	
+
 	function plugin_googlemaps2_get_maptype($type) {
 		switch (strtolower(substr($type, 0, 1))) {
 			case "n": $type = 'G_NORMAL_MAP'   ; break;
@@ -718,13 +718,13 @@ EOD;
 		}
 		return $type;
 	}
-	
+
 	function plugin_googlemaps2_init_output($key) {
 		$this->func->add_js_head('http://maps.google.co.jp/maps?file=api&amp;v='.$this->conf['ApiVersion'].'&amp;key='.$key, true, 'UTF-8');
 		$this->func->add_tag_head('googlemaps2.js');
 		return;
 	}
-	
+
 	function get_pgid ($page) {
 		$pgid = $this->func->get_pgid_by_name($page);
 		if (!$pgid) $pgid = '0';
