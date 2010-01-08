@@ -1,7 +1,7 @@
 <?php
 /*
  * Created on 2008/02/28 by nao-pon http://hypweb.net/
- * $Id: aws.inc.php,v 1.13 2009/11/17 09:13:30 nao-pon Exp $
+ * $Id: aws.inc.php,v 1.14 2010/01/08 13:52:09 nao-pon Exp $
  */
 
 /////////////////////////////////////////////////
@@ -87,6 +87,8 @@ class xpwiki_plugin_aws extends xpwiki_plugin {
 		$s = array_shift($args);
 		$noheader = array_shift($args);
 
+		if (!$k && !$b) return FALSE;
+
 		$this->fetch_options($this->options, $args);
 
 		list($more_link, $ret) = $this->plugin_aws_get($f, $m, $k, $b, $s);
@@ -116,9 +118,20 @@ class xpwiki_plugin_aws extends xpwiki_plugin {
 			}
 		}
 
-		if ($this->options['timestamp'] && ! empty($this->root->vars['page'])) {
-			$this->options['page'] = $this->root->vars['page'];
+		$this->options['amazon_t'] = $this->config['amazon_t'];
+		if (! empty($this->root->vars['page'])) {
+			if ($this->root->amazon_UseUserPref) {
+				$user_pref = $this->func->get_user_pref($this->func->get_pg_auther($this->root->vars['page']));
+				if (! empty($user_pref['amazon_associate_tag'])) {
+					$this->options['amazon_t'] = preg_replace('/[^a-zA-Z0-9-]/', '', $user_pref['amazon_associate_tag']);
+				}
+			}
+
+			if ($this->options['timestamp']) {
+				$this->options['page'] = $this->root->vars['page'];
+			}
 		}
+
 		$cache_file = $this->cont['CACHE_DIR'] . 'plugin/' . md5($f.$m.$k.$b.$s.serialize($this->options)).".aws";
 
 		if (! empty($this->root->rtf['preview'])) {
@@ -129,7 +142,7 @@ class xpwiki_plugin_aws extends xpwiki_plugin {
 			$ret = file_get_contents($cache_file);
 		} else {
 			include_once $this->cont['TRUST_PATH'] . 'class/hyp_common/hsamazon/hyp_simple_amazon.php';
-			$ama = new HypSimpleAmazon($this->config['amazon_t']);
+			$ama = new HypSimpleAmazon($this->options['amazon_t']);
 			if ($this->config['AccessKeyId']) $ama->AccessKeyId = $this->config['AccessKeyId'];
 			if ($this->config['SecretAccessKey']) $ama->SecretAccessKey = $this->config['SecretAccessKey'];
 			$ama->encoding = ($this->cont['SOURCE_ENCODING'] === 'EUC-JP')? 'EUCJP-win' : $this->cont['SOURCE_ENCODING'];
@@ -142,19 +155,17 @@ class xpwiki_plugin_aws extends xpwiki_plugin {
 			}
 
 			if ($k) {
-				if ($m) $ama->setSearchIndex($m, $this->options['search']);
+				$ama->setSearchIndex($m, $this->options['search']);
 				if ($b) $options['BrowseNode'] = $b;
 				$ama->itemSearch($k, $options);
 			} else if ($b) {
-				if ($m) $ama->setSearchIndex($m);
+				$ama->setSearchIndex($m);
 				$ama->browseNodeSearch($b, $options);
 			}
 
 			$html = $ama->getHTML($f);
 
-			if (! empty($this->root->rtf['preview'])) {
-				$html .= $ama->url;
-			}
+			//if (! empty($this->root->rtf['preview'])) {$html .= $ama->url;}
 
 			$header = ($k && ! is_null($ama->compactArray['totalresults']))? $ama->makeSearchLink($k, sprintf($this->msg['more_search'], htmlspecialchars($k)), TRUE) : '';
 			$ret = $header . "\x08" . $html;

@@ -2,7 +2,7 @@
 /////////////////////////////////////////////////
 // PukiWiki - Yet another WikiWikiWeb clone.
 //
-// $Id: isbn.inc.php,v 1.14 2009/11/17 09:14:55 nao-pon Exp $
+// $Id: isbn.inc.php,v 1.15 2010/01/08 13:52:09 nao-pon Exp $
 //
 // *0.5: URL が存在しない場合、画像を表示しない。
 //			 Thanks to reimy.
@@ -15,10 +15,10 @@ class xpwiki_plugin_isbn extends xpwiki_plugin {
 		// AmazonアソシエイトID
 		$this->config['AMAZON_ASE_ID'] = $this->root->amazon_AssociateTag;
 		// amazon shop URI (_ISBN_ に商品IDがセットされる)
-		$this->config['ISBN_AMAZON_SHOP'] = 'http://www.amazon.co.jp/exec/obidos/ASIN/_ISBN_/ref=nosim/'.$this->config['AMAZON_ASE_ID'];
+		$this->config['ISBN_AMAZON_SHOP'] = 'http://www.amazon.co.jp/exec/obidos/ASIN/_ISBN_/ref=nosim/AMAZON_ASE_ID';
 		// amazon UsedShop URI (_ISBN_ に商品IDがセットされる)
-		$this->config['ISBN_AMAZON_USED'] = 'http://www.amazon.co.jp/exec/obidos/tg/detail/offer-listing/-/_ISBN_/all/ref='.$this->config['AMAZON_ASE_ID'];
-	
+		$this->config['ISBN_AMAZON_USED'] = 'http://www.amazon.co.jp/exec/obidos/tg/detail/offer-listing/-/_ISBN_/all/ref=AMAZON_ASE_ID';
+
 		/////////////////////////////////////////////////
 		// expire 画像キャッシュを何日で削除するか
 		$this->config['ISBN_AMAZON_EXPIRE_IMG'] = 10;
@@ -30,10 +30,10 @@ class xpwiki_plugin_isbn extends xpwiki_plugin {
 		// For confirm (admin only)
 		$this->config['conflink'] = ($this->root->userinfo['admin'])? ' ( <a href="'.$this->cont['HOME_URL'].'?cmd=conf#amazon_AssociateTag" target="_blank">confirm with this link</a> )' : '';
 	}
-	
+
 	function xpwiki_plugin_isbn(& $func) {
 		parent::xpwiki_plugin($func);
-		
+
 		// Amazon associate ID
 		if (! $this->root->amazon_AssociateTag) {
 			include_once XOOPS_TRUST_PATH . '/class/hyp_common/hsamazon/hyp_simple_amazon.php';
@@ -47,7 +47,7 @@ class xpwiki_plugin_isbn extends xpwiki_plugin {
 		$this->config['conflink'] = ($this->root->userinfo['admin'])? ' ( <a href="'.$this->cont['HOME_URL'].'?cmd=conf#amazon_AssociateTag" target="_blank">confirm with this link</a> )' : '';
 
 	}
-	
+
 	function plugin_isbn_convert() {
 		if (HypCommonFunc::get_version() < 20080224) {
 			return '#amazon require "HypCommonFunc" >= Ver. 20080224';
@@ -59,13 +59,13 @@ class xpwiki_plugin_isbn extends xpwiki_plugin {
 
 		// 言語ファイルの読み込み
 		$this->load_language();
-		
+
 		$this->root->rtf['disable_render_cache'] = true;
-		
+
 		$aryargs = func_get_args();
 		$isbn = htmlspecialchars($aryargs[0]);	// for XSS
 		$isbn = str_replace("-","",$isbn);
-	
+
 		$align = "right"; //規定値
 		$title = '';
 		$header = '';
@@ -87,7 +87,7 @@ class xpwiki_plugin_isbn extends xpwiki_plugin {
 				elseif (strtolower($aryargs[1]) == 'img' || $aryargs[1] == 'image') $title = "image";
 				else $title = htmlspecialchars($aryargs[1]);
 			case 1:
-				if (strtolower($aryargs[0]) == 'clear') 
+				if (strtolower($aryargs[0]) == 'clear')
 				{
 					$align = "clear";
 					$isbn = "";
@@ -99,7 +99,7 @@ class xpwiki_plugin_isbn extends xpwiki_plugin {
 			if ($tmpary[0][0] === "\t") {
 				return '<div>' . trim($tmpary[0]) . $this->config['conflink'] . '</div>';
 			}
-			
+
 			$alt = $this->plugin_isbn_get_caption($tmpary);
 			$price = ($tmpary[2])? "<div style=\"text-align:right;\">".str_replace('$1', $tmpary[2], $this->msg['price'])."</div>" : '';
 			$off = 0;
@@ -114,7 +114,7 @@ class xpwiki_plugin_isbn extends xpwiki_plugin {
 				$listprice = ($tmpary[8] && $_price !== $_listprice)? "<div style=\"text-align:right;\">".str_replace('$1', $tmpary[8], $this->msg['price'])."</div>" : '';
 			}
 			$usedprice = ($tmpary[9])? "<div style=\"text-align:right;\">".str_replace('$1', $tmpary[9], $this->msg['used'])."</div>" : '';
-			
+
 			if ($title != '') {			// タイトル指定か自動取得か
 				$h_title = $title;
 			} else {					// タイトル自動取得
@@ -129,18 +129,18 @@ class xpwiki_plugin_isbn extends xpwiki_plugin {
 			return $this->plugin_isbn_get_info($tmpary,$isbn);
 		}
 	}
-	
+
 	function plugin_isbn_inline()
 	{
 		if (HypCommonFunc::get_version() < 20080224) {
 			return '&amazon require "HypCommonFunc" >= Ver. 20080224';
 		}
-		
+
 		// 言語ファイルの読み込み
 		$this->load_language();
-		
+
 		$this->root->rtf['disable_render_cache'] = true;
-		
+
 		$prms = func_get_args();
 		$body = array_pop($prms); // {}内
 		$body = preg_replace('#</?(a|span)[^>]*>#i','',$body);
@@ -149,7 +149,7 @@ class xpwiki_plugin_isbn extends xpwiki_plugin {
 		$option = htmlspecialchars($option); // for XSS
 		$isbn = htmlspecialchars($isbn); // for XSS
 		$isbn = str_replace("-","",$isbn);
-		
+
 		$tmpary = array();
 		$tmpary = $this->plugin_isbn_get_isbn_title($isbn);
 
@@ -161,7 +161,7 @@ class xpwiki_plugin_isbn extends xpwiki_plugin {
 		$title = $tmpary[0];
 		//$text = htmlspecialchars(preg_replace('#</?(a|span)[^>]*>#i','',$option));
 		$alt = $this->plugin_isbn_get_caption($tmpary);
-		$amazon_a = '<a href="'.str_replace('_ISBN_',$isbn,$this->config['ISBN_AMAZON_SHOP']).'" target="_blank" title="'.$alt.'">';
+		$amazon_a = '<a href="'.str_replace(array('_ISBN_', 'AMAZON_ASE_ID'), array($isbn, $this->config['AMAZON_ASE_ID']), $this->config['ISBN_AMAZON_SHOP']).'" target="_blank" title="'.$alt.'">';
 		$match = array();
 		if (!preg_match("/(s|l|m)?ima?ge?/i",$option,$match))
 		{
@@ -181,7 +181,7 @@ class xpwiki_plugin_isbn extends xpwiki_plugin {
 			return $amazon_a.'<img src="'.$url.'" alt="'.$alt.'" /></a>';
 		}
 	}
-	
+
 	function plugin_isbn_get_caption($data)
 	{
 		$off = "";
@@ -192,10 +192,10 @@ class xpwiki_plugin_isbn extends xpwiki_plugin {
 			$off = floor(100 - (($_price/$_listprice) * 100));
 			$off = " ({$off}% Off)";
 		}
-	
+
 		//改行文字セット IE は "&#13;&#10;"
 		$br = (strstr($this->root->ua, "MSIE"))? "&#13;&#10;" : " ";
-	
+
 		$alt = "[ $data[1] ]{$br}$data[0]";
 		if ($data[8]) $alt .= "{$br}{$this->msg['info_price']}: ".str_replace('$1',$data[8],$this->msg['currency']);
 		if ($data[2]) $alt .= "{$br}{$this->msg['info_amazon']}: ".str_replace('$1',$data[2],$this->msg['currency']).$off;
@@ -207,36 +207,14 @@ class xpwiki_plugin_isbn extends xpwiki_plugin {
 		if ($data[7]) $alt .= "{$br}{$this->msg['info_status']}: $data[7]";
 		return $alt;
 	}
-	
+
 	function plugin_isbn_get_info($data,$isbn)
 	{
 		$alt = $this->plugin_isbn_get_caption($data);
-		$amazon_a = '<a href="'.str_replace('_ISBN_',$isbn,$this->config['ISBN_AMAZON_SHOP']).'" target="_blank" title="'.$alt.'">';
+		$amazon_a = '<a href="'.str_replace(array('_ISBN_', 'AMAZON_ASE_ID'), array($isbn, $this->config['AMAZON_ASE_ID']), $this->config['ISBN_AMAZON_SHOP']).'" target="_blank" title="'.$alt.'">';
 		$amazon_s1 = "<a href=\"http://www.amazon.co.jp/exec/obidos/external-search/?mode=blended&amp;keyword=";
 		$amazon_s2 = "&amp;tag=".$this->config['AMAZON_ASE_ID']."&amp;encoding-string-jp=%93%FA%96%7B%8C%EA&amp;Go.x=14&amp;Go.y=5\" target=\"_blank\" alt=\"Amazon Serach\" title=\"Amazon Serach\">";
-		/*
-		if (@$data[3])
-		{
-			$artists = array();
-			foreach(split(", ",$data[3]) as $tmp)
-			{
-				$artists[] = $amazon_s1 . $this->plugin_isbn_jp_enc($tmp,"sjis") . $amazon_s2 . $tmp . "</a>";
-			}
-			$data[3] = join(", ",$artists);
-		}
-		if (@$data[4])
-		{
-			$artists = array();
-			foreach(split(", ",$data[4]) as $tmp)
-			{
-				$artists[] = $amazon_s1 . $this->plugin_isbn_jp_enc($tmp,"sjis") . $amazon_s2 . $tmp . "</a>";
-			}
-			$data[4] = join(", ",$artists);
-		}
-		if (@$data[6])
-			$data[6] = $amazon_s1 . $this->plugin_isbn_jp_enc($data[6],"sjis") . $amazon_s2 . $data[6] . "</a>";
-		*/
-		
+
 		$off = "";
 		$_price = (int) trim(str_replace(",","",$data[2]));
 		$_listprice = (int) trim(str_replace(",","",$data[8]));
@@ -246,10 +224,10 @@ class xpwiki_plugin_isbn extends xpwiki_plugin {
 			$off = " ({$off}% Off)";
 		}
 		if (@$data[9])
-			$data[9] = '<a href="'.str_replace('_ISBN_',$isbn,$this->config['ISBN_AMAZON_USED']).'" target="_blank" alt="Amazon Used Serach" title="Amazon Used Serach">'.str_replace('$1',$data[9],$this->msg['currency_from']).'</a>';
-	
+			$data[9] = '<a href="'.str_replace(array('_ISBN_', 'AMAZON_ASE_ID'), array($isbn, $this->config['AMAZON_ASE_ID']), $this->config['ISBN_AMAZON_USED']).'" target="_blank" alt="Amazon Used Serach" title="Amazon Used Serach">'.str_replace('$1',$data[9],$this->msg['currency_from']).'</a>';
+
 		$td_title_style = " style=\"text-align:right;\" nowrap=\"true\"";
-		
+
 		$addrow = '';
 		if (@ $data[3]) {
 			foreach(explode('<br />', $data[3]) as $tmp){
@@ -259,7 +237,7 @@ class xpwiki_plugin_isbn extends xpwiki_plugin {
 				$addrow .= "<tr><td$td_title_style>{$cap}:</td><td style=\"text-align:left;\">{$val}</td></tr>";
 			}
 		}
-		
+
 		$ret = "<div><table style=\"width:auto;\">";
 		if (@$data[1]) $ret .= "<tr><td$td_title_style>{$this->msg['info_category']}</td><td style=\"text-align:left;\">$data[1]</td></tr>";
 		if (@$data[0]) $ret .= "<tr><td$td_title_style>{$this->msg['info_title']}</td><td style=\"text-align:left;\">{$amazon_a}$data[0]</a></td></tr>";
@@ -275,17 +253,17 @@ class xpwiki_plugin_isbn extends xpwiki_plugin {
 		$ret .= "</table></div>";
 		return $ret;
 	}
-	
+
 	function plugin_isbn_print_isbn_img($isbn, $align, $alt, $title, $h_title, $price, $header="",$listprice,$usedprice)
 	{
 		$clear = ($align === 'clear')? '<div style="clear:both"></div>' : '';
 
 		if (! $isbn) return $clear;
-		
-		$amazon_a = '<a href="'.str_replace('_ISBN_',$isbn,$this->config['ISBN_AMAZON_SHOP']).'" target="_blank" title="'.$alt.'">';
-	
+
+		$amazon_a = '<a href="'.str_replace(array('_ISBN_', 'AMAZON_ASE_ID'), array($isbn, $this->config['AMAZON_ASE_ID']), $this->config['ISBN_AMAZON_SHOP']).'" target="_blank" title="'.$alt.'">';
+
 		if (! ($url = $this->plugin_isbn_cache_image_fetch($isbn, $this->cont['CACHE_DIR']))) return false;
-	
+
 		if ($title == 'image') {				// タイトルがなければ、画像のみ表示
 			return <<<EOD
 <div style="float:$align;padding:.5em 1.5em .5em 1.5em">
@@ -296,7 +274,7 @@ EOD;
 		} else {					// 通常表示
 			$img_size = @getimagesize(str_replace(XOOPS_URL,XOOPS_ROOT_PATH,$url));
 			//echo str_replace(XOOPS_URL,XOOPS_ROOT_PATH,$url);
-			
+
 			if (substr($isbn,0,1) == "B"){
 					$code = "ASIN: ".$isbn;
 			} else {
@@ -326,12 +304,12 @@ EOD;
 			}
 		}
 	}
-	
+
 	function plugin_isbn_get_isbn_title(& $isbn, $check = true) {
 		include_once XOOPS_TRUST_PATH . '/class/hyp_common/hsamazon/hyp_simple_amazon.php';
 		$ama = new HypSimpleAmazon();
 		$isbn = $ama->ISBN2ASIN($isbn);
- 
+
 		$nocache = $nocachable = 0;
 		$title = $category = $price = $author = $artist = $releasedate = $manufacturer = $availability = $listprice = $usedprice = '';
 		if ($title = $this->plugin_isbn_cache_fetch($isbn, $this->cont['CACHE_DIR'].'plugin/', $check)) {
@@ -342,15 +320,15 @@ EOD;
 		$tmpary = array($title,$category,$price,$author,$artist,$releasedate,$manufacturer,$availability,$listprice,$usedprice);
 		return $tmpary;
 	}
-	
+
 	// キャッシュがあるか調べる
 	function plugin_isbn_cache_fetch($target, $dir, $check = true) {
-	//	global $vars;
-	
-		$filename = $dir . $target . '.isbn';
-		
+
+		$this->config['AMAZON_ASE_ID'] = $this->get_associate_tag($this->config['AMAZON_ASE_ID']);
+		$filename = $dir . $target . '_' . $this->config['AMAZON_ASE_ID'] . '.isbn';
+
 		$error = '';
-		
+
 		if (!file_exists($filename) ||
 			($check && $this->config['ISBN_AMAZON_EXPIRE_TIT'] * 3600 * 24 < $this->cont['UTC'] - filemtime($filename))) {
 			// データを取りに行く
@@ -363,7 +341,7 @@ EOD;
 			$tmpary = $ama->getCompactArray();
 			$error = $ama->error;
 			$ama = NULL;
-			
+
 			$title = '';
 			if (!empty($tmpary['Items'])) {
 				$tmpary = $tmpary['Items'][0];
@@ -399,19 +377,19 @@ EOD;
 			return array("\t" . $error);
 		}
 	}
-	
+
 	// 画像キャッシュがあるか調べる
 	function plugin_isbn_cache_image_fetch($target, $dir, $check=true) {
 		$_target = $target = strtoupper($target);
 		$filename = $dir."ASIN".$target.".jpg";
 		$getimg = FALSE;
-		
+
 		if (!is_readable($filename) || (is_readable($filename) && $check && $this->config['ISBN_AMAZON_EXPIRE_IMG'] * 3600 * 24 < $this->cont['UTC'] - filemtime($filename))) {
 			$getimg = TRUE;
 			$size = 'M';
 			$isbn = $target;
 			$data = '';
-			
+
 			if (preg_match("/^(?:(s|m|l)-)(.+)/i",$target,$match)) {
 				$size = strtoupper($match[1]);
 				$isbn = $match[2];
@@ -424,14 +402,14 @@ EOD;
 			} else {
 				$url = $ary[11];
 			}
-			
+
 			if ($url) {
 				$data = $this->func->http_request($url);
 				if ($data['rc'] == 200 && $data['data']) {
 					$data = $data['data'];
 				}
 			}
-			
+
 			$this->plugin_isbn_cache_image_save($data, $filename);
 		}
 		if (($getimg && ! $data) || (! $getimg && ! filesize($filename))) {
@@ -440,7 +418,7 @@ EOD;
 			return str_replace($this->cont["DATA_HOME"], $this->cont["HOME_URL"], $filename);
 		}
 	}
-	
+
 	// キャッシュを保存
 	function plugin_isbn_cache_save($data, $filename) {
 		$fp = fopen($filename, "wb");
@@ -448,7 +426,7 @@ EOD;
 		fclose($fp);
 		return $filename;
 	}
-	
+
 	// 画像キャッシュを保存
 	function plugin_isbn_cache_image_save($data, $filename) {
 		$fp = fopen($filename, "wb");
@@ -456,7 +434,7 @@ EOD;
 		fclose($fp);
 		return $filename;
 	}
-	
+
 	// 文字列をURLエンコード
 	function plugin_isbn_jp_enc($word,$mode){
 		switch( $mode ){
@@ -465,6 +443,16 @@ EOD;
 			case "utf8" : return rawurlencode(mb_convert_encoding($word, "UTF-8", "EUC-JP"));
 		}
 		return true;
+	}
+
+	function get_associate_tag($associate_tag) {
+		if ($this->root->amazon_UseUserPref && ! empty($this->root->vars['page'])) {
+			$user_pref = $this->func->get_user_pref($this->func->get_pg_auther($this->root->vars['page']));
+			if (! empty($user_pref['amazon_associate_tag'])) {
+				$associate_tag = preg_replace('/[^a-zA-Z0-9-]/', '', $user_pref['amazon_associate_tag']);
+			}
+		}
+		return $associate_tag;
 	}
 }
 ?>
