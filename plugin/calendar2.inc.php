@@ -1,5 +1,5 @@
 <?php
-// $Id: calendar2.inc.php,v 1.13 2009/04/11 00:53:10 nao-pon Exp $
+// $Id: calendar2.inc.php,v 1.14 2010/01/08 13:56:41 nao-pon Exp $
 //
 // Calendar2 plugin
 //
@@ -10,18 +10,66 @@
 class xpwiki_plugin_calendar2 extends xpwiki_plugin {
 	function plugin_calendar2_init () {
 		$this->conf['NaviTitle'] = 'Archives';
+
+		$this->conf['options'] = array(
+			'class' => 'button',
+		);
+	}
+
+	function plugin_calendar2(&$func) {
+		parent::xpwiki_plugin($func);
+
+		$this->conf['options'] = array(
+			'class' => 'button',
+		);
+	}
+
+	function can_call_otherdir_inline() {
+		return 1;
 	}
 
 	function can_call_otherdir_convert() {
 		return 1;
 	}
 
-	function plugin_calendar2_convert() {		
+	function plugin_calendar2_inline() {
+
+		$options = $this->conf['options'];
+
+		$page = $this->root->vars['page'];
+		$args = func_get_args();
+		$body = array_pop($args);
+		if (!$body) $body = 'New item';
+		if ($args) {
+			$this->fetch_options($options, $args);
+			if (! empty($options['_args'])) {
+				if ($this->func->is_pagename($options['_args'][0])) {
+					$page = $this->func->strip_bracket($options['_args'][0]);
+				}
+			}
+		}
+		$options['class'] = htmlspecialchars($options['class']);
+
+		$date = date('Y-m-d');
+		$page .= '/' . $date;
+
+		$base = $page;
+		$i = 1;
+		while($this->func->is_page($page)) {
+			$page = $base . '-' . $i++;
+		}
+		if ($this->func->check_editable($page, FALSE, FALSE)) {
+			return '<span class="'.$options['class'].'"><a href="'.$this->root->script.'?cmd=edit&amp;page='.rawurlencode($page).'">'.$body.'</a></span>';
+		}
+		return '';
+	}
+
+	function plugin_calendar2_convert() {
 		$this->func->add_tag_head('calendar.css');
-		
+
 		$date_str = $this->func->get_date('Ym');
 		$base     = $this->func->strip_bracket($this->root->vars['page']);
-		
+
 		$today_view = TRUE;
 		$date_view = FALSE;
 		$navi_view = FALSE;
@@ -35,13 +83,13 @@ class xpwiki_plugin_calendar2 extends xpwiki_plugin {
 					$today_view = FALSE;
 				} else if ($arg === 'navi') {
 					$navi_view = TRUE;
-					
+
 				// for PukiWikiMod compat
 				} else if(strtolower(substr($arg,0,9)) == "category:"){
 					$category_view = htmlspecialchars(substr($arg,8));
 				} else if(strtolower(substr($arg,0,9)) == "contents:"){
 					$contents_lev = (int)substr($arg,9);
-				
+
 				} else {
 					$base = $this->func->strip_bracket($arg);
 				}
@@ -72,32 +120,32 @@ class xpwiki_plugin_calendar2 extends xpwiki_plugin {
 				$other_month = 0;
 			}
 		}
-	
+
 		$today = getdate(mktime(0, 0, 0, $mon, $now_day, $yr) - $this->cont['LOCALZONE'] + $this->cont['ZONETIME']);
-	
+
 		$m_num = $today['mon'];
 		$d_num = $today['mday'];
 		$year  = $today['year'];
-	
+
 		$f_today = getdate(mktime(0, 0, 0, $m_num, 1, $year) - $this->cont['LOCALZONE'] + $this->cont['ZONETIME']);
 		$wday = $f_today['wday'];
 		$day  = 1;
 
 		$y = substr($date_str, 0, 4) + 0;
 		$m = substr($date_str, 4, 2) + 0;
-		
+
 		$this_date_str = sprintf('%04d%02d', $y, $m);
 		$m_name = ($date_view)? $year . '.' . $m_num : '<a href="'.$this->root->script.'?plugin=calendar2&amp;file='.$r_base.'&amp;date='.$this_date_str.'">'. $year . '.' . $m_num . '</a>';
-	
+
 		$prev_date_str = ($m == 1) ?
 			sprintf('%04d%02d', $y - 1, 12) : sprintf('%04d%02d', $y, $m - 1);
-	
+
 		$next_date_str = ($m == 12) ?
 			sprintf('%04d%02d', $y + 1, 1) : sprintf('%04d%02d', $y, $m + 1);
-	
+
 		// Can make new page.
 		$is_editable = $this->func->check_editable($base . '/1', FALSE, FALSE);
-		
+
 		$ret = '';
 
 		if ($navi_view) {
@@ -118,39 +166,39 @@ class xpwiki_plugin_calendar2 extends xpwiki_plugin {
     <strong>$m_name</strong>
     <a href="{$this->root->script}?plugin=calendar2&amp;file=$r_base&amp;date=$next_date_str">&gt;&gt;</a>
 EOD;
-	
+
 		if ($prefix) $ret .= "\n" .
 		'      <br />[<a href="' . $this->func->get_page_uri($base, true) . '">' . $s_base . '</a>]';
-	
+
 		$ret .= "\n" .
 			'     </td>' . "\n" .
 			'    </tr>'  . "\n" .
 			'    <tr>'   . "\n";
-	
+
 		foreach($this->root->weeklabels as $label)
 			$ret .= '     <td class="style_td_week">' . $label . '</td>' . "\n";
-	
+
 		$ret .= '    </tr>' . "\n" .
 		'    <tr>'  . "\n";
 		// Blank
 		for ($i = 0; $i < $wday; $i++)
 			$ret .= '     <td class="style_td_blank">&nbsp;</td>' . "\n";
-	
+
 		// this month pages
 		$m_pages = $this->func->get_existpages(FALSE, $prefix . sprintf('%4d-%02d-', $year, $m_num), array('select' => array('name')));
-		
+
 		while (checkdate($m_num, $day, $year)) {
 			$dt     = sprintf('%4d-%02d-%02d', $year, $m_num, $day);
 			$page   = $prefix . $dt;
 			$r_page = rawurlencode($page);
 			$s_page = htmlspecialchars($page);
-	
+
 			if ($wday == 0 && $day > 1) {
 				$ret .=
 					'    </tr>' . "\n" .
 					'    <tr>' . "\n";
 			}
-	
+
 			$style = 'style_td_day'; // Weekday
 			if (! $other_month && ($day == $today['mday']) && ($m_num == $today['mon']) && ($year == $today['year'])) { // Today
 				$style = 'style_td_today';
@@ -159,7 +207,7 @@ EOD;
 			} else if ($wday == 6) { //  Saturday
 				$style = 'style_td_sat';
 			}
-			
+
 			// for PukiWikiMod compat
 			$moblog_page = $page."-0";
 			$normal_page = isset($m_pages[$page]);
@@ -174,22 +222,22 @@ EOD;
 					$link = '<a href="' . $link . '" title="' . $s_page . '">' . $day . '</a>';
 				}
 			}
-	
+
 			$ret .= '     <td class="' . $style . '">' . "\n" .
 			'      ' . $link . "\n" .
 			'     </td>' . "\n";
 			++$day;
 			$wday = ++$wday % 7;
 		}
-	
+
 		if ($wday > 0)
 			while ($wday++ < 7) // Blank
 				$ret .= '     <td class="style_td_blank">&nbsp;</td>' . "\n";
-	
+
 		$ret .= '  </tr>'   . "\n" .
 				' </table>' . "\n" .
 				'</div>' . "\n";
-	
+
 		if ($today_view) {
 			$tpage = $prefix . sprintf('%4d-%02d-%02d', $today['year'],	$today['mon'], $today['mday']);
 			$r_tpage = rawurlencode($tpage);
@@ -214,15 +262,15 @@ EOD;
 
 		return $ret;
 	}
-	
+
 	function plugin_calendar2_action() {
-	
+
 		$page = $this->func->strip_bracket($this->root->vars['page']);
 		$this->root->vars['page'] = '*';
 		if ($this->root->vars['file']) $this->root->vars['page'] = $this->root->vars['file'];
-	
+
 		$date = $this->root->vars['date'];
-	
+
 		if ($date == '') $date = $this->func->get_date('Ym');
 		$yy = sprintf('%04d.%02d', substr($date, 0, 4),substr($date, 4, 2));
 
@@ -233,31 +281,31 @@ EOD;
 			$yy = sprintf("%04d.%02d",substr($date,0,4),substr($date,4,2));
 			$aryargs = array($this->root->vars['page'], $date, 'off', 'navi');
 		}
-	
+
 		//$aryargs = array($this->root->vars['page'], $date, 'off');
 		$s_page  = htmlspecialchars($this->root->vars['page']);
-		
+
 		// Set nest level
 		if (!isset($this->root->rtf['convert_nest'])) {
 			$this->root->rtf['convert_nest'] = 1;
 		} else {
 			++$this->root->rtf['convert_nest'];
 		}
-		
+
 		$ret['msg']  = 'calendar ' . $s_page . '/' . $yy;
 		$ret['body'] = call_user_func_array (array(& $this, "plugin_calendar2_convert"), $aryargs);
 
 		$args_array = array($this->root->vars['page'], str_replace('.', '-', $yy), 'future', '-');
 		$plugin = & $this->func->get_plugin_instance('calendar_viewer');
 		$ret['body'] .= call_user_func_array (array(& $plugin, "plugin_calendar_viewer_convert"), $args_array);
-		
+
 		--$this->root->rtf['convert_nest'];
-		
+
 		$this->root->vars['page'] = $page;
-	
+
 		return $ret;
 	}
-	
+
 	function getNavi($base) {
 		$base = trim($base, '/');
 		$ret = $res = array();
