@@ -43,11 +43,10 @@ class XpWikiInlineConverter {
 				'url_i18n',      // URLs (i18n)
 				'url_interwiki', // URLs (interwiki definition)
 				'mailto_i18n',   // mailto: URL schemes
+				'file',          // Flie system (file://)
 				'interwikiname', // InterWikiNames
-				//'autoalias',     // AutoAlias
 				'bracketname',   // BracketNames
 				'wikiname',      // WikiNames
-				//'autoalias_a',   // AutoAlias(alphabet)
 			);
 		}
 
@@ -182,28 +181,33 @@ class XpWikiLink {
 		$this->body = $body;
 		$this->type = $type;
 
-		if (!$this->cont['PKWK_DISABLE_INLINE_IMAGE_FROM_URI'] && $this->func->is_url($alias) && preg_match('/\.(gif|png|jpe?g)$/i', $alias)) {
+		if ($this->type === 'url' && !$this->cont['PKWK_DISABLE_INLINE_IMAGE_FROM_URI'] && $this->func->is_url($alias) && preg_match('/\.(gif|png|jpe?g)$/i', $alias)) {
+			$this->is_image = TRUE;
 			if ($this->cont['SHOW_EXTIMG_BY_REF'] && !$this->func->refcheck(0, $alias) && !preg_match($this->cont['NO_REF_EXTIMG_REG'], $alias)) {
 				$alias = $this->func->do_plugin_inline('ref', $alias);
 				$alias = preg_replace('#</?a[^>]*?>#i', '', $alias);
+				$alias = preg_replace('/\s*title="[^"]*"/', '', $alias);
+				$this->use_lightbox = FALSE;
 			} else {
 				$alias = '<img src="'.htmlspecialchars($alias).'" alt="'.$name.'" />';
+				$this->use_lightbox = TRUE;
 			}
-			if ($alias === $name) {
-				$this->is_image = TRUE;
-			} else {
-				$alias = preg_replace('/\s*title="[^"]*"/', '', $alias);
-			}
-		} else
+			//if ($alias === $name) {
+			//	$this->is_image = TRUE;
+			//} else {
+			//	$alias = preg_replace('/\s*title="[^"]*"/', '', $alias);
+			//}
+		} else {
 			if ($alias !== '') {
-				if ($converter === NULL)
+				if ($converter === NULL) {
 					$converter = new XpWikiInlineConverter($this->xpwiki, array ('plugin'));
-
+				}
 				$alias = $this->func->make_line_rules($converter->convert($alias, $page));
 
 				// BugTrack/669: A hack removing anchor tags added by AutoLink
 				$alias = preg_replace('#</?a[^>]*>#i', '', $alias);
 			}
+		}
 		$this->alias = $alias;
 
 		return TRUE;
@@ -533,6 +537,7 @@ EOD;
 	function set($arr, $page) {
 		list (,$bracket, $alias, $scheme, $mail, $host, $uri) = $this->splice($arr);
 		$this->has_bracket = (substr($bracket, 0, 2) === '[[');
+		$this->host = $host;
 		if ($host !== '/' && preg_match('/[^A-Za-z0-9.-]/', $host)) {
 			$host = $this->func->convertIDN($host, 'encode');
 		}
@@ -557,13 +562,15 @@ EOD;
 			$img = $class = $target = '';
 		} else {
 			list($rel, $class, $target, $title) = $this->getATagAttr($this->name);
-			$img = ($this->is_image)? ' type="img"' : '';
+			$img = ($this->is_image && $this->use_lightbox)? ' type="img"' : '';
 		}
-		if (! $this->has_bracket && $this->root->bitly_clickable) {
+		$host = '';
+		if ($this->root->bitly_clickable && ! $this->has_bracket && ! $this->is_image && $this->type !== 'mailto') {
 			$this->name = $this->func->bitly(str_replace('&amp;', '&', $this->name));
 			$this->alias = htmlspecialchars($this->name);
+			if ($this->root->bitly_clickable === 2 && $this->host !== 'bit.ly') $host = '<span class="modest"> (' . htmlspecialchars($this->host) . ')</span>';
 		}
-		return '<a href="'.$this->name.'"'.$title.$rel.$class.$img.$target.'>'.$this->alias.'</a>';
+		return '<a href="'.$this->name.'"'.$title.$rel.$class.$img.$target.'>'.$this->alias.'</a>'.$host;
 	}
 }
 
@@ -600,6 +607,42 @@ EOD;
 	function toString() {
 		list($rel, $class, $target, $title) = $this->getATagAttr($this->name);
 		return '<a href="'.$this->name.'"'.$title.$rel.$class.$target.'>'.$this->alias.'</a>';
+	}
+}
+
+// file: URL schemes
+class XpWikiLink_file extends XpWikiLink {
+	function XpWikiLink_filesys(& $xpwiki, $start) {
+		parent :: XpWikiLink($xpwiki, $start);
+	}
+
+	function get_pattern() {
+		if (! $this->root->use_file_scheme) return FALSE;
+		return<<<EOD
+\[\[             # open bracket
+ (?:((?:(?!\]\]).)+) # (1) alias
+ (?:>|:))?
+ file:\/\/
+(                 # (2) pass
+ .+
+)
+\]\]              # close bracket
+EOD;
+	}
+
+	function get_count() {
+		return 2;
+	}
+
+	function set($arr, $page) {
+		list (,$alias, $name) = $this->splice($arr);
+		return parent :: setParam($page, $name, '', 'url', $alias === '' ? 'file://' . $name : $alias);
+	}
+
+	function toString() {
+		$title = ' title="' . htmlspecialchars($this->name) . '"';
+		$href = 'file://' . htmlspecialchars(str_replace(array('|','\\'), array(':','/'), $this->name));
+		return '<a href="'.$href.'"'.$title.'>'.htmlspecialchars($this->alias).'</a>';
 	}
 }
 
