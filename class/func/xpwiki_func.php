@@ -1,7 +1,7 @@
 <?php
 //
 // Created on 2006/10/02 by nao-pon http://hypweb.net/
-// $Id: xpwiki_func.php,v 1.221 2010/01/08 15:07:16 nao-pon Exp $
+// $Id: xpwiki_func.php,v 1.222 2010/03/06 08:32:21 nao-pon Exp $
 //
 class XpWikiFunc extends XpWikiXoopsWrapper {
 
@@ -2592,7 +2592,12 @@ EOD;
 
 			if ($convert) {
 				$page = isset($this->root->vars['page'])? $this->root->vars['page'] : '';
+				if ($this->root->bitly_clickable) {
+					$_bitly_clickable = $this->root->bitly_clickable;
+					$this->root->bitly_clickable = 1;
+				}
 				$msg = strip_tags($this->convert_html($msg, $page));
+				if ($this->root->bitly_clickable) $this->root->bitly_clickable = $_bitly_clickable;
 			}
 			//$msg = preg_replace('/(https?:\/\/[\w\/\@\$()!?&%#:;.,~\'=*+-]+)/ie', "\$this->bitly('$1')", $msg);
 
@@ -3049,9 +3054,9 @@ EOD;
 			$this->plain_db_write($fromname,"delete");
 
 			$_toname = addslashes($toname);
-			$value = "`name`='$_toname', `name_ci`='$_toname'";
+			$reading = addslashes($this->get_page_reading($toname, TRUE));
+			$value = "`name`='$_toname', `name_ci`='$_toname', `reading`='$reading'";
 			$query = "UPDATE ".$this->xpwiki->db->prefix($this->root->mydirname."_pginfo")." SET $value WHERE pgid = '$id' LIMIT 1";
-			//exit($query);
 			$result = $this->xpwiki->db->query($query);
 
 			// リンク情報更新
@@ -3753,21 +3758,26 @@ EOD;
 	}
 
 	// ページ読みを取得
-	function get_page_reading ($page) {
+	function get_page_reading ($page, $init = FALSE) {
 		// 無効になっている
 		if (! $this->root->pagereading_enable) return '';
 
 		$reading = '';
-		$pgid = $this->get_pgid_by_name($page);
 
-		if ($pgid) {
-			$query = 'SELECT `reading` FROM `'.$this->xpwiki->db->prefix($this->root->mydirname."_pginfo").'` WHERE `pgid` = \''.$pgid.'\' LIMIT 1';
-			$result = $this->xpwiki->db->query($query);
+		if (! $init) {
+			$pgid = $this->get_pgid_by_name($page);
 
-			if ($result)
-			{
-				list($reading) = $this->xpwiki->db->fetchRow($result);
+			if ($pgid) {
+				$query = 'SELECT `reading` FROM `'.$this->xpwiki->db->prefix($this->root->mydirname."_pginfo").'` WHERE `pgid` = \''.$pgid.'\' LIMIT 1';
+				$result = $this->xpwiki->db->query($query);
+
+				if ($result)
+				{
+					list($reading) = $this->xpwiki->db->fetchRow($result);
+				}
 			}
+		} else {
+			$pgid = '';
 		}
 
 		if ($reading) return $reading;
