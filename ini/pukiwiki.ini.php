@@ -1,6 +1,6 @@
 <?php
 // PukiWiki - Yet another WikiWikiWeb clone
-// $Id: pukiwiki.ini.php,v 1.100 2010/01/08 15:07:16 nao-pon Exp $
+// $Id: pukiwiki.ini.php,v 1.101 2010/03/06 08:44:21 nao-pon Exp $
 // Copyright (C)
 //   2002-2006 PukiWiki Developers Team
 //   2001-2002 Originally written by yu-ji
@@ -553,6 +553,9 @@ $root->symbol_cell_align = 1;
 
 // Enable join cell with empty cell.
 $root->empty_cell_join = 1;
+
+// Enable file scheme with brackets.
+$root->use_file_scheme = 0;
 
 /////////////////////////////////////////////////
 // Use date-time rules (See rules.ini.php)
