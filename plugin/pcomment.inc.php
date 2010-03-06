@@ -1,6 +1,6 @@
 <?php
 // PukiWiki - Yet another WikiWikiWeb clone
-// $Id: pcomment.inc.php,v 1.22 2010/01/08 13:48:45 nao-pon Exp $
+// $Id: pcomment.inc.php,v 1.23 2010/03/06 08:26:24 nao-pon Exp $
 //
 // pcomment plugin - Show/Insert comments into specified (another) page
 //
@@ -289,7 +289,7 @@ EOD;
 
 		$refer = isset($this->root->vars['refer']) ? $this->root->vars['refer'] : '';
 		$page  = isset($this->root->vars['page'])  ? $this->root->vars['page']  : '';
-		$template = isset($this->root->vars['temp']) ? $this->root->vars['temp'] : 'default';
+		$template = isset($this->root->vars['temp']) ? $this->root->vars['temp'] : $this->conf['TEMPLATE_DEFAULT'];
 
 		$twitter_msg = '';
 
