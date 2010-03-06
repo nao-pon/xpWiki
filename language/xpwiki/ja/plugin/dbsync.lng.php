@@ -1,7 +1,7 @@
 <?php
 //
 // Created on 2006/11/09 by nao-pon http://hypweb.net/
-// $Id: dbsync.lng.php,v 1.2 2008/05/23 10:10:17 nao-pon Exp $
+// $Id: dbsync.lng.php,v 1.3 2010/03/06 08:33:59 nao-pon Exp $
 //
 
 $msg = array(
@@ -12,6 +12,7 @@ $msg = array(
 	'msg_hint' => '初期導入時はすべてにチェックをつけて実行してください。',
 	'msg_init' => 'ページ基本情報DB',
 	'msg_count' => 'ページカウンター情報DB',
+	'msg_reading' => 'ページ名読みを再取得する。',
 	'msg_noretitle' => '既存のページはタイトル情報を保持する。',
 	'msg_retitle' => '既存のページもタイトル情報を再取得する。',
 	'msg_plain_init' => '検索用テキストDB と ページ間リンク情報DB',
