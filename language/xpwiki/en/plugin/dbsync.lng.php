@@ -1,7 +1,7 @@
 <?php
 //
 // Created on 2006/11/09 by nao-pon http://hypweb.net/
-// $Id: dbsync.lng.php,v 1.2 2008/05/23 10:10:17 nao-pon Exp $
+// $Id: dbsync.lng.php,v 1.3 2010/03/06 08:33:59 nao-pon Exp $
 //
 
 $msg = array(
@@ -12,6 +12,7 @@ $msg = array(
 	'msg_hint' => 'Check all at the time of initial introduction.',
 	'msg_init' => 'Page infomation DB',
 	'msg_count' => 'Page counter DB',
+	'msg_reading' => 'An existing pagename readings.',
 	'msg_noretitle' => 'An existing page maintains title information.',
 	'msg_retitle' => 'An existing page acquires title information again, too.',
 	'msg_plain_init' => 'Text DB for searches and DB for link between pages',

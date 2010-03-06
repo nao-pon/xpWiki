@@ -1,7 +1,7 @@
 <?php
 //
 // Created on 2006/11/09 by nao-pon http://hypweb.net/
-// $Id: dbsync.lng.php,v 1.2 2008/05/23 10:10:16 nao-pon Exp $
+// $Id: dbsync.lng.php,v 1.3 2010/03/06 08:33:59 nao-pon Exp $
 //
 // German Translation Version 1.0 (11.03.2008)
 // Translation English --> German: Octopus (hunter0815@googlemail.com)
@@ -15,6 +15,7 @@ $msg = array(
 	'msg_hint' => 'Überprüfe ständig auf leere introduction.',
 	'msg_init' => 'Seiten Information DB',
 	'msg_count' => 'Seiten Zähler DB',
+	'msg_reading' => 'Eine bestehende pagename-Lektüren.',
 	'msg_noretitle' => 'Eine bestehende Seite beinhaltet Titel-Informationen.',
 	'msg_retitle' => 'Eine bestehende Seite enthält wieder Titel-Informationen.',
 	'msg_plain_init' => 'Text DB für Suche und für Links zwischen Seiten.',

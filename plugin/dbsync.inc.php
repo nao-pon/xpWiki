@@ -1,7 +1,7 @@
 <?php
 //
 // Created on 2006/11/17 by nao-pon http://hypweb.net/
-// $Id: dbsync.inc.php,v 1.39 2009/06/30 23:44:45 nao-pon Exp $
+// $Id: dbsync.inc.php,v 1.40 2010/03/06 08:33:59 nao-pon Exp $
 //
 
 class xpwiki_plugin_dbsync extends xpwiki_plugin {
@@ -10,16 +10,16 @@ class xpwiki_plugin_dbsync extends xpwiki_plugin {
 		$this->conf['timelimit'] = 120;
 		$this->conf['time_margin'] = 10;
 	}
-	
+
 	function plugin_dbsync_action()
 	{
 		// 権限チェック
 		if (!$this->root->userinfo['admin']) {
 			return $this->action_msg_admin_only();
 		}
-		
+
 		$max_execution_time = intval(ini_get('max_execution_time'));
-		
+
 		if ($max_execution_time < $this->conf['timelimit']) {
 			@ set_time_limit($this->conf['timelimit']);
 			$max_execution_time = intval(ini_get('max_execution_time'));
@@ -32,17 +32,17 @@ class xpwiki_plugin_dbsync extends xpwiki_plugin {
 			}
 			$this->conf['timelimit'] = min($max_execution_time, $this->conf['timelimit']) - $this->conf['time_margin'];
 		}
-		
+
 		// 言語ファイルの読み込み
 		$this->load_language();
-		
+
 		$pmode = (empty($this->root->post['pmode']))? '' : $this->root->post['pmode'];
 		$page = (empty($this->root->vars['page']))? '' : $this->root->vars['page'];
 
 		if ($pmode === 'update') {
 			// DB Update
 			return $this->do_dbupdate();
-		} else { 
+		} else {
 			// 管理画面モード指定
 			if ($this->root->module['platform'] == "xoops") {
 				$this->root->runmode = "xoops_admin";
@@ -50,10 +50,10 @@ class xpwiki_plugin_dbsync extends xpwiki_plugin {
 			return $this->show_admin_form();
 		}
 	}
-	
+
 	function show_admin_form () {
 		//error_reporting(E_ERROR);
-		
+
 		$timelimit = $this->conf['timelimit'];
 		$this->msg['msg_usage'] = str_replace(array("%1d","%2d"),array(ini_get('max_execution_time'), $timelimit),$this->msg['msg_usage']);
 		$body = $this->func->convert_html($this->msg['msg_usage']);
@@ -86,11 +86,11 @@ function xpwiki_dbsync_blink(mode)
 {
 	var timer;
 	clearTimeout(xpwiki_dbsync_timerID);
-	
+
 	if (mode == 'start') {
 		document.getElementById('xpwiki_dbsync_submit').style.visibility = "hidden";
 	}
-	
+
 	if (mode == 'stop')
 	{
 		xpwiki_dbsync_doing = false;
@@ -99,7 +99,7 @@ function xpwiki_dbsync_blink(mode)
 	{
 		xpwiki_dbsync_doing = true;
 	}
-	
+
 	if (!xpwiki_dbsync_doing || document.getElementById('xpwiki_dbsync_doing').style.visibility == "visible")
 	{
 		document.getElementById('xpwiki_dbsync_doing').style.visibility = "hidden";
@@ -110,15 +110,15 @@ function xpwiki_dbsync_blink(mode)
 		document.getElementById('xpwiki_dbsync_doing').style.visibility = "visible";
 		timer = 800;
 	}
-	
+
 	if (mode == 'start') {xpwiki_dbsync_setmsg('xpwiki_dbsync_doing','{$this->msg['msg_now_doing']}');}
-	
+
 	if (mode == 'continue')
 	{
 		xpwiki_dbsync_setmsg('xpwiki_dbsync_doing','{$this->msg['msg_next_do']}');
 		document.getElementById('xpwiki_dbsync_doing').style.visibility = "visible";
 	}
-	
+
 	if (xpwiki_dbsync_doing && mode != 'continue')
 	{
 		xpwiki_dbsync_timerID = setTimeout("xpwiki_dbsync_blink()", timer);
@@ -137,6 +137,7 @@ function xpwiki_dbsync_setmsg(id,msg)
   {$this->msg['msg_hint']}
   <div style="margin-left:20px;">
   <input type="checkbox" name="init" value="on" checked="true" />{$this->msg['msg_init']}{$not['i']}<br />
+  &nbsp;&#9500;<input type="checkbox" name="reading" value="on" />{$this->msg['msg_reading']}<br />
   &nbsp;&#9500;<input type="radio" name="title" value="" checked="true" />{$this->msg['msg_noretitle']}<br />
   &nbsp;&#9492;<input type="radio" name="title" value="on" />{$this->msg['msg_retitle']}<br />
   <input type="checkbox" name="count" value="on" checked="true" />{$this->msg['msg_count']}{$not['c']}<br />
@@ -165,29 +166,29 @@ __EOD__;
 			);
 		}
 	}
-	
+
 	function do_dbupdate() {
-		
+
 		if (XC_CLASS_EXISTS('XoopsErrorHandler')) {
 			$xoopsErrorHandler =& XoopsErrorHandler::getInstance();
 			$xoopsErrorHandler->activate(true);
 		}
 		error_reporting(E_ERROR);
 		//error_reporting(E_ALL);
-		
+
 		if (! $this->func->refcheck()) {
 			exit('Invalid REFERER.');
 		}
-		
+
 		$this->conf['start_time'] = $this->cont['UTC'];
-		
+
 		header ("Content-Type: text/html; charset=".$this->cont['CONTENT_CHARSET']);
-		
+
 		// 出力をバッファリングしない
 		while( ob_get_level() ) { ob_end_clean() ; }
 		ob_implicit_flush(true);
 		echo str_pad('',256); //for IE
-		
+
 		echo <<<__EOD__
 <html>
 <head>
@@ -195,9 +196,10 @@ __EOD__;
 </head>
 <body>
 __EOD__;
-			
+
 		$this->root->post['init'] = (!empty($this->root->post['init']))? "on" : "";
 		$this->root->post['count'] = (!empty($this->root->post['count']))? "on" : "";
+		$this->root->post['reading'] = (!empty($this->root->post['reading']))? "on" : "";
 		$this->root->post['title'] = (!empty($this->root->post['title']))? "on" : "";
 		$this->root->post['plain'] = (!empty($this->root->post['plain']))? "on" : "";
 		$this->root->post['plain_all'] = (!empty($this->root->post['plain_all']))? "on" : "";
@@ -205,18 +207,18 @@ __EOD__;
 		$this->root->post['p_info'] = (!empty($this->root->post['p_info']))? "on" : "";
 		$this->root->post['plain_bg'] = (!empty($this->root->post['plain_bg']))? "on" : "";
 		$this->root->post['timelimit'] = (!empty($this->root->post['timelimit']))? intval($this->root->post['timelimit']) : $this->conf['timelimit'];
-		
+
 		$this->conf['timelimit'] = min( $this->root->post['timelimit'], $this->conf['timelimit']);
-		
+
 		if ($this->root->post['init']) $this->pginfo_db_init();
 		if ($this->root->post['count']) $this->count_db_init();
 		if ($this->root->post['attach']) $this->attach_db_init();
 		if ($this->root->post['plain']) $this->plain_db_init();
-		
+
 		// 各種キャッシュファイルの削除
 		// For AutoLink
 		$this->func->autolink_dat_update();
-		
+
 		// Update autoalias.dat (AutoAliasName)
 		$aliases = $this->func->get_autoaliases();
 		if (empty($aliases)) {
@@ -227,7 +229,7 @@ __EOD__;
 			$this->func->autolink_pattern_write($this->cont['CACHE_DIR'] . $this->cont['PKWK_AUTOALIAS_REGEX_CACHE'],
 				$this->func->get_autolink_pattern(array_keys($aliases), $this->root->autoalias, true));
 		}
-		
+
 		// Clear cache *.autolink.api
 		$base = $this->cont['CACHE_DIR'];
 		if (function_exists('glob')) {
@@ -245,21 +247,21 @@ __EOD__;
 				}
 			}
 		}
-		
+
 		// Remove facemarks.js
 		@ unlink($this->cont['CACHE_DIR'] . md5(rtrim($this->cont['HOME_URL'], '/')) . '_facemarks.js');
-		
+
 		echo $this->msg['msg_done'];
 		echo "<script>parent.xpwiki_dbsync_done();parent.xpwiki_dbsync_blink('stop');</script>";
 		echo "</body></html>";
 		exit();
 	}
-	
+
 	// ページ情報データベース初期化
 	function pginfo_db_init()
 	{
 	//	global $xoopsDB,$whatsnew,$post;
-		
+
 		if ($dir = @opendir($this->cont['DATA_DIR']))
 		{
 			// 処理済ファイルデーター
@@ -278,17 +280,17 @@ __EOD__;
 			{
 				echo "<div style=\"font-size:14px;\"><b>DB '".$this->root->mydirname."_pginfo' Already converted {$docnt} pages.</b></div>";
 			}
-			
+
 			echo "<div style=\"font-size:14px;\"><b>DB '".$this->root->mydirname."_pginfo' Now converting... </b>( * = 10 Pages)<hr>";
-			
+
 			$fcounter = $counter = 0;
-			
+
 			$files = array();
 			while($file = readdir($dir))
 			{
 				$files[] = $file;
 			}
-			
+
 			foreach(array_diff($files,$domix) as $file)
 			{
 				if($file == ".." || $file == "." || strstr($file,".txt")===FALSE)
@@ -296,36 +298,37 @@ __EOD__;
 					$dones[0][] = $file;
 					continue;
 				}
-				
+
 				$name=$aids=$gids=$vaids=$vgids= "";
 				$buildtime=$editedtime=$lastediter=$uid=$freeze=$unvisible = 0;
-				
+
 				$page = $this->func->decode(trim(preg_replace("/\.txt$/"," ",$file)));
-	
+
 				if ($page === $this->root->whatsnew)
 				{
 					$dones[0][] = $file;
 					@unlink($this->cont['DATA_DIR'].$file);
 					continue;
 				}
-				
+
 				$name = $this->func->strip_bracket($page);
-				
+
 				// id取得
 				$id = $this->func->get_pgid_by_name($page);
-				
+
+				$reading = $this->root->post['reading']? addslashes($this->func->get_page_reading($name, TRUE)) : '';
 				$name = addslashes($name);
 				$buildtime = filectime($this->cont['DATA_DIR'].$file) - $this->cont['LOCALZONE'];
 				$editedtime = filemtime($this->cont['DATA_DIR'].$file) - $this->cont['LOCALZONE'];
 				if (!$buildtime || $buildtime > $editedtime) $buildtime = $editedtime;
-				
+
 				$checkpostdata = $this->func->get_source($page, TRUE, TRUE);
 				if (!$checkpostdata)
 				{
 					@unlink($this->cont['DATA_DIR'].$file);
 					continue;
 				}
-				
+
 				//echo $page."<hr />";
 				// 凍結？
 				$arg = array();
@@ -333,10 +336,10 @@ __EOD__;
 				{
 					$freeze = 1;
 				}
-				
+
 				// pginfo
 				$pginfo = $this->func->get_pginfo($page, false);
-				
+
 				foreach (array('uid', 'ucd', 'uname', 'einherit', 'vinherit', 'lastuid', 'lastucd', 'lastuname', 'pgorder') as $key) {
 					$$key = addslashes($pginfo[$key]);
 				}
@@ -347,20 +350,20 @@ __EOD__;
 						$$key = '&'.$pginfo[$key].'&';
 					}
 				}
-	
+
 				// タイトル情報
 				$title = "";
 				if (!$id || !empty($this->root->post['title']) || !$this->func->get_heading($page, true))
 				{
 					$title = addslashes($this->func->get_heading_init($page));
 				}
-				
+
 				if (!$id)
 				{
 					// 新規作成
 					$query = "INSERT INTO ".$this->xpwiki->db->prefix($this->root->mydirname."_pginfo").
 						" (`name`,`title`,`buildtime`,`editedtime`,`uid`,`ucd`,`uname`,`freeze`,`einherit`,`eaids`,`egids`,`vinherit`,`vaids`,`vgids`,`lastuid`,`lastucd`,`lastuname`,`update`,`reading`,`name_ci`,`pgorder`)" .
-						" values('$name','$title','$buildtime','$editedtime','$uid','$ucd','$uname','$freeze','$einherit','$eaids','$egids','$vinherit','$vaids','$vgids','$lastuid','$lastucd','$lastuname','1','','$name','$pgorder')";
+						" values('$name','$title','$buildtime','$editedtime','$uid','$ucd','$uname','$freeze','$einherit','$eaids','$egids','$vinherit','$vaids','$vgids','$lastuid','$lastucd','$lastuname','1','$reading','$name','$pgorder')";
 				}
 				else
 				{
@@ -370,10 +373,13 @@ __EOD__;
 						$title = ",`title`='$title'";
 					}
 					//echo $title;
-
+					if ($reading) {
+						$reading = ',`reading`=\''.$reading.'\'';
+					}
 					$value =
-						  "`name`='$name'"
+						 "`name`='$name'"
 						.$title
+						.$reading
 						.",`buildtime`='$buildtime'"
 						.",`editedtime`='$editedtime'"
 						.",`uid`='$uid'"
@@ -397,20 +403,20 @@ __EOD__;
 				if (! $result = $this->xpwiki->db->queryF($query)) {
 					echo 'SQL Error: ' . $query . '<br />';
 				}
-				
+
 				$counter++;
 				$dones[1][] = $file;
 				if (($counter/10) == (floor($counter/10)))
 				{
 					echo "*";
-					
+
 				}
 				if (($counter/100) == (floor($counter/100)))
 				{
 					echo " ( Done ".$counter." Pages !)<br />";
-					
+
 				}
-				
+
 				if ($this->check_time_limit())
 				{
 					// 処理済ファイルリスト保存
@@ -424,28 +430,28 @@ __EOD__;
 				}
 			}
 			closedir($dir);
-			
+
 			echo " ( Done ".$counter." Pages !)<hr />";
 			echo "</div>";
-			
+
 			// アップデートしなかったページ情報(テキストファイルがないページ)を削除済み(editedtime=0)にする
 			$query = "UPDATE ".$this->xpwiki->db->prefix($this->root->mydirname."_pginfo")." SET `editedtime` = '0' WHERE `update` = '0';";
 			$result=$this->xpwiki->db->queryF($query);
-			
+
 			// アップデートフラグ戻し
 			$query = "UPDATE ".$this->xpwiki->db->prefix($this->root->mydirname."_pginfo")." SET `update` = '0';";
 			$result=$this->xpwiki->db->queryF($query);
-			
+
 			@unlink ($work);
 		}
 		$this->root->post['init'] = "";
 	}
-	
+
 	// ページカウンターデータベース初期化
 	function count_db_init()
 	{
 	//	global $xoopsDB,$whatsnew,$post;
-		
+
 		// カウント情報
 		if ($dir = @opendir($this->cont['COUNTER_DIR']))
 		{
@@ -470,18 +476,18 @@ __EOD__;
 				$query = "DELETE FROM ".$this->xpwiki->db->prefix($this->root->mydirname."_count");
 				$result=$this->xpwiki->db->queryF($query);
 			}
-			
+
 			echo "<div style=\"font-size:14px;\"><b>DB '".$this->root->mydirname."_counter' Now converting... </b>( * = 10 Pages)<hr>";
-			
-			
+
+
 			$counter = 0;
-			
+
 			$files = array();
 			while($file = readdir($dir))
 			{
 				$files[] = $file;
 			}
-			
+
 			foreach(array_diff($files,$domix) as $file)
 			{
 				if($file == ".." || $file == "." || strstr($file,".count")===FALSE)
@@ -489,10 +495,10 @@ __EOD__;
 					$dones[0][] = $file;
 					continue;
 				}
-				
+
 				$name=$today=$ip="";
 				$count=$today_count=$yesterday_count=0;
-				
+
 				$page = $this->func->decode(trim(preg_replace("/\.count$/"," ",$file)));
 				// 存在しないページ
 				if ($page === $this->root->whatsnew || !file_exists($this->cont['DATA_DIR'].$this->func->encode($page).".txt"))
@@ -501,7 +507,7 @@ __EOD__;
 					$dones[0][] = $file;
 					continue;
 				}
-				
+
 				$array = array_pad(file($this->cont['COUNTER_DIR'].$file), 5, '');
 				$pgid = $this->func->get_pgid_by_name($page);
 				$count = intval(rtrim($array[0]));
@@ -509,26 +515,26 @@ __EOD__;
 				$today_count = intval(rtrim($array[2]));
 				$yesterday_count = intval(rtrim($array[3]));
 				$ip = rtrim($array[4]);
-				
+
 				$query = "insert into ".$this->xpwiki->db->prefix($this->root->mydirname."_count")." (pgid,count,today,today_count,yesterday_count,ip) values('$pgid',$count,'$today',$today_count,$yesterday_count,'$ip');";
 				if (! $result = $this->xpwiki->db->queryF($query)) {
 					echo 'SQL Error: ' . $query . '<br />';
 				}
-				
+
 				$counter++;
 				if (($counter/10) == (floor($counter/10)))
 				{
 					echo "*";
-					
+
 				}
 				if (($counter/100) == (floor($counter/100)))
 				{
 					echo " ( Done ".$counter." Pages !)<br />";
-					
+
 				}
-				
+
 				$dones[1][] = $file;
-				
+
 				if ($this->check_time_limit())
 				{
 					// 処理済ファイルリスト保存
@@ -544,17 +550,17 @@ __EOD__;
 			closedir($dir);
 			echo " ( Done ".$counter." Pages !)<hr />";
 			echo "</div>";
-			
+
 			@unlink ($work);
 		}
 		$this->root->post['count'] = "";
 	}
-	
+
 	// 検索用 plain DB 再設定
 	function plain_db_init()
 	{
 	//	global $xoopsDB,$whatsnew,$vars,$post,$get,$related,$comment_no;
-		
+
 		if ($dir = @opendir($this->cont['DATA_DIR']))
 		{
 			$this->root->rtf['is_init'] = true;
@@ -574,23 +580,23 @@ __EOD__;
 			{
 				echo "<div style=\"font-size:14px;\"><b>DB '".$this->root->mydirname."_plain' Already converted {$docnt} pages.</b></div>";
 			}
-			
+
 			echo "<div style=\"font-size:14px;\"><b>DB '".$this->root->mydirname."_plain' Now converting... </b>( * = 10 Pages)<hr>";
-			
-			
+
+
 			$counter = 0;
-			
+
 			$files = array();
 			while($file = readdir($dir))
 			{
 				$files[] = $file;
 			}
-			
+
 			// PHP の上限メモリーサイズ
 			$memory_limit = HypCommonFunc::return_bytes(ini_get('memory_limit'));
-			
+
 			$debug = array();
-			
+
 			foreach(array_diff($files,$domix) as $file)
 			{
 				if($file == ".." || $file == "." || strstr($file,".txt")===FALSE)
@@ -598,18 +604,18 @@ __EOD__;
 					$dones[0][] = $file;
 					continue;
 				}
-				
+
 				$this->root->related = array();
 				$page = $this->func->decode(trim(preg_replace("/\.txt$/"," ",$file)));
 				$this->root->vars['page']=$this->root->get['page']=$this->root->post['page'] = $page;
 				$this->root->comment_no = 0;
-				
+
 				if($page === $this->root->whatsnew)
 				{
 					$dones[0][] = $file;
 					continue;
 				}
-				
+
 				$id = $this->func->get_pgid_by_name($page, FALSE, TRUE);
 				$query = "SELECT plain FROM `".$this->xpwiki->db->prefix($this->root->mydirname."_plain")."` WHERE `pgid` = ".$id.";";
 				$result = $this->xpwiki->db->query($query);
@@ -627,7 +633,7 @@ __EOD__;
 				{
 					$mode = "insert";
 				}
-				
+
 				$s_page = htmlspecialchars($page);
 				if ($this->root->post['p_info']) { echo 'Start: '. $s_page . '<br />'; }
 				if ($this->root->post['plain_bg'] || $this->func->plain_db_write($page,$mode,TRUE))
@@ -635,7 +641,7 @@ __EOD__;
 					if ($this->root->post['plain_bg']) {
 						$this->func->need_update_plaindb($page, $mode, FALSE, FALSE);
 					}
-					
+
 					$dones[1][] = $file;
 					$counter++;
 					if ($this->root->post['p_info']) {
@@ -654,14 +660,14 @@ __EOD__;
 					if ($this->root->post['p_info']) { echo 'Error: '. $s_page . '<br />'; }
 					$dones[0][] = $file;
 				}
-				
+
 				if (function_exists('memory_get_usage')) {
 					// メモリーチェック マージン 1MB (1024 * 1024 = 1048576)
 					$memory_full = ($memory_limit && memory_get_usage() + 1048576 > $memory_limit);
 				} else {
 					$memory_full = false;
 				}
-				
+
 				if ($memory_full || $this->check_time_limit())
 				{
 					// 処理済ファイルリスト保存
@@ -683,11 +689,11 @@ __EOD__;
 				echo join('<br />', $debug['donepage']);
 			}
 			echo "</div>";
-			
+
 			@unlink ($work);
 		}
 	}
-	
+
 	// 添付ファイル DB 再設定
 	function attach_db_init()
 	{
@@ -721,19 +727,19 @@ __EOD__;
 				}
 			}
 			echo "<div style=\"font-size:14px;\"><b>DB '".$this->root->mydirname."_attach' Now converting... </b>( * = 10 Pages)<hr>";
-			
+
 			$counter = 0;
-			
+
 			$page_pattern = '(?:[0-9A-F]{2})+';
 			$age_pattern = '(?:\.([0-9]+))?';
 			$pattern = "/^({$page_pattern})_((?:[0-9A-F]{2})+){$age_pattern}$/";
-			
+
 			$files = array();
 			while($file = readdir($dir))
 			{
 				$files[] = $file;
 			}
-			
+
 			foreach(array_diff($files,$domix) as $file)
 			{
 				$matches = array();
@@ -745,20 +751,20 @@ __EOD__;
 				$page = $this->func->decode($matches[1]);
 				$name = $this->func->decode($matches[2]);
 				$age = array_key_exists(3,$matches) ? $matches[3] : 0;
-				
+
 				// サムネイルは除外
 				if (preg_match("/^\d\d?%/",$name))
 				{
 					$dones[0][] = $file;
 					continue;
 				}
-				
+
 				$obj = &new XpWikiAttachFile($this->xpwiki, $page,$name,$age);
 				$obj->getstatus();
-				
+
 				$obj->status['md5'] = md5_file($obj->filename);
 				$obj->putstatus();
-				
+
 				$data['pgid'] = $this->func->get_pgid_by_name($page);
 				$data['name'] = $name;
 				$data['mtime'] = $obj->time;
@@ -766,13 +772,13 @@ __EOD__;
 				$data['type'] = $obj->type;
 				$data['status'] = $obj->status;
 				$data['status']['age'] = $age;
-				
+
 				// ページが存在しない
 				if (! $data['pgid']) {
 					$dones[0][] = $file;
 					continue;
 				}
-	
+
 				if ($this->func->attach_db_write($data,"insert"))
 				{
 					//echo "$page::$name;:$age<br >";
@@ -781,19 +787,19 @@ __EOD__;
 					if (($counter/10) == (floor($counter/10)))
 					{
 						echo "*";
-						
+
 					}
 					if (($counter/100) == (floor($counter/100)))
 					{
 						echo " ( Done ".$counter." Files !)<br />";
-						
+
 					}
 				}
 				else
 				{
 					$dones[0][] = $file;
 				}
-				
+
 				if ($this->check_time_limit())
 				{
 					// 処理済ファイルリスト保存
@@ -809,16 +815,16 @@ __EOD__;
 			closedir($dir);
 			echo " ( Done ".$counter." Files !)<hr />";
 			echo "</div>";
-			
+
 			@unlink ($work);
 		}
 		$this->root->post['attach'] = "";
 	}
-	
+
 	function plugin_dbsync_next_do()
 	{
 	//	global $script,$post,$_links_messages;
-		
+
 		//$token = $this->func->get_token_html();
 		$token = '';
 		$script = $this->func->get_script_uri();
@@ -830,6 +836,7 @@ __EOD__;
   <input type="hidden" name="plugin" value="dbsync" />
   <input type="hidden" name="pmode" value="update" />
   <input type="hidden" name="init" value="{$this->root->post['init']}" />
+  <input type="hidden" name="reading" value="{$this->root->post['reading']}" />
   <input type="hidden" name="title" value="{$this->root->post['title']}" />
   <input type="hidden" name="plain" value="{$this->root->post['plain']}" />
   <input type="hidden" name="plain_all" value="{$this->root->post['plain_all']}" />
@@ -848,10 +855,10 @@ parent.xpwiki_dbsync_blink('continue');
 </body></html>
 __EOD__;
 		echo $html;
-		
+
 		exit();
 	}
-	
+
 	function check_time_limit() {
 		return ($this->conf['start_time'] + $this->conf['timelimit'] < time());
 	}
