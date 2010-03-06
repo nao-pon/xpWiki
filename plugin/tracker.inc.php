@@ -1,6 +1,6 @@
 <?php
 // PukiWiki - Yet another WikiWikiWeb clone
-// $Id: tracker.inc.php,v 1.21 2009/05/25 04:22:25 nao-pon Exp $
+// $Id: tracker.inc.php,v 1.22 2010/03/06 08:21:38 nao-pon Exp $
 // ORG: tracker.inc.php,v 1.57 2007/09/20 15:17:20 henoheno Exp $
 // Issue tracker plugin (See Also bugtrack plugin)
 
@@ -19,24 +19,36 @@ class xpwiki_plugin_tracker extends xpwiki_plugin
 
 		// Sort N columns at a time
 		$this->cont['PLUGIN_TRACKER_LIST_SORT_LIMIT'] = 3;
-		
+
 		// tracker_listで表示しないページ名(正規表現で)
 		// Excluding pattern
 		$this->cont['PLUGIN_TRACKER_LIST_EXCLUDE_PATTERN'] = '#^SubMenu$|/#'; // 'SubMenu'ページ および '/'を含むページを除外する 'SubMenu' and using '/'
 		//define('PLUGIN_TRACKER_LIST_EXCLUDE_PATTERN','#(?!)#'); // 制限しない場合はこちら Nothing excluded
-	
+
 		// 項目の取り出しに失敗したページを一覧に表示する
 		// Show error rows (can't capture columns properly)
 		$this->cont['PLUGIN_TRACKER_LIST_SHOW_ERROR_PAGE'] = TRUE;
 
 		// ----
 
+		// Sort type
+		$this->cont['PLUGIN_TRACKER_SORT_TYPE_REGULAR'] = 0;
+		$this->cont['PLUGIN_TRACKER_SORT_TYPE_NUMERIC'] = 1;
+		$this->cont['PLUGIN_TRACKER_SORT_TYPE_STRING'] = 2;
+		$this->cont['PLUGIN_TRACKER_SORT_TYPE_NATURAL'] = 6;
+		if (! defined('SORT_NATURAL')) $this->cont['SORT_NATURAL'] = PLUGIN_TRACKER_SORT_TYPE_NATURAL;
+
+		// Sort order
+		$this->cont['PLUGIN_TRACKER_SORT_ORDER_DESC'] = 3;
+		$this->cont['PLUGIN_TRACKER_SORT_ORDER_ASC'] = 4;
+		$this->cont['PLUGIN_TRACKER_SORT_ORDER_DEFAULT'] = $this->cont['PLUGIN_TRACKER_SORT_ORDER_ASC'];
+
 		// Sort options
 		$this->cont['PLUGIN_TRACKER_LIST_SORT_DESC'] = 3;
 		$this->cont['PLUGIN_TRACKER_LIST_SORT_ASC'] = 4;
 		$this->cont['PLUGIN_TRACKER_LIST_SORT_DEFAULT'] = $this->cont['PLUGIN_TRACKER_LIST_SORT_ASC'];
 	}
-	
+
 	function can_call_otherdir_convert() {
 		return 2;
 	}
@@ -44,9 +56,9 @@ class xpwiki_plugin_tracker extends xpwiki_plugin
 	// Show a form
 	function plugin_tracker_convert()
 	{
-	
+
 		if ($this->cont['PKWK_READONLY'] === 1) return ''; // Show nothing
-	
+
 		$base = $refer = isset($this->root->vars['page']) ? $this->root->vars['page'] : '';
 		$config_name = $this->cont['PLUGIN_TRACKER_DEFAULT_CONFIG'];
 		$form        = $this->cont['PLUGIN_TRACKER_DEFAULT_FORM'];
@@ -72,15 +84,15 @@ class xpwiki_plugin_tracker extends xpwiki_plugin
 			}
 		}
 		unset($args, $argc, $arg);
-		
+
 		$config = new XpWikiConfig($this->xpwiki, 'plugin/tracker/'.$config_name);
-	
+
 		if (!$config->read()) {
 			return '#tracker: Config \'' . htmlspecialchars($config_name) . '\' not found<br />';
 		}
 		$config->config_name = $config_name;
 		//$fields = $this->plugin_tracker_get_fields($base,$refer,$config);
-	
+
 		$form = $config->page.'/'.$form;
 		if (!$this->func->is_page($form)) {
 			return '#tracker: Form \'' . $this->func->make_pagelink($form) . '\' not found<br />';
@@ -98,7 +110,7 @@ class xpwiki_plugin_tracker extends xpwiki_plugin
 			}
 			unset($fields[$field]);
 		}
-		
+
 		$script = $this->func->get_script_uri();
 		$retval = str_replace($from, $to, $this->func->convert_html($this->plugin_tracker_get_source($form)));
 		$hidden = implode('<br />' . "\n", $hidden);
@@ -115,7 +127,7 @@ EOD;
 	function plugin_tracker_action()
 	{
 		if ($this->cont['PKWK_READONLY']) $this->func->die_message('PKWK_READONLY prohibits editing');
-	
+
 		$config_name = isset($this->root->post['_config']) ? $this->root->post['_config'] : '';
 		$base  = isset($this->root->post['_base'])  ? $this->root->post['_base']  : '';
 		$refer = isset($this->root->post['_refer']) ? $this->root->post['_refer'] : $base;
@@ -126,7 +138,7 @@ EOD;
 				'body' => 'Page name (' . htmlspecialchars($refer) . ') invalid'
 			);
 		}
-		
+
 		// ページ名を決定
 		$num = 0;
 		$name = (isset($this->root->post['_name'])) ? $this->root->post['_name'] : '';
@@ -139,12 +151,12 @@ EOD;
 		if (!$this->func->is_pagename($page)) {
 			$page = $base;
 		}
-	
+
 		while ($this->func->is_page($page)) {
 			$real = ++$num;
 			$page = $base . '/' . $real;
 		}
-		
+
 		// Loading configuration
 		$config_name = isset($this->root->post['_config']) ? $this->root->post['_config'] : '';
 		$config = new XpWikiConfig($this->xpwiki, 'plugin/tracker/' . $config_name);
@@ -168,10 +180,10 @@ EOD;
 		$_post['_name'] = $name;
 		$_post['_real'] = $real;
 		// $_post['_refer'] = $_post['refer'];
-	
+
 		// Creating an empty page, before attaching files
 		// touch($this->func->get_filename($page));
-	
+
 		// Load $fields
 		$from = $to = array();
 		$fields = $this->plugin_tracker_get_fields($page, $refer, $config);
@@ -180,10 +192,10 @@ EOD;
 			$to[]   = isset($_post[$field]) ? $fields[$field]->format_value($_post[$field]) : '';
 			unset($fields[$field]);
 		}
-	
+
 		// Load $template
 		$template = $this->plugin_tracker_get_source($template_page);
-	
+
 		// Repalace every [$field]s to real values in the $template
 		$subject = $subject_e = array();
 		foreach (array_keys($template) as $num) {
@@ -207,17 +219,17 @@ EOD;
 					// Escape for some TextFormattingRules: <table> and <dr>
 					$to_e[] = str_replace('|', '&#x7c;', $value);
 				} else{
-					$to_e[] = $value;	
+					$to_e[] = $value;
 				}
 			}
 			foreach (str_replace($from, $to_e, $subject_e) as $num => $line) {
 				$template[$num] = $line;
 			}
 		}
-	
+
 		// Writing page data, without touch
 		$this->func->page_write($page, join('', $template));
-	
+
 		$this->func->send_location($page);
 	}
 
@@ -266,7 +278,7 @@ EOD;
 
 		return $fields;
 	}
-	
+
 	///////////////////////////////////////////////////////////////////////////
 	// 一覧表示
 	// tracker_list plugin
@@ -301,7 +313,7 @@ EOD;
 		unset($args, $argc, $arg);
 		return $this->plugin_tracker_list_render($base, $refer, $config_name, $list, $order, $limit);
 	}
-	
+
 	function plugin_tracker_list_action()
 	{
 		$base   = isset($this->root->get['base'])   ? $this->root->get['base']   : '';
@@ -321,7 +333,7 @@ EOD;
 				$this->plugin_tracker_list_render($base, $base, $config, $list, $order, $limit)
 		);
 	}
-	
+
 	function plugin_tracker_list_render($base, $refer, $config_name, $list, $order_commands = '', $limit = 0)
 	{
 		$base  = trim($base);
@@ -345,9 +357,9 @@ EOD;
 		if (!$this->func->is_page($config->page.'/'.$list)) {
 			return '#tracker_list: List not found: ' . $this->func->make_pagelink($config->page . '/' . $list) . '<br />';
 		}
-	
+
 		$list = & new XpWikiTracker_list($this->xpwiki, $base, $refer, $config, $list);
-		if ($list->sort($order_commands) === FALSE) {
+		if ($list->sortRows($order_commands) === FALSE) {
 			return '#tracker_list: ' . htmlspecialchars($list->error) . '<br />';
 		}
 		$result = $list->toString($limit);
@@ -357,7 +369,7 @@ EOD;
 		unset($list);
 		return $this->func->convert_html($result);
 	}
-	
+
 	function plugin_tracker_get_source($page, $join = FALSE)
 	{
 		$source = $this->func->get_source($page, TRUE, $join);
@@ -365,7 +377,7 @@ EOD;
 		$this->func->cleanup_template_source($source);
 		return $source;
 	}
-	
+
 	function plugin_tracker_message($key)
 	{
 		return isset($this->root->_tracker_messages[$key]) ? $this->root->_tracker_messages[$key] : 'NOMESSAGE';
@@ -406,28 +418,28 @@ class XpWikiTracker_field
 		$this->config = &$config;
 		$this->data = isset($this->root->post[$this->name]) ? $this->root->post[$this->name] : '';
 	}
-	
+
 	// XHTML part inside a form
 	function get_tag()
 	{
 		return '';
 	}
-	
+
 	function get_style()
 	{
 		return '%s';
 	}
-	
+
 	function format_value($value)
 	{
 		return $value;
 	}
-	
+
 	function format_cell($str)
 	{
 		return $str;
 	}
-	
+
 	// Compare key for Tracker_list->sort()
 	function get_value($value)
 	{
@@ -457,7 +469,7 @@ class XpWikiTracker_field_page extends XpWikiTracker_field_text
 	var $sort_type = SORT_STRING;
 
 	function format_value($value) {
-		
+
 		$value = $this->func->strip_bracket($value);
 
 		if ($this->default_value == '$uname' || $this->default_value == '$X_uname' ) {
@@ -501,7 +513,7 @@ class XpWikiTracker_field_textarea extends XpWikiTracker_field
 		$emoji = (in_array('emoji', $this->values))? $this->func->get_emoji_pad($domid, FALSE) : '';
 		return "<textarea id=\"$domid\" name=\"$s_name\" cols=\"$s_cols\" rows=\"$s_rows\">$s_value</textarea>$emoji";
 	}
-	
+
 	function format_cell($str) {
 		$str = preg_replace('/[\r\n]+/', '', $str);
 		if (!empty($this->values[2]) && strlen($str) > ($this->values[2] + 3)) {
@@ -536,19 +548,19 @@ class XpWikiTracker_field_format extends XpWikiTracker_field
 			}
 		}
 	}
-	
+
 	function get_tag()
 	{
 		$s_name = htmlspecialchars($this->name);
 		$s_size = htmlspecialchars($this->values[0]);
 		return "<input type=\"text\" name=\"$s_name\" size=\"$s_size\" />";
 	}
-	
+
 	function get_key($str)
 	{
 		return ($str == '') ? 'IS NULL' : 'IS NOT NULL';
 	}
-	
+
 	function format_value($str)
 	{
 		if (is_array($str)) {
@@ -557,7 +569,7 @@ class XpWikiTracker_field_format extends XpWikiTracker_field
 		$key = $this->get_key($str);
 		return isset($this->formats[$key]) ? str_replace('%s',$str,$this->formats[$key]) : $str;
 	}
-	
+
 	function get_style($str)
 	{
 		$key = $this->get_key($str);
@@ -572,11 +584,11 @@ class XpWikiTracker_field_file extends XpWikiTracker_field_format
 	function get_tag()
 	{
 		static $loaded = array();
-		
+
 		$s_name = htmlspecialchars($this->name);
 		$s_size = htmlspecialchars($this->values[0]);
 		$s_id = '_p_tracker_' . $s_name . '_' . $this->id;
-		
+
 		$attach_plugin =& $this->func->get_plugin_instance('attach');
 		$pass = '';
 		if (!isset($loaded[$this->xpwiki->pid]) && $this->cont['ATTACH_PASSWORD_REQUIRE'] && !$this->cont['ATTACH_UPLOAD_ADMIN_ONLY'] && !$this->root->userinfo['uid']) {
@@ -584,17 +596,17 @@ class XpWikiTracker_field_file extends XpWikiTracker_field_format
 			$pass = '<br />'.$title.': <input type="password" name="upload_pass" size="8" />';
 		}
 		$loaded[$this->xpwiki->pid] = true;
-		
+
 		return "<input type=\"file\" name=\"$s_name\" size=\"$s_size\" /> <input type=\"checkbox\" id=\"{$s_id}_copyright\" name=\"{$s_name}_copyright\" value=\"1\" /> <label for=\"{$s_id}_copyright\">{$this->root->_attach_messages['msg_copyright']}</label>" . $pass;
 	}
-	
+
 	function format_value()
 	{
 		if (isset($_FILES[$this->name]))
 		{
 			$copyright = (isset($this->root->post[$this->name.'_copyright']))? TRUE : FALSE;
 			$pass = (empty($this->root->post['upload_pass']))? NULL : $this->root->post['upload_pass'];
-			
+
 			$attach_plugin =& $this->func->get_plugin_instance('attach');
 			$result = $attach_plugin->attach_upload($_FILES[$this->name], $this->base, $pass, $copyright);
 			if ($result['result']) { // アップロード成功 Upload success
@@ -613,7 +625,7 @@ class XpWikiTracker_field_radio extends XpWikiTracker_field_format
 {
 	var $sort_type = SORT_NUMERIC;
 	var $_options  = array();
-	
+
 	function get_tag()
 	{
 		$s_name = htmlspecialchars($this->name);
@@ -632,12 +644,12 @@ class XpWikiTracker_field_radio extends XpWikiTracker_field_format
 
 		return $retval;
 	}
-	
+
 	function get_key($str)
 	{
 		return $str;
 	}
-	
+
 	function get_value($value)
 	{
 		$options = & $this->_options;
@@ -650,7 +662,7 @@ class XpWikiTracker_field_radio extends XpWikiTracker_field_format
 			);
 			$options[$name] = array_flip($values);	// array('value0' => 0, 'value1' => 1, ...)
 		}
-		
+
 		return isset($options[$name][$value]) ? $options[$name][$value] : $value;
 	}
 }
@@ -756,13 +768,13 @@ class XpWikiTracker_field_past extends XpWikiTracker_field
 	{
 		return $this->func->get_passage($timestamp,FALSE);
 	}
-	
+
 	function get_value($value)
 	{
 		return $this->cont['UTIME'] - $value;
 	}
 }
-	
+
 // 一覧クラス
 // Listing class
 class XpWikiTracker_list
@@ -926,16 +938,160 @@ class XpWikiTracker_list
 					$fields[$fieldname]->get_value($row[$fieldname]) :
 					'';
 			}
-			$params[] = $array;
-			$params[] = $fields[$fieldname]->sort_type;
-			$params[] = $order;
+			$params[] = & $array;
+			$params[] = & $fields[$fieldname]->sort_type;
+			$params[] = & $order;
 		}
 		$params[] = & $this->rows;
 
 		call_user_func_array('array_multisort', $params);
 		$this->order = $orders;
 
-		return TRUE; 
+		return TRUE;
+	}
+
+	// setSortOrder()
+	function _order_commands2orders($order_commands = '')
+	{
+		$order_commands = trim($order_commands);
+		if ($order_commands == '') $order_commands = $this->cont['PLUGIN_TRACKER_DEFAULT_ORDER'];
+		if ($order_commands == '') return array();
+
+		$orders = array();
+
+		$i = 0;
+		foreach (explode(';', $order_commands) as $command) {
+			$command = trim($command);
+			if ($command == '') continue;
+
+			$arg = explode(':', $command, 2);
+			$fieldname = isset($arg[0]) ? trim($arg[0]) : '';
+			$order     = isset($arg[1]) ? trim($arg[1]) : '';
+
+			$_order = $this->_sortkey_string2define($order);
+			if ($_order === FALSE) {
+				$this->error =  'Invalid sort key: ' . $order;
+				return FALSE;
+			} else if (isset($orders[$fieldname])) {
+				$this->error =  'Sort key already set for: ' . $fieldname;
+				return FALSE;
+			}
+
+			if ($this->cont['PLUGIN_TRACKER_LIST_SORT_LIMIT'] <= $i) continue;
+			++$i;
+
+			$orders[$fieldname] = $_order;
+		}
+
+		return $orders;
+	}
+
+	// Set commands for sort()
+	function setSortOrder($order_commands = '')
+	{
+		$orders = $this->_order_commands2orders($order_commands);
+		if ($orders === FALSE) {
+			unset($this->orders);
+			return FALSE;
+		} else {
+			$this->orders = $orders;
+			return TRUE;
+		}
+	}
+
+	// sortRows(): Internal sort type => PHP sort define
+	function _sort_type_dropout($order)
+	{
+		switch ($order) {
+		case $this->cont['PLUGIN_TRACKER_SORT_TYPE_REGULAR']: return SORT_REGULAR;
+		case $this->cont['PLUGIN_TRACKER_SORT_TYPE_NUMERIC']: return SORT_NUMERIC;
+		case $this->cont['PLUGIN_TRACKER_SORT_TYPE_STRING']:  return SORT_STRING;
+		case $this->cont['PLUGIN_TRACKER_SORT_TYPE_NATURAL']: return SORT_NATURAL;
+		default:
+			$this->error = 'Invalid sort type';
+			return FALSE;
+		}
+	}
+
+
+	// sortRows(): Internal sort order => PHP sort define
+	function _sort_order_dropout($order)
+	{
+		switch ($order) {
+		case $this->cont['PLUGIN_TRACKER_SORT_ORDER_ASC']:  return SORT_ASC;
+		case $this->cont['PLUGIN_TRACKER_SORT_ORDER_DESC']: return SORT_DESC;
+		default:
+			$this->error = 'Invalid sort order';
+			return FALSE;
+		}
+	}
+
+	// Sort $this->rows by $this->orders
+	function sortRows($orders)
+	{
+		$this->setSortOrder($orders);
+		if (! isset($this->orders)) {
+			$this->error = "Sort order seems not set";
+			return FALSE;
+		}
+
+		$fields = $this->fields;
+		$orders = $this->orders;
+		$types  = array();
+
+		$fieldnames = array_keys($orders);	// Field names to sort
+
+		foreach ($fieldnames as $fieldname) {
+			if (! isset($fields[$fieldname])) {
+				$this->error =  'No such field: ' . $fieldname;
+				return FALSE;
+			}
+			$types[$fieldname]  = $this->_sort_type_dropout($fields[$fieldname]->sort_type);
+			$orders[$fieldname] = $this->_sort_order_dropout($orders[$fieldname]);
+			if ($types[$fieldname] === FALSE || $orders[$fieldname] === FALSE) return FALSE;
+		}
+
+		$columns = array();
+		foreach ($this->rows as $row) {
+			foreach ($fieldnames as $fieldname) {
+				if (isset($row[$fieldname])) {
+					$columns[$fieldname][] = $fields[$fieldname]->get_value($row[$fieldname]);
+				} else {
+					$columns[$fieldname][] = '';
+				}
+			}
+		}
+
+		$params = array();
+		foreach ($fieldnames as $fieldname) {
+
+			if ($types[$fieldname] == SORT_NATURAL) {
+				$column = & $columns[$fieldname];
+				natcasesort($column);
+				$i = 0;
+				$last = NULL;
+				foreach (array_keys($column) as $key) {
+					// Consider the same values there, for array_multisort()
+					if ($last !== $column[$key]) ++$i;
+					$last = strtolower($column[$key]);	// natCASEsort()
+					$column[$key] = $i;
+				}
+				ksort($column, SORT_NUMERIC);	// Revert the order
+				$types[$fieldname] = SORT_NUMERIC;
+			}
+
+			// One column set (one-dimensional array, sort type, and sort order)
+			// for array_multisort()
+			$params[] = & $columns[$fieldname];
+			$params[] = & $types[$fieldname];
+			$params[] = & $orders[$fieldname];
+		}
+		if (! empty($orders) && ! empty($this->rows)) {
+			$params[] = & $this->rows;	// The target
+			call_user_func_array('array_multisort', $params);
+		}
+
+		return TRUE;
 	}
 
 	// toString(): Sort key: Define to string (internal var => string)
@@ -1010,7 +1166,7 @@ class XpWikiTracker_list
 	function _replace_title($matches = array())
 	{
 		$fields = $this->fields;
-		$orders = $this->order;
+		$orders = $this->orders;
 
 		$fieldname = isset($matches[1]) ? $matches[1] : '';
 		if (! isset($fields[$fieldname])) {
