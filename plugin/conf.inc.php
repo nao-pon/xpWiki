@@ -1,7 +1,7 @@
 <?php
 /*
  * Created on 2008/01/24 by nao-pon http://hypweb.net/
- * $Id: conf.inc.php,v 1.19 2010/01/08 13:56:06 nao-pon Exp $
+ * $Id: conf.inc.php,v 1.20 2010/03/06 08:40:29 nao-pon Exp $
  */
 
 class xpwiki_plugin_conf extends xpwiki_plugin {
@@ -237,7 +237,12 @@ class xpwiki_plugin_conf extends xpwiki_plugin {
 			'bitly_clickable' => array(
 				'kind' => 'root',
 				'type' => 'integer',
-				'form' => 'yesno',
+				'form' => 'radio',
+				'list' => array(
+					'Disabled' => 0,
+					'Enabled' => 1,
+					'Enabled with link' => 2,
+				),
 			),
 			'twitter_consumer_key' => array(
 				'kind' => 'root',
