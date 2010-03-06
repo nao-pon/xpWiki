@@ -1,7 +1,7 @@
 <?php
 /*
  * Created on 2008/03/24 by nao-pon http://hypweb.net/
- * $Id: attach.php,v 1.23 2009/11/17 09:09:58 nao-pon Exp $
+ * $Id: attach.php,v 1.24 2010/03/06 08:35:25 nao-pon Exp $
  */
 
 //-------- епеще╣
@@ -1036,7 +1036,7 @@ class XpWikiAttachPages
 			//if ($mode == "imglist") $where[] = "`type` LIKE 'image%' AND `age` = 0";
 			//if ($mode == "imglist") $where[] = "`age` = 0";
 			if (!empty($this->root->vars['word'])) {
-				foreach(explode(' ', mb_convert_kana($this->root->vars['word']), 's') as $search) {
+				foreach(explode(' ', mb_convert_kana($this->root->vars['word'], 's')) as $search) {
 					$where[] = '`name` LIKE \'%'.addslashes($search).'%\'';
 				}
 			}
