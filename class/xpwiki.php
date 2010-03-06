@@ -1,11 +1,11 @@
 <?php
 //
 // Created on 2006/09/29 by nao-pon http://hypweb.net/
-// $Id: xpwiki.php,v 1.95 2009/05/02 02:13:27 nao-pon Exp $
+// $Id: xpwiki.php,v 1.96 2010/03/06 08:36:22 nao-pon Exp $
 //
 
 class XpWiki {
-	
+
 	var $runmode = "xoops";
 	var $module;
 
@@ -13,34 +13,34 @@ class XpWiki {
 	var $const; // Like a Const
 	var $func;  // All functions
 	var $db;    // Database Connection
-	
+
 	var $title;
 	var $page;
 	var $skin_title;
 	var $body;
 	var $html;
 	var $breadcrumbs_array;
-	
+
 	var $iniVar;
-	
+
 	var $pid;
-	
+
 	var $isXpWiki = TRUE;
-	
+
 	var $admin_messages = array();
 
 	function XpWiki ($mydirname, $moddir='modules/') {
-		
+
 		static $pid;
-		
+
 		$pid ++;
 		$this->pid = $pid;
-				
+
 		$this->root =& new XpWikiRoot();
 		$this->cont =& $this->root->c;
 		$this->root->mydirname = $mydirname;
 		$this->cont['MOD_DIR_NAME'] = $moddir;
-		
+
 		$this->func =& new XpWikiFunc($this);
 		$this->func->set_moduleinfo();
 		$this->func->set_siteinfo();
@@ -49,13 +49,13 @@ class XpWiki {
 		$this->root->mytrustdirpath = dirname(dirname(__FILE__));
 
 		$this->cont['DATA_HOME'] = $this->root->mydirpath."/";
-		
+
 		$this->cont['HOME_URL'] = $this->cont['ROOT_URL'].$moddir.$mydirname."/";
-		
+
 		$_urls = parse_url($this->cont['ROOT_URL']);
 		$this->cont['MY_HOST_URL'] = $_urls['scheme'] . '://' . $_urls['host'] . (isset($_urls['port'])? ':' . $_urls['port'] : '');
-		
-		$this->db =& $this->func->get_db_connection(); 
+
+		$this->db =& $this->func->get_db_connection();
 
 		// Check pukiwiki.ini.php
 		if (! $this->root->module['checkRight'] || ! file_exists($this->cont['DATA_HOME'] . 'private/ini/pukiwiki.ini.php')) {
@@ -89,11 +89,11 @@ class XpWiki {
 	}
 
 	function init($page = "") {
-		
+
 		static $oid;
 		$page = strval($page);
 		if ($page !== '') {$this->cont['page_show'] = $page;}
-		
+
 		// GET, POST, COOKIE
 		// 基本的に直接操作しない
 		$this->root->get    = $_GET;
@@ -107,16 +107,16 @@ class XpWiki {
 
 		// ini ファイル読み込み
 		$this->func->load_ini();
-		
+
 		// Init runtime var.
 		$this->root->init();
 
 		// 各パラメーターを初期化
 		$this->func->init();
-		
+
 		// プラグインインスタンスを初期化
-		$this->func->get_plugin_instance(NULL); 
-		
+		$this->func->get_plugin_instance(NULL);
+
 		// オプション設定
 		if (!empty($this->iniVar['root'])) {
 			foreach($this->iniVar['root'] as $key => $val) {
@@ -131,7 +131,7 @@ class XpWiki {
 
 		// Set Locale (LC_CTYPE only)
 		setlocale(LC_CTYPE, $this->cont['LC_CTYPE']);
-		
+
 		// 追加フェイスマークの処理
 		if ($this->root->use_extra_facemark) {
 			$this->root->facemark_rules = array_merge($this->func->get_extra_facemark(), $this->root->facemark_rules);
@@ -141,17 +141,17 @@ class XpWiki {
 		if ($this->root->usefacemark) {
 			$this->root->line_rules = array_merge($this->root->facemark_rules, $this->root->line_rules);
 		}
-		
+
 		// <pre> の幅指定
 		if ( stristr($this->root->ua, 'msie')) {
 			$this->root->pre_width = rawurlencode($this->root->pre_width_ie);
 		}
-		
+
 		// Re-setting
 		if (strtolower($this->cont['PKWK_SAFE_MODE']) === 'auto') {
 			$this->cont['PKWK_SAFE_MODE'] = (! $this->root->userinfo['admin']);
 		}
-		
+
 		// Object id
 		if (isset($oid[$this->pid])) {
 			$oid[$this->pid]++;
@@ -161,12 +161,12 @@ class XpWiki {
 		$this->root->rtf['oid'] = $oid[$this->pid];
 
 	}
-	
+
 	function execute() {
-		
+
 		$root = & $this->root;
 		$func = & $this->func;
-				
+
 		$base    = $root->defaultpage;
 		$retvars = array();
 
@@ -211,58 +211,58 @@ class XpWiki {
 			$title = htmlspecialchars($func->strip_bracket($base));
 			$page  = $func->make_search($base);
 
-			if (isset($retvars['msg']) && $retvars['msg'] != '') {
+			if (! empty($retvars['msg'])) {
 				$title = str_replace('$1', $title, $retvars['msg']);
 				$page  = str_replace('$1', $page,  $retvars['msg']);
 			}
 
-			if (isset($retvars['body']) && $retvars['body'] != '') {
+			if (! empty($retvars['body'])) {
 				$body = $retvars['body'];
 			} else {
-				if ($base == '' || ! $func->is_page($base)) {
+				if ($base === '' || ! $func->is_page($base)) {
 					$base  = $root->defaultpage;
 					$page  = $func->make_search($base);
 				}
-				
-				if (!empty($root->vars['cmd']) && $root->vars['cmd'] != 'read') {
+
+				if (! empty($root->vars['cmd']) && $root->vars['cmd'] !== 'read') {
 					$func->ref_save($base);
-					if (empty($retvars['redirect'])) $retvars['redirect'] = $this->func->get_page_uri($base, true);
+					if (empty($retvars['redirect'])) $retvars['redirect'] = $func->get_page_uri($base, true);
 					$func->redirect_header($retvars['redirect'], 0, $title);
 					exit();
 				} else {
 					$root->vars['cmd']  = 'read';
 					$root->vars['page'] = $base;
 					$body = $func->get_body($base);
-					
+
 					if ($root->trackback) {
 						$body .= $func->tb_get_rdf($base);
 					}
 					$func->ref_save($base);
-					
+
 					// 各ページ用の .css
 					$root->head_tags[] = $func->get_page_css_tag($base);
-					
+
 				}
 			}
-			
+
 			$func->convert_finisher($body);
 
 			// JobStack
 			if ($root->render_mode === 'main') {
 				$body .= $func->get_jobstack_imagetag();
 			}
-			
+
 			// Outputas normal
 			if ($root->viewmode === 'normal' || $root->viewmode === 'print') {
 				$page_title = strip_tags($title);
 				$content_title = (!empty($root->content_title) && $title !== $root->content_title)?
 					$func->unhtmlspecialchars($root->content_title, ENT_QUOTES) : '';
-				
+
 				$root->pagetitle = trim(str_replace(
 										array('$page_title', '$content_title', '$module_title'),
 										array($page_title, $content_title, $root->module_title),
 										$root->html_head_title));
-	
+
 				$this->title         = $title;
 				$this->page          = $base;
 				$this->skin_title    = $page;
@@ -272,10 +272,10 @@ class XpWiki {
 				$this->head_tags     = $root->head_tags;
 				$this->related       = $root->related;
 				$this->notyets       = $root->notyets;
-				
+
 				return;
 			}
-			
+
 			// Output as Ajax -> exit
 			if ($root->viewmode === 'ajax') {
 				$func->output_ajax($body);
@@ -287,7 +287,7 @@ class XpWiki {
 			}
 		}
 	}
-	
+
 	function catbody () {
 		// Check Skin name
 		if (! file_exists($this->cont['SKIN_FILE']) || $this->root->runmode === 'xoops_admin') {
@@ -295,7 +295,7 @@ class XpWiki {
 			$this->cont['SKIN_DIR'] = 'skin/' . $this->cont['SKIN_NAME'] . '/';
 			$this->cont['SKIN_FILE'] = $this->cont['DATA_HOME'] . $this->cont['SKIN_DIR'] . 'pukiwiki.skin.php';
 		}
-		
+
 		// SKIN select from Cookie or Plugin.
 		if ($this->cont['SKIN_CHANGER'] && $this->cont['UA_PROFILE'] !== 'keitai' && (!empty($this->root->cookie['skin']) || is_string($this->cont['SKIN_CHANGER']))) {
 			$this->cont['SKIN_NAME'] = empty($this->root->cookie['skin'])? $this->cont['SKIN_CHANGER'] : $this->root->cookie['skin'];
@@ -335,7 +335,7 @@ class XpWiki {
 				$this->cont['SKIN_FILE'] = $this->root->mytrustdirpath . '/skin/print.skin.php';
 			}
 		}
-		
+
 		// Set Skin Name for FCKeditor.
 		$this->func->add_js_var_head('XpWiki.SkinName["'.$this->root->mydirname.'"]', $this->cont['SKIN_NAME']);
 
@@ -345,40 +345,40 @@ class XpWiki {
 		$this->html = ob_get_contents();
 		@ ob_end_clean();
 		if (!empty($this->root->runmode)) $this->runmode = $this->root->runmode;
-		
+
 		$this->breadcrumbs_array = $this->func->get_breadcrumbs_array($this->page);
 		$this->breadcrumbs_array[] = array('name' => preg_replace('#^'.preg_quote(preg_replace('#/[^/]+$#','',$this->page).'/', '#').'#', '', $this->title), 'url' =>'');
 
 		return;
 	}
-	
+
 	function get_body () {
 
 		return $this->body;
 
 	}
-	
+
 	function get_var ($var) {
 		return (isset($this->$var))? $this->$var : null;
 	}
-	
+
 	function get_page_views () {
 		return $this->func->get_page_views($this->page);
 	}
-	
+
 	function get_comment_count () {
 		return $this->func->count_page_comments($this->page);
 	}
-	
+
 	function get_pginfo () {
 		return $this->func->get_pginfo($this->page);
 	}
-	
+
 	function get_html_for_block ($page, $width = "100%", $div_class = 'xpwiki_b_$mydirname', $css_tag = NULL, $configs = array(), $byArray = FALSE) {
-		
+
 		// configs
 		$this->iniVar = $configs;
-		
+
 		// 初期化
 		$src = '';
 		if (is_array($page) && !empty($page['source'])) {
@@ -391,15 +391,15 @@ class XpWiki {
 		if (is_null($css_tag)) {
 			$css_tag = $this->root->main_css;
 		}
-		
+
 		$div_class = str_replace('$mydirname', $this->root->mydirname, $div_class);
-		
+
 		// for menu plugin etc..
 		$this->root->runmode = "xoops";
-		
+
 		// ブロック取得モード
 		$this->root->render_mode = 'block';
-		
+
 		// 実行
 		if ($src) {
 			$this->body = $this->func->convert_html($src);
@@ -407,18 +407,18 @@ class XpWiki {
 		} else {
 			$this->execute();
 		}
-		
+
 		if (!trim($this->body)) {
 			return $byArray? array('', '') : '';
 		}
-		
+
 		// SKIN select from Cookie or Plugin.
 		if ($this->cont['SKIN_CHANGER']) {
 			if ($this->root->cookie['skin']) {$this->cont['SKIN_NAME'] = $this->root->cookie['skin']; }
 			if (preg_match('/^[\w-]+$/', $this->cont['SKIN_NAME'])) {
 				if (substr($this->cont['SKIN_NAME'],0,3) === "tD-") {
 					//tDiary's theme
-					
+
 				} else {
 					//PukiWiki's skin
 					$skindir = "skin/" . $this->cont['SKIN_NAME'] . "/";
@@ -438,7 +438,7 @@ class XpWiki {
 		// Head Tags
 		list($head_pre_tag, $head_tag) = $this->func->get_additional_headtags();
 		$cssprefix = $this->root->css_prefix ? 'pre=' . rawurlencode($this->root->css_prefix) . '&amp;' : '';
-		
+
 		// 出力
 		$base = "b_".$this->root->mydirname;
 		$css_tag = ($css_tag)? '<link rel="stylesheet" type="text/css" media="all" href="' . $this->cont['LOADER_URL'] . '?charset=' . $this->cont['CSS_CHARSET'] . '&amp;skin=' . $this->cont['SKIN_NAME'] . '&amp;b=1&amp;' . $cssprefix . 'src=' . $css_tag . '" charset="' . $this->cont['CSS_CHARSET'] . '" />'
@@ -470,7 +470,7 @@ EOD;
 				}
 			}
 			closedir($handle);
-		}	
+		}
 	}
 */
 	// 指定のExtensionを読み込む
@@ -487,9 +487,9 @@ EOD;
 					$this->extension->$name = new $class($this);
 				}
 			}
-		}	
+		}
 	}
-	
+
 	// xpWiki render mode
 	function transform($text, $cssbase = '') {
 		if (!$text) return '';
@@ -497,7 +497,7 @@ EOD;
 		$this->cont['PKWK_READONLY'] = 2;
 		$this->root->top = '';
 		$text = str_replace(array("\r\n", "\r"), "\n", $text);
-		
+
 		if ($this->root->render_use_cache) {
 			$op = '';
 			if (!empty($this->iniVar['root'])) {
@@ -526,7 +526,7 @@ EOD;
 				$text .= ! empty($this->root->foot_explain) ? $this->root->note_hr . join("\n", $this->root->foot_explain) : '';
 
 				list($head_pre_tag, $head_tag) = $this->func->get_additional_headtags();
-				
+
 				if (empty($this->root->rtf['disable_render_cache'])) {
 					@ touch ($cache);
 					if (is_writable($cache)) {
@@ -548,10 +548,10 @@ EOD;
 
 			list($head_pre_tag, $head_tag) = $this->func->get_additional_headtags();
 		}
-		
+
 		$this->root->replaces_finish['__PID_OID__'] = $this->pid . '_' . $this->root->rtf['oid'];
 		$this->func->convert_finisher($text);
-		
+
 		$csstag = '';
 		if ($cssbase) {
 			$cssbase = 'r_'.$cssbase;
@@ -559,15 +559,15 @@ EOD;
 			$csstag = '<link rel="stylesheet" type="text/css" media="all" href="'.$this->cont['LOADER_URL'].'?charset='.$this->cont['CSS_CHARSET'].'&amp;skin='.$this->cont['SKIN_NAME'].'&amp;r=1&amp;'.$cssprefix.'src=' . $this->root->main_css . '" charset="' . $this->cont['CSS_CHARSET'] . '" />';
 			$text = '<div class="xpwiki_'.$cssbase.'">'."\n".$text."\n".'</div>';
 		}
-		
+
 		return preg_replace("/\n{2,}/", "\n", $head_pre_tag.$csstag.$head_tag) . $text;
 
 	}
-	
+
 	function clearIniRoot () {
 		$this->iniVar['root'] = array();
 	}
-	
+
 	function setIniRoot($key = '', $val = '') {
 		if (!$key) return;
 		$key = strval($key);
@@ -577,7 +577,7 @@ EOD;
 	function clearIniConst () {
 		$this->iniVar['const'] = array();
 	}
-		
+
 	function setIniConst($key = '', $val = '') {
 		if (!$key) return;
 		$key = strval($key);
