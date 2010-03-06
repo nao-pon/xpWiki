@@ -507,6 +507,11 @@ $class span.noexists {
 
 $class .small { font-size:80%; }
 
+$class .modest {
+	font-size: 7pt;
+	color: gray;
+}
+
 $class .super_index {
 	color:#DD3333;
 	background-color:inherit;
