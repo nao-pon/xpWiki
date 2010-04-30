@@ -19,11 +19,10 @@ function fetchSummary( $pgid )
 
 	// query
 	$data = $db->fetchArray( $db->query( "SELECT `name`, `title`, `editedtime` FROM ".$db->prefix($mydirname."_pginfo")." WHERE `pgid`=$pgid LIMIT 1" ) ) ;
-	
+
 	// get body
 	$uri = $body = '';
 	if ($data['name']) {
-		
 		if (strpos(@$_SERVER['REQUEST_URI'], '/modules/'.$mydirname) === FALSE) {
 			include_once dirname(dirname(__FILE__))."/include.php";
 			$page = & XpWiki::getSingleton($mydirname);
@@ -31,21 +30,21 @@ function fetchSummary( $pgid )
 				$page->init($data['name']);
 				$page->execute();
 				$body = $page->body;
-				$uri = $page->func->get_page_uri($data['name'], true);
 			} else {
-				$body = '"' . $data['name']. '" is deleted.';
+				$body = _MD_D3FORUM_ERR_READPOST . " \n" . '"' . $data['name']. '" is deleted.';
 			}
+			$uri = $page->func->get_page_uri($data['name'], true);
 		}
 	} else {
-		$body = 'Page not found.';
+		$body = _MD_D3FORUM_ERR_READPOST;
 	}
-	
+
 	// make subject
 	$subject = $data['name'];
 	if ($subject !== $data['title']) {
 		$subject .= ' [ ' . $data['title'] . ' ]';
 	}
-	
+
 	return array(
 		'dirname' => $mydirname ,
 		'module_name' => $module->getVar( 'name' ) ,
@@ -58,11 +57,11 @@ function fetchSummary( $pgid )
 function validate_id( $link_id )
 {
 	static $check;
-	
+
 	if (isset($check[$this->mydirname][$link_id])) {
 		return $check[$this->mydirname][$link_id];
 	}
-	
+
 	$ret = intval( $link_id ) ;
 	if( $ret <= 0 ) {
 		$ret = false;
@@ -100,6 +99,15 @@ function getSubjectRaw( $params )
 	}
 }
 
+function canPost( $link_id , $original_flag )
+{
+	return $this->validate_id( $link_id );
 }
 
-?>
+function canReply( $link_id , $original_flag , $post_id )
+{
+	return $this->validate_id( $link_id );
+}
+
+// Class end
+}
