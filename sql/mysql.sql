@@ -14,7 +14,11 @@ CREATE TABLE `attach` (
   `owner` int(11) NOT NULL default '0',
   UNIQUE KEY `id` (`id`),
   KEY `pgid` (`pgid`),
-  KEY `owner` (`owner`)
+  KEY `owner` (`owner`),
+  KEY `name` (`name`),
+  KEY `type` (`type`),
+  KEY `mode` (`mode`),
+  KEY `age` (`age`)
 ) TYPE=MyISAM;
 
 CREATE TABLE `cache` (
@@ -63,7 +67,13 @@ CREATE TABLE `pginfo` (
   PRIMARY KEY  (`pgid`),
   UNIQUE KEY `name` (`name`),
   KEY `uid` (`uid`),
-  KEY `name_ci` (`name_ci`)
+  KEY `name_ci` (`name_ci`),
+  KEY `editedtime` (`editedtime`),
+  KEY `freeze` (`freeze`),
+  KEY `egids` (`egids`),
+  KEY `vgids` (`vgids`),
+  KEY `eaids` (`eaids`(255)),
+  KEY `vaids` (`vaids`(255))
 ) TYPE=MyISAM;
 
 CREATE TABLE `plain` (
@@ -75,6 +85,7 @@ CREATE TABLE `plain` (
 CREATE TABLE `rel` (
   `pgid` int(11) NOT NULL default '0',
   `relid` int(11) NOT NULL default '0',
+  PRIMARY KEY  (`pgid`,`relid`),
   KEY `pgid` (`pgid`),
   KEY `relid` (`relid`)
 ) TYPE=MyISAM;
