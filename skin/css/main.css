@@ -636,44 +636,44 @@ div.system_notification table {
 
 /* html.php/catbody() */
 $class strong.word0 {
-	background-color:#FFFF66;
+	background-color:#FFFFB3;
 	color:black;
 }
 $class strong.word1 {
-	background-color:#A0FFFF;
+	background-color:#D1FFB3;
 	color:black;
 }
 $class strong.word2 {
-	background-color:#99FF99;
+	background-color:#B3FFC2;
 	color:black;
 }
 $class strong.word3 {
-	background-color:#FF9999;
+	background-color:#B3FFF0;
 	color:black;
 }
 $class strong.word4 {
-	background-color:#FF66FF;
+	background-color:#B3E1FF;
 	color:black;
 }
 $class strong.word5 {
-	background-color:#880000;
-	color:white;
+	background-color:#B3B3FF;
+	color:black;
 }
 $class strong.word6 {
-	background-color:#00AA00;
-	color:white;
+	background-color:#E1B3FF;
+	color:black;
 }
 $class strong.word7 {
-	background-color:#886800;
-	color:white;
+	background-color:#FFB3F0;
+	color:black;
 }
 $class strong.word8 {
-	background-color:#004699;
-	color:white;
+	background-color:#FFB3C2;
+	color:black;
 }
 $class strong.word9 {
-	background-color:#990099;
-	color:white;
+	background-color:#FFD1B3;
+	color:black;
 }
 $class div.commentbody table {
 	width: 100%;
