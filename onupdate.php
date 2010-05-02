@@ -32,7 +32,7 @@ function xpwiki_onupdate_base( $module , $mydirname )
 		$prefix_mod = $db->prefix() . '_' . $mydirname ;
 		if( file_exists( $sql_file_path ) ) {
 			$ret[] = "SQL file found at <b>".htmlspecialchars($sql_file_path)."</b>.<br /> Creating tables...";
-	
+
 			if( file_exists( XOOPS_ROOT_PATH.'/class/database/oldsqlutility.php' ) ) {
 				include_once XOOPS_ROOT_PATH.'/class/database/oldsqlutility.php' ;
 				$sqlutil =& new OldSqlUtility ;
@@ -40,7 +40,7 @@ function xpwiki_onupdate_base( $module , $mydirname )
 				include_once XOOPS_ROOT_PATH.'/class/database/sqlutility.php' ;
 				$sqlutil =& new SqlUtility ;
 			}
-	
+
 			$sql_query = trim( file_get_contents( $sql_file_path ) ) ;
 			$sqlutil->splitMySqlFile( $pieces , $sql_query ) ;
 			$created_tables = array() ;
@@ -99,6 +99,65 @@ function xpwiki_onupdate_base( $module , $mydirname )
 		);
 	}
 
+	// ADD Keys
+	$table = $db->prefix($mydirname.'_attach');
+    if ($result = $db->query('SHOW INDEX FROM `' . $table . '`')) {
+        $keys = array( 'name' => '',
+		               'type' => '',
+		               'mode' => '',
+		               'age' => '' );
+        while($arr = $db->fetchArray($result)) {
+        	unset($keys[$arr['Key_name']]);
+        }
+        foreach ($keys as $_key => $_val) {
+        	$query = 'ALTER TABLE `' . $table . '` ADD INDEX(`'.$_key.'`'.$_val.')';
+        	$db->query($query);
+        	//$msgs[] = $query;
+        }
+    }
+	$table = $db->prefix($mydirname.'_pginfo');
+    if ($result = $db->query('SHOW INDEX FROM `' . $table . '`')) {
+        $keys = array( 'editedtime' => '',
+		               'freeze' => '',
+		               'egids' => '',
+		               'vgids' => '',
+		               'eaids' => '(255)',
+		               'vaids' => '(255)' );
+        while($arr = $db->fetchArray($result)) {
+        	unset($keys[$arr['Key_name']]);
+        }
+        foreach ($keys as $_key => $_val) {
+        	$query = 'ALTER TABLE `' . $table . '` ADD INDEX(`'.$_key.'`'.$_val.')';
+        	$db->query($query);
+        	//$msgs[] = $query;
+        }
+    }
+	$table = $db->prefix($mydirname.'_rel');
+    if ($result = $db->query('SHOW INDEX FROM `' . $table . '`')) {
+        $keys = array( 'PRIMARY' => '' );
+        while($arr = $db->fetchArray($result)) {
+        	unset($keys[$arr['Key_name']]);
+        }
+        if ($keys) {
+			$dels = array();
+			$query = 'SELECT CONCAT(pgid, \'_\', relid) as id, (count(*)-1) as count FROM `'.$table.'` GROUP BY id HAVING count >= 1';
+			if ($result = $db->query($query)) {
+				while($arr = $db->fetchRow($result)) {
+					$dels[$arr[0]] = $arr[1];
+				}
+			}
+			foreach($dels as $key => $limit) {
+				$arr = explode('_', $key);
+				$query = 'DELETE FROM ' . $table . ' WHERE pgid='.$arr[0].' AND relid='.$arr[1].' LIMIT '.$limit;
+				$db->query($query);
+				//$msgs[] = $query;
+			}
+        	$query = 'ALTER TABLE `' . $table . '` ADD PRIMARY KEY(`pgid`,`relid`)';
+        	$db->query($query);
+        	//$msgs[] = $query;
+        }
+    }
+
 	// TEMPLATES (all templates have been already removed by modulesadmin)
 	$tplfile_handler =& xoops_gethandler( 'tplfile' ) ;
 	$tpl_path = dirname(__FILE__).'/templates' ;
@@ -139,7 +198,7 @@ function xpwiki_onupdate_base( $module , $mydirname )
 	include_once XOOPS_ROOT_PATH.'/class/xoopsblock.php' ;
 	include_once XOOPS_ROOT_PATH.'/class/template.php' ;
 	xoops_template_clear_module_cache( $mid ) ;
-	
+
 	// xpWiki original functions
 	include_once dirname(__FILE__).'/include/check.func.php';
 	$_ret = xpwikifunc_permission_check($mydirname);
@@ -149,7 +208,10 @@ function xpwiki_onupdate_base( $module , $mydirname )
 		$msgs = array_merge($msgs, $_ret);
 		return false;
 	}
-		
+
+	// Delete COUNTER_DIR/*.counter
+	$msgs = array_merge($msgs, xpwikifunc_delete_counter($mydirname));
+
 	return true ;
 }
 
