@@ -1,7 +1,7 @@
 <?php
 /*
  * Created on 2008/01/24 by nao-pon http://hypweb.net/
- * $Id: user_pref.inc.php,v 1.1 2010/01/08 13:46:23 nao-pon Exp $
+ * $Id: user_pref.inc.php,v 1.2 2010/05/02 23:55:49 nao-pon Exp $
  */
 
 class xpwiki_plugin_user_pref extends xpwiki_plugin {
@@ -64,7 +64,7 @@ class xpwiki_plugin_user_pref extends xpwiki_plugin {
 
 		$disabled = array();
 
-		if ($this->root->twitter_consumer_key && $this->root->twitter_consumer_secret && version_compare(PHP_VERSION, '5.0.0', '>') && HypCommonFunc::get_version() >= '20100108') {
+		if ($this->root->twitter_consumer_key && $this->root->twitter_consumer_secret && function_exists('curl_init') && version_compare(PHP_VERSION, '5.0.0', '>') && HypCommonFunc::get_version() >= '20100108') {
 			HypCommonFunc::loadClass('TwitterOAuth');
 
 			$state = isset($_SESSION['oauth_state'])? $_SESSION['oauth_state'] : '';
@@ -92,13 +92,13 @@ class xpwiki_plugin_user_pref extends xpwiki_plugin {
 
 			switch ($state) {
 				case 'returned':
-						$to = new TwitterOAuth($this->root->twitter_consumer_key, $this->root->twitter_consumer_secret, $_SESSION['oauth_request_token'], $_SESSION['oauth_request_token_secret']);
-						$tok = $to->getAccessToken($this->root->get['oauth_verifier']);
+					$to = new TwitterOAuth($this->root->twitter_consumer_key, $this->root->twitter_consumer_secret, $_SESSION['oauth_request_token'], $_SESSION['oauth_request_token_secret']);
+					$tok = $to->getAccessToken($this->root->get['oauth_verifier']);
 
 					$user_pref['twitter_access_token'] = $tok['oauth_token'];
 					$user_pref['twitter_access_token_secret'] = $tok['oauth_token_secret'];
 
-						$this->msg['twitter_access_token_secret']['description'] = '';
+					$this->msg['twitter_access_token_secret']['description'] = '';
 
 					break;
 
@@ -117,11 +117,15 @@ class xpwiki_plugin_user_pref extends xpwiki_plugin {
 
 					$tok = $to->getRequestToken($this->root->script . '?cmd=user_pref');
 
+					if (! empty($tok['oauth_token'])) {
 						$_SESSION['oauth_request_token'] = $token = $tok['oauth_token'];
 						$_SESSION['oauth_request_token_secret'] = $tok['oauth_token_secret'];
 						$_SESSION['oauth_state'] = "start";
 
-					$this->root->twitter_request_link = $to->getAuthorizeURL($token);
+						$this->root->twitter_request_link = $to->getAuthorizeURL($token);
+					} else {
+						$disabled['twitter'] = true;
+					}
 
 					break;
 
@@ -130,9 +134,15 @@ class xpwiki_plugin_user_pref extends xpwiki_plugin {
 			$disabled['twitter'] = true;
 		}
 
+		if (! empty($disabled['twitter'])) {
+			unset($this->user_pref['twitter_access_token'], $this->user_pref['twitter_access_token_secret']);
+		}
+
 		$script = $this->func->get_script_uri();
 
-		$body =<<<EOD
+		if ($this->user_pref) {
+
+			$body =<<<EOD
 <div>
 <h2>{$this->msg['title_description']}</h2>
 {$this->msg['msg_description']}
@@ -142,78 +152,77 @@ class xpwiki_plugin_user_pref extends xpwiki_plugin {
 <form action="{$script}" method="post">
 <table>
 EOD;
+			//var_dump($user_pref);
+			//exit;
+			foreach ($this->user_pref as $key => $conf) {
+				$caption = ! empty($conf['caption'])? $conf['caption'] : (! empty($this->msg[$key]['caption'])? $this->msg[$key]['caption'] : $key);
+				$description = ! empty($conf['description'])? $conf['description'] : (! empty($this->msg[$key]['description'])? $this->msg[$key]['description'] : '');
+				$description = preg_replace('/\{\$root->(.+?)\}/e', '$this->root->$1', $description);
+				$value = isset($user_pref[$key])? $user_pref[$key] : '';
+				$value4disp = htmlspecialchars($value);
+				$name4disp = htmlspecialchars($key);
+				$real = '';
 
-		//var_dump($user_pref);
-		//exit;
-		foreach ($this->user_pref as $key => $conf) {
-			$caption = ! empty($conf['caption'])? $conf['caption'] : (! empty($this->msg[$key]['caption'])? $this->msg[$key]['caption'] : $key);
-			$description = ! empty($conf['description'])? $conf['description'] : (! empty($this->msg[$key]['description'])? $this->msg[$key]['description'] : '');
-			$description = preg_replace('/\{\$root->(.+?)\}/e', '$this->root->$1', $description);
-			$value = isset($user_pref[$key])? $user_pref[$key] : '';
-			$value4disp = htmlspecialchars($value);
-			$name4disp = htmlspecialchars($key);
-			$real = '';
-
-			$extention = ! empty($this->msg[$key]['extention'])? $this->msg[$key]['extention'] : '';
-			list($form, $attr) = array_pad(explode(',', $conf['form'], 2), 2, '');
-			switch ($form) {
-				case 'select':
-					$forms = array();
-					if (! isset($conf['list']['group'])) {
-						$conf['list']['group'][0] = $conf['list'];
-					}
-					foreach($conf['list']['group'] as $label => $optgroup) {
-						if (is_string($label)) {
-							$forms[] = '<optgroup label="'.$label.'">';
+				$extention = ! empty($this->msg[$key]['extention'])? $this->msg[$key]['extention'] : '';
+				list($form, $attr) = array_pad(explode(',', $conf['form'], 2), 2, '');
+				switch ($form) {
+					case 'select':
+						$forms = array();
+						if (! isset($conf['list']['group'])) {
+							$conf['list']['group'][0] = $conf['list'];
 						}
-						foreach($optgroup as $list_cap => $list_val) {
-							if ($value == $list_val) {
-								$selected = ' selected="selected"';
-							} else {
-								$selected = '';
+						foreach($conf['list']['group'] as $label => $optgroup) {
+							if (is_string($label)) {
+								$forms[] = '<optgroup label="'.$label.'">';
 							}
-							$forms[] = '<option value="'.$list_val.'"'.$selected.'>'.$list_cap.'</option>';
+							foreach($optgroup as $list_cap => $list_val) {
+								if ($value == $list_val) {
+									$selected = ' selected="selected"';
+								} else {
+									$selected = '';
+								}
+								$forms[] = '<option value="'.$list_val.'"'.$selected.'>'.$list_cap.'</option>';
+							}
+							if (is_string($label)) {
+								$forms[] = '</optgroup>';
+							}
 						}
-						if (is_string($label)) {
-							$forms[] = '</optgroup>';
+						$form = '<select name="'.$name4disp.'" '.$attr.'>' . join('', $forms) . '</select>';
+						break;
+					case 'yesno':
+						$conf['list'] = array(
+							$this->msg['Yes'] => 1,
+							$this->msg['No'] => 0,
+						);
+					case 'radio':
+						$forms = array();
+						$i = 0;
+						foreach($conf['list'] as $list_cap => $list_val) {
+							if ($value == $list_val) {
+								$checked = ' checked="checked"';
+							} else {
+								$checked = '';
+							}
+							$forms[] = '<span class="nowrap"><input id="'.$name4disp.'_'.$i.'" type="radio" name="'.$name4disp.'" value="'.$list_val.'"'.$checked.' /><label for="'.$name4disp.'_'.$i.'">'.$list_cap.'</label></span>';
+							$i++;
 						}
-					}
-					$form = '<select name="'.$name4disp.'" '.$attr.'>' . join('', $forms) . '</select>';
-					break;
-				case 'yesno':
-					$conf['list'] = array(
-						$this->msg['Yes'] => 1,
-						$this->msg['No'] => 0,
-					);
-				case 'radio':
-					$forms = array();
-					$i = 0;
-					foreach($conf['list'] as $list_cap => $list_val) {
-						if ($value == $list_val) {
-							$checked = ' checked="checked"';
-						} else {
-							$checked = '';
+						$form = join(' | ', $forms);
+						break;
+					case 'textarea':
+						$form = '<textarea name="'.$name4disp.'" '.$attr.' rel="nowikihelper">'.$value4disp.'</textarea>';
+						break;
+					case 'hidden':
+						$form = '<input type="hidden" name="'.$name4disp.'" value="'.$value4disp.'" />' . $value4disp;
+						break;
+					case 'text':
+					default:
+						$style = '';
+						if ($conf['type'] === 'integer') {
+							$style = ' style="text-align:right;"';
 						}
-						$forms[] = '<span class="nowrap"><input id="'.$name4disp.'_'.$i.'" type="radio" name="'.$name4disp.'" value="'.$list_val.'"'.$checked.' /><label for="'.$name4disp.'_'.$i.'">'.$list_cap.'</label></span>';
-						$i++;
-					}
-					$form = join(' | ', $forms);
-					break;
-				case 'textarea':
-					$form = '<textarea name="'.$name4disp.'" '.$attr.' rel="nowikihelper">'.$value4disp.'</textarea>';
-					break;
-				case 'hidden':
-					$form = '<input type="hidden" name="'.$name4disp.'" value="'.$value4disp.'" />' . $value4disp;
-					break;
-				case 'text':
-				default:
-					$style = '';
-					if ($conf['type'] === 'integer') {
-						$style = ' style="text-align:right;"';
-					}
-					$form = '<input type="text" name="'.$name4disp.'" value="'.$value4disp.'" '.$attr.$style.' />';
-			}
-			$body .= <<<EOD
+						$form = '<input type="text" name="'.$name4disp.'" value="'.$value4disp.'" '.$attr.$style.' />';
+				}
+				$body .= <<<EOD
 <tr>
  <td style="font-weight:bold;padding-top:0.5em" id="$key">$caption</td>
  <td style="padding-top:0.5em">{$form}{$extention}</td>
@@ -222,8 +231,8 @@ EOD;
  <td colspan="2" style="padding-bottom:0.5em"><p>{$description}</p></td>
 </tr>
 EOD;
-		}
-		$body .= <<<EOD
+			}
+			$body .= <<<EOD
 <tr>
  <td>&nbsp;</td>
  <td><input type="submit" name="submit" value="{$this->msg['btn_submit']}" /></td>
@@ -234,7 +243,9 @@ EOD;
 </form>
 </div>
 EOD;
-
+		} else {
+			$body = 'There is no item.';
+		}
 
 		return array('msg'=>$this->msg['title_form'], 'body'=>$body);
 	}
