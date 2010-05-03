@@ -1,6 +1,6 @@
 <?php
 // PukiWiki - Yet another WikiWikiWeb clone
-// $Id: rss.inc.php,v 1.32 2009/04/04 07:03:46 nao-pon Exp $
+// $Id: rss.inc.php,v 1.33 2010/05/03 00:10:55 nao-pon Exp $
 //
 // RSS plugin: Publishing RSS of RecentChanges
 //
@@ -14,7 +14,7 @@
 
 class xpwiki_plugin_rss extends xpwiki_plugin {
 	var $maxcount;
-	
+
 	function plugin_rss_init () {
 		// リストアップ最大ページ数
 		$this->maxcount = 100;
@@ -31,27 +31,27 @@ class xpwiki_plugin_rss extends xpwiki_plugin {
 		$a_page->root->rtf['use_cache_always'] = TRUE;
 		$a_page->execute();
 		$html = $a_page->body;
-		
+
 		// 付箋
 		if (empty($GLOBALS['Xpwiki_'.$this->root->mydirname]['cache']['fusen']['loaded'])){
 			if ($fusen = $this->func->get_plugin_instance('fusen')) {
 				if ($fusen_data = $fusen->plugin_fusen_data($page)) {
 					if ($fusen_tag = $fusen->plugin_fusen_gethtml($fusen_data, '')) {
-						$html .= '<fieldset><legend> fusen.dat </legend>' . $fusen_tag . '</fieldset>';					
+						$html .= '<fieldset><legend> fusen.dat </legend>' . $fusen_tag . '</fieldset>';
 					}
 				}
 			}
 		}
-		
+
 		$html = $this->func->add_MyHostUrl($html);
-		
+
 		$description = strip_tags(($added ? $added . '&#182;' : '') . $html);
 		//$description = preg_replace('/(\s+|&'.$this->root->entity_pattern.';)/i', ' ', $description);
 		$description = preg_replace('/[\r\n]+/', "\n", $description);
 		$description = mb_substr($description, 0, 250);
 		// 末尾に分断された実態参照があれば削除->サニタイズ
 		$description = htmlspecialchars(preg_replace('/&([^;]+)?$/', '', $description));
-		
+
 		$tags = array();
 		if (file_exists($this->cont['CACHE_DIR'] . $this->func->encode($page) . '_page.tag')) {
 			$tags = file($this->cont['CACHE_DIR'] . $this->func->encode($page) . '_page.tag');
@@ -59,7 +59,7 @@ class xpwiki_plugin_rss extends xpwiki_plugin {
 
 		if ($added) $html = '<dl><dt>Changes</dt><dd>' . $added . '</dd></dl><hr />' . $html;
 		$pginfo = $this->func->get_pginfo($page);
-		
+
 		// ]]> をクォート
 		$html = str_replace(']]>', ']]&gt;', $html);
 
@@ -69,22 +69,24 @@ class xpwiki_plugin_rss extends xpwiki_plugin {
 
 		// 相対指定リンクを削除
 		$html = preg_replace('#<a[^>]+href=(?!(?:"|\')?\w+://)[^>]+>(.*?)</a>#is', '$1', $html);
-		
+
 		// タグ中の無効な属性を削除
 		$_reg = '/(<[^>]*)\s+(?:id|class|name|on[^=]+)=("|\').*?\\2([^>]*>)/s';
 		while(preg_match($_reg, $html)) {
 			$html = preg_replace($_reg, '$1$3', $html);
 		}
-		
+
 		return array($description, $html, $pginfo, $tags);
 
 	}
-	
+
 	function plugin_rss_action()
 	{
 		$version = isset($this->root->vars['ver']) ? strtolower($this->root->vars['ver']) : '';
 		$base = isset($this->root->vars['p']) ? $this->root->vars['p'] : '';
 		$s_base = $base ? '/' . $base : '';
+		$uid = !empty($this->root->vars['u']) ? strval(intval($this->root->vars['u'])) : '';
+
 		switch($version){
 		case '':  $version = '1.0';  break; // Default
 		case '1': $version = '1.0';  break; // Sugar
@@ -95,22 +97,22 @@ class xpwiki_plugin_rss extends xpwiki_plugin {
 		case '2.0' : break;
 		default: die('Invalid RSS version!!');
 		}
-		
+
 		$count = (empty($this->root->vars['count']))? $this->root->rss_max : (int)$this->root->vars['count'];
-		
+
 		$count = max($count, 1);
 		$count = min($count, $this->maxcount);
-			
+
 		// キャッシュファイル名
-		$c_file = $this->cont['CACHE_DIR'] . 'plugin/' . md5($version.$base.$count.$this->cont['ROOT_URL']) . $this->cont['UI_LANG'] . '.rss';
+		$c_file = $this->cont['CACHE_DIR'] . 'plugin/' . md5($version.$base.$count.$uid.$this->cont['ROOT_URL']) . $this->cont['UI_LANG'] . '.rss';
 
 		// 念のためバッファをクリア
 		while( ob_get_level() ) { ob_end_clean() ; }
-		
+
 		if (file_exists($c_file)) {
 			$filetime = filemtime($c_file);
 			$etag = md5($c_file.$filetime);
-					
+
 			if ($etag === @$_SERVER["HTTP_IF_NONE_MATCH"] && $this->cont['UA_PROFILE'] !== 'keitai') {
 				header( "HTTP/1.1 304 Not Modified" );
 				header( "Etag: ". $etag );
@@ -119,13 +121,13 @@ class xpwiki_plugin_rss extends xpwiki_plugin {
 				//header('Expires:');
 				exit();
 			}
-			
+
 			$out = file_get_contents($c_file);
 
 		} else {
 			// バッファリング
 			ob_start();
-					
+
 			$lang = $this->cont['LANG'];
 			$page_title = htmlspecialchars($this->root->siteinfo['sitename'] . '::' . $this->root->module_title . $s_base);
 			$self = $this->func->get_script_uri();
@@ -133,14 +135,15 @@ class xpwiki_plugin_rss extends xpwiki_plugin {
 			$buildtime = $this->func->get_date('r');
 			$pubtime = 0;
 			$rss_css = $this->cont['LOADER_URL'] . '?src=rss.' . $this->cont['UI_LANG'] . '.xml';
-		
+
 			// Creating <item>
 			$items = $rdf_li = '';
-			
+
 			// ゲスト扱いで一覧を取得
 			$nolisting = (!$base || $base[0] !== ':');
-			$lines = $this->func->get_existpages(FALSE, ($base ? $base . '/' : ''), array('limit' => $count, 'order' => ' ORDER BY editedtime DESC', 'nolisting' => $nolisting, 'withtime' => TRUE, 'asguest' => TRUE));
-			
+			$where = $uid ? '`uid`="'.$uid.'"' : '';
+			$lines = $this->func->get_existpages(FALSE, ($base ? $base . '/' : ''), array('limit' => $count, 'order' => ' ORDER BY editedtime DESC', 'nolisting' => $nolisting, 'withtime' => TRUE, 'asguest' => TRUE, 'where' => $where));
+
 			foreach ($lines as $line) {
 				list($time, $page) = explode("\t", rtrim($line));
 				$r_page = rawurlencode($page);
@@ -148,9 +151,9 @@ class xpwiki_plugin_rss extends xpwiki_plugin {
 				$title = htmlspecialchars($this->root->pagename_num2str ? preg_replace('/\/(?:[0-9\-]+|[B0-9][A-Z0-9]{9})$/','/'.$this->func->get_heading($page),$page) : $page);
 				if ($base) $title = substr($title, (strlen($base) + 1));
 				if (!$pubtime) $pubtime = $this->func->get_date('r', $time);
-		
+
 				switch ($version) {
-				
+
 				case '0.91':
 					$date = $this->func->get_date('r', $time);
 					$items .= <<<EOD
@@ -162,7 +165,7 @@ class xpwiki_plugin_rss extends xpwiki_plugin {
 
 EOD;
 					break;
-				
+
 				case '2.0':
 					list($description, $html, $pginfo) = $this->get_content($page);
 					$author = htmlspecialchars($pginfo['uname']);
@@ -181,22 +184,22 @@ EOD;
 
 EOD;
 					break;
-		
+
 				case '1.0':
 					// Add <item> into <items>
 					list($description, $html, $pginfo, $tags) = $this->get_content($page);
 					$author = htmlspecialchars($pginfo['uname']);
-					
+
 					$tag = '';
 					if ($tags) {
 						$tags = array_map('htmlspecialchars',array_map('rtrim',$tags));
 						$tag = '<dc:subject>' . join("</dc:subject>\n <dc:subject>", $tags).'</dc:subject>';
 					}
-					
+
 					$rdf_li .= '    <rdf:li rdf:resource="' . $link . '" />' . "\n";
-					
+
 					$date = substr_replace($this->func->get_date('Y-m-d\TH:i:sO', $time), ':', -2, 0);
-					
+
 					$trackback_ping = '';
 					/*
 					if ($this->root->trackback) {
@@ -225,7 +228,7 @@ EOD;
 				case 'atom':
 					list($description, $html, $pginfo, $tags) = $this->get_content($page);
 					$author = htmlspecialchars($pginfo['uname']);
-					
+
 					$tag = '';
 					if ($tags) {
 						$tags = array_map('htmlspecialchars',array_map('rtrim',$tags));
@@ -233,11 +236,11 @@ EOD;
 							$tag .= '<category term="'.str_replace('"', '\\"',$_tag).'"/>'."\n";
 						}
 					}
-					
+
 					$date = substr_replace($this->func->get_date('Y-m-d\TH:i:sO', $time), ':', -2, 0);
-					
+
 					$id = $link;
-					
+
 					$items .= <<<EOD
 <entry>
  <title type="html">$title</title>
@@ -260,13 +263,13 @@ EOD;
 					break;
 				}
 			}
-		
+
 			// Feeding start
 			print '<?xml version="1.0" encoding="UTF-8"?>' . "\n\n";
-		
+
 			//$r_whatsnew = rawurlencode($this->root->whatsnew);
 			$link = $base? $this->func->get_page_uri($base, true) : $self;
-			
+
 			switch ($version) {
 			case '0.91':
 				print <<<EOD
@@ -282,7 +285,7 @@ $items
  </channel>
 </rss>
 EOD;
-				break;		
+				break;
 			case '2.0':
 				print <<<EOD
 <rss version="$version" xmlns:content="http://purl.org/rss/1.0/modules/content/">
@@ -300,13 +303,13 @@ EOD;
   <pubDate>$pubtime</pubDate>
   <lastBuildDate>$buildtime</lastBuildDate>
   <generator>xpWiki</generator>
-    
+
 $items
  </channel>
 </rss>
 EOD;
 				break;
-		
+
 			case '1.0':
 				$xmlns_trackback = $this->root->trackback ?
 					'  xmlns:trackback="http://madskills.com/public/xml/rss/module/trackback/"' : '';
@@ -368,10 +371,10 @@ EOD;
 			}
 			$out = mb_convert_encoding(ob_get_contents(), 'UTF-8', $this->cont['CONTENT_CHARSET']);
 			ob_end_clean();
-			
+
 			// NULLバイト除去
 			$out = $this->func->input_filter($out);
-			
+
 			if ($this->cont['UA_PROFILE'] === 'default') {
 				//キャッシュ書き込み
 				if ($fp = @fopen($c_file,"wb"))
@@ -412,26 +415,26 @@ EOD;
 			if ($this->cont['PKWK_ENCODING_HINT']) {
 				$r->Config_encodeHintWord = $this->cont['PKWK_ENCODING_HINT'];
 			}
-		
+
 			if (! empty($this->root->k_tai_conf['googleAdsense']['config'])) {
 				$r->Config_googleAdSenseConfig = $this->root->k_tai_conf['googleAdsense']['config'];
 				$r->Config_googleAdSenseBelow = $this->root->k_tai_conf['googleAdsense']['below'];
 			}
-		
+
 			$r->inputEncode = 'SHIFT_JIS';
 			$r->outputEncode = 'SJIS';
 			$r->outputMode = 'xhtml';
 			$r->langcode = $this->cont['LANG'];
-			
+
 			$r->inputHtml = $out;
-			
+
 			$r->doOptimize();
 			$out = $r->outputBody;
 
 			header('Content-Type: text/html; charset=Shift_JIS');
 			header('Content-Length: ' . strlen($out));
 			header('Cache-Control: no-cache');
-		
+
 		} else {
 			header('Content-Type: application/xml; charset=utf-8');
 			header('Content-Length: ' . strlen($out));
