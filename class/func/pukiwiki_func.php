@@ -1,7 +1,7 @@
 <?php
 //
 // Created on 2006/10/02 by nao-pon http://hypweb.net/
-// $Id: pukiwiki_func.php,v 1.214 2010/01/08 15:07:16 nao-pon Exp $
+// $Id: pukiwiki_func.php,v 1.215 2010/05/03 00:27:31 nao-pon Exp $
 //
 class XpWikiPukiWikiFunc extends XpWikiBaseFunc {
 
@@ -406,13 +406,9 @@ class XpWikiPukiWikiFunc extends XpWikiBaseFunc {
 			}
 		}
 		// Update
-		$fp = fopen($this->cont['CACHE_DIR'] . 'interwiki.dat', 'wb') or
-				$this->die_message('Cannot open ' . 'interwiki.dat');
-		stream_set_write_buffer($fp, 0);
-		flock($fp, LOCK_EX);
-		rewind($fp);
-		fwrite($fp, serialize($interwikinames));
-		fclose($fp);
+		if (! HypCommonFunc::flock_put_contents($this->cont['CACHE_DIR'] . 'interwiki.dat', serialize($interwikinames))) {
+			$this->die_message('Cannot write interwiki.dat');
+		}
 
 		return $interwikinames;
 	}
@@ -622,16 +618,22 @@ class XpWikiPukiWikiFunc extends XpWikiBaseFunc {
 		$str = rtrim(preg_replace('/' . "\r" . '/', '', $str)) . "\n";
 		$timestamp = ($file_exists && $notimestamp) ? filemtime($file) : FALSE;
 
-		$fp = fopen($file, 'a') or die('fopen() failed: ' .
+		if (! HypCommonFunc::flock_put_contents($file, $str)) {
+			die('fopen() failed: ' .
 			htmlspecialchars(basename($dir) . '/' . $this->encode($page) . '.txt') .
 			'<br />' . "\n" .
 			'Maybe permission is not writable or filename is too long');
-		set_file_buffer($fp, 0);
-		flock($fp, LOCK_EX);
-		ftruncate($fp, 0);
-		rewind($fp);
-		fputs($fp, $str);
-		fclose($fp);
+		}
+//		$fp = fopen($file, 'a') or die('fopen() failed: ' .
+//			htmlspecialchars(basename($dir) . '/' . $this->encode($page) . '.txt') .
+//			'<br />' . "\n" .
+//			'Maybe permission is not writable or filename is too long');
+//		set_file_buffer($fp, 0);
+//		flock($fp, LOCK_EX);
+//		ftruncate($fp, 0);
+//		rewind($fp);
+//		fputs($fp, $str);
+//		fclose($fp);
 
 		if ($timestamp) $this->pkwk_touch_file($file, $timestamp);
 
@@ -703,15 +705,22 @@ class XpWikiPukiWikiFunc extends XpWikiBaseFunc {
 	{
 		list($pattern, $pattern_a, $forceignorelist) = $autolink_pattern;
 
-		$fp = fopen($filename, 'w') or
-				$this->die_message('Cannot open ' . $filename);
-		set_file_buffer($fp, 0);
-		flock($fp, LOCK_EX);
-		rewind($fp);
-		fputs($fp, $pattern   . "\n");
-		fputs($fp, $pattern_a . "\n");
-		fputs($fp, join("\t", $forceignorelist) . "\n");
-		fclose($fp);
+		if (! HypCommonFunc::flock_put_contents($filename,
+			  $pattern   . "\n"
+			. $pattern_a . "\n"
+			. join("\t", $forceignorelist) . "\n"
+		)) {
+			$this->die_message('Cannot write ' . $filename);
+		}
+//		$fp = fopen($filename, 'w') or
+//				$this->die_message('Cannot open ' . $filename);
+//		set_file_buffer($fp, 0);
+//		flock($fp, LOCK_EX);
+//		rewind($fp);
+//		fputs($fp, $pattern   . "\n");
+//		fputs($fp, $pattern_a . "\n");
+//		fputs($fp, join("\t", $forceignorelist) . "\n");
+//		fclose($fp);
 	}
 
 	// Get elapsed date of the page
@@ -1031,7 +1040,7 @@ class XpWikiPukiWikiFunc extends XpWikiBaseFunc {
 
 //----- Start convert_html.php -----//
 	// PukiWiki - Yet another WikiWikiWeb clone
-	// $Id: pukiwiki_func.php,v 1.214 2010/01/08 15:07:16 nao-pon Exp $
+	// $Id: pukiwiki_func.php,v 1.215 2010/05/03 00:27:31 nao-pon Exp $
 	// Copyright (C)
 	//   2002-2005 PukiWiki Developers Team
 	//   2001-2002 Originally written by yu-ji
@@ -1310,7 +1319,7 @@ class XpWikiPukiWikiFunc extends XpWikiBaseFunc {
 
 //----- Start func.php -----//
 	// PukiWiki - Yet another WikiWikiWeb clone.
-	// $Id: pukiwiki_func.php,v 1.214 2010/01/08 15:07:16 nao-pon Exp $
+	// $Id: pukiwiki_func.php,v 1.215 2010/05/03 00:27:31 nao-pon Exp $
 	// Copyright (C)
 	//   2002-2006 PukiWiki Developers Team
 	//   2001-2002 Originally written by yu-ji
@@ -1405,7 +1414,7 @@ class XpWikiPukiWikiFunc extends XpWikiBaseFunc {
 			$buffer = fgets($fp, 9);
 			fclose($fp) or die('is_freeze(): fclose() failed: ' . htmlspecialchars($page));
 
-				$is_freeze[$this->root->mydirname][$page] = ($buffer !== FALSE && rtrim($buffer, "\r\n") === '#freeze');
+			$is_freeze[$this->root->mydirname][$page] = ($buffer !== FALSE && rtrim($buffer, "\r\n") === '#freeze');
 			return $is_freeze[$this->root->mydirname][$page];
 		}
 	}
@@ -2150,7 +2159,7 @@ EOD;
 
 //----- Start make_link.php -----//
 	// PukiWiki - Yet another WikiWikiWeb clone.
-	// $Id: pukiwiki_func.php,v 1.214 2010/01/08 15:07:16 nao-pon Exp $
+	// $Id: pukiwiki_func.php,v 1.215 2010/05/03 00:27:31 nao-pon Exp $
 	// Copyright (C)
 	//   2003-2005 PukiWiki Developers Team
 	//   2001-2002 Originally written by yu-ji
@@ -2605,9 +2614,11 @@ EOD;
 		if (! file_exists($file)) return array();
 
 		$result = array();
+
+
 		$fp = @fopen($file, 'r');
 		set_file_buffer($fp, 0);
-		flock($fp, LOCK_EX);
+		flock($fp, LOCK_SH);
 		rewind($fp);
 		while ($data = @fgetcsv($fp, 8192, ',')) {
 			// $data[$key] = URL
@@ -2705,14 +2716,21 @@ EOD;
 		$data[$d_url][0] = $this->cont['UTIME'];
 		$data[$d_url][2]++;
 
-		$fp = fopen($filename, 'w');
-		if ($fp === FALSE) return FALSE;
-		set_file_buffer($fp, 0);
-		flock($fp, LOCK_EX);
-		rewind($fp);
-		foreach ($data as $line)
-			fwrite($fp, join(',', $line) . "\n");
-		fclose($fp);
+		$text = '';
+		foreach ($data as $line) {
+			$text .= join(',', $line) . "\n";
+		}
+		if (! HypCommonFunc::flock_put_contents($filename, $text)) {
+			return FALSE;
+		}
+//		$fp = fopen($filename, 'w');
+//		if ($fp === FALSE) return FALSE;
+//		set_file_buffer($fp, 0);
+//		flock($fp, LOCK_EX);
+//		rewind($fp);
+//		foreach ($data as $line)
+//			fwrite($fp, join(',', $line) . "\n");
+//		fclose($fp);
 
 		return TRUE;
 	}
@@ -3148,7 +3166,7 @@ EOD;
 
 //----- Start html.php -----//
 	// PukiWiki - Yet another WikiWikiWeb clone.
-	// $Id: pukiwiki_func.php,v 1.214 2010/01/08 15:07:16 nao-pon Exp $
+	// $Id: pukiwiki_func.php,v 1.215 2010/05/03 00:27:31 nao-pon Exp $
 	// Copyright (C)
 	//   2002-2006 PukiWiki Developers Team
 	//   2001-2002 Originally written by yu-ji
@@ -3927,7 +3945,7 @@ EOD;
 
 //----- Start mail.php -----//
 	// PukiWiki - Yet another WikiWikiWeb clone.
-	// $Id: pukiwiki_func.php,v 1.214 2010/01/08 15:07:16 nao-pon Exp $
+	// $Id: pukiwiki_func.php,v 1.215 2010/05/03 00:27:31 nao-pon Exp $
 	// Copyright (C)
 	//   2003-2005 PukiWiki Developers Team
 	//   2003      Originally written by upk
@@ -4230,7 +4248,7 @@ EOD;
 
 //----- Start link.php -----//
 	// PukiWiki - Yet another WikiWikiWeb clone
-	// $Id: pukiwiki_func.php,v 1.214 2010/01/08 15:07:16 nao-pon Exp $
+	// $Id: pukiwiki_func.php,v 1.215 2010/05/03 00:27:31 nao-pon Exp $
 	// Copyright (C) 2003-2006 PukiWiki Developers Team
 	// License: GPL v2 or (at your option) any later version
 	//
