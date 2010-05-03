@@ -1,7 +1,7 @@
 <?php
 //
 // Created on 2006/10/02 by nao-pon http://hypweb.net/
-// $Id: xpwiki_func.php,v 1.222 2010/03/06 08:32:21 nao-pon Exp $
+// $Id: xpwiki_func.php,v 1.223 2010/05/03 00:26:18 nao-pon Exp $
 //
 class XpWikiFunc extends XpWikiXoopsWrapper {
 
@@ -516,19 +516,23 @@ class XpWikiFunc extends XpWikiXoopsWrapper {
 
 		if ($use_cache) {
 			// キャッシュ利用
-			$cache_dat = unserialize(file_get_contents($cache_file));
-			if (!is_array(@ $GLOBALS['Xpwiki_'.$this->root->mydirname]['cache'])) {
-				$GLOBALS['Xpwiki_'.$this->root->mydirname]['cache'] = array();
+			if ($cache_dat = unserialize(file_get_contents($cache_file))){
+				if (!is_array(@ $GLOBALS['Xpwiki_'.$this->root->mydirname]['cache'])) {
+					$GLOBALS['Xpwiki_'.$this->root->mydirname]['cache'] = array();
+				}
+				$GLOBALS['Xpwiki_'.$this->root->mydirname]['cache'] = array_merge_recursive($GLOBALS['Xpwiki_'.$this->root->mydirname]['cache'], is_array($cache_dat['globals'])? $cache_dat['globals'] : array());
+				$body = $cache_dat['body'];
+				foreach ($cache_dat['root'] as $_key=>$_val) {
+					$this->root->$_key = $_val;
+				}
+				foreach ($cache_dat['cont'] as $_key=>$_val) {
+					$this->cont[$_key] = $_val;
+				}
+			} else {
+				$use_cache = false;
 			}
-			$GLOBALS['Xpwiki_'.$this->root->mydirname]['cache'] = array_merge_recursive($GLOBALS['Xpwiki_'.$this->root->mydirname]['cache'], is_array($cache_dat['globals'])? $cache_dat['globals'] : array());
-			$body = $cache_dat['body'];
-			foreach ($cache_dat['root'] as $_key=>$_val) {
-				$this->root->$_key = $_val;
-			}
-			foreach ($cache_dat['cont'] as $_key=>$_val) {
-				$this->cont[$_key] = $_val;
-			}
-		} else {
+		}
+		if (! $use_cache) {
 			// 通常のレンダリング
 			$this->root->rtf['convert_nest'] = 0;
 			$body = $this->convert_html($this->get_source($page));
@@ -2637,6 +2641,19 @@ EOD;
 		return preg_replace('/(https?:\/\/[\w\/\@\$()!?&%#:;.,~\'=*+-]+)/ie', "\$this->bitly('$1')", $str);
 	}
 
+	function bytes2KMT($bytes, $decimal = 1, $threshold = 921) {
+		$s = array(' B', ' KB', ' MB', ' TB');
+		$max = count($s) - 1;
+		$i = 0;
+		$d = $bytes;
+		while($i < $max && $d > $threshold) {
+			$d = $d / 1024;
+			$i++;
+		}
+		$c = pow(10, $decimal);
+		return ceil($d * $c)/$c . $s[$i];
+	}
+
 /*----- DB Functions -----*/
 	// Over write pukiwiki_func
 	function is_freeze($page, $clearcache = FALSE) {
@@ -2838,9 +2855,9 @@ EOD;
 		if ($nodelete)
 		{
 			if ($where)
-				$where = " (editedtime !=0) AND ($where)";
+				$where = " (editedtime != 0) AND ($where)";
 			else
-				$where = " (editedtime !=0)";
+				$where = " (editedtime != 0)";
 		}
 		if ($where) $where = " WHERE ".$where;
 		$limit = ($limit)? " LIMIT $limit" : "";
@@ -4020,7 +4037,7 @@ EOD;
 	function get_child_counts($page) {
 		$page = addslashes(rtrim($page, '/') . '/');
 		$where = $this->get_readable_where();
-		$where = ($where)? " WHERE editedtime != 0 AND (name LIKE '{$page}%') AND (".$this->get_readable_where().")" :  " WHERE editedtime != 0 AND (name LIKE '{$page}%')";
+		$where = ($where)? " WHERE editedtime != 0 AND (name LIKE '{$page}%') AND (".$where.")" :  " WHERE editedtime != 0 AND (name LIKE '{$page}%')";
 		$query = 'SELECT count(*) FROM '.$this->xpwiki->db->prefix($this->root->mydirname."_pginfo").$where;
 		//echo $query;
 		if ($res = $this->xpwiki->db->query($query)) {
