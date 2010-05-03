@@ -1,7 +1,7 @@
 <?php
 /*
  * Created on 2008/03/24 by nao-pon http://hypweb.net/
- * $Id: attach.php,v 1.24 2010/03/06 08:35:25 nao-pon Exp $
+ * $Id: attach.php,v 1.25 2010/05/03 00:26:46 nao-pon Exp $
  */
 
 //-------- епеще╣
@@ -83,13 +83,14 @@ class XpWikiAttachFile
 		}
 		$this->time_str = $this->func->get_date('Y/m/d H:i:s',$this->time);
 		$this->size = isset($this->dbinfo['size'])? $this->dbinfo['size'] : filesize($this->filename);
-		if ($this->size < 103) {
-			$this->size_str = round($this->size) . 'B';
-		} else if ($this->size < 1024 * 1024) {
-			$this->size_str = sprintf('%01.1f',$this->size/1024,1).'KB';
-		} else {
-			$this->size_str = sprintf('%01.1f',$this->size/(1024*1024),1).'MB';
-		}
+		//if ($this->size < 103) {
+		//	$this->size_str = round($this->size) . 'B';
+		//} else if ($this->size < 1024 * 1024) {
+		//	$this->size_str = sprintf('%01.1f',$this->size/1024,1).'KB';
+		//} else {
+		//	$this->size_str = sprintf('%01.1f',$this->size/(1024*1024),1).'MB';
+		//}
+		$this->size_str = $this->func->bytes2KMT($this->size);
 		$this->type = isset($this->dbinfo['type'])? $this->dbinfo['type'] : xpwiki_plugin_attach::attach_mime_content_type($this->filename, $this->status);
 		$this->owner_id = intval($this->status['owner']);
 		$user = $this->func->get_userinfo_by_id($this->status['owner']);
