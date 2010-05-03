@@ -1,10 +1,10 @@
 <?php
-// $Id: lsx.inc.php,v 1.12 2009/03/13 08:18:49 nao-pon Exp $
+// $Id: lsx.inc.php,v 1.13 2010/05/03 00:09:05 nao-pon Exp $
 
 class xpwiki_plugin_lsx extends xpwiki_plugin {
-	
+
 	var $plugin_lsx;
-	
+
 	//////////////////////////////////
 	function plugin_lsx_init()
 	{
@@ -15,8 +15,8 @@ class xpwiki_plugin_lsx extends xpwiki_plugin {
 		$this->plugin_lsx->options = array(
 			'hierarchy' => array('bool', true),
 			'non_list'	=> array('bool', true),
-			'reverse'	=> array('bool', false), 
-			'basename'	=> array('bool', false), 
+			'reverse'	=> array('bool', false),
+			'basename'	=> array('bool', false),
 			'sort'		=> array('enum', 'name', array('name', 'date')),
 			'tree'		=> array('enum', false, array(false, 'leaf', 'dir')),
 			'depth'		=> array('number', ''),
@@ -32,6 +32,8 @@ class xpwiki_plugin_lsx extends xpwiki_plugin {
 			'tag'		=> array('string', ''),
 			'notitle'	=> array('bool', false),
 			'order'     => array('bool', false),
+			'rtag'		=> array('string', ''),
+			'noenhance' => array('bool', false),
 		);
 
 		// Modify here for external plugins
@@ -39,7 +41,7 @@ class xpwiki_plugin_lsx extends xpwiki_plugin {
 		$this->plugin_lsx->plugin_include  = 'includex';
 		$this->plugin_lsx->plugin_new	   = 'new';
 	}
-	
+
 	function can_call_otherdir_convert() {
 		return 1;
 	}
@@ -49,13 +51,13 @@ class xpwiki_plugin_lsx extends xpwiki_plugin {
 		$args = func_get_args();
 		return call_user_func_array(array($this->plugin_lsx, 'convert'), $args);
 	}
-	
+
 	function plugin_lsx_action()
 	{
 		return call_user_func(array($this->plugin_lsx, 'action'));
 	}
 }
-	
+
 class XpWikiPluginLsx
 {
 	function XpWikiPluginLsx(& $xpwiki)
@@ -65,7 +67,7 @@ class XpWikiPluginLsx
 		$this->cont   =& $xpwiki->cont;
 		$this->func   =& $xpwiki->func;
 	}
-	
+
 	var $options;
 	var $error = "";
 	var $plugin = "lsx";
@@ -74,7 +76,7 @@ class XpWikiPluginLsx
 	var $plugin_include;
 	var $plugin_new;
 	var $plugin_tag = 'tag'; // can not be replaced easily
-	
+
 	var $title;
 
 	function convert()
@@ -97,16 +99,22 @@ class XpWikiPluginLsx
 		if (! isset($body)) $body = '<p>no result.</p>';
 		return array('msg'=>($this->title? $this->title : $this->plugin), 'body'=>$body);
 	}
-	
+
 	function body($args, $args_decomposed = FALSE)
 	{
 		$parser = new XpWikiPluginLsxOptionParser();
 		$this->options = $parser->parse_options($args, $this->options, $args_decomposed);
+
+		if ($this->options['rtag'][1]) {
+			$this->options['tag'] = $this->options['rtag'];
+			$this->options['noenhance'][1] = true;
+		}
+
 		if ($parser->error != "") { $this->error = $parser->error; return; }
 
 		$this->check_options();
 		if ($this->error !== "") { return $this->error; }
-		
+
 		$this->metapages();
 		if ($this->error !== "") { return $this->error; }
 		$this->relative_metapages();
@@ -121,7 +129,7 @@ class XpWikiPluginLsx
 	function narrow_metapages()
 	{
 		$this->filter_pages();
-		
+
 		$parser = new XpWikiPluginLsxOptionParser();
 		$mdepth = $this->depth_metapages();
 		$this->options['depth'][1] = $parser->parse_numoption($this->options['depth'][1], 1, $mdepth);
@@ -144,11 +152,11 @@ class XpWikiPluginLsx
 		$this->tree_filter_metapages();
 		$this->flat_basename_metapages();
 		$this->order_metapages();
-		
+
 		$body = $this->list_pages();
 		return $body;
 	}
-	
+
 	function check_options()
 	{
 		if ($this->options['tag'][1] != '') {
@@ -157,7 +165,7 @@ class XpWikiPluginLsx
 				return;
 			}
 			$this->options['hierarchy'][1] = false;
-			// best is to change only default to off at tag option, though. 
+			// best is to change only default to off at tag option, though.
 		} else {
 			if ($this->options['prefix'][1] == '') {
 				$this->options['prefix'][1] = $this->cont['PageForRef'] !== '' ? $this->cont['PageForRef'] . '/' : '';
@@ -175,7 +183,7 @@ class XpWikiPluginLsx
 		if ($this->options['basename'][1] === true) {
 			$this->options['hierarchy'][1] = false;
 		}
-		
+
 		if ($this->options['contents'][1] != '') {
 			if(! $this->func->exist_plugin_convert($this->plugin_contents)) {
 				$this->error .= "The option, contents, requires #$this->plugin_contents plugin, but it does not exist. ";
@@ -215,25 +223,25 @@ class XpWikiPluginLsx
 	{
 		// 'Here'
 		if ($name == '' || $name == './') return $refer;
-		
+
 		// Absolute path
 		if ($name{0} == '/') {
 			$name = substr($name, 1);
 			return ($name == '') ? $this->root->defaultpage : $name;
 		}
-		
+
 		// Relative path from 'Here'
 		if (substr($name, 0, 2) == './') {
 			$arrn	 = preg_split('#/#', $name, -1); //, PREG_SPLIT_NO_EMPTY);
 			$arrn[0] = $refer;
 			return join('/', $arrn);
 		}
-		
+
 		// Relative path from dirname()
 		if (substr($name, 0, 3) == '../') {
 			$arrn = preg_split('#/#', $name,  -1); //, PREG_SPLIT_NO_EMPTY);
 			$arrp = preg_split('#/#', $refer, -1, PREG_SPLIT_NO_EMPTY);
-			
+
 			while (! empty($arrn) && $arrn[0] == '..') {
 				array_shift($arrn);
 				array_pop($arrp);
@@ -241,7 +249,7 @@ class XpWikiPluginLsx
 			$name = ! empty($arrp) ? join('/', array_merge($arrp, $arrn)) :
 				(! empty($arrn) ? $this->root->defaultpage . '/' . join('/', $arrn) : $this->root->defaultpage);
 		}
-		
+
 		return $name;
 	}
 
@@ -250,10 +258,10 @@ class XpWikiPluginLsx
 		if (sizeof($this->metapages) == 0) {
 			return;
 		}
-		
-		/* HTML validate (without <ul><li style="list-type:none"><ul><li>, we have to do as 
+
+		/* HTML validate (without <ul><li style="list-type:none"><ul><li>, we have to do as
 		   <ul><li style="padding-left:16*2px;margin-left:16*2px"> as pukiwiki standard. I did not like it)
-		   
+
 		<ul>			  <ul><li>1
 		<li>1</li>		  </li><li>1
 		<li>1			  <ul><li>2
@@ -304,7 +312,7 @@ class XpWikiPluginLsx
 				$ul -= $diff;
 			}
 			$pdepth = $depth;
-			
+
 			if (! $this->options['notitle'][1]) {
 				$relative .=  ' [' .$this->func->unhtmlspecialchars($this->func->get_heading($page), ENT_QUOTES).']';
 			}
@@ -315,7 +323,7 @@ class XpWikiPluginLsx
 			}
 			//$html .= $info . "\n";
 			$html .= $info . $order . "\n";
-			
+
 			if ($exist && $this->options['contents'][1] != '') {
 				$option = '"page=' . $page . '"';
 				if (! empty($this->options['contents'][1])) {
@@ -338,7 +346,7 @@ class XpWikiPluginLsx
 
 	function timestamp_metapages()
 	{
-		if (! $this->options['date'][1] && ! $this->options['new'][1] && 
+		if (! $this->options['date'][1] && ! $this->options['new'][1] &&
 			$this->options['sort'][1] !== 'date') {
 			return;
 		}
@@ -349,7 +357,7 @@ class XpWikiPluginLsx
 		}
 	}
 
-	function date_metapages() 
+	function date_metapages()
 	{
 		if (! $this->options['date'][1] && ! $this->options['new'][1]) {
 			return;
@@ -498,7 +506,7 @@ class XpWikiPluginLsx
 		//	  $field_array[$i] = $array[$i][$fieldname];
 		//}
 		//return in_array($value, $field_array);
-		
+
 		foreach ($array as $i => $val) {
 			if ($value == $val[$fieldname]) {
 				return true;
@@ -520,12 +528,12 @@ class XpWikiPluginLsx
 		default:
 			return; // error
 		}
-		
+
 		if ($this->options['reverse'][1]) {
 			$this->metapages = array_reverse($this->metapages);
 		}
 	}
-	
+
 	# sort arrays by a specific field without maintaining key association
 	function sort_by(&$array,  $fieldname = null, $sort, $sortflag = SORT_REGULAR)
 	{
@@ -562,7 +570,7 @@ class XpWikiPluginLsx
 			unset($array[$i]);
 		}
 		$array = $outarray;
-	} 
+	}
 
 	function max_by($array, $fieldname = null)
 	{
@@ -587,10 +595,10 @@ class XpWikiPluginLsx
 			$depth = substr_count($page, '/');
 			$this->metapages[$i]['depth']	= $depth - $pdepth;
 		}
-		
+
 		return $this->max_by($this->metapages, 'depth');
 	}
-	
+
 	function relative_metapages()
 	{
 		$pdir = $this->dirname($this->options['prefix'][1]);
@@ -599,21 +607,21 @@ class XpWikiPluginLsx
 		} else {
 			$pdirlen = strlen($pdir) + 1; // Add '/'
 		}
-		
+
 		foreach ($this->metapages as $i => $metapage) {
 			$page  = $metapage['page'];
 			$relative = substr($page, $pdirlen);
 			$this->metapages[$i]['relative'] = $relative;
 		}
 	}
-	
+
 	function metapages()
 	{
 		if ($this->options['tag'][1] == '') {
 			$pages = $this->get_existpages();
 		} else {
 			$plugin_tag = new XpWikiPluginTag($this->xpwiki);
-			$pages = $plugin_tag->get_taggedpages($this->options['tag'][1]);
+			$pages = $plugin_tag->get_taggedpages($this->options['tag'][1], $this->options['noenhance'][1]);
 			if ($pages === FALSE) {
 				$this->error  = 'The tag token, ' . $this->options['tag'][1] . ', is invalid. ';
 				$this->error .= 'Perhaps, the tag does not exist. ';
@@ -648,7 +656,7 @@ class XpWikiPluginLsx
 			return $page;
 		}
 	}
-	
+
 	function depth_filter_pages()
 	{
 		if ($this->options['depth'][1] === '') {
@@ -663,7 +671,7 @@ class XpWikiPluginLsx
 		}
 		$this->metapages = $metapages;
 	}
-	
+
 	// sort before this ($this->sort_by)
 	function num_filter_pages()
 	{
@@ -671,7 +679,7 @@ class XpWikiPluginLsx
 			return;
 		}
 		$metapages = array();
-		// $num < count($this->metapages) is assured. 
+		// $num < count($this->metapages) is assured.
 		foreach ($this->options['num'][1] as $num) {
 			$metapages[] = $this->metapages[$num - 1];
 		}
@@ -686,7 +694,7 @@ class XpWikiPluginLsx
 			$page = $metapage['page'];
 			$relative = $metapage['relative'];
 			if ($this->options['prefix'][1] !== "") {
-				if (strpos($page, $this->options['prefix'][1]) !== 0) { 
+				if (strpos($page, $this->options['prefix'][1]) !== 0) {
 					continue;
 				}
 			}
@@ -696,13 +704,13 @@ class XpWikiPluginLsx
 				}
 			}
 			if ($this->options['filter'][1] !== "") {
-				if (!ereg($this->options['filter'][1], $relative)) { 
+				if (!ereg($this->options['filter'][1], $relative)) {
 					continue;
 				}
 			}
 			if ($this->options['non_list'][1]) {
-				if (preg_match("/{$this->root->non_list}/", $page)) { 
-					continue; 
+				if (preg_match("/{$this->root->non_list}/", $page)) {
+					continue;
 				}
 			}
 			$metapages[] = $metapage;
@@ -822,7 +830,7 @@ class XpWikiPluginLsxOptionParser
 						$this->error .= "By the way, #$this->plugin($key) equals to #$this->plugin($key=(" . join(',',$options[$key][2]) . ")). ";
 						return;
 					}
-				} 
+				}
 				break;
 			default:
 			}
@@ -830,7 +838,7 @@ class XpWikiPluginLsxOptionParser
 
 		return $options;
 	}
-	
+
 	function decompose_args($args, $options)
 	{
 		$args = $this->compose_array_args($args);
@@ -852,7 +860,7 @@ class XpWikiPluginLsxOptionParser
 		}
 		return $newargs;
 	}
-	
+
 	function compose_array_args($comma_exploded_args)
 	{
 		$args = $comma_exploded_args;
