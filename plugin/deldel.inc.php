@@ -1,6 +1,6 @@
 <?php
 /**
- * $Id: deldel.inc.php,v 1.12 2010/01/08 13:55:27 nao-pon Exp $
+ * $Id: deldel.inc.php,v 1.13 2010/05/03 00:32:57 nao-pon Exp $
  * ORG: deldel.inc.php 161 2005-06-28 12:58:13Z okkez $
  *
  * 色んなものを一括削除するプラグイン
@@ -158,6 +158,7 @@ class xpwiki_plugin_deldel extends xpwiki_plugin {
 			$body .= '<option value="COUNTER">counter</option></select>';
 			$body .= "<input type=\"hidden\" name=\"mode\" value=\"select\"/>\n";
 			$body .= "<input type=\"submit\" value=\"{$this->msg['btn_search']}\" />";
+			$body .= '<input type="checkbox" name="no_page" value="1"> List of no page';
 			$body .= "<p>{$this->msg['msg_body_start']}</p>";
 			$body .= "</form>";
 
@@ -459,9 +460,10 @@ class xpwiki_plugin_deldel extends xpwiki_plugin {
 			$s_page	 = htmlspecialchars($page, ENT_QUOTES);
 			$passage = $this->func->get_pg_passage($page);
 			// 変更ココから by okkez
-			$checked = ($checked)? " checked=\"true\"" : "";
+			$checked = ($checked || !empty($this->root->post['no_page']))? " checked=\"true\"" : "";
 			$freezed = $this->func->is_freeze($page) ? '<span class="new1"> * </span>' : '';
 			$exist_page = $this->func->is_page($page) ? '' : '<span class="diff_added"> # </span>';
+			if (!$exist_page && !empty($this->root->post['no_page'])) continue;
 			$str = '   <li><input type="checkbox" name="pages[]" value="' . $s_page . '"'.$checked.' /><a href="' .
 		$this->root->script . '?cmd=' . $cmd . '&amp;page=' . $r_page .
 		'">' . $s_page . '</a>' . $passage . $freezed . $exist_page;
@@ -749,11 +751,14 @@ class xpwiki_plugin_deldel extends xpwiki_plugin {
 	}
 
 	function move_to ($page, & $to_obj) {
+		static $counter = null;
+
 		if ($to_obj->func->is_page($page)) {
 			return false;
 		}
 		$move_files = array();
-		foreach(array('wiki', 'backup', 'counter', 'diff', 'referer') as $dir) {
+//		foreach(array('wiki', 'backup', 'counter', 'diff', 'referer') as $dir) {
+		foreach(array('wiki', 'backup', 'diff', 'referer') as $dir) {
 			$from = $this->get_filename2($dir, $page);
 			$to = $this->get_filename2($dir, $page, $to_obj);
 			if (file_exists($from)) {
@@ -809,6 +814,15 @@ class xpwiki_plugin_deldel extends xpwiki_plugin {
 			$ret = ($ret && touch($to) && copy($from, $to));
 			touch($to, filemtime($from));
 		}
+
+		// make .count
+		if (!$counter) {
+			$counter = $this->func->get_plugin_instance('counter');
+		}
+		$counters = $counter->plugin_counter_get_count($page, false);
+		$to = $this->get_filename2('counter', $page, $to_obj);
+		file_put_contents(join("\n", $counters) . "\n", $to);
+
 		return $ret;
 	}
 }

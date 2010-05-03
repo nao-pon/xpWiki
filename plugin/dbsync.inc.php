@@ -1,7 +1,7 @@
 <?php
 //
 // Created on 2006/11/17 by nao-pon http://hypweb.net/
-// $Id: dbsync.inc.php,v 1.40 2010/03/06 08:33:59 nao-pon Exp $
+// $Id: dbsync.inc.php,v 1.41 2010/05/03 00:32:57 nao-pon Exp $
 //
 
 class xpwiki_plugin_dbsync extends xpwiki_plugin {
@@ -471,11 +471,11 @@ __EOD__;
 			{
 				echo "<div style=\"font-size:14px;\"><b>DB '".$this->root->mydirname."_counter' Already converted {$docnt} pages.</b></div>";
 			}
-			else
-			{
-				$query = "DELETE FROM ".$this->xpwiki->db->prefix($this->root->mydirname."_count");
-				$result=$this->xpwiki->db->queryF($query);
-			}
+			//else
+			//{
+			//	$query = "DELETE FROM ".$this->xpwiki->db->prefix($this->root->mydirname."_count");
+			//	$result=$this->xpwiki->db->queryF($query);
+			//}
 
 			echo "<div style=\"font-size:14px;\"><b>DB '".$this->root->mydirname."_counter' Now converting... </b>( * = 10 Pages)<hr>";
 
@@ -508,17 +508,33 @@ __EOD__;
 					continue;
 				}
 
+				if (! $pgid = $this->func->get_pgid_by_name($page)) {
+					//@unlink($this->cont['COUNTER_DIR'].$file);
+					$dones[0][] = $file;
+					continue;
+				}
+
 				$array = array_pad(file($this->cont['COUNTER_DIR'].$file), 5, '');
-				$pgid = $this->func->get_pgid_by_name($page);
 				$count = intval(rtrim($array[0]));
 				$today = intval(rtrim($array[1]));
 				$today_count = intval(rtrim($array[2]));
 				$yesterday_count = intval(rtrim($array[3]));
 				$ip = rtrim($array[4]);
 
-				$query = "insert into ".$this->xpwiki->db->prefix($this->root->mydirname."_count")." (pgid,count,today,today_count,yesterday_count,ip) values('$pgid',$count,'$today',$today_count,$yesterday_count,'$ip');";
-				if (! $result = $this->xpwiki->db->queryF($query)) {
+				$query = "UPDATE ".$this->xpwiki->db->prefix($this->root->mydirname."_count")." SET count=$count,today='$today',today_count=$today_count,yesterday_count=$yesterday_count,ip='$ip' WHERE pgid='$pgid' LIMIT 1;";
+ 				if (! $result = $this->xpwiki->db->queryF($query)) {
 					echo 'SQL Error: ' . $query . '<br />';
+				} else {
+					if (! $this->xpwiki->db->getAffectedRows()) {
+						$query = "INSERT INTO ".$this->xpwiki->db->prefix($this->root->mydirname."_count")." (pgid,count,today,today_count,yesterday_count,ip) values('$pgid',$count,'$today',$today_count,$yesterday_count,'$ip');";
+						if (! $result = $this->xpwiki->db->queryF($query)) {
+							echo 'SQL Error: ' . $query . '<br />';
+						} else {
+							@unlink($this->cont['COUNTER_DIR'].$file);
+						}
+					} else {
+						@unlink($this->cont['COUNTER_DIR'].$file);
+					}
 				}
 
 				$counter++;
