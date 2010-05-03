@@ -1,10 +1,10 @@
 <?php
 class xpwiki_plugin_tag extends xpwiki_plugin {
-	
+
 	////////////////////////////////
 	function plugin_tag_init()
 	{
-	
+
 	////////////////////////////////
 	/**
 	 * Generate An HTML Tag Cloud
@@ -20,7 +20,7 @@ class xpwiki_plugin_tag extends xpwiki_plugin {
 		$args = func_get_args();
 		return call_user_func_array(array($this->root->plugin_tag, 'inline'), $args);
 	}
-	
+
 	function can_call_otherdir_convert() {
 		return 1;
 	}
@@ -45,12 +45,24 @@ class xpwiki_plugin_tag extends xpwiki_plugin {
 
 		include_once $this->root->mytrustdirpath . '/events/onPageWriteAfter/tag.inc.php';
 		$pages = $this->func->get_existpages();
-		
-		if ($dir_h = @opendir($this->cont['CACHE_DIR'])) {
+
+		$old_cache = TRUE;
+		if ($dir_h = @opendir($this->cont['CACHE_DIR'] . 'plugin/')) {
 			while($file = readdir($dir_h)) {
-				if (substr($file, -4) === '.tag') @ unlink($this->cont['CACHE_DIR'] . $file);
+				if (substr($file, -4) === '.tag') {
+					@ unlink($this->cont['CACHE_DIR'] . 'plugin/' . $file);
+					$old_cache = FALSE;
+				}
 			}
 			closedir($dir_h);
+		}
+		if ($old_cache) {
+			if ($dir_h = @opendir($this->cont['CACHE_DIR'])) {
+				while($file = readdir($dir_h)) {
+					if (substr($file, -4) === '.tag') @ unlink($this->cont['CACHE_DIR'] . $file);
+				}
+				closedir($dir_h);
+			}
 		}
 
 		foreach ($pages as $page) {
@@ -60,7 +72,7 @@ class xpwiki_plugin_tag extends xpwiki_plugin {
 			$diffdata = '';
 			xpwiki_onPageWriteAfter_tag($this->func, $page, $postdata, $notimestamp, $mode, $diffdata);
 		}
-	
+
 		return array(
 			'msg'  => 'Tag plugin',
 			'body' => 'Cache is updated.'
@@ -68,8 +80,8 @@ class xpwiki_plugin_tag extends xpwiki_plugin {
 	}
 
 }
-	// $Id: tag.inc.php,v 1.13 2009/02/22 02:01:56 nao-pon Exp $
-	
+	// $Id: tag.inc.php,v 1.14 2010/05/03 00:08:18 nao-pon Exp $
+
 class XpWikiPluginTag
 {
 	////// tag cloud ////////
@@ -79,18 +91,18 @@ class XpWikiPluginTag
 		$this->cont   =& $xpwiki->cont;
 		$this->func   =& $xpwiki->func;
 
-	
+
 	}
-	
+
 	function convert()
 	{
 		static $loaded = FALSE;
-		
+
 		if (!$loaded) {
 			$loaded = TRUE;
 			$this->func->add_tag_head('tagcloud.css');
 		}
-		
+
 		// option
 		if (func_num_args() == 0) {
 			$limit = 20;
@@ -102,45 +114,58 @@ class XpWikiPluginTag
 		$cloud_p = new XpWikiTagCloud($this->xpwiki);
 		$cloud_d = $this->read_tagcloud();//$limit);
 		foreach ($cloud_d as $key => $val) {
-			list($tag, $count) = $val;
-			$url = $this->func->get_script_uri() . '?' . 'cmd=lsx&amp;tag=' . rawurlencode($tag);
+			//list($tag, $count) = $val;
+			$tags = array();
+			$count = 0;
+			foreach($val as $_tag => $_count) {
+				$tags[] = $_tag;
+				$count += $_count;
+			}
+			sort($tags);
+			$tag = $tags[0];
+			$url = $this->func->get_script_uri() . '?' . 'cmd=lsx&amp;rtag=' . rawurlencode($tag);
 			$cloud_p->add(htmlspecialchars($tag), $url, $count);
 		}
 		return $cloud_p->html($limit);
 	}
-	
+
 	function read_tagcloud($limit = NULL)
 	{
-		$cache = $this->cont['CACHE_DIR'] . 'tagcloud.tag';
+		$cache = $this->cont['CACHE_DIR'] . 'plugin/tagcloud.tag';
 		if (! file_exists($cache)) return array();
-		
+
 		//if (isset($limit))
 		//$lines = file_head($cache, $limit); // pukiwiki API
-		//else 
+		//else
 		$lines = file($cache);
-		
+
 		if ($lines === FALSE) return array();
 		$lines = array_map('rtrim', $lines);
-		
+
 		$tagcloud = array();
 		foreach ($lines as $line) {
 			list($tag, $count) = explode("\t", $line);
 			$key = $this->get_key($tag);
-			$tagcloud[$key] = array($tag, $count);
+			//$tagcloud[$key] = array($tag, $count);
+			$tagcloud[$key][strval($tag)] = $count;
 		}
 		return $tagcloud;
 	}
 
 	function write_tagcloud($tagcloud)
 	{
-		$cache = $this->cont['CACHE_DIR'] . 'tagcloud.tag';
+		$cache = $this->cont['CACHE_DIR'] . 'plugin/tagcloud.tag';
 		$contents = '';
 		$tag_counts = array();
 		ksort($tagcloud);
 		foreach ($tagcloud as $key => $val) {
-			list($tag, $count) = $val;
-			if ($count == 0 || !$tag) continue;
-			$contents .= $tag . "\t" . $count . "\n";
+			//list($tag, $count) = $val;
+			//if ($count == 0 || !$tag) continue;
+			//$contents .= $tag . "\t" . $count . "\n";
+			foreach($val as $tag => $count) {
+				if (! $count || $tag === '') continue;
+				$contents .= $tag . "\t" . $count . "\n";
+			}
 		}
 		return $this->file_put_contents($cache, $contents);
 	}
@@ -151,14 +176,14 @@ class XpWikiPluginTag
 		if (func_num_args() == 0) {
 			return 'tag(): no argument(s). ';
 		}
-		
+
 		$page = $this->root->vars['page'];
 		$args = func_get_args(); array_pop($args); $tags = $args;
 		// $tags = array_map('strtolower', $tags); // does not work for UTF-8
 		$tags = array_unique($tags);
-		
-		if (@ $this->root->rtf['is_init'] && 
-			$this->is_page_new($page) && 
+
+		if (@ $this->root->rtf['is_init'] &&
+			$this->is_page_new($page) &&
 			$this->check_tagnames($tags) &&
 			$this->root->rtf['convert_nest'] < 2
 		) {
@@ -166,21 +191,21 @@ class XpWikiPluginTag
 				return $this->frontend($tags);
 			} else {
 				return $ret;
-			}			
+			}
 		}
-		
+
 		return $this->frontend($tags);
-		
+
 		/*
 		if (! $this->is_page_new($page))
 			return $this->frontend($tags);
 
 		if (! $this->check_tagnames($tags))
 			return 'tag(): tag names are illegal. Do not use ^ and -. ';
-		
+
 		if ($this->root->rtf['convert_nest'] > 1 || !empty($this->root->rtf['preview']))
 			return $this->frontend($tags);
-		
+
 		if ($ret = $this->renew_tagcache($page, $tags)) {
 			return $this->frontend($tags);
 		} else {
@@ -190,24 +215,26 @@ class XpWikiPluginTag
 	}
 
 	// for another listing plugin
-	function get_taggedpages($tagtok = '')
+	function get_taggedpages($tagtok = '', $noenhance = false)
 	{
 		$tags = array();
 		$ops  = array();
-		while (true) {
-			$intersectpos = strpos($tagtok, '^');
-			$diffpos	  = strpos($tagtok, '-');
-			if ($intersectpos === FALSE && $diffpos === FALSE) {
-				break;
-			} elseif ($diffpos === FALSE || $intersectpos < $diffpos) {
-				$pos = $intersectpos;
-				array_push($ops, 'intersect');
-			} else {
-				$pos = $diffpos;
-				array_push($ops, 'diff');
+		if (! $noenhance) {
+			while (true) {
+				$intersectpos = strpos($tagtok, '^');
+				$diffpos	  = strpos($tagtok, '-');
+				if ($intersectpos === FALSE && $diffpos === FALSE) {
+					break;
+				} elseif ($diffpos === FALSE || $intersectpos < $diffpos) {
+					$pos = $intersectpos;
+					array_push($ops, 'intersect');
+				} else {
+					$pos = $diffpos;
+					array_push($ops, 'diff');
+				}
+				array_push($tags, substr($tagtok, 0, $pos));
+				$tagtok = substr($tagtok, $pos + 1);
 			}
-			array_push($tags, substr($tagtok, 0, $pos));
-			$tagtok = substr($tagtok, $pos + 1);
 		}
 		array_push($tags, $tagtok);
 
@@ -215,25 +242,33 @@ class XpWikiPluginTag
 		$storage = $this->get_tagstorage($tag);
 		if (! file_exists($storage)) return FALSE;
 		$pages = array_map('rtrim', file($storage));
-		foreach ($tags as $i => $tag) {
-			$storage = $this->get_tagstorage($tag);
-			if (! file_exists($storage)) return FALSE;
-			$intersect	= array_intersect($pages, array_map('rtrim', file($storage)));
-			switch ($ops[$i]) {
-			case 'intersect':
-				$pages = $intersect;
-				break;
-			case 'diff':
-				$pages = array_diff($pages, $intersect);
-				break;
+		if (! $noenhance) {
+			foreach ($tags as $i => $tag) {
+				$storage = $this->get_tagstorage($tag);
+				if (! file_exists($storage)) return FALSE;
+				$intersect	= array_intersect($pages, array_map('rtrim', file($storage)));
+				switch ($ops[$i]) {
+				case 'intersect':
+					$pages = $intersect;
+					break;
+				case 'diff':
+					$pages = array_diff($pages, $intersect);
+					break;
+				}
 			}
 		}
-		return $pages;
+		$ret = array();
+		foreach($pages as $id) {
+			if ($name = $this->func->get_name_by_pgid($id)) {
+				$ret[] = $name;
+			}
+		}
+		return $ret;
 	}
-	
+
 	function check_tagnames($tags)
 	{
-		// '^' and '-' are reserved keys. 
+		// '^' and '-' are reserved keys.
 		foreach ($tags as $tag) {
 			if (strpos($tag, '^') !== FALSE) return FALSE;
 			elseif (strpos($tag, '-') !== FALSE) return FALSE;
@@ -254,7 +289,7 @@ class XpWikiPluginTag
 		$ret = '<span class="tag">';
 		$ret .= 'Tag: ';
 		foreach ($tags as $tag) {
-			$ret .= '<a href="' . $this->func->get_script_uri() . '?cmd=lsx&amp;tag=' . rawurlencode($tag) . '">' . htmlspecialchars($tag) . '</a> ';
+			$ret .= '<a href="' . $this->func->get_script_uri() . '?cmd=lsx&amp;rtag=' . rawurlencode($tag) . '">' . htmlspecialchars($tag) . '</a> ';
 		}
 		$ret .= '</span>';
 		return $ret;
@@ -265,7 +300,7 @@ class XpWikiPluginTag
 		$storage = $this->get_tagstorage($tag);
 		if (! file_exists($storage)) return FALSE;
 		$pages = file($storage);
-		$pages = array_diff($pages, array($page . "\n"));
+		$pages = array_diff($pages, array($this->func->get_pgid_by_name($page) . "\n"));
 		if (empty($pages)) {
 			if (unlink($storage) === FALSE) return FALSE;
 		} else {
@@ -281,7 +316,7 @@ class XpWikiPluginTag
 		if (file_exists($storage)) {
 			$pages = file($storage);
 		}
-		array_push($pages, $page . "\n");
+		array_push($pages, $this->func->get_pgid_by_name($page) . "\n");
 		//$pages = array_unique($pages);  // should be assured
 		if ($this->file_put_contents($storage, implode("", $pages)) === FALSE) return FALSE;
 		return sizeof($pages);
@@ -309,14 +344,15 @@ class XpWikiPluginTag
 			if ($this->file_put_contents($storage, implode("\n", $tags) . "\n") === FALSE)
 				return "tag(): failed to write page tagdata. ";
 		}
-		
+
 		$tagcloud = $this->read_tagcloud();
 		if ($dels) {
 			foreach ($dels as $tag) {
 				$count = $this->del_page($tag, $page);
 				if ($count === FALSE)
 					return "tag(): failed to delete $page from tag cache for $tag. ";
-				$tagcloud[$this->get_key($tag)] = array($tag, $count);
+				//$tagcloud[$this->get_key($tag)] = array($tag, $count);
+				$tagcloud[$this->get_key($tag)][strval($tag)] = $count;
 			}
 		}
 		if ($adds) {
@@ -324,12 +360,13 @@ class XpWikiPluginTag
 				$count = $this->add_page($tag, $page);
 				if ($count === FALSE)
 					return "tag(): failed to add $page to tag cache for $tag. ";
-				$tagcloud[$this->get_key($tag)] = array($tag, $count);
+				//$tagcloud[$this->get_key($tag)] = array($tag, $count);
+				$tagcloud[$this->get_key($tag)][strval($tag)] = $count;
 			}
 		}
 		if ($this->write_tagcloud($tagcloud) === FALSE)
 			return "tag(): failed to write tag cloud cache. ";
-		
+
 		return TRUE;
 	}
 
@@ -342,12 +379,12 @@ class XpWikiPluginTag
 	function get_tagstorage($tag)
 	{
 		$key = $this->get_key($tag);
-		return	$this->cont['CACHE_DIR'] . $this->func->encode($key) . '_tag.tag';
+		return	$this->cont['CACHE_DIR'] . 'plugin/' . $this->func->encode($key) . '_tag.tag';
 	}
 
 	function get_pagestorage($page)
 	{
-		return $this->cont['CACHE_DIR'] . $this->func->encode($page) . '_page.tag';
+		return $this->cont['CACHE_DIR'] . 'plugin/' . $this->func->get_pgid_by_name($page) . '_page.tag';
 	}
 
 	// PHP extension
@@ -368,7 +405,7 @@ class XpWikiPluginTag
 		if (fwrite($fp, $contents) === FALSE) {
 			fclose($fp);
 			return FALSE;
-		} 
+		}
 		return fclose($fp);
 	}
 }
@@ -376,7 +413,7 @@ class XpWikiTagCloud
 {
 	var $counts;
 	var $urls;
-	
+
 	function XpWikiTagCloud(& $xpwiki)
 	{
 		$this->xpwiki =& $xpwiki;
@@ -415,17 +452,21 @@ class XpWikiTagCloud
 		}
 		$n = count($tags);
 		if ($n == 0) {
-			return '';
+			$ret = '';
+			if (is_file($this->cont['CACHE_DIR'] . 'tagcloud.tag')) {
+				$ret = '<div><em>Please update cache data of tags with <a href="' . $this->cont['HOME_URL'] . '?cmd=tag">this link</a>.</em></div>';
+			}
+			return $ret;
 		} elseif ($n == 1) {
 			$tag = $tags[0];
 			$url = $this->urls[$tag];
-			return "<div class=\"htmltagcloud\"><span class=\"tagcloud1\"><a href=\"$url\">$tag</a></span></div>\n"; 
+			return "<div class=\"htmltagcloud\"><span class=\"tagcloud1\"><a href=\"$url\">$tag</a></span></div>\n";
 		}
-		
+
 		$min = sqrt($this->counts[$tags[$n - 1]]);
 		$max = sqrt($this->counts[$tags[0]]);
 		$factor = 0;
-		
+
 		// specal case all tags having the same count
 		if (($max - $min) == 0) {
 			$min -= 24;
@@ -436,7 +477,7 @@ class XpWikiTagCloud
 		$html = '';
 		//sort($tags);
 		natcasesort($tags);
-		
+
 		if ($this->cont['UA_PROFILE'] === 'keitai') {
 			for ($i = 0; $i < 25; $i++) {
 				if ($i < 5) {
@@ -453,7 +494,7 @@ class XpWikiTagCloud
 				$fontsize[$i] = $_size;
 			}
 		}
-		
+
 		$tagparts = array();
 		foreach($tags as $tag) {
 			$count = $this->counts[$tag];
