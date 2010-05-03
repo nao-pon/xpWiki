@@ -1,7 +1,7 @@
 <?php
 //
 // Created on 2006/11/09 by nao-pon http://hypweb.net/
-// $Id: dbsync.lng.php,v 1.3 2010/03/06 08:33:59 nao-pon Exp $
+// $Id: dbsync.lng.php,v 1.4 2010/05/03 05:06:34 nao-pon Exp $
 //
 
 $msg = array(
@@ -15,7 +15,7 @@ $msg = array(
 	'msg_reading' => 'An existing pagename readings.',
 	'msg_noretitle' => 'An existing page maintains title information.',
 	'msg_retitle' => 'An existing page acquires title information again, too.',
-	'msg_plain_init' => 'Text DB for searches and DB for link between pages',
+	'msg_plain_init' => 'Plain text DB for searches and Page relation DB',
 	'msg_plain_init_notall' => 'Text DB for searches treats only an empty page.',
 	'msg_plain_init_all' => 'Processes all pages. (It takes time.)',
 	'msg_attach_init' => 'Attached file information DB',
