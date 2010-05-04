@@ -1,5 +1,5 @@
 <?php
-// $Id: dump.inc.php,v 1.11 2010/05/03 05:06:34 nao-pon Exp $
+// $Id: dump.inc.php,v 1.12 2010/05/04 05:59:42 nao-pon Exp $
 //
 // Remote dump / restore plugin
 // Originated as tarfile.inc.php by teanan / Interfair Laboratory 2004.
@@ -406,10 +406,17 @@ class xpwiki_plugin_dump extends xpwiki_plugin {
 			$filename .= '.tar';
 		}
 
+		$downfile = dirname($tempnam) . '/' . $filename;
+		copy($tempnam, $downfile);
+		unlink($tempnam);
+
 		// clear output buffer
 		while( ob_get_level() ) {
 			ob_end_clean() ;
 		}
+
+		//header('Location:' . $this->cont['HOME_URL'] . 'private/cache/' . $filename);
+		//exit();
 
 		ini_set('default_charset','');
 		mb_http_output('pass');
@@ -419,7 +426,8 @@ class xpwiki_plugin_dump extends xpwiki_plugin {
 		header('Content-Length: ' . $size);
 		header('Content-Type: application/octet-stream');
 		header('Pragma: no-cache');
-		@readfile($tempnam);
+		@readfile($downfile);
+		exit();
 	}
 
 	/////////////////////////////////////////////////
@@ -540,6 +548,7 @@ EOD;
 			if ($tars) {
 				$radio = '';
 				$i = 0;
+				natsort($tars);
 				foreach($tars as $tar) {
 					$tar_view = htmlspecialchars($tar);
 					$fsize = filesize($this->cont['CACHE_DIR'].$tar);
