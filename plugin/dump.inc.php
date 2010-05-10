@@ -1,5 +1,5 @@
 <?php
-// $Id: dump.inc.php,v 1.13 2010/05/10 02:31:23 nao-pon Exp $
+// $Id: dump.inc.php,v 1.14 2010/05/10 11:43:47 nao-pon Exp $
 //
 // Remote dump / restore plugin
 // Originated as tarfile.inc.php by teanan / Interfair Laboratory 2004.
@@ -613,8 +613,14 @@ class xpwiki_plugin_dump extends xpwiki_plugin {
 		$this->msg['max_filesize'] = str_replace('$maxsize', $maxsize, $this->msg['max_filesize']);
 
 		$memory_limit = HypCommonFunc::return_bytes(ini_get('memory_limit'));
+		if (function_exists('memory_get_usage')) {
+			$memory_usage = memory_get_usage() * 1.1;
+		} else {
+			$memory_usage = 7 * 1024 * 1024;
+		}
+
 		if ($memory_limit) {
-			$maxsize = min(20, (ceil($memory_limit / 1024 / 1024 / 2 * 100) / 100));
+			$maxsize = max(0.1, min(20, (ceil(($memory_limit - $memory_usage) / 1024 / 1024 * 10) / 10)));
 		} else {
 			$maxsize = 5;
 		}
