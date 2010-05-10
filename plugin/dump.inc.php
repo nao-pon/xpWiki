@@ -1,5 +1,5 @@
 <?php
-// $Id: dump.inc.php,v 1.12 2010/05/04 05:59:42 nao-pon Exp $
+// $Id: dump.inc.php,v 1.13 2010/05/10 02:31:23 nao-pon Exp $
 //
 // Remote dump / restore plugin
 // Originated as tarfile.inc.php by teanan / Interfair Laboratory 2004.
@@ -94,6 +94,20 @@ class xpwiki_plugin_dump extends xpwiki_plugin {
 		$this->cont['TARLIB_KIND_TGZ'] =  0;
 		$this->cont['TARLIB_KIND_TAR'] =  1;
 
+		// Prefix of tar
+		$this->tar_prefix = 'tar_';
+
+		// Regex(PCRE) of tar
+		$this->tar_pregex = '/^(tar_\d{8}[^.]*)(?:.\d+)?\.tar(?:\.gz)?$/i';
+
+		// Set data directorys
+		$this->datadirs = array(
+			'wiki' => $this->cont['DATA_DIR'],
+			'attach' => $this->cont['UPLOAD_DIR'],
+			'backup' => $this->cont['BACKUP_DIR'],
+			'diff' => $this->cont['DIFF_DIR'],
+			'trackback' => $this->cont['TRACKBACK_DIR']
+		);
 	}
 
 	function format_extract_filter($fullpath, $filereg) {
@@ -120,11 +134,14 @@ class xpwiki_plugin_dump extends xpwiki_plugin {
 
 		if ($this->cont['PKWK_READONLY']) $this->func->die_message('PKWK_READONLY prohibits this');
 
+		$this->func->add_tag_head('dump.css');
+
 		$pass = isset($_POST['pass']) ? $_POST['pass'] : NULL;
 		$act  = isset($this->root->vars['act'])   ? $this->root->vars['act']   : NULL;
 
 		$body = '';
 
+		$showForm = true;
 		if ($this->root->userinfo['admin'] || $pass !== NULL) {
 			if (! $this->func->pkwk_login($pass)) {
 				$body = "<p><strong>{$this->msg['password_ng']}</strong></p>\n";
@@ -132,6 +149,7 @@ class xpwiki_plugin_dump extends xpwiki_plugin {
 				switch($act){
 				case $this->cont['PLUGIN_DUMP_DUMP']:
 					$body = $this->plugin_dump_download();
+					$showForm = false;
 					break;
 				case $this->cont['PLUGIN_DUMP_RESTORE']:
 					$filename = '';
@@ -152,12 +170,46 @@ class xpwiki_plugin_dump extends xpwiki_plugin {
 						return array('msg' => $msg, 'body' => $body);
 					}
 					break;
+				case 'maketar':
+					$list = isset($this->root->vars['list']) ? $this->root->vars['list'] : '';
+					$outimg = 'package_delete.png';
+//					$list = $this->cont['CACHE_DIR'] . $list;
+					if ($list) {
+						if ($this->make_tar_by_list($list)) {
+							$outimg = 'package_go.png';
+						}
+					}
+					$url = $this->cont['LOADER_URL'] .'?src='.$outimg;
+					//exit($url);
+
+					// clear output buffer
+					while( ob_get_level() ) {
+						ob_end_clean() ;
+					}
+
+					header('Location: ' . $url);
+
+					return array('exit' => 0);	// 正常終了
+					break;
+				case 'download':
+					$downfile = $this->cont['CACHE_DIR'] . $this->root->vars['file'];
+					if (preg_match($this->tar_pregex, $this->root->vars['file']) && is_readable($downfile)) {
+						$this->download_tarfile($downfile);
+					} else {
+						$this->func->redirect_header($this->cont['HOME_URL'] . '?cmd=dump',
+							1,
+							htmlspecialchars($this->root->vars['file']) . 'was not found.');
+					}
+
+					return array('exit' => 0);	// 正常終了
+
+					break;
 				}
 			}
 		}
 
 		// 入力フォームを表示
-		$body .= $this->plugin_dump_disp_form();
+		if ($showForm) $body .= $this->plugin_dump_disp_form();
 
 		$msg = '';
 		if ($this->cont['PLUGIN_DUMP_ALLOW_RESTORE']) {
@@ -167,6 +219,59 @@ class xpwiki_plugin_dump extends xpwiki_plugin {
 		}
 
 		return array('msg' => $msg, 'body' => $body);
+	}
+
+	function make_tar_by_list($list) {
+		$ret = false;
+		$list = $this->cont['CACHE_DIR'] . $list;
+		// ダウンロード用ファイル
+		$downfile = preg_replace('/.list$/i', '', $list);
+
+		if (is_readable($list)) {
+			$listdata = file_get_contents($list);
+			//list($files, $vars) = explode("\x08", $listdata);
+			//$files = explode("\n", $files);
+			//$this->root->vars = array_merge_recursive($this->root->vars, $vars);
+			$files = file($list);
+			$files = array_map('trim', $files);
+			if ($files) {
+				@unlink($downfile);
+
+				// アーカイブの種類
+				$arc_kind = (substr($downfile, -3) === '.gz') ? 'tgz' : 'tar';
+
+				// ページ名に変換する
+				$namedecode = isset($this->root->vars['namedecode']) ? TRUE : FALSE;
+
+				$tar = new XpWikitarlib($this->xpwiki);
+
+				$tar->datadirs = $this->datadirs;
+
+				$tar->create($this->cont['CACHE_DIR'], $arc_kind) or
+					$this->func->die_message($this->msg['maketmp_ng']);
+
+				// 文字コード cache/encode.txt
+				$data = $this->cont['SOURCE_ENCODING'];
+				$size = strlen($data);
+				// ヘッダ生成
+				$tar_data = $tar->_make_header('private/cache/.charset', $size, $this->cont['UTC'], $this->cont['TARLIB_HDR_FILE']);
+				// ファイル出力
+				$tar->_write_data(join('', $tar_data), $data, $size);
+
+				$tar->add_dir($files, $namedecode);
+
+				$tar->close();
+
+				if (rename($tar->filename, $downfile)) {
+					@unlink($list);
+					$ret = true;
+				}
+			}
+		} else if (is_file($downfile)) {
+			$ret = true;
+		}
+
+		return $ret;
 	}
 
 	/////////////////////////////////////////////////
@@ -195,6 +300,10 @@ class xpwiki_plugin_dump extends xpwiki_plugin {
 
 		$filecount = 0;
 		$tar = new XpWikitarlib($this->xpwiki);
+
+		$tar->limitSize = floatval($this->root->vars['limitsize']) * 1024 * 1024;
+		$tar->datadirs = $this->datadirs;
+
 		$tar->create($this->cont['CACHE_DIR'], $arc_kind) or
 			$this->func->die_message($this->msg['maketmp_ng']);
 
@@ -220,17 +329,91 @@ class xpwiki_plugin_dump extends xpwiki_plugin {
 		if ($bk_dbplain) $filecount += $tar->add_sql($this->xpwiki->db->prefix($this->root->mydirname.'_plain'));
 		if ($bk_dbattach) $filecount += $tar->add_sql($this->xpwiki->db->prefix($this->root->mydirname.'_attach'));
 
-
-		$tar->close();
-
 		if ($filecount === 0) {
+			$tar->close();
 			@unlink($tar->filename);
 			return '<p><strong>'.$this->msg['file_notfound'].'</strong></p>';
 		} else {
-			// ダウンロード
-			$this->download_tarfile($tar->filename, $arc_kind, join('+', $tar->dirs));
-			@unlink($tar->filename);
-			return array('exit' => 0);	// 正常終了
+
+			$filename = $this->tar_prefix . strftime('%Y%m%d', $this->cont['UTC']) . '_' . $this->root->mydirname . '-' . join('+', $tar->dirs);
+			if ($arc_kind == 'tgz') {
+				$ext= '.tar.gz';
+			} else {
+				$ext = '.tar';
+			}
+
+			// Dir list
+			$dirlistname = 'private/cache/'.$filename. $ext .'.dirlist';
+
+			// ファイル名長のチェック
+			if (strlen($dirlistname) > $this->cont['TARLIB_HDR_NAME_LEN']) {
+				// LongLink対応
+				$namesize = strlen($dirlistname);
+				// LongLinkヘッダ生成
+				$tar_data = $tar->_make_header($this->cont['TARLIB_DATA_LONGLINK'], $namesize, $this->cont['UTC'], $this->cont['TARLIB_HDR_LINK']);
+				// ファイル出力
+	 			$tar->_write_data(join('', $tar_data), $dirlistname, $namesize);
+			}
+
+			$dirlistdata = join("\n", $tar->dirs);
+			$size = strlen($dirlistdata);
+			// ヘッダ生成
+			$tar_data = $tar->_make_header($dirlistname, $size, $this->cont['UTC'], $this->cont['TARLIB_HDR_FILE']);
+			// ファイル出力
+			$tar->_write_data(join('', $tar_data), $dirlistdata, $size);
+
+			$tar->close();
+
+			$downfile = dirname($tar->filename) . '/' . $filename;
+
+			if ($tar->moreCount) {
+
+				if ($handle = opendir($this->cont['CACHE_DIR'])) {
+					while (false !== ($file = readdir($handle))) {
+						if (strpos($file, $filename) === 0) {
+							@unlink($this->cont['CACHE_DIR'] . $file);
+						}
+					}
+				}
+
+				$numlen = strlen($tar->moreCount);
+				$format = '.%0'.$numlen.'d';
+
+				$num1 = sprintf($format, 1);
+				$downfile1 = $downfile . $num1 . $ext;
+				rename($tar->filename, $downfile1);
+
+				$namedecode = (isset($this->root->vars['namedecode']))? '&amp;namedecode' : '';
+
+				$image = '<img src="'.$this->cont['LOADER_URL'].'?src=package_go.png" alt="Download" />';
+				$body = '<h4>' . $filename . '</h4>';
+				$body .= '<p>' . str_replace('$image', $image, $this->msg['download_tars']) . '</p>';
+				$body .= '<ul><li><a target="xpwiki_dump" href="'.$this->cont['HOME_URL'].'?cmd=dump&amp;act=download&amp;file='.rawurlencode(basename($downfile1)).'" title="Download">';
+				$body .= $image . '</a> ...' . $num1 . $ext.'</li>';
+				foreach($tar->moreFiles as $i => $files) {
+					$num = sprintf($format,($i + 1));
+					$downfile_tar = $downfile . $num . $ext;
+					$downfile_list = $downfile_tar . '.list';
+					$files[] = 'private/cache/'.$filename. $num . $ext . '.dirlist';
+					file_put_contents($downfile_tar . '.dirlist', $dirlistdata);
+					//$listdata = join("\n", $files) . "\x08" . serialize($this->root->vars);
+					$listdata = join("\n", $files);
+					file_put_contents($downfile_list, $listdata);
+					$body .= '<li><div class="dump_loading"><a target="xpwiki_dump" href="'.$this->cont['HOME_URL'].'?cmd=dump&amp;act=download&amp;file='.rawurlencode(basename($downfile_tar)).'" title="Download">';
+					$body .= '<img src="'.$this->cont['HOME_URL'].'gate.php?_nodos&amp;way=dump&amp;act=maketar&amp;list='.rawurlencode(basename($downfile_list)).$namedecode.'" alt="" /></a></div> ...'. $num . $ext . '</li>';
+				}
+				$body .= '</ul>';
+				return $body;
+			} else {
+				// ダウンロード
+				$downfile .= $ext;
+
+				rename($tar->filename, $downfile);
+
+				$this->download_tarfile($downfile);
+
+				return array('exit' => 0);	// 正常終了
+			}
 		}
 	}
 
@@ -265,6 +448,7 @@ class xpwiki_plugin_dump extends xpwiki_plugin {
 
 		// Create a temporary tar file
 		$tar = new XpWikitarlib($this->xpwiki);
+		$tar->datadirs = $this->datadirs;
 		if (! $isupload) {
 			//$copy_check = copy($filename, $uploadfile);
 			$uploadfile = $filename;
@@ -304,15 +488,14 @@ class xpwiki_plugin_dump extends xpwiki_plugin {
 				}
 			}
 		}
-		//$sync = array('pginfo'=>true, 'count'=>true, 'attach'=>true, 'rel'=>true, 'plain'=>true);
-		//$sql_files = array();
+
 		if ($files['sql']) {
-			foreach($files['sql'] as $name) {
-				list($table) = explode('.', basename($name));
-				unset($sync[$table]);
-			}
 			$sqls = $this->restore_sql($files['sql']);
 			$files = array_merge_recursive($files, $sqls);
+		}
+
+		foreach($files['sqltables'] as $table) {
+			unset($sync[$table]);
 		}
 
 		if (isset($sync['rel']) && isset($sync['plain'])) {
@@ -329,7 +512,7 @@ class xpwiki_plugin_dump extends xpwiki_plugin {
 			$msg .= '</ul></div>';
 		}
 
-		$msg .= '<div style="width:800px;height:400px;overflow:scroll;">';
+		$msg .= '<div class="dump_result">';
 		$msg .= '<div><strong>'.$this->msg['error_filelist'].'</strong><ul>';
 		if ($files['ng']) {
 			foreach($files['ng'] as $name) {
@@ -351,13 +534,14 @@ class xpwiki_plugin_dump extends xpwiki_plugin {
 		$msg .= '</ul></div>';
 		$msg .= '</div>';
 
+		$msg .= $this->plugin_dump_disp_form('cacheOnly');
+
 		return array('code' => TRUE, 'msg' => $msg);
 	}
 
 	function restore_sql($sql_files) {
 		$msg = array();
 		foreach($sql_files as $file) {
-			//$file = $this->cont['DATA_HOME'] . $file;
 			if (is_file($file)) {
 				$sql = file_get_contents($file);
 				$reps = array(
@@ -376,12 +560,13 @@ class xpwiki_plugin_dump extends xpwiki_plugin {
 				$sql = str_replace('\\\'', "\x07", $sql);
 				$sql = preg_replace('/\'([^\']*?)\'/e', '"\'".str_replace(\';\', "\x08", \'\\1\')."\'"', $sql);
 				$sql = str_replace("\x07", '\\\'', $sql);
-				//$msg[] = htmlspecialchars($sql);
 				foreach(explode(';', $sql) as $query) {
 					$query = trim(str_replace("\x08", ';', $query));
 					if ($query) {
 						if ($this->xpwiki->db->query($query)) {
-							$msg['ok'][] = htmlspecialchars($query);
+							if (! empty($this->root->vars['show_sql'])) {
+								$msg['ok'][] = htmlspecialchars($query);
+							}
 						} else {
 							$msg['ng'][] = '<span class="diff_removed">SQL Error:' . htmlspecialchars($query) . '</span>';
 						}
@@ -395,28 +580,15 @@ class xpwiki_plugin_dump extends xpwiki_plugin {
 
 	/////////////////////////////////////////////////
 	// tarファイルのダウンロード
-	function download_tarfile($tempnam, $arc_kind, $dirs)
+	function download_tarfile($downfile)
 	{
-		$size = filesize($tempnam);
-
-		$filename = 'tar_' . strftime('%Y%m%d', $this->cont['UTC']) . '_' . $this->root->mydirname . '-' . $dirs;
-		if ($arc_kind == 'tgz') {
-			$filename .= '.tar.gz';
-		} else {
-			$filename .= '.tar';
-		}
-
-		$downfile = dirname($tempnam) . '/' . $filename;
-		copy($tempnam, $downfile);
-		unlink($tempnam);
+		$size = filesize($downfile);
+		$filename = basename($downfile);
 
 		// clear output buffer
 		while( ob_get_level() ) {
 			ob_end_clean() ;
 		}
-
-		//header('Location:' . $this->cont['HOME_URL'] . 'private/cache/' . $filename);
-		//exit();
 
 		ini_set('default_charset','');
 		mb_http_output('pass');
@@ -427,27 +599,60 @@ class xpwiki_plugin_dump extends xpwiki_plugin {
 		header('Content-Type: application/octet-stream');
 		header('Pragma: no-cache');
 		@readfile($downfile);
-		exit();
+		//exit();
 	}
 
 	/////////////////////////////////////////////////
 	// 入力フォームを表示
-	function plugin_dump_disp_form()
+	function plugin_dump_disp_form($mode = '')
 	{
-	//	global $script, $defaultpage;
-
 		$act_down = $this->cont['PLUGIN_DUMP_DUMP'];
 		$act_up   = $this->cont['PLUGIN_DUMP_RESTORE'];
 		$maxsize  = $this->cont['PLUGIN_DUMP_MAX_FILESIZE'];
 
 		$this->msg['max_filesize'] = str_replace('$maxsize', $maxsize, $this->msg['max_filesize']);
 
+		$memory_limit = HypCommonFunc::return_bytes(ini_get('memory_limit'));
+		if ($memory_limit) {
+			$maxsize = min(20, (ceil($memory_limit / 1024 / 1024 / 2 * 100) / 100));
+		} else {
+			$maxsize = 5;
+		}
+
+		$fullpath = array();
+		foreach($this->datadirs as $name => $path) {
+			if (strpos($path, $this->cont['DATA_HOME']) !== 0) {
+				$msg = str_replace('$1', $path, $this->msg['make_fullpath']);
+				$fullpath[$name] = '&nbsp;&nbsp;&nbsp;&nbsp;<input type="checkbox" name="fullpath_'.$name.'" id="_p_dump_fullpath_'.$name.'"><label for="_p_dump_fullpath_'.$name.'"> ' . $msg . '</label><br />';
+			} else {
+				$fullpath[$name] = '';
+			}
+		}
+
 		$passform = ($this->root->userinfo['admin'])? '' :
 			'<label for="_p_dump_adminpass_dump"><strong>'.$this->msg['admin_pass'].'</strong></label>
   <input type="password" name="pass" id="_p_dump_adminpass_dump" size="12" />';
 
+		if (extension_loaded('zlib')) {
+			$tarop = <<<EOD
+  <input type="radio" name="pcmd" id="_p_dump_tgz" value="tgz" checked="checked" />
+  <label for="_p_dump_tgz">{$this->msg['tar.gz']}</label><br />
+  <input type="radio" name="pcmd" id="_p_dump_tar" value="tar" />
+  <label for="_p_dump_tar">{$this->msg['tar']}</label>
+EOD;
+		} else {
+			$tarop = <<<EOD
+  <input type="radio" name="pcmd" id="_p_dump_tar" value="tar" checked="checked" />
+  <label for="_p_dump_tar">{$this->msg['tar']}</label>
+EOD;
+		}
+
 		$script = $this->func->get_script_uri();
-		$data = <<<EOD
+
+		$data = '';
+
+		if (! $mode) {
+			$data .= <<<EOD
 <div class="level3">
 <h3>{$this->msg['data_download']}</h3>
 <form action="{$script}" method="post">
@@ -457,27 +662,34 @@ class xpwiki_plugin_dump extends xpwiki_plugin {
 
 <p><strong>{$this->msg['tar_type']}</strong>
 <br />
-  <input type="radio" name="pcmd" id="_p_dump_tgz" value="tgz" checked="checked" />
-  <label for="_p_dump_tgz">{$this->msg['tar.gz']}</label><br />
-  <input type="radio" name="pcmd" id="_p_dump_tar" value="tar" />
-  <label for="_p_dump_tar">{$this->msg['tar']}</label>
+{$tarop}
 </p>
-<p><strong>{$this->msg['backup_dir']}</strong><br />
+
+<p>
+<strong>{$this->msg['maxsize']}: <input type="text" size="4" name="limitsize" value="{$maxsize}" style="text-align:right;" />MB</strong>
 <br />
-{$this->msg['backup_dir_msg']}<br />
+{$this->msg['maxsize_desc']}
+</p>
+
+<p><strong>{$this->msg['backup_dir']}</strong><br />
 <br />
   <input type="checkbox" name="bk_wiki" id="_p_dump_d_wiki" checked="checked" />
   <label for="_p_dump_d_wiki">wiki</label><br />
+  {$fullpath['wiki']}
   <input type="radio" name="bk_counter" value="1" id="_p_dump_d_counter" />
   <label for="_p_dump_d_counter">counter</label><br />
-  <input type="checkbox" name="bk_attach" id="_p_dump_d_attach" />
+  <input type="checkbox" name="bk_attach" id="_p_dump_d_attach" checked="checked" />
   <label for="_p_dump_d_attach">attach</label><br />
-  <input type="checkbox" name="bk_backup" id="_p_dump_d_backup" />
+  {$fullpath['attach']}
+  <input type="checkbox" name="bk_backup" id="_p_dump_d_backup" checked="checked" />
   <label for="_p_dump_d_backup">backup</label><br />
-  <input type="checkbox" name="bk_diff" id="_p_dump_d_diff" />
+  {$fullpath['backup']}
+  <input type="checkbox" name="bk_diff" id="_p_dump_d_diff" checked="checked" />
   <label for="_p_dump_d_diff">diff</label><br />
+  {$fullpath['diff']}
   <input type="checkbox" name="bk_trackback" id="_p_dump_d_trackback" checked="checked" />
   <label for="_p_dump_d_trackback">trackback</label><br />
+  {$fullpath['trackback']}
 </p>
 <p><strong>{$this->msg['option']}</strong>
 <br />
@@ -506,6 +718,7 @@ class xpwiki_plugin_dump extends xpwiki_plugin {
 </form>
 </div>
 EOD;
+		}
 
 		if($this->cont['PLUGIN_DUMP_ALLOW_RESTORE']) {
 			$passform = ($this->root->userinfo['admin'])? '' :
@@ -530,13 +743,12 @@ EOD;
     </p>
   </div>
 EOD;
-			// cache/tar_[0-9]{4}[01][1-9][0-3][1-9]_[^.]+?\.tar(?:\.gz)?
+			// private/cache のファイル検索
 			$tars = array();
 			if ($handle = opendir($this->cont['CACHE_DIR'])) {
 				while (false !== ($file = readdir($handle))) {
-					//tar_20100430_xpwiki_pub.tar.gz
-					if (preg_match('/^tar_\d{8}[^.]*?\.tar(?:\.gz)?$/i', $file)) {
-						$tars[] = $file;
+					if (preg_match($this->tar_pregex, $file, $match)) {
+						$tars[$match[1]][] = $file;
 					}
 				}
 			}
@@ -549,10 +761,24 @@ EOD;
 				$radio = '';
 				$i = 0;
 				natsort($tars);
-				foreach($tars as $tar) {
-					$tar_view = htmlspecialchars($tar);
-					$fsize = filesize($this->cont['CACHE_DIR'].$tar);
-					$radio .= '    <input type="radio" name="localfile" id="_p_dump_localfile'.$i.'" value="'.$tar_view.'" /><label for="_p_dump_localfile'.$i++.'"> '.$tar_view .' ( '. $this->func->bytes2KMT($fsize) . " )</label><br />\n";
+				$image = '<img src="'.$this->cont['LOADER_URL'].'?src=package_go.png" alt="Download" />';
+				$t_dl = ' title="Download"';
+				foreach($tars as $name => $tars) {
+					if (count($tars) === 1) {
+						$tar = $tars[0];
+						$tar_view = htmlspecialchars($tar);
+						$fsize = filesize($this->cont['CACHE_DIR'].$tar);
+						$radio .= '    <input type="radio" name="localfile" id="_p_dump_localfile'.$i.'" value="'.$tar_view.'" /><label for="_p_dump_localfile'.$i++.'"> '.$tar_view .' ( '. $this->func->bytes2KMT($fsize) . ' )</label>';
+						$radio .= '    <a target="xpwiki_dump" href="'.$this->cont['HOME_URL'].'?cmd=dump&amp;act=download&amp;file='.rawurlencode($tar).'"'.$t_dl.'>'.$image.'</a><br />' . "\n";
+					} else {
+						$radio .= '    <input type="radio" disabled="disabled" /> ' . htmlspecialchars($name) . '<br />';
+						foreach($tars as $tar) {
+							$tar_view = htmlspecialchars(substr($tar, strlen($name)));
+							$fsize = filesize($this->cont['CACHE_DIR'].$tar);
+							$radio .= '    &nbsp;&nbsp;&nbsp;&nbsp;<input type="radio" name="localfile" id="_p_dump_localfile'.$i.'" value="'.htmlspecialchars($tar).'" /><label for="_p_dump_localfile'.$i++.'"> '.$tar_view .' ( '. $this->func->bytes2KMT($fsize) . ' )</label>';
+							$radio .= '    <a target="xpwiki_dump" href="'.$this->cont['HOME_URL'].'?cmd=dump&amp;act=download&amp;file='.rawurlencode($tar).'"'.$t_dl.'>'.$image.'</a><br />' . "\n";
+						}
+					}
 				}
 
 				$data .= <<<EOD
@@ -570,6 +796,7 @@ EOD;
   </div>
   <p>
   <input type="submit" name="ok" value="{$this->msg['do_restore']}" />
+  <input type="checkbox" name="show_sql" id="_p_dump_show_sql" value="1" /><label for="_p_dump_show_sql"> {$this->msg['show_sql']}</label>
   <br />
   {$this->msg['click_once']}
   </p>
@@ -590,6 +817,14 @@ class XpWikitarlib
 	var $dummydata;
 	var $dirs;
 
+	var $isFull;
+	var $totalSize;
+	var $limitSize;
+	var $moreFiles;
+	var $moreCount;
+	var $execution_time;
+	var $datadirs;
+
 	// コンストラクタ
 	function XpWikitarlib(& $xpwiki) {
 		$this->xpwiki =& $xpwiki;
@@ -601,6 +836,15 @@ class XpWikitarlib
 		$this->status   = $this->cont['TARLIB_STATUS_INIT'];
 		$this->arc_kind = $this->cont['TARLIB_KIND_TGZ'];
 		$this->dirs     = array();
+
+		$this->isFull = false;
+		$this->totalSize = 0;
+		$this->limitSize = 0;
+		$this->moreFiles = array();
+		$this->moreCount = 0;
+		$this->datadirs = array();
+
+		$this->execution_time = intval(ini_get('max_execution_time'));
 	}
 
 	////////////////////////////////////////////////////////////
@@ -633,51 +877,53 @@ class XpWikitarlib
 		}
 	}
 
-	////////////////////////////////////////////////////////////
-	// 関数  : tarファイルにディレクトリを追加する
-	// 引数  : $dir    .. ディレクトリ名
-	//         $mask   .. 追加するファイル(正規表現)
-	//         $decode .. ページ名の変換をするか
-	// 返り値: 作成したファイル数
-	////////////////////////////////////////////////////////////
-	function add_dir($dir, $mask, $decode = FALSE)
-	{
-		if ($dir === 'COUNTER') return $this->add_dir_counter($decode);
-		$this->dirs[] = basename($dir);
-
-		$retvalue = 0;
-
-		if ($this->status != $this->cont['TARLIB_STATUS_CREATE'])
-			return ''; // File is not created
-
-		unset($files);
-
-		//  指定されたパスのファイルのリストを取得する
-		$dp = @opendir($dir);
-		if($dp === FALSE) {
-			@unlink($this->filename);
-			$this->func->die_message($dir . ' is not found or not readable.');
+	function add_file($fullname, $decode, $data='', $fullpath = false) {
+		if ($this->execution_time) {
+			@set_time_limit($this->execution_time);
 		}
 
 		// DATA_HOME からの相対パスにする
-		$sdir = ltrim(substr($dir, strlen($this->cont['DATA_HOME'])), '/');
-
-		while ($filename = readdir($dp)) {
-			if (preg_match("/$mask/", $filename))
-				$files[] = $sdir . $filename;
+		if (strpos($fullname, $this->cont['DATA_HOME']) === 0) {
+			$name = ltrim(substr($fullname, strlen($this->cont['DATA_HOME'])), '/');
+		} else {
+			if ($fullpath) {
+				$name = $fullname;
+			} else {
+				$dir= basename(dirname($fullname));
+				if ($dir === 'attach') {
+					$name = 'attach/' . basename($fullname);
+				} else {
+					$name = 'private/' . $dir . '/' . basename($fullname);
+				}
+			}
 		}
-		closedir($dp);
 
-		sort($files);
+		if (! $data && ! is_readable($fullname)) {
+			@unlink($this->filename);
+			$this->func->die_message($fullname . ' is not found or not readable.');
+		}
 
-		$matches = array();
-		foreach($files as $name)
-		{
-			// DATA_HOME からの相対パスにする
-			//$name = ltrim(substr($name, strlen($this->cont['DATA_HOME'])), '/');
+		// ファイルサイズを取得
+		if ($data) {
+			$size = strlen($data);
+		} else {
+			$size = filesize($fullname);
+		}
+		$this->totalSize += $size;
 
+		if ($this->limitSize && $this->limitSize < $this->totalSize) {
+			$this->isFull = true;
+			$this->moreCount++;
+			$this->totalSize = $size;
+		}
+		if ($this->isFull) {
+			if ($data) {
+				file_put_contents($fullname, $data);
+			}
+			$this->moreFiles[$this->moreCount][] = $name . "\t" . ($decode? '1' : '0') . "\t" . ($fullpath? '1' : '0');
+		} else {
 			// Tarに格納するファイル名をdecode
-			if ($decode === FALSE) {
+			if (! $decode) {
 				$filename = $name;
 			} else {
 				$dirname  = dirname($name) . '/';
@@ -702,37 +948,93 @@ class XpWikitarlib
 			}
 
 			// 最終更新時刻
-			$mtime = filemtime($name);
+			if ($data) {
+				$mtime = $this->cont['UTC'];
+			} else {
+				$mtime = filemtime($fullname);
+			}
 
 			// ファイル名長のチェック
 			if (strlen($filename) > $this->cont['TARLIB_HDR_NAME_LEN']) {
 				// LongLink対応
-				$size = strlen($filename);
+				$namesize = strlen($filename);
 				// LongLinkヘッダ生成
-				$tar_data = $this->_make_header($this->cont['TARLIB_DATA_LONGLINK'], $size, $mtime, $this->cont['TARLIB_HDR_LINK']);
+				$tar_data = $this->_make_header($this->cont['TARLIB_DATA_LONGLINK'], $namesize, $mtime, $this->cont['TARLIB_HDR_LINK']);
 				// ファイル出力
-	 			$this->_write_data(join('', $tar_data), $filename, $size);
-			}
-
-			// ファイルサイズを取得
-			$size = filesize($name);
-			if ($size === FALSE) {
-				@unlink($this->filename);
-				$this->func->die_message($name . ' is not found or not readable.');
+	 			$this->_write_data(join('', $tar_data), $filename, $namesize);
 			}
 
 			// ヘッダ生成
 			$tar_data = $this->_make_header($filename, $size, $mtime, $this->cont['TARLIB_HDR_FILE']);
 
 			// ファイルデータの取得
-			$fpr = @fopen($name , 'rb');
-			flock($fpr, LOCK_SH);
-			$data = fread($fpr, $size);
-			fclose( $fpr );
+			if (! $data) {
+				$data = file_get_contents($fullname);
+				if (substr($name, -4) === '.sql' || substr($name, -5) === '.count' || substr($name, -8) === '.dirlist') {
+					@unlink($fullname);
+				}
+			}
 
 			// ファイル出力
 			$this->_write_data(join('', $tar_data), $data, $size);
+		}
+		return true;
+	}
+
+	////////////////////////////////////////////////////////////
+	// 関数  : tarファイルにディレクトリを追加する
+	// 引数  : $dir    .. ディレクトリ名
+	//         $mask   .. 追加するファイル(正規表現)
+	//         $decode .. ページ名の変換をするか
+	// 返り値: 作成したファイル数
+	////////////////////////////////////////////////////////////
+	function add_dir($dir, $mask, $decode = FALSE)
+	{
+		if (! is_array($dir)) {
+			if ($dir === 'COUNTER') return $this->add_dir_counter($decode);
+			$this->dirs[] = basename($dir);
+
+			$retvalue = 0;
+
+			if ($this->status != $this->cont['TARLIB_STATUS_CREATE'])
+				return ''; // File is not created
+
+			unset($files);
+
+			//  指定されたパスのファイルのリストを取得する
+			$dp = @opendir($dir);
+			if($dp === FALSE) {
+				@unlink($this->filename);
+				$this->func->die_message($dir . ' is not found or not readable.');
+			}
+
+			while ($filename = readdir($dp)) {
+				if (preg_match("/$mask/", $filename))
+					$files[] = $dir . $filename;
+			}
+			closedir($dp);
+
+			$fullpath = 0;
+			foreach($this->datadirs as $name => $_dir) {
+				if ($dir === $_dir) {
+					$fullpath = (! empty($this->root->vars['fullpath_'.$name]));
+					break;
+				}
+			}
+		} else {
+			$files = $dir;
+		}
+
+		sort($files);
+
+		$matches = array();
+		foreach($files as $name)
+		{
 			++$retvalue;
+			if (strpos($name, "\t") !== false) {
+				list($name, $decode, $fullpath) = explode("\t", $name);
+			}
+			$this->add_file($name, $decode, '', $fullpath);
 		}
 		return $retvalue;
 	}
@@ -768,55 +1070,13 @@ class XpWikitarlib
 		ksort($files);
 
 		$matches = array();
-		$dirname = ltrim(substr($this->cont['COUNTER_DIR'], strlen($this->cont['DATA_HOME'])), '/');
+		$dirname = $this->cont['COUNTER_DIR'];
 		$counter_ext = preg_quote($this->cont['PLUGIN_COUNTER_SUFFIX']);
 		$pattern = '^((?:[0-9A-F]{2})+)(('.$counter_ext.')*)$';
 		foreach($files as $name => $data)
 		{
-			// DATA_HOME からの相対パスにする
-			//$name = ltrim(substr($name, strlen($this->cont['DATA_HOME'])), '/');
 			$name =  $dirname . $name;
-
-			// Tarに格納するファイル名をdecode
-			if ($decode === FALSE) {
-				$filename = $name;
-			} else {
-				$dirname  = dirname($name) . '/';
-				$filename = basename(trim($name));
-				if (preg_match("/$pattern/", $filename, $matches)) {
-					$filename = $this->func->decode($matches[1]) . $matches[2];
-
-					// 危ないコードは置換しておく
-					$filename = str_replace(':',  '_', $filename);
-					$filename = str_replace('\\', '_', $filename);
-				}
-				$filename = $dirname . $filename;
-				// ファイル名の文字コードを変換
-				if (function_exists('mb_convert_encoding'))
-					$filename = mb_convert_encoding($filename, $this->cont['PLUGIN_DUMP_FILENAME_ENCORDING']);
-			}
-
-			// 最終更新時刻
-			$mtime = $this->cont['UTC'];
-
-			// ファイル名長のチェック
-			if (strlen($filename) > $this->cont['TARLIB_HDR_NAME_LEN']) {
-				// LongLink対応
-				$size = strlen($filename);
-				// LonkLinkヘッダ生成
-				$tar_data = $this->_make_header($this->cont['TARLIB_DATA_LONGLINK'], $size, $mtime, $this->cont['TARLIB_HDR_LINK']);
-				// ファイル出力
-	 			$this->_write_data(join('', $tar_data), $filename, $size);
-			}
-
-			// ファイルサイズを取得
-			$size = strlen($data);
-
-			// ヘッダ生成
-			$tar_data = $this->_make_header($filename, $size, $mtime, $this->cont['TARLIB_HDR_FILE']);
-
-			// ファイル出力
-			$this->_write_data(join('', $tar_data), $data, $size);
+			$this->add_file($name, $decode, $data);
 			++$retvalue;
 		}
 		return $retvalue;
@@ -831,8 +1091,6 @@ class XpWikitarlib
 			$this->func->die_message('Class "MySQLDump" was not found.');
 		}
 
-		$retvalue = 0;
-
 		$removePrefix = $this->xpwiki->db->prefix($this->root->mydirname.'_');
 		$short_name = substr($table, strlen($removePrefix));
 		$this->dirs[] = 'DB@' . $short_name;
@@ -844,33 +1102,11 @@ class XpWikitarlib
 		$data = file_get_contents($tmpfile);
 		unlink($tmpfile);
 
-		$dirname = ltrim(substr($this->cont['CACHE_DIR'], strlen($this->cont['DATA_HOME'])), '/');
-		$filename =  $dirname . $short_name . '.sql';
+		$name =  $this->cont['CACHE_DIR'] . $short_name . '.sql';
 
-		// 最終更新時刻
-		$mtime = $this->cont['UTC'];
+		$this->add_file($name, false, $data);
 
-		// ファイル名長のチェック
-		if (strlen($filename) > $this->cont['TARLIB_HDR_NAME_LEN']) {
-			// LongLink対応
-			$size = strlen($filename);
-			// LonkLinkヘッダ生成
-			$tar_data = $this->_make_header($this->cont['TARLIB_DATA_LONGLINK'], $size, $mtime, $this->cont['TARLIB_HDR_LINK']);
-			// ファイル出力
- 			$this->_write_data(join('', $tar_data), $filename, $size);
-		}
-
-		// ファイルサイズを取得
-		$size = strlen($data);
-
-		// ヘッダ生成
-		$tar_data = $this->_make_header($filename, $size, $mtime, $this->cont['TARLIB_HDR_FILE']);
-
-		// ファイル出力
-		$this->_write_data(join('', $tar_data), $data, $size);
-		++$retvalue;
-
-		return $retvalue;
+		return 1;
 	}
 
 	////////////////////////////////////////////////////////////
@@ -1001,7 +1237,7 @@ class XpWikitarlib
 	{
 		if ($this->status != $this->cont['TARLIB_STATUS_OPEN']) return ''; // Not opened
 
-		$files = array('ok'=>array(),'ng'=>array(),'dir'=>array(),'sql'=>array());
+		$files = array('ok'=>array(),'ng'=>array(),'dir'=>array(),'sql'=>array(),'sqltables'=>array());
 		$longname = '';
 		$charset = '';
 
@@ -1084,7 +1320,7 @@ class XpWikitarlib
 
 				$buff = fread($this->fp, $pdsz);
 
-				if ($charset && $charset !== $this->cont['SOURCE_ENCODING']) {
+				if ($charset && strtoupper($charset) !== strtoupper($this->cont['SOURCE_ENCODING'])) {
 					// ファイル名変換
 					$dirname = dirname($name);
 					$filename = basename($name);
@@ -1140,16 +1376,28 @@ class XpWikitarlib
 					$files['dir'][basename(dirname($name))] = true;
 					if (substr($name, -4) === '.sql') {
 						$files['sql'][] = $name;
+						list($files['sqltables'][]) = explode('.', $name);
 					}
 				} else {
 					$files['ng'][] = '<span class="diff_removed">Copy Error: ' . $shortname . '</span>';
 				}
 			} else if (basename($name) === '.charset') {
 				$charset = trim(fread($this->fp, $pdsz));
+			} else if (substr($name, -8) === '.dirlist') {
+				$dirlist = trim(fread($this->fp, $pdsz));
+				$dirlist = explode("\n", $dirlist);
+				foreach($dirlist as $dir) {
+					$dir = trim($dir);
+					if (strpos($dir, '@') === false) {
+						$files['dir'][$dir] = true;
+					} else {
+						list(,$files['sqltables'][]) = explode('@', $dir);
+					}
+				}
 			} else {
 				// ファイルポインタを進める
 				@fseek($this->fp, $pdsz, SEEK_CUR);
-				$files['ng'][] = '<span class="diff_removed">Pass: ' . $name . '</span>';
+				$files['ng'][] = '<span class="diff_removed">Bypass: ' . $name . '</span>';
 			}
 		}
 		return $files;
