@@ -1,7 +1,7 @@
 <?php
 //
 // Created on 2006/11/06 by nao-pon http://hypweb.net/
-// $Id: dump.lng.php,v 1.2 2010/05/03 05:06:34 nao-pon Exp $
+// $Id: dump.lng.php,v 1.3 2010/05/10 02:31:23 nao-pon Exp $
 //
 $msg = array(
 'upload_ok'        => 'Upload was completed.',
@@ -25,10 +25,9 @@ $msg = array(
 'data_overwrite'   => '[Warning] It is overwritten, please warn a data file of the same name enough.',
 'max_filesize'     => 'Maximum file size is $maxsize KByte.',
 'error_filelist'   => 'List of file that was not able to be restored',
-'backup_dir_msg'   => 'The processing of the "attach" directory might not be able to be executed normally when there are a lot of attached files. <br / >In that case, please backup & restore with FTP.',
 'backup_table'     => 'Backup DB tables',
 'uplode_now'       => 'Uploding backup file',
-'uploded_ftp'      => 'Uploded backup file(s) in "private/cache" by FTP',
+'uploded_ftp'      => 'Choose a backup file from directory "private/cache"',
 'file_notfound'    => 'There are no files.',
 'do_download'      => 'Do download backup file',
 'do_restore'       => 'Do restore now',
@@ -40,4 +39,9 @@ $msg = array(
 'sync_plain'       => 'Choose "Plain text DB & Page relation DB".',
 'click_once'       => 'Time is necessary for processing according to volume of data. Please wait without clicking again until there is a change in a browser.',
 'restore_hint'     => 'Data other than UTF-8 can be restored to the UTF-8 environment.',
+'show_sql'         => 'Show executed SQL query.',
+'maxsize'          => 'Maximum value of size total of backup files.',
+'maxsize_desc'     => 'When the total size of the file for the backup exceeds this value, it is divided.',
+'download_tars'    => 'Because the size of the file had grown, the backup file was divided.<br />If $image is displayed, it is possible to download it by clicking. <br />Please apply all files when restoring it.',
+'make_fullpath'    => 'Save as fullpath ( $1 ).',
 );

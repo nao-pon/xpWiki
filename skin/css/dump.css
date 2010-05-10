@@ -1,0 +1,17 @@
+/* dump.inc.php */
+$class div.dump_loading {
+	display: inline-block;
+	width: 16px;
+	height: 16px;
+	background-image: url(./loader.php?src=loading16.gif);
+}
+
+$class div.dump_result {
+	border: 1px solid gray;
+	margin: 10px 10px 10px 30px;
+	padding: 5px;
+	font-size: 90%;
+	width: 700px;
+	height: 3500px;
+	overflow: scroll;
+}
