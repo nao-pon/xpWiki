@@ -1,7 +1,7 @@
 <?php
 //
 // Created on 2006/10/02 by nao-pon http://hypweb.net/
-// $Id: xpwiki_func.php,v 1.223 2010/05/03 00:26:18 nao-pon Exp $
+// $Id: xpwiki_func.php,v 1.224 2010/05/10 02:26:24 nao-pon Exp $
 //
 class XpWikiFunc extends XpWikiXoopsWrapper {
 
@@ -1813,7 +1813,7 @@ EOD;
 			$content_charset = '',
 			$blocking = TRUE,
 			$retry = 1,
-			$c_timeout = 15,
+			$c_timeout = 3,
 			$r_timeout = 10
 		)
 	{
