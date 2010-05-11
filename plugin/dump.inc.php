@@ -1,5 +1,5 @@
 <?php
-// $Id: dump.inc.php,v 1.15 2010/05/11 08:54:53 nao-pon Exp $
+// $Id: dump.inc.php,v 1.16 2010/05/11 08:59:43 nao-pon Exp $
 //
 // Remote dump / restore plugin
 // Originated as tarfile.inc.php by teanan / Interfair Laboratory 2004.
@@ -758,7 +758,6 @@ EOD;
 					}
 				}
 			}
-			krsort($tars);
 			$data .= <<<EOD
   <div class="level4">
    <h4>{$this->msg['uploded_ftp']}</h4>
@@ -767,7 +766,7 @@ EOD;
 			if ($tars) {
 				$radio = '';
 				$i = 0;
-				natsort($tars);
+				krsort($tars);
 				$image = '<img src="'.$this->cont['LOADER_URL'].'?src=package_go.png" alt="Download" />';
 				$t_dl = ' title="Download"';
 				foreach($tars as $name => $tars) {
