@@ -1,12 +1,12 @@
 <?php
 /*
  * Created on 2007/04/23 by nao-pon http://hypweb.net/
- * $Id: ext_autolink.php,v 1.30 2009/06/30 23:41:07 nao-pon Exp $
+ * $Id: ext_autolink.php,v 1.31 2010/05/11 09:10:30 nao-pon Exp $
  */
 class XpWikiPukiExtAutoLink {
 	// External AutoLinks
 	var $ext_autolinks;
-	
+
 	function XpWikiPukiExtAutoLink (& $xpwiki) {
 		ini_set('mbstring.substitute_character', 'none');
 		$this->xpwiki = & $xpwiki;
@@ -14,7 +14,7 @@ class XpWikiPukiExtAutoLink {
 		$this->cont = & $xpwiki->cont;
 		$this->func = & $xpwiki->func;
 	}
-	
+
 	function ext_autolink(& $str) {
 		if (empty($this->ext_autolinks)) return $str;
 
@@ -22,7 +22,7 @@ class XpWikiPukiExtAutoLink {
 			$sorter[$key] = $tmp['priority'];
 		}
 		array_multisort($this->ext_autolinks, SORT_NUMERIC, SORT_DESC,$sorter, SORT_NUMERIC, SORT_DESC);
-		
+
 		foreach($this->ext_autolinks as $autolink) {
 			$pat = $this->get_ext_autolink($autolink);
 			if ($pat) {
@@ -35,10 +35,10 @@ class XpWikiPukiExtAutoLink {
 		}
 	}
 	function ext_autolink_replace($match) {
-		
+
 		if (!empty($match[1])) return $match[1];
 		$name = $match[3];
-		
+
 		static $forceignorepages = array();
 		if (!isset($forceignorepages[$this->root->mydirname])) {
 			@ list ( $dum , $dum , $_tmp) = @ file($this->cont['CACHE_DIR'].$this->cont['PKWK_AUTOLINK_REGEX_CACHE']);
@@ -46,14 +46,14 @@ class XpWikiPukiExtAutoLink {
 			$forceignorepages[$this->root->mydirname]['ci'] = array_map('strtolower', $forceignorepages[$this->root->mydirname]['cs']);
 		}
 		// 無視リストに含まれているページを捨てる
-		if (in_array(($this->ci ? strtolower($name) : $name), $forceignorepages[$this->root->mydirname]['cs'])) {return $match[0];}	
-		
+		if (in_array(($this->ci ? strtolower($name) : $name), $forceignorepages[$this->root->mydirname]['cs'])) {return '<!--NA-->'.$match[0].'<!--/NA-->';}
+
 		// minimum length of name
 		if (strlen($name) < $this->ext_autolink_len) {return $match[0];}
-		
+
 		$page = $this->ext_autolink_base.$name;
 		$title = htmlspecialchars(str_replace('[KEY]', $this->ext_autolink_base.$name, $this->ext_autolink_title));
-		
+
 		if ($this->ext_autolink_own !== false) {
 			// own site
 			if ($this->ext_autolink_own) {
@@ -70,7 +70,7 @@ class XpWikiPukiExtAutoLink {
 			}
 			if ($this->ext_autolink_pat) {
 				if (isset($this->ext_autolink_replace['from'])) {
-					$_url = str_replace($this->ext_autolink_replace['from'], $this->ext_autolink_replace['func']($page), $this->ext_autolink_pat); 
+					$_url = str_replace($this->ext_autolink_replace['from'], $this->ext_autolink_replace['func']($page), $this->ext_autolink_pat);
 				}
 				return '<a href="'.$_url.'" title="'.$title.'" class="' . $this->ext_autolink_a_class . '"' . $target . '>'.htmlspecialchars($name).'</a>';
 			} else {
@@ -92,10 +92,10 @@ class XpWikiPukiExtAutoLink {
 			}
 			if (! $_check ) return '';
 		}
-		
+
 		// initialize
 		$inits = array(
-			'target'  => '' , 
+			'target'  => '' ,
 			'priority'=> 40 ,
 			'url'     => '' ,
 			'urldat'  => 0 ,
@@ -111,22 +111,22 @@ class XpWikiPukiExtAutoLink {
 			'option'  => ''
 		);
 		$autolink = array_merge($inits, $autolink);
-		
+
 		if (preg_match('#^https?://#', $autolink['url'])) {
 			$this->ext_autolink_own = false;
 		} else {
 			$this->ext_autolink_own = $autolink['url'];
 		}
-		
+
 		// plain_db_write() から呼ばれている時自己Wiki以外はパス
 		if (!empty($this->root->rtf['is_init']) && $this->ext_autolink_own !== '') {
 			return '';
 		}
-		
+
 		$autolink['base'] = trim($autolink['base'],'/');
-		
+
 		$this->ext_autolink_enc_conv = (strtoupper($this->cont['CONTENT_CHARSET']) !== strtoupper($autolink['enc']));
-		
+
 		if ($autolink['urldat']){
 			$target = $autolink['url'];
 		} else {
@@ -135,7 +135,7 @@ class XpWikiPukiExtAutoLink {
 			$target = $autolink['url'].'?plugin=api&pcmd=autolink&base='.rawurlencode($target);
 		}
 		$cache = $this->cont['CACHE_DIR'].sha1($target . $autolink['option']).'.extautolink';
-		
+
 		// 重複登録チェック
 		if (isset($this->root->rtf['get_ext_autolink_done'][$target])) {
 			return '';
@@ -143,7 +143,7 @@ class XpWikiPukiExtAutoLink {
 		$this->root->rtf['get_ext_autolink_done'][$target] = true;
 
 		$this->ci = $autolink['case_i'];
-		
+
 		$cache_min = intval(max($autolink['cache'], 10));
 		// 自己xpWiki以外 & キャッシュあり & キャッシュが有効範囲
 		if ($this->ext_autolink_own !== '' && file_exists($cache) && filemtime($cache) + $cache_min * 60 > $this->cont['UTC']) {
@@ -151,8 +151,8 @@ class XpWikiPukiExtAutoLink {
 			if ($this->ext_autolink_own !== false) {
 					$obj = & XpWiki::getInitedSingleton($this->ext_autolink_own);
 					if (!$obj->isXpWiki) return;
-					$this->ext_autolink_func = & $obj->func;	
-					$this->ci = $obj->root->page_case_insensitive;			
+					$this->ext_autolink_func = & $obj->func;
+					$this->ci = $obj->root->page_case_insensitive;
 			}
 		} else {
 			if ($this->ext_autolink_own !== false) {
@@ -222,7 +222,7 @@ class XpWikiPukiExtAutoLink {
 		$this->ext_autolink_title = $autolink['title'];
 		$this->ext_autolink_a_target = ($autolink['a_target'])? $autolink['a_target'] : $this->root->link_target ;
 		$this->ext_autolink_a_class = ($autolink['a_class'])? $autolink['a_class'] : 'ext_autolink';
-		
+
 		if ($this->ext_autolink_pat) {
 			if (strpos($this->ext_autolink_pat, '[URL_ENCODE]') !== false) {
 				$this->ext_autolink_replace['from'] = '[URL_ENCODE]';
@@ -235,7 +235,7 @@ class XpWikiPukiExtAutoLink {
 				$this->ext_autolink_replace['func'] = create_function('$key', 'return str_replace(array(\'%\',\'.\'), array(\'\',\'2E\'), urlencode($key));');
 			}
 		}
-		
+
 		return $pat;
 	}
 }
