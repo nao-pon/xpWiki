@@ -1,5 +1,5 @@
 <?php
-// $Id: dump.inc.php,v 1.14 2010/05/10 11:43:47 nao-pon Exp $
+// $Id: dump.inc.php,v 1.15 2010/05/11 08:54:53 nao-pon Exp $
 //
 // Remote dump / restore plugin
 // Originated as tarfile.inc.php by teanan / Interfair Laboratory 2004.
@@ -758,6 +758,7 @@ EOD;
 					}
 				}
 			}
+			krsort($tars);
 			$data .= <<<EOD
   <div class="level4">
    <h4>{$this->msg['uploded_ftp']}</h4>
@@ -777,6 +778,7 @@ EOD;
 						$radio .= '    <input type="radio" name="localfile" id="_p_dump_localfile'.$i.'" value="'.$tar_view.'" /><label for="_p_dump_localfile'.$i++.'"> '.$tar_view .' ( '. $this->func->bytes2KMT($fsize) . ' )</label>';
 						$radio .= '    <a target="xpwiki_dump" href="'.$this->cont['HOME_URL'].'?cmd=dump&amp;act=download&amp;file='.rawurlencode($tar).'"'.$t_dl.'>'.$image.'</a><br />' . "\n";
 					} else {
+						natsort($tars);
 						$radio .= '    <input type="radio" disabled="disabled" /> ' . htmlspecialchars($name) . '<br />';
 						foreach($tars as $tar) {
 							$tar_view = htmlspecialchars(substr($tar, strlen($name)));
