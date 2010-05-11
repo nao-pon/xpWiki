@@ -1,5 +1,5 @@
 <?php
-// $Id: dump.inc.php,v 1.16 2010/05/11 08:59:43 nao-pon Exp $
+// $Id: dump.inc.php,v 1.17 2010/05/11 14:42:23 nao-pon Exp $
 //
 // Remote dump / restore plugin
 // Originated as tarfile.inc.php by teanan / Interfair Laboratory 2004.
@@ -32,7 +32,7 @@ class xpwiki_plugin_dump extends xpwiki_plugin {
 		$this->root->_STORAGE['DATA_DIR']['extract_filter'] = $this->format_extract_filter($this->cont['DATA_DIR'], '[0-9A-F]+\.txt');
 
 		// UPLOAD_DIR (attach/*)
-		$this->root->_STORAGE['UPLOAD_DIR']['add_filter']     = '^[0-9A-F_]+(?:\.log)?';
+		$this->root->_STORAGE['UPLOAD_DIR']['add_filter']     = '^(?:[0-9A-F]{2})+_(?:[0-9A-F]{2})+(?:\.log)?';
 		$this->root->_STORAGE['UPLOAD_DIR']['extract_filter'] = $this->format_extract_filter($this->cont['UPLOAD_DIR'], '(?:[0-9A-F]{2})+_(?:[0-9A-F]{2})+(?:\.log)?');
 
 		// COUNTER_DIR (counter/*.count)
@@ -44,7 +44,7 @@ class xpwiki_plugin_dump extends xpwiki_plugin {
 		$this->root->_STORAGE['BACKUP_DIR']['extract_filter'] =  $this->format_extract_filter($this->cont['BACKUP_DIR'], '[0-9A-F]+\.(?:gz|txt)');
 
 		// DIFF_DIR (diff/*.(txt|add))
-		$this->root->_STORAGE['DIFF_DIR']['add_filter']     = '^[0-9A-F]+\.(txt|add)';
+		$this->root->_STORAGE['DIFF_DIR']['add_filter']     = '^[0-9A-F]+\.(?:txt|add)';
 		$this->root->_STORAGE['DIFF_DIR']['extract_filter'] = $this->format_extract_filter($this->cont['DIFF_DIR'], '[0-9A-F]+\.(?:txt|add)');
 
 		// TRACKBACK_DIR (trackback/*.(ref|txt))
@@ -96,9 +96,12 @@ class xpwiki_plugin_dump extends xpwiki_plugin {
 
 		// Prefix of tar
 		$this->tar_prefix = 'tar_';
+		$this->tar_de_prefix = 'tar_de_';
 
 		// Regex(PCRE) of tar
 		$this->tar_pregex = '/^(tar_\d{8}[^.]*)(?:.\d+)?\.tar(?:\.gz)?$/i';
+		// Regex(PCRE) of tar_de (decoded type)
+		$this->tar_de_pregex = '/^(tar_de_\d{8}[^.]*)(?:.\d+)?\.tar(?:\.gz)?$/i';
 
 		// Set data directorys
 		$this->datadirs = array(
@@ -193,7 +196,7 @@ class xpwiki_plugin_dump extends xpwiki_plugin {
 					break;
 				case 'download':
 					$downfile = $this->cont['CACHE_DIR'] . $this->root->vars['file'];
-					if (preg_match($this->tar_pregex, $this->root->vars['file']) && is_readable($downfile)) {
+					if ((preg_match($this->tar_pregex, $this->root->vars['file']) || preg_match($this->tar_de_pregex, $this->root->vars['file'])) && is_readable($downfile)) {
 						$this->download_tarfile($downfile);
 					} else {
 						$this->func->redirect_header($this->cont['HOME_URL'] . '?cmd=dump',
@@ -335,7 +338,7 @@ class xpwiki_plugin_dump extends xpwiki_plugin {
 			return '<p><strong>'.$this->msg['file_notfound'].'</strong></p>';
 		} else {
 
-			$filename = $this->tar_prefix . strftime('%Y%m%d', $this->cont['UTC']) . '_' . $this->root->mydirname . '-' . join('+', $tar->dirs);
+			$filename = ($namedecode? $this->tar_de_prefix : $this->tar_prefix) . strftime('%Y%m%d', $this->cont['UTC']) . '_' . $this->root->mydirname . '-' . join('+', $tar->dirs);
 			if ($arc_kind == 'tgz') {
 				$ext= '.tar.gz';
 			} else {
@@ -383,8 +386,6 @@ class xpwiki_plugin_dump extends xpwiki_plugin {
 				$downfile1 = $downfile . $num1 . $ext;
 				rename($tar->filename, $downfile1);
 
-				$namedecode = (isset($this->root->vars['namedecode']))? '&amp;namedecode' : '';
-
 				$image = '<img src="'.$this->cont['LOADER_URL'].'?src=package_go.png" alt="Download" />';
 				$body = '<h4>' . $filename . '</h4>';
 				$body .= '<p>' . str_replace('$image', $image, $this->msg['download_tars']) . '</p>';
@@ -396,11 +397,10 @@ class xpwiki_plugin_dump extends xpwiki_plugin {
 					$downfile_list = $downfile_tar . '.list';
 					$files[] = 'private/cache/'.$filename. $num . $ext . '.dirlist';
 					file_put_contents($downfile_tar . '.dirlist', $dirlistdata);
-					//$listdata = join("\n", $files) . "\x08" . serialize($this->root->vars);
 					$listdata = join("\n", $files);
 					file_put_contents($downfile_list, $listdata);
 					$body .= '<li><div class="dump_loading"><a target="xpwiki_dump" href="'.$this->cont['HOME_URL'].'?cmd=dump&amp;act=download&amp;file='.rawurlencode(basename($downfile_tar)).'" title="Download">';
-					$body .= '<img src="'.$this->cont['HOME_URL'].'gate.php?_nodos&amp;way=dump&amp;act=maketar&amp;list='.rawurlencode(basename($downfile_list)).$namedecode.'" alt="" /></a></div> ...'. $num . $ext . '</li>';
+					$body .= '<img src="'.$this->cont['HOME_URL'].'gate.php?_nodos&amp;way=dump&amp;act=maketar&amp;list='.rawurlencode(basename($downfile_list)).'" alt="" /></a></div> ...'. $num . $ext . '</li>';
 				}
 				$body .= '</ul>';
 				return $body;
@@ -515,8 +515,12 @@ class xpwiki_plugin_dump extends xpwiki_plugin {
 		$msg .= '<div class="dump_result">';
 		$msg .= '<div><strong>'.$this->msg['error_filelist'].'</strong><ul>';
 		if ($files['ng']) {
-			foreach($files['ng'] as $name) {
-				$msg .= "<li>$name</li>\n";
+			foreach($files['ng'] as $type => $errors) {
+				foreach($errors as $name) {
+					$filename = basename($name);
+					$filename = htmlspecialchars($tar->decode_filename($filename));
+					$msg .= "<li><span class=\"dump_result_error\">$type: $name</span><br />( $filename )</li>\n";
+				}
 			}
 		} else {
 			$msg .= "<li>{$this->msg['file_notfound']}</li>\n";
@@ -935,23 +939,18 @@ class XpWikitarlib
 			} else {
 				$dirname  = dirname($name) . '/';
 				$filename = basename(trim($name));
-				if (preg_match("/^((?:[0-9A-F]{2})+)_((?:[0-9A-F]{2})+)/", $filename, $matches)) {
-					// attachファイル名
-					$filename = $this->func->decode($matches[1]) . '/' . $this->func->decode($matches[2]);
-				} else {
-					$pattern = '^((?:[0-9A-F]{2})+)((\.txt|\.gz|\.ref)*)$';
-					if (preg_match("/$pattern/", $filename, $matches)) {
-						$filename = $this->func->decode($matches[1]) . $matches[2];
+				$filename = $this->decode_filename($filename);
+				// 危ないコードは置換しておく
+				$replaces = array(
+					':'  => '_',
+					'\\' => '_'
+				);
+				$filename = strtr($filename, $replaces);
 
-						// 危ないコードは置換しておく
-						$filename = str_replace(':',  '_', $filename);
-						$filename = str_replace('\\', '_', $filename);
-					}
-				}
 				$filename = $dirname . $filename;
 				// ファイル名の文字コードを変換
 				if (function_exists('mb_convert_encoding'))
-					$filename = mb_convert_encoding($filename, $this->cont['PLUGIN_DUMP_FILENAME_ENCORDING']);
+					$filename = mb_convert_encoding($filename, $this->cont['PLUGIN_DUMP_FILENAME_ENCORDING'], $this->cont['SOURCE_ENCORDING']);
 			}
 
 			// 最終更新時刻
@@ -1386,7 +1385,7 @@ class XpWikitarlib
 						list($files['sqltables'][]) = explode('.', $name);
 					}
 				} else {
-					$files['ng'][] = '<span class="diff_removed">Copy Error: ' . $shortname . '</span>';
+					$files['ng']['Copy Error'][] = $shortname;
 				}
 			} else if (basename($name) === '.charset') {
 				$charset = trim(fread($this->fp, $pdsz));
@@ -1404,7 +1403,7 @@ class XpWikitarlib
 			} else {
 				// ファイルポインタを進める
 				@fseek($this->fp, $pdsz, SEEK_CUR);
-				$files['ng'][] = '<span class="diff_removed">Bypass: ' . $name . '</span>';
+				$files['ng']['Bypass'][] = $name;
 			}
 		}
 		return $files;
@@ -1441,5 +1440,17 @@ class XpWikitarlib
 		$this->status = $this->cont['TARLIB_STATUS_INIT'];
 	}
 
+	function decode_filename($filename) {
+		if (preg_match("/^((?:[0-9A-F]{2})*)_((?:[0-9A-F]{2})*)(\.log)?$/", $filename, $matches)) {
+			// attachファイル名
+			$filename = $this->func->decode($matches[1]) . '/' . $this->func->decode($matches[2]) . (isset($matches[3])? $matches[3] : '');
+		} else {
+			$pattern = '^((?:[0-9A-F]{2})+)(\.txt|\.gz|\.ref)$';
+			if (preg_match("/$pattern/", $filename, $matches)) {
+				$filename = $this->func->decode($matches[1]) . $matches[2];
+			}
+		}
+		return $filename;
+	}
 }
 ?>

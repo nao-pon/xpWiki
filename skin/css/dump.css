@@ -18,6 +18,10 @@ $class div.dump_result {
 	padding: 5px;
 	font-size: 90%;
 	width: 700px;
-	height: 3500px;
+	height: 350px;
 	overflow: scroll;
+}
+
+$class span.dump_result_error {
+	color: red;
 }
