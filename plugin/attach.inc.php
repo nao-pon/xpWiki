@@ -2,7 +2,7 @@
 /////////////////////////////////////////////////
 // PukiWiki - Yet another WikiWikiWeb clone.
 //
-//  $Id: attach.inc.php,v 1.53 2009/11/17 09:20:56 nao-pon Exp $
+//  $Id: attach.inc.php,v 1.54 2010/05/12 01:29:59 nao-pon Exp $
 //  ORG: attach.inc.php,v 1.31 2003/07/27 14:15:29 arino Exp $
 //
 /*
@@ -328,7 +328,7 @@ class xpwiki_plugin_attach extends xpwiki_plugin {
 
 		// ページが無ければ空ページを作成
 		if (!$this->func->is_page($page)) {
-			$this->func->make_empty_page($page);
+			$this->func->make_empty_page($page, false);
 		}
 
 		if ( strcasecmp(substr($file['name'],-4),".tar") == 0 && $this->root->post['untar_mode'] == "on" ) {
