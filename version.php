@@ -1,1 +1,1 @@
-<?php $xpwiki_version = '4.03.2';
+<?php $xpwiki_version = '4.03.3';
