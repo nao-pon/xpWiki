@@ -1,6 +1,6 @@
 <?php
 // PukiWiki - Yet another WikiWikiWeb clone
-// $Id: pukiwiki.ini.php,v 1.101 2010/03/06 08:44:21 nao-pon Exp $
+// $Id: pukiwiki.ini.php,v 1.102 2010/05/19 11:38:57 nao-pon Exp $
 // Copyright (C)
 //   2002-2006 PukiWiki Developers Team
 //   2001-2002 Originally written by yu-ji
@@ -850,7 +850,7 @@ $root->bitly_apiKey = '';
 $root->bitly_clickable = 0;
 $root->twitter_consumer_key = '';
 $root->twitter_consumer_secret = '';
-
+$root->yahoo_application_id = '';
 
 $root->pginfo = array(
 	'uid'       => 0,     // UserID

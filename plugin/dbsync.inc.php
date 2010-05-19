@@ -1,7 +1,7 @@
 <?php
 //
 // Created on 2006/11/17 by nao-pon http://hypweb.net/
-// $Id: dbsync.inc.php,v 1.41 2010/05/03 00:32:57 nao-pon Exp $
+// $Id: dbsync.inc.php,v 1.42 2010/05/19 11:38:22 nao-pon Exp $
 //
 
 class xpwiki_plugin_dbsync extends xpwiki_plugin {
@@ -318,8 +318,18 @@ __EOD__;
 
 				$reading = $this->root->post['reading']? addslashes($this->func->get_page_reading($name, TRUE)) : '';
 				$name = addslashes($name);
-				$buildtime = filectime($this->cont['DATA_DIR'].$file) - $this->cont['LOCALZONE'];
 				$editedtime = filemtime($this->cont['DATA_DIR'].$file) - $this->cont['LOCALZONE'];
+
+				// ページ作成日を取得 (filectime, 最古バックアップ, DB:buildtime) の最小値
+				$buildtime = filectime($this->cont['DATA_DIR'].$file) - $this->cont['LOCALZONE'];
+				$backup = $this->func->_backup_file_exists($page) ? $this->func->get_backup($page, 1) : array();
+				if ($backup) {
+					$buildtime = min($backup['time'], $buildtime);
+				}
+				list($_buildtime) = $this->func->get_page_time_db($page);
+				if ($_buildtime) {
+					$buildtime = min($_buildtime, $buildtime);
+				}
 				if (!$buildtime || $buildtime > $editedtime) $buildtime = $editedtime;
 
 				$checkpostdata = $this->func->get_source($page, TRUE, TRUE);
