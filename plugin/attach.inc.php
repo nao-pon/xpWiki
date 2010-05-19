@@ -2,7 +2,7 @@
 /////////////////////////////////////////////////
 // PukiWiki - Yet another WikiWikiWeb clone.
 //
-//  $Id: attach.inc.php,v 1.54 2010/05/12 01:29:59 nao-pon Exp $
+//  $Id: attach.inc.php,v 1.55 2010/05/19 11:48:15 nao-pon Exp $
 //  ORG: attach.inc.php,v 1.31 2003/07/27 14:15:29 arino Exp $
 //
 /*
@@ -326,9 +326,14 @@ class xpwiki_plugin_attach extends xpwiki_plugin {
 		}
 		//$copyright = (isset($post['copyright']))? TRUE : FALSE;
 
+		$notouch = FALSE;
 		// ページが無ければ空ページを作成
 		if (!$this->func->is_page($page)) {
 			$this->func->make_empty_page($page, false);
+			$notouch = TRUE;
+		} else {
+			list(, $etime) = $this->func->get_page_time_db($page);
+			if (! $etime) $notouch = TRUE;
 		}
 
 		if ( strcasecmp(substr($file['name'],-4),".tar") == 0 && $this->root->post['untar_mode'] == "on" ) {
@@ -342,7 +347,7 @@ class xpwiki_plugin_attach extends xpwiki_plugin {
 			foreach ( $etars as $efile ) {
 				$res = $this->do_upload( $page,
 				mb_convert_encoding($efile['extname'], $this->cont['SOURCE_ENCODING'], $enc),
-				$efile['tmpname'],$copyright,$pass);
+				$efile['tmpname'],$copyright,$pass,$notouch);
 				if ( ! $res['result'] ) {
 					unlink( $efile['tmpname']);
 				}
@@ -352,7 +357,7 @@ class xpwiki_plugin_attach extends xpwiki_plugin {
 			return $res;
 		} else {
 			// 通常の単一ファイル添付処理
-			return $this->do_upload($page,$file['name'],$file['tmp_name'],$copyright,$pass);
+			return $this->do_upload($page,$file['name'],$file['tmp_name'],$copyright,$pass,$notouch);
 		}
 	}
 
