@@ -1,18 +1,20 @@
 <?php
 /*
  * Created on 2007/04/23 by nao-pon http://hypweb.net/
- * $Id: ext_autolink.php,v 1.31 2010/05/11 09:10:30 nao-pon Exp $
+ * $Id: ext_autolink.php,v 1.32 2010/05/19 11:41:41 nao-pon Exp $
  */
 class XpWikiPukiExtAutoLink {
 	// External AutoLinks
 	var $ext_autolinks;
+	var $rt_global;
 
-	function XpWikiPukiExtAutoLink (& $xpwiki) {
+	function XpWikiPukiExtAutoLink (& $xpwiki, $rt_global) {
 		ini_set('mbstring.substitute_character', 'none');
 		$this->xpwiki = & $xpwiki;
 		$this->root = & $xpwiki->root;
 		$this->cont = & $xpwiki->cont;
 		$this->func = & $xpwiki->func;
+		$this->rt_global = $rt_global;
 	}
 
 	function ext_autolink(& $str) {
@@ -39,14 +41,9 @@ class XpWikiPukiExtAutoLink {
 		if (!empty($match[1])) return $match[1];
 		$name = $match[3];
 
-		static $forceignorepages = array();
-		if (!isset($forceignorepages[$this->root->mydirname])) {
-			@ list ( $dum , $dum , $_tmp) = @ file($this->cont['CACHE_DIR'].$this->cont['PKWK_AUTOLINK_REGEX_CACHE']);
-			$forceignorepages[$this->root->mydirname]['cs'] = explode("\t", trim($_tmp));
-			$forceignorepages[$this->root->mydirname]['ci'] = array_map('strtolower', $forceignorepages[$this->root->mydirname]['cs']);
-		}
 		// 無視リストに含まれているページを捨てる
-		if (in_array(($this->ci ? strtolower($name) : $name), $forceignorepages[$this->root->mydirname]['cs'])) {return '<!--NA-->'.$match[0].'<!--/NA-->';}
+		$case_sensor = $this->ci? 'ci' : 'cs';
+		if (isset($this->rt_global['forceignorepages'][$case_sensor][($this->ci ? strtolower($name) : $name)])) { return '<!--NA-->'.$match[0].'<!--/NA-->'; }
 
 		// minimum length of name
 		if (strlen($name) < $this->ext_autolink_len) {return $match[0];}
