@@ -1,7 +1,7 @@
 <?php
 /*
  * Created on 2008/05/13 by nao-pon http://hypweb.net/
- * $Id: jobstack.php,v 1.8 2009/11/17 06:09:46 nao-pon Exp $
+ * $Id: jobstack.php,v 1.9 2010/05/19 11:25:58 nao-pon Exp $
  */
 
 error_reporting(0);
@@ -41,7 +41,7 @@ header('Last-Modified: '. gmdate('D, d M Y H:i:s'). ' GMT');
 header('Cache-Control: no-cache, no-store, must-revalidate, pre-check=0, post-check=0');
 header('Pragma: no-cache');
 
-readfile($file);
+HypCommonFunc::readfile($file);
 
 function xpwiki_jobstack_switch (& $xpwiki, $row) {
 	list($key, $data) = $row;

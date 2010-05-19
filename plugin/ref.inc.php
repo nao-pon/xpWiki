@@ -1,5 +1,5 @@
 <?php
-// $Id: ref.inc.php,v 1.49 2010/01/08 13:48:04 nao-pon Exp $
+// $Id: ref.inc.php,v 1.50 2010/05/19 11:25:58 nao-pon Exp $
 /*
 
 	*プラグイン ref
@@ -215,7 +215,7 @@ class xpwiki_plugin_ref extends xpwiki_plugin {
 		header('Pragma:');
 		header($expires);
 
-		@ readfile($ref);
+		HypCommonFunc::readfile($ref);
 		exit;
 	}
 

@@ -1,7 +1,7 @@
 <?php
 //
 // Created on 2006/10/25 by nao-pon http://hypweb.net/
-// $Id: loader.php,v 1.63 2009/11/17 06:07:05 nao-pon Exp $
+// $Id: loader.php,v 1.64 2010/05/19 11:22:57 nao-pon Exp $
 //
 
 ignore_user_abort(FALSE);
@@ -279,7 +279,7 @@ if ($type === 'js' || $type === 'css' || is_file($src_file)) {
 		header( 'Content-Encoding: gzip' );
 		header( 'Vary: Accept-Encoding' );
 
-		if ($method !== 'HEAD') readfile($gzip_fname);
+		if ($method !== 'HEAD') loader_readfile($gzip_fname, TRUE);
 		exit();
 	} else if ($replace && is_file($cache_file) && filemtime($cache_file) >= $filetime) {
 		// html側/private/cache に 有効なキャッシュファイルがある場合
@@ -290,7 +290,7 @@ if ($type === 'js' || $type === 'css' || is_file($src_file)) {
 		header( 'Etag: '. $etag );
 		header( 'Content-length: '.filesize($cache_file) );
 
-		if ($method !== 'HEAD') readfile($cache_file);
+		if ($method !== 'HEAD') loader_readfile($cache_file);
 		exit();
 	}
 
@@ -458,7 +458,11 @@ if ($type === 'js' || $type === 'css' || is_file($src_file)) {
 		if ($replace) {
 			echo $out;
 		} else {
-			readfile($src_file);
+			if ($is_gz) {
+				loader_readfile($src_file, TRUE);
+			} else {
+				loader_readfile($src_file);
+			}
 		}
 	}
 	exit();
@@ -544,5 +548,29 @@ if (! function_exists('file_get_contents')) {
 		fclose($fh);
 		return $data;
 	}
+}
+
+function loader_readfile($file, $use_content_encoding = FALSE) {
+	if (! defined('HYP_X_SENDFILE_MODE')) {
+		// load HYP_X_SENDFILE_MODE
+		$conf = XOOPS_TRUST_PATH . '/class/hyp_common/config/hyp_common.conf.php';
+		if (is_file($conf)) {
+			include_once $conf;
+		}
+	}
+	if (defined('HYP_X_SENDFILE_MODE')) {
+		if (HYP_X_SENDFILE_MODE === 3 || (! $use_content_encoding && HYP_X_SENDFILE_MODE === 2)) {
+			if ( $use_content_encoding && HYP_X_SENDFILE_MODE === 3) {
+				header('X-Sendfile-Use-CE: Yes');
+			}
+			header('X-Sendfile: ' . $file);
+			return;
+		} else if (HYP_X_SENDFILE_MODE === 1) {
+			header('X-LIGHTTPD-send-file: ' . $file);
+			return;
+		}
+	}
+	readfile($file);
+	return;
 }
 ?>

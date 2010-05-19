@@ -1,7 +1,7 @@
 <?php
 /*
  * Created on 2008/03/24 by nao-pon http://hypweb.net/
- * $Id: attach.php,v 1.25 2010/05/03 00:26:46 nao-pon Exp $
+ * $Id: attach.php,v 1.26 2010/05/19 11:25:58 nao-pon Exp $
  */
 
 //-------- епеще╣
@@ -673,7 +673,7 @@ EOD;
 		header('Pragma:');
 		header($expires);
 
-		@readfile($this->filename);
+		HypCommonFunc::readfile($this->filename);
 		exit;
 	}
 
