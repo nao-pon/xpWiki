@@ -1,7 +1,7 @@
 <?php
 //
 // Created on 2006/10/02 by nao-pon http://hypweb.net/
-// $Id: pukiwiki_func.php,v 1.216 2010/05/11 09:10:30 nao-pon Exp $
+// $Id: pukiwiki_func.php,v 1.217 2010/05/19 11:49:13 nao-pon Exp $
 //
 class XpWikiPukiWikiFunc extends XpWikiBaseFunc {
 
@@ -136,7 +136,7 @@ class XpWikiPukiWikiFunc extends XpWikiBaseFunc {
 			$mode = "update";
 		}
 
-		if (! $touch) {
+		if (! $empty_page_making && ! $touch) {
 			// onPageWriteBefore
 			$this->do_onPageWriteBefore ($page, $postdata, $notimestamp, $mode);
 
@@ -284,7 +284,7 @@ class XpWikiPukiWikiFunc extends XpWikiBaseFunc {
 		if (empty($pginfo)) {
 			$pginfo = $this->get_pginfo($page);
 		}
-		$this->pginfo_db_write($page, $mode, $pginfo, $notimestamp);
+		$this->pginfo_db_write($page, $mode, $pginfo, $notimestamp, $empty_page_making);
 
 		if (! $empty_page_making && ! $touch) {
 			/*
@@ -705,22 +705,18 @@ class XpWikiPukiWikiFunc extends XpWikiBaseFunc {
 	{
 		list($pattern, $pattern_a, $forceignorelist) = $autolink_pattern;
 
+		$forceignorelist_ci = array_map('strtolower', $forceignorelist);
+		$forceignorelist_ci = array_unique($forceignorelist_ci);
+
 		if (! HypCommonFunc::flock_put_contents($filename,
 			  $pattern   . "\n"
 			. $pattern_a . "\n"
 			. join("\t", $forceignorelist) . "\n"
+			. serialize(array_combine($forceignorelist, array_fill(0, count($forceignorelist) ,true))) . "\n"
+			. serialize(array_combine($forceignorelist_ci, array_fill(0, count($forceignorelist_ci) ,true))) . "\n"
 		)) {
 			$this->die_message('Cannot write ' . $filename);
 		}
-//		$fp = fopen($filename, 'w') or
-//				$this->die_message('Cannot open ' . $filename);
-//		set_file_buffer($fp, 0);
-//		flock($fp, LOCK_EX);
-//		rewind($fp);
-//		fputs($fp, $pattern   . "\n");
-//		fputs($fp, $pattern_a . "\n");
-//		fputs($fp, join("\t", $forceignorelist) . "\n");
-//		fclose($fp);
 	}
 
 	// Get elapsed date of the page
@@ -1040,7 +1036,7 @@ class XpWikiPukiWikiFunc extends XpWikiBaseFunc {
 
 //----- Start convert_html.php -----//
 	// PukiWiki - Yet another WikiWikiWeb clone
-	// $Id: pukiwiki_func.php,v 1.216 2010/05/11 09:10:30 nao-pon Exp $
+	// $Id: pukiwiki_func.php,v 1.217 2010/05/19 11:49:13 nao-pon Exp $
 	// Copyright (C)
 	//   2002-2005 PukiWiki Developers Team
 	//   2001-2002 Originally written by yu-ji
@@ -1054,6 +1050,8 @@ class XpWikiPukiWikiFunc extends XpWikiBaseFunc {
 		static $contents_id = array();
 		static $real_nest = array();
 		static $digests = array();
+		static $forceignores = array();
+
 		if (!isset( $contents_id[$this->xpwiki->pid] )) {$contents_id[$this->xpwiki->pid] = 0;}
 		if (!isset( $real_nest[$this->xpwiki->pid] )) {$real_nest[$this->xpwiki->pid] = 0;}
 		if (!isset( $digests[$this->root->mydirname] )) {$digests[$this->root->mydirname] = array();}
@@ -1142,11 +1140,35 @@ class XpWikiPukiWikiFunc extends XpWikiBaseFunc {
 				}
 			}
 
+			// load autolink.dat & set forceignorepages
+			if ($this->root->autolink || !empty($this->root->ext_autolinks)) {
+				if (! isset($forceignores[$this->root-mydirname])) {
+					$forceignores[$this->root-mydirname] = array();
+					list($auto, , , $forceignorepages, $forceignorepages_ci) = array_pad(@file($this->cont['CACHE_DIR'].$this->cont['PKWK_AUTOLINK_REGEX_CACHE']), 5, '');
+					if (! $forceignorepages) {
+						$this->autolink_dat_update();
+						list($auto, , , $forceignorepages, $forceignorepages_ci) = array_pad(file($this->cont['CACHE_DIR'].$this->cont['PKWK_AUTOLINK_REGEX_CACHE']), 4, '');
+					}
+					$forceignorepages = @unserialize(trim($forceignorepages));
+					if ($forceignorepages === FALSE) {
+						$forceignorepages = array();
+					}
+					$forceignorepages_ci = @unserialize(trim($forceignorepages_ci));
+					if ($forceignorepages_ci === FALSE) {
+						$forceignorepages_ci = array();
+					}
+					$forceignores[$this->root-mydirname]['cs'] = $forceignorepages;
+					$forceignores[$this->root-mydirname]['ci'] = $forceignorepages_ci;
+				}
+				$this->rt_global['forceignorepages'] = $forceignores[$this->root-mydirname];
+				$this->rt_global['page_case_sensor'] = $this->root->page_case_insensitive? 'ci' : 'cs';
+			}
+
 			// External AutoLink Pre
 			if ($ext_autolinks_pre) {
 				if (!is_object($ext_autolink_obj)) {
 					include_once(dirname(dirname(__FILE__)).'/ext_autolink.php');
-					$ext_autolink_obj = new XpWikiPukiExtAutoLink($this->xpwiki);
+					$ext_autolink_obj = new XpWikiPukiExtAutoLink($this->xpwiki, $this->rt_global);
 				}
 				$ext_autolink_obj->ext_autolinks = $ext_autolinks_pre;
 				$ext_autolink_obj->ext_autolink($ret);
@@ -1154,14 +1176,14 @@ class XpWikiPukiWikiFunc extends XpWikiBaseFunc {
 
 			// Internal Autolink
 			if ($this->root->autolink) {
-				$this->int_autolink_proc($ret);
+				$this->int_autolink_proc($ret, $auto);
 			}
 
 			// External AutoLink After
 			if (! empty($ext_autolinks_aft)) {
 				if (!is_object($ext_autolink_obj)) {
 					include_once(dirname(dirname(__FILE__)).'/ext_autolink.php');
-					$ext_autolink_obj = new XpWikiPukiExtAutoLink($this->xpwiki);
+					$ext_autolink_obj = new XpWikiPukiExtAutoLink($this->xpwiki, $this->rt_global);
 				}
 				$ext_autolink_obj->ext_autolinks = $ext_autolinks_aft;
 				$ext_autolink_obj->ext_autolink($ret);
@@ -1184,12 +1206,7 @@ class XpWikiPukiWikiFunc extends XpWikiBaseFunc {
 	}
 
 	// Internal Autolink
-	function int_autolink_proc (& $str) {
-		if (! $this->root->autolink || ! file_exists($this->cont['CACHE_DIR'].$this->cont['PKWK_AUTOLINK_REGEX_CACHE'])) return ;
-
-		@ list ($auto, $auto_a, $forceignorepages) = file($this->cont['CACHE_DIR'].$this->cont['PKWK_AUTOLINK_REGEX_CACHE']);
-		if ($this->root->page_case_insensitive) $forceignorepages = strtolower($forceignorepages);
-		$this->rt_global['forceignorepages'] = explode("\t", trim($forceignorepages));
+	function int_autolink_proc (& $str, $auto) {
 
 		list($pat_pre, $pat_aft) = $this->get_autolink_regex_pre_after($this->root->page_case_insensitive, $str);
 
@@ -1221,7 +1238,7 @@ class XpWikiPukiWikiFunc extends XpWikiBaseFunc {
 		$alias = $name = $match[3];
 
 		// 無視リストに含まれているページを捨てる
-		if (in_array(($this->root->page_case_insensitive ? strtolower($name) : $name), $this->rt_global['forceignorepages'])) { return '<!--NA-->'.$match[0].'<!--/NA-->'; }
+		if (isset($this->rt_global['forceignorepages'][$this->rt_global['page_case_sensor']][($this->root->page_case_insensitive ? strtolower($name) : $name)])) { return '<!--NA-->'.$match[0].'<!--/NA-->'; }
 
 		return $this->make_pagelink($name, $alias, '', '', 'autolink');
 	}
@@ -1233,7 +1250,7 @@ class XpWikiPukiWikiFunc extends XpWikiBaseFunc {
 		$alias = $this->get_autoaliases($name);
 
 		// 無視リストに含まれているページを捨てる
-		if (!$alias || in_array(($this->root->page_case_insensitive ? strtolower($name) : $name), $this->rt_global['forceignorepages'])) { return '<!--NA-->'.$match[0].'<!--/NA-->'; }
+		if (!$alias || isset($this->rt_global['forceignorepages'][$this->rt_global['page_case_sensor']][($this->root->page_case_insensitive ? strtolower($name) : $name)])) { return '<!--NA-->'.$match[0].'<!--/NA-->'; }
 
 		$link = '[['.$name.'>'.$alias.']]';
 		return $this->make_link($link);
@@ -1319,7 +1336,7 @@ class XpWikiPukiWikiFunc extends XpWikiBaseFunc {
 
 //----- Start func.php -----//
 	// PukiWiki - Yet another WikiWikiWeb clone.
-	// $Id: pukiwiki_func.php,v 1.216 2010/05/11 09:10:30 nao-pon Exp $
+	// $Id: pukiwiki_func.php,v 1.217 2010/05/19 11:49:13 nao-pon Exp $
 	// Copyright (C)
 	//   2002-2006 PukiWiki Developers Team
 	//   2001-2002 Originally written by yu-ji
@@ -2164,7 +2181,7 @@ EOD;
 
 //----- Start make_link.php -----//
 	// PukiWiki - Yet another WikiWikiWeb clone.
-	// $Id: pukiwiki_func.php,v 1.216 2010/05/11 09:10:30 nao-pon Exp $
+	// $Id: pukiwiki_func.php,v 1.217 2010/05/19 11:49:13 nao-pon Exp $
 	// Copyright (C)
 	//   2003-2005 PukiWiki Developers Team
 	//   2001-2002 Originally written by yu-ji
@@ -3177,7 +3194,7 @@ EOD;
 
 //----- Start html.php -----//
 	// PukiWiki - Yet another WikiWikiWeb clone.
-	// $Id: pukiwiki_func.php,v 1.216 2010/05/11 09:10:30 nao-pon Exp $
+	// $Id: pukiwiki_func.php,v 1.217 2010/05/19 11:49:13 nao-pon Exp $
 	// Copyright (C)
 	//   2002-2006 PukiWiki Developers Team
 	//   2001-2002 Originally written by yu-ji
@@ -3360,9 +3377,14 @@ EOD;
 		}
 
 		// Last modification date (string) of the page
-		$lastmodified = $is_read ?  $this->format_date($this->get_filetime($_page)) .
-			' (' . $this->cont['ZONE'] . ')' .
-			' ' . $this->get_pg_passage($_page, FALSE) : '';
+		$princeps_date = $lastmodified = '';
+		if ($is_read) {
+			list($buildtime, $editedtime) = $this->get_page_time_db($_page);
+			$princeps_date = $this->format_date($buildtime);
+			$lastmodified = $this->format_date($editedtime) .
+				' (' . $this->cont['ZONE'] . ')' .
+				' ' . $this->get_pg_passage($_page, FALSE);
+		}
 
 		// List of attached files to the page
 		$plugin = & $this->get_plugin_instance("attach");
@@ -3956,7 +3978,7 @@ EOD;
 
 //----- Start mail.php -----//
 	// PukiWiki - Yet another WikiWikiWeb clone.
-	// $Id: pukiwiki_func.php,v 1.216 2010/05/11 09:10:30 nao-pon Exp $
+	// $Id: pukiwiki_func.php,v 1.217 2010/05/19 11:49:13 nao-pon Exp $
 	// Copyright (C)
 	//   2003-2005 PukiWiki Developers Team
 	//   2003      Originally written by upk
@@ -4259,7 +4281,7 @@ EOD;
 
 //----- Start link.php -----//
 	// PukiWiki - Yet another WikiWikiWeb clone
-	// $Id: pukiwiki_func.php,v 1.216 2010/05/11 09:10:30 nao-pon Exp $
+	// $Id: pukiwiki_func.php,v 1.217 2010/05/19 11:49:13 nao-pon Exp $
 	// Copyright (C) 2003-2006 PukiWiki Developers Team
 	// License: GPL v2 or (at your option) any later version
 	//
