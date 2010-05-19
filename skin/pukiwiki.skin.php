@@ -1,6 +1,6 @@
 <?php
 // PukiWiki - Yet another WikiWikiWeb clone.
-// $Id: pukiwiki.skin.php,v 1.46 2009/10/01 23:39:04 nao-pon Exp $
+// $Id: pukiwiki.skin.php,v 1.47 2010/05/19 11:44:57 nao-pon Exp $
 // Copyright (C)
 //   2002-2006 PukiWiki Developers Team
 //   2001-2002 Originally written by yu-ji
@@ -294,6 +294,9 @@ EOD;
 
 <?php if ($is_page) echo $this->do_plugin_convert('counter') ?>
 
+<?php if ($princeps_date != '') { ?>
+<div class="lastmodified"><?php echo $lang['princeps'] ?>: <?php echo $princeps_date ?></div>
+<?php } ?>
 <?php if ($lastmodified != '') { ?>
 <div class="lastmodified"><?php echo $lang['lastmodify'] ?>: <?php echo $lastmodified ?> by <?php echo $pginfo['lastuname'] ?></div>
 <?php } ?>

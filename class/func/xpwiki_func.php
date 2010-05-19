@@ -1,7 +1,7 @@
 <?php
 //
 // Created on 2006/10/02 by nao-pon http://hypweb.net/
-// $Id: xpwiki_func.php,v 1.224 2010/05/10 02:26:24 nao-pon Exp $
+// $Id: xpwiki_func.php,v 1.225 2010/05/19 11:44:57 nao-pon Exp $
 //
 class XpWikiFunc extends XpWikiXoopsWrapper {
 
@@ -2552,7 +2552,7 @@ EOD;
 
 	function twitter_post($username, $password, $msg, $link = '', $convert = TRUE) {
 		if ($link) {
-			$link = ' ' . $this->bitly($link, TRUE);
+			$link = ' ' . $this->bitly($link);
 		}
 		$max = $link? (140 - strlen($link)) : 140;
 
@@ -2590,7 +2590,7 @@ EOD;
 
 		if (HypCommonFunc::loadClass('TwitterOAuth')) {
 			if ($link) {
-				$link = ' ' . $this->bitly($link, TRUE);
+				$link = ' ' . $this->bitly($link);
 			}
 			$max = $link? (140 - strlen($link)) : 140;
 
@@ -2901,14 +2901,17 @@ EOD;
 	}
 
 	// pginfo DB を更新
-	function pginfo_db_write($page, $action, $pginfo, $notimestamp = FALSE)
+	function pginfo_db_write($page, $action, $pginfo, $notimestamp = FALSE, $empty_page_making = FALSE)
 	{
 		// pgid
 		$id = $this->get_pgid_by_name($page);
 
 		if ($action !== 'delete') {
 			$file = $this->get_filename($page);
-			$editedtime = filemtime($file) - $this->cont['LOCALZONE'];
+			$buildtime = $editedtime = filemtime($file) - $this->cont['LOCALZONE'];
+			if ($empty_page_making) {
+				$editedtime = 0;
+			}
 			$s_name = addslashes($page);
 
 			foreach (array('uid', 'ucd', 'uname', 'einherit', 'vinherit', 'lastuid', 'lastucd', 'lastuname', 'reading', 'pgorder') as $key) {
@@ -2936,8 +2939,6 @@ EOD;
 		// 新規作成
 		if ($action == "insert")
 		{
-			$buildtime = $editedtime;
-
 			if ($id)
 			{
 				// 以前に削除したページ
@@ -4058,6 +4059,25 @@ EOD;
 			list($count) = $this->xpwiki->db->fetchRow($res);
 		}
 		return $count;
+	}
+
+	//ページ名からページ作成日時と最終更新日時を求める
+	function get_page_time_db($page) {
+		static $cache = array();
+
+		if (isset($cache[$this->root->mydirname][$page])) {
+			return $cache[$this->root->mydirname][$page];
+		}
+		$time = array(0, 0);
+		$s_page = addslashes($page);
+		$case = ($this->root->page_case_insensitive)? '_ci' : '';
+		$db =& $this->xpwiki->db;
+		$query = "SELECT `buildtime`, `editedtime` FROM ".$db->prefix($this->root->mydirname."_pginfo")." WHERE name".$case."='$s_page' LIMIT 1";
+		if ($res = $db->query($query)) {
+			$time = $db->fetchRow($res);
+		}
+		$cache[$this->root->mydirname][$page] = $time;
+		return $time;
 	}
 
 	/* やはり fstat(filemtime) のほうが早い模様
