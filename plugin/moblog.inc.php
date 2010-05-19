@@ -1,5 +1,5 @@
 <?php
-// $Id: moblog.inc.php,v 1.11 2010/01/08 13:34:48 nao-pon Exp $
+// $Id: moblog.inc.php,v 1.12 2010/05/19 11:25:58 nao-pon Exp $
 // Author: nao-pon http://hypweb.net/
 // Bace script is pop.php of mailbbs by Let's PHP!
 // Let's PHP! Web: http://php.s3.to/
@@ -550,7 +550,7 @@ class xpwiki_plugin_moblog extends xpwiki_plugin {
 		}
 		// imgタグ呼び出し用
 		header("Content-Type: image/gif");
-		readfile($this->root->mytrustdirpath . '/skin/image/gif/spacer.gif');
+		HypCommonFunc::readfile($this->root->mytrustdirpath . '/skin/image/gif/spacer.gif');
 		//echo 'Debug:<br />' . join('<br />', $this->debug);
 		exit();
 	}

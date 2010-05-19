@@ -1,7 +1,7 @@
 <?php
 class xpwiki_plugin_yahoo extends xpwiki_plugin {
 	// PukiWiki - Yet another WikiWikiWeb clone.
-	// $Id: yahoo.inc.php,v 1.5 2010/01/08 13:44:40 nao-pon Exp $
+	// $Id: yahoo.inc.php,v 1.6 2010/05/19 11:25:58 nao-pon Exp $
 	/////////////////////////////////////////////////
 
 	// #yahoo([Format Filename],[Mode],[Key Word],[Node Number],[Sort Mode])
@@ -118,6 +118,10 @@ class xpwiki_plugin_yahoo extends xpwiki_plugin {
 	function plugin_yahoo_gethtml($mode,$query,$type,$max,$target,$col)
 	{
 		include_once XOOPS_TRUST_PATH. '/class/hyp_common/hyp_simplexml.php';
+
+		if ($this->root->yahoo_application_id) {
+			$this->appid = $this->root->yahoo_application_id;
+		}
 
 		$qs = htmlspecialchars($query);
 		// RESTリクエストの構築

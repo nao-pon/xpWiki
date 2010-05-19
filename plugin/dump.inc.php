@@ -1,5 +1,5 @@
 <?php
-// $Id: dump.inc.php,v 1.17 2010/05/11 14:42:23 nao-pon Exp $
+// $Id: dump.inc.php,v 1.18 2010/05/19 11:25:58 nao-pon Exp $
 //
 // Remote dump / restore plugin
 // Originated as tarfile.inc.php by teanan / Interfair Laboratory 2004.
@@ -602,7 +602,7 @@ class xpwiki_plugin_dump extends xpwiki_plugin {
 		header('Content-Length: ' . $size);
 		header('Content-Type: application/octet-stream');
 		header('Pragma: no-cache');
-		@readfile($downfile);
+		HypCommonFunc::readfile($downfile);
 		//exit();
 	}
 
