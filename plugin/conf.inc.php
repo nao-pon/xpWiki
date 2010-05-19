@@ -1,7 +1,7 @@
 <?php
 /*
  * Created on 2008/01/24 by nao-pon http://hypweb.net/
- * $Id: conf.inc.php,v 1.20 2010/03/06 08:40:29 nao-pon Exp $
+ * $Id: conf.inc.php,v 1.21 2010/05/19 11:38:57 nao-pon Exp $
  */
 
 class xpwiki_plugin_conf extends xpwiki_plugin {
@@ -253,6 +253,11 @@ class xpwiki_plugin_conf extends xpwiki_plugin {
 				'kind' => 'root',
 				'type' => 'string',
 				'form' => 'text,size="55"',
+			),
+			'yahoo_application_id' => array(
+				'kind' => 'root',
+				'type' => 'string',
+				'form' => 'text,size="60"',
 			),
 			'fckeditor_path' => array(
 				'kind' => 'root',
