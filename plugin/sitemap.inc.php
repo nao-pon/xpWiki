@@ -1,19 +1,19 @@
 <?php
 // PukiWiki - Yet another WikiWikiWeb clone.
-// $Id: sitemap.inc.php,v 1.1 2009/05/25 04:53:42 nao-pon Exp $
+// $Id: sitemap.inc.php,v 1.2 2010/05/19 11:33:49 nao-pon Exp $
 //
 // IndexPages plugin: Show a list of page names
 class xpwiki_plugin_sitemap extends xpwiki_plugin {
 	function plugin_sitemap_init () {
 
 	}
-	
+
 	function plugin_sitemap_action()
 	{
-		error_reporting(E_ALL);
+		error_reporting(0);
 		$this->getlist();
 	}
-	
+
 	// Get a list
 	function getlist()
 	{
@@ -24,7 +24,7 @@ class xpwiki_plugin_sitemap extends xpwiki_plugin {
 		);
 
 		$pages = $this->func->get_existpages(FALSE, '', $options);
-		
+
 		$items = array();
 		$items[] = '<?xml version="1.0" encoding="UTF-8"?>';
 		$items[] = '<urlset xmlns="http://www.google.com/schemas/sitemap/0.84">';
