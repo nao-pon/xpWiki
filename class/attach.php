@@ -1,7 +1,7 @@
 <?php
 /*
  * Created on 2008/03/24 by nao-pon http://hypweb.net/
- * $Id: attach.php,v 1.26 2010/05/19 11:25:58 nao-pon Exp $
+ * $Id: attach.php,v 1.27 2010/05/20 11:46:43 nao-pon Exp $
  */
 
 //-------- епеще╣
@@ -1193,7 +1193,7 @@ class XpWikiAttachPages
 						}
 						//echo $query;
 						$_page = htmlspecialchars($_page);
-						$otherPages[] = '<option value="' . $_page . '"' . $selected . '>' . $_page . $count . '</option>';
+						$otherPages[] = '<option value="' . rawurlencode($_page) . '"' . $selected . '>' . $_page . $count . '</option>';
 					}
 				}
 				$otherPages[] = '</optgroup>';
@@ -1230,7 +1230,7 @@ function xpwiki_file_selector_change(page) {
 		if (! href.match(/&refer=[^&]*/)) {
 			href += '&refer=';
 		}
-		location.href = href.replace(/&refer=[^&]*/, '&refer=' + page).replace(/&start=[^&]+/, '');
+		location.href = href.replace(/&refer=[^&]*/, '&refer=' + page).replace(/&(start|encode_hint)=[^&]+/, '');
 	}
 }
 function xpwiki_dir_selector_change(dir) {
