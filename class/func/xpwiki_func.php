@@ -1,7 +1,7 @@
 <?php
 //
 // Created on 2006/10/02 by nao-pon http://hypweb.net/
-// $Id: xpwiki_func.php,v 1.225 2010/05/19 11:44:57 nao-pon Exp $
+// $Id: xpwiki_func.php,v 1.226 2010/05/20 00:47:05 nao-pon Exp $
 //
 class XpWikiFunc extends XpWikiXoopsWrapper {
 
@@ -3897,20 +3897,25 @@ EOD;
 	}
 
 	// ページ別名を取得
-	function get_page_alias ($page, $as_array = false, $clr = false) {
+	function get_page_alias ($page, $as_array = false, $clr = false, $path = 'real') {
 		static $pg_ary;
+
+		if ($path !== 'real') $path = 'relative';
 
 		if ($clr || !isset($pg_ary[$this->xpwiki->pid])) {
 			$_tmp = $pg_ary[$this->xpwiki->pid] = array();
+			$dirreg = '#^' . preg_quote($this->page_dirname($page), '#') . '/#';
 			foreach($this->root->page_aliases as $_alias => $_page) {
-				$pg_ary[$this->xpwiki->pid][$_page][] = $_alias;
+				$pg_ary[$this->xpwiki->pid][$_page]['real'][] = $_alias;
+				$pg_ary[$this->xpwiki->pid][$_page]['relative'][] = preg_replace($dirreg, '../', $_alias);
 			}
 			foreach($pg_ary[$this->xpwiki->pid] as $_page => $_ary) {
-				natcasesort($pg_ary[$this->xpwiki->pid][$_page]);
+				natcasesort($pg_ary[$this->xpwiki->pid]['real'][$_page]);
+				natcasesort($pg_ary[$this->xpwiki->pid]['relative'][$_page]);
 			}
 		}
 
-		$ret = (isset($pg_ary[$this->xpwiki->pid][$page]))? $pg_ary[$this->xpwiki->pid][$page] : array();
+		$ret = (isset($pg_ary[$this->xpwiki->pid][$page]))? $pg_ary[$this->xpwiki->pid][$page][$path] : array();
 		if ($as_array) return $ret;
 		return join(':', $ret);
 	}
@@ -3923,6 +3928,8 @@ EOD;
 		$aliases = explode(':', $alias);
 		if ($alias) {
 			$aliases = array_map('trim', $aliases);
+			$dirname = $this->page_dirname($page) . '/';
+			$aliases = str_replace('../', $dirname, $aliases);
 			natcasesort($aliases);
 			$aliases = array_slice($aliases, 0);
 		}
