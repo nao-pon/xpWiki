@@ -1,7 +1,7 @@
 <?php
 /*
  * Created on 2008/03/24 by nao-pon http://hypweb.net/
- * $Id: attach.php,v 1.27 2010/05/20 11:46:43 nao-pon Exp $
+ * $Id: attach.php,v 1.28 2010/05/20 11:48:21 nao-pon Exp $
  */
 
 //-------- епеще╣
@@ -1236,7 +1236,6 @@ function xpwiki_file_selector_change(page) {
 function xpwiki_dir_selector_change(dir) {
 	if (dir) {
 		var arr = dir.split('#');
-		//location.href = location.href.replace(/\/modules\/[^\/]+/, '/modules/' + arr[0]).replace(/&refer=[^&]*/, '&refer=' + encodeURIComponent(arr[1])).replace(/&start=[^&]+/, '');
 		location.href = location.href.replace(/\/modules\/[^\/]+/, '/modules/' + arr[0]).replace(/&refer=[^&]*/, '&refer=').replace(/&start=[^&]+/, '');
 	}
 }
