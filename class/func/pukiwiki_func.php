@@ -1,7 +1,7 @@
 <?php
 //
 // Created on 2006/10/02 by nao-pon http://hypweb.net/
-// $Id: pukiwiki_func.php,v 1.217 2010/05/19 11:49:13 nao-pon Exp $
+// $Id: pukiwiki_func.php,v 1.218 2010/05/20 00:47:05 nao-pon Exp $
 //
 class XpWikiPukiWikiFunc extends XpWikiBaseFunc {
 
@@ -1036,7 +1036,7 @@ class XpWikiPukiWikiFunc extends XpWikiBaseFunc {
 
 //----- Start convert_html.php -----//
 	// PukiWiki - Yet another WikiWikiWeb clone
-	// $Id: pukiwiki_func.php,v 1.217 2010/05/19 11:49:13 nao-pon Exp $
+	// $Id: pukiwiki_func.php,v 1.218 2010/05/20 00:47:05 nao-pon Exp $
 	// Copyright (C)
 	//   2002-2005 PukiWiki Developers Team
 	//   2001-2002 Originally written by yu-ji
@@ -1336,7 +1336,7 @@ class XpWikiPukiWikiFunc extends XpWikiBaseFunc {
 
 //----- Start func.php -----//
 	// PukiWiki - Yet another WikiWikiWeb clone.
-	// $Id: pukiwiki_func.php,v 1.217 2010/05/19 11:49:13 nao-pon Exp $
+	// $Id: pukiwiki_func.php,v 1.218 2010/05/20 00:47:05 nao-pon Exp $
 	// Copyright (C)
 	//   2002-2006 PukiWiki Developers Team
 	//   2001-2002 Originally written by yu-ji
@@ -2181,7 +2181,7 @@ EOD;
 
 //----- Start make_link.php -----//
 	// PukiWiki - Yet another WikiWikiWeb clone.
-	// $Id: pukiwiki_func.php,v 1.217 2010/05/19 11:49:13 nao-pon Exp $
+	// $Id: pukiwiki_func.php,v 1.218 2010/05/20 00:47:05 nao-pon Exp $
 	// Copyright (C)
 	//   2003-2005 PukiWiki Developers Team
 	//   2001-2002 Originally written by yu-ji
@@ -3194,7 +3194,7 @@ EOD;
 
 //----- Start html.php -----//
 	// PukiWiki - Yet another WikiWikiWeb clone.
-	// $Id: pukiwiki_func.php,v 1.217 2010/05/19 11:49:13 nao-pon Exp $
+	// $Id: pukiwiki_func.php,v 1.218 2010/05/20 00:47:05 nao-pon Exp $
 	// Copyright (C)
 	//   2002-2006 PukiWiki Developers Team
 	//   2001-2002 Originally written by yu-ji
@@ -3246,7 +3246,7 @@ EOD;
 		$pginfo = $this->get_pginfo($_page);
 
 		// Pagename alias
-		$pagealiases = $this->get_page_alias($_page, true);
+		$pagealiases = $this->get_page_alias($_page, true, false, 'relative');
 		$pginfo['alias'] = $pagealiases? join(', ', $pagealiases) : $_LANG['skin']['none'];
 
 		$pginfo['pageowner'] = (! $pginfo['uid'])? ($pginfo['uname']? $pginfo['uname'] : $_LANG['skin']['none']) : $this->make_userlink($pginfo['uid'], $pginfo['uname']);
@@ -3495,7 +3495,7 @@ EOD;
 			} else {
 				$pgtitle_str = $this->extract_pgtitle($postdata);
 				$reading_str = htmlspecialchars($this->get_page_reading($page));
-				$alias_str = htmlspecialchars($this->get_page_alias($page));
+				$alias_str = htmlspecialchars($this->get_page_alias($page, false, false, 'relative'));
 				$order_val = floatval($this->get_page_order($page));
 			}
 
@@ -3978,7 +3978,7 @@ EOD;
 
 //----- Start mail.php -----//
 	// PukiWiki - Yet another WikiWikiWeb clone.
-	// $Id: pukiwiki_func.php,v 1.217 2010/05/19 11:49:13 nao-pon Exp $
+	// $Id: pukiwiki_func.php,v 1.218 2010/05/20 00:47:05 nao-pon Exp $
 	// Copyright (C)
 	//   2003-2005 PukiWiki Developers Team
 	//   2003      Originally written by upk
@@ -4281,7 +4281,7 @@ EOD;
 
 //----- Start link.php -----//
 	// PukiWiki - Yet another WikiWikiWeb clone
-	// $Id: pukiwiki_func.php,v 1.217 2010/05/19 11:49:13 nao-pon Exp $
+	// $Id: pukiwiki_func.php,v 1.218 2010/05/20 00:47:05 nao-pon Exp $
 	// Copyright (C) 2003-2006 PukiWiki Developers Team
 	// License: GPL v2 or (at your option) any later version
 	//
