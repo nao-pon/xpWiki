@@ -28,7 +28,7 @@ $xpwiki->catbody();
 // Add error message
 if ($xpwiki->root->userinfo['admin']) {
 	$hyp_common_methods = get_class_methods('HypCommonFunc');
-	if (is_null($hyp_common_methods) || ! in_array('get_version', $hyp_common_methods) || HypCommonFunc::get_version() < 20080225) {
+	if (is_null($hyp_common_methods) || ! in_array('get_version', $hyp_common_methods) || HypCommonFunc::get_version() < 20100520) {
 		$xpwiki->admin_messages[] = '[Warning] Please install or update <a href="http://cvs.sourceforge.jp/cgi-bin/viewcvs.cgi/hypweb/XOOPS_TRUST/class/hyp_common.tar.gz?view=tar" title="Download">a newest HypCommonFunc</a> into "XOOPS_TRUST_PATH/class/".';
 	}
 	if ($xpwiki->admin_messages) {
@@ -37,7 +37,7 @@ if ($xpwiki->root->userinfo['admin']) {
 }
 
 if ($xpwiki->runmode === 'xoops') {
-	
+
 	// xoops header
 	include XOOPS_ROOT_PATH.'/header.php';
 
@@ -50,7 +50,7 @@ if ($xpwiki->runmode === 'xoops') {
 		}
 	}
 	$xpwiki->root->html_header .= join("\n", $xpwiki_head);
-	
+
 	$xoopsTpl->assign(
 		array(
 			'xoops_pagetitle' => $xpwiki->root->pagetitle,
@@ -60,9 +60,9 @@ if ($xpwiki->runmode === 'xoops') {
  			'xpwiki_pginfo' => $xpwiki->get_pginfo(),
 		)
 	);
-	
+
 	echo $xpwiki->html;
-	
+
 	// xoops footer
 	include XOOPS_ROOT_PATH.'/footer.php';
 
@@ -72,7 +72,7 @@ if ($xpwiki->runmode === 'xoops') {
 	if (! $xpwiki->func->refcheck()) {
 		exit('Invalid REFERER.');
 	}
-	
+
 	// environment
 	require_once XOOPS_ROOT_PATH.'/class/template.php' ;
 	$module_handler =& xoops_gethandler( 'module' ) ;
@@ -86,7 +86,7 @@ if ($xpwiki->runmode === 'xoops') {
 
 	$xoopsOption['pagetype'] = 'admin' ;
 	require XOOPS_ROOT_PATH.'/include/cp_functions.php' ;
-	
+
 	// language files
 	$mydirpath = $xpwiki->root->mydirpath;
 	$mytrustdirpath = $xpwiki->root->mytrustdirpath ;
@@ -118,20 +118,20 @@ if ($xpwiki->runmode === 'xoops') {
 	// Head Tags
 	list($head_pre_tag, $head_tag) = $xpwiki->func->get_additional_headtags();
 	$cssprefix = $xpwiki->root->css_prefix ? 'pre=' . rawurlencode($xpwiki->root->css_prefix) . '&amp;' : '';
-	
+
 	echo <<<EOD
 $head_pre_tag
-<link rel="stylesheet" type="text/css" media="screen" href="{$xpwiki->cont['LOADER_URL']}?skin={$xpwiki->cont['SKIN_NAME']}&amp;pw={$xpwiki->root->pre_width}&amp;{$cssprefix}charset={$css_charset}&amp;src={$xpwiki->root->main_css}" charset="{$css_charset}" />	
+<link rel="stylesheet" type="text/css" media="screen" href="{$xpwiki->cont['LOADER_URL']}?skin={$xpwiki->cont['SKIN_NAME']}&amp;pw={$xpwiki->root->pre_width}&amp;{$cssprefix}charset={$css_charset}&amp;src={$xpwiki->root->main_css}" charset="{$css_charset}" />
 $head_tag
 EOD;
-	
+
 	echo $xpwiki->html;
-	
+
 	// xoops admin footer
-	xoops_cp_footer() ;	
+	xoops_cp_footer() ;
 
 } else if ($xpwiki->runmode === 'standalone') {
-	
+
 	echo $xpwiki->html;
 
 }
