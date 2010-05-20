@@ -1,11 +1,11 @@
 var XpWiki = {
 	Version: '20081003',
-	
+
 	MyUrl: XpWikiModuleUrl,
 	EncHint: XpWikiEncHint,
-	
+
 	PopupDiv: null,
-	
+
 	PopupTop:    '10%',
 	PopupBottom: '',
 	PopupLeft:   '10px',
@@ -30,19 +30,19 @@ var XpWiki = {
 	RendererDir: '',
 	RendererPage: '',
 	SkinName: [],
-	
+
 	domInitFunctions: [],
 	isDomLoaded: true,
 	domInitDone: false,
 	DomBody: null,
 	printing: false,
-	
+
 	isIE8: (Prototype.Browser.IE && typeof(window.localStorage) != "undefined"),
 	isIE7: (Prototype.Browser.IE && typeof(document.documentElement.style.msInterpolationMode) != "undefined" && typeof(window.localStorage) == "undefined"),
 	isIE6: (Prototype.Browser.IE && typeof(document.documentElement.style.msInterpolationMode) == "undefined"),
-	
+
 	useSelector: (Prototype.Browser.IE && typeof document.querySelector == 'object'),
-	
+
 	onDomLoaded: function () {
 		if (Prototype.Browser.IE && XpWikiIeDomLoadedDisable && this.isDomLoaded) {
 			this.isDomLoaded = false;
@@ -51,7 +51,7 @@ var XpWiki = {
 
 		if (this.domInitDone) return;
 		this.domInitDone = true;
-		
+
 		if (this.isIE8) {
 			this.IEVer = document.documentMode;
 		} else {
@@ -60,9 +60,9 @@ var XpWiki = {
 		this.MyUrl = XpWikiModuleUrl;
 		this.EncHint = XpWikiEncHint;
 		this.DomBody = document.getElementsByTagName('body')[0];
-		
+
 		if (this.printing) return;
-		
+
 		// cookie
 		wikihelper_adv = wikihelper_load_cookie("__whlp");
 		if (wikihelper_adv) wikihelper_save_cookie("__whlp",wikihelper_adv,90,"/");
@@ -84,15 +84,15 @@ var XpWiki = {
 			this.faviconSet(this.DomBody);
 		}
 	},
-	
+
 	initPopupDiv: function (arg) {
-		
+
 		if (typeof arg == 'undefined') {
 			var arg = [];
 		}
-		
+
 		if (!$('XpWikiPopup')) {
-			
+
 			// base
 			this.PopupDiv = document.createElement('div');
 			this.PopupDiv.id = 'XpWikiPopup';
@@ -103,7 +103,7 @@ var XpWiki = {
 				marginBottom: '5px',
 				zIndex: '1000'
 			});
-			
+
 			// body (iframe)
 			var elem = document.createElement('iframe');
 			elem.id = 'XpWikiPopupBody';
@@ -137,7 +137,7 @@ var XpWiki = {
 				zIndex: '10000'
 			});
 			this.PopupDiv.appendChild(elem);
-			
+
 			// header
 			elem = document.createElement('div');
 			elem.id = 'XpWikiPopupHeader';
@@ -155,7 +155,7 @@ var XpWiki = {
 			elem.innerHTML = '<div style="float:right;cursor:pointer;padding-top:4px;padding-right:5px;" onclick="Element.hide(\'XpWikiPopup\');"><img src="' + this.MyUrl + '/' + this.dir + '/skin/loader.php?src=close.gif" alt="Close" title="Close"></div>' +
 					'<span id="XpWikiPopupHeaderTitle" style="padding-left:5px;"></span>';
 			this.PopupDiv.appendChild(elem);
-			
+
 			var objBody = $('xpwiki_body') || this.DomBody;
 			objBody.appendChild(this.PopupDiv);
 
@@ -170,7 +170,7 @@ var XpWiki = {
 			} else if (!!this.PopupTop && !this.PopupBottom) {
 				this.PopupDiv.style.top = this.PopupTop;
 			}
-			
+
 			if (!!arg.right) {
 				this.PopupDiv.style.right = this.PopupRight = arg.right;
 			} else if (!!this.PopupRight) {
@@ -182,51 +182,51 @@ var XpWiki = {
 			} else if (!!this.PopupLeft && !this.PopupRight) {
 				this.PopupDiv.style.left = this.PopupLeft;
 			}
-			
+
 			if (!!arg.width) {
 				this.PopupDiv.style.width = this.PopupWidth = arg.width;
 			} else if (!!this.PopupWidth) {
 				this.PopupDiv.style.width = this.PopupWidth;
 			}
-			
+
 			if (!!arg.height) {
 				this.PopupDiv.style.height = this.PopupHeight = arg.height;
 			} else if (!!this.PopupHeight) {
 				this.PopupDiv.style.height = this.PopupHeight;
 			}
-			
+
 			if (!!this.PopupDiv.style.top) {
 				this.PopupDiv.style.top = this.PopupTop = this.PopupDiv.offsetTop + 'px';
 			}
 			if (!!this.PopupDiv.style.left) {
-				this.PopupDiv.style.left = this.PopupLeft = this.PopupDiv.offsetLeft + 'px'; 
+				this.PopupDiv.style.left = this.PopupLeft = this.PopupDiv.offsetLeft + 'px';
 			}
-			
+
 			$('XpWikiPopupBody').src = '';
 			$('XpWikiPopupBody').observe("load", function(){
 				$('XpWikiPopupHeaderTitle').innerHTML = this.title.replace(/(\w|&#[0-9A-Za-z]+;)/g, "$1&#8203;");
 			}.bind(this));
 
 			Element.hide('XpWikiPopupCover');
-			
+
 			new Draggable(this.PopupDiv.id, {handle:'XpWikiPopupHeader', starteffect:this.dragStart, endeffect:this.dragEnd });
 			new Resizable(this.PopupDiv.id, {mode:'xy', element:'XpWikiPopupBody', starteffect:this.dragStart, endeffect:this.dragEnd });
 		}
 		Element.hide(this.PopupDiv);
 	},
-	
+
 	dragStart: function () {
 		Element.show('XpWikiPopupCover');
 		if (Prototype.Browser.IE) { Element.hide('XpWikiPopupBody'); }
 	},
-	
+
 	dragEnd: function () {
 		if (Prototype.Browser.IE) { Element.show('XpWikiPopupBody'); }
 		Element.hide('XpWikiPopupCover');
 	},
 	pagePopup: function (arg) {
 		if (!arg.dir || !arg.page) return true;
-		
+
 		if (typeof(document.body.style.maxHeight) != 'undefined') {
 			this.dir = arg.dir;
 			this.page = arg.page.replace(/(#[^#]+)?$/, '');
@@ -242,11 +242,11 @@ var XpWiki = {
 				Element.show(this.PopupDiv);
 				return false;
 			}
-			
+
 			this.PopupUrl = url;
-			
+
 			this.title = this.htmlspecialchars(this.page);
-			
+
 			this.initPopupDiv(arg);
 			$('XpWikiPopupHeaderTitle').innerHTML = 'Now loading...';
 			$('XpWikiPopupBody').src = this.PopupUrl;
@@ -255,20 +255,20 @@ var XpWiki = {
 			this.dir = arg.dir;
 			this.page = arg.page.replace(/(#[^#]+)?$/, '');
 			var hash = arg.page.replace(/^[^#]+/, '');
-			
+
 			this.title = this.htmlspecialchars(this.page);
-			
+
 			if (!window.self.name) {
 				window.self.name = "xpwiki_opener";
 			}
 			this.window_name = window.self.name;
-			
+
 			var url = this.MyUrl + '/' + this.dir + '/?cmd=read';
 			url += '&page=' + encodeURIComponent(this.page);
 			url += '&popup=' + encodeURIComponent(this.window_name);
 			url += '&encode_hint=' + encodeURIComponent(this.EncHint);
 			url += hash;
-			
+
 			var width = '250';
 			var height = '400';
 			var top = '10';
@@ -281,69 +281,69 @@ var XpWiki = {
 		}
 		return false;
 	},
-	
+
 	pagePopupAjax: function (arg) {
 		if (!arg.dir || !arg.page) return;
-		
+
 		if (!!$('XpWikiPopup') && this.dir == arg.dir && this.page == arg.page) {
 			Element.show(this.PopupDiv);
 			return;
 		}
-		
+
 		this.dir = arg.dir;
 		this.page = arg.page;
 		this.title = arg.page;
-		
+
 		if (!!arg.top) { this.PopupTop = arg.top; }
 		if (!!arg.left) { this.PopupLeft = arg.left; }
 		if (!!arg.width) { this.PopupWidth = arg.width; }
 		if (!!arg.height) { this.PopupHeight = arg.height; }
 
 		this.initPopupDiv();
-		
+
 		var url = this.MyUrl + '/' + this.dir + '/?cmd=read';
 		var pars = '';
 		pars += 'page=' + encodeURIComponent(arg.page);
 		pars += '&ajax=1';
 		pars += '&encode_hint=' + encodeURIComponent(this.EncHint);
-		
+
 		var myAjax = new Ajax.Request(
-			url, 
+			url,
 			{
 				method: 'get',
 				parameters: pars,
 				onComplete: this.ShowPopup.bind(this)
 			}
 		);
-		
+
 	},
-	
+
 	ShowPopup: function (orgRequest) {
 		var xmlRes = orgRequest.responseXML;
 		if (xmlRes.getElementsByTagName('xpwiki').length) {
-		
+
 			var item = xmlRes.getElementsByTagName('xpwiki')[0];
 			var str = item.getElementsByTagName('content')[0].firstChild.nodeValue;
 			var mode = item.getElementsByTagName('mode')[0].firstChild.nodeValue;
-			
+
 			if (mode == 'read') {
 				var objHead = document.getElementsByTagName('head').item(0);
 				var ins;
 				ins = document.createElement('div');
 				Element.update(ins, item.getElementsByTagName('headPreTag')[0].firstChild.nodeValue);
 				objHead.appendChild(ins);
-	
+
 				ins = document.createElement('div');
 				Element.update(ins, item.getElementsByTagName('headTag')[0].firstChild.nodeValue);
 				objHead.appendChild(ins);
-				
+
 				var body = item.getElementsByTagName('content')[0].firstChild.nodeValue;
-				
+
 				this.Popup(body, this.title);
 			}
 		}
 	},
-	
+
 	Popup: function (body, title) {
 		this.initPopupDiv();
 		Element.setStyle(this.PopupDiv,{
@@ -357,7 +357,7 @@ var XpWiki = {
 		//wikihelper_initTexts(this.PopupDiv.id);
 		Element.show(this.PopupDiv);
 	},
-	
+
 	PopupHide: function () {
 		if (this.new_window) {
 			this.new_window.close();
@@ -366,7 +366,7 @@ var XpWiki = {
 			Element.hide('XpWikiPopup');
 		}
 	},
-	
+
 	textaraWrap: function (id) {
 	    var txtarea = $(id);
 	    var wrap = txtarea.getAttribute('wrap');
@@ -384,17 +384,17 @@ var XpWiki = {
 	    parNod.insertBefore(txtarea, nxtSib);
 	    return ret;
 	},
-	
+
 	addWrapButton: function (id) {
 		var txtarea = $(id);
-		
+
 		id = txtarea.id;
-		
+
 		if (typeof(txtarea.XpWiki_addWrap_done) != 'undefined') return;
 		txtarea.XpWiki_addWrap_done = true;
 
 		if (txtarea.style.display == 'inline') return;
-		
+
 		var btn = document.createElement('div');
 		btn.id = id + '_WrapBtn';
 		btn.className = 'xpwikiWrapBtn';
@@ -402,10 +402,10 @@ var XpWiki = {
 		Event.observe(btn, 'click', function(){
 			this.innerHTML = XpWiki.textaraWrap(id);
 		});
-		
+
 		var refNode = ($(id + '_resize_base_resizeXY'))? $(id + '_resize_base_resizeXY') : $(id);
 		this.DOMNode_insertAfter(btn, refNode);
-		
+
 		if (txtarea.getAttribute("rel") == "wikihelper" && ! txtarea.className.match('norich')) {
 			if (id.match(/^[a-z0-9_-]+:/i)) {
 				var mydir = id.replace(/^([a-z0-9_-]+):.+$/i, "$1");
@@ -420,7 +420,7 @@ var XpWiki = {
 	addFckButton: function (id, mydir) {
 		if (this.FCKeditor_path) {
 			var txtarea = $(id);
-			
+
 			if (typeof(txtarea.XpWiki_addFck_done) != 'undefined') return false;
 			txtarea.XpWiki_addFck_done = true;
 
@@ -435,7 +435,7 @@ var XpWiki = {
 			this.DOMNode_insertAfter(btn, refNode);
 		}
 	},
-	
+
 	addCssInHead: function (filename) {
 		var doload = true;
 		var links = document.getElementsByTagName('link');
@@ -458,11 +458,11 @@ var XpWiki = {
 			document.getElementsByTagName('head')[0].appendChild(css);
 		}
 	},
-	
+
 	faviconSetDone: false,
 	faviconSet: function (body) {
 		if (this.faviconSetDone || typeof(this.faviconSetClass) == 'undefined' || this.faviconSetClass == '') return;
-		
+
 		var em = document.createElement('div');
 		em.style.height = '1em';
 		em.style.width = '1px';
@@ -470,7 +470,7 @@ var XpWiki = {
 		body.appendChild(em);
 		var pxPerEm = em.clientHeight;
 		body.removeChild(em);
-		
+
 		var ins_a = new Array();
 		var ins_img = new Array();
 		this.faviconSetDone = true;
@@ -509,9 +509,9 @@ var XpWiki = {
 				img.style.width = height;
 				img.style.height = height;
 				img.className = 'xpwikiFavicon';
-				
+
 				ins_a[n] = obj
-				ins_img[n] = img; 
+				ins_img[n] = img;
 
 				n++;
 			}
@@ -528,7 +528,7 @@ var XpWiki = {
 			}
 		}
 	},
-	
+
 	checkUseHelper: function (obj) {
 		if (!!this.UseWikihelperAtAll || obj.id.match(/^xpwiki/)) {
 			return true;
@@ -554,7 +554,7 @@ var XpWiki = {
 		}
 		return false;
 	},
-	
+
 	remakeTextArea: function (obj) {
 		var tareas = obj.getElementsByTagName('textarea');
 		for (var i=0; i<tareas.length; i++){
@@ -568,7 +568,7 @@ var XpWiki = {
 			if (!tareas[i].style.width.match('%') || !tareas[i].style.height.match('%')) {
 				new Resizable(tareas[i].id, {mode:'xy'});
 			}
-			
+
 			this.addWrapButton(tareas[i].id);
 		}
 	},
@@ -577,7 +577,7 @@ var XpWiki = {
 		var pres = new Array();
 		var tocId = 0;
 		var tocCond = this.cookieLoad('_xwtoc');
-		
+
 		if (this.isIE6) {
 			var x = document.evaluate('descendant::div[contains(@class,"pre")]', target, null, 6, null);
 		} else {
@@ -632,7 +632,7 @@ var XpWiki = {
 				if (tocCond == '+') {
 					this.tocToggle(tocId);
 				}
-				
+
 				var lis = toc_body.getElementsByTagName('li');
 				var licnt = 0;
 				for (var li_i=0; li_i<lis.length; li_i++) {
@@ -649,7 +649,7 @@ var XpWiki = {
 						licnt++;
 					}
 				}
-				
+
 				if (!this.isIE6) {
 					var toc_pin = document.createElement('div');
 					toc_pin.className = 'toc_pin';
@@ -659,7 +659,7 @@ var XpWiki = {
 					eval( 'toc_pin.onclick = function(e){ XpWiki.tocFix("' + tocId + '"); };');
 					obj.style.cursor = 'pointer';
 				}
-				
+
 				tocId++;
 			}
 		}
@@ -671,7 +671,7 @@ var XpWiki = {
 		Element.toggle(body);
 		this.tocSetMarker(body, marker);
 	},
-	
+
 	tocSetMarker: function (body, marker) {
 		var cond;
 		if (body.style.display === 'none') {
@@ -684,7 +684,7 @@ var XpWiki = {
 		marker.innerHTML = '<span>' + cond + '</span>';
 		this.cookieSave('_xwtoc', cond, 90, '/');
 	},
-	
+
 	tocFix: function (tocId) {
 		Element.remove($('xpwiki_toc_pin' + tocId));
 		var base = $('xpwiki_toc_base' + tocId);
@@ -703,9 +703,9 @@ var XpWiki = {
 		base.style.padding = '0';
 
 		var handle = base;
-		
+
 		var body = $('xpwiki_toc_body' + tocId);
-		
+
 		var ul = body.getElementsByTagName('ul')[0];
 		if (!Prototype.Browser.IE || this.IEVer > 7) {
 			body.style.maxHeight = (document.viewport.getHeight() - 40) + 'px';
@@ -713,12 +713,12 @@ var XpWiki = {
 			handle = ul;
 		}
 		handle.style.cursor = 'move';
-		
+
 		new Draggable(base, { handle:handle });
 		new Resizable(base, { mode:'x', element:base.id });
 
 	},
-	
+
 	listTreeToggle: function (id) {
 		var elms = $(id).parentNode.childNodes;
 		for (var i=0; i<elms.length; i++) {
@@ -734,7 +734,7 @@ var XpWiki = {
 			}
 		}
 	},
-	
+
 	htmlspecialchars: function (str) {
 		return str.
 		replace(/&/g,"&amp;").
@@ -752,7 +752,7 @@ var XpWiki = {
 		replace(/&#039;/g,"'").
 		replace(/&amp;/g,"&");
 	},
-	
+
 	rawurlencode: function (str) {
 		try {
 			return encodeURIComponent(str)
@@ -769,7 +769,7 @@ var XpWiki = {
 				.replace(/@/g,  "%40");
 		}
 	},
-	
+
 	cookieSave: function (arg1, arg2, arg3, arg4) {
 		// arg1=dataname, arg2=data, arg3=expiration days, arg4=path
 		var xDay;
@@ -792,7 +792,7 @@ var XpWiki = {
 			document.cookie = escape(arg1) + "=" + escape(arg2) + _exp + _path +";";
 		}
 	},
-	
+
 	cookieLoad: function (arg) {
 		if (arg) {
 			var cookieData = document.cookie + ";" ;
@@ -822,9 +822,9 @@ var XpWiki = {
 		var to = $(toId);
 		to.appendChild(cln);
 	},
-	
+
 	fileupFormPopup: function (mode, page) {
-		
+
 		if (typeof page != "undefined") {
 			this.dir = mode;
 			this.UploadPage = page;
@@ -833,10 +833,10 @@ var XpWiki = {
 			this.dir = this.UploadDir;
 			this.title = this.htmlspecialchars(this.UploadPage);
 		}
-		if (typeof mode == "undefind") {
+		if (typeof mode == "undefined") {
 			mode = '';
 		}
-		
+
 		var url = this.MyUrl + '/' + this.dir + '/?plugin=attach&pcmd=imglist&refer=';
 		url += encodeURIComponent(this.UploadPage);
 		url += '&base=' + encodeURIComponent(this.UploadPage);
@@ -846,16 +846,16 @@ var XpWiki = {
 		url += '&max=10';
 		url += '&mode=' + mode;
 		url += '&encode_hint=' + encodeURIComponent(this.EncHint);
-		
+
 		this.PopupUrl = url;
-		
+
 		if (this.isIE6) {
 			url += '&winop=1';
 			if (!window.self.name) {
 				window.self.name = "xpwiki_opener";
 			}
 			this.window_name = window.self.name;
-			
+
 			var width = '250';
 			var height = '400';
 			var top = '10';
@@ -864,9 +864,9 @@ var XpWiki = {
 
 			this.new_window = window.open(url, 'xpwiki_popup', options);
 			this.new_window.focus();
-		
+
 		} else {
-		
+
 			var arg = [];
 			arg.top = this.fileupPopupTop;
 			arg.bottom = this.fileupPopupBottom;
@@ -874,25 +874,25 @@ var XpWiki = {
 			arg.right = this.fileupPopupRight;
 			arg.width = this.fileupPopupWidth;
 			arg.height = this.fileupPopupHeight;
-			
+
 			this.initPopupDiv(arg);
-			
+
 			if ($('XpWikiPopupBody').src != url) {
 				$('XpWikiPopupHeaderTitle').innerHTML = 'Now loading...';
 				$('XpWikiPopupBody').src = url;
 				this.PopupBodyUrl = url;
 			}
-			
+
 			var zindex = this.getLargestZIndex('iframe') + 1;
 			this.PopupDiv.style.zIndex = Math.max(this.PopupDiv.style.zIndex, zindex);
 
 			Element.show(this.PopupDiv);
-		
+
 		}
-		
+
 		return false;
 	},
-	
+
 	setUploadVar: function (elm) {
 		if (!!elm) {
 			elm = $(elm);
@@ -903,7 +903,7 @@ var XpWiki = {
 					if (element.nodeName.toUpperCase() == 'FORM') {
 						form = element;
 						break;
-					}		
+					}
 				}
 				if (form && (typeof form.page != 'undefined' || typeof form.refer != 'undefined')) {
 					var dir = elm.id.replace(/^([a-z0-9_-]+):.+$/i, "$1");
@@ -921,7 +921,7 @@ var XpWiki = {
 			}
 		}
 	},
-	
+
 	refInsert: function(file, type) {
 		if (!wikihelper_elem) {
 			alert(wikihelper_msg_elem);
@@ -948,10 +948,10 @@ var XpWiki = {
 		}
 		var v = '&ref('+file+size+');';
 		wikihelper_ins(v);
-		
+
 		return false;
 	},
-	
+
 	FCKrefInsert: function(file, type) {
 		var r = document.evaluate('descendant::iframe[contains(@src,\'/editor/fckdialog.html\')]', document, null, 7, null);
 		if (r) {
@@ -966,7 +966,7 @@ var XpWiki = {
 		this.PopupHide();
 		return false;
 	},
-	
+
 	switch2FCK: function(id, dir) {
 		if (typeof FCKeditor == 'undefined') {
 			xpwiki_now_loading(true, $(id).parentNode);
@@ -994,12 +994,12 @@ var XpWiki = {
 			if (typeof FCKeditorAPI == "object" && FCKeditorAPI.GetInstance(id)) {
 				return this.toggleFCK(id);
 			}
-			
+
 			this.setUploadVar(id);
 			var myDir = XpWikiModuleUrl + '/' + dir;
 
 			var oFCKeditor = new FCKeditor(id);
-			
+
 			if (this.UploadPage == this.RendererPage) {
 				oFCKeditor.Config['xpWiki_LineBreak'] = 1;
 			} else {
@@ -1008,11 +1008,11 @@ var XpWiki = {
 			oFCKeditor.Config['xpWiki_myPath'] = myDir + '/';
 			oFCKeditor.Config['xpWiki_FCKxpwikiPath'] = this.FCKxpwiki_path;
 			oFCKeditor.Config['xpWiki_PageName'] = this.UploadPage;
-			
+
 			oFCKeditor.BasePath = this.FCKeditor_path;
 
 			oFCKeditor.Height = "100%";
-			
+
 			oFCKeditor.Config['CustomConfigurationsPath'] = myDir + "/skin/loader.php?src=fck.config.js";
 			var skinName = (!! XpWiki.SkinName[dir])? XpWiki.SkinName[dir] : '';
 
@@ -1026,9 +1026,9 @@ var XpWiki = {
 			oFCKeditor.Config['SkinPath'] = this.FCKxpwiki_path + "skin/";
 			oFCKeditor.Config['PluginsPath'] = this.FCKxpwiki_path + "plugins/";
 			oFCKeditor.Config['SmileyImages'] = this.FCKSmileys;
-			
+
 			oFCKeditor.ReplaceTextarea();
-			
+
 			Element.hide(id + '_WrapBtn');
 			Element.hide(id + '_FckBtn');
 			wikihelper_hide_helper();
@@ -1038,7 +1038,7 @@ var XpWiki = {
 			$(id + '_FckBtn').innerHTML = 'x';
 		}
 	},
-	
+
 	toggleFCK: function(id) {
 		Element.hide(id + '_WrapBtn');
 		Element.hide(id + '_FckBtn');
@@ -1070,7 +1070,7 @@ var XpWiki = {
 			Element.show(id + '_FckBtn');
 		}
 	},
-	
+
 	removeFCK: function(areaId) {
 		var wait = 0;
 		if (typeof FCKeditor == "function" && typeof FCKeditorAPI == "object") {
@@ -1086,7 +1086,7 @@ var XpWiki = {
 		}
 		return wait;
 	},
-	
+
 	toggle_norich: function(id) {
 		var form = this.getParentForm(id);
 		if (form) {
@@ -1102,7 +1102,7 @@ var XpWiki = {
 			}
 		}
 	},
-	
+
 	str2num: function(string) {
 		if (typeof string == 'string' && !string) {
 			return '';
@@ -1110,7 +1110,7 @@ var XpWiki = {
 			return parseFloat(this.z2h_digit(string));
 		}
 	},
-	
+
 	getParentForm: function(element) {
 		form = null;
 		element = $(element);
@@ -1122,7 +1122,7 @@ var XpWiki = {
 		}
 		return form;
 	},
-	
+
 	// Copyright (c) 2003 AOK <soft@aokura.com>
 	z2h_digit: function(src) {
 		var str = new String;
@@ -1133,13 +1133,13 @@ var XpWiki = {
 				str += String.fromCharCode(c - 65248);
 			} else {
 				str += src.charAt(i);
-			} 
+			}
 		}
 		return str;
 	},
-	
+
 	getLargestZIndex: function(){
-		var largestZIndex = 0; 
+		var largestZIndex = 0;
 		var defaultView = document.defaultView;
 		var func = function(tagname){
 			var elems = document.getElementsByTagName(tagname), len=elems.length;
@@ -1158,7 +1158,7 @@ var XpWiki = {
 		else for(var i=0; i<arguments.length; i++) func(arguments[i]);
 		return largestZIndex;
 	},
-	
+
 	DOMNode_insertAfter: function(newChild, refChild) {
 		var parent=refChild.parentNode;
 		if(parent.lastChild==refChild) return parent.appendChild(newChild);
@@ -1173,7 +1173,7 @@ var XpWiki = {
 			valueL += element.offsetLeft || 0;
 			if (Prototype.Browser.IE &&  this.IEVer < 8 &&
 			//if (Prototype.Browser.IE &&
-				element == tgtElement && 
+				element == tgtElement &&
 				element.tagName.toUpperCase() == 'DIV') {
 				valueL -= element.offsetLeft || 0;
 			}
@@ -1181,7 +1181,7 @@ var XpWiki = {
 		} while (element);
 		return Element._returnOffset(valueL, valueT);
 	},
-	
+
 	getDomBody: function() {
 		return (this.DomBody || document.getElementsByTagName('body')[0]);
 	}
@@ -1210,7 +1210,7 @@ if (typeof hypEmojiPadSet != 'function') {
 }
 
 if (typeof addEventListener == 'undefined') {
-	/* 
+	/*
 	 * Bugfix of IE's Event
 	 * http://www.yabooo.org/archives/122
 	 */
