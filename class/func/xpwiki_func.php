@@ -1,7 +1,7 @@
 <?php
 //
 // Created on 2006/10/02 by nao-pon http://hypweb.net/
-// $Id: xpwiki_func.php,v 1.226 2010/05/20 00:47:05 nao-pon Exp $
+// $Id: xpwiki_func.php,v 1.227 2010/05/22 13:14:51 nao-pon Exp $
 //
 class XpWikiFunc extends XpWikiXoopsWrapper {
 
@@ -3910,8 +3910,8 @@ EOD;
 				$pg_ary[$this->xpwiki->pid][$_page]['relative'][] = preg_replace($dirreg, '../', $_alias);
 			}
 			foreach($pg_ary[$this->xpwiki->pid] as $_page => $_ary) {
-				natcasesort($pg_ary[$this->xpwiki->pid]['real'][$_page]);
-				natcasesort($pg_ary[$this->xpwiki->pid]['relative'][$_page]);
+				natcasesort($pg_ary[$this->xpwiki->pid][$_page]['real']);
+				natcasesort($pg_ary[$this->xpwiki->pid][$_page]['relative']);
 			}
 		}
 
@@ -4106,10 +4106,20 @@ EOD;
 	}
 	*/
 
-	function get_user_pref($uid) {
-		if (!$uid) return array();
+	function get_user_pref($uid = null) {
+		if (! is_null($uid)) {
+			if (! $uid) return array();
+		}
 		if ($data = $this->cache_get_db($uid, 'user_pref', FALSE, TRUE)) {
-			return unserialize($data);
+			if (is_array($data)) {
+				$ret = array();
+				foreach($data as $_data) {
+					$ret[] = unserialize($_data);
+				}
+				return $data;
+			} else {
+				return unserialize($data);
+			}
 		} else {
 			return array();
 		}
@@ -4167,24 +4177,39 @@ EOD;
 	}
 
 	function cache_get_db ($key, $plugin='core', $delete=FALSE, $update=TRUE) {
-		$key = addslashes($key);
+		if (is_null($key)) {
+			$select = ', `key`';
+			$key = '';
+			$limit = '';
+		} else {
+			$select = '';
+			$key = '`key`=\''.addslashes($key) .'\' AND ';
+			$limit = ' LIMIT 1';
+		}
 		$plugin = addslashes($plugin);
 		$data = '';
 		$dbtable = $this->xpwiki->db->prefix($this->root->mydirname.'_cache');
 
-		$sql = 'SELECT `data` FROM `'.$dbtable.'` WHERE `key`=\''.$key.'\' AND `plugin`=\''.$plugin.'\'';
+		$sql = 'SELECT `data`'.$select.' FROM `'.$dbtable.'` WHERE '.$key.'`plugin`=\''.$plugin.'\''.$limit;
 		if ($res = $this->xpwiki->db->query($sql)) {
-			list($data) = $this->xpwiki->db->fetchRow($res);
-			if ($delete) {
-				$sql = 'DELETE FROM `'.$dbtable.'` WHERE `key`=\''.$key.'\' AND `plugin`=\''.$plugin.'\'';
-				$this->xpwiki->db->queryF($sql);
-				$sql = 'OPTIMIZE TABLE `'.$dbtable.'`';
-				$this->xpwiki->db->queryF($sql);
-			} else if ($update) {
-				$sql = 'UPDATE `'.$dbtable.'`';
-				$sql .= ' SET `mtime`=\''.$this->cont['UTC'].'\'';
-				$sql .= ' WHERE `key`=\''.$key.'\' AND `plugin`=\''.$plugin.'\'';
-				$this->xpwiki->db->queryF($sql);
+			if ($key) {
+				list($data) = $this->xpwiki->db->fetchRow($res);
+				if ($delete) {
+					$sql = 'DELETE FROM `'.$dbtable.'` WHERE '.$key.'`plugin`=\''.$plugin.'\'';
+					$this->xpwiki->db->queryF($sql);
+					$sql = 'OPTIMIZE TABLE `'.$dbtable.'`';
+					$this->xpwiki->db->queryF($sql);
+				} else if ($update) {
+					$sql = 'UPDATE `'.$dbtable.'`';
+					$sql .= ' SET `mtime`=\''.$this->cont['UTC'].'\'';
+					$sql .= ' WHERE '.$key.'`plugin`=\''.$plugin.'\'';
+					$this->xpwiki->db->queryF($sql);
+				}
+			} else {
+				$data = array();
+				while($result = $this->xpwiki->db->fetchRow($res)) {
+					$data[$result[1]] = $result[0];
+				}
 			}
 		}
 
