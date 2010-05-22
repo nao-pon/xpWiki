@@ -1,7 +1,7 @@
 <?php
 //
 // Created on 2006/10/02 by nao-pon http://hypweb.net/
-// $Id: pukiwiki_func.php,v 1.219 2010/05/20 10:43:36 nao-pon Exp $
+// $Id: pukiwiki_func.php,v 1.220 2010/05/22 13:14:28 nao-pon Exp $
 //
 class XpWikiPukiWikiFunc extends XpWikiBaseFunc {
 
@@ -1036,7 +1036,7 @@ class XpWikiPukiWikiFunc extends XpWikiBaseFunc {
 
 //----- Start convert_html.php -----//
 	// PukiWiki - Yet another WikiWikiWeb clone
-	// $Id: pukiwiki_func.php,v 1.219 2010/05/20 10:43:36 nao-pon Exp $
+	// $Id: pukiwiki_func.php,v 1.220 2010/05/22 13:14:28 nao-pon Exp $
 	// Copyright (C)
 	//   2002-2005 PukiWiki Developers Team
 	//   2001-2002 Originally written by yu-ji
@@ -1051,6 +1051,7 @@ class XpWikiPukiWikiFunc extends XpWikiBaseFunc {
 		static $real_nest = array();
 		static $digests = array();
 		static $forceignores = array();
+		static $autolink_pat = array();
 
 		if (!isset( $contents_id[$this->xpwiki->pid] )) {$contents_id[$this->xpwiki->pid] = 0;}
 		if (!isset( $real_nest[$this->xpwiki->pid] )) {$real_nest[$this->xpwiki->pid] = 0;}
@@ -1146,9 +1147,11 @@ class XpWikiPukiWikiFunc extends XpWikiBaseFunc {
 					$forceignores[$this->root->mydirname] = array();
 					list($auto, , , $forceignorepages, $forceignorepages_ci) = array_pad(@file($this->cont['CACHE_DIR'].$this->cont['PKWK_AUTOLINK_REGEX_CACHE']), 5, '');
 					if (! $forceignorepages) {
+						// remake because old version
 						$this->autolink_dat_update();
-						list($auto, , , $forceignorepages, $forceignorepages_ci) = array_pad(file($this->cont['CACHE_DIR'].$this->cont['PKWK_AUTOLINK_REGEX_CACHE']), 4, '');
+						list($auto, , , $forceignorepages, $forceignorepages_ci) = array_pad(file($this->cont['CACHE_DIR'].$this->cont['PKWK_AUTOLINK_REGEX_CACHE']), 5, '');
 					}
+					$autolink_pat[$this->root->mydirname] = $auto;
 					$forceignorepages = @unserialize(trim($forceignorepages));
 					if ($forceignorepages === FALSE) {
 						$forceignorepages = array();
@@ -1176,7 +1179,7 @@ class XpWikiPukiWikiFunc extends XpWikiBaseFunc {
 
 			// Internal Autolink
 			if ($this->root->autolink) {
-				$this->int_autolink_proc($ret, $auto);
+				$this->int_autolink_proc($ret, $autolink_pat[$this->root->mydirname]);
 			}
 
 			// External AutoLink After
@@ -1336,7 +1339,7 @@ class XpWikiPukiWikiFunc extends XpWikiBaseFunc {
 
 //----- Start func.php -----//
 	// PukiWiki - Yet another WikiWikiWeb clone.
-	// $Id: pukiwiki_func.php,v 1.219 2010/05/20 10:43:36 nao-pon Exp $
+	// $Id: pukiwiki_func.php,v 1.220 2010/05/22 13:14:28 nao-pon Exp $
 	// Copyright (C)
 	//   2002-2006 PukiWiki Developers Team
 	//   2001-2002 Originally written by yu-ji
@@ -2181,7 +2184,7 @@ EOD;
 
 //----- Start make_link.php -----//
 	// PukiWiki - Yet another WikiWikiWeb clone.
-	// $Id: pukiwiki_func.php,v 1.219 2010/05/20 10:43:36 nao-pon Exp $
+	// $Id: pukiwiki_func.php,v 1.220 2010/05/22 13:14:28 nao-pon Exp $
 	// Copyright (C)
 	//   2003-2005 PukiWiki Developers Team
 	//   2001-2002 Originally written by yu-ji
@@ -3194,7 +3197,7 @@ EOD;
 
 //----- Start html.php -----//
 	// PukiWiki - Yet another WikiWikiWeb clone.
-	// $Id: pukiwiki_func.php,v 1.219 2010/05/20 10:43:36 nao-pon Exp $
+	// $Id: pukiwiki_func.php,v 1.220 2010/05/22 13:14:28 nao-pon Exp $
 	// Copyright (C)
 	//   2002-2006 PukiWiki Developers Team
 	//   2001-2002 Originally written by yu-ji
@@ -3978,7 +3981,7 @@ EOD;
 
 //----- Start mail.php -----//
 	// PukiWiki - Yet another WikiWikiWeb clone.
-	// $Id: pukiwiki_func.php,v 1.219 2010/05/20 10:43:36 nao-pon Exp $
+	// $Id: pukiwiki_func.php,v 1.220 2010/05/22 13:14:28 nao-pon Exp $
 	// Copyright (C)
 	//   2003-2005 PukiWiki Developers Team
 	//   2003      Originally written by upk
@@ -4281,7 +4284,7 @@ EOD;
 
 //----- Start link.php -----//
 	// PukiWiki - Yet another WikiWikiWeb clone
-	// $Id: pukiwiki_func.php,v 1.219 2010/05/20 10:43:36 nao-pon Exp $
+	// $Id: pukiwiki_func.php,v 1.220 2010/05/22 13:14:28 nao-pon Exp $
 	// Copyright (C) 2003-2006 PukiWiki Developers Team
 	// License: GPL v2 or (at your option) any later version
 	//
