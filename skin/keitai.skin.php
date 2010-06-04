@@ -1,6 +1,6 @@
 <?php
 // PukiWiki - Yet another WikiWikiWeb clone.
-// $Id: keitai.skin.php,v 1.31 2010/01/08 13:43:37 nao-pon Exp $
+// $Id: keitai.skin.php,v 1.32 2010/06/04 07:22:09 nao-pon Exp $
 // Copyright (C) 2003-2006 PukiWiki Developers Team
 // License: GPL v2 or (at your option) any later version
 //
@@ -20,9 +20,12 @@ $style = array(
 	'pageFooter'=> 'background-color:#CED9DB;font-size:small',
 	'pageInfo'  => 'background-color:#EAFFCC;font-size:small',
 );
+
 /////////////////////////////////////////////////
 // xpWiki run mode
-$this->root->runmode = "standalone";
+if (! defined('HYP_WIZMOBILE_USE') && strtolower($this->root->keitai_output_filter) !== 'pass') {
+	$this->root->runmode = 'standalone';
+}
 
 $pagename = (isset($this->root->vars['page']))? $this->root->vars['page'] : '';
 $pageno = (isset($this->root->vars['p']) && is_numeric($this->root->vars['p'])) ? $this->root->vars['p'] : 0;
@@ -67,13 +70,11 @@ if ($heads) {
 $body = preg_replace('#<a[^>]+?>' . preg_quote($this->root->_symbol_anchor, '#') . '</a>#S', '', $body);
 $body = preg_replace('/<a href="#'.$this->root->mydirname.'_navigator"[^>]*?>.+?<\/a>/sS', '', $body);
 
-$body = str_replace($this->root->_symbol_noexists, '<span style="font-size:xx-small">((i:f9be))</span>', $body);
-
-$head = '<head><title>' . mb_convert_encoding($title, 'SJIS', $this->cont['SOURCE_ENCODING']) . '</title></head>';
+$body = str_replace($this->root->_symbol_noexists, '<span style="font-size:xx-small">[emj:1014]</span>', $body);
 
 $header = '';
 
-if (! $no_accesskey) {
+if (! $no_accesskey && $this->root->runmode === 'standalone') {
 	$header .= sprintf('<div style="%s" id="header">%s <a href="%s" %s="1">%s</a></div>',
 		$style['siteTitle'],
 		$this->make_link('&pb1;'),
@@ -96,7 +97,7 @@ if (! $no_accesskey) {
 }
 
 if ($read && $pagename) {
-	$pageTitle = $this->make_pagelink($pagename) . '<a href="' . $link['related'] . '">((i:f981))</a>';
+	$pageTitle = $this->make_pagelink($pagename) . '<a href="' . $link['related'] . '">[emj:119]</a>';
 } else {
 	$pageTitle = strip_tags($this->xpwiki->title);
 }
@@ -215,81 +216,87 @@ ob_start(); ?>
 $footer = ob_get_contents();
 ob_end_clean();
 
-$ctype = 'text/html';
-if (HypCommonFunc::get_version() >= '20080617.2') {
-	HypCommonFunc::loadClass('HypKTaiRender');
-	if (HypCommonFunc::get_version() >= '20080925') {
-		$r =& HypKTaiRender::getSingleton();
+if ($this->root->runmode === 'standalone') {
+	$ctype = 'text/html';
+	if (HypCommonFunc::get_version() >= '20080617.2') {
+		HypCommonFunc::loadClass('HypKTaiRender');
+		if (HypCommonFunc::get_version() >= '20080925') {
+			$r =& HypKTaiRender::getSingleton();
+		} else {
+			$r = new HypKTaiRender();
+		}
+		$r->set_myRoot($this->root->siteinfo['host']);
+		$r->Config_hypCommonURL = $this->cont['ROOT_URL'] . 'class/hyp_common';
+		$r->Config_redirect = $this->root->k_tai_conf['redirect'];
+		$r->Config_emojiDir = $this->cont['ROOT_URL'] . 'images/emoji';
+		if (! empty($this->root->k_tai_conf['showImgHosts'])) {
+			$r->Config_showImgHosts = $this->root->k_tai_conf['showImgHosts'];
+		}
+		if (! empty($this->root->k_tai_conf['directImgHosts'])) {
+			$r->Config_directImgHosts = $this->root->k_tai_conf['directImgHosts'];
+		}
+		if (! empty($this->root->k_tai_conf['directLinkHosts'])) {
+			$r->Config_directLinkHosts = $this->root->k_tai_conf['directLinkHosts'];
+		}
+		if ($this->cont['PKWK_ENCODING_HINT']) {
+			$r->Config_encodeHintWord = $this->cont['PKWK_ENCODING_HINT'];
+		}
+
+		if (! empty($this->root->k_tai_conf['googleAdsense']['config'])) {
+			$r->Config_googleAdSenseConfig = $this->root->k_tai_conf['googleAdsense']['config'];
+			$r->Config_googleAdSenseBelow = $this->root->k_tai_conf['googleAdsense']['below'];
+		}
+
+		$googleAnalytics = '';
+		if ($this->root->k_tai_conf['googleAnalyticsId']) {
+			$googleAnalytics = $r->googleAnalyticsGetImgTag($this->root->k_tai_conf['googleAnalyticsId'], $title);
+		}
+
+		$r->inputEncode = $this->cont['SOURCE_ENCODING'];
+		$r->outputEncode = $this->root->keitai_output_filter;
+		$r->outputMode = 'xhtml';
+		$r->langcode = $this->cont['LANG'];
+
+		if (! empty($_SESSION['hyp_redirect_message'])){
+			$header = $this->root->k_tai_conf['rebuilds']['redirectMessage']['above'] . $_SESSION['hyp_redirect_message'] . $this->root->k_tai_conf['rebuilds']['redirectMessage']['below'] . $header;
+			unset($_SESSION['hyp_redirect_message']);
+		}
+
+		$r->contents['header'] = $header . $googleAnalytics;
+		$r->contents['body'] = $body . $pageinfo;
+		$r->contents['footer'] = $footer;
+
+		$r->doOptimize();
+
+		$charset = (strtoupper($r->outputEncode) === 'UTF-8')? 'UTF-8' : 'Shift_JIS';
+
+		if (method_exists($r, 'getHtmlDeclaration')) {
+			$htmlDec = $r->getHtmlDeclaration();
+		} else {
+			$htmlDec = '<?xml version="1.0" encoding="Shift_JIS"?><!DOCTYPE html PUBLIC "-//W3C//DTD XHTML 1.0 Transitional//EN" "http://www.w3.org/TR/xhtml1/DTD/xhtml1-transitional.dtd"><html xmlns="http://www.w3.org/1999/xhtml" lang="ja" xml:lang="ja">';
+		}
+		$body = $r->outputBody;
+		$ctype = $r->getOutputContentType();
+		$r = NULL;
+		unset($r);
 	} else {
-		$r = new HypKTaiRender();
-	}
-	$r->set_myRoot($this->root->siteinfo['host']);
-	$r->Config_hypCommonURL = $this->cont['ROOT_URL'] . 'class/hyp_common';
-	$r->Config_redirect = $this->root->k_tai_conf['redirect'];
-	$r->Config_emojiDir = $this->cont['ROOT_URL'] . 'images/emoji';
-	if (! empty($this->root->k_tai_conf['showImgHosts'])) {
-		$r->Config_showImgHosts = $this->root->k_tai_conf['showImgHosts'];
-	}
-	if (! empty($this->root->k_tai_conf['directImgHosts'])) {
-		$r->Config_directImgHosts = $this->root->k_tai_conf['directImgHosts'];
-	}
-	if (! empty($this->root->k_tai_conf['directLinkHosts'])) {
-		$r->Config_directLinkHosts = $this->root->k_tai_conf['directLinkHosts'];
-	}
-	if ($this->cont['PKWK_ENCODING_HINT']) {
-		$r->Config_encodeHintWord = $this->cont['PKWK_ENCODING_HINT'];
+		$body = '"keitai.skin" require HypCommonFunc >= 20080617';
 	}
 
-	if (! empty($this->root->k_tai_conf['googleAdsense']['config'])) {
-		$r->Config_googleAdSenseConfig = $this->root->k_tai_conf['googleAdsense']['config'];
-		$r->Config_googleAdSenseBelow = $this->root->k_tai_conf['googleAdsense']['below'];
-	}
+	$head = '<head><title>' . mb_convert_encoding($title, $this->root->keitai_output_filter, $this->cont['SOURCE_ENCODING']) . '</title></head>';
 
-	$googleAnalytics = '';
-	if ($this->root->k_tai_conf['googleAnalyticsId']) {
-		$googleAnalytics = $r->googleAnalyticsGetImgTag($this->root->k_tai_conf['googleAnalyticsId'], $title);
-	}
+	$out = $htmlDec . $head . '<body>' .  $body . '</body></html>';
 
-	$r->inputEncode = $this->cont['SOURCE_ENCODING'];
-	$r->outputEncode = 'SJIS';
-	$r->outputMode = 'xhtml';
-	$r->langcode = $this->cont['LANG'];
+	// ----
+	// Output HTTP headers
+	$this->pkwk_headers_sent();
+	// Force Shift JIS encode for Japanese embedded browsers and devices
+	header('Content-Type: '.$ctype.'; charset=' . $charset);
+	header('Content-Length: ' . strlen($out));
+	header('Cache-Control: no-cache');
 
-	if (! empty($_SESSION['hyp_redirect_message'])){
-		$header = $this->root->k_tai_conf['rebuilds']['redirectMessage']['above'] . $_SESSION['hyp_redirect_message'] . $this->root->k_tai_conf['rebuilds']['redirectMessage']['below'] . $header;
-		unset($_SESSION['hyp_redirect_message']);
-	}
-
-	$r->contents['header'] = $header . $googleAnalytics;
-	$r->contents['body'] = $body . $pageinfo;
-	$r->contents['footer'] = $footer;
-
-	$r->doOptimize();
-
-	$charset = (strtoupper($r->outputEncode) === 'UTF-8')? 'UTF-8' : 'Shift_JIS';
-
-	if (method_exists($r, 'getHtmlDeclaration')) {
-		$htmlDec = $r->getHtmlDeclaration();
-	} else {
-		$htmlDec = '<?xml version="1.0" encoding="Shift_JIS"?><!DOCTYPE html PUBLIC "-//W3C//DTD XHTML 1.0 Transitional//EN" "http://www.w3.org/TR/xhtml1/DTD/xhtml1-transitional.dtd"><html xmlns="http://www.w3.org/1999/xhtml" lang="ja" xml:lang="ja">';
-	}
-	$body = $r->outputBody;
-	$ctype = $r->getOutputContentType();
-	$r = NULL;
-	unset($r);
+	// Output
+	echo $out;
 } else {
-	$body = '"keitai.skin" require HypCommonFunc >= 20080617';
+	echo $header . $body . $pageinfo . $footer;
 }
-
-$out = $htmlDec . $head . '<body>' .  $body . '</body></html>';
-
-// ----
-// Output HTTP headers
-$this->pkwk_headers_sent();
-// Force Shift JIS encode for Japanese embedded browsers and devices
-header('Content-Type: '.$ctype.'; charset=' . $charset);
-header('Content-Length: ' . strlen($out));
-header('Cache-Control: no-cache');
-
-// Output
-echo $out;
