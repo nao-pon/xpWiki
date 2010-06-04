@@ -1,17 +1,17 @@
 <?php
 //
 // Created on 2006/09/29 by nao-pon http://hypweb.net/
-// $Id: root.php,v 1.18 2009/04/11 00:48:20 nao-pon Exp $
+// $Id: root.php,v 1.19 2010/06/04 07:02:27 nao-pon Exp $
 //
 class XpWikiRoot {
 
 	var $c = array(); //constant
-	
+
 	// xpwiki
 	var $mydirpath;
 	var $pgid;
 	var $runmode;
-	
+
 	// Global Vars
 	var $BracketName;
 	var $InterWikiName;
@@ -133,15 +133,16 @@ class XpWikiRoot {
 	var $whatsnew;
 	var $render_mode;
 	var $viewmode;
-	
+	var $html_header;
+
 	function xpwiki_root() {
-		
+
 	}
-	
+
 	function init() {
 		$this->rtf          = array();  // Run time flag
 		$this->foot_explain = array();	// Footnotes
-		$this->rtf['note_id'] = array();// Footnotes id 
+		$this->rtf['note_id'] = array();// Footnotes id
 		$this->related      = array();	// Related pages
 		$this->notyets      = array();	// Not yet pages
 		$this->head_tags    = array();	// XHTML tags in <head></head>
