@@ -1,6 +1,6 @@
 <?php
 // PukiWiki - Yet another WikiWikiWeb clone
-// $Id: tracker.inc.php,v 1.22 2010/03/06 08:21:38 nao-pon Exp $
+// $Id: tracker.inc.php,v 1.23 2010/06/04 07:18:51 nao-pon Exp $
 // ORG: tracker.inc.php,v 1.57 2007/09/20 15:17:20 henoheno Exp $
 // Issue tracker plugin (See Also bugtrack plugin)
 
@@ -36,7 +36,7 @@ class xpwiki_plugin_tracker extends xpwiki_plugin
 		$this->cont['PLUGIN_TRACKER_SORT_TYPE_NUMERIC'] = 1;
 		$this->cont['PLUGIN_TRACKER_SORT_TYPE_STRING'] = 2;
 		$this->cont['PLUGIN_TRACKER_SORT_TYPE_NATURAL'] = 6;
-		if (! defined('SORT_NATURAL')) $this->cont['SORT_NATURAL'] = PLUGIN_TRACKER_SORT_TYPE_NATURAL;
+		if (! defined('SORT_NATURAL')) define('SORT_NATURAL', $this->cont['PLUGIN_TRACKER_SORT_TYPE_NATURAL']);
 
 		// Sort order
 		$this->cont['PLUGIN_TRACKER_SORT_ORDER_DESC'] = 3;
