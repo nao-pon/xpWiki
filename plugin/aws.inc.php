@@ -1,7 +1,7 @@
 <?php
 /*
  * Created on 2008/02/28 by nao-pon http://hypweb.net/
- * $Id: aws.inc.php,v 1.14 2010/01/08 13:52:09 nao-pon Exp $
+ * $Id: aws.inc.php,v 1.15 2010/06/04 07:04:02 nao-pon Exp $
  */
 
 /////////////////////////////////////////////////
@@ -85,7 +85,10 @@ class xpwiki_plugin_aws extends xpwiki_plugin {
 		$k = array_shift($args);
 		$b = preg_replace('/[^0-9,]+/', '', array_shift($args));
 		$s = array_shift($args);
-		$noheader = array_shift($args);
+		$header = array_shift($args);
+		if ($header === '') {
+			$header = 1;
+		}
 
 		if (!$k && !$b) return FALSE;
 
@@ -96,11 +99,11 @@ class xpwiki_plugin_aws extends xpwiki_plugin {
 		$style = ' style="word-break:break-all;"';
 		$more = '';
 		if ($more_link) {
-			$noheader  = intval($noheader);
-			if ($noheader > 2 && $noheader < 6) {
-				$more = '<h'.$noheader.'>' . $more_link . '</h'.$noheader.'>';
+			$header  = intval($header);
+			if ($header > 2 && $header < 6) {
+				$more = '<h'.$header.'>' . $more_link . '</h'.$header.'>';
 			} else {
-				$more = ($noheader) ? '<h4>' . $more_link . '</h4>' : '';
+				$more = ($header) ? '<h4>' . $more_link . '</h4>' : '';
 			}
 		}
 
