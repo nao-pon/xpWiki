@@ -1,6 +1,6 @@
 <?php
 // PukiWiki - Yet another WikiWikiWeb clone.
-// $Id: keitai.ini.php,v 1.25 2009/06/30 23:37:49 nao-pon Exp $
+// $Id: keitai.ini.php,v 1.26 2010/06/04 07:24:44 nao-pon Exp $
 // Copyright (C)
 //   2002-2005 PukiWiki Developers Team
 //   2001-2002 Originally written by yu-ji
@@ -23,6 +23,10 @@ $root->_symbol_anchor = '_';
 /////////////////////////////////////////////////
 // スキンファイルの場所
 $const['SKIN_FILE'] = $const['DATA_HOME'] . $const['SKIN_DIR'] . 'keitai.skin.php';
+
+/////////////////////////////////////////////////
+// Output filter 'SJIS', 'UTF-8' or 'pass'
+$root->keitai_output_filter = 'SJIS';
 
 /////////////////////////////////////////////////
 // Ajax edit
@@ -113,7 +117,7 @@ $root->link_compact = 1;
 /////////////////////////////////////////////////
 // Attributes "alt"" & "title" of <img> by plugin "ref"
 // Can set "title", "name", "size", "exif" join by ","
-// Please set "$this->cont['PLUGIN_REF_GET_EXIF'] = TRUE;" in "plugin_ref_init()" if you use "exif". 
+// Please set "$this->cont['PLUGIN_REF_GET_EXIF'] = TRUE;" in "plugin_ref_init()" if you use "exif".
 $root->ref_img_alt = '';
 $root->ref_img_title = '';
 
@@ -159,7 +163,7 @@ $root->cols = 22; $root->rows = 5;	// i_mode
 $root->keitai_display_width = 240;
 $root->keitai_img_px = 200;
 $root->keitai_imageTwiceDisplayWidth = 0;
-if (HypCommonFunc::get_version() >= '20090611') {
+if (strtolower($root->keitai_output_filter) !== 'pass' && HypCommonFunc::get_version() >= '20090611') {
 	HypCommonFunc::loadClass('HypKTaiRender');
 	$ktairender =& HypKTaiRender::getSingleton();
 	if (! empty($ktairender->vars['ua']['width'])) {
@@ -462,7 +466,7 @@ if (XC_CLASS_EXISTS('HypCommonPreLoad')) {
 	$hyp_preload = new HypCommonPreLoad($dummy);
 	$root->k_tai_conf = $hyp_preload->k_tai_conf;
 
-	// Reset each site values. 
+	// Reset each site values.
 	foreach (array_keys($root->k_tai_conf) as $key) {
 		if (strpos($key, '#') === FALSE) {
 			$sitekey = $key . '#' . XOOPS_URL;
@@ -476,20 +480,20 @@ if (XC_CLASS_EXISTS('HypCommonPreLoad')) {
 } else {
 	// インラインイメージを表示するホスト名(後方一致)
 	$root->k_tai_conf['showImgHosts'] = array('amazon.com', 'yimg.jp', 'yimg.com', 'ad.jp.ap.valuecommerce.com', 'ad.jp.ap.valuecommerce.com', 'ba.afl.rakuten.co.jp', 'assoc-amazon.jp', 'ad.linksynergy.com');
-	
+
 	// リダイレクトスクリプトを経由しないホスト名(後方一致)
 	$root->k_tai_conf['directLinkHosts'] = array('amazon.co.jp', 'ck.jp.ap.valuecommerce.com');
-	
+
 	// Google Adsense 設定
 	$root->k_tai_conf['googleAdsense']['config'] = $const['TRUST_PATH'] . 'class/hyp_common/ktairender/adsenseConf.php';
 	$root->k_tai_conf['googleAdsense']['below'] = 'header';
-	
+
 	// Google Analytics 設定
 	$root->k_tai_conf['googleAnalyticsId'] = '';
-	
+
 	// リダイレクトスクリプト
 	$root->k_tai_conf['redirect'] = $this->cont['HOME_URL'] . 'gate.php?way=redirect_SJIS&amp;xmode=2&amp;l=';
-	
+
 }
 
 ?>
