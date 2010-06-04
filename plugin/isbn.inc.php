@@ -2,7 +2,7 @@
 /////////////////////////////////////////////////
 // PukiWiki - Yet another WikiWikiWeb clone.
 //
-// $Id: isbn.inc.php,v 1.15 2010/01/08 13:52:09 nao-pon Exp $
+// $Id: isbn.inc.php,v 1.16 2010/06/04 07:09:35 nao-pon Exp $
 //
 // *0.5: URL が存在しない場合、画像を表示しない。
 //			 Thanks to reimy.
@@ -306,9 +306,19 @@ EOD;
 	}
 
 	function plugin_isbn_get_isbn_title(& $isbn, $check = true) {
-		include_once XOOPS_TRUST_PATH . '/class/hyp_common/hsamazon/hyp_simple_amazon.php';
-		$ama = new HypSimpleAmazon();
-		$isbn = $ama->ISBN2ASIN($isbn);
+		$asin = '';
+		if (strlen($isbn) === 13 && ! $asin = $this->func->cache_get_db($isbn, 'isbn')) {
+			include_once XOOPS_TRUST_PATH . '/class/hyp_common/hsamazon/hyp_simple_amazon.php';
+			$ama = new HypSimpleAmazon();
+			if ($this->root->amazon_AccessKeyId) $ama->AccessKeyId = $this->root->amazon_AccessKeyId;
+			if ($this->root->amazon_SecretAccessKey) $ama->SecretAccessKey= $this->root->amazon_SecretAccessKey;
+			$asin = $ama->ISBN2ASIN($isbn);
+			$ttl = ($asin == $isbn)? 86400 : 86400 * 365;
+			$this->func->cache_save_db($asin, 'isbn', $ttl, $isbn);
+		}
+		if ($asin) {
+			$isbn = $asin;
+		}
 
 		$nocache = $nocachable = 0;
 		$title = $category = $price = $author = $artist = $releasedate = $manufacturer = $availability = $listprice = $usedprice = '';
