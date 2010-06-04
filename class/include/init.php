@@ -1,7 +1,7 @@
 <?php
 //
 // Created on 2006/10/13 by nao-pon http://hypweb.net/
-// $Id: init.php,v 1.68 2010/01/08 15:07:16 nao-pon Exp $
+// $Id: init.php,v 1.69 2010/06/04 07:23:51 nao-pon Exp $
 //
 
 $root = & $this->root;
@@ -298,18 +298,19 @@ if (isset($const['page_show'])) {
 		// <form> で送信された文字 (ブラウザがエンコードしたデータ) のコードを変換
 		// POST method は常に form 経由なので、必ず変換する
 		//
-		if (!empty($root->post['encode_hint'])) {
-			// do_plugin_xxx() の中で、<form> に encode_hint を仕込んでいるので、
-			// encode_hint を用いてコード検出する。
-			// 全体を見てコード検出すると、機種依存文字や、妙なバイナリ
-			// コードが混入した場合に、コード検出に失敗する恐れがある。
-			$encode = mb_detect_encoding($root->post['encode_hint']);
-			if (strtoupper($const['SOURCE_ENCODING']) !== strtoupper($encode)) {
-				$this->encode_numericentity($root->post, $const['SOURCE_ENCODING'], $encode);
+		if (! empty($root->post['encode_hint'])) {
+			if (! defined('HYP_GET_ENCODING')) {
+				// do_plugin_xxx() の中で、<form> に encode_hint を仕込んでいるので、
+				// encode_hint を用いてコード検出する。
+				// 全体を見てコード検出すると、機種依存文字や、妙なバイナリ
+				// コードが混入した場合に、コード検出に失敗する恐れがある。
+				$encode = mb_detect_encoding($root->post['encode_hint']);
+				if (strtoupper($const['SOURCE_ENCODING']) !== strtoupper($encode)) {
+					$this->encode_numericentity($root->post, $const['SOURCE_ENCODING'], $encode);
+				}
+				mb_convert_variables($const['SOURCE_ENCODING'], $encode, $root->post);
 			}
-			mb_convert_variables($const['SOURCE_ENCODING'], $encode, $root->post);
-
-		} else if (!empty($root->post['charset'])) {
+		} else if (! empty($root->post['charset'])) {
 			// TrackBack Ping で指定されていることがある
 			// うまくいかない場合は自動検出に切り替え
 			$_dum = $root->post;
@@ -321,7 +322,6 @@ if (isset($const['page_show'])) {
 			    $root->post['charset'], $root->post) !== $root->post['charset']) {
 				mb_convert_variables($const['SOURCE_ENCODING'], 'auto', $root->post);
 			}
-
 		} else {
 			// 全部まとめて、自動検出／変換
 			mb_convert_variables($const['SOURCE_ENCODING'], 'auto', $root->post);
@@ -331,7 +331,7 @@ if (isset($const['page_show'])) {
 	// 文字コード変換 ($root->get)
 	// GET method は form からの場合と、<a href="http://script/?key=value> の場合がある
 	// <a href...> の場合は、サーバーが rawurlencode しているので、コード変換は不要
-	if (isset($root->get['encode_hint']) && $root->get['encode_hint'] !== '')
+	if (! defined('HYP_GET_ENCODING') && isset($root->get['encode_hint']) && $root->get['encode_hint'] !== '')
 	{
 		// form 経由の場合は、ブラウザがエンコードしているので、コード検出・変換が必要。
 		// encode_hint が含まれているはずなので、それを見て、コード検出した後、変換する。
