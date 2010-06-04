@@ -1,6 +1,6 @@
 <?php
 // PukiWiki - Yet another WikiWikiWeb clone
-// $Id: calendar_viewer.inc.php,v 1.15 2009/04/11 00:53:10 nao-pon Exp $
+// $Id: calendar_viewer.inc.php,v 1.16 2010/06/04 07:08:50 nao-pon Exp $
 //
 // Calendar viewer plugin - List pages that calendar/calnedar2 plugin created
 // (Based on calendar and recent plugin)
@@ -37,23 +37,23 @@ class xpwiki_plugin_calendar_viewer extends xpwiki_plugin {
 		// Page title's date format
 		//  * See PHP date() manual for detail
 		//  * '$\w' = weeklabel defined in $_msg_week
-		$this->cont['PLUGIN_CALENDAR_VIEWER_DATE_FORMAT'] = 
+		$this->cont['PLUGIN_CALENDAR_VIEWER_DATE_FORMAT'] =
 			//	FALSE         // 'pagename/2004-02-09' -- As is
 			//	'D, d M, Y'   // 'Mon, 09 Feb, 2004'
 			//	'F d, Y'      // 'February 09, 2004'
 			//	'[Y-m-d]'     // '[2004-02-09]'
 			'Y/n/j ($\w)' // '2004/2/9 (Mon)'
 		;
-	
+
 		// ----
-	
-		$this->cont['PLUGIN_CALENDAR_VIEWER_USAGE'] = 
+
+		$this->cont['PLUGIN_CALENDAR_VIEWER_USAGE'] =
 			'#calendar_viewer(pagename,this|yyyy-mm|n|x*y[,mode[,separater]])';
-		
+
 		$this->conf['Use_boxdate'] = 1;
 		$this->conf['MinimumHeaderLevel'] = 2;
 	}
-	
+
 	function can_call_otherdir_convert() {
 		return 1;
 	}
@@ -61,17 +61,17 @@ class xpwiki_plugin_calendar_viewer extends xpwiki_plugin {
 	function plugin_calendar_viewer_convert()
 	{
 		$this->func->add_tag_head('calendar.css');
-		
+
 		static $viewed = array();
 		if (!isset($viewed[$this->xpwiki->pid])) {$viewed[$this->xpwiki->pid] = array();}
-	
+
 		if (func_num_args() < 2)
 			return $this->cont['PLUGIN_CALENDAR_VIEWER_USAGE'] . '<br />' . "\n";
-	
+
 		$func_args = func_get_args();
 
 		$min_header = $this->conf['MinimumHeaderLevel'];
-		
+
 		// for PukiWikiMod compat
 		$_options = array();
 		foreach($func_args as $option) {
@@ -86,10 +86,10 @@ class xpwiki_plugin_calendar_viewer extends xpwiki_plugin {
 				$_options[] = $option;
 			}
 		}
-		$func_args = $_options;	
-		
+		$func_args = $_options;
+
 		$min_header = max(1, min(5, $min_header));
-		
+
 		// Default values
 		$pagename    = $func_args[0];	// 基準となるページ名
 		if (strtolower($pagename) === "this") {
@@ -124,14 +124,14 @@ class xpwiki_plugin_calendar_viewer extends xpwiki_plugin {
 		} else {
 			return '#calendar_viewer(): ' . $this->root->_err_calendar_viewer_param2 . '<br />' . "\n";
 		}
-	
+
 		// $func_args[2]: Mode setting
 		if (isset($func_args[2]) && preg_match('/^(past|view|future)$/si', $func_args[2]))
 			$mode = $func_args[2];
-	
+
 		// $func_args[3]: Change default delimiter
 		if (isset($func_args[3])) $date_sep = $func_args[3];
-	
+
 		// Avoid Loop etc.
 		if (isset($viewed[$this->xpwiki->pid][$pagename])) {
 			$s_page = htmlspecialchars($pagename);
@@ -139,7 +139,7 @@ class xpwiki_plugin_calendar_viewer extends xpwiki_plugin {
 		} else {
 			$viewed[$this->xpwiki->pid][$pagename] = TRUE; // Valid
 		}
-	
+
 		// 一覧表示するページ名とファイル名のパターン　ファイル名には年月を含む
 		if ($pagename == '') {
 			// pagename無しのyyyy-mm-ddに対応するための処理
@@ -152,7 +152,7 @@ class xpwiki_plugin_calendar_viewer extends xpwiki_plugin {
 			$pagepattern_len = strlen($pagepattern);
 			$pagepattern    .= $page_YM;
 		}
-	
+
 		// ページリストの取得
 		$pagelist = array();
 		$_date = $this->func->get_date('Y' . $date_sep . 'm' . $date_sep . 'd');
@@ -163,44 +163,44 @@ class xpwiki_plugin_calendar_viewer extends xpwiki_plugin {
 			// Verify the $page_date pattern (Default: yyyy-mm-dd).
 			// Past-mode hates the future, and
 			// Future-mode hates the past.
-			if (($this->plugin_calendar_viewer_isValidDate($page_date, $date_sep) == FALSE) || 
+			if (($this->plugin_calendar_viewer_isValidDate($page_date, $date_sep) == FALSE) ||
 				(!$page_YM && (($page_date > $_date && ($mode == 'past')) ||
 				($page_date < $_date && ($mode == 'future')))))
 					continue;
 
 			$pagelist[] = $page;
 		}
-	
+
 		if ($mode == 'past') {
 			rsort($pagelist);	// New => Old
 		} else {
 			sort($pagelist);	// Old => New
 		}
-	
+
 		// Include start
 		$tmppage     = $this->root->vars['page'];
 		$return_body = '';
-	
+
 		// $limit_page の件数までインクルード
 		$tmp = max($limit_base, 0); // Skip minus
 
 		while ($tmp < $limit_page) {
 			if (! isset($pagelist[$tmp])) break;
-	
+
 			$page = $pagelist[$tmp];
-	
+
 			$src = $this->func->get_source($page);
-			
+
 			$src = preg_replace_callback('/^\*{1,5}/m', create_function('$match',
 					'return substr($match[0] . str_repeat("*", ('.$min_header.' - 1)), 0, 5);'
 					), $src);
-			
+
 			if ($this->conf['Use_boxdate']) {
 				$src = preg_replace('/^#boxdate(\(.*?\))?\n/m', '', $src, 1);
 			}
-			
+
 			$body = $this->func->convert_html($src, $page);
-	
+
 			if ($this->conf['Use_boxdate']) {
 				$s_page = $this->func->do_plugin_convert('boxdate', 'link,page:' . $page);
 			} else {
@@ -223,29 +223,29 @@ class xpwiki_plugin_calendar_viewer extends xpwiki_plugin {
 				}
 				$s_page = $this->func->make_pagelink($page, $s_page);
 			}
-			
+
 			$edit = '';
 			if (!$this->cont['PKWK_READONLY'] && $this->func->check_editable($page, FALSE, FALSE)) {
 				$edit = $this->root->script . '?cmd=edit&amp;page=' . rawurlencode($page);
 				$edit = '<div style="float:right;padding-right:10px;font-size:90%;"> (<a href="' . $edit . '">' . $this->root->_LANG['skin']['edit'] . '</a>)</div>';
 			}
-			
+
 			$head   = $edit . $s_page . "\n";
 			$return_body .= '<div class="calendar_entry_base">' . $head . '<div class="calendar_entry">' . $body . '</div></div><div class="calendar_hr"><hr /></div>';
-	
+
 			++$tmp;
 		}
-	
+
 		// ここで、前後のリンクを表示
 		// ?plugin=calendar_viewer&file=ページ名&date=yyyy-mm
 		$enc_pagename = rawurlencode(substr($pagepattern, 0, $pagepattern_len - 1));
-	
+
 		if ($page_YM != '') {
 			// 年月表示時
 			$date_sep_len = strlen($date_sep);
 			$this_year    = substr($page_YM, 0, 4);
 			$this_month   = substr($page_YM, 4 + $date_sep_len, 2);
-	
+
 			// 次月
 			$next_year  = $this_year;
 			$next_month = $this_month + 1;
@@ -254,7 +254,7 @@ class xpwiki_plugin_calendar_viewer extends xpwiki_plugin {
 				$next_month = 1;
 			}
 			$next_YM = sprintf('%04d%s%02d', $next_year, $date_sep, $next_month);
-	
+
 			// 前月
 			$prev_year  = $this_year;
 			$prev_month = $this_month - 1;
@@ -281,7 +281,7 @@ class xpwiki_plugin_calendar_viewer extends xpwiki_plugin {
 			} else {
 				$left_YM   = $limit_base - $limit_pitch . '*' . $limit_pitch;
 				$left_text = sprintf($this->root->_msg_calendar_viewer_left, $limit_pitch);
-	
+
 			}
 			if ($limit_base + $limit_pitch >= count($pagelist)) {
 				$right_YM = ''; // 表示しない (それより後の項目はない)
@@ -290,16 +290,16 @@ class xpwiki_plugin_calendar_viewer extends xpwiki_plugin {
 				$right_text = sprintf($this->root->_msg_calendar_viewer_right, $limit_pitch);
 			}
 		}
-	
+
 		// ナビゲート用のリンクを末尾に追加
 		if ($left_YM != '' || $right_YM != '') {
 			$s_date_sep = htmlspecialchars($date_sep);
 			$left_link = $right_link = '';
 			if ($page_YM != '') {
-				$link = $this->root->script . '?plugin=calendar2&amp;file=' . $enc_pagename . '&amp;';				
+				$link = $this->root->script . '?plugin=calendar2&amp;file=' . $enc_pagename . '&amp;';
 			} else {
 				$link = $this->root->script . '?plugin=calendar_viewer&amp;mode=' . $mode .
-				'&amp;file=' . $enc_pagename . '&amp;date_sep=' . $s_date_sep . '&amp;';				
+				'&amp;file=' . $enc_pagename . '&amp;date_sep=' . $s_date_sep . '&amp;';
 			}
 
 			if ($left_YM != '')
@@ -315,40 +315,40 @@ class xpwiki_plugin_calendar_viewer extends xpwiki_plugin {
 			'<span class="calendar_viewer_right">' . $right_link . '</span>' .
 			'</div>';
 		}
-	
+
 		$this->root->get['page'] = $this->root->post['page'] = $this->root->vars['page'] = $tmppage;
-	
+
 		return $return_body;
 	}
-	
+
 	function plugin_calendar_viewer_action()
 	{
 		$date_sep = '-';
-	
+
 		$return_vars_array = array();
-	
+
 		$page = $this->func->strip_bracket($this->root->vars['page']);
 		$this->root->vars['page'] = '*';
 		if (isset($this->root->vars['file'])) $this->root->vars['page'] = $this->root->vars['file'];
-	
+
 		$date_sep = $this->root->vars['date_sep'];
-	
+
 		$page_YM = $this->root->vars['date'];
 		if ($page_YM == '') $page_YM = $this->func->get_date('Y' . $date_sep . 'm');
 		$mode = $this->root->vars['mode'];
-		
+
 		// Set nest level
 		if (!isset($this->root->rtf['convert_nest'])) {
 			$this->root->rtf['convert_nest'] = 1;
 		} else {
 			++$this->root->rtf['convert_nest'];
 		}
-		
+
 		$args_array = array($this->root->vars['page'], $page_YM, $mode, $date_sep);
 		$return_vars_array['body'] = call_user_func_array (array(& $this, "plugin_calendar_viewer_convert"), $args_array);
-		
+
 		--$this->root->rtf['convert_nest'];
-		
+
 		//$return_vars_array['msg'] = 'calendar_viewer ' . $vars['page'] . '/' . $page_YM;
 		$return_vars_array['msg'] = 'Calendar view ' . $this->func->make_pagelink($this->root->vars['page'], htmlspecialchars($this->root->vars['page']));
 		if ($this->root->vars['page'] != '') $return_vars_array['msg'] .= ' : ';
@@ -357,19 +357,19 @@ class xpwiki_plugin_calendar_viewer extends xpwiki_plugin {
 		} else {
 			$return_vars_array['msg'] .= htmlspecialchars($page_YM);
 		}
-	
+
 		$this->root->vars['page'] = $page;
 
 		return $return_vars_array;
 	}
-	
+
 	function plugin_calendar_viewer_isValidDate(&$aStr, $aSepList = '-/ .')
 	{
 		$matches = array();
 		if ($aSepList == '') {
 			// yyymmddとしてチェック（手抜き(^^;）
 			return checkdate(substr($aStr, 4, 2), substr($aStr, 6, 2), substr($aStr, 0, 4));
-		} else if (preg_match("#^(([0-9]{2,4})[$aSepList]([0-9]{1,2})[$aSepList]([0-9]{1,2}))([$aSepList][0-9])?$#", $aStr, $matches) ) {
+		} else if (preg_match("#^(([0-9]{2,4})[$aSepList]([0-9]{1,2})[$aSepList]([0-9]{1,2}))([$aSepList][0-9]+)?$#", $aStr, $matches) ) {
 			$aStr = $matches[1];
 			return checkdate($matches[3], $matches[4], $matches[2]);
 		} else {
