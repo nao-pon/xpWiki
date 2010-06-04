@@ -79,8 +79,115 @@ class xpwiki_plugin_tag extends xpwiki_plugin {
 		);
 	}
 
+	function get_tags($postdata, $page) {
+		$params ='';
+		if (preg_match("/&tag\([^)]*\)(\{.*?\})?;/",$postdata)) {
+			$ic = new XpWikiInlineConverter($this->xpwiki, array('plugin'));
+			$data = explode("\n",$postdata);
+			while (! empty($data)) {
+				$line =  array_shift($data);
+
+				if (!$line) continue; // 空行
+
+				// The first character
+				$head = $line{0};
+
+				if (
+					// Escape comments
+					substr($line, 0, 2) === '//' ||
+					// Horizontal Rule
+					substr($line, 0, 4) === '----' ||
+					// Pre
+					$head === ' ' || $head === "\t"
+				) {	continue; }
+
+				// Multiline-enabled block plugin
+				if (!$this->cont['PKWKEXP_DISABLE_MULTILINE_PLUGIN_HACK'] && preg_match('/^#[^{]+(\{\{+)\s*$/', $line, $matches)) {
+					$len = strlen($matches[1]);
+					while (! empty ($data)) {
+						$next_line = preg_replace("/[\r\n]*$/", '', array_shift($data));
+						if (preg_match('/^\}{'.$len.'}/', $next_line)) { break; }
+					}
+				}
+
+				// tagプラグインのパラメータを抽出
+				if (preg_match("/&tag\([^)]*\)(\{.*?\})?;/",$line)) {
+					$arr = $ic->get_objects($line, $page);
+					while( ! empty($arr) ) {
+						$obj = array_shift($arr);
+						if ( $obj->name === 'tag' ) {
+							$params = $obj->param;
+							break(2);
+						}
+					}
+				}
+			}
+		}
+		return $params;
+	}
+
+	function set_tags(& $postdata, $page, $tags) {
+		$set = FALSE;
+		$ic = new XpWikiInlineConverter($this->xpwiki, array('plugin'));
+		$data = explode("\n", $postdata);
+		$res = array();
+		while (! empty($data)) {
+			$line =  array_shift($data);
+
+			if (!$line) {
+				$res[] = "\n"; // 空行
+				continue;
+			}
+			// The first character
+			$head = $line{0};
+
+			if (
+				// Escape comments
+				substr($line, 0, 2) === '//' ||
+				// Horizontal Rule
+				substr($line, 0, 4) === '----' ||
+				// Pre
+				$head === ' ' || $head === "\t"
+			) {
+				$res[] = $line . "\n";
+				continue;
+			}
+
+			// Multiline-enabled block plugin
+			if (!$this->cont['PKWKEXP_DISABLE_MULTILINE_PLUGIN_HACK'] && preg_match('/^#[^{]+(\{\{+)\s*$/', $line, $matches)) {
+				$len = strlen($matches[1]);
+				$res[] = $line . "\n";
+				while (! empty ($data)) {
+					$next_line = preg_replace("/[\r\n]*$/", '', array_shift($data));
+					$res[] = $next_line . "\n";
+					if (preg_match('/^\}{'.$len.'}/', $next_line)) { break; }
+				}
+			}
+
+			// tagプラグインのパラメータを抽出
+			if (!$set && preg_match("/&tag\([^)]*\)(\{.*?\})?;/",$line)) {
+				$arr = $ic->get_objects($line, $page);
+				while( ! empty($arr) ) {
+					$obj = array_shift($arr);
+					if ( $obj->name === 'tag' ) {
+						$set = TRUE;
+					}
+				}
+				if ($set) {
+					$line = preg_replace("/(&tag\()[^)]*(\)(\{.*?\})?;)/", '$1'.$tags.'$2' , $line, 1);
+				}
+			}
+			$res[] = $line . "\n";
+		}
+		if ($set) {
+			$postdata = join('', $res);
+		} else {
+			$postdata .= "\n\n" . '&tag('.$tags.');';
+		}
+	}
+
 }
-	// $Id: tag.inc.php,v 1.14 2010/05/03 00:08:18 nao-pon Exp $
+	// $Id: tag.inc.php,v 1.15 2010/06/04 07:16:18 nao-pon Exp $
 
 class XpWikiPluginTag
 {
