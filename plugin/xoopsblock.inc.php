@@ -1,9 +1,9 @@
 <?php
 class xpwiki_plugin_xoopsblock extends xpwiki_plugin {
-	
+
 	function plugin_xoopsblock_init() {
-	// $Id: xoopsblock.inc.php,v 1.8 2008/08/15 02:50:33 nao-pon Exp $
-	
+	// $Id: xoopsblock.inc.php,v 1.9 2010/06/04 07:20:28 nao-pon Exp $
+
 	/*
 	 * countdown.inc.php
 	 * License: GPL
@@ -17,27 +17,27 @@ class xpwiki_plugin_xoopsblock extends xpwiki_plugin {
 			include_once(XOOPS_ROOT_PATH."/class/xoopsblock.php");
 		}
 	}
-	
+
 	function plugin_xoopsblock_convert() {
-		
+
 		if ($this->root->module['platform'] !== "xoops") { return ''; }
-		
+
 		static $css_show = FALSE;
-		
+
 		list($tgt,$option1,$option2) = array_pad(func_get_args(),3,"");
-		
+
 		$tgt_bids = array();
-		
+
 		if (!$tgt || $tgt === "?") {
 			$tgt = "?";
-		} else { 
+		} else {
 			foreach(explode(",", $tgt) as $_bid) {
 				if (preg_match("/^\d+$/",$_bid) && $_bid > 0) {
 					$tgt_bids[] = $_bid;
-				}					
+				}
 			}
 		}
-		
+
 		$align = "left";
 		$around = false;
 		$width = "";
@@ -46,27 +46,33 @@ class xpwiki_plugin_xoopsblock extends xpwiki_plugin {
 			$align = $arg[1];
 		if (preg_match("/^(left|center|right)$/i",$option1,$arg))
 			$align = $arg[1];
-		if (preg_match("/^(around|float)(:?w?([\d]+%?))?$/i",$option2,$arg))
+		if (preg_match("/^(around|float|width)(:?w?([\d]+%?)(?:px)?)?$/i",$option2,$arg))
 		{
 			if ($arg[1]) $around = true;
 			$width = (!strstr($arg[3],"%"))? $arg[3]."px" : $arg[3];
-			$width = ",width:".$arg[3].";";
+			$width = "width:".$width.";";
 		}
-		if (preg_match("/^(around|float)(:?w?([\d]+%?))?$/i",$option1,$arg))
+		if (preg_match("/^(around|float|width)(:?w?([\d]+%?)(?:px)?)?$/i",$option1,$arg))
 		{
 			if ($arg[1]) $around = true;
 			$width = (!strstr($arg[3],"%"))? $arg[3]."px" : $arg[3];
-			$width = " width:".$width.";";
+			$width = "width:".$width.";";
 		}
-		$style = " style='float:{$align};{$width}'";
-		$clear = ($around)? "" : "<div style='clear:both;'></div>";
-	
+		if ($align === 'center') {
+			if (! $width) $width = 'width:auto;';
+			$style = ' style="margin-left:auto;margin-right:auto;'.$width.'"';
+			$around = false;
+		} else {
+			$style = ' style="float:'.$align.';'.$width.'"';
+		}
+		$clear = ($around)? '' : '<div style="clear:both;"></div>';
+
 		global $xoopsUser;
 		$xoopsblock = new XoopsBlock();
 		$xoopsgroup = new XoopsGroup();
 		$arr = array();
 		$side = null;
-		
+
 		if ($this->root->userinfo['admin']) {
 			$arr = $xoopsblock->getAllBlocks();
 		} else if ( $xoopsUser ) {
@@ -74,9 +80,9 @@ class xpwiki_plugin_xoopsblock extends xpwiki_plugin {
 		} else {
 			$arr = $xoopsblock->getAllBlocksByGroup($this->plugin_xoopsblock_getByType("Anonymous"));
 		}
-		
+
 		$ret = "";
-		
+
 		if ($tgt == "?"){
 			foreach ( $arr as $myblock ) {
 				$block = array();
@@ -87,7 +93,7 @@ class xpwiki_plugin_xoopsblock extends xpwiki_plugin {
 			}
 		} else {
 			global $xoopsTpl;
-			
+
 			require_once XOOPS_ROOT_PATH.'/class/template.php';
 			$xoopsTpl = new XoopsTpl();
 
@@ -155,7 +161,7 @@ class xpwiki_plugin_xoopsblock extends xpwiki_plugin {
 					$btitle = "Block($bid)";
 					$bcontent = "Block($bid) is not found.";
 				}
-					
+
 				if ($bcontent) {
 					$ret .= "<h5>".$btitle."</h5>\n";
 					$ret .= $bcontent;
@@ -170,17 +176,17 @@ class xpwiki_plugin_xoopsblock extends xpwiki_plugin {
 			}
 			unset($myblock);
 		}
-		
+
 		if (!$css_show) {
 			$css_show = true;
 			$this->root->head_pre_tags[] = "<link rel=\"stylesheet\" type=\"text/css\" media=\"all\" href=\"". XOOPS_URL ."/xoops.css\" />";
 		}
-		
+
 		if ($tgt == "?") $ret = "<ul>$ret</ul>";
 		unset($xoopsblock,$xoopsgroup);
 		return "<div{$style}>{$ret}</div>{$clear}";
 	}
-	
+
 	function plugin_xoopsblock_getByType($type=""){
 		// For XOOPS 2
 		global $xoopsDB;
