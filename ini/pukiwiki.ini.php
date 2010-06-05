@@ -1,6 +1,6 @@
 <?php
 // PukiWiki - Yet another WikiWikiWeb clone
-// $Id: pukiwiki.ini.php,v 1.102 2010/05/19 11:38:57 nao-pon Exp $
+// $Id: pukiwiki.ini.php,v 1.103 2010/06/05 00:45:27 nao-pon Exp $
 // Copyright (C)
 //   2002-2006 PukiWiki Developers Team
 //   2001-2002 Originally written by yu-ji
@@ -821,6 +821,13 @@ $root->pagecache_min = 0;
 $root->pre_width = 'auto';
 $root->pre_width_ie = '700px';
 $root->fckeditor_path = 'common/fckeditor_2.6';
+$root->use_moblog_user_pref = 0;
+$root->moblog_pop_mail = '';
+$root->moblog_pop_host = '';
+$root->moblog_pop_port = 110;
+$root->moblog_pop_user = '';
+$root->moblog_pop_pass = '';
+$root->moblog_page_recomend = '';
 $root->use_xmlrpc = 0;
 $root->update_ping = 0;
 $root->update_ping_servers = '

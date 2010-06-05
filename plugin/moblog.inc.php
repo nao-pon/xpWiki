@@ -1,5 +1,5 @@
 <?php
-// $Id: moblog.inc.php,v 1.12 2010/05/19 11:25:58 nao-pon Exp $
+// $Id: moblog.inc.php,v 1.13 2010/06/05 00:45:27 nao-pon Exp $
 // Author: nao-pon http://hypweb.net/
 // Bace script is pop.php of mailbbs by Let's PHP!
 // Let's PHP! Web: http://php.s3.to/
@@ -33,13 +33,19 @@ class xpwiki_plugin_moblog extends xpwiki_plugin {
 		///// 以下はお好みで設定 /////
 
 		// refプラグインの追加オプション
-		$this->config['ref'] = ',left,around,mw:240,mh:240';
+		$this->config['ref'] = ',left,around,mw:320,mh:320';
 
 		// googlemaps の追加オプション
-		$this->config['gmap'] = ',width=100%,height=300px,zoom=15,type=normal,overviewctrl=1,autozoom=1';
+		$this->config['gmap'] = ',width=90%,height=300px,zoom=15,type=normal,overviewctrl=1,autozoom=1';
+
+		// 数字10桁または13桁のみの行を、ISBN として扱う場合の変換書式 (空白で変換無効)
+		$this->config['isbn'] = "#isbn(__ISBN__,h)\n#isbn(__ISBN__,info)";
+
+		// キーワード@amazon のみの行の変換書式 (空白で変換無効)
+		$this->config['amazon'] = '#aws(w5,blended,__KEYWORD__)';
 
 		// 最大添付量（バイト・1ファイルにつき）※超えるものは保存しない
-		$this->config['maxbyte'] = "1048576"; //1MB
+		$this->config['maxbyte'] = 1048576; //1MB
 
 		// 本文文字制限（半角で
 		$this->config['body_limit'] = 6000;
@@ -60,13 +66,13 @@ class xpwiki_plugin_moblog extends xpwiki_plugin {
 		$this->config['deny'] = array('163.com','bigfoot.com','boss.com','yahoo-delivers@mail.yahoo.co.jp');
 
 		// 投稿非許可メーラー(perl互換正規表現)（ログに記録しない）
-		$this->config['deny_mailer'] = '/(Mail\s*Magic|Easy\s*DM|Friend\s*Mailer|Extra\s*Japan|The\s*Bat)/i';
+		$this->config['deny_mailer'] = '';
 
 		// 投稿非許可タイトル(perl互換正規表現)（ログに記録しない）
-		$this->config['deny_title'] = '/((未|末)\s?承\s?(諾|認)\s?広\s?告)|相互リンク/i';
+		$this->config['deny_title'] = '';
 
 		// 投稿非許可キャラクターセット(perl互換正規表現)（ログに記録しない）
-		$this->config['deny_lang'] = '/us-ascii|big5|euc-kr|gb2312|iso-2022-kr|ks_c_5601-1987/i';
+		$this->config['deny_lang'] = '';
 
 		// 対応MIMEタイプ（正規表現）Content-Type: image/jpegの後ろの部分。octet-streamは危険かも
 		$this->config['subtype'] = "gif|jpe?g|png|bmp|octet-stream|x-pmd|x-mld|x-mid|x-smd|x-smaf|x-mpeg";
@@ -91,13 +97,20 @@ class xpwiki_plugin_moblog extends xpwiki_plugin {
 		error_reporting(0);
 		//error_reporting(E_ALL);
 		$this->debug = array();
+		$this->admin = $this->root->userinfo['admin'];
 		//設定ファイル読み込み
 		$host = (string)$this->config['host'];
 		$mail = (string)$this->config['mail'];
 		$user = (string)$this->config['user'];
 		$pass = (string)$this->config['pass'];
 		$port = (int)$this->config['port'];
-		$adr2page = (array)$this->config['adr2page'];
+		foreach(array('mail', 'host', 'port', 'user', 'pass') as $key) {
+			$_key = 'moblog_pop_' . $key;
+			if (! empty($this->root->$_key)) {
+				$$key = $this->root->$_key;
+			}
+		}
+
 		$ref_option = (string)$this->config['ref'];
 		$maxbyte = (int)$this->config['maxbyte'];
 		$body_limit = (int)$this->config['body_limit'];
@@ -113,7 +126,7 @@ class xpwiki_plugin_moblog extends xpwiki_plugin {
 		$word = (array)$this->config['word'];
 		$imgonly = (int)$this->config['imgonly'];
 
-		if (! $user || ! $pass) $this->plugin_moblog_output();
+		if (!$host || ! $user || ! $pass) $this->plugin_moblog_output();
 
 		$chk_file = $this->cont['CACHE_DIR']."moblog.chk";
 		if (! file_exists($chk_file)) {
@@ -122,6 +135,22 @@ class xpwiki_plugin_moblog extends xpwiki_plugin {
 			$this->plugin_moblog_output();
 		} else {
 			$this->func->pkwk_touch_file($chk_file);
+		}
+
+		// user_pref 読み込み
+		$adr2page = (array)$this->config['adr2page'];
+		$user_pref_all = $this->func->get_user_pref();
+		if ($user_pref_all) {
+			foreach($user_pref_all as $_uid => $_dat) {
+				$_dat = unserialize($_dat);
+				if (! empty($_dat['moblog_base_page'])) {
+					if (! empty($_dat['moblog_mail_address'])) {
+						$adr2page[$_dat['moblog_mail_address']] = array($_dat['moblog_base_page'], $_uid);
+					} else if (! empty($_dat['moblog_user_mail'])) {
+						$adr2page[$_dat['moblog_user_mail']] = array($_dat['moblog_base_page'], $_uid);
+					}
+				}
+			}
 		}
 
 		// wait 指定
@@ -137,15 +166,24 @@ class xpwiki_plugin_moblog extends xpwiki_plugin {
 			$this->plugin_moblog_error_output($buf);
 		}
 		$buf = $this->plugin_moblog_sendcmd("USER $user");
+		if(substr($buf, 0, 3) != '+OK') {
+			$this->plugin_moblog_error_output($buf);
+		}
 		$buf = $this->plugin_moblog_sendcmd("PASS $pass");
+		if(substr($buf, 0, 3) != '+OK') {
+			$this->plugin_moblog_error_output($buf);
+		}
 		$data = $this->plugin_moblog_sendcmd("STAT");//STAT -件数とサイズ取得 +OK 8 1234
 		sscanf($data, '+OK %d %d', $num, $size);
 
 		if ($num == "0") {
 			$buf = $this->plugin_moblog_sendcmd("QUIT"); //バイバイ
 			fclose($this->sock);
+			$this->debug[] = 'No mail.';
 			$this->plugin_moblog_output ();
 		}
+
+		$this->debug[] = $num . ' message(s) found.';
 		// 件数分
 		for($i=1;$i<=$num;$i++) {
 			$line = $this->plugin_moblog_sendcmd("RETR $i");//RETR n -n番目のメッセージ取得（ヘッダ含
@@ -162,25 +200,38 @@ class xpwiki_plugin_moblog extends xpwiki_plugin {
 		for($j=1;$j<=$num;$j++) {
 			$write = true;
 			$subject = $from = $text = $atta = $part = $attach = $filename = $charset = '';
+			$this->user_pref = array();
+			$this->post_options = array();
 			$filenames = array();
+			$body_text = array();
 			$rotate = 0;
+			unset($this->root->rtf['esummary'], $this->root->rtf['twitter_update']);
+
 			list($head, $body) = $this->plugin_moblog_mime_split($dat[$j]);
 
 			// To:ヘッダ確認
 			$treg = array();
 			$to_ok = FALSE;
-			if (preg_match("/(?:^|\n|\r)To:[ \t]*([^\r\n]+)/i", $head, $treg)){
-				if ($mail === $treg[1]) {
+			if (preg_match("/^To:[ \t]*([^\r\n]+)/im", $head, $treg)){
+				$treg[1] = $this->plugin_moblog_addr_search($treg[1]);
+				$mail_reg = preg_quote($mail, '/');
+				$mail_reg = '/' . str_replace('\\*', '[^@]*?', $mail_reg) . '/i';
+				//if ($mail === $treg[1]) {
+				if (preg_match($mail_reg, $treg[1])) {
+					$to = $treg[1];
 					$to_ok = TRUE;
-				} else if (preg_match("/(?:^|\n|\r)X-Forwarded-To:[ \t]*([^\r\n]+)/i", $head, $treg)) {
-					if ($mail === $treg[1]) {
+				} else if (preg_match("/^X-Forwarded-To:[ \t]*([^\r\n]+)/im", $head, $treg)) {
+					//if ($mail === $treg[1]) {
+					$treg[1] = $this->plugin_moblog_addr_search($treg[1]);
+					if (preg_match($mail_reg, $treg[1])) {
+						$to = $treg[1];
 						$to_ok = TRUE;
 					}
 				}
 			}
 			if (! $to_ok) {
 				$write = false;
-				$this->debug[] = 'Bad To: addr.';
+				$this->debug[] = 'Bad To: '. $to;
 			}
 
 			// Received-SPF: のチェック
@@ -195,39 +246,43 @@ class xpwiki_plugin_moblog extends xpwiki_plugin {
 
 			// メーラーのチェック
 			$mreg = array();
-			if ($write && (eregi("(X-Mailer|X-Mail-Agent):[ \t]*([^\r\n]+)", $head, $mreg))) {
+			if ($write && (preg_match("#^(X-Mailer|X-Mail-Agent):[ \t]*([^\r\n]+)#im", $head, $mreg))) {
 				if ($deny_mailer){
-					if (preg_match($deny_mailer,$mreg[2])) $write = false;
-					$this->debug[] = 'Bad mailer.';
+					if (preg_match($deny_mailer,$mreg[2])) {
+						$write = false;
+						$this->debug[] = 'Bad mailer.';
+					}
 				}
 			}
 			// キャラクターセットのチェック
 			if ($write && (preg_match('/charset\s*=\s*"?([^"\r\n]+)/i', $head, $mreg))) {
 				$charset = $mreg[1];
 				if ($deny_lang){
-					if (preg_match($deny_lang,$charset)) $write = false;
-					$this->debug[] = 'Bad charset.';
+					if (preg_match($deny_lang,$charset)) {
+						$write = false;
+						$this->debug[] = 'Bad charset.';
+					}
 				}
 			}
 			// 日付の抽出
 			$datereg = array();
-			eregi("Date:[ \t]*([^\r\n]+)", $head, $datereg);
+			preg_match("#^Date:[ \t]*([^\r\n]+)#im", $head, $datereg);
 			$now = strtotime($datereg[1]);
 			if ($now == -1) $now = $this->cont['UTC'];
 
 			// 送信者アドレスの抽出
 			$freg = array();
-			if (eregi("From:[ \t]*([^\r\n]+)", $head, $freg)) {
+			if (preg_match("#^From:[ \t]*([^\r\n]+)#im", $head, $freg)) {
 				$from = $this->plugin_moblog_addr_search($freg[1]);
-			} elseif (eregi("Reply-To:[ \t]*([^\r\n]+)", $head, $freg)) {
+			} elseif (preg_match("#^Reply-To:[ \t]*([^\r\n]+)#im", $head, $freg)) {
 				$from = $this->plugin_moblog_addr_search($freg[1]);
-			} elseif (eregi("Return-Path:[ \t]*([^\r\n]+)", $head, $freg)) {
+			} elseif (preg_match("#^Return-Path:[ \t]*([^\r\n]+)#im", $head, $freg)) {
 				$from = $this->plugin_moblog_addr_search($freg[1]);
 			}
 
 			// サブジェクトの抽出
 			$subreg = array();
-			if (preg_match("/\nSubject:[ \t]*(.+?)(\n[\w-_]+:|$)/is", $head, $subreg)) {
+			if (preg_match("#^Subject:[ \t]*([^\r\n]+)#im", $head, $subreg)) {
 
 				if (HypCommonFunc::get_version() >= '20081215') {
 					if (! XC_CLASS_EXISTS('MobilePictogramConverter')) {
@@ -241,7 +296,7 @@ class xpwiki_plugin_moblog extends xpwiki_plugin {
 				// エンコード文字間の空白を削除
 				$subject = preg_replace("/\?=[\s]+?=\?/","?==?",$subject);
 				$regs = array();
-				while (eregi("(.*)=\?([^\?]+)\?B\?([^\?]+)\?=(.*)",$subject,$regs)) {//MIME B
+				while (preg_match("#(.*)=\?([^\?]+)\?B\?([^\?]+)\?=(.*)#i",$subject,$regs)) {//MIME B
 					$_charset = $regs[2];
 					$p_subject = base64_decode($regs[3]);
 					if (isset($mpc)) {
@@ -250,22 +305,63 @@ class xpwiki_plugin_moblog extends xpwiki_plugin {
 					$subject = $regs[1].$p_subject.$regs[4];
 				}
 				$regs = array();
-				while (eregi("(.*)=\?[^\?]+\?Q\?([^\?]+)\?=(.*)",$subject,$regs)) {//MIME Q
+				while (preg_match("#(.*)=\?[^\?]+\?Q\?([^\?]+)\?=(.*)#i",$subject,$regs)) {//MIME Q
 					$subject = $regs[1].quoted_printable_decode($regs[2]).$regs[3];
 				}
-				//回転指定コマンド検出
-				if (preg_match("/(.*)(?:(r|l)@)$/i",$subject,$match))
-				{
-					$subject = rtrim($match[1]);
-					$rotate = (strtolower($match[2]) == "r")? 1 : 3;
+
+				$subject = trim($subject);
+
+				// ^\*\d+ 認証キー抽出
+				$_reg = '/^\*(\d+)/i';
+				if (preg_match($_reg, $subject, $match)) {
+					$this->post_options['auth_code'] = $match[1];
+					$subject = trim(preg_replace($_reg, '', $subject, 1));
+				}
+
+				// 回転指定コマンド検出
+				$_reg = '/@(r|l)\b/i';
+				if (preg_match($_reg, $subject, $match)) {
+					$rotate = (strtolower($match[1]) == "r")? 1 : 3;
+					$subject = trim(preg_replace($_reg, '', $subject, 1));
+				}
+				$_reg = '/\b(r|l)@/i';
+				if (preg_match($_reg, $subject, $match)) {
+					$rotate = (strtolower($match[1]) == "r")? 1 : 3;
+					$subject = trim(preg_replace($_reg, '', $subject, 1));
+				}
+
+				// @new 新規ページ指定コマンド検出
+				$_reg = '/@new\b/i';
+				if (preg_match($_reg, $subject)) {
+					$this->post_options['new'] = true;
+					$subject = trim(preg_replace($_reg, '', $subject, 1));
+				}
+
+				// @p\d+ 対象ページ指定(過去へxページ)コマンド検出
+				$_reg = '/@p(\d+)/i';
+				if (preg_match($_reg, $subject, $match)) {
+					$this->post_options['page_past'] = $match[1];
+					$subject = trim(preg_replace($_reg, '', $subject));
 				}
 
 				$subject = trim(mb_convert_encoding($subject,$this->cont['SOURCE_ENCODING'],"AUTO"));
 
+				// タグの抽出
+				$_reg = '/#([^#]*)/';
+				if (preg_match($_reg, $subject, $match)) {
+					$_tag = trim($match[1]);
+					if ($_tag) {
+						$this->post_options['tag'] = $_tag;
+					}
+					$subject = trim(preg_replace($_reg, '', $subject, 1));
+				}
+
 				// 未承諾広告カット
 				if ($write && $deny_title){
-					if (preg_match($deny_title,$subject)) $write = false;
-					$this->debug[] = 'Bad title.';
+					if (preg_match($deny_title,$subject)) {
+						$write = false;
+						$this->debug[] = 'Bad title.';
+					}
 				}
 			}
 
@@ -274,28 +370,41 @@ class xpwiki_plugin_moblog extends xpwiki_plugin {
 
 			// 拒否アドレス
 			if ($write){
-				for ($f=0; $f<count($deny); $f++)
-					if (eregi($deny[$f], $from)) $write = false;
-					$this->debug[] = 'Bad from addr.';
+				for ($f=0; $f<count($deny); $f++) {
+					if (strpos($from, $deny[$f]) !== false) {
+						$write = false;
+						$this->debug[] = 'Bad from addr.';
+					}
+				}
 			}
 
 			// 登録対象ページを設定
 			if ($write) {
 				$page = "";
 				$uid = 0;
-				if (!empty($adr2page[$from])) {
+				if (!empty($adr2page[$to])) {
+					$_page = (is_array($adr2page[$to]))? $adr2page[$to][0] : $adr2page[$to];
+					if (is_array($adr2page[$to])) $uid = $adr2page[$to][1];
+				} else if (!empty($adr2page[$from])) {
 					$_page = (is_array($adr2page[$from]))? $adr2page[$from][0] : $adr2page[$from];
 					if (is_array($adr2page[$from])) $uid = $adr2page[$from][1];
 				} else {
 					$_page = (is_array($adr2page['other']))? $adr2page['other'][0] : $adr2page['other'];
 				}
-				if ($_page) $page = $_page . $date;
+				$uid = intval($uid);
+				if ($_page) $page = $this->get_pagename($_page, $uid, $today);
 				if ($page) {
 					// userinfo を設定
 					$this->root->userinfo = $this->func->get_userinfo_by_id($uid);
 					$this->root->userinfo['ucd'] = '';
 					$this->root->cookie['name']  = '';
-					$this->is_newpage = ! $this->func->is_page($page);
+					$this->user_pref = $this->func->get_user_pref($uid);
+					if (! empty($this->user_pref['moblog_auth_code'])) {
+						if ($this->user_pref['moblog_auth_code'] != $this->post_options['auth_code']) {
+							$write = false;
+							$this->debug[] = 'User auth key dose not mutch.';
+						}
+					}
 				} else {
 					$write = false;
 					$this->debug[] = 'Allow page not found.';
@@ -304,43 +413,47 @@ class xpwiki_plugin_moblog extends xpwiki_plugin {
 
 			if ($write) {
 				// マルチパートならばバウンダリに分割
-				if (eregi("\nContent-type:.*multipart/",$head)) {
+				if (preg_match("#\nContent-type:.*multipart/#i",$head)) {
 					$boureg = array();
-					eregi('boundary="([^"]+)"', $head, $boureg);
+					preg_match('#boundary="([^"]+)"#i', $head, $boureg);
 					$body = str_replace($boureg[1], urlencode($boureg[1]), $body);
 					$part = split("\r\n--".urlencode($boureg[1])."-?-?",$body);
 					$boureg2 = array();
-					if (eregi('boundary="([^"]+)"', $body, $boureg2)) {//multipart/altanative
+					if (preg_match('#boundary="([^"]+)"#i', $body, $boureg2)) {//multipart/altanative
 						$body = str_replace($boureg2[1], urlencode($boureg2[1]), $body);
-						$body = eregi_replace("\r\n--".urlencode($boureg[1])."-?-?\r\n","",$body);
+						$body = preg_replace("#\r\n--".urlencode($boureg[1])."-?-?\r\n#i","",$body);
 						$part = split("\r\n--".urlencode($boureg2[1])."-?-?",$body);
 					}
 				} else {
 					$part[0] = $dat[$j];// 普通のテキストメール
 				}
 
+				$file_count = 0;
 				foreach ($part as $multi) {
 					if (! $write) break;
 					@ list($m_head, $m_body) = $this->plugin_moblog_mime_split($multi);
 					if (!$m_body) continue;
 					$filename = '';
-					$m_body = ereg_replace("\r\n\.\r\n$", "", $m_body);
+					$m_body = preg_replace("/\r\n\.\r\n$/", "", $m_body);
 					// キャラクターセットのチェック
 					if ($write && (preg_match('/charset\s*=\s*"?([^"\r\n]+)/i', $m_head, $mreg))) {
 						$charset = $mreg[1];
 						if ($deny_lang){
-							if (preg_match($deny_lang,$charset)) $write = false;
-							$this->debug[] = 'Bad charset.';
+							if (preg_match($deny_lang,$charset)) {
+								$write = false;
+								$this->debug[] = 'Bad charset.';
+							}
 						}
 					}
 					$type = array();
-					if (!eregi("Content-type: *([^;\n]+)", $m_head, $type)) continue;
+					if (! preg_match("#Content-type: *([^;\n]+)#i", $m_head, $type)) continue;
 					list($main, $sub) = explode("/", $type[1]);
+					$sub = strtolower($sub);
 					// 本文をデコード
 					if (strtolower($main) == "text") {
-						if (eregi("Content-Transfer-Encoding:.*base64", $m_head))
+						if (preg_match("#Content-Transfer-Encoding:.*base64#i", $m_head))
 							$m_body = base64_decode($m_body);
-						if (eregi("Content-Transfer-Encoding:.*quoted-printable", $m_head))
+						if (preg_match("#Content-Transfer-Encoding:.*quoted-printable#i", $m_head))
 							$m_body = quoted_printable_decode($m_body);
 
 						if (HypCommonFunc::get_version() >= '20081215') {
@@ -354,39 +467,57 @@ class xpwiki_plugin_moblog extends xpwiki_plugin {
 						}
 
 						$text = trim(mb_convert_encoding($m_body, $this->cont['SOURCE_ENCODING'], 'AUTO'));
-						if ($sub == "html") $text = strip_tags($text);
+						if ($sub === 'html') {
+							$text = preg_replace('#<br([^>]+)?>|</?(?:p|tr|table|div)([^>]+)?>#i', "\n\n", $text);
+							$text = strip_tags($text);
+						}
 						$text = str_replace(array("\r\n", "\r"), "\n", $text);
 						$text = preg_replace("/\n{2,}/", "\n\n", $text);
 						if ($write) {
 							// 電話番号削除
-							$text = eregi_replace("([[:digit:]]{11})|([[:digit:]\-]{13})", "", $text);
+							//$text = preg_replace("#([[:digit:]]{11})|([[:digit:]\-]{13})#", "", $text);
 							// 下線削除
-							$text = eregi_replace($del_ereg, "", $text);
+							$text = preg_replace('#'.$del_ereg.'#', '', $text);
 							// mac削除
-							$text = ereg_replace("Content-type: multipart/appledouble;[[:space:]]boundary=(.*)","",$text);
+							$text = preg_replace("#Content-type: multipart/appledouble;[[:space:]]boundary=(.*)#","",$text);
 							// 広告等削除
 							if (is_array($word)) {
-								foreach ($word as $delstr)
+								foreach ($word as $delstr) {
 									$text = str_replace($delstr, "", $text);
+								}
 							}
 							if (strlen($text) > $body_limit) $text = substr($text, 0, $body_limit)."...";
 						}
+						// ISBN, ASIN 変換
+						if (! empty($this->config['isbn'])) {
+							$isbn = $this->config['isbn'];
+							$text = preg_replace('/^([A-Za-z0-9]{10}|\d{13})$/me', 'str_replace(\'__ISBN__\', \'$1\', \''.$isbn.'\')', $text);
+						}
+
+						// キーワード@amazon 変換
+						if (! empty($this->config['amazon'])) {
+							$amazon = $this->config['amazon'];
+							$text = preg_replace('/^(.+)@amazon$/mei', 'str_replace(\'__KEYWORD__\', \'$1\', \''.$amazon.'\')', $text);
+						}
+
+						$body_text[$sub][] = $text;
 					}
 					// ファイル名を抽出
 					$filereg = array();
-					if (eregi("name=\"?([^\"\n]+)\"?",$m_head, $filereg)) {
+					if (preg_match("#name=\"?([^\"\n]+)\"?#i",$m_head, $filereg)) {
 						$filename = trim($filereg[1]);
 						// エンコード文字間の空白を削除
 						$filename = preg_replace("/\?=[\s]+?=\?/","?==?",$filename);
-						while (eregi("(.*)=\?iso-[^\?]+\?B\?([^\?]+)\?=(.*)",$filename,$regs)) {//MIME B
+						while (preg_match("#(.*)=\?iso-[^\?]+\?B\?([^\?]+)\?=(.*)#i",$filename,$regs)) {//MIME B
 							$filename = $regs[1].base64_decode($regs[2]).$regs[3];
 						}
-						$filename = mb_convert_encoding($filename,"EUC-JP","AUTO");
+						$filename = mb_convert_encoding($filename, $this->cont['SOURCE_ENCODING'], 'AUTO');
 					}
 					// 添付データをデコードして保存
-					if (eregi("Content-Transfer-Encoding:.*base64", $m_head) && eregi($subtype, $sub)) {
+					if (preg_match("#Content-Transfer-Encoding:.*base64#i", $m_head) && preg_match('#'.$subtype.'#i', $sub)) {
+						++$file_count;
 						$tmp = base64_decode($m_body);
-						if (!$filename) $filename = $this->cont['UTC'].".$sub";
+						if (!$filename) $filename = $this->cont['UTC'].'_'.$file_count.'.'.$sub;
 
 						$save_file = $this->cont['CACHE_DIR'].$this->func->encode($filename).".tmp";
 
@@ -396,16 +527,15 @@ class xpwiki_plugin_moblog extends xpwiki_plugin {
 							fputs($fp, $tmp);
 							fclose($fp);
 							//回転指定
-							if ($rotate)
-							{
+							if ($rotate) {
 								HypCommonFunc::rotateImage($save_file, $rotate);
 							}
 							// ページが無ければ空ページを作成
 							if (!$this->func->is_page($page)) {
-								$this->func->page_write($page, "\t");
+								$this->func->make_empty_page($page, false);
 							}
 							$attach = $this->func->get_plugin_instance('attach');
-							$res = $attach->do_upload($page,$filename,$save_file);
+							$res = $attach->do_upload($page,$filename,$save_file,false,null,true);
 							if ($res['result']) {
 								$filenames[] = $res['name'];
 							}
@@ -420,6 +550,13 @@ class xpwiki_plugin_moblog extends xpwiki_plugin {
 				$subject = trim($subject);
 			}
 
+			if (! empty($body_text['plain'])) {
+				$text = join("\n\n", $body_text['plain']);
+			} else if (! empty($body_text['html'])) {
+				$text = join("\n\n", $body_text['html']);
+			} else {
+				$text = '';
+			}
 			// wikiページ書き込み
 			if ($write) $this->plugin_moblog_page_write($page,$subject,$text,$filenames,$ref_option,$now);
 		}
@@ -427,7 +564,16 @@ class xpwiki_plugin_moblog extends xpwiki_plugin {
 		$this->plugin_moblog_output();
 	}
 	function plugin_moblog_convert() {
-		if (! $this->config['user'] || ! $this->config['pass']) {
+		$host = (string)$this->config['host'];
+		$user = (string)$this->config['user'];
+		$pass = (string)$this->config['pass'];
+		foreach(array('host', 'user', 'pass') as $key) {
+			$_key = 'moblog_pop_' . $key;
+			if (! empty($this->root->$_key)) {
+				$$key = $this->root->$_key;
+			}
+		}
+		if (! $host || ! $user || ! $pass) {
 			return '';
 		} else {
 			//POPサーバーにアクセスするためのイメージタグを生成
@@ -440,10 +586,15 @@ class xpwiki_plugin_moblog extends xpwiki_plugin {
 		$aids = $gids = $freeze = "";
 		$date = "at ".date("g:i a", $now);
 
-		$set_data = ($subject)?  "**$subject\n" : "----\n";
+		$set_data = (! $this->is_newpage && $subject)?  "**$subject\n" : "----\n";
 		if ($filenames) {
+			$_c = count($filenames);
+			$_i = 1;
 			foreach($filenames as $filename) {
 				$set_data .= "#ref(".$filename.$ref_option.")\n";
+				if ($_c !== $_i++) {
+					$set_data .= "#clear\n";
+				}
 			}
 		}
 		$set_data .= $text."\n\n".$date."\n#clear";
@@ -457,12 +608,22 @@ class xpwiki_plugin_moblog extends xpwiki_plugin {
 
 		if ($this->is_newpage) {
 			//ページ新規作成
-			$template = ':template_m/' . preg_replace('/(.*)\/[^\/]+/', '$1', $page);
-			if ($this->func->is_page($template)) {
-				$page_data = rtrim(join('',$this->func->get_source($template)))."\n";
-			} else {
-				$page_data = '';
-			}
+			$auto_template_rules = array(
+				'((.+)\/([^\/]+))' => array('\2/template_m', ':template_m/\2', ':template_m/\3') ,
+				'(()(.+))'         => array('template_m', ':template_m/default') ,
+			);
+			$page_data = $this->func->auto_template($page, $auto_template_rules);
+//			$template = ':template_m/' . preg_replace('/(.*)\/[^\/]+/', '$1', $page);
+//			if ($this->func->is_page($template)) {
+//				$page_data = rtrim(join('',$this->func->get_source($template)))."\n";
+				if (strpos($page_data, '__TITLE__') !== false) {
+					$page_data = str_replace('__TITLE__', $subject? $subject : 'notitle', $page_data);
+				} else {
+					if ($subject) $set_data = "* $subject\n" . $set_data;
+				}
+//			} else {
+//				$page_data = '';
+//			}
 		} else {
 			$page_data = rtrim(join('',$this->func->get_source($page)))."\n";
 		}
@@ -472,14 +633,32 @@ class xpwiki_plugin_moblog extends xpwiki_plugin {
 
 		if (preg_match("/\/\/ Moblog Body\n/",$page_data)) {
 			$page_data = preg_split("/\/\/ Moblog Body[ \t]*\n/",$page_data,2);
-			$save_data = rtrim($page_data[0]) . "\n\n" . $set_data."// Moblog Body\n".$page_data[1];
+			$save_data = rtrim($page_data[0]) . "\n\n" . $set_data . "// Moblog Body\n" . $page_data[1];
 		} else 	{
-			$save_data = $page_data . "\n" . $set_data;
+			$save_data = $page_data . "\n" . $set_data . "// Moblog Body\n";
+		}
+
+		if (! empty($this->post_options['tag'])) {
+			$p_tag = $this->func->get_plugin_instance('tag');
+			if (is_object($p_tag)) {
+				$old_tags = $this->func->csv_explode(',', $p_tag->get_tags($save_data, $page));
+				$new_tags = $this->func->csv_explode(',', $this->post_options['tag']);
+				$tags = array_unique(array_merge($old_tags, $new_tags));
+				$tags = array_diff($tags, array(''));
+				$p_tag->set_tags($save_data, $page, join(',', $tags));
+			}
+		}
+
+		if ((! $this->is_newpage || ! $this->root->pagename_num2str) && $subject) {
+			$this->root->rtf['esummary'] = $subject;
+		}
+		if ($this->user_pref['moblog_to_twitter']) {
+			$this->root->rtf['twitter_update'] = '1';
 		}
 
 		// ページ更新
 		$this->func->page_write($page, $save_data);
-
+		$this->debug[] = $save_data;
 		$this->debug[] = 'Page write ' . $page;
 	}
 
@@ -502,6 +681,81 @@ class xpwiki_plugin_moblog extends xpwiki_plugin {
 		}
 	}
 
+	function get_pagename($base, $uid, $today) {
+		$page = '';
+		$date = sprintf('/%04d-%02d-%02d',$today['year'],$today['mon'],$today['mday']);
+		$_page = $base . $date;
+
+		$list = array();
+		if (empty($this->post_options['new'])) {
+			// uid が一致するページの抽出
+			$options = array(
+				'where' => '`uid`=\'' . $uid . '\'',
+				'nochild' => true
+			);
+			$list = $this->func->get_existpages(FALSE, $_page, $options);
+			if ($list) {
+				// 新しい順にソート
+				natsort($list);
+				$list = array_reverse($list);
+			}
+		}
+		if ($list) {
+			$count = 0;
+			$check_tmp = '';
+			$page_past = (! empty($this->post_options['page_past']))? $this->post_options['page_past'] : 0;
+			foreach($list as $check) {
+				$source = $this->func->get_source($check, true, true);
+				if (preg_match('#^// Moblog Body#m', $source)) {
+					$check_tmp = $check;
+					if ($page_past == $count++) {
+						$page = $check;
+						break;
+					}
+				}
+			}
+			if (! $page && $check_tmp) {
+				$page = $check_tmp;
+			}
+		}
+		if (! $page) {
+			$page = $this->check_page($_page, $uid);
+			if (! $page) {
+				$i = 1;
+				while(! $page) {
+					$_page = $base . $date . '-' . $i++;
+					$page = $this->check_page($_page, $uid);
+				}
+			}
+		}
+		if ($page === true) {
+			// ページ編集権限がない
+			$page = '';
+		}
+		return $page;
+	}
+
+	function check_page($_page, $uid) {
+		$page = '';
+		if (! $this->func->is_page($_page)) {
+			if ($this->func->check_editable_page($_page, false, false, $uid)) {
+				$page = $_page;
+				$this->is_newpage = 1;
+			} else {
+				$page = true;
+			}
+//		} else if (empty($this->post_options['new'])) {
+//			$pginfo = $this->func->get_pginfo($_page);
+//			if ($pginfo['uid'] === $uid) {
+//				$source = $this->func->get_source($_page, true, true);
+//				if (preg_match('#^// Moblog Body#m', $source)) {
+//					$page = $_page;
+//				}
+//			}
+		}
+		return $page;
+	}
+
 	// コマンド送信
 	function plugin_moblog_sendcmd($cmd) {
 		fputs($this->sock, $cmd."\r\n");
@@ -517,17 +771,16 @@ class xpwiki_plugin_moblog extends xpwiki_plugin {
 	// ヘッダと本文を分割する
 	function plugin_moblog_mime_split($data) {
 		$part = split("\r\n\r\n", $data, 2);
-		$part[0] = ereg_replace("\r\n[\t ]+", " ", $part[0]);
+		$part[0] = preg_replace("/\r\n[\t ]+/", " ", $part[0]);
 		return $part;
 	}
 
 	// メールアドレスを抽出する
 	function plugin_moblog_addr_search($addr) {
-		$fromreg = array();
-		if (eregi("[-!#$%&\'*+\\./0-9A-Z^_`a-z{|}~]+@[-!#$%&\'*+\\/0-9=?A-Z^_`a-z{|}~]+\.[-!#$%&\'*+\\./0-9=?A-Z^_`a-z{|}~]+", $addr, $fromreg)) {
-			return $fromreg[0];
+		if (preg_match('/<(.+?)>/', $addr, $match)) {
+			return $match[1];
 		} else {
-			return false;
+			return $addr;
 		}
 	}
 
@@ -536,10 +789,13 @@ class xpwiki_plugin_moblog extends xpwiki_plugin {
 		while( ob_get_level() ) {
 			ob_end_clean() ;
 		}
-		echo 'error: ' . $str;
+		if ($this->admin) {
+			echo 'error: ' . $str;
+		} else {
+			header("Content-Type: image/gif");
+			HypCommonFunc::readfile($this->root->mytrustdirpath . '/skin/image/gif/poperror.gif');
+		}
 		exit();
-		//header("Content-Type: image/gif");
-		//readfile('poperror.gif');
 	}
 
 	// イメージ出力
@@ -548,10 +804,13 @@ class xpwiki_plugin_moblog extends xpwiki_plugin {
 		while( ob_get_level() ) {
 			ob_end_clean() ;
 		}
-		// imgタグ呼び出し用
-		header("Content-Type: image/gif");
-		HypCommonFunc::readfile($this->root->mytrustdirpath . '/skin/image/gif/spacer.gif');
-		//echo 'Debug:<br />' . join('<br />', $this->debug);
+		if (isset($this->root->get['debug']) && $this->admin) {
+			echo 'Debug:<br />' . join('<br />', $this->debug);
+		} else {
+			// imgタグ呼び出し用
+			header("Content-Type: image/gif");
+			HypCommonFunc::readfile($this->root->mytrustdirpath . '/skin/image/gif/spacer.gif');
+		}
 		exit();
 	}
 }

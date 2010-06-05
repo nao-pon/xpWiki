@@ -1,7 +1,7 @@
 <?php
 /*
  * Created on 2008/01/24 by nao-pon http://hypweb.net/
- * $Id: user_pref.inc.php,v 1.2 2010/05/02 23:55:49 nao-pon Exp $
+ * $Id: user_pref.inc.php,v 1.3 2010/06/05 00:45:27 nao-pon Exp $
  */
 
 class xpwiki_plugin_user_pref extends xpwiki_plugin {
@@ -12,12 +12,12 @@ class xpwiki_plugin_user_pref extends xpwiki_plugin {
 
 			'twitter_access_token' => array(
 				'type' => 'string',
-				'form' => 'text,size="60"',
+				'form' => 'hidden',
 			),
 
 			'twitter_access_token_secret' => array(
 				'type' => 'string',
-				'form' => 'text,size="60"',
+				'form' => 'hidden',
 			),
 
 			'amazon_associate_tag' => array(
@@ -25,10 +25,30 @@ class xpwiki_plugin_user_pref extends xpwiki_plugin {
 				'form' => 'text,size="20"',
 			),
 
-//			'moblog_mail_page' => array(
-//				'type' => 'string',
-//				'form' => 'text,size="50"',
-//			),
+			'moblog_mail_address' => array(
+				'type' => 'string',
+				'form' => 'text,size="60"',
+			),
+
+			'moblog_user_mail' => array(
+				'type' => 'string',
+				'form' => 'hidden',
+			),
+
+			'moblog_base_page' => array(
+				'type' => 'string',
+				'form' => 'text,size="60"',
+			),
+
+			'moblog_auth_code' => array(
+				'type' => 'integer',
+				'form' => 'text,size="10"',
+			),
+
+			'moblog_to_twitter' => array(
+				'type' => 'integer',
+				'form' => 'yesno',
+			),
 
 		);
 	}
@@ -135,7 +155,32 @@ class xpwiki_plugin_user_pref extends xpwiki_plugin {
 		}
 
 		if (! empty($disabled['twitter'])) {
-			unset($this->user_pref['twitter_access_token'], $this->user_pref['twitter_access_token_secret']);
+			unset($this->user_pref['twitter_access_token'],
+			      $this->user_pref['twitter_access_token_secret']);
+		}
+
+		// moblog
+		if (! $this->root->use_moblog_user_pref) {
+			unset($this->user_pref['moblog_mail_address'],
+			      $this->user_pref['moblog_base_page'],
+			      $this->user_pref['moblog_user_mail'],
+			      $this->user_pref['moblog_to_twitter'],
+			      $this->user_pref['moblog_auth_code']);
+		} else {
+			if (strpos($this->root->moblog_pop_mail, '*') === false) {
+				unset($this->user_pref['moblog_user_mail']);
+			} else {
+				unset($this->user_pref['moblog_mail_address']);
+				if (empty($user_pref['moblog_user_mail'])) {
+					$user_tag = $this->make_user_tag();
+					$user_pref['moblog_user_mail'] = str_replace('*', $user_tag, $this->root->moblog_pop_mail);
+				}
+				$this->root->moblog_user_mail = htmlspecialchars($user_pref['moblog_user_mail']);
+				$this->root->moblog_user_mail_rawurlenc = rawurlencode($user_pref['moblog_user_mail']);
+			}
+			if (! $user_pref['twitter_access_token']) {
+				unset($this->user_pref['moblog_to_twitter']);
+			}
 		}
 
 		$script = $this->func->get_script_uri();
@@ -253,6 +298,7 @@ EOD;
 	function post_save() {
 		$keys = array_keys($this->user_pref);
 		$save = $this->func->get_user_pref($this->uid);
+		$save = array();
 		$posts = array();
 		foreach ($keys as $key) {
 			if (isset($this->root->post[$key])) {
@@ -260,6 +306,10 @@ EOD;
 				$save[$key] = $this->data_format($key, $this->root->post[$key]);
 			}
 		}
+		if (empty($posts['moblog_base_page'])) {
+			unset($posts['moblog_user_mail'], $save['moblog_user_mail']);
+		}
+
 		$this->func->save_user_pref($this->uid, $save);
 
 		$done = array('<dl>');
@@ -296,5 +346,15 @@ EOD;
 				$val = strval($val);
 		}
 		return $val;
+	}
+
+	function make_user_tag($key = '') {
+		if (! $key) {
+			$key = mt_rand() . '_' . $this->root->userinfo['uname'];
+		}
+		$salt = substr(substr($key,1,2).'H.',0,2);
+		$salt = strtr($salt,':;<=>?@[\]^_`','ABCDEFGabcdef');
+		$salt = preg_replace('/[^\dA-Za-z]/', '.', $salt);
+		return substr(crypt($key,$salt), -10);
 	}
 }
