@@ -1,7 +1,7 @@
 <?php
 //
 // Created on 2006/10/02 by nao-pon http://hypweb.net/
-// $Id: xpwiki_func.php,v 1.227 2010/05/22 13:14:51 nao-pon Exp $
+// $Id: xpwiki_func.php,v 1.228 2010/06/05 00:39:57 nao-pon Exp $
 //
 class XpWikiFunc extends XpWikiXoopsWrapper {
 
@@ -1661,6 +1661,33 @@ EOD;
 			$url .= (($hash{0} !== '#')? '#' : '') . $hash;
 		}
 
+		// For WizMobile
+		if (strpos($url, '?') !== FALSE) {
+		    if ((class_exists('XC_CLASS_EXISTS') && XC_CLASS_EXISTS('Wizin_User')) || class_exists('Wizin_User')) {
+				$user = & Wizin_User::getSingleton();
+				if ($user->bIsMobile) {
+					$url = str_replace('&amp;', '&', $url);
+					list($_url, $_query) = explode('?', $url);
+					list($_query, $_hash) = array_pad(explode('#', $_query), 2, '');
+					$url = $_url . '?';
+					$toenc = $user->sEncoding;
+					$fromenc = $this->cont['SOURCE_ENCODING'];
+					foreach (explode('&', $_query) as $_q) {
+						list($_key, $_dat) = array_pad(explode('=', $_q), 2, '');
+						if ($_dat) {
+							$url .= $_key . '=' . rawurlencode(mb_convert_encoding(rawurldecode($_dat), $toenc, $fromenc)) . '&';
+						} else {
+							$url .= $_key . '&';
+						}
+					}
+					$url = rtrim($url, '&');
+					if ($_hash) {
+						$url .= '#' . $_hash;
+					}
+				}
+			}
+		}
+
 		if (headers_sent()) {
 			$this->redirect_header($url, 0, $title);
 		} else {
@@ -3068,6 +3095,12 @@ EOD;
 		// pgid
 		$id = $this->get_pgid_by_name($fromname);
 		if ($id) {
+			// 宛先ページが以前に作成されたことがある
+			if ($to_id = $this->get_pgid_by_name($toname)) {
+				$query = "DELETE FROM ".$this->xpwiki->db->prefix($this->root->mydirname."_pginfo")." WHERE pgid = '$to_id' LIMIT 1";
+				$this->xpwiki->db->query($query);
+			}
+
 			// リンク情報更新準備
 			$this->plain_db_write($fromname,"delete");
 
@@ -3457,6 +3490,9 @@ EOD;
 		if (! empty($this->root->rtf['is_init'])) return;
 
 		if (is_null($page)) $page = $this->root->vars['page'];
+
+		// Do nothing on render mode.
+		if ($page === '#RenderMode') return;
 
 		// Regist JobStack
 		if ($mode === 'update' && $notimestamp) {
@@ -4127,7 +4163,7 @@ EOD;
 
 	function save_user_pref($uid, $array) {
 		$data = serialize($array);
-		$this->cache_save_db($data, 'user_pref', 86400*365, $uid);
+		$this->cache_save_db($data, 'user_pref', 86400*365*3, $uid);
 	}
 
 	function cache_save_db ($data, $plugin='core', $ttl=86400, $key=NULL, $mtime = NULL) {
