@@ -1,7 +1,7 @@
 <?php
 /*
  * Created on 2008/01/24 by nao-pon http://hypweb.net/
- * $Id: conf.lng.php,v 1.12 2010/01/08 14:01:37 nao-pon Exp $
+ * $Id: conf.lng.php,v 1.13 2010/06/05 00:45:27 nao-pon Exp $
  */
 //
 // German Translation Version 1.0 (11.03.2008)
@@ -292,6 +292,41 @@ $msg = array(
 	'pre_width_ie' => array(
 		'caption'     => 'CSS:Breite für &lt;pre&gt;(nur IE)',
 		'description' => 'Dieser Wert ist nur für den Internet Explorer. Falls die Anzeige nicht korrekt aussieht, da das Theme von XOOPS für &lt;Table&gt; entworfen wurde, gib einen festen Wert wie "700px" ein.',
+	),
+
+	'moblog_pop_mail' => array(
+		'caption'     => 'Moblog destination mail address',
+		'description' => 'When a special address is given to each user by using Gmail, it is set, "ACCOUNT NAME+*@gmail.com". (A random character string is inserted in "*")',
+	),
+
+	'moblog_pop_host' => array(
+		'caption'     => 'POP3 server name used by moblog',
+		'description' => 'It is set for Gmail as "ssl://pop.gmail.com".<br />However, when OpenSSL is not built into PHP of the server, "ssl://" cannot be used.',
+	),
+
+	'moblog_pop_port' => array(
+		'caption'     => 'POP3 port number used by moblog',
+		'description' => '"110" usually. It is set for Gmail as "995".',
+	),
+
+	'moblog_pop_user' => array(
+		'caption'     => 'POP3 log in ID used by moblog',
+		'description' => 'For Gmail to set it to the recent mode, it is set, "Recent:ACCOUNT NAME @gmail.com".',
+	),
+
+	'moblog_pop_pass' => array(
+		'caption'     => 'POP3 log in password used by moblog',
+		'description' => '',
+	),
+
+	'use_moblog_user_pref' => array(
+		'caption'     => 'The setting of the moblog is permitted by the user preference.',
+		'description' => '',
+	),
+
+	'moblog_page_recomend' => array(
+		'caption'     => 'Setting of page name of user setting hint',
+		'description' => 'Explanation to contribution page name in user setting (The setting example etc. are filled in).',
 	),
 
 	'update_ping' => array(

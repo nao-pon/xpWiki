@@ -1,7 +1,7 @@
 <?php
 /*
  * Created on 2008/01/24 by nao-pon http://hypweb.net/
- * $Id: conf.inc.php,v 1.21 2010/05/19 11:38:57 nao-pon Exp $
+ * $Id: conf.inc.php,v 1.22 2010/06/05 00:45:27 nao-pon Exp $
  */
 
 class xpwiki_plugin_conf extends xpwiki_plugin {
@@ -278,6 +278,41 @@ class xpwiki_plugin_conf extends xpwiki_plugin {
 				'kind' => 'root',
 				'type' => 'string',
 				'form' => 'text,size="6"',
+			),
+			'moblog_pop_mail' => array(
+				'kind' => 'root',
+				'type' => 'string',
+				'form' => 'text,size="50"',
+			),
+			'moblog_pop_host' => array(
+				'kind' => 'root',
+				'type' => 'string',
+				'form' => 'text,size="30"',
+			),
+			'moblog_pop_port' => array(
+				'kind' => 'root',
+				'type' => 'integer',
+				'form' => 'text,size="4"',
+			),
+			'moblog_pop_user' => array(
+				'kind' => 'root',
+				'type' => 'string',
+				'form' => 'text,size="30"',
+			),
+			'moblog_pop_pass' => array(
+				'kind' => 'root',
+				'type' => 'string',
+				'form' => 'text,size="20"',
+			),
+			'use_moblog_user_pref' => array(
+				'kind' => 'root',
+				'type' => 'integer',
+				'form' => 'yesno',
+			),
+			'moblog_page_recomend' => array(
+				'kind' => 'root',
+				'type' => 'string',
+				'form' => 'text,size="55"',
 			),
 			'use_xmlrpc' => array(
 				'kind' => 'root',

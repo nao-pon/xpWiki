@@ -1,7 +1,7 @@
 <?php
 /*
  * Created on 2008/01/24 by nao-pon http://hypweb.net/
- * $Id: conf.lng.php,v 1.16 2010/01/08 14:01:37 nao-pon Exp $
+ * $Id: conf.lng.php,v 1.17 2010/06/05 00:45:27 nao-pon Exp $
  */
 
 $msg = array(
@@ -288,6 +288,41 @@ $msg = array(
 	'pre_width_ie' => array(
 		'caption'     => '&lt;pre&gt;のCSS:width指定(IE専用)',
 		'description' => 'こちらはブラウザのIE専用値です。使用しているXOOPSのテーマが&lt;table&gt;構成の場合は、700px など固定値を指定すると表示の崩れが軽減されると思います。',
+	),
+
+	'moblog_pop_mail' => array(
+		'caption'     => 'モブログ送信先メールアドレス',
+		'description' => 'Gmail を利用してユーザー毎に専用アドレスを付与する場合は、"アカウント名+*@gmail.com" と設定します。(* にランダムな文字列が挿入されます)',
+	),
+
+	'moblog_pop_host' => array(
+		'caption'     => 'モブログで利用するPOP3サーバー名',
+		'description' => 'Gmail の場合、「ssl://pop.gmail.com」と設定します。<br />ただし、サーバーの PHP に OpenSSL が組み込まれていない場合は、ssl:// は使用できません。',
+	),
+
+	'moblog_pop_port' => array(
+		'caption'     => 'モブログで利用するPOP3ポート番号',
+		'description' => '通常は「110」、Gmail の場合は「995」と設定します。',
+	),
+
+	'moblog_pop_user' => array(
+		'caption'     => 'モブログで利用するPOP3ログインID',
+		'description' => 'Gmail の場合、最新モードに設定するため「recent:アカウント名@gmail.com」と設定します。',
+	),
+
+	'moblog_pop_pass' => array(
+		'caption'     => 'モブログで利用するPOP3ログインパスワード',
+		'description' => '',
+	),
+
+	'use_moblog_user_pref' => array(
+		'caption'     => 'ユーザー設定でモブログの設定を許可する',
+		'description' => '',
+	),
+
+	'moblog_page_recomend' => array(
+		'caption'     => 'ユーザー設定のページ名設定ヒント',
+		'description' => 'ユーザー設定での投稿先ページ名に対する説明(設定例などを記入する)',
 	),
 
 	'update_ping' => array(
