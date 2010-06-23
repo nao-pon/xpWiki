@@ -1,6 +1,6 @@
 <?php
 // PukiWiki - Yet another WikiWikiWeb clone.
-// $Id: keitai.skin.php,v 1.32 2010/06/04 07:22:09 nao-pon Exp $
+// $Id: keitai.skin.php,v 1.33 2010/06/23 08:10:33 nao-pon Exp $
 // Copyright (C) 2003-2006 PukiWiki Developers Team
 // License: GPL v2 or (at your option) any later version
 //
@@ -96,7 +96,7 @@ if (! $no_accesskey && $this->root->runmode === 'standalone') {
 		'((e:f699))' );
 }
 
-if ($read && $pagename) {
+if ($read && $pagename !== '') {
 	$pageTitle = $this->make_pagelink($pagename) . '<a href="' . $link['related'] . '">[emj:119]</a>';
 } else {
 	$pageTitle = strip_tags($this->xpwiki->title);
@@ -122,7 +122,7 @@ if (! $no_accesskey) {
 	$lang['footer']
 	);
 
-	if ($pagename) {
+	if ($pagename !== '') {
 		$header .= sprintf('%s <a href="%s?cmd=menu&amp;refer=%s" %s="5">%s</a><br />',
 		$this->make_link('&pb5;'),
 		$this->root->script,

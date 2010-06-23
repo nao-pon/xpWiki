@@ -2,7 +2,7 @@
 /////////////////////////////////////////////////
 // PukiWiki - Yet another WikiWikiWeb clone.
 //
-//  $Id: attach.inc.php,v 1.55 2010/05/19 11:48:15 nao-pon Exp $
+//  $Id: attach.inc.php,v 1.56 2010/06/23 08:10:33 nao-pon Exp $
 //  ORG: attach.inc.php,v 1.31 2003/07/27 14:15:29 arino Exp $
 //
 /*
@@ -170,12 +170,13 @@ class xpwiki_plugin_attach extends xpwiki_plugin {
 			$this->root->vars['pcmd'] = 'delete';
 			$this->root->vars['file'] = $this->root->vars['delfile'];
 		}
-		if (empty($this->root->vars['refer'])) $this->root->vars['refer'] = $this->root->vars['page'];
+		if (!isset($this->root->vars['refer']) && isset($this->root->vars['page'])) $this->root->vars['refer'] = $this->root->vars['page'];
+		if (!isset($this->root->vars['refer'])) $this->root->vars['refer'] = '';
 
 		$age = array_key_exists('age',$this->root->vars) ? $this->root->vars['age'] : 0;
 		$pcmd = array_key_exists('pcmd',$this->root->vars) ? $this->root->vars['pcmd'] : '';
 
-		if (empty($pcmd) && !empty($this->root->vars['refer']) && $this->func->is_page($this->root->vars['refer']))
+		if (empty($pcmd) && $this->root->vars['refer'] !== '' && $this->func->is_page($this->root->vars['refer']))
 		{
 			if (empty($this->root->vars['docmd'])) {
 				//ページが指定されていて pcmd がない時は 'upload' にする
@@ -185,13 +186,13 @@ class xpwiki_plugin_attach extends xpwiki_plugin {
 			}
 		}
 
-		if (empty($this->root->vars['refer']) && $pcmd === 'upload') {
+		if ($this->root->vars['refer'] === '' && $pcmd === 'upload') {
 			// ページ名の指定がない場合は list
 			$pcmd = 'list';
 		}
 
 		// Authentication
-		if (isset($this->root->vars['refer']))
+		if ($this->root->vars['refer'] !== '')
 		{
 			if ($pcmd == 'upload')
 			{
@@ -272,7 +273,7 @@ class xpwiki_plugin_attach extends xpwiki_plugin {
 			case 'noinline-1': return $this->attach_noinline('-1', $pass);
 			case 'nopcmd'    : return $this->attach_nopcmd();
 		}
-		if (empty($this->root->vars['page']) || !$this->func->is_page($this->root->vars['page']))
+		if (!isset($this->root->vars['page']) || !$this->func->is_page($this->root->vars['page']))
 		{
 			return $this->attach_list();
 		}
@@ -484,6 +485,7 @@ class xpwiki_plugin_attach extends xpwiki_plugin {
 			if (rename($tmpname,$obj->filename)) {
 				$this->attach_chmod($obj->filename);
 			} else {
+				unlink($tmpname);
 				return array('result'=>FALSE,'msg'=>$this->root->_attach_messages['err_exists']);
 			}
 		}
@@ -728,9 +730,9 @@ class xpwiki_plugin_attach extends xpwiki_plugin {
 
 		$this->root->noattach = 1;
 
-		$msg = $this->root->_attach_messages[$refer === '' ? 'msg_listall' : 'msg_listpage'];
+		$msg = $this->root->_attach_messages[($refer === '') ? 'msg_listall' : 'msg_listpage'];
 
-		$max = ($refer)? $this->cont['ATTACH_LIST_MAX'] : $this->cont['ATTACH_LIST_MAX_SKIN'];
+		$max = ($refer !== '')? $this->cont['ATTACH_LIST_MAX'] : $this->cont['ATTACH_LIST_MAX_SKIN'];
 		$max = (isset($this->root->vars['max']))? (int)$this->root->vars['max'] : $max;
 		$max = min($this->cont['ATTACH_LIST_MAX'], $max);
 		$start = (isset($this->root->vars['start']))? (int)$this->root->vars['start'] : 0;
@@ -739,7 +741,7 @@ class xpwiki_plugin_attach extends xpwiki_plugin {
 		$mode = ($mode == "imglist")? $mode : "";
 
 		$obj = &new XpWikiAttachPages($this->xpwiki, $refer,NULL,TRUE,$max,$start,FALSE,$f_order,$mode);
-		if ($refer && $this->func->is_page($refer) && $obj->err === 1) return array('msg'=>'DB ERROR!','body'=>'Please initialize an attach file database on an administrator screen.');
+		if ($refer !== '' && $this->func->is_page($refer) && $obj->err === 1) return array('msg'=>'DB ERROR!','body'=>'Please initialize an attach file database on an administrator screen.');
 
 		$body = ($refer === '' or array_key_exists($refer,$obj->pages)) ?
 			$obj->toString($refer,FALSE) :
