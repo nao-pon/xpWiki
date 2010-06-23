@@ -1,7 +1,7 @@
 <?php
 //
 // Created on 2006/10/13 by nao-pon http://hypweb.net/
-// $Id: init.php,v 1.70 2010/06/23 08:10:33 nao-pon Exp $
+// $Id: init.php,v 1.71 2010/06/23 12:50:56 nao-pon Exp $
 //
 
 $root = & $this->root;
@@ -345,7 +345,7 @@ if (isset($const['page_show'])) {
 	$arg = '';
 	if (isset($_SERVER['QUERY_STRING']) && $_SERVER['QUERY_STRING'] !== '') {
 		$arg = $_SERVER['QUERY_STRING'];
-	} else if (isset($_SERVER['argv']) && $_SERVER['argv'] !== '') {
+	} else if (isset($_SERVER['argv']) && $_SERVER['argv']) {
 		$arg = $_SERVER['argv'][0];
 	}
 	if ($const['PKWK_QUERY_STRING_MAX'] && strlen($arg) > $const['PKWK_QUERY_STRING_MAX']) {
