@@ -1,5 +1,5 @@
 <?php
-// $Id: ref.inc.php,v 1.50 2010/05/19 11:25:58 nao-pon Exp $
+// $Id: ref.inc.php,v 1.51 2010/06/23 07:30:42 nao-pon Exp $
 /*
 
 	*プラグイン ref
@@ -1022,7 +1022,13 @@ _HTML_;
 	// 画像キャッシュがあるか調べる
 	function cache_image_fetch (& $lvar) {
 		$parse = parse_url($lvar['name']);
-		$name = $parse['host']."_".basename($parse['path']);
+		$query = (isset($parse['query']))? $parse['query'] : '';
+		if ($query) {
+			if ($pos = strrpos($query, '=')) {
+				$query = substr($query, $pos + 1);
+			}
+		}
+		$name = $parse['host'] . '_' . ($query? $query :basename($parse['path']));
 		$filename = $this->cont['UPLOAD_DIR'].$this->func->encode($lvar['page'])."_".$this->func->encode($name);
 
 		$cache = FALSE;
