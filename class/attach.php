@@ -1,7 +1,7 @@
 <?php
 /*
  * Created on 2008/03/24 by nao-pon http://hypweb.net/
- * $Id: attach.php,v 1.28 2010/05/20 11:48:21 nao-pon Exp $
+ * $Id: attach.php,v 1.29 2010/06/23 08:10:33 nao-pon Exp $
  */
 
 //-------- クラス
@@ -1018,7 +1018,7 @@ class XpWikiAttachPages
 
 		$this->is_popup = (isset($this->root->vars['popup']) && $this->root->vars['cmd'] !== 'read');
 
-		if ($page)
+		if ($page !== '')
 		{
 			// 閲覧権限チェック
 			if (!$fromall && !$this->func->check_readable($page,false,false)) return;
@@ -1075,11 +1075,11 @@ class XpWikiAttachPages
 			// WHERE句
 			$where = array();
 			if ($_readable_where = $this->func->get_readable_where('p.')) {
-				$where[] = $_readable_where;
+				$where[] = '(' . $_readable_where . ')';
 			}
 			if (isset($this->root->vars['popup']) && $this->root->vars['cmd'] !== 'read') $where[] = 'a.`name` != "fusen.dat"';
 			if (!empty($this->root->vars['word'])) {
-				foreach(explode(' ', mb_convert_kana($this->root->vars['word']), 's') as $search) {
+				foreach(explode(' ', mb_convert_kana($this->root->vars['word'], 's')) as $search) {
 					$where[] = 'a.`name` LIKE \'%'.addslashes($search).'%\'';
 				}
 			}
@@ -1100,7 +1100,9 @@ class XpWikiAttachPages
 			$limit = " LIMIT $start,$max";
 
 			$query = "SELECT DISTINCT p.name FROM ".$this->xpwiki->db->prefix($this->root->mydirname."_pginfo")." p INNER JOIN ".$this->xpwiki->db->prefix($this->root->mydirname."_attach")." a ON p.pgid=a.pgid{$where}{$order}{$limit};";
-			if (!$result = $this->xpwiki->db->query($query)) echo "QUERY ERROR : ".$query;
+			if (!$result = $this->xpwiki->db->query($query)) {
+				if ($this->root->userinfo['admin']) echo "QUERY ERROR : ".$query;
+			}
 
 			while($_row = $this->xpwiki->db->fetchRow($result))
 			{
@@ -1224,7 +1226,7 @@ class XpWikiAttachPages
 			$select_js = <<<EOD
 <script>
 function xpwiki_file_selector_change(page) {
-	if (page) {
+	if (page || page == 0) {
 		if (page == '#') page = '';
 		var href = location.href;
 		if (! href.match(/&refer=[^&]*/)) {
