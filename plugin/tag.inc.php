@@ -127,6 +127,14 @@ class xpwiki_plugin_tag extends xpwiki_plugin {
 	}
 
 	function set_tags(& $postdata, $page, $tags) {
+
+		// Tag の抽出とマージ
+		$old_tags = $this->func->csv_explode(',', $this->get_tags($postdata, $page));
+		$new_tags = $this->func->csv_explode(',', $tags);
+		$tags = array_unique(array_map('trim', array_merge($old_tags, $new_tags)));
+		$tags = array_diff($tags, array(''));
+		$tags = join(',', $tags);
+
 		$set = FALSE;
 		$ic = new XpWikiInlineConverter($this->xpwiki, array('plugin'));
 		$data = explode("\n", $postdata);
@@ -187,7 +195,7 @@ class xpwiki_plugin_tag extends xpwiki_plugin {
 	}
 
 }
-	// $Id: tag.inc.php,v 1.15 2010/06/04 07:16:18 nao-pon Exp $
+	// $Id: tag.inc.php,v 1.16 2010/06/23 08:12:19 nao-pon Exp $
 
 class XpWikiPluginTag
 {
