@@ -1,7 +1,7 @@
 <?php
 //
 // Created on 2006/10/02 by nao-pon http://hypweb.net/
-// $Id: xpwiki_func.php,v 1.228 2010/06/05 00:39:57 nao-pon Exp $
+// $Id: xpwiki_func.php,v 1.229 2010/06/23 08:09:11 nao-pon Exp $
 //
 class XpWikiFunc extends XpWikiXoopsWrapper {
 
@@ -1762,7 +1762,7 @@ EOD;
 
 	function output_ajax ($body) {
 		// K-Tai EMOJI
-		if (defined('HYP_K_TAI_RENDER') && preg_match('/\(\([eisv]:[0-9a-f]{4}\)\)|\[emj:\d{1,4}(?::(?:im|ez|sb))?\]/S', $body)) {
+		if (preg_match('/\(\([eisv]:[0-9a-f]{4}\)\)|\[emj:\d{1,4}(?::(?:im|ez|sb))?\]/S', $body)) {
 			if (! XC_CLASS_EXISTS('MobilePictogramConverter')) {
 				HypCommonFunc::loadClass('MobilePictogramConverter');
 			}
@@ -2630,6 +2630,9 @@ EOD;
 				$msg = strip_tags($this->convert_html($msg, $page));
 				if ($this->root->bitly_clickable) $this->root->bitly_clickable = $_bitly_clickable;
 			}
+
+			$msg = $this->strip_emoji($msg);
+
 			//$msg = preg_replace('/(https?:\/\/[\w\/\@\$()!?&%#:;.,~\'=*+-]+)/ie', "\$this->bitly('$1')", $msg);
 
 			if (mb_strlen($msg) > $max) {
@@ -2679,6 +2682,27 @@ EOD;
 		}
 		$c = pow(10, $decimal);
 		return ceil($d * $c)/$c . $s[$i];
+	}
+
+	function emoji2img($str) {
+		static $mpc = null;
+		if (preg_match('/\(\([eisv]:[0-9a-f]{4}\)\)|\[emj:\d{1,4}(?::(?:im|ez|sb))?\]/S', $str)) {
+			if (! $mpc) {
+				if (! XC_CLASS_EXISTS('MobilePictogramConverter')) {
+					HypCommonFunc::loadClass('MobilePictogramConverter');
+				}
+				$mpc = MobilePictogramConverter::factory_common();
+				$mpc->setImagePath($this->cont['ROOT_URL'] . 'images/emoji');
+			}
+			$mpc->setString($str, FALSE);
+			$mpc->userAgent = '';
+			$str = $mpc->autoConvertModKtai();
+		}
+		return $str;
+	}
+
+	function strip_emoji($str) {
+		return preg_replace('/\(\([eisv]:[0-9a-f]{4}\)\)|\[emj:\d{1,4}(?::(?:im|ez|sb))?\]/S', '', $str);
 	}
 
 /*----- DB Functions -----*/
