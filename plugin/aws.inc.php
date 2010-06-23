@@ -1,7 +1,7 @@
 <?php
 /*
  * Created on 2008/02/28 by nao-pon http://hypweb.net/
- * $Id: aws.inc.php,v 1.15 2010/06/04 07:04:02 nao-pon Exp $
+ * $Id: aws.inc.php,v 1.16 2010/06/23 07:23:38 nao-pon Exp $
  */
 
 /////////////////////////////////////////////////
@@ -42,6 +42,12 @@ class xpwiki_plugin_aws extends xpwiki_plugin {
 			$ama = new HypSimpleAmazon();
 			$this->root->amazon_AssociateTag = $ama->AssociateTag;
 			$ama = NULL;
+		}
+	}
+
+	function plugin_aws_action() {
+		if (isset($this->root->vars['pcmd']) && $this->root->vars['pcmd'] === 'gc') {
+			$this->gc();
 		}
 	}
 
@@ -106,8 +112,7 @@ class xpwiki_plugin_aws extends xpwiki_plugin {
 				$more = ($header) ? '<h4>' . $more_link . '</h4>' : '';
 			}
 		}
-
-		return $more . '<div' . $style . '>' . $ret . '</div>';
+		return $this->gc(true) . $more . '<div' . $style . '>' . $ret . '</div>';
 	}
 
 	function plugin_aws_get($f, $m, $k, $b, $s) {
@@ -221,6 +226,43 @@ class xpwiki_plugin_aws extends xpwiki_plugin {
 			$this->func->need_update_plaindb($this->root->vars['page'], 'update', TRUE, TRUE, $this->config['cache_time'] * 60);
 		}
 		return explode("\x08", $ret, 2);
+	}
+
+	function gc($get_tag = FALSE) {
+		$dir = $this->cont['CACHE_DIR'] . 'plugin';
+		$gc = $this->cont['CACHE_DIR'] . 'plugin/aws.gc';
+		$interval = $this->config['cache_time'] * 60;
+		if (! is_file($gc) || filemtime($gc) < $this->cont['UTC'] - $interval) {
+			if ($get_tag) {
+				return '<div style="float:left;"><img src="' . $this->root->script . '?plugin=aws&amp;pcmd=gc" width="1" height="1" alt="" /></div>' . "\n";
+			}
+			touch($gc);
+			$attr = '.aws';
+			$attr_len = strlen($attr) * -1;
+		    $ttl = $this->config['cache_time'] * 60;
+		    $check = $this->cont['UTC'] - $ttl;
+		    if ($dh = opendir($dir)) {
+		        while (($file = readdir($dh)) !== false) {
+		            if (substr($file, $attr_len) === $attr ) {
+		            	$target = $dir . '/' . $file;
+		            	if (filemtime($target) < $check) {
+		            		unlink($target);
+		            	}
+		            }
+		        }
+		        closedir($dh);
+		    }
+		}
+		if ($get_tag) {
+			return '';
+		}
+		// clear output buffer
+		while( ob_get_level() ) {
+			ob_end_clean() ;
+		}
+		// imgタグ呼び出し用
+		header("Content-Type: image/gif");
+		HypCommonFunc::readfile($this->root->mytrustdirpath . '/skin/image/gif/spacer.gif');
 	}
 }
 ?>
