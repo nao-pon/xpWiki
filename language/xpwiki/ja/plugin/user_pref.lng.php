@@ -1,7 +1,7 @@
 <?php
 /*
  * Created on 2008/01/24 by nao-pon http://hypweb.net/
- * $Id: user_pref.lng.php,v 1.2 2010/06/05 00:45:27 nao-pon Exp $
+ * $Id: user_pref.lng.php,v 1.3 2010/06/23 08:02:52 nao-pon Exp $
  */
 
 $msg = array(
@@ -57,6 +57,24 @@ $msg = array(
 
 	'moblog_to_twitter' => array(
 		'caption'     => 'モブログ投稿を Twitter に通知する',
+		'description' => 'ページ名、タイトルとブログへのリンクをあなたの Twitter アカウントでツイートします。',
+	),
+
+	'xmlrpc_pages' => array(
+		'caption'     => 'XML-RPC のブログページ',
+		'description' => 'MetaWeblog API をサポートする XML-RPC クライアントや対応サービスで利用するブログページを設定します。<br />' .
+				'行区切りで複数指定することができます。<br />' .
+				'XML-RPC API のエンドポイントは「<a href="{$root->script}{$root->xmlrpc_endpoint}" target="_blank"> {$root->script}{$root->xmlrpc_endpoint} </a>」になります。',
+	),
+
+	'xmlrpc_auth_key' => array(
+		'caption'     => 'XML-RPC認証キー(パスワード)',
+		'description' => 'XML-RPC クライアントや対応サービスに設定するパスワードです。<br />' .
+				'任意の値に変更可能ですが、半角英数文字のみで設定してください。',
+	),
+
+	'xmlrpc_to_twitter' => array(
+		'caption'     => 'XML-RPC投稿を Twitter に通知する',
 		'description' => 'ページ名、タイトルとブログへのリンクをあなたの Twitter アカウントでツイートします。',
 	),
 
