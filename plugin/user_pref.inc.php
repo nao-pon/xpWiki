@@ -1,7 +1,7 @@
 <?php
 /*
  * Created on 2008/01/24 by nao-pon http://hypweb.net/
- * $Id: user_pref.inc.php,v 1.3 2010/06/05 00:45:27 nao-pon Exp $
+ * $Id: user_pref.inc.php,v 1.4 2010/06/23 08:02:52 nao-pon Exp $
  */
 
 class xpwiki_plugin_user_pref extends xpwiki_plugin {
@@ -49,6 +49,22 @@ class xpwiki_plugin_user_pref extends xpwiki_plugin {
 				'type' => 'integer',
 				'form' => 'yesno',
 			),
+
+			'xmlrpc_pages' => array(
+				'type' => 'string',
+				'form' => 'textarea,cols="40" rows="2"',
+			),
+
+			'xmlrpc_auth_key' => array(
+				'type' => 'string',
+				'form' => 'text,size="15"',
+			),
+
+			'xmlrpc_to_twitter' => array(
+				'type' => 'integer',
+				'form' => 'yesno',
+			),
+
 
 		);
 	}
@@ -172,7 +188,7 @@ class xpwiki_plugin_user_pref extends xpwiki_plugin {
 			} else {
 				unset($this->user_pref['moblog_mail_address']);
 				if (empty($user_pref['moblog_user_mail'])) {
-					$user_tag = $this->make_user_tag();
+					$user_tag = strtolower($this->make_user_tag());
 					$user_pref['moblog_user_mail'] = str_replace('*', $user_tag, $this->root->moblog_pop_mail);
 				}
 				$this->root->moblog_user_mail = htmlspecialchars($user_pref['moblog_user_mail']);
@@ -181,6 +197,34 @@ class xpwiki_plugin_user_pref extends xpwiki_plugin {
 			if (! $user_pref['twitter_access_token']) {
 				unset($this->user_pref['moblog_to_twitter']);
 			}
+		}
+
+		// XML-RPC
+		if (! $this->root->use_xmlrpc) {
+			unset($this->user_pref['xmlrpc_pages'],
+			      $this->user_pref['xmlrpc_auth_key'],
+			      $this->user_pref['xmlrpc_to_twitter']);
+		} else {
+			if (empty($user_pref['xmlrpc_pages'])) {
+				// Read user config
+				$pages = array();
+				$config = new XpWikiConfig($this->xpwiki, $this->cont['PKWK_CONFIG_USER'] . '/' . $this->root->userinfo['uname']);
+				$table = $config->read() ? $config->get('XML-RPC') : array();
+				foreach ($table as $row) {
+					if (isset($row[1]) && strtolower(trim($row[0])) === 'myblog') {
+						$page = $this->func->strip_bracket(trim($row[1]));
+						$pages[] = htmlspecialchars($page);
+					}
+				}
+				$user_pref['xmlrpc_pages'] = join("\n", $pages);
+			}
+			if (empty($user_pref['xmlrpc_auth_key'])) {
+				$user_pref['xmlrpc_auth_key'] = substr($this->make_user_tag(), 0, 8);
+			}
+			if (! $user_pref['twitter_access_token']) {
+				unset($this->user_pref['xmlrpc_to_twitter']);
+			}
+
 		}
 
 		$script = $this->func->get_script_uri();
@@ -193,7 +237,7 @@ class xpwiki_plugin_user_pref extends xpwiki_plugin {
 {$this->msg['msg_description']}
 </div>
 <hr />
-<div>
+<div class="user_pref">
 <form action="{$script}" method="post">
 <table>
 EOD;

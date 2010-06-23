@@ -1,7 +1,7 @@
 <?php
 /*
  * Created on 2008/01/24 by nao-pon http://hypweb.net/
- * $Id: user_pref.lng.php,v 1.2 2010/06/05 00:45:27 nao-pon Exp $
+ * $Id: user_pref.lng.php,v 1.3 2010/06/23 08:02:52 nao-pon Exp $
  */
 
 $msg = array(
@@ -57,6 +57,23 @@ $msg = array(
 
 	'moblog_to_twitter' => array(
 		'caption'     => 'The moblog contribution is notified to Twitter.',
+		'description' => 'Page name, title, and link to blog is twiited by your Twitter account.',
+	),
+
+	'xmlrpc_pages' => array(
+		'caption'     => 'Blog page name for XML-RPC',
+		'description' => 'Blog page name used by XML-RPC client that supports MetaWeblog API and the correspondence service.<br />' .
+				'Plurals can be specified by each line.<br />' .
+				'XML-RPC API end-point is "<a href="{$root->script}{$root->xmlrpc_endpoint}" target="_blank"> {$root->script}{$root->xmlrpc_endpoint} </a>"',
+	),
+
+	'xmlrpc_auth_key' => array(
+		'caption'     => 'XML-RPC authentication key (password)',
+		'description' => 'It is a password set to service for XML-RPC.',
+	),
+
+	'xmlrpc_to_twitter' => array(
+		'caption'     => 'The XML-RPC contribution is notified to Twitter.',
 		'description' => 'Page name, title, and link to blog is twiited by your Twitter account.',
 	),
 
