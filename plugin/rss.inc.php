@@ -1,6 +1,6 @@
 <?php
 // PukiWiki - Yet another WikiWikiWeb clone
-// $Id: rss.inc.php,v 1.33 2010/05/03 00:10:55 nao-pon Exp $
+// $Id: rss.inc.php,v 1.34 2010/06/23 07:57:04 nao-pon Exp $
 //
 // RSS plugin: Publishing RSS of RecentChanges
 //
@@ -23,6 +23,7 @@ class xpwiki_plugin_rss extends xpwiki_plugin {
 	function get_content ($page) {
 		// 追加情報取得
 		$added = $this->func->get_page_changes($page);
+		$added = $this->func->emoji2img($added);
 
 		// 指定ページの本文取得
 		$a_page = & XpWiki::getSingleton($this->root->mydirname);
@@ -43,7 +44,10 @@ class xpwiki_plugin_rss extends xpwiki_plugin {
 			}
 		}
 
+		$html = $this->func->emoji2img($html);
+
 		$html = $this->func->add_MyHostUrl($html);
+
 
 		$description = strip_tags(($added ? $added . '&#182;' : '') . $html);
 		//$description = preg_replace('/(\s+|&'.$this->root->entity_pattern.';)/i', ' ', $description);
@@ -86,6 +90,7 @@ class xpwiki_plugin_rss extends xpwiki_plugin {
 		$base = isset($this->root->vars['p']) ? $this->root->vars['p'] : '';
 		$s_base = $base ? '/' . $base : '';
 		$uid = !empty($this->root->vars['u']) ? strval(intval($this->root->vars['u'])) : '';
+		$cache_clear = isset($this->root->vars['cc']);
 
 		switch($version){
 		case '':  $version = '1.0';  break; // Default
@@ -109,7 +114,7 @@ class xpwiki_plugin_rss extends xpwiki_plugin {
 		// 念のためバッファをクリア
 		while( ob_get_level() ) { ob_end_clean() ; }
 
-		if (file_exists($c_file)) {
+		if (!$cache_clear && file_exists($c_file)) {
 			$filetime = filemtime($c_file);
 			$etag = md5($c_file.$filetime);
 
@@ -148,7 +153,7 @@ class xpwiki_plugin_rss extends xpwiki_plugin {
 				list($time, $page) = explode("\t", rtrim($line));
 				$r_page = rawurlencode($page);
 				$link = $this->func->get_page_uri($page, true);
-				$title = htmlspecialchars($this->root->pagename_num2str ? preg_replace('/\/(?:[0-9\-]+|[B0-9][A-Z0-9]{9})$/','/'.$this->func->get_heading($page),$page) : $page);
+				$title = htmlspecialchars($this->root->pagename_num2str ? preg_replace('/\/(?:[0-9\-]+|[B0-9][A-Z0-9]{9})$/','/'.$this->func->strip_emoji($this->func->get_heading($page)),$page) : $page);
 				if ($base) $title = substr($title, (strlen($base) + 1));
 				if (!$pubtime) $pubtime = $this->func->get_date('r', $time);
 
