@@ -1,7 +1,7 @@
 <?php
 //
 // Created on 2006/09/29 by nao-pon http://hypweb.net/
-// $Id: xpwiki.php,v 1.96 2010/03/06 08:36:22 nao-pon Exp $
+// $Id: xpwiki.php,v 1.97 2010/06/23 08:04:41 nao-pon Exp $
 //
 
 class XpWiki {
@@ -342,8 +342,29 @@ class XpWiki {
 		// catbody
 		ob_start();
 		$this->func->catbody($this->title, $this->skin_title, $this->body);
-		$this->html = ob_get_contents();
+		$body = ob_get_contents();
 		@ ob_end_clean();
+
+		if (! defined('HYP_K_TAI_RENDER') && preg_match('/\(\([eisv]:[0-9a-f]{4}\)\)|\[emj:\d{1,4}(?::(?:im|ez|sb))?\]/S', $body)) {
+			if (! XC_CLASS_EXISTS('MobilePictogramConverter')) {
+				HypCommonFunc::loadClass('MobilePictogramConverter');
+			}
+			if (XC_CLASS_EXISTS('MobilePictogramConverter')) {
+				$mpc =& MobilePictogramConverter::factory_common();
+				$mpc->setString($body, FALSE);
+				if (method_exists($mpc, 'modKtai2textPictMobile') && (defined('HYP_WIZMOBILE_USE') || class_exists('WizMobile'))) {
+					// convert to [emj:xxx]
+					$body = $mpc->modKtai2textPictMobile();
+				} else {
+					$mpc->setImagePath($this->cont['ROOT_URL'] . 'images/emoji');
+					$mpc->userAgent = ''; // Always IMG output
+					$body = $mpc->autoConvertModKtai();
+				}
+			}
+		}
+
+		$this->html = $body;
+
 		if (!empty($this->root->runmode)) $this->runmode = $this->root->runmode;
 
 		$this->breadcrumbs_array = $this->func->get_breadcrumbs_array($this->page);
