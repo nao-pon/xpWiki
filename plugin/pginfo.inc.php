@@ -2,7 +2,7 @@
 /////////////////////////////////////////////////
 // PukiWiki - Yet another WikiWikiWeb clone.
 //
-// $Id: pginfo.inc.php,v 1.30 2009/05/28 01:55:37 nao-pon Exp $
+// $Id: pginfo.inc.php,v 1.31 2010/06/23 07:27:54 nao-pon Exp $
 //
 
 class xpwiki_plugin_pginfo extends xpwiki_plugin {
@@ -11,7 +11,7 @@ class xpwiki_plugin_pginfo extends xpwiki_plugin {
 	{
 		$pmode = (empty($this->root->post['pmode']))? '' : $this->root->post['pmode'];
 		$page = (isset($this->root->vars['page']))? $this->root->vars['page'] : '';
-		
+
 		// 権限チェック
 		if ($page === '') {
 			if (! $this->root->userinfo['admin']) {
@@ -42,14 +42,14 @@ class xpwiki_plugin_pginfo extends xpwiki_plugin {
 			}
 		}
 	}
-	
-	
-	
+
+
+
 	// 登録処理
 	function save_parm ($page = '') {
 		// inherit = 0:継承指定なし, 1:規定値継承指定, 2:強制継承指定
 		//           3:規定値継承した値, 4:強制継承した値
-		
+
 		$child_dat = array();
 		$do_child = FALSE;
 		$redirect = '';
@@ -57,14 +57,14 @@ class xpwiki_plugin_pginfo extends xpwiki_plugin {
 		if ($page !== '') {
 			// ソース読み込み
 			$src = $this->func->get_source($page);
-			
+
 			// ページ情報読み込み
 			$pginfo = $this->func->get_pginfo($page);
-			
+
 			// 下層ページの一覧
 			$cpages = $this->func->get_existpages(NULL, $page.'/');
 			sort($cpages, SORT_STRING);
-						
+
 			// #pginfo 再構築
 			$change_uid = FALSE;
 			if ($this->root->userinfo['admin']) {
@@ -80,7 +80,7 @@ class xpwiki_plugin_pginfo extends xpwiki_plugin {
 			{
 				// 元々このページのみの設定値だった？
 				$only_this = ($pginfo['einherit'] === 0)? TRUE : FALSE;
-				
+
 				$pginfo['einherit'] = (int)@$this->root->post['einherit'];
 				if ($pginfo['einherit'] === 3) {
 					//設定解除
@@ -103,10 +103,20 @@ class xpwiki_plugin_pginfo extends xpwiki_plugin {
 						if (!$egid) {$egid = 'none';}
 					}
 					$pginfo['egids'] = $egid;
-					
+
 					$eaid = @$this->root->post['eaid'];
 					if ($eaid === 'select') {
 						$eaid = @str_replace(',', '&', @$this->root->post['eaids']);
+
+						$_aids = array();
+						foreach(explode('&', $eaid) as $_aid) {
+							$_aid = intval($_aid);
+							if ($_aid && ! $this->func->check_admin($_aid)) {
+								$_aids[] = $_aid;
+							}
+						}
+						$eaid = join('&', $_aids);
+
 						if (!$eaid) {$eaid = 'none';}
 					}
 					$pginfo['eaids'] = $eaid;
@@ -123,7 +133,7 @@ class xpwiki_plugin_pginfo extends xpwiki_plugin {
 					}
 				}
 			}
-			
+
 			if ($pginfo['vinherit'] !== 4)
 			{
 				// 元々このページのみの設定値だった？
@@ -151,10 +161,20 @@ class xpwiki_plugin_pginfo extends xpwiki_plugin {
 						if (!$vgid) {$vgid = 'none';}
 					}
 					$pginfo['vgids'] = $vgid;
-					
+
 					$vaid = @$this->root->post['vaid'];
 					if ($vaid === 'select') {
 						$vaid = @str_replace(',', '&', @$this->root->post['vaids']);
+
+						$_aids = array();
+						foreach(explode('&', $vaid) as $_aid) {
+							$_aid = intval($_aid);
+							if ($_aid && ! $this->func->check_admin($_aid)) {
+								$_aids[] = $_aid;
+							}
+						}
+						$vaid = join('&', $_aids);
+
 						if (!$vaid) {$vaid = 'none';}
 					}
 					$pginfo['vaids'] = $vaid;
@@ -172,7 +192,7 @@ class xpwiki_plugin_pginfo extends xpwiki_plugin {
 				}
 			}
 			$pginfo_str = '#pginfo('.join("\t",$pginfo).')'."\n";
-			
+
 			// 凍結されている? #freeze は必ずファイル先頭
 			$buf = array_shift($src);
 			if (rtrim($buf) !== '#freeze') {
@@ -185,7 +205,7 @@ class xpwiki_plugin_pginfo extends xpwiki_plugin {
 
 			// get_pginfo() のキャッシュを破棄
 			$this->func->get_pginfo('', '', TRUE);
-			
+
 			// ページ保存
 			if ($this->func->is_page($page)) {
 				$this->root->rtf['no_checkauth_on_write'] = TRUE;
@@ -195,20 +215,20 @@ class xpwiki_plugin_pginfo extends xpwiki_plugin {
 				$redirect = $this->root->script."?cmd=edit&amp;page=".rawurlencode($page);
 				$this->func->page_write($page, $src . "\n");
 			}
-			
+
 			// pginfo DB 更新
 			$this->func->pginfo_perm_db_write($page, $pginfo, $change_uid);
-			
+
 		} else {
-			
+
 			// サイト規定値を保存
 
 			$pginfo = $this->root->pginfo;
-			
+
 			// 既存ページの一覧
 			$cpages = $this->func->get_existpages(NULL);
 			sort($cpages, SORT_STRING);
-						
+
 			// pginfo 再構築
 			$pginfo['einherit'] = (int)@$this->root->post['einherit'];
 			$pginfo['einherit'] = ($pginfo['einherit'] === 2)? 2 : 1;
@@ -218,7 +238,7 @@ class xpwiki_plugin_pginfo extends xpwiki_plugin {
 				if (!$egid) {$egid = 'none';}
 			}
 			$pginfo['egids'] = $egid;
-			
+
 			$pginfo['vinherit'] = (int)@$this->root->post['vinherit'];
 			$pginfo['vinherit'] = ($pginfo['vinherit'] === 2)? 2 : 1;
 			$eaid = @$this->root->post['eaid'];
@@ -234,7 +254,7 @@ class xpwiki_plugin_pginfo extends xpwiki_plugin {
 				if (!$vgid) {$vgid = 'none';}
 			}
 			$pginfo['vgids'] = $vgid;
-			
+
 			$vaid = @$this->root->post['vaid'];
 			if ($vaid === 'select') {
 				$vaid = @str_replace(',', '&', @$this->root->post['vaids']);
@@ -274,7 +294,7 @@ EOD;
 			$this->func->save_config('pukiwiki.ini.php', 'pginfo', $dat);
 			$redirect = $this->root->script.'?cmd=pginfo';
 		}
-		
+
 		// 下層ページ更新
 		$this->save_parm_child ($child_dat);
 
@@ -283,18 +303,18 @@ EOD;
 		return array('msg'=>$msg, 'body'=>$body, 'redirect'=>$redirect);
 
 	}
-	
+
 	function save_parm_child ($dat) {
-		
+
 		$nomore_e = $nomore_v = '';
-		
+
 		foreach ($dat as $page=>$_pginfo) {
 			// ソース読み込み
 			$src = $this->func->get_source($page);
-			
+
 			// ページ情報読み込み
 			$pginfo = $this->func->get_pginfo($page);
-			
+
 			// 継承チェック & 上書き
 			$do = FALSE;
 			if (!$nomore_e || strpos($page, $nomore_e) === FALSE) {
@@ -314,14 +334,14 @@ EOD;
 			}
 
 			if (!$nomore_v || strpos($page, $nomore_v) === FALSE) {
-				$nomore_v = '';			
+				$nomore_v = '';
 				if (isset($_pginfo['vinherit']) && ($pginfo['vinherit'] > 2 || $_pginfo['vinherit'] === 4)) {
 					if ($pginfo['vinherit'] !== $_pginfo['vinherit'] ||
 							$pginfo['vgids'] !== $_pginfo['vgids'] ||
 							$pginfo['vaids'] !== $_pginfo['vaids']) {
 						$pginfo['vinherit'] = $_pginfo['vinherit'];
 						$pginfo['vgids'] = $_pginfo['vgids'];
-						$pginfo['vaids'] = $_pginfo['vaids'];				
+						$pginfo['vaids'] = $_pginfo['vaids'];
 						$do = TRUE;
 					}
 				} else if ($pginfo['vinherit'] === 1 || $pginfo['vinherit'] === 2) {
@@ -329,10 +349,10 @@ EOD;
 				}
 			}
 
-			// 保存	
+			// 保存
 			if ($do) {
 				$pginfo_str = '#pginfo('.join("\t",$pginfo).')'."\n";
-				
+
 				// 凍結されている? #freeze は必ずファイル先頭
 				$buf = array_shift($src);
 				if (rtrim($buf) !== '#freeze') {
@@ -341,8 +361,8 @@ EOD;
 				}
 				// #pginfo 差し替え
 				$src = preg_replace("/^#pginfo\(.*\)[\r\n]*/m", '', join('', $src));
-				$src = $buf . $pginfo_str . $src;		
-				
+				$src = $buf . $pginfo_str . $src;
+
 				// ページ保存
 				$this->func->file_write($this->cont['DATA_DIR'], $page, $src, TRUE);
 
@@ -352,14 +372,14 @@ EOD;
 			}
 		}
 	}
-	
+
 	function get_form ($page = '') {
-	
+
 		$this->func->add_tag_head('suggest.css');
 		$this->func->add_tag_head('log.js');
 		$this->func->add_tag_head('suggest.js');
 		$this->func->add_tag_head('pginfo.js');
-		
+
 		$disabled = '';
 		if ($page !== '') {
 			$pginfo = $this->func->get_pginfo($page);
@@ -371,12 +391,12 @@ EOD;
 			if ($pginfo['vinherit'] === 3) $pginfo['vinherit'] = 1;
 		}
 		$spage = htmlspecialchars($page);
-		
+
 		$s_['einhelit'] = array_pad(array(), 4, '');
 		$s_['einhelit'][$pginfo['einherit']] = ' checked="checked"';
 		$s_['vinhelit'] = array_pad(array(), 4, '');
 		$s_['vinhelit'][$pginfo['vinherit']] = ' checked="checked"';
-		
+
 		$efor_remove = $vfor_remove = $this->msg['for_remove'];
 		$s_['edisable'] = $s_['edisable2'] = $s_['vdisable'] = $s_['vdisable2'] = $s_['ecannot'] = $s_['vcannot'] = '';
 		if ($pginfo['einherit'] === 4) {
@@ -395,15 +415,15 @@ EOD;
 		} else if ($pginfo['vinherit'] === 3) {
 			$s_['vdisable2'] = ' disabled="disabled "';
 		}
-		
+
 		foreach(array('eaids','egids','vaids','vgids') as $key) {
-			$s_[$key]['all'] = $s_[$key]['none'] = $s_[$key]['select'] = '';  
+			$s_[$key]['all'] = $s_[$key]['none'] = $s_[$key]['select'] = '';
 			if ($pginfo[$key] === 'none' || $pginfo[$key] === 'all') {
 				$$key = $pginfo[$key];
-				$s_[$key][$pginfo[$key]] = ' checked="true"';
+				$s_[$key][$pginfo[$key]] = ' checked="checked"';
 			} else {
 				$$key = explode("&", $pginfo[$key]);
-				$s_[$key]["select"] = ' checked="true"';
+				$s_[$key]["select"] = ' checked="checked"';
 			}
 		}
 		$edit_group_list = $this->func->make_grouplist_form('egids', $egids, $s_['edisable'], ' onchange="xpwiki_pginfo_setradio(\'eg3\')"');
@@ -411,28 +431,37 @@ EOD;
 		if ($eaids && is_array($eaids)) {
 			foreach($eaids as $eaid) {
 				$eaid = intval($eaid);
-				if ($eaid) {
+				if ($eaid && ! $this->func->check_admin($eaid)) {
 					if ($pginfo['einherit'] === 4) {
-						$edit_user_list .= htmlspecialchars($this->func->getUnameFromId($eaid)).'['.$eaid.'] '; 
+						$edit_user_list .= htmlspecialchars($this->func->getUnameFromId($eaid)).'['.$eaid.'] ';
 					} else {
-						$edit_user_list .= '<span class="exist">'.htmlspecialchars($this->func->getUnameFromId($eaid)).'['.$eaid.'] </span>'; 
+						$edit_user_list .= '<span class="exist">'.htmlspecialchars($this->func->getUnameFromId($eaid)).'['.$eaid.'] </span>';
 					}
 				}
 			}
+			if ($edit_user_list === '') {
+				$s_['eaids']['select'] = '';
+				$s_['eaids']['none'] = ' checked="checked"';
+			}
 		}
-		
+
+
 		$view_group_list = $this->func->make_grouplist_form('vgids', $vgids, $s_['vdisable'], ' onchange="xpwiki_pginfo_setradio(\'vg3\')"');
 		$view_user_list = '';
-		if ($eaids && is_array($vaids)) {
+		if ($vaids && is_array($vaids)) {
 			foreach($vaids as $vaid) {
 				$vaid = intval($vaid);
-				if ($vaid) {
+				if ($vaid && ! $this->func->check_admin($vaid)) {
 					if ($pginfo['vinherit'] === 4) {
-						$view_user_list .= htmlspecialchars($this->func->getUnameFromId($vaid)).'['.$vaid.'] '; 
+						$view_user_list .= htmlspecialchars($this->func->getUnameFromId($vaid)).'['.$vaid.'] ';
 					} else {
-						$view_user_list .= '<span class="exist">'.htmlspecialchars($this->func->getUnameFromId($vaid)).'['.$vaid.'] </span>'; 
+						$view_user_list .= '<span class="exist">'.htmlspecialchars($this->func->getUnameFromId($vaid)).'['.$vaid.'] </span>';
 					}
 				}
+			}
+			if ($view_user_list === '') {
+				$s_['vaids']['select'] = '';
+				$s_['vaids']['none'] = ' checked="checked"';
 			}
 		}
 
@@ -440,9 +469,9 @@ EOD;
 		$v_default = ($pginfo['vinherit'] === 3)? '<p>'.$this->msg['default_inherit'].'</p>' : '';
 
 		$enc = $this->cont['CONTENT_CHARSET'];
-		
+
 		$title_permission_default = ($page && $this->root->userinfo['admin'])? '<hr /><p><a href="'.$this->root->script.'?cmd=pginfo">'.$this->msg['title_permission_default'].'</a></p>' : '';
-		
+
 		$uid_form = ($page && $this->root->userinfo['admin'])? '&nbsp;&nbsp;' . $this->root->_LANG['skin']['pageowner'] . ' User ID: <input type="text" name="uid" size="5" value="' . htmlspecialchars($pginfo['uid']) . '" />' : '';
 		$script = $this->func->get_script_uri();
 		$form = <<<EOD
@@ -544,20 +573,20 @@ document.observe("dom:loaded", function(){
 EOD;
 		return $form;
 	}
-	
+
 	// ページ毎の権限設定フォーム
 	function show_page_form ($page) {
 		$ret['msg'] = $this->msg['title_permission'];
 		$ret['body'] = $this->get_form($page);
 		return $ret;
 	}
-	
+
 	// サイト規定値の設定フォーム
 	function show_admin_form () {
 		$ret['msg'] = $this->msg['title_permission_default'];
 		$ret['body'] = $this->get_form();
 		return $ret;
 	}
-	
+
 }
 ?>
