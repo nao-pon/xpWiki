@@ -1,7 +1,7 @@
 <?php
 /*
  * Created on 2008/01/24 by nao-pon http://hypweb.net/
- * $Id: conf.inc.php,v 1.22 2010/06/05 00:45:27 nao-pon Exp $
+ * $Id: conf.inc.php,v 1.23 2010/06/23 08:01:00 nao-pon Exp $
  */
 
 class xpwiki_plugin_conf extends xpwiki_plugin {
@@ -318,6 +318,16 @@ class xpwiki_plugin_conf extends xpwiki_plugin {
 				'kind' => 'root',
 				'type' => 'integer',
 				'form' => 'yesno',
+			),
+			'xmlrpc_endpoint' => array(
+				'kind' => 'root',
+				'type' => 'string',
+				'form' => 'radio',
+				'list' => array(
+					'/?cmd=xmlrpc (Default)' => '?cmd=xmlrpc',
+					'/XML-RPC (Rewrite in .htaccess)' => 'XML-RPC'
+				),
+				'description' => '<dl><dt>'.$this->cont['DATA_HOME'].'.htaccess</dt><dd>RewriteEngine on<br />RewriteRule ^XML-RPC$ ?cmd=xmlrpc</dd></dl>',
 			),
 			'update_ping' => array(
 				'kind' => 'root',

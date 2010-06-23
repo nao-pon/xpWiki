@@ -1,6 +1,6 @@
 <?php
 // PukiWiki - Yet another WikiWikiWeb clone
-// $Id: pukiwiki.ini.php,v 1.103 2010/06/05 00:45:27 nao-pon Exp $
+// $Id: pukiwiki.ini.php,v 1.104 2010/06/23 08:01:00 nao-pon Exp $
 // Copyright (C)
 //   2002-2006 PukiWiki Developers Team
 //   2001-2002 Originally written by yu-ji
@@ -520,8 +520,9 @@ $root->filelist_only_admin = 1;
 
 $root->auto_template_func = 1;
 $root->auto_template_rules = array(
-	'((.+)\/([^\/]+))' => array('\2/template', ':template/\2', ':template/\3') ,
-	'(()(.+))'         => array('template', ':template/default') ,
+	'((.+)\/([^\/]+))'         => array('\2/template', ':template/\2', ':template/\3') ,
+	'(.+\/([^\/]+)\/([^\/]+))' => array(':template/\2/default') ,
+	'(()([^\/]+))'             => array('template', ':template/default') ,
 );
 
 // Setting of footnote categories
@@ -829,6 +830,7 @@ $root->moblog_pop_user = '';
 $root->moblog_pop_pass = '';
 $root->moblog_page_recomend = '';
 $root->use_xmlrpc = 0;
+$root->xmlrpc_endpoint = '?cmd=xmlrpc';
 $root->update_ping = 0;
 $root->update_ping_servers = '
 http://api.my.yahoo.co.jp/RPC2
