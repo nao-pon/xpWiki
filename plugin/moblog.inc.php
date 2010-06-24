@@ -1,5 +1,5 @@
 <?php
-// $Id: moblog.inc.php,v 1.14 2010/06/23 08:14:19 nao-pon Exp $
+// $Id: moblog.inc.php,v 1.15 2010/06/24 06:47:33 nao-pon Exp $
 // Author: nao-pon http://hypweb.net/
 // Bace script is pop.php of mailbbs by Let's PHP!
 // Let's PHP! Web: http://php.s3.to/
@@ -472,7 +472,7 @@ class xpwiki_plugin_moblog extends xpwiki_plugin {
 					$match = trim($match[1]);
 					list($type, $charset) = array_pad(explode(';', $match), 2, '');
 					if ($charset) {
-						$charset = trim($_charset);
+						$charset = trim($charset);
 						if (preg_match('/^charset=(.+)$/i', $charset)) {
 							$charset = substr($charset, 8);
 						} else {
@@ -515,9 +515,6 @@ class xpwiki_plugin_moblog extends xpwiki_plugin {
 							}
 							$m_body = $mpc->mail2ModKtai($m_body, $from, $charset);
 						}
-
-						$this->dubug[] = 'charset:'.$charset;
-						$this->dubug[] = 'm_body:'.$m_body;
 
 						$text = trim(mb_convert_encoding($m_body, $this->cont['SOURCE_ENCODING'], $charset));
 
