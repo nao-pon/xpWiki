@@ -1,5 +1,5 @@
 <?php
-// $Id: ref.inc.php,v 1.51 2010/06/23 07:30:42 nao-pon Exp $
+// $Id: ref.inc.php,v 1.52 2010/06/25 07:56:23 nao-pon Exp $
 /*
 
 	*プラグイン ref
@@ -1034,7 +1034,6 @@ _HTML_;
 		$cache = FALSE;
 		$size = array();
 		if (!file_exists($filename)) {
-			//$dat = $this->func->http_request($lvar['name']);
 			$ht = new Hyp_HTTP_Request();
 			$ht->init();
 			$ht->ua = 'Mozilla/5.0';
@@ -1087,14 +1086,16 @@ _HTML_;
 			return FALSE;
 		}
 
-		$fp = fopen($filename.".tmp", "wb");
-		fwrite($fp, $data);
-		fclose($fp);
-
-		$options = array('asSystem' => TRUE);
-		$attach->do_upload($page,$name,$filename.".tmp",$copyright,NULL,TRUE,$options);
-
-		return TRUE;
+		$save_file = tempnam(rtrim($this->cont['UPLOAD_DIR'], '/'), 'ref');
+		chmod($save_file, 0606);
+		if (file_put_contents($save_file, $data, LOCK_EX)) {
+			$options = array('asSystem' => TRUE, 'overwrite' => TRUE);
+			if (isset($this->root->post['filename'])) unset($this->root->post['filename']);
+			$ret = $attach->do_upload($page, $name, $save_file, $copyright, NULL, TRUE, $options);
+			return $ret['result'];
+		} else {
+			return FALSE;
+		}
 	}
 
 	// サムネイル画像を作成
@@ -1117,25 +1118,6 @@ _HTML_;
 		}
 		return array($ext, $type);
 	}
-
-/*
-	// オプションを解析する
-	function check_arg($val, & $params)
-	{
-		if ($val == '') {
-			return;
-		}
-
-		foreach (array_keys($params) as $key) {
-			if (strpos($key, strtolower($val)) === 0) {
-				$params[$key] = TRUE;
-				return;
-			}
-		}
-
-		$params['_args'][] = $val;
-	}
-*/
 
 	// 拡張パラメーターの処理
 	function check_arg_ex (& $params, & $lvar) {
