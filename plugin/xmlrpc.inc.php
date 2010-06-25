@@ -1,7 +1,7 @@
 <?php
 /*
  * Created on 2009/11/19 by nao-pon http://xoops.hypweb.net/
- * $Id: xmlrpc.inc.php,v 1.3 2010/06/23 07:59:49 nao-pon Exp $
+ * $Id: xmlrpc.inc.php,v 1.4 2010/06/25 08:00:27 nao-pon Exp $
  */
 
 class xpwiki_plugin_xmlrpc extends xpwiki_plugin {
@@ -389,7 +389,6 @@ EOD;
 
 	function getPost($args) {
 		list($pgid, $uname, $pass) = array_pad($args, 3, '');
-		//$page = $this->toInEnc($page);
 		$page = $this->func->get_name_by_pgid($pgid);
 
 		$userinfo = $this->user_auth($uname, $pass);
@@ -411,7 +410,6 @@ EOD;
 
 	function getRecentPosts($args, $type='') {
 		list($pgid, $uname, $pass, $max) = array_pad($args, 4, '');
-		//$page = $this->toInEnc($page);
 		$page = $this->func->get_name_by_pgid($pgid);
 
 		$userinfo = $this->user_auth($uname, $pass);
@@ -456,22 +454,24 @@ EOD;
 
 			if ($this->func->check_editable($page, FALSE, FALSE) && $this->func->exist_plugin('attach')) {
 				if (! empty($file['bits']) && ! empty($file['name'])) {
-//					$tmp = base64_decode($file['bits']);
 					$tmp = $file['bits'];
 					$filename = $this->toInEnc($file['name']);
 
-					$save_file = tempnam(rtrim($this->cont['CACHE_DIR'], '/'), 'xmlrpc');
-					file_put_contents($save_file, $tmp);
-
-					// ページが無ければ空ページを作成
-					if (!$this->func->is_page($page)) {
-						$this->func->make_empty_page($page, false);
-					}
-					$attach = $this->func->get_plugin_instance('attach');
-					$attach_res = $attach->do_upload($page,$filename,$save_file,false,null,true);
-					if ($attach_res['result']) {
-						$res['url'] = $this->cont['HOME_URL'] . 'gate.php?way=ref&_nodos&_noumb&page=' . rawurlencode($page) .
-						       '&src=' . rawurlencode($attach_res['name']); // Show its filename at the last
+					$save_file = tempnam(rtrim($this->cont['UPLOAD_DIR'], '/'), 'xmlrpc');
+					chmod($save_file, 0606);
+					if (file_put_contents($save_file, $tmp, LOCK_EX)) {
+						// ページが無ければ空ページを作成
+						if (!$this->func->is_page($page)) {
+							$this->func->make_empty_page($page, false);
+						}
+						$attach = $this->func->get_plugin_instance('attach');
+						$attach_res = $attach->do_upload($page,$filename,$save_file,false,null,true);
+						if ($attach_res['result']) {
+							$res['url'] = $this->cont['HOME_URL'] . 'gate.php?way=ref&_nodos&_noumb&page=' . rawurlencode($page) .
+							       '&src=' . rawurlencode($attach_res['name']); // Show its filename at the last
+						} else {
+							$error = $this->get_error(807);
+						}
 					} else {
 						$error = $this->get_error(807);
 					}
