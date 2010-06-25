@@ -2,7 +2,7 @@
 /////////////////////////////////////////////////
 // PukiWiki - Yet another WikiWikiWeb clone.
 //
-//  $Id: attach.inc.php,v 1.56 2010/06/23 08:10:33 nao-pon Exp $
+//  $Id: attach.inc.php,v 1.57 2010/06/25 07:59:22 nao-pon Exp $
 //  ORG: attach.inc.php,v 1.31 2003/07/27 14:15:29 arino Exp $
 //
 /*
@@ -420,7 +420,11 @@ class xpwiki_plugin_attach extends xpwiki_plugin {
 
 		// イメージファイルの内容をチェック
 		if ($_size) {
-			$checkStr = file_get_contents($tmpname, FILE_BINARY, NULL, 0, 10240);
+			if (version_compare(PHP_VERSION, '5.1.0', '<')) {
+				$checkStr = xpwiki_file_get_contents($tmpname, FALSE, NULL, 0, 10240);
+			} else {
+				$checkStr = file_get_contents($tmpname, FALSE, NULL, 0, 10240);
+			}
 			if (preg_match('/<(?:script|\?php)/i', $checkStr)) {
 				return array('result' => FALSE, 'msg' => 'It isn\'t a image file.');
 			}
@@ -478,6 +482,12 @@ class xpwiki_plugin_attach extends xpwiki_plugin {
 				return array('result'=>FALSE,'msg'=>$this->root->_attach_messages['err_exists']);
 			}
 		} else {
+			if (! is_file($tmpname) || ! filesize($tmpname)) {
+				if (is_file($tmpname)) {
+					unlink($tmpname);
+				}
+				return array('result'=>FALSE, 'msg'=>$this->root->_attach_messages['err_exists']);
+			}
 			if (file_exists($obj->filename)) {
 				unlink($obj->filename);
 				$_action = "update";
@@ -486,7 +496,7 @@ class xpwiki_plugin_attach extends xpwiki_plugin {
 				$this->attach_chmod($obj->filename);
 			} else {
 				unlink($tmpname);
-				return array('result'=>FALSE,'msg'=>$this->root->_attach_messages['err_exists']);
+				return array('result'=>FALSE, 'msg'=>$this->root->_attach_messages['err_exists']);
 			}
 		}
 
