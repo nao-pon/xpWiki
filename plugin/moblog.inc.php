@@ -1,5 +1,5 @@
 <?php
-// $Id: moblog.inc.php,v 1.15 2010/06/24 06:47:33 nao-pon Exp $
+// $Id: moblog.inc.php,v 1.16 2010/06/25 08:00:27 nao-pon Exp $
 // Author: nao-pon http://hypweb.net/
 // Bace script is pop.php of mailbbs by Let's PHP!
 // Let's PHP! Web: http://php.s3.to/
@@ -459,7 +459,6 @@ class xpwiki_plugin_moblog extends xpwiki_plugin {
 					$part[0] = $dat[$j];// 普通のテキストメール
 				}
 
-				$file_count = 0;
 				foreach ($part as $multi) {
 					if (! $write) break;
 					@ list($m_head, $m_body) = $this->plugin_moblog_mime_split($multi);
@@ -572,41 +571,47 @@ class xpwiki_plugin_moblog extends xpwiki_plugin {
 							$filename = mb_convert_encoding($filename, $this->cont['SOURCE_ENCODING'], 'AUTO');
 						}
 						// 添付データをデコードして保存
-						if (preg_match("#Content-Transfer-Encoding:.*base64#i", $m_head) && preg_match('#'.$subtype.'#i', $sub)) {
-							++$file_count;
+						if (preg_match("#^Content-Transfer-Encoding:.*base64#im", $m_head) && preg_match('#'.$subtype.'#i', $sub)) {
 							$tmp = base64_decode($m_body);
-							if (!$filename) $filename = $this->cont['UTC'].'_'.$file_count.'.'.$sub;
 
 							//$save_file = $this->cont['CACHE_DIR'].$this->func->encode($filename).".tmp";
 
 							if (strlen($tmp) < $maxbyte && $write && $this->func->exist_plugin('attach'))
 							{
-								//$fp = fopen($save_file, "wb");
-								//fputs($fp, $tmp);
-								//fclose($fp);
-								$save_file = tempnam(rtrim($this->cont['CACHE_DIR'], '/'), 'moblog');
-								file_put_contents($save_file, $tmp);
-								//回転指定
-								if ($rotate) {
-									HypCommonFunc::rotateImage($save_file, $rotate);
-								}
-								// ページが無ければ空ページを作成
-								if (!$this->func->is_page($page)) {
-									$this->func->make_empty_page($page, false);
-								}
-								$attach = $this->func->get_plugin_instance('attach');
-								$res = $attach->do_upload($page,$filename,$save_file,false,null,true);
-								if ($res['result']) {
-									$filenames[] = $res['name'];
+
+								$save_file = tempnam(rtrim($this->cont['UPLOAD_DIR'], '/'), 'moblog');
+								chmod($save_file, 0606);
+								if (file_put_contents($save_file, $tmp, LOCK_EX)) {
+									list($usec) = explode(' ', microtime());
+									if (!$filename) $filename = $this->cont['UTC'].'_'.$usec.'.'.$sub;
+									//回転指定
+									if ($rotate) {
+										HypCommonFunc::rotateImage($save_file, $rotate);
+									}
+									// ページが無ければ空ページを作成
+									if (!$this->func->is_page($page)) {
+										$this->func->make_empty_page($page, false);
+									}
+									$attach = $this->func->get_plugin_instance('attach');
+									$res = $attach->do_upload($page,$filename,$save_file,false,null,true);
+									if ($res['result']) {
+										$filenames[] = $res['name'];
+									}
+								} else {
+									$write = false;
+									$this->debug[] = 'Can not make temp-file.';
 								}
 							} else {
 								$write = false;
-								$this->debug[] = 'Attach not found.';
+								$this->debug[] = 'Plugin attach was not found.';
 							}
 						}
 					}
 				}
-				if ($imgonly && $attach=="") $write = false;
+				if ($imgonly && ! $filenames) {
+					$write = false;
+					$this->debug[] = 'Attach file was not found.';
+				}
 
 				$subject = trim($subject);
 			}
