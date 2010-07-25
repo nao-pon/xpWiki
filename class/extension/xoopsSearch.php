@@ -1,7 +1,7 @@
 <?php
 //
 // Created on 2006/11/27 by nao-pon http://hypweb.net/
-// $Id: xoopsSearch.php,v 1.8 2008/05/28 07:58:49 nao-pon Exp $
+// $Id: xoopsSearch.php,v 1.9 2010/07/25 06:14:59 nao-pon Exp $
 //
 class XpWikiExtension_xoopsSearch extends XpWikiExtension {
 
@@ -20,7 +20,7 @@ class XpWikiExtension_xoopsSearch extends XpWikiExtension {
 		if ($where_readable) {
 			$where = "$where AND ($where_readable)";
 		}
-		
+
 		$sql = "SELECT p.pgid,p.name,p.editedtime,p.title,p.uid FROM ".$this->xpwiki->db->prefix($this->root->mydirname."_pginfo")." p INNER JOIN ".$this->xpwiki->db->prefix($this->root->mydirname."_plain")." t ON t.pgid=p.pgid WHERE ($where) ";
 		if ( $userid != 0 ) {
 			$sql .= "AND (p.uid=".$userid.") ";
@@ -44,22 +44,22 @@ class XpWikiExtension_xoopsSearch extends XpWikiExtension {
 			$sql .= ") ";
 		}
 		$sql .= "ORDER BY p.editedtime DESC";
-		
+
 		//exit($sql);
 		$result = $this->xpwiki->db->query($sql,$limit,$offset);
-		
+
 		$ret = array();
-		
+
 		if (!$keywords) $keywords = array();
 		$sword = rawurlencode(join(' ',$keywords));
-		
+
 		$context = '' ;
 		$make_context_func = function_exists( 'search_make_context' )? 'search_make_context' : (function_exists( 'xoops_make_context' )? 'xoops_make_context' : '');
 
 		while($myrow = $this->xpwiki->db->fetchArray($result)) {
 			// get context for module "search"
 			if( $make_context_func && $showcontext ) {
-	
+
 				$pobj = & XpWiki::getSingleton($this->root->mydirname);
 				$pobj->init($myrow['name']);
 				$GLOBALS['Xpwiki_'.$this->root->mydirname]['cache'] = null;
@@ -67,26 +67,27 @@ class XpWikiExtension_xoopsSearch extends XpWikiExtension {
 				$pobj->execute();
 				$text = $pobj->body;
 				$text = preg_replace('/<(script|style).+?<\/\\1>/i', '', $text);
-				
+
 				// ÉÕäµ
 				if (empty($GLOBALS['Xpwiki_'.$this->root->mydirname]['cache']['fusen']['loaded'])){
 					if ($fusen = $this->func->get_plugin_instance('fusen')) {
 						if ($fusen_data = $fusen->plugin_fusen_data($myrow['name'])) {
 							if ($fusen_tag = $fusen->plugin_fusen_gethtml($fusen_data, '')) {
-								$text .= '<fieldset><legend> fusen.dat </legend>' . $fusen_tag . '</fieldset>';					
+								$text .= '<fieldset><legend> fusen.dat </legend>' . $fusen_tag . '</fieldset>';
 							}
 						}
 					}
 				}
-				
+
 				$full_context = strip_tags( $text ) ;
 				if( function_exists( 'easiestml' ) ) $full_context = easiestml( $full_context ) ;
 				$context = $make_context_func( $full_context , $keywords ) ;
 			}
 
 			$title = ($myrow['title'])? ' ['.$myrow['title'].']' : '';
+			$link = $this->func->get_page_uri($myrow['name']);
 			$ret[] = array(
-				'link'    => $this->func->get_page_uri($myrow['name']) . (@ $this->root->static_url ? '?' : '&amp;') . 'word=' . $sword,
+				'link'    => $link . ((strpos($link, '?') === false)? '?' : '&amp;') . 'word=' . $sword,
 				'title'   => htmlspecialchars($myrow['name'].$title, ENT_QUOTES),
 				'image'   => '',
 				'time'    => $myrow['editedtime'] + $this->cont['LOCALZONE'],
