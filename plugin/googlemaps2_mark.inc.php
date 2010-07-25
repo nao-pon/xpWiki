@@ -13,7 +13,7 @@
 
 class xpwiki_plugin_googlemaps2_mark extends xpwiki_plugin {
 	var $marker_count;
-	
+
 	function plugin_googlemaps2_mark_init () {
 
 		// 言語ファイルの読み込み
@@ -33,25 +33,25 @@ class xpwiki_plugin_googlemaps2_mark extends xpwiki_plugin {
 		$this->cont['PLUGIN_GOOGLEMAPS2_MK_DEF_NOICON'] =  false;   //アイコンを表示しない。
 		$this->cont['PLUGIN_GOOGLEMAPS2_MK_DEF_AJUMP'] = $this->msg['back2list']; //infoWindowから本文中へのリンク文字
 		$this->cont['PLUGIN_GOOGLEMAPS2_MK_DEF_TITLEISPAGENAME'] =  false; //title省略時にページ名を使う。
-	
+
 		//FORMATLISTはhtmlに出力されるマーカーのリストの雛型
 		//FMTINFOはマップ上のマーカーをクリックして表示されるフキダシの（中の）雛型
 		$this->cont['PLUGIN_GOOGLEMAPS2_MK_DEF_FORMATLIST'] =  '<b>%title%</b><p>%caption% %maxcontent%</p>';
 		$this->cont['PLUGIN_GOOGLEMAPS2_MK_DEF_FORMATINFO'] =  '<b>%title%</b><br/><div style=\'width:215px;\'><span style=\'float:left; padding-right: 3px; padding-bottom: 3px;\'>%image%</span>%caption%</div>';
-		
+
 		//リストをクリックするとマップにフォーカスさせる。(0 or 1)
 		$this->cont['PLUGIN_GOOGLEMAPS2_MK_DEF_ALINK'] =  1;
-		
+
 		// This Plugin's Config
 		$this->conf['IMG_THUMB_MAX_WIDTH'] = '120'; // 画像サムネイルの最大幅
 		$this->conf['IMG_THUMB_MAX_HEIGHT'] = '120'; // 画像サムネイルの最大高さ
-	
+
 
 	}
-	
+
 	function plugin_googlemaps2_mark_get_default () {
 	//	global $vars, $script;
-	
+
 		return array (
 			'title'        => $this->cont['PLUGIN_GOOGLEMAPS2_MK_DEF_TITLE'],
 			'caption'      => $this->cont['PLUGIN_GOOGLEMAPS2_MK_DEF_CAPTION'],
@@ -73,7 +73,7 @@ class xpwiki_plugin_googlemaps2_mark extends xpwiki_plugin {
 	        'type'         => '',
 		);
 	}
-	
+
 	function plugin_googlemaps2_mark_convert() {
 		$args = func_get_args();
 		if (sizeof($args)<2) {
@@ -81,7 +81,7 @@ class xpwiki_plugin_googlemaps2_mark extends xpwiki_plugin {
 		}
 		return $this->plugin_googlemaps2_mark_output($args[0], $args[1], array_slice($args, 2));
 	}
-	
+
 	function plugin_googlemaps2_mark_inline() {
 		if (isset($this->root->rtf['GET_HEADING_INIT'])) return 'Google Maps';
 		$args = func_get_args();
@@ -94,7 +94,7 @@ class xpwiki_plugin_googlemaps2_mark extends xpwiki_plugin {
 		}
 		return $this->plugin_googlemaps2_mark_output($args[0], $args[1], array_slice($args, 2));
 	}
-	
+
 	function plugin_googlemaps2_mark_output($lat, $lng, $params) {
 		if (empty($this->conf['IMG_THUMB_MAX_WIDTH'])) {
 			$this->conf['IMG_THUMB_MAX_WIDTH'] = '120';
@@ -102,15 +102,15 @@ class xpwiki_plugin_googlemaps2_mark extends xpwiki_plugin {
 		if (empty($this->conf['IMG_THUMB_MAX_HEIGHT'])) {
 			$this->conf['IMG_THUMB_MAX_HEIGHT'] = '120';
 		}
-		
+
 		$p_googlemaps2 =& $this->func->get_plugin_instance('googlemaps2');
-				
+
 		if (! isset($this->root->rtf['PUSH_PAGE_CHANGES']) && $p_googlemaps2->plugin_googlemaps2_is_supported_profile() && !$p_googlemaps2->lastmap_name) {
 			return $this->wrap_plugin_error("googlemaps2_mark: {$p_googlemaps2->msg['err_need_googlemap2']}");
 		}
-		
+
 		$defoptions = $this->plugin_googlemaps2_mark_get_default();
-	
+
 		$inoptions = array();
 		$isSetZoom = false;
 		$inoptions['caption'] = '';
@@ -124,12 +124,12 @@ class xpwiki_plugin_googlemaps2_mark extends xpwiki_plugin {
 		if (isset($inoptions['caption2'])) {
 			$inoptions['caption'] .=  $inoptions['caption2'];
 		}
-		
+
 		if (array_key_exists('define', $inoptions)) {
 			$this->root->vars['googlemaps2_mark'][$inoptions['define']] = $inoptions;
 			return "";
 		}
-		
+
 		$coptions = array();
 		if (array_key_exists('class', $inoptions)) {
 			$class = $inoptions['class'];
@@ -137,7 +137,7 @@ class xpwiki_plugin_googlemaps2_mark extends xpwiki_plugin {
 				$coptions = $this->root->vars['googlemaps2_mark'][$class];
 			}
 	    }
-	
+
 	    // map maxurl to maxcontent if maxurl exists.
 	    if (array_key_exists('maxurl', $coptions) && !array_key_exists('maxcontent', $coptions)) {
 	        $coptions['maxcontent'] = $coptions['maxurl'];
@@ -145,7 +145,7 @@ class xpwiki_plugin_googlemaps2_mark extends xpwiki_plugin {
 	    if (array_key_exists('maxurl', $inoptions) && !array_key_exists('maxcontent', $inoptions)) {
 	        $inoptions['maxcontent'] = $inoptions['maxurl'];
 	    }
-	    
+
 		$options = array_merge($defoptions, $coptions, $inoptions);
 		$lat = trim($lat);
 		$lng = trim($lng);
@@ -173,7 +173,7 @@ class xpwiki_plugin_googlemaps2_mark extends xpwiki_plugin {
 		$alink        = $options['alink'];
 		$titleispagename = $p_googlemaps2->plugin_googlemaps2_getbool($options['titleispagename']);
 		$api = isset($this->root->vars['googlemaps2_info'][$map]['api'])? $this->root->vars['googlemaps2_info'][$map]['api'] : 2;
-		
+
 		$page = $p_googlemaps2->get_pgid($this->root->vars['page']);
 
 		if (isset($this->marker_count[$this->root->mydirname][$page][$map])) {
@@ -181,11 +181,11 @@ class xpwiki_plugin_googlemaps2_mark extends xpwiki_plugin {
 		} else {
 			$this->marker_count[$this->root->mydirname][$page][$map] = 1;
 		}
-		
+
 		if ($nolist) {
 			$alink = false;
 		}
-		
+
 		$maxcontentfull = $maxcontent;
 		if ($maxcontent != '') {
 			if (!preg_match('/^http:\/\/.*$/i', $maxcontent)) {
@@ -198,15 +198,15 @@ class xpwiki_plugin_googlemaps2_mark extends xpwiki_plugin {
 				$maxcontentfull .= $encurl;
 			}
 	    }
-	
+
 	    if ($titleispagename) {
 	        $title = htmlspecialchars($this->root->vars['page'], ENT_QUOTES);
 	    }
-	
+
 	    if ($maxtitle == '') {
 	        $maxtitle = $title;
 	    }
-		
+
 		//携帯デバイス用リスト出力
 		if (!$p_googlemaps2->plugin_googlemaps2_is_supported_profile()) {
 			if ($nolist == false) {
@@ -215,21 +215,21 @@ class xpwiki_plugin_googlemaps2_mark extends xpwiki_plugin {
 					$this->root->replaces_finish['__GOOGLE_MAPS_STATIC_PARAMS_' . $map] = '';
 				}
 				$this->root->replaces_finish['__GOOGLE_MAPS_STATIC_MARKERS_' . $map] .= $markers . '|';
-				$imgurl = $p_googlemaps2->get_static_image_url($lat, $lng, $zoom, $markers, TRUE);
+				$imgurl = $p_googlemaps2->get_static_image_url($lat, $lng, $zoom, $markers, 1);
 				$title = '<a href="'.$imgurl.'">'.$title.' [Map]</a>';
 				return $this->plugin_googlemaps_mark_simple_format_listhtml(
 					$formatlist, $title, $caption, $maxcontentfull);
 			}
 			return '';
 		}
-	
+
 		if ($api < 2 && $isSetZoom) $zoom = 19 - $zoom;
 		if ($zoom == null) $zoom = 'null';
-		
+
 		if ($noicon == true) {
 			$noinfowindow = true;
 		}
-	
+
 		//Pukiwikiの添付された画像の表示
 		$q = '/^http:\/\/.*(\.jpg|\.gif|\.png)$/i';
 		if ($image != '' && !preg_match($q, $image)) {
@@ -247,23 +247,23 @@ class xpwiki_plugin_googlemaps2_mark extends xpwiki_plugin {
 		} else {
 			$infohtml = null;
 		}
-	
+
 		$key = "$map,$lat,$lng";
-	
+
 		if ($nolist == false) {
 			$listhtml = $this->plugin_googlemaps_mark_format_listhtml(
 				$page, $map, $formatlist, $alink,
-			$key, $infohtml, 
+			$key, $infohtml,
 			$title, $caption, $image,
 			$zoom, $maxcontentfull);
 		}
-		
+
 		if ($type) {
 			$type = $p_googlemaps2->plugin_googlemaps2_get_maptype($type);
 		} else {
 			$type = 'null';
 		}
-		
+
 		// Create Marker
 		$output = <<<EOD
 <script type="text/javascript">
@@ -275,15 +275,15 @@ onloadfunc.push(function() {
 //]]>
 </script>\n
 EOD;
-	
+
 		//Show Markers List
 		if ($nolist == false) {
 			$output .= $listhtml;
 		}
-	
+
 		return $output;
 	}
-	
+
 	function plugin_googlemaps_mark_simple_format_listhtml($format, $title, $caption, $maxcontentfull) {
 		if ($maxcontentfull) {
 			$maxcontentfull = '<a href=\''.$maxcontentfull.'\'>[PAGE]</a>';
@@ -295,21 +295,21 @@ EOD;
 		$html = str_replace('%maxcontent%', $maxcontentfull, $html);
 		return $html;
 	}
-	
-	function plugin_googlemaps_mark_format_listhtml($page, $map, $format, $alink, 
+
+	function plugin_googlemaps_mark_format_listhtml($page, $map, $format, $alink,
 	$key, $infohtml, $title, $caption, $image, $zoomstr, $maxcontentfull) {
-	
+
 		if ($alink == true) {
 			$atag = "<a id=\"".$map."_mark".$this->marker_count[$this->root->mydirname][$page][$map]."\"></a>";
 			$atag .= "<a href=\"#$map\"";
 		}
-		
+
 		$atag .= " onclick=\"googlemaps_markers['$page']['$map']['$key'].onclick();\">%title%</a>";
-	
+
 		if ($maxcontentfull) {
 			$maxcontentfull = '<a href=\''.$maxcontentfull.'\'>[PAGE]</a>';
 		}
-	
+
 		$html = $format;
 		if ($alink == true) {
 			$html = str_replace('%title%', $atag , $html);
@@ -320,9 +320,9 @@ EOD;
 		$html = str_replace('%maxcontent%', $maxcontentfull, $html);
 		return $html;
 	}
-	
+
 	function plugin_googlemaps_mark_format_infohtml($page, $map, $format, $alink, $title, $caption, $image) {
-	
+
 		$html = str_replace('\'', '\\\'', $format);
 		if ($alink == true) {
 			$atag = "%title% <a href=\\'#".$map."_mark".$this->marker_count[$this->root->mydirname][$page][$map]."\\'>"
@@ -331,12 +331,12 @@ EOD;
 		}
 		$html = str_replace('%title%',$title , $html);
 		$html = str_replace('%caption%', $caption, $html);
-	
+
 		if ($image != '') {
 			$image = str_replace("'", "\\\'", $image);
 		}
 		$html = str_replace('%image%', $image, $html);
-	
+
 		return $html;
 	}
 }

@@ -229,6 +229,7 @@ EOD;
 
 		$google_staticmap = 'http://maps.google.com/staticmap';
 		$mymap="$google_staticmap?center=$default_lat,$default_lng&zoom=$default_zoom&size={$this->conf['StaticMapSize']}&maptype=mobile&key={$this->cont['PLUGIN_GOOGLEMAPS2_DEF_KEY']}{$markers}";
+		$google_link = $this->get_static_image_url($default_lat, $default_lng, $default_zoom, '', 2);
 
 		/*°ÞÅÙ¤Ï -90ÅÙ ¡Á +90ÅÙ¤ÎÈÏ°Ï¤Ë¡¢·ÐÅÙ¤Ï -180ÅÙ ¡Á +180ÅÙ¤ÎÈÏ°Ï¤Ë¼ý¤Þ¤ë¤è¤¦¤Ë*/
 
@@ -297,6 +298,8 @@ EOD;
 <div style="text-align:center">
 	<img src="{$mymap}" {$this->conf['mapsize']} /><br />
 	<img src="{$this->cont['LOADER_URL']}?src=mnavi.gif" {$this->conf['navsize']} />
+	<br />
+	<a href="{$google_link}">GoogleMap</a>
 	<hr />
 	{$back}
 </div>
@@ -335,8 +338,10 @@ EOD;
 		return $this->lastmap_name;
 	}
 
-	function get_static_image_url($lat, $lng, $zoom, $markers = '', $useAction = FALSE) {
-		if ($useAction) {
+	function get_static_image_url($lat, $lng, $zoom, $markers = '', $useAction = 0) {
+		if ($useAction === 2) {
+			$url = 'http://www.google.co.jp/m/local?site=local&ll='.$lat.','.$lng.'&z='.$zoom;
+		} else if ($useAction) {
 			$url = $this->root->script . '?plugin=googlemaps2&amp;action=static&amp;lat='.$lat.'&amp;lng='.$lng.'&amp;zoom='.$zoom.'&amp;refer='.htmlspecialchars(@ $_SERVER['REQUEST_URI']);
 		} else {
 			if ($zoom > 10) {
@@ -345,7 +350,7 @@ EOD;
 			$params = ($lng)? 'center='.$lat.','.$lng.'&amp;zoom='.$zoom.'&amp;' : $lat;
 			$url = 'http://maps.google.com/staticmap?'.$params.'size='.$this->conf['StaticMapSize'].'&amp;type=mobile&amp;key='.$this->cont['PLUGIN_GOOGLEMAPS2_DEF_KEY'];
 		}
-		if ($markers) {
+		if ($markers && $useAction < 2) {
 			$url .= '&amp;markers=' . htmlspecialchars($markers);
 		}
 		return $url;
@@ -359,7 +364,7 @@ EOD;
 		$this->root->replaces_finish[$params] = 'center='.$lat.','.$lng.'&amp;zoom='.$_zoom.'&amp;';
 		$imgurl = $this->get_static_image_url($params, '', 0, $markers);
 		$img = '<img src="'.$imgurl.'" '.$this->conf['mapsize'].' />';
-		$map = '<br />[ <a href="'.$this->get_static_image_url($lat, $lng, $zoom, '__GOOGLE_MAPS_STATIC_MARKERS_' . $this->lastmap_name, TRUE).'">Map</a> ]';
+		$map = '<br />[ <a href="'.$this->get_static_image_url($lat, $lng, $zoom, '__GOOGLE_MAPS_STATIC_MARKERS_' . $this->lastmap_name, 1).'">Map</a> | <a href="'.$this->get_static_image_url($lat, $lng, $zoom, '__GOOGLE_MAPS_STATIC_MARKERS_' . $this->lastmap_name, 2).'">Google</a> ]';
 		return '<div style="text-align:center;">' . $img . $map . '</div>';
 	}
 
