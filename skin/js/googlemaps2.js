@@ -61,19 +61,19 @@ function PGMarker (point, icon, page, map, hidden, visible, title, maxtitle, max
             map.getInfoWindow().disableMaximize();
             infowindowopts = {};
         }
-		
+
 		if (_type !== map.getCurrentMapType()) {
 			map.setMapType(_type);
 		}
-		
+
 		if (_zoom) {
 			if (map.getZoom() != _zoom) {
 				map.setZoom(_zoom);
 			}
 		}
-		
+
 		map.panTo(this.point);
-		
+
 		if ( _html && this.marker ) {
 			//map.panTo(this.point);
 			// Wait while load image.
@@ -115,7 +115,7 @@ function PGMarker (point, icon, page, map, hidden, visible, title, maxtitle, max
                 if (maxcontent) {
                     maxContentDiv.style.width = "100%";
                     maxContentDiv.style.height = "98%";
-                    maxContentDiv.innerHTML = '<iframe src="' + maxcontent + 
+                    maxContentDiv.innerHTML = '<iframe src="' + maxcontent +
                     '" frameborder="0" height=100% width=100%>required iframe enabled browser</iframe>';
                 }
 			}
@@ -123,7 +123,7 @@ function PGMarker (point, icon, page, map, hidden, visible, title, maxtitle, max
 			//map.panTo(this.point);
 		}
 	}
-	
+
 	this.isVisible = function () {
 		return _visible;
 	}
@@ -138,7 +138,7 @@ function PGMarker (point, icon, page, map, hidden, visible, title, maxtitle, max
 		if (this.marker != null) this.marker.hide();
 		_visible = false;
 	}
-	
+
 	if (visible) {
 		this.show();
 	} else {
@@ -241,7 +241,7 @@ var PGTool = new function () {
 		}
 		return;
 	}
-	
+
 	this.getMapTypeName = function(type) {
 		if (type == G_HYBRID_MAP) {
 			return 'hybrid';
@@ -266,7 +266,7 @@ var PGDraw = new function () {
 	this.line = function (plist) {
 		return new GPolyline(plist, this.color, this.weight, this.opacity);
 	}
-	
+
 	this.rectangle = function (p1, p2) {
 		var points = new Array (
 			p1,
@@ -277,11 +277,11 @@ var PGDraw = new function () {
 		);
 		return draw_polygon (plist);
 	}
-	
+
 	this.circle  = function (point, radius) {
 		return draw_ngon(point, radius, 0, 48, 0, 360);
 	}
-	
+
 	this.arc = function (point, outradius, inradius, st, ed) {
 		while (st > ed) { ed += 360; }
 		if (st == ed) {
@@ -289,16 +289,16 @@ var PGDraw = new function () {
 		}
 		return draw_ngon(point, outradius, inradius, 48, st, ed);
 	}
-	
+
 	this.ngon = function (point, radius, n, rotate) {
 		if (n < 3) return null;
 		return draw_ngon(point, radius, 0, n, rotate, rotate+360);
 	}
-	
+
 	this.polygon = function (plist) {
 		return draw_polygon (plist);
 	}
-	
+
 	function draw_ngon (point, outradius, inradius, div, st, ed) {
 		if (div <= 2) return null;
 
@@ -309,11 +309,11 @@ var PGDraw = new function () {
 		var in_plist  = new Array();
 		var rad = 0.017453292519943295; /* Math.PI/180.0 */
 		var en = 0.00903576399827824;   /* 1/(6341km * rad) */
-		var out_clat = outradius * en; 
+		var out_clat = outradius * en;
 		var out_clng = out_clat/Math.cos(lat * rad);
-		var in_clat = inradius * en; 
+		var in_clat = inradius * en;
 		var in_clng = in_clat/Math.cos(lat * rad);
-		
+
 		for (var i = st ; i <= ed; i+=incr) {
 			if (i+incr > ed) {i=ed;}
 			var nx = Math.sin(i * rad);
@@ -352,8 +352,8 @@ var PGDraw = new function () {
 		if (self.fillopacity <= 0) {
 		return new GPolyline(plist, self.color, self.weight, self.opacity);
 		}
-		return new GPolygon(plist, self.color, self.weight, self.opacity, 
-		self.fillcolor, self.fillopacity); 
+		return new GPolygon(plist, self.color, self.weight, self.opacity,
+		self.fillcolor, self.fillopacity);
 	}
 
 }
@@ -375,7 +375,7 @@ PGCross.prototype.initialize = function(map) {
 	this.container.appendChild(crossDiv);
 	this.container.width = crossDiv.width;
 	this.container.height = crossDiv.height;
-	
+
 	var cross = this;
 	GEvent.addDomListener(map, "resize", function(e) {
 		var size = cross.getCrossCenter();
@@ -387,9 +387,9 @@ PGCross.prototype.initialize = function(map) {
 	//		if (map.doubleClickZoomEnabled())
 	//			map.zoomIn();
 	//});
-	
+
 	map.getContainer().appendChild(this.container);
-	
+
 	info = map.getInfoWindow();
 	var container = this.container;
 	var hidefunc = function() { map.getContainer().removeChild(container); }
@@ -523,7 +523,7 @@ function p_googlemaps_regist_marker (page, mapname, center, key, option) {
 		mapname = mapname.replace(/^pukiwikigooglemaps2_/, "");
 		page = mapname.match(/(^.*?)_/)[1];
 		mapname = mapname.replace(/^.*?_/, "");
-		alert("googlemaps2: '" + option.title + "' It failed in the marker's registration." + 
+		alert("googlemaps2: '" + option.title + "' It failed in the marker's registration." +
 		"PageName: " + page + ", Not found map name '" + mapname + "'.");
 		return;
 	}
@@ -547,7 +547,7 @@ function p_googlemaps_regist_marker (page, mapname, center, key, option) {
 
 function p_googlemaps_regist_to_markermanager (page, mapname, use_marker_mgr) {
 	var markers = googlemaps_markers[page][mapname];
-	
+
 	if (use_marker_mgr == false) {
 		for ( var key in markers) {
 			if (!markers.hasOwnProperty(key)) continue;
@@ -596,21 +596,23 @@ function p_googlemaps_regist_to_markermanager (page, mapname, use_marker_mgr) {
 
 function p_googlemaps_auto_zoom (page, mapname) {
 		var gb;
-		var first = 1;
+		var count = 0;
 		var map = googlemaps_maps[page][mapname];
 		var markers = googlemaps_markers[page][mapname];
 		for( var key in markers ){
 			if (!markers.hasOwnProperty(key)) continue;
 			var marker = markers[key].marker;
-			if( first ){
+			if( count == 0 ){
 				gb = new GLatLngBounds( marker.getPoint(), marker.getPoint() );
-				first = 0;
 			}else{
 				var point = marker.getPoint();
 				gb.extend( point );
 			}
+			count++;
 		}
-		map.setCenter( gb.getCenter(), map.getBoundsZoomLevel( gb ) );
+		if (count > 1) {
+			map.setCenter( gb.getCenter(), map.getBoundsZoomLevel( gb ) );
+		}
 }
 
 XpWiki.domInitFunctions.push(function() {
