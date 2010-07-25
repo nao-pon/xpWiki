@@ -2,7 +2,7 @@
 /////////////////////////////////////////////////
 // PukiWiki - Yet another WikiWikiWeb clone.
 //
-//  $Id: attach.inc.php,v 1.57 2010/06/25 07:59:22 nao-pon Exp $
+//  $Id: attach.inc.php,v 1.58 2010/07/25 07:01:59 nao-pon Exp $
 //  ORG: attach.inc.php,v 1.31 2003/07/27 14:15:29 arino Exp $
 //
 /*
@@ -272,6 +272,7 @@ class xpwiki_plugin_attach extends xpwiki_plugin {
 			case 'noinline1' : return $this->attach_noinline('1', $pass);
 			case 'noinline-1': return $this->attach_noinline('-1', $pass);
 			case 'nopcmd'    : return $this->attach_nopcmd();
+			case 'reinfo'    : return $this->attach_reinfo();
 		}
 		if (!isset($this->root->vars['page']) || !$this->func->is_page($this->root->vars['page']))
 		{
@@ -420,11 +421,7 @@ class xpwiki_plugin_attach extends xpwiki_plugin {
 
 		// イメージファイルの内容をチェック
 		if ($_size) {
-			if (version_compare(PHP_VERSION, '5.1.0', '<')) {
-				$checkStr = xpwiki_file_get_contents($tmpname, FALSE, NULL, 0, 10240);
-			} else {
-				$checkStr = file_get_contents($tmpname, FALSE, NULL, 0, 10240);
-			}
+			$checkStr = $this->func->file_get_contents($tmpname, FALSE, NULL, 0, 10240);
 			if (preg_match('/<(?:script|\?php)/i', $checkStr)) {
 				return array('result' => FALSE, 'msg' => 'It isn\'t a image file.');
 			}
@@ -530,7 +527,7 @@ class xpwiki_plugin_attach extends xpwiki_plugin {
 		$obj->status['md5'] = md5_file($obj->filename);
 		$obj->status['admins'] = $_admins;
 		$obj->status['org_fname'] = $org_fname;
-		$obj->status['imagesize'] = @ getimagesize($obj->filename);
+		$obj->status['imagesize'] = $obj->getimagesize($obj->filename);
 		$obj->action = $_action;
 		$obj->putstatus();
 
@@ -704,6 +701,21 @@ class xpwiki_plugin_attach extends xpwiki_plugin {
 
 		$obj = &new XpWikiAttachFile($this->xpwiki, $refer,$file,$age);
 		return $obj->getstatus() ? $obj->noinline($noinline,$pass) : array('msg'=>$this->root->_attach_messages['err_notfound']);
+	}
+
+	function attach_reinfo() {
+		foreach (array('refer','file','age','pass') as $var)
+		{
+			$$var = array_key_exists($var,$this->root->vars) ? $this->root->vars[$var] : '';
+		}
+
+		if ($this->cont['ATTACH_UPLOAD_EDITER_ONLY'] and !$this->func->is_editable($refer))
+		{
+			return array('msg'=>$this->root->_attach_messages['err_noparm']);
+		}
+
+		$obj = &new XpWikiAttachFile($this->xpwiki, $refer,$file,$age);
+		return $obj->reinfo();
 	}
 
 	// pcmd が指定されていない
