@@ -1068,6 +1068,15 @@ $class .img_margin {
 	margin: 10px;
 }
 
+$class div.ref_use_caption {
+	margin-bottom: 0px;
+}
+
+$class div.ref_caption {
+	text-align:center;
+	margin-bottom: 10px;
+}
+
 /* ruby.inc.php */
 $class rt, $class rp {
 	font-size: 65%;
