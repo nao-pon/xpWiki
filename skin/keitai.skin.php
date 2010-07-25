@@ -1,6 +1,6 @@
 <?php
 // PukiWiki - Yet another WikiWikiWeb clone.
-// $Id: keitai.skin.php,v 1.33 2010/06/23 08:10:33 nao-pon Exp $
+// $Id: keitai.skin.php,v 1.34 2010/07/25 06:51:38 nao-pon Exp $
 // Copyright (C) 2003-2006 PukiWiki Developers Team
 // License: GPL v2 or (at your option) any later version
 //
@@ -241,7 +241,25 @@ if ($this->root->runmode === 'standalone') {
 		if ($this->cont['PKWK_ENCODING_HINT']) {
 			$r->Config_encodeHintWord = $this->cont['PKWK_ENCODING_HINT'];
 		}
-
+		if (! empty($this->root->k_tai_conf['icon'])) {
+			$r->Config_icons = array_merge($r->Config_icons, $this->root->k_tai_conf['icon']);
+		}
+		if (! empty($this->root->k_tai_conf['getKeys'])) {
+			$r->pagekey = $this->root->k_tai_conf['getKeys']['page'];
+			$r->hashkey = $this->root->k_tai_conf['getKeys']['hash'];
+		}
+		if (! empty($this->root->k_tai_conf['pictSizeMax'])) {
+			$r->Config_pictSizeMax = $this->root->k_tai_conf['pictSizeMax'];
+		}
+		if (! empty($this->root->k_tai_conf['docomoGuidTTL'])) {
+			$r->Config_docomoGuidTTL = $this->root->k_tai_conf['docomoGuidTTL'];
+		}
+		if (! empty($this->root->k_tai_conf['urlRewrites'])) {
+			$r->marge_urlRewites('urlRewrites', $this->root->k_tai_conf['urlRewrites']);
+		}
+		if (! empty($this->root->k_tai_conf['urlImgRewrites'])) {
+			$r->marge_urlRewites('urlImgRewrites', $this->root->k_tai_conf['urlImgRewrites']);
+		}
 		if (! empty($this->root->k_tai_conf['googleAdsense']['config'])) {
 			$r->Config_googleAdSenseConfig = $this->root->k_tai_conf['googleAdsense']['config'];
 			$r->Config_googleAdSenseBelow = $this->root->k_tai_conf['googleAdsense']['below'];
