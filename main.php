@@ -28,7 +28,7 @@ $xpwiki->catbody();
 // Add error message
 if ($xpwiki->root->userinfo['admin']) {
 	$hyp_common_methods = get_class_methods('HypCommonFunc');
-	if (is_null($hyp_common_methods) || ! in_array('get_version', $hyp_common_methods) || HypCommonFunc::get_version() < 20100623) {
+	if (is_null($hyp_common_methods) || ! in_array('get_version', $hyp_common_methods) || HypCommonFunc::get_version() < 20100725) {
 		$xpwiki->admin_messages[] = '[Warning] Please install or update <a href="http://cvs.sourceforge.jp/cgi-bin/viewcvs.cgi/hypweb/XOOPS_TRUST/class/hyp_common.tar.gz?view=tar" title="Download">a newest HypCommonFunc</a> into "XOOPS_TRUST_PATH/class/".';
 	}
 	if ($xpwiki->admin_messages) {
