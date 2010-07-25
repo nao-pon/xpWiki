@@ -1,7 +1,7 @@
 <?php
 //
 // Created on 2006/10/16 by nao-pon http://hypweb.net/
-// $Id: compat.php,v 1.10 2010/06/25 07:54:07 nao-pon Exp $
+// $Id: compat.php,v 1.11 2010/07/25 06:48:50 nao-pon Exp $
 //
 
 //// mbstring ////
@@ -74,46 +74,10 @@ if (! function_exists('sha1')) {
 
 // file_get_contents -- Reads entire file into a string
 // (PHP 4 >= 4.3.0, PHP 5)
-if (! function_exists('xpwiki_file_get_contents')) {
-function xpwiki_file_get_contents($filename, $incpath = false, $resource_context = null, $offset = -1, $maxlen = -1)
-{
-	if (false === $fh = fopen($filename, 'rb', $incpath)) {
-		trigger_error('file_get_contents() failed to open stream: No such file or directory', E_USER_WARNING);
-		return false;
-	}
-
-	if ($offset > -1 && $maxlen > -1) {
-		$readsize = $offset + $maxlen;
-	} else {
-		$readsize = -1;
-	}
-
-	clearstatcache();
-	$fsize = @filesize($filename);
-	if ($readsize > -1 && $fsize > $readsize) {
-		$data = fread($fh, $readsize);
-		if ($offset > 0) {
-			$data = substr($data, $offset);
-		}
-	} else {
-		if ($fsize) {
-			$data = fread($fh, $fsize);
-		} else {
-			$data = '';
-			while (!feof($fh)) {
-				$data .= fread($fh, 8192);
-			}
-		}
-	}
-
-	fclose($fh);
-	return $data;
-}
-}
 if (! function_exists('file_get_contents')) {
 function file_get_contents($filename, $incpath = false, $resource_context = null, $offset = -1, $maxlen = -1)
 {
-	return xpwiki_file_get_contents($filename, $incpath, $resource_context, $offset, $maxlen);
+	return HypCommonFunc::file_get_contents($filename, $incpath, $resource_context, $offset, $maxlen);
 }
 }
 
@@ -126,7 +90,7 @@ function file_get_contents($filename, $incpath = false, $resource_context = null
  * @copyright   2004-2007 Aidan Lister <aidan@php.net>, Arpad Ray <arpad@php.net>
  * @link        http://php.net/function.file_put_contents
  * @author      Aidan Lister <aidan@php.net>
- * @version     $Revision: 1.10 $
+ * @version     $Revision: 1.11 $
  * @internal    resource_context is not supported
  * @since       PHP 5
  * @require     PHP 4.0.0 (user_error)
