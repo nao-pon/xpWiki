@@ -1,6 +1,6 @@
 <?php
 // PukiWiki - Yet another WikiWikiWeb clone
-// $Id: pukiwiki.ini.php,v 1.104 2010/06/23 08:01:00 nao-pon Exp $
+// $Id: pukiwiki.ini.php,v 1.105 2010/07/25 07:07:07 nao-pon Exp $
 // Copyright (C)
 //   2002-2006 PukiWiki Developers Team
 //   2001-2002 Originally written by yu-ji
@@ -51,6 +51,187 @@ $const['NO_REF_EXTIMG_REG'] = '#^http://[^/]+\.static\.flickr\.com#i';
 // ファイルオーナーが...すべて禁止:0 , 管理人のみ:1 , 登録ユーザーのみ:2 , すべて許可:3
 // セキュリティ上、0 or 1 での運用を強く奨励
 $const['PLUGIN_REF_FLASH_INLINE'] = 1;
+
+// SWF Object でリクエストする Flash バージョン
+$const['PLUGIN_REF_FLASH_VERSION'] = '10.0.45.2';
+
+// ref でインライン表示させる MIME タイプと使用プラグインまたはテンプレート名
+// インライン表示可能なのは管理人所有のファイルと、管理人が許可したファイルのみ
+$const['PLUGIN_REF_MIME_INLINE'] = array();
+$const['PLUGIN_REF_MIME_INLINE']['image/svg+xml']               = 'minimum';
+$const['PLUGIN_REF_MIME_INLINE']['video/x-flv']                 = 'flash';
+$const['PLUGIN_REF_MIME_INLINE']['video/3gpp']                  = 'quicktime';
+$const['PLUGIN_REF_MIME_INLINE']['video/3gpp2']                 = 'quicktime';
+$const['PLUGIN_REF_MIME_INLINE']['video/mp4']                   = 'quicktime';
+$const['PLUGIN_REF_MIME_INLINE']['video/quicktime']             = 'quicktime';
+$const['PLUGIN_REF_MIME_INLINE']['video/mpeg']                  = 'quicktime';
+$const['PLUGIN_REF_MIME_INLINE']['video/x-ms-asf']              = 'wmp6.4';
+$const['PLUGIN_REF_MIME_INLINE']['video/x-ms-wmv']              = 'wmp6.4';
+$const['PLUGIN_REF_MIME_INLINE']['video/avi']                   = 'wmp6.4';
+$const['PLUGIN_REF_MIME_INLINE']['video/divx']                  = 'divx';
+$const['PLUGIN_REF_MIME_INLINE']['video/x-matroska']            = 'divx';
+$const['PLUGIN_REF_MIME_INLINE']['application/vnd.rn-realmedia']= 'real';
+$const['PLUGIN_REF_MIME_INLINE']['video/ogg']                   = 'html5_video';
+$const['PLUGIN_REF_MIME_INLINE']['video/webm']                  = 'html5_video';
+
+// プラグインプレーヤーの設定 (<object> 用)
+$const['PLUGIN_REF_PLAYERS'] = array();
+$const['PLUGIN_REF_PLAYERS']['wmp'] = array(
+	'classid'  => 'clsid:6BF52A52-394A-11d3-B153-00C04F79FAA6',
+	'codebase' => '',
+	'height+'  => 45,
+	'width+'   => 0,
+	'types'    => 'video/x-ms-wmv video/x-ms-wvx video/x-ms-wm video/x-ms-asf video/x-ms-asf-plugin',
+	'banner'   => ''
+);
+
+$const['PLUGIN_REF_PLAYERS']['wmp6.4'] = array(
+	'classid'  => 'clsid:22D6F312-B0F6-11D0-94AB-0080C74C7E95',
+	'codebase' => '',
+	'height+'  => 45,
+	'width+'   => 0,
+	'types'    => 'video/x-ms-wmv video/x-ms-wvx video/x-ms-wm video/x-ms-asf video/x-ms-asf-plugin',
+	'banner'   => ''
+);
+
+$const['PLUGIN_REF_PLAYERS']['quicktime'] = array(
+	'classid'  => 'clsid:02BF25D5-8C17-4B23-BC80-D3488ABDDC6B',
+	'codebase' => 'http://www.apple.com/qtactivex/qtplugin.cab',
+	'height+'  => 16,
+	'width+'   => 0,
+	'types'    => 'video/quicktime video/mp4 video/sd-video video/x-m4v video/3gpp2 video/3gpp video/mpeg video/x-mpeg',
+	'banner'   => ''
+);
+
+$const['PLUGIN_REF_PLAYERS']['divx'] = array(
+	'classid'  => 'clsid:67DABFBF-D0AB-41fa-9C46-CC0F21721616',
+	'codebase' => 'http://go.divx.com/plugin/DivXBrowserPlugin.cab',
+	'height+'  => 20,
+	'width+'   => 0,
+	'types'    => 'video/divx',
+	'banner'   => '<a href="http://www.divx.com/divx/webplayer/"><img src="http://labs.divx.com/files/DivX_Plus_Labs_Banner_Small_en.png"></a>'
+);
+
+$const['PLUGIN_REF_PLAYERS']['real'] = array(
+	'classid'  => 'clsid:CFCDAA03-8BE4-11cf-B84B-0020AFBBCCFA',
+	'codebase' => '',
+	'height+'  => 0,
+	'width+'   => 0,
+	'types'    => 'audio/x-pn-realaudio-plugin',
+	'banner'   => ''
+);
+
+//$const['PLUGIN_REF_PLAYERS']['silverlight'] = array(
+//	'classid'  => '',
+//	'codebase' => '',
+//	'data'     => 'data:application/x-silverlight-2,',
+//	'height+'  => 0,
+//	'width+'   => 0,
+//	'types'    => 'application/x-silverlight-2',
+//	'banner'   => ''
+//);
+
+// フラッシュプレーヤーの設定
+// プレーヤーの配置先は "trust/modules/xpwiki/skin/swf"
+//// http://flowplayer.org/
+$const['PLUGIN_REF_FLV_PLAYER'] = 'flowplayer-3.2.2.swf';
+$const['PLUGIN_REF_FLV_PLAYER_VARS'] = '{"config":\'{"clip":{"url":"$url","autoPlay":false},"plugins":{"controls":{"url":"$srcurlflowplayer.controls-3.2.1.swf"}}}}\'}';
+$const['PLUGIN_REF_FLV_PLAYER_CTR_WIDTH'] = 0;
+$const['PLUGIN_REF_FLV_PLAYER_CTR_HEIGHT'] = 0;
+//// http://rexef.com/webtool/flaver3/
+//$const['PLUGIN_REF_FLV_PLAYER'] = 'flaver.swf';
+//$const['PLUGIN_REF_FLV_PLAYER_VARS'] = '{"file":"$url","title":"$title"}';
+//$const['PLUGIN_REF_FLV_PLAYER_CTR_WIDTH'] = 10;
+//$const['PLUGIN_REF_FLV_PLAYER_CTR_HEIGHT'] = 50;
+
+// ネットビデオ(共有サービースの設定)
+$const['PLUGIN_REF_NETVIDEOS'] = array();
+$const['PLUGIN_REF_NETVIDEOS']['niconico'] = array(
+	'regex'     => '#^http://www\.nicovideo\.jp/watch/([0-9a-z]+)#i',
+	'type'      => 'html',
+	'src'       => '<script type="text/javascript" src="http://ext.nicovideo.jp/thumb_watch/$1"></script>'
+);
+
+$const['PLUGIN_REF_NETVIDEOS']['youtube'] = array(
+	'regex'     => '#^http://www\.youtube\.com/watch\?v=([0-9a-z]+)#i',
+	'type'      => 'flash',
+	'src'       => 'http://www.youtube.com/v/$1&hl=ja_JP&fs=1',
+	'width'     => 640,
+	'height'    => 385,
+	'attribute' => 'allowfullscreen="true" allowscriptaccess="always"'
+);
+
+$const['PLUGIN_REF_NETVIDEOS']['google'] = array(
+	'regex'     => '#^http://video\.google\.com/videoplay\?docid=([0-9-]+)#i',
+	'type'      => 'flash',
+	'src'       => 'http://video.google.com/googleplayer.swf?docid=$1&hl=&fs=true',
+	'width'     => 640,
+	'height'    => 385,
+	'attribute' => 'allowfullscreen="true" allowscriptaccess="always"'
+);
+
+$const['PLUGIN_REF_NETVIDEOS']['ustream'] = array(
+	'regex'     => '#^http://www.ustream.tv/recorded/([0-9]+)#i',
+	'type'      => 'flash',
+	'src'       => 'http://www.ustream.tv/flash/video/$1',
+	'width'     => 480,
+	'height'    => 386,
+	'attribute' => 'flashvars="loc=%2F&autoplay=false&vid=$1&locale=" allowfullscreen="true" allowscriptaccess="always"'
+);
+
+$const['PLUGIN_REF_NETVIDEOS']['circle.zoome'] = array(
+	'regex'     => '#^http://circle\.zoome\.jp/([a-z0-9_-]+)/media/([0-9]+)#i',
+	'type'      => 'flash',
+	'src'       => 'http://circle.zoome.jp/$1/zpmed/p/$2/',
+	'width'     => 800,
+	'height'    => 640,
+	'attribute' => 'allowFullScreen="true" allowScriptAccess="always"'
+);
+
+$const['PLUGIN_REF_NETVIDEOS']['zoome'] = array(
+	'regex'     => '#^http://zoome\.jp/([a-z0-9_-]+)/diary/([0-9]+)#i',
+	'type'      => 'flash',
+	'src'       => 'http://zoome.jp/$1/zpdia/p/$2/',
+	'width'     => 800,
+	'height'    => 640,
+	'attribute' => 'allowFullScreen="true" allowScriptAccess="always"'
+);
+
+$const['PLUGIN_REF_NETVIDEOS']['vimeo'] = array(
+	'regex'     => '#^http://vimeo\.com/([0-9]+)#i',
+	'type'      => 'flash',
+	'src'       => 'http://vimeo.com/moogaloop.swf?clip_id=$1&server=vimeo.com&show_title=1&show_byline=1&show_portrait=0&color=&fullscreen=1',
+	'width'     => 640,
+	'height'    => 360,
+	'attribute' => 'allowFullScreen="true" allowScriptAccess="always"'
+);
+
+$const['PLUGIN_REF_NETVIDEOS']['guba'] = array(
+	'regex'     => '#^http://www\.guba\.com/watch/([0-9]+)#i',
+	'type'      => 'flash',
+	'src'       => 'http://www.guba.com/static/f/player__v13938.swf?isEmbeddedPlayer=true&bid=$1',
+	'width'     => 700,
+	'height'    => 400,
+	'attribute' => 'allowFullScreen="true" allowScriptAccess="never" quality="best"'
+);
+
+$const['PLUGIN_REF_NETVIDEOS']['veoh'] = array(
+	'regex'     => '#^http://www\.veoh\.com/[a-z/]+/watch/([a-z0-9]+)#i',
+	'type'      => 'flash',
+	'src'       => 'http://www.veoh.com/static/swf/webplayer/WebPlayer.swf?version=AFrontend.5.5.2.1030&permalinkId=$1&player=videodetailsembedded&videoAutoPlay=0&id=anonymous',
+	'width'     => 608,
+	'height'    => 487,
+	'attribute' => 'allowFullScreen="true" allowScriptAccess="always"'
+);
+
+$const['PLUGIN_REF_NETVIDEOS']['pandora'] = array(
+	'regex'     => '#^http://channel\.pandora\.tv/channel/video\.ptv\?.+?(userid=[0-9a-z]+&prgid=[0-9]+)#i',
+	'type'      => 'flash',
+	'src'       => 'http://flvr.pandora.tv/flv2pan/flvmovie.dll/$1&countryChk=jp&skin=1',
+	'width'     => 500,
+	'height'    => 402,
+	'attribute' => 'allowFullScreen="true" allowScriptAccess="always"'
+);
 
 // image, video, audio の添付ファイルオープン時にリファラをチェックする
 // 0:チェックしない, 1:未定義は許可, 2:未定義も不許可
