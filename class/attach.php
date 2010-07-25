@@ -1,7 +1,7 @@
 <?php
 /*
  * Created on 2008/03/24 by nao-pon http://hypweb.net/
- * $Id: attach.php,v 1.29 2010/06/23 08:10:33 nao-pon Exp $
+ * $Id: attach.php,v 1.30 2010/07/25 07:01:59 nao-pon Exp $
  */
 
 //-------- クラス
@@ -11,6 +11,7 @@ class XpWikiAttachFile
 	var $page,$file,$age,$basename,$filename,$logname,$copyright;
 	var $time = 0;
 	var $size = 0;
+	var $type = '';
 	var $pgid = 0;
 	var $time_str = '';
 	var $size_str = '';
@@ -60,6 +61,92 @@ class XpWikiAttachFile
 		}
 		$this->owner_id = 0;
 	}
+
+	// イメージサイズの取得
+	function getimagesize() {
+		$size = false;
+		$mime = '';
+		if ($this->type) {
+			$mime = $this->type;
+		} else {
+			$mime = xpwiki_plugin_attach::attach_mime_content_type($this->filename, $this->status);
+		}
+		list($type) = explode('/', $mime);
+		$type = strtolower($type);
+
+		if ($type === 'video' || $mime === 'application/vnd.rn-realmedia') {
+//			$extension = 'ffmpeg';
+//			// load extension
+//			$extension_soname = $extension . '.' . PHP_SHLIB_SUFFIX;
+//			$extension_fullname = PHP_EXTENSION_DIR . '/' . $extension_soname;
+//			if(! extension_loaded($extension) && ini_get('enable_dl') && ! ini_get('safe_mode') && function_exists('dl') && is_file($extension_fullname)) {
+//			    dl($extension_soname);
+//			}
+//			if (extension_loaded($extension)) {
+//				$movie = new ffmpeg_movie($this->filename);
+//				$duration = $movie->getDuration();
+//				$framerate = $movie->getFrameRate();
+//				$h = $movie->getFrameHeight();
+//				$w = $movie->getFrameWidth();
+//				$movie = null;
+//				unset($movie);
+//				$size = array();
+//				$size[0] = intval($w);
+//				$size[1] = intval($h);
+//				$size[2] = 0;
+//				$size[3] = 'width="'.$size[0].'" height="'.$size[1].'"';
+//				$size['bits'] = null;
+//				$size['channels'] = null;
+//				$size['mime'] = $mime;
+//				$size['duration'] = $duration;
+//				$size['framerate'] = $framerate;
+//			} else if (HypCommonFunc::loadClass('getID3')) {
+			if (HypCommonFunc::loadClass('getID3')) {
+				$getID3 = new getID3;
+				$info = $getID3->analyze($this->filename);
+				if ($info && ! empty($info['video'])) {
+					$size = array();
+					$size[0] = intval($info['video']['resolution_x']);
+					$size[1] = intval($info['video']['resolution_y']);
+					$size[2] = 0;
+					$size[3] = 'width="'.$size[0].'" height="'.$size[1].'"';
+					$size['bits'] = null;
+					$size['channels'] = null;
+					$size['mime'] = $mime;
+					$size['duration'] = $info['playtime_seconds'];
+					$size['framerate'] = $info['video']['frame_rate'];
+				}
+				$getID3 = null;
+				unset($getID3);
+			}
+		} else if ($type === 'image') {
+			$size = @ getimagesize($this->filename);
+			if (! $size) {
+				$size = array();
+				$width = $height = 0;
+				if (substr($mime, 6,3) === 'svg') {
+					$src = $this->func->file_get_contents($this->filename, false, null, 0, 4096);
+					if (preg_match('#<svg([^>]+)>#i', $src, $match)) {
+						if (preg_match('#width="([\d.]+)(?:px)?"#i', $match[1], $dig)) {
+							$width = $dig[1];
+						}
+						if (preg_match('#height="([\d.]+)(?:px)?"#i', $match[1], $dig)) {
+							$height = $dig[1];
+						}
+					}
+				}
+				$size[0] = $width;
+				$size[1] = $height;
+				$size[2] = 0;
+				$size[3] = '';
+				$size['bits'] = null;
+				$size['channels'] = null;
+				$size['mime'] = $mime;
+			}
+		}
+		return $size;
+	}
+
 	// ファイル情報取得
 	function getstatus()
 	{
@@ -75,7 +162,7 @@ class XpWikiAttachFile
 			$this->status['count'] = explode(',',$this->status['count']);
 			if (empty($this->status['org_fname'])) $this->status['org_fname'] = $this->file;
 			if (is_null($this->status['imagesize']) || $this->status['imagesize'] === '') {
-				$this->status['imagesize'] = @ getimagesize($this->filename);
+				$this->status['imagesize'] = $this->getimagesize($this->filename);
 				$this->putstatus(FALSE);
 			} else {
 				$this->status['imagesize'] = unserialize($this->status['imagesize']);
@@ -83,13 +170,6 @@ class XpWikiAttachFile
 		}
 		$this->time_str = $this->func->get_date('Y/m/d H:i:s',$this->time);
 		$this->size = isset($this->dbinfo['size'])? $this->dbinfo['size'] : filesize($this->filename);
-		//if ($this->size < 103) {
-		//	$this->size_str = round($this->size) . 'B';
-		//} else if ($this->size < 1024 * 1024) {
-		//	$this->size_str = sprintf('%01.1f',$this->size/1024,1).'KB';
-		//} else {
-		//	$this->size_str = sprintf('%01.1f',$this->size/(1024*1024),1).'MB';
-		//}
 		$this->size_str = $this->func->bytes2KMT($this->size);
 		$this->type = isset($this->dbinfo['type'])? $this->dbinfo['type'] : xpwiki_plugin_attach::attach_mime_content_type($this->filename, $this->status);
 		$this->owner_id = intval($this->status['owner']);
@@ -137,9 +217,9 @@ class XpWikiAttachFile
 	{
 		if ($this->action == "insert")
 		{
-			$this->size = filesize($this->filename);
-			$this->type = xpwiki_plugin_attach::attach_mime_content_type($this->filename, $this->status);
-			$this->time = filemtime($this->filename) - $this->cont['LOCALZONE'];
+			if (! $this->size) $this->size = filesize($this->filename);
+			if (! $this->type) $this->type = xpwiki_plugin_attach::attach_mime_content_type($this->filename, $this->status);
+			if (! $this->time) $this->time = filemtime($this->filename) - $this->cont['LOCALZONE'];
 		}
 		$data['id']   = $this->id;
 		$data['pgid'] = $this->pgid;
@@ -193,7 +273,7 @@ class XpWikiAttachFile
 			if ($this->age) {
 				return '&size(12){'.$label.' '.$info.'};';
 			} else {
-				$ref_option = ($this->status['imagesize'] && $this->status['imagesize'][2] !== 4 && $this->status['imagesize'][2] !== 13)? $this->cont['ATTACH_CONFIG_REF_OPTION_IMG'] : $this->cont['ATTACH_CONFIG_REF_OPTION'];
+				$ref_option = ($this->status['imagesize'] && $this->status['imagesize'][2] && $this->status['imagesize'][2] > 0 && $this->status['imagesize'][2] < 4)? $this->cont['ATTACH_CONFIG_REF_OPTION_IMG'] : $this->cont['ATTACH_CONFIG_REF_OPTION'];
 				return "&size(12){&ref(\"".str_replace(array('"', '|'), array('""', '&#124;'), $this->page."/".$this->file)."\"".$ref_option.");&br();".$info."};";
 			}
 		} else {
@@ -229,6 +309,28 @@ class XpWikiAttachFile
 		}
 		$ref_option = $this->cont['ATTACH_CONFIG_REF_OPTION'];
 		$msg_rename = '';
+
+		// videoの場合の情報再取得ボタン
+		$reinfo = '';
+		list($type) = explode('/', strtolower($this->type));
+		if ($is_editable && ($type === 'video' || $type === 'image' || $this->type === 'application/vnd.rn-realmedia') && (! $this->status['imagesize'] || ! $this->status['imagesize'][0])) {
+			$reinfo = <<<EOD
+<dd>
+<form action="{$script}" method="post">
+ <div>
+  $img_info
+  <input type="hidden" name="plugin" value="attach" />
+  <input type="hidden" name="refer" value="$s_page" />
+  <input type="hidden" name="file" value="$s_file" />
+  <input type="hidden" name="age" value="{$this->age}" />
+  <input type="hidden" name="pcmd" value="reinfo" />
+  <input type="submit" value="Refresh info" />
+ </div>
+</form>
+</dd>
+EOD;
+		}
+
 		if ($this->age)
 		{
 			$msg_delete  = '<input type="radio" id="pcmd_d" name="pcmd" value="delete" /><label for="pcmd_d">'.$this->root->_attach_messages['msg_delete'].'</label>';
@@ -237,8 +339,8 @@ class XpWikiAttachFile
 		else
 		{
 			// イメージファイルの場合
-			$isize = @getimagesize($this->filename);
-			if (is_array($isize) && $isize[2] !== 4 && $isize[2] !== 13)
+			$isize = $this->status['imagesize'];
+			if (is_array($isize) && $isize[2] > 0 && $isize[2] < 4)
 			{
 				$ref_option = $this->cont['ATTACH_CONFIG_REF_OPTION_IMG'];
 				$img_info = "Image: {$isize[0]} x {$isize[1]} px";
@@ -326,13 +428,46 @@ EOD;
 
 		$retval = array('msg'=>sprintf($this->root->_attach_messages['msg_info'],htmlspecialchars($this->file)));
 		$page_link = $this->func->make_pagelink($s_page);
-		//EXIF DATA
-		$exif_data = $this->func->get_exif_data($this->filename);
-		$exif_tags = '';
-		if ($exif_data){
-			$exif_tags = "<hr>".$exif_data['title'];
-			foreach($exif_data as $key => $value){
-				if ($key != "title") $exif_tags .= "<br />$key: $value";
+		$ex_tags = '';
+		if ($this->status['imagesize']) {
+			if ($this->status['imagesize'][2] === IMG_JPG) {
+				//EXIF DATA
+				$exif_data = $this->func->get_exif_data($this->filename);
+				if ($exif_data){
+					$ex_tags = $exif_data['title'];
+					foreach($exif_data as $key => $value){
+						if ($key != "title") $ex_tags .= "<br />$key: $value";
+					}
+				}
+			}
+			if ($this->status['imagesize'][2] < 1) {
+				if (! empty($this->status['imagesize'][0])) {
+					$ex_tags .= 'Width: ' . $this->status['imagesize'][0] . ' px<br />';
+				}
+				if (! empty($this->status['imagesize'][1])) {
+					$ex_tags .= 'Height: ' . $this->status['imagesize'][1] . ' px<br />';
+				}
+				if (! empty($this->status['imagesize']['duration'])) {
+					$duration = $this->status['imagesize']['duration'];
+					if ($duration > 60) {
+						$duration = intval($duration / 60) . ':' . intval($duration % 60);
+					} else {
+						$duration = intval($duration);
+					}
+					$ex_tags .= 'Duration: ' . $duration . ' s<br />';
+				}
+				if (! empty($this->status['imagesize']['framerate'])) {
+					$ex_tags .= 'FrameRate: ' . sprintf('%02.2f', $this->status['imagesize']['framerate']) . ' fps<br />';
+				}
+				if (! empty($this->status['imagesize']['videocodec'])) {
+					$ex_tags .= 'VideoCodec: ' . $this->status['imagesize']['videocodec'] . '<br />';
+				}
+				if (! empty($this->status['imagesize']['audiocodec'])) {
+					$ex_tags .= 'AudioCodec: ' . $this->status['imagesize']['audiocodec'] . '<br />';
+				}
+			}
+			if ($ex_tags) {
+				$ex_tags = '<hr />' . $ex_tags;
 			}
 		}
 		$v_filename = "<dd>{$this->root->_attach_messages['msg_filename']}:".$s_file;
@@ -343,7 +478,7 @@ EOD;
 		}
 		$v_md5hash  = ($this->status['copyright'])? "" : "<dd>{$this->root->_attach_messages['msg_md5hash']}:{$this->status['md5']}</dd>";
 		if ($img_info) $img_info = "<dd>{$img_info}</dd>";
-		if ($exif_tags) $exif_tags = "<dd>{$exif_tags}</dd>";
+		if ($ex_tags) $exif_tags = "<dd>{$ex_tags}</dd>";
 
 		$retval['body'] = <<<EOD
 <p class="small">
@@ -363,6 +498,7 @@ EOD;
  $ref
  $img_info
  $exif_tags
+ $reinfo
  $msg_freezed
 </dl>
 $s_err
@@ -536,7 +672,7 @@ EOD;
 			$this->del_thumb_files();
 			$this->func->pkwk_touch_file($this->filename, $filemtime);
 			$this->getstatus();
-			$this->status['imagesize'] = @ getimagesize($this->filename);
+			$this->status['imagesize'] = $this->getimagesize($this->filename);
 			$this->putstatus();
 		}
 
@@ -568,6 +704,7 @@ EOD;
 
 		return array('msg'=>$this->root->_attach_messages[$copyright ? 'msg_copyrighted' : 'msg_uncopyrighted'],'redirect'=>$redirect);
 	}
+
 	function noinline($noinline,$pass)
 	{
 		$uid = $this->func->get_pg_auther($this->root->vars['page']);
@@ -588,6 +725,27 @@ EOD;
 		$redirect = "{$this->root->script}?plugin=attach&pcmd=info$param";
 
 		return array('msg'=>$this->root->_attach_messages[$noinline != 0 ? 'msg_noinlined' : 'msg_unnoinlined'],'redirect'=>$redirect);
+	}
+
+	function reinfo() {
+		if (!$this->is_owner())
+		// 管理者とページ作成者とファイル所有者以外
+		{
+			return xpwiki_plugin_attach::attach_info('err_password');
+		}
+
+		$this->getstatus();
+		$this->status['imagesize'] = $this->getimagesize($this->filename);
+		$this->putstatus(FALSE);
+
+		$param  = '&file='.rawurlencode($this->file).'&refer='.rawurlencode($this->page).
+			($this->age ? '&age='.$this->age : '');
+		$redirect = "{$this->root->script}?plugin=attach&pcmd=info$param";
+
+		$msg = str_replace('$1', htmlspecialchars($this->status['org_fname']), $this->root->_title_updated);
+
+		return array('msg' => $msg, 'redirect' => $redirect);
+
 	}
 
 	function open()
@@ -613,6 +771,13 @@ EOD;
 			if ($this->status['copyright'])
 				return xpwiki_plugin_attach::attach_info('err_copyright');
 		}
+
+		// video, image でサイズが未取得の場合は取得しておく
+		list($type) = explode('/', strtolower($this->type));
+		if (($type === 'video' || $type === 'image') && (! $this->status['imagesize'] || ! $this->status['imagesize'][0])) {
+			$this->status['imagesize'] = $this->getimagesize($this->filename);
+		}
+
 		$this->status['count'][$this->age]++;
 		$this->putstatus();
 
@@ -1221,18 +1386,19 @@ class XpWikiAttachPages
 					$thisPage .= '<option value="'.rawurlencode($this->root->vars['base']).'"' . $selected . '>' . htmlspecialchars($this->root->vars['base']) . $this->root->_attach_messages['msg_select_current'] . '</option>';
 				}
 				if (! empty($this->root->vars['refer'])) $thisPage .= '<option value="#">'.$this->root->_attach_messages['msg_show_all_pages'].'</option>';
-				$select = '<form><img src="' . $this->cont['LOADER_URL'] . '?src=page_attach.png" alt="Pages" /> <select name="othorpage" style="max-width:85%;" onchange="xpwiki_file_selector_change(this.options[this.selectedIndex].value)">' . $thisPage . join('', $otherPages) . '</select></form>';
+				$base = rawurlencode($this->root->vars['base']);
+				$select = '<form><img src="' . $this->cont['LOADER_URL'] . '?src=page_attach.png" alt="Pages" /> <select name="othorpage" style="max-width:85%;" onchange="xpwiki_file_selector_change(this.options[this.selectedIndex].value, \''.$base.'\')">' . $thisPage . join('', $otherPages) . '</select></form>';
 			}
 			$select_js = <<<EOD
-<script>
-function xpwiki_file_selector_change(page) {
+<script type="text/javascript"><!--
+function xpwiki_file_selector_change(page, base) {
 	if (page || page == 0) {
 		if (page == '#') page = '';
 		var href = location.href;
 		if (! href.match(/&refer=[^&]*/)) {
 			href += '&refer=';
 		}
-		location.href = href.replace(/&refer=[^&]*/, '&refer=' + page).replace(/&(start|encode_hint)=[^&]+/, '');
+		location.href = href.replace(/&refer=[^&]*/, '&refer=' + page).replace(/&base=[^&]*/, '&base=' + base).replace(/&(start|encode_hint)=[^&]+/, '');
 	}
 }
 function xpwiki_dir_selector_change(dir) {
@@ -1241,7 +1407,7 @@ function xpwiki_dir_selector_change(dir) {
 		location.href = location.href.replace(/\/modules\/[^\/]+/, '/modules/' + arr[0]).replace(/&refer=[^&]*/, '&refer=').replace(/&start=[^&]+/, '');
 	}
 }
--->
+//-->
 </script>
 EOD;
 		}
