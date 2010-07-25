@@ -1,7 +1,7 @@
 <?php
 //
 // Created on 2006/10/02 by nao-pon http://hypweb.net/
-// $Id: xpwiki_func.php,v 1.229 2010/06/23 08:09:11 nao-pon Exp $
+// $Id: xpwiki_func.php,v 1.230 2010/07/25 06:54:24 nao-pon Exp $
 //
 class XpWikiFunc extends XpWikiXoopsWrapper {
 
@@ -2134,6 +2134,10 @@ EOD;
 	function get_domid ($plugin, $name, $withDirname = false) {
 		static $count = array();
 		$pgid = $this->get_pgid_by_name($this->root->vars['page']);
+		if (! $pgid) {
+			// for render mode
+			$pgid = $this->cont['UTC'];
+		}
 		if (! isset($count[$this->root->mydirname][$pgid][$plugin][$name])) {
 			$count[$this->root->mydirname][$pgid][$plugin][$name] = 0;
 		}
@@ -2703,6 +2707,10 @@ EOD;
 
 	function strip_emoji($str) {
 		return preg_replace('/\(\([eisv]:[0-9a-f]{4}\)\)|\[emj:\d{1,4}(?::(?:im|ez|sb))?\]/S', '', $str);
+	}
+
+	function file_get_contents($filename, $incpath = false, $resource_context = null, $offset = -1, $maxlen = -1) {
+		return HypCommonFunc::file_get_contents($filename, $incpath, $resource_context, $offset, $maxlen);
 	}
 
 /*----- DB Functions -----*/
