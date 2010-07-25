@@ -1,4 +1,5 @@
 #freeze
+#pginfo(0			3	none	none	3	all	all	1	2m7/2drrBdQ	web-master	1		)
 * mime-type [#d894082c]
 
 この表は、attach.inc.phpがファイルのContent-typeを決定するときに使用します。
@@ -9,14 +10,20 @@
 |image/png|png|png 画像|
 |application/pdf|pdf|pdf ファイル|
 |application/x-shockwave-flash|swf|フラッシュファイル|
+|video/x-flv|flv|フラッシュビデオ|
 |video/mpg|mpg|mpg ビデオファイル|
-|application/vnd.rn-realmedia|rm|RealPlay ビデオファイル|
-|video/quicktime|mov|mov ビデオファイル|
+|application/vnd.rn-realmedia|rm rmvb|RealPlay ビデオファイル|
+|video/quicktime|mov qt|mov ビデオファイル|
 |video/avi|avi|avi ビデオファイル|
+|video/x-ms-asf|asf|Windows ビデオファイル|
 |video/x-ms-wmv|wmv|Windows ビデオファイル|
 |video/3gpp2|3g2|3g2 ビデオファイル|
 |video/3gpp|3gp|3gp ビデオファイル|
-|video/3gpp|mp4|MP4 ビデオファイル|
+|video/mp4|mp4 m4v|MP4 ビデオファイル|
+|video/divx|divx|DivX ビデオファイル|
+|video/x-matroska|mkv|Matroska ビデオファイル|
+|video/ogg|ogv ogg|Ogg ビデオファイル|
+|video/webm|webm|WebM ビデオファイル|
 |audio/mp3|mp3|MP3 音声ファイル|
 |audio/wav|wav wave|wave 音声ファイル|
 |audio/vnd.rn-realaudio|ra ram|RealPlay 音声ファイル|
