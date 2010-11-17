@@ -209,6 +209,7 @@ EOD;
 		// This part is based on GNAVI (http://xoops.iko-ze.net/) //
 		////////////////////////////////////////////////////////////
 
+		$this->root->keitai_output_filter = 'SJIS';
 		$this->root->rtf['no_accesskey'] = TRUE;
 
 		$default_lat  = empty( $this->root->get['lat'] )  ? $this->cont['PLUGIN_GOOGLEMAPS2_DEF_LAT']  : floatval( $this->root->get['lat'] ) ;
@@ -342,7 +343,7 @@ EOD;
 		if ($useAction === 2) {
 			$url = 'http://www.google.co.jp/m/local?site=local&ll='.$lat.','.$lng.'&z='.$zoom;
 		} else if ($useAction) {
-			$url = $this->root->script . '?plugin=googlemaps2&amp;action=static&amp;lat='.$lat.'&amp;lng='.$lng.'&amp;zoom='.$zoom.'&amp;refer='.htmlspecialchars(@ $_SERVER['REQUEST_URI']);
+			$url = $this->root->script . '?plugin=googlemaps2&amp;action=static&amp;lat='.$lat.'&amp;lng='.$lng.'&amp;zoom='.$zoom.'&amp;refer='.rawurlencode(@ $_SERVER['REQUEST_URI']);
 		} else {
 			if ($zoom > 10) {
 				$zoom = $zoom - 1;
