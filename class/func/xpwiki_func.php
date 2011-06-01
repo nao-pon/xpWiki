@@ -1,7 +1,7 @@
 <?php
 //
 // Created on 2006/10/02 by nao-pon http://hypweb.net/
-// $Id: xpwiki_func.php,v 1.230 2010/07/25 06:54:24 nao-pon Exp $
+// $Id: xpwiki_func.php,v 1.231 2011/06/01 06:27:52 nao-pon Exp $
 //
 class XpWikiFunc extends XpWikiXoopsWrapper {
 
@@ -2131,19 +2131,26 @@ EOD;
 		return $favicon;
 	}
 
-	function get_domid ($plugin, $name, $withDirname = false) {
+	function get_domid ($plugin, $name = '', $withDirname = false) {
 		static $count = array();
 		$pgid = $this->get_pgid_by_name($this->root->vars['page']);
 		if (! $pgid) {
 			// for render mode
 			$pgid = $this->cont['UTC'];
 		}
-		if (! isset($count[$this->root->mydirname][$pgid][$plugin][$name])) {
-			$count[$this->root->mydirname][$pgid][$plugin][$name] = 0;
+		if ($name) {
+			$name_key = $name;
+			$name .= '_';
+		} else {
+			$name_key = '__NONAME__';
 		}
-		$count[$this->root->mydirname][$pgid][$plugin][$name]++;
+		if (! isset($count[$this->root->mydirname][$pgid][$plugin][$name_key])) {
+			$count[$this->root->mydirname][$pgid][$plugin][$name_key] = 0;
+		}
+		$id =& $count[$this->root->mydirname][$pgid][$plugin][$name_key];
+		$id++;
 		$dirname = $withDirname? $this->root->mydirname . ':' : '';
-		return $dirname . $this->root->mydirname .'_' . $plugin . '_' . $name . '_' . $pgid . '_' . $count[$this->root->mydirname][$pgid][$plugin][$name];
+		return $dirname . $this->root->mydirname .'_' . $plugin . '_' . $name . $pgid . '_' . $id;
 	}
 
 	function get_emoji_pad ($id, $is_textarea = FALSE, $emj_array = NULL) {
@@ -2610,7 +2617,7 @@ EOD;
 		$d = NULL;
 	}
 
-	function twitter_update($msg, $link = '', $convert = TRUE) {
+	function twitter_update($msg, $page = '', $convert = TRUE) {
 		if (! $this->root->userinfo['uid']) return;
 
 		if (! $this->root->twitter_consumer_key || ! $this->root->twitter_consumer_secret) return;
@@ -2620,7 +2627,16 @@ EOD;
 		if (empty($user_pref['twitter_access_token']) || empty($user_pref['twitter_access_token_secret'])) return;
 
 		if (HypCommonFunc::loadClass('TwitterOAuth')) {
-			if ($link) {
+			$link = '';
+			if ($page) {
+				$link = $this->get_page_uri($page, TRUE);
+				if (
+					($this->root->bitly_login && $this->root->bitly_apiKey && intval($this->root->static_url) !== 1 && $this->cont['SOURCE_ENCODING'] !== 'UTF-8' && ! $this->root->url_encode_utf8 && ! preg_match('/^[\x20-\x7E]+$/i', $page))
+					 ||
+					((!$this->root->bitly_login || !$this->root->bitly_apiKey) && strlen($link) > 140)
+				   ){
+					$link = $this->cont['HOME_URL'] . '?pgid=' . $this->get_pgid_by_name($page);
+				}
 				$link = ' ' . $this->bitly($link);
 			}
 			$max = $link? (140 - strlen($link)) : 140;
@@ -2631,7 +2647,10 @@ EOD;
 					$_bitly_clickable = $this->root->bitly_clickable;
 					$this->root->bitly_clickable = 1;
 				}
+				$_hierarchy_insert = $this->root->hierarchy_insert;
+				$this->root->hierarchy_insert = '';
 				$msg = strip_tags($this->convert_html($msg, $page));
+				$this->root->hierarchy_insert = $_hierarchy_insert;
 				if ($this->root->bitly_clickable) $this->root->bitly_clickable = $_bitly_clickable;
 			}
 
@@ -2657,11 +2676,11 @@ EOD;
 			if (strtolower(substr($url, 0, 13)) === 'http://bit.ly') {
 				$ret = $url;
 			} else if (! $cache || ! $ret = $this->cache_get_db($sha1 = sha1($url), 'bitly')) {
-				$q = 'http://api.bit.ly/shorten?version=2.0.1&longUrl=' . urlencode($url);
+				$q = 'http://api.bitly.com/v3/shorten?longUrl=' . urlencode($url) . '&format=txt';
 				$q .= '&login=' . $this->root->bitly_login . '&apiKey=' . $this->root->bitly_apiKey;
 				$res = $this->http_request($q);
-				if ($res['rc'] === 200 && preg_match('#"shortUrl": "(http://bit.ly/[^"]+)"#', $res['data'], $match))	{
-					$ret = $match[1];
+				if ($res['rc'] === 200 && substr($res['data'], 0, 14) === 'http://bit.ly/')	{
+					$ret = trim($res['data']);
 					if ($cache) {
 						$this->cache_save_db($ret, 'bitly', $cache, $sha1);
 					}
@@ -2711,6 +2730,19 @@ EOD;
 
 	function file_get_contents($filename, $incpath = false, $resource_context = null, $offset = -1, $maxlen = -1) {
 		return HypCommonFunc::file_get_contents($filename, $incpath, $resource_context, $offset, $maxlen);
+	}
+
+	function get_popup_pos($params) {
+		$popup_pos = '';
+		foreach(array('top', 'left', 'bottom', 'right', 'width', 'height') as $_prm) {
+			if (!empty($params[$_prm])) {
+				if (preg_match('/^(\d+)(%|p(?:x|c|t)|e(?:m|x)|in|(?:c|m)m)?/', $params[$_prm], $_match)) {
+				 	if (empty($_match[2])) $_match[2] = 'px';
+				 	$popup_pos .= ',' . $_prm . ':\'' . $_match[1] . $_match[2] . '\'';
+				}
+			}
+		}
+		return $popup_pos;
 	}
 
 /*----- DB Functions -----*/
@@ -3531,6 +3563,7 @@ EOD;
 			$mode = 'update_notimestamp';
 		}
 		$data = array('action' => 'plain_up', 'page' => $page, 'mode' => $mode);
+		if (!$wait) $this->unregist_jobstack($data);
 		$ttl = ($soon)? 0 : 864000;
 		$this->regist_jobstack($data, $ttl, $wait);
 
@@ -3634,6 +3667,9 @@ EOD;
 	// 閲覧権限チェック用 WHERE句取得
 	function get_readable_where ($table = '', $is_admin = NULL, $uid = NULL) {
 		static $where = array();
+
+		// for renderer mode
+		$this->root->rtf['disable_render_cache'] = TRUE;
 
 		if (is_null($is_admin)) $is_admin = $this->root->userinfo['admin'];
 		if (is_null($uid)) $uid = $this->root->userinfo['uid'];
@@ -3993,11 +4029,13 @@ EOD;
 		if (!$alias && in_array($page, $this->root->page_aliases) === false) return false;
 
 		$alias = trim($alias);
+		$alias = preg_replace('/[\r\n]+/', ':', $alias);
 		$aliases = explode(':', $alias);
 		if ($alias) {
 			$aliases = array_map('trim', $aliases);
 			$dirname = $this->page_dirname($page) . '/';
-			$aliases = str_replace('../', $dirname, $aliases);
+			//$aliases = str_replace('../', $dirname, $aliases);
+			$aliases = $this->get_fullname($aliases, $page);
 			natcasesort($aliases);
 			$aliases = array_slice($aliases, 0);
 		}
@@ -4110,8 +4148,8 @@ EOD;
 	}
 
 	// 指定ページ以下のページ数をカウントする
-	function get_child_counts($page) {
-		$page = addslashes(rtrim($page, '/') . '/');
+	function get_child_counts($page = '') {
+		if ($page !== '') $page = addslashes(rtrim($page, '/') . '/');
 		$where = $this->get_readable_where();
 		$where = ($where)? " WHERE editedtime != 0 AND (name LIKE '{$page}%') AND (".$where.")" :  " WHERE editedtime != 0 AND (name LIKE '{$page}%')";
 		$query = 'SELECT count(*) FROM '.$this->xpwiki->db->prefix($this->root->mydirname."_pginfo").$where;

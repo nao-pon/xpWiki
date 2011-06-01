@@ -1,6 +1,6 @@
 <?php
 // PukiWiki - Yet another WikiWikiWeb clone.
-// $Id: default.ini.php,v 1.12 2009/05/25 04:36:07 nao-pon Exp $
+// $Id: default.ini.php,v 1.13 2011/06/01 06:27:51 nao-pon Exp $
 // Copyright (C)
 //   2003-2005 PukiWiki Developers Team
 //   2001-2002 Originally written by yu-ji
@@ -84,6 +84,9 @@ $root->rule_related_str = "</li>\n<li>";
 // 水平線のタグ
 $root->hr = '<hr class="full_hr" />';
 
+// ページ別名の入力欄
+$root->alias_form = 'textarea|class="norich" style="width:40em;height:2.5em;" cols="40" rows="2" rel="nowikihelper"';
+
 /////////////////////////////////////////////////
 // 脚注機能関連
 
@@ -112,7 +115,7 @@ $root->link_compact = 0;
 /////////////////////////////////////////////////
 // Attributes "alt"" & "title" of <img> by plugin "ref"
 // Can set "title", "name", "size", "exif" join by ","
-// Please set "$this->cont['PLUGIN_REF_GET_EXIF'] = TRUE;" in "plugin_ref_init()" if you use "exif". 
+// Please set "$this->cont['PLUGIN_REF_GET_EXIF'] = TRUE;" in "plugin_ref_init()" if you use "exif".
 $root->ref_img_alt = 'title,name';
 $root->ref_img_title = 'title,name,size';
 

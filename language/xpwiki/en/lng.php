@@ -1,6 +1,6 @@
 <?php
 // PukiWiki - Yet another WikiWikiWeb clone.
-// $Id: lng.php,v 1.25 2010/05/19 11:44:57 nao-pon Exp $
+// $Id: lng.php,v 1.26 2011/06/01 06:27:51 nao-pon Exp $
 // Copyright (C)
 //   2002-2005 PukiWiki Developers Team
 //   2001-2002 Originally written by yu-ji
@@ -86,13 +86,15 @@ $root->_btn_load      = 'Load';
 $root->_btn_edit      = 'Edit';
 $root->_btn_delete    = 'Delete';
 $root->_btn_reading   = 'Reading of a page initial';
-$root->_btn_alias     = 'Page aliases (Split with "<span style="color:red;font-weight:bold;font-size:120%;">:</span>"[Colon])';
-$root->_btn_riddle    = '<strong>Q &amp; A Verification</strong>: Please answer next a question before page update. (needless at preview)';
-$root->_btn_pgtitle   = 'Page title( Auto with blank )';
-$root->_btn_pgorder   = 'Page order( 0-9 Decimal Default:1 )';
+$root->_btn_alias     = 'Page aliases <span class="edit_form_note">(Split with "<span style="color:red;font-weight:bold;font-size:120%;">:</span>"[Colon])</span>';
+$root->_btn_alias_lf  = 'Page aliases <span class="edit_form_note">(Split with "<span style="color:red;font-weight:bold;font-size:120%;">Each line</span>")</span>';
+$root->_btn_riddle    = 'Q &amp; A Verification: <span class="edit_form_note">Please answer next a question before page update. (needless at preview)</span>';
+$root->_btn_pgtitle   = 'Page title<span class="edit_form_note">( Auto with blank )</span>';
+$root->_btn_pgorder   = 'Page order<span class="edit_form_note">( 0-9 Decimal Default:1 )</span>';
 $root->_btn_other_op  = 'Show detailed input items.';
 $root->_btn_emojipad  = 'Pictogram pad';
 $root->_btn_esummary  = 'Edit Summary';
+$root->_btn_source    = 'Details';
 
 ///////////////////////////////////////
 // Authentication
@@ -559,4 +561,3 @@ $root->_vote_plugin_votes  = 'Vote';
 // yetlist.inc.php
 $root->_title_yetlist = 'List of pages which have not yet been created.';
 $root->_err_notexist  = 'All pages have been created.';
-?>

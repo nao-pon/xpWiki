@@ -1,7 +1,7 @@
 <?php
 /*
  * Created on 2008/02/28 by nao-pon http://hypweb.net/
- * $Id: aws.inc.php,v 1.16 2010/06/23 07:23:38 nao-pon Exp $
+ * $Id: aws.inc.php,v 1.17 2011/06/01 06:27:51 nao-pon Exp $
  */
 
 /////////////////////////////////////////////////
@@ -26,7 +26,7 @@ class xpwiki_plugin_aws extends xpwiki_plugin {
 			'search'    => 'keywords',
 			'timestamp' => FALSE,
 			'makepage'  => FALSE,
-			'maxdepth'  => 3,
+			'maxdepth'  => 5,
 			'pages'     => 1,
 			'start'     => 1,
 		);
@@ -70,7 +70,7 @@ class xpwiki_plugin_aws extends xpwiki_plugin {
 				'search'    => 'keywords',
 				'timestamp' => FALSE,
 				'makepage'  => FALSE,
-				'maxdepth'  => 3,
+				'maxdepth'  => 5,
 				'pages'     => 1,
 				'start'     => 1,
 			);
@@ -201,14 +201,15 @@ class xpwiki_plugin_aws extends xpwiki_plugin {
 				$checkUTIME = $this->cont['UTC'] - 86400;
 				foreach($ama->compactArray['Items'] as $item) {
 					if ($checkUTIME <= $item['RELEASEUTIME'] && $this->func->basename($this->root->vars['page']) !== $item['TITLE']) {
-						$newpage = $this->root->vars['page'] . '/' . $item['TITLE'];
+						$newpage = $this->root->vars['page'] . '/' . str_replace('/', '|', $item['TITLE']);
 						if (! $this->func->is_page($newpage) && ! $this->func->is_alias($newpage)) {
 							$data = array(
 								'action' => 'plugin_func',
 								'plugin' => 'makepage',
 								'func' => 'auto_make',
 								'args' => array(
-									'new_page' => $newpage
+									'new_page' => $newpage,
+									'twitter'  => 'Release Date: ' . $item['RELEASEDATE'] . ' (' . $item['PRICE_FORMATTED'] . ')'
 								),
 							);
 							$this->func->regist_jobstack($data, 864000, $wait);
@@ -220,10 +221,12 @@ class xpwiki_plugin_aws extends xpwiki_plugin {
 
 			$ama = NULL;
 
-			// Update plainDB
-			$this->func->need_update_plaindb();
-			// After a day
-			$this->func->need_update_plaindb($this->root->vars['page'], 'update', TRUE, TRUE, $this->config['cache_time'] * 60);
+			if (empty($this->root->rtf['preview'])) {
+				// Update plainDB
+				$this->func->need_update_plaindb();
+				// After a day
+				$this->func->need_update_plaindb($this->root->vars['page'], 'update', TRUE, TRUE, $this->config['cache_time'] * 60);
+			}
 		}
 		return explode("\x08", $ret, 2);
 	}

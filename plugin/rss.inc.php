@@ -1,6 +1,6 @@
 <?php
 // PukiWiki - Yet another WikiWikiWeb clone
-// $Id: rss.inc.php,v 1.34 2010/06/23 07:57:04 nao-pon Exp $
+// $Id: rss.inc.php,v 1.35 2011/06/01 06:27:51 nao-pon Exp $
 //
 // RSS plugin: Publishing RSS of RecentChanges
 //
@@ -152,7 +152,7 @@ class xpwiki_plugin_rss extends xpwiki_plugin {
 			foreach ($lines as $line) {
 				list($time, $page) = explode("\t", rtrim($line));
 				$r_page = rawurlencode($page);
-				$link = $this->func->get_page_uri($page, true);
+				$link = $this->func->get_page_uri($page, true, 'keitai');
 				$title = htmlspecialchars($this->root->pagename_num2str ? preg_replace('/\/(?:[0-9\-]+|[B0-9][A-Z0-9]{9})$/','/'.$this->func->strip_emoji($this->func->get_heading($page)),$page) : $page);
 				if ($base) $title = substr($title, (strlen($base) + 1));
 				if (!$pubtime) $pubtime = $this->func->get_date('r', $time);

@@ -1,7 +1,7 @@
 <?php
 /*
  * Created on 2007/10/05 by nao-pon http://hypweb.net/
- * $Id: subnote.inc.php,v 1.5 2009/09/01 03:07:32 nao-pon Exp $
+ * $Id: subnote.inc.php,v 1.6 2011/06/01 06:27:51 nao-pon Exp $
  */
 
 class xpwiki_plugin_subnote extends xpwiki_plugin {
@@ -16,80 +16,67 @@ class xpwiki_plugin_subnote extends xpwiki_plugin {
 			60 * 60 * 24 * 5 => ' <span class="new5" title="%s">New</span>');  // 5days
 		$this->config['icon'] = $this->cont['LOADER_URL'] . '?src=note.png';
 	}
-	
+
 	//function can_call_otherdir_inline() {
 	//	return 1;
 	//}
-	
+
 	function plugin_subnote_convert() {
 		if (strpos($this->root->vars['page'],  $this->root->notepage . '/') === 0) {
 			return '#subnote can not use in the Note page.';
 		}
-		
+
 		$page = $this->root->notepage . '/' . $this->root->vars['page'];
-		
+
 		if (! $this->func->check_readable($page, false, false)) return '';
-		
+
 		$anchor = '';
 		$popup_pos = '';
 		$op = func_get_args();
 		$parames = $this->config['parames'];
 		$this->fetch_options($parames, $op);
-		foreach(array('top', 'left', 'bottom', 'right', 'width', 'height') as $_prm) {
-			if (preg_match('/^(\d+)(%|p(?:x|c|t)|e(?:m|x)|in|(?:c|m)m)?/', $parames[$_prm], $_match)) {
-			 	if (empty($_match[2])) $_match[2] = 'px';
-			 	$popup_pos .= ',' . $_prm . ':\'' . $_match[1] . $_match[2] . '\'';
-			}
-		}
+		$popup_pos = $this->func->get_popup_pos($parames);
 
 		$js = 'XpWiki.domInitFunctions.push(function(){XpWiki.pagePopup({dir:\'' . htmlspecialchars($this->root->mydirname, ENT_QUOTES) .
 			'\',page:\'' . htmlspecialchars(str_replace('\'', '\\\'', $page) . $anchor) . '\'' .
 			$popup_pos . '});});';
-		
+
 		$this->func->add_js_var_head($js);
-		
+
 		return '';
 	}
-	
+
 	function plugin_subnote_inline() {
 		$op = func_get_args();
-		
+
 		list($alias, $alias_main) = array_pad(explode('|', array_pop($op)), 2, '');
 		$anchor = '';
 		if (isset($op[0]) && $op[0][0] === '#') {
 			$anchor = array_shift($op);
 		}
-		
+
 		if (empty($this->cont['PAGENAME'])) return '';
-		
+
 		$parames = $this->config['parames'];
 		$this->fetch_options($parames, $op);
-		
+
 		$parames['format'] = htmlspecialchars($parames['format']);
-		
+
 		$prefix = $this->root->notepage . '/';
 		$page = $this->cont['PAGENAME'];
-		
+
 		if ($parames['popup']) {
 			$options['popup']['use'] = 1;
-			$options['popup']['position'] = '';
-			foreach(array('top', 'left', 'bottom', 'right', 'width', 'height') as $_prm) {
-				if ($parames[$_prm]) {
-					if (preg_match('/^(\d+)(%|px)?/', $parames[$_prm], $_match)) {
-					 	if (empty($_match[2])) $_match[2] = 'px';
-					 	$options['popup']['position'] .= ',' . $_prm . ':\'' . $_match[1] . $_match[2] . '\'';
-					}
-				}
-			}
+			$options['popup']['position'] = $this->func->get_popup_pos($parames);
 		} else {
 			$options = array();
 		}
-		
+
 		$icon = '';
 		if ($parames['icon'] && $this->config['icon']) {
 			$icon = '<img src="'.$this->config['icon'].'" alt="" width="20" height="20" />';
 		}
-		
+
 		if (strpos($page, $prefix) === 0) {
 			// Note ¥Ú¡¼¥¸
 			$page = substr($page, strlen($prefix));
@@ -97,11 +84,11 @@ class xpwiki_plugin_subnote extends xpwiki_plugin {
 			$alias = $alias? $alias : '#compact:'.$this->func->page_dirname($page);
 			return sprintf('<span class="nowrap">' . $parames['format'] . '</span>', $icon . $this->func->make_pagelink($page, $alias, $anchor, '', 'pagelink', $options));
 		}
-		
+
 		$page = $prefix . $page;
-		
+
 		if ($this->cont['PAGENAME'][0] === ':' || ! $this->func->check_readable($page, false, false) || (! $this->func->is_page($page)) && ! $this->func->check_editable($page, false, false)) return '';
-		
+
 		$new = '';
 		$timestamp = $this->func->get_filetime($page);
 		// Add 'New!' string by the elapsed time
@@ -112,7 +99,7 @@ class xpwiki_plugin_subnote extends xpwiki_plugin {
 				break;
 			}
 		}
-		
+
 		$alias = $alias? $alias : htmlspecialchars($page);
 		return sprintf('<span class="nowrap">' . $parames['format'] . '</span>', $icon . $this->func->make_pagelink($page, $alias, $anchor, '', 'pagelink', $options).$new);
 	}

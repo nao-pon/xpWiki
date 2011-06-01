@@ -1,6 +1,6 @@
 <?php
 // PukiWiki - Yet another WikiWikiWeb clone
-// $Id: pcomment.inc.php,v 1.23 2010/03/06 08:26:24 nao-pon Exp $
+// $Id: pcomment.inc.php,v 1.24 2011/06/01 06:27:51 nao-pon Exp $
 //
 // pcomment plugin - Show/Insert comments into specified (another) page
 //
@@ -405,7 +405,7 @@ EOD;
 		}
 
 		if ($twitter_msg) {
-			$this->func->twitter_update($twitter_msg, $this->func->get_page_uri($refer, TRUE));
+			$this->func->twitter_update($twitter_msg, $refer);
 		}
 
 		return $ret;

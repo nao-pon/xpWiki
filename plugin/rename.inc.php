@@ -1,6 +1,6 @@
 <?php
 // PukiWiki - Yet another WikiWikiWeb clone
-// $Id: rename.inc.php,v 1.16 2010/05/03 00:32:57 nao-pon Exp $
+// $Id: rename.inc.php,v 1.17 2011/06/01 06:27:51 nao-pon Exp $
 //
 // Rename plugin: Rename page-name and related data
 //
@@ -231,7 +231,7 @@ EOD;
 		}
 		$exists = array();
 		foreach($pages as $_from => $_to) {
-			if ($this->func->is_page($page) || in_array($page, array_keys($this->root->page_aliases))) {
+			if ($this->func->is_page($_to) || in_array($_to, array_map('strval', array_keys($this->root->page_aliases)))) {
 				$exists[] = $page;
 			} else {
 				$pages[$_from] = $this->func->encode($_to);
@@ -249,7 +249,7 @@ EOD;
 	{
 		$exists = array();
 		foreach ($arr_to as $page)
-			if ($this->func->is_page($page) || in_array($page, array_keys($this->root->page_aliases)))
+			if ($this->func->is_page($page) || in_array($page, array_map('strval', array_keys($this->root->page_aliases))))
 				$exists[] = $page;
 
 		if (! empty($exists)) {

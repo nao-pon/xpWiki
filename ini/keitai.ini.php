@@ -1,6 +1,6 @@
 <?php
 // PukiWiki - Yet another WikiWikiWeb clone.
-// $Id: keitai.ini.php,v 1.26 2010/06/04 07:24:44 nao-pon Exp $
+// $Id: keitai.ini.php,v 1.27 2011/06/01 06:27:51 nao-pon Exp $
 // Copyright (C)
 //   2002-2005 PukiWiki Developers Team
 //   2001-2002 Originally written by yu-ji
@@ -23,6 +23,7 @@ $root->_symbol_anchor = '_';
 /////////////////////////////////////////////////
 // スキンファイルの場所
 $const['SKIN_FILE'] = $const['DATA_HOME'] . $const['SKIN_DIR'] . 'keitai.skin.php';
+$const['SKIN_CHANGER'] = 0;
 
 /////////////////////////////////////////////////
 // Output filter 'SJIS', 'UTF-8' or 'pass'
@@ -88,6 +89,9 @@ $root->rule_related_str = "</li>\n<li>";
 /////////////////////////////////////////////////
 // 水平線のタグ
 $root->hr = '<hr>';
+
+// ページ別名の入力欄
+$root->alias_form = 'textarea|class="norich" style="width:100%;height:2.5em;" cols="22" rows="2"';
 
 /////////////////////////////////////////////////
 // 脚注機能関連

@@ -1,7 +1,7 @@
 <?php
 //
 // Created on 2006/10/13 by nao-pon http://hypweb.net/
-// $Id: init.php,v 1.71 2010/06/23 12:50:56 nao-pon Exp $
+// $Id: init.php,v 1.72 2011/06/01 06:27:52 nao-pon Exp $
 //
 
 $root = & $this->root;
@@ -293,23 +293,21 @@ if (isset($const['page_show'])) {
 	$root->post   = $this->input_filter($root->post);
 	$root->cookie = $this->input_filter($root->cookie);
 
-	if ($root->post) {
+	if ($root->post && ! defined('HYP_POST_ENCODING')) {
 		// 文字コード変換 ($root->post)
 		// <form> で送信された文字 (ブラウザがエンコードしたデータ) のコードを変換
 		// POST method は常に form 経由なので、必ず変換する
 		//
 		if (! empty($root->post['encode_hint'])) {
-			if (! defined('HYP_GET_ENCODING')) {
-				// do_plugin_xxx() の中で、<form> に encode_hint を仕込んでいるので、
-				// encode_hint を用いてコード検出する。
-				// 全体を見てコード検出すると、機種依存文字や、妙なバイナリ
-				// コードが混入した場合に、コード検出に失敗する恐れがある。
-				$encode = mb_detect_encoding($root->post['encode_hint']);
-				if (strtoupper($const['SOURCE_ENCODING']) !== strtoupper($encode)) {
-					$this->encode_numericentity($root->post, $const['SOURCE_ENCODING'], $encode);
-				}
-				mb_convert_variables($const['SOURCE_ENCODING'], $encode, $root->post);
+			// do_plugin_xxx() の中で、<form> に encode_hint を仕込んでいるので、
+			// encode_hint を用いてコード検出する。
+			// 全体を見てコード検出すると、機種依存文字や、妙なバイナリ
+			// コードが混入した場合に、コード検出に失敗する恐れがある。
+			$encode = mb_detect_encoding($root->post['encode_hint']);
+			if (strtoupper($const['SOURCE_ENCODING']) !== strtoupper($encode)) {
+				$this->encode_numericentity($root->post, $const['SOURCE_ENCODING'], $encode);
 			}
+			mb_convert_variables($const['SOURCE_ENCODING'], $encode, $root->post);
 		} else if (! empty($root->post['charset'])) {
 			// TrackBack Ping で指定されていることがある
 			// うまくいかない場合は自動検出に切り替え
