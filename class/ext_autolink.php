@@ -1,7 +1,7 @@
 <?php
 /*
  * Created on 2007/04/23 by nao-pon http://hypweb.net/
- * $Id: ext_autolink.php,v 1.32 2010/05/19 11:41:41 nao-pon Exp $
+ * $Id: ext_autolink.php,v 1.33 2011/06/01 04:14:57 nao-pon Exp $
  */
 class XpWikiPukiExtAutoLink {
 	// External AutoLinks
@@ -55,10 +55,10 @@ class XpWikiPukiExtAutoLink {
 			// own site
 			if ($this->ext_autolink_own) {
 				// other xpWiki
-				return $this->ext_autolink_func->make_pagelink($page, $name, '', '', $this->ext_autolink_a_class);
+				return $this->ext_autolink_func->make_pagelink($page, $name, '', '', $this->ext_autolink_a_class, $this->make_pagelink_options);
 			} else {
 				// own xpWiki
-				return $this->func->make_pagelink($page, $name, '', '', 'autolink');
+				return $this->func->make_pagelink($page, $name, '', '', 'autolink', $this->make_pagelink_options);
 			}
 		} else {
 			$target = ($this->ext_autolink_a_target)? ' target="' . $this->ext_autolink_a_target . '"' : '';
@@ -105,7 +105,8 @@ class XpWikiPukiExtAutoLink {
 			'pat'     => '',
 			'a_target'=> '',
 			'a_class' => '',
-			'option'  => ''
+			'option'  => '',
+			'popup'   => '',
 		);
 		$autolink = array_merge($inits, $autolink);
 
@@ -140,6 +141,7 @@ class XpWikiPukiExtAutoLink {
 		$this->root->rtf['get_ext_autolink_done'][$target] = true;
 
 		$this->ci = $autolink['case_i'];
+		$this->make_pagelink_options = array();
 
 		$cache_min = intval(max($autolink['cache'], 10));
 		// 自己xpWiki以外 & キャッシュあり & キャッシュが有効範囲
@@ -174,6 +176,9 @@ class XpWikiPukiExtAutoLink {
 					}
 				}
 				$pat = $plugin->autolink(true, $autolink['base'], $options);
+				if ($autolink['popup']) {
+					$this->make_pagelink_options['popup']['use'] = 1;
+				}
 			} else {
 				$data = $this->func->http_request($target);
 				if ($data['rc'] !== 200) {
