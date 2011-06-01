@@ -459,9 +459,13 @@ var XpWiki = {
 		}
 	},
 
-	faviconSetDone: false,
-	faviconSet: function (body) {
-		if (this.faviconSetDone || typeof(this.faviconSetClass) == 'undefined' || this.faviconSetClass == '') return;
+	faviconSetDone: new Array(),
+	faviconSet: function (body, id) {
+		if (! id) {
+			id = body.uniqueID;
+		}
+
+		if (this.faviconSetDone[id] || typeof(this.faviconSetClass) == 'undefined' || this.faviconSetClass == '') return;
 
 		var em = document.createElement('div');
 		em.style.height = '1em';
@@ -473,7 +477,7 @@ var XpWiki = {
 
 		var ins_a = new Array();
 		var ins_img = new Array();
-		this.faviconSetDone = true;
+		this.faviconSetDone[id] = true;
 		var time_limit = 3000; // (ms)
 		time_limit += new Date().getTime();
 		if (this.useSelector) {

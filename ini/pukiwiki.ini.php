@@ -1,6 +1,6 @@
 <?php
 // PukiWiki - Yet another WikiWikiWeb clone
-// $Id: pukiwiki.ini.php,v 1.105 2010/07/25 07:07:07 nao-pon Exp $
+// $Id: pukiwiki.ini.php,v 1.106 2011/06/01 06:27:51 nao-pon Exp $
 // Copyright (C)
 //   2002-2006 PukiWiki Developers Team
 //   2001-2002 Originally written by yu-ji
@@ -42,7 +42,7 @@ $const['PKWK_DISABLE_INLINE_IMAGE_FROM_URI'] = 0;
 $const['SHOW_EXTIMG_BY_REF'] = TRUE;
 
 // ref で内部サイトとみなす URL の正規表現 (PCRE)
-$const['NO_REF_EXTIMG_REG'] = '#^http://[^/]+\.static\.flickr\.com#i';
+$const['NO_REF_EXTIMG_REG'] = '#^http://[^/]+\.(?:static\.flickr\.com|photozou\.jp)#i';
 
 // In-line display setting of Flash file
 // The file owner is ... Disable of all: 0, Only the manager: 1, Only the registered user :2, Allow of all: 3.
@@ -147,18 +147,27 @@ $const['PLUGIN_REF_FLV_PLAYER_CTR_HEIGHT'] = 0;
 // ネットビデオ(共有サービースの設定)
 $const['PLUGIN_REF_NETVIDEOS'] = array();
 $const['PLUGIN_REF_NETVIDEOS']['niconico'] = array(
-	'regex'     => '#^http://www\.nicovideo\.jp/watch/([0-9a-z]+)#i',
+	'regex'     => '#^http://www\.nicovideo\.jp/watch/([0-9a-z_-]+)#i',
 	'type'      => 'html',
 	'src'       => '<script type="text/javascript" src="http://ext.nicovideo.jp/thumb_watch/$1"></script>'
 );
 
+//$const['PLUGIN_REF_NETVIDEOS']['youtube'] = array(
+//	'regex'     => '#^http://www\.youtube\.com/watch\?v=([0-9a-z]+)#i',
+//	'type'      => 'flash',
+//	'src'       => 'http://www.youtube.com/v/$1&hl=ja_JP&fs=1',
+//	'width'     => 640,
+//	'height'    => 385,
+//	'attribute' => 'allowfullscreen="true" allowscriptaccess="always"'
+//);
+
 $const['PLUGIN_REF_NETVIDEOS']['youtube'] = array(
-	'regex'     => '#^http://www\.youtube\.com/watch\?v=([0-9a-z]+)#i',
-	'type'      => 'flash',
-	'src'       => 'http://www.youtube.com/v/$1&hl=ja_JP&fs=1',
+	'regex'     => '#^http://www\.youtube\.com/watch\?v=([0-9a-z_-]+)#i',
+	'type'      => 'html',
+	'src'       => '<iframe class="youtube-player" type="text/html"$size src="http://www.youtube.com/embed/$1" frameborder="0"><noiframe>$link</noiframe></iframe>',
+	'src_keitai'=> '$link',
 	'width'     => 640,
 	'height'    => 385,
-	'attribute' => 'allowfullscreen="true" allowscriptaccess="always"'
 );
 
 $const['PLUGIN_REF_NETVIDEOS']['google'] = array(
@@ -233,6 +242,24 @@ $const['PLUGIN_REF_NETVIDEOS']['pandora'] = array(
 	'attribute' => 'allowFullScreen="true" allowScriptAccess="always"'
 );
 
+$const['PLUGIN_REF_NETVIDEOS']['slideboom'] = array(
+	'regex'     => '#^http://www\.slideboom\.com/presentations/(\d+)/#i',
+	'type'      => 'flash',
+	'src'       => 'http://www.slideboom.com/player/player.swf?id_resource=$1',
+	'width'     => 425,
+	'height'    => 370,
+	'attribute' => 'allowFullScreen="true" allowScriptAccess="always" quality="high" bgcolor="#ffffff"'
+);
+
+$const['PLUGIN_REF_NETVIDEOS']['slidesix'] = array(
+	'regex'     => '#^http://slidesix.com/view/([a-z0-9-_]+)#i',
+	'type'      => 'flash',
+	'src'       => 'http://slidesix.com/viewer/SlideSixViewer.swf?alias=$1',
+	'width'     => 550,
+	'height'    => 425,
+	'attribute' => 'allowFullScreen="true" allowScriptAccess="always" wmode="transparent" quality="best"'
+);
+
 // image, video, audio の添付ファイルオープン時にリファラをチェックする
 // 0:チェックしない, 1:未定義は許可, 2:未定義も不許可
 // 未設定 = URL直打ち, ノートンなどでリファラを遮断 など。
@@ -241,7 +268,7 @@ $const['OPEN_MEDIA_REFCHECK'] = 1;
 // PKWK_QUERY_STRING_MAX
 //   Max length of GET method, prohibits some worm attack ASAP
 //   NOTE: Keep (page-name + attach-file-name) <= PKWK_QUERY_STRING_MAX
-$const['PKWK_QUERY_STRING_MAX'] = 640; // Bytes, 0 = OFF
+$const['PKWK_QUERY_STRING_MAX'] = 0; // Bytes, 0 = OFF
 
 // ref, attach ブラウザキャッシュ (秒)
 $const['BROWSER_CACHE_MAX_AGE'] = 864000; // 10 days
@@ -835,7 +862,6 @@ $root->agents = array(
 
 	array('pattern'=>'#^(Vodafone)/([0-9\.]+)#',	'profile'=>'keitai'),
 	array('pattern'=>'#^(SoftBank)/([0-9\.]+)#',	'profile'=>'keitai'),
-
 
 	// Windows CE (the others)
 	// Sample: "Mozilla/2.0 (compatible; MSIE 3.02; Windows CE; 240x320 )" (GFORT, NTT DoCoMo)

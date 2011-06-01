@@ -2,29 +2,29 @@
 /////////////////////////////////////////////////
 // PukiWiki - Yet another WikiWikiWeb clone.
 //
-// $Id: region.inc.php,v 1.13 2009/04/11 00:53:10 nao-pon Exp $
+// $Id: region.inc.php,v 1.14 2011/06/01 06:27:51 nao-pon Exp $
 //
 
 class xpwiki_plugin_region extends xpwiki_plugin {
 	function plugin_region_init () {
 
 	}
-	
+
 	function plugin_region_convert()
 	{
 		static $builder = array();
-		
+
 		if(! isset($builder[$this->xpwiki->pid])) {
 			$builder[$this->xpwiki->pid] = new XpWikiRegionPluginHTMLBuilder($this->xpwiki);
 		}
-	
+
 		// static で宣言してしまったので２回目呼ばれたとき、前の情報が残っていて変な動作になるので初期化。
 		$builder[$this->xpwiki->pid]->setDefaultSettings();
-		
+
 		// 引数が指定されているようなので解析
 		if (func_num_args() > 0){
 			$args = func_get_args();
-			
+
 			// multi line body?
 			$body = array_pop($args);
 			if (strpos($body, "\r") !== FALSE) {
@@ -54,8 +54,8 @@ class xpwiki_plugin_region extends xpwiki_plugin {
 		return $builder[$this->xpwiki->pid]->build();
 	}
 }
-	
-	
+
+
 	// クラスの作り方⇒http://php.s3.to/man/language.oop.object-comparison-php4.html
 class XpWikiRegionPluginHTMLBuilder
 {
@@ -73,7 +73,6 @@ class XpWikiRegionPluginHTMLBuilder
 		$this->cont   =& $xpwiki->cont;
 		$this->func   =& $xpwiki->func;
 
-		$this->callcount = 0;
 		$this->setDefaultSettings();
 	}
 	function setDefaultSettings(){
@@ -91,8 +90,7 @@ class XpWikiRegionPluginHTMLBuilder
 		//$this->description = preg_replace( "/<\/p>$/i", "", $this->description);
 	}
 	function build(){
-		$this->callcount++;
-		$this->elemid = '__uNIQUEiD__' . $this->callcount;
+		$this->elemid = $this->func->get_domid('region', '', true);
 		$html = array();
 		// 以降、ＨＴＭＬ作成処理
 		array_push( $html, $this->buildButtonHtml() );
@@ -108,12 +106,11 @@ class XpWikiRegionPluginHTMLBuilder
 
 	// ■ ボタンの部分。
 	function buildButtonHtml(){
-		
+
 		// Close area div
 		$areadiv_closer = $this->body? '' : $this->func->get_areadiv_closer();
 
 		$button = ($this->isopened) ? "-" : "+";
-		// JavaScriptでsummaryrgn1、contentrgn1などといった感じのユニークな変数名を使用。かぶったら一巻の終わりです。万事休す。id指定せずオブジェクト取れるような、なんかよい方法があればいいんだけど。
 		return <<<EOD
 {$areadiv_closer}<table cellpadding="1" cellspacing="2" style="width:auto;"><tr>
 <td valign="top">
@@ -162,7 +159,7 @@ EOD;
 	function buildBody() {
 		return $this->func->convert_html_multiline($this->body);
 	}
-	
+
 	function buildClose() {
 		$js = '';
 		if (!$this->isopened && $this->body) {

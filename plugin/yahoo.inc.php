@@ -1,7 +1,7 @@
 <?php
 class xpwiki_plugin_yahoo extends xpwiki_plugin {
 	// PukiWiki - Yet another WikiWikiWeb clone.
-	// $Id: yahoo.inc.php,v 1.6 2010/05/19 11:25:58 nao-pon Exp $
+	// $Id: yahoo.inc.php,v 1.7 2011/06/01 06:27:51 nao-pon Exp $
 	/////////////////////////////////////////////////
 
 	// #yahoo([Format Filename],[Mode],[Key Word],[Node Number],[Sort Mode])
@@ -150,17 +150,17 @@ class xpwiki_plugin_yahoo extends xpwiki_plugin {
 		{
 			case "web":
 				$mode = "web";
-				$url = "http://search.yahooapis.jp/WebSearchService/V1/webSearch?appid={$this->appid}&query={$query}&results={$max}&type={$type}";
+				$url = "http://search.yahooapis.jp/WebSearchService/V2/webSearch?appid={$this->appid}&query={$query}&results={$max}&type={$type}";
 				break;
 			case "image":
 			case "img":
 				$mode = "img";
-				$url = "http://search.yahooapis.jp/ImageSearchService/V1/imageSearch?appid={$this->appid}&query={$query}&results={$max}&type={$type}";
+				$url = "http://search.yahooapis.jp/ImageSearchService/V2/imageSearch?appid={$this->appid}&query={$query}&results={$max}&type={$type}";
 				break;
 			case "movie":
 			case "mov":
 				$mode = "mov";
-				$url = "http://search.yahooapis.jp/VideoSearchService/V1/videoSearch?appid={$this->appid}&query={$query}&results={$max}&type={$type}";
+				$url = "http://search.yahooapis.jp/VideoSearchService/V2/videoSearch?appid={$this->appid}&query={$query}&results={$max}&type={$type}";
 				break;
 			case "related":
 			case "rel":
@@ -170,7 +170,7 @@ class xpwiki_plugin_yahoo extends xpwiki_plugin {
 			default:
 				// web
 				$mode = "web";
-				$url = "http://search.yahooapis.jp/WebSearchService/V1/webSearch?appid={$this->appid}&query={$query}&results={$max}&type={$type}";
+				$url = "http://search.yahooapis.jp/WebSearchService/V2/webSearch?appid={$this->appid}&query={$query}&results={$max}&type={$type}";
 		}
 
 		// データ取得

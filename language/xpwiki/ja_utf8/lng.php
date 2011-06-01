@@ -1,6 +1,6 @@
 <?php
 // PukiWiki - Yet another WikiWikiWeb clone.
-// $Id: lng.php,v 1.25 2010/05/19 11:44:57 nao-pon Exp $
+// $Id: lng.php,v 1.26 2011/06/01 06:27:52 nao-pon Exp $
 // Copyright (C)
 //   2002-2005 PukiWiki Developers Team
 //   2001-2002 Originally written by yu-ji
@@ -85,13 +85,15 @@ $root->_btn_load      = '読込';
 $root->_btn_edit      = '編集';
 $root->_btn_delete    = '削除';
 $root->_btn_reading   = 'ページ頭文字読み';
-$root->_btn_alias     = 'ページ別名(複数は"<span style="color:red;font-weight:bold;font-size:120%;">:</span>"[コロン]で区切る)';
-$root->_btn_riddle    = '<strong>Q &amp; A 認証</strong>: ページ更新時は次の質問にお答えください。(プレビュー時は必要ありません)';
-$root->_btn_pgtitle   = 'ページタイトル( 空白で自動設定 )';
-$root->_btn_pgorder   = 'ページ並び順( 0-9 小数可 標準:1 )';
+$root->_btn_alias     = 'ページ別名<span class="edit_form_note">(複数は"<span style="color:red;font-weight:bold;font-size:120%;">:</span>"[コロン]で区切る)</span>';
+$root->_btn_alias_lf  = 'ページ別名<span class="edit_form_note">(複数は[<span style="color:red;">改行</span>]で区切る)</span>';
+$root->_btn_riddle    = 'Q &amp; A 認証:<span class="edit_form_note"> ページ更新時は次の質問にお答えください。(プレビュー時は必要ありません)</span>';
+$root->_btn_pgtitle   = 'ページタイトル<span class="edit_form_note">( 空白で自動設定 )</span>';
+$root->_btn_pgorder   = 'ページ並び順<span class="edit_form_note">( 0-9 小数可 標準:1 )</span>';
 $root->_btn_other_op  = '詳細な入力項目を表示';
 $root->_btn_emojipad  = '絵文字パッド';
 $root->_btn_esummary  = '編集の要約';
+$root->_btn_source    = 'ページ内容';
 
 ///////////////////////////////////////
 // Authentication
@@ -558,4 +560,3 @@ $root->_vote_plugin_votes  = '投票';
 // yetlist.inc.php
 $root->_title_yetlist = '未作成のページ一覧';
 $root->_err_notexist  = '未作成のページはありません。';
-?>

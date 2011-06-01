@@ -1,7 +1,7 @@
 <?php
 //
 // Created on 2006/10/02 by nao-pon http://hypweb.net/
-// $Id: pukiwiki_func.php,v 1.224 2010/07/25 06:47:03 nao-pon Exp $
+// $Id: pukiwiki_func.php,v 1.225 2011/06/01 06:27:52 nao-pon Exp $
 //
 class XpWikiPukiWikiFunc extends XpWikiBaseFunc {
 
@@ -395,7 +395,7 @@ class XpWikiPukiWikiFunc extends XpWikiBaseFunc {
 				$twitter_msg = '['.$this->root->module['title'].'] '
 					. $_page
 					. ($esummary_this ? ' - ' . $esummary_this : '');
-				$this->twitter_update($twitter_msg, $page_url);
+				$this->twitter_update($twitter_msg, $page);
 			}
 		}
 
@@ -1054,7 +1054,7 @@ class XpWikiPukiWikiFunc extends XpWikiBaseFunc {
 
 //----- Start convert_html.php -----//
 	// PukiWiki - Yet another WikiWikiWeb clone
-	// $Id: pukiwiki_func.php,v 1.224 2010/07/25 06:47:03 nao-pon Exp $
+	// $Id: pukiwiki_func.php,v 1.225 2011/06/01 06:27:52 nao-pon Exp $
 	// Copyright (C)
 	//   2002-2005 PukiWiki Developers Team
 	//   2001-2002 Originally written by yu-ji
@@ -1357,7 +1357,7 @@ class XpWikiPukiWikiFunc extends XpWikiBaseFunc {
 
 //----- Start func.php -----//
 	// PukiWiki - Yet another WikiWikiWeb clone.
-	// $Id: pukiwiki_func.php,v 1.224 2010/07/25 06:47:03 nao-pon Exp $
+	// $Id: pukiwiki_func.php,v 1.225 2011/06/01 06:27:52 nao-pon Exp $
 	// Copyright (C)
 	//   2002-2006 PukiWiki Developers Team
 	//   2001-2002 Originally written by yu-ji
@@ -2210,7 +2210,7 @@ EOD;
 
 //----- Start make_link.php -----//
 	// PukiWiki - Yet another WikiWikiWeb clone.
-	// $Id: pukiwiki_func.php,v 1.224 2010/07/25 06:47:03 nao-pon Exp $
+	// $Id: pukiwiki_func.php,v 1.225 2011/06/01 06:27:52 nao-pon Exp $
 	// Copyright (C)
 	//   2003-2005 PukiWiki Developers Team
 	//   2001-2002 Originally written by yu-ji
@@ -2246,6 +2246,7 @@ EOD;
 	function make_pagelink($page, $alias = '', $anchor = '', $refer = '', $class = 'pagelink', $options = array())
 	{
 		static $path_cache = array();
+		static $popup_pos = array();
 
 		$_page = $page;
 		$s_page = htmlspecialchars($this->strip_bracket($page));
@@ -2339,28 +2340,24 @@ EOD;
 		// Popup link (renderer)
 		if ($this->root->render_mode === 'render' && ($this->root->render_popuplink === 1 || ($this->root->render_popuplink === 2 && $class === 'autolink')) && !isset($options['popup']['use'])) {
 			$options['popup']['use'] = 1;
-			static $popup_pos = NULL;
-			if (is_null($popup_pos)) {
-				$popup_pos = '';
-				foreach(array('top', 'left', 'bottom', 'right', 'width', 'height') as $_prm) {
-					if (isset($this->root->render_popuplink_position[$_prm])) {
-						if (preg_match('/^(\d+)(%|p(?:x|c|t)|e(?:m|x)|in|(?:c|m)m)?/', $this->root->render_popuplink_position[$_prm], $_match)) {
-						 	if (empty($_match[2])) $_match[2] = 'px';
-						 	$popup_pos .= ',' . $_prm . ':\'' . $_match[1] . $_match[2] . '\'';
-						}
-					}
-				}
+			if (! isset($popup_pos['#render'])) {
+				$popup_pos['#render'] = $this->get_popup_pos($this->root->render_popuplink_position);
 			}
-			$options['popup']['position'] = $popup_pos;
+			$options['popup']['position'] = $popup_pos['#render'];
 		}
 
 		// Popup link
 		$onclick = '';
 		if (isset($options['popup']['use'])) {
+			if (!isset($options['popup']['position'])) {
+				if (! isset($popup_pos[$this->root->mydirname])) {
+					$popup_pos[$this->root->mydirname] = $this->get_popup_pos($this->root->page_popup_position);
+				}
+				$options['popup']['position'] = $popup_pos[$this->root->mydirname];
+			}
 			$onclick = ' onclick="return XpWiki.pagePopup({dir:\'' . htmlspecialchars($this->root->mydirname, ENT_QUOTES) .
 			'\',page:\'' . htmlspecialchars(str_replace('\'', '\\\'', $page) . $anchor) . '\'' .
-			(isset($options['popup']['position'])? $options['popup']['position'] : '' ) .
-			'});"';
+			$options['popup']['position'] . '});"';
 			$class .= '_popup';
 		}
 
@@ -2409,6 +2406,13 @@ EOD;
 	// Resolve relative / (Unix-like)absolute path of the page
 	function get_fullname($name, $refer)
 	{
+		if (is_array($name)) {
+			$names = array();
+			foreach($name as $_name) {
+				$names[] = $this->get_fullname($_name, $refer);
+			}
+			return $names;
+		}
 		// 'Here'
 		if ($name === '' || $name === './') return $refer;
 
@@ -3238,7 +3242,7 @@ EOD;
 
 //----- Start html.php -----//
 	// PukiWiki - Yet another WikiWikiWeb clone.
-	// $Id: pukiwiki_func.php,v 1.224 2010/07/25 06:47:03 nao-pon Exp $
+	// $Id: pukiwiki_func.php,v 1.225 2011/06/01 06:27:52 nao-pon Exp $
 	// Copyright (C)
 	//   2002-2006 PukiWiki Developers Team
 	//   2001-2002 Originally written by yu-ji
@@ -3543,19 +3547,25 @@ EOD;
 				$order_val = floatval($this->get_page_order($page));
 			}
 
-			$pgtitle = $this->root->_btn_pgtitle . ': <input type="text" name="pgtitle" size="50" value="'.$pgtitle_str.'" /><br />';
+			$pgtitle = '<span class="edit_form_title">' . $this->root->_btn_pgtitle . ':</span> <input type="text" name="pgtitle" size="50" value="'.$pgtitle_str.'" /><br />';
 
 			if ($this->root->pagereading_enable) {
-				$reading = $this->root->_btn_reading . ': <input type="text" name="reading" size="15" value="'.$reading_str.'" />&nbsp;&nbsp; ';
+				$reading = '<span class="edit_form_title">' . $this->root->_btn_reading . ':</span> <input type="text" name="reading" size="15" value="'.$reading_str.'" />&nbsp;&nbsp; ';
 			} else  {
 				$reading = '<input type="hidden" name="reading" size="15" value="'.$reading_str.'" />';
 			}
 
 			// page order
-			$pageorder = $this->root->_btn_pgorder . ': <input type="text" name="pgorder" size="5" value="'.$order_val.'" /><br />';
+			$pageorder = '<span class="edit_form_title">' . $this->root->_btn_pgorder . ':</span> <input type="text" name="pgorder" size="5" value="'.$order_val.'" /><br />';
 
 			// alias
-			$alias = $this->root->_btn_alias . ': <input type="text" name="alias" size="40" value="'.$alias_str.'" /><br />';
+			$alias_form = array_pad(explode('|', $this->root->alias_form, 2), 2, '');
+			if ($alias_form[0] === 'textarea') {
+				$alias_form[1] = trim($alias_form[1]);
+				$alias = '<span class="edit_form_title">' . $this->root->_btn_alias_lf . ':</span> <textarea name="alias" class="norich" ' . $alias_form[1] . '>'.str_replace(':', "\n", $alias_str).'</textarea><br />';
+			} else {
+				$alias = '<span class="edit_form_title">' . $this->root->_btn_alias . ':</span> <input type="text" name="alias" size="40" value="'.$alias_str.'" /><br />';
+			}
 
 			// 添付ファイルリスト
 			$attaches = '';
@@ -3584,8 +3594,8 @@ EOD;
 			$_uname = (!empty($this->root->rtf['preview']) && isset($this->root->vars['uname']))? htmlspecialchars($this->root->vars['uname']) : $this->cont['USER_NAME_REPLACE'];
 			$_anonymous = (!empty($this->root->rtf['preview']) && !empty($this->root->vars['anonymous']))? htmlspecialchars($this->root->vars['anonymous']) : $this->root->cookie['name'];
 			$_anonymous_checked = (!empty($this->root->vars['anonymous']))? ' checked="checked"' : '';
-			$uname = '<label for="_edit_form_uname"><strong>'
-			       . $this->root->_btn_name . '</strong></label>';
+			$uname = '<label for="_edit_form_uname"><span class="edit_form_title">'
+			       . $this->root->_btn_name . '</span></label>';
 			if ($this->root->cookie['name']) {
 				$uname .= '<input type="text" name="uname" value="' . $_uname . '" id="_edit_form_uname" size="15" onkeyup="if(this.value)$(\'_edit_form_anonymous\').checked=\'\'" />'
 				        . '<input type="checkbox" name="anonymous" id="_edit_form_anonymous" value="' . $_anonymous . '" onclick="$(\'_edit_form_uname\').value=this.checked?\'\':this.value"' . $_anonymous_checked . ' />'
@@ -3600,20 +3610,21 @@ EOD;
 		if ($this->root->userinfo['uid'] && $this->root->twitter_consumer_key && $this->root->twitter_consumer_secret) {
 			$user_pref = $this->get_user_pref($this->root->userinfo['uid']);
 			if (! empty($user_pref['twitter_access_token']) && ! empty($user_pref['twitter_access_token_secret'])) {
-				$twitter = ' <input type="checkbox" id="_edit_form_twitter" name="edit_form_twitter" value="1" /><label for="_edit_form_twitter"> ' . $this->root->_msg_with_twitter . '</label>';
+				$twitter_checked = (! empty($this->root->post['edit_form_twitter']))? ' checked="checked"' : '';
+				$twitter = ' <input type="checkbox" id="_edit_form_twitter" name="edit_form_twitter" value="1"'.$twitter_checked.' /><label for="_edit_form_twitter"> ' . $this->root->_msg_with_twitter . '</label>';
 			}
 		}
 
 		// edit summary
 		$_esummary = (! empty($this->root->rtf['preview']) && isset($this->root->vars['esummary']))? htmlspecialchars($this->root->vars['esummary']) : '';
-		$esummary = '<div><label for="_edit_form_esummary"><strong>' . $this->root->_btn_esummary . ':</strong></label> <input type="text" name="esummary" id="_edit_form_esummary" value="' . $_esummary . '" size="60" />'.$twitter.'</div>';
+		$esummary = '<div><label for="_edit_form_esummary"><span class="edit_form_title">' . $this->root->_btn_esummary . ':</span></label> <input type="text" name="esummary" id="_edit_form_esummary" value="' . $_esummary . '" size="60" />'.$twitter.'</div>';
 
 		// Q & A 認証
 		$riddle = '';
 		if (isset($options['riddle'])) {
-			$riddle = '<div>' . $this->root->_btn_riddle . '<br />' .
-				'&nbsp;&nbsp;<strong>Q:</strong> ' . htmlspecialchars($options['riddle']) . '<br />' .
-				'&nbsp;&nbsp;<strong>A:</strong> <input type="text" name="riddle'.md5($this->cont['HOME_URL'].$options['riddle']) .
+			$riddle = '<div><span class="edit_form_title">' . $this->root->_btn_riddle . '</span><br />' .
+				'&nbsp;&nbsp;<span class="edit_form_title">Q:</span> ' . htmlspecialchars($options['riddle']) . '<br />' .
+				'&nbsp;&nbsp;<span class="edit_form_title">A:</span> <input type="text" name="riddle'.md5($this->cont['HOME_URL'].$options['riddle']) .
 				'" size="30" value="" autocomplete="off" onkeyup="(function(e){if(e.value&&!$(\'edit_write_hidden\')){var w=document.createElement(\'input\');w.id=\'edit_write_hidden\';w.type=\'hidden\';w.name=\'write\';e.parentNode.appendChild(w);}})(this)" />' .
 				'</div>';
 		}
@@ -3668,9 +3679,10 @@ EOD;
 			$help = $this->root->hr . $this->catrule();
 		} else {
 			$sdir = htmlspecialchars($this->root->mydirname, ENT_QUOTES);
+			$popup_pos = $this->get_popup_pos($this->root->page_popup_position);
 			$help = '<ul class="list1"><li><a class="pagelink_popup" href="' .
 				$this->root->script . '?cmd=edit&amp;help=true&amp;page=' . $r_page .
-				'" onclick="return XpWiki.pagePopup({dir:\''.$sdir.'\',page:\'FormattingRules\'});">' . $this->root->_msg_help . '</a></li></ul>';
+				'" onclick="return XpWiki.pagePopup({dir:\''.$sdir.'\',page:\'FormattingRules\''.$popup_pos.'});">' . $this->root->_msg_help . '</a></li></ul>';
 		}
 		$help = '<div style="clear:left;">' . $help . '</div>';
 
@@ -3698,6 +3710,7 @@ EOD;
   <input type="hidden" name="digest" value="$s_digest" />
   <input type="hidden" name="paraid" value="$s_id" />
   <input type="hidden" name="orgkey" value="$originalkey" />
+  <div><span class="edit_form_title">{$this->root->_btn_source}:</span></div>
   <textarea id="{$tareaId}" name="msg" rows="{$this->root->rows}" cols="{$this->root->cols}" style="{$tareaStyle}">$s_postdata</textarea>
   $emojipad
   $esummary
@@ -4022,7 +4035,7 @@ EOD;
 
 //----- Start mail.php -----//
 	// PukiWiki - Yet another WikiWikiWeb clone.
-	// $Id: pukiwiki_func.php,v 1.224 2010/07/25 06:47:03 nao-pon Exp $
+	// $Id: pukiwiki_func.php,v 1.225 2011/06/01 06:27:52 nao-pon Exp $
 	// Copyright (C)
 	//   2003-2005 PukiWiki Developers Team
 	//   2003      Originally written by upk
@@ -4325,7 +4338,7 @@ EOD;
 
 //----- Start link.php -----//
 	// PukiWiki - Yet another WikiWikiWeb clone
-	// $Id: pukiwiki_func.php,v 1.224 2010/07/25 06:47:03 nao-pon Exp $
+	// $Id: pukiwiki_func.php,v 1.225 2011/06/01 06:27:52 nao-pon Exp $
 	// Copyright (C) 2003-2006 PukiWiki Developers Team
 	// License: GPL v2 or (at your option) any later version
 	//

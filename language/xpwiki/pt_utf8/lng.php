@@ -1,6 +1,6 @@
 <?php
 // PukiWiki - Yet another WikiWikiWeb clone.
-// $Id: lng.php,v 1.1 2010/03/06 08:20:30 nao-pon Exp $
+// $Id: lng.php,v 1.2 2011/06/01 06:27:52 nao-pon Exp $
 // Copyright (C)
 //   2002-2005 PukiWiki Developers Team
 //   2001-2002 Originally written by yu-ji
@@ -85,12 +85,14 @@ $root->_btn_load      = 'Carregar';
 $root->_btn_edit      = 'Editar';
 $root->_btn_delete    = 'Excluir';
 $root->_btn_reading   = 'Leitura da página inicial';
-$root->_btn_alias     = 'Página com outro nome (Divida com "<span style="color:red;font-weight:bold;font-size:120%;">:</span>"[Colon])';
-$root->_btn_riddle    = '<strong>Verificação da Pergunta e Resposta</strong>: Por favor, responta a seguinte pergunta antes de atualizar a página. (desnecessário na vizualização)';
-$root->_btn_pgtitle   = 'Título da página( Auto with blank )';
-$root->_btn_pgorder   = 'Ordenação da página( 0-9 Decimal Padrão:1 )';
+$root->_btn_alias     = 'Página com outro nome <span class="edit_form_note">(Divida com "<span style="color:red;font-weight:bold;font-size:120%;">:</span>"[Colon])</span>';
+$root->_btn_alias_lf  = 'Página com outro nome <span class="edit_form_note">(Divida com "<span style="color:red;font-weight:bold;font-size:120%;">Each line</span>")</span>';
+$root->_btn_riddle    = 'Verificação da Pergunta e Resposta: <span class="edit_form_note">Por favor, responta a seguinte pergunta antes de atualizar a página. (desnecessário na vizualização)</span>';
+$root->_btn_pgtitle   = 'Título da página<span class="edit_form_note">( Auto with blank )</span>';
+$root->_btn_pgorder   = 'Ordenação da página<span class="edit_form_note">( 0-9 Decimal Padrão:1 )</span>';
 $root->_btn_other_op  = 'Mostrar detalhamento dos itens informados.';
 $root->_btn_emojipad  = 'Pictogram pad';
+$root->_btn_source    = 'Details';
 
 ///////////////////////////////////////
 // Authentication
@@ -553,4 +555,3 @@ $root->_vote_plugin_votes  = 'Votar';
 // yetlist.inc.php
 $root->_title_yetlist = 'Lista de páginas que ainda não foram criadas.';
 $root->_err_notexist  = 'Todas as páginas foram criadas.';
-

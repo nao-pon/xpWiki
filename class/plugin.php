@@ -1,7 +1,7 @@
 <?php
 //
 // Created on 2006/10/05 by nao-pon http://hypweb.net/
-// $Id: plugin.php,v 1.20 2010/07/25 06:11:02 nao-pon Exp $
+// $Id: plugin.php,v 1.21 2011/06/01 06:27:51 nao-pon Exp $
 //
 
 
@@ -112,7 +112,7 @@ class xpwiki_plugin {
 		return '<span class="plugin_error">' . $html . '</span>';
 	}
 
-	function get_domid ($name, $withDirname = false) {
+	function get_domid ($name = '', $withDirname = false) {
 		$plugin = substr(get_class($this), 14);
 		return $this->func->get_domid($plugin, $name, $withDirname);
 	}

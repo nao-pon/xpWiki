@@ -2,7 +2,7 @@
 /////////////////////////////////////////////////
 // PukiWiki - Yet another WikiWikiWeb clone.
 //
-//  $Id: attach.inc.php,v 1.58 2010/07/25 07:01:59 nao-pon Exp $
+//  $Id: attach.inc.php,v 1.59 2011/06/01 06:27:51 nao-pon Exp $
 //  ORG: attach.inc.php,v 1.31 2003/07/27 14:15:29 arino Exp $
 //
 /*
@@ -120,6 +120,12 @@ class xpwiki_plugin_attach extends xpwiki_plugin {
 		$noattach = $nolist = $noform = FALSE;
 		$page = $this->root->vars['page'];
 
+		// Render mode
+		if ($page === '#RenderMode') {
+			$page = $this->root->render_attach;
+			$this->root->rtf['disable_render_cache'] = true;
+		}
+
 		if (func_num_args() > 0)
 		{
 			foreach (func_get_args() as $key => $arg)
@@ -170,6 +176,7 @@ class xpwiki_plugin_attach extends xpwiki_plugin {
 			$this->root->vars['pcmd'] = 'delete';
 			$this->root->vars['file'] = $this->root->vars['delfile'];
 		}
+
 		if (!isset($this->root->vars['refer']) && isset($this->root->vars['page'])) $this->root->vars['refer'] = $this->root->vars['page'];
 		if (!isset($this->root->vars['refer'])) $this->root->vars['refer'] = '';
 
@@ -365,6 +372,11 @@ class xpwiki_plugin_attach extends xpwiki_plugin {
 
 	function do_upload($page,$fname,$tmpname,$copyright=FALSE,$pass=NULL,$notouch=FALSE,$options=NULL)
 	{
+		// ページが無ければ空ページを作成(他のプラグインから呼ばれた時のため)
+		if (!$this->func->is_page($page)) {
+			$this->func->make_empty_page($page, false);
+		}
+
 		$overwrite = (!empty($options['overwrite']));
 		$changelog = (isset($options['changelog']))? $options['changelog'] : '';
 

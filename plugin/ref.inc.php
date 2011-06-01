@@ -1,5 +1,5 @@
 <?php
-// $Id: ref.inc.php,v 1.53 2010/07/25 07:07:08 nao-pon Exp $
+// $Id: ref.inc.php,v 1.54 2011/06/01 06:27:51 nao-pon Exp $
 /*
 
 	*プラグイン ref
@@ -1049,12 +1049,30 @@ _HTML_;
 								case 'html':
 									$params['noicon'] = true;
 									$params['nolink'] = true;
-									$lvar['text'] = trim($netvideo['src']);
-									array_shift($match);
-									$i = 1;
+									if (isset($netvideo['src_' . $this->cont['UA_PROFILE']])) {
+										$lvar['text'] = trim($netvideo['src_' . $this->cont['UA_PROFILE']]);
+									} else {
+										$lvar['text'] = trim($netvideo['src']);
+									}
+									$i = 0;
 									foreach($match as $replace) {
 										$lvar['text'] = str_replace('$'.$i++, $replace, $lvar['text']);
 									}
+									if (!empty($netvideo['width']) && !empty($netvideo['height'])) {
+										$img = array();
+										$img['org_w'] = $netvideo['width'];
+										$img['org_h'] = $netvideo['height'];
+										$this->get_show_imagesize($img, $params);
+										$size = ' width="'.$img['width'].'" height="'.$img['height'].'"';
+									} else {
+										$size = '';
+									}
+									$lvar['text'] = str_replace('$size', $size, $lvar['text']);
+									$link = htmlspecialchars($lvar['name']);
+									$link = '<a href="'.$link.'">'.$link.'</a>';
+									$lvar['text'] = str_replace('$link', $link, $lvar['text']);
+
+
 									break;
 
 								case 'flash':
@@ -1274,7 +1292,7 @@ _HTML_;
 			$params['_%'] = round($params['_%']);
 		}
 
-		$img['title'] = "SIZE:{$img['org_w']}x{$img['org_h']}({$params['fsize']})";
+		$img['title'] = "SIZE:{$img['org_w']}x{$img['org_h']}" . (!empty($params['fsize'])? "({$params['fsize']})" :'');
 		$img['info'] = ($width && $height)? ' width="'.$width.'" height="'.$height.'"' : '';
 		$img['width'] = $width;
 		$img['height'] = $height;

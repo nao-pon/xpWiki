@@ -1,6 +1,6 @@
 <?php
 // PukiWiki - Yet another WikiWikiWeb clone.
-// $Id: lng.php,v 1.20 2010/05/19 11:44:57 nao-pon Exp $
+// $Id: lng.php,v 1.21 2011/06/01 06:27:51 nao-pon Exp $
 // Copyright (C)
 //   2002-2005 PukiWiki Developers Team
 //   2001-2002 Originally written by yu-ji
@@ -90,12 +90,14 @@ $root->_btn_load      = 'Laden';
 $root->_btn_edit      = 'Bearbeiten';
 $root->_btn_delete    = 'Löschen';
 $root->_btn_reading   = 'Lesen einer Einstiegsseite';
-$root->_btn_alias     = 'Seiten Aliases (Trenne mit "<span style="color:red;font-weight:bold;font-size:120%;">:</span>"[Colon])';
-$root->_btn_riddle    = '<strong>Q & A Bestätigung</strong>: Bitte beantworte die nächste Frage vor dem Speichern der Seite. (nicht nötig für die Vorschau)';
-$root->_btn_pgtitle   = 'Page Titel( Auto mit Lücke )';
-$root->_btn_pgorder   = 'Page Reihenfolge( 0-9 Dezimal Versäumnis:1 )';
+$root->_btn_alias     = 'Seiten Aliases <span class="edit_form_note">(Trenne mit "<span style="color:red;font-weight:bold;font-size:120%;">:</span>"[Colon])</span>';
+$root->_btn_alias_lf  = 'Seiten Aliases <span class="edit_form_note">(Trenne mit "<span style="color:red;font-weight:bold;font-size:120%;">Each line</span>")</span></span>';
+$root->_btn_riddle    = 'Q & A Bestätigung: <span class="edit_form_note">Bitte beantworte die nächste Frage vor dem Speichern der Seite. (nicht nötig für die Vorschau)</span>';
+$root->_btn_pgtitle   = 'Page Titel<span class="edit_form_note">( Auto mit Lücke )</span>';
+$root->_btn_pgorder   = 'Page Reihenfolge<span class="edit_form_note">( 0-9 Dezimal Versäumnis:1 )</span>';
 $root->_btn_other_op  = 'Show listete Eingabestücke auf.';
 $root->_btn_esummary  = 'Bearbeiten Zusammenfassung';
+$root->_btn_source    = 'Details';
 
 ///////////////////////////////////////
 // Authentication
@@ -561,4 +563,3 @@ $root->_vote_plugin_votes  = 'Abstimmen';
 // yetlist.inc.php
 $root->_title_yetlist = 'Liste an Seiten, die noch nicht angelegt wurden.';
 $root->_err_notexist  = 'Alle Seiten wurden angelegt.';
-?>
