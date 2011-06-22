@@ -1,5 +1,5 @@
 <?php
-// $Id: ref.inc.php,v 1.54 2011/06/01 06:27:51 nao-pon Exp $
+// $Id: ref.inc.php,v 1.55 2011/06/22 03:05:30 nao-pon Exp $
 /*
 
 	*プラグイン ref
@@ -241,6 +241,9 @@ class xpwiki_plugin_ref extends xpwiki_plugin {
 			$ret = $params['_error'];
 		} else {
 			$ret = $params['_body'];
+			if ($params['caption']) {
+				$ret = $this->wrap_span($ret, $params);
+			}
 		}
 
 		return $ret;
@@ -616,9 +619,11 @@ class xpwiki_plugin_ref extends xpwiki_plugin {
 			$_size = '';
 			if ($img['width']) {
 				$_size .= ' width="' . $img['width'] . '"';
+				$lvar['width'] = $img['width'];
 			}
 			if ($img['height']) {
 				$_size .= ' height="' . $img['height'] . '"';
+				$lvar['height'] = $img['height'];
 			}
 			$align = '';
 			if ($inline) {
@@ -968,12 +973,36 @@ _HTML_;
 		$this->func->add_js_var_head($js);
 	}
 
+	// spanで包む (inline-block)
+	function wrap_span($text, $params) {
+		$style = '';
+		if (!empty($this->lvar['width'])) {
+			$style .= 'width:' . $this->lvar['width'] . 'px;';
+		}
+
+		$body = $text . '<br />' . '<span class="ref_caption" style="' . $style . '">' . $this->lvar['caption'] . '<br /></span>';
+
+		$style = '';
+		if ($params['_align'] !== 'none') {
+			if ($params['_align'] === 'center') {
+				$style .= 'width:100%;text-align:center;';
+			} else {
+				$style .= 'float:' . $params['_align'] . ';';
+			}
+		}
+		return '<span class="ref_use_caption" style="' . $style . '">' . $body . '</span>';
+	}
+
 	// divで包む
 	function wrap_div($text, $params) {
 		$align = $params['_align'];
 		$around = $params['around'];
 		if ($params['caption']) {
-			$caption = '<div class="ref_caption">'.$this->lvar['caption'].'</div>';
+			$style = '';
+			if (!empty($this->lvar['width'])) {
+				$style .= 'width:' . $this->lvar['width'] . 'px;';
+			}
+			$caption = '<div class="ref_caption" style="' . $style . '">'.$this->lvar['caption'].'</div>';
 			$add_class = ' ref_use_caption';
 		} else {
 			$add_class = $caption = '';
@@ -1432,6 +1461,10 @@ _HTML_;
 
 	// 拡張パラメーターの処理
 	function check_arg_ex (& $params, & $lvar) {
+		if (is_string($params['caption']) && $params['caption']) {
+			$params['_title'][] = $params['caption'];
+			$params['caption'] = true;
+		}
 		foreach ($params['_args'] as $arg){
 			$m = array();
 			if (preg_match("/^(m)?w(?:idth)?:([0-9]+)$/i",$arg,$m)){
