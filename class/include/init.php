@@ -1,7 +1,7 @@
 <?php
 //
 // Created on 2006/10/13 by nao-pon http://hypweb.net/
-// $Id: init.php,v 1.72 2011/06/01 06:27:52 nao-pon Exp $
+// $Id: init.php,v 1.73 2011/07/03 04:38:31 nao-pon Exp $
 //
 
 $root = & $this->root;
@@ -376,6 +376,13 @@ if (isset($const['page_show'])) {
 	if (!empty($root->get['pgid'])) {
 		$page = $this->get_name_by_pgid((int)$root->get['pgid']);
 		if ($page !== '') {
+			if (isset($root->get['rd'])) {
+				if (! headers_sent()) {
+					header('HTTP/1.1 301 Moved Permanently');
+					header('Status: 301 Moved Permanently');
+				}
+				$this->send_location('', '', $this->get_page_uri($page, TRUE, 'default'));
+			}
 			if (!isset($root->get['page'])) $root->get['page'] = $page;
 			if (!isset($root->get['cmd']) && !isset($root->get['plugin'])) {
 				$root->get['cmd'] = 'read';
