@@ -566,9 +566,12 @@ EOD;
 		}
 		$host = '';
 		if ($this->root->bitly_clickable && ! $this->has_bracket && ! $this->is_image && $this->type !== 'mailto') {
-			$this->name = $this->func->bitly(str_replace('&amp;', '&', $this->name));
+			$_name = str_replace('&amp;', '&', $this->name);
+			$this->name = $this->func->bitly($_name);
 			$this->alias = htmlspecialchars($this->name);
-			if ($this->root->bitly_clickable === 2 && $this->host !== 'bit.ly') $host = '<span class="modest"> (' . htmlspecialchars($this->host) . ')</span>';
+			if ($this->root->bitly_clickable === 2 && $_name !== $this->name && !($this->root->bitly_domain_internal && strpos($this->name, 'http://' . $this->root->bitly_domain_internal) === 0)) {
+				$host = '<span class="modest"> (' . htmlspecialchars($this->host) . ')</span>';
+			}
 		}
 		return '<a href="'.$this->name.'"'.$title.$rel.$class.$img.$target.'>'.$this->alias.'</a>'.$host;
 	}

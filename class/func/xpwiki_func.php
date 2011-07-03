@@ -1,7 +1,7 @@
 <?php
 //
 // Created on 2006/10/02 by nao-pon http://hypweb.net/
-// $Id: xpwiki_func.php,v 1.231 2011/06/01 06:27:52 nao-pon Exp $
+// $Id: xpwiki_func.php,v 1.232 2011/07/03 04:50:50 nao-pon Exp $
 //
 class XpWikiFunc extends XpWikiXoopsWrapper {
 
@@ -1662,6 +1662,7 @@ EOD;
 		}
 
 		// For WizMobile
+		$user = null;
 		if (strpos($url, '?') !== FALSE) {
 		    if ((class_exists('XC_CLASS_EXISTS') && XC_CLASS_EXISTS('Wizin_User')) || class_exists('Wizin_User')) {
 				$user = & Wizin_User::getSingleton();
@@ -1691,14 +1692,25 @@ EOD;
 		if (headers_sent()) {
 			$this->redirect_header($url, 0, $title);
 		} else {
-			$url = $this->href_give_session_id($url);
-			$url = str_replace('&amp;', '&', $url);
+			if ($user || defined('HYP_K_TAI_RENDER') && HYP_K_TAI_RENDER) {
+				if (is_object($user)) {
+					if (! $user->bCookie) {
+						$url = $this->href_give_session_id($url);
+					}
+				} else {
+					$kr =& HypKTaiRender::getSingleton();
+					if (! $kr->vars['ua']['allowCookie']) {
+						$url = $this->href_give_session_id($url);
+					}
+				}
+			}
 			header('Location: ' . $url);
 		}
 		exit;
 	}
 
 	function href_give_session_id ($url) {
+		$url = str_replace('&amp;', '&', $url);
 		$session_name = session_name();
 		if (! defined('SID') || ! SID || isset($_COOKIE[$session_name])) return $url;
 
@@ -1710,18 +1722,16 @@ EOD;
 			$parsed_url['host'] = $parsed_base['host'];
 		}
 		if (empty($parsed_url['host']) || ($parsed_url['host'] === $parsed_base['host'] && $parsed_url['scheme'] === $parsed_base['scheme'])) {
-			$url = preg_replace('/(?:\?|&(?:amp;)?)' . preg_quote($session_name, '/') . '=[^&#>]+/', '', $url);
-			//$url = preg_replace('/(?:\?|&(?:amp;)?)' . preg_quote($this->hashkey, '/') . '=[^&#>]+/', '', $url);
+			$url = preg_replace('/(?:\?|&)' . preg_quote($session_name, '/') . '=[^&#>]+/', '', $url);
 
 			list($href, $hash) = array_pad(explode('#', $url, 2), 2, '');
 
 			if (!$href) {
 				$href = isset($_SERVER['QUERY_STRING'])? '?' . $_SERVER['QUERY_STRING'] : '';
-				$href = preg_replace('/(?:\?|&(?:amp;)?)' . preg_quote($session_name, '/') . '=[^&]+/', '', $href);
-				//$href = preg_replace('/(?:\?|&(?:amp;)?)' . preg_quote($this->hashkey, '/') . '=[^&]+/', '', $href);
+				$href = preg_replace('/(?:\?|&)' . preg_quote($session_name, '/') . '=[^&]+/', '', $href);
 			};
 
-			$href .= ((strpos($href, "?") === FALSE)? '?' : '&amp;') . '&amp;' . SID;
+			$href .= ((strpos($href, "?") === FALSE)? '?' : '&') . SID;
 			$url = $href . ($hash? '#' . $hash : '');
 		}
 
@@ -2631,11 +2641,11 @@ EOD;
 			if ($page) {
 				$link = $this->get_page_uri($page, TRUE);
 				if (
-					($this->root->bitly_login && $this->root->bitly_apiKey && intval($this->root->static_url) !== 1 && $this->cont['SOURCE_ENCODING'] !== 'UTF-8' && ! $this->root->url_encode_utf8 && ! preg_match('/^[\x20-\x7E]+$/i', $page))
+					($this->root->bitly_login && $this->root->bitly_apiKey && intval($this->root->static_url) !== 1 && ! preg_match('/^[\x20-\x7E]+$/i', $page))
 					 ||
 					((!$this->root->bitly_login || !$this->root->bitly_apiKey) && strlen($link) > 140)
 				   ){
-					$link = $this->cont['HOME_URL'] . '?pgid=' . $this->get_pgid_by_name($page);
+					$link = $this->cont['HOME_URL'] . '?pgid=' . $this->get_pgid_by_name($page) . '&rd';
 				}
 				$link = ' ' . $this->bitly($link);
 			}
@@ -2673,13 +2683,31 @@ EOD;
 	function bitly($url, $returnEmpty = FALSE, $cache = 864000) {
 		$ret = $returnEmpty? '' : $url;
 		if ($this->root->bitly_login && $this->root->bitly_apiKey) {
-			if (strtolower(substr($url, 0, 13)) === 'http://bit.ly') {
+			if (strtolower(substr($url, 0, 14)) === 'http://bit.ly/'
+			|| ($this->root->bitly_domain_internal && preg_match('#^http://'.preg_quote($this->root->bitly_domain_internal, '#').'/#i', $url))
+			|| ($this->root->bitly_domain_external && preg_match('#^http://'.preg_quote($this->root->bitly_domain_external, '#').'/#i', $url))
+			    ) {
 				$ret = $url;
 			} else if (! $cache || ! $ret = $this->cache_get_db($sha1 = sha1($url), 'bitly')) {
+				$domain = '';
+				if ($this->root->bitly_domain_internal || $this->root->bitly_domain_external) {
+					if (preg_match('/^' . preg_quote($this->cont['ROOT_URL'], '/') . '/i', $url)) {
+						if ($this->root->bitly_domain_internal) {
+							$domain = $this->root->bitly_domain_internal;
+						}
+					} else {
+						if ($this->root->bitly_domain_external) {
+							$domain = $this->root->bitly_domain_external;
+						}
+					}
+				}
 				$q = 'http://api.bitly.com/v3/shorten?longUrl=' . urlencode($url) . '&format=txt';
 				$q .= '&login=' . $this->root->bitly_login . '&apiKey=' . $this->root->bitly_apiKey;
+				if ($domain) {
+					$q .= '&domain=' . urlencode($domain);
+				}
 				$res = $this->http_request($q);
-				if ($res['rc'] === 200 && substr($res['data'], 0, 14) === 'http://bit.ly/')	{
+				if ($res['rc'] === 200 && substr($res['data'], 0, 7) === 'http://')	{
 					$ret = trim($res['data']);
 					if ($cache) {
 						$this->cache_save_db($ret, 'bitly', $cache, $sha1);
