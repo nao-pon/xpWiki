@@ -1,7 +1,7 @@
 <?php
 /*
  * Created on 2008/01/24 by nao-pon http://hypweb.net/
- * $Id: conf.inc.php,v 1.23 2010/06/23 08:01:00 nao-pon Exp $
+ * $Id: conf.inc.php,v 1.24 2011/07/03 04:50:50 nao-pon Exp $
  */
 
 class xpwiki_plugin_conf extends xpwiki_plugin {
@@ -230,6 +230,16 @@ class xpwiki_plugin_conf extends xpwiki_plugin {
 				'form' => 'text,size="20"',
 			),
 			'bitly_apiKey' => array(
+				'kind' => 'root',
+				'type' => 'string',
+				'form' => 'text,size="40"',
+			),
+			'bitly_domain_internal' => array(
+				'kind' => 'root',
+				'type' => 'string',
+				'form' => 'text,size="40"',
+			),
+			'bitly_domain_external' => array(
 				'kind' => 'root',
 				'type' => 'string',
 				'form' => 'text,size="40"',
