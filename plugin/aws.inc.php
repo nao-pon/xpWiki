@@ -1,7 +1,7 @@
 <?php
 /*
  * Created on 2008/02/28 by nao-pon http://hypweb.net/
- * $Id: aws.inc.php,v 1.17 2011/06/01 06:27:51 nao-pon Exp $
+ * $Id: aws.inc.php,v 1.18 2011/07/03 04:41:01 nao-pon Exp $
  */
 
 /////////////////////////////////////////////////
@@ -198,7 +198,7 @@ class xpwiki_plugin_aws extends xpwiki_plugin {
 			    && substr_count($this->root->vars['page'], '/') + 1 < $this->options['maxdepth']
 			   ) {
 				$wait = 0;
-				$checkUTIME = $this->cont['UTC'] - 86400;
+				$checkUTIME = $this->cont['UTC'] - (86400 * 7); // 1週間前まで
 				foreach($ama->compactArray['Items'] as $item) {
 					if ($checkUTIME <= $item['RELEASEUTIME'] && $this->func->basename($this->root->vars['page']) !== $item['TITLE']) {
 						$newpage = $this->root->vars['page'] . '/' . str_replace('/', '|', $item['TITLE']);
