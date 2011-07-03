@@ -1,7 +1,7 @@
 <?php
 /*
  * Created on 2009/11/10 by nao-pon http://xoops.hypweb.net/
- * $Id: bitly.inc.php,v 1.2 2010/01/08 13:58:24 nao-pon Exp $
+ * $Id: bitly.inc.php,v 1.3 2011/07/03 04:42:44 nao-pon Exp $
  */
 
 class xpwiki_plugin_bitly extends xpwiki_plugin {
@@ -16,21 +16,24 @@ class xpwiki_plugin_bitly extends xpwiki_plugin {
 	function plugin_bitly_inline() {
 		$args = func_get_args();
 		$body = array_pop($args);
-		if (! $args) {
+		if (! $args || $args[0] === '') {
 			if ($this->root->render_mode === 'main') {
-				$args = array($this->func->get_page_uri($this->root->vars['page'], true));
+				$args[0] = $this->func->get_page_uri($this->root->vars['page'], true);
 			} else {
 				$this->root->pagecache_min = 0;
 				$this->root->rtf['disable_render_cache'] = TRUE;
-				$args = array(rtrim($this->cont['ROOT_URL'], '/') . $_SERVER['REQUEST_URI']);
+				$args[0] = rtrim($this->cont['ROOT_URL'], '/') . $_SERVER['REQUEST_URI'];
 			}
 		}
 		if ($args) {
-			$url = array_pop($args);
+			$url = array_shift($args);
 			$title = preg_replace('#^https?://#i', '', $url);
 			if ($title !== $url) {
 				$title = htmlspecialchars($title);
 				$url = $this->func->bitly($url, FALSE, TRUE);
+				if (in_array('qrcode', $args)) {
+					$body = '<img src="'.$url.'.qrcode" alt="QR Code" width="80" height="80" />';
+				}
 				if ($body) {
 					$body = preg_replace('#</?a[^>]*?>#i', '', $body);
 				} else {
