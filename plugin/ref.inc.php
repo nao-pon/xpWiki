@@ -1,5 +1,5 @@
 <?php
-// $Id: ref.inc.php,v 1.55 2011/06/22 03:05:30 nao-pon Exp $
+// $Id: ref.inc.php,v 1.56 2011/07/29 07:14:25 nao-pon Exp $
 /*
 
 	*プラグイン ref
@@ -115,9 +115,7 @@ class xpwiki_plugin_ref extends xpwiki_plugin {
 
 		if ($etag == @ $_SERVER["HTTP_IF_NONE_MATCH"]) {
 			// clear output buffer
-			while( ob_get_level() ) {
-				ob_end_clean() ;
-			}
+			$this->func->clear_output_buffer();
 			header('HTTP/1.1 304 Not Modified' );
 			header('Cache-Control: private, max-age=' . $this->cont['BROWSER_CACHE_MAX_AGE']);
 			header('Pragma:');
@@ -207,9 +205,7 @@ class xpwiki_plugin_ref extends xpwiki_plugin {
 
 		// Output
 		// clear output buffer
-		while( ob_get_level() ) {
-			ob_end_clean() ;
-		}
+		$this->func->clear_output_buffer();
 		$this->func->pkwk_common_headers();
 		header('Content-Disposition: inline; filename="' . $filename . '"');
 		header('Content-Length: ' . $size);

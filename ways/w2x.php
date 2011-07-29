@@ -2,7 +2,7 @@
 /*
  * Created on 2008/10/23 by nao-pon http://hypweb.net/
  * License: GPL v2 or (at your option) any later version
- * $Id: w2x.php,v 1.19 2009/11/17 06:09:11 nao-pon Exp $
+ * $Id: w2x.php,v 1.20 2011/07/29 07:14:25 nao-pon Exp $
  */
 
 //
@@ -95,7 +95,9 @@ function Send_xml($body, $line_break)
 {
 	// clear output buffer
 	while( ob_get_level() ) {
-		ob_end_clean() ;
+		if (! ob_end_clean()) {
+			break;
+		}
 	}
 	$out = '';
 	$out .= '<?xml version="1.0" encoding="UTF-8" ?>' . "\n";

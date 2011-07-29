@@ -1,7 +1,7 @@
 <?php
 //
 // Created on 2006/10/02 by nao-pon http://hypweb.net/
-// $Id: xpwiki_func.php,v 1.233 2011/07/29 01:37:32 nao-pon Exp $
+// $Id: xpwiki_func.php,v 1.234 2011/07/29 07:14:25 nao-pon Exp $
 //
 class XpWikiFunc extends XpWikiXoopsWrapper {
 
@@ -201,9 +201,7 @@ class XpWikiFunc extends XpWikiXoopsWrapper {
 
 		// exit »ØÄê
 		if (is_array($retvar) && isset($retvar['exit'])) {
-			while( ob_get_level() ) {
-				ob_end_clean() ;
-			}
+			$this->clear_output_buffer();
 			exit($retvar['exit']);
 		}
 
@@ -1642,10 +1640,7 @@ EOD;
 	// Send Location heder
 	function send_location ($page='', $hash='', $url='', $title='', $buf_clear=true) {
 		if ($buf_clear) {
-			// clear output buffer
-			while( ob_get_level() ) {
-				ob_end_clean() ;
-			}
+			$this->clear_output_buffer();
 		}
 
 		if ($page !== '') {
@@ -1756,9 +1751,7 @@ $res
 EOD;
 
 		// clear output buffer
-		while( ob_get_level() ) {
-			ob_end_clean() ;
-		}
+		$this->clear_output_buffer();
 
 		// mbstring setting
 		if (extension_loaded('mbstring')) {
@@ -2780,6 +2773,15 @@ EOD;
 			}
 		}
 		return $popup_pos;
+	}
+
+	// clear output buffer
+	function clear_output_buffer() {
+		while( ob_get_level() ) {
+			if (! ob_end_clean()) {
+				break;
+			}
+		}
 	}
 
 /*----- DB Functions -----*/

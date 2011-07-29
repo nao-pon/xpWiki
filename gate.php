@@ -1,7 +1,7 @@
 <?php
 /*
  * Created on 2007/06/29 by nao-pon http://hypweb.net/
- * $Id: gate.php,v 1.8 2010/05/10 02:31:23 nao-pon Exp $
+ * $Id: gate.php,v 1.9 2011/07/29 07:14:26 nao-pon Exp $
  */
 
 /*
@@ -48,7 +48,9 @@ if (file_exists($file_php)) {
 function xpWikiGate_goOut($err) {
 	error_reporting(0);
 	while( ob_get_level() ) {
-		ob_end_clean() ;
+		if (! ob_end_clean()) {
+			break;
+		}
 	}
 	$str = '';
 	switch($err) {

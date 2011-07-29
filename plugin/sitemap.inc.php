@@ -1,6 +1,6 @@
 <?php
 // PukiWiki - Yet another WikiWikiWeb clone.
-// $Id: sitemap.inc.php,v 1.2 2010/05/19 11:33:49 nao-pon Exp $
+// $Id: sitemap.inc.php,v 1.3 2011/07/29 07:14:25 nao-pon Exp $
 //
 // IndexPages plugin: Show a list of page names
 class xpwiki_plugin_sitemap extends xpwiki_plugin {
@@ -40,9 +40,7 @@ class xpwiki_plugin_sitemap extends xpwiki_plugin {
 		$xml = join("\n", $items);
 
 		// clear output buffer
-		while( ob_get_level() ) {
-			ob_end_clean() ;
-		}
+		$this->func->clear_output_buffer();
 
 		header('Content-type: application/xml');
 		echo($xml);

@@ -1,7 +1,7 @@
 <?php
 /*
  * Created on 2008/02/28 by nao-pon http://hypweb.net/
- * $Id: aws.inc.php,v 1.19 2011/07/29 01:38:26 nao-pon Exp $
+ * $Id: aws.inc.php,v 1.20 2011/07/29 07:14:25 nao-pon Exp $
  */
 
 /////////////////////////////////////////////////
@@ -260,9 +260,7 @@ class xpwiki_plugin_aws extends xpwiki_plugin {
 			return '';
 		}
 		// clear output buffer
-		while( ob_get_level() ) {
-			ob_end_clean() ;
-		}
+		$this->func->clear_output_buffer();
 		// imgタグ呼び出し用
 		header("Content-Type: image/gif");
 		HypCommonFunc::readfile($this->root->mytrustdirpath . '/skin/image/gif/spacer.gif');

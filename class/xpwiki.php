@@ -1,7 +1,7 @@
 <?php
 //
 // Created on 2006/09/29 by nao-pon http://hypweb.net/
-// $Id: xpwiki.php,v 1.97 2010/06/23 08:04:41 nao-pon Exp $
+// $Id: xpwiki.php,v 1.98 2011/07/29 07:14:25 nao-pon Exp $
 //
 
 class XpWiki {
@@ -198,9 +198,7 @@ class XpWiki {
 
 		if ($retvars !== FALSE) {
 			if (isset($retvars['header'])) {
-				while( ob_get_level() ) {
-					ob_end_clean() ;
-				}
+				$func->clear_output_buffer();
 				header($retvars['header']);
 				if (isset($retvars['msg'])) {
 					header('Content-Length: ' . strlen($retvars['msg']));

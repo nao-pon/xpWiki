@@ -15,7 +15,7 @@ $use_mb = (in_array($enc, $encs));
 $use_utf8 = ($enc === 'UTF-8');
 
 if ($q !== "") {
-	
+
 	if ($use_mb) {
 		$q = mb_convert_encoding($q, $enc, 'UTF-8');
 	}
@@ -27,15 +27,15 @@ if ($q !== "") {
 	$limit = 100;
 
 	mysql_connect(XOOPS_DB_HOST, XOOPS_DB_USER, XOOPS_DB_PASS) or die(mysql_error());
-	mysql_select_db(XOOPS_DB_NAME); 
-	
+	mysql_select_db(XOOPS_DB_NAME);
+
 	if ($use_utf8) {
 		mysql_query( "/*!40101 SET NAMES utf8 */" );
 		mysql_query( "/*!40101 SET SESSION collation_connection=utf8_japanese_ci */" );
 	}
-	
+
 	$query = "SELECT `uid`, `uname` FROM `".XOOPS_DB_PREFIX."_users`".$where1.$order." LIMIT ".$limit;
-	
+
 	$unames = $suggests = $tags = array();
 	if ($result = mysql_query($query))
 	{
@@ -55,7 +55,7 @@ if ($q !== "") {
 			{
 				$unames[] = '"'.str_replace('"','\"',$dat[1]).'['.$dat[0].']"';
 			}
-		}		
+		}
 	}
 
 }
@@ -69,7 +69,9 @@ $ret = 'this.setSuggest(' . $oq . ',new Array(' . $ret . '));';
 
 // clear output buffer
 while( ob_get_level() ) {
-	ob_end_clean() ;
+	if (! ob_end_clean()) {
+		break;
+	}
 }
 
 header ("Content-Type: text/plain; charset=UTF-8");
