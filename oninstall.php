@@ -8,9 +8,9 @@ if( ! function_exists( 'xpwiki_oninstall_base' ) ) {
 function xpwiki_oninstall_base( $module , $mydirname )
 {
 	// transations on module install
-	
+
 	global $ret ; // TODO :-D
-	
+
 	// for Cube 2.1
 	if( defined( 'XOOPS_CUBE_LEGACY' ) ) {
 		$root =& XCube_Root::getSingleton();
@@ -39,13 +39,18 @@ function xpwiki_oninstall_base( $module , $mydirname )
 		}
 
 		$sql_query = trim( file_get_contents( $sql_file_path ) ) ;
-		
+
 		// [ MySQL Version >= 5 ] BLOB and TEXT columns cannot be assigned a default value.
 		$mysql_ver = mysql_get_server_info();
 		if (@ $mysql_ver{0} >= 5) {
 			$sql_query = str_replace(' default \'\'', '', $sql_query);
 		}
-		
+		// [ MySQL Version >= 4 ] ENGINE is the preferred term from MySQL 4.0.18 on and TYPE is deprecated.
+		if (@ $mysql_ver{0} >= 4) {
+			$sql_query = str_replace(' TYPE=MyISAM', ' ENGINE=MyISAM', $sql_query);
+		}
+
+
 		$sqlutil->splitMySqlFile( $pieces , $sql_query ) ;
 		$created_tables = array() ;
 		foreach( $pieces as $piece ) {
