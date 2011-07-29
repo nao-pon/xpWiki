@@ -1,5 +1,5 @@
 <?php
-// $Id: moblog.inc.php,v 1.16 2010/06/25 08:00:27 nao-pon Exp $
+// $Id: moblog.inc.php,v 1.17 2011/07/29 07:14:25 nao-pon Exp $
 // Author: nao-pon http://hypweb.net/
 // Bace script is pop.php of mailbbs by Let's PHP!
 // Let's PHP! Web: http://php.s3.to/
@@ -900,9 +900,7 @@ class xpwiki_plugin_moblog extends xpwiki_plugin {
 
 	// エラー出力
 	function plugin_moblog_error_output($str) {
-		while( ob_get_level() ) {
-			ob_end_clean() ;
-		}
+		$this->func->clear_output_buffer();
 		if ($this->admin) {
 			echo 'error: ' . $str;
 		} else {
@@ -924,9 +922,7 @@ class xpwiki_plugin_moblog extends xpwiki_plugin {
 			exit();
 		}
 		// clear output buffer
-		while( ob_get_level() ) {
-			ob_end_clean() ;
-		}
+		$this->func->clear_output_buffer();
 		if (isset($this->root->get['debug']) && $this->admin) {
 			echo 'Debug:<br />' . join('<br />', $this->debug);
 		} else {

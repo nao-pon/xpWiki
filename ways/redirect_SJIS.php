@@ -2,7 +2,7 @@
 /*
  * Created on 2008/06/17 by nao-pon http://hypweb.net/
  * License: GPL v2 or (at your option) any later version
- * $Id: redirect_SJIS.php,v 1.1 2008/06/17 10:12:37 nao-pon Exp $
+ * $Id: redirect_SJIS.php,v 1.2 2011/07/29 07:14:25 nao-pon Exp $
  */
 
 if (isset($_GET['l'])) {
@@ -12,7 +12,9 @@ if (isset($_GET['l'])) {
 
 	// clear output buffer
 	while( ob_get_level() ) {
-		ob_end_clean() ;
+		if (! ob_end_clean()) {
+			break;
+		}
 	}
 
 	header('Content-type: text/html; charset=Shift_JIS');

@@ -1,7 +1,7 @@
 <?php
 /*
  * Created on 2008/03/24 by nao-pon http://hypweb.net/
- * $Id: attach.php,v 1.30 2010/07/25 07:01:59 nao-pon Exp $
+ * $Id: attach.php,v 1.31 2011/07/29 07:14:25 nao-pon Exp $
  */
 
 //-------- епеще╣
@@ -753,9 +753,8 @@ EOD;
 		$this->getstatus();
 
 		// clear output buffer
-		while( ob_get_level() ) {
-			ob_end_clean() ;
-		}
+		$this->func->clear_output_buffer();
+
 		$etag = $this->status['md5'] . ($this->status['copyright']? '1' : '0') . $this->status['noinline'];
 		$expires = 'Expires: ' . gmdate( "D, d M Y H:i:s", $this->cont['UTC'] + $this->cont['BROWSER_CACHE_MAX_AGE'] ) . ' GMT';
 		if ($etag == @ $_SERVER["HTTP_IF_NONE_MATCH"]) {

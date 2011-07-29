@@ -1,6 +1,6 @@
 <?php
 // PukiWiki - Yet another WikiWikiWeb clone.
-// $Id: edit.inc.php,v 1.71 2010/06/23 07:25:44 nao-pon Exp $
+// $Id: edit.inc.php,v 1.72 2011/07/29 07:14:25 nao-pon Exp $
 // Copyright (C) 2001-2006 PukiWiki Developers Team
 // License: GPL v2 or (at your option) any later version
 //
@@ -150,9 +150,7 @@ EOD;
 		if (isset($this->root->vars['ajax'])) {
 			// xml special chars
 			// clear output buffer
-			while( ob_get_level() ) {
-				ob_end_clean() ;
-			}
+			$this->func->clear_output_buffer();
 			// cont['USER_NAME_REPLACE'] ¤ò ÃÖ´¹
 			$body = str_replace(
 					array($this->cont['USER_NAME_REPLACE'], $this->cont['USER_CODE_REPLACE']) ,

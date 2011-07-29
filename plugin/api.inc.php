@@ -1,7 +1,7 @@
 <?php
 /*
  * Created on 2007/04/11 by nao-pon http://hypweb.net/
- * $Id: api.inc.php,v 1.9 2010/01/08 13:39:37 nao-pon Exp $
+ * $Id: api.inc.php,v 1.10 2011/07/29 07:14:25 nao-pon Exp $
  */
 
 class xpwiki_plugin_api extends xpwiki_plugin {
@@ -84,9 +84,7 @@ class xpwiki_plugin_api extends xpwiki_plugin {
 	}
 
 	function output ($str) {
-		while( ob_get_level() ) {
-			ob_end_clean() ;
-		}
+		$this->func->clear_output_buffer();
 		header ("Content-Type: text/plain; charset=".$this->cont['CONTENT_CHARSET']);
 		header ("Content-Length: ".strlen($str));
 		echo $str;

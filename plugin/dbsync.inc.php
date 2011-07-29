@@ -1,7 +1,7 @@
 <?php
 //
 // Created on 2006/11/17 by nao-pon http://hypweb.net/
-// $Id: dbsync.inc.php,v 1.42 2010/05/19 11:38:22 nao-pon Exp $
+// $Id: dbsync.inc.php,v 1.43 2011/07/29 07:14:25 nao-pon Exp $
 //
 
 class xpwiki_plugin_dbsync extends xpwiki_plugin {
@@ -185,7 +185,7 @@ __EOD__;
 		header ("Content-Type: text/html; charset=".$this->cont['CONTENT_CHARSET']);
 
 		// 出力をバッファリングしない
-		while( ob_get_level() ) { ob_end_clean() ; }
+		$this->func->clear_output_buffer();
 		ob_implicit_flush(true);
 		echo str_pad('',256); //for IE
 

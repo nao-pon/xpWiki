@@ -73,19 +73,19 @@ foreach($files as $input) {
 	$output = $outdir . $input;
 	//echo $output;
 	$output_other = $outdir ."other_{$input}";
-	
+
 	if (file_exists($indir . $input)) {
 		$org_file = $indir . $input;
 	} else {
-		$org_file = $_FILES['userfile']['tmp_name'];	
+		$org_file = $_FILES['userfile']['tmp_name'];
 	}
-	
+
 	$dat = file($org_file);
-	
+
 	// 自己関数名の取得
 	preg_match_all("/^\s*function\s+(\w+)/im",join('',$dat),$match);
 	$my_funcs = $match[1];
-	
+
 	// cat_body() のグローバル変数
 	$globals = array(
 		'$script',
@@ -118,7 +118,7 @@ foreach($files as $input) {
 		'$modifier',
 		'$modifierlink'
 	);
-	
+
 	$i = 0;
 	$out = '';
 	$out_other = '';
@@ -134,17 +134,17 @@ foreach($files as $input) {
 	$class_out = array();
 	$now_class_name = $now_func_name = "";
 	$rename_classes = array();
-	
+
 	$need_xpwiki_classes = array();
-	$noprc = 0;	
-	
+	$noprc = 0;
+
 	$do_conv = FALSE;
-	
+
 	$dat = join("",$dat);
 	$dat = str_replace(array("\r\n","\r"),"\n",$dat);
 	$dat = str_replace(array("<?php","?>"),array("\x07","\x08"),$dat);
 	preg_match_all("/([^\x07]+?\x08?)?([^\x07\x08]+)?(\x07[^\x07\x08]*?\x08?)?/",$dat,$match,PREG_SET_ORDER);
-	
+
 	//echo "<pre>";
 	foreach($match as $arg) {
 		$arg = str_replace(array("\x07","\x08"),array("<?php","?>"),$arg);
@@ -167,17 +167,17 @@ foreach($files as $input) {
 			if (isset($arg[3])) $out .= $arg[3];
 		}
 	}
-	//echo "</pre>";	
-	
+	//echo "</pre>";
+
 	$out = trim($out);
 
 	//echo "<pre>";
 	//echo htmlspecialchars($out);
 	//echo "</pre>";
-	
+
 	// 元ファイル削除
 	//unlink($org_file);
-	
+
 	if (!$isupload) {
 		if ($out && $fp = fopen($output,"wb")) {
 			fwrite($fp, rtrim($out));
@@ -190,11 +190,13 @@ foreach($files as $input) {
 	} else {
 		// 元ファイル削除
 		@unlink($org_file);
-		
+
 		while( ob_get_level() ) {
-			ob_end_clean() ;
+			if (! ob_end_clean()) {
+				break;
+			}
 		}
-		
+
 		header('Content-Disposition: attachment; filename="' . $input . '"');
 		header('Content-Length: ' . strlen($out));
 		header('Content-Type: plain/text');
@@ -234,18 +236,18 @@ function _global_replace($global,$str) {
 
 function _convert_skin ($str) {
 	global $defines, $consts, $globals, $funcname_reg, $keys_reg, $my_funcs;
-	
+
 	$out = "";
-	
+
 	foreach (preg_split("/(\r\n|\r|\n)/",$str) as $line) {
-		
+
 		if (!trim($line) || preg_match("/^\s*function\s+\w+/",$line)) {
 			$out .= $line."\n";
 			continue;
 		}
-		
+
 		//echo htmlspecialchars($line)."<hr>";
-		
+
 		$_line =  preg_replace("/(\".*?\"|'.*?'|(\/\/|#).*$)/s","",trim($line));
 		// define 書き換え
 		$line = preg_replace("/defined\('(\w+)'\)/i","isset(\$this->cont['$1'])",$line);
@@ -255,7 +257,7 @@ function _convert_skin ($str) {
 		}
 		// $GLOBALS を書き換え
 		$line = preg_replace("/\\\$GLOBALS\[(\"|')?([^\]\\1]+?)\\1?\]/i","\$this->root->$2",$line);
-		
+
 		// global変数書き換え
 		if (preg_match("/(?:^|\s*)global(.+);/s",$line,$match)) {
 			$_globals = array_unique(explode(",",preg_replace("/\s/","",$match[1])));
@@ -268,7 +270,7 @@ function _convert_skin ($str) {
 			foreach ($globals as $global) {
 				// "" 内
 				$line = preg_replace('/(?<!\\\\)(".*?(?<!\\\\)")/ie',"_global_replace('$global','$0')",$line);
-				
+
 				// その他
 				$line = preg_replace("/".preg_quote($global,"/")."(?![a-zA-Z0-9_\x7f-\xff])/",'$this->root->'.substr($global,1),$line);
 			}
@@ -300,9 +302,9 @@ function _convert_skin ($str) {
 			// '' 内をエスケープ
 			$key = $const[0];
 			$line = preg_replace("/'.*?'/e","_for_quote_replace('$0','$key','in')",$line);
-			
+
 			$line = preg_replace("/(?<![\w'\"])".$const."(?![\w'\"])/","\$this->cont['$0']",$line);
-			
+
 			// '' 内をエスケープ解除
 			$line = preg_replace("/'.*?'/e","_for_quote_replace('$0','$key','out')",$line);
 		}

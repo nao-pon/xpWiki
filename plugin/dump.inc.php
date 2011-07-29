@@ -1,5 +1,5 @@
 <?php
-// $Id: dump.inc.php,v 1.18 2010/05/19 11:25:58 nao-pon Exp $
+// $Id: dump.inc.php,v 1.19 2011/07/29 07:14:25 nao-pon Exp $
 //
 // Remote dump / restore plugin
 // Originated as tarfile.inc.php by teanan / Interfair Laboratory 2004.
@@ -186,9 +186,7 @@ class xpwiki_plugin_dump extends xpwiki_plugin {
 					//exit($url);
 
 					// clear output buffer
-					while( ob_get_level() ) {
-						ob_end_clean() ;
-					}
+					$this->func->clear_output_buffer();
 
 					header('Location: ' . $url);
 
@@ -590,9 +588,7 @@ class xpwiki_plugin_dump extends xpwiki_plugin {
 		$filename = basename($downfile);
 
 		// clear output buffer
-		while( ob_get_level() ) {
-			ob_end_clean() ;
-		}
+		$this->func->clear_output_buffer();
 
 		ini_set('default_charset','');
 		mb_http_output('pass');

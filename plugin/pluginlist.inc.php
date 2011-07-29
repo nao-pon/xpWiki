@@ -1,7 +1,7 @@
 <?php
 /*
  * Created on 2008/03/25 by nao-pon http://hypweb.net/
- * $Id: pluginlist.inc.php,v 1.8 2009/03/13 08:15:00 nao-pon Exp $
+ * $Id: pluginlist.inc.php,v 1.9 2011/07/29 07:14:25 nao-pon Exp $
  */
 
 class xpwiki_plugin_pluginlist extends xpwiki_plugin {
@@ -57,14 +57,14 @@ class xpwiki_plugin_pluginlist extends xpwiki_plugin {
 			'xpwikiver',
 		);
 	}
-	
+
 	function plugin_pluginlist_action () {
 		$cacheKey = 'pluginsJSON_' . $this->cont['UI_LANG'];
-		
+
 		if (isset($this->root->vars['clearcache'])) {
 			$this->func->cache_del_db($cacheKey, 'pluginlist');
 		}
-		
+
 		$out = $this->func->cache_get_db($cacheKey, 'pluginlist');
 
 		if (!$out) {
@@ -81,17 +81,15 @@ class xpwiki_plugin_pluginlist extends xpwiki_plugin {
 			$out .= '}';
 			$this->func->cache_save_db($out, 'pluginlist', 86400, $cacheKey);
 		}
-		
+
 		// clear output buffer
-		while( ob_get_level() ) {
-			ob_end_clean() ;
-		}
+		$this->func->clear_output_buffer();
 		header('Content-Type: application/x-javascript; charset=utf-8');
 		header('Content-Length: ' . strlen($out));
 		echo $out;
 		exit();
 	}
-	
+
 	function json_encode ($str) {
 		$str = preg_replace('/(\x22|\x2F|\x5C)/', '\\\$1', $str);
 		$str = str_replace(array("\x00","\x08","\x09","\x0A","\x0C","\x0D"), array('','\b','\t','\n','\f','\r'), $str);
@@ -100,7 +98,7 @@ class xpwiki_plugin_pluginlist extends xpwiki_plugin {
 		}
 		return $str;
 	}
-	
+
 	function add_otherDir ($name, $mode, $usage) {
 		if ($usage) {
 			$plugin = & $this->func->get_plugin_instance($name);
@@ -116,11 +114,11 @@ class xpwiki_plugin_pluginlist extends xpwiki_plugin {
 		}
 		return $usage;
 	}
-	
+
 	function plugin_pluginlist_convert () {
 		return $this->build_list();
 	}
-	
+
 	function build_list () {
 		list($plugins, $blocks, $inlines, $cmds) = $this->get_plugins();
 		$html = '<h4>Block plugins</h4><ul><li>#';
@@ -132,13 +130,13 @@ class xpwiki_plugin_pluginlist extends xpwiki_plugin {
 		$html .= '</li></ul>';
 		return $html;
 	}
-	
+
 	function get_plugins ($sort = true) {
 		$plugins = array();
 		if ($dh = opendir($this->root->mytrustdirpath . '/plugin/')) {
 			while (($file = readdir($dh)) !== false) {
 				if (preg_match('/^([a-z_0-9-]+)\.inc\.php$/i', $file, $match)) {
-					$plugins[] = $match[1];	
+					$plugins[] = $match[1];
 				}
 			}
 			closedir($dh);

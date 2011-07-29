@@ -1,7 +1,7 @@
 <?php
 //
 // Created on 2009/05/28 by nao-pon http://xoops.hypweb.net/
-// $Id: html.inc.php,v 1.1 2009/05/28 02:31:50 nao-pon Exp $
+// $Id: html.inc.php,v 1.2 2011/07/29 07:14:25 nao-pon Exp $
 //
 
 /**
@@ -10,10 +10,10 @@
  * @author     sonots
  * @license    http://www.gnu.org/licenses/gpl.html GPL v2
  * @link       http://lsx.sourceforge.jp/?Plugin%2Fhtml.inc.php
- * @version    $Id: html.inc.php,v 1.1 2009/05/28 02:31:50 nao-pon Exp $
+ * @version    $Id: html.inc.php,v 1.2 2011/07/29 07:14:25 nao-pon Exp $
  * @package    plugin
  */
- 
+
 class xpwiki_plugin_html extends xpwiki_plugin {
 	function plugin_html_init () {
 		switch ($this->cont['UI_LANG']) {
@@ -24,7 +24,7 @@ class xpwiki_plugin_html extends xpwiki_plugin {
 				$this->msg['error'] = '<p>#html(): Because this page ($page) can be edited in case of no manager, HTML is not displayed.</p>';
 		}
 	}
-	
+
 	function plugin_html_convert()
 	{
 	    $args = func_get_args();
@@ -40,13 +40,11 @@ class xpwiki_plugin_html extends xpwiki_plugin {
 	        }
 	        return str_replace('$page', $page, $this->msg['error']);
 	    }
-	
+
 	    $noskin = in_array("noskin", $args);
 	    if ($noskin) {
 			// clear output buffer
-			while( ob_get_level() ) {
-				ob_end_clean() ;
-			}
+			$this->func->clear_output_buffer();
 	        $this->func->pkwk_common_headers();
 	        print $body;
 	        exit;

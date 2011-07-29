@@ -1,7 +1,7 @@
 <?php
 //
 // Created on 2006/10/25 by nao-pon http://hypweb.net/
-// $Id: loader.php,v 1.64 2010/05/19 11:22:57 nao-pon Exp $
+// $Id: loader.php,v 1.65 2011/07/29 07:14:25 nao-pon Exp $
 //
 
 ignore_user_abort(FALSE);
@@ -17,7 +17,9 @@ $face_tag_maxage = 86400; // 60*60*24 (1day)
 
 // clear output buffer
 while( ob_get_level() ) {
-	ob_end_clean() ;
+	if (! ob_end_clean()) {
+		break;
+	}
 }
 
 // 変数初期化

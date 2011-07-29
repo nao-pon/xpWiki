@@ -1,6 +1,6 @@
 <?php
 // PukiWiki - Yet another WikiWikiWeb clone.
-// $Id: pukiwiki.css.php,v 1.31 2007/09/17 04:53:32 nao-pon Exp $
+// $Id: pukiwiki.css.php,v 1.32 2011/07/29 07:14:26 nao-pon Exp $
 // Copyright (C)
 //   2002-2005 PukiWiki Developers Team
 //   2001-2002 Originally written by yu-ji
@@ -30,7 +30,7 @@ $pre_width = isset($_GET['pw']) ? $_GET['pw'] : 'auto';
 $overwrite = (empty($overwrite))? '' : $overwrite;
 
 // Etag
-$filetime = ($media === 'print')? filemtime(dirname(__FILE__) . '/css/main_print.css') : 
+$filetime = ($media === 'print')? filemtime(dirname(__FILE__) . '/css/main_print.css') :
 									filemtime(dirname(__FILE__) . '/css/main.css');
 $etag = md5($dir.$charset.$media.$overwrite.$pre_width.$filetime);
 
@@ -59,7 +59,9 @@ $out = str_replace(array('$class', '$dir', '$pre_width', '$charset'),
 					ob_get_contents());
 
 while( ob_get_level() ) {
-	ob_end_clean() ;
+	if (! ob_end_clean()) {
+		break;
+	}
 }
 
 // Send header

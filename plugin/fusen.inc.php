@@ -31,7 +31,7 @@
 //
 // fusen.inc.php for xpWiki by nao-pon
 // http://xoops.hypweb.net
-// $Id: fusen.inc.php,v 1.30 2010/01/08 13:54:42 nao-pon Exp $
+// $Id: fusen.inc.php,v 1.31 2011/07/29 07:14:25 nao-pon Exp $
 //
 
 class xpwiki_plugin_fusen extends xpwiki_plugin {
@@ -751,9 +751,7 @@ EOD;
 	}
 
 	function _exit($out = null) {
-		while( ob_get_level() ) {
-			ob_end_clean() ;
-		}
+		$this->func->clear_output_buffer();
 		exit($out);
 	}
 }
