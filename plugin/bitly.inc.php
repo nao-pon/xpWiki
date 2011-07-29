@@ -1,7 +1,7 @@
 <?php
 /*
  * Created on 2009/11/10 by nao-pon http://xoops.hypweb.net/
- * $Id: bitly.inc.php,v 1.3 2011/07/03 04:42:44 nao-pon Exp $
+ * $Id: bitly.inc.php,v 1.4 2011/07/29 01:39:28 nao-pon Exp $
  */
 
 class xpwiki_plugin_bitly extends xpwiki_plugin {
@@ -30,7 +30,7 @@ class xpwiki_plugin_bitly extends xpwiki_plugin {
 			$title = preg_replace('#^https?://#i', '', $url);
 			if ($title !== $url) {
 				$title = htmlspecialchars($title);
-				$url = $this->func->bitly($url, FALSE, TRUE);
+				$url = $this->func->bitly($url, FALSE);
 				if (in_array('qrcode', $args)) {
 					$body = '<img src="'.$url.'.qrcode" alt="QR Code" width="80" height="80" />';
 				}
