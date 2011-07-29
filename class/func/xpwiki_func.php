@@ -1,7 +1,7 @@
 <?php
 //
 // Created on 2006/10/02 by nao-pon http://hypweb.net/
-// $Id: xpwiki_func.php,v 1.232 2011/07/03 04:50:50 nao-pon Exp $
+// $Id: xpwiki_func.php,v 1.233 2011/07/29 01:37:32 nao-pon Exp $
 //
 class XpWikiFunc extends XpWikiXoopsWrapper {
 
@@ -1634,6 +1634,11 @@ EOD;
 		return $count;
 	}
 
+	// Page name normalize
+	function pagename_normalize($page) {
+		return str_replace($this->root->pagename_illegality, $this->root->pagename_normalizer, $page);
+	}
+
 	// Send Location heder
 	function send_location ($page='', $hash='', $url='', $title='', $buf_clear=true) {
 		if ($buf_clear) {
@@ -2709,6 +2714,10 @@ EOD;
 				$res = $this->http_request($q);
 				if ($res['rc'] === 200 && substr($res['data'], 0, 7) === 'http://')	{
 					$ret = trim($res['data']);
+					if ($domain && $domain !== 'bit.ly') {
+						// domain を指定しても bit.ly で返ってくることがある？
+						$ret = str_replace('http://bit.ly', 'http://'.$domain, $ret);
+					}
 					if ($cache) {
 						$this->cache_save_db($ret, 'bitly', $cache, $sha1);
 					}
