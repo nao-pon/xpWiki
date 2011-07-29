@@ -1,7 +1,7 @@
 <?php
 /*
  * Created on 2008/02/28 by nao-pon http://hypweb.net/
- * $Id: aws.inc.php,v 1.18 2011/07/03 04:41:01 nao-pon Exp $
+ * $Id: aws.inc.php,v 1.19 2011/07/29 01:38:26 nao-pon Exp $
  */
 
 /////////////////////////////////////////////////
@@ -201,7 +201,7 @@ class xpwiki_plugin_aws extends xpwiki_plugin {
 				$checkUTIME = $this->cont['UTC'] - (86400 * 7); // 1週間前まで
 				foreach($ama->compactArray['Items'] as $item) {
 					if ($checkUTIME <= $item['RELEASEUTIME'] && $this->func->basename($this->root->vars['page']) !== $item['TITLE']) {
-						$newpage = $this->root->vars['page'] . '/' . str_replace('/', '|', $item['TITLE']);
+						$newpage = $this->root->vars['page'] . '/' . $this->func->pagename_normalize(str_replace('/', '|', $item['TITLE']));
 						if (! $this->func->is_page($newpage) && ! $this->func->is_alias($newpage)) {
 							$data = array(
 								'action' => 'plugin_func',

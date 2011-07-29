@@ -1,5 +1,5 @@
 <?php
-// $Id: newpage.inc.php,v 1.11 2010/01/08 13:50:42 nao-pon Exp $
+// $Id: newpage.inc.php,v 1.12 2011/07/29 01:38:37 nao-pon Exp $
 //
 // Newpage plugin
 
@@ -64,7 +64,7 @@ EOD;
 			return $retvars;
 		} else {
 			$base = (empty($this->root->vars['base']))? '' : rtrim($this->root->vars['base'], '/') . '/';
-			$page    = $base . $this->func->strip_bracket($this->root->vars['page']);
+			$page    = $base . $this->func->pagename_normalize($this->func->strip_bracket($this->root->vars['page']));
 			$r_page  = rawurlencode(isset($this->root->vars['refer']) ?
 				$this->func->get_fullname($page, $this->root->vars['refer']) : $page);
 			$r_refer = rawurlencode($this->root->vars['refer']);
