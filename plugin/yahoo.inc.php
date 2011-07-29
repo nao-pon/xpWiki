@@ -1,10 +1,13 @@
 <?php
 class xpwiki_plugin_yahoo extends xpwiki_plugin {
 	// PukiWiki - Yet another WikiWikiWeb clone.
-	// $Id: yahoo.inc.php,v 1.7 2011/06/01 06:27:51 nao-pon Exp $
+	// $Id: yahoo.inc.php,v 1.8 2011/07/29 01:41:50 nao-pon Exp $
 	/////////////////////////////////////////////////
 
 	// #yahoo([Format Filename],[Mode],[Key Word],[Node Number],[Sort Mode])
+
+	var $appid = '';
+	var $appid_upg = '';
 
 	function plugin_yahoo_init()
 	{
@@ -28,6 +31,7 @@ class xpwiki_plugin_yahoo extends xpwiki_plugin {
 			//////// Config ///////
 		);
 		$this->appid = 'rELkpouxg64ZjZMTZ7Np0wy5qatpULEKE140aN7X9okOPX6VtuPS5Uqo0n2izQ--';
+		$this->appid_upg = '';
 	}
 
 	function plugin_yahoo_convert()
@@ -148,14 +152,15 @@ class xpwiki_plugin_yahoo extends xpwiki_plugin {
 		$mode = trim(strtolower($mode));
 		switch($mode)
 		{
-			case "web":
-				$mode = "web";
-				$url = "http://search.yahooapis.jp/WebSearchService/V2/webSearch?appid={$this->appid}&query={$query}&results={$max}&type={$type}";
-				break;
 			case "image":
 			case "img":
 				$mode = "img";
-				$url = "http://search.yahooapis.jp/ImageSearchService/V2/imageSearch?appid={$this->appid}&query={$query}&results={$max}&type={$type}";
+				if ($this->appid_upg) {
+					$url = 'http://search.yahooapis.jp/PremiumImageSearchService/V1/imageSearch?appid='.$this->appid_upg;
+				} else {
+					$url = 'http://search.yahooapis.jp/ImageSearchService/V2/imageSearch?appid='.$this->appid;
+				}
+				$url .= "&query={$query}&results={$max}&type={$type}";
 				break;
 			case "movie":
 			case "mov":
@@ -167,10 +172,15 @@ class xpwiki_plugin_yahoo extends xpwiki_plugin {
 				$mode = "rel";
 				$url = "http://search.yahooapis.jp/AssistSearchService/V1/webunitSearch?appid={$this->appid}&query={$query}&results={$max}";
 				break;
+			case "web":
 			default:
-				// web
 				$mode = "web";
-				$url = "http://search.yahooapis.jp/WebSearchService/V2/webSearch?appid={$this->appid}&query={$query}&results={$max}&type={$type}";
+				if ($this->appid_upg) {
+					$url = 'http://search.yahooapis.jp/PremiumWebSearchService/V1/webSearch?appid='.$this->appid_upg;
+				} else {
+					$url = 'http://search.yahooapis.jp/WebSearchService/V2/webSearch?appid='.$this->appid;
+				}
+				$url .= "&query={$query}&results={$max}&type={$type}";
 		}
 
 		// データ取得
