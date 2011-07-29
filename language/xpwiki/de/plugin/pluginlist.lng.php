@@ -2,7 +2,7 @@
 /*
  * Created on 2008/11/10 by nao-pon http://hypweb.net/
  * License: GPL v2 or (at your option) any later version
- * $Id: pluginlist.lng.php,v 1.11 2009/05/02 04:10:42 nao-pon Exp $
+ * $Id: pluginlist.lng.php,v 1.12 2011/07/29 06:23:06 nao-pon Exp $
  */
 
 $msg = array(
@@ -259,7 +259,7 @@ $msg = array(
 	),
 	'recent' => array(
 		'title' => 'Several recent',
-		'block_usage' => '#recent([<Base page name>][,<Number>])',
+		'block_usage' => '#recent([<Base page name>][,<Number>][,<Future day>][,<UID>])',
 		'inline_usage' => ''
 	),
 	'region' => array(
