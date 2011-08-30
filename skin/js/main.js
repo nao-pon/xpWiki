@@ -58,7 +58,7 @@ function wikihelper_show_fontset_img()
 	if (!wikihelper_mapLoad)
 	{
 		wikihelper_mapLoad = 1;
-		var map='<map name="map_button">'+
+		var map='<div id="wikihelper_map"><map name="map_button">'+
 			'<area shape="rect" coords="0,0,22,16" title="URL" alt="URL" href="#" onClick="javascript:wikihelper_linkPrompt(\'url\'); return false;" '+'/'+'>'+
 			'<area shape="rect" coords="24,0,40,16" title="B" alt="B" href="#" onClick="javascript:wikihelper_tag(\'b\'); return false;" '+'/'+'>'+
 			'<area shape="rect" coords="43,0,59,16" title="I" alt="I" href="#" onClick="javascript:wikihelper_tag(\'i\'); return false;" '+'/'+'>'+
@@ -82,7 +82,7 @@ function wikihelper_show_fontset_img()
 			'<area shape="rect" coords="40,8,48,16" title="Fuchsia" alt="Fuchsia" href="#" onClick="javascript:wikihelper_tag(\'Fuchsia\'); return false;" '+'/'+'>'+
 			'<area shape="rect" coords="48,8,56,16" title="Aqua" alt="Aqua" href="#" onClick="javascript:wikihelper_tag(\'Aqua\'); return false;" '+'/'+'>'+
 			'<area shape="rect" coords="56,8,64,16" title="White" alt="White" href="#" onClick="javascript:wikihelper_tag(\'White\'); return false;" '+'/'+'>'+
-			'<'+'/'+'map>'+
+			'<'+'/'+'map><'+'/'+'div>'+
 			'<div id="wikihelper_base" style="position:absolute;display:none;"><'+'/'+'div>';
 
 		var src;
@@ -104,6 +104,9 @@ function wikihelper_show_fontset_img()
 
 		$('wikihelper_base').observe('mouseover', function(){wikihelper_mouseover = true;});
 		$('wikihelper_base').observe('mouseout', function(){wikihelper_mouseover = false;});
+
+		$('wikihelper_map').observe('mouseover', function(){wikihelper_mouseover = true;});
+		$('wikihelper_map').observe('mouseout', function(){wikihelper_mouseover = false;});
 
 		if (Prototype.Browser.IE) {
 			$('wikihelper_base').observe('mousedown', function(){wikihwlper_caretPos();});
