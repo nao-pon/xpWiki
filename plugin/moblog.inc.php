@@ -1,5 +1,5 @@
 <?php
-// $Id: moblog.inc.php,v 1.17 2011/07/29 07:14:25 nao-pon Exp $
+// $Id: moblog.inc.php,v 1.18 2011/08/30 02:15:40 nao-pon Exp $
 // Author: nao-pon http://hypweb.net/
 // Bace script is pop.php of mailbbs by Let's PHP!
 // Let's PHP! Web: http://php.s3.to/
@@ -35,7 +35,7 @@ class xpwiki_plugin_moblog extends xpwiki_plugin {
 		$this->config['amazon'] = '#aws(w5,blended,__KEYWORD__)';
 
 		// 最大添付量（バイト・1ファイルにつき）※超えるものは保存しない
-		$this->config['maxbyte'] = 1048576; //1MB
+		$this->config['maxbyte'] = 3145728; //3MB
 
 		// 本文文字制限（半角で
 		$this->config['body_limit'] = 6000;
