@@ -1,10 +1,13 @@
 <?php
 /*
  * Created on 2009/11/19 by nao-pon http://xoops.hypweb.net/
- * $Id: xmlrpc.inc.php,v 1.4 2010/06/25 08:00:27 nao-pon Exp $
+ * $Id: xmlrpc.inc.php,v 1.5 2011/08/30 02:24:47 nao-pon Exp $
  */
 
 class xpwiki_plugin_xmlrpc extends xpwiki_plugin {
+
+	var $op_debug = false;
+
 	function plugin_xmlrpc_init() {
 
 		$this->config['BlogPages'] = array(
@@ -59,11 +62,16 @@ EOD;
 	function plugin_xmlrpc_action() {
 		if ($this->root->use_xmlrpc) {
 			if (strtoupper($_SERVER['REQUEST_METHOD']) !== 'POST') {
+				if ($this->op_debug) {
+					$this->debug($_GET);
+				}
 				return $this->rsd();
 			}
 
-			global $HTTP_RAW_POST_DATA;
-			$this->debug($HTTP_RAW_POST_DATA);
+			if ($this->op_debug) {
+				global $HTTP_RAW_POST_DATA;
+				$this->debug($HTTP_RAW_POST_DATA);
+			}
 
 			$GLOBALS['xpWikiXmlRpcObj'] =& $this;
 
@@ -93,6 +101,7 @@ EOD;
 			HypCommonFunc::loadClass('IXR_Server');
 			$server =& new IXR_Server($this->supportedMethods);
 			header('Content-Type: text/xml;charset=UTF-8');
+			$this->func->clear_output_buffer();
 		}
 		return array('exit' => 'xmlrpc is not effective.');
 	}
