@@ -1,5 +1,5 @@
 <?php
-// $Id: ref.inc.php,v 1.56 2011/07/29 07:14:25 nao-pon Exp $
+// $Id: ref.inc.php,v 1.57 2011/08/30 05:06:46 nao-pon Exp $
 /*
 
 	*プラグイン ref
@@ -997,6 +997,9 @@ _HTML_;
 			$style = '';
 			if (!empty($this->lvar['width'])) {
 				$style .= 'width:' . $this->lvar['width'] . 'px;';
+				if ($params['_align'] === 'center') {
+					$style .= 'margin-right:auto;margin-left:auto;';
+				}
 			}
 			$caption = '<div class="ref_caption" style="' . $style . '">'.$this->lvar['caption'].'</div>';
 			$add_class = ' ref_use_caption';
