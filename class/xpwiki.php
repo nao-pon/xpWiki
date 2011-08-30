@@ -1,7 +1,7 @@
 <?php
 //
 // Created on 2006/09/29 by nao-pon http://hypweb.net/
-// $Id: xpwiki.php,v 1.98 2011/07/29 07:14:25 nao-pon Exp $
+// $Id: xpwiki.php,v 1.99 2011/08/30 02:42:07 nao-pon Exp $
 //
 
 class XpWiki {
@@ -238,7 +238,8 @@ class XpWiki {
 					$func->ref_save($base);
 
 					// 各ページ用の .css
-					$root->head_tags[] = $func->get_page_css_tag($base);
+					$key = $func->get_headtag_key('css', $base);
+					$root->head_tags[$key] = $func->get_page_css_tag($base);
 
 				}
 			}

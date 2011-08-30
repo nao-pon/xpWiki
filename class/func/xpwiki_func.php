@@ -1,7 +1,7 @@
 <?php
 //
 // Created on 2006/10/02 by nao-pon http://hypweb.net/
-// $Id: xpwiki_func.php,v 1.234 2011/07/29 07:14:25 nao-pon Exp $
+// $Id: xpwiki_func.php,v 1.235 2011/08/30 02:42:07 nao-pon Exp $
 //
 class XpWikiFunc extends XpWikiXoopsWrapper {
 
@@ -604,17 +604,30 @@ class XpWikiFunc extends XpWikiXoopsWrapper {
 
 	function get_additional_headtags () {
 
-		// WikiHelper JavaScript
-		$head_tag = <<<EOD
-<script type="text/javascript" src="{$this->cont['LOADER_URL']}?src=default.{$this->cont['UI_LANG']}{$this->cont['FILE_ENCORD_EXT']}.js"></script>
+		if (! empty($this->root->head_tags)) {
+			foreach($this->root->head_tags as $_key => $_val) {
+				if (strpos($_val, ',') !== false && preg_match('/src=(.+?)\.(?:css|js)/', $_val, $match)) {
+					$_files = explode(',', $match[1]);
+					sort($_files);
+					$_val = preg_replace('/^(.+?src=).+?(\.(?:css|js).+?)$/', "$1".join(',', $_files)."$2", $_val);
+					$this->root->head_tags[$_key] = $_val;
+				}
+			}
+		}
 
+		// WikiHelper JavaScript
+		$this->root->head_tags['3.default.js'] = '<script type="text/javascript" src="'.$this->cont['LOADER_URL'].'?src=default.'.$this->cont['UI_LANG'].$this->cont['FILE_ENCORD_EXT'].'.js"></script>';
 EOD;
+
+		// key sort (CSS fast)
+		ksort($this->root->head_pre_tags);
+		ksort($this->root->head_tags);
 
 		// Pre Tags
 		$head_pre_tag = ! empty($this->root->head_pre_tags) ? join("\n", $this->root->head_pre_tags) ."\n" : '';
 
 		// Tags will be inserted into <head></head>
-		$head_tag .= ! empty($this->root->head_tags) ? join("\n", $this->root->head_tags) ."\n" : '';
+		$head_tag .= join("\n", $this->root->head_tags) ."\n";
 
 		// Clear
 		//$this->root->head_pre_tags = $this->root->head_tags = array();
@@ -1038,6 +1051,7 @@ EOD;
 		if ($this->root->render_mode === 'render') {
 			$src = '<!--' . "\n" . $src . '//-->';
 		}
+		$key = $this->get_headtag_key('js', $key);
 		$this->root->{$target}[$key] = '<script type="text/javascript">' . $src . '</script>';
 	}
 
@@ -1053,7 +1067,8 @@ EOD;
 		if (preg_match("/^(.+)\.([a-zA-Z]+)$/",$file,$match)) {
 			if ($charset) $charset = ' charset="' . $charset . '"';
 			if ($match[2] === 'css') {
-				$key = 'css:s' . $this->cont['SKIN_NAME'] . 'm' . $this->root->render_mode . 'p' . $this->root->css_prefix . 'c' .$charset;
+				$key = 's' . $this->cont['SKIN_NAME'] . 'm' . $this->root->render_mode . 'p' . $this->root->css_prefix . 'c' .$charset;
+				$key = $this->get_headtag_key('css', $key);
 				if (isset($this->root->{$target}[$key])) {
 					$this->root->{$target}[$key] = str_replace('.css"', ',' . $match[1] . '.css"', $this->root->{$target}[$key]);
 				} else {
@@ -1074,7 +1089,8 @@ EOD;
 
 			} else if ($match[2] === 'js') {
 				$defer = $defer? ' defer="defer"' : '';
-				$key = 'js:' . $charset . $defer;
+				$key = $charset . $defer;
+				$key = $this->get_headtag_key('js', $key);
 				if (isset($this->root->{$target}[$key])) {
 					$this->root->{$target}[$key] = str_replace('.js"', ',' . $match[1] . '.js"', $this->root->{$target}[$key]);
 				} else {
@@ -1086,7 +1102,8 @@ EOD;
 				}
 			}
 		} else {
-			$this->root->{$target}['js'.$file] = $file;
+			$key = $this->get_headtag_key('js', $file);
+			$this->root->{$target}[$key] = $file;
 		}
 	}
 
@@ -1101,11 +1118,30 @@ EOD;
 		$defer = $defer? ' defer="defer"' : '';
 		$target = $pre? 'head_pre_tags' : 'head_tags';
 
-		$this->root->{$target}['js'.$file] = '<script type="text/javascript" src="' . $file . '"' . $charset . $defer . '></script>';
+		$key = $this->get_headtag_key('js', $file);
+		$this->root->{$target}[$key] = '<script type="text/javascript" src="' . $file . '"' . $charset . $defer . '></script>';
 		if (empty($this->root->rtf['HeadJsAjaxSafe'])) {
 			$this->root->rtf['useJavascriptInHead'] = TRUE;
 			$this->root->rtf['HeadJsAjaxSafe'] = NULL;
 		}
+	}
+
+	function get_headtag_key ($type, $key) {
+		// default.js start "3."
+		switch($type) {
+			case 'css':
+				$num = 0;
+				break;
+
+			case 'js':
+				$num = 5;
+				break;
+
+			default:
+				$num = $type;
+		}
+
+		return $num . '.' . $key;
 	}
 
 	// リファラチェック $blank = 1 で未設定も不許可(デフォルトで未設定は許可)
