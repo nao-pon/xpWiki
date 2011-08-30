@@ -386,6 +386,8 @@ var XpWiki = {
 	},
 
 	addWrapButton: function (id) {
+		if (navigator.userAgent.match('Mobile')) return;
+
 		var txtarea = $(id);
 
 		id = txtarea.id;
@@ -418,7 +420,7 @@ var XpWiki = {
 	},
 
 	addFckButton: function (id, mydir) {
-		if (this.FCKeditor_path) {
+		if (this.FCKeditor_path && ! navigator.userAgent.match('Mobile')) {
 			var txtarea = $(id);
 
 			if (typeof(txtarea.XpWiki_addFck_done) != 'undefined') return false;
