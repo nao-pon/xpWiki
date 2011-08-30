@@ -1,12 +1,12 @@
 //
 // Created on 2007/10/03 by nao-pon http://hypweb.net/
-// $Id: loader.js,v 1.6 2008/09/16 04:23:37 nao-pon Exp $
+// $Id: loader.js,v 1.7 2011/08/30 02:37:36 nao-pon Exp $
 //
 
 //// JavaScript optimizer by amachang.
 //// http://d.hatena.ne.jp/amachang/20060924/1159084608
 /*@cc_on
-eval((function(props) {
+eval((function(props, doc) {
 	var code = [];
 	for (var i=0; i<props.length; i++){
 		var prop = props[i];
@@ -14,7 +14,7 @@ eval((function(props) {
 		code.push(prop+'=_'+prop)
 	}
 	return 'var '+code.join(',');
-})('document self top parent alert setInterval clearInterval setTimeout clearTimeout'.split(' ')));
+})('doc self top parent alert setInterval clearInterval setTimeout clearTimeout'.split(' ')), document);
 @*/
 var _si_nativeSetInterval = window.setInterval;
 var _si_nativeClearInterval = window.clearInterval;
@@ -32,7 +32,7 @@ var _si_loop = function() {
             f[i]();
             c[i] = n[i];
         }
-    } 
+    }
 };
 window.setInterval = function(handler, time) {
     if(typeof handler == 'string')
