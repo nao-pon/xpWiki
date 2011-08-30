@@ -180,6 +180,8 @@ class XpWikiLink {
 		$this->name = $name;
 		$this->body = $body;
 		$this->type = $type;
+		$this->is_image = FALSE;
+		$this->use_lightbox = FALSE;
 
 		if ($this->type === 'url' && !$this->cont['PKWK_DISABLE_INLINE_IMAGE_FROM_URI'] && $this->func->is_url($alias) && preg_match('/\.(gif|png|jpe?g)$/i', $alias)) {
 			$this->is_image = TRUE;
@@ -206,6 +208,17 @@ class XpWikiLink {
 
 				// BugTrack/669: A hack removing anchor tags added by AutoLink
 				$alias = preg_replace('#</?a[^>]*>#i', '', $alias);
+
+				// Is image only? (on render mode)
+				if ($this->root->render_mode === 'render') {
+					if (strpos($this->name, $this->root->siteinfo['rooturl']) === 0
+					 && preg_match('/^<img[^>]+>$/s', trim($alias))
+					 && preg_match('/(?:jpe?g|png|gif)$/i', $this->name)) {
+						$this->is_image = TRUE;
+						$this->use_lightbox = TRUE;
+						$alias = preg_replace('/\s*title="[^"]*"/', '', $alias);
+					}
+				}
 			}
 		}
 		$this->alias = $alias;
