@@ -1,7 +1,7 @@
 <?php
 //
 // Created on 2006/10/02 by nao-pon http://hypweb.net/
-// $Id: xpwiki_func.php,v 1.235 2011/08/30 02:42:07 nao-pon Exp $
+// $Id: xpwiki_func.php,v 1.236 2011/09/01 00:09:15 nao-pon Exp $
 //
 class XpWikiFunc extends XpWikiXoopsWrapper {
 
@@ -617,7 +617,6 @@ class XpWikiFunc extends XpWikiXoopsWrapper {
 
 		// WikiHelper JavaScript
 		$this->root->head_tags['3.default.js'] = '<script type="text/javascript" src="'.$this->cont['LOADER_URL'].'?src=default.'.$this->cont['UI_LANG'].$this->cont['FILE_ENCORD_EXT'].'.js"></script>';
-EOD;
 
 		// key sort (CSS fast)
 		ksort($this->root->head_pre_tags);
@@ -627,7 +626,7 @@ EOD;
 		$head_pre_tag = ! empty($this->root->head_pre_tags) ? join("\n", $this->root->head_pre_tags) ."\n" : '';
 
 		// Tags will be inserted into <head></head>
-		$head_tag .= join("\n", $this->root->head_tags) ."\n";
+		$head_tag = join("\n", $this->root->head_tags) ."\n";
 
 		// Clear
 		//$this->root->head_pre_tags = $this->root->head_tags = array();
