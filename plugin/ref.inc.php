@@ -1,5 +1,5 @@
 <?php
-// $Id: ref.inc.php,v 1.57 2011/08/30 05:06:46 nao-pon Exp $
+// $Id: ref.inc.php,v 1.58 2011/09/04 12:09:47 nao-pon Exp $
 /*
 
 	*プラグイン ref
@@ -39,6 +39,7 @@ class xpwiki_plugin_ref extends xpwiki_plugin {
 		$this->conf['imgTitles'] = explode(',', $this->root->ref_img_title);
 		$this->conf['imgAlts'] = array_map('trim', $this->conf['imgAlts']);
 		$this->conf['imgTitles'] = array_map('trim', $this->conf['imgTitles']);
+		$this->conf['videoWrapClass'] = 'video';
 	}
 
 	function plugin_ref_init () {
@@ -93,6 +94,12 @@ class xpwiki_plugin_ref extends xpwiki_plugin {
 
 		// Exif データを取得し title属性に付加する (TRUE or FALSE)
 		$this->cont['PLUGIN_REF_GET_EXIF'] = FALSE;
+
+		//// ここから Ver 4.03.17 以降追加分
+		// ( $this->conf )
+
+		// ビデオをラップするタグ( div 又は span )のクラス名
+		$this->conf['videoWrapClass'] = 'video';
 
 	}
 
@@ -237,6 +244,9 @@ class xpwiki_plugin_ref extends xpwiki_plugin {
 			$ret = $params['_error'];
 		} else {
 			$ret = $params['_body'];
+			if ($params['_is_video']) {
+				$ret = '<span class="'.$this->conf['videoWrapClass'].'">' . $ret . '</span>';
+			}
 			if ($params['caption']) {
 				$ret = $this->wrap_span($ret, $params);
 			}
@@ -335,6 +345,9 @@ class xpwiki_plugin_ref extends xpwiki_plugin {
 
 		// 残りの引数の処理
 		$this->fetch_options($params, $args, $lvar);
+
+		// 引数以外のパラメーターの初期化
+		$params['_is_video'] = false;
 
 		//exit($params['set']);
 		if ($params['set']) {
@@ -681,6 +694,7 @@ class xpwiki_plugin_ref extends xpwiki_plugin {
 				$object_attr = '';
 				$media_size_tag = $size_tag = $buttom_tag = '';
 				$template = 'default';
+
 				$img = array(
 					'org_w' => 0,
 					'org_h' => 0,
@@ -710,6 +724,8 @@ class xpwiki_plugin_ref extends xpwiki_plugin {
 
 				$is_real = false;
 				if ($media === 'video' || $is_real = (substr($type, 0, 11) === 'vnd.rn-real')) {
+
+					$params['_is_video'] = true;
 
 					if (! empty($this->cont['PLUGIN_REF_PLAYERS'][$object_type])) {
 
@@ -745,7 +761,7 @@ class xpwiki_plugin_ref extends xpwiki_plugin {
 							$param['console'] = $domid;
 							$buttom_tag = <<<EOD
 <br />
-<object classid="clsid:CFCDAA03-8BE4-11CF-B84B-0020AFBBCCFA" width="{$size[0]}"  height="30">
+<object classid="clsid:CFCDAA03-8BE4-11CF-B84B-0020AFBBCCFA" width="{$size[0]}" height="30">
 <param name="controls" value="ControlPanel"></param><param name="console" value="{$domid}"></param>
 <!--[if !IE]> <-->
 <object type="{$mime}" width="{$width}" height="30">
@@ -820,7 +836,7 @@ EOD;
 <video id="{$domid}" controls="controls"{$media_size_tag}>
 <source src="{$url}" type="{$mime}" />
 {$params['_body']}
-</video>
+</div>
 EOD;
 				}
 			}
@@ -991,6 +1007,11 @@ _HTML_;
 
 	// divで包む
 	function wrap_div($text, $params) {
+
+		if ($params['_is_video']) {
+			$text = '<div class="'.$this->conf['videoWrapClass'].'">' . $text . '</div>';
+		}
+
 		$align = $params['_align'];
 		$around = $params['around'];
 		if ($params['caption']) {
@@ -1073,6 +1094,7 @@ _HTML_;
 							}
 							$type = strtolower($type);
 
+							$params['_is_video'] = true;
 							switch($type) {
 								case 'html':
 									$params['noicon'] = true;
@@ -1098,8 +1120,8 @@ _HTML_;
 									$lvar['text'] = str_replace('$size', $size, $lvar['text']);
 									$link = htmlspecialchars($lvar['name']);
 									$link = '<a href="'.$link.'">'.$link.'</a>';
+									//$lvar['text'] = '<div class="video">' . str_replace('$link', $link, $lvar['text']) . '</div>';
 									$lvar['text'] = str_replace('$link', $link, $lvar['text']);
-
 
 									break;
 
