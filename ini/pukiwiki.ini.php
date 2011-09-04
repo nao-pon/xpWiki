@@ -1,6 +1,6 @@
 <?php
 // PukiWiki - Yet another WikiWikiWeb clone
-// $Id: pukiwiki.ini.php,v 1.107 2011/07/03 04:50:50 nao-pon Exp $
+// $Id: pukiwiki.ini.php,v 1.108 2011/09/04 11:58:51 nao-pon Exp $
 // Copyright (C)
 //   2002-2006 PukiWiki Developers Team
 //   2001-2002 Originally written by yu-ji
@@ -162,20 +162,20 @@ $const['PLUGIN_REF_NETVIDEOS']['niconico'] = array(
 //);
 
 $const['PLUGIN_REF_NETVIDEOS']['youtube'] = array(
-	'regex'     => '#^http://www\.youtube\.com/watch\?v=([0-9a-z_-]+)#i',
+	'regex'     => '#^http://www\.youtube\.com/watch\?.*?v=([0-9a-z_-]+)#i',
 	'type'      => 'html',
-	'src'       => '<iframe class="youtube-player" type="text/html"$size src="http://www.youtube.com/embed/$1" frameborder="0"><noiframe>$link</noiframe></iframe>',
+	'src'       => '<iframe class="youtube-player" type="text/html"$size src="http://www.youtube.com/embed/$1?wmode=transparent" frameborder="0"><noiframe>$link</noiframe></iframe>',
 	'src_keitai'=> '$link',
-	'width'     => 640,
-	'height'    => 385,
+	'width'     => 480,
+	'height'    => 270,
 );
 
 $const['PLUGIN_REF_NETVIDEOS']['google'] = array(
 	'regex'     => '#^http://video\.google\.com/videoplay\?docid=([0-9-]+)#i',
 	'type'      => 'flash',
 	'src'       => 'http://video.google.com/googleplayer.swf?docid=$1&hl=&fs=true',
-	'width'     => 640,
-	'height'    => 385,
+	'width'     => 480,
+	'height'    => 296,
 	'attribute' => 'allowfullscreen="true" allowscriptaccess="always"'
 );
 
@@ -184,52 +184,35 @@ $const['PLUGIN_REF_NETVIDEOS']['ustream'] = array(
 	'type'      => 'flash',
 	'src'       => 'http://www.ustream.tv/flash/video/$1',
 	'width'     => 480,
-	'height'    => 386,
+	'height'    => 296,
 	'attribute' => 'flashvars="loc=%2F&autoplay=false&vid=$1&locale=" allowfullscreen="true" allowscriptaccess="always"'
 );
 
-$const['PLUGIN_REF_NETVIDEOS']['circle.zoome'] = array(
-	'regex'     => '#^http://circle\.zoome\.jp/([a-z0-9_-]+)/media/([0-9]+)#i',
-	'type'      => 'flash',
-	'src'       => 'http://circle.zoome.jp/$1/zpmed/p/$2/',
-	'width'     => 800,
-	'height'    => 640,
-	'attribute' => 'allowFullScreen="true" allowScriptAccess="always"'
-);
 
-$const['PLUGIN_REF_NETVIDEOS']['zoome'] = array(
-	'regex'     => '#^http://zoome\.jp/([a-z0-9_-]+)/diary/([0-9]+)#i',
-	'type'      => 'flash',
-	'src'       => 'http://zoome.jp/$1/zpdia/p/$2/',
-	'width'     => 800,
-	'height'    => 640,
-	'attribute' => 'allowFullScreen="true" allowScriptAccess="always"'
-);
+//$const['PLUGIN_REF_NETVIDEOS']['vimeo'] = array(
+//	'regex'     => '#^http://vimeo\.com/([0-9]+)#i',
+//	'type'      => 'flash',
+//	'src'       => 'http://vimeo.com/moogaloop.swf?clip_id=$1&server=vimeo.com&show_title=1&show_byline=1&show_portrait=0&color=&fullscreen=1',
+//	'width'     => 480,
+//	'height'    => 270,
+//	'attribute' => 'allowFullScreen="true" allowScriptAccess="always"'
+//);
 
 $const['PLUGIN_REF_NETVIDEOS']['vimeo'] = array(
 	'regex'     => '#^http://vimeo\.com/([0-9]+)#i',
-	'type'      => 'flash',
-	'src'       => 'http://vimeo.com/moogaloop.swf?clip_id=$1&server=vimeo.com&show_title=1&show_byline=1&show_portrait=0&color=&fullscreen=1',
-	'width'     => 640,
-	'height'    => 360,
-	'attribute' => 'allowFullScreen="true" allowScriptAccess="always"'
-);
-
-$const['PLUGIN_REF_NETVIDEOS']['guba'] = array(
-	'regex'     => '#^http://www\.guba\.com/watch/([0-9]+)#i',
-	'type'      => 'flash',
-	'src'       => 'http://www.guba.com/static/f/player__v13938.swf?isEmbeddedPlayer=true&bid=$1',
-	'width'     => 700,
-	'height'    => 400,
-	'attribute' => 'allowFullScreen="true" allowScriptAccess="never" quality="best"'
+	'type'      => 'html',
+	'src'       => '<iframe src="http://player.vimeo.com/video/$1?title=0&amp;byline=0&amp;portrait=0&amp;color=c9ff23"$size " frameborder="0"><noiframe>$link</noiframe></iframe>',
+	'src_keitai'=> '$link',
+	'width'     => 480,
+	'height'    => 270,
 );
 
 $const['PLUGIN_REF_NETVIDEOS']['veoh'] = array(
-	'regex'     => '#^http://www\.veoh\.com/[a-z/]+/watch/([a-z0-9]+)#i',
+	'regex'     => '#^http://www\.veoh\.com/(?:[a-z\/]+/)?watch/([a-z0-9]+)#i',
 	'type'      => 'flash',
 	'src'       => 'http://www.veoh.com/static/swf/webplayer/WebPlayer.swf?version=AFrontend.5.5.2.1030&permalinkId=$1&player=videodetailsembedded&videoAutoPlay=0&id=anonymous',
-	'width'     => 608,
-	'height'    => 487,
+	'width'     => 480,
+	'height'    => 296,
 	'attribute' => 'allowFullScreen="true" allowScriptAccess="always"'
 );
 
@@ -237,8 +220,8 @@ $const['PLUGIN_REF_NETVIDEOS']['pandora'] = array(
 	'regex'     => '#^http://channel\.pandora\.tv/channel/video\.ptv\?.+?(userid=[0-9a-z]+&prgid=[0-9]+)#i',
 	'type'      => 'flash',
 	'src'       => 'http://flvr.pandora.tv/flv2pan/flvmovie.dll/$1&countryChk=jp&skin=1',
-	'width'     => 500,
-	'height'    => 402,
+	'width'     => 480,
+	'height'    => 300,
 	'attribute' => 'allowFullScreen="true" allowScriptAccess="always"'
 );
 
@@ -246,8 +229,8 @@ $const['PLUGIN_REF_NETVIDEOS']['slideboom'] = array(
 	'regex'     => '#^http://www\.slideboom\.com/presentations/(\d+)/#i',
 	'type'      => 'flash',
 	'src'       => 'http://www.slideboom.com/player/player.swf?id_resource=$1',
-	'width'     => 425,
-	'height'    => 370,
+	'width'     => 480,
+	'height'    => 417,
 	'attribute' => 'allowFullScreen="true" allowScriptAccess="always" quality="high" bgcolor="#ffffff"'
 );
 
@@ -255,8 +238,8 @@ $const['PLUGIN_REF_NETVIDEOS']['slidesix'] = array(
 	'regex'     => '#^http://slidesix.com/view/([a-z0-9-_]+)#i',
 	'type'      => 'flash',
 	'src'       => 'http://slidesix.com/viewer/SlideSixViewer.swf?alias=$1',
-	'width'     => 550,
-	'height'    => 425,
+	'width'     => 480,
+	'height'    => 380,
 	'attribute' => 'allowFullScreen="true" allowScriptAccess="always" wmode="transparent" quality="best"'
 );
 
