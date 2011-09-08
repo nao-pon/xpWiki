@@ -1,6 +1,6 @@
 //
 // Created on 2007/10/03 by nao-pon http://hypweb.net/
-// $Id: loader.js,v 1.7 2011/08/30 02:37:36 nao-pon Exp $
+// $Id: loader.js,v 1.8 2011/09/08 08:34:56 nao-pon Exp $
 //
 
 //// JavaScript optimizer by amachang.
@@ -63,6 +63,17 @@ var wikihelper_Gecko = (navigator.userAgent.indexOf('Gecko') > -1 && navigator.u
 var wikihelper_Opera = !!window.opera;
 var wikihelper_WebKit = (navigator.userAgent.indexOf('AppleWebKit/') > -1);
 
+if (wikihelper_WinIE) {
+	 wikihelper_WinIE = (function(){
+     var undef, v = 3, div = document.createElement('div');
+     while (
+         div.innerHTML = '<!--[if gt IE '+(++v)+']><I></I><![endif]-->',
+         div.getElementsByTagName('i')[0]
+     );
+     return v> 4 ? v : undef;
+	}());
+}
+
 var xpwiki_scripts = '';
 
 if (typeof(document.evaluate) != 'function') {
@@ -74,7 +85,12 @@ if (typeof(document.evaluate) != 'function') {
 // resizable.js
 // xpwiki.js
 // main.js
-xpwiki_scripts += 'prototype,effects,dragdrop,resizable,xpwiki,main';
+if (wikihelper_WinIE && wikihelper_WinIE < 9) {
+	xpwiki_scripts += 'prototype_1.6.0.3,';
+} else {
+	xpwiki_scripts += 'prototype,';
+}
+xpwiki_scripts += 'effects,dragdrop,resizable,xpwiki,main';
 
 // Branch.
 if (wikihelper_WinIE) {
