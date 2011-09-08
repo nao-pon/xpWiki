@@ -43,6 +43,8 @@ var XpWiki = {
 
 	useSelector: (Prototype.Browser.IE && typeof document.querySelector == 'object'),
 
+	useJQueryMobile: false,
+
 	onDomLoaded: function () {
 		if (Prototype.Browser.IE && XpWikiIeDomLoadedDisable && this.isDomLoaded) {
 			this.isDomLoaded = false;
@@ -51,6 +53,8 @@ var XpWiki = {
 
 		if (this.domInitDone) return;
 		this.domInitDone = true;
+
+		this.useJQueryMobile = (typeof(jQuery) != "undefined" && typeof(jQuery.mobile) != "undefined");
 
 		if (this.isIE8) {
 			this.IEVer = document.documentMode;
@@ -82,6 +86,11 @@ var XpWiki = {
 
 		if (!this.isIE6 || !this.ie6JsPass) {
 			this.faviconSet(this.DomBody);
+		}
+
+		// preview area height for jQuery mobile
+		if (this.useJQueryMobile && !!$('xpwiki_preview_area')) {
+			$('xpwiki_preview_area').style.maxHeight = 'none';
 		}
 	},
 
@@ -225,6 +234,8 @@ var XpWiki = {
 		Element.hide('XpWikiPopupCover');
 	},
 	pagePopup: function (arg) {
+		if (this.useJQueryMobile) return true;
+
 		if (!arg.dir || !arg.page) return true;
 
 		if (typeof(document.body.style.maxHeight) != 'undefined') {
@@ -386,7 +397,7 @@ var XpWiki = {
 	},
 
 	addWrapButton: function (id) {
-		if (navigator.userAgent.match('Mobile')) return;
+		if (this.useJQueryMobile) return;
 
 		var txtarea = $(id);
 
@@ -420,7 +431,10 @@ var XpWiki = {
 	},
 
 	addFckButton: function (id, mydir) {
-		if (this.FCKeditor_path && ! navigator.userAgent.match('Mobile')) {
+
+		if  (this.useJQueryMobile) return;
+
+		if (this.FCKeditor_path) {
 			var txtarea = $(id);
 
 			if (typeof(txtarea.XpWiki_addFck_done) != 'undefined') return false;
@@ -463,6 +477,8 @@ var XpWiki = {
 
 	faviconSetDone: new Array(),
 	faviconSet: function (body, id) {
+		if (this.useJQueryMobile) return;
+
 		if (! id) {
 			id = body.uniqueID;
 		}
@@ -562,6 +578,8 @@ var XpWiki = {
 	},
 
 	remakeTextArea: function (obj) {
+		if (this.useJQueryMobile) return;
+
 		var tareas = obj.getElementsByTagName('textarea');
 		for (var i=0; i<tareas.length; i++){
 			if (tareas[i].style.display == 'none') continue;
@@ -830,6 +848,8 @@ var XpWiki = {
 	},
 
 	fileupFormPopup: function (mode, page) {
+
+		if (this.useJQueryMobile) return true;
 
 		if (typeof page != "undefined") {
 			this.dir = mode;
