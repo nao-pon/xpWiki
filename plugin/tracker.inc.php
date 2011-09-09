@@ -1,6 +1,6 @@
 <?php
 // PukiWiki - Yet another WikiWikiWeb clone
-// $Id: tracker.inc.php,v 1.23 2010/06/04 07:18:51 nao-pon Exp $
+// $Id: tracker.inc.php,v 1.24 2011/09/09 07:33:23 nao-pon Exp $
 // ORG: tracker.inc.php,v 1.57 2007/09/20 15:17:20 henoheno Exp $
 // Issue tracker plugin (See Also bugtrack plugin)
 
@@ -328,7 +328,7 @@ EOD;
 
 		$s_base = $this->func->make_pagelink(trim($base));
 		return array(
-			'msg' => $this->root->_tracker_messages['msg_list'],
+			'msg' => str_replace('$1', $s_base, $this->root->_tracker_messages['msg_list']),
 			'body'=> str_replace('$1', $s_base, $this->root->_tracker_messages['msg_back']).
 				$this->plugin_tracker_list_render($base, $base, $config, $list, $order, $limit)
 		);
