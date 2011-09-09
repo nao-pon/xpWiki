@@ -1,7 +1,7 @@
 <?php
 /*
  * Created on 2008/03/24 by nao-pon http://hypweb.net/
- * $Id: attach.php,v 1.31 2011/07/29 07:14:25 nao-pon Exp $
+ * $Id: attach.php,v 1.32 2011/09/09 07:30:22 nao-pon Exp $
  */
 
 //-------- епеще╣
@@ -438,6 +438,22 @@ EOD;
 					foreach($exif_data as $key => $value){
 						if ($key != "title") $ex_tags .= "<br />$key: $value";
 					}
+				}
+				if ($is_owner) {
+					if ($exif_data = $this->func->get_exif_data($this->filename, true)) {
+						$ex_tags .= '<div><span class="button" onclick="$(\'xpwiki_attach_fullexif\').toggle();">Original EXIF (Show/Hide)</span></div><div id="xpwiki_attach_fullexif" style="display:none;">';
+						foreach($exif_data as $key => $value){
+							if (is_array($value)) {
+								foreach($value as $_key => $_val) {
+									$ex_tags .= "<div>$key.$_key: $_val</div>";
+								}
+							} else {
+								$ex_tags .= "<div>$key: $value</div>";
+							}
+						}
+						$ex_tags .= '</div>';
+					}
+
 				}
 			}
 			if ($this->status['imagesize'][2] < 1) {
