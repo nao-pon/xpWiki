@@ -1,7 +1,7 @@
 <?php
 //
 // Created on 2006/10/02 by nao-pon http://hypweb.net/
-// $Id: xpwiki_func.php,v 1.236 2011/09/01 00:09:15 nao-pon Exp $
+// $Id: xpwiki_func.php,v 1.237 2011/09/09 07:29:26 nao-pon Exp $
 //
 class XpWikiFunc extends XpWikiXoopsWrapper {
 
@@ -526,6 +526,9 @@ class XpWikiFunc extends XpWikiXoopsWrapper {
 				foreach ($cache_dat['cont'] as $_key=>$_val) {
 					$this->cont[$_key] = $_val;
 				}
+				if ($this->root->pagecache_profiles) {
+					$use_cache = in_array($this->cont['UA_PROFILE'], explode(',', str_replace(' ', '', $this->root->pagecache_profiles)));
+				}
 			} else {
 				$use_cache = false;
 			}
@@ -536,7 +539,7 @@ class XpWikiFunc extends XpWikiXoopsWrapper {
 			$body = $this->convert_html($this->get_source($page));
 			$this->root->content_title = $this->get_heading($page);
 			// キャッシュ保存
-			if ($this->cont['UA_PROFILE'] !== 'keitai' && (! empty($this->root->rtf['use_cache_always']) || ($this->root->userinfo['uid'] === 0 && $this->root->pagecache_min > 0))) {
+			if ($this->cont['UA_PROFILE'] === 'default' && (! empty($this->root->rtf['use_cache_always']) || ($this->root->userinfo['uid'] === 0 && $this->root->pagecache_min > 0))) {
 				$fp = fopen($cache_file, "wb");
 				fwrite($fp, serialize(
 					array(
@@ -549,7 +552,9 @@ class XpWikiFunc extends XpWikiXoopsWrapper {
 							'runmode'       => $this->root->runmode,
 							'content_title' => $this->root->content_title,
 							'nonflag'       => $this->root->nonflag,
-							'replaces_finish'=> $this->root->replaces_finish
+							'replaces_finish'=> $this->root->replaces_finish,
+							'pagecache_profiles' => $this->root->pagecache_profiles
+
 						),
 						'cont'          => array(
 							'SKIN_CHANGER'  => $this->cont['SKIN_CHANGER']
@@ -1161,87 +1166,105 @@ class XpWikiFunc extends XpWikiXoopsWrapper {
 
 
 	//EXIFデータを得る
-	function get_exif_data($file, $alltag = FALSE){
+	function get_exif_data($file, $original = FALSE){
 		$ret = array();
-		if (function_exists('read_exif_data')) {
-			if ($ret = $this->cache_get_db ($key = sha1($file), 'exif')) {
-				$ret = unserialize($ret);
-			} else {
-				$exif_data = @ read_exif_data($file);
-				if (! $exif_data) return $ret;
-
-				$ret['title'] = "-- Shot Info --";
-
-				if (isset($exif_data['Model']))
-					$ret['Camera '] = $exif_data['Model'];
-
-				if (isset($exif_data['Make'])) {
-					if (strpos($ret['Camera '], $exif_data['Make']) !== 0){
-						$ret['Camera '] = $exif_data['Make'] . ' ' . $ret['Camera '];
+		if (function_exists('exif_read_data')) {
+			$arr = array();
+			if ($arr = $this->cache_get_db ($key = sha1($file), 'exif')) {
+				$arr = unserialize($arr);
+				if (!isset($arr['ret'])) {
+					// Old type cache
+					if ($original) {
+						$arr = array();
+					} else {
+						$arr['ret'] = $arr;
 					}
 				}
+			}
+			if (!$arr) {
+				$exif_data = @ exif_read_data($file);
+				if ($exif_data) {
 
+					$ret['title'] = "-- Shot Info --";
 
-				if (isset($exif_data['DateTimeOriginal']))
-					$ret['Date '] = $exif_data['DateTimeOriginal'];
+					if (isset($exif_data['Model']))
+						$ret['Camera '] = $exif_data['Model'];
 
-				if (isset($exif_data['ExposureTime']))
-					$ret['Exposure '] = $this->get_exif_numbar($exif_data['ExposureTime'], FALSE, 'fraction').' sec';
-
-				if (isset($exif_data['ExposureBiasValue'])) {
-					$ret['Exposure '] .= ' (' . $this->get_exif_numbar($exif_data['ExposureBiasValue'], FALSE).' EV)';
-				}
-
-				if (isset($exif_data['ApertureValue'])) {
-					$ret['Aperture '] = 'F '.$this->get_exif_numbar($exif_data['ApertureValue'], 'A');
-				} else if (isset($exif_data['FNumber'])) {
-					$ret['Aperture '] = 'F '.$this->get_exif_numbar($exif_data['FNumber']);
-				}
-
-				if (isset($exif_data['FocalLength']))
-					$ret['Lens '] = $this->get_exif_numbar($exif_data['FocalLength']).' mm';
-
-				if (isset($exif_data['FocalLengthIn35mmFilm']))
-					$ret['Lens '] .= '(35mm:' . $this->get_exif_numbar($exif_data['FocalLengthIn35mmFilm']).')';
-
-				if (isset($exif_data['MaxApertureValue']))
-					@$ret['Lens '] .= '/F '.$this->get_exif_numbar($exif_data['MaxApertureValue'], 'A');
-
-				if (isset($exif_data['Flash'])){
-					if ($exif_data['Flash'] == 0) {$ret['Flash '] = "OFF";}
-					else if ($exif_data['Flash'] == 1) {$ret['Flash '] = "ON";}
-					else if ($exif_data['Flash'] == 5) {$ret['Flash '] = "Light(No Reflection)";}
-					else if ($exif_data['Flash'] == 7) {$ret['Flash '] = "Light(Reflection)";}
-					else if ($exif_data['Flash'] == 9) {$ret['Flash '] = "Always ON";}
-					else if ($exif_data['Flash'] == 16) {$ret['Flash '] = "Always OFF";}
-					else if ($exif_data['Flash'] == 24) {$ret['Flash '] = "Auto(None)";}
-					else if ($exif_data['Flash'] == 25) {$ret['Flash '] = "Auto(Light)";}
-					else {$ret['Flash '] = $exif_data['Flash'];}
-				}
-
-				if (isset($exif_data['SubjectDistance'])) {
-					$ret['Distance '] = $exif_data['SubjectDistance'].' m';
-				}
-
-				if (count($ret) === 1) {
-					$ret = array();
-				}
-
-				if ($ret && $alltag) {
-					$ret['-- :Orignal Exif'] = '--';
-					foreach ($exif_data as $key=>$sect) {
-						if (is_array($sect) == FALSE) {
-							$ret[$key] = trim($sect);
-						} else {
-							foreach($sect as $name=>$val)	$ret[$key . $name] = trim($val);
+					if (isset($exif_data['Make'])) {
+						if (strpos($ret['Camera '], $exif_data['Make']) !== 0){
+							$ret['Camera '] = $exif_data['Make'] . ' ' . $ret['Camera '];
 						}
 					}
-					// 表示しないパラメーター
-					unset($ret['FileName'], $ret['MakerNote']);
+
+
+					if (isset($exif_data['DateTimeOriginal']))
+						$ret['Date '] = $exif_data['DateTimeOriginal'];
+
+					if (isset($exif_data['ExposureTime']))
+						$ret['Exposure '] = $this->get_exif_numbar($exif_data['ExposureTime'], FALSE, 'fraction').' sec';
+
+					if (isset($exif_data['ExposureBiasValue'])) {
+						$ret['Exposure '] .= ' (' . $this->get_exif_numbar($exif_data['ExposureBiasValue'], FALSE).' EV)';
+					}
+
+					if (isset($exif_data['ApertureValue'])) {
+						$ret['Aperture '] = 'F '.$this->get_exif_numbar($exif_data['ApertureValue'], 'A');
+					} else if (isset($exif_data['FNumber'])) {
+						$ret['Aperture '] = 'F '.$this->get_exif_numbar($exif_data['FNumber']);
+					}
+
+					if (isset($exif_data['FocalLength']))
+						$ret['Lens '] = $this->get_exif_numbar($exif_data['FocalLength']).' mm';
+
+					if (isset($exif_data['FocalLengthIn35mmFilm']))
+						$ret['Lens '] .= '(35mm:' . $this->get_exif_numbar($exif_data['FocalLengthIn35mmFilm']).')';
+
+					if (isset($exif_data['MaxApertureValue']))
+						@$ret['Lens '] .= '/F '.$this->get_exif_numbar($exif_data['MaxApertureValue'], 'A');
+
+					if (isset($exif_data['Flash'])){
+						if ($exif_data['Flash'] == 0) {$ret['Flash '] = "OFF";}
+						else if ($exif_data['Flash'] == 1) {$ret['Flash '] = "ON";}
+						else if ($exif_data['Flash'] == 5) {$ret['Flash '] = "Light(No Reflection)";}
+						else if ($exif_data['Flash'] == 7) {$ret['Flash '] = "Light(Reflection)";}
+						else if ($exif_data['Flash'] == 9) {$ret['Flash '] = "Always ON";}
+						else if ($exif_data['Flash'] == 16) {$ret['Flash '] = "Always OFF";}
+						else if ($exif_data['Flash'] == 24) {$ret['Flash '] = "Auto(None)";}
+						else if ($exif_data['Flash'] == 25) {$ret['Flash '] = "Auto(Light)";}
+						else {$ret['Flash '] = $exif_data['Flash'];}
+					}
+
+					if (isset($exif_data['SubjectDistance'])) {
+						$ret['Distance '] = $exif_data['SubjectDistance'].' m';
+					}
+
+					if (count($ret) === 1) {
+						$ret = array();
+					}
+
+					/*
+					if ($ret) {
+						$org['-- :Orignal Exif '] = '--';
+						foreach ($exif_data as $akey=>$sect) {
+							if (is_array($sect) == FALSE) {
+								$org[$akey . ' '] = trim($sect);
+							} else {
+								foreach($sect as $name=>$val)	$org[$akey . ':' . $name . ' '] = trim($val);
+							}
+						}
+						// 表示しないパラメーター
+						unset($org['FileName'], $org['MakerNote']);
+					}
+					*/
 
 				}
-
-				$this->cache_save_db(serialize($ret), 'exif', 86400 * 30, $key);
+				$arr = array('ret' => $ret, 'org' => $exif_data);
+				$this->cache_save_db(serialize($arr), 'exif', 86400 * 30, $key);
+			}
+			if ($original) {
+				$ret = $arr['org'];
+			} else {
+				$ret = $arr['ret'];
 			}
 		}
 		return $ret;
