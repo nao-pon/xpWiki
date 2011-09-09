@@ -1,6 +1,6 @@
 <?php
 // PukiWiki - Yet another WikiWikiWeb clone
-// $Id: pcomment.inc.php,v 1.24 2011/06/01 06:27:51 nao-pon Exp $
+// $Id: pcomment.inc.php,v 1.25 2011/09/09 07:38:17 nao-pon Exp $
 //
 // pcomment plugin - Show/Insert comments into specified (another) page
 //
@@ -192,8 +192,12 @@ EOD;
 				$name = '<input type="text" name="name" value="' . $this->cont['USER_NAME_REPLACE'] . '"size="' . $this->conf['SIZE_NAME'] . '" />';
 			}
 
-			$radio   = $params['reply'] ?
-				'<input type="radio" name="reply" value="0" tabindex="0" checked="checked" />' : '';
+			$radio = '';
+			if ($params['reply']) {
+				$this->root->pagecache_profiles = 'default';
+				$datarole = ($this->cont['UA_PROFILE'] === 'mobile')? 'data-role="none" ' : '';
+				$radio = '<input type="radio" name="reply" value="0" tabindex="0" checked="checked" '.$datarole.'/>';
+			};
 
 			$cols = max(10, min(80, intval($params['cols'])));
 
@@ -518,8 +522,9 @@ EOD;
 
 		// Add radio buttons
 		if ($reply)
+			$datarole = ($this->cont['UA_PROFILE'] === 'mobile')? 'data-role="none" ' : '';
 			$comments = preg_replace('/<li>' . "\x01" . '(\d+)' . "\x02" . '(.*)' . "\x03" . '/',
-			'<li class="pcmt"><input class="pcmt" type="radio" name="reply" value="$2" tabindex="$1" />',
+			'<li class="pcmt"><input class="pcmt" type="radio" name="reply" value="$2" tabindex="$1" '.$datarole.'/>',
 			$comments);
 
 		return array($comments, $digest);
