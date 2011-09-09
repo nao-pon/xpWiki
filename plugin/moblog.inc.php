@@ -1,5 +1,5 @@
 <?php
-// $Id: moblog.inc.php,v 1.18 2011/08/30 02:15:40 nao-pon Exp $
+// $Id: moblog.inc.php,v 1.19 2011/09/09 09:16:10 nao-pon Exp $
 // Author: nao-pon http://hypweb.net/
 // Bace script is pop.php of mailbbs by Let's PHP!
 // Let's PHP! Web: http://php.s3.to/
@@ -81,6 +81,9 @@ class xpwiki_plugin_moblog extends xpwiki_plugin {
 
 		// 添付メールのみ記録する？Yes=1 No=0（本文のみはログに載せない）
 		$this->config['imgonly'] = 0;
+
+		// google map 自動作成を無効にする
+		$this->config['nomap'] = 0;
 	}
 	function plugin_moblog_action()
 	{
@@ -209,6 +212,7 @@ class xpwiki_plugin_moblog extends xpwiki_plugin {
 			$body_text = array();
 			$rotate = 0;
 			$page = '';
+			$exifgeo = array();
 			unset($this->root->rtf['esummary'], $this->root->rtf['twitter_update']);
 
 			list($head, $body) = $this->plugin_moblog_mime_split($dat[$j]);
@@ -364,6 +368,13 @@ class xpwiki_plugin_moblog extends xpwiki_plugin {
 				$_reg = '/@p(\d+)/i';
 				if (preg_match($_reg, $subject, $match)) {
 					$this->post_options['page_past'] = $match[1];
+					$subject = trim(preg_replace($_reg, '', $subject));
+				}
+
+				// マップ作成コマンド検出
+				$_reg = '/@map\b/i';
+				if (preg_match($_reg, $subject, $match)) {
+					$this->post_options['makemap'] = true;
 					$subject = trim(preg_replace($_reg, '', $subject));
 				}
 
@@ -582,6 +593,9 @@ class xpwiki_plugin_moblog extends xpwiki_plugin {
 								$save_file = tempnam(rtrim($this->cont['UPLOAD_DIR'], '/'), 'moblog');
 								chmod($save_file, 0606);
 								if (file_put_contents($save_file, $tmp, LOCK_EX)) {
+									//Exif geo
+									$exifgeo = $this->getExifGeo($save_file);
+
 									list($usec) = explode(' ', microtime());
 									if (!$filename) $filename = $this->cont['UTC'].'_'.$usec.'.'.$sub;
 									//回転指定
@@ -595,7 +609,7 @@ class xpwiki_plugin_moblog extends xpwiki_plugin {
 									$attach = $this->func->get_plugin_instance('attach');
 									$res = $attach->do_upload($page,$filename,$save_file,false,null,true);
 									if ($res['result']) {
-										$filenames[] = $res['name'];
+										$filenames[] =array('name' => $res['name'], 'exifgeo' => $exifgeo);
 									}
 								} else {
 									$write = false;
@@ -623,6 +637,7 @@ class xpwiki_plugin_moblog extends xpwiki_plugin {
 			} else {
 				$text = '';
 			}
+
 			// wikiページ書き込み
 			if ($write) $this->plugin_moblog_page_write($page,$subject,$text,$filenames,$ref_option,$now);
 		}
@@ -666,8 +681,9 @@ class xpwiki_plugin_moblog extends xpwiki_plugin {
 		// 添付ファイルを #ref に
 		$attaches = array();
 		if ($filenames) {
-			foreach($filenames as $filename) {
-				$img = '#ref(' . $filename . $ref_option . ")\n";
+			foreach($filenames as $array) {
+
+				$img = '#ref(' . $array['name'] . $ref_option . ")\n";
 				if (strpos($text, '<img>') !== FALSE) {
 					// 本文中の<img>を#refに置換
 					$text = preg_replace('/<img>/i', $img, $text, 1);
@@ -690,6 +706,9 @@ class xpwiki_plugin_moblog extends xpwiki_plugin {
 
 		// 念のためページ情報を削除
 		$set_data = $this->func->remove_pginfo($set_data);
+
+		// 空行の調整
+		$set_data = trim(preg_replace('/\n{3,}/', "\n\n", $set_data));
 
 		// 改行文字調整
 		$set_data = ltrim($set_data, "\r\n");
@@ -726,7 +745,7 @@ class xpwiki_plugin_moblog extends xpwiki_plugin {
 		}
 		$page_data = $this->func->remove_pginfo($page_data);
 
-		$this->make_googlemaps($page_data, $set_data, $subject, $date);
+		$this->make_googlemaps($page_data, $set_data, $subject, $date, $filenames);
 
 		if (preg_match("/\/\/ Moblog Body\n/",$page_data)) {
 			$page_data = preg_split("/\/\/ Moblog Body[ \t]*\n/",$page_data,2);
@@ -756,7 +775,9 @@ class xpwiki_plugin_moblog extends xpwiki_plugin {
 
 	}
 
-	function make_googlemaps ($pagedata, & $set_data, $subject, $date) {
+	function make_googlemaps ($pagedata, & $set_data, $subject, $date, $filenames) {
+		if (! empty($this->config['nomap'])) return;
+
 		$match = false;
 		if (preg_match('/pos=N([0-9.]+)E([0-9.]+)[^\s]+(.*)$/mi', $set_data, $prm)) {
 			$match = true;
@@ -764,22 +785,73 @@ class xpwiki_plugin_moblog extends xpwiki_plugin {
 		} else if (preg_match('/lat=%2B([0-9.]+)&lon=%2B([0-9.]+)[^\s]+(.*)$/mi', $set_data, $prm)) {
 			$match = true;
 			$repreg = '/^(.+lat=%2B[0-9.]+&lon=%2B[0-9.]+[^\s]+).*$/mi';
+		} else if (preg_match('/loc:([0-9.-]+),([0-9.-]+).*$/mi', $set_data, $prm)) {
+			$match = true;
+			$repreg = '/^(.+)$/mi';
 		}
+		$points = array();
 		if ($match) {
+			$this->post_options['makemap'] = true;
 			$lats = explode('.', $prm[1]);
-			$lngs = explode('.', $prm[2]);
-			$lats = array_pad($lats, 4, 0);
-			$lngs = array_pad($lngs, 4, 0);
-			$title = (! empty($prm[3]))? trim($prm[3]) : '';
-			$title = $title? $title : $date;
-			$lat = $lats[0] + ($lats[1] / 60 + ((float)($lats[2] . '.' . $lats[3]) / 3600));
-			$lng = $lngs[0] + ($lngs[1] / 60 + ((float)($lngs[2] . '.' . $lngs[3]) / 3600));
-			$map = '';
-			if (! preg_match('/^#googlemaps2/m', $pagedata)) {
-				$map = "\n#clear\n" . '#googlemaps2(lat=' . $lat . ',lng=' . $lng . $this->config['gmap'] . ')' . "\n";
+			if (count($lats) === 2) {
+				$lat = $prm[1];
+				$lng = $prm[2];
+			} else {
+				$lngs = explode('.', $prm[2]);
+				$lats = array_pad($lats, 4, 0);
+				$lngs = array_pad($lngs, 4, 0);
+				$lat = $lats[0] + ($lats[1] / 60 + ((float)($lats[2] . '.' . $lats[3]) / 3600));
+				$lng = $lngs[0] + ($lngs[1] / 60 + ((float)($lngs[2] . '.' . $lngs[3]) / 3600));
 			}
-			$marker = "\n" . '-&googlemaps2_mark(' . $lat . ',' . $lng . ',"title=Marker: ' . $title . '"){' . ($subject? $subject . '&br;' : '') . '( ' . $date . ' )};' . "\n";
-			$set_data = preg_replace($repreg, $map . '$1' . $marker, $set_data);
+
+			$title = (! empty($prm[3]))? trim($prm[3]) : '';
+
+			$points[] = array(
+				'title' => $title,
+				'Lat' => $lat,
+				'Lon' => $lng,
+				'date' =>$date,
+				'repreg' => $repreg,
+				'image' => ''
+			);
+		}
+
+		if ($filenames) {
+			foreach($filenames as $_file) {
+				if ($_file['exifgeo']) {
+					$_file['name'];
+					$_file['exifgeo']['image'] = $_file['name'];
+					$_file['exifgeo']['date'] = "at ".date("g:i a", strtotime($_file['exifgeo']['Date']));
+					$points[] = $_file['exifgeo'];
+				}
+			}
+		}
+
+		if ($points) {
+			$mapfound = (preg_match('/^#googlemaps2/m', $pagedata));
+			foreach($points as $point) {
+				$date = '';
+				if ($point['title']) {
+					$title = $point['title'];
+					$date = '( '.$point['date'].' )';
+				} else {
+					$title = $point['date'];
+				}
+				$map = '';
+				if (! empty($this->post_options['makemap']) && ! $mapfound) {
+					$map = "\n#clear\n" . '#googlemaps2(lat=' . $point['Lat'] . ',lng=' . $point['Lon'] . $this->config['gmap'] . ')' . "\n";
+					$mapfound = true;
+				}
+				if ($mapfound) {
+					$image = ($point['image'])? ',"image='.$point['image'].'"' : '';
+					$marker = "\n" . '-&googlemaps2_mark(' . $point['Lat'] . ',' . $point['Lon'] . $image . ',"title=Point: ' . $title . '"){' . ($subject? $subject . '&br;' : '') . $date . '};' . "\n";
+					if ($point['repreg']) {
+						$set_data = preg_replace($point['repreg'], $map . '$1' . $marker, $set_data);
+					} else {
+						$set_data .= $map . $marker;
+					}
+				}
+			}
 		}
 	}
 
@@ -896,6 +968,61 @@ class xpwiki_plugin_moblog extends xpwiki_plugin {
 		} else {
 			return $addr;
 		}
+	}
+
+	function getExifGeo($file){
+
+		if (! extension_loaded('exif')) return false;
+
+		$exif = @ exif_read_data($file, 'GPS');
+		if (!$exif) return false;
+
+		$Lat = @ $exif['GPSLatitude'];
+		$Lon = @ $exif['GPSLongitude'];
+		$LatRef = @ $exif['GPSLatitudeRef'];
+		$LonRef = @ $exif['GPSLongitudeRef'];
+		if (!$Lat || !$Lon || !$LatRef || !$LonRef) return false;
+
+		// replace N,E,W,S to '' or '-'
+		$prefix = array( 'N' => '', 'S' => '-', 'E' => '', 'W' => '-' );
+
+		$result = array();
+		if (is_array($Lat)){
+			foreach($Lat as $v){
+				if (strstr($v, '/')){
+					$x = explode('/', $v);
+					$result['Lat'][] = $x[0] / $x[1];
+				}
+			}
+			$result['Lat'] = $result['Lat'][0] + ($result['Lat'][1]/60) + ($result['Lat'][2]/(60*60));
+		} else {
+			$result['Lat'] = $Lat;
+		}
+		if (is_array($Lon)){
+			foreach($Lon as $v){
+				if (strstr($v, '/')){
+					$x = explode('/', $v);
+					$result['Lon'][] = $x[0] / $x[1];
+				}
+			}
+			$result['Lon'] = $result['Lon'][0] + ($result['Lon'][1]/60) + ($result['Lon'][2]/(60*60));
+		} else {
+			$result['Lon'] = $Lon;
+		}
+
+		if (!$result['Lat'] && !$result['Lon']) return false;
+
+		// TOKYO to WGS84
+		if (stristr($exif['GPSMapDatum'], 'tokyo')){
+			$result['Lat'] = $result['Lon'] - $result['Lon'] * 0.00010695  + $result['Lat'] * 0.000017464 + 0.0046017;
+			$result['Lon'] = $result['Lat'] - $result['Lon'] * 0.000046038 - $result['Lat'] * 0.000083043 + 0.010040;
+		}
+
+		$result['Lat'] = (float)($prefix[$LatRef] . $result['Lat']);
+		$result['Lon'] = (float)($prefix[$LonRef] . $result['Lon']);
+		$result['Date'] = @ $exif['DateTimeOriginal'];
+
+		return $result;
 	}
 
 	// エラー出力
