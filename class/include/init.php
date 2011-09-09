@@ -1,7 +1,7 @@
 <?php
 //
 // Created on 2006/10/13 by nao-pon http://hypweb.net/
-// $Id: init.php,v 1.73 2011/07/03 04:38:31 nao-pon Exp $
+// $Id: init.php,v 1.74 2011/09/09 07:32:01 nao-pon Exp $
 //
 
 $root = & $this->root;
@@ -165,9 +165,11 @@ foreach ($root->agents as $agent) {
 
 // Profile-related init and setting
 $const['UA_PROFILE'] = isset($user_agent['profile']) ? $user_agent['profile'] : '';
-
 $const['UA_INI_FILE'] = $const['DATA_HOME'] .'private/ini/'. $const['UA_PROFILE'] . '.ini.php';
-if (! file_exists($const['UA_INI_FILE']) || ! is_readable($const['UA_INI_FILE'])) {
+if (! is_readable($const['UA_INI_FILE']) && $const['UA_PROFILE'] !== 'default') {
+	$const['UA_INI_FILE'] = $const['DATA_HOME'] .'private/ini/default.ini.php';
+}
+if (! is_readable($const['UA_INI_FILE'])) {
 	$this->die_message('UA_INI_FILE for "' . $const['UA_PROFILE'] . '" not found.');
 } else {
 	require($const['UA_INI_FILE']); // Also manually
