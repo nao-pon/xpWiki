@@ -1,7 +1,7 @@
 <?php
 /*
  * Created on 2007/08/30 by nao-pon http://hypweb.net/
- * $Id: page_aliases.inc.php,v 1.2 2009/03/13 08:14:05 nao-pon Exp $
+ * $Id: page_aliases.inc.php,v 1.3 2011/09/09 07:35:57 nao-pon Exp $
  */
 
 class xpwiki_plugin_page_aliases extends xpwiki_plugin {
@@ -13,7 +13,11 @@ class xpwiki_plugin_page_aliases extends xpwiki_plugin {
 	function plugin_page_aliases_convert() {
 		return $this->get();
 	}
-	
+
+	function can_call_otherdir_convert() {
+		return 1;
+	}
+
 	function get() {
 		$result = array_intersect($this->root->page_aliases, $this->func->get_existpages());
 		//$result = $this->root->page_aliases;
