@@ -1,7 +1,7 @@
 <?php
 //
 // Created on 2006/09/29 by nao-pon http://hypweb.net/
-// $Id: root.php,v 1.19 2010/06/04 07:02:27 nao-pon Exp $
+// $Id: root.php,v 1.20 2011/09/09 07:12:50 nao-pon Exp $
 //
 class XpWikiRoot {
 
@@ -134,6 +134,7 @@ class XpWikiRoot {
 	var $render_mode;
 	var $viewmode;
 	var $html_header;
+	var $pagecache_profiles;
 
 	function xpwiki_root() {
 
@@ -155,6 +156,7 @@ class XpWikiRoot {
 		$this->pgids        = array();
 		$this->pgorders     = array();
 		$this->replaces_finish = array(); // Replaces words at convert_finisher()
+		$this->pagecache_profiles = ''; // Enable pagecache profiles
 		// Former value is memorized.
 		$this->rtf['PKWK_READONLY'] = $this->c['PKWK_READONLY'];
 	}
