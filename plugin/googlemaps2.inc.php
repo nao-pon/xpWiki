@@ -97,10 +97,16 @@ class xpwiki_plugin_googlemaps2 extends xpwiki_plugin {
 
 		// This plugins config
 		$this->conf['ApiVersion'] = '2';
-		$this->conf['StaticMapSizeW'] = 240;
-		$this->conf['StaticMapSizeH'] = 200;
 
-		$this->conf['mapsize'] = (isset($this->root->keitai_imageTwiceDisplayWidth) && $this->root->keitai_imageTwiceDisplayWidth && $this->root->keitai_display_width >= $this->root->keitai_display_width)? 'width="480" height="400"' : 'width="240" height="200"';
+		if ($this->cont['UA_PROFILE'] === 'mobile') {
+			$this->conf['StaticMapSizeW'] = 480;
+			$this->conf['StaticMapSizeH'] = 400;
+			$this->conf['mapsize'] = 'width="480" height="400"';
+		} else {
+			$this->conf['StaticMapSizeW'] = 240;
+			$this->conf['StaticMapSizeH'] = 200;
+			$this->conf['mapsize'] = (isset($this->root->keitai_imageTwiceDisplayWidth) && $this->root->keitai_imageTwiceDisplayWidth && $this->root->keitai_display_width >= $this->root->keitai_imageTwiceDisplayWidth)? 'width="480" height="400"' : 'width="240" height="200"';
+		}
 		$this->conf['navsize'] = 'width="60" height="40"';
 
 
@@ -341,11 +347,15 @@ EOD;
 
 	function get_static_image_url($lat, $lng, $zoom, $markers = '', $useAction = 0) {
 		if ($useAction === 2) {
-			$url = 'http://www.google.co.jp/m/local?site=local&ll='.$lat.','.$lng.'&z='.$zoom;
+			if ($this->cont['UA_PROFILE'] === 'mobile') {
+				$url = 'http://maps.google.com/maps?q=loc:'.$lat.','.$lng.'&z='.$zoom;
+			} else {
+				$url = 'http://www.google.co.jp/m/local?site=local&ll='.$lat.','.$lng.'&z='.$zoom;
+			}
 		} else if ($useAction) {
 			$url = $this->root->script . '?plugin=googlemaps2&amp;action=static&amp;lat='.$lat.'&amp;lng='.$lng.'&amp;zoom='.$zoom.'&amp;refer='.rawurlencode(@ $_SERVER['REQUEST_URI']);
 		} else {
-			if ($zoom > 10) {
+			if ($this->cont['UA_PROFILE'] === 'keitai' && $zoom > 10) {
 				$zoom = $zoom - 1;
 			}
 			$params = ($lng)? 'center='.$lat.','.$lng.'&amp;zoom='.$zoom.'&amp;' : $lat;
@@ -371,6 +381,8 @@ EOD;
 
 	function plugin_googlemaps2_output($doInit, $params) {
 		$this->root->rtf['disable_render_cache'] = true;
+
+		$this->root->pagecache_profiles = $this->cont['PLUGIN_GOOGLEMAPS2_PROFILE'];
 
 		$defoptions = $this->plugin_googlemaps2_get_default();
 
