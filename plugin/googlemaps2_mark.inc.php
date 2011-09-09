@@ -43,8 +43,8 @@ class xpwiki_plugin_googlemaps2_mark extends xpwiki_plugin {
 		$this->cont['PLUGIN_GOOGLEMAPS2_MK_DEF_ALINK'] =  1;
 
 		// This Plugin's Config
-		$this->conf['IMG_THUMB_MAX_WIDTH'] = '120'; // 画像サムネイルの最大幅
-		$this->conf['IMG_THUMB_MAX_HEIGHT'] = '120'; // 画像サムネイルの最大高さ
+		$this->conf['IMG_THUMB_MAX_WIDTH'] = '100'; // 画像サムネイルの最大幅
+		$this->conf['IMG_THUMB_MAX_HEIGHT'] = '100'; // 画像サムネイルの最大高さ
 
 
 	}
