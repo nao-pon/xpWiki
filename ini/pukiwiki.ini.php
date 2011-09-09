@@ -1,6 +1,6 @@
 <?php
 // PukiWiki - Yet another WikiWikiWeb clone
-// $Id: pukiwiki.ini.php,v 1.108 2011/09/04 11:58:51 nao-pon Exp $
+// $Id: pukiwiki.ini.php,v 1.109 2011/09/09 07:31:08 nao-pon Exp $
 // Copyright (C)
 //   2002-2006 PukiWiki Developers Team
 //   2001-2002 Originally written by yu-ji
@@ -830,6 +830,9 @@ $root->agents = array(
 // profile: A group of browsers
 
     // Embedded browsers (Rich-clients for PukiWiki)
+
+	//
+	array('pattern'=>'#\b(Mobile)\b#', 'profile'=>'mobile'),
 
 	// Windows CE (Microsoft(R) Internet Explorer 5.5 for Windows(R) CE)
 	// Sample: "Mozilla/4.0 (compatible; MSIE 5.5; Windows CE; sigmarion3)" (sigmarion, Hand-held PC)
