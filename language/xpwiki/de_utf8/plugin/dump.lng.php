@@ -1,7 +1,7 @@
 <?php
 //
 // Created on 2006/11/06 by nao-pon http://hypweb.net/
-// $Id: dump.lng.php,v 1.3 2010/05/10 02:31:23 nao-pon Exp $
+// $Id: dump.lng.php,v 1.4 2011/09/17 03:38:21 nao-pon Exp $
 //
 // German Translation Version 1.0 (11.03.2008)
 // Translation English --> German: Octopus (hunter0815@googlemail.com)
@@ -46,6 +46,6 @@ $msg = array(
 'show_sql'         => 'Show executed SQL query.',
 'maxsize'          => 'Maximum value of size total of backup files.',
 'maxsize_desc'     => 'When the total size of the file for the backup exceeds this value, it is divided.',
-'download_tars'    => 'Because the size of the file had grown, the backup file was divided.<br />If $image is displayed, it is possible to download it by clicking. <br />Please apply all files when restoring it.',
+'download_tars'    => 'Creating the backup file now.<br />If $image is displayed, it is possible to download it by clicking. <br />When a backup file is divided, please be sure to apply all the files to restoration.',
 'make_fullpath'    => 'Save as fullpath ( $1 ).',
 );
