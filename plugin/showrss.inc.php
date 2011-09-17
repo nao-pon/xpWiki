@@ -1,6 +1,6 @@
 <?php
 // PukiWiki - Yet another WikiWikiWeb clone
-// $Id: showrss.inc.php,v 1.14 2009/05/28 01:57:37 nao-pon Exp $
+// $Id: showrss.inc.php,v 1.15 2011/09/17 07:30:12 nao-pon Exp $
 //  Id:showrss.inc.php,v 1.40 2003/03/18 11:52:58 hiro Exp
 // Copyright (C):
 //     2002-2006 PukiWiki Developers Team
@@ -23,12 +23,12 @@ class xpwiki_plugin_showrss extends xpwiki_plugin {
 			// 'http://...',
 		);
 	}
-	
+
 	// Show related extensions are found or not
 	function plugin_showrss_action()
 	{
 		if ($this->cont['PKWK_SAFE_MODE']) $this->func->die_message('PKWK_SAFE_MODE prohibit this');
-	
+
 		$body = '';
 		foreach(array('xml') as $extension){
 			$$extension = extension_loaded($extension) ?
@@ -38,18 +38,18 @@ class xpwiki_plugin_showrss extends xpwiki_plugin {
 		}
 		return array('msg' => 'showrss_info', 'body' => $this->func->convert_html($body));
 	}
-	
+
 	function plugin_showrss_convert()
 	{
 		$this->func->add_tag_head('showrss.css');
-		
+
 		static $_xml;
 		if (! isset ($_xml)) $_xml = extension_loaded('xml');
 		if (! $_xml) return '#showrss: xml extension is not found<br />' . "\n";
-	
+
 		$num = func_num_args();
 		if ($num == 0) return $this->conf['PLUGIN_SHOWRSS_USAGE'] . '<br />' . "\n";
-	
+
 		$argv = func_get_args();
 		$timestamp = FALSE;
 		$cachehour = 0;
@@ -59,11 +59,11 @@ class xpwiki_plugin_showrss extends xpwiki_plugin {
 		case 6: $max       = intval(trim($argv[5]));
 		case 5: $show_description = strtolower(trim($argv[4]));
 		case 4: $timestamp = (trim($argv[3]) == '1');   /*FALLTHROUGH*/
-		case 3: $cachehour = intval(trim($argv[2]));    /*FALLTHROUGH*/
+		case 3: $cachehour = floatval(trim($argv[2]));    /*FALLTHROUGH*/
 		case 2: $template  = strtolower(trim($argv[1]));/*FALLTHROUGH*/
 		case 1: $uri       = trim($argv[0]);
 		}
-	
+
 		$class = ($template == '' || $template == 'default') ? 'XpWikiShowRSS_html' : 'XpWikiShowRSS_html_' . $template;
 		if (! is_numeric($cachehour))
 			return '#showrss: Cache-lifetime seems not numeric: ' . htmlspecialchars($cachehour) . '<br />' . "\n";
@@ -71,21 +71,23 @@ class xpwiki_plugin_showrss extends xpwiki_plugin {
 			return '#showrss: Template not found: ' . htmlspecialchars($template) . '<br />' . "\n";
 		if (! $this->func->is_url($uri))
 			return '#showrss: Seems not URI: ' . htmlspecialchars($uri) . '<br />' . "\n";
-	
+
+		$cachehour = max(0.016, $cachehour); // 最低1分はキャッシュ
+
 		list($rss, $time) = $this->plugin_showrss_get_rss($uri, $cachehour);
 		if ($rss === FALSE) return '#showrss: Failed fetching RSS from the server<br />' . "\n";
-	
+
 		$time_str = '';
 		if ($timestamp > 0) {
 			$time_str = '<p style="font-size:10px; font-weight:bold">Last-Modified:' .
 			$this->func->get_date('Y/m/d H:i:s', $time) . '</p>';
 		}
-	
+
 		$data = array($uri, $rss, $this->conf, $this->func->is_editable_only_admin($this->root->vars['page']));
 		$obj = new $class($this->xpwiki, $data, $show_description, $max, $uri);
 		return $obj->toString($time_str);
 	}
-	
+
 	// Get and save RSS
 	function plugin_showrss_get_rss($target, $cachehour)
 	{
@@ -94,13 +96,13 @@ class xpwiki_plugin_showrss extends xpwiki_plugin {
 		if ($cachehour) {
 			// Get the cache not expired
 			$filename = $this->cont['CACHE_DIR'] . 'plugin/' . md5($target) . '.showrss';
-			
+
 			if (is_readable($filename) && (filemtime($filename) + $cachehour * 60 * 60) > $this->cont['UTC']) {
 				$data  = unserialize(file_get_contents($filename));
 				$time = filemtime($filename) - $this->cont['LOCALZONE'];
 			}
 		}
-	
+
 		if ($time === NULL) {
 			// Remove expired cache
 			$this->plugin_showrss_cache_expire($cachehour);
@@ -109,10 +111,10 @@ class xpwiki_plugin_showrss extends xpwiki_plugin {
 			$data = $this->func->http_request($target);
 			if ($data['rc'] !== 200)
 				return array(FALSE, 0);
-	
+
 			$buf = $data['data'];
 			$time = $this->cont['UTIME'];
-	
+
 			// Parse
 			$obj = new XpWikiShowRSS_XML($this->xpwiki);
 			$data = $obj->parse($buf);
@@ -123,14 +125,14 @@ class xpwiki_plugin_showrss extends xpwiki_plugin {
 				fwrite($fp, serialize($data));
 				fclose($fp);
 			}
-			
+
 			// Update plainDB
 			$this->func->need_update_plaindb();
 		}
-	
+
 		return array($data, $time);
 	}
-	
+
 	// Remove cache if expired limit exeed
 	function plugin_showrss_cache_expire($cachehour)
 	{
@@ -144,12 +146,12 @@ class xpwiki_plugin_showrss extends xpwiki_plugin {
 		}
 		$dh->close();
 	}
-	
+
 	function plugin_showrss_get_timestamp($str)
 	{
 		$str = trim($str);
 		if ($str == '') return $this->cont['UTIME'];
-	
+
 		$matches = array();
 		if (preg_match('/(\d{4}-\d{2}-\d{2})T(\d{2}:\d{2}:\d{2})(?:\.\d+)?(([+-])(\d{2}):(\d{2}))?/', $str, $matches)) {
 			$time = strtotime($matches[1] . ' ' . $matches[2]);
@@ -166,7 +168,7 @@ class xpwiki_plugin_showrss extends xpwiki_plugin {
 		}
 	}
 }
-	
+
 // Create HTML from RSS array()
 class XpWikiShowRSS_html
 {
@@ -179,12 +181,12 @@ class XpWikiShowRSS_html
 		$this->root   =& $xpwiki->root;
 		$this->cont   =& $xpwiki->cont;
 		$this->func   =& $xpwiki->func;
-		
+
 		$count = 1;
 		list($url, $rss, $conf, $is_editable_admin_only) = $data;
-		
+
 		$allow_html = FALSE;
-		
+
 		if ($show_description === 'html') {
 			if ($is_editable_admin_only) {
 				$allow_html = TRUE;
@@ -207,9 +209,10 @@ class XpWikiShowRSS_html
 					if ($count > $max) break;
 					$count++;
 					$link  = $item['LINK'];
-					
+
 					$this->func->encode_numericentity($item['TITLE'], $this->cont['SOURCE_ENCODING'], 'UTF-8');
 					$linkstr = mb_convert_encoding($item['TITLE'], $this->cont['SOURCE_ENCODING'], 'UTF-8');
+					$linkstr = strip_tags($this->func->unhtmlspecialchars($linkstr, ENT_QUOTES));
 					$title = $this->func->format_date($item['_TIMESTAMP']);
 					$passage = $this->func->get_passage($item['_TIMESTAMP']);
 					$link = '<a href="' . $link . '" title="' .  $title . ' ' .
@@ -220,18 +223,18 @@ class XpWikiShowRSS_html
 							if (!isset($item['DESCRIPTION'])) {
 								$item['DESCRIPTION'] = $item['CONTENT'];
 							}
-							
+
 							$item['DESCRIPTION'] = $this->func->unhtmlspecialchars($item['DESCRIPTION'], ENT_QUOTES);
-							
+
 							if (! $allow_html) {
 								$item['DESCRIPTION'] = strip_tags($item['DESCRIPTION']);
 								$item['DESCRIPTION'] = htmlspecialchars(mb_substr($item['DESCRIPTION'], 0, 255, 'UTF-8'));
 								$item['DESCRIPTION'] = preg_replace('/&amp;#(\d+);/', '&#$1;', $item['DESCRIPTION']);
 							}
-							
+
 							$this->func->encode_numericentity($item['DESCRIPTION'], $this->cont['SOURCE_ENCODING'], 'UTF-8');
 							$item['DESCRIPTION'] = mb_convert_encoding($item['DESCRIPTION'], $this->cont['SOURCE_ENCODING'], 'UTF-8');
-							
+
 							$link .= '<br />' . '<div class="quotation">' . $item['DESCRIPTION'] . '</div>';
 						}
 					}
@@ -272,15 +275,15 @@ $retval$timestamp
 EOD;
 	}
 }
-	
+
 class XpWikiShowRSS_html_menubar extends XpWikiShowRSS_html
 {
 	var $class = ' class="small"';
-	
+
 	//function XpWikiShowRSS_html_menubar(& $xpwiki) {
 	//	parent::XpWikiShowRSS_html($xpwiki);
 	//}
-	
+
 	function format_link($link) {
 		return '<li style="clear:both;">' . $link . '</li>' . "\n";
 	}
@@ -289,7 +292,7 @@ class XpWikiShowRSS_html_menubar extends XpWikiShowRSS_html
 		return '<ul class="recent_list">' . "\n" . $str . '</ul>' . "\n";
 	}
 }
-	
+
 class XpWikiShowRSS_html_recent extends XpWikiShowRSS_html
 {
 	var $class = ' class="small"';
@@ -297,7 +300,7 @@ class XpWikiShowRSS_html_recent extends XpWikiShowRSS_html
 	//function XpWikiShowRSS_html_recent (& $xpwiki) {
 	//	parent::XpWikiShowRSS_html($xpwiki);
 	//}
-	
+
 	function format_link($link) {
 		return '<li style="clear:both;">' . $link . '</li>' . "\n";
 	}
@@ -307,7 +310,7 @@ class XpWikiShowRSS_html_recent extends XpWikiShowRSS_html
 			'<ul class="recent_list">' . "\n" . $str . '</ul></div>' . "\n";
 	}
 }
-	
+
 	// Get RSS and array() them
 class XpWikiShowRSS_XML
 {
@@ -317,7 +320,7 @@ class XpWikiShowRSS_XML
 	var $tag;
 	var $encoding;
 	var $pass;
-	
+
 	function XpWikiShowRSS_XML(& $xpwiki)
 	{
 		$this->xpwiki =& $xpwiki;
@@ -411,13 +414,13 @@ class XpWikiShowRSS_XML
 
 		if (isset($item['DC:DATE'])) {
 			$time = xpwiki_plugin_showrss::plugin_showrss_get_timestamp($item['DC:DATE']);
-			
+
 		} else if (isset($item['PUBDATE'])) {
 			$time = xpwiki_plugin_showrss::plugin_showrss_get_timestamp($item['PUBDATE']);
 
 //		} else if (isset($item['UPDATED'])) {
 //			$time = xpwiki_plugin_showrss::plugin_showrss_get_timestamp($item['UPDATED']);
-			
+
 		} else if (isset($item['PUBLISHED'])) {
 			$time = xpwiki_plugin_showrss::plugin_showrss_get_timestamp($item['PUBLISHED']);
 
@@ -431,7 +434,7 @@ class XpWikiShowRSS_XML
 		}
 		$item['_TIMESTAMP'] = $time;
 		$date = $this->func->get_date('Y-m-d', $item['_TIMESTAMP']);
-		
+
 		$this->items[$date][] = $item;
 		$this->is_item        = FALSE;
 	}
