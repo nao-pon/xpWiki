@@ -83,7 +83,7 @@ function wikihelper_show_fontset_img()
 			'<area shape="rect" coords="48,8,56,16" title="Aqua" alt="Aqua" href="#" onClick="javascript:wikihelper_tag(\'Aqua\'); return false;" '+'/'+'>'+
 			'<area shape="rect" coords="56,8,64,16" title="White" alt="White" href="#" onClick="javascript:wikihelper_tag(\'White\'); return false;" '+'/'+'>'+
 			'<'+'/'+'map><'+'/'+'div>'+
-			'<div id="wikihelper_base" style="position:absolute;display:none;"><'+'/'+'div>';
+			'<div id="wikihelper_base" class="image_button_base" style="position:absolute;display:none;"><'+'/'+'div>';
 
 		var src;
 
@@ -242,8 +242,6 @@ function wikihelper_cumulativeOffset(forElement) {
 
 function wikihelper_initTexts(obj)
 {
-	if (XpWiki.useJQueryMobile) return;
-
 	if (!obj) {
 		if (wikihelper_initLoad) return;
 		obj = document;
