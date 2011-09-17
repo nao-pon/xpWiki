@@ -2,25 +2,25 @@ var XpWikiUnameSuggest = Class.create();
 XpWikiUnameSuggest.prototype = {
 
 	initialize: function(baseurl, e_input, e_slist, e_hidden, e_list, enc){
-		
+
 		this._baseurl = baseurl;
 		this.input    = $(e_input);
 		this.list     = $(e_list);
 		this.hidden   = $(e_hidden);
 		this.gettag_url = "";
 		this.gettag_pram = "";
-		
+
 		this._suggest = new XpWikiSuggest(baseurl, e_input, e_slist, enc);
 		this._suggest.finishedTagList = $(e_list)
 		this._suggest.clickAdd = function(tag){this.add_func(tag);}.bind(this);
-		
+
 		this.tags = this.getTagArrayFromHtml();
 		$(e_hidden).value = this.getUidsAsString();
-			
+
 		this.input.onkeypress = this.add.bindAsEventListener(this);
 
 	},
-	
+
 	add: function(e){
 		var tag = this.input.value;
 		if (e.keyCode == Event.KEY_RETURN && tag != ""){
@@ -29,30 +29,30 @@ XpWikiUnameSuggest.prototype = {
 		}
 		return;
 	},
-	
+
 	add_func: function(tag){
 		if(!this.alreadyExist(tag) && this.getUidFromTag(tag)){
 			this.tags[this.tags.length] = tag;
-			
+
 			var tagSpan = document.createElement('span');
 			var tagText = document.createTextNode(tag + ' ');
-			
+
 			// @todo is #text better to be replaced?
 			tagSpan.insertBefore(tagText, null);
 			this.list.insertBefore(tagSpan, null);
-			
+
 			tagSpan.onclick = this.remove.bindAsEventListener(this);
 			tagSpan.onmouseover = this.highlight_on.bindAsEventListener(this);
 			tagSpan.onmouseout = this.highlight_off.bindAsEventListener(this);
 		}
-		
+
 		$(this.hidden).value = this.getUidsAsString();
 		this.input.value = '';
 		this.input.focus();
 		Field.select(this.input);
 		return;
 	},
-	
+
 	remove: function(e){
 		var element = Event.element(e);
 		var tag = element.firstChild.data.replace(/[\t\n\r ]+/g, "");
@@ -79,7 +79,7 @@ XpWikiUnameSuggest.prototype = {
 		}
 		return '';
 	},
-	
+
 	getUidFromTag: function(tag) {
 		var uid = tag.replace(/^[^\[]*\[(\d+)\]$/g, "$1");
 		if (isNaN(uid)) {
@@ -87,7 +87,7 @@ XpWikiUnameSuggest.prototype = {
 		}
 		return uid;
 	},
-	
+
 	getUidsAsString: function(){
 		var query = '';
 		if(this.tags.length != 0){
@@ -117,7 +117,7 @@ XpWikiUnameSuggest.prototype = {
 		}
 		return tags;
 	},
-	
+
 	highlight_on: function(e){
 		var elm= Event.element(e);
 		elm.className = "exist_highlight";
@@ -127,7 +127,7 @@ XpWikiUnameSuggest.prototype = {
 		var elm= Event.element(e);
 		elm.className = "exist";
 	},
-	
+
 	alreadyExist: function(tag){
 		for(var i=0;i<this.tags.length;i++){
 			Log.debug(this.tags[i] + " : " + tag);
@@ -137,11 +137,11 @@ XpWikiUnameSuggest.prototype = {
 		}
 		return false;
 	},
-	
+
 	tagCheckResponseHandler: function(request){
 		var xmlDoc = request.responseXML;
         if (xmlDoc.documentElement) {
-                  
+
             var tag   = xmlDoc.documentElement.childNodes[0].firstChild.data;
             var exist = xmlDoc.documentElement.childNodes[1].firstChild.data;
 
@@ -150,25 +150,25 @@ XpWikiUnameSuggest.prototype = {
 			//var unique = new Date().getTime();
 			//tagSpan.id = 's_tag_id_' + unique;
 			tagSpan.className = exist;
-			
+
 			var tagText = document.createTextNode(tag + ' ');
-			
+
 			// @todo is #text better to be replaced?
-			tagSpan.insertBefore(tagText, null);			
+			tagSpan.insertBefore(tagText, null);
 			this.list.insertBefore(tagSpan, null);
-			
+
 			tagSpan.onclick = this.remove.bindAsEventListener(this);
 			tagSpan.onmouseover = this.highlight_on.bindAsEventListener(this);
 			tagSpan.onmouseout = this.highlight_off.bindAsEventListener(this);
 		}
 	}
-	
+
 }
 
 var XpWikiSuggest = Class.create();
 XpWikiSuggest.prototype = {
 	initialize: function(baseurl, input, list, enc){
-		
+
 		if (!Form.Element.Observer.prototype.registerCallback)
 		{
 			Form.Element.Observer.prototype.registerCallback=function(){
@@ -188,7 +188,7 @@ XpWikiSuggest.prototype = {
 					var node = this.element.parentNode.tagName;
 				}catch(e){
 					this.clearTimerEvent();
-				}	 
+				}
 				var value = this.getValue();
 				if (this.lastValue != value) {
 					this.callback(this.element, value);
@@ -196,7 +196,7 @@ XpWikiSuggest.prototype = {
 				}
 			};
 		}
-		
+
 		this._baseurl      = baseurl;
 		this._posturl      = baseurl + "xoops_uname.php";
 		this._enc          = enc;
@@ -211,30 +211,31 @@ XpWikiSuggest.prototype = {
 		this.focus = false;
 		this.observactive = false;
 		this.clickAdd = false;
-		
+
 		this.nonhit_key = "";
 		this.selected = false;
 		this.reqestOption=['If-Modified-Since','Wed, 15 Nov 1995 00:00:00 GMT'];
 
 		this.candidateList.style.position = 'absolute';
+		this.candidateList.style.zIndex = '10000';
 		this.tagText.setAttribute("autocomplete", "off");
-		
+
 		setTimeout(this.init_candidateList_pos.bind(this),300);
-				
+
 		this.hideCandidateList();
 		this.startObserver();
-	
+
 		Event.observe(this.tagText, "keypress", this.onKeyPress.bindAsEventListener(this));
 		Event.observe(this.tagText, "blur", this.onBlur.bindAsEventListener(this));
 	},
-	
+
 	init_candidateList_pos: function() {
 		var offsets = Position.positionedOffset(this.tagText);
 		this.candidateList.style.left = offsets[0] + 'px';
 		this.candidateList.style.top  = (offsets[1] + this.tagText.offsetHeight) + 'px';
 		this.candidateList.style.width = this.tagText.offsetWidth + 'px';
 	},
-		
+
 	startObserver: function(){
 		if(this.observactive) return;
 		this.observer = new Form.Element.Observer(this.tagText,0.3,this.tagTextOnChange.bind(this));
@@ -244,7 +245,7 @@ XpWikiSuggest.prototype = {
 		this.observer.clearTimerEvent();
 		this.observactive = false;
 	},
-	
+
 	tagTextOnChange: function(){
 		if($F(this.tagText).length == 0){
 			this.candidateTags = new Array();
@@ -275,15 +276,15 @@ XpWikiSuggest.prototype = {
 			});
 		}
 	},
-	
+
 	onTagSplitComplete: function(originalRequest){
-		
+
 		try{
 			Log.debug(originalRequest.responseText);
 			eval (originalRequest.responseText);
-		}catch(e){Log.error(e);}		
+		}catch(e){Log.error(e);}
 	},
-	
+
 	setSuggest: function(q,tag)
 	{
 		if (tag.length < 1)
@@ -294,7 +295,7 @@ XpWikiSuggest.prototype = {
 		{
 			this.nonhit_key = "";
 		}
-		
+
 		var tags = this.getFinishedTags();
 		var _tag = new Array();
 		tag.each( function(word) {
@@ -302,12 +303,12 @@ XpWikiSuggest.prototype = {
 				_tag.push(word);
 		});
 		tag = _tag;
-		
+
 		this.finishedTagText = "";
 		this.inputtingTag = q;
 		this.candidateTags = tag;
 		this.selected = false;
-		
+
 		this.updateCandidateTags();
 		this.showCandidateList();
 	},
@@ -331,7 +332,7 @@ XpWikiSuggest.prototype = {
 		if (!pattern) return value;
 		pattern = this.escTag(pattern);
 		pattern = this.regQuote(this.escTag(pattern));
-		
+
 		var re = new RegExp("(" + pattern + ")", "ig");
 		return value.replace(re, "<b>$1</b>");
 	},
@@ -339,12 +340,12 @@ XpWikiSuggest.prototype = {
 	updateCandidateTags: function(){
 		this.selectedCandidateTagsIndex=0;
 		if(this.candidateList.firstChild) this.candidateList.removeChild(this.candidateList.firstChild);
-		
+
 		if(this.candidateTags.length == 0){
 			this.hideCandidateList();
 			return;
 		}
-		
+
 		var ul = document.createElement("ul");
 		for(var i=0;i<this.candidateTags.length;i++){
 			var li = document.createElement("li");
@@ -368,7 +369,7 @@ XpWikiSuggest.prototype = {
 			}.bind(this);
 			li.onmouseover = function(event){
 				var ele = Event.findElement(event || window.event,'LI');
-				Element.addClassName(ele,"selected"); 
+				Element.addClassName(ele,"selected");
 			}.bind(this);
 			li.onmouseout = function(event){
 				var ele = Event.findElement(event || window.event,'LI');
@@ -376,10 +377,10 @@ XpWikiSuggest.prototype = {
 			}.bind(this);
 			ul.appendChild(li);
 		}
-		
+
 		this.candidateList.appendChild(ul);
 	},
-	
+
 	showCandidateList: function(){
 		this.hideCandidateList();
 		if(this.candidateTags.length == 0) return;
@@ -387,12 +388,12 @@ XpWikiSuggest.prototype = {
 		this.active = true;
 		this.markSelected();
 	},
-	
+
 	hideCandidateList: function(){
 		Element.hide(this.candidateList);
 		this.active = false;
 	},
-	
+
 	onBlur: function(event){
 		if(this.focus){
 			Log.debug('onblur cancel. because focus:'+this.focus);
@@ -407,7 +408,7 @@ XpWikiSuggest.prototype = {
 		}
 		this.hideCandidateList();
 	},
-	
+
 	onKeyPress: function(event){
 		if(this.active){
 			switch(event.keyCode) {
@@ -442,7 +443,7 @@ XpWikiSuggest.prototype = {
 			}
 		}
 	},
-  
+
 	getEntry: function(index) {
 		return this.candidateList.firstChild.childNodes[index];
 	},
@@ -455,9 +456,9 @@ XpWikiSuggest.prototype = {
 		$(this.tagText).value = this.quoteTag(this.getEntry(this.selectedCandidateTagsIndex).innerHTML);
 		this.selected = true;
 	},
-  
+
 	markNext: function() {
-	
+
 		Element.removeClassName(this.getEntry(this.selectedCandidateTagsIndex),"selected");
 		if(this.selected && this.selectedCandidateTagsIndex < this.candidateTags.length-1) this.selectedCandidateTagsIndex++
 			else this.selectedCandidateTagsIndex = 0;
@@ -465,28 +466,28 @@ XpWikiSuggest.prototype = {
 		$(this.tagText).value = this.quoteTag(this.getEntry(this.selectedCandidateTagsIndex).innerHTML);
 		this.selected = true;
 	},
-	
+
 	markSelected: function() {
 		if( this.selected && this.candidateTags.length > 0) {
 			for (var i = 0; i <	 this.candidateTags.length; i++){
-				this.selectedCandidateTagsIndex==i ? 
-					Element.addClassName(this.getEntry(i),"selected") : 
+				this.selectedCandidateTagsIndex==i ?
+					Element.addClassName(this.getEntry(i),"selected") :
 					Element.removeClassName(this.getEntry(i),"selected");
 			}
 		}
 	},
-	
+
 	selectEntry: function() {
 		var entry = this.getEntry(this.selectedCandidateTagsIndex);
 		this.updateTagText(entry.innerHTML);
 	},
-	
+
 	updateTagText: function(str) {
 		str = this.quoteTag(str);
 		Log.info('select tag : \"'+ str + '"');
 		this.stopObserver();
 		this.inputtingTag = str;
-		
+
 		this.tagText.value = str;
 		this.hideCandidateList();
 
@@ -495,25 +496,25 @@ XpWikiSuggest.prototype = {
 			this.tagText.select();
 			this.tagText.setSelectionRange(this.tagText.value.length,this.tagText.value.length);
 		}
-		
+
 		this.startObserver();
 	},
-	
-	quoteTag: function(tag) {  
+
+	quoteTag: function(tag) {
 		tag = tag.replace(/^[\s]+/,"");
 		tag = tag.replace(/[\s]+$/,"");
 		tag = tag.replace(/[\s]+/g," ");
 		tag = tag.replace(/<.+?>/g,"");
-		
+
 		tag = tag.replace(/&lt;/gi,"<");
 		tag = tag.replace(/&gt;/gi,">");
-		
+
 		if(tag.length == 0) return "";
-		
+
 		return tag;
 		/*
 		var quote="";
-		
+
 		if(tag.match(/"/) && tag.match(/'/)){
 			tag = tag.replace(/"/g,"'");
 			quote = '"';
@@ -527,13 +528,13 @@ XpWikiSuggest.prototype = {
 		return quote + tag + quote;
 		*/
 	},
-	
+
 	escTag : function(tag) {
 		tag = tag.replace(/</g,"&lt;");
 		tag = tag.replace(/>/g,"&gt;");
 		return tag;
 	},
-	
+
 	regQuote : function(v) {
 		return v.replace(/([\\\.\+\*\?\[\^\]\$\(\)\{\}\=\!\<\>\|\:])/g,"\\$1");
 	}
