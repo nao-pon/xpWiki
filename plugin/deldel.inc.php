@@ -1,6 +1,6 @@
 <?php
 /**
- * $Id: deldel.inc.php,v 1.13 2010/05/03 00:32:57 nao-pon Exp $
+ * $Id: deldel.inc.php,v 1.14 2011/09/17 07:35:56 nao-pon Exp $
  * ORG: deldel.inc.php 161 2005-06-28 12:58:13Z okkez $
  *
  * 色んなものを一括削除するプラグイン
@@ -129,6 +129,7 @@ class xpwiki_plugin_deldel extends xpwiki_plugin {
 		$body = '';
 		$moved = false;
 		$script = $this->func->get_script_uri();
+
 		if(!isset($mode) || !$this->root->userinfo['admin'])
 		{
 			if (!$this->root->userinfo['admin'])
@@ -246,6 +247,7 @@ class xpwiki_plugin_deldel extends xpwiki_plugin {
 		}elseif(isset($mode) && $mode === 'exec'){
 			//削除
 			if($this->root->userinfo['admin']) {
+				$execution_time = intval(@ ini_get('max_execution_time'));
 				switch($this->root->vars['dir']){
 				  case 'DATA':
 					// メール通知停止
@@ -255,6 +257,8 @@ class xpwiki_plugin_deldel extends xpwiki_plugin {
 					$mes = 'page';
 					foreach($this->root->vars['pages'] as $page)
 					{
+						@set_time_limit($execution_time);
+
 						$s_page = htmlspecialchars($page, ENT_QUOTES);
 						if (!empty($this->root->vars['move_to'])) {
 							static $to_obj;
@@ -335,6 +339,7 @@ class xpwiki_plugin_deldel extends xpwiki_plugin {
 				  case 'BACKUP':
 					$mes = 'backup';
 					foreach($this->root->vars['pages'] as $page){
+						@set_time_limit($execution_time);
 						$s_page = htmlspecialchars($page, ENT_QUOTES);
 						$f_page = $this->get_filename2($mes,$page);
 						if(file_exists($f_page) && !$this->func->is_freeze($page)){
@@ -349,6 +354,7 @@ class xpwiki_plugin_deldel extends xpwiki_plugin {
 					$mes = 'attach';
 					$size = count($this->root->vars['file_a']);
 					for($i=0;$i<$size;$i++){
+						@set_time_limit($execution_time);
 						foreach (array('refer', 'file', 'age') as $var) {
 							$this->root->vars[$var] = isset($this->root->vars[$var.'_a'][$i]) ? $this->root->vars[$var.'_a'][$i] : '';
 						}
@@ -370,6 +376,7 @@ class xpwiki_plugin_deldel extends xpwiki_plugin {
 				  case 'DIFF' :
 					$mes = 'diff';
 					foreach($this->root->vars['pages'] as $page){
+						@set_time_limit($execution_time);
 						$s_page = htmlspecialchars($page, ENT_QUOTES);
 						$f_page = $this->get_filename2($mes,$page);
 						if(file_exists($f_page) && !$this->func->is_freeze($spage)){
@@ -382,6 +389,7 @@ class xpwiki_plugin_deldel extends xpwiki_plugin {
 				  case 'REFERER':
 					$mes = 'referer';
 					foreach($this->root->vars['pages'] as $page){
+						@set_time_limit($execution_time);
 						$s_page = htmlspecialchars($page, ENT_QUOTES);
 						$f_page = $this->get_filename2($mes,$page);
 						if(file_exists($f_page) && !$this->func->is_freeze($spage)){
@@ -394,6 +402,7 @@ class xpwiki_plugin_deldel extends xpwiki_plugin {
 				  case 'COUNTER':
 					$mes = 'counter';
 					foreach($this->root->vars['pages'] as $page){
+						@set_time_limit($execution_time);
 						$s_page = htmlspecialchars($page, ENT_QUOTES);
 						$f_page = $this->get_filename2($mes,$page);
 						if(file_exists($f_page)){
