@@ -16,7 +16,7 @@ define( $constpref."_BDESC_NOTIFICATION","Configurar notificações.");
 define( $constpref."_BNAME_FUSEN","Fusen(Tag) ({$mydirname})");
 define( $constpref."_BDESC_FUSEN","O Menu de controle do plugin Fusen(Tag)é mostrado.");
 define( $constpref."_BNAME_MENUBAR","Barra do menu ({$mydirname})");
-define( $constpref."_BDESC_MENUBAR","Mostrar a barra do mune");
+define( $constpref."_BDESC_MENUBAR","Mostrar a barra do menú");
 
 define( $constpref.'_MODULE_DESCRIPTION' , 'Módulo wiki baseado no PukiWiki.' ) ;
 
