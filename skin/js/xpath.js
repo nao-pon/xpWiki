@@ -1,4 +1,4 @@
-/*  JavaScript-XPath 0.1.11
+/*  JavaScript-XPath 0.1.12
  *  (c) 2007 Cybozu Labs, Inc.
  *
  *  JavaScript-XPath is freely distributable under the terms of an MIT-style license.
@@ -1026,7 +1026,7 @@ NodeUtil = {
                 else if (test.type == 0) name = '*';
 
                 if (name != '*') {
-                    all = (typeof all.tags.nodeName == 'undefined')? all.tags(name) : node.getElementsByTagName(name);
+                    all = all.tags(name);
                     if (!all) {
                         return nodeset;
                     }
@@ -1146,7 +1146,7 @@ NodeUtil = {
                 else if (test.type == 0) name = '*';
 
                 if (name != '*') {
-                    children = (typeof children.tags.nodeName == 'undefined')? children.tags(name) : node.getElementsByTagName(name);
+                    children = children.tags(name);
                     if (!children) {
                         return nodeset;
                     }
