@@ -1,7 +1,7 @@
 <?php
 class xpwiki_plugin_yahoo extends xpwiki_plugin {
 	// PukiWiki - Yet another WikiWikiWeb clone.
-	// $Id: yahoo.inc.php,v 1.8 2011/07/29 01:41:50 nao-pon Exp $
+	// $Id: yahoo.inc.php,v 1.9 2011/09/17 07:21:06 nao-pon Exp $
 	/////////////////////////////////////////////////
 
 	// #yahoo([Format Filename],[Mode],[Key Word],[Node Number],[Sort Mode])
@@ -30,7 +30,7 @@ class xpwiki_plugin_yahoo extends xpwiki_plugin {
 			'YouTubeNAVI'=> 1, // 動画検索時 YouTube NAVI へのリンクを付加する
 			//////// Config ///////
 		);
-		$this->appid = 'rELkpouxg64ZjZMTZ7Np0wy5qatpULEKE140aN7X9okOPX6VtuPS5Uqo0n2izQ--';
+		$this->appid = '';
 		$this->appid_upg = '';
 	}
 
