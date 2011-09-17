@@ -1,7 +1,7 @@
 <?php
 //
 // Created on 2006/10/13 by nao-pon http://hypweb.net/
-// $Id: init.php,v 1.74 2011/09/09 07:32:01 nao-pon Exp $
+// $Id: init.php,v 1.75 2011/09/17 07:45:30 nao-pon Exp $
 //
 
 $root = & $this->root;
@@ -200,6 +200,11 @@ if (empty($root->fckediting)) {
 		'^#contents$' => '<del>#contents</del>'
 	), $root->line_rules);
 }
+
+// description 抽出で無視するプラグイン
+$root->description_ignore_inlines = explode(',', $root->description_discovery_ignores_inline);
+$root->description_ignore_blocks = explode(',', $root->description_discovery_ignores_block);
+
 
 // 指定ページ表示モード
 if (isset($const['page_show'])) {

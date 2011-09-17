@@ -1,6 +1,6 @@
 <?php
 // PukiWiki - Yet another WikiWikiWeb clone
-// $Id: pukiwiki.ini.php,v 1.109 2011/09/09 07:31:08 nao-pon Exp $
+// $Id: pukiwiki.ini.php,v 1.110 2011/09/17 07:45:30 nao-pon Exp $
 // Copyright (C)
 //   2002-2006 PukiWiki Developers Team
 //   2001-2002 Originally written by yu-ji
@@ -272,7 +272,17 @@ $const['PKWKEXP_DISABLE_MULTILINE_PLUGIN_HACK'] = 0; // 1 = Disabled
 
 // 整形済みマルチラインプラグイン
 // Multiline PRE plugins
-$this->root->multiline_pre_plugins = array('pre', 'code');
+$root->multiline_pre_plugins = array('pre', 'code');
+
+/////////////////////////////////////////////////
+// Description Auto Discovery
+
+// ignore inline plugin (split with ',')
+$root->description_discovery_ignores_inline = 'areaedit,calendar2,subnote,edit,tag';
+
+// ignore block plugin (split with ',')
+$root->description_discovery_ignores_block = 'back,calendar,calendar2,calendar9,chat,code,footnotes,navi,tag';
+
 
 /////////////////////////////////////////////////
 // UI LANG Auto Discovery
