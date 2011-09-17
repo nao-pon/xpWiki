@@ -1230,6 +1230,9 @@ function FCKeditor_OnComplete(editorInstance) {
 // For Emoji pad
 if (typeof hypEmojiPadSet != 'function') {
 	var hypEmojiPadSet = function(id, emjCode) {
+		if (!wikihelper_elem) {
+			wikihelper_elem = $(id);
+		}
 		wikihelper_ins("[emj:"+emjCode+"]");
 		return;
 	};
