@@ -1,7 +1,7 @@
 <?php
 //
 // Created on 2006/10/16 by nao-pon http://hypweb.net/
-// $Id: compat.php,v 1.11 2010/07/25 06:48:50 nao-pon Exp $
+// $Id: compat.php,v 1.12 2011/09/17 07:44:04 nao-pon Exp $
 //
 
 //// mbstring ////
@@ -90,7 +90,7 @@ function file_get_contents($filename, $incpath = false, $resource_context = null
  * @copyright   2004-2007 Aidan Lister <aidan@php.net>, Arpad Ray <arpad@php.net>
  * @link        http://php.net/function.file_put_contents
  * @author      Aidan Lister <aidan@php.net>
- * @version     $Revision: 1.11 $
+ * @version     $Revision: 1.12 $
  * @internal    resource_context is not supported
  * @since       PHP 5
  * @require     PHP 4.0.0 (user_error)
@@ -227,5 +227,36 @@ function array_combine($keys, $values)
 	}
 
 	return $combined;
+}
+}
+
+// htmlspecialchars_decode (PHP 5 >= 5.1.0)
+if (! function_exists('htmlspecialchars_decode')) {
+function htmlspecialchars_decode($string, $quote_style = null)
+{
+    // Sanity check
+    if (!is_scalar($string)) {
+        user_error('htmlspecialchars_decode() expects parameter 1 to be string, ' .
+            gettype($string) . ' given', E_USER_WARNING);
+        return;
+    }
+
+    if (!is_int($quote_style) && $quote_style !== null) {
+        user_error('htmlspecialchars_decode() expects parameter 2 to be integer, ' .
+            gettype($quote_style) . ' given', E_USER_WARNING);
+        return;
+    }
+
+    // The function does not behave as documented
+    // This matches the actual behaviour of the function
+    if ($quote_style & ENT_COMPAT || $quote_style & ENT_QUOTES) {
+        $from = array('&quot;', '&#039;', '&lt;', '&gt;', '&amp;');
+        $to   = array('"', "'", '<', '>', '&');
+    } else {
+        $from = array('&lt;', '&gt;', '&amp;');
+        $to   = array('<', '>', '&');
+    }
+
+    return str_replace($from, $to, $string);
 }
 }
