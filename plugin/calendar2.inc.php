@@ -1,5 +1,5 @@
 <?php
-// $Id: calendar2.inc.php,v 1.14 2010/01/08 13:56:41 nao-pon Exp $
+// $Id: calendar2.inc.php,v 1.15 2011/09/17 07:38:27 nao-pon Exp $
 //
 // Calendar2 plugin
 //
@@ -276,10 +276,10 @@ EOD;
 
 		if (strlen($date) === 8) {
 			$yy = sprintf("%04d.%02d.%02d",substr($date,0,4),substr($date,4,2),substr($date,6,2));
-			$aryargs = array($this->root->vars['page'], $date);
+			$args = $this->root->vars['page'] . ',' . $date;
 		} else {
 			$yy = sprintf("%04d.%02d",substr($date,0,4),substr($date,4,2));
-			$aryargs = array($this->root->vars['page'], $date, 'off', 'navi');
+			$args = $this->root->vars['page'] . ',' . $date . ',off,navi';
 		}
 
 		//$aryargs = array($this->root->vars['page'], $date, 'off');
@@ -293,11 +293,11 @@ EOD;
 		}
 
 		$ret['msg']  = 'calendar ' . $s_page . '/' . $yy;
-		$ret['body'] = call_user_func_array (array(& $this, "plugin_calendar2_convert"), $aryargs);
+		$ret['body'] = $this->func->do_plugin_convert('calendar2', $args);
 
-		$args_array = array($this->root->vars['page'], str_replace('.', '-', $yy), 'future', '-');
+		$args = $this->root->vars['page'] . ',' . str_replace('.', '-', $yy) . ',future,-';
 		$plugin = & $this->func->get_plugin_instance('calendar_viewer');
-		$ret['body'] .= call_user_func_array (array(& $plugin, "plugin_calendar_viewer_convert"), $args_array);
+		$ret['body'] .= $this->func->do_plugin_convert('calendar_viewer', $args);
 
 		--$this->root->rtf['convert_nest'];
 
