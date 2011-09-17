@@ -1,6 +1,6 @@
 <?php
 // PukiWiki - Yet another WikiWikiWeb clone.
-// $Id: lng.php,v 1.2 2011/06/01 06:27:51 nao-pon Exp $
+// $Id: lng.php,v 1.3 2011/09/17 02:41:36 nao-pon Exp $
 // Copyright (C)
 //   2002-2005 PukiWiki Developers Team
 //   2001-2002 Originally written by yu-ji
@@ -62,9 +62,9 @@ $root->_msg_symbol      = 'Simbolos';
 $root->_msg_other       = 'Outros';
 $root->_msg_help        = 'Vizualizar texto com as regras de formatação';
 $root->_msg_week        = array('Dom','Seg','Ter','Qua','Qui','Sex','Sab');
-$root->_msg_content_back_to_top = '<div class="jumpmenu"><a href="#'.$root->mydirname.'_navigator" title="Page Top"><img src="'.$const['LOADER_URL'].'?src=arrow_up.png" alt="Página Incial" width="16" height="16" /></a></div>';
+$root->_msg_content_back_to_top = '<div class="jumpmenu"><a href="#'.$root->mydirname.'_navigator" title="Página Top"><img src="'.$const['LOADER_URL'].'?src=arrow_up.png" alt="Página Inicial" width="16" height="16" /></a></div>';
 $root->_msg_word        = 'Os termos desta busca foram destacados:';
-$root->_msg_not_readable   = 'Você não permissão para leitura.';
+$root->_msg_not_readable   = 'Você não permissão de leitura.';
 $root->_msg_not_editable   = 'Você não tem permissão para editar.';
 
 ///////////////////////////////////////
@@ -85,11 +85,11 @@ $root->_btn_load      = 'Carregar';
 $root->_btn_edit      = 'Editar';
 $root->_btn_delete    = 'Excluir';
 $root->_btn_reading   = 'Leitura da página inicial';
-$root->_btn_alias     = 'Página com outro nome <span class="edit_form_note">(Divida com "<span style="color:red;font-weight:bold;font-size:120%;">:</span>"[Colon])</span>';
-$root->_btn_alias_lf  = 'Página com outro nome <span class="edit_form_note">(Divida com "<span style="color:red;font-weight:bold;font-size:120%;">Each line</span>")</span>';
-$root->_btn_riddle    = 'Verificação da Pergunta e Resposta: <span class="edit_form_note">Por favor, responta a seguinte pergunta antes de atualizar a página. (desnecessário na vizualização)</span>';
-$root->_btn_pgtitle   = 'Título da página<span class="edit_form_note">( Auto with blank )</span>';
-$root->_btn_pgorder   = 'Ordenação da página<span class="edit_form_note">( 0-9 Decimal Padrão:1 )</span>';
+$root->_btn_alias     = 'Página Alias <span class="edit_form_note">(Dividida com "<span style="color:red;font-weight:bold;font-size:120%;">:</span>"[Colon])</span>';
+$root->_btn_alias_lf  = 'Página Alias <span class="edit_form_note">(Dividida com "<span style="color:red;font-weight:bold;font-size:120%;">Each line</span>")</span>';
+$root->_btn_riddle    = 'Verificação da Pergunta e Resposta: <span class="edit_form_note">Por favor, responta a pergunta antes de atualizar a página (desnecessária a vizualização).</span>';
+$root->_btn_pgtitle   = 'Título da página<span class="edit_form_note">(Automático em branco)</span>';
+$root->_btn_pgorder   = 'Ordenação da página<span class="edit_form_note">(0-9 Decimal Padrão:1 )</span>';
 $root->_btn_other_op  = 'Mostrar detalhamento dos itens informados.';
 $root->_btn_emojipad  = 'Pictogram pad';
 $root->_btn_source    = 'Details';
@@ -118,7 +118,7 @@ $root->_no_name = '';
 
 /////////////////////////////////////////////////
 // Title of the page contents list
-$root->contents_title = 'Tabela dos conteúdos';
+$root->contents_title = 'Tabela de conteúdos';
 
 /////////////////////////////////////////////////
 // Skin
@@ -139,44 +139,44 @@ $root->_LANG['skin']['list']      = 'Relação das Páginas';
 $root->_LANG['skin']['list_s']    = 'Lista';
 $root->_LANG['skin']['new']       = 'Nova Página';
 $root->_LANG['skin']['new_s']     = 'Nova';
-$root->_LANG['skin']['newsub']    = 'Nova sub página';
+$root->_LANG['skin']['newsub']    = 'Nova Sub Página';
 $root->_LANG['skin']['newsub_s']  = 'Sub';
 $root->_LANG['skin']['menu']      = 'Menu';
 $root->_LANG['skin']['header']    = 'Cabeçalho';
 $root->_LANG['skin']['footer']    = 'Rodapé';
-$root->_LANG['skin']['rdf']       = 'RDF das últimas mudanças';
-$root->_LANG['skin']['recent']    = 'Últimas mudanças';	// RecentChanges
+$root->_LANG['skin']['rdf']       = 'RDF das Últimas Alterações';
+$root->_LANG['skin']['recent']    = 'Últimas  Alterações';	// RecentChanges
 $root->_LANG['skin']['recent_s']  = 'Última';
 $root->_LANG['skin']['refer']     = 'Referir';	// Show list of referer
 $root->_LANG['skin']['reload']    = 'Baxar novamente';
 $root->_LANG['skin']['rename']    = 'Renomear';	// Rename a page (and related)
-$root->_LANG['skin']['rss']       = 'RSS das últimas mudanças';
+$root->_LANG['skin']['rss']       = 'RSS das Últimas Alterações';
 $root->_LANG['skin']['rss10']     = $root->_LANG['skin']['rss'] . ' (RSS 1.0)';
 $root->_LANG['skin']['rss20']     = $root->_LANG['skin']['rss'] . ' (RSS 2.0)';
 $root->_LANG['skin']['atom']      = $root->_LANG['skin']['rss'] . ' (RSS Atom)';
 $root->_LANG['skin']['search']    = 'Busca';
 $root->_LANG['skin']['search_s']  = 'Busca';
-$root->_LANG['skin']['top']       = 'Página incial';	// Top page
-$root->_LANG['skin']['trackback'] = 'Links de retorno';	// Show list of trackback
+$root->_LANG['skin']['top']       = 'Página Inicial';	// Top page
+$root->_LANG['skin']['trackback'] = 'Links de Retorno';	// Show list of trackback
 $root->_LANG['skin']['unfreeze']  = 'Descongelar';
 $root->_LANG['skin']['upload']    = 'Enviar';	// Attach a file
 $root->_LANG['skin']['pginfo']    = 'Permissão';
 $root->_LANG['skin']['comments']  = 'Comentários';
-$root->_LANG['skin']['lastmodify']= 'Última modificação';
+$root->_LANG['skin']['lastmodify']= 'Última Alteração';
 $root->_LANG['skin']['linkpage']  = 'Links';
-$root->_LANG['skin']['pagealias'] = 'Página com outro nome';
-$root->_LANG['skin']['pageowner'] = 'Proprietário da página';
-$root->_LANG['skin']['siteadmin'] = 'Administrador do site';
+$root->_LANG['skin']['pagealias'] = 'Página Alias';
+$root->_LANG['skin']['pageowner'] = 'Proprietário da Página';
+$root->_LANG['skin']['siteadmin'] = 'Administrador do Site';
 $root->_LANG['skin']['none']      = 'Nenhum';
-$root->_LANG['skin']['pageinfo']  = 'Página de informações';
+$root->_LANG['skin']['pageinfo']  = 'Página de Informações';
 $root->_LANG['skin']['pagename']  = 'Nome da Página';
-$root->_LANG['skin']['readable']  = 'Pode ler';
-$root->_LANG['skin']['editable']  = 'Pode editar';
+$root->_LANG['skin']['readable']  = 'Pode Ler';
+$root->_LANG['skin']['editable']  = 'Pode Editar';
 $root->_LANG['skin']['groups']    = 'Grupos';
 $root->_LANG['skin']['users']     = 'Usuários';
-$root->_LANG['skin']['perm']['all']  = 'Todos os visitantes';
+$root->_LANG['skin']['perm']['all']  = 'Todos os Visitantes';
 $root->_LANG['skin']['perm']['none'] = 'Ninguém';
-$root->_LANG['skin']['print']     = 'Vizualizar impressão';
+$root->_LANG['skin']['print']     = 'Vizualizar Impressão';
 $root->_LANG['skin']['print_s']   = 'Imprimir';
 
 ///////////////////////////////////////
@@ -200,7 +200,7 @@ $root->_msg_article_mail_page   = 'Página: ';
 // attach.inc.php
 $root->_attach_messages = array(
 	'msg_uploaded' => 'Enviado arquivo para  $1',
-	'msg_deleted'  => 'Exluido o arquivo em  $1',
+	'msg_deleted'  => 'Exluído o arquivo em  $1',
 	'msg_freezed'  => 'O arquivo foi congelado.',
 	'msg_unfreezed'=> 'O arquivo foi descongelado',
 	'msg_renamed'  => 'O arquivo foi renomeado',
@@ -234,7 +234,7 @@ $root->_attach_messages = array(
 	'err_noparm'   => 'Não foi possível enviar ou excluir o arquivo no $1',
 	'err_exceed'   => 'O tamanho do arquivo é muito grande para $1',
 	'err_exists'   => 'O arquivo já existe em $1',
-	'err_notfound' => 'O arquivo não pode ser encntrado no $1',
+	'err_notfound' => 'O arquivo não pode ser encontrado no $1',
 	'err_noexist'  => 'O arquivo não existe.',
 	'err_delete'   => 'O arquivo não pode ser excluido em $1',
 	'err_rename'   => 'Este arquivo não pode ser renomeado',
