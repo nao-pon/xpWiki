@@ -5,7 +5,7 @@ class XpWikiElement {
 	var $parent;
 	var $elements; // References of childs
 	var $last; // Insert new one at the back of the $last
-	
+
 	var $flg; // Any flag
 
 	var $xpwiki;
@@ -16,7 +16,7 @@ class XpWikiElement {
 		$this->root = & $xpwiki->root;
 		$this->cont = & $xpwiki->cont;
 		$this->func = & $xpwiki->func;
-		
+
 		$this->elements = array ();
 		$this->last = & $this;
 	}
@@ -59,7 +59,7 @@ class XpWikiElement {
 		}
 		return $ret;
 	}
-	
+
 	function GC() {
 		// Garbage Collection
 		$this->elements = NULL;
@@ -67,7 +67,7 @@ class XpWikiElement {
 			$this->last = NULL;
 		}
 	}
-	
+
 	function dump($indent = 0) {
 		$ret = str_repeat(' ', $indent).get_class($this)."\n";
 		$indent += 2;
@@ -168,8 +168,8 @@ class XpWikiHeading extends XpWikiElement {
 		// Area div id Close & Open
 		$area_div = $this->func->get_areadiv_closer($this->level);
 		$area_div .= '<div id="'.$this->paraid.'" class="level'.$this->level.'">' . "\n";
-		
-		// Area div id 
+
+		// Area div id
 		$this->root->rtf['div_area_open'][$this->root->rtf['convert_nest']][$this->level][] = $this->paraid;
 
 		return $area_div . $this->msg_top . $this->wrap(parent :: toString(), 'h'.$this->level, ' id="'.$this->id.'"'.$this->class);
@@ -221,7 +221,7 @@ class XpWikiListContainer extends XpWikiElement {
 			$style = ' class="list_none"';
 			$text = '';
 		}
-		
+
 		parent :: insert(new XpWikiListElement($this->xpwiki, $this->level, $tag2, $style));
 		if ($text !== '') {
 			$this->last = & $this->last->insert($this->func->Factory_Inline($text));
@@ -379,11 +379,11 @@ class XpWikiTableCell extends XpWikiElement {
 	function XpWikiTableCell(& $xpwiki, $text, $is_template = FALSE) {
 		parent :: XpWikiElement($xpwiki);
 		$this->style = $matches = array ();
-		
+
 		if ($this->root->extended_table_format) {
 			$text = $this->get_cell_style($text);
 		}
-		
+
 		while (preg_match('/^(?:(LEFT|CENTER|RIGHT)|(BG)?COLOR\(([#\w]+)\)|SIZE\((\d+)\)):(.*)$/', $text, $matches)) {
 			if ($matches[1]) {
 				$this->style['align'] = 'text-align:'.strtolower($matches[1]).';';
@@ -399,7 +399,7 @@ class XpWikiTableCell extends XpWikiElement {
 						$text = $matches[5];
 					}
 		}
-		
+
 		// Text alignment
 		if (empty($this->style['align'])) {
 			if ($this->root->symbol_cell_align && preg_match('/^(<|=|>)(.+)$/', rtrim($text), $matches)) {
@@ -428,7 +428,7 @@ class XpWikiTableCell extends XpWikiElement {
 				}
 			}
 		}
-		
+
 		if ($is_template && is_numeric($text))
 			$this->style['width'] = 'width:'.$text.'px;';
 
@@ -620,7 +620,7 @@ class XpWikiTable extends XpWikiElement {
 		$this->type = strtolower($out[2]);
 		$this->types = array ($this->type);
 		$is_template = ($this->type === 'c');
-		
+
 		$this->table_style = '';
 		$this->table_sheet = '';
 		$this->div_style = '';
@@ -628,7 +628,7 @@ class XpWikiTable extends XpWikiElement {
 		if ($this->root->extended_table_format && $is_template) {
 			$cells[0] = $this->get_table_style($cells[0]);
 		}
-		
+
 		$row = array ();
 		foreach ($cells as $cell) {
 			$cell = str_replace('&#124;', '|', $cell);
@@ -714,7 +714,7 @@ class XpWikiTable extends XpWikiElement {
 			$string .= $this->wrap($part_string, $part);
 		}
 		$string = $this->wrap($string, 'table', ' class="style_table"'."$this->table_style style=\"$this->table_sheet\"");
-		
+
 		return $this->wrap($string, 'div', ' class="ie5" '.$this->div_style).$this->table_around;
 
 	}
@@ -776,7 +776,7 @@ class XpWikiTable extends XpWikiElement {
 			} else {
 				$border_type = "outset";
 			}
-			
+
 			//$this->table_style .= " border=\"".$reg[1]."\"";
 			if (isset($reg[1])) {
 				if ($reg[1]==="0"){
@@ -844,8 +844,8 @@ class XpWikiTable extends XpWikiElement {
 	}
 }
 
-// , cell1  , cell2  ,  cell3 
-// , cell4  , cell5  ,  cell6 
+// , cell1  , cell2  ,  cell3
+// , cell4  , cell5  ,  cell6
 // , cell7  ,        right,==
 // ,left          ,==,  cell8
 class XpWikiYTable extends XpWikiElement {
@@ -915,7 +915,7 @@ class XpWikiYTable extends XpWikiElement {
 			$rows .= "\n".'<tr class="style_tr">'.$str.'</tr>'."\n";
 		}
 		$rows = $this->wrap($rows, 'table', ' class="style_table" cellspacing="1" border="0"');
-		
+
 		return $this->wrap($rows, 'div', ' class="ie5"');
 	}
 }
@@ -1019,7 +1019,7 @@ class XpWikiBody extends XpWikiElement {
 		$ext_title_find = (false || $this->root->render_mode === 'render');
 		$last_level = 0;
 		$title_len = strlen($this->root->title_setting_string);
-		
+
 		while (!empty ($lines)) {
 			$line = rtrim(array_shift($lines), "\r\n");
 
@@ -1058,9 +1058,9 @@ class XpWikiBody extends XpWikiElement {
 					$head = $line[0];
 				}
 			}
-						
+
 			switch ($head) {
-			
+
 			// Horizontal Rule
 			case '-':
 				if (preg_match('/^\-{4,}$/', $line)) {
@@ -1086,7 +1086,7 @@ class XpWikiBody extends XpWikiElement {
 					}
 				}
 				break;
-				
+
 			// Heading
 			case '*':
 				$this->insert(new XpWikiHeading($this, $line));
@@ -1100,7 +1100,7 @@ class XpWikiBody extends XpWikiElement {
 				$this->last = & $this->last->add(new XpWikiPre($this, $line));
 				continue 2;
 				break;
-			
+
 			// <, <<, <<< only to escape blockquote.
 			case '<':
 				if (! preg_match('/^<{1,3}\s*$/', $line)) {
@@ -1117,7 +1117,7 @@ class XpWikiBody extends XpWikiElement {
 			// Other Character
 			if (isset ($this->classes[$head])) {
 				$classname = $this->classes[$head];
-				
+
 				$this_level = strspn($line, $head);
 				if ($this_level - $last_level > 1) {
 					for($_lev = $last_level+1; $_lev < $this_level; $_lev++ ) {
@@ -1133,7 +1133,7 @@ class XpWikiBody extends XpWikiElement {
 			// Other Character
 			if (isset ($this->factories[$head])) {
 				$this->root->rtf['contntId'] = $this->id;
-				
+
 				if ($head === ':') {
 					$this_level = strspn($line, $head);
 					if ($this_level - $last_level > 1) {
@@ -1143,7 +1143,7 @@ class XpWikiBody extends XpWikiElement {
 					}
 					$last_level = $this_level;
 				}
-				
+
 				$factoryname = 'Factory_'.$this->factories[$head];
 				$this->last = & $this->last->add($this->func->$factoryname($line));
 				continue;
@@ -1185,7 +1185,7 @@ class XpWikiBody extends XpWikiElement {
 			}
 			$this->contents->last_level = $level;
 			$this->contents->count++;
-		
+
 			$this->contents_last = & $this->contents_last->add(new XpWikiContents_UList($this->xpwiki, $text, $level, $id));
 		}
 		// Add heding
@@ -1200,15 +1200,15 @@ class XpWikiBody extends XpWikiElement {
 
 	function toString() {
 		$text = parent :: toString();
-		
+
 		// Close area div
 		$text .= $this->func->get_areadiv_closer();
-		
+
 		// #contents
 		if ($this->root->contents_auto_insertion && empty($this->root->rtf['contents_converted'][$this->id]) && $this->contents->count >= $this->root->contents_auto_insertion) {
 			$text = preg_replace('/<h\d/', '<#_contents_>'."\n".'$0', $text, 1);
 		}
-		
+
 		if (strpos($text, '<#_contents_>') !== FALSE) {
 			$this->contents_body = $this->contents->toString();
 			$text = preg_replace_callback('/<#_contents_>/', array (& $this, 'replace_contents'), $text);
@@ -1216,12 +1216,12 @@ class XpWikiBody extends XpWikiElement {
 		$this->contents_body = NULL;
 		$this->contents_last = NULL;
 		$this->contents = NULL;
-		
+
 		return $text."\n";
 	}
 
 	function replace_contents($arr) {
-		return <<<EOD
+		$ret =  <<<EOD
 <div class="contents">
  <div class="toc_header">
   {$this->root->contents_title}
@@ -1231,6 +1231,7 @@ class XpWikiBody extends XpWikiElement {
  </div>
 </div>
 EOD;
+		return $this->func->wrap_description_ignore($ret);
 	}
 }
 

@@ -1,7 +1,7 @@
 <?php
 //
 // Created on 2006/10/02 by nao-pon http://hypweb.net/
-// $Id: xpwiki_func.php,v 1.237 2011/09/09 07:29:26 nao-pon Exp $
+// $Id: xpwiki_func.php,v 1.238 2011/09/17 07:51:01 nao-pon Exp $
 //
 class XpWikiFunc extends XpWikiXoopsWrapper {
 
@@ -187,6 +187,9 @@ class XpWikiFunc extends XpWikiXoopsWrapper {
 	function do_plugin_action($name) {
 		if (! $this->exist_plugin_action($name)) return array();
 
+		// 実行プラグイン名を登録
+		$this->root->plugin_stack[] = $name;
+
 		$plugin = & $this->get_plugin_instance($name);
 
 		// ブラウザとのコネクションが切れても実行し続ける
@@ -199,17 +202,25 @@ class XpWikiFunc extends XpWikiXoopsWrapper {
 		// ignore_user_abort の設定値戻し
 		ignore_user_abort($_iua);
 
+		// 実行プラグイン名を抹消
+		array_pop($this->root->plugin_stack);
+
 		// exit 指定
 		if (is_array($retvar) && isset($retvar['exit'])) {
 			$this->clear_output_buffer();
 			exit($retvar['exit']);
 		}
 
-		// Insert a hidden field, supports idenrtifying text enconding
-		if ($this->cont['PKWK_ENCODING_HINT'] && is_array($retvar) && isset($retvar['body']))
+		if (is_array($retvar) && isset($retvar['body'])) {
+			// Insert a hidden field, supports idenrtifying text enconding
+			if ($this->cont['PKWK_ENCODING_HINT']) {
 				$retvar['body'] =  preg_replace('/(<form[^>]*>)/', '$1' . "\n" .
 					'<div><input type="hidden" name="encode_hint" value="' .
 					$this->cont['PKWK_ENCODING_HINT'] . '" /></div>', $retvar['body']);
+			}
+			// set meta_description
+			$this->root->meta_description = $this->get_meta_description($retvar['body']);
+		}
 
 		return $retvar;
 	}
@@ -258,18 +269,30 @@ class XpWikiFunc extends XpWikiXoopsWrapper {
 			if (!is_null($body)) $aryargs[] = $body;     // #plugin(){{body}}
 		}
 
+		// 実行プラグイン名を登録
+		$this->root->plugin_stack[] = $name;
+
 		$_digest = $this->root->digest;
 		$retvar  = call_user_func_array(array(& $plugin, 'plugin_' . $name . '_convert'), $aryargs);
 		$this->root->digest  = $_digest; // Revert
 
+		// 実行プラグイン名を抹消
+		array_pop($this->root->plugin_stack);
+
 		if ($retvar === FALSE) {
 			return htmlspecialchars('#' . $name .
 				($args != '' ? '(' . $args . ')' : ''));
-		} else if ($this->cont['PKWK_ENCODING_HINT'] != '') {
-		// Insert a hidden field, supports idenrtifying text enconding
-		return preg_replace('/(<form[^>]*>)/', '$1 ' . "\n" .
+		}
+
+		if ($this->cont['PKWK_ENCODING_HINT'] !== '' && strpos($retvar, '<form') !== false) {
+			// Insert a hidden field, supports idenrtifying text enconding
+			$retvar = preg_replace('/(<form[^>]*>)/', '$1 ' . "\n" .
 				'<div><input type="hidden" name="encode_hint" value="' .
 				$this->cont['PKWK_ENCODING_HINT'] . '" /></div>', $retvar);
+		}
+
+		if (in_array($name, $this->root->description_ignore_blocks)) {
+			return $this->wrap_description_ignore($retvar);
 		} else {
 			return $retvar;
 		}
@@ -308,16 +331,25 @@ class XpWikiFunc extends XpWikiXoopsWrapper {
 		// NOTE: A reference of $body is always the last argument
 		$aryargs[] = $body; // func_num_args() != 0
 
+		// 実行プラグイン名を登録
+		$this->root->plugin_stack[] = $name;
+
 		$_digest = $this->root->digest;
 		$retvar  = call_user_func_array(array(& $plugin, 'plugin_' . $name . '_inline'), $aryargs);
-
 		$this->root->digest  = $_digest; // Revert
 
+		// 実行プラグイン名を抹消
+		array_pop($this->root->plugin_stack);
+
 		if($retvar === FALSE) {
-		// Do nothing
-		return htmlspecialchars('&' . $name . ($args ? '(' . $args . ')' : '') . ';');
+			// Do nothing
+			return htmlspecialchars('&' . $name . ($args ? '(' . $args . ')' : '') . ';');
 		} else {
-			return $retvar;
+			if (in_array($name, $this->root->description_ignore_inlines)) {
+				return $this->wrap_description_ignore($retvar);
+			} else {
+				return $retvar;
+			}
 		}
 	}
 
@@ -553,8 +585,8 @@ class XpWikiFunc extends XpWikiXoopsWrapper {
 							'content_title' => $this->root->content_title,
 							'nonflag'       => $this->root->nonflag,
 							'replaces_finish'=> $this->root->replaces_finish,
-							'pagecache_profiles' => $this->root->pagecache_profiles
-
+							'pagecache_profiles' => $this->root->pagecache_profiles,
+							'meta_description' => $this->root->meta_description
 						),
 						'cont'          => array(
 							'SKIN_CHANGER'  => $this->cont['SKIN_CHANGER']
@@ -604,7 +636,32 @@ class XpWikiFunc extends XpWikiXoopsWrapper {
 				$fusen->plugin_fusen_putjson($fusen_data, $page);
 			}
 		}
+
+		// meta description
+		$this->cache_del_db($this->get_pgid_by_name($page), 'core:description');
+
 		return ;
+	}
+
+	function get_meta_description ($html, $len = 120, $pre_crop = 204800) {
+
+		$ret = substr($html, 0, $pre_crop);
+
+		$ret = preg_replace('#<h([123]).+?/h\\1>|<form.+?/form>|<!--description ignore-->.+?<!--/description ignore-->#is', '', $ret);
+		$ret = strip_tags($ret);
+		$ret = str_replace(array('&#8203;', "\r", "\n"), '', $ret);
+		$ret = str_replace(array('&nbsp;'), ' ', $ret);
+		$ret = trim(preg_replace('/\s{2,}/', ' ', $ret));
+
+		$ret = htmlspecialchars_decode($ret, ENT_QUOTES);
+		$ret = mb_substr($ret, 0, $len);
+		$ret = htmlspecialchars($ret);
+
+		return $ret;
+	}
+
+	function wrap_description_ignore ($html) {
+		return "\n" . '<!--description ignore-->' . "\n" . $html . "\n" . '<!--/description ignore-->' . "\n";
 	}
 
 	function get_additional_headtags () {
@@ -808,14 +865,14 @@ class XpWikiFunc extends XpWikiXoopsWrapper {
 	}
 
 	// グループ選択フォーム作成
-	function make_grouplist_form ($tagname, $ids = array(), $disabled='', $js='') {
+	function make_grouplist_form ($tagname, $ids = array(), $disabled='', $js='', $attr = '') {
 		$groups = $this->get_group_list();
 		$mygroups = $this->get_mygroups();
 
 		//$disabled = ($disabled)? ' disabled="disabled"' : '';
 
 		$size = min(10, count($groups));
-		$ret = '<select size="'.$size.'" name="'.$tagname.'[]" id="'.$tagname.'[]" multiple="multiple"'.$disabled.$js.'>'."\n";
+		$ret = '<select'.$attr.' size="'.$size.'" name="'.$tagname.'[]" id="'.$tagname.'[]" multiple="multiple"'.$disabled.$js.'>'."\n";
 		$all = FALSE;
 		if ($ids === 'all' || $ids === 'none') {
 			$ids = array();
@@ -1357,19 +1414,7 @@ class XpWikiFunc extends XpWikiXoopsWrapper {
 	}
 
 	function unhtmlspecialchars ($str, $quote_style = ENT_COMPAT) {
-		$fr = array('&lt;', '&gt;');
-		$tr = array('<',    '>');
-		if ($quote_style !== ENT_NOQUOTES) {
-			$fr[] = '&quot;';
-			$tr[] = '"';
-		}
-		if ($quote_style === ENT_QUOTES) {
-			$fr[] = '&#039;';
-			$tr[] = '\'';
-		}
-		$fr[] = '&amp;';
-		$tr[] = '&';
-		return str_replace($fr, $tr, $str);
+		return htmlspecialchars_decode($str, $quote_style);
 	}
 
 	// ページ頭文字読みの配列を取得
@@ -1907,7 +1952,8 @@ EOD;
 			$blocking = TRUE,
 			$retry = 1,
 			$c_timeout = 3,
-			$r_timeout = 10
+			$r_timeout = 10,
+			$ua = ''
 		)
 	{
 		if ($this->root->can_not_connect_www) {
@@ -1935,6 +1981,12 @@ EOD;
 		$d->connect_try = $retry;
 		$d->connect_timeout = $c_timeout;
 		$d->read_timeout = $r_timeout;
+		if ($ua) {
+			$d->ua = $ua;
+		} else {
+			$d->ua = 'User-Agent: Mozilla/5.0 (xpWiki fetcher/1.0 ; PlugIn-'.end($this->root->plugin_stack).'; '.$this->cont['MODULE_URL'].$this->root->mydirname.'/)';
+			file_put_contents($this->cont['TRUST_PATH'].'/cache/xpwiki.debug.txt', $d->ua."\n".$url."\n", FILE_APPEND);
+		}
 
 		if (empty($d->iniLoaded)) {
 			$d->use_proxy = $this->root->use_proxy;
