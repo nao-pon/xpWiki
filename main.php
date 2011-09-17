@@ -56,10 +56,21 @@ if ($xpwiki->runmode === 'xoops') {
 			'xoops_pagetitle' => $xpwiki->root->pagetitle,
 			'xoops_module_header' => $xpwiki->root->html_header,
 			'xoops_breadcrumbs' => $xpwiki->get_var('breadcrumbs_array'),
+			'xoops_meta_description' => $xpwiki->root->meta_description,
 			'xpwiki_pagename' => $xpwiki->get_var('page'),
  			'xpwiki_pginfo' => $xpwiki->get_pginfo(),
 		)
 	);
+
+	if (defined('LEGACY_MODULE_VERSION') && version_compare(LEGACY_MODULE_VERSION, '2.2', '>=')) {
+		// For XCL 2.2
+		$xclRoot =& XCube_Root::getSingleton();
+		$headerScript = $xclRoot->mContext->getAttribute('headerScript');
+		$headerScript->addMeta('description', $xpwiki->root->meta_description);
+	} elseif (isset($xoTheme) && is_object($xoTheme)) {
+		// For XOOPS 2.3 or higher & Impress CMS.
+		$xoTheme->addMeta('meta', 'description', $xpwiki->root->meta_description);
+	}
 
 	echo $xpwiki->html;
 
