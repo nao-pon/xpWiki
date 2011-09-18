@@ -1,7 +1,7 @@
 <?php
 //
 // Created on 2006/10/02 by nao-pon http://hypweb.net/
-// $Id: xpwiki_func.php,v 1.238 2011/09/17 07:51:01 nao-pon Exp $
+// $Id: xpwiki_func.php,v 1.239 2011/09/18 12:26:31 nao-pon Exp $
 //
 class XpWikiFunc extends XpWikiXoopsWrapper {
 
@@ -606,6 +606,9 @@ class XpWikiFunc extends XpWikiXoopsWrapper {
 	}
 
 	function clear_page_cache ($page) {
+		// meta description
+		$this->cache_del_db($this->get_pgid_by_name($page), 'core:description');
+
 		// page render html cache
 		$base = $this->root->mytrustdirpath."/language/xpwiki";
 		if ($handle = opendir($base)) {
@@ -636,10 +639,6 @@ class XpWikiFunc extends XpWikiXoopsWrapper {
 				$fusen->plugin_fusen_putjson($fusen_data, $page);
 			}
 		}
-
-		// meta description
-		$this->cache_del_db($this->get_pgid_by_name($page), 'core:description');
-
 		return ;
 	}
 
