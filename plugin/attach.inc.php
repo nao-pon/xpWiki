@@ -2,7 +2,7 @@
 /////////////////////////////////////////////////
 // PukiWiki - Yet another WikiWikiWeb clone.
 //
-//  $Id: attach.inc.php,v 1.59 2011/06/01 06:27:51 nao-pon Exp $
+//  $Id: attach.inc.php,v 1.60 2011/09/26 12:06:26 nao-pon Exp $
 //  ORG: attach.inc.php,v 1.31 2003/07/27 14:15:29 arino Exp $
 //
 /*
@@ -198,6 +198,20 @@ class xpwiki_plugin_attach extends xpwiki_plugin {
 			$pcmd = 'list';
 		}
 
+		// iPhone, iPad で Picup 使用時
+		if ($pcmd === 'upload' && ! empty($this->root->vars['usr'])) {
+			if ($uid = $this->func->cache_get_db($this->root->vars['usr'], 'attach:usr', true)) {
+				if (is_numeric($uid)) {
+					$uid = intval($uid);
+				} else {
+					$this->root->vars['pass'] = substr($uid, 4);
+					$uid = 0;
+				}
+				$this->func->set_userinfo($uid);
+			}
+			$this->root->vars['refer'] = rawurldecode($this->root->vars['refer']);
+		}
+
 		// Authentication
 		if ($this->root->vars['refer'] !== '')
 		{
@@ -280,6 +294,7 @@ class xpwiki_plugin_attach extends xpwiki_plugin {
 			case 'noinline-1': return $this->attach_noinline('-1', $pass);
 			case 'nopcmd'    : return $this->attach_nopcmd();
 			case 'reinfo'    : return $this->attach_reinfo();
+			case 'return'    : return $this->attach_return();
 		}
 		if (!isset($this->root->vars['page']) || !$this->func->is_page($this->root->vars['page']))
 		{
@@ -854,6 +869,9 @@ class xpwiki_plugin_attach extends xpwiki_plugin {
 	function attach_form($page) {
 		static $load = array();
 
+		//ページキャッシュは default プロファイルのみ
+		$this->root->pagecache_profiles = 'default';
+
 		if ($this->cont['ATTACH_UPLOAD_EDITER_ONLY'] && ! $this->func->check_editable($page, false, false)) {
 			return str_replace('$1', htmlspecialchars($page), $this->root->_attach_messages['msg_noupload']);
 		}
@@ -906,6 +924,7 @@ EOD;
 			return $navi;
 		}
 
+		// painter プラグイン 未実装
 		$painter = '';
 		if ($this->func->exist_plugin('painter'))
 		{
@@ -952,7 +971,7 @@ EOD;
 		}
 
 		$allow_extensions = $this->get_allow_extensions();
-		$antar_tag = "(<label for=\"_p_attach_untar_mode_{$pgid}_{$load[$this->xpwiki->pid][$page]}\">{$this->root->_attach_messages['msg_untar']}</label>:<input type=\"checkbox\" id=\"_p_attach_untar_mode_{$pgid}_{$load[$this->xpwiki->pid][$page]}\" name=\"untar_mode\">)";
+		$antar_tag = "<input type=\"checkbox\" id=\"_p_attach_untar_mode_{$pgid}_{$load[$this->xpwiki->pid][$page]}\" name=\"untar_mode\"><label for=\"_p_attach_untar_mode_{$pgid}_{$load[$this->xpwiki->pid][$page]}\">{$this->root->_attach_messages['msg_untar']}</label>";
 		if ($allow_extensions && !$this->func->is_owner($page)) {
 			$allow_extensions = str_replace('$1',join(", ",$allow_extensions),$this->root->_attach_messages['msg_extensions'])."<br />";
 			$antar_tag = "";
@@ -963,7 +982,8 @@ EOD;
 		//$filelist = "<hr />".$this->attach_filelist();
 		$filelist = '';
 		$script = $this->func->get_script_uri();
-		return <<<EOD
+		// アップロードフォーム
+		$form = <<<EOD
 <form enctype="multipart/form-data" action="{$script}" method="post">
  <div>
   <input type="hidden" name="plugin" value="attach" />
@@ -974,19 +994,51 @@ EOD;
   $filename
   $returi
   $navi
-  <span class="small">
+  <div><span class="small">
    $msg_maxsize
-  </span><br />
+  </span></div>
   $allow_extensions
   $thumb
   $file_select
   <div id="_p_attach_more"></div>
   $pass
   <input type="submit" class="upload_btn" value="{$this->root->_attach_messages['btn_upload']}" />
-  $antar_tag<br />
-  <input type="checkbox" id="_p_attach_copyright_{$pgid}_{$load[$this->xpwiki->pid][$page]}" name="copyright" value="1" /> <label for="_p_attach_copyright_{$pgid}_{$load[$this->xpwiki->pid][$page]}">{$this->root->_attach_messages['msg_copyright']}</label><br />
+  <div>$antar_tag</div>
+  <div><input type="checkbox" id="_p_attach_copyright_{$pgid}_{$load[$this->xpwiki->pid][$page]}" name="copyright" value="1" /> <label for="_p_attach_copyright_{$pgid}_{$load[$this->xpwiki->pid][$page]}">{$this->root->_attach_messages['msg_copyright']}</label></div>
  </div>
 </form>
+EOD;
+
+		// iPhone, iPad 用は sms: リンク & Picup
+		if (preg_match('/iP(?:hone|ad)/i', $_SERVER['HTTP_USER_AGENT'])) {
+			// Picup
+			$usr = md5(session_id());
+			$this->func->cache_save_db(($this->root->userinfo['uid']? $this->root->userinfo['uid']:'ucd:'.$this->root->userinfo['ucd']), 'attach:usr', session_cache_expire()*60, $usr);
+			$to = $this->func->cache_save_db($_SERVER['REQUEST_URI'], 'attach:to');
+			$callback = $script.'?plugin=attach&pcmd=return&to='.$to;
+			$parms = 'plugin=attach&pcmd=upload&refer='.rawurlencode($page).'&usr='.$usr;
+			if (! empty($this->root->vars['refid'])) $parms .= '&refid='.rawurlencode($this->root->vars['refid']);
+			$picupurl = 'fileupload://new?imageSize=1600&callbackURL='.rawurlencode($callback).'&posturl='.rawurlencode($script).'&postimageParam=attach_file&postvalues='.rawurlencode($parms);
+			if (! empty($this->root->vars['filename'])) $picupurl .= '&postimagefilename='.rawurlencode($this->root->vars['filename']);
+			$picup = '<a href="'.$picupurl.'"><span class="button">Picup App</span></a><a target="_blank" href="http://itunes.apple.com/jp/app/picup/id354101378?mt=8" class="itunes"><span class="button">?</span></a>';
+
+			// sms:
+			$moblog = $this->func->get_plugin_instance('moblog');
+			$form = '<div style="text-align:center;font-size:24px;">'
+			        . $moblog->get_sms_link($this->root->_attach_messages['msg_send_mms'], $page, ((empty($this->root->vars['refid']))?'':$this->root->vars['refid']))
+			        . $picup
+			        . '</div>'
+			        . $form;
+		}
+
+		if ($this->cont['UA_PROFILE'] === 'mobile') {
+			$painter = '';
+			$form = '<div style="text-align:center;"><span class="button" onclick="$(\'xpwiki_attach_form\').toggle()">'.$this->root->_attach_messages['btn_upload'].'</span></div><div id="xpwiki_attach_form">'.$form.'</div>' .
+					'<script type="text/javascript">document.observe(\'dom:loaded\',function(){$(\'xpwiki_attach_form\').toggle();});</script>';
+		}
+
+		return <<<EOD
+$form
 $painter
 $filelist
 EOD;
@@ -1061,6 +1113,30 @@ EOD;
 			return explode(",",str_replace(" ","",$this->cont['ATTACH_UPLOAD_EXTENSION']));
 		} else {
 			return array();
+		}
+	}
+
+	function attach_return() {
+		if (!empty($this->root->vars['to'])) {
+			if ($to = $this->func->cache_get_db($this->root->vars['to'], 'attach:to')) {
+				$url = $this->root->siteinfo['host'] . $to;
+				$s_url = htmlspecialchars($url);
+				// clear output buffer
+				$this->func->clear_output_buffer();
+				$output = <<<EOD
+<html>
+<body>
+<script type="text/javascript">
+var w = window.open('{$url}', 'XpWikiPopupBody');
+w.focus();
+window.close();
+</script>
+</body>
+</html>
+EOD;
+				echo $output;
+				exit();
+			}
 		}
 	}
 }

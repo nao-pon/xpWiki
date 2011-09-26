@@ -1,5 +1,5 @@
 <?php
-// $Id: moblog.inc.php,v 1.19 2011/09/09 09:16:10 nao-pon Exp $
+// $Id: moblog.inc.php,v 1.20 2011/09/26 12:06:26 nao-pon Exp $
 // Author: nao-pon http://hypweb.net/
 // Bace script is pop.php of mailbbs by Let's PHP!
 // Let's PHP! Web: http://php.s3.to/
@@ -96,6 +96,7 @@ class xpwiki_plugin_moblog extends xpwiki_plugin {
 		$this->output_mode = (isset($this->root->vars['om']) && $this->root->vars['om'] === 'rss')? 'rss' : 'img';
 
 		$host = $user = $pass = $port = '';
+		$execution_time = intval(ini_get('max_execution_time'));
 
 		//設定ファイル読み込み
 		if (isset($this->config['host'])) $host = (string)$this->config['host'];
@@ -158,6 +159,17 @@ class xpwiki_plugin_moblog extends xpwiki_plugin {
 			}
 		}
 
+		// SMS(MMS) 経由のデーター読み込み
+		if ($smsdata = $this->func->cache_get_db(null, 'moblog')) {
+			foreach($smsdata as $_data) {
+				$_data = unserialize($_data);
+				$adr2page = array_merge($adr2page, $_data);
+			}
+		}
+
+		// attach プラグイン読み込み
+		$attach = $this->func->get_plugin_instance('attach');
+
 		// wait 指定
 		$wait = (empty($this->root->vars['wait']))? 0 : (int)$this->root->vars['wait'];
 		sleep(min(5, $wait));
@@ -189,22 +201,32 @@ class xpwiki_plugin_moblog extends xpwiki_plugin {
 		}
 
 		$this->debug[] = $num . ' message(s) found.';
+
+		$tmpfiles = array();
 		// 件数分
 		for($i=1;$i<=$num;$i++) {
 			$line = $this->plugin_moblog_sendcmd("RETR $i");//RETR n -n番目のメッセージ取得（ヘッダ含
-			$dat[$i] = "";
-			while (!ereg("^\.\r\n",$line)) {//EOFの.まで読む
-				$line = fgets($this->sock,512);
-				$dat[$i].= $line;
+			$dat = '';
+			while (! preg_match("/^\.\r\n/",$line) && $line !== false) {//EOFの.まで読む
+				$line = fgets($this->sock,4096);
+				$dat.= $line;
 			}
 			$data = $this->plugin_moblog_sendcmd("DELE $i");//DELE n n番目のメッセージ削除
+			$tmpfname = tempnam($this->cont['CACHE_DIR'], 'moblog');
+			file_put_contents($tmpfname, $dat);
+			$tmpfiles[] = $tmpfname;
 		}
 		$buf = $this->plugin_moblog_sendcmd("QUIT"); //バイバイ
 		fclose($this->sock);
 
-		for($j=1;$j<=$num;$j++) {
+		foreach ($tmpfiles as $tmpfname) {
+
+			if ($execution_time) {
+				@ set_time_limit($execution_time);
+			}
+
 			$write = true;
-			$subject = $from = $text = $atta = $part = $attach = $filename = $charset = '';
+			$subject = $from = $text = $atta = $part = $filename = $charset = '';
 			$this->user_pref = array();
 			$this->post_options = array();
 			$this->is_newpage = 0;
@@ -213,9 +235,14 @@ class xpwiki_plugin_moblog extends xpwiki_plugin {
 			$rotate = 0;
 			$page = '';
 			$exifgeo = array();
+			$attach_only = false;
+			$this->root->vars['refid'] = '';
+
 			unset($this->root->rtf['esummary'], $this->root->rtf['twitter_update']);
 
-			list($head, $body) = $this->plugin_moblog_mime_split($dat[$j]);
+			$dat = file_get_contents($tmpfname);
+			unlink($tmpfname);
+			list($head, $body) = $this->plugin_moblog_mime_split($dat);
 
 			// To:ヘッダ確認
 			$treg = array();
@@ -415,10 +442,21 @@ class xpwiki_plugin_moblog extends xpwiki_plugin {
 				$uid = 0;
 				if (!empty($adr2page[$to])) {
 					if (! $page) $page = (is_array($adr2page[$to]))? $adr2page[$to][0] : $adr2page[$to];
-					if (is_array($adr2page[$to])) $uid = $adr2page[$to][1];
+					if (is_array($adr2page[$to])) {
+						$uid = $adr2page[$to][1];
+						if (!empty($adr2page[$to][2])) {
+							$attach_only = true;
+							$this->post_options['directpage'] = 1;
+							if (!empty($adr2page[$to][3])) {
+								$this->root->vars['refid'] = $adr2page[$to][3];
+							}
+						}
+					}
 				} else if (!empty($adr2page[$from])) {
 					if (! $page) $page = (is_array($adr2page[$from]))? $adr2page[$from][0] : $adr2page[$from];
-					if (is_array($adr2page[$from])) $uid = $adr2page[$from][1];
+					if (is_array($adr2page[$from])) {
+						$uid = $adr2page[$from][1];
+					}
 				} else {
 					if (! $page) $page = (is_array($adr2page['other']))? $adr2page['other'][0] : $adr2page['other'];
 				}
@@ -438,17 +476,19 @@ class xpwiki_plugin_moblog extends xpwiki_plugin {
 						$write = false;
 						$this->debug[] = '"' . $page . '" is not the WikiName.';
 					} else {
-						$this->user_pref = $this->func->get_user_pref($uid);
-						if (! empty($this->user_pref['moblog_auth_code'])) {
-							if ($this->user_pref['moblog_auth_code'] != $this->post_options['auth_code']) {
-								$write = false;
-								$this->debug[] = 'User auth key dose not mutch.';
+						if (! $attach_only) {
+							$this->user_pref = $this->func->get_user_pref($uid);
+							if (! empty($this->user_pref['moblog_auth_code'])) {
+								if ($this->user_pref['moblog_auth_code'] != $this->post_options['auth_code']) {
+									$write = false;
+									$this->debug[] = 'User auth key dose not mutch.';
+								}
 							}
 						}
 					}
 				} else {
 					$write = false;
-					$this->debug[] = 'Allow page not found.';
+					$this->debug[] = 'Allow page not found.' . $page;
 				}
 
 			}
@@ -467,7 +507,7 @@ class xpwiki_plugin_moblog extends xpwiki_plugin {
 						$part = split("\r\n--".urlencode($boureg2[1])."-?-?",$body);
 					}
 				} else {
-					$part[0] = $dat[$j];// 普通のテキストメール
+					$part[0] = $dat;// 普通のテキストメール
 				}
 
 				foreach ($part as $multi) {
@@ -587,7 +627,7 @@ class xpwiki_plugin_moblog extends xpwiki_plugin {
 
 							//$save_file = $this->cont['CACHE_DIR'].$this->func->encode($filename).".tmp";
 
-							if (strlen($tmp) < $maxbyte && $write && $this->func->exist_plugin('attach'))
+							if (strlen($tmp) < $maxbyte && $write && $attach)
 							{
 
 								$save_file = tempnam(rtrim($this->cont['UPLOAD_DIR'], '/'), 'moblog');
@@ -606,10 +646,16 @@ class xpwiki_plugin_moblog extends xpwiki_plugin {
 									if (!$this->func->is_page($page)) {
 										$this->func->make_empty_page($page, false);
 									}
-									$attach = $this->func->get_plugin_instance('attach');
-									$res = $attach->do_upload($page,$filename,$save_file,false,null,true);
+									//$attach = $this->func->get_plugin_instance('attach');
+									$pass = null;
+									if (! $uid) {
+										list($pass) = explode('@', $from);
+									}
+									$res = $attach->do_upload($page,$filename,$save_file,false,$pass,true);
 									if ($res['result']) {
 										$filenames[] =array('name' => $res['name'], 'exifgeo' => $exifgeo);
+									} else {
+										$this->debug[] = $res['msg'];
 									}
 								} else {
 									$write = false;
@@ -639,11 +685,12 @@ class xpwiki_plugin_moblog extends xpwiki_plugin {
 			}
 
 			// wikiページ書き込み
-			if ($write) $this->plugin_moblog_page_write($page,$subject,$text,$filenames,$ref_option,$now);
+			if ($write && !$attach_only) $this->plugin_moblog_page_write($page,$subject,$text,$filenames,$ref_option,$now);
 		}
 		// imgタグ呼び出し
 		$this->plugin_moblog_output();
 	}
+
 	function plugin_moblog_convert() {
 		$host = (string)$this->config['host'];
 		$user = (string)$this->config['user'];
@@ -773,6 +820,25 @@ class xpwiki_plugin_moblog extends xpwiki_plugin {
 		$this->debug[] = $save_data;
 		$this->debug[] = 'Page write ' . $page;
 
+	}
+
+	function get_sms_link($text = 'Send by MMS', $page = null, $refid = '', $uid = null) {
+		if (strpos($this->root->moblog_pop_mail, '*') === false) return '';
+		if (is_null($page)) {
+			$page = $this->root->vars['page'];
+		}
+		if (is_null($uid)) {
+			$uid = $this->root->userinfo['uid'];
+		}
+		$key = md5(date("Ymd").'&'.$page.'&'.$uid.'&'.$refid);
+		if ($cache = $this->func->cache_get_db($key, 'moblog')) {
+			list($mail) = array_keys(unserialize($cache));
+		} else {
+			$mail = str_replace('*', $key, $this->root->moblog_pop_mail);
+			$data = array($mail => array($page, $uid, 1, $refid));
+			$this->func->cache_save_db(serialize($data), 'moblog', 1800, $key);
+		}
+		return '<a href="sms:'.$mail.'"><span class="button">'.$text.'</span></a>';
 	}
 
 	function make_googlemaps ($pagedata, & $set_data, $subject, $date, $filenames) {

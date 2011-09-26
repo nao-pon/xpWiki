@@ -21,6 +21,7 @@ var XpWiki = {
 	fileupPopupHeight: '99%',
 	fileupPopupWidth:  '220px',
 	new_window: '',
+	refImageSize: '480 360',
 
 	dir: '',
 	page: '',
@@ -110,12 +111,26 @@ var XpWiki = {
 				overflow: 'hidden',
 				marginRight: '5px',
 				marginBottom: '5px',
-				zIndex: '1000'
+				zIndex: '2000'
 			});
+			if (this.useJQueryMobile) {
+				Element.setStyle(this.PopupDiv,{
+					position: 'absolute',
+					overflow: 'visible',
+					marginRight: '0',
+					marginLeft: '0',
+					marginTop: '0',
+					width: '100%',
+					height: 'auto',
+					top: jQuery( window ).scrollTop() + 'px',
+					left: '0'
+				});
+			}
 
 			// body (iframe)
 			var elem = document.createElement('iframe');
 			elem.id = 'XpWikiPopupBody';
+			elem.name = 'XpWikiPopupBody';
 			elem.src = '';
 			Element.setStyle(elem,{
 				position: 'absolute',
@@ -126,7 +141,7 @@ var XpWiki = {
 				overflow: 'auto',
 				border: 'none',
 				width: '100%',
-				height: '100%'
+				height: '480px'
 			});
 			this.PopupDiv.appendChild(elem);
 
@@ -168,47 +183,55 @@ var XpWiki = {
 			var objBody = $('xpwiki_body') || this.DomBody;
 			objBody.appendChild(this.PopupDiv);
 
-			if (!!arg.bottom) {
-				this.PopupDiv.style.bottom = this.PopupBottom = arg.bottom;
-			} else if (!!this.PopupBottom) {
-				this.PopupDiv.style.bottom = this.PopupBottom;
-			}
+			if (this.useJQueryMobile) {
+				jQuery('#XpWikiPopupBody').load(function(){
+					window.scrollTo( 0, jQuery('#XpWikiPopup').offset().top);
+					jQuery(this).height(400);
+					jQuery(this).height(this.contentWindow.document.documentElement.scrollHeight + 20);
+				});
+			} else {
+				if (!!arg.bottom) {
+					this.PopupDiv.style.bottom = this.PopupBottom = arg.bottom;
+				} else if (!!this.PopupBottom) {
+					this.PopupDiv.style.bottom = this.PopupBottom;
+				}
 
-			if (!!arg.top) {
-				this.PopupDiv.style.top = this.PopupTop = arg.top;
-			} else if (!!this.PopupTop && !this.PopupBottom) {
-				this.PopupDiv.style.top = this.PopupTop;
-			}
+				if (!!arg.top) {
+					this.PopupDiv.style.top = this.PopupTop = arg.top;
+				} else if (!!this.PopupTop && !this.PopupBottom) {
+					this.PopupDiv.style.top = this.PopupTop;
+				}
 
-			if (!!arg.right) {
-				this.PopupDiv.style.right = this.PopupRight = arg.right;
-			} else if (!!this.PopupRight) {
-				this.PopupDiv.style.right = this.PopupRight
-			}
+				if (!!arg.right) {
+					this.PopupDiv.style.right = this.PopupRight = arg.right;
+				} else if (!!this.PopupRight) {
+					this.PopupDiv.style.right = this.PopupRight
+				}
 
-			if (!!arg.left) {
-				this.PopupDiv.style.left = this.PopupLeft = arg.left;
-			} else if (!!this.PopupLeft && !this.PopupRight) {
-				this.PopupDiv.style.left = this.PopupLeft;
-			}
+				if (!!arg.left) {
+					this.PopupDiv.style.left = this.PopupLeft = arg.left;
+				} else if (!!this.PopupLeft && !this.PopupRight) {
+					this.PopupDiv.style.left = this.PopupLeft;
+				}
 
-			if (!!arg.width) {
-				this.PopupDiv.style.width = this.PopupWidth = arg.width;
-			} else if (!!this.PopupWidth) {
-				this.PopupDiv.style.width = this.PopupWidth;
-			}
+				if (!!arg.width) {
+					this.PopupDiv.style.width = this.PopupWidth = arg.width;
+				} else if (!!this.PopupWidth) {
+					this.PopupDiv.style.width = this.PopupWidth;
+				}
 
-			if (!!arg.height) {
-				this.PopupDiv.style.height = this.PopupHeight = arg.height;
-			} else if (!!this.PopupHeight) {
-				this.PopupDiv.style.height = this.PopupHeight;
-			}
+				if (!!arg.height) {
+					this.PopupDiv.style.height = this.PopupHeight = arg.height;
+				} else if (!!this.PopupHeight) {
+					this.PopupDiv.style.height = this.PopupHeight;
+				}
 
-			if (!!this.PopupDiv.style.top) {
-				this.PopupDiv.style.top = this.PopupTop = this.PopupDiv.offsetTop + 'px';
-			}
-			if (!!this.PopupDiv.style.left) {
-				this.PopupDiv.style.left = this.PopupLeft = this.PopupDiv.offsetLeft + 'px';
+				if (!!this.PopupDiv.style.top) {
+					this.PopupDiv.style.top = this.PopupTop = this.PopupDiv.offsetTop + 'px';
+				}
+				if (!!this.PopupDiv.style.left) {
+					this.PopupDiv.style.left = this.PopupLeft = this.PopupDiv.offsetLeft + 'px';
+				}
 			}
 
 			$('XpWikiPopupBody').src = '';
@@ -218,8 +241,10 @@ var XpWiki = {
 
 			Element.hide('XpWikiPopupCover');
 
-			new Draggable(this.PopupDiv.id, {handle:'XpWikiPopupHeader', starteffect:this.dragStart, endeffect:this.dragEnd });
-			new Resizable(this.PopupDiv.id, {mode:'xy', element:'XpWikiPopupBody', starteffect:this.dragStart, endeffect:this.dragEnd });
+			if (! this.useJQueryMobile) {
+				new Draggable(this.PopupDiv.id, {handle:'XpWikiPopupHeader', starteffect:this.dragStart, endeffect:this.dragEnd });
+				new Resizable(this.PopupDiv.id, {mode:'xy', element:'XpWikiPopupBody', starteffect:this.dragStart, endeffect:this.dragEnd });
+			}
 		}
 		Element.hide(this.PopupDiv);
 	},
@@ -578,8 +603,6 @@ var XpWiki = {
 	},
 
 	remakeTextArea: function (obj) {
-		if (this.useJQueryMobile) return;
-
 		var tareas = obj.getElementsByTagName('textarea');
 		for (var i=0; i<tareas.length; i++){
 			if (tareas[i].style.display == 'none') continue;
@@ -589,7 +612,7 @@ var XpWiki = {
 			if (!tareas[i].id) {
 				tareas[i].id = 'textarea_autoid_' + i;
 			}
-			if (!tareas[i].style.width.match('%') || !tareas[i].style.height.match('%')) {
+			if (!this.useJQueryMobile && (!tareas[i].style.width.match('%') || !tareas[i].style.height.match('%'))) {
 				new Resizable(tareas[i].id, {mode:'xy'});
 			}
 
@@ -849,8 +872,6 @@ var XpWiki = {
 
 	fileupFormPopup: function (mode, page) {
 
-		if (this.useJQueryMobile) return true;
-
 		if (typeof page != "undefined") {
 			this.dir = mode;
 			this.UploadPage = page;
@@ -863,12 +884,13 @@ var XpWiki = {
 			mode = '';
 		}
 
+		var cols = (this.useJQueryMobile)? '2' : '1';
 		var url = this.MyUrl + '/' + this.dir + '/?plugin=attach&pcmd=imglist&refer=';
 		url += encodeURIComponent(this.UploadPage);
 		url += '&base=' + encodeURIComponent(this.UploadPage);
 		url += '&basedir=' + this.dir;
 		url += '&popup=_self';
-		url += '&cols=1';
+		url += '&cols=' + cols;
 		url += '&max=10';
 		url += '&mode=' + mode;
 		url += '&encode_hint=' + encodeURIComponent(this.EncHint);
@@ -903,14 +925,18 @@ var XpWiki = {
 
 			this.initPopupDiv(arg);
 
-			if ($('XpWikiPopupBody').src != url) {
-				$('XpWikiPopupHeaderTitle').innerHTML = 'Now loading...';
-				$('XpWikiPopupBody').src = url;
-				this.PopupBodyUrl = url;
-			}
+			$('XpWikiPopupHeaderTitle').innerHTML = 'Now loading...';
+			$('XpWikiPopupBody').src = url;
+			this.PopupBodyUrl = url;
 
 			var zindex = this.getLargestZIndex('iframe') + 1;
 			this.PopupDiv.style.zIndex = Math.max(this.PopupDiv.style.zIndex, zindex);
+
+			if (this.useJQueryMobile) {
+				Element.setStyle(this.PopupDiv,{
+					top: jQuery( window ).scrollTop() + 'px',
+				});
+			}
 
 			Element.show(this.PopupDiv);
 
@@ -955,7 +981,7 @@ var XpWiki = {
 		}
 		var size = '';
 		if (type == 'image') {
-			inp = prompt(wikihelper_msg_thumbsize, '');
+			inp = prompt(wikihelper_msg_thumbsize, this.refImageSize);
 			if (inp == null) { return; }
 			inp = this.z2h_digit(inp);
 			var size = '';
@@ -965,7 +991,7 @@ var XpWiki = {
 				size = inp.replace(/([\d]{1,3})/, ",mw:$1,mh:$1");
 			}
 		}
-		if (this.isIE6) {
+		if (this.isIE6 || this.useJQueryMobile) {
 			this.PopupHide();
 		}
 		file = this.unhtmlspecialchars(file);

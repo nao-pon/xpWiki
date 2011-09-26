@@ -2,14 +2,14 @@
 /*
  * Created on 2008/10/09 by nao-pon http://hypweb.net/
  * License: GPL v2 or (at your option) any later version
- * $Id: build_js.inc.php,v 1.5 2009/02/22 02:01:56 nao-pon Exp $
+ * $Id: build_js.inc.php,v 1.6 2011/09/26 12:06:26 nao-pon Exp $
  */
 
 class xpwiki_plugin_build_js extends xpwiki_plugin {
 	function plugin_build_js_init() {
-	
+
 	}
-	
+
 	function plugin_build_js_inline() {
 		$args = func_get_args();
 		$action = $args[0];
@@ -36,7 +36,15 @@ class xpwiki_plugin_build_js extends xpwiki_plugin {
 			} else {
 				$jsfunc = $obj . '.XpWiki.refInsert';
 			}
-			return '<a href="#" onclick="return ' . $jsfunc . '(\''.htmlspecialchars($args[1], ENT_QUOTES).'\',\''.$args[2].'\')">'.$this->root->_attach_messages['msg_insert'].'</a>';
+
+			if ($this->cont['UA_PROFILE'] === 'mobile') {
+				$attr = ' data-role="button" data-icon="plus"';
+			} else {
+				$attr = ' class="button"';
+			}
+
+			return '<span'.$attr.' onclick="' . $jsfunc . '(\''.htmlspecialchars($args[1], ENT_QUOTES).'\',\''.$args[2].'\')">'.$this->root->_attach_messages['msg_insert'].'</span>';
+
 			break;
 		default :
 			return false;

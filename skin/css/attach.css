@@ -16,3 +16,7 @@ $class div.filelist_page {
 	font-weight: bold;
 	background-color: white;
 }
+
+$class div.attach_list img {
+	margin: 0;
+}

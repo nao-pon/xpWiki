@@ -12,7 +12,7 @@ function wikihelper_face(v)
 	if (wikihelper_elem != null)
 	{
 		var ss = wikihelper_getSelectStart(wikihelper_elem);
-		
+
 		var se = wikihelper_getSelectEnd(wikihelper_elem);
 		var s1 = (wikihelper_elem.value).substring(0,ss);
 		var s2 = (wikihelper_elem.value).substring(se,wikihelper_getTextLength(wikihelper_elem));
@@ -30,7 +30,7 @@ function wikihelper_face(v)
 	else
 	{
 		alert(wikihelper_msg_elem);
-		return;	
+		return;
 	}
 }
 
@@ -38,20 +38,26 @@ function wikihelper_ins(v)
 {
 	if (wikihelper_elem != null)
 	{
-		if (v == "&(){};")
-		{
+		var inp;
+		if (v == "&(){};") {
 			inp = prompt(wikihelper_msg_inline1, '');
-			if (inp == null) {wikihelper_elem.focus();return;}
+			if (inp == null || inp == '') {wikihelper_elem.focus();return;}
 			v = "&" + inp;
-			inp = prompt(wikihelper_msg_inline2, '');
-			if (inp == null) {wikihelper_elem.focus();return;}
-			v = v + "(" + inp + ")";
-			inp = prompt(wikihelper_msg_inline3, '');
-			if (inp == null) {wikihelper_elem.focus();return;}
-			v = v + "{" + inp + "}";
-			v = v + ";";
+			setTimeout(function() {
+				inp = prompt(wikihelper_msg_inline2, '');
+				if (inp == null) {wikihelper_elem.focus();return;}
+				if (inp) v += "(" + inp.replace(/(^\s+)|(\s+$)/g, '') + ")";
+				setTimeout(function() {
+					inp = prompt(wikihelper_msg_inline3, '');
+					if (inp == 'null') {wikihelper_elem.focus();return;}
+					if (inp) v += "{" + inp.replace(/(^\s+)|(\s+$)/g, '') + "}";
+					v += ";";
+					wikihelper_ins(v);
+				}, 10 );
+			}, 10 );
+			return;
 		}
-		
+
 		if (v == "&ref();") {
 			if (XpWiki.UploadDir && XpWiki.UploadPage) {
 				XpWiki.fileupFormPopup();
@@ -66,10 +72,10 @@ function wikihelper_ins(v)
 			} else if (inp.match(/[\d]{1,3}/)) {
 				size = inp.replace(/([\d]{1,3})/, ",mw:$1,mh:$1");
 			}
-			
+
 			v = "&ref(UNQ_" + xpwiki_getDateStr() + size + ");";
 		}
-		
+
 		var ss = wikihelper_getSelectStart(wikihelper_elem);
 		var se = wikihelper_getSelectEnd(wikihelper_elem);
 		var s1 = (wikihelper_elem.value).substring(0,ss);
@@ -84,7 +90,7 @@ function wikihelper_ins(v)
 	else
 	{
 		alert(wikihelper_msg_elem);
-		return;	
+		return;
 	}
 }
 
@@ -96,19 +102,19 @@ function wikihelper_tag(v)
 		var se = wikihelper_getSelectEnd(wikihelper_elem);
 		var s1 = (wikihelper_elem.value).substring(0,ss);
 		var s2 = (wikihelper_elem.value).substring(se,wikihelper_getTextLength(wikihelper_elem));
-		
+
 		var str = wikihelper_getSelection(wikihelper_elem);
-		
+
 		if (!s1 && !s2 && !str) s1 = wikihelper_elem.value;
-		
+
 		if (!str)
 		{
 			alert(wikihelper_msg_select);
 			return;
 		}
-		
+
 		if (! (str = wikihelper_tagset(str, v))) return;
-		
+
 		wikihelper_setText(s1 + str + s2);
 		se = ss + str.length;
 		wikihelper_elem.setSelectionRange(ss, se);
@@ -117,7 +123,7 @@ function wikihelper_tag(v)
 	else
 	{
 		alert(wikihelper_msg_elem);
-		return;	
+		return;
 	}
 }
 
@@ -129,11 +135,11 @@ function wikihelper_linkPrompt(v)
 		var se = wikihelper_getSelectEnd(wikihelper_elem);
 		var s1 = (wikihelper_elem.value).substring(0,ss);
 		var s2 = (wikihelper_elem.value).substring(se,wikihelper_getTextLength(wikihelper_elem));
-		
+
 		var str = wikihelper_getSelection(wikihelper_elem);
-		
+
 		if (!s1 && !s2 && !str) s1 = wikihelper_elem.value;
-		
+
 		if (!str)
 		{
 			str = prompt(wikihelper_msg_link, '');
@@ -149,13 +155,13 @@ function wikihelper_linkPrompt(v)
 			se = ss + str.length;
 			wikihelper_elem.setSelectionRange(se, se);
 			wikihelper_elem.focus();
-		
+
 		}
 	}
 	else
 	{
 		alert(wikihelper_msg_elem);
-		return;	
+		return;
 	}
 }
 
@@ -167,7 +173,7 @@ function wikihelper_charcode()
 		var se = wikihelper_getSelectEnd(wikihelper_elem);
 		var s1 = (wikihelper_elem.value).substring(0,ss);
 		var s2 = (wikihelper_elem.value).substring(se,wikihelper_getTextLength(wikihelper_elem));
-		
+
 		var str = wikihelper_getSelection(wikihelper_elem);
 		if (!str)
 		{
@@ -177,7 +183,7 @@ function wikihelper_charcode()
 		var j ="";
 		for(var n = 0; n < str.length; n++) j += ("&#"+(str.charCodeAt(n))+";");
 		str = j;
-		
+
 		wikihelper_setText(s1 + str + s2);
 		se = ss + str.length;
 		wikihelper_elem.setSelectionRange(ss, se);
@@ -186,7 +192,7 @@ function wikihelper_charcode()
 	else
 	{
 		alert(wikihelper_msg_elem);
-		return;	
+		return;
 	}
 }
 
@@ -219,7 +225,7 @@ function wikihelper_setMozSelection(a,z)
 function wikihelper_show_hint()
 {
 	alert(wikihelper_msg_gecko_hint_text);
-	
+
 	if (wikihelper_elem != null) wikihelper_elem.focus();
 }
 

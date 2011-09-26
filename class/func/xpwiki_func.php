@@ -1,7 +1,7 @@
 <?php
 //
 // Created on 2006/10/02 by nao-pon http://hypweb.net/
-// $Id: xpwiki_func.php,v 1.239 2011/09/18 12:26:31 nao-pon Exp $
+// $Id: xpwiki_func.php,v 1.240 2011/09/26 12:06:26 nao-pon Exp $
 //
 class XpWikiFunc extends XpWikiXoopsWrapper {
 
@@ -1909,6 +1909,12 @@ EOD;
 		$navigator = $this->root->mydirname . '_navigator';
 		$cssprefix = $this->root->css_prefix ? 'pre=' . rawurlencode($this->root->css_prefix) . '&amp;' : '';
 
+		// Set Ktai renderer's option.
+		if (defined('HYP_K_TAI_RENDER') && HYP_K_TAI_RENDER) {
+			$keitai_render =& HypKTaiRender::getSingleton();
+			$keitai_render->Config_googleAdSenseConfig = '';
+		}
+
 		header('Content-Type: text/html; charset=' . $this->cont['CONTENT_CHARSET']);
 		// HTML DTD, <html>, and receive content-type
 		if (isset($this->root->pkwk_dtd)) {
@@ -1927,7 +1933,7 @@ $head_pre_tag
 $head_tag
 <title></title>
 </head>
-<body class="popup_body">
+<body class="popup_body_{$this->cont['UA_PROFILE']}">
 <div class="{$class}" id="{$navigator}">
 <div class="body"><div id="xpwiki_body">
 $body

@@ -1,6 +1,6 @@
 <?php
 // PukiWiki - Yet another WikiWikiWeb clone.
-// $Id: lng.php,v 1.26 2011/06/01 06:27:51 nao-pon Exp $
+// $Id: lng.php,v 1.27 2011/09/26 12:06:26 nao-pon Exp $
 // Copyright (C)
 //   2002-2005 PukiWiki Developers Team
 //   2001-2002 Originally written by yu-ji
@@ -292,6 +292,7 @@ $root->_attach_messages = array(
 	'msg_noupload' => 'Cannot upload any files to $1.',
 	'msg_show_all_pages' => 'Display on all pages',
 	'msg_page_select' => 'Select a page',
+	'msg_send_mms' => 'Send by MMS Mail',
 );
 
 ///////////////////////////////////////

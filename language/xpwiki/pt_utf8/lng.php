@@ -1,6 +1,6 @@
 <?php
 // PukiWiki - Yet another WikiWikiWeb clone.
-// $Id: lng.php,v 1.3 2011/09/17 02:41:36 nao-pon Exp $
+// $Id: lng.php,v 1.4 2011/09/26 12:06:26 nao-pon Exp $
 // Copyright (C)
 //   2002-2005 PukiWiki Developers Team
 //   2001-2002 Originally written by yu-ji
@@ -286,6 +286,7 @@ $root->_attach_messages = array(
 	'msg_select_useful' => 'Páginas para remessa',
 	'msg_select_manyitems' => 'Páginas com muitos arquivos',
 	'msg_noupload' => 'Não foi posspivel enviar alguns arquivos para $1.',
+	'msg_send_mms' => 'Send by MMS Mail',
 );
 
 ///////////////////////////////////////

@@ -1,7 +1,7 @@
 <?php
 /*
  * Created on 2008/03/24 by nao-pon http://hypweb.net/
- * $Id: attach.php,v 1.32 2011/09/09 07:30:22 nao-pon Exp $
+ * $Id: attach.php,v 1.33 2011/09/26 12:06:25 nao-pon Exp $
  */
 
 //-------- епеще╣
@@ -258,7 +258,7 @@ class XpWikiAttachFile
 		if ($showinfo) {
 			$_title = str_replace('$1',rawurlencode($this->file),$this->root->_attach_messages['msg_info']);
 			if (isset($this->root->vars['popup']) && $this->root->vars['cmd'] !== 'read') {
-				$info = '[ &build_js(refInsert,"'.str_replace('|', '&#124;', htmlspecialchars($this->file, ENT_QUOTES)).'",'.$this->type.'); ]';
+				$info = '&build_js(refInsert,"'.str_replace('|', '&#124;', htmlspecialchars($this->file, ENT_QUOTES)).'",'.$this->type.');';
 			} else {
 				if ($mode == "imglist") {
 					$info = "[ [[{$this->root->_attach_messages['btn_info']}:{$this->root->script}?plugin=attach&pcmd=info".str_replace("&amp;","&", ($param . $param2))."]] ]";
@@ -1045,14 +1045,14 @@ class XpWikiAttachFiles
 					if ($now == $i)
 						$navi[] = "<b>$i</b>";
 					else
-						$navi[] = "<a href=\"".$url.($i - 1) * $this->max."\">$i</a>";
+						$navi[] = "<a href=\"".$url.($i - 1) * $this->max."\"><span class=\"button\">$i</span></a>";
 				}
-				$navi = join(' | ',$navi);
+				$navi = join(' ',$navi);
 
 				$prev = max(0,$now - 1);
 				$next = $now;
-				$prev = ($prev)? "<a href=\"".$url.($prev - 1) * $this->max."\" title=\"Prev\"> <img src=\"{$this->cont['LOADER_URL']}?src=prev.png\" width=\"6\" height=\"12\" alt=\"Prev\"> </a>|" : "";
-				$next = ($next < $total)? "|<a href=\"".$url.$next * $this->max."\" title=\"Next\"> <img src=\"{$this->cont['LOADER_URL']}?src=next.png\" width=\"6\" height=\"12\" alt=\"Next\"> </a>" : "";
+				$prev = ($prev)? "<a href=\"".$url.($prev - 1) * $this->max."\" title=\"Prev\"><span class=\"button\"> <img src=\"{$this->cont['LOADER_URL']}?src=prev.png\" width=\"6\" height=\"12\" alt=\"Prev\"> </span></a>" : "";
+				$next = ($next < $total)? "<a href=\"".$url.$next * $this->max."\" title=\"Next\"><span class=\"button\"> <img src=\"{$this->cont['LOADER_URL']}?src=next.png\" width=\"6\" height=\"12\" alt=\"Next\"> </span></a>" : "";
 
 				$navi = "<div class=\"page_navi\">| $navi |<br />[{$prev} $_start - $_end / ".$this->count." files {$next}]<br />{$sort_time}{$sort_name}{$mode_tag}</div>";
 			}
@@ -1433,7 +1433,15 @@ EOD;
 		foreach($hiddens as $key=> $val) {
 			$hidden .= sprintf('<input type="hidden" name="%s" value="%s" />', $key, $val);
 		}
-		$search = ($flat)? '' : '<div><form method="get" action="' . $this->root->script . '"><img src="' . $this->cont['LOADER_URL'] . '?src=find.png" alt="Search" /> <input size="15" type="text" name="word" value="' . $sword  . '" /><input type="submit" value="' . $this->root->_btn_search . '" />' . $hidden . '</form></div>';
+		if ($flat) {
+			$search = '';
+		} else {
+			if ($this->cont['UA_PROFILE'] === 'mobile') {
+				$search = '<div><form method="get" action="' . $this->root->script . '"><input type="search" name="word" value="' . $sword  . '" />' . $hidden . '</form></div>';
+			} else {
+				$search = '<div><form method="get" action="' . $this->root->script . '"><img src="' . $this->cont['LOADER_URL'] . '?src=find.png" alt="Search" /> <input size="15" type="search" name="word" value="' . $sword  . '" /><input data-inline="true" type="submit" value="' . $this->root->_btn_search . '" />' . $hidden . '</form></div>';
+			}
+		}
 
 		if ($page !== '')
 		{
@@ -1441,7 +1449,7 @@ EOD;
 			{
 				return '';
 			}
-			return $select_js  . $otherDir . $search . $select . $this->pages[$page]->toString($flat,FALSE,$this->mode);
+			return '<div class="attach_list">' . $select_js  . $otherDir . $select . $search . $this->pages[$page]->toString($flat,FALSE,$this->mode) . '</div>';
 		}
 
 		if ($otherprams) {
@@ -1470,13 +1478,13 @@ EOD;
 			if ($now == $i)
 				$navi[] = "<b>$i</b>";
 			else
-				$navi[] = "<a href=\"".$url.($i - 1) * $this->max."\">$i</a>";
+				$navi[] = "<a href=\"".$url.($i - 1) * $this->max."\"><span class=\"button\">$i</span></a>";
 		}
-		$navi = join(' | ',$navi);
+		$navi = join(' ',$navi);
 		$prev = max(0,$now - 1);
 		$next = $now;
-		$prev = ($prev)? "<a href=\"".$url.($prev - 1) * $this->max."\" title=\"Prev\"> <img src=\"{$this->cont['LOADER_URL']}?src=prev.png\" width=\"6\" height=\"12\" alt=\"Prev\"> </a>|" : "";
-		$next = ($next < $total)? "|<a href=\"".$url.$next * $this->max."\" title=\"Next\"> <img src=\"{$this->cont['LOADER_URL']}?src=next.png\" width=\"6\" height=\"12\" alt=\"Next\"> </a>" : "";
+		$prev = ($prev)? "<a href=\"".$url.($prev - 1) * $this->max."\" title=\"Prev\"><span class=\"button\"> <img src=\"{$this->cont['LOADER_URL']}?src=prev.png\" width=\"6\" height=\"12\" alt=\"Prev\"> </span></a>" : "";
+		$next = ($next < $total)? "<a href=\"".$url.$next * $this->max."\" title=\"Next\"><span class=\"button\"> <img src=\"{$this->cont['LOADER_URL']}?src=next.png\" width=\"6\" height=\"12\" alt=\"Next\"> </span></a>" : "";
 		$navi = "<div class=\"page_navi\">| $navi |<br />[{$prev} $_start - $_end / ".$this->count." pages {$next}]<br />{$sort_time}{$sort_name}{$mode_tag}</div>";
 
 		$ret = "";
@@ -1490,9 +1498,10 @@ EOD;
 			$navi = '';
 		}
 
-		return "\n$select_js$otherDir$search$select$navi".($navi? "<hr />":"")."\n$ret\n".($navi? "<hr />":"")."$navi\n";
+		return "\n<div class=\"attach_list\">$select_js$otherDir$select$search$navi".($navi? "<hr />":"")."\n$ret\n".($navi? "<hr />":"")."$navi</div>\n";
 
 	}
+
 }
 
 ?>
