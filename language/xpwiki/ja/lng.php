@@ -1,6 +1,6 @@
 <?php
 // PukiWiki - Yet another WikiWikiWeb clone.
-// $Id: lng.php,v 1.26 2011/06/01 06:27:52 nao-pon Exp $
+// $Id: lng.php,v 1.27 2011/09/26 12:06:26 nao-pon Exp $
 // Copyright (C)
 //   2002-2005 PukiWiki Developers Team
 //   2001-2002 Originally written by yu-ji
@@ -293,6 +293,7 @@ $root->_attach_messages = array(
 	'msg_noupload' => '$1 へファイルをアップロードする権限がありません。',
 	'msg_show_all_pages' => 'すべてのページから表示',
 	'msg_page_select' => 'ページを選択',
+	'msg_send_mms' => 'MMS でメール送信',
 );
 
 ///////////////////////////////////////
