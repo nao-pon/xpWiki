@@ -22,7 +22,7 @@ if( ! $use_custom_icon && function_exists( 'imagecreatefrompng' ) && function_ex
 
 } else {
 
-	readfile( $icon_fullpath ) ;
+	@readfile( $icon_fullpath ) ;
 
 }
 

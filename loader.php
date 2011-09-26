@@ -1,7 +1,7 @@
 <?php
 //
 // Created on 2006/10/25 by nao-pon http://hypweb.net/
-// $Id: loader.php,v 1.65 2011/07/29 07:14:25 nao-pon Exp $
+// $Id: loader.php,v 1.66 2011/09/26 11:53:11 nao-pon Exp $
 //
 
 ignore_user_abort(FALSE);
@@ -572,7 +572,7 @@ function loader_readfile($file, $use_content_encoding = FALSE) {
 			return;
 		}
 	}
-	readfile($file);
+	@readfile($file);
 	return;
 }
 ?>
