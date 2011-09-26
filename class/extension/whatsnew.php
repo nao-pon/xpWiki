@@ -1,7 +1,7 @@
 <?php
 //
 // Created on 2006/10/29 by nao-pon http://hypweb.net/
-// $Id: whatsnew.php,v 1.16 2011/06/01 06:27:52 nao-pon Exp $
+// $Id: whatsnew.php,v 1.17 2011/09/26 12:03:58 nao-pon Exp $
 //
 
 class XpWikiExtension_whatsnew extends XpWikiExtension {
@@ -48,20 +48,14 @@ class XpWikiExtension_whatsnew extends XpWikiExtension {
 			$ret[$i]['time']  = $localtime;
 
 			// 指定ページの本文などを取得
-			//$page = new XpWiki($this->root->mydirname);
-			$page = & XpWiki::getSingleton($this->root->mydirname);
-			$page->init($base);
-			$page->root->rtf['use_cache_always'] = TRUE;
-			$page->execute();
-			$pginfo = $page->get_pginfo();
+			$pginfo = $this->func->get_pginfo($base);
+			$description = $this->func->cache_get_db($this->func->get_pgid_by_name($base), 'core:description');
 
-			$ret[$i]['description'] = strip_tags(($added ? $added . '&#182;' : '') .$page->body);
-			$ret[$i]['hits']        = $page->get_page_views();
-			$ret[$i]['replies']     = $page->get_comment_count();
+			$ret[$i]['description'] = strip_tags(($added ? $added . '&#182;' : '') . $description);
+			$ret[$i]['hits']        = $this->func->get_page_views($base);
+			$ret[$i]['replies']     = $this->func->count_page_comments($base);
 			$ret[$i]['uid']         = $pginfo['lastuid'];
 			$ret[$i]['guest_name']  = $pginfo['lastuname'];
-
-			//$ret[$i]['description'] = $this->func->get_plain_text_db($base);
 
 			$i++;
 		}
