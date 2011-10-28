@@ -18,7 +18,7 @@ function wikihelper_pos(){
 		if (et == "submit") wikihelper_elem = null;
 		return;
 	}
-	
+
 	//wikihelper_elem = document.activeElement;
 }
 
@@ -29,7 +29,7 @@ function wikihwlper_caretPos() {
 }
 
 function wikihelper_eclr(){
-	wikihelper_elem = NULL;
+	wikihelper_elem = null;
 }
 
 function wikihelper_ins(v)
@@ -37,9 +37,9 @@ function wikihelper_ins(v)
 	if(!wikihelper_elem)
 	{
 		alert(wikihelper_msg_elem);
-		return;	
+		return;
 	}
-	
+
 	if (v == "&(){};")
 	{
 		inp = prompt(wikihelper_msg_inline1, '');
@@ -68,10 +68,10 @@ function wikihelper_ins(v)
 		} else if (inp.match(/[\d]{1,3}/)) {
 			size = inp.replace(/([\d]{1,3})/, ",mw:$1,mh:$1");
 		}
-		
+
 		v = "&ref(UNQ_" + xpwiki_getDateStr() + size + ");";
 	}
-	
+
 	wikihelper_elem.caretPos.text = v;
 	wikihelper_elem.focus();
 }
@@ -82,14 +82,14 @@ function wikihelper_face(v)
 	{
 		alert(wikihelper_msg_elem);
 		wikihelper_elem.focus();
-		return;	
+		return;
 	}
-	
+
 	if (wikihelper_elem.caretPos.offsetLeft == wikihelper_elem.createTextRange().offsetLeft)
 		wikihelper_elem.caretPos.text = '&nbsp; ' + v + ' ';
 	else
 		wikihelper_elem.caretPos.text = ' ' + v + ' ';
-	
+
 	wikihelper_elem.focus();
 }
 
@@ -99,9 +99,9 @@ function wikihelper_tag(v)
 	{
 		alert(wikihelper_msg_elem);
 		wikihelper_elem.focus();
-		return;	
+		return;
 	}
-	
+
 	var str = wikihelper_elem.caretPos.text;
 	if (!str)
 	{
@@ -109,9 +109,9 @@ function wikihelper_tag(v)
 		wikihelper_elem.focus();
 		return;
 	}
-	
+
 	if (! (str = wikihelper_tagset(str, v))) return;
-	
+
 	wikihelper_elem.caretPos.text = str;
 	wikihelper_elem.focus();
 }
@@ -122,7 +122,7 @@ function wikihelper_linkPrompt(v)
 	{
 		alert(wikihelper_msg_elem);
 		wikihelper_elem.focus();
-		return;	
+		return;
 	}
 
 	var str = document.selection.createRange().text;
@@ -153,7 +153,7 @@ function wikihelper_charcode()
 	{
 		alert(wikihelper_msg_elem);
 		wikihelper_elem.focus();
-		return;	
+		return;
 	}
 
 	var str = document.selection.createRange().text;
@@ -163,11 +163,11 @@ function wikihelper_charcode()
 		wikihelper_elem.focus();
 		return;
 	}
-	
+
 	var j ="";
 	for(var n = 0; n < str.length; n++) j += ("&#"+(str.charCodeAt(n))+";");
 	str = j;
-		
+
 	document.selection.createRange().text = str;
 	wikihelper_elem.focus();
 }
@@ -175,6 +175,6 @@ function wikihelper_charcode()
 function wikihelper_show_hint()
 {
 	alert(wikihelper_msg_winie_hint_text);
-	
+
 	if (wikihelper_elem != null) wikihelper_elem.focus();
 }
