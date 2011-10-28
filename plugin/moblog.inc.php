@@ -1,5 +1,5 @@
 <?php
-// $Id: moblog.inc.php,v 1.20 2011/09/26 12:06:26 nao-pon Exp $
+// $Id: moblog.inc.php,v 1.21 2011/10/28 13:50:33 nao-pon Exp $
 // Author: nao-pon http://hypweb.net/
 // Bace script is pop.php of mailbbs by Let's PHP!
 // Let's PHP! Web: http://php.s3.to/
@@ -326,29 +326,14 @@ class xpwiki_plugin_moblog extends xpwiki_plugin {
 						HypCommonFunc::loadClass('MobilePictogramConverter');
 					}
 					$mpc =& MobilePictogramConverter::factory_common();
+				} else {
+					$mpc = null;
 				}
 
 				// 改行文字削除
 				$subject = str_replace(array("\r","\n"),"",$subreg[1]);
-				// エンコード文字間の空白を削除
-				$subject = preg_replace("/\?=[\s]+?=\?/","?==?",$subject);
-				$regs = array();
-				$_charset = 'AUTO';
-				while (preg_match("#(.*)=\?([^\?]+)\?B\?([^\?]+)\?=(.*)#i",$subject,$regs)) {//MIME B
-					$_charset = $regs[2];
-					$p_subject = base64_decode($regs[3]);
-					if (isset($mpc)) {
-						$p_subject = $mpc->mail2ModKtai($p_subject, $from, $_charset);
-					}
-					$subject = $regs[1].$p_subject.$regs[4];
-				}
-				$regs = array();
-				while (preg_match("#(.*)=\?[^\?]+\?Q\?([^\?]+)\?=(.*)#i",$subject,$regs)) {//MIME Q
-					$subject = $regs[1].quoted_printable_decode($regs[2]).$regs[3];
-				}
 
-				$subject = trim($subject);
-				$subject = trim(mb_convert_encoding($subject,$this->cont['SOURCE_ENCODING'], $_charset));
+				$subject = $this->mime_decode($subject, $mpc, $from);
 
 				// ^\*\d+ 認証キー抽出
 				$_reg = '/^\*(\d+)/i';
@@ -614,12 +599,7 @@ class xpwiki_plugin_moblog extends xpwiki_plugin {
 						$filereg = array();
 						if (preg_match("#name=\"?([^\"\n]+)\"?#i",$m_head, $filereg)) {
 							$filename = trim($filereg[1]);
-							// エンコード文字間の空白を削除
-							$filename = preg_replace("/\?=[\s]+?=\?/","?==?",$filename);
-							while (preg_match("#(.*)=\?iso-[^\?]+\?B\?([^\?]+)\?=(.*)#i",$filename,$regs)) {//MIME B
-								$filename = $regs[1].base64_decode($regs[2]).$regs[3];
-							}
-							$filename = mb_convert_encoding($filename, $this->cont['SOURCE_ENCODING'], 'AUTO');
+							$filename = $this->mime_decode($filename);
 						}
 						// 添付データをデコードして保存
 						if (preg_match("#^Content-Transfer-Encoding:.*base64#im", $m_head) && preg_match('#'.$subtype.'#i', $sub)) {
@@ -692,9 +672,9 @@ class xpwiki_plugin_moblog extends xpwiki_plugin {
 	}
 
 	function plugin_moblog_convert() {
-		$host = (string)$this->config['host'];
-		$user = (string)$this->config['user'];
-		$pass = (string)$this->config['pass'];
+		if (isset($this->config['host'])) $host = (string)$this->config['host'];
+		if (isset($this->config['user'])) $user = (string)$this->config['user'];
+		if (isset($this->config['pass'])) $pass = (string)$this->config['pass'];
 		foreach(array('host', 'user', 'pass') as $key) {
 			$_key = 'moblog_pop_' . $key;
 			if (! empty($this->root->$_key)) {
@@ -1022,7 +1002,9 @@ class xpwiki_plugin_moblog extends xpwiki_plugin {
 
 	// ヘッダと本文を分割する
 	function plugin_moblog_mime_split($data) {
-		$part = split("\r\n\r\n", $data, 2);
+		// 改行コード正規化
+		$data = preg_replace("/(\x0D\x0A|\x0D|\x0A)/","\r\n",$data);
+		$part = explode("\r\n\r\n", $data, 2);
 		$part[0] = preg_replace("/\r\n[\t ]+/", " ", $part[0]);
 		return $part;
 	}
@@ -1034,6 +1016,28 @@ class xpwiki_plugin_moblog extends xpwiki_plugin {
 		} else {
 			return $addr;
 		}
+	}
+
+	function mime_decode($str, $mpc = null, $from_addr = null) {
+		// エンコード文字間の空白を削除
+		$str = preg_replace('/\?=[\s]+?=\?/', '?==?', $str);
+
+		$regs = array();
+		$_charset = 'AUTO';
+		while (preg_match('#(.*?)=\?([^\?]+?)\?([BQ])\?([^\?]+?)\?=(.*?)#',$str,$regs)) {//MIME B, Q
+			$_charset = $regs[2];
+			if ($regs[3] === 'B') {
+				$p_subject = base64_decode($regs[4]);
+			} else {
+				$p_subject = quoted_printable_decode($regs[4]);
+			}
+			if ($from_addr && is_object($mpc)) {
+				$p_subject = $mpc->mail2ModKtai($p_subject, $from_addr, $_charset);
+			}
+			$str = $regs[1].$p_subject.$regs[5];
+		}
+		$str = trim(mb_convert_encoding($str, $this->cont['SOURCE_ENCODING'], $_charset));
+		return $str;
 	}
 
 	function getExifGeo($file){
