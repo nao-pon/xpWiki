@@ -1,6 +1,6 @@
 <?php
 // PukiWiki - Yet another WikiWikiWeb clone
-// $Id: rss.inc.php,v 1.37 2011/07/29 07:14:25 nao-pon Exp $
+// $Id: rss.inc.php,v 1.38 2011/10/28 13:43:49 nao-pon Exp $
 //
 // RSS plugin: Publishing RSS of RecentChanges
 //
@@ -111,14 +111,14 @@ class xpwiki_plugin_rss extends xpwiki_plugin {
 		// キャッシュファイル名
 		$c_file = $this->cont['CACHE_DIR'] . 'plugin/' . md5($version.$base.$count.$uid.$this->cont['ROOT_URL']) . $this->cont['UI_LANG'] . '.rss';
 
-		// 念のためバッファをクリア
-		$this->func->clear_output_buffer();
-
 		if (!$cache_clear && file_exists($c_file)) {
 			$filetime = filemtime($c_file);
 			$etag = md5($c_file.$filetime);
 
 			if ($etag === @$_SERVER["HTTP_IF_NONE_MATCH"] && $this->cont['UA_PROFILE'] !== 'keitai') {
+				// バッファをクリア
+				$this->func->clear_output_buffer();
+
 				header( "HTTP/1.1 304 Not Modified" );
 				header( "Etag: ". $etag );
 				header('Cache-Control: private');
@@ -375,6 +375,7 @@ EOD;
 				break;
 			}
 			$out = mb_convert_encoding(ob_get_contents(), 'UTF-8', $this->cont['CONTENT_CHARSET']);
+
 			ob_end_clean();
 
 			// NULLバイト除去
@@ -394,7 +395,7 @@ EOD;
 			$etag = md5($c_file.$filetime);
 		}
 
-		if ($this->cont['UA_PROFILE'] === 'keitai' || (defined('HYP_K_TAI_RENDER') && HYP_K_TAI_RENDER)) {
+		if ($this->cont['UA_PROFILE'] === 'keitai' || (defined('HYP_K_TAI_RENDER') && HYP_K_TAI_RENDER < 2)) {
 			HypCommonFunc::loadClass('HypRss2Html');
 			$r = new HypRss2Html($out);
 			$out = $r->getHtml();
@@ -435,6 +436,9 @@ EOD;
 
 			$r->doOptimize();
 			$out = $r->outputBody;
+
+			// バッファをクリア
+			$this->func->clear_output_buffer();
 
 			header('Content-Type: text/html; charset=Shift_JIS');
 			header('Content-Length: ' . strlen($out));
