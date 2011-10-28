@@ -38,7 +38,8 @@ CREATE TABLE `count` (
   `today_count` int(11) NOT NULL default '0',
   `yesterday_count` int(11) NOT NULL default '0',
   `ip` varchar(15) NOT NULL default '',
-  PRIMARY KEY  (`pgid`)
+  PRIMARY KEY  (`pgid`),
+  KEY `today` (`today`)
 ) TYPE=MyISAM;
 
 CREATE TABLE `pginfo` (
@@ -73,7 +74,8 @@ CREATE TABLE `pginfo` (
   KEY `egids` (`egids`),
   KEY `vgids` (`vgids`),
   KEY `eaids` (`eaids`(255)),
-  KEY `vaids` (`vaids`(255))
+  KEY `vaids` (`vaids`(255)),
+  KEY `vids` (`vaids`(200),`vgids`(133))
 ) TYPE=MyISAM;
 
 CREATE TABLE `plain` (
