@@ -487,7 +487,7 @@ EOD;
 		}
 		$pukiwikiname = $options['mapname'];
 		$output .= <<<EOD
-<div id="$mapname" style="width: $width; height: $height;"></div>
+<div id="$mapname" class="maxwidth_none" style="width: $width; height: $height;"></div>
 EOD;
 		if ($wikitag !== 'none') {
 			if ($wikitag === 'show') {
