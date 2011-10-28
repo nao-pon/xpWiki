@@ -1,12 +1,13 @@
 <?php
 /*
  * Created on 2009/11/19 by nao-pon http://xoops.hypweb.net/
- * $Id: xmlrpc.inc.php,v 1.5 2011/08/30 02:24:47 nao-pon Exp $
+ * $Id: xmlrpc.inc.php,v 1.6 2011/10/28 13:38:20 nao-pon Exp $
  */
 
 class xpwiki_plugin_xmlrpc extends xpwiki_plugin {
 
 	var $op_debug = false;
+	var $flickrApiKey = '';
 
 	function plugin_xmlrpc_init() {
 
@@ -17,6 +18,9 @@ class xpwiki_plugin_xmlrpc extends xpwiki_plugin {
 
 		$this->config['br2lf'] = 1;
 		$this->config['striptags'] = 1;
+
+		// Flickr API Key
+		$this->flickrApiKey = '';
 
 		// refプラグインの追加オプション
 		$this->config['ref'] = ',left,around,mw:320,mh:320';
@@ -244,6 +248,10 @@ EOD;
 			$content = '';
 		}
 
+		if (! isset($content['mt_keywords'])) {
+			$content['mt_keywords'] = '';
+		}
+
 		$userinfo = $this->user_auth($uname, $pass);
 
 		$res = '';
@@ -259,14 +267,14 @@ EOD;
 				if (is_string($content)) {
 					$content['description'] = $content;
 				}
-				$subject = isset($content['title'])? $this->toInEnc($content['title']) : '';
+				$subject = isset($content['title'])? trim($this->toInEnc($content['title'])) : '';
 
 				// タグの抽出
 				$_reg = '/#([^#]*)/';
 				if (preg_match($_reg, $subject, $match)) {
 					$_tag = trim($match[1]);
 					if ($_tag) {
-						if (! empty($content['mt_keywords'])) {
+						if (! $content['mt_keywords']) {
 							$content['mt_keywords'] = $_tag;
 						} else {
 							$content['mt_keywords'] = $this->toInEnc($content['mt_keywords']);
@@ -310,6 +318,30 @@ EOD;
 							$set_data = preg_replace('/<img[^>]+?src=["\']([^"\'> ]+)[^>]*?>/i', "\n\n#ref($1".$this->config['ref'].");\n\n", $set_data);
 							$set_data = strip_tags($set_data);
 							$set_data = $this->func->unhtmlspecialchars($set_data);
+						}
+
+						if (strpos($set_data, '// flickr description')) {
+							// change image size 500 to 1024
+							$set_data = preg_replace('#(http://farm\d+\.static\.flickr\.com/\d+/\d+_[a-f0-9]+)\.jpg#', '$1_b.jpg', $set_data);
+
+							// get description
+							if (preg_match('#// *flickr description start(.+?)// *flickr description end#is', $set_data, $_match)) {
+								$description = trim($_match[1]);
+								$id = '';
+								if (preg_match('#http://farm\d+\.static\.flickr\.com/\d+/(\d+)_#', $set_data, $_match)) {
+									$id = $_match[1];
+								}
+								if ($id && (!$description || $description === $subject)) {
+									if ($description = $this->getDescriptionFromFlickr($id)) {
+										$set_data = preg_replace('#// *flickr description start.+?// *flickr description end#is', $description, $set_data);
+									}
+								}
+							}
+
+							//get tag
+							if ($tags = $this->getTagsFromFlickr($id)) {
+								$content['mt_keywords'] .= ($content['mt_keywords']? ',' : '') . join(',', $tags);
+							}
 						}
 
 						$set_data .= "\n#clear\n";
@@ -603,6 +635,47 @@ EOD;
 
 	function toInEnc($str) {
 		return mb_convert_encoding($str, $this->cont['SOURCE_ENCODING'], 'UTF-8');
+	}
+
+	function getDescriptionFromFlickr($id) {
+		if ($data = $this->getInfoFromFlickr($id)) {
+			if ($data['stat'] === 'ok') {
+				return $this->toInEnc($data['photo']['description']['_content']);
+			}
+		}
+		return '';
+	}
+
+	function getTagsFromFlickr($id) {
+		$tags = array();
+		if ($data = $this->getInfoFromFlickr($id)) {
+			if ($data['stat'] === 'ok') {
+				if (! empty($data['photo']['tags']['tag'])) {
+					foreach($data['photo']['tags']['tag'] as $tagArg) {
+						if (! $tagArg['machine_tag']) {
+							$tags[] =  $this->toInEnc($tagArg['raw']);
+						}
+					}
+				}
+			}
+		}
+		return $tags;
+	}
+
+	function getInfoFromFlickr($id) {
+		static $rets = array();
+		if (isset($rets[$id])) {
+			return $rets[$id];
+		}
+		$ret[$id] = false;
+		if ($this->flickrApiKey) {
+			$url = 'http://api.flickr.com/services/rest/?method=flickr.photos.getInfo&api_key='.$this->flickrApiKey.'&photo_id='.$id.'&format=php_serial';
+			$res = $this->func->http_request($url);
+			if ($res['rc'] == 200) {
+				$ret[$id] = @ unserialize($res['data']);
+			}
+		}
+		return $ret[$id];
 	}
 }
 
