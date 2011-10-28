@@ -1,6 +1,6 @@
 <?php
 // PukiWiki - Yet another WikiWikiWeb clone
-// $Id: comment.inc.php,v 1.11 2009/06/26 00:33:34 nao-pon Exp $
+// $Id: comment.inc.php,v 1.12 2011/10/28 13:52:37 nao-pon Exp $
 // Copyright (C)
 //   2002-2005 PukiWiki Developers Team
 //   2001-2002 Originally written by yu-ji
@@ -11,17 +11,17 @@ class xpwiki_plugin_comment extends xpwiki_plugin {
 
 
 		// Comment plugin
-	
+
 		$this->cont['PLUGIN_COMMENT_DIRECTION_DEFAULT'] =  '1'; // 1: above 0: below
 		$this->cont['PLUGIN_COMMENT_SIZE_MSG'] =   70;
 		$this->cont['PLUGIN_COMMENT_SIZE_NAME'] =  15;
-	
+
 		// ----
 		$this->cont['PLUGIN_COMMENT_FORMAT_MSG'] =   '$msg';
 		$this->cont['PLUGIN_COMMENT_FORMAT_NAME'] =  '[[$name]]';
 		$this->cont['PLUGIN_COMMENT_FORMAT_NOW'] =   '&new{$now};';
 		$this->cont['PLUGIN_COMMENT_FORMAT_STRING'] =  "\x08MSG\x08 -- \x08NAME\x08 \x08NOW\x08";
-		
+
 		$this->options = array(
 			'auth'   => FALSE,
 			'noname' => FALSE,
@@ -34,13 +34,13 @@ class xpwiki_plugin_comment extends xpwiki_plugin {
 			'noemoji'=> FALSE,
 		);
 	}
-	
+
 	function plugin_comment_action()
 	{
 		if ($this->cont['PKWK_READONLY']) $this->func->die_message('PKWK_READONLY prohibits editing');
-	
+
 		if (! isset($this->root->vars['msg'])) return array('msg'=>'', 'body'=>''); // Do nothing
-	
+
 		$this->root->vars['msg'] = str_replace(array("\r\n", "\r", "\n"), '&br;', rtrim($this->root->vars['msg'])); // LFs
 		$head = '';
 		$match = array();
@@ -49,7 +49,7 @@ class xpwiki_plugin_comment extends xpwiki_plugin {
 			$this->root->vars['msg'] = & $match[2];
 		}
 		if ($this->root->vars['msg'] == '') return array('msg'=>'', 'body'=>''); // Do nothing
-	
+
 		$comment  = str_replace('$msg', $this->root->vars['msg'], $this->cont['PLUGIN_COMMENT_FORMAT_MSG']);
 		if(isset($this->root->vars['name']) || ($this->root->vars['nodate'] != '1')) {
 			$_name = (! isset($this->root->vars['name']) || $this->root->vars['name'] == '') ? $this->root->_no_name : $this->root->vars['name'];
@@ -63,11 +63,11 @@ class xpwiki_plugin_comment extends xpwiki_plugin {
 			$comment = str_replace("\x08NOW\x08",  $_now,  $comment);
 		}
 		$comment = '-' . $head . ' ' . $comment;
-	
+
 		$postdata    = '';
 		$comment_no  = 0;
 		$above       = (isset($this->root->vars['above']) && $this->root->vars['above'] == '1');
-		
+
 		$postdata_old = $this->func->get_source($this->root->vars['refer']);
 		$this->func->escape_multiline_pre($postdata_old, TRUE);
 		foreach ($postdata_old as $line) {
@@ -84,45 +84,45 @@ class xpwiki_plugin_comment extends xpwiki_plugin {
 			}
 			if ($above) $postdata .= $line;
 		}
-	
+
 		$title = $this->root->_title_updated;
 		$body = '';
 		if ($this->func->get_digests($this->func->get_source($this->root->vars['refer'], TRUE, TRUE)) !== $this->root->vars['digest']) {
 			$title = $this->root->_title_comment_collided;
 			$body  = $this->root->_msg_comment_collided . $this->func->make_pagelink($this->root->vars['refer']);
 		}
-		
+
 		$this->func->escape_multiline_pre($postdata, FALSE);
 		$this->func->page_write($this->root->vars['refer'], $postdata);
-	
+
 		$retvars['msg']  = $title;
 		$retvars['body'] = $body;
-	
+
 		$this->root->vars['page'] = $this->root->vars['refer'];
-	
+
 		return $retvars;
 	}
-	
+
 	function plugin_comment_convert()
 	{
 		static $numbers = array();
 		if (!isset($numbers[$this->xpwiki->pid])) {$numbers[$this->xpwiki->pid] = array();}
-	
+
 		if ($this->cont['PKWK_READONLY']) return ''; // Show nothing
-	
+
 		if (! isset($numbers[$this->xpwiki->pid][$this->root->vars['page']])) $numbers[$this->xpwiki->pid][$this->root->vars['page']] = 0;
 		$comment_no = $numbers[$this->xpwiki->pid][$this->root->vars['page']]++;
-		
+
 		$domid = $this->get_domid('msg', true);
-			
+
 		$args = func_num_args() ? func_get_args() : array();
-		
+
 		$options = $this->options;
 		$this->fetch_options ($options, $args);
 		if ($options['auth'] && ! $this->func->check_editable($this->root->vars['page'], FALSE, FALSE)) {
 			return '';
 		}
-		
+
 		if ($options['noname']) {
 			$nametags = '<label for="'. $domid . '">' .
 			$this->root->_msg_comment . '</label>';
@@ -137,13 +137,14 @@ class xpwiki_plugin_comment extends xpwiki_plugin {
 		$above  = $options['above']? '1' :
 			($options['below']? '0' : $this->cont['PLUGIN_COMMENT_DIRECTION_DEFAULT']);
 		$cols = max(10, min(80, intval($options['cols'])));
-		
+
 		if ($options['multi']) $rows = max(1, min(20, intval($options['multi'])));
-		$tArea = $options['multi']? 
+		$tArea = $options['multi']?
 			'<textarea name="msg" id="'.$domid.'" class="norich" style="display:inline;" cols="'.($cols * 0.8).'" rows="'.$rows.'"></textarea>'
 			: '<input type="text"   name="msg" rel="wikihelper" id="'.$domid.'" size="'.$cols.'" />';
-		$emojipad = (! $options['emoji'] || $options['noemoji'])? '' : '<div style="margin-left:10em;">' . $this->func->get_emoji_pad($domid, FALSE) . '</div>';
-		
+		$emoji_style = ($this->cont['UA_PROFILE'] === 'mobile')? '' : ' style="margin-left:10em;"';
+		$emojipad = (! $options['emoji'] || $options['noemoji'])? '' : '<div'.$emoji_style.'>' . $this->func->get_emoji_pad($domid, FALSE) . '</div>';
+
 		$script = $this->func->get_script_uri();
 		$s_page = htmlspecialchars($this->root->vars['page']);
 		$string = <<<EOD
@@ -163,7 +164,7 @@ class xpwiki_plugin_comment extends xpwiki_plugin {
  </div>
 </form>
 EOD;
-	
+
 		return $string;
 	}
 }
