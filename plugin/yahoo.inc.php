@@ -1,7 +1,7 @@
 <?php
 class xpwiki_plugin_yahoo extends xpwiki_plugin {
 	// PukiWiki - Yet another WikiWikiWeb clone.
-	// $Id: yahoo.inc.php,v 1.9 2011/09/17 07:21:06 nao-pon Exp $
+	// $Id: yahoo.inc.php,v 1.10 2011/10/28 13:33:11 nao-pon Exp $
 	/////////////////////////////////////////////////
 
 	// #yahoo([Format Filename],[Mode],[Key Word],[Node Number],[Sort Mode])
@@ -93,7 +93,8 @@ class xpwiki_plugin_yahoo extends xpwiki_plugin {
 <a href="http://developer.yahoo.co.jp/about" target="'.$this->root->link_target.'"><img src="http://i.yimg.jp/images/yjdn/yjdn_attbtn2_105_17.gif" width="105" height="17" title="'.$this->msg['msg_websvc'].' by Yahoo! JAPAN" alt="'.$this->msg['msg_websvc'].' by Yahoo! JAPAN" border="0" style="margin:15px 15px 15px 15px"></a>
 <!-- End Yahoo! JAPAN Web Services Attribution Snippet -->';
 
-		return "<div class='pwm_yahoo'>{$ret}</div>{$cr}{$more}{$youtube}";
+		$this->func->add_tag_head('yahoo.css');
+		return "<div class='yahoo'>{$ret}</div>{$cr}{$more}{$youtube}";
 
 	}
 
@@ -108,6 +109,9 @@ class xpwiki_plugin_yahoo extends xpwiki_plugin {
 
 			// キャッシュ保存
 			if ($html) {
+				if ($html === $this->msg['err_badres']) {
+					$ttl = 3600; // 1h
+				}
 				$this->func->cache_save_db($html, 'yahoo', $ttl, $key);
 			}
 
@@ -125,6 +129,9 @@ class xpwiki_plugin_yahoo extends xpwiki_plugin {
 
 		if ($this->root->yahoo_application_id) {
 			$this->appid = $this->root->yahoo_application_id;
+		}
+		if ($this->root->yahoo_app_upgrade_id) {
+			$this->appid_upg = $this->root->yahoo_app_upgrade_id;
 		}
 
 		$qs = htmlspecialchars($query);
