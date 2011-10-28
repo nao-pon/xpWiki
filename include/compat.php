@@ -1,8 +1,12 @@
 <?php
 //
 // Created on 2006/10/16 by nao-pon http://hypweb.net/
-// $Id: compat.php,v 1.12 2011/09/17 07:44:04 nao-pon Exp $
+// $Id: compat.php,v 1.13 2011/10/28 13:17:29 nao-pon Exp $
 //
+
+// const
+if (! defined('FILE_APPEND')) define('FILE_APPEND', 8);
+if (! defined('FILE_USE_INCLUDE_PATH')) define('FILE_USE_INCLUDE_PATH', 1);
 
 //// mbstring ////
 if (! extension_loaded('mbstring') && ! XC_CLASS_EXISTS('HypMBString')) {
@@ -90,7 +94,7 @@ function file_get_contents($filename, $incpath = false, $resource_context = null
  * @copyright   2004-2007 Aidan Lister <aidan@php.net>, Arpad Ray <arpad@php.net>
  * @link        http://php.net/function.file_put_contents
  * @author      Aidan Lister <aidan@php.net>
- * @version     $Revision: 1.12 $
+ * @version     $Revision: 1.13 $
  * @internal    resource_context is not supported
  * @since       PHP 5
  * @require     PHP 4.0.0 (user_error)
