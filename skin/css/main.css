@@ -26,6 +26,11 @@ $class blockquote {
 	border: 1px dotted gray;
 	margin-left: 32px;
 }
+
+$class .maxwidth_none img {
+	max-width: none;
+}
+
 /* for render mode on XOOPS */
 $class div.xoopsQuote blockquote {
 	border: none;
@@ -154,6 +159,39 @@ $class div.level5 div.level6 {
 	margin-left: 1em;
 }
 
+$class_mobile div.level1 {}
+$class_mobile div.level2 {}
+$class_mobile div.level3 {
+	margin-left: 0em;
+}
+$class_mobile div.level4 {
+	margin-left: .2em;
+}
+$class_mobile div.level3 div.level4 {
+	margin-left: 0em;
+}
+$class_mobile div.level5 {
+	margin-left: .4em;
+}
+$class_mobile div.level3 div.level5 {
+	margin-left: .2em;
+}
+$class_mobile div.level4 div.level5 {
+	margin-left: 0em;
+}
+$class_mobile div.level6 {
+	margin-left: .6em;
+}
+$class_mobile div.level3 div.level6 {
+	margin-left: .4em;
+}
+$class_mobile div.level4 div.level6 {
+	margin-left: 0em;
+}
+$class_mobile div.level5 div.level6 {
+	margin-left: 0em;
+}
+
 $class .highlight {
 	background-color: #ffe4e1;
 }
@@ -277,6 +315,10 @@ $class div.contents {
 	margin: 0px 0px 5px 20px;
 	padding: 5px;
 }
+$class_mobile div.contents {
+	float: none;
+	width: auto;
+}
 $class div.contents span.toc_open,
 $class div.contents span.toc_close {
 	border: 0.4em solid #F5F5F5;
@@ -332,6 +374,10 @@ $class div.contents ol.list1 {
 	margin-bottom: 0;
 }
 
+body.popup_body_default $class div.contents {
+	min-width: 30%;
+	width: auto;
+}
 
 /* Pre base */
 $class div.pre {
@@ -823,6 +869,14 @@ $class span.button:hover {
 }
 $class span.button a {
 	color: black;
+	font-weight: normal;
+	background-color: transparent;
+}
+$class_mobile span.button {
+	padding: 5px 10px;
+}
+$class_mobile span.button:hover {
+	padding: 4px 9px;
 }
 
 $class td.menubar {
