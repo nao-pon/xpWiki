@@ -1,7 +1,7 @@
 <?php
 /*
  * Created on 2008/01/24 by nao-pon http://hypweb.net/
- * $Id: user_pref.inc.php,v 1.4 2010/06/23 08:02:52 nao-pon Exp $
+ * $Id: user_pref.inc.php,v 1.5 2011/10/28 13:42:42 nao-pon Exp $
  */
 
 class xpwiki_plugin_user_pref extends xpwiki_plugin {
@@ -41,7 +41,7 @@ class xpwiki_plugin_user_pref extends xpwiki_plugin {
 			),
 
 			'moblog_auth_code' => array(
-				'type' => 'integer',
+				'type' => 'integer!0',
 				'form' => 'text,size="10"',
 			),
 
@@ -306,7 +306,7 @@ EOD;
 					case 'text':
 					default:
 						$style = '';
-						if ($conf['type'] === 'integer') {
+						if ($conf['type'] === 'integer' || $conf['type'] === 'integer!0') {
 							$style = ' style="text-align:right;"';
 						}
 						$form = '<input type="text" name="'.$name4disp.'" value="'.$value4disp.'" '.$attr.$style.' />';
@@ -384,6 +384,10 @@ EOD;
 		switch($this->user_pref[$key]['type']){
 			case 'integer' :
 				$val = intval($val);
+				break;
+			case 'integer!0' :
+				$val = intval($val);
+				if (! $val) $val = '';
 				break;
 			case 'string' :
 			default :
