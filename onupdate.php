@@ -122,12 +122,22 @@ function xpwiki_onupdate_base( $module , $mydirname )
 		               'egids' => '',
 		               'vgids' => '',
 		               'eaids' => '(255)',
-		               'vaids' => '(255)' );
+		               'vaids' => '(255)',
+		               'vids' => array('vaids' => '(200)', 'vgids' => '(133)') );
         while($arr = $db->fetchArray($result)) {
         	unset($keys[$arr['Key_name']]);
         }
         foreach ($keys as $_key => $_val) {
-        	$query = 'ALTER TABLE `' . $table . '` ADD INDEX(`'.$_key.'`'.$_val.')';
+        	if (is_array($_val)) {
+        		$_index = array();
+        		foreach($_val as $__key => $__val) {
+        			$_index[] = '`'.$__key.'`'.$__val;
+        		}
+        		$_index = join(', ', $_index);
+        	} else {
+        		$_index = '`'.$_key.'`'.$_val;
+        	}
+        	$query = 'ALTER TABLE `' . $table . '` ADD INDEX `'.$_key.'`('.$_index.')';
         	$db->query($query);
         	//$msgs[] = $query;
         }
@@ -153,6 +163,18 @@ function xpwiki_onupdate_base( $module , $mydirname )
 				//$msgs[] = $query;
 			}
         	$query = 'ALTER TABLE `' . $table . '` ADD PRIMARY KEY(`pgid`,`relid`)';
+        	$db->query($query);
+        	//$msgs[] = $query;
+        }
+    }
+	$table = $db->prefix($mydirname.'_count');
+    if ($result = $db->query('SHOW INDEX FROM `' . $table . '`')) {
+        $keys = array( 'today' => '' );
+        while($arr = $db->fetchArray($result)) {
+        	unset($keys[$arr['Key_name']]);
+        }
+        foreach ($keys as $_key => $_val) {
+        	$query = 'ALTER TABLE `' . $table . '` ADD INDEX(`'.$_key.'`'.$_val.')';
         	$db->query($query);
         	//$msgs[] = $query;
         }
