@@ -95,7 +95,7 @@ function wikihelper_show_fontset_img()
 
 		src = document.createElement('div');
 		src.innerHTML = map;
-		src.zIndex = 1000;
+		src.zIndex = Math.max(1000, XpWiki.iframeLargestZIndex);
 		if (! Prototype.Browser.IE) {
 			src.observe('mouseover', function(){wikihelper_mouseover = true;});
 			src.observe('mouseout', function(){wikihelper_mouseover = false;});
@@ -367,6 +367,10 @@ function wikihelper_setActive(elem, istimer)
 				oElement.style.visibility = "hidden";
 			}
 		}
+
+		if (XpWiki.useJQueryMobile) {
+			jQuery('iframe.youtube-player').css('visibility', 'hidden');
+		}
 	}
 }
 
@@ -395,6 +399,9 @@ function wikihelper_hide_helper(time) {
 				oElement = oElements[i];
 				oElement.style.visibility = "";
 			}
+		}
+		if (XpWiki.useJQueryMobile) {
+			jQuery('iframe.youtube-player').css('visibility', '');
 		}
 	}
 }
@@ -438,7 +445,7 @@ function xpwiki_now_loading(mode, id) {
 			objBack.id = 'xpwiki_loading';
 			objBack.style.display = 'none';
 			objBack.style.position = 'absolute';
-			objBack.style.zIndex = '1000';
+			objBack.style.zIndex = Math.max(1000, XpWiki.iframeLargestZIndex);
 			var txtBox = document.createElement("div");
 			txtBox.innerHTML = 'Now loading...';
 			txtBox.setAttribute('id', 'xpwiki_loading_text');

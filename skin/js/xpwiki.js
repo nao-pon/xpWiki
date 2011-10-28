@@ -93,6 +93,8 @@ var XpWiki = {
 		if (this.useJQueryMobile && !!$('xpwiki_preview_area')) {
 			$('xpwiki_preview_area').style.maxHeight = 'none';
 		}
+
+		this.iframeLargestZIndex = this.getLargestZIndex('iframe');
 	},
 
 	initPopupDiv: function (arg) {
@@ -625,26 +627,28 @@ var XpWiki = {
 		var tocId = 0;
 		var tocCond = this.cookieLoad('_xwtoc');
 
-		if (this.isIE6) {
-			var x = document.evaluate('descendant::div[contains(@class,"pre")]', target, null, 6, null);
-		} else {
-			var x = document.evaluate('descendant::div[contains(@class,"pre")][ancestor::td]', target, null, 6, null);
-		}
-		var n = 0;
-		for (var i = 0; i < x.snapshotLength; i++) {
-			var obj = x.snapshotItem(i);
-			var overflow = (obj.style.overflow || obj.style.overflowX);
-			if (overflow.toUpperCase() == 'AUTO') {
-				if (obj.offsetParent) {
-					obj.style.width = '500px';
-					pres.push(obj);
+		if (! this.useJQueryMobile) {
+			if (this.isIE6) {
+				var x = document.evaluate('descendant::div[contains(@class,"pre")]', target, null, 6, null);
+			} else {
+				var x = document.evaluate('descendant::div[contains(@class,"pre")][ancestor::td]', target, null, 6, null);
+			}
+			var n = 0;
+			for (var i = 0; i < x.snapshotLength; i++) {
+				var obj = x.snapshotItem(i);
+				var overflow = (obj.style.overflow || obj.style.overflowX);
+				if (overflow.toUpperCase() == 'AUTO') {
+					if (obj.offsetParent) {
+						obj.style.width = '500px';
+						pres.push(obj);
+					}
 				}
 			}
-		}
-		for (var i=0; i<pres.length; i++) {
-			var width = pres[i].offsetParent.offsetWidth - pres[i].offsetLeft - 30;
-			if (width > 0) {
-				pres[i].style.width = width + 'px';
+			for (var i=0; i<pres.length; i++) {
+				var width = pres[i].offsetParent.offsetWidth - pres[i].offsetLeft - 30;
+				if (width > 0) {
+					pres[i].style.width = width + 'px';
+				}
 			}
 		}
 
@@ -744,7 +748,7 @@ var XpWiki = {
 		base.className = base.className + ' contentsFixed';
 		base.style.left = (pos[0] + offset[0] - (document.documentElement.scrollLeft || document.body.scrollLeft || 0))+ 'px';
 		base.style.top = (pos[1] + offset[1] - (document.documentElement.scrollTop || document.body.scrollTop || 0)) + 'px';
-		base.style.zIndex = '1000';
+		base.style.zIndex = Math.max(1000, this.iframeLargestZIndex);
 		base.style.right = '';
 		base.style.bottom = '';
 		base.style.padding = '0';
@@ -929,8 +933,8 @@ var XpWiki = {
 			$('XpWikiPopupBody').src = url;
 			this.PopupBodyUrl = url;
 
-			var zindex = this.getLargestZIndex('iframe') + 1;
-			this.PopupDiv.style.zIndex = Math.max(this.PopupDiv.style.zIndex, zindex);
+			//var zindex = this.getLargestZIndex('iframe') + 1;
+			this.PopupDiv.style.zIndex = Math.max(this.PopupDiv.style.zIndex, this.getLargestZIndex('iframe') + 1);
 
 			if (this.useJQueryMobile) {
 				Element.setStyle(this.PopupDiv,{
