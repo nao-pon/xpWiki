@@ -1,6 +1,6 @@
 <?php
 // PukiWiki - Yet another WikiWikiWeb clone
-// $Id: pukiwiki.ini.php,v 1.110 2011/09/17 07:45:30 nao-pon Exp $
+// $Id: pukiwiki.ini.php,v 1.111 2011/10/28 13:47:19 nao-pon Exp $
 // Copyright (C)
 //   2002-2006 PukiWiki Developers Team
 //   2001-2002 Originally written by yu-ji
@@ -164,7 +164,7 @@ $const['PLUGIN_REF_NETVIDEOS']['niconico'] = array(
 $const['PLUGIN_REF_NETVIDEOS']['youtube'] = array(
 	'regex'     => '#^http://www\.youtube\.com/watch\?.*?v=([0-9a-z_-]+)#i',
 	'type'      => 'html',
-	'src'       => '<iframe class="youtube-player" type="text/html"$size src="http://www.youtube.com/embed/$1?wmode=transparent" frameborder="0"><noiframe>$link</noiframe></iframe>',
+	'src'       => '<iframe class="youtube-player" type="text/html"$size src="http://www.youtube.com/embed/$1?wmode=transparent&amp;autohide=1" frameborder="0"><noiframe>$link</noiframe></iframe>',
 	'src_keitai'=> '$link',
 	'width'     => 480,
 	'height'    => 270,
@@ -1065,6 +1065,7 @@ $root->bitly_clickable = 0;
 $root->twitter_consumer_key = '';
 $root->twitter_consumer_secret = '';
 $root->yahoo_application_id = '';
+$root->yahoo_app_upgrade_id = '';
 
 $root->pginfo = array(
 	'uid'       => 0,     // UserID
