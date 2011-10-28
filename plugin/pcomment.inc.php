@@ -1,6 +1,6 @@
 <?php
 // PukiWiki - Yet another WikiWikiWeb clone
-// $Id: pcomment.inc.php,v 1.25 2011/09/09 07:38:17 nao-pon Exp $
+// $Id: pcomment.inc.php,v 1.26 2011/10/28 13:52:37 nao-pon Exp $
 //
 // pcomment plugin - Show/Insert comments into specified (another) page
 //
@@ -206,7 +206,8 @@ EOD;
 			$comment = $params['multi']? '<textarea name="msg" id="' . $domid . '" class="norich" style="display:inline;" cols="' . ($cols * 0.8) . '" rows="' . $rows . '"></textarea>'
 					: '<input type="text" name="msg" id="' . $domid . '" rel="wikihelper" size="' . $cols . '" />';
 
-			$emojipad = (! $params['emoji'] || $params['noemoji'])? '' : '<div style="margin-left:13em;">' . $this->func->get_emoji_pad($domid, FALSE) . '</div>';
+			$emoji_style = ($this->cont['UA_PROFILE'] === 'mobile')? '' : ' style="margin-left:13em;"';
+			$emojipad = (! $params['emoji'] || $params['noemoji'])? '' : '<div'.$emoji_style.'>' . $this->func->get_emoji_pad($domid, FALSE) . '</div>';
 
 			$twitter = $twitter_note = $twitter_disabled = $twitter_checked = '';
 			if ($params['twitter']) {

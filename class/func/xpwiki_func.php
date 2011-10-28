@@ -1,7 +1,7 @@
 <?php
 //
 // Created on 2006/10/02 by nao-pon http://hypweb.net/
-// $Id: xpwiki_func.php,v 1.240 2011/09/26 12:06:26 nao-pon Exp $
+// $Id: xpwiki_func.php,v 1.241 2011/10/28 13:55:10 nao-pon Exp $
 //
 class XpWikiFunc extends XpWikiXoopsWrapper {
 
@@ -693,6 +693,31 @@ class XpWikiFunc extends XpWikiXoopsWrapper {
 		//$this->root->head_pre_tags = $this->root->head_tags = array();
 
 		return array($head_pre_tag, $head_tag);
+	}
+
+	function set_hyp_preload_head_tag($tag) {
+
+		static $tags = array();
+
+		if (! isset($GLOBALS['hyp_preload_head_tag'])) return false;
+
+		if (preg_match_all('#<([a-zA-Z]+).+?/\\1>|<[^>]+?>#s', $tag, $match, PREG_PATTERN_ORDER)) {
+			$instags = array();
+			foreach($match[0] as $ins) {
+				$ins = str_replace($this->cont['MY_HOST_URL'], '', $ins);
+				if (! isset($tags[$ins])) {
+					$tags[$ins] = true;
+					$instags[] = $ins;
+				}
+			}
+			if ($instags) {
+				$instags = "\n" . join("\n", $instags);
+				$GLOBALS['hyp_preload_head_tag'] .= $instags;
+			}
+		}
+
+		return true;
+
 	}
 
 	// ページ情報を得る
@@ -1842,6 +1867,13 @@ class XpWikiFunc extends XpWikiXoopsWrapper {
 
 	function send_xml ($res, $encode = 'UTF-8', $version = '1.0') {
 		error_reporting(0);
+
+		if ($this->cont['UA_PROFILE'] == 'mobile') {
+			// For jQuery mobile
+			$res = str_replace('<a', '<a data-ajax="false"', $res);
+			$res = str_replace('<form', '<form data-ajax="false"', $res);
+		}
+
 		if (strtoupper($encode) === 'UTF-8' && strtoupper($this->cont['SOURCE_ENCODING']) === 'ISO-8859-1') {
 			$res = utf8_encode($res);
 		} else {
@@ -1989,8 +2021,8 @@ EOD;
 		if ($ua) {
 			$d->ua = $ua;
 		} else {
-			$d->ua = 'User-Agent: Mozilla/5.0 (xpWiki fetcher/1.0 ; PlugIn-'.end($this->root->plugin_stack).'; '.$this->cont['MODULE_URL'].$this->root->mydirname.'/)';
-			file_put_contents($this->cont['TRUST_PATH'].'/cache/xpwiki.debug.txt', $d->ua."\n".$url."\n", FILE_APPEND);
+			$d->ua = 'User-Agent: Mozilla/5.0 (xpWiki fetcher/1.0; PlugIn-'.end($this->root->plugin_stack).'; '.$this->cont['MODULE_URL'].$this->root->mydirname.'/)';
+			//file_put_contents($this->cont['TRUST_PATH'].'/cache/xpwiki.debug.txt', $d->ua."\n".$url."\n", FILE_APPEND);
 		}
 
 		if (empty($d->iniLoaded)) {
