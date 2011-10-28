@@ -1,7 +1,7 @@
 <?php
 //
 // Created on 2006/09/29 by nao-pon http://hypweb.net/
-// $Id: xpwiki.php,v 1.99 2011/08/30 02:42:07 nao-pon Exp $
+// $Id: xpwiki.php,v 1.100 2011/10/28 13:55:57 nao-pon Exp $
 //
 
 class XpWiki {
@@ -464,7 +464,7 @@ class XpWiki {
 		$css_tag = ($css_tag)? '<link rel="stylesheet" type="text/css" media="all" href="' . $this->cont['LOADER_URL'] . '?charset=' . $this->cont['CSS_CHARSET'] . '&amp;skin=' . $this->cont['SKIN_NAME'] . '&amp;b=1&amp;' . $cssprefix . 'src=' . $css_tag . '" charset="' . $this->cont['CSS_CHARSET'] . '" />'
 		             : '';
 		$block = <<<EOD
-<div class="{$div_class}" style="width:{$width};overflow:hidden;">
+<div class="{$div_class} {$div_class}_{$this->cont['UA_PROFILE']}" style="width:{$width};overflow:hidden;">
 {$this->body}
 </div>
 EOD;
@@ -577,7 +577,13 @@ EOD;
 			$cssbase = 'r_'.$cssbase;
 			$cssprefix = $this->root->css_prefix ? 'pre=' . rawurlencode($this->root->css_prefix) . '&amp;' : '';
 			$csstag = '<link rel="stylesheet" type="text/css" media="all" href="'.$this->cont['LOADER_URL'].'?charset='.$this->cont['CSS_CHARSET'].'&amp;skin='.$this->cont['SKIN_NAME'].'&amp;r=1&amp;'.$cssprefix.'src=' . $this->root->main_css . '" charset="' . $this->cont['CSS_CHARSET'] . '" />';
-			$text = '<div class="xpwiki_'.$cssbase.'">'."\n".$text."\n".'</div>';
+			$text = '<div class="xpwiki_'.$cssbase.' xpwiki_'.$cssbase.'_'.$this->cont['UA_PROFILE'].'">'."\n".$text."\n".'</div>';
+		}
+
+		if (isset($GLOBALS['hyp_preload_head_tag'])) {
+			if ($this->func->set_hyp_preload_head_tag($head_pre_tag.$csstag.$head_tag)) {
+				return $text;
+			}
 		}
 
 		return preg_replace("/\n{2,}/", "\n", $head_pre_tag.$csstag.$head_tag) . $text;
