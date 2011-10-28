@@ -1,7 +1,7 @@
 <?php
 /*
  * Created on 2008/01/24 by nao-pon http://hypweb.net/
- * $Id: conf.inc.php,v 1.24 2011/07/03 04:50:50 nao-pon Exp $
+ * $Id: conf.inc.php,v 1.25 2011/10/28 13:53:03 nao-pon Exp $
  */
 
 class xpwiki_plugin_conf extends xpwiki_plugin {
@@ -265,6 +265,11 @@ class xpwiki_plugin_conf extends xpwiki_plugin {
 				'form' => 'text,size="55"',
 			),
 			'yahoo_application_id' => array(
+				'kind' => 'root',
+				'type' => 'string',
+				'form' => 'text,size="60"',
+			),
+			'yahoo_app_upgrade_id' => array(
 				'kind' => 'root',
 				'type' => 'string',
 				'form' => 'text,size="60"',
