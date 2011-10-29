@@ -1,6 +1,6 @@
 <?php
 // PukiWiki - Yet another WikiWikiWeb clone
-// $Id: rss.inc.php,v 1.38 2011/10/28 13:43:49 nao-pon Exp $
+// $Id: rss.inc.php,v 1.39 2011/10/29 08:17:04 nao-pon Exp $
 //
 // RSS plugin: Publishing RSS of RecentChanges
 //
@@ -395,7 +395,7 @@ EOD;
 			$etag = md5($c_file.$filetime);
 		}
 
-		if ($this->cont['UA_PROFILE'] === 'keitai' || (defined('HYP_K_TAI_RENDER') && HYP_K_TAI_RENDER < 2)) {
+		if ($this->cont['UA_PROFILE'] === 'keitai' || (defined('HYP_K_TAI_RENDER') && HYP_K_TAI_RENDER === 1)) {
 			HypCommonFunc::loadClass('HypRss2Html');
 			$r = new HypRss2Html($out);
 			$out = $r->getHtml();
