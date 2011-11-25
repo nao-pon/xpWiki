@@ -1,5 +1,5 @@
 <?php
-// $Id: block.inc.php,v 1.9 2011/11/25 08:24:35 nao-pon Exp $
+// $Id: block.inc.php,v 1.10 2011/11/25 15:55:35 nao-pon Exp $
 
 /*
  * countdown.inc.php
@@ -120,24 +120,27 @@ class xpwiki_plugin_block extends xpwiki_plugin {
 			if (strpos($height,'%')) $height = '';
 		}
 
-		if (preg_match('/^[\d]+%?$/',$fontsize))
+		$unit = '%|em|px|mm|cm|in|pt|pc|ex';
+		if (preg_match('/^([\d.]+)('.$unit.')?/',$fontsize,$match))
 		{
-			$fontsize = (!strstr($fontsize,'%'))? $fontsize.'px' : $fontsize;
+			if (empty($match[2])) $match[2] = 'px';
+			$fontsize = $match[1] . $match[2];
 			$_style .= 'font-size:'.$fontsize.';';
 		}
 
-		$match = array();
 		$set_width = false;
-		if (preg_match('/^([\d]+%?)(px)?$/i',$width,$match))
+		if (preg_match('/^([\d.]+)('.$unit.')?$/',$width,$match))
 		{
-			$width = (!strstr($match[1],'%'))? $match[1].'px' : $match[1];
+			if (empty($match[2])) $match[2] = 'px';
+			$width = $match[1] . $match[2];
 			$_style .= 'width:'.$width.';';
 			$set_width = true;
 		}
 
-		if (preg_match('/^([\d]+%?)(px)?$/i',$height,$match))
+		if (preg_match('/^([\d.]+)('.$unit.')?$/',$height,$match))
 		{
-			$height = (!strstr($match[1],'%'))? $match[1].'px' : $match[1];
+			if (empty($match[2])) $match[2] = 'px';
+			$height = $match[1] . $match[2];
 			$_style .= 'height:'.$height.';';
 		}
 
