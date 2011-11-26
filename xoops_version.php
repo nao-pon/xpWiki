@@ -2,9 +2,9 @@
 
 $_parentdirname = dirname(__FILE__);
 // language file (modinfo.php)
-if( file_exists( $_parentdirname.'/language/'.@$xoopsConfig['language'].'/modinfo.php' ) ) {
+if( is_file( $_parentdirname.'/language/'.@$xoopsConfig['language'].'/modinfo.php' ) ) {
 	include $_parentdirname.'/language/'.@$xoopsConfig['language'].'/modinfo.php' ;
-} else if( file_exists( $_parentdirname.'/language/english/modinfo.php' ) ) {
+} else if( is_file( $_parentdirname.'/language/english/modinfo.php' ) ) {
 	include $_parentdirname.'/language/english/modinfo.php' ;
 }
 $constpref = '_MI_' . strtoupper( $mydirname ) ;
