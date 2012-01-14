@@ -986,6 +986,15 @@ var XpWiki = {
 		}
 	},
 
+	fireImageManager: function(jsCode) {
+		if (!wikihelper_elem) {
+			alert(wikihelper_msg_elem);
+			return false;
+		}
+		jsCode = jsCode.replace('[TARGET]', wikihelper_elem.id);
+		eval(jsCode);
+	},
+
 	refInsert: function(file, type) {
 		if (!wikihelper_elem) {
 			alert(wikihelper_msg_elem);

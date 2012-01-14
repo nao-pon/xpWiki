@@ -1,6 +1,6 @@
 <?php
 // PukiWiki - Yet another WikiWikiWeb clone
-// $Id: pukiwiki.ini.php,v 1.117 2012/01/14 03:34:28 nao-pon Exp $
+// $Id: pukiwiki.ini.php,v 1.118 2012/01/14 11:56:35 nao-pon Exp $
 // Copyright (C)
 //   2002-2006 PukiWiki Developers Team
 //   2001-2002 Originally written by yu-ji
@@ -413,6 +413,10 @@ $root->note_popup_position = array(
 	'width'  => '40%',
 	'height' => '300px'
 );
+
+// str_rules extensions (join with ',')
+// "bbcode_image" is auto load when "root->use_root_image_manager = 1"
+$root->rules_extentions = '';
 
 /////////////////////////////////////////////////
 // Always output "nofollow,noindex" attribute
@@ -1017,6 +1021,7 @@ $root->skin_navigator_disabled = '';
 $const['SKIN_CHANGER'] = 1;
 $root->referer = 0;
 $root->allow_pagecomment = 1;
+$root->use_root_image_manager = 0;
 $root->use_title_make_search = 0;
 $root->nowikiname = 0;
 $root->relative_path_bracketname = 'remove'; //'remove', 'full', 'as is'
