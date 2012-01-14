@@ -1,6 +1,6 @@
 <?php
 // PukiWiki - Yet another WikiWikiWeb clone
-// $Id: pukiwiki.ini.php,v 1.116 2011/12/31 16:11:43 nao-pon Exp $
+// $Id: pukiwiki.ini.php,v 1.117 2012/01/14 03:34:28 nao-pon Exp $
 // Copyright (C)
 //   2002-2006 PukiWiki Developers Team
 //   2001-2002 Originally written by yu-ji
@@ -254,6 +254,13 @@ $const['OPEN_MEDIA_REFCHECK'] = 1;
 //   RewriteRule ^ref/([^/]+)/([^/]+)$ gate.php?way=ref&_nodos&_noumb&page=$1&src=$2 [L]
 $const['PLUGIN_REF_SHORTURL'] = 0;
 
+// ref でのファイルダウンロードリンクにShortUrl を使用する
+// .htaccess での設定が必要
+//   RewriteEngine on
+//   RewriteRule ^ref([01])/([^/]+)/([^/]+)$ gate.php?way=attach&_noumb&ni=$1&refer=$2&openfile=$3 [L]
+$const['PLUGIN_ATTACH_SHORTURL'] = 0;
+
+
 // PKWK_QUERY_STRING_MAX
 //   Max length of GET method, prohibits some worm attack ASAP
 //   NOTE: Keep (page-name + attach-file-name) <= PKWK_QUERY_STRING_MAX
@@ -289,6 +296,13 @@ $root->description_discovery_ignores_inline = 'calendar2,subnote,edit,tag';
 // ignore block plugin (split with ',')
 $root->description_discovery_ignores_block = 'back,calendar,calendar2,calendar9,chat,code,footnotes,navi,tag';
 
+// description length
+// for cache
+$root->description_max_length_save = 500;
+// for RSS
+$root->description_max_length_rss = 250;
+// for <head> meta
+$root->description_max_length_meta = 120;
 
 /////////////////////////////////////////////////
 // UI LANG Auto Discovery
