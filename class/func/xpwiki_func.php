@@ -1,7 +1,7 @@
 <?php
 //
 // Created on 2006/10/02 by nao-pon http://hypweb.net/
-// $Id: xpwiki_func.php,v 1.249 2012/01/14 03:39:51 nao-pon Exp $
+// $Id: xpwiki_func.php,v 1.250 2012/01/14 11:56:35 nao-pon Exp $
 //
 class XpWikiFunc extends XpWikiXoopsWrapper {
 
@@ -2988,6 +2988,11 @@ EOD;
 			}
 		}
 		return $popup_pos;
+	}
+
+	function nl2br($text, $escaped_quote = false) {
+        if ($escaped_quote) $text = str_replace('\\"', '"', $text);
+        return str_replace(array("\r\n", "\r", "\n"), '&br;', $text);
 	}
 
 	// clear output buffer
