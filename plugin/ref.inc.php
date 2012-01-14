@@ -1,5 +1,5 @@
 <?php
-// $Id: ref.inc.php,v 1.65 2012/01/14 03:34:28 nao-pon Exp $
+// $Id: ref.inc.php,v 1.66 2012/01/14 14:36:03 nao-pon Exp $
 /*
 
 	*プラグイン ref
@@ -1081,6 +1081,7 @@ _HTML_;
 		// 5:添付その他
 
 		if ($this->func->is_url($lvar['name'])) {
+			$lvar['name'] = preg_replace('#^https?:///#', $this->cont['ROOT_URL'], $lvar['name']);
 			$lvar['isurl'] = $lvar['name'];
 			// URL
 			if (! $params['noimg'] &&
