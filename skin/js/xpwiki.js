@@ -986,13 +986,15 @@ var XpWiki = {
 		}
 	},
 
-	fireImageManager: function(jsCode) {
+	fireImageManager: function(func, args, include_target_arg) {
 		if (!wikihelper_elem) {
 			alert(wikihelper_msg_elem);
 			return false;
 		}
-		jsCode = jsCode.replace('[TARGET]', wikihelper_elem.id);
-		eval(jsCode);
+		if (typeof include_target_arg == 'number') {
+			args[include_target_arg] = args[include_target_arg].replace('[TARGET]', wikihelper_elem.id);
+		}
+		func((args[0]||''),(args[1]||''),(args[2]||''),(args[3]||''),(args[4]||''),(args[5]||''));
 	},
 
 	refInsert: function(file, type) {
