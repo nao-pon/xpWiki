@@ -1,7 +1,7 @@
 <?php
 //
 // Created on 2006/10/11 by nao-pon http://hypweb.net/
-// $Id: xoops_wrapper.php,v 1.62 2012/02/19 06:57:17 nao-pon Exp $
+// $Id: xoops_wrapper.php,v 1.63 2012/02/20 01:58:24 nao-pon Exp $
 //
 class XpWikiXoopsWrapper extends XpWikiBackupFunc {
 
@@ -40,6 +40,7 @@ class XpWikiXoopsWrapper extends XpWikiBackupFunc {
 			$this->root->module['mid']   = 0;
 			$this->root->module['config'] = NULL;
 			$this->root->module['platform'] = 'standalone';
+			$this->root->module['checkRight'] = false;
 		}
 
 		$this->root->enable_pagecomment = TRUE;
