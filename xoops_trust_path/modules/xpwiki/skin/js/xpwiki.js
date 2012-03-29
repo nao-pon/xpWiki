@@ -102,7 +102,9 @@ var XpWiki = {
 		if (typeof arg == 'undefined') {
 			var arg = [];
 		}
-
+		
+		var isMobile = (navigator.userAgent.indexOf('Mobile') > 0);
+		
 		if (!$('XpWikiPopup')) {
 
 			// base
@@ -127,6 +129,10 @@ var XpWiki = {
 					top: jQuery( window ).scrollTop() + 'px',
 					left: '0'
 				});
+			} else if (isMobile) {
+				Element.setStyle(this.PopupDiv,{
+					overflow: 'auto'
+				});
 			}
 
 			// body (iframe)
@@ -148,22 +154,24 @@ var XpWiki = {
 			});
 			this.PopupDiv.appendChild(elem);
 
-			// cover for event
-			var elem = document.createElement('div');
-			elem.id = 'XpWikiPopupCover';
-			Element.setStyle(elem,{
-				position: 'absolute',
-				top: '22px',
-				left: '0px',
-				margin: '0px',
-				padding: '0px',
-				overflow: 'hidden',
-				border: 'none',
-				width: '100%',
-				height: '100%',
-				zIndex: '10000'
-			});
-			this.PopupDiv.appendChild(elem);
+			if (! isMobile && ! this.useJQueryMobile) {
+				// cover for event
+				var elem = document.createElement('div');
+				elem.id = 'XpWikiPopupCover';
+				Element.setStyle(elem,{
+					position: 'absolute',
+					top: '22px',
+					left: '0px',
+					margin: '0px',
+					padding: '0px',
+					overflow: 'hidden',
+					border: 'none',
+					width: '100%',
+					height: '100%',
+					zIndex: '10000'
+				});
+				this.PopupDiv.appendChild(elem);
+			}
 
 			// header
 			elem = document.createElement('div');
@@ -242,11 +250,13 @@ var XpWiki = {
 				$('XpWikiPopupHeaderTitle').innerHTML = this.title.replace(/(\w|&#[0-9A-Za-z]+;)/g, "$1&#8203;");
 			}.bind(this));
 
-			Element.hide('XpWikiPopupCover');
-
-			if (! this.useJQueryMobile) {
-				new Draggable(this.PopupDiv.id, {handle:'XpWikiPopupHeader', starteffect:this.dragStart, endeffect:this.dragEnd });
-				new Resizable(this.PopupDiv.id, {mode:'xy', element:'XpWikiPopupBody', starteffect:this.dragStart, endeffect:this.dragEnd });
+			if (! isMobile && ! this.useJQueryMobile) {
+				Element.hide('XpWikiPopupCover');
+	
+				if (! this.useJQueryMobile) {
+					new Draggable(this.PopupDiv.id, {handle:'XpWikiPopupHeader', starteffect:this.dragStart, endeffect:this.dragEnd });
+					new Resizable(this.PopupDiv.id, {mode:'xy', element:'XpWikiPopupBody', starteffect:this.dragStart, endeffect:this.dragEnd });
+				}
 			}
 		}
 		Element.hide(this.PopupDiv);
