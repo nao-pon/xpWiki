@@ -120,7 +120,7 @@ class XpWikiAttachFile
 				$getID3 = null;
 				unset($getID3);
 			}
-		} else if ($type === 'image' || $mime = 'application/x-shockwave-flash') {
+		} else if ($type === 'image' || $mime === 'application/x-shockwave-flash') {
 			$size = @ getimagesize($this->filename);
 			if (! $size) {
 				$size = array();
