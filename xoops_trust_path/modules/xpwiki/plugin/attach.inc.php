@@ -889,7 +889,7 @@ class xpwiki_plugin_attach extends xpwiki_plugin {
 		{
 			return $type;
 		}
-		if (is_array($imagesize))
+		if (is_array($imagesize) && !empty($imagesize[2]))
 		{
 			if (isset($imagesize['mime'])) return $imagesize['mime']; // PHP >= 4.3.0
 			switch ($imagesize[2])
@@ -903,6 +903,7 @@ class xpwiki_plugin_attach extends xpwiki_plugin {
 				case 4:
 				case 13:
 					return 'application/x-shockwave-flash';
+				default:
 			}
 		}
 
