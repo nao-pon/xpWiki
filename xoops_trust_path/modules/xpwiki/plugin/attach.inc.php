@@ -275,7 +275,8 @@ class xpwiki_plugin_attach extends xpwiki_plugin {
 					}
 					$this->output_json(0); // return success
 				}
-
+				
+				// normal upload (non d&d)
 				if (!$check) {
 					$ret = array(
 						'result' => FALSE,
@@ -305,6 +306,7 @@ class xpwiki_plugin_attach extends xpwiki_plugin {
 					}
 					if (!empty($this->root->post['returi'])) {
 						$ret['redirect'] = $this->root->siteinfo['host'].$this->root->post['returi'];
+						$this->root->viewmode = 'normal'; // for target="_top" notset popup=1 in func->redirect_header() (ex. has refid)
 					}
 					return $ret;
 				}
@@ -507,12 +509,12 @@ class xpwiki_plugin_attach extends xpwiki_plugin {
 			if (preg_match('/<(?:script|\?php)/i', $checkStr)) {
 				return array('result' => FALSE, 'msg' => 'It isn\'t a image file.');
 			}
-		}
 
-		// Flashファイルの検査
-		if ($this->cont['ATTACH_UPLOAD_FLASH_ADMIN_ONLY']) {
-			if (!$this->root->userinfo['admin'] && ($_size[2] === 4 || $_size[2] === 13)) {
-				return array('result'=>FALSE,'msg'=>$this->root->_attach_messages['err_isflash']);
+			// Flashファイルの検査
+			if ($this->cont['ATTACH_UPLOAD_FLASH_ADMIN_ONLY']) {
+				if (!$this->root->userinfo['admin'] && ($_size[2] === 4 || $_size[2] === 13)) {
+					return array('result'=>FALSE,'msg'=>$this->root->_attach_messages['err_isflash']);
+				}
 			}
 		}
 
@@ -610,6 +612,7 @@ class xpwiki_plugin_attach extends xpwiki_plugin {
 		$obj->status['admins'] = $_admins;
 		$obj->status['org_fname'] = $org_fname;
 		$obj->status['imagesize'] = $obj->getimagesize($obj->filename);
+		$obj->status['mime'] = $this->attach_mime_content_type($obj->filename, $obj->status);
 		$obj->action = $_action;
 		$obj->putstatus();
 
@@ -898,6 +901,7 @@ class xpwiki_plugin_attach extends xpwiki_plugin {
 				case 3:
 					return 'image/png';
 				case 4:
+				case 13:
 					return 'application/x-shockwave-flash';
 			}
 		}
@@ -980,7 +984,7 @@ class xpwiki_plugin_attach extends xpwiki_plugin {
 					$this->root->vars['returi'] = $_SERVER['REQUEST_URI'];
 				}
 			} else {
-				$target = ' target="top"';
+				$target = ' target="_top"';
 			}
 		}
 
