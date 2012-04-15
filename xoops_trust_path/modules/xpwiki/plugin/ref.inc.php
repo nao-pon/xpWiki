@@ -255,7 +255,7 @@ class xpwiki_plugin_ref extends xpwiki_plugin {
 			$ret = $params['_error'];
 		} else {
 			$ret = $params['_body'];
-			if ($params['_is_video']) {
+			if (! empty($params['_is_video'])) {
 				$ret = '<span class="'.$this->conf['videoWrapClass'].'">' . $ret . '</span>';
 			}
 			if ($params['caption']) {
