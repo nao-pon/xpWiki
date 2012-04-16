@@ -237,28 +237,39 @@ class xpwiki_plugin_attach extends xpwiki_plugin {
 					}
 
 					$real_size = 0;
+					$error = '';
 					if ($_file['tmp_name'] = tempnam($this->cont['CACHE_DIR'], 'atf')) {
-						if ($fp = fopen($_file['tmp_name'], 'wb')) {
-							fseek($fp, 0, SEEK_SET);
-							$input = fopen('php://input', 'rb');
-							$real_size = stream_copy_to_stream($input, $fp, $this->cont['PLUGIN_ATTACH_MAX_FILESIZE'] + 1);
-							fclose($input);
+						if ($fp = @ fopen($_file['tmp_name'], 'wb')) {
+							if ($input = @ fopen('php://input', 'rb')) {
+								rewind($fp);
+								rewind($input);
+								if (function_exists('stream_copy_to_stream')) {
+									$real_size = stream_copy_to_stream($input, $fp);
+								} else {
+									while (!feof($input)) $real_size += fwrite($fp, fread($input, 8192));
+								}
+								fclose($input);
+							}
 							fclose($fp);
 						}
-					}
-					if (! $real_size) {
-						if ($_file['tmp_name']) @ unlink($_file['tmp_name']);
-						$this->output_json('No files were uploaded.(Cache dirctory is not writable)');
-					}
-
-					if ($real_size > $this->cont['PLUGIN_ATTACH_MAX_FILESIZE']) {
-						if ($_file['tmp_name']) @ unlink($_file['tmp_name']);
-						$this->output_json($this->root->_attach_messages['err_exceed']);
+					} else {
+						$error = 'No files were uploaded.(Cache dirctory is not writable)';
 					}
 					
-					if ($_file['size'] && $real_size != $_file['size']){
+					if (!$error && !$real_size) {
+						$error = 'No files were uploaded.(Can not get input stream)';
+					}
+					
+					if (!$error && $real_size > $this->cont['PLUGIN_ATTACH_MAX_FILESIZE']) {
+						$error = $this->root->_attach_messages['err_exceed'];
+					}
+					
+					if (!$error && $_file['size'] && $real_size != $_file['size']){
+						$error = 'No files were uploaded.(Upload error)';
+					}
+					if ($error) {
 						if ($_file['tmp_name']) @ unlink($_file['tmp_name']);
-						$this->output_json('No files were uploaded.(Upload error)');
+						$this->output_json($error);
 					}
 
 					$_file['name'] = $this->root->get['qqfile'];
@@ -947,7 +958,7 @@ class xpwiki_plugin_attach extends xpwiki_plugin {
 		}
 
 		// Use fileuploader.js
-		$use_fileuploader = ($this->cont['UA_PROFILE'] === 'default' && preg_match('/firefox|chrome|safari/i', $_SERVER['HTTP_USER_AGENT']) && function_exists('stream_copy_to_stream'));
+		$use_fileuploader = ($this->cont['UA_PROFILE'] === 'default' && preg_match('/firefox|chrome|safari/i', $_SERVER['HTTP_USER_AGENT']));
 
 		if (!isset($load[$this->xpwiki->pid])) {$load[$this->xpwiki->pid] = array();}
 
