@@ -1182,10 +1182,15 @@ XpWiki.domInitFunctions.push(
 		$('{$_domid}_check').style.display = '';
 		var dropArea = uploader._find(uploader._element, 'drop');
 		var listArea = uploader._find(uploader._element, 'list');
-		qq.attach(document, 'mouseover', function(e){
-			if (dropArea.style.display != 'none') dropArea.style.display = 'none';
+		var timer;
+		qq.attach(dropArea, 'dragleave', function(e){
+			if (timer) clearTimeout(timer);
+			timer = setTimeout(function(){
+				if (dropArea.style.display != 'none') dropArea.style.display = 'none';
+			}, 500);
 		});
         qq.attach(document, 'dragenter', function(e){
+            if (timer) clearTimeout(timer);
             dropArea.style.top = Math.max(0, Event.pointerY(e) - (document.documentElement.scrollTop || document.body.scrollTop) - 65) + 'px';
         	listArea.style.top = dropArea.style.top;
         });
