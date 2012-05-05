@@ -42,7 +42,7 @@ $const['PKWK_DISABLE_INLINE_IMAGE_FROM_URI'] = 0;
 $const['SHOW_EXTIMG_BY_REF'] = TRUE;
 
 // ref で内部サイトとみなす URL の正規表現 (PCRE)
-$const['NO_REF_EXTIMG_REG'] = '#^http://[^/]+\.(?:static\.?flickr\.com|photozou\.jp)#i';
+$const['NO_REF_EXTIMG_REG'] = '#^https?://[^/]+\.(?:static\.?flickr\.com|photozou\.jp|dropbox\.com)#i';
 
 // In-line display setting of Flash file
 // The file owner is ... Disable of all: 0, Only the manager: 1, Only the registered user :2, Allow of all: 3.
