@@ -75,36 +75,38 @@ EOD;
 		);
 
 		$this->conf['options'] = array(
-			'noname'=>FALSE,
-			'nodate'=>FALSE,
-			'below' =>FALSE,
-			'above' =>FALSE,
-			'reply' =>FALSE,
-			'template' => $this->conf['TEMPLATE_DEFAULT'],
-			'cols'   => $this->conf['SIZE_MSG'],
-			'multi' =>FALSE,
-			'emoji' => TRUE,
-			'noemoji'=> FALSE,
-			'twitter'=> FALSE,
-			'_args' =>array()
+			'noname'  => FALSE,
+			'nodate'  => FALSE,
+			'below'   => FALSE,
+			'above'   => FALSE,
+			'reply'   => FALSE,
+			'template'=> $this->conf['TEMPLATE_DEFAULT'],
+			'cols'    => $this->conf['SIZE_MSG'],
+			'multi'   => FALSE,
+			'emoji'   => TRUE,
+			'noemoji' => FALSE,
+			'twitter' => FALSE,
+			'btn'     => $this->root->_pcmt_messages['btn_comment'],
+			'_args'   => array()
 		);
 	}
 
 	function xpwiki_plugin_pcomment(& $xpwiki) {
 		parent::xpwiki_plugin($xpwiki);
 		$this->conf['options_default'] = array(
-			'noname'=>FALSE,
-			'nodate'=>FALSE,
-			'below' =>FALSE,
-			'above' =>FALSE,
-			'reply' =>FALSE,
-			'template' => '',
-			'cols'   => '',
-			'multi' =>FALSE,
-			'emoji' => TRUE,
-			'noemoji'=> FALSE,
-			'twitter'=> FALSE,
-			'_args' =>array()
+			'noname'  => FALSE,
+			'nodate'  => FALSE,
+			'below'   => FALSE,
+			'above'   => FALSE,
+			'reply'   => FALSE,
+			'template'=> '',
+			'cols'    => '',
+			'multi'   => FALSE,
+			'emoji'   => TRUE,
+			'noemoji' => FALSE,
+			'twitter' => FALSE,
+			'btn'     => '',
+			'_args'   => array()
 		);
 	}
 
@@ -248,7 +250,7 @@ EOD;
   <input type="hidden" name="temp"   value="$temp" />
   $twitter
   $radio $title $name $comment
-  <input type="submit" value="{$this->root->_pcmt_messages['btn_comment']}" />
+  <input type="submit" value="{$params['btn']}" />
   $emojipad
   </div>
 EOD;
