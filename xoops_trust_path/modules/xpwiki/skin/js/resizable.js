@@ -216,7 +216,7 @@ Resizable.prototype = {
 
 			var resize = document.createElement('div');
 			resize.id = this.base.id + '_resizeX';
-			resize.className = 'resizableResizeX';
+			resize.className = 'xpwikiResizableResizeX';
 			resize.style.zIndex = this.base.style.zIndex + 1;
 			this.base.appendChild(resize);
 
@@ -238,7 +238,7 @@ Resizable.prototype = {
 			}
 			var resize = document.createElement('div');
 			resize.id = this.base.id + '_resizeY';
-			resize.className = 'resizableResizeY';
+			resize.className = 'xpwikiResizableResizeY';
 			resize.style.zIndex = this.base.style.zIndex + 1;
 			this.base.appendChild(resize);
 
@@ -255,7 +255,7 @@ Resizable.prototype = {
 			this.makeResizeBox ('y');
 			var resize = document.createElement('div');
 			resize.id = this.base.id + '_resizeXY';
-			resize.className = 'resizableResizeXY';
+			resize.className = 'xpwikiResizableResizeXY';
 			resize.style.zIndex = this.base.style.zIndex + 1;
 			this.base.appendChild(resize);
 
