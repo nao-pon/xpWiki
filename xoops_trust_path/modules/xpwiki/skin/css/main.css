@@ -3,6 +3,11 @@
 $class {
 	background-color:inherit;
 	width:100%;
+	-moz-box-sizing: border-box;
+	-webkit-box-sizing: border-box;
+	-o-box-sizing: border-box;
+	-ms-box-sizing: border-box;
+	box-sizing: border-box;
 }
 
 $class h1,
@@ -143,67 +148,67 @@ $class .nowrap {
 $class div.level1 {}
 $class div.level2 {}
 $class div.level3 {
-	margin-left: 1em;
+	padding-left: 1em;
 }
 $class div.level4 {
-	margin-left: 2em;
+	padding-left: 2em;
 }
 $class div.level3 div.level4 {
-	margin-left: 1em;
+	padding-left: 1em;
 }
 $class div.level5 {
-	margin-left: 3em;
+	padding-left: 3em;
 }
 $class div.level3 div.level5 {
-	margin-left: 2em;
+	padding-left: 2em;
 }
 $class div.level4 div.level5 {
-	margin-left: 1em;
+	padding-left: 1em;
 }
 $class div.level6 {
-	margin-left: 4em;
+	padding-left: 4em;
 }
 $class div.level3 div.level6 {
-	margin-left: 3em;
+	padding-left: 3em;
 }
 $class div.level4 div.level6 {
-	margin-left: 2em;
+	padding-left: 2em;
 }
 $class div.level5 div.level6 {
-	margin-left: 1em;
+	padding-left: 1em;
 }
 
 $class_mobile div.level1 {}
 $class_mobile div.level2 {}
 $class_mobile div.level3 {
-	margin-left: 0em;
+	padding-left: 0em;
 }
 $class_mobile div.level4 {
-	margin-left: .2em;
+	padding-left: .2em;
 }
 $class_mobile div.level3 div.level4 {
-	margin-left: 0em;
+	padding-left: 0em;
 }
 $class_mobile div.level5 {
-	margin-left: .4em;
+	padding-left: .4em;
 }
 $class_mobile div.level3 div.level5 {
-	margin-left: .2em;
+	padding-left: .2em;
 }
 $class_mobile div.level4 div.level5 {
-	margin-left: 0em;
+	padding-left: 0em;
 }
 $class_mobile div.level6 {
-	margin-left: .6em;
+	padding-left: .6em;
 }
 $class_mobile div.level3 div.level6 {
-	margin-left: .4em;
+	padding-left: .4em;
 }
 $class_mobile div.level4 div.level6 {
-	margin-left: 0em;
+	padding-left: 0em;
 }
 $class_mobile div.level5 div.level6 {
-	margin-left: 0em;
+	padding-left: 0em;
 }
 
 $class .highlight {
@@ -258,7 +263,7 @@ $class h4 {
 	-webkit-border-radius: 5px;
 	border-radius: 5px;
 	color:inherit;
-	background-color:#FFFFFF;
+	/*background-color:#FFFFFF;*/
 	padding: .3em .3em .1em .5em;
 	margin:1em 0px 1em 0px;
 	text-align: left;
