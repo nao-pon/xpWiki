@@ -1360,7 +1360,9 @@ _HTML_;
 				if ($this->root->render_mode !== 'render' && !$this->func->is_page($lvar['page'])) {
 					$params['_error'] = $this->root->_msg_notfound . '(' . htmlspecialchars($lvar['page']) .  ')';
 				} else {
-					if (strlen($lvar['name']) < 252) {
+					if ($lvar['name'] === '') {
+						$params['_error'] = 'Require File Name [ &ref(FILE NAME); or #ref(FILE NAME) ]';
+					} else if (strlen($lvar['name']) < 252) {
 						$params['_error'] = 'File not found.';
 					} else {
 						$params['_error'] = 'File name is too long.';
