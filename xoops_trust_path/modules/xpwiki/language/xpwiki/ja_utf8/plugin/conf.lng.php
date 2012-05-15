@@ -295,6 +295,11 @@ $msg = array(
 		'extention'   => '分',
 	),
 
+	'css_prefix' => array(
+		'caption'     => 'CSS セレクタ接頭子',
+		'description' => 'xpWiki で定義する各 CSS セレクタの先頭に付け加える文字<br />テーマでコンテンツを含む要素に id を振り、一意セレクタで CSS 定義をしている場合、CSS の優先順位により xpWiki の定義が効かなくなる場合にそのコンテンツを含む id の一意セレクタを指定するとその問題が解決することがあります。(例: #Container など)',
+	),
+
 	'pre_width' => array(
 		'caption'     => '&lt;pre&gt;のCSS:width指定',
 		'description' => '&lt;pre&gt;タグに指定するCSSのwidth値を指定します。',

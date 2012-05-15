@@ -299,6 +299,11 @@ $msg = array(
 		'extention'   => 'Min.',
 	),
 
+	'css_prefix' => array(
+		'caption'     => 'CSS selector prefix',
+		'description' => 'Prefix character for xpWiki\'s CSS selector. ( ex. #Container )',
+	),
+
 	'pre_width' => array(
 		'caption'     => 'CSS:Breit für &lt;pre&gt;',
 		'description' => 'Der Wert Breite im CSS ist vorgegeben für &lt;pre&gt; Kennzeichnung ist vorgeschrieben.',

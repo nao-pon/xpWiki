@@ -257,6 +257,11 @@ each use page can be provided.<br />'
 		'extention'   => 'min',
 	),
 
+	'css_prefix' => array(
+		'caption'     => 'CSS selector prefix',
+		'description' => 'Prefix character for xpWiki\'s CSS selector. ( ex. #Container )',
+	),
+
 	'pre_width' => array(
 		'caption'     => 'CSS:width of &lt;pre&gt;',
 		'description' => 'The width value of CSS specified for &lt;pre&gt; tag is specified.',

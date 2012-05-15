@@ -299,6 +299,11 @@ class xpwiki_plugin_conf extends xpwiki_plugin {
 				'type' => 'integer',
 				'form' => 'text,size="3"',
 			),
+			'css_prefix' => array(
+				'kind' => 'root',
+				'type' => 'string',
+				'form' => 'text,size="20"',
+			),
 			'pre_width' => array(
 				'kind' => 'root',
 				'type' => 'string',
