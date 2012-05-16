@@ -2869,7 +2869,7 @@ EOD;
 				if ($this->root->bitly_clickable) $this->root->bitly_clickable = $_bitly_clickable;
 			}
 
-			$msg = $this->strip_emoji($msg);
+			$msg = $this->unhtmlspecialchars($this->strip_emoji($msg));
 
 			//$msg = preg_replace('/(https?:\/\/[\w\/\@\$()!?&%#:;.,~\'=*+-]+)/ie', "\$this->bitly('$1')", $msg);
 
