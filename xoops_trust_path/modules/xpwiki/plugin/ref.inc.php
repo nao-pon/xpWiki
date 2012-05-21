@@ -513,7 +513,7 @@ class xpwiki_plugin_ref extends xpwiki_plugin {
 				$lvar['alt'] = array();
 			}
 
-			$_filename = (preg_match('/([^\/]+)$/', $lvar['status']['org_fname']? $lvar['status']['org_fname'] : $lvar['name'], $match))? $match[1] : '';
+			$_filename = (preg_match('/([^\/]+)$/', $lvar['status']['org_fname']? $lvar['status']['org_fname'] : mb_convert_encoding(rawurldecode($lvar['name']), $this->cont['SOURCE_ENCODING'], 'AUTO'), $match))? $match[1] : '';
 			if (in_array('name', $this->conf['imgTitles'])) $lvar['title'][] = $_filename;
 			if (in_array('name', $this->conf['imgAlts'])) $lvar['alt'][] = $_filename;
 
