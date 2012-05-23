@@ -693,7 +693,7 @@ var XpWiki = {
 				toc_marker.id = 'xpwiki_toc_marker' + tocId;
 				toc_marker.title = 'Toggle';
 				obj.insertBefore(toc_marker, obj.firstChild);
-				eval( 'obj.onclick = function(){ XpWiki.tocToggle("' + tocId + '"); };');
+				Event.observe(obj, 'click', function(){ XpWiki.tocToggle(this.id.replace('xpwiki_toc_header', '')); }, true);
 				this.tocSetMarker(toc_body, toc_marker);
 				if (tocCond == '+') {
 					this.tocToggle(tocId);
@@ -709,7 +709,7 @@ var XpWiki = {
 						handle.innerHTML = '<img src="' + wikihelper_root_url + '/skin/loader.php?src=minus.gif" />';
 						handle.id = 'xpwiki_toc_hd' + tocId + '_' + licnt;
 						handle.className = 'toc_handle';
-						eval( 'handle.onclick = function(){ XpWiki.listTreeToggle("' + handle.id + '"); };');
+						Event.observe(handle, 'click', function(){ XpWiki.listTreeToggle(this); }, true);
 						li.insertBefore(handle, li.firstChild);
 						li.style.listStyleType = 'none';
 						licnt++;
@@ -722,7 +722,7 @@ var XpWiki = {
 					toc_pin.id = 'xpwiki_toc_pin' + tocId;
 					toc_pin.title = 'Fix';
 					toc_body.insertBefore(toc_pin, toc_body.firstChild);
-					eval( 'toc_pin.onclick = function(e){ XpWiki.tocFix("' + tocId + '"); };');
+					Event.observe(toc_pin, 'click', function(){ XpWiki.tocFix(this.id.replace('xpwiki_toc_pin', '')); }, true);
 					obj.style.cursor = 'pointer';
 				}
 
@@ -1099,6 +1099,7 @@ var XpWiki = {
 			oFCKeditor.Config['xpWiki_myPath'] = myDir + '/';
 			oFCKeditor.Config['xpWiki_FCKxpwikiPath'] = this.FCKxpwiki_path;
 			oFCKeditor.Config['xpWiki_PageName'] = this.UploadPage;
+			oFCKeditor.Config['xpWiki_filemanagerTag'] = this.filemanagerTag.replace('cb=xpwiki', 'cb=xpwikifck').replace('openWithSelfMain', 'window.parent.window.parent.openWithSelfMain');
 
 			oFCKeditor.BasePath = this.FCKeditor_path;
 

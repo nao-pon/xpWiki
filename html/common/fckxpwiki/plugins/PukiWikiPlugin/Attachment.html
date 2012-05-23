@@ -58,7 +58,12 @@ window.onunload = function ()
 function LoadSelected()
 {
 	//GetE('height').disabled = true;
-
+		
+	if (FCKConfig['xpWiki_filemanagerTag']) {
+		window.parent.window.parent.wikihelper_elem = GetE('name');
+		GetE('imagemanager').innerHTML = FCKConfig['xpWiki_filemanagerTag'];
+	}
+	
 	if (!eSelected)
 		return ;
 
@@ -210,7 +215,7 @@ function ChangeSizeType(par) {
 				<td>
 					<table cellSpacing="0" cellPadding="2" align="center" border="0" width="100%">
 						<tr>
-							<td colspan="3" align="right"><form style="display: inline;"><input type="button" onclick="XpWiki.fileupFormPopup('fck');" value="File Browser" fckLang="AttachmentDlgBrowser"></form></td>
+							<td colspan="3" align="right"><form style="display: inline;"><span id="imagemanager" style="vertical-align:bottom;"></span> <input type="button" onclick="XpWiki.fileupFormPopup('fck');" value="File Browser" fckLang="AttachmentDlgBrowser"></form></td>
 						</tr>
 						<tr>
 							<td><span fckLang="AttachmentDlgType">Type</span>:</td>
