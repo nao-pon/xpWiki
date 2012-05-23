@@ -34,6 +34,9 @@ $class div.attach_list img {
 	max-width: 100%;
 	height: auto;
 }
+html>/**/body $class div.attach_list img { /* IE8 CSS hack */
+	max-width: none\9;
+}
 
 $class div.attach_list .readable {
 	padding-left: 18px;
