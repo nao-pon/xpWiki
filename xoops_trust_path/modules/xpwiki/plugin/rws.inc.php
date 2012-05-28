@@ -140,8 +140,8 @@ class xpwiki_plugin_rws extends xpwiki_plugin {
 				}
 				$options['sort'] = $s;
 			}
-			if ($this->options['hit'] !== false) {
-				$options['hit'] = max(1, min(30, intval($this->options['hit'])));
+			if ($this->options['hits'] !== false) {
+				$options['hits'] = max(1, min(30, intval($this->options['hits'])));
 			}
 			if ($this->options['page'] !== false) {
 				$options['page'] = max(1, min(100, intval($this->options['page'])));
