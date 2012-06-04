@@ -6,5 +6,5 @@
 
 $const['MB_LANGUAGE'] = 'Japanese';
 $const['CSS_CHARSET'] = 'Shift_JIS';
-$const['DETECT_ORDER'] = 'auto';
+$const['DETECT_ORDER'] = 'ASCII,JIS,UTF-8,eucJP-win,SJIS-win';
 ?>
