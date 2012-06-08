@@ -344,6 +344,7 @@ $class div.contents {
 	border: none;
 	margin: 0px 0px 5px 20px;
 	padding: 5px;
+	clear: both;
 }
 $class_mobile div.contents {
 	float: none;
@@ -1120,10 +1121,26 @@ $class li.navi_left {
 	float:left;
 	text-align:left;
 }
+$class li.navi_left a:first-child {
+	background: url("loader.php?src=navi_prev.png") no-repeat scroll top left transparent;
+	display: inline-block;
+	height: 24px;
+	padding-left: 34px;
+	padding-top: 10px;
+	vertical-align: middle;
+}
 $class li.navi_right {
 	display:inline;
 	float:right;
 	text-align:right;
+}
+$class li.navi_right a:first-child {
+	background: url("loader.php?src=navi_next.png") no-repeat scroll top right transparent;
+	display: inline-block;
+	height: 24px;
+	padding-right: 34px;
+	padding-top: 10px;
+	vertical-align: middle;
 }
 
 /* new.inc.php */

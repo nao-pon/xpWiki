@@ -234,9 +234,9 @@ EOD;
 			// Header
 			$ret = <<<EOD
 <ul class="navi">
- <li class="navi_left">{$navi[$this->xpwiki->pid][$key]['prev1']}</li>
- <li class="navi_right">{$navi[$this->xpwiki->pid][$key]['next1']}</li>
- <li class="navi_none">{$navi[$this->xpwiki->pid][$key]['home']}{$navi[$this->xpwiki->pid][$key]['down']}</li>
+ <li class="navi_left navi_top_left">{$navi[$this->xpwiki->pid][$key]['prev1']}</li>
+ <li class="navi_right navi_top_right">{$navi[$this->xpwiki->pid][$key]['next1']}</li>
+ <li class="navi_none navi_top_none">{$navi[$this->xpwiki->pid][$key]['home']}{$navi[$this->xpwiki->pid][$key]['down']}</li>
 </ul>
 <hr class="full_hr" />
 EOD;
@@ -245,9 +245,9 @@ EOD;
 			$ret = <<<EOD
 <hr class="full_hr" />
 <ul class="navi">
- <li class="navi_left">{$navi[$this->xpwiki->pid][$key]['prev1']}<br />{$navi[$this->xpwiki->pid][$key]['prev']}</li>
- <li class="navi_right">{$navi[$this->xpwiki->pid][$key]['next1']}<br />{$navi[$this->xpwiki->pid][$key]['next']}</li>
- <li class="navi_none">{$navi[$this->xpwiki->pid][$key]['home1']}{$navi[$this->xpwiki->pid][$key]['up']}{$navi[$this->xpwiki->pid][$key]['down1']}</li>
+ <li class="navi_left navi_bottom_left">{$navi[$this->xpwiki->pid][$key]['prev1']}<br />{$navi[$this->xpwiki->pid][$key]['prev']}</li>
+ <li class="navi_right navi_bottom_right">{$navi[$this->xpwiki->pid][$key]['next1']}<br />{$navi[$this->xpwiki->pid][$key]['next']}</li>
+ <li class="navi_none navi_bottom_none">{$navi[$this->xpwiki->pid][$key]['home1']}{$navi[$this->xpwiki->pid][$key]['up']}{$navi[$this->xpwiki->pid][$key]['down1']}</li>
 </ul>
 <div style="clear:both;height:0px;"> </div>
 EOD;
