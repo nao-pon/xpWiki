@@ -37,7 +37,7 @@ if( ! empty( $_GET['lib'] ) ) {
 	// language files (admin.php)
 	require_once( $langmanpath ) ;
 	$langman =& D3LanguageManager::getInstance() ;
-	$langman->read( 'admin.php' , $mydirname , $mytrustdirname , false ) ;
+	$langman->read( 'admin.php' , $mydirname , $mytrustdirname , true ) ;
 
 	// fork each pages of this module
 	$page = preg_replace( '/[^a-zA-Z0-9_-]/' , '' , @$_GET['page'] ) ;
