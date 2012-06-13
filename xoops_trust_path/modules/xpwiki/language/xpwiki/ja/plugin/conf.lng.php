@@ -248,7 +248,7 @@ $msg = array(
 	),
 
 	'upload_max_filesize_guest' => array(
-		'caption'     => '最大アップロードファイルサイズ(登録ユーザー)',
+		'caption'     => '最大アップロードファイルサイズ(ゲスト)',
 		'description' => 'ゲスト(非ログインユーザー)がアップロードできる最大ファイルサイズ(auto: php.iniより取得)',
 	),
 
