@@ -242,6 +242,16 @@ $msg = array(
 		'description' => 'TOC("#contents")の自動挿入を行う章の数。( 0: 無効 )',
 	),
 
+	'upload_max_filesize_user' => array(
+			'caption'     => '最大アップロードファイルサイズ(登録ユーザー)',
+			'description' => '登録(ログイン)ユーザーがアップロードできる最大ファイルサイズ(auto: php.iniより取得)',
+	),
+	
+	'upload_max_filesize_guest' => array(
+			'caption'     => '最大アップロードファイルサイズ(登録ユーザー)',
+			'description' => 'ゲスト(非ログインユーザー)がアップロードできる最大ファイルサイズ(auto: php.iniより取得)',
+	),
+
 	'amazon_AssociateTag' => array(
 		'caption'     => 'Amazon AssociateTag',
 		'description' => 'アソシエイトタグ(トラッキングID)<br />'

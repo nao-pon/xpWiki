@@ -219,6 +219,16 @@ class xpwiki_plugin_conf extends xpwiki_plugin {
 				'type' => 'integer',
 				'form' => 'text,size="3"',
 			),
+			'upload_max_filesize_user' => array(
+				'kind' => 'root',
+				'type' => 'string',
+				'form' => 'text,size="8"',
+			),
+			'upload_max_filesize_guest' => array(
+					'kind' => 'root',
+					'type' => 'string',
+					'form' => 'text,size="8"',
+			),
 			'amazon_AssociateTag' => array(
 				'kind' => 'root',
 				'type' => 'string',

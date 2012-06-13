@@ -102,7 +102,23 @@ class xpwiki_plugin_attach extends xpwiki_plugin {
 		$this->cont['TAR_HDR_TYPE_LEN'] = 1;		// ファイルタイプの長さ
 
 	}
-
+	
+	function set_max_filesize() {
+		if (! $this->root->userinfo['uid']) {
+			if (! $this->root->upload_max_filesize_guest || trim(strtolower($this->root->upload_max_filesize_guest)) === 'auto') {
+				$this->cont['PLUGIN_ATTACH_MAX_FILESIZE'] = $this->func->return_bytes(ini_get('upload_max_filesize'));
+			} else {
+				$this->cont['PLUGIN_ATTACH_MAX_FILESIZE'] = $this->func->return_bytes($this->root->upload_max_filesize_guest);
+			}
+		} else if (! $this->root->userinfo['admin']) {
+			if (! $this->root->upload_max_filesize_user || trim(strtolower($this->root->upload_max_filesize_user)) === 'auto') {
+				$this->cont['PLUGIN_ATTACH_MAX_FILESIZE'] = $this->func->return_bytes(ini_get('upload_max_filesize'));
+			} else {
+				$this->cont['PLUGIN_ATTACH_MAX_FILESIZE'] = $this->func->return_bytes($this->root->upload_max_filesize_user);
+			}
+		}
+	}
+	
 	function can_call_otherdir_convert() {
 		return 1;
 	}
@@ -117,6 +133,8 @@ class xpwiki_plugin_attach extends xpwiki_plugin {
 			return 'file_uploads disabled';
 		}
 
+		$this->set_max_filesize();
+		
 		$noattach = $nolist = $noform = $imglist = FALSE;
 		$page = $this->root->vars['page'];
 
@@ -170,6 +188,8 @@ class xpwiki_plugin_attach extends xpwiki_plugin {
 	//-------- action
 	function plugin_attach_action()
 	{
+		$this->set_max_filesize();
+		
 		// backward compatible
 		if (array_key_exists('openfile',$this->root->vars))
 		{
@@ -1052,8 +1072,12 @@ EOD;
 	</form>';
 		}
 		$maxsize = $this->cont['PLUGIN_ATTACH_MAX_FILESIZE'];
-		$msg_maxsize = sprintf($this->root->_attach_messages['msg_maxsize'],number_format($maxsize/1024)."KB");
-
+		if ($maxsize > 1048576) {
+			$msg_maxsize = sprintf($this->root->_attach_messages['msg_maxsize'],number_format($maxsize/1024/1024)."MB");
+		} else {
+			$msg_maxsize = sprintf($this->root->_attach_messages['msg_maxsize'],number_format($maxsize/1024)."KB");
+		}
+		
 		$file_select = '<div id="_p_attach_file">' . $this->root->_attach_messages['msg_file'] . ': <input type="file" name="attach_file[]" /><input type="button" value="More" onclick="XpWiki.insertClone(\'_p_attach_file\', \'_p_attach_more\')" /></div>';
 
 		//$uid = get_pg_auther($this->page);
@@ -1074,7 +1098,7 @@ EOD;
 		if ($allow_extensions && !$this->func->is_owner($page)) {
 			//ex. ['jpg', 'jpeg', 'png', 'gif'] or []
 			$_allow_extensions = '[\'' . join('\', \'', $allow_extensions) . '\']';
-			$allow_extensions = str_replace('$1',join(", ",$allow_extensions),$this->root->_attach_messages['msg_extensions'])."<br />";
+			$allow_extensions = '<div><span class="small">'.str_replace('$1',join(", ",$allow_extensions),$this->root->_attach_messages['msg_extensions']).'</span></div>';
 			$antar_tag = "";
 		} else {
 			$allow_extensions = '';
@@ -1115,6 +1139,10 @@ EOD;
 			$this->func->add_tag_head('fileuploader.js');
 			$_domid = $this->get_domid('fileuploader');
 			$form = <<<EOD
+<div><span class="small">
+$msg_maxsize
+</span></div>
+$allow_extensions
 <div id="{$_domid}_check" style="display:none;"><input type="checkbox" id="_p_attach_copyright_{$pgid}_{$load[$this->xpwiki->pid][$page]}" name="copyright" value="1" /> <label for="_p_attach_copyright_{$pgid}_{$load[$this->xpwiki->pid][$page]}">{$this->root->_attach_messages['msg_copyright']}</label></div>
 <div id="{$_domid}">
 	<noscript>$form</noscript>

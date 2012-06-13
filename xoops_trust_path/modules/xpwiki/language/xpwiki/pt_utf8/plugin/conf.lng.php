@@ -243,6 +243,16 @@ each use page can be provided.<br />'
 		'description' => 'Number of heading that inserts TOC("#contents") automatically. ( 0: Disabled )',
 	),
 
+	'upload_max_filesize_user' => array(
+			'caption'     => 'Upload max filesize(Login user)',
+			'description' => 'Max filesize on file upload by login user.(auto: Get value from php.ini)',
+	),
+	
+	'upload_max_filesize_guest' => array(
+			'caption'     => 'Upload max filesize(Guest)',
+			'description' => 'Max filesize on file upload by guest.(auto: Get value from php.ini)',
+	),
+
 	'fckeditor_path' => array(
 		'caption'     => 'Path of "FCKeditor"',
 		'description' => 'Please input continuation from <span style="font-weight:bold;">' . $this->cont['ROOT_PATH'] . '</span><br />'
