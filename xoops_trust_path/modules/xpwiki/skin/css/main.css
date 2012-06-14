@@ -614,6 +614,8 @@ $class hr.full_hr {
 	border-style:ridge;
 	border-color:#333333;
 	border-width:1px 0px;
+	margin-bottom: 1em;
+    margin-top: 1em;
 }
 $class hr.note_hr {
 	/*width:90%;
