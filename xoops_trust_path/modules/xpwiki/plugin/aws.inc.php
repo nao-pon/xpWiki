@@ -53,8 +53,8 @@ class xpwiki_plugin_aws extends xpwiki_plugin {
 
 	function plugin_aws_convert() {
 
-		if (HypCommonFunc::get_version() < 20080224) {
-			return '#aws require "HypCommonFunc" >= Ver. 20080224';
+		if (HypCommonFunc::get_version() < 20120615) {
+			return '#aws require "HypCommonFunc" >= Ver. 20120615';
 		}
 
 		if (! empty($this->root->vars['page']) && preg_match('/template/i', $this->root->vars['page'])) {
@@ -187,8 +187,8 @@ class xpwiki_plugin_aws extends xpwiki_plugin {
 			} else {
 				//$ret .= $ama->url;
 			}
-			if ($this->options['timestamp'] && empty($this->root->rtf['preview']) && $ama->newestTime && ! empty($this->root->vars['page'])) {
-				$this->func->touch_page($this->root->vars['page'], $ama->newestTime);
+			if ($this->options['timestamp'] && empty($this->root->rtf['preview']) && $ama->getReleaseTime($k) && ! empty($this->root->vars['page'])) {
+				$this->func->touch_page($this->root->vars['page'], $ama->getReleaseTime($k));
 			}
 
 			if (! $ama->error
