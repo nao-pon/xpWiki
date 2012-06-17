@@ -70,7 +70,11 @@ $class div.paragraph {
 	margin: 1em;
 }
 
-$class table { width: auto; }
+$class table { 
+	width: auto;
+	border-collapse: separate;
+	border-spacing: 1px;
+}
 
 $class,
 $class td {
