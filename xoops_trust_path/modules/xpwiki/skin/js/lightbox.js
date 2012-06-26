@@ -110,7 +110,6 @@ var Lightbox = Class.create();
 Lightbox.prototype = {
 
 	initialize: function() {
-		if (!document.getElementsByTagName){ return; }
 
 		this.timer = null;
 		this.imgPreloader = null;
@@ -738,7 +737,11 @@ function pause(numberMillis) {
 
 // ---------------------------------------------------
 
-function initLightbox() { myLightbox = new Lightbox(); }
+function initLightbox() {
+	if (document.getElementsByTagName && ! XpWiki.useJQueryMobile) {
+		myLightbox = new Lightbox();
+	}
+}
 
 XpWiki.domInitFunctions.push(initLightbox);
 
