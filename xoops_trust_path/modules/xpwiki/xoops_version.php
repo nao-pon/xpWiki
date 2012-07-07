@@ -26,6 +26,7 @@ $modversion['official'] = 0 ;
 $modversion['image'] = 'module_icon.php' ;
 $modversion['dirname'] = $mydirname ;
 $modversion['trust_dirname'] = $mytrustdirname ;
+$modversion['detailed_version'] = $xpwiki_version ;
 
 // Any tables can't be touched by modulesadmin.
 $modversion['sqlfile'] = false ;
