@@ -3015,7 +3015,8 @@ EOD;
 		// 末尾に分断された実態参照があれば削除
 		$str = preg_replace('/&([^;]+)?$/', '', $str);
 		// サニタイズ
-		if ($htmlspecialchar) $str = str_replace('&amp;', '&', htmlspecialchars($str));
+		//if ($htmlspecialchar) $str = str_replace('&amp;', '&', htmlspecialchars($str));
+		if ($htmlspecialchar) $str = htmlspecialchars($str);
 		return $str;
 	}
 
