@@ -228,7 +228,7 @@ if (isset($const['page_show'])) {
 	// Check etc. only admin.
 	if ($root->userinfo['admin']) {
 		// Database check
-		$query = 'SELECT count(*) FROM ' . $this->xpwiki->db->prefix($root->mydirname.'_cache') ;
+		$query = 'SELECT `key` FROM ' . $this->xpwiki->db->prefix($root->mydirname.'_cache') . ' LIMIT 1' ;
 		if(! $this->xpwiki->db->query($query)) {
 			$title = 'Please update this module on admin panel.';
 			if (defined('XOOPS_CUBE_LEGACY')) {
