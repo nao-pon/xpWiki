@@ -104,7 +104,7 @@ class xpwiki_plugin_ref extends xpwiki_plugin {
 		// サイト内画像のローカルファイルパス変換テーブル
 		$this->conf['local_dir_mapper'] = array(
 			// xelfinder
-			'#^.+/([a-zA-Z0-9_-]+)/index\.php(?:/|\?page=)(?:view|tmb(?:/|&s=)\d+)(?:/|&file=)(\d+)/.*?$#'
+			'#^.+/([a-zA-Z0-9_-]+)/index\.php(?:/|\?page=)(?:view|tmb(?:/|&s=)\d+)(?:/|&file=)(\d+)(?:/|&).*?$#'
 			=> $this->cont['TRUST_PATH'] . 'uploads/xelfinder/' . rawurlencode(rtrim(substr($this->cont['ROOT_URL'], 7), '/')) . '_$1_$2',
 		);
 
