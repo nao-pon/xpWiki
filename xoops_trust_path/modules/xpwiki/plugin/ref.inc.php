@@ -661,7 +661,7 @@ class xpwiki_plugin_ref extends xpwiki_plugin {
 					$lvar['link'] = $this->cont['HOME_URL'] . 'ref' . ($params['noinline']? 1:0) . '/' . rawurlencode(str_replace('/', '%2F', $lvar['page'])) .
 						'/' . rawurlencode($lvar['name']) . (($lvar['name'] !== $filename)? ('/'.rawurlencode($filename)):''); // Show its filename at the last
 				} else {
-					$filename = '/' . rawurlencode($filename);
+					$filename = (! $this->root->disable_pathinfo)? ('/' . rawurlencode($filename)) : '';
 					$noinline = ($params['noinline'])? '&amp;ni=1' : '';
 					$lvar['link'] = $this->cont['HOME_URL'] . 'gate.php' . $filename . '?way=attach&amp;_noumb' . $noinline . '&amp;refer=' . rawurlencode($lvar['page']) .
 						'&amp;openfile=' . rawurlencode($lvar['name']); // Show its filename at the last
@@ -1076,7 +1076,7 @@ _HTML_;
 		if ($this->cont['PLUGIN_REF_SHORTURL']) {
 			return $this->cont['HOME_URL'] . 'ref/' . str_replace('%2F', '%252F', rawurlencode(str_replace('%', '%25', $page))) . '/' . str_replace('%26', '%2526', rawurlencode(str_replace('%', '%25', $name)));
 		} else {
-			$path_name = ($use_pathinfo)? '/' . rawurlencode($name) : '';
+			$path_name = ($use_pathinfo && ! $this->root->disable_pathinfo)? '/' . rawurlencode($name) : '';
 			return $this->cont['HOME_URL'] . 'gate.php' . $path_name . '?way=ref&amp;_nodos&amp;_noumb&amp;page=' . rawurlencode($page) .
 					'&amp;src=' . rawurlencode($name); // Show its filename at the last
 		}

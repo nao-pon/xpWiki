@@ -1049,6 +1049,7 @@ $root->line_break = 0;
 $root->fixed_heading_anchor_edit = 1;
 $root->paraedit_partarea = 'compat';
 $root->contents_auto_insertion = 4;
+$root->disable_pathinfo = 0;
 $root->upload_max_filesize_user = 'auto';
 $root->upload_max_filesize_guest = 'auto';
 $root->pagecache_min = 0;

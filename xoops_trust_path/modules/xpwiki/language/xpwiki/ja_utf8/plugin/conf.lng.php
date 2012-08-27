@@ -242,14 +242,19 @@ $msg = array(
 		'description' => 'TOC("#contents")の自動挿入を行う章の数。( 0: 無効 )',
 	),
 
+	'disable_pathinfo' => array(
+		'caption'     => 'Path Info を無効にする',
+		'description' => 'Path Info は添付ファイルのリンクなどで使用されていますが、対応していないサーバーでは、"404 Not Found" エラーになる場合があります。その場合は「はい」を選択して無効にしてください。',
+	),
+
 	'upload_max_filesize_user' => array(
-			'caption'     => '最大アップロードファイルサイズ(登録ユーザー)',
-			'description' => '登録(ログイン)ユーザーがアップロードできる最大ファイルサイズ(auto: php.iniより取得)',
+		'caption'     => '最大アップロードファイルサイズ(登録ユーザー)',
+		'description' => '登録(ログイン)ユーザーがアップロードできる最大ファイルサイズ(auto: php.iniより取得)',
 	),
 	
 	'upload_max_filesize_guest' => array(
-			'caption'     => '最大アップロードファイルサイズ(ゲスト)',
-			'description' => 'ゲスト(非ログインユーザー)がアップロードできる最大ファイルサイズ(auto: php.iniより取得)',
+		'caption'     => '最大アップロードファイルサイズ(ゲスト)',
+		'description' => 'ゲスト(非ログインユーザー)がアップロードできる最大ファイルサイズ(auto: php.iniより取得)',
 	),
 
 	'amazon_AssociateTag' => array(

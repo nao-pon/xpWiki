@@ -299,7 +299,7 @@ class XpWikiAttachFile
 				}
 				return '<a href="'.$this->cont['HOME_URL'].'ref0/'.str_replace('%2F', '%252F', $page_e).'/'.$file_e.$filename.'" title="'.$title.'">'.$label.'</a>'.$count.$info;
 			} else {
-				$filename = '/' . rawurlencode($filename);
+				$filename = (! $this->root->disable_pathinfo)? ('/' . rawurlencode($filename)) : '';
 				return "<a href=\"{$this->cont['HOME_URL']}gate.php{$filename}?way=attach&amp;_noumb{$param}open{$param2}\" title=\"{$title}\">{$label}</a>{$count}{$info}";
 			}
 		}

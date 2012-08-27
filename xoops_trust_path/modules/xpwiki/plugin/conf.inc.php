@@ -200,11 +200,6 @@ class xpwiki_plugin_conf extends xpwiki_plugin {
 				'type' => 'integer',
 				'form' => 'yesno',
 			),
-			'fixed_heading_anchor_edit' => array(
-				'kind' => 'root',
-				'type' => 'integer',
-				'form' => 'yesno',
-			),
 			'paraedit_partarea' => array(
 				'kind' => 'root',
 				'type' => 'string',
@@ -213,6 +208,11 @@ class xpwiki_plugin_conf extends xpwiki_plugin {
 					$this->msg['paraedit_partarea']['compat'] => 'compat',
 					$this->msg['paraedit_partarea']['level']  => 'level',
 				),
+			),
+			'disable_pathinfo' => array(
+				'kind' => 'root',
+				'type' => 'integer',
+				'form' => 'yesno',
 			),
 			'contents_auto_insertion' => array(
 				'kind' => 'root',

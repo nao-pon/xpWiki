@@ -246,6 +246,11 @@ $msg = array(
 		'description' => 'Number of heading that inserts TOC("#contents") automatically. ( 0: Disabled )',
 	),
 
+	'disable_pathinfo' => array(
+		'caption'     => 'Disable Path Info',
+		'description' => 'Path Info has been used in the attachment, such as a link, a server that does not support may be "404 Not Found" error. Please be disabled by selecting "Yes" for this.',
+	),
+
 	'upload_max_filesize_user' => array(
 			'caption'     => 'Upload max filesize(Login user)',
 			'description' => 'Max filesize on file upload by login user.(auto: Get value from php.ini)',

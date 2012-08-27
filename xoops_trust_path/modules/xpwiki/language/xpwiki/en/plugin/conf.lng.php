@@ -247,6 +247,11 @@ $msg = array(
 		'description' => 'Max filesize on file upload by login user.(auto: Get value from php.ini)',
 	),
 
+	'disable_pathinfo' => array(
+		'caption'     => 'Disable Path Info',
+		'description' => 'Path Info has been used in the attachment, such as a link, a server that does not support may be "404 Not Found" error. Please be disabled by selecting "Yes" for this.',
+	),
+
 	'upload_max_filesize_guest' => array(
 		'caption'     => 'Upload max filesize(Guest)',
 		'description' => 'Max filesize on file upload by guest.(auto: Get value from php.ini)',
