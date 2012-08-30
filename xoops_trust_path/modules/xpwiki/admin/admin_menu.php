@@ -9,7 +9,7 @@ $adminmenu = array(
 	),
 	array(
 		'title' => constant( $constpref.'_ADMIN_TOOLS' ),
-		'link'  => '?:AdminTools'
+		'link'  => '?%3AAdminTools'
 	),
 	array(
 		'title' => constant( $constpref.'_PLUGIN_CONVERTER' ),

@@ -50,7 +50,7 @@ $modversion['sub'] = array() ;
 if (@$GLOBALS['Xpwiki_'.$mydirname]['is_admin']) {
 	$modversion['sub'][] = array(
 		'name' => '<img width="16" height="16" style="vertical-align: middle;" alt="Admin tools" src="'.XOOPS_MODULE_URL.'/'.$mydirname.'/skin/loader.php?src=cog.png">' . constant($constpref . '_ADMIN_TOOLS') ,
-		'url'  => '?:AdminTools' );
+		'url'  => '?%3AAdminTools' );
 }
 if (is_object(@$GLOBALS['xoopsUser'])) {
 	$modversion['sub'][] = array(
