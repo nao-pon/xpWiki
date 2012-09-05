@@ -51,7 +51,18 @@ class xpwiki_plugin_read extends xpwiki_plugin {
 				// ブロック表示モードは編集リンク
 				return array('msg' => $this->root->_title_edit, 'body' => $this->func->make_pagelink($page));
 			} else {
-				if (! headers_sent()) header('HTTP/1.0 404 Not Found'); // for Serach engines
+				/*
+				if (! headers_sent()) {
+					// for Serach engines
+					if (! empty($_SERVER['SERVER_SOFTWARE']) && preg_match('/Microsoft-IIS/i', $_SERVER['SERVER_SOFTWARE'])) {
+						header('HTTP/1.1 410 Gone');
+						header('Status: 410 Gone');
+					} else {
+						header('HTTP/1.0 404 Not Found');
+						header('Status: 404 Not Found');
+					}
+				}
+				*/
 				// 存在しないので、編集フォームを表示
 				$this->root->vars['cmd'] = 'edit';
 				return $this->func->do_plugin_action('edit');
