@@ -869,7 +869,7 @@ class xpwiki_plugin_attach extends xpwiki_plugin {
 
 		$obj = &new XpWikiAttachFile($this->xpwiki, $refer,$file,$age);
 
-		return $obj->getstatus() ? $obj->open() : array('header' => 'HTTP/1.0 404 Not Found', 'msg' => 'File Not Found.');
+		return $obj->getstatus() ? $obj->open() : array('header' => array('HTTP/1.0 404 Not Found', 'Status: 404 Not Found'), 'msg' => 'File Not Found.');
 	}
 	//一覧取得
 	function attach_list($mode="")

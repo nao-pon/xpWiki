@@ -116,7 +116,7 @@ class xpwiki_plugin_ref extends xpwiki_plugin {
 		$usage = 'Usage: plugin=ref&amp;page=page_name&amp;src=attached_image_name';
 
 		if (! isset($this->root->vars['page']) || ! isset($this->root->vars['src']))
-			return array(array('header' => 'HTTP/1.0 404 Not Found', 'msg' => 'File Not Found.'));
+			return array(array('header' => array('HTTP/1.0 404 Not Found', 'Status: 404 Not Found'), 'msg' => 'File Not Found.'));
 
 
 		$page     = $this->root->vars['page'];
@@ -143,7 +143,7 @@ class xpwiki_plugin_ref extends xpwiki_plugin {
 		}
 
 		if(! is_file($ref)) {
-			return array('header' => 'HTTP/1.0 404 Not Found', 'msg' => 'File Not Found.');
+			return array('header' => array('HTTP/1.0 404 Not Found', 'Status: 404 Not Found'), 'msg' => 'File Not Found.');
 		}
 
 		// ログファイル取得
@@ -197,7 +197,7 @@ class xpwiki_plugin_ref extends xpwiki_plugin {
 		// Check Referer
 		if ($this->cont['OPEN_MEDIA_REFCHECK']) {
 			if (! $this->func->refcheck($this->cont['OPEN_MEDIA_REFCHECK'] - 1)) {
-				return array('header' => 'HTTP/1.0 404 Not Found', 'msg' => 'File Not Found.');
+				return array('header' => array('HTTP/1.0 404 Not Found', 'Status: 404 Not Found'), 'msg' => 'File Not Found.');
 			}
 		}
 

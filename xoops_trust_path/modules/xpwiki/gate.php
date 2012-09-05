@@ -67,6 +67,7 @@ function xpWikiGate_goOut($err) {
 			break;
 		default:
 			header( 'HTTP/1.0 404 Not Found' );
+			header( 'Status: 404 Not Found' );
 			$str = 'Not Found.';
 	}
 	header( 'Content-Length: ' . strlen($str) );

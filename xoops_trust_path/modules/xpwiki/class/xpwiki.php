@@ -199,7 +199,13 @@ class XpWiki {
 		if ($retvars !== FALSE) {
 			if (isset($retvars['header'])) {
 				$func->clear_output_buffer();
-				header($retvars['header']);
+				if (is_array($retvars['header'])) {
+					foreach($retvars['header'] as $_header) {
+						header($_header);
+					}
+				} else {
+					header($retvars['header']);
+				}
 				if (isset($retvars['msg'])) {
 					header('Content-Length: ' . strlen($retvars['msg']));
 					echo $retvars['msg'];
