@@ -465,7 +465,11 @@ if (isset($const['page_show'])) {
 	if (! isset($root->vars['cmd']) && ! isset($root->vars['plugin'])) {
 
 		$root->get['cmd']  = $root->post['cmd']  = $root->vars['cmd']  = 'read';
-
+		
+		// fix IIS PATH_INFO
+		if (isset($_SERVER['SERVER_SOFTWARE']) && strpos($_SERVER['SERVER_SOFTWARE'], 'Microsoft-IIS') !== false) {
+			$_SERVER['PATH_INFO'] = preg_replace('/^'.preg_quote($_SERVER['SCRIPT_NAME']).'/', '', $_SERVER['PATH_INFO']);
+		}
 		if (isset($_SERVER['PATH_INFO']) && $_SERVER['PATH_INFO'] !== '') {
 			$arg = trim($_SERVER['PATH_INFO'], '/');
 			// ! defined('PROTECTOR_VERSION') = (Protector < 3.33)
