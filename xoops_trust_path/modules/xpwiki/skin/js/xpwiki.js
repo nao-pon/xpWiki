@@ -440,12 +440,12 @@ var XpWiki = {
 
 		var txtarea = $(id);
 
-		id = txtarea.id;
-
 		if (typeof(txtarea.XpWiki_addWrap_done) != 'undefined') return;
 		txtarea.XpWiki_addWrap_done = true;
 
 		if (txtarea.style.display == 'inline') return;
+
+		id = txtarea.id;
 
 		var btn = document.createElement('div');
 		btn.id = id + '_WrapBtn';
@@ -459,7 +459,7 @@ var XpWiki = {
 		this.DOMNode_insertAfter(btn, refNode);
 
 		var mydir;
-		if (txtarea.getAttribute("rel") == "wikihelper" && ! txtarea.className.match('norich')) {
+		if (txtarea.getAttribute("rel") == "wikihelper" && ! txtarea.className.match(/\bnorich\b/)) {
 			if (id.match(/^[a-z0-9_-]+:/i)) {
 				mydir = id.replace(/^([a-z0-9_-]+):.+$/i, "$1");
 			} else {
@@ -621,7 +621,7 @@ var XpWiki = {
 	remakeTextArea: function (obj) {
 		var tareas = obj.getElementsByTagName('textarea');
 		for (var i=0; i<tareas.length; i++){
-			if (tareas[i].style.display == 'none') continue;
+			if (tareas[i].style.display == 'none' || tareas[i].className.match(/\b(html|none|plain)\b/)) continue;
 			if (!tareas[i].getAttribute('rel') && !tareas[i].getAttribute('readonly') && this.checkUseHelper(tareas[i])) {
 				tareas[i].setAttribute("rel", "wikihelper");
 			}
