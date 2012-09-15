@@ -621,7 +621,7 @@ var XpWiki = {
 	remakeTextArea: function (obj) {
 		var tareas = obj.getElementsByTagName('textarea');
 		for (var i=0; i<tareas.length; i++){
-			if (tareas[i].style.display == 'none' || tareas[i].className.match(/\b(html|none|plain)\b/)) continue;
+			if (tareas[i].style.display == 'none' || tareas[i].className.match(/\b(html|bbcode|none|plain)\b/)) continue;
 			if (!tareas[i].getAttribute('rel') && !tareas[i].getAttribute('readonly') && this.checkUseHelper(tareas[i])) {
 				tareas[i].setAttribute("rel", "wikihelper");
 			}
