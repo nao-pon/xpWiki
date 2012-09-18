@@ -1482,7 +1482,7 @@ _HTML_;
 		}
 
 		$img['title'] = "SIZE:{$img['org_w']}x{$img['org_h']}" . (!empty($params['fsize'])? "({$params['fsize']})" :'');
-		$img['info'] = ($width && $height)? ' width="'.$width.'" height="'.$height.'"' : '';
+		//$img['info'] = ($width && $height)? ' width="'.$width.'" height="'.$height.'"' : '';
 		$img['width'] = $width;
 		$img['height'] = $height;
 	}
