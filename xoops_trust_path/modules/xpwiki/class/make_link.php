@@ -208,6 +208,8 @@ class XpWikiLink {
 
 				// BugTrack/669: A hack removing anchor tags added by AutoLink
 				$alias = preg_replace('#</?a[^>]*>#i', '', $alias);
+				
+				$alias = preg_replace('/\s*title="[^"]*"/', '', $alias);
 
 				// Is image only? (on render mode)
 				if ($this->root->render_mode === 'render' || $this->root->use_root_image_manager) {
@@ -216,7 +218,6 @@ class XpWikiLink {
 					 && preg_match('/(?:jpe?g|png|gif)$/i', $this->name)) {
 						$this->is_image = TRUE;
 						$this->use_lightbox = TRUE;
-						$alias = preg_replace('/\s*title="[^"]*"/', '', $alias);
 					}
 				}
 			}
