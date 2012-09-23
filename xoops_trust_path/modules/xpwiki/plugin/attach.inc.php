@@ -1233,24 +1233,30 @@ EOD;
 
 		// iPhone, iPad 用は sms: リンク & Picup
 		if (preg_match('/iP(?:hone|ad)/i', $_SERVER['HTTP_USER_AGENT'])) {
-			// Picup
-			$usr = md5(session_id());
-			$this->func->cache_save_db(($this->root->userinfo['uid']? $this->root->userinfo['uid']:'ucd:'.$this->root->userinfo['ucd']), 'attach:usr', session_cache_expire()*60, $usr);
-			$to = $this->func->cache_save_db($_SERVER['REQUEST_URI'], 'attach:to');
-			$callback = $script.'?plugin=attach&pcmd=return&to='.$to;
-			$parms = 'plugin=attach&pcmd=upload&refer='.rawurlencode($page).'&usr='.$usr;
-			if (! empty($this->root->vars['refid'])) $parms .= '&refid='.rawurlencode($this->root->vars['refid']);
-			$picupurl = 'fileupload://new?imageSize=1600&callbackURL='.rawurlencode($callback).'&posturl='.rawurlencode($script).'&postimageParam=attach_file&postvalues='.rawurlencode($parms);
-			if (! empty($this->root->vars['filename'])) $picupurl .= '&postimagefilename='.rawurlencode($this->root->vars['filename']);
-			$picup = '<a href="'.$picupurl.'"><span class="button">Picup App</span></a><a target="_blank" href="http://itunes.apple.com/jp/app/picup/id354101378?mt=8" class="itunes"><span class="button">?</span></a>';
-
-			// sms:
-			$moblog = $this->func->get_plugin_instance('moblog');
-			$form = '<div style="text-align:center;font-size:24px;">'
-			        . $moblog->get_sms_link($this->root->_attach_messages['msg_send_mms'], $page, ((empty($this->root->vars['refid']))?'':$this->root->vars['refid']))
-			        . $picup
-			        . '</div>'
-			        . $form;
+			$ios = 0;
+			if (preg_match('/iPhone OS ([0-9]+)/', $_SERVER['HTTP_USER_AGENT'], $match)) {
+				$ios = $match[1];
+			}
+			if ($ios < 6) {
+				// Picup
+				$usr = md5(session_id());
+				$this->func->cache_save_db(($this->root->userinfo['uid']? $this->root->userinfo['uid']:'ucd:'.$this->root->userinfo['ucd']), 'attach:usr', session_cache_expire()*60, $usr);
+				$to = $this->func->cache_save_db($_SERVER['REQUEST_URI'], 'attach:to');
+				$callback = $script.'?plugin=attach&pcmd=return&to='.$to;
+				$parms = 'plugin=attach&pcmd=upload&refer='.rawurlencode($page).'&usr='.$usr;
+				if (! empty($this->root->vars['refid'])) $parms .= '&refid='.rawurlencode($this->root->vars['refid']);
+				$picupurl = 'fileupload://new?imageSize=1600&callbackURL='.rawurlencode($callback).'&posturl='.rawurlencode($script).'&postimageParam=attach_file&postvalues='.rawurlencode($parms);
+				if (! empty($this->root->vars['filename'])) $picupurl .= '&postimagefilename='.rawurlencode($this->root->vars['filename']);
+				$picup = '<a href="'.$picupurl.'"><span class="button">Picup App</span></a><a target="_blank" href="http://itunes.apple.com/jp/app/picup/id354101378?mt=8" class="itunes"><span class="button">?</span></a>';
+	
+				// sms:
+				$moblog = $this->func->get_plugin_instance('moblog');
+				$form = '<div style="text-align:center;font-size:24px;">'
+				        . $moblog->get_sms_link($this->root->_attach_messages['msg_send_mms'], $page, ((empty($this->root->vars['refid']))?'':$this->root->vars['refid']))
+				        . $picup
+				        . '</div>'
+				        . $form;
+			}
 		}
 
 		if ($this->cont['UA_PROFILE'] === 'mobile') {
