@@ -2881,7 +2881,7 @@ EOD;
 			$msg = mb_convert_encoding($msg, 'UTF-8', $this->cont['SOURCE_ENCODING']);
 
 			$to = new TwitterOAuth($this->root->twitter_consumer_key, $this->root->twitter_consumer_secret, $user_pref['twitter_access_token'], $user_pref['twitter_access_token_secret']);
-			$to->OAuthRequest('https://twitter.com/statuses/update.xml', 'POST', array('status' => $msg));
+			$to->OAuthRequest('http://api.twitter.com/1.1/statuses/update.json', 'POST', array('status' => $msg));
 		}
 	}
 
