@@ -103,21 +103,18 @@ class XpWikiXoopsWrapper extends XpWikiBackupFunc {
 
 	function get_userinfo_by_id ($uid = 0) {
 		static $cache = array();
+		
 		if (isset($cache[$uid])) return $cache[$uid];
 
 		$uid = intval($uid);
-		$config_handler =& xoops_gethandler('config');
-		$xoopsConfig =& $config_handler->getConfigsByCat(XOOPS_CONF);
 
-		$result = parent::get_userinfo_by_id($uid, $xoopsConfig['anonymous']);
+		$result = parent::get_userinfo_by_id($uid, $this->root->siteinfo['anonymous']);
 
 		if ($uid) {
-			$module_handler =& xoops_gethandler('module');
-			$XoopsModule =& $module_handler->getByDirname($this->root->mydirname);
 			$user_handler =& xoops_gethandler('user');
-			$user =& $user_handler->get( $uid );
+			$user = $user_handler->get( $uid );
 			if (is_object($user)) {
-				$result['admin'] = $user->isAdmin($XoopsModule->mid());
+				$result['admin'] = $user->isAdmin($this->root->module['mid']);
 				$result['email'] = $user->email();
 				$result['uname'] = $user->uname('n');
 				$result['uname_s'] = htmlspecialchars($result['uname']);
