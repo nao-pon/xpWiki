@@ -77,6 +77,17 @@ function validate_id( $link_id )
 	return $ret;
 }
 
+// array of users id to be notified
+function validate_users2notify( $link_id, $users2notify = array() )
+{
+	if (! $users2notify || $users2notify === array(0)) return $users2notify;
+	
+	include_once dirname(dirname(__FILE__))."/include.php";
+	$xpwiki =& XpWiki::getInitedSingleton($this->mydirname);
+	$xpwiki_users2notify = $xpwiki->func->get_users_can_read($link_id);
+	return array_intersect($users2notify, $xpwiki_users2notify);
+}
+
 // get id from <{$content.id}>
 function external_link_id( $params )
 {

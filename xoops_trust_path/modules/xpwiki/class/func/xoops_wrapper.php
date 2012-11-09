@@ -172,6 +172,62 @@ class XpWikiXoopsWrapper extends XpWikiBackupFunc {
 		}
 	}
 
+	function get_users_can_read($id) {
+		$uids = array();
+		$page = $this->get_name_by_pgid($id);
+		$pginfo = $this->get_pginfo($page);
+		$db = $this->xpwiki->db;
+		if ($pginfo['vgids'] === 'all' || $pginfo['vaids'] === 'all') {
+			// all users
+			$sql = 'SELECT DISTINCT uid FROM '.$db->prefix('groups_users_link').' WHERE groupid IS NOT NULL';
+			if($res = $db->query($sql)) {
+				while(list($uid) = $db->fetchRow($res)) {
+					$uids[] = $uid ;
+				}
+			}
+		} else {
+			// admins gids
+			$gpermHandler =& xoops_gethandler('groupperm');
+			$admin_gids = $gpermHandler->getGroupIds('module_admin', $this->root->module['mid']);
+
+			if ($pginfo['vgids'] === 'none' && $pginfo['vaids'] === 'none') {
+				// admins and owner
+				if ($admin_gids) {
+					$sql = 'SELECT DISTINCT uid FROM '.$db->prefix('groups_users_link').' WHERE groupid IN ('.join(',', $admin_gids).')';
+					if($res = $db->query($sql)) {
+						while(list($uid) = $db->fetchRow($res)) {
+							$uids[] = $uid;
+						}
+					}
+				}
+				$uids[] = $pginfo['uid'];
+			} else {
+				// selected group or user
+				$gids = array();
+				if ($pginfo['vgids'] && $pginfo['vgids'] !== 'none') {
+					$gids = explode('&', trim($pginfo['vgids'], '&'));
+				}
+				$gids = array_merge($gids, $admin_gids);
+				if ($gids) {
+					$gids = array_unique($gids);
+					$sql = 'SELECT DISTINCT uid FROM '.$db->prefix('groups_users_link').' WHERE groupid IN ('.join(',', $gids).')';
+					if($res = $db->query($sql)) {
+						while(list($uid) = $db->fetchRow($res)) {
+							$uids[] = $uid;
+						}
+					}
+				}
+				if ($pginfo['vaids'] && $pginfo['vaids'] !== 'none') {
+					foreach (explode('&', trim($pginfo['vaids'], '&')) as $uid) {
+						$uids[] = $uid;
+					}
+				}
+			}
+			$uids = array_unique($uids);
+		}
+		return $uids;
+	}
+	
 	function get_zonetime () {
 		$config_handler =& xoops_gethandler('config');
 		$xoopsConfig =& $config_handler->getConfigsByCat(XOOPS_CONF);
