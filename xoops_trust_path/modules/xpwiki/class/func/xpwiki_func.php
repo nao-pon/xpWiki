@@ -4241,17 +4241,27 @@ EOD;
 
 		case 'none':
 			$patterns = $replacements = $matches = array();
+			$utf8 = ($this->cont['SOURCE_ENCODING'] === 'UTF-8');
 			foreach ($this->get_source($this->root->pagereading_config_dict) as $line) {
 				$line = chop($line);
+				if ($utf8) $line = mb_convert_encoding($line, 'EUC-JP', 'UTF-8');
 				if(preg_match('|^ /([^/]+)/,\s*(.+)$|', $line, $matches)) {
 					$patterns[]     = $matches[1];
 					$replacements[] = $matches[2];
 				}
 			}
-			$reading = $page;
-			foreach ($patterns as $no => $pattern)
-				$reading = mb_convert_kana(mb_ereg_replace($pattern,
-					$replacements[$no], $reading), 'aKCV');
+			if ($utf8) {
+				$reading = mb_convert_encoding($page, 'EUC-JP', $this->cont['SOURCE_ENCODING']);
+				mb_regex_encoding('EUC-JP');
+			}
+			foreach ($patterns as $no => $pattern) {
+				$reading = mb_ereg_replace($pattern, $replacements[$no], $reading);
+			}
+			if ($utf8) {
+				$reading = mb_convert_encoding($reading, $this->cont['SOURCE_ENCODING'], 'EUC-JP');
+				mb_regex_encoding('UTF-8');
+			}
+			$reading = mb_convert_kana($reading, 'aKCV');
 			break;
 
 		default:
