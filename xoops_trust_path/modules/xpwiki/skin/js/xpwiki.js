@@ -45,6 +45,8 @@ var XpWiki = {
 	useSelector: (Prototype.Browser.IE && typeof document.querySelector == 'object'),
 
 	useJQueryMobile: false,
+	
+	foundWikihelperLoader: null,
 
 	onDomLoaded: function () {
 		if (Prototype.Browser.IE && XpWikiIeDomLoadedDisable && this.isDomLoaded) {
@@ -593,23 +595,33 @@ var XpWiki = {
 	},
 
 	checkUseHelper: function (obj) {
-		if (!!this.UseWikihelperAtAll || obj.id.match(/^xpwiki/)) {
+		if (obj.className.match(/(?:^| )(?:none|plain|nohelper)(?: |$)/i)) {
+			return false;
+		}
+		if (obj.id.match(/^xpwiki/) || (!!this.UseWikihelperAtAll && (this.UseWikihelperAtAll == 1 || obj.className.match(/\bwikihelper\b/i)))) {
 			return true;
 		} else {
-			var scripts = document.getElementsByTagName('script');
-			for (var i=0; i<scripts.length; i++){
-				if (!!scripts[i].src && scripts[i].src.match(/wikihelper_loader\.js$/)) {
-					return true;
+			if (this.foundWikihelperLoader == null) {
+				this.foundWikihelperLoader = false;
+				var scripts = document.getElementsByTagName('script');
+				for (var i=0; i<scripts.length; i++){
+					if (!!scripts[i].src && scripts[i].src.match(/\bwikihelper_loader\.js$/)) {
+						this.foundWikihelperLoader = true;
+						break;
+					}
 				}
+			}
+			if (this.foundWikihelperLoader && (!this.UseWikihelperAtAll || obj.className.match(/\bwikihelper\b/i))) {
+				return true;
 			}
 		}
 		var pnode;
 		while(pnode = obj.parentNode) {
 			if (typeof pnode.className != 'undefined') {
-				if (pnode.className.match(/^NoWikiHelper/)) {
+				if (pnode.className.match(/(?:^| )NoWikiHelper(?: |$)/)) {
 					return false;
 				}
-				if (pnode.className.match(/^xpwiki/)) {
+				if (pnode.className.match(/(?:^| )xpwiki\b/)) {
 					return true;
 				}
 			}
@@ -621,7 +633,7 @@ var XpWiki = {
 	remakeTextArea: function (obj) {
 		var tareas = obj.getElementsByTagName('textarea');
 		for (var i=0; i<tareas.length; i++){
-			if (tareas[i].style.display == 'none' || tareas[i].className.match(/\b(html|bbcode|none|plain)\b/)) continue;
+			if (tareas[i].style.display == 'none' || tareas[i].className.match(/(?:^| )(?:html|bbcode|rich|wysiwyg)(?: |$)/i)) continue;
 			if (!tareas[i].getAttribute('rel') && !tareas[i].getAttribute('readonly') && this.checkUseHelper(tareas[i])) {
 				tareas[i].setAttribute("rel", "wikihelper");
 			}

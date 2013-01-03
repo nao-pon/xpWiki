@@ -381,11 +381,11 @@ if ($type === 'js' || $type === 'css' || is_file($src_file)) {
 						list($face_tag, $face_tag_full, $_face_tag_ver, $fck_smileys) = xpwiki_make_facemarks ($xpwiki, $skin_dirname, $face_cache, $face_tag_ver);
 					}
 					$ieDomLoadedDisabled = $xpwiki->root->ieDomLoadedDisabled? 'true' : 'false';
-					$UseWikihelperAtAll = $xpwiki->root->render_UseWikihelperAtAll? 'true' : 'false';
+					$UseWikihelperAtAll = strval(intval($xpwiki->root->render_UseWikihelperAtAll));
 					if (defined('XPWIKI_RENDERER_DIR')) {
 						$RendererDir = XPWIKI_RENDERER_DIR;
 						if (defined('XPWIKI_RENDERER_USE_WIKIHELPER')) {
-							$UseWikihelperAtAll = XPWIKI_RENDERER_USE_WIKIHELPER? 'true' : 'false';
+							$UseWikihelperAtAll = strval(intval(XPWIKI_RENDERER_USE_WIKIHELPER));
 						}
 						if ($xpwiki->root->mydirname === XPWIKI_RENDERER_DIR) {
 							$RendererPage = $xpwiki->root->render_attach;
