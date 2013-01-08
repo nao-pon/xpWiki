@@ -1758,18 +1758,22 @@ class XpWikiFunc extends XpWikiXoopsWrapper {
 			$org = '';
 		} else {
 			$org = file_get_contents($file);
-			$org = preg_replace('/^<\?php\n(.*)\n\?>$/s', '$1', $org);
+			$org = trim(str_replace(array('<?php', '?>'), '', $org));
 		}
 
-		$section_q = preg_quote($section,'#');
-		$org = preg_replace('#//<'.$section_q.'>.*?//<'.$section_q.'/>\n#s', '', $org);
-		$org .= '//<'.$section_q.'>'."\n".$data."\n".'//<'.$section_q.'/>'."\n";
+		$data = '//<'.$section.'>' . "\n" . $data . "\n" . '//<'.$section.'/>';
+		if (strpos($org, '//<'.$section.'>') !== false) {
+			list($pre) = array_pad(explode('//<'.$section.'>'."\n", $org, 2), 2, '');
+			list(,$aft) = array_pad(explode("\n".'//<'.$section.'/>', $org, 2), 2, '');
+			$org = $pre . $data . $aft;
+		} else {
+			$org .= "\n" . $data; 
+		}
 
 		$org = '<?php' . "\n" . $org . "\n" . '?>';
-
-		if ($fp = fopen($file, 'wb')) {
-			fwrite($fp, $org);
-			fclose($fp);
+		
+		if (file_put_contents($file.'.tmp', $org, LOCK_EX)) {
+			rename($file.'.tmp', $file);
 		}
 	}
 
