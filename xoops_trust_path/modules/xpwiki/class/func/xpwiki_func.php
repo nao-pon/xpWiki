@@ -1772,9 +1772,7 @@ class XpWikiFunc extends XpWikiXoopsWrapper {
 
 		$org = '<?php' . "\n" . $org . "\n" . '?>';
 		
-		if (file_put_contents($file.'.tmp', $org, LOCK_EX)) {
-			rename($file.'.tmp', $file);
-		}
+		HypCommonFunc::flock_put_contents($file, $org);
 	}
 
 	// ページの親階層を得る
