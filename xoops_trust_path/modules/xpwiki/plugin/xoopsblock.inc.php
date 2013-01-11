@@ -94,8 +94,10 @@ class xpwiki_plugin_xoopsblock extends xpwiki_plugin {
 		} else {
 			global $xoopsTpl;
 
-			require_once XOOPS_ROOT_PATH.'/class/template.php';
-			$xoopsTpl = new XoopsTpl();
+			if (empty($xoopsTpl)) {
+				require_once XOOPS_ROOT_PATH.'/class/template.php';
+				$xoopsTpl = new XoopsTpl();
+			}
 
 			if (is_object($xoopsUser)) {
 				$xoopsTpl->assign(array('xoops_isuser' => true, 'xoops_userid' => $xoopsUser->getVar('uid'), 'xoops_uname' => $xoopsUser->getVar('uname'), 'xoops_isadmin' => $xoopsUser->isAdmin()));
