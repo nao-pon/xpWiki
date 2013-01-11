@@ -81,16 +81,36 @@ class xpwiki_plugin_xoopsblock extends xpwiki_plugin {
 			$arr = $xoopsblock->getAllBlocksByGroup($this->plugin_xoopsblock_getByType("Anonymous"));
 		}
 
+		// for Render mode
+		if ($this->root->vars['page'] === '#RenderMode') {
+			$this->root->rtf['disable_render_cache'] = true;
+		}
+		
 		$ret = "";
 
 		if ($tgt == "?"){
+			$module_handler =& xoops_gethandler('module');
+			$module_name = array();
+			$list = array();
 			foreach ( $arr as $myblock ) {
 				$block = array();
 				$block_type = (@$myblock->getVar("type"))? $myblock->getVar("type") : $myblock->getVar("block_type");
 				$name = (@$myblock->getVar("title")) ? $myblock->getVar("title") : $myblock->getVar("name");
 				$bid = $myblock->getVar('bid');
-				$ret .= "<li>(".$bid.")".$name."</li>";
+				$mid = $myblock->getVar('mid');
+				if (! isset($module_name[$mid])) {
+					$module = $module_handler->get($myblock->getVar('mid'));
+					$module_name[$mid] = is_object($module)? $module->getVar('name') : 'Custom Block';
+					unset($module);
+				}
+				$list[$module_name[$mid]][] = '<li>('.$bid.') '.$name.'</li>';
 			}
+			ksort($list);
+			$ret = '<ul>';
+			foreach($list as $key => $val) {
+				$ret .= '<li>' . $key . '<ul>' . join("\n", $val) . '</ul></li>';
+			}
+			$ret .= '</ul>';
 		} else {
 			global $xoopsTpl;
 
