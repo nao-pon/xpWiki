@@ -375,7 +375,9 @@ class XpWikiPluginTag
 		$ret = array();
 		foreach($pages as $id) {
 			if ($name = $this->func->get_name_by_pgid($id)) {
-				$ret[] = $name;
+				if ($this->func->check_readable_page($name, false, false)) {
+					$ret[] = $name;
+				}
 			}
 		}
 		return $ret;
