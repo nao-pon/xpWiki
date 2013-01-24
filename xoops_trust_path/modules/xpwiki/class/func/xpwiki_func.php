@@ -4257,7 +4257,9 @@ EOD;
 				mb_regex_encoding('EUC-JP');
 			}
 			foreach ($patterns as $no => $pattern) {
-				$reading = mb_ereg_replace($pattern, $replacements[$no], $reading);
+				if ($_tmp = mb_ereg_replace($pattern, $replacements[$no], $reading)) {
+					$reading = $_tmp;
+				}
 			}
 			if ($utf8) {
 				$reading = mb_convert_encoding($reading, $this->cont['SOURCE_ENCODING'], 'EUC-JP');
