@@ -4243,6 +4243,7 @@ EOD;
 
 		case 'none':
 			$patterns = $replacements = $matches = array();
+			$reading = $page;
 			$utf8 = ($this->cont['SOURCE_ENCODING'] === 'UTF-8');
 			foreach ($this->get_source($this->root->pagereading_config_dict) as $line) {
 				$line = chop($line);
@@ -4253,7 +4254,7 @@ EOD;
 				}
 			}
 			if ($utf8) {
-				$reading = mb_convert_encoding($page, 'EUC-JP', $this->cont['SOURCE_ENCODING']);
+				$reading = mb_convert_encoding($reading, 'EUC-JP', $this->cont['SOURCE_ENCODING']);
 				mb_regex_encoding('EUC-JP');
 			}
 			foreach ($patterns as $no => $pattern) {
