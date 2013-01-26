@@ -11,7 +11,12 @@ if (! defined('_XPWIKI_FILES_LOADED')) {
 
 	// For PHP >= 5.3
 	if (error_reporting() > 6143) {
-		error_reporting(E_ALL & ~E_DEPRECATED);
+		if (E_ALL > 30719) {
+			// PHP >= 5.4
+			error_reporting(E_ALL ^ E_STRICT ^ E_DEPRECATED);
+		} else {
+			error_reporting(E_ALL ^ E_DEPRECATED);
+		}
 	}
 
 	if (! function_exists('XC_CLASS_EXISTS')) {
