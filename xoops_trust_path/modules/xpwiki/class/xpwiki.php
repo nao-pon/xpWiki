@@ -20,6 +20,7 @@ class XpWiki {
 	var $body;
 	var $html;
 	var $breadcrumbs_array;
+	var $extension;
 
 	var $iniVar;
 
@@ -44,6 +45,8 @@ class XpWiki {
 		$this->func =& new XpWikiFunc($this);
 		$this->func->set_moduleinfo();
 		$this->func->set_siteinfo();
+
+		$this->extension = new stdClass();
 
 		$this->root->mydirpath = $this->cont['ROOT_PATH'].$moddir.$mydirname;
 		$this->root->mytrustdirpath = dirname(dirname(__FILE__));
