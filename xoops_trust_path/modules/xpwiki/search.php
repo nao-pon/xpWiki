@@ -6,7 +6,7 @@ function '. $mydirname .'_global_search( $keywords , $andor , $limit , $offset ,
 {
 	// for XOOPS Search module
 	static $readed = array();
-	$md5 = md5($keywords . $andor . $limit . $offset . $userid);
+	$md5 = md5(join($keywords, \' \') . $andor . $limit . $offset . $userid);
 	if(isset($readed[$md5])) { return array() ; }
 	$readed[$md5] = TRUE;
 	return xpwiki_global_search_base( "'.$mydirname.'" , $keywords , $andor , $limit , $offset , $userid ) ;
