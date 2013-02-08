@@ -78,4 +78,9 @@ define($constpref.'_NOTIFY_PAGE2_UPDATECAP', 'Benachrichtige mich über Änderunge
 define($constpref.'_NOTIFY_PAGE_UPDATESBJ', '[{X_SITENAME}] {X_MODULE}:{PAGE_NAME} geändert');
 define($constpref.'_NOTIFY_GLOBAL_UPDATECAP', 'Benachrichtige mich über sämtliche Änderungen in diesem Modul.');
 
+// Other Messages
+define($constpref.'_MSG_TO_BBCODE_EDITOR', 'Switch to BB-Code editor');
+define($constpref.'_MSG_TO_WIKI_EDITOR',   'Switch to Wiki editor');
+define($constpref.'_MSG_TO_SWITCH_EDITOR', 'This page is reloaded in order to change editor. Contents inputted into the present text area is not saved. Are you OK?');
+
 }

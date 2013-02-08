@@ -623,5 +623,73 @@ EOD;
 		$key = strval($key);
 		$this->iniVar['const'][$key] = $val;
 	}
+	
+	/**
+	 * Get JavaScript of switch to (BB-code or Wiki) editor
+	 * 
+	 * @param string $id        DomId
+	 * @param string $mydirname xpWiki Module dirname
+	 * @return string           JavaScript
+	 */
+	function get_BBCode_switch_js($id, $mydirname = null) {
+		
+		if (is_null($mydirname)) {
+			if ($this->root->mydirname) {
+				$mydirname = $this->root->mydirname;
+			} else if (defined('XPWIKI_RENDERER_DIR')) {
+				$mydirname = XPWIKI_RENDERER_DIR;
+			} else {
+				$mydirname = 'xpwiki';
+			}
+		}
+		$constpref = '_MI_' . strtoupper($mydirname);
+		
+		if (! defined($constpref . '_MSG_TO_SWITCH_EDITOR')) {
+			// language file (modinfo.php)
+			$langmanpath = XOOPS_TRUST_PATH.'/libs/altsys/class/D3LanguageManager.class.php' ;
+			if( ! file_exists( $langmanpath ) ) die( 'install the latest altsys' ) ;
+			require_once( $langmanpath ) ;
+			$langman =& D3LanguageManager::getInstance() ;
+			$langman->read( 'modinfo.php' , $mydirname , 'xpwiki' ) ;
+		}
+		
+		$msgToBBcode = htmlspecialchars(constant($constpref . '_MSG_TO_BBCODE_EDITOR'), ENT_QUOTES);
+		$msgToWiki = htmlspecialchars(constant($constpref . '_MSG_TO_WIKI_EDITOR'), ENT_QUOTES);
+		$msgSwitch = htmlspecialchars(constant($constpref . '_MSG_TO_SWITCH_EDITOR'), ENT_QUOTES);
+		
+		return <<<EOD
+<script type="text/javascript">
+//<![CDATA[
+(function(){
+if (typeof wikihelper_load_cookie == 'function' ) {
+	var c_ehlp = wikihelper_load_cookie('__whlp');
+	var editor_bbcode = false;
+	if (c_ehlp) {
+		editor_bbcode = (c_ehlp.match(/^1/));
+		c_ehlp = (c_ehlp.replace(/^\d+/, '') === 'on')? 'on' : '';
+	} else {
+		c_ehlp = '';
+	}
+	var elm = document.createElement('div');
+	var btn = document.createElement('button');
+	btn.type = 'button';
+	btn.onclick = function(){
+			if (confirm('{$msgSwitch}')) {
+				wikihelper_save_cookie("__whlp", (editor_bbcode? '0' : '1') + c_ehlp, 90 ,'/');
+				location.reload(false);
+			}
+			return false;
+		};
+	var str = document.createTextNode(editor_bbcode? '{$msgToWiki}' : '{$msgToBBcode}');
+	btn.appendChild(str);
+	elm.appendChild(btn);
+	var target = document.getElementById('{$id}');
+	target.parentNode.insertBefore(elm, target);
+}
+}());
+//]]>
+</script>
+EOD;
+	}
 }
 ?>

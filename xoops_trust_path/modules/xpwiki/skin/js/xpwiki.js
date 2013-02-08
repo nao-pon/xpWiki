@@ -71,8 +71,9 @@ var XpWiki = {
 		if (this.printing) return;
 
 		// cookie
-		wikihelper_adv = wikihelper_load_cookie("__whlp");
-		if (wikihelper_adv) wikihelper_save_cookie("__whlp",wikihelper_adv,90,"/");
+		var c_whlp = wikihelper_load_cookie("__whlp");
+		wikihelper_adv = c_whlp.replace(/^\d+/, '');
+		if (wikihelper_adv) wikihelper_save_cookie("__whlp",c_whlp,90,"/");
 
 		if (!this.isIE6 || !this.ie6JsPass) {
 			this.remakeTextArea(this.DomBody);

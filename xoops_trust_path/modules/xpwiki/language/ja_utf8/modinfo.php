@@ -73,4 +73,9 @@ define($constpref.'_NOTIFY_PAGE2_UPDATECAP', '「表示中の第2階層」以下
 define($constpref.'_NOTIFY_PAGE_UPDATESBJ', '[{X_SITENAME}] {X_MODULE}:{PAGE_NAME} ページ更新');
 define($constpref.'_NOTIFY_GLOBAL_UPDATECAP', 'モジュール内のいずれかのページが更新された場合に通知する');
 
+// Other Messages
+define($constpref.'_MSG_TO_BBCODE_EDITOR', 'BB-Code エディタへ切り替える');
+define($constpref.'_MSG_TO_WIKI_EDITOR',   'Wiki エディタへ切り替える');
+define($constpref.'_MSG_TO_SWITCH_EDITOR', 'エディタを切り替えるためこのページをリロードします。\n現在テキストエリアに入力されているデータは保存されません。\nよろしいですか？');
+
 }

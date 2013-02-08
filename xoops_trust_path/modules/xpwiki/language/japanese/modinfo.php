@@ -73,4 +73,9 @@ define($constpref.'_NOTIFY_PAGE2_UPDATECAP', 'б╓╔╜╝и├цд╬┬ш2│м┴╪б╫░╩▓╝д╬е┌б╝е╕дм╣
 define($constpref.'_NOTIFY_PAGE_UPDATESBJ', '[{X_SITENAME}] {X_MODULE}:{PAGE_NAME} е┌б╝е╕╣╣┐╖');
 define($constpref.'_NOTIFY_GLOBAL_UPDATECAP', 'ете╕ехб╝еы╞тд╬ддд║дьдлд╬е┌б╝е╕дм╣╣┐╖д╡дьд┐╛ь╣чд╦─╠├╬д╣ды');
 
+// Other Messages
+define($constpref.'_MSG_TO_BBCODE_EDITOR', 'BB-Code еие╟еге┐д╪└┌дъ┬╪диды');
+define($constpref.'_MSG_TO_WIKI_EDITOR',   'Wiki еие╟еге┐д╪└┌дъ┬╪диды');
+define($constpref.'_MSG_TO_SWITCH_EDITOR', 'еие╟еге┐дЄ└┌дъ┬╪дидыд┐дсд│д╬е┌б╝е╕дЄеъеэб╝е╔д╖д▐д╣бг\n╕╜║▀е╞ене╣е╚еиеъевд╦╞■╬╧д╡дьд╞дддые╟б╝е┐д╧╩▌┬╕д╡дьд▐д╗дєбг\nдшдэд╖ддд╟д╣длбй');
+
 }

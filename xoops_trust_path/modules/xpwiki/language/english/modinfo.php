@@ -73,4 +73,9 @@ define($constpref.'_NOTIFY_PAGE2_UPDATECAP', 'Notify me of edited second hierarc
 define($constpref.'_NOTIFY_PAGE_UPDATESBJ', '[{X_SITENAME}] {X_MODULE}:{PAGE_NAME} edited');
 define($constpref.'_NOTIFY_GLOBAL_UPDATECAP', 'Notify me of edited any page in this module.');
 
+// Other Messages
+define($constpref.'_MSG_TO_BBCODE_EDITOR', 'Switch to BB-Code editor');
+define($constpref.'_MSG_TO_WIKI_EDITOR',   'Switch to Wiki editor');
+define($constpref.'_MSG_TO_SWITCH_EDITOR', 'This page is reloaded in order to change editor. Contents inputted into the present text area is not saved. Are you OK?');
+
 }
