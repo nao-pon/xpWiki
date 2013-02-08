@@ -1210,18 +1210,13 @@ XpWiki.domInitFunctions.push(
 		$('{$_domid}_check').style.display = '';
 		var dropArea = uploader._find(uploader._element, 'drop');
 		var listArea = uploader._find(uploader._element, 'list');
-		var timer;
 		qq.attach(dropArea, 'dragleave', function(e){
-			if (timer) clearTimeout(timer);
-			timer = setTimeout(function(){
-				if (dropArea.style.display != 'none') dropArea.style.display = 'none';
-			}, 500);
+			if (dropArea.style.display != 'none') dropArea.style.display = 'none';
 		});
-        qq.attach(document, 'dragenter', function(e){
-            if (timer) clearTimeout(timer);
-            dropArea.style.top = Math.max(0, Event.pointerY(e) - (document.documentElement.scrollTop || document.body.scrollTop) - 65) + 'px';
-        	listArea.style.top = dropArea.style.top;
-        });
+		qq.attach(document, 'dragover', function(e){
+			dropArea.style.top = Math.max(0, Event.pointerY(e) - dropArea.getHeight() / 2) + 'px';
+			listArea.style.top = dropArea.style.top;
+		});
 		var imgPrefetch = new Image();
 		imgPrefetch.src = "{$this->cont['LOADER_URL']}?src=loading_15.gif";
 	}
