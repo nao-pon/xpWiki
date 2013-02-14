@@ -1252,6 +1252,8 @@ class XpWikiFunc extends XpWikiXoopsWrapper {
 	}
 
 	function get_headtag_key ($type, $key) {
+		static $count = 0;
+		++$count;
 		// default.js start "3."
 		switch($type) {
 			case 'css':
@@ -1266,7 +1268,7 @@ class XpWikiFunc extends XpWikiXoopsWrapper {
 				$num = $type;
 		}
 
-		return $num . '.' . $key;
+		return $num . '.' . $count . '.' . $key;
 	}
 
 	// リファラチェック $blank = 1 で未設定も不許可(デフォルトで未設定は許可)
