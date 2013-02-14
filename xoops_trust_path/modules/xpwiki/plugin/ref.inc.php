@@ -1072,14 +1072,20 @@ _HTML_;
 		$this->func->add_js_var_head($js);
 	}
 
-	function get_ref_url($page, $name, $use_pathinfo = false) {
+	function get_ref_url($page, $name, $use_pathinfo = false, $for_exterior = false) {
 		if ($this->cont['PLUGIN_REF_SHORTURL']) {
-			return $this->cont['HOME_URL'] . 'ref/' . str_replace('%2F', '%252F', rawurlencode(str_replace('%', '%25', $page))) . '/' . str_replace('%26', '%2526', rawurlencode(str_replace('%', '%25', $name)));
+			$ret = $this->cont['HOME_URL'] . 'ref' . ($for_exterior? '1' : '') . '/' . str_replace('%2F', '%252F', rawurlencode(str_replace('%', '%25', $page))) . '/' . str_replace('%26', '%2526', rawurlencode(str_replace('%', '%25', $name)));
 		} else {
 			$path_name = ($use_pathinfo && ! $this->root->disable_pathinfo)? '/' . rawurlencode($name) : '';
-			return $this->cont['HOME_URL'] . 'gate.php' . $path_name . '?way=ref&amp;_nodos&amp;_noumb&amp;page=' . rawurlencode($page) .
-					'&amp;src=' . rawurlencode($name); // Show its filename at the last
+			if ($for_exterior) {
+				$ret = $this->cont['HOME_URL'] . 'gate.php' . $path_name . '?way=attach&_noumb&ni=1&refer=' . rawurlencode($page) .
+						'&openfile=' . rawurlencode($name); // Show its filename at the last
+			} else {
+				$ret = $this->cont['HOME_URL'] . 'gate.php' . $path_name . '?way=ref&amp;_nodos&amp;_noumb&amp;page=' . rawurlencode($page) .
+						'&amp;src=' . rawurlencode($name); // Show its filename at the last
+			}
 		}
+		return $ret;
 	}
 
 	// span¤ÇÊñ¤à (inline-block)
