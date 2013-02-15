@@ -33,6 +33,8 @@ var XpWiki = {
 	SkinName: [],
 
 	domInitFunctions: [],
+	domInitFunctionsFirst: [],
+	domInitFunctionsFinal: [],
 	isDomLoaded: true,
 	domInitDone: false,
 	DomBody: null,
@@ -75,6 +77,12 @@ var XpWiki = {
 		wikihelper_adv = c_whlp.replace(/^\d+/, '');
 		if (wikihelper_adv) wikihelper_save_cookie("__whlp",c_whlp,90,"/");
 
+		if (this.domInitFunctionsFirst) {
+			while (this.domInitFunctionsFirst.length > 0) {
+				this.domInitFunctionsFirst.shift()();
+			}
+		}
+
 		if (!this.isIE6 || !this.ie6JsPass) {
 			this.remakeTextArea(this.DomBody);
 			wikihelper_initTexts(this.DomBody);
@@ -98,6 +106,12 @@ var XpWiki = {
 		}
 
 		this.iframeLargestZIndex = this.getLargestZIndex('iframe');
+
+		if (this.domInitFunctionsFinal) {
+			while (this.domInitFunctionsFinal.length > 0) {
+				this.domInitFunctionsFinal.shift()();
+			}
+		}
 	},
 
 	initPopupDiv: function (arg) {
