@@ -1,0 +1,244 @@
+$class div.gmap_tag_info {
+	border: gray solid 1px;
+}
+
+$class span.gmap_handle {
+	font-size: 80%;
+	font-weight: bold;
+	border: solid 1px;
+	padding: 1px;
+	cursor: pointer;
+	font-family: monospace
+}
+
+$class div.gmap_optional {
+	margin: 5px 0px 5px 10px;
+	padding: 5px;
+	color: #696969;
+	border: #E8E8E8 solid 1px;
+}
+$class div.gmap_optional input,
+$class div.gmap_optional select {
+	color: #696969;
+}
+
+/* control inputs
+ * .gsc-search-box : the container that hosts the text input area
+ * .gsc-input : the text input area
+ * .gsc-keeper : the save link below savable results
+ */
+$class form.gsc-search-box {
+  font-size: 13px;
+  margin-top : 0;
+  margin-right : 0;
+  margin-bottom : 4px;
+  margin-left : 0;
+  width: 100%;
+}
+
+/*
+ * This table contains the input element as well as the search button
+ * Note that the search button column is fixed width, designed to hold the
+ * button div's background image
+ */
+$class table.gsc-search-box {
+  border-style : none;
+  border-width : 0;
+  border-spacing : 0 0;
+  width : 100%;
+  margin-bottom : 2px;
+}
+
+$class table.gsc-search-box td {
+  vertical-align : middle;
+}
+
+$class table.gsc-search-box td.gsc-input {
+  padding-right : 2px;
+}
+
+$class td.gsc-search-button {
+  width : 1%;
+}
+
+$class td.gsc-clear-button {
+  width : 14px;
+}
+
+/**
+ * undo common generic table rules
+ * that tend to impact branding
+ */
+$class table.gsc-branding td,
+$class table.gsc-branding {
+  margin: 0 0 0 0;
+  padding: 0 0 0 0;
+  border : none;
+}
+
+$class table.gsc-branding {
+  border-style : none;
+  border-width : 0;
+  border-spacing : 0 0;
+  width : 100%;
+}
+
+$class .gsc-branding-text {
+  color : #676767;
+}
+
+$class td.gsc-branding-text {
+  vertical-align : top;
+}
+
+$class td.gsc-branding-text div.gsc-branding-text {
+  padding-bottom : 2px;
+  text-align : right;
+  font-size : 11px;
+  margin-right : 2px;
+}
+
+$class div.gsc-branding-youtube td.gsc-branding-text {
+  vertical-align : middle;
+}
+
+$class td.gsc-branding-img-noclear {
+  width : 51px;
+  vertical-align : bottom;
+}
+
+$class td.gsc-branding-img {
+  width : 65px;
+  vertical-align : bottom;
+}
+
+$class div.gsc-branding-youtube td.gsc-branding-img-noclear {
+  width : 55px;
+}
+
+$class div.gsc-branding-youtube td.gsc-branding-img {
+  width : 69px;
+}
+
+$class table.gsc-branding-vertical td.gsc-branding-text div.gsc-branding-text {
+  margin-right : 0;
+  text-align : center;
+}
+
+$class table.gsc-branding-vertical td.gsc-branding-img-noclear {
+  text-align : center;
+}
+
+$class div.gsc-branding-img,
+$class div.gsc-branding-img-noclear,
+$class img.gsc-branding-img,
+$class img.gsc-branding-img-noclear {
+  padding-top : 1px;
+}
+
+$class img.gsc-branding-img,
+$class img.gsc-branding-img-noclear {
+  margin : 0 0 0 0;
+  padding-right : 0;
+  padding-left : 0;
+  padding-bottom : 0;
+  border : none;
+  display : inline;
+}
+
+$class a.gsc-branding-clickable {
+  cursor : pointer;
+}
+
+$class input.gsc-search-button {
+  margin-left : 2px;
+}
+
+$class div.gsc-clear-button {
+  display : inline;
+  text-align : right;
+  margin-left : 4px;
+  margin-right : 4px;
+  padding-left : 10px;
+  background-repeat: no-repeat;
+  background-position: center center;
+  background-image: url('/uds/css/clear.gif');
+  cursor : pointer;
+}
+
+/*
+ * Given that this is sitting in a variable width tabel cell, the idea is
+ * for it to consume the entire cell. The adjacent cell contains the search
+ * button and that is a fixed width cell.
+ */
+$class input.gsc-input {
+  padding-left : 2px;
+  border-style : solid;
+  border-width : 1px;
+  border-color : #BCCDF0;
+  width : 99%;
+}
+
+/* trailing cursor section
+ */
+$class .gsc-imageResult .gsc-cursor-box {
+  clear : both;
+}
+
+$class .gsc-results .gsc-cursor-box .gsc-trailing-more-results {
+  margin-bottom : 0;
+  display : inline;
+}
+
+$class .gsc-results .gsc-cursor {
+  display : inline;
+}
+
+$class .gsc-results .gsc-cursor-box {
+  margin-bottom : 10px;
+}
+
+$class .gsc-results .gsc-cursor-box .gsc-cursor-page {
+  cursor : pointer;
+  color : #000000;
+  text-decoration: underline;
+  margin-right : 8px;
+  display : inline;
+}
+
+$class .gsc-results .gsc-cursor-box .gsc-cursor-current-page {
+  color : #A90A08;
+  font-weight : bold;
+  text-decoration: none;
+}
+
+$class div.gmls {
+	z-index: 1000002;
+	opacity: 0.9;
+}
+
+$class .gs-localResult {
+	font-size: 10pt;
+}
+
+$class .gmls-clear-results {
+ text-align : right;
+}
+
+$class .gmls-control-button {
+  display : inline;
+  color : #7777CC;
+  cursor : pointer;
+  text-decoration : underline;
+  padding : 2px;
+}
+
+$class .gmls-results-popup-minimized .gmls-minimize-results,
+$class .gmls-results-popup-maximized .gmls-maximize-results,
+$class .gmls-results-popup-minimized .gmls-results-table {
+  display : none;
+}
+
+$class table.gmls-results-controls {
+	width: 100%;
+}

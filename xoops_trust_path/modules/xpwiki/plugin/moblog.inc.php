@@ -889,7 +889,7 @@ class xpwiki_plugin_moblog extends xpwiki_plugin {
 		}
 
 		if ($points) {
-			$mapfound = (preg_match('/^#googlemaps2/m', $pagedata));
+			$mapfound = (preg_match('/^#gmap\(/m', $pagedata));
 			foreach($points as $point) {
 				$date = '';
 				if ($point['title']) {
@@ -900,12 +900,12 @@ class xpwiki_plugin_moblog extends xpwiki_plugin {
 				}
 				$map = '';
 				if (! empty($this->post_options['makemap']) && ! $mapfound) {
-					$map = "\n#clear\n" . '#googlemaps2(lat=' . $point['Lat'] . ',lng=' . $point['Lon'] . $this->config['gmap'] . ')' . "\n";
+					$map = "\n#clear\n" . '#gmap(lat=' . $point['Lat'] . ',lng=' . $point['Lon'] . $this->config['gmap'] . ')' . "\n";
 					$mapfound = true;
 				}
 				if ($mapfound) {
 					$image = ($point['image'])? ',"image='.$point['image'].'"' : '';
-					$marker = "\n" . '-&googlemaps2_mark(' . $point['Lat'] . ',' . $point['Lon'] . $image . ',"title=Point: ' . $title . '"){' . ($subject? $subject . '&br;' : '') . $date . '};' . "\n";
+					$marker = "\n" . '-&gmap_mark(' . $point['Lat'] . ',' . $point['Lon'] . $image . ',"title=Point: ' . $title . '"){' . ($subject? $subject . '&br;' : '') . $date . '};' . "\n";
 					if ($point['repreg']) {
 						$set_data = preg_replace($point['repreg'], $map . '$1' . $marker, $set_data);
 					} else {

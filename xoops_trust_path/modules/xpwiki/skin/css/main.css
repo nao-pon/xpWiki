@@ -50,6 +50,11 @@ $class .maxwidth_none img {
 	max-width: none;
 }
 
+$class .img_maxsize_none img {
+	max-width: none;
+	max-height: none;
+}
+
 /* for render mode on XOOPS */
 $class div.xoopsQuote blockquote {
 	border: none;
