@@ -561,7 +561,7 @@ EOD;
 		}
 		$pukiwikiname = $options['mapname'];
 		$output .= <<<EOD
-<div id="$mapname" class="img_maxsize_none" style="width: $width; height: $height;"></div>
+<div id="$mapname" class="gmap_map" style="width: $width; height: $height;"></div>
 EOD;
 		if ($wikitag !== 'none') {
 			if ($wikitag === 'show') {
@@ -758,6 +758,7 @@ EOD;
 		// GoogleBar
 		if ($googlebar) {
 			$this->func->add_js_head('//www.google.com/uds/api?file=uds.js&amp;v=1');
+			$this->func->add_tag_head('jGoogleBarV3.css');
 			$this->func->add_tag_head('jGoogleBarV3.js');
 			$output .= "var gbarOptions={searchFormOptions:{hintString:'{$this->msg['do_local_search']}',buttonText:'{$this->root->_LANG['skin']['search_s']}'}};\n";
 			$output .= "var gbar=new window.jeremy.jGoogleBar(map,gbarOptions);\n";

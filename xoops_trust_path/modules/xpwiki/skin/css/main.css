@@ -47,12 +47,12 @@ $class blockquote {
 }
 
 $class .maxwidth_none img {
-	max-width: none;
+	max-width: none !important;
 }
 
 $class .img_maxsize_none img {
-	max-width: none;
-	max-height: none;
+	max-width: none !important;
+	max-height: none !important;
 }
 
 /* for render mode on XOOPS */

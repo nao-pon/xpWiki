@@ -1,0 +1,205 @@
+/* control inputs
+ * .gsc-search-box : the container that hosts the text input area
+ * .gsc-input : the text input area
+ * .gsc-keeper : the save link below savable results
+ */
+form.gsc-search-box {
+  font-size: 13px;
+  margin-top : 0;
+  margin-right : 0;
+  margin-bottom : 4px;
+  margin-left : 0;
+  width: 100%;
+}
+
+/*
+ * This table contains the input element as well as the search button
+ * Note that the search button column is fixed width, designed to hold the
+ * button div's background image
+ */
+table.gsc-search-box {
+  border-style : none;
+  border-width : 0;
+  border-spacing : 0 0;
+  width : 100%;
+  margin-bottom : 2px;
+}
+
+table.gsc-search-box td {
+  vertical-align : middle;
+}
+
+table.gsc-search-box td.gsc-input {
+  padding-right : 2px;
+}
+
+td.gsc-search-button {
+  width : 1%;
+}
+
+td.gsc-clear-button {
+  width : 14px;
+}
+
+/**
+ * undo common generic table rules
+ * that tend to impact branding
+ */
+table.gsc-branding td,
+table.gsc-branding {
+  margin: 0 0 0 0;
+  padding: 0 0 0 0;
+  border : none;
+}
+
+table.gsc-branding {
+  border-style : none;
+  border-width : 0;
+  border-spacing : 0 0;
+  width : 100%;
+}
+
+.gsc-branding-text {
+  color : #676767;
+}
+
+td.gsc-branding-text {
+  vertical-align : top;
+}
+
+td.gsc-branding-text div.gsc-branding-text {
+  padding-bottom : 2px;
+  text-align : right;
+  font-size : 11px;
+  margin-right : 2px;
+}
+
+div.gsc-branding-youtube td.gsc-branding-text {
+  vertical-align : middle;
+}
+
+td.gsc-branding-img-noclear {
+  width : 51px;
+  vertical-align : bottom;
+}
+
+td.gsc-branding-img {
+  width : 65px;
+  vertical-align : bottom;
+}
+
+div.gsc-branding-youtube td.gsc-branding-img-noclear {
+  width : 55px;
+}
+
+div.gsc-branding-youtube td.gsc-branding-img {
+  width : 69px;
+}
+
+table.gsc-branding-vertical td.gsc-branding-text div.gsc-branding-text {
+  margin-right : 0;
+  text-align : center;
+}
+
+table.gsc-branding-vertical td.gsc-branding-img-noclear {
+  text-align : center;
+}
+
+div.gsc-branding-img,
+div.gsc-branding-img-noclear,
+img.gsc-branding-img,
+img.gsc-branding-img-noclear {
+  padding-top : 1px;
+}
+
+img.gsc-branding-img,
+img.gsc-branding-img-noclear {
+  margin : 0 0 0 0;
+  padding-right : 0;
+  padding-left : 0;
+  padding-bottom : 0;
+  border : none;
+  display : inline;
+}
+
+a.gsc-branding-clickable {
+  cursor : pointer;
+}
+
+input.gsc-search-button {
+  margin-left : 2px;
+}
+
+div.gsc-clear-button {
+  display : inline;
+  text-align : right;
+  margin-left : 4px;
+  margin-right : 4px;
+  padding-left : 10px;
+  background-repeat: no-repeat;
+  background-position: center center;
+  background-image: url('/uds/css/clear.gif');
+  cursor : pointer;
+}
+
+/*
+ * Given that this is sitting in a variable width tabel cell, the idea is
+ * for it to consume the entire cell. The adjacent cell contains the search
+ * button and that is a fixed width cell.
+ */
+input.gsc-input {
+  padding-left : 2px;
+  border-style : solid;
+  border-width : 1px;
+  border-color : #BCCDF0;
+  width : 99%;
+}
+
+/* trailing cursor section
+ */
+.gsc-imageResult .gsc-cursor-box {
+  clear : both;
+}
+
+.gsc-results .gsc-cursor-box .gsc-trailing-more-results {
+  margin-bottom : 0;
+  display : inline;
+}
+
+.gsc-results .gsc-cursor {
+  display : inline;
+}
+
+.gsc-results .gsc-cursor-box {
+  margin-bottom : 10px;
+}
+
+.gsc-results .gsc-cursor-box .gsc-cursor-page {
+  cursor : pointer;
+  color : #000000;
+  text-decoration: underline;
+  margin-right : 8px;
+  display : inline;
+}
+
+.gsc-results .gsc-cursor-box .gsc-cursor-current-page {
+  color : #A90A08;
+  font-weight : bold;
+  text-decoration: none;
+}
+
+.gmls-clear-results{
+ text-align : right;
+}
+
+.gmls-control-button{
+  display : inline;
+  color : #7777CC;
+  cursor : pointer;
+  text-decoration : underline;
+  padding : 2px;
+}
+
+.gmls-results-popup-minimized .gmls-minimize-results, .gmls-results-popup-maximized .gmls-maximize-results, .gmls-results-popup-minimized .gmls-results-table{
+  display : none;
+}

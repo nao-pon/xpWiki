@@ -45,7 +45,7 @@
                        }),
    headEl=document.getElementsByTagName('head')[0];
   headEl.appendChild(style);
-  headEl.appendChild(otherStyle);
+//  headEl.appendChild(otherStyle);
  }
  // Google Bar itself
  function jGoogleBar(map,options){ // constructor
@@ -298,6 +298,7 @@
   if(!typeis(start,'number') || !argsStr){
    argsStr=[];
    for(var i in options){
+    if (!options.hasOwnProperty(i)) continue;
     argsStr.push([i,encodeURIComponent(typeis(options[i],'function')?options[i]():options[i])].join('='));
    }
   }
@@ -496,6 +497,7 @@
   }
   if(attribs){
    for(var i in attribs){
+    if (!attribs.hasOwnProperty(i)) continue;
     if(i.match(/^on/) && typeis(attribs[i],'function')){
      el[i]=attribs[i]
     }else{
@@ -505,6 +507,7 @@
   }
   if(styles){
    for(var i in styles){
+    if (!styles.hasOwnProperty(i)) continue;
     el.style[i]=styles[i]
    }
   }
