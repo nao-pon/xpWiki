@@ -74,7 +74,7 @@ var XpWiki = {
 
 		// cookie
 		var c_whlp = wikihelper_load_cookie("__whlp");
-		wikihelper_adv = c_whlp.replace(/^\d+/, '');
+		wikihelper_adv = (c_whlp && c_whlp.replace(/^\d+/, ''));
 		if (wikihelper_adv) wikihelper_save_cookie("__whlp",c_whlp,90,"/");
 
 		if (this.domInitFunctionsFirst) {
