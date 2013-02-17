@@ -6,6 +6,11 @@ $class div.gmap_map div {
 	max-width: none !important;
 }
 
+$class_mobile div.gmap_smap img {
+	max-width: 100% !important;
+	height: auto !important;
+}
+
 $class div.gmap_tag_info {
 	border: gray solid 1px;
 }

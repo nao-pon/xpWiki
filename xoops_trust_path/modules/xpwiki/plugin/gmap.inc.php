@@ -110,13 +110,12 @@ class xpwiki_plugin_gmap extends xpwiki_plugin {
 
 	var $map_count = array();
 	var $lastmap_name;
+	var $google_staticmap_url = 'https://maps.googleapis.com/maps/api/staticmap?sensor=true&amp;';
 
 	function plugin_gmap_init () {
 
 		// 言語ファイルの読み込み
 		$this->load_language();
-
-		$this->cont['PLUGIN_GMAP_DEF_KEY'] =  '';
 
 		$this->cont['PLUGIN_GMAP_DEF_MAPNAME'] =        'map';			//Map名(自動設定される)
 		$this->cont['PLUGIN_GMAP_DEF_WIDTH'] =          '400px';		//横幅
@@ -160,7 +159,7 @@ class xpwiki_plugin_gmap extends xpwiki_plugin {
 		//ユーザーが追加したプロファイルがあり、それもGoogleMapsが表示可能なデバイスなら追加すること。
 		//またデフォルトのプロファイルを"default"以外の名前にしている場合も変更すること。
 		//注:GoogleMapsは携帯電話で表示できない。
-		$this->cont['PLUGIN_GMAP_PROFILE'] =  'default,mobile';
+		$this->cont['PLUGIN_GMAP_PROFILE'] =  'default';
 
 		// This plugins config
 		$this->conf['ApiVersion'] = '2';
@@ -190,7 +189,7 @@ class xpwiki_plugin_gmap extends xpwiki_plugin {
 	function plugin_gmap_get_default () {
 		return array(
 			'mapname'		 => $this->cont['PLUGIN_GMAP_DEF_MAPNAME'],
-			'key'			 => $this->cont['PLUGIN_GMAP_DEF_KEY'],
+			'key'			 => $this->root->google_api_key,
 			'lat'			 => $this->cont['PLUGIN_GMAP_DEF_LAT'],
 			'lng'			 => $this->cont['PLUGIN_GMAP_DEF_LNG'],
 			'width'			 => $this->cont['PLUGIN_GMAP_DEF_WIDTH'],
@@ -283,8 +282,14 @@ EOD;
 		// This part is based on GNAVI (http://xoops.iko-ze.net/) //
 		////////////////////////////////////////////////////////////
 
-		$this->root->keitai_output_filter = 'SJIS';
-		$this->root->rtf['no_accesskey'] = TRUE;
+		if ($this->cont['UA_PROFILE'] === 'mobile') {
+			$this->func->add_tag_head('gmap.css');
+			$navi_tag = '';
+		} else {
+			$this->root->keitai_output_filter = 'SJIS';
+			$this->root->rtf['no_accesskey'] = TRUE;
+			$navi_tag = '<img src="'.$this->cont['LOADER_URL'].'?src=mnavi.gif" '.$this->conf['navsize'].' />';
+		}
 
 		$default_lat  = empty( $this->root->get['lat'] )  ? $this->cont['PLUGIN_GMAP_DEF_LAT']  : floatval( $this->root->get['lat'] ) ;
 		$default_lng  = empty( $this->root->get['lng'] )  ? $this->cont['PLUGIN_GMAP_DEF_LNG']  : floatval( $this->root->get['lng'] ) ;
@@ -302,8 +307,7 @@ EOD;
 
 		$other = $markers . $refer;
 
-		$google_staticmap = 'http://maps.google.com/staticmap';
-		$mymap="$google_staticmap?center=$default_lat,$default_lng&zoom=$default_zoom&size={$this->conf['StaticMapSize']}&maptype=mobile&key={$this->cont['PLUGIN_GMAP_DEF_KEY']}{$markers}";
+		$mymap = $this->google_staticmap_url . "center=$default_lat,$default_lng&zoom=$default_zoom&size={$this->conf['StaticMapSize']}&maptype=mobile&key={$this->root->google_api_key}{$markers}";
 		$google_link = $this->get_static_image_url($default_lat, $default_lng, $default_zoom, '', 2);
 
 		/*緯度は -90度 〜 +90度の範囲に、経度は -180度 〜 +180度の範囲に収まるように*/
@@ -339,7 +343,11 @@ EOD;
 			);
 
 		$maplink = $this->root->script . '?plugin=gmap&amp;action=static&amp;';
-
+		
+		if ($this->cont['UA_PROFILE'] === 'mobile') {
+			
+		} 
+		
 		if ($default_zoom < 18) {
 			$zoomup = <<<EOD
 <a href="{$maplink}&amp;zoom={$mapkeys['zoomup']}&amp;lng={$mapkeys['lng']}&amp;lat={$mapkeys['lat']}{$other}"  accesskey="5" ></a>
@@ -371,8 +379,8 @@ EOD;
 {$zoomdown}
 
 <div style="text-align:center">
-	<img src="{$mymap}" {$this->conf['mapsize']} /><br />
-	<img src="{$this->cont['LOADER_URL']}?src=mnavi.gif" {$this->conf['navsize']} />
+	<div class="gmap_smap"><img src="{$mymap}" {$this->conf['mapsize']} /></div>
+	{$navi_tag}
 	<br />
 	<a href="{$google_link}">GoogleMap</a>
 	<hr />
@@ -428,7 +436,7 @@ EOD;
 				$zoom = $zoom - 1;
 			}
 			$params = ($lng)? 'center='.$lat.','.$lng.'&amp;zoom='.$zoom.'&amp;' : $lat;
-			$url = 'http://maps.google.com/staticmap?'.$params.'size='.$this->conf['StaticMapSize'].'&amp;type=mobile&amp;key='.$this->cont['PLUGIN_GMAP_DEF_KEY'];
+			$url = $this->google_staticmap_url.$params.'size='.$this->conf['StaticMapSize'].'&amp;type=mobile&amp;key='.$this->root->google_api_key;
 		}
 		if ($markers && $useAction < 2) {
 			$url .= '&amp;markers=' . htmlspecialchars($markers);
@@ -443,7 +451,7 @@ EOD;
 		$_zoom = ($zoom > 10)? ($zoom - 1) : $zoom;
 		$this->root->replaces_finish[$params] = 'center='.$lat.','.$lng.'&amp;zoom='.$_zoom.'&amp;';
 		$imgurl = $this->get_static_image_url($params, '', 0, $markers);
-		$img = '<img class="img_margin" src="'.$imgurl.'" '.$this->conf['mapsize'].' />';
+		$img = '<div class="gmap_smap"><img class="img_margin" src="'.$imgurl.'" '.$this->conf['mapsize'].' /></div>';
 		$map = '<br />[ <a href="'.$this->get_static_image_url($lat, $lng, $zoom, '__GOOGLE_MAPS_STATIC_MARKERS_' . $this->lastmap_name, 1).'">Map</a> | <a href="'.$this->get_static_image_url($lat, $lng, $zoom, '__GOOGLE_MAPS_STATIC_MARKERS_' . $this->lastmap_name, 2).'">Google</a> ]';
 		return '<div style="text-align:center;">' . $img . $map . '</div>';
 	}
