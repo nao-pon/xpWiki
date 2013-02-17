@@ -48,3 +48,7 @@ div.gs-result {
 div.gs-country {
 	display: none;
 }
+
+table.gmls-results-controls {
+	width: 100% !important;
+}
