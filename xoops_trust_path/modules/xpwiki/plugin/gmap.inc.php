@@ -435,7 +435,7 @@ EOD;
 				'C' => 'CENTER',
 				'R' => 'RIGHT');
 		
-		if (is_numeric($val)) {
+		if (is_numeric($val) || strlen($val) < 2 || !isset($pos[$val[0]]) || !isset($pos[$val[0]])) {
 			$val = $default;
 		}
 		return 'google.maps.ControlPosition.'.$pos[$val[0]].'_'.$pos[$val[1]];
