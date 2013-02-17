@@ -598,7 +598,7 @@ function PGSearch() {
 	this.map = null;
 	this.container = null;
 
-	this.initialize = function(map) {
+	this.initialize = function(map, options) {
 		this.map = map;
 		this.container = document.createElement("div");
 		this.container.style.backgroundColor = "#ffffff";
@@ -647,7 +647,7 @@ function PGSearch() {
 		});
 
 		searchbox.setBounds(map.getBounds());
-		map.controls[google.maps.ControlPosition.TOP_CENTER].push(this.container);
+		map.controls[options.position].push(this.container);
 		
 	};
 

@@ -49,6 +49,14 @@ div.gs-country {
 	display: none;
 }
 
+div.gmls {
+	z-index: 100 !important;
+}
+
+div.gmls-search-form {
+	opacity: 0.75;
+}
+
 table.gmls-results-controls {
 	width: 100% !important;
 }

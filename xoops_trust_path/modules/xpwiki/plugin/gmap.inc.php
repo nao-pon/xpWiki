@@ -407,7 +407,40 @@ EOD;
 			return 0;
 		return 1;
 	}
-
+	
+	function gmap_getpos($val) {
+		if (! is_numeric($val)) {
+			$val = strtoupper($val);
+			if (in_array($val, array('TL','TC','TR','LT','RT','LC','RC','LB','RB','BL','BC','BR'))) {
+				return $val;
+			}
+		}
+		return $this->plugin_gmap_getbool($val);
+	}
+	
+	// 	+----------------+
+	// 	+ TL    TC    TR +
+	// 	+ LT          RT +
+	// 	+                +
+	// 	+ LC          RC +
+	// 	+                +
+	// 	+ LB          RB +
+	// 	+ BL    BC    BR +
+	// 	+----------------+
+	function gmap_get_pos_constant($val, $default) {
+		static $pos = array(
+				'T' => 'TOP',
+				'B' => 'BOTTOM',
+				'L' => 'LEFT',
+				'C' => 'CENTER',
+				'R' => 'RIGHT');
+		
+		if (is_numeric($val)) {
+			$val = $default;
+		}
+		return 'google.maps.ControlPosition.'.$pos[$val[0]].'_'.$pos[$val[1]];
+	}
+	
 	function plugin_gmap_addprefix($page, $name) {
 		$page = $this->get_pgid($page);
 		//if (!$page) $page = uniqid('r_');
@@ -503,15 +536,15 @@ EOD;
 		$panctrl		= $options['panctrl'];
 		$zoomctrl		= $options['zoomctrl'];
 		$typectrl		= $options['typectrl'];
-		$scalectrl		= $this->plugin_gmap_getbool($options['scalectrl']);
+		$scalectrl		= $this->gmap_getpos($options['scalectrl']);
 		$rotatectrl     = $this->plugin_gmap_getbool($options['rotatectrl']);
 		$streetviewctrl = $this->plugin_gmap_getbool($options['streetviewctrl']);
 		$overviewctrl	= $this->plugin_gmap_getbool($options['overviewctrl']);
 		$crossctrl		= $this->plugin_gmap_getbool($options['crossctrl']);
-		$searchctrl		= $this->plugin_gmap_getbool($options['searchctrl']);
+		$searchctrl		= $this->gmap_getpos($options['searchctrl']);
 		$dropmarker		= $this->plugin_gmap_getbool($options['dropmarker']);
 		$togglemarker	= $this->plugin_gmap_getbool($options['togglemarker']);
-		$googlebar		= $this->plugin_gmap_getbool($options['googlebar']);
+		$googlebar		= $this->gmap_getpos($options['googlebar']);
 		//$overviewwidth	= $options['overviewwidth']; // 廃止
 		//$overviewheight = $options['overviewheight']; // 廃止
 		$api			= isset($options['api'])? (integer)$options['api'] : 2; //非奨励
@@ -646,9 +679,11 @@ EOD;
 		//if ($scalectrl != "none") {
 		if($scalectrl) {
 			$mOptions[] = "scaleControl: true";
-			if ($googlebar) {
-				$mOptions[] = "scaleControlOptions: {position: google.maps.ControlPosition.RIGHT_BOTTOM}";
+			if ($scalectrl === 1 && ($googlebar === 1 || $googlebar === 'BL')) {
+				$_def = 'RB';
 			}
+			$_pos = $this->gmap_get_pos_constant($scalectrl, $_def);
+			$mOptions[] = "scaleControlOptions: {position: {$_pos}}";
 		}
 		
 		// Show Map Type Control and Center
@@ -738,8 +773,10 @@ EOD;
 		
 		// 検索ボックスコントロール
 		if ($searchctrl) {
+			$_pos = $this->gmap_get_pos_constant($scalectrl, 'TC');
+			$_opt = "{position: $_pos}";
 			$output .= "var searchctrl = new PGSearch();\n";
-			$output .= "searchctrl.initialize(map);\n";
+			$output .= "searchctrl.initialize(map, $_opt);\n";
 			$output .= "googlemaps_searchctrl['$page']['$mapname'] = searchctrl;\n";
 		}
 		
@@ -770,7 +807,8 @@ EOD;
 			$this->func->add_tag_head('jGoogleBarV3.js');
 			$output .= "var gbarOptions={searchFormOptions:{hintString:'{$this->msg['do_local_search']}',buttonText:'{$this->root->_LANG['skin']['search_s']}'}};\n";
 			$output .= "var gbar=new window.jeremy.jGoogleBar(map,gbarOptions);\n";
-			$output .= "map.controls[google.maps.ControlPosition.BOTTOM_LEFT].push(gbar.container);\n";
+			$_pos = $this->gmap_get_pos_constant($scalectrl, 'BL');
+			$output .= "map.controls[$_pos].push(gbar.container);\n";
 		}
 
 		// マーカーの表示非表示チェックボックス
