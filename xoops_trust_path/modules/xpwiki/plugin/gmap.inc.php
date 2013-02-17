@@ -773,7 +773,7 @@ EOD;
 		
 		// 検索ボックスコントロール
 		if ($searchctrl) {
-			$_pos = $this->gmap_get_pos_constant($scalectrl, 'TC');
+			$_pos = $this->gmap_get_pos_constant($searchctrl, 'TC');
 			$_opt = "{position: $_pos}";
 			$output .= "var searchctrl = new PGSearch();\n";
 			$output .= "searchctrl.initialize(map, $_opt);\n";
