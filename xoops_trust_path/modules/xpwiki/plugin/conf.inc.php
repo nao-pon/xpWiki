@@ -279,6 +279,11 @@ class xpwiki_plugin_conf extends xpwiki_plugin {
 					'Enabled with link' => 2,
 				),
 			),
+			'google_api_key' => array(
+				'kind' => 'root',
+				'type' => 'string',
+				'form' => 'text,size="60"',
+			),
 			'twitter_consumer_key' => array(
 				'kind' => 'root',
 				'type' => 'string',

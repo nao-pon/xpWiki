@@ -1097,6 +1097,8 @@ $root->twitter_consumer_key = '';
 $root->twitter_consumer_secret = '';
 $root->yahoo_application_id = '';
 $root->yahoo_app_upgrade_id = '';
+$root->google_api_key = '';
+
 
 $root->pginfo = array(
 	'uid'       => 0,     // UserID
