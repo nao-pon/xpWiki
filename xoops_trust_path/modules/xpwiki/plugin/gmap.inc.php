@@ -807,7 +807,7 @@ EOD;
 			$this->func->add_tag_head('jGoogleBarV3.js');
 			$output .= "var gbarOptions={searchFormOptions:{hintString:'{$this->msg['do_local_search']}',buttonText:'{$this->root->_LANG['skin']['search_s']}'}};\n";
 			$output .= "var gbar=new window.jeremy.jGoogleBar(map,gbarOptions);\n";
-			$_pos = $this->gmap_get_pos_constant($scalectrl, 'BL');
+			$_pos = $this->gmap_get_pos_constant($googlebar, 'BL');
 			$output .= "map.controls[$_pos].push(gbar.container);\n";
 		}
 
