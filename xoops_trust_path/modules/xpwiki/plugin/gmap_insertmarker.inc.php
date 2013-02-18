@@ -55,8 +55,9 @@ class xpwiki_plugin_gmap_insertmarker extends xpwiki_plugin {
 		
 		$save_zoom = (!empty($this->root->vars['save_zoom']));
 		$save_mtype = (!empty($this->root->vars['save_mtype']));
-
-		$caption .= (isset($this->root->vars['save_addr']))? ($caption? '&br;' : '') . $this->msg['cap_addr'] . ': ' . $this->root->vars['addr'] : '';
+		$save_addr = (!empty($this->root->vars['save_addr']));
+		
+		$caption .= ($save_addr)? ($caption? '&br;' : '') . $this->msg['cap_addr'] . ': ' . $this->root->vars['addr'] : '';
 
 		$title   = htmlspecialchars(str_replace("\n", '', $title));
 		$caption = str_replace("\n", '&br;', $caption);
