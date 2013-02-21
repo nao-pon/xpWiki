@@ -45,6 +45,7 @@ var PGMap = function(page, mapname, options) {
 	googlemaps_maps[page][mapname] = map;
 	googlemaps_markers[page][mapname] = new Array();
 	googlemaps_zoomarkers[page][mapname] = new Array();
+	map._onloadfunc = new Array();
 
 	//map.pukiwikiname = mapname;
 	map.wikipage = page;
@@ -85,6 +86,18 @@ var PGMap = function(page, mapname, options) {
 
 		//Fire zoom_changed for attempt maxzoom & minzoom
 		map.setZoom(map.getZoom());
+	});
+	
+	var init = false;
+	google.maps.event.addListener(map, 'idle', function(){
+		if (!init) {
+			init = true;
+			if (map._onloadfunc) {
+				while (map._onloadfunc.length > 0) {
+					map._onloadfunc.shift()();
+				}
+			}
+		}
 	});
 
 	return map;
@@ -131,12 +144,15 @@ var PGMarker = function(point, icon, flat, page, map, hidden, visible, title, mi
 	var _html = null;
 	var _zoom = null;
 	var _type = null;
+	var _street = null;
 
 	this.setHtml = function(h) {_html = h;};
 	this.setZoom = function(z) {_zoom = parseInt(z);};
 	this.setType = function(t) {_type = t;};
+	this.setStreet = function(s) {_street = s;};
 	this.getHtml = function() {return _html;};
 	this.getZoom = function() {return _zoom;};
+	this.getStreet = function() {return _street;};
 	//this.getType = function() {return _type;}
 
 	this.onclick = function () {
@@ -198,9 +214,11 @@ var PGMarker = function(point, icon, flat, page, map, hidden, visible, title, mi
 				infowindow.setContent(_html);
 				infowindow.open(map, this.marker);
 			}
-		} else {
-			//map.panTo(this.point);
 		}
+		
+		// set street view if exists
+		map._disabledAutoZoom = false;
+		PGTool.setCenterNearStreetViewPoint(map, this.point, true, this.getStreet());
 	};
 
 	this.isVisible = function () {
@@ -259,6 +277,11 @@ var PGTool = new function () {
 			y = ny;
 		}
 		return {x:x, y:y};
+	};
+	this.round = function(p, c) {
+		if (!c) c = 6;
+		c = Math.pow(10,c);
+		return Math.round(p * c) / c;
 	};
 	this.createXmlHttp = function () {
 		if (typeof(XMLHttpRequest) == "function") {
@@ -330,6 +353,90 @@ var PGTool = new function () {
 			return 'terrain';
 		} else {
 			return 'roadmap';
+		}
+	};
+	
+	this.setCenterNearStreetViewPoint = function(map, basePoint, setZoom, option) {
+		if (! map._streetView) return;
+		
+		if (!!map._disabledAutoZoom) {
+			return; // for insertmarker
+		}
+		
+		var sv = map._streetView;
+		
+		if (option) {
+			if (isFinite(option.lat) && isFinite(option.lng) && isFinite(option.heading) && isFinite(option.pitch) && isFinite(option.zoom)) {
+				setTimeout(function(){
+					setPoint(basePoint, new google.maps.LatLng(option.lat, option.lng));}
+				, 200);
+				return;
+			}
+		}
+		
+		if (typeof sv._nearPoints == 'undefined') {
+			sv._nearPoints = new Array();
+		}
+		if (!basePoint) {
+			basePoint = (sv._orgLatlng || map.getCenter());
+		}
+		var key = basePoint.toString();
+		var search = [50, 100, 200, 400, 800];
+		
+		if (typeof sv._nearPoints[key] == 'undefined') {
+			calPoint(search.shift());
+		} else if (!!sv._nearPoints[key]) {
+			setTimeout(function(){setPoint(basePoint, sv._nearPoints[key]);}, 200);
+		}
+		
+		function calPoint(i) {
+			sv._nearPoints[key] = false;
+			var client = new google.maps.StreetViewService();
+			client.getPanoramaByLocation(basePoint, i, function(result, status) {
+				if (status == google.maps.StreetViewStatus.OK) {
+					sv._nearPoints[key] = result;
+					setTimeout(function(){setPoint(basePoint, result);}, 50);
+				} else if (status == google.maps.StreetViewStatus.ZERO_RESULTS) {
+					var next = search.shift();
+					if (next) {
+						calPoint(next);
+					}
+				}
+			});
+		}
+		function setPoint(point, result) {
+			var nearestLatLng = (!result.location)? result : result.location.latLng;
+			if (setZoom) {
+				var lat1 = point.lat();
+				var lat2 = lat1 - ((lat1 - nearestLatLng.lat()) * 2);
+				var lng1 = point.lng();
+				var lng2 = lng1 - ((lng1 - nearestLatLng.lng()) * 2);
+				var bounds = new google.maps.LatLngBounds(
+					new google.maps.LatLng(Math.min(lat1,lat2),Math.min(lng1, lng2)),
+					new google.maps.LatLng(Math.max(lat1,lat2),Math.max(lng1, lng2))
+				);
+				map.fitBounds(bounds);
+				if (map.getZoom() > sv._options.markerzoom) {
+					map.setZoom(sv._options.markerzoom);
+				}
+			} else {
+				map.setCenter(nearestLatLng);
+			}
+			var h = 0;
+			if (!point.equals(nearestLatLng)) {
+				var h = 90 - (Math.atan2(point.lat() - nearestLatLng.lat(), point.lng() - nearestLatLng.lng()) * 180 / Math.PI);
+			}
+			if (result.location) {
+				sv.setPano(result.location.pano);
+			} else {
+				sv.setPosition(result);
+			}
+			if (option) {
+				sv.setPov({heading:option.heading, pitch:option.pitch, zoom:option.zoom});
+			} else {
+				sv.setPov({heading:h,pitch:0,zoom:1});
+			}
+			sv.setVisible(true);
 		}
 	};
 	
@@ -590,6 +697,53 @@ PGCross = function(map) {
 };
 
 
+//
+//Streetview Div
+//
+var PGStreet = function(page, mapname, options) {
+	var map = googlemaps_maps[page][mapname];
+
+	var streetViewDiv = document.getElementById(mapname + '_street');
+	
+	// Cancel Event dblclick bubble up
+	google.maps.event.addDomListener(streetViewDiv, 'dblclick', function(e) {
+		(e || window.event).stop();
+	});
+	
+	var streetViewOptions = {
+		position : map.getCenter()
+	};
+	var streetView = new google.maps.StreetViewPanorama(streetViewDiv, streetViewOptions);
+	
+	streetView.setPov({heading:options.heading,pitch:options.pitch,zoom:options.zoom});
+	
+	map._streetView = streetView;
+	map._streetView._orgLatlng = map.getCenter();
+	map._streetView._options = options;
+	
+	map.setStreetView(streetView);
+	
+	map.bindTo('center', streetView, 'position');
+	
+	if (!!options.streetlayer) {
+		var streetViewLayer = new google.maps.ImageMapType({
+			getTileUrl : function(coord, zoom) {
+				return "http://www.google.com/cbk?output=overlay&zoom=" + zoom + "&x=" + coord.x + "&y=" + coord.y + "&cb_client=api";
+			},
+			tileSize: new google.maps.Size(256, 256)
+		});
+		map.overlayMapTypes.insertAt(0, streetViewLayer);
+	}
+	
+	var dMarker = googlemaps_dropmarker[page][mapname];
+	if (dMarker) {
+		google.maps.event.addListener(dMarker, 'dragend', function(){
+			PGTool.setCenterNearStreetViewPoint(map, dMarker.getPosition(), false);
+			map._disabledAutoZoom = false;
+		});
+	}
+};
+
 
 //
 // Search Box
@@ -656,7 +810,8 @@ function PGSearch() {
 var PGDropMarker = function(map, options) {
 	var title = (! options.title)? 'Drop Marker' : options.title;
 	var dropmarker = new google.maps.Marker({
-		position: new google.maps.LatLng(map.getCenter()),
+		//position: new google.maps.LatLng(map.getCenter()),
+		position: map.getCenter(),
 		icon: new google.maps.MarkerImage(
 			'http://www.google.com/mapfiles/gadget/arrowSmall80.png',
 			new google.maps.Size(31, 27),
@@ -678,17 +833,15 @@ var PGDropMarker = function(map, options) {
 	google.maps.event.addListener(map, "dblclick", function(event){ 
 		clearTimeout(dropmarker_timer);
 	});
-	var dropmarkerIni = false;
-	google.maps.event.addListener(map, "idle", function(){
-		if (!dropmarkerIni) {
-			dropmarkerIni = true;
-			dropmarkerUp(map.getCenter());
-		}
+	
+	map._onloadfunc.push(function(){
+		dropmarkerUp(map.getCenter());
 	});
+
 	return dropmarker;
 };
 
-var PGMAP_INSERTMARKER_FORM = function(page, mapname, imprefix, err_map_notfind, err_irreg_dat){
+var PGMapInsertMarkerForm = function(page, mapname, imprefix, err_map_notfind, err_irreg_dat){
 	var map = googlemaps_maps[page][mapname];
 	var dMarker = (googlemaps_dropmarker[page][mapname])? googlemaps_dropmarker[page][mapname] : false;
 	var geocoder = new google.maps.Geocoder();
@@ -706,6 +859,9 @@ var PGMAP_INSERTMARKER_FORM = function(page, mapname, imprefix, err_map_notfind,
 		var save_zoom  = document.getElementById(imprefix + "_save_zoom");
 		var save_mtype  = document.getElementById(imprefix + "_save_mtype");
 		var addr  = document.getElementById(imprefix + "_addr");
+		var save_strt  = document.getElementById(imprefix + "_save_strt");
+		var strt  = document.getElementById(imprefix + "_strt");
+		var strt_info = document.getElementById(imprefix + "_street_info");
 		
 		var update_func = function() {
 			var centerLatlng = (! dMarker)? map.getCenter() : dMarker.getPosition();
@@ -713,6 +869,17 @@ var PGMAP_INSERTMARKER_FORM = function(page, mapname, imprefix, err_map_notfind,
 			lng.value = PGTool.fmtNum(centerLatlng.lng());
 			zoom.value = parseInt(map.getZoom());
 			mtype.value = PGTool.getMapTypeName(map.getMapTypeId());
+			var sv = (map._streetView || false);
+			if (sv) {
+				var pos = sv.getPosition();
+				var pov = sv.getPov();
+				strt.value = 'lat:' + PGTool.round(pos.lat())
+				+ ':lng:' + PGTool.round(pos.lng())
+				+ ':heading:' + PGTool.round(pov.heading, 2)
+				+ ':pitch:' + PGTool.round(pov.pitch, 2)
+				+ ':zoom:' + PGTool.round(pov.zoom, 2);
+				strt_info.innerHTML = '<span class="gmap_insertmarker_street_info">street=' + strt.value + '</span>';
+			}
 		};
 
 		var update_addr = function() {
@@ -738,7 +905,13 @@ var PGMAP_INSERTMARKER_FORM = function(page, mapname, imprefix, err_map_notfind,
 		//Whenever the map is dragged, the parameter is dynamically substituted.
 		google.maps.event.addListener(map, 'bounds_changed', update_func);
 		google.maps.event.addListener(map, 'maptypeid_changed', update_func);
-
+		
+		if (!!map._streetView) {
+			document.getElementById(imprefix + "_street").style.display = '';
+			google.maps.event.addListener(map._streetView, 'position_changed', update_func);
+			google.maps.event.addListener(map._streetView, 'pov_changed', update_func);
+		}
+		
 		if (! dMarker) {
 			google.maps.event.addListener(map, 'idle', function(){update_addr(map.getCenter());});
 		} else {
@@ -755,7 +928,7 @@ var PGMAP_INSERTMARKER_FORM = function(page, mapname, imprefix, err_map_notfind,
 			var kv = XpWiki.cookieLoad(mapname+'_i');
 			if (kv.length > 0) {
 				var mparam = {lat:0, lng:0, zoom:10, mtype:0};
-				var oparam = {flat:false,save_zoom:true,save_mtype:true,save_addr:true,maxzoom:"", minzoom:""};
+				var oparam = {flat:false,save_zoom:true,save_mtype:true,save_addr:true,save_strt:true,maxzoom:"", minzoom:""};
 				var params = decodeURIComponent(kv).split("|");
 				for (var j = 0; j < params.length; j++) {
 					//dump(params[j] + "=" + params[j+1] + "\\n");
@@ -768,6 +941,7 @@ var PGMAP_INSERTMARKER_FORM = function(page, mapname, imprefix, err_map_notfind,
 						case "save_zoom": oparam.save_zoom = (params[++j] == '1'); break;
 						case "save_mtype": oparam.save_mtype = (params[++j] == '1'); break;
 						case "save_addr": oparam.save_addr = (params[++j] == '1'); break;
+						case "save_strt": oparam.save_strt = (params[++j] == '1'); break;
 						case "maxzoom": oparam.maxzoom = parseInt(params[++j]); break;
 						case "minzoom": oparam.minzoom = parseInt(params[++j]); break;
 						default: j++; break;
@@ -778,12 +952,14 @@ var PGMAP_INSERTMARKER_FORM = function(page, mapname, imprefix, err_map_notfind,
 					map.setZoom(mparam.zoom);
 					map.setMapTypeId(mparam.mtype);
 					document.cookie = mapname+'_i=;path=/';
+					map._disabledAutoZoom = true;
 				});
 				
 				document.getElementById(imprefix + "_flat").checked = oparam.flat;
 				document.getElementById(imprefix + "_save_zoom").checked = oparam.save_zoom;
 				document.getElementById(imprefix + "_save_mtype").checked = oparam.save_mtype;
 				document.getElementById(imprefix + "_save_addr").checked = oparam.save_addr;
+				document.getElementById(imprefix + "_save_strt").checked = oparam.save_strt;
 				
 				var smz;
 				var options;
@@ -941,16 +1117,19 @@ function p_googlemaps_mark_to_map (page, mapname) {
 
 function p_gmap_auto_zoom (page, mapname) {
 
-		if (XpWiki.cookieLoad(mapname+'_i')) return; // for insertmarker
+		//if (XpWiki.cookieLoad(mapname+'_i')) return; // for insertmarker
+		
+		var map = googlemaps_maps[page][mapname];
+		
+		if (!!map._disabledAutoZoom) return; // for insertmarker
 		
 		var count = 0;
-		var map = googlemaps_maps[page][mapname];
 		var markers = googlemaps_markers[page][mapname];
 
-		var minLat = 999;
-		var minLng = 999;
-		var maxLat = 0;
-		var maxLng = 0;
+		var minLat = 90;
+		var minLng = 180;
+		var maxLat = -90;
+		var maxLng = -180;
 		
 		var marker, pos;
 		for( var key in markers ){
@@ -969,6 +1148,9 @@ function p_gmap_auto_zoom (page, mapname) {
 					new google.maps.LatLng(maxLat, minLng),
 					new google.maps.LatLng(minLat, maxLng));
 			map.fitBounds(bounds);
+			if (!!map._streetView) {
+				map._streetView._orgLatlng = bounds.getCenter();
+			}
 		}
 }
 

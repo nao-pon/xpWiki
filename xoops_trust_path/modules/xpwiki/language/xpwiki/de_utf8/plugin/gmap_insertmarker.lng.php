@@ -24,6 +24,7 @@ $msg = array(
 	'cap_zoommax'     => 'Max zoom',
 	'cap_addr'        => 'Adresse',
 	'cap_note'        => 'Note',
+	'cap_strt'        => 'StreetView',
 	'btn_mark'        => 'Setze Marker',
 	'err_noinline'    => 'Inline Typ ist nicht implementiert. Benutze bitte einen Bock vom Typ "#gmap_insertmarker".',
 	'err_map_notfind' => '"$mapname" benannte Karten wurden gefunden.',

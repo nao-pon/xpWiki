@@ -35,6 +35,19 @@ $class div.gmap_optional select {
 	color: #696969;
 }
 
+$class .gmap_insertmarker_street_info {
+    background-color: white;
+    border: 1px solid gray;
+    color: black;
+    display: inline-block;
+    font-size: 8pt;
+    height: auto;
+    line-height: 1.2;
+    padding: 3px;
+    width: 12em;
+    word-wrap: break-word;
+}
+
 div.gs-result {
 	font-size: 9pt !important;
 	position: absolute;

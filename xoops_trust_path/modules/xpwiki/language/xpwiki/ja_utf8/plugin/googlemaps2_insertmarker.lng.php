@@ -19,6 +19,7 @@ $msg = array(
 	'cap_zoommax'     => '最大ズーム',
 	'cap_addr'        => '住所',
 	'cap_note'        => '詳細',
+	'cap_strt'        => 'ストリートビュー',
 	'btn_mark'        => 'マーカーをセット',
 	'err_noinline'    => 'インライン型は未実装です。ブロック型の "#googlemaps2_insertmarker" を使ってください。',
 	'err_map_notfind' => '"$mapname" という名前のマップが見つかりませんでした。',

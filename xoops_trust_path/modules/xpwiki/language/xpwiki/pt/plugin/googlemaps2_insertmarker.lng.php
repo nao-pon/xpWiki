@@ -18,6 +18,7 @@ $msg = array(
 	'cap_zoommin'     => 'Zoon mínimo',
 	'cap_zoommax'     => 'Zoom máximo',
 	'cap_note'        => 'Nota',
+	'cap_strt'        => 'StreetView',
 	'btn_mark'        => 'Configurar marcador',
 	'err_noinline'    => 'Tipo Inline não implementado. Por favor, use um blco do tipo "#googlemaps2_insertmarker".',
 	'err_map_notfind' => '"$mapname" foram encontados mapas nomeados.',

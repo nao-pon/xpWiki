@@ -49,13 +49,20 @@ class xpwiki_plugin_gmap_insertmarker extends xpwiki_plugin {
 		$title   = substr($this->root->vars['title'], 0, $this->cont['PLUGIN_GMAP_INSERTMARKER_TITLE_MAXLEN']);
 		$caption = substr(trim($this->root->vars['caption']), 0, $this->cont['PLUGIN_GMAP_INSERTMARKER_CAPTION_MAXLEN']);
 		$image   = substr($this->root->vars['image'], 0, $this->cont['PLUGIN_GMAP_INSERTMARKER_URL_MAXLEN']);
-
+		$street  = $this->root->vars['strt'];
+		
 		$minzoom = $this->root->vars['minzoom'] == '' ? '' : (int)$this->root->vars['minzoom'];
 		$maxzoom = $this->root->vars['maxzoom'] == '' ? '' : (int)$this->root->vars['maxzoom'];
 		
 		$save_zoom = (!empty($this->root->vars['save_zoom']));
 		$save_mtype = (!empty($this->root->vars['save_mtype']));
 		$save_addr = (!empty($this->root->vars['save_addr']));
+		$save_strt = (!empty($this->root->vars['save_strt']));
+		if ($save_strt) {
+			$street = preg_replace('/[^0-9.:a-zA-Z]/', '', $street);
+		} else {
+			$street = '';
+		}
 		
 		$caption .= ($save_addr)? ($caption? '&br;' : '') . $this->msg['cap_addr'] . ': ' . $this->root->vars['addr'] : '';
 
@@ -76,6 +83,7 @@ class xpwiki_plugin_gmap_insertmarker extends xpwiki_plugin {
 		if ($maxzoom != '')  $marker .= ', maxzoom='.$maxzoom;
 		if ($save_zoom) $marker .= ', zoom='.$zoom;
 		if ($save_mtype) $marker .= ', type='.$mtypename;
+		if ($street) $marker .= ', street='.$street;
 		$marker .= '){'.$caption.'};';
 
 		$no       = 0;
@@ -116,6 +124,7 @@ class xpwiki_plugin_gmap_insertmarker extends xpwiki_plugin {
 		$cookieval .= '|save_zoom|' . ($save_zoom? '1' : '0');
 		$cookieval .= '|save_mtype|' . ($save_mtype? '1' : '0');
 		$cookieval .= '|save_addr|' . ($save_addr? '1' : '0');
+		$cookieval .= '|save_strt|' . ($save_strt? '1' : '0');
 		if ($minzoom) $cookieval .= '|minzoom|'.$minzoom;
 		if ($maxzoom) $cookieval .= '|maxzoom|'.$maxzoom;
 		setcookie($this->root->vars['mapid'].'_i', $cookieval, 0, '/');
@@ -212,6 +221,7 @@ class xpwiki_plugin_gmap_insertmarker extends xpwiki_plugin {
   <input type="hidden" name="mapid"     value="$map" />
   <input type="hidden" name="zoom"      value="10" id="${imprefix}_zoom"/>
   <input type="hidden" name="mtype"     value="0"  id="${imprefix}_mtype"/>
+  <input type="hidden" name="strt"      value=""   id="${imprefix}_strt"/>
 
   {$this->msg['cap_lat']}: <input type="text" name="lat" id="${imprefix}_lat" size="10" />
   {$this->msg['cap_lng']}: <input type="text" name="lng" id="${imprefix}_lng" size="10" />
@@ -229,6 +239,7 @@ class xpwiki_plugin_gmap_insertmarker extends xpwiki_plugin {
   <input type="checkbox" name="save_zoom" id="${imprefix}_save_zoom" value="1" checked="checked" /> {$this->msg['cap_zoom']}
   |
   <input type="checkbox" name="save_mtype" id="${imprefix}_save_mtype" value="1" checked="checked" /> {$this->msg['cap_type']}
+  <span id="${imprefix}_street" style="display:none;">| <input type="checkbox" name="save_strt" id="${imprefix}_save_strt" value="1" checked="checked" />{$this->msg['cap_strt']}<img alt="options" src="{$this->cont['HOME_URL']}skin/loader.php?src=info_16.png" style="position:relative;cursor:pointer;" onclick="$('${imprefix}_street_info').toggle()" /><span id="${imprefix}_street_info" style="position:absolute;display:none;background-color:white;color:black;">street=</span></span>
   ]
   <br />
   {$this->msg['cap_marker']}:[ {$this->msg['cap_zoommin']}:
@@ -275,7 +286,7 @@ class xpwiki_plugin_gmap_insertmarker extends xpwiki_plugin {
 <script type="text/javascript">
 //<![CDATA[
 onloadfunc2.push(function() {
-	new PGMAP_INSERTMARKER_FORM('$page', '$map', '$imprefix', '{$this->msg['err_map_notfind']}', '{$this->msg['err_irreg_dat']}');
+	new PGMapInsertMarkerForm('$page', '$map', '$imprefix', '{$this->msg['err_map_notfind']}', '{$this->msg['err_irreg_dat']}');
 });
 //]]>
 </script>

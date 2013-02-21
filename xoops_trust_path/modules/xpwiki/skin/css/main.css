@@ -1041,6 +1041,53 @@ $class img.logo {
 	margin-right:20px;
 }
 
+/* common */
+$class .float_left {
+	display: block;
+	float: left;
+}
+
+$class .float_right {
+	display: block;
+	float: right;
+}
+
+$class .block_left {
+	display: block;
+	margin-right: auto !important;
+}
+
+$class .block_center {
+	display: block;
+	margin-left: auto !important;
+	margin-right: auto !important;
+}
+
+$class .block_right {
+	display: block;
+	margin-left: auto !important;
+}
+
+$class .margin_0 {
+	margin: 0;
+}
+
+$class .margin_5 {
+	margin: 5px;
+}
+
+$class .margin_10 {
+	margin: 10px;
+}
+
+$class .margin_15 {
+	margin: 15px;
+}
+
+$class .margin_20 {
+	margin: 20px;
+}
+
 /* aname.inc.php */
 $class .anchor {}
 $class .anchor_super {

@@ -68,6 +68,7 @@ class xpwiki_plugin_gmap_mark extends xpwiki_plugin {
 			'alink'        => $this->cont['PLUGIN_GMAP_MK_DEF_ALINK'],
 	        'titleispagename' => $this->cont['PLUGIN_GMAP_MK_DEF_TITLEISPAGENAME'],
 	        'type'         => '',
+	        'street'       => '',
 		);
 	}
 
@@ -150,6 +151,7 @@ class xpwiki_plugin_gmap_mark extends xpwiki_plugin {
 		$maxzoom      = (int)$options['maxzoom'];
 		$minzoom      = (int)$options['minzoom'];
 		$type         = $options['type'];
+		$street       = $options['street'];
 		if ($options['map'] === $this->cont['PLUGIN_GMAP_DEF_MAPNAME']) {
 			$map      = $p_gmap->lastmap_name;
 		} else {
@@ -186,7 +188,7 @@ class xpwiki_plugin_gmap_mark extends xpwiki_plugin {
 					$this->root->replaces_finish['__GOOGLE_MAPS_STATIC_PARAMS_' . $map] = '';
 				}
 				$this->root->replaces_finish['__GOOGLE_MAPS_STATIC_MARKERS_' . $map] .= $markers . '|';
-				$imgurl = $p_gmap->get_static_image_url($lat, $lng, $zoom, $markers, 1);
+				$imgurl = $p_gmap->get_static_image_url($lat, $lng, $zoom, $markers, 1, $title);
 				$title = '<a href="'.$imgurl.'">'.$title.' [Map]</a>';
 				return $this->plugin_googlemaps_mark_simple_format_listhtml(
 					$formatlist, $title, $caption);
@@ -246,13 +248,38 @@ class xpwiki_plugin_gmap_mark extends xpwiki_plugin {
 			$type = 'null';
 		}
 
+		$street_opt = '';
+		if ($street) {
+			$_keys = array('lat', 'lng', 'heading', 'pitch', 'zoom');
+			$_parts = explode(':', $street);
+
+			$_vals = array();
+					for($_i = 0; isset($_parts[$_i]); $_i++) {
+				if (in_array($_parts[$_i], $_keys)) {
+					$_val = $_parts[$_i + 1];
+					if (is_numeric($_val)) {
+						$_vals[] = $_parts[$_i++].':'.$_val;
+					}
+				}
+			}
+			if ($_vals) {
+				$street = '{' . join(',', $_vals) . '}';
+				$street_opt = <<<EOD
+
+if (!!googlemaps_maps['$page']['$map']._streetView) {
+	googlemaps_markers['$page']['$map']['$key'].setStreet($street);
+}
+EOD;
+			}
+		}
+		
 		// Create Marker
 		$output = <<<EOD
 <script type="text/javascript">
 //<![CDATA[
 onloadfunc2.push(function() {
 	p_gmap_regist_marker ('$page', '$map', PGTool.getLatLng($lat , $lng), '$key',
-	{noicon: $noiconstrval, icon:'$icon', flat: $flat, zoom:$zoom, maxzoom:$maxzoom, minzoom:$minzoom, title:'$title', infohtml:'$infohtml', type:$type});
+	{noicon: $noiconstrval, icon:'$icon', flat: $flat, zoom:$zoom, maxzoom:$maxzoom, minzoom:$minzoom, title:'$title', infohtml:'$infohtml', type:$type});{$street_opt}
 });
 //]]>
 </script>\n

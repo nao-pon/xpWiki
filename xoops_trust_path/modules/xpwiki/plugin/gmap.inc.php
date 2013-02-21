@@ -226,7 +226,7 @@ class xpwiki_plugin_gmap extends xpwiki_plugin {
 	function plugin_gmap_convert() {
 		static $init = true;
 		$args = func_get_args();
-		$ret = "<div>".$this->plugin_gmap_output($init, $args)."</div>";
+		$ret = $this->plugin_gmap_output($init, $args, 'block');
 		$init = false;
 		return $ret;
 	}
@@ -236,7 +236,7 @@ class xpwiki_plugin_gmap extends xpwiki_plugin {
 		static $init = true;
 		$args = func_get_args();
 		array_pop($args);
-		$ret = $this->plugin_gmap_output($init, $args);
+		$ret = $this->plugin_gmap_output($init, $args, 'inline-block');
 		$init = false;
 		return $ret;
 	}
@@ -297,6 +297,7 @@ EOD;
 
 		$markers = isset($this->root->get['markers'])? '&amp;markers=' . htmlspecialchars($this->root->get['markers']) : '';
 		$refer = isset($this->root->get['refer'])? $this->root->get['refer'] : '';
+		$title = isset($this->root->get['t'])? $this->root->get['t'] : '';
 
 		$back = '';
 		if ($refer) {
@@ -308,7 +309,7 @@ EOD;
 		$other = $markers . $refer;
 
 		$mymap = $this->google_staticmap_url . "center=$default_lat,$default_lng&zoom=$default_zoom&size={$this->conf['StaticMapSize']}&maptype=mobile&key={$this->root->google_api_key}{$markers}";
-		$google_link = $this->get_static_image_url($default_lat, $default_lng, $default_zoom, '', 2);
+		$google_link = $this->get_static_image_url($default_lat, $default_lng, $default_zoom, '', 2, $title);
 
 		/*緯度は -90度 〜 +90度の範囲に、経度は -180度 〜 +180度の範囲に収まるように*/
 
@@ -365,7 +366,8 @@ EOD;
 		} else {
 			$zoomdown = '';
 		}
-
+		
+		$title = $title? '<h3>' . htmlspecialchars($title) . '</h3>' : '';
 		$ret = <<<EOD
 <a href="{$maplink}&amp;zoom={$mapkeys['zoom']}&amp;lng={$mapkeys['lngdown']}&amp;lat={$mapkeys['latup']}{$other}"  accesskey="1" ></a>
 <a href="{$maplink}&amp;zoom={$mapkeys['zoom']}&amp;lng={$mapkeys['lng']}&amp;lat={$mapkeys['latup']}{$other}"  accesskey="2" ></a>
@@ -377,7 +379,7 @@ EOD;
 <a href="{$maplink}&amp;zoom={$mapkeys['zoom']}&amp;lng={$mapkeys['lngup']}&amp;lat={$mapkeys['latdown']}{$other}"  accesskey="9" ></a>
 {$zoomup}
 {$zoomdown}
-
+{$title}
 <div style="text-align:center">
 	<div class="gmap_smap"><img src="{$mymap}" {$this->conf['mapsize']} /></div>
 	{$navi_tag}
@@ -455,15 +457,21 @@ EOD;
 		return $this->lastmap_name;
 	}
 
-	function get_static_image_url($lat, $lng, $zoom, $markers = '', $useAction = 0) {
+	function get_static_image_url($lat, $lng, $zoom, $markers = '', $useAction = 0, $title = '') {
 		if ($useAction === 2) {
 			if ($this->cont['UA_PROFILE'] === 'mobile') {
-				$url = 'http://maps.google.com/maps?q=loc:'.$lat.','.$lng.'&z='.$zoom;
+				if ($title) {
+					$title = rawurlencode(mb_convert_encoding(' ('.$title.')', 'UTF-8', $this->cont['SOURCE_ENCODING']));
+				}
+				$url = 'http://maps.google.com/maps?q=loc:'.$lat.','.$lng.$title.'&z='.$zoom.'&iwloc=A';
 			} else {
 				$url = 'http://www.google.co.jp/m/local?site=local&ll='.$lat.','.$lng.'&z='.$zoom;
 			}
 		} else if ($useAction) {
 			$url = $this->root->script . '?plugin=gmap&amp;action=static&amp;lat='.$lat.'&amp;lng='.$lng.'&amp;zoom='.$zoom.'&amp;refer='.rawurlencode(@ $_SERVER['REQUEST_URI']);
+			if ($title) {
+				$url .= '&amp;t='.rawurlencode($title);
+			}
 		} else {
 			if ($this->cont['UA_PROFILE'] === 'keitai' && $zoom > 10) {
 				$zoom = $zoom - 1;
@@ -489,7 +497,7 @@ EOD;
 		return '<div style="text-align:center;">' . $img . $map . '</div>';
 	}
 
-	function plugin_gmap_output($doInit, $params) {
+	function plugin_gmap_output($doInit, $params, $display) {
 		$this->root->rtf['disable_render_cache'] = true;
 
 		$this->root->pagecache_profiles = $this->cont['PLUGIN_GMAP_PROFILE'];
@@ -498,9 +506,21 @@ EOD;
 
 		$inoptions = array();
 		$isSetZoom = false;
+		$align = '';
+		$around = false;
 		foreach ($params as $param) {
 			$pos = strpos($param, '=');
-			if ($pos === false) continue;
+			if ($pos === false) {
+				$param = strtolower(trim($param));
+				if (in_array($param, array('left', 'right', 'center'))) {
+					$align = $param;
+				} else {
+					if ($param === 'around') {
+						$around = true;
+					}
+				}
+				continue;
+			}
 			$index = trim(substr($param, 0, $pos));
 			$value = htmlspecialchars(trim(substr($param, $pos+1)), ENT_QUOTES);
 			$inoptions[$index] = $value;
@@ -755,7 +775,7 @@ EOD;
 		if ($autozoom) {
 			$output .= <<<EOD
 
-	onloadfunc2.push( function () {
+	onloadfunc3.push( function () {
 		p_gmap_auto_zoom("$page", "$mapname");
 	});
 EOD;
@@ -885,6 +905,17 @@ EOD;
 
 		// マーカーデフォルトアイコンを設定
 		$output .= $this->func->do_plugin_convert('gmap_icon');
+		
+		$class = 'gmap';
+		if ($align && $display === 'block') {
+			if ($around && $align !== 'center') {
+				$class .= ' float_' . $align;
+			} else {
+				$class .= ' block_' . $align;
+			}
+		}
+		$class = ' class="'.$class.' margin_'.(($display === 'block')? '10' : '0').'"';
+		$output = '<div style="display: '.$display.'; width: '.$width.';"'.$class.'>'. $output . '</div>';
 
 		return $output;
 	}
@@ -903,7 +934,7 @@ EOD;
 	}
 
 	function plugin_gmap_init_output($key) {
-		$this->func->add_js_head('//maps.google.com/maps/api/js?sensor=true&amp;libraries=places&amp;key=', true, 'UTF-8');
+		$this->func->add_js_head('//maps.google.com/maps/api/js?sensor=true&amp;libraries=places&amp;key='.$key, true, 'UTF-8');
 		$this->func->add_tag_head('gmap.js');
 		return;
 	}
