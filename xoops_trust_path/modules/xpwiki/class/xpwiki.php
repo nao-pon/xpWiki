@@ -672,7 +672,7 @@ if (typeof wikihelper_load_cookie == 'function' ) {
 	}
 	var elm = document.createElement('div');
 	var btn = document.createElement('button');
-	btn.type = 'button';
+	try { btn.type = 'button'; } catch(e) {} // try for IE8
 	btn.onclick = function(){
 			if (confirm('{$msgSwitch}')) {
 				wikihelper_save_cookie("__whlp", (editor_bbcode? '0' : '1') + c_ehlp, 90 ,'/');
