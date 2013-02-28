@@ -1214,7 +1214,7 @@ XpWiki.domInitFunctions.push(
 			if (dropArea.style.display != 'none') dropArea.style.display = 'none';
 		});
 		qq.attach(document, 'dragover', function(e){
-			dropArea.style.top = Math.max(0, Event.pointerY(e) - dropArea.getHeight() / 2) + 'px';
+			dropArea.style.top = Math.max(0, Event.pointerY(e) - (window.scrollY || window.pageYOffset) - dropArea.getHeight() / 2) + 'px';
 			listArea.style.top = dropArea.style.top;
 		});
 		var imgPrefetch = new Image();
