@@ -381,7 +381,7 @@ EOD;
 {$zoomdown}
 {$title}
 <div style="text-align:center">
-	<div class="gmap_smap"><img src="{$mymap}" {$this->conf['mapsize']} /></div>
+	<div class="gmap_smap"><a class="link2googlemap" href="{$google_link}"><img src="{$mymap}" {$this->conf['mapsize']} /></a></div>
 	{$navi_tag}
 	<br />
 	<a href="{$google_link}">GoogleMap</a>
