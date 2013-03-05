@@ -156,12 +156,10 @@ class xpwiki_plugin_gmap_icon extends xpwiki_plugin {
 			if ($shadow) {
 				if ($sw > 0 && $sh > 0) {
 					$sSize = "new google.maps.Size($sw, $sh)";
-					$sOrigin = 'new google.maps.Point(0,0)';
 				} else {
-					$sSize =
-					$sOrigin = 'null';
+					$sSize = 'null';
 				}
-				$shadow = "new google.maps.MarkerImage(\"$shadow\",$sSize,$sOrigin,$iAnchor)";
+				$shadow = "{url:'$shadow',size:$sSize,anchor:$iAnchor}";
 			} else {
 				$shadow = 'null';
 			}
@@ -174,7 +172,7 @@ class xpwiki_plugin_gmap_icon extends xpwiki_plugin {
 //<![CDATA[
 onloadfunc.push( function () {
 	var icon = {
-		image: new google.maps.MarkerImage("$image",$iSize,$iOrigin,$iAnchor),
+		image: {url:'$image',size:$iSize,anchor:$iAnchor},
 		shadow: $shadow,
 		anchorPoint: $anchorPoint,
 		shape: $shape

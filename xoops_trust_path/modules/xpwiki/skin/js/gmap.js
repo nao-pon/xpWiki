@@ -776,10 +776,12 @@ function PGSearch() {
 
 			var bounds = new google.maps.LatLngBounds();
 			for (var i = 0, place; place = places[i]; i++) {
-				var image = new google.maps.MarkerImage(
-					place.icon, new google.maps.Size(71, 71),
-					new google.maps.Point(0, 0), new google.maps.Point(17, 34),
-					new google.maps.Size(25, 25));
+				var image = {
+						url: place.icon,
+						size: new google.maps.Size(71, 71),
+						anchor: new google.maps.Point(17, 34),
+						scaledSize: new google.maps.Size(25, 25)
+					};
 
 				var marker = new google.maps.Marker({
 					map: map,
@@ -812,11 +814,10 @@ var PGDropMarker = function(map, options) {
 	var dropmarker = new google.maps.Marker({
 		//position: new google.maps.LatLng(map.getCenter()),
 		position: map.getCenter(),
-		icon: new google.maps.MarkerImage(
-			'http://www.google.com/mapfiles/gadget/arrowSmall80.png',
-			new google.maps.Size(31, 27),
-			new google.maps.Size(0, 0),
-			new google.maps.Point(8, 27)),
+		icon: {
+			url: 'http://www.google.com/mapfiles/gadget/arrowSmall80.png',
+			size: new google.maps.Size(31, 27),
+			anchor: new google.maps.Point(8, 27)},
 		map: map,
 		draggable: true,
 		title: title
