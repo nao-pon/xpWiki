@@ -166,7 +166,7 @@ $const['PLUGIN_REF_NETVIDEOS']['niconico'] = array(
 $const['PLUGIN_REF_NETVIDEOS']['youtube'] = array(
 	'regex'     => '#^https?://(?:www\.youtube\.com/watch\?.*?v=|youtu.be\/)([0-9a-z_-]+)#i',
 	'type'      => 'html',
-	'src'       => '<iframe class="youtube-player" type="text/html"$size src="http://www.youtube.com/embed/$1?wmode=transparent&amp;autohide=1" frameborder="0"><noiframe>$link</noiframe></iframe>',
+	'src'       => '<iframe class="youtube-player" type="text/html"$size src="http://www.youtube.com/embed/$1?wmode=transparent&amp;autohide=1&amp;rel=0" frameborder="0"><noiframe>$link</noiframe></iframe>',
 	'src_keitai'=> '$link',
 	'width'     => 480,
 	'height'    => 270,
