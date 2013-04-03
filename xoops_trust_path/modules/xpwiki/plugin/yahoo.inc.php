@@ -37,10 +37,23 @@ class xpwiki_plugin_yahoo extends xpwiki_plugin {
 	function plugin_yahoo_convert()
 	{
 		$args = func_get_args();
+		
 		if (count($args) < 2)
 		{
 			return "<p>{$this->msg['err_option']}</p>";
 		}
+
+		/////////////////////////////
+		// use gsearch plugin always
+		$gsearch = $this->func->get_plugin_instance('gsearch');
+		$confStore = $gsearch->config;
+		$gsearch->config = array_merge($gsearch->config, $this->config);
+		if (! $this->config['adult_ok']) $gsearch->config['safe'] = 'active';
+		$gsearch->config['filter'] = $this->config['similar_ok']? 0 : 1;
+		$ret = $this->func->do_plugin_convert('gsearch', join(',', $args));
+		$gsearch->config = $confStore;
+		return $ret;
+		/////////////////////////////
 
 		$this->load_language();
 
