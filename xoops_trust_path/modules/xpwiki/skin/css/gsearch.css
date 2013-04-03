@@ -1,0 +1,7 @@
+$class .gsearch table {
+	width: 100%;
+	table-layout: fixed;
+}
+$class div.gsearch {
+	margin-bottom: 1em;
+}
