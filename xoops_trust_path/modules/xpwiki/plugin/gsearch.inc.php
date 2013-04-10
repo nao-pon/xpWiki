@@ -217,7 +217,7 @@ class xpwiki_plugin_gsearch extends xpwiki_plugin {
 			mb_convert_variables($this->cont['SOURCE_ENCODING'],"UTF-8",$dats);
 			foreach ($dats as $dat)
 			{
-				if ($this->plugin_gsearch_check_ngsite($dat['ClickUrl'])) {continue;}
+				if ($this->plugin_gsearch_check_ngsite($dat['url'])) {continue;}
 				if ($cnt++ % $limit === 0 && $cnt !== 1) $html .= "</ul></div>".$sdiv."<ul>";
 				$html .= "<li>";
 				$html .= "<a href='".$dat['url']."' target='{$target}'>".$dat['titleNoFormatting']."</a>";
