@@ -118,7 +118,7 @@ if ($xpwiki->runmode === 'xoops') {
 	if( ! file_exists( $langmanpath ) ) die( 'install the latest altsys' ) ;
 	require_once( $langmanpath ) ;
 	$langman =& D3LanguageManager::getInstance() ;
-	$langman->read( 'admin.php' , $mydirname , $mytrustdirname , false ) ;
+	$langman->read( 'admin.php' , $mydirname , $mytrustdirname , true ) ;
 
 	// xoops admin header
 	xoops_cp_header() ;
