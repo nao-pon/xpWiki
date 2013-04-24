@@ -805,7 +805,7 @@ __EOD__;
 					continue;
 				}
 
-				$obj = &new XpWikiAttachFile($this->xpwiki, $page,$name,$age);
+				$obj = new XpWikiAttachFile($this->xpwiki, $page,$name,$age);
 				$obj->getstatus();
 
 				$obj->status['md5'] = md5_file($obj->filename);

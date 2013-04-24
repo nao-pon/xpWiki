@@ -100,7 +100,7 @@ class XpWikiInline extends XpWikiElement {
 	}
 
 	function & toPara($class = '') {
-		$obj = & new XpWikiParagraph($this->xpwiki, '', $class);
+		$obj = new XpWikiParagraph($this->xpwiki, '', $class);
 		$obj->insert($this);
 		return $obj;
 	}
@@ -632,7 +632,7 @@ class XpWikiTable extends XpWikiElement {
 		$row = array ();
 		foreach ($cells as $cell) {
 			$cell = str_replace('&#124;', '|', $cell);
-			$row[] = & new XpWikiTableCell($this->xpwiki, $cell, $is_template);
+			$row[] = new XpWikiTableCell($this->xpwiki, $cell, $is_template);
 		}
 		$this->elements[] = $row;
 	}
@@ -1006,7 +1006,7 @@ class XpWikiBody extends XpWikiElement {
 
 	function XpWikiBody(& $xpwiki, $id) {
 		$this->id = $id;
-		$this->contents = & new XpWikiElement($xpwiki);
+		$this->contents = new XpWikiElement($xpwiki);
 		$this->contents->last_level = 0;
 		$this->contents->count = 0;
 		$this->contents_last = & $this->contents;

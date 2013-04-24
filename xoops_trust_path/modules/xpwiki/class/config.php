@@ -40,7 +40,7 @@ class XpWikiConfig
 		if (! $this->func->is_page($this->page)) return FALSE;
 
 		$this->objs = array();
-		$obj        = & new XpWikiConfigTable('');
+		$obj        = new XpWikiConfigTable('');
 		$matches = array();
 
 		foreach ($this->func->get_source($this->page) as $line) {
@@ -58,22 +58,22 @@ class XpWikiConfig
 
 				if ($level == 1) {
 					$this->objs[$obj->title] = $obj;
-					$obj = & new XpWikiConfigTable($line);
+					$obj = new XpWikiConfigTable($line);
 				} else {
 					if (! is_a($obj, 'XpWikiConfigTable_Direct'))
-						$obj = & new XpWikiConfigTable_Direct('', $obj);
+						$obj = new XpWikiConfigTable_Direct('', $obj);
 					$obj->set_key($line);
 				}
 				
 			} else if ($head == '-' && $level > 1) {
 				if (! is_a($obj, 'XpWikiConfigTable_Direct'))
-					$obj = & new XpWikiConfigTable_Direct('', $obj);
+					$obj = new XpWikiConfigTable_Direct('', $obj);
 				$obj->add_value($line);
 
 			} else if ($head == '|' && preg_match('/^\|(.+)\|\s*$/', $line, $matches)) {
 				// Table row
 				if (! is_a($obj, 'XpWikiConfigTable_Sequential'))
-					$obj = & new XpWikiConfigTable_Sequential('', $obj);
+					$obj = new XpWikiConfigTable_Sequential('', $obj);
 				// Trim() each table cell
 				$obj->add_value(array_map('trim', explode('|', $matches[1])));
 			} else {
@@ -110,7 +110,7 @@ class XpWikiConfig
 	function & get_object($title)
 	{
 		if (! isset($this->objs[$title]))
-			$this->objs[$title] = & new XpWikiConfigTable('*' . trim($title) . "\n");
+			$this->objs[$title] = new XpWikiConfigTable('*' . trim($title) . "\n");
 		return $this->objs[$title];
 	}
 

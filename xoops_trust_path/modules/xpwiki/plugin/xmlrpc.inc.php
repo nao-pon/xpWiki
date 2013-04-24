@@ -103,7 +103,7 @@ EOD;
 			);
 
 			HypCommonFunc::loadClass('IXR_Server');
-			$server =& new IXR_Server($this->supportedMethods);
+			$server = new IXR_Server($this->supportedMethods);
 			header('Content-Type: text/xml;charset=UTF-8');
 			$this->func->clear_output_buffer();
 		}

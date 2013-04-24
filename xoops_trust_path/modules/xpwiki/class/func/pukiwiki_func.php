@@ -1143,7 +1143,7 @@ class XpWikiPukiWikiFunc extends XpWikiBaseFunc {
 		} else {
 			$contentId = ++$contents_id[$this->xpwiki->pid];
 		}
-		$body = & new XpWikiBody($this->xpwiki, $contentId);
+		$body = new XpWikiBody($this->xpwiki, $contentId);
 
 		$body->parse($lines);
 
@@ -1318,9 +1318,9 @@ class XpWikiPukiWikiFunc extends XpWikiBaseFunc {
 	{
 		// Check the first letter of the line
 		if (substr($text, 0, 1) === '~') {
-			$ret = & new XpWikiParagraph($this->xpwiki, ' ' . substr($text, 1));
+			$ret = new XpWikiParagraph($this->xpwiki, ' ' . substr($text, 1));
 		} else {
-			$ret = & new XpWikiInline($this->xpwiki, $text);
+			$ret = new XpWikiInline($this->xpwiki, $text);
 		}
 		return $ret;
 	}
@@ -1331,7 +1331,7 @@ class XpWikiPukiWikiFunc extends XpWikiBaseFunc {
 		if (count($out) < 2) {
 			return $this->Factory_Inline($text);
 		} else {
-			$ret = & new XpWikiDList($this->xpwiki, $out);
+			$ret = new XpWikiDList($this->xpwiki, $out);
 			return $ret;
 		}
 	}
@@ -1342,7 +1342,7 @@ class XpWikiPukiWikiFunc extends XpWikiBaseFunc {
 		if (! preg_match('/^\|(.+)\|([hHfFcC]?)$/', $text, $out)) {
 			return $this->Factory_Inline($text);
 		} else {
-			$ret = & new XpWikiTable($this->xpwiki, $out);
+			$ret = new XpWikiTable($this->xpwiki, $out);
 			return $ret;
 		}
 	}
@@ -1353,7 +1353,7 @@ class XpWikiPukiWikiFunc extends XpWikiBaseFunc {
 		if ($text === ',') {
 			return $this->Factory_Inline($text);
 		} else {
-			$ret = & new XpWikiYTable($this->xpwiki, $this->csv_explode(',', substr($text, 1)));
+			$ret = new XpWikiYTable($this->xpwiki, $this->csv_explode(',', substr($text, 1)));
 			return $ret;
 		}
 	}
@@ -1367,7 +1367,7 @@ class XpWikiPukiWikiFunc extends XpWikiBaseFunc {
 			// Usual code
 			if (preg_match('/^\#([^\(]+)(?:\((.*)\))?/', $text, $matches) &&
 			    $this->exist_plugin_convert($matches[1])) {
-				$ret = & new XpWikiDiv($this->xpwiki, $matches);
+				$ret = new XpWikiDiv($this->xpwiki, $matches);
 				return $ret;
 			}
 		} else {
@@ -1378,15 +1378,15 @@ class XpWikiPukiWikiFunc extends XpWikiBaseFunc {
 				$body = array();
 				$ret = false;
 				if ($len === 0) {
-					$ret = & new XpWikiDiv($this->xpwiki, $matches); // Seems legacy block plugin
+					$ret = new XpWikiDiv($this->xpwiki, $matches); // Seems legacy block plugin
 				} else if (preg_match('/\{{' . $len . '}\s*\r(.*)\r\}{' . $len . '}/', $text, $body)) {
 					$matches[2] .= "\r" . $body[1] . "\r";
-					$ret = & new XpWikiDiv($this->xpwiki, $matches); // Seems multiline-enabled block plugin
+					$ret = new XpWikiDiv($this->xpwiki, $matches); // Seems multiline-enabled block plugin
 				}
 				if ($ret) return $ret;
 			}
 		}
-		$ret = & new XpWikiParagraph($this->xpwiki, $text);
+		$ret = new XpWikiParagraph($this->xpwiki, $text);
 		return $ret;
 	}
 //----- End convert_html.php -----//
@@ -1941,7 +1941,7 @@ EOD;
 	function get_autolink_pattern(& $pages, $min_len = -1, $make_a = true, $aliases = false)
 	{
 		if (! $aliases) {
-			$config = &new XpWikiConfig($this->xpwiki, 'AutoLink');
+			$config = new XpWikiConfig($this->xpwiki, 'AutoLink');
 			$config->read();
 			$ignorepages      = $config->get('IgnoreList');
 			$forceignorepages = $config->get('ForceIgnoreList');
@@ -4650,7 +4650,7 @@ EOD;
 		static $obj;
 
 		if (! isset($obj) || $refresh)
-			$obj = & new XpWikiInlineConverter($this->xpwiki, NULL, array('note'));
+			$obj = new XpWikiInlineConverter($this->xpwiki, NULL, array('note'));
 
 		$result = $obj->get_objects(join('', preg_grep('/^(?!\/\/|\s)./', $this->get_source($page))), $page);
 		return $result;

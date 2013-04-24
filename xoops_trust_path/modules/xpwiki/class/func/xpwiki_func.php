@@ -61,7 +61,7 @@ class XpWikiFunc extends XpWikiXoopsWrapper {
 
 		if (!isset($instance[$this->xpwiki->pid][$name])) {
 			if ($class = $this->exist_plugin($name)) {
-				$instance[$this->xpwiki->pid][$name] =& new $class($this);
+				$instance[$this->xpwiki->pid][$name] = new $class($this);
 				$instance[$this->xpwiki->pid][$name]->name = $name;
 				if ($this->plugin_init($name, $instance[$this->xpwiki->pid][$name]) === FALSE) {
 					$this->die_message('Plugin init failed: ' . $name);
@@ -3815,7 +3815,7 @@ EOD;
 				return array();
 			}
 		}
-		$obj = & new XpWikiAttachFile($this->xpwiki, $page, $name, $age);
+		$obj = new XpWikiAttachFile($this->xpwiki, $page, $name, $age);
 		if ($obj->getstatus()) {
 			$status = $obj->status;
 		} else {

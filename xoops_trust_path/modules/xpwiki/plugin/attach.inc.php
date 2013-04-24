@@ -575,11 +575,11 @@ class xpwiki_plugin_attach extends xpwiki_plugin {
 
 			$fi = 0;
 			do {
-				$obj = & new XpWikiAttachFile($this->xpwiki, $page, $fname);
+				$obj = new XpWikiAttachFile($this->xpwiki, $page, $fname);
 				$fname = $_fname.'_'.($fi++).$_ext;
 			} while ($obj->exist);
 		} else {
-			$obj = & new XpWikiAttachFile($this->xpwiki, $page, $fname);
+			$obj = new XpWikiAttachFile($this->xpwiki, $page, $fname);
 		}
 
 		if ( is_uploaded_file($tmpname) ) {
@@ -717,7 +717,7 @@ class xpwiki_plugin_attach extends xpwiki_plugin {
 			$$var = array_key_exists($var,$this->root->vars) ? $this->root->vars[$var] : '';
 		}
 
-		$obj = &new XpWikiAttachFile($this->xpwiki, $refer,$file,$age);
+		$obj = new XpWikiAttachFile($this->xpwiki, $refer,$file,$age);
 		return $obj->getstatus() ? $obj->info($err) : array('msg'=>$this->root->_attach_messages['err_notfound']);
 	}
 	//削除
@@ -735,7 +735,7 @@ class xpwiki_plugin_attach extends xpwiki_plugin {
 			return array('msg'=>$this->root->_attach_messages['err_noparm']);
 		}
 
-		$obj = &new XpWikiAttachFile($this->xpwiki, $refer,$file,$age);
+		$obj = new XpWikiAttachFile($this->xpwiki, $refer,$file,$age);
 		return $obj->getstatus() ? $obj->delete($pass) : array('msg'=>$this->root->_attach_messages['err_notfound']);
 	}
 	//凍結
@@ -753,7 +753,7 @@ class xpwiki_plugin_attach extends xpwiki_plugin {
 			return array('msg'=>$this->root->_attach_messages['err_noparm']);
 		}
 
-		$obj = &new XpWikiAttachFile($this->xpwiki, $refer,$file,$age);
+		$obj = new XpWikiAttachFile($this->xpwiki, $refer,$file,$age);
 		return $obj->getstatus() ? $obj->freeze($freeze,$pass) : array('msg'=>$this->root->_attach_messages['err_notfound']);
 	}
 	//イメージ回転
@@ -771,7 +771,7 @@ class xpwiki_plugin_attach extends xpwiki_plugin {
 		}
 
 		$rd = intval($rd);
-		$obj = &new XpWikiAttachFile($this->xpwiki, $refer,$file,$age);
+		$obj = new XpWikiAttachFile($this->xpwiki, $refer,$file,$age);
 		return $obj->getstatus() ? $obj->rotate($rd,$pass) : array('msg'=>$this->root->_attach_messages['err_notfound']);
 	}
 	//著作権設定
@@ -788,7 +788,7 @@ class xpwiki_plugin_attach extends xpwiki_plugin {
 			return array('msg'=>$this->root->_attach_messages['err_noparm']);
 		}
 
-		$obj = &new XpWikiAttachFile($this->xpwiki, $refer,$file,$age);
+		$obj = new XpWikiAttachFile($this->xpwiki, $refer,$file,$age);
 		return $obj->getstatus() ? $obj->copyright($copyright,$pass) : array('msg'=>$this->root->_attach_messages['err_notfound']);
 	}
 
@@ -804,7 +804,7 @@ class xpwiki_plugin_attach extends xpwiki_plugin {
 		if ($this->func->is_freeze($refer) || ! $this->func->is_editable($refer)) {
 			return array('msg'=>$this->root->_attach_messages['err_noparm']);
 		}
-		$obj = & new XpWikiAttachFile($this->xpwiki, $refer, $file, $age);
+		$obj = new XpWikiAttachFile($this->xpwiki, $refer, $file, $age);
 		if (! $obj->getstatus())
 			return array('msg'=>$this->root->_attach_messages['err_notfound']);
 
@@ -825,7 +825,7 @@ class xpwiki_plugin_attach extends xpwiki_plugin {
 			return array('msg'=>$this->root->_attach_messages['err_noparm']);
 		}
 
-		$obj = &new XpWikiAttachFile($this->xpwiki, $refer,$file,$age);
+		$obj = new XpWikiAttachFile($this->xpwiki, $refer,$file,$age);
 		return $obj->getstatus() ? $obj->noinline($noinline,$pass) : array('msg'=>$this->root->_attach_messages['err_notfound']);
 	}
 
@@ -840,7 +840,7 @@ class xpwiki_plugin_attach extends xpwiki_plugin {
 			return array('msg'=>$this->root->_attach_messages['err_noparm']);
 		}
 
-		$obj = &new XpWikiAttachFile($this->xpwiki, $refer,$file,$age);
+		$obj = new XpWikiAttachFile($this->xpwiki, $refer,$file,$age);
 		return $obj->reinfo();
 	}
 
@@ -867,7 +867,7 @@ class xpwiki_plugin_attach extends xpwiki_plugin {
 			$$var = array_key_exists($var,$this->root->vars) ? $this->root->vars[$var] : '';
 		}
 
-		$obj = &new XpWikiAttachFile($this->xpwiki, $refer,$file,$age);
+		$obj = new XpWikiAttachFile($this->xpwiki, $refer,$file,$age);
 
 		return $obj->getstatus() ? $obj->open() : array('header' => array('HTTP/1.0 404 Not Found', 'Status: 404 Not Found'), 'msg' => 'File Not Found.');
 	}

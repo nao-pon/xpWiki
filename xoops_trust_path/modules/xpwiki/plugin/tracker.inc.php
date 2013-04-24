@@ -253,7 +253,7 @@ EOD;
 				$field[3] = '20';
 			}
 			$fieldname = $field[0];
-			$fields[$fieldname] = & new $class($this->xpwiki, $field, $base, $refer, $config);
+			$fields[$fieldname] = new $class($this->xpwiki, $field, $base, $refer, $config);
 		}
 
 		foreach (
@@ -273,7 +273,7 @@ EOD;
 			if (isset($fields[$fieldname])) continue;
 			$field = array($fieldname, xpwiki_plugin_tracker::plugin_tracker_message('btn' . $fieldname), '', '20', '');
 			$class = 'XpWikiTracker_field_' . $type;
-			$fields[$fieldname] = & new $class($this->xpwiki, $field, $base, $refer, $config);
+			$fields[$fieldname] = new $class($this->xpwiki, $field, $base, $refer, $config);
 		}
 
 		return $fields;
@@ -358,7 +358,7 @@ EOD;
 			return '#tracker_list: List not found: ' . $this->func->make_pagelink($config->page . '/' . $list) . '<br />';
 		}
 
-		$list = & new XpWikiTracker_list($this->xpwiki, $base, $refer, $config, $list);
+		$list = new XpWikiTracker_list($this->xpwiki, $base, $refer, $config, $list);
 		if ($list->sortRows($order_commands) === FALSE) {
 			return '#tracker_list: ' . htmlspecialchars($list->error) . '<br />';
 		}

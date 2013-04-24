@@ -128,7 +128,7 @@ function guiedit_convert_html($source) {
 
 	if ($source) {
 		$lines = explode("\n", $source);
-		$body = & new BodyEx();
+		$body = new BodyEx();
 		$body->parse($lines);
 
 		$html = $body->toString();
@@ -666,9 +666,9 @@ function & Factory_InlineEx($text)
 {
 	// Check the first letter of the line
 	if (substr($text, 0, 1) === '~') {
-		$ret = & new ParagraphEx(' ' . substr($text, 1));
+		$ret = new ParagraphEx(' ' . substr($text, 1));
 	} else {
-		$ret = & new InlineEx($text);
+		$ret = new InlineEx($text);
 	}
 	return $ret;
 }
@@ -679,7 +679,7 @@ function & Factory_DListEx(& $root, $text)
 	if (count($out) < 2) {
 		$ret = & Factory_InlineEx($text);
 	} else {
-		$ret = & new DListEx($out);
+		$ret = new DListEx($out);
 	}
 	return $ret;
 }
@@ -690,7 +690,7 @@ function & Factory_TableEx(& $root, $text)
 	if (! preg_match('/^\|(.+)\|([hHfFcC]?)$/', $text, $out)) {
 		$ret = & Factory_InlineEx($text);
 	} else {
-		$ret = & new TableEx($out);
+		$ret = new TableEx($out);
 	}
 	return $ret;
 }
@@ -701,7 +701,7 @@ function & Factory_YTableEx(& $root, $text)
 	if ($text == ',') {
 		$ret = & Factory_InlineEx($text);
 	} else {
-		$ret = & new YTableEx(csv_explode(',', substr($text, 1)));
+		$ret = new YTableEx(csv_explode(',', substr($text, 1)));
 	}
 	return $ret;
 }
@@ -714,7 +714,7 @@ function & Factory_DivEx(& $root, $text)
 	if (PKWKEXP_DISABLE_MULTILINE_PLUGIN_HACK) {
 		// Usual code
 		if (preg_match('/^\#([^\(]+)(?:\((.*)\))?/', $text, $matches)) {
-			$ret = & new DivEx($matches);
+			$ret = new DivEx($matches);
 			return $ret;
 		}
 	} else {
@@ -723,18 +723,18 @@ function & Factory_DivEx(& $root, $text)
 			$len  = strlen($matches[3]);
 			$body = array();
 			if ($len == 0) {
-				$ret = & new DivEx($matches); // Seems legacy block plugin
+				$ret = new DivEx($matches); // Seems legacy block plugin
 			} else if (preg_match('/\{{' . $len . '}\s*\r(.*)\r\}{' . $len . '}/', $text, $body)) {
 				$matches[3] .= "\r" . $body[1] . "\r" . str_repeat('}', $len);
-				$ret = & new DivEx($matches); // Seems multiline-enabled block plugin
+				$ret = new DivEx($matches); // Seems multiline-enabled block plugin
 			} else {
-				$ret = & new ParagraphEx($text);
+				$ret = new ParagraphEx($text);
 			}
 			return $ret;
 		}
 	}
 
-	$ret = & new ParagraphEx($text);
+	$ret = new ParagraphEx($text);
 	return $ret;
 }
 
@@ -767,7 +767,7 @@ class InlineEx extends ElementEx
 
 	function & toPara($class = '')
 	{
-		$obj = & new ParagraphEx('', $class);
+		$obj = new ParagraphEx('', $class);
 		$obj->insert($this);
 		return $obj;
 	}
@@ -1369,7 +1369,7 @@ class TableEx extends ElementEx
 
 		$row = array();
 		foreach ($cells as $cell)
-			$row[] = & new TableCellEx($cell, $is_template);
+			$row[] = new TableCellEx($cell, $is_template);
 		$this->elements[] = $row;
 	}
 

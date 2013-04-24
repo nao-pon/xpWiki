@@ -1001,7 +1001,7 @@ class XpWikiAttachFiles
 	}
 	function add($file,$age)
 	{
-		$this->files[$file][$age] = &new XpWikiAttachFile($this->xpwiki, $this->page,$file,$age,$this->pgid);
+		$this->files[$file][$age] = new XpWikiAttachFile($this->xpwiki, $this->page,$file,$age,$this->pgid);
 	}
 	// ファイル一覧を取得
 	function toString($flat,$fromall=FALSE,$mode="")
@@ -1233,7 +1233,7 @@ class XpWikiAttachPages
 			// 閲覧権限チェック
 			if (!$fromall && !$this->func->check_readable($page,false,false)) return;
 
-			$this->pages[$page] = &new XpWikiAttachFiles($this->xpwiki, $page);
+			$this->pages[$page] = new XpWikiAttachFiles($this->xpwiki, $page);
 
 			$pgid = $this->func->get_pgid_by_name($page);
 			$this->pages[$page]->pgid = $pgid;

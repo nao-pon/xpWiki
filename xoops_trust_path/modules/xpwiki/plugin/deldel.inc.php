@@ -704,7 +704,7 @@ class xpwiki_plugin_deldel extends xpwiki_plugin {
 
 		$refer = isset($this->root->vars['refer']) ? $this->root->vars['refer'] : '';
 
-		$obj = & new XpWikiAttachPages2($this->xpwiki, $refer);
+		$obj = new XpWikiAttachPages2($this->xpwiki, $refer);
 
 		$msg = $this->root->_attach_messages[($refer === '') ? 'msg_listall' : 'msg_listpage'];
 		$body = ($refer === '' || isset($obj->pages[$refer])) ?
@@ -876,7 +876,7 @@ class XpWikiAttachFiles2 extends XpWikiAttachFiles
 {
 	function add($file, $age)
 	{
-		$this->files[$file][$age] = & new XpWikiAttachFile2($this->xpwiki, $this->page, $file, $age);
+		$this->files[$file][$age] = new XpWikiAttachFile2($this->xpwiki, $this->page, $file, $age);
 	}
 
 	function toString($flat)
@@ -940,7 +940,7 @@ class XpWikiAttachPages2 extends XpWikiAttachPages
 			$_file = $this->func->decode($matches[2]);
 			$_age  = isset($matches[3]) ? $matches[3] : 0;
 			if (! isset($this->pages[$_page])) {
-				$this->pages[$_page] = & new XpWikiAttachFiles2($this->xpwiki, $_page);
+				$this->pages[$_page] = new XpWikiAttachFiles2($this->xpwiki, $_page);
 			}
 			$this->pages[$_page]->add($_file, $_age);
 		}

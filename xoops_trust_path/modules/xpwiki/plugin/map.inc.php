@@ -49,7 +49,7 @@ class xpwiki_plugin_map extends xpwiki_plugin {
 		// Generate a tree
 		$nodes = array();
 		foreach ($pages as $page)
-			$nodes[$page] = & new XpWikiMapNode($this->xpwiki, $page, $reverse);
+			$nodes[$page] = new XpWikiMapNode($this->xpwiki, $page, $reverse);
 	
 		// Node not found: Because of filtererd by $non_list
 		if (! isset($nodes[$refer])) $this->root->vars['refer'] = $refer = $this->root->defaultpage;
@@ -184,7 +184,7 @@ class XpWikiMapNode
 		if ($this->parent_id == 0) $this->parent_id = -1;
 
 		foreach ($this->rels as $page) {
-			if (! isset($nodes[$page])) $nodes[$page] = & new XpWikiMapNode($this->xpwiki, $page);
+			if (! isset($nodes[$page])) $nodes[$page] = new XpWikiMapNode($this->xpwiki, $page);
 			if ($nodes[$page]->parent_id == 0)
 				$nodes[$page]->parent_id = $this->id;
 		}

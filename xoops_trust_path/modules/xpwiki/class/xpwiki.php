@@ -37,12 +37,12 @@ class XpWiki {
 		$pid ++;
 		$this->pid = $pid;
 
-		$this->root =& new XpWikiRoot();
+		$this->root = new XpWikiRoot();
 		$this->cont =& $this->root->c;
 		$this->root->mydirname = $mydirname;
 		$this->cont['MOD_DIR_NAME'] = $moddir;
 
-		$this->func =& new XpWikiFunc($this);
+		$this->func = new XpWikiFunc($this);
 		$this->func->set_moduleinfo();
 		$this->func->set_siteinfo();
 

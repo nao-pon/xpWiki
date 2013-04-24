@@ -487,7 +487,7 @@ class XpWikiXoopsWrapper extends XpWikiBackupFunc {
 		if (!$pgid) return '';
 
 		require_once XOOPS_ROOT_PATH.'/class/template.php';
-		$tpl =& new XoopsTpl();
+		$tpl = new XoopsTpl();
 		// assign
 		$tpl->assign(
 			array(
@@ -643,7 +643,7 @@ class XpWikiXoopsWrapper extends XpWikiBackupFunc {
 
 		require_once XOOPS_ROOT_PATH.'/class/template.php';
 
-		$xoopsTpl =& new XoopsTpl();
+		$xoopsTpl = new XoopsTpl();
 
 		if (function_exists('LegacyRender_smartyfunction_notifications_select')) {
 			$xoopsTpl->register_function("legacy_notifications_select", "LegacyRender_smartyfunction_notifications_select");

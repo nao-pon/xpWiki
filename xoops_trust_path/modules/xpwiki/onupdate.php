@@ -35,10 +35,10 @@ function xpwiki_onupdate_base( $module , $mydirname )
 
 			if( is_file( XOOPS_ROOT_PATH.'/class/database/oldsqlutility.php' ) ) {
 				include_once XOOPS_ROOT_PATH.'/class/database/oldsqlutility.php' ;
-				$sqlutil =& new OldSqlUtility ;
+				$sqlutil = new OldSqlUtility ;
 			} else {
 				include_once XOOPS_ROOT_PATH.'/class/database/sqlutility.php' ;
-				$sqlutil =& new SqlUtility ;
+				$sqlutil = new SqlUtility ;
 			}
 
 			$sql_query = trim( file_get_contents( $sql_file_path ) ) ;
