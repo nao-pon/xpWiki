@@ -785,7 +785,7 @@ EOD;
 			list (, $this->param, $this->anchor) = $matches;
 
 		$_param = $this->param;
-		$url =& $this->func->get_interwiki_url($name, $_param);
+		$url =& $this->func->get_interwiki_url($name, $_param, $alias);
 
 		if (is_object($url)) {
 			$this->otherObj =& $url;

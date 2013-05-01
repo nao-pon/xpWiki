@@ -2501,7 +2501,7 @@ EOD;
 	}
 
 	// Render an InterWiki into a URL
-	function & get_interwiki_url($name, & $param)
+	function & get_interwiki_url($name, & $param, & $alias)
 	{
 		static $interwikinames = array();
 		static $encode_aliases = array('sjis'=>'SJIS', 'euc'=>'EUC-JP', 'utf8'=>'UTF-8');
@@ -2536,6 +2536,8 @@ EOD;
 				if (strpos($option, '>')) {
 					list($from, $to) = explode('>', $option);
 					$replaces[$from] = $to;
+				} else if ($alias === '' && substr($option, 0, 7) === 'prefix:') {
+					$alias = substr($option, 7) . $param;
 				}
 			}
 			if ($replaces) {
