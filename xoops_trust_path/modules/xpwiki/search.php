@@ -6,6 +6,7 @@ function '. $mydirname .'_global_search( $keywords , $andor , $limit , $offset ,
 {
 	// for XOOPS Search module
 	static $readed = array();
+	if (! is_array($keywords)) $keywords = array();
 	$md5 = md5(join($keywords, \' \') . $andor . $limit . $offset . $userid);
 	if(isset($readed[$md5])) { return array() ; }
 	$readed[$md5] = TRUE;
