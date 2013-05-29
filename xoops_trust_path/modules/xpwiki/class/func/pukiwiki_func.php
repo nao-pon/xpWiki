@@ -1725,6 +1725,16 @@ class XpWikiPukiWikiFunc extends XpWikiBaseFunc {
 	// Inversion of bin2hex()
 	function hex2bin($hex_string)
 	{
+		static $native = null;
+		if (is_null($native)) {
+			// PHP 5.4+ has hex2bin()
+			$native = (function_exists('hex2bin'));
+		}
+		
+		if ($native) {
+			return hex2bin($hex_string);
+		}
+		
 		// preg_match : Avoid warning : pack(): Type H: illegal hex digit ...
 		// (string)   : Always treat as string (not int etc). See BugTrack2/31
 		return preg_match('/^[0-9a-f]+$/i', $hex_string) ?
