@@ -8,4 +8,5 @@ define("_MB_XPWIKI_DIVCLASS","Block DIV Class name");
 define("_MB_XPWIKI_THISCSS","Block CSS file");
 define("_MB_XPWIKI_DISABLEDPAGECACHE","Page cache is always disabled.");
 define("_MB_XPWIKI_HEAD_TAG_PLACE","HEAD Tags are output to");
+define("_MB_XPWIKI_TARGETPAGE","Target page (Wild card = *)");
 ?>

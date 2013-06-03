@@ -66,8 +66,32 @@ function b_xpwiki_a_page_show( $options )
 	$css = isset( $options[5] ) ? $options[5] : NULL;
 	$disabled_pagecache = empty($options[6])? false : true;
 	$head_tag_place = empty($options[7])? 'body' : trim($options[7]);
+	$target_page = empty($options[8])? '' : trim($options[8]);
 	$configs = array();
 	
+	if ($target_page) {
+		if (strpos($target_page, '::') !== false) {
+			list($dir, $page) = explode('::', $target_page, 2);
+		} else {
+			$dir = $mydirname;
+		}
+		if (! isset($GLOBALS['Xpwiki_'.$dir]) || empty($GLOBALS['Xpwiki_'.$dir]['page'])) {
+			$page = '';
+		} else {
+			if (strpos($target_page, '*') !== false) {
+				$_p = explode('*', $target_page);
+				$_p = array_map('preg_quote', $_p);
+				$reg = '/' . join('.*', $_p) . '/';
+				if (! preg_match($reg, $GLOBALS['Xpwiki_'.$dir]['page'])) {
+					$page = '';
+				}
+			} else {
+				if ($GLOBALS['Xpwiki_'.$dir]['page'] !== $target_page) {
+					$page = '';
+				}
+			}
+		}
+	}
 	if ($page[0] === '#') {
 		if (isset($GLOBALS['Xpwiki_'.$mydirname]['cache']['blockpage']) && isset($GLOBALS['Xpwiki_'.$mydirname]['cache']['blockpage'][substr($page, 1)])) {
 			$page = $GLOBALS['Xpwiki_'.$mydirname]['cache']['blockpage'][substr($page, 1)];
@@ -133,6 +157,7 @@ function b_xpwiki_a_page_edit( $options )
 	$head_tag_place = empty($options[7])? $defs[7] : trim($options[7]);
 	$check_headtag = array('module' => '', 'block' => '', 'body' => '');
 	$check_headtag[$head_tag_place] = ' checked="checked"';
+	$target_page = isset( $options[8] ) ? trim( $options[8] ) : '';
 
 	$form = "
 		<input type='hidden' name='options[0]' value='$mydirname' />
@@ -157,6 +182,9 @@ function b_xpwiki_a_page_edit( $options )
 		<label>"._MB_XPWIKI_HEAD_TAG_PLACE."</label>&nbsp;:
 		<input type='radio' name='options[7]' value='module'{$check_headtag['module']} id='headtag_module' /><label for='headtag_module'>xoops_module_header</label> &nbsp; <input type='radio' name='options[7]' value='block'{$check_headtag['block']} id='headtag_block' /><label for='headtag_block'>xoops_block_header</label> &nbsp; <input type='radio' name='options[7]' value='body'{$check_headtag['body']} id='headtag_body' /><label for='headtag_body'>&lt;body&gt;(Inline)</label>
 		<br />( {$defs[7]} )<br />
+		<label for='target_page'>"._MB_XPWIKI_TARGETPAGE."</label>&nbsp;:
+		<input type='text' size='30' name='options[8]' id='target_page' value='".htmlspecialchars($target_page,ENT_QUOTES)."' /><br />( \"PageName\" or \"xpWiki module dirname::PageName\" )
+		<br />
 		\n" ;
 	return $form;
 }

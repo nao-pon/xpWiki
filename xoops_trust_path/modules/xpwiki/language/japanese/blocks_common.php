@@ -8,4 +8,5 @@ define("_MB_XPWIKI_DIVCLASS","このブロックのDIV Class名");
 define("_MB_XPWIKI_THISCSS","このブロックのCSSファイル");
 define("_MB_XPWIKI_DISABLEDPAGECACHE","常にページキャッシュ無効にする");
 define("_MB_XPWIKI_HEAD_TAG_PLACE","HEAD 内タグの出力先");
+define("_MB_XPWIKI_TARGETPAGE","限定表示宛先ページ(ワイルドカード = *)");
 ?>

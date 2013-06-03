@@ -8,4 +8,5 @@ define("_MB_XPWIKI_DIVCLASS","Nome da Class DIV do bloco");
 define("_MB_XPWIKI_THISCSS","Arquivo CSS do bloco");
 define("_MB_XPWIKI_DISABLEDPAGECACHE","Cache da página está sempre desabilitado.");
 define("_MB_XPWIKI_HEAD_TAG_PLACE","Tags HEAD estão fora de");
+define("_MB_XPWIKI_TARGETPAGE","Target page (Wild card = *)");
 ?>
