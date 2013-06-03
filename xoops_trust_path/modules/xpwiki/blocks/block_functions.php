@@ -67,7 +67,16 @@ function b_xpwiki_a_page_show( $options )
 	$disabled_pagecache = empty($options[6])? false : true;
 	$head_tag_place = empty($options[7])? 'body' : trim($options[7]);
 	$configs = array();
-
+	
+	if ($page[0] === '#') {
+		if (isset($GLOBALS['Xpwiki_'.$mydirname]['cache']['blockpage']) && isset($GLOBALS['Xpwiki_'.$mydirname]['cache']['blockpage'][substr($page, 1)])) {
+			$page = $GLOBALS['Xpwiki_'.$mydirname]['cache']['blockpage'][substr($page, 1)];
+		} else {
+			$page = '';
+		}
+	}
+	if ($page === '') return '';
+	
 	if( preg_match( '/[^0-9a-zA-Z_-]/' , $mydirname ) ) die( 'Invalid mydirname' ) ;
 
 	// ページキャッシュを常に無効にする?
