@@ -78,17 +78,8 @@ function b_xpwiki_a_page_show( $options )
 		if (! isset($GLOBALS['Xpwiki_'.$dir]) || empty($GLOBALS['Xpwiki_'.$dir]['page'])) {
 			$page = '';
 		} else {
-			if (strpos($target_page, '*') !== false) {
-				$_p = explode('*', $target_page);
-				$_p = array_map('preg_quote', $_p);
-				$reg = '/' . join('.*', $_p) . '/';
-				if (! preg_match($reg, $GLOBALS['Xpwiki_'.$dir]['page'])) {
-					$page = '';
-				}
-			} else {
-				if ($GLOBALS['Xpwiki_'.$dir]['page'] !== $target_page) {
-					$page = '';
-				}
+			if (! $this->func->str_match_wildcard($target_page, $GLOBALS['Xpwiki_'.$dir]['page'])) {
+				$page = '';
 			}
 		}
 	}

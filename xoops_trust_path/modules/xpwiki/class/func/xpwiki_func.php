@@ -3023,6 +3023,30 @@ EOD;
 		if ($htmlspecialchar) $str = htmlspecialchars($str);
 		return $str;
 	}
+	
+	// $pattern (ワイルドカード = *) に $str がマッチするか？
+	function str_match_wildcard($pattern, $str, $ci = null) {
+		$ret = false;
+		if (is_null($ci)) {
+			$ci = (@ $this->root->page_case_insensitive);
+		} else {
+			$ci = (bool)$ci;
+		}
+		if (strpos($pattern, '*') !== false) {
+			$_p = explode('*', str_replace('\\*', "\x01", $pattern));
+			$_p = array_map('preg_quote', $_p);
+			$reg = '/' . join('.*', $_p) . '/' . ($ci? 'i' : '');
+			$reg = str_replace("\x01", '\*', $reg);
+			$ret = (preg_match($reg, $str));
+		} else {
+			if ($ci) {
+				$ret = (strcasecmp($str, $pattern) === 0);
+			} else {
+				$ret = ($str === $pattern);
+			}
+		}
+		return $ret;
+	}
 
 /*----- DB Functions -----*/
 	// Over write pukiwiki_func
