@@ -78,27 +78,29 @@ class xpwiki_plugin_menu extends xpwiki_plugin {
 	}
 	
 	function plugin_menu_convert() {
-		static $menu = array();
-		if (!isset($menu[$this->root->mydirname])) {$menu[$this->root->mydirname] = NULL;}
+		//static $menu = array();
+		//if (!isset($menu[$this->root->mydirname])) {$menu[$this->root->mydirname] = NULL;}
 	
 		$num = func_num_args();
 		if ($num > 0) {
 			// Try to change default 'MenuBar' page name (only)
 			if ($num > 1)       return '#menu(): Zero or One argument needed';
-			if ($menu[$this->root->mydirname] !== NULL) return '#menu(): Already set: ' . htmlspecialchars($menu[$this->root->mydirname]);
+			//if ($menu[$this->root->mydirname] !== NULL) return '#menu(): Already set: ' . htmlspecialchars($menu[$this->root->mydirname]);
+			if (isset($GLOBALS['Xpwiki_'.$this->root->mydirname]['cache']['MenuPage'])) return '#menu(): Already set: ' . htmlspecialchars($GLOBALS['Xpwiki_'.$this->root->mydirname]['cache']['MenuPage']);
 			$args = func_get_args();
 			$args[0] = $this->func->get_fullname($args[0], $this->root->vars['page']);
 			if (! $this->func->is_page($args[0])) {
 				return '#menu(): No such page: ' . $this->func->make_pagelink($args[0]);
 			} else {
-				$menu[$this->root->mydirname] = $args[0]; // Set
+				//$menu[$this->root->mydirname] = $args[0]; // Set
+				$GLOBALS['Xpwiki_'.$this->root->mydirname]['cache']['MenuPage'] = $args[0]; // Set
 				return '';
 			}
 	
 		} else {
 			// Output menubar page data
-			$page = ($menu[$this->root->mydirname] === NULL) ? $this->root->menubar : $menu[$this->root->mydirname];
-	
+			//$page = ($menu[$this->root->mydirname] === NULL) ? $this->root->menubar : $menu[$this->root->mydirname];
+			$page = (! isset($GLOBALS['Xpwiki_'.$this->root->mydirname]['cache']['MenuPage'])) ? $this->root->menubar : $GLOBALS['Xpwiki_'.$this->root->mydirname]['cache']['MenuPage'];
 			if ($this->cont['MENU_ENABLE_SUBMENU']) {
 				if ($this->root->render_mode === 'block') {
 					$tmppage = $GLOBALS['Xpwiki_'.$this->root->mydirname]['page'];
