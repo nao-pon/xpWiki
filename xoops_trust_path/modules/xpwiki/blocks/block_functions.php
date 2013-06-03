@@ -56,8 +56,8 @@ function b_xpwiki_a_page_show( $options )
 	// 必要なファイルの読み込み (固定値:変更の必要なし)
 	include_once XOOPS_TRUST_PATH."/modules/xpwiki/include.php";
 
-	// インスタンス化 (引数: モジュールディレクトリ名)
-	$xw = new XpWiki($mydirname);
+	// XpWiki オブジェクト取得 (引数: モジュールディレクトリ名)
+	$xw =& XpWiki::getSingleton($mydirname);
 
 	$page = empty( $options[1] ) ? '' : $options[1] ;
 	$width = empty( $options[2] ) ? '100%' : $options[2] ;
@@ -88,8 +88,8 @@ function b_xpwiki_a_page_show( $options )
 	list($str, $head) = $xw->get_html_for_block($page, $width, $div_class, $css, $configs, TRUE);
 
 	// オブジェクトを破棄
-	$xw = null;
-	unset($xw);
+	//$xw = null;
+	//unset($xw);
 
 	if ($head_tag_place === 'body' || !b_xpwiki_insert_headtag($head, $head_tag_place)) {
 		$str = $head . $str;
@@ -185,8 +185,8 @@ function b_xpwiki_block_show( $options, $src, $nocache = false )
 	// 必要なファイルの読み込み (固定値:変更の必要なし)
 	include_once XOOPS_TRUST_PATH."/modules/xpwiki/include.php";
 
-	// インスタンス化 (引数: モジュールディレクトリ名)
-	$xw = new XpWiki($mydirname);
+	// XpWiki オブジェクト取得 (引数: モジュールディレクトリ名)
+	$xw =& XpWiki::getSingleton($mydirname);
 
 	$width = empty( $options[1] ) ? '100%' : $options[1] ;
 	$this_template = empty( $options[2] ) ? 'db:'.$mydirname.'_block_a_page.html' : trim( $options[2] ) ;
@@ -213,8 +213,8 @@ function b_xpwiki_block_show( $options, $src, $nocache = false )
 	}
 
 	// オブジェクトを破棄
-	$xw = null;
-	unset($xw);
+	//$xw = null;
+	//unset($xw);
 
 	if ($head_tag_place === 'body' || !b_xpwiki_insert_headtag($head, $head_tag_place)) {
 		$str = $head . $str;
