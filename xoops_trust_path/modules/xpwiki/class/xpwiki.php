@@ -420,6 +420,9 @@ class XpWiki {
 			$this->init('#RenderMode');
 		} else {
 			$this->init($page);
+			if (! $this->func->check_readable($page, false, false)) {
+				return $byArray? array('', '') : '';
+			}
 		}
 
 		if (is_null($css_tag)) {

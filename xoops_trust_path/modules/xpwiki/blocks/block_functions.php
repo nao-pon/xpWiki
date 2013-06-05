@@ -93,7 +93,7 @@ function b_xpwiki_a_page_show( $options )
 	}
 	if ($page === '') return '';
 	
-	if ($xw->func->check_readable($page, false, false)) return '';
+	//if ($xw->func->check_readable($page, false, false)) return '';
 	
 	// ページキャッシュを常に無効にする?
 	if ($disabled_pagecache) {
@@ -102,6 +102,8 @@ function b_xpwiki_a_page_show( $options )
 
 	// ブロック用として取得 (引数: ページ名, 表示幅)
 	list($str, $head) = $xw->get_html_for_block($page, $width, $div_class, $css, $configs, TRUE);
+	
+	if ($str === '') return '';
 
 	// オブジェクトを破棄
 	//$xw = null;
