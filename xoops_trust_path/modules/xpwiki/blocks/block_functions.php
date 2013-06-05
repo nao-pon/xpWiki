@@ -52,7 +52,8 @@ function b_xpwiki_notification_edit( $options )
 function b_xpwiki_a_page_show( $options )
 {
 	$mydirname = empty( $options[0] ) ? 'xpwiki' : $options[0] ;
-
+	if( preg_match( '/[^0-9a-zA-Z_-]/' , $mydirname ) ) die( 'Invalid mydirname' ) ;
+	
 	// 必要なファイルの読み込み (固定値:変更の必要なし)
 	include_once XOOPS_TRUST_PATH."/modules/xpwiki/include.php";
 
@@ -78,7 +79,7 @@ function b_xpwiki_a_page_show( $options )
 		if (! isset($GLOBALS['Xpwiki_'.$dir]) || empty($GLOBALS['Xpwiki_'.$dir]['page'])) {
 			$page = '';
 		} else {
-			if (! $this->func->str_match_wildcard($target_page, $GLOBALS['Xpwiki_'.$dir]['page'])) {
+			if (! $xw->func->str_match_wildcard($target_page, $GLOBALS['Xpwiki_'.$dir]['page'])) {
 				$page = '';
 			}
 		}
@@ -92,8 +93,8 @@ function b_xpwiki_a_page_show( $options )
 	}
 	if ($page === '') return '';
 	
-	if( preg_match( '/[^0-9a-zA-Z_-]/' , $mydirname ) ) die( 'Invalid mydirname' ) ;
-
+	if ($xw->func->check_readable($page, false, false)) return '';
+	
 	// ページキャッシュを常に無効にする?
 	if ($disabled_pagecache) {
 		$configs['root']['pagecache_min'] = 0;
