@@ -72,7 +72,7 @@ function b_xpwiki_a_page_show( $options )
 	
 	if ($target_page) {
 		if (strpos($target_page, '::') !== false) {
-			list($dir, $page) = explode('::', $target_page, 2);
+			list($dir, $target_page) = explode('::', $target_page, 2);
 		} else {
 			$dir = $mydirname;
 		}
