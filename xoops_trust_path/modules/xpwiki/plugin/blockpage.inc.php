@@ -10,6 +10,9 @@ class xpwiki_plugin_blockpage extends xpwiki_plugin {
 		$this->fetch_options($options, $args, array('id', 'page'));
 		if ( $options['id'] !== '' && strlen($options['id']) < 256 && $options['page'] !== '') {
 			$page = $this->func->get_fullname($options['page'], $this->root->vars['page']);
+			if ($this->root->page_case_insensitive && ! $this->func->is_page($page)) {
+				$page = $this->func->get_pagename_realcase($page);
+			}
 			if (! $this->func->is_page($page)) {
 				return '#blockpage(ID,PAGENAME): No such page: ' . $this->func->make_pagelink($page);
 			} else {
