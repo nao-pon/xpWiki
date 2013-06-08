@@ -63,10 +63,16 @@ class xpwiki_plugin {
 
 	// プラグインオプションの解析
 	function fetch_options (& $options, $args, $keys = array(), $other_key = '_args', $sep = '(?:=|:)') {
+		$doTrim = true;
+		if (isset($options['_opt:notrim']) && (bool)$options['_opt:notrim']) {
+			$doTrim = false;
+		} else {
+			$args = array_map('trim', $args);
+		}
 		if ($keys) {
 			$args = array_pad($args, count($keys), null);
 			foreach($keys as $key) {
-				$options[$key] = array_shift($args);
+				$options[$key] = ($doTrim)? trim(array_shift($args)) : array_shift($args);
 			}
 		}
 		if ($args) {
@@ -77,6 +83,10 @@ class xpwiki_plugin {
 					if ($arg) $options[$other_key][] = $arg;
 				} else {
 					list($key, $val) = array_pad(preg_split('/' . $sep . '/', $arg, 2), 2, NULL);
+					if ($doTrim) {
+						$key = trim($key);
+						if (! is_null($val)) $val = trim($val);
+					}
 					if (! is_null($val) && isset($options[$key])) {
 						$options[$key] = ($val === '')? NULL : $val;
 						continue;
