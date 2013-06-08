@@ -648,7 +648,7 @@ var XpWiki = {
 	remakeTextArea: function (obj) {
 		var tareas = obj.getElementsByTagName('textarea');
 		for (var i=0; i<tareas.length; i++){
-			if (tareas[i].style.display == 'none' || tareas[i].className.match(/(?:^| )(?:html|bbcode|rich|wysiwyg)(?: |$)/i)) continue;
+			if (tareas[i].style.display == 'none' || tareas[i].className.match(/(?:^| )(?:html|(?:bb|x)code|rich|wysiwyg)(?: |$)/i)) continue;
 			if (!tareas[i].getAttribute('rel') && !tareas[i].getAttribute('readonly') && this.checkUseHelper(tareas[i])) {
 				tareas[i].setAttribute("rel", "wikihelper");
 			}
