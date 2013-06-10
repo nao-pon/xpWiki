@@ -153,7 +153,7 @@ class xpwiki_plugin_calendar2 extends xpwiki_plugin {
 		}
 
 		if ($today_view) {
-			$ret = '<table border="0" summary="calendar frame">' . "\n" .
+			$ret .= '<table border="0" summary="calendar frame">' . "\n" .
 			' <tr>' . "\n" .
 			'  <td valign="top">' . "\n";
 		}
@@ -256,8 +256,7 @@ EOD;
 			$ret .= '  </td>' . "\n" .
 				'  <td valign="top">' . $str . '</td>' . "\n" .
 				' </tr>'   . "\n" .
-				'</table>' . "\n" .
-				'</div>' . "\n";
+				'</table>' . "\n";
 		}
 
 		return $ret;
