@@ -2451,10 +2451,19 @@ EOD;
 				$utf8 = 'u';
 			}
 		}
-
+		
 		if ($this->root->autolink_as_word) {
-			$asWord1 = '(?<=\W)';
-			$asWord2 = '(?=\W)';
+			if ($this->root->autolink_nonword_reg) {
+				$nonWord = $this->root->autolink_nonword_reg;
+			} else {
+				if ($utf8 && strtolower(substr($this->cont['LC_CTYPE'], 0, 2)) === 'ja') {
+					$nonWord = '[^a-zA-Z0-9_]';
+				} else {
+					$nonWord = '\W';
+				}
+			}
+			$asWord1 = '(?<='.$nonWord.')';
+			$asWord2 = '(?='.$nonWord.')';
 		} else {
 			$asWord1 = $asWord2 = '';
 		}

@@ -472,6 +472,9 @@ $root->favicon_replace_classname = 'extWithFavicon';
 // Matches only words
 // 英数字は単語単位でマッチさせる
 $root->autolink_as_word = 1;
+// 非単語構成文字の正規表現
+// ここで指定しない場合、 UTF-8 の日本語環境下では '[^a-zA-Z0-9_]' それ以外は '\W' が使用される
+$root->autolink_nonword_reg = '';
 
 // An upper layer hierarchical name is priority when assuming that it is possible to omit it.
 // 上層階層名は省略可能とした場合の優先度
