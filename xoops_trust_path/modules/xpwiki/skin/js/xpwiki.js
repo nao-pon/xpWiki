@@ -132,7 +132,7 @@ var XpWiki = {
 				overflow: 'hidden',
 				marginRight: '5px',
 				marginBottom: '5px',
-				zIndex: '2000'
+				zIndex: '99999'
 			});
 			if (this.useJQueryMobile) {
 				Element.setStyle(this.PopupDiv,{
