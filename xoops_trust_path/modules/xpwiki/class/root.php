@@ -123,6 +123,7 @@ class XpWikiRoot {
 	var $smtp_auth;
 	var $smtp_server;
 	var $str_rules;
+	var $str_rules_callback;
 	var $time_format;
 	var $trackback;
 	var $trackback_javascript;

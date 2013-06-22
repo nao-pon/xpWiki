@@ -5,32 +5,34 @@
  */
 
 $_patterns = $_replaces = array();
+$_patterns_c = $_replaces_c = array();
 
 // BB Code url
-$_patterns[] = '/\[url=([\'"]?)((?:ht|f)tp[s]?:\/\/[!~*\'();\/?:\@&=+\$,%#\w.-]+)\\1\](.+)\[\/url\]/esUS';
-$_replaces[] = '\'[[\'.XpWikiFunc::nl2br(\'$3\',true).\':$2]]\'';
+$_patterns_c[] = '/\[url=([\'"]?)((?:ht|f)tp[s]?:\/\/[!~*\'();\/?:\@&=+\$,%#_0-9a-zA-Z.-]+)\\1\](.+)\[\/url\]/sUS';
+$_replaces_c[] = create_function('$m', 'return \'[[\'.str_replace(array("\r\n", "\r", "\n"), \'&br;\', $m[3]).\':\'.$m[2].\']]\';');
 
-$_patterns[] = '/\[url=([\'"]?)([!~*\'();\/?:\@&=+\$,%#\w.-]+)\\1\](.+)\[\/url\]/esUS';
-$_replaces[] = '\'[[\'.XpWikiFunc::nl2br(\'$3\',true).\':http://$2]]\'';
+$_patterns_c[] = '/\[url=([\'"]?)([!~*\'();\/?:\@&=+\$,%#_0-9a-zA-Z.-]+)\\1\](.+)\[\/url\]/sUS';
+$_replaces_c[] = create_function('$m', 'return \'[[\'.str_replace(array("\r\n", "\r", "\n"), \'&br;\', $m[3]).\':http://\'.$m[2].\']]\';');
 
-$_patterns[] = '/\[siteurl=([\'"]?)\/?([!~*\'();?:\@&=+\$,%#\w.-][!~*\'();\/?:\@&=+\$,%#\w.-]+)\\1\](.+)\[\/siteurl\]/esUS';
-$_replaces[] = '\'[[\'.XpWikiFunc::nl2br(\'$3\',true).\':site://$2]]\'';
+$_patterns_c[] = '/\[siteurl=([\'"]?)\/?([!~*\'();?:\@&=+\$,%#_0-9a-zA-Z.-][!~*\'();\/?:\@&=+\$,%#_0-9a-zA-Z.-]+)\\1\](.+)\[\/siteurl\]/sUS';
+$_replaces_c[] = create_function('$m', 'return \'[[\'.str_replace(array("\r\n", "\r", "\n"), \'&br;\', $m[3]).\':site://\'.$m[2].\']]\';');
 
 // BB Code image with align
-$_patterns[] = '/\[img\s+align=([\'"]?)(left|center|right)\1(?:\s+title=([\'"]?)([^\'"][^\]\s]*?)\3)?(?:\s+w(?:idth)?=([\'"]?)([\d]+?)\5)?(?:\s+h(?:eight)?=([\'"]?)([\d]+?)\7)?]([!~*\'();\/?:\@&=+\$,%#\w.-]+)\[\/img\]/US';
+$_patterns[] = '/\[img\s+align=([\'"]?)(left|center|right)\1(?:\s+title=([\'"]?)([^\'"][^\]\s]*)\3)?(?:\s+w(?:idth)?=([\'"]?)([\d]+)\5)?(?:\s+h(?:eight)?=([\'"]?)([\d]+)\7)?]([!~*\'();\/?:\@&=+\$,%#_0-9a-zA-Z.-]+)\[\/img\]/US';
 $_replaces[] = '&ref($9,$2,"t:$4",mw:$6,mw:$8);';
 
 // BB Code image normal
-$_patterns[] = '/\[img(?:\s+title=([\'"]?)([^\'"][^\]\s]*?)\1)?(?:\s+w(?:idth)?=([\'"]?)([\d]+?)\3)?(?:\s+h(?:eight)?=([\'"]?)([\d]+?)\5)?]([!~*\'();\/?:\@&=+\$,%#\w.-]+)\[\/img\]/US';
+$_patterns[] = '/\[img(?:\s+title=([\'"]?)([^\'"][^\]\s]*)\1)?(?:\s+w(?:idth)?=([\'"]?)([\d]+)\3)?(?:\s+h(?:eight)?=([\'"]?)([\d]+)\5)?]([!~*\'();\/?:\@&=+\$,%#_0-9a-zA-Z.-]+)\[\/img\]/US';
 $_replaces[] = '&ref($7,"t:$2",mw:$4,mw:$6);';
 
 // BB Code siteimage with align
-$_patterns[] = '/\[siteimg\s+align=([\'"]?)(left|center|right)\1(?:\s+title=([\'"]?)([^\'"][^\]\s]*?)\3)?(?:\s+w(?:idth)?=([\'"]?)([\d]+?)\5)?(?:\s+h(?:eight)?=([\'"]?)([\d]+?)\7)?]\/?([!~*\'();?\@&=+\$,%#\w.-][!~*\'();\/?\@&=+\$,%#\w.-]+?)\[\/siteimg\]/US';
+$_patterns[] = '/\[siteimg\s+align=([\'"]?)(left|center|right)\1(?:\s+title=([\'"]?)([^\'"][^\]\s]*)\3)?(?:\s+w(?:idth)?=([\'"]?)([\d]+)\5)?(?:\s+h(?:eight)?=([\'"]?)([\d]+)\7)?]\/?([!~*\'();?\@&=+\$,%#_0-9a-zA-Z.-][!~*\'();\/?\@&=+\$,%#_0-9a-zA-Z.-]+)\[\/siteimg\]/US';
 $_replaces[] = '&ref(site://$9,$2,"t:$4",mw:$6,mw:$8);';
 
 // BB Code siteimage normal
-$_patterns[] = '/\[siteimg(?:\s+title=([\'"]?)([^\'"][^\]\s]*?)\1)?(?:\s+w(?:idth)?=([\'"]?)([\d]+?)\3)?(?:\s+h(?:eight)?=([\'"]?)([\d]+?)\5)?]\/?([!~*\'();?\@&=+\$,%#\w.-][!~*\'();\/?\@&=+\$,%#\w.-]+?)\[\/siteimg\]/US';
+$_patterns[] = '/\[siteimg(?:\s+title=([\'"]?)([^\'"][^\]\s]*)\1)?(?:\s+w(?:idth)?=([\'"]?)([\d]+)\3)?(?:\s+h(?:eight)?=([\'"]?)([\d]+)\5)?]\/?([!~*\'();?\@&=+\$,%#_0-9a-zA-Z.-][!~*\'();\/?\@&=+\$,%#_0-9a-zA-Z.-]+)\[\/siteimg\]/US';
 $_replaces[] = '&ref(site://$7,"t:$2",mw:$4,mw:$6);';
 
 $root->str_rules['bbcode_image'] = array($_patterns, $_replaces);
-unset($_patterns, $_replaces);
+$root->str_rules_callback['bbcode_image'] = array($_patterns_c, $_replaces_c);
+unset($_patterns, $_replaces, $_patterns_c, $_replaces_c);

@@ -518,15 +518,6 @@ class XpWikiPukiWikiFunc extends XpWikiBaseFunc {
 			}
 			//if ($modify === FALSE) continue;
 
-			// Replace with $str_rules
-			foreach ($this->root->str_rules as $pattern => $replacement) {
-				if (is_array($replacement)) {
-					$line = preg_replace($replacement[0], $replacement[1], $line);
-				} else {
-					$line = preg_replace('/' . $pattern . '/', $replacement, $line);
-				}
-			}
-
 			// Adding fixed anchor into headings
 			if ($this->root->fixed_heading_anchor &&
 			    preg_match('/^(\*{1,5}.*?)(?:\[#([A-Za-z][\w-]*)\]\s*)?$/', $line, $matches) &&
@@ -557,6 +548,27 @@ class XpWikiPukiWikiFunc extends XpWikiBaseFunc {
 			$lines[] = str_repeat('}', $multiline);
 
 		$lines = implode("\n", $lines);
+
+		// Replace with $str_rules
+		foreach ($this->root->str_rules as $pattern => $replacement) {
+			if (is_array($replacement)) {
+				$lines = preg_replace($replacement[0], $replacement[1], $lines);
+			} else {
+				$lines = preg_replace('/' . $pattern . '/', $replacement, $lines);
+			}
+		}
+		if ($this->root->str_rules_callback) {
+			foreach($this->root->str_rules_callback as $name => $pair) {
+				if (is_array($pair)) {
+					foreach($pair[0] as $k => $pat) {
+						$lines = preg_replace_callback($pat, $pair[1][$k], $lines);
+					}
+				} else {
+					$lines = preg_replace_callback($name, $pair, $lines);
+				}
+			}
+		}
+
 		$this->escape_multiline_pre($lines, FALSE);
 		return $lines;
 	}

@@ -22,8 +22,13 @@ $root->datetime_rules = array(
 // ユーザ定義ルール(保存時に置換)
 //  正規表現で記述してください。?(){}-*./+\$^|など
 //  は \? のようにクォートしてください。
-//  前後に必ず / を含めてください。行頭指定は ^ を頭に。
-//  行末指定は $ を後ろに。
+//  デリミタは "/" が使用されます。
+//  行単位ではなく、投稿文全体で処理します。
+//  行頭または行末を指定する場合は、
+//  '任意の判別子' => array('/^hoge$/m', 'hogeのみの行だよ'),
+//  のように、
+//  任意の判別子をキーとし値を配列で第一項目にデリミタを含む正規表現パターン、
+//  第二項目に置換文字列を指定してください。
 //
 
 // BugTrack2/106: Only variables can be passed by reference from PHP 5.0.5
@@ -41,6 +46,10 @@ $root->str_rules = array(
 	'&t;'   	=> "\t",
 	'&ua;'      => htmlspecialchars($root->ua),
 );
+
+//  preg_replace_callback を使用する置換
+//  'デリミタを含む正規表現パターン' => 置換後の文字列を返す関数表現
+$root->str_rules_callback = array();
 
 unset($page_array);
 
