@@ -2456,7 +2456,7 @@ EOD;
 			if ($this->root->autolink_nonword_reg) {
 				$nonWord = $this->root->autolink_nonword_reg;
 			} else {
-				if ($utf8 && strtolower(substr($this->cont['LC_CTYPE'], 0, 2)) === 'ja') {
+				if ($utf8 && $this->cont['LANG'] === 'ja') {
 					$nonWord = '[^a-zA-Z0-9_]';
 				} else {
 					$nonWord = '\W';
