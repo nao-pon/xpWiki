@@ -84,7 +84,7 @@ function b_xpwiki_a_page_show( $options )
 			}
 		}
 	}
-	if ($page[0] === '#') {
+	if ($page && $page[0] === '#') {
 		if (isset($GLOBALS['Xpwiki_'.$mydirname]['cache']['blockpage']) && isset($GLOBALS['Xpwiki_'.$mydirname]['cache']['blockpage'][substr($page, 1)])) {
 			$page = $GLOBALS['Xpwiki_'.$mydirname]['cache']['blockpage'][substr($page, 1)];
 		} else {
