@@ -330,7 +330,7 @@ class xpwiki_plugin_ref extends xpwiki_plugin {
 			$params = $this->conf['set'][$this->root->vars['page']];
 			$params['set'] = FALSE;
 		}
-
+		
 		// local var
 		$lvar = array(
 			'refid'   => '',
@@ -341,6 +341,7 @@ class xpwiki_plugin_ref extends xpwiki_plugin {
 			'caption' => '',
 			'title'   => array()
 		);
+		$this->lvar =& $lvar;
 
 		if ($lvar['page'] === '#RenderMode') {
 			$lvar['page'] = $this->root->render_attach;
@@ -357,7 +358,7 @@ class xpwiki_plugin_ref extends xpwiki_plugin {
 		}
 
 		// 残りの引数の処理
-		$this->fetch_options($params, $args, $lvar);
+		$this->fetch_options($params, $args);
 
 		// 引数以外のパラメーターの初期化
 		$params['_is_video'] = false;
@@ -735,7 +736,7 @@ class xpwiki_plugin_ref extends xpwiki_plugin {
 				$this->set_object_tag($params, $lvar);
 			}
 		}
-		$this->lvar = $lvar;
+		unset($lvar);
 		return $params;
 	}
 
@@ -1636,7 +1637,7 @@ _HTML_;
 	}
 
 	// 拡張パラメーターの処理
-	function check_arg_ex (& $params, & $lvar) {
+	function check_arg_ex (& $params) {
 		if (is_string($params['caption']) && $params['caption']) {
 			$params['_title'][] = $params['caption'];
 			$params['caption'] = true;
@@ -1661,7 +1662,7 @@ _HTML_;
 				$params['_%'] = $m[1];
 			} else if (preg_match("/^t:(.*)$/i",$arg,$m)){
 				$m[1] = htmlspecialchars(str_replace("&amp;quot;","",$m[1]));
-				if ($m[1]) $lvar['title'][] = $m[1];
+				if ($m[1]) $this->lvar['title'][] = $m[1];
 			} else if (preg_match('/^([0-9]+)x([0-9]+)$/', $arg, $m)) {
 				$params['_size'] = TRUE;
 				$params['_w'] = $m[1];
@@ -1677,7 +1678,7 @@ _HTML_;
 
 		$params['_error'] = '';
 
-		$this->fetch_options($params, $args, $lvar);
+		$this->fetch_options($params, $args);
 
 		if ($params['btn']) {
 			if (strtolower(substr($params['btn'], -4)) === "auth") {
@@ -1715,12 +1716,12 @@ _HTML_;
 		}
 	}
 
-	function fetch_options (& $params, $args, & $lvar) {
+	function fetch_options (& $params, $args, $keys = array(), $other_key = '_args', $sep = '(?:=|:)') {
 		// 残りの引数の処理
 		parent::fetch_options($params, $args);
 
 		// 拡張パラメーターの処理
-		$this->check_arg_ex($params, $lvar);
+		$this->check_arg_ex($params);
 
 		//アラインメント判定
 		if ($params['right']) {
