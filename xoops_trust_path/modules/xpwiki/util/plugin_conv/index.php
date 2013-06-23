@@ -128,7 +128,7 @@ foreach($files as $input) {
 	$class_start_code = "class xpwiki_plugin_{$plugin_name} extends xpwiki_plugin {\n";
 
 	// 自己関数名の取得
-	preg_match_all("/^\s*function\s+(\w+)/im",join('',$dat),$match);
+	preg_match_all("/^\s*function\s+([_0-9a-zA-Z]+)/im",join('',$dat),$match);
 	$my_funcs = $match[1];
 	//echo join("<br>",$my_funcs);
 	//echo "<hr>";
@@ -179,7 +179,7 @@ foreach($files as $input) {
 			$noprc = 0;
 
 			// クラス開始判定
-			if (preg_match("/^\s*class\s+(\w+)/i",$line,$match)) {
+			if (preg_match("/^\s*class\s+([_0-9a-zA-Z]+)/i",$line,$match)) {
 				$st_class = 1;
 				$nest = -1;
 				$class_out[++$class_cnt] = "";
@@ -192,7 +192,7 @@ foreach($files as $input) {
 
 			// 関数開始判定
 			if ($nest === 0) {
-				if (!$st_func && preg_match("/^\s*function\s+(\w+)/i",$line,$match)) {
+				if (!$st_func && preg_match("/^\s*function\s+([_0-9a-zA-Z]+)/i",$line,$match)) {
 					$st_func = 1;
 					$noprc = 1;
 					$now_func_name = $match[1];
@@ -200,10 +200,10 @@ foreach($files as $input) {
 					//クラス内でコンストラクター
 					if ($st_class && $now_class_name == $now_func_name) {
 						//クラス名変更に対応させて、xpwikiオブジェクト引数を追加
-						if (preg_match("/(^\s*function\s+)(\w+)(\s*\(\s*\))/i",$line)) {
-							$line = preg_replace("/(^\s*function\s+)(\w+)(\s*\()/i","$1XpWiki$2$3& \$xpwiki",$line);
+						if (preg_match("/(^\s*function\s+)([_0-9a-zA-Z]+)(\s*\(\s*\))/i",$line)) {
+							$line = preg_replace("/(^\s*function\s+)([_0-9a-zA-Z]+)(\s*\()/i","$1XpWiki$2$3& \$xpwiki",$line);
 						} else {
-							$line = preg_replace("/(^\s*function\s+)(\w+)(\s*\()/i","$1XpWiki$2$3& \$xpwiki, ",$line);
+							$line = preg_replace("/(^\s*function\s+)([_0-9a-zA-Z]+)(\s*\()/i","$1XpWiki$2$3& \$xpwiki, ",$line);
 						}
 						$need_xpwiki_classes[] = $now_class_name;
 					}
@@ -231,7 +231,7 @@ foreach($files as $input) {
 			//echo "$st_class:$st_func:$nest:$noprc<hr>";
 
 			// define 書き換え
-			$line = preg_replace("/defined\('(\w+)'\)/i","isset(\$this->cont['$1'])",$line);
+			$line = preg_replace("/defined\('([_0-9a-zA-Z]+)'\)/i","isset(\$this->cont['$1'])",$line);
 			if (preg_match("/define\s*\(\s*(?:[\"'])(.+?)(?:[\"'])\s*,\s*(.+?)\s*\)\s*;/is",$line,$match)) {
 				$defines[$match[1]] = $match[2];
 				$line = preg_replace("/define\s*\(\s*(?:[\"'])(.+?)(?:[\"'])\s*,(\s*.+?\s*)\)(\s*;)/is","\$this->cont['$1'] = $2$3",$line);
@@ -297,13 +297,13 @@ foreach($files as $input) {
 						//echo "[{$global}]<br>";
 						// "" 内
 						$_tmp = $line;
-						$line = preg_replace('/((?:"[^"]*(?!'.$static.')[^"]*"[^"]*)?"[^\']*?)\{?'.preg_quote($static,"/").'((?:\[[^\]]+\])*)(?!\w)\}?([^\']*?")/i',"$1{".$static."[\$this->xpwiki->pid]$2}$3",$line);
+						$line = preg_replace('/((?:"[^"]*(?!'.$static.')[^"]*"[^"]*)?"[^\']*?)\{?'.preg_quote($static,"/").'((?:\[[^\]]+\])*)(?![_0-9a-zA-Z])\}?([^\']*?")/i',"$1{".$static."[\$this->xpwiki->pid]$2}$3",$line);
 						// その他
 						//ヒアドキュメント内
 						if ($here) {
-							$line = preg_replace("/\{?".preg_quote($static,"/")."(?!".preg_quote("[\$this->xpwiki->pid]").")((?:\[[^\]]+\])*)(?!\w)\}?/",'{$'.$static."[\$this->xpwiki->pid]$1}",$line);
+							$line = preg_replace("/\{?".preg_quote($static,"/")."(?!".preg_quote("[\$this->xpwiki->pid]").")((?:\[[^\]]+\])*)(?![_0-9a-zA-Z])\}?/",'{$'.$static."[\$this->xpwiki->pid]$1}",$line);
 						} else {
-							$line = preg_replace("/".preg_quote($static,"/")."(?!".preg_quote("[\$this->xpwiki->pid]").")(?!\w)/",$static."[\$this->xpwiki->pid]",$line);
+							$line = preg_replace("/".preg_quote($static,"/")."(?!".preg_quote("[\$this->xpwiki->pid]").")(?![_0-9a-zA-Z])/",$static."[\$this->xpwiki->pid]",$line);
 						}
 					}
 				}
@@ -331,12 +331,12 @@ foreach($files as $input) {
 				}
 
 				//call_user_func の書き換え
-				if (preg_match("/(call_user_func(?:_array)?)\s*\(\s*[\",'](plugin_(\w+)_[a-z0-9]+)[\"|']/i",$line,$match)) {
+				if (preg_match("/(call_user_func(?:_array)?)\s*\(\s*[\",'](plugin_([_0-9a-zA-Z]+)_[a-z0-9]+)[\"|']/i",$line,$match)) {
 					if ($plugin_name == $match[3]) {
-						$line = preg_replace("/(call_user_func(?:_array)?)\s*\(\s*[\",'](plugin_(\w+)_[a-z0-9]+)[\"|']/i"
+						$line = preg_replace("/(call_user_func(?:_array)?)\s*\(\s*[\",'](plugin_([_0-9a-zA-Z]+)_[a-z0-9]+)[\"|']/i"
 							,"$1 (array(& \$this, \"$2\")", $line);
 					} else {
-						$line = preg_replace("/(call_user_func(?:_array)?)\s*\(\s*[\",'](plugin_(\w+)_[a-z0-9]+)[\"|']/i"
+						$line = preg_replace("/(call_user_func(?:_array)?)\s*\(\s*[\",'](plugin_([_0-9a-zA-Z]+)_[a-z0-9]+)[\"|']/i"
 							,"$1 (array(& \$_plugin, \"$2\")", $line);
 						$line = "\t\$_plugin =& \$this->func->get_plugin_instance(\"{$match[3]}\");\n\t".$line;
 					}
@@ -371,7 +371,7 @@ foreach($files as $input) {
 			}
 
 			// ヒアドキュメント開始判定
-			if (!$here && preg_match("/^.+<<<\s*(\w+)/",$line,$match)) {
+			if (!$here && preg_match("/^.+<<<\s*([_0-9a-zA-Z]+)/",$line,$match)) {
 				$here = $match[1];
 			}
 			// ヒアドキュメント終了判定
@@ -428,7 +428,7 @@ EOD;
 				$key = $const[0];
 				$line = preg_replace("/'.*?'/se","_for_quote_replace('$0','$key','in')",$line);
 
-				$line = preg_replace("/(?<![\w'\"])".$const."(?![\w'\"])/","\$this->cont['$0']",$line);
+				$line = preg_replace("/(?<![_0-9a-zA-Z'\"])".$const."(?![_0-9a-zA-Z'\"])/","\$this->cont['$0']",$line);
 
 				// '' 内をエスケープ解除
 				$line = preg_replace("/'.*?'/se","_for_quote_replace('$0','$key','out')",$line);
@@ -479,11 +479,11 @@ EOD;
 			if (!$block_comment && !preg_match("/(^([ \t]*(\/\/|#|\n|\r))|<\?php|\?>)/",$line)) {
 				foreach ($rename_classes as $_class) {
 					//echo $_class."<hr>";
-					$line = preg_replace("/(?<!\w)((?:class|new|extends)\s+)(".$_class.")(?!\w)/i","$1XpWiki$2",$line);
-					$line = preg_replace("/(?<!\w)($_class)::($_class)(?!\w)/i","XpWiki$1::XpWiki$2",$line);
-					$line = preg_replace("/(?<!\w)parent::($_class)(?!\w)/i","parent::XpWiki$1",$line);
+					$line = preg_replace("/(?<![_0-9a-zA-Z])((?:class|new|extends)\s+)(".$_class.")(?![_0-9a-zA-Z])/i","$1XpWiki$2",$line);
+					$line = preg_replace("/(?<![_0-9a-zA-Z])($_class)::($_class)(?![_0-9a-zA-Z])/i","XpWiki$1::XpWiki$2",$line);
+					$line = preg_replace("/(?<![_0-9a-zA-Z])parent::($_class)(?![_0-9a-zA-Z])/i","parent::XpWiki$1",$line);
 					// 引用符の中 変数に代入して使っている場合に対応。誤変換があるかも？
-					$line = preg_replace("/((\"|')[^\\2]*)(?<!\w)(".$_class."(?!\w)[^\\2]*\\2)/","$1XpWiki$3",$line);
+					$line = preg_replace("/((\"|')[^\\2]*)(?<![_0-9a-zA-Z])(".$_class."(?![_0-9a-zA-Z])[^\\2]*\\2)/","$1XpWiki$3",$line);
 				}
 			}
 			$out .= $line."\n";
@@ -599,7 +599,7 @@ EOD;
 		$init .= '}';
 		$dat = $init;
 	} else {
-		$dat = preg_replace("/((?:^|\n|\r)\s*class\s+xpwiki_)(plugin(_\w+)\s+extends\s+xpwiki_plugin)/","$1".$mydirname."_$2$3",$dat);
+		$dat = preg_replace("/((?:^|\n|\r)\s*class\s+xpwiki_)(plugin(_[_0-9a-zA-Z]+)\s+extends\s+xpwiki_plugin)/","$1".$mydirname."_$2$3",$dat);
 	}
 
 	while( ob_get_level() ) {

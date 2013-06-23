@@ -83,7 +83,7 @@ foreach($files as $input) {
 	$dat = file($org_file);
 
 	// 自己関数名の取得
-	preg_match_all("/^\s*function\s+(\w+)/im",join('',$dat),$match);
+	preg_match_all("/^\s*function\s+([_0-9a-zA-Z]+)/im",join('',$dat),$match);
 	$my_funcs = $match[1];
 
 	// cat_body() のグローバル変数
@@ -241,7 +241,7 @@ function _convert_skin ($str) {
 
 	foreach (preg_split("/(\r\n|\r|\n)/",$str) as $line) {
 
-		if (!trim($line) || preg_match("/^\s*function\s+\w+/",$line)) {
+		if (!trim($line) || preg_match("/^\s*function\s+[_0-9a-zA-Z]+/",$line)) {
 			$out .= $line."\n";
 			continue;
 		}
@@ -250,7 +250,7 @@ function _convert_skin ($str) {
 
 		$_line =  preg_replace("/(\".*?\"|'.*?'|(\/\/|#).*$)/s","",trim($line));
 		// define 書き換え
-		$line = preg_replace("/defined\('(\w+)'\)/i","isset(\$this->cont['$1'])",$line);
+		$line = preg_replace("/defined\('([_0-9a-zA-Z]+)'\)/i","isset(\$this->cont['$1'])",$line);
 		if (preg_match("/define\s*\(\s*(?:[\"'])(.+?)(?:[\"'])\s*,\s*(.+?)\s*\)\s*;/is",$line,$match)) {
 			$defines[$match[1]] = $match[2];
 			$line = preg_replace("/define\s*\(\s*(?:[\"'])(.+?)(?:[\"'])\s*,(\s*.+?\s*)\)(\s*;)/is","\$this->cont['$1'] = $2$3",$line);
@@ -303,7 +303,7 @@ function _convert_skin ($str) {
 			$key = $const[0];
 			$line = preg_replace("/'.*?'/e","_for_quote_replace('$0','$key','in')",$line);
 
-			$line = preg_replace("/(?<![\w'\"])".$const."(?![\w'\"])/","\$this->cont['$0']",$line);
+			$line = preg_replace("/(?<![_0-9a-zA-Z'\"])".$const."(?![_0-9a-zA-Z'\"])/","\$this->cont['$0']",$line);
 
 			// '' 内をエスケープ解除
 			$line = preg_replace("/'.*?'/e","_for_quote_replace('$0','$key','out')",$line);

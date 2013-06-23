@@ -81,7 +81,7 @@ class xpwiki_plugin_skin_changer extends xpwiki_plugin {
 		
 		if (!$name && !$text) { return false; }
 	
-		if($name && !preg_match('/^[\w-]+$/', $name)) {
+		if($name && !preg_match('/^[_0-9a-zA-Z-]+$/', $name)) {
 			return false;
 		}
 		

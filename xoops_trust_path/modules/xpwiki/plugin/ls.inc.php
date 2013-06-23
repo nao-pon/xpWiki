@@ -47,7 +47,7 @@ class xpwiki_plugin_ls extends xpwiki_plugin {
 			{
 				list($comment) = $this->func->get_source($page);
 				// 見出しの固有ID部を削除
-				$comment = preg_replace('/^(\*{1,5}.*)\[#[A-Za-z][\w-]+\](.*)$/','$1$2',$comment);
+				$comment = preg_replace('/^(\*{1,5}.*)\[#[A-Za-z][_0-9a-zA-Z-]+\](.*)$/','$1$2',$comment);
 	
 				$comment = '- ' . ereg_replace('^[-*]+','',$comment);
 			}

@@ -198,7 +198,7 @@ class XHTML2Wiki
 			$level = $matches[1];
 			$line = $matches[3];
 			$attribute = $matches[2];
-			if (preg_match("/id=\"(\w+)\"/", $attribute, $matches)) {
+			if (preg_match("/id=\"([_0-9a-zA-Z]+)\"/", $attribute, $matches)) {
 				$line .= " [#" . $matches[1] . "]";
 			}
 			$this->OutputLine(str_repeat("*", --$level), $line);

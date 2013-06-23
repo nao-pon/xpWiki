@@ -20,7 +20,7 @@ $media   = isset($_GET['media'])   ? $_GET['media']    : '';
 if ($media != 'print') $media = 'screen';
 
 // Base
-$dir   = isset($_GET['base'])   ? "_".preg_replace("/[^\w-]+/","",$_GET['base'])    : '';
+$dir   = isset($_GET['base'])   ? "_".preg_replace("/[^_0-9a-zA-Z-]+/","",$_GET['base'])    : '';
 $class = "div.xpwiki".$dir;
 
 // Pre Width

@@ -253,7 +253,7 @@ class XpWikiLink_plugin extends XpWikiLink {
 		$this->pattern =<<<EOD
 &
 (      # (1) plain
- (\w+) # (2) plugin name
+ ([_0-9a-zA-Z]+) # (2) plugin name
  (?:
   \(
    ((?:(?!\)[;{]).)*) # (3) parameter
@@ -424,7 +424,7 @@ EOD;
 						$category = '<!--' . $category . '-->';
 					}
 				}
-				if (preg_match('/^(.+?):([\w!#$%\'()=-^~|`@{}\[\]+;*:,.?\/ ]{1,2}):$/', $body, $match)) {
+				if (preg_match('/^(.+?):([_0-9a-zA-Z!#$%\'()=-^~|`@{}\[\]+;*:,.?\/ ]{1,2}):$/', $body, $match)) {
 					$body = $match[1];
 					$idType = $match[2];
 					if (strlen($idType) === 1) {
@@ -492,7 +492,7 @@ class XpWikiLink_url extends XpWikiLink {
  (?:>|:)
 )?
 (                 # (3) url
- (?:(?:https?|ftp|news|site):\/\/|mailto:)[\w\/\@\$()!?&%#:;.,~'=*+-]+
+ (?:(?:https?|ftp|news|site):\/\/|mailto:)[_0-9a-zA-Z\/\@\$()!?&%#:;.,~'=*+-]+
 )
 (?($s1)\]\])      # close bracket
 EOD;
@@ -534,10 +534,10 @@ class XpWikiLink_url_i18n extends XpWikiLink {
 (                  # (3) scheme
  (?:(?:https?|ftp|news|site):\/\/|mailto:)
 )
-([\w.-]+@)?        # (4) mailto name
+([_0-9a-zA-Z.-]+@)?        # (4) mailto name
 ([^\/"<>\s]+|\/)   # (5) host
 (                  # (6) URI
- [\w\/\@\$()!?&%#:;.,~'=*+-]*
+ [_0-9a-zA-Z\/\@\$()!?&%#:;.,~'=*+-]*
 )
 (?($s1)\]\])       # close bracket
 EOD;
@@ -601,7 +601,7 @@ class XpWikiLink_url_interwiki extends XpWikiLink {
 		return<<<EOD
 \[       # open bracket
 (        # (1) url
- {$this->root->interwikinameRegex}[!~*'();\/?:\@&=+\$,%#\w.-]*
+ {$this->root->interwikinameRegex}[!~*'();\/?:\@&=+\$,%#_0-9a-zA-Z.-]*
 )
 \s
 ([^\]]+) # (2) alias
@@ -678,7 +678,7 @@ class XpWikiLink_mailto extends XpWikiLink {
  \[\[
  ((?:(?!\]\]).)+)(?:>|:)  # (1) alias
 )?
-([\w.-]+@[\w-]+\.[\w.-]+) # (2) mailto
+([_0-9a-zA-Z.-]+@[_0-9a-zA-Z-]+\.[_0-9a-zA-Z.-]+) # (2) mailto
 (?($s1)\]\])              # close bracket if (1)
 EOD;
 	}
@@ -712,7 +712,7 @@ class XpWikiLink_mailto_i18n extends XpWikiLink {
  \[\[
  ((?:(?!\]\]).)+)(?:>|:)     # (1) alias
 )?
-([\w.-]+@)                   # (2) toname
+([_0-9a-zA-Z.-]+@)                   # (2) toname
 ([^\/"<>\s]+\.[A-Za-z0-9-]+) # (3) host
 (?($s1)\]\])                 # close bracket if (1)
 EOD;
@@ -781,7 +781,7 @@ EOD;
 		list (, $alias,, $name, $this->param) = $this->splice($arr);
 
 		$matches = array ();
-		if (preg_match('/^([^#]+)(#[A-Za-z][\w-]*)$/', $this->param, $matches))
+		if (preg_match('/^([^#]+)(#[A-Za-z][_0-9a-zA-Z-]*)$/', $this->param, $matches))
 			list (, $this->param, $this->anchor) = $matches;
 
 		$_param = $this->param;
@@ -834,7 +834,7 @@ class XpWikiLink_bracketname extends XpWikiLink {
  |
  (?:$BracketName)
 )?
-(\#(?:[a-zA-Z][\w-]*)?)? # (4) Anchor
+(\#(?:[a-zA-Z][_0-9a-zA-Z-]*)?)? # (4) Anchor
 (?($s2)\]\])             # Close bracket if (2)
 \]\]                     # Close bracket
 EOD;

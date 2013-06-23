@@ -135,20 +135,20 @@ class xpwiki_plugin_relatedview extends xpwiki_plugin {
 		natsort($links);
 	
 		if($follow_autolink || $follow_wikiname){
-			$link_pattern = '/(\[\[(?:.+?>)?)?'.$q_category.'(?(1)(?:#(?:[A-Za-z][\w-]*)?)?\]\])/';
+			$link_pattern = '/(\[\[(?:.+?>)?)?'.$q_category.'(?(1)(?:#(?:[A-Za-z][_0-9a-zA-Z-]*)?)?\]\])/';
 			$replace_patterns = array(
-				'/\[\[(.+?)>'.$q_category.'(?:#(?:[A-Za-z][\w-]*)?)?\]\]/',
-			'/(\[\[)?'.$q_category.'(?(1)(?:#(?:[A-Za-z][\w-]*)?)?\]\])/'
+				'/\[\[(.+?)>'.$q_category.'(?:#(?:[A-Za-z][_0-9a-zA-Z-]*)?)?\]\]/',
+			'/(\[\[)?'.$q_category.'(?(1)(?:#(?:[A-Za-z][_0-9a-zA-Z-]*)?)?\]\])/'
 		);
 		}else{
-			$link_pattern = '/\[\[(?:.+?>)?'.$q_category.'(?:#(?:[A-Za-z][\w-]*)?)?\]\]/';
+			$link_pattern = '/\[\[(?:.+?>)?'.$q_category.'(?:#(?:[A-Za-z][_0-9a-zA-Z-]*)?)?\]\]/';
 			$replace_patterns = array(
-				'/\[\[(.+?)>'.$q_category.'(?:#(?:[A-Za-z][\w-]*)?)?\]\]/',
-			'/\[\['.$q_category.'(?:#(?:[A-Za-z][\w-]*)?)?\]\]/'
+				'/\[\[(.+?)>'.$q_category.'(?:#(?:[A-Za-z][_0-9a-zA-Z-]*)?)?\]\]/',
+			'/\[\['.$q_category.'(?:#(?:[A-Za-z][_0-9a-zA-Z-]*)?)?\]\]/'
 		);
 		}
-		$anchor_pattern = '/(?:(^\*{1,3}.*?\[#)|(?:^#|&)aname\()([A-Z][\w-]+?)(?(1)\]|[,)])/i';
-		$relative_pattern = '/\[\[((?:(?!\]\]).)+>)?(\.{0,2}\/(?:'.$this->root->BracketName.')?)((?:#(?:[A-Za-z][\w-]*)?)?)\]\]/';
+		$anchor_pattern = '/(?:(^\*{1,3}.*?\[#)|(?:^#|&)aname\()([A-Z][_0-9a-zA-Z-]+?)(?(1)\]|[,)])/i';
+		$relative_pattern = '/\[\[((?:(?!\]\]).)+>)?(\.{0,2}\/(?:'.$this->root->BracketName.')?)((?:#(?:[A-Za-z][_0-9a-zA-Z-]*)?)?)\]\]/';
 	
 		$body = $matches = $cell_buffers = array();
 		$is_ver146 = TRUE;
@@ -183,7 +183,7 @@ class xpwiki_plugin_relatedview extends xpwiki_plugin {
 					$data = '|'.implode('|', $cells).'|'.$matches[2]."\n";
 				}
 				$plain = $data;
-				while(preg_match('/&(\w+)(?:\([^)]*\))?(?:\{((?:(?!(?R)|\}).)*)\})?;/', $plain, $matches)){
+				while(preg_match('/&([_0-9a-zA-Z]+)(?:\([^)]*\))?(?:\{((?:(?!(?R)|\}).)*)\})?;/', $plain, $matches)){
 					if(isset($matches[2]) && (!$is_ver146 || $follow_wikiname || preg_match('/^size$/i', $matches[1])))
 						$plain = str_replace($matches[0], '#'.$matches[2].'#', $plain);
 					else

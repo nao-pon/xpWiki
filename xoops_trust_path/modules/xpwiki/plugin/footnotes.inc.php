@@ -28,7 +28,7 @@ class xpwiki_plugin_footnotes extends xpwiki_plugin {
 		$this->fetch_options($options, $args);
 		if (isset($options['_args'])) {
 			foreach($options['_args'] as $cat) {
-				if (preg_match('/^(.+?):([\w!#$%\'()=-^~|`@{}\[\]+;*:,.?\/ ]{1,2}):$/', $cat, $match)) {
+				if (preg_match('/^(.+?):([_0-9a-zA-Z!#$%\'()=-^~|`@{}\[\]+;*:,.?\/ ]{1,2}):$/', $cat, $match)) {
 					$idType = $match[2];
 					if (strlen($idType) === 1) {
 						$idType .= '$1';

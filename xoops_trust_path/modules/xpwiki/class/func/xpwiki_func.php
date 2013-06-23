@@ -116,7 +116,7 @@ class XpWikiFunc extends XpWikiXoopsWrapper {
 		$count[$this->xpwiki->pid][$name] = 1;
 		$ret = FALSE;
 
-		if (preg_match('/^\w{1,64}$/', $name) && $plugin_files ) {
+		if (preg_match('/^[_0-9a-zA-Z]{1,64}$/', $name) && $plugin_files ) {
 			$ret =  FALSE;
 			if (isset($plugin_files['system'])) {
 				require_once($plugin_files['system']);
@@ -382,7 +382,7 @@ class XpWikiFunc extends XpWikiXoopsWrapper {
 		}
 		if (!empty($accept))
 		{
-			if (preg_match_all("/([\w\-]+)/i",$accept,$match,PREG_PATTERN_ORDER)) {
+			if (preg_match_all("/([_0-9a-zA-Z\-]+)/i",$accept,$match,PREG_PATTERN_ORDER)) {
 				foreach($match[1] as $lang) {
 					$lang = strtolower($lang);
 					if ($allowall || in_array(substr($lang, 0, 2), $allows)) {
@@ -484,7 +484,7 @@ class XpWikiFunc extends XpWikiXoopsWrapper {
 			}
 		}
 		// 正規化
-		$skin = preg_replace('#([\w-]+)#', '$1', $this->root->cookie['skin']);
+		$skin = preg_replace('#([_0-9a-zA-Z-]+)#', '$1', $this->root->cookie['skin']);
 		if (substr($skin, 0, 3) === 'tD-') {
 			$skin_dir = $this->cont['DATA_HOME'] . 'skin/tdiary_theme/' . substr($skin, 3);
 		} else {
@@ -503,7 +503,7 @@ class XpWikiFunc extends XpWikiXoopsWrapper {
 			if (preg_match($this->cont['ACCEPT_LANG_REGEX'], $this->root->get[$this->cont['SETLANG']], $match)) {
 				$this->root->cookie['lang'] = $match[1];
 			}
-			//$this->root->cookie['lang'] = ($this->root->get[$this->cont['SETLANG']] === "none")? "" : preg_replace("/[^\w-]+/","",$this->root->get[$this->cont['SETLANG']]);
+			//$this->root->cookie['lang'] = ($this->root->get[$this->cont['SETLANG']] === "none")? "" : preg_replace("/[^_0-9a-zA-Z-]+/","",$this->root->get[$this->cont['SETLANG']]);
 			if (isset($_SERVER['QUERY_STRING'])) {
 				$_SERVER['QUERY_STRING'] = preg_replace("/(^|&)".preg_quote($this->cont['SETLANG'],"/")."=.*?(?:&|$)/","$1",$_SERVER['QUERY_STRING']);
 			}
@@ -630,7 +630,7 @@ class XpWikiFunc extends XpWikiXoopsWrapper {
 				}
 			}
 			while ($file = readdir($handle)) {
-				if (preg_match('/^[\w]{2}(-[\w]+)?(_utf8)?$/',$file)) {
+				if (preg_match('/^[_0-9a-zA-Z]{2}(-[_0-9a-zA-Z]+)?(_utf8)?$/',$file)) {
 					foreach ($clr_pages as $_page) {
 						// meta description
 						$this->cache_del_db($this->get_pgid_by_name($_page), 'core:description');
@@ -2411,7 +2411,7 @@ EOD;
 		$base = $this->root->mytrustdirpath."/events/onPageWriteBefore";
 		if ($handle = opendir($base)) {
 			while (false !== ($file = readdir($handle))) {
-				if (preg_match("/^([\w_]+)\.inc\.php$/", $file, $match)) {
+				if (preg_match("/^([_0-9a-zA-Z_]+)\.inc\.php$/", $file, $match)) {
 					include_once($base ."/".$file);
 					$_func = 'xpwiki_onPageWriteBefore_'.$match[1];
 					if (function_exists($_func)) {
@@ -2429,7 +2429,7 @@ EOD;
 		$base = $this->root->mytrustdirpath."/events/onPageWriteAfter";
 		if ($handle = opendir($base)) {
 			while (false !== ($file = readdir($handle))) {
-				if (preg_match("/^([\w_]+)\.inc\.php$/", $file, $match)) {
+				if (preg_match("/^([_0-9a-zA-Z_]+)\.inc\.php$/", $file, $match)) {
 					include_once($base ."/".$file);
 					$_func = 'xpwiki_onPageWriteAfter_'.$match[1];
 					if (function_exists($_func)) {
@@ -2686,7 +2686,7 @@ EOD;
 
 	function cleanup_template_source (& $source) {
 		// 見出しの固有ID部を削除
-		$source = preg_replace('/^(\*{1,5}.*)\[#[A-Za-z][\w-]+\](.*)$/m', '$1$2', $source);
+		$source = preg_replace('/^(\*{1,5}.*)\[#[A-Za-z][_0-9a-zA-Z-]+\](.*)$/m', '$1$2', $source);
 		// ref のアップロード用ID部を削除
 		$source = preg_replace('/((?:&|#)ref\()ID\$[^,]+/','$1',$source);
 		// #freezeを削除
@@ -2826,7 +2826,7 @@ EOD;
 			$page = isset($this->root->vars['page'])? $this->root->vars['page'] : '';
 			$msg = strip_tags($this->convert_html($msg, $page));
 		}
-		//$msg = preg_replace('/(https?:\/\/[\w\/\@\$()!?&%#:;.,~\'=*+-]+)/ie', "\$this->bitly('$1')", $msg);
+		//$msg = preg_replace('/(https?:\/\/[_0-9a-zA-Z\/\@\$()!?&%#:;.,~\'=*+-]+)/ie', "\$this->bitly('$1')", $msg);
 
 		if (mb_strlen($msg) > $max) {
 			$msg = mb_substr($msg, 0, $max - 3) . '...';
@@ -2884,7 +2884,7 @@ EOD;
 
 			$msg = $this->unhtmlspecialchars($this->strip_emoji($msg));
 
-			//$msg = preg_replace('/(https?:\/\/[\w\/\@\$()!?&%#:;.,~\'=*+-]+)/ie', "\$this->bitly('$1')", $msg);
+			//$msg = preg_replace('/(https?:\/\/[_0-9a-zA-Z\/\@\$()!?&%#:;.,~\'=*+-]+)/ie', "\$this->bitly('$1')", $msg);
 
 			if (mb_strlen($msg) > $max) {
 				$msg = mb_substr($msg, 0, $max - 3) . '...';
@@ -2941,7 +2941,7 @@ EOD;
 	}
 
 	function bitlize($str) {
-		return preg_replace('/(https?:\/\/[\w\/\@\$()!?&%#:;.,~\'=*+-]+)/ie', "\$this->bitly('$1')", $str);
+		return preg_replace('/(https?:\/\/[_0-9a-zA-Z\/\@\$()!?&%#:;.,~\'=*+-]+)/ie', "\$this->bitly('$1')", $str);
 	}
 
 	function bytes2KMT($bytes, $decimal = 1, $threshold = 921) {

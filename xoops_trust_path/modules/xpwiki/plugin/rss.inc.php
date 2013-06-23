@@ -69,7 +69,7 @@ class xpwiki_plugin_rss extends xpwiki_plugin {
 			$html = preg_replace('#<(link|wbr).*?>#is', '',$html);
 
 			// 相対指定リンクを削除
-			$html = preg_replace('#<a[^>]+href=(?!(?:"|\')?\w+://)[^>]+>(.*?)</a>#is', '$1', $html);
+			$html = preg_replace('#<a[^>]+href=(?!(?:"|\')?[_0-9a-zA-Z]+://)[^>]+>(.*?)</a>#is', '$1', $html);
 
 			// タグ中の無効な属性を削除
 			$_reg = '/(<[^>]*)\s+(?:id|class|name|on[^=]+)=("|\').*?\\2([^>]*>)/s';

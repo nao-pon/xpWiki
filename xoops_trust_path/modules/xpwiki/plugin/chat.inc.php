@@ -67,7 +67,7 @@ class xpwiki_plugin_chat extends xpwiki_plugin {
 		}
 		if (!empty($accept))
 		{
-			if (preg_match_all("/([\w\-]+)/i",$accept,$match,PREG_PATTERN_ORDER)) {
+			if (preg_match_all("/([_0-9a-zA-Z\-]+)/i",$accept,$match,PREG_PATTERN_ORDER)) {
 				foreach($match[1] as $lang) {
 					$lang = strtolower($lang);
 					return $lang;

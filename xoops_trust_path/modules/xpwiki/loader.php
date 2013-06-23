@@ -23,7 +23,7 @@ while( ob_get_level() ) {
 }
 
 // 変数初期化
-$src = preg_replace('/[^\w.%, -]+/', '', $_GET['src']);
+$src = preg_replace('/[^_0-9a-zA-Z.%, -]+/', '', $_GET['src']);
 $src = str_replace(' ', ',', $src);
 
 if ($src === 'favicon') {
@@ -83,10 +83,10 @@ switch ($type) {
 	case 'css':
 		$c_type = 'text/css';
 
-		$pre_id = preg_replace('/[^\w_\-#]+/', '', @ $_GET['pre']);
+		$pre_id = preg_replace('/[^_0-9a-zA-Z_\-#]+/', '', @ $_GET['pre']);
 
 		// Skin dir
-		$skin = isset($_GET['skin']) ? preg_replace('/[^\w.-]+/','',$_GET['skin'])  : 'default';
+		$skin = isset($_GET['skin']) ? preg_replace('/[^_0-9a-zA-Z.-]+/','',$_GET['skin'])  : 'default';
 		if (!$skin) $skin = 'default';
 
 		$_is_tdiary = (substr($skin, 0, 3) === 'tD-');
@@ -99,7 +99,7 @@ switch ($type) {
 			// Default CSS
 			if ($_src === 'main') {
 				// Default charset
-				if (isset($_GET['charset'])) $charset = preg_replace('/[^\w.-]+/','',$_GET['charset']);
+				if (isset($_GET['charset'])) $charset = preg_replace('/[^_0-9a-zA-Z.-]+/','',$_GET['charset']);
 				$c_type = 'text/css' . ($charset ? '; charset=' . $charset : '');
 				// tDiary
 				if ($_is_tdiary) {
@@ -233,7 +233,7 @@ switch ($type) {
 		$c_type = 'application/xml; charset=utf-8';
 		break;
 	case 'html':
-		$charset = strtolower(preg_replace('/[^\w_\-]+/','',@ $_GET['charset']));
+		$charset = strtolower(preg_replace('/[^_0-9a-zA-Z_\-]+/','',@ $_GET['charset']));
 		$c_type = 'text/html; charset=' . $charset;
 		break;
 	case 'swf':

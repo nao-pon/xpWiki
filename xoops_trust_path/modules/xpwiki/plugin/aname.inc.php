@@ -22,7 +22,7 @@ class xpwiki_plugin_aname extends xpwiki_plugin {
 		$this->cont['PLUGIN_ANAME_ID_MAX'] =    40;
 	
 		// Pattern of ID
-		$this->cont['PLUGIN_ANAME_ID_REGEX'] =  '/^[A-Za-z][\w\-]*$/';
+		$this->cont['PLUGIN_ANAME_ID_REGEX'] =  '/^[A-Za-z][_0-9a-zA-Z\-]*$/';
 
 		// Maxmum image size(px)
 		$this->max_image_size = 32;

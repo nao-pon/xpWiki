@@ -312,7 +312,7 @@ class XpWiki {
 		if ($this->cont['SKIN_CHANGER'] && ! $skin_protect_profile && (!empty($this->root->cookie['skin']) || is_string($this->cont['SKIN_CHANGER']))
 		    && in_array($this->cont['UA_PROFILE'], explode(',', str_replace(' ', '', $this->root->skin_change_profiles)))) {
 			$this->cont['SKIN_NAME'] = empty($this->root->cookie['skin'])? $this->cont['SKIN_CHANGER'] : $this->root->cookie['skin'];
-			if (preg_match('/^[\w-]+$/', $this->cont['SKIN_NAME'])) {
+			if (preg_match('/^[_0-9a-zA-Z-]+$/', $this->cont['SKIN_NAME'])) {
 				if (substr($this->cont['SKIN_NAME'],0,3) === "tD-") {
 					//tDiary's theme
 					$theme_name = substr($this->cont['SKIN_NAME'],3);
@@ -452,7 +452,7 @@ class XpWiki {
 		// SKIN select from Cookie or Plugin.
 		if ($this->cont['SKIN_CHANGER']) {
 			if ($this->root->cookie['skin']) {$this->cont['SKIN_NAME'] = $this->root->cookie['skin']; }
-			if (preg_match('/^[\w-]+$/', $this->cont['SKIN_NAME'])) {
+			if (preg_match('/^[_0-9a-zA-Z-]+$/', $this->cont['SKIN_NAME'])) {
 				if (substr($this->cont['SKIN_NAME'],0,3) === "tD-") {
 					//tDiary's theme
 
@@ -497,7 +497,7 @@ EOD;
 		$base = $this->root->mytrustdirpath."/class/extension";
 		if ($handle = opendir($base)) {
 			while (false !== ($file = readdir($handle))) {
-				if (preg_match("/^([\w-]+\).php$/",$file,$match)) {
+				if (preg_match("/^([_0-9a-zA-Z-]+\).php$/",$file,$match)) {
 					include_once($base."/".$file);
 					$name = $match[1];
 					$class = "XPWikiExtension_".$name;
@@ -517,7 +517,7 @@ EOD;
 			$exts = array($exts);
 		}
 		foreach($exts as $name) {
-			if (preg_match("/^[\w-]+$/",$name)) {
+			if (preg_match("/^[_0-9a-zA-Z-]+$/",$name)) {
 				include_once($base."/".$name.".php");
 				$class = "XPWikiExtension_".$name;
 				if (XC_CLASS_EXISTS($class)) {

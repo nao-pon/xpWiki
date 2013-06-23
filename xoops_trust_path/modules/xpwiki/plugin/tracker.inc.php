@@ -817,7 +817,7 @@ class XpWikiTracker_list
 		$source = preg_replace('/^\#([^\(\s]+)(?:\((.*?)\))?\s*$/m', '[_block_$1]', $source);
 
 		// Now, $source = array('*someting*', 'fieldname', '*someting*', 'fieldname', ...)
-		$source = preg_split('/\\\\\[(\w+?)\\\\\]/', preg_quote($source, '/'), -1, PREG_SPLIT_DELIM_CAPTURE);
+		$source = preg_split('/\\\\\[([_0-9a-zA-Z]+?)\\\\\]/', preg_quote($source, '/'), -1, PREG_SPLIT_DELIM_CAPTURE);
 
 		while (! empty($source)) {
 			// Just ignore these _fixed_ data

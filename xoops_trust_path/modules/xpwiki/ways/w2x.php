@@ -383,7 +383,7 @@ class InlineConverterEx {
 	function make_link($line) {
 		$link_rules = "/(
 			(?:\[\[((?:(?!\]\]).)+):)?
-			((?:https?|ftp|news)(?::\/\/[!~*'();\/?:\@&=+\$,%#\w.-]+))
+			((?:https?|ftp|news)(?::\/\/[!~*'();\/?:\@&=+\$,%#_0-9a-zA-Z.-]+))
 			(?(2)\]\])
 			|
 			 (\[\[
@@ -392,7 +392,7 @@ class InlineConverterEx {
 			   (?:&gt;)
 			  )?
 			  (?:
-			   (\#(?:[a-zA-Z][\w-]*)?)
+			   (\#(?:[a-zA-Z][_0-9a-zA-Z-]*)?)
 			   |
 			   ((?:(?!\]\]).)*)
 			  )?
@@ -495,9 +495,9 @@ class InlineConverterEx {
 				$bgcolor = $aryargs[1];
 				if ($body == '')
 					return '';
-				if ($color != '' && !preg_match('/^(#[0-9a-f]+|[\w-]+)$/i', $color))
+				if ($color != '' && !preg_match('/^(#[0-9a-f]+|[_0-9a-zA-Z-]+)$/i', $color))
 					return $body;
-				if ($bgcolor != '' && !preg_match('/^(#[0-9a-f]+|[\w-]+)$/i', $bgcolor))
+				if ($bgcolor != '' && !preg_match('/^(#[0-9a-f]+|[_0-9a-zA-Z-]+)$/i', $bgcolor))
 					return $body;
 				if ($color != '')
 					$color = "color:$color";
@@ -817,10 +817,10 @@ class HeadingEx extends ElementEx
 		$this->level = min(5, strspn($text, '*'));
 
 		$text = substr($text, $this->level);
-		if (preg_match('/\s*\[#(\w+)\]/', $text, $matches)) {
+		if (preg_match('/\s*\[#([_0-9a-zA-Z]+)\]/', $text, $matches)) {
 			$this->id = $matches[1];
 		}
-		$text = preg_replace('/\s*\[#\w+\]/', '', $text);
+		$text = preg_replace('/\s*\[#_0-9a-zA-Z+\]/', '', $text);
 
 		$this->insert(Factory_InlineEx($text));
 		$this->level++; // h2,h3,h4
@@ -1092,7 +1092,7 @@ class TableCellEx extends ElementEx
 			$text = $this->get_cell_style($text);
 		}
 
-		while (preg_match('/^(?:(LEFT|CENTER|RIGHT)|(BG)?COLOR\(([#\w]+)\)|SIZE\((\d+)\)):(.*)$/',
+		while (preg_match('/^(?:(LEFT|CENTER|RIGHT)|(BG)?COLOR\(([#_0-9a-zA-Z]+)\)|SIZE\((\d+)\)):(.*)$/',
 		    $text, $matches)) {
 			if ($matches[1]) {
 				$this->style['align'] = ' align="' . strtolower($matches[1]) . '"';

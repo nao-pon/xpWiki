@@ -425,7 +425,7 @@ class XpWikiPukiWikiFunc extends XpWikiBaseFunc {
 		foreach ($lines as $line) {
 			if (preg_match('/\[(' . $this->root->interwikinameRegex .
 			 '[^\s]*)\s([^\]]+)\]\s*([^\s]*)/',
-			 //'[!~*\'();\/?:\@&=+\$,%#\w.-]*)\s([^\]]+)\]\s?([^\s]*)/',
+			 //'[!~*\'();\/?:\@&=+\$,%#_0-9a-zA-Z.-]*)\s([^\]]+)\]\s?([^\s]*)/',
 			 $line, $matches)) {
 				$interwikinames[$matches[2]] = array($matches[1], $matches[3]);
 			}
@@ -520,7 +520,7 @@ class XpWikiPukiWikiFunc extends XpWikiBaseFunc {
 
 			// Adding fixed anchor into headings
 			if ($this->root->fixed_heading_anchor &&
-			    preg_match('/^(\*{1,5}.*?)(?:\[#([A-Za-z][\w-]*)\]\s*)?$/', $line, $matches) &&
+			    preg_match('/^(\*{1,5}.*?)(?:\[#([A-Za-z][_0-9a-zA-Z-]*)\]\s*)?$/', $line, $matches) &&
 			    (! isset($matches[2]) || $matches[2] === '')) {
 				// Generate unique id
 				$anchor = $this->generate_fixed_heading_anchor_id($matches[1]);
@@ -2666,7 +2666,7 @@ EOD;
 			$url .= $param;
 		}
 
-		if (! preg_match('/' . $this->root->interwikinameRegex . '[!~*\'();\/?:\@&=+\$,%#\w.-]*/', $url) || strlen($url) > 512) return $false;
+		if (! preg_match('/' . $this->root->interwikinameRegex . '[!~*\'();\/?:\@&=+\$,%#_0-9a-zA-Z.-]*/', $url) || strlen($url) > 512) return $false;
 
 		return $url;
 	}
@@ -3965,7 +3965,7 @@ EOD;
 		// Cut fixed-heading anchors
 		$id = '';
 		$matches = array();
-		if (preg_match('/^(\*{0,5})(.*?)\[#([A-Za-z][\w-]+)\](.*?)$/m', $str, $matches)) {
+		if (preg_match('/^(\*{0,5})(.*?)\[#([A-Za-z][_0-9a-zA-Z-]+)\](.*?)$/m', $str, $matches)) {
 			$str = $matches[2] . $matches[4];
 			$id  = & $matches[3];
 		} else {

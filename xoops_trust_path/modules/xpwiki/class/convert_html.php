@@ -384,7 +384,7 @@ class XpWikiTableCell extends XpWikiElement {
 			$text = $this->get_cell_style($text);
 		}
 
-		while (preg_match('/^(?:(LEFT|CENTER|RIGHT)|(BG)?COLOR\(([#\w]+)\)|SIZE\((\d+)\)):(.*)$/', $text, $matches)) {
+		while (preg_match('/^(?:(LEFT|CENTER|RIGHT)|(BG)?COLOR\(([#_0-9a-zA-Z]+)\)|SIZE\((\d+)\)):(.*)$/', $text, $matches)) {
 			if ($matches[1]) {
 				$this->style['align'] = 'text-align:'.strtolower($matches[1]).';';
 				$text = $matches[5];

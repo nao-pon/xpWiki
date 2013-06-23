@@ -9,7 +9,7 @@
 class xpwiki_plugin_edit extends xpwiki_plugin {
 	function plugin_edit_init () {
 		// Remove #freeze written by hand
-		$this->cont['PLUGIN_EDIT_FREEZE_REGEX'] = '/^(?:#freeze(?!\w)\s*)+/im';
+		$this->cont['PLUGIN_EDIT_FREEZE_REGEX'] = '/^(?:#freeze(?![_0-9a-zA-Z])\s*)+/im';
 	}
 
 	function plugin_edit_action()
@@ -94,7 +94,7 @@ EOD;
 			$this->root->vars['msg'] = $this->func->get_source($this->root->vars['template_page'], TRUE, TRUE);
 
 			// Cut fixed anchors
-			$this->root->vars['msg'] = preg_replace('/^(\*{1,5}.*)\[#[A-Za-z][\w-]+\](.*)$/m', '$1$2', $this->root->vars['msg']);
+			$this->root->vars['msg'] = preg_replace('/^(\*{1,5}.*)\[#[A-Za-z][_0-9a-zA-Z-]+\](.*)$/m', '$1$2', $this->root->vars['msg']);
 		}
 
 		$this->root->vars['msg'] = preg_replace($this->cont['PLUGIN_EDIT_FREEZE_REGEX'], '', $this->root->vars['msg']);
@@ -552,7 +552,7 @@ EOD;
 			}
 		} else {
 
-			$heads = preg_grep('/^\*{1,5}.+\[#[A-Za-z][\w-]+\].*$/', $source);
+			$heads = preg_grep('/^\*{1,5}.+\[#[A-Za-z][_0-9a-zA-Z-]+\].*$/', $source);
 			$heads[count($source)] = ''; // Sentinel
 
 			while (list($start, $line) = each($heads)) {

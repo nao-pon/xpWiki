@@ -54,7 +54,7 @@ class XpWikiConfig
 
 			} else if ($head == '*') {
 				// Cut fixed-heading anchors
-				$line = preg_replace('/^(\*{1,5}.*)\[#[A-Za-z][\w-]+\](.*)$/', '$1$2', $line);
+				$line = preg_replace('/^(\*{1,5}.*)\[#[A-Za-z][_0-9a-zA-Z-]+\](.*)$/', '$1$2', $line);
 
 				if ($level == 1) {
 					$this->objs[$obj->title] = $obj;

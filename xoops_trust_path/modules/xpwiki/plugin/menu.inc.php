@@ -124,7 +124,7 @@ class xpwiki_plugin_menu extends xpwiki_plugin {
 				return '<!-- #menu(): You already view ' . htmlspecialchars($page) . ' -->';
 			} else {
 				// Cut fixed anchors
-				$menutext = preg_replace('/^(\*{1,5}.*)\[#[A-Za-z][\w-]+\](.*)$/m', '$1$2', $this->func->get_source($page));
+				$menutext = preg_replace('/^(\*{1,5}.*)\[#[A-Za-z][_0-9a-zA-Z-]+\](.*)$/m', '$1$2', $this->func->get_source($page));
 				// remove xoops_block if runmode = xoops.
 				if ($this->root->render_mode === 'block' && $this->root->runmode === "xoops") {
 					$menutext = preg_replace("/^#xoopsblock.*$/m","",$menutext);
