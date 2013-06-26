@@ -398,6 +398,7 @@ class XpWikiTracker_field
 	var $data;
 	var $sort_type = SORT_REGULAR;
 	var $id = 0;
+	var $field_remover = '';
 
 	function XpWikiTracker_field(& $xpwiki, $field, $base, $refer, & $config)
 	{
@@ -444,6 +445,15 @@ class XpWikiTracker_field
 	function get_value($value)
 	{
 		return $value;	// Default: $value itself
+	}
+	
+	function set_field_remover()
+	{
+		$fields = array();
+		foreach ($this->config->get('fields') as $field) {
+			$fields[] = preg_quote($field[0], '/');
+		}
+		$this->config->put('field_remover', array('/\[(?:'.join('|', $fields).')\]/'));
 	}
 }
 
@@ -569,8 +579,25 @@ class XpWikiTracker_field_format extends XpWikiTracker_field
 
 	function get_style($str)
 	{
-		$key = $this->get_key($str);
+		$key = $this->get_key(! $this->is_null_style($str));
 		return isset($this->styles[$key]) ? $this->styles[$key] : '%s';
+	}
+	
+	function is_null_style($str)
+	{
+		if (! $this->config->get('field_remover')) {
+			$this->set_field_remover();
+		}
+		$arr = $this->config->get('field_remover');
+		$this->field_remover = $arr[0];	
+		if (isset($this->formats['IS NULL'])) {
+			$null = $this->formats['IS NULL'];
+			$this->func->cleanup_template_source($null);
+			$null = preg_replace($this->field_remover, '', $null);
+		} else {
+			$null = '';
+		}
+		return ($str === $null);
 	}
 }
 
