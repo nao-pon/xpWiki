@@ -565,7 +565,7 @@ class XpWikiTracker_field_format extends XpWikiTracker_field
 
 	function get_key($str)
 	{
-		return ($str == '') ? 'IS NULL' : 'IS NOT NULL';
+		return ($str === '') ? 'IS NULL' : 'IS NOT NULL';
 	}
 
 	function format_value($str)
@@ -579,7 +579,7 @@ class XpWikiTracker_field_format extends XpWikiTracker_field
 
 	function get_style($str)
 	{
-		$key = $this->get_key(! $this->is_null_style($str));
+		$key = $this->get_key($this->is_null_style($str)? '' : $str);
 		return isset($this->styles[$key]) ? $this->styles[$key] : '%s';
 	}
 	
