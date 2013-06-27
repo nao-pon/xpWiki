@@ -271,7 +271,8 @@ EOD;
 			) as $fieldname => $type)
 		{
 			if (isset($fields[$fieldname])) continue;
-			$field = array($fieldname, xpwiki_plugin_tracker::plugin_tracker_message('btn' . $fieldname), '', '20', '');
+			$tracker = $this->func->get_plugin_instance('tracker');
+			$field = array($fieldname, $tracker->plugin_tracker_message('btn' . $fieldname), '', '20', '');
 			$class = 'XpWikiTracker_field_' . $type;
 			$fields[$fieldname] = new $class($this->xpwiki, $field, $base, $refer, $config);
 		}
@@ -1254,12 +1255,13 @@ class XpWikiTracker_list
 		$limit = intval($limit);
 		if ($limit != 0) $limit = max(1, $limit);
 		if ($limit != 0 && $count > $limit) {
+			$tracker = $this->func->get_plugin_instance('tracker');
 			$source[] = str_replace(
 				array('$1',   '$2'  ),
 				array($count, $limit),
-				$this->func->plugin_tracker_message('msg_limit')
+				$tracker->plugin_tracker_message('msg_limit')
 			) . "\n";
-			$rows  = array_slice($this->rows, 0, $limit);
+			$rows  = array_slice($rows, 0, $limit);
 		}
 
 		// Loading template
