@@ -110,7 +110,7 @@ EOD;
    <a href="<?php echo $link['reload']?>"><span class="small"><?php echo $link['reload']?></span></a>
  <?php } else if (!$is_top) {?>
    <span class="small">
-   <?php echo $this->do_plugin_inline('topicpath','',$_dum); ?>
+   <?php echo $this->do_plugin_inline('topicpath',''); ?>
    </span>
  <?php }?>
 <?php }?>
