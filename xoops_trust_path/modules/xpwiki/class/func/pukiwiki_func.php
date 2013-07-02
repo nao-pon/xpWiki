@@ -1978,7 +1978,7 @@ EOD;
 			$min_len = $this->root->autolink;	// set $this->root->autolink, when omitted.
 		}
 
-		$_aliases = array_keys(array_intersect($this->root->page_aliases, $pages));
+		$_aliases = $this->get_pagealiases($pages);
 		foreach (array_merge($pages, $_aliases) as $page) {
 			if (strlen($page) >= $min_len) {
 				$auto_pages[] = $page;

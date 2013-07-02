@@ -46,7 +46,7 @@ class xpwiki_plugin_api extends xpwiki_plugin {
 
 				// Get all aliases
 				if (empty($options['noaliases'])) {
-					$all_aliases = array_keys(array_intersect($this->root->page_aliases,  $this->func->get_existpages()));
+					$all_aliases = $this->func->get_pagealiases($this->func->get_existpages());
 				} else {
 					$all_aliases = array();
 				}

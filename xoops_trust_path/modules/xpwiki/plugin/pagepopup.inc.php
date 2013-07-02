@@ -35,7 +35,7 @@ class xpwiki_plugin_pagepopup extends xpwiki_plugin {
 			$page = str_replace('$page', $this->root->vars['page'], $page);
 		}
 		
-		if ($nocheck || ($this->func->is_page($page) || isset($this->root->page_aliases[$page]))) {
+		if ($nocheck || ($this->func->is_page($page) || $this->func->is_alias($page))) {
 			if ($nocheck) $options['nocheck'] = TRUE;
 			$options['popup']['use'] = 1;
 			$options['popup']['position'] = '';

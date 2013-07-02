@@ -229,9 +229,10 @@ EOD;
 				$pages[$this->func->encode($_page)] = str_replace($from, $to, $_page);
 			}
 		}
+		$page_aliases = array_flip($this->func->get_pagealiases());
 		$exists = array();
 		foreach($pages as $_from => $_to) {
-			if ($this->func->is_page($_to) || in_array($_to, array_map('strval', array_keys($this->root->page_aliases)))) {
+			if ($this->func->is_page($_to) || isset($page_aliases[$_to])) {
 				$exists[] = $page;
 			} else {
 				$pages[$_from] = $this->func->encode($_to);
@@ -247,9 +248,10 @@ EOD;
 	//正規表現でページを置換
 	function plugin_rename_regex($arr_from, $arr_to)
 	{
+		$page_aliases = array_flip($this->func->get_pagealiases());
 		$exists = array();
 		foreach ($arr_to as $page)
-			if ($this->func->is_page($page) || in_array($page, array_map('strval', array_keys($this->root->page_aliases))))
+			if ($this->func->is_page($page) || isset($page_aliases[$page]))
 				$exists[] = $page;
 
 		if (! empty($exists)) {
@@ -441,14 +443,6 @@ EOD;
 			// pginfo DB 更新
 			$this->func->pginfo_rename_db_write($old, $new);
 
-			// Page alias
-			foreach($this->root->page_aliases as $alias => $page) {
-				if ($page === $old) {
-					$this->root->page_aliases[$alias] = $new;
-					$alias_up = true;
-				}
-			}
-
 			$source = $this->func->get_source($new, TRUE, TRUE);
 			// PageWriteBefore
 			$this->func->do_onPageWriteBefore($old, '', 1, 'delete', FALSE);
@@ -459,9 +453,6 @@ EOD;
 		}
 		// 各種キャッシュ更新など
 		$this->func->delete_caches();
-		if ($alias_up) {
-			$this->func->save_page_alias();
-		}
 
 		// 更新の衝突はチェックしない。
 

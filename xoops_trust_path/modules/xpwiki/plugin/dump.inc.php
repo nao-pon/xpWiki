@@ -51,8 +51,16 @@ class xpwiki_plugin_dump extends xpwiki_plugin {
 		$this->root->_STORAGE['TRACKBACK_DIR']['add_filter']     = '^[0-9A-F]+\.(ref|txt)';
 		$this->root->_STORAGE['TRACKBACK_DIR']['extract_filter'] = $this->format_extract_filter($this->cont['TRACKBACK_DIR'], '[0-9A-F]+\.(?:ref|txt)');
 
+		// INI_DIR (ini/*.ini.php)
+		$this->root->_STORAGE['INI_DIR']['add_filter']     = '^[0-9a-zA-Z_]+\.ini\.php';
+		$this->root->_STORAGE['INI_DIR']['extract_filter'] = $this->format_extract_filter($this->cont['DATA_HOME'].'private/ini/', '[0-9a-zA-Z_]+\.ini\.php');
+		
+		// CACHE_DIR (cache/*.ini.php|[0-9]+\.css))
+		$this->root->_STORAGE['CACHE_DIR']['add_filter']     = '^(?:[0-9a-zA-Z_]+\.ini\.php|[0-9]+\.css)';
+		$this->root->_STORAGE['CACHE_DIR']['extract_filter'] = $this->format_extract_filter($this->cont['CACHE_DIR'], '(?:[0-9a-zA-Z_]+\.ini\.php|[0-9]+\.css)');
+		
 		// DB SQL dump (cache/*.sql)
-		$this->root->_STORAGE['SQL_DUMP']['extract_filter'] = $this->format_extract_filter($this->cont['CACHE_DIR'], '(?:pginfo|count|attach|plain|rel)\d*\.sql');
+		$this->root->_STORAGE['SQL_DUMP']['extract_filter'] = $this->format_extract_filter($this->cont['CACHE_DIR'], '(?:pginfo|count|attach|plain|rel|alias)\d*\.sql');
 
 
 		/////////////////////////////////////////////////
@@ -109,7 +117,9 @@ class xpwiki_plugin_dump extends xpwiki_plugin {
 			'attach' => $this->cont['UPLOAD_DIR'],
 			'backup' => $this->cont['BACKUP_DIR'],
 			'diff' => $this->cont['DIFF_DIR'],
-			'trackback' => $this->cont['TRACKBACK_DIR']
+			'trackback' => $this->cont['TRACKBACK_DIR'],
+			'ini' => $this->cont['DATA_HOME'].'private/ini/',
+			'cache' => $this->cont['CACHE_DIR']
 		);
 	}
 
@@ -292,12 +302,15 @@ class xpwiki_plugin_dump extends xpwiki_plugin {
 		$bk_backup = isset($this->root->vars['bk_backup']) ? TRUE : FALSE;
 		$bk_diff   = isset($this->root->vars['bk_diff']) ? TRUE : FALSE;
 		$bk_trackback= isset($this->root->vars['bk_trackback']) ? TRUE : FALSE;
-
+		$bk_ini    = isset($this->root->vars['bk_ini']) ? TRUE : FALSE;
+		$bk_cache  = isset($this->root->vars['bk_cache']) ? TRUE : FALSE;
+		
 		$bk_dbpginfo= isset($this->root->vars['bk_dbpginfo']) ? TRUE : FALSE;
 		$bk_dbcount= (isset($this->root->vars['bk_counter']) && $this->root->vars['bk_counter'] === '2') ? TRUE : FALSE;
 		$bk_dbrel= isset($this->root->vars['bk_dbrel']) ? TRUE : FALSE;
 		$bk_dbplain= isset($this->root->vars['bk_dbplain']) ? TRUE : FALSE;
 		$bk_dbattach= isset($this->root->vars['bk_dbattach']) ? TRUE : FALSE;
+		$bk_dbalias= isset($this->root->vars['bk_dbalias']) ? TRUE : FALSE;
 
 		$filecount = 0;
 		$tar = new XpWikitarlib($this->xpwiki);
@@ -316,12 +329,15 @@ class xpwiki_plugin_dump extends xpwiki_plugin {
 		if ($bk_backup) $filecount += $tar->add_dir($this->cont['BACKUP_DIR'], $this->root->_STORAGE['BACKUP_DIR']['add_filter'], $namedecode);
 		if ($bk_diff)   $filecount += $tar->add_dir($this->cont['DIFF_DIR'],   $this->root->_STORAGE['DIFF_DIR']['add_filter'], $namedecode);
 		if ($bk_trackback)$filecount += $tar->add_dir($this->cont['TRACKBACK_DIR'],   $this->root->_STORAGE['TRACKBACK_DIR']['add_filter'], $namedecode);
+		if ($bk_ini)    $filecount += $tar->add_dir($this->cont['DATA_HOME'].'private/ini/',  $this->root->_STORAGE['INI_DIR']['add_filter'], false);
+		if ($bk_cache)  $filecount += $tar->add_dir($this->cont['CACHE_DIR'],  $this->root->_STORAGE['CACHE_DIR']['add_filter'], false);
 
 		if ($bk_dbpginfo) $filecount += $tar->add_sql($this->xpwiki->db->prefix($this->root->mydirname.'_pginfo'));
 		if ($bk_dbcount) $filecount += $tar->add_sql($this->xpwiki->db->prefix($this->root->mydirname.'_count'));
 		if ($bk_dbrel) $filecount += $tar->add_sql($this->xpwiki->db->prefix($this->root->mydirname.'_rel'));
 		if ($bk_dbplain) $filecount += $tar->add_sql($this->xpwiki->db->prefix($this->root->mydirname.'_plain'));
 		if ($bk_dbattach) $filecount += $tar->add_sql($this->xpwiki->db->prefix($this->root->mydirname.'_attach'));
+		if ($bk_dbalias) $filecount += $tar->add_sql($this->xpwiki->db->prefix($this->root->mydirname.'_alias'));
 
 		if ($filecount === 0) {
 			//$tar->close();
@@ -428,6 +444,8 @@ class xpwiki_plugin_dump extends xpwiki_plugin {
 		    '(' . $this->root->_STORAGE['DIFF_DIR']['extract_filter'] . ')|' .
 		    '(' . $this->root->_STORAGE['BACKUP_DIR']['extract_filter'] . ')|' .
 		    '(' . $this->root->_STORAGE['TRACKBACK_DIR']['extract_filter'] . ')|' .
+		    '(' . $this->root->_STORAGE['INI_DIR']['extract_filter'] . ')|' .
+		    '(' . $this->root->_STORAGE['CACHE_DIR']['extract_filter'] . ')|' .
 		    '(' . $this->root->_STORAGE['SQL_DUMP']['extract_filter'] . '))';
 		$files = $tar->extract($pattern);
 		$tar->close();
@@ -668,6 +686,12 @@ EOD;
   <input type="checkbox" name="bk_trackback" id="_p_dump_d_trackback" checked="checked" />
   <label for="_p_dump_d_trackback">trackback</label><br />
   {$fullpath['trackback']}
+  <input type="checkbox" name="bk_ini" id="_p_dump_d_ini" checked="checked" />
+  <label for="_p_dump_d_ini">ini(*.ini.php)</label><br />
+  {$fullpath['ini']}
+  <input type="checkbox" name="bk_cache" id="_p_dump_d_cache" checked="checked" />
+  <label for="_p_dump_d_cache">cache(*.ini.php|[pgid].css)</label><br />
+  {$fullpath['cache']}
 </p>
 <p><strong>{$this->msg['option']}</strong>
 <br />
@@ -686,6 +710,8 @@ EOD;
   <label for="_p_dump_d_dbplain">DB@plain</label><br />
   <input type="checkbox" name="bk_dbrel" id="_p_dump_d_dbrel" checked="checked" />
   <label for="_p_dump_d_dbrel">DB@rel</label><br />
+  <input type="checkbox" name="bk_dbalias" id="_p_dump_d_dbalias" checked="checked" />
+  <label for="_p_dump_d_dbalias">DB@alias</label><br />
 </p>
 <p>$passform
   <input type="submit"   name="ok"   value="{$this->msg['do_download']}" />
@@ -1301,7 +1327,7 @@ class XpWikitarlib
 
 			if ($name == $this->cont['TARLIB_DATA_LONGLINK']) {
 				// LongLink
-				$buff     = fread($this->fp, $pdsz);
+				$buff     = rtrim(fread($this->fp, $pdsz), "\0");
 				$longname = substr($buff, 0, $size);
 			} else if (preg_match("/$pattern/", $name) ) {
 //			} else if ($type == 0 && preg_match("/$pattern/", $name) ) {
@@ -1317,7 +1343,7 @@ class XpWikitarlib
 
 				//$files[] = '<span class="diff_removed">Debug: ' . $name . '</span>';
 
-				$buff = fread($this->fp, $pdsz);
+				$buff = rtrim(fread($this->fp, $pdsz), "\0");
 
 				if ($charset && strtoupper($charset) !== strtoupper($this->cont['SOURCE_ENCODING'])) {
 					// ファイル名変換
@@ -1343,7 +1369,7 @@ class XpWikitarlib
 						}
 					}
 
-					if (in_array($extention, array('txt','log','sql','add'))) {
+					if (in_array($extention, array('txt','log','sql','add','php'))) {
 						// ファイル内容変換
 						$buff = mb_convert_encoding($buff, $this->cont['SOURCE_ENCODING'], $charset);
 						$size = strlen($buff);

@@ -19,7 +19,7 @@ CREATE TABLE `attach` (
   KEY `type` (`type`),
   KEY `mode` (`mode`),
   KEY `age` (`age`)
-) TYPE=MyISAM;
+) ENGINE=MyISAM;
 
 CREATE TABLE `cache` (
   `key` varchar(64) NOT NULL default '',
@@ -29,7 +29,7 @@ CREATE TABLE `cache` (
   `ttl` int(11) NOT NULL default '0',
   KEY `key` (`key`),
   KEY `plugin` (`plugin`)
-) TYPE=MyISAM;
+) ENGINE=MyISAM;
 
 CREATE TABLE `count` (
   `pgid` int(11) NOT NULL default '0',
@@ -40,7 +40,7 @@ CREATE TABLE `count` (
   `ip` varchar(15) NOT NULL default '',
   PRIMARY KEY  (`pgid`),
   KEY `today` (`today`)
-) TYPE=MyISAM;
+) ENGINE=MyISAM;
 
 CREATE TABLE `pginfo` (
   `pgid` int(11) NOT NULL auto_increment,
@@ -76,13 +76,13 @@ CREATE TABLE `pginfo` (
   KEY `eaids` (`eaids`(255)),
   KEY `vaids` (`vaids`(255)),
   KEY `vids` (`vaids`(200),`vgids`(133))
-) TYPE=MyISAM;
+) ENGINE=MyISAM;
 
 CREATE TABLE `plain` (
   `pgid` int(11) NOT NULL default '0',
   `plain` text NOT NULL,
   PRIMARY KEY  (`pgid`)
-) TYPE=MyISAM;
+) ENGINE=MyISAM;
 
 CREATE TABLE `rel` (
   `pgid` int(11) NOT NULL default '0',
@@ -90,7 +90,7 @@ CREATE TABLE `rel` (
   PRIMARY KEY  (`pgid`,`relid`),
   KEY `pgid` (`pgid`),
   KEY `relid` (`relid`)
-) TYPE=MyISAM;
+) ENGINE=MyISAM;
 
 CREATE TABLE `tb` (
   `tbid` varchar(32) NOT NULL default '',
@@ -103,4 +103,11 @@ CREATE TABLE `tb` (
   `ip` varchar(15) NOT NULL default '',
   KEY `tbid` (`tbid`),
   KEY `pgid` (`pgid`)
-) TYPE=MyISAM;
+) ENGINE=MyISAM;
+
+CREATE TABLE `alias` (
+  `name` varchar(255) binary NOT NULL DEFAULT '',
+  `pgid` int(11) NOT NULL DEFAULT '0',
+  PRIMARY KEY (`name`),
+  KEY `pgid` (`pgid`)
+) ENGINE=MyISAM;

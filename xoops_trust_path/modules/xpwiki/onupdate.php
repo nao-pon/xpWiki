@@ -95,10 +95,44 @@ function xpwiki_onupdate_base( $module , $mydirname )
   `ttl` int(11) NOT NULL default \'0\',
   KEY `key` (`key`),
   KEY `plugin` (`plugin`)
-)'
+) ENGINE=MyISAM'
 		);
 	}
 
+	$query = "SELECT count(*) FROM ".$db->prefix($mydirname."_alias") ;
+	if (! $db->query($query)) {
+		$db->query(
+'CREATE TABLE `'.$db->prefix($mydirname.'_alias').'` (
+  `name` varchar(255) binary NOT NULL DEFAULT \'\',
+  `pgid` int(11) NOT NULL DEFAULT \'0\',
+  PRIMARY KEY (`name`),
+  KEY `pgid` (`pgid`)
+) ENGINE=MyISAM'
+		);
+		include_once XOOPS_TRUST_PATH."/modules/xpwiki/include.php";
+		$xpwiki = XpWiki::getInitedSingleton($mydirname);
+		$xpwiki->init();
+		if ($xpwiki->root->page_aliases) {
+			$query = array();
+			foreach($xpwiki->root->page_aliases as $alias => $page) {
+				if ($pgid = $xpwiki->func->get_pgid_by_name($page)) {
+					$query[] = '('.$db->quoteString($alias).','.$pgid.')';
+				}
+			}
+			if ($query) {
+				$query = 'INSERT INTO `'.$db->prefix($mydirname."_alias").'` (`name`,`pgid`) VALUES '.join(',', $query);
+				if ($db->query($query)) {
+					$inifile = $xpwiki->cont['CACHE_DIR'] . 'pukiwiki.ini.php';
+					$ini = file_get_contents($inifile);
+					file_put_contents($inifile.'.alias.bak', $ini);
+					$ini = preg_replace('#//<page_aliases>.+//<page_aliases/>\s+#s', '', $ini);
+					file_put_contents($inifile, $ini);
+				}
+			}
+		}
+		unset($xpwiki);
+	}
+	
 	// ADD Keys
 	$table = $db->prefix($mydirname.'_attach');
     if ($result = $db->query('SHOW INDEX FROM `' . $table . '`')) {

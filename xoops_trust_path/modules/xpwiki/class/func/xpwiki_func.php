@@ -3478,7 +3478,7 @@ EOD;
 			}
 
 			// リンク情報更新準備
-			$this->plain_db_write($fromname,"delete");
+			$this->plain_db_write($fromname, 'delete');
 
 			$_toname = addslashes($toname);
 			$reading = addslashes($this->get_page_reading($toname, TRUE));
@@ -3711,13 +3711,20 @@ EOD;
 		// ページ削除
 		elseif ($action === 'delete')
 		{
-			$query = "DELETE FROM ".$this->xpwiki->db->prefix($this->root->mydirname."_plain")." WHERE pgid = $pgid;";
+			$plugin = end($this->root->plugin_stack);
+			
+			$query = "DELETE FROM ".$this->xpwiki->db->prefix($this->root->mydirname."_plain")." WHERE pgid = $pgid";
 			$result=$this->xpwiki->db->queryF($query);
-			//if (!$result) echo $query."<hr>";
 
 			//リンクページ
-			$query = "DELETE FROM ".$this->xpwiki->db->prefix($this->root->mydirname."_rel")." WHERE pgid = ".$pgid." OR relid = ".$pgid.";";
+			$query = "DELETE FROM ".$this->xpwiki->db->prefix($this->root->mydirname."_rel")." WHERE pgid = ".$pgid." OR relid = ".$pgid;
 			$result=$this->xpwiki->db->queryF($query);
+
+			if ($plugin !== 'rename') {
+				// alias
+				$query = "DELETE FROM ".$this->xpwiki->db->prefix($this->root->mydirname."_alias")." WHERE pgid = $pgid";
+				$result=$this->xpwiki->db->queryF($query);
+			}
 
 			// Optimaize DB tables
 			$tables = array();
@@ -4327,32 +4334,34 @@ EOD;
 
 	// ページ別名を取得
 	function get_page_alias ($page, $as_array = false, $clr = false, $path = 'real') {
-		static $pg_ary;
-
+		static $pg_ary = array();
+		
+		if (! isset($pg_ary[$this->xpwiki->pid])) {
+			$pg_ary[$this->xpwiki->pid] = array();
+		}
+		
 		if ($path !== 'real') $path = 'relative';
 
-		if ($clr || !isset($pg_ary[$this->xpwiki->pid])) {
-			$_tmp = $pg_ary[$this->xpwiki->pid] = array();
+		if ($clr || ! isset($pg_ary[$this->xpwiki->pid][$page])) {
+			$pg_ary[$this->xpwiki->pid][$page] = array();
 			$dirreg = '#^' . preg_quote($this->page_dirname($page), '#') . '/#';
-			foreach($this->root->page_aliases as $_alias => $_page) {
-				$pg_ary[$this->xpwiki->pid][$_page]['real'][] = $_alias;
-				$pg_ary[$this->xpwiki->pid][$_page]['relative'][] = preg_replace($dirreg, '../', $_alias);
-			}
-			foreach($pg_ary[$this->xpwiki->pid] as $_page => $_ary) {
-				natcasesort($pg_ary[$this->xpwiki->pid][$_page]['real']);
-				natcasesort($pg_ary[$this->xpwiki->pid][$_page]['relative']);
-			}
+			$_alias = $this->get_pagealiases(array($page));
+			$pg_ary[$this->xpwiki->pid][$page]['real'] = $_alias;
+			$pg_ary[$this->xpwiki->pid][$page]['relative'] = preg_replace($dirreg, '../', $_alias);
+			natcasesort($pg_ary[$this->xpwiki->pid][$page]['real']);
+			natcasesort($pg_ary[$this->xpwiki->pid][$page]['relative']);
 		}
-
-		$ret = (isset($pg_ary[$this->xpwiki->pid][$page]))? $pg_ary[$this->xpwiki->pid][$page][$path] : array();
+		
+		$ret = (! empty($pg_ary[$this->xpwiki->pid][$page]))? $pg_ary[$this->xpwiki->pid][$page][$path] : array();
+		
 		if ($as_array) return $ret;
 		return join(':', $ret);
 	}
 
 	// ページ別名を保存
 	function put_page_alias ($page, $alias) {
-		if (!$alias && in_array($page, $this->root->page_aliases) === false) return false;
-
+		if (!$alias && ! $aliases_old = $this->get_page_alias($page, true)) return false;
+		
 		$alias = trim($alias);
 		$alias = preg_replace('/[\r\n]+/', ':', $alias);
 		$aliases = explode(':', $alias);
@@ -4364,74 +4373,94 @@ EOD;
 			natcasesort($aliases);
 			$aliases = array_slice($aliases, 0);
 		}
-
+		
 		$aliases_old = $this->get_page_alias($page, true);
 		$aliases_old = array_slice($aliases_old, 0);
-
+		
 		if ($aliases_old === $aliases) return false;
-
-		$this->root->page_aliases = array_diff($this->root->page_aliases, array($page));
-
+		
 		if ($alias) {
+			$pgid = $this->get_pgid_by_name($page);
+			$query = 'DELETE FROM `'.$this->xpwiki->db->prefix($this->root->mydirname.'_alias').'` WHERE `pgid`='.$pgid;
+			$this->xpwiki->db->query($query);
+			$query = array();
 			foreach($aliases as $_alias) {
 				$_check = ($this->root->page_case_insensitive)? $this->get_pagename_realcase($_alias) : $_alias;
-				if (!isset($this->root->page_aliases[$_alias]) && !$this->is_page($_check)) {
-					$this->root->page_aliases[$_alias] = $page;
+				if (!$this->is_page($_check)) {
+					$query[] = '('.$this->xpwiki->db->quoteString($_alias).','.$this->get_pgid_by_name($page).')';
 				}
 			}
+			if ($query) {
+				$query = 'INSERT INTO `'.$this->xpwiki->db->prefix($this->root->mydirname.'_alias').'` (`name`,`pgid`) VALUES '.join(',', $query);
+				$this->xpwiki->db->query($query);
+			}
 		}
-
-		// save
-		$this->save_page_alias();
-
+		
 		// Cache remake of get_page_alias()
-		$this->get_page_alias('', true, true);
-
+		$this->get_page_alias($page, true, true);
+		
 		return true;
 	}
 
 	function save_page_alias () {
-		natcasesort($this->root->page_aliases);
-		$page_aliases_i = array_change_key_case($this->root->page_aliases, CASE_LOWER);
-
-		$quote['from'] = array('\\',   "'",);
-		$quote['to']   = array('\\\\', "\\'");
-
-		$dat = "\$root->page_aliases = array(\n";
-		foreach($this->root->page_aliases as $_alias => $_page) {
-			$_alias = str_replace($quote['from'], $quote['to'], $_alias);
-			$_page = str_replace($quote['from'], $quote['to'], $_page);
-			$dat .= "\t'{$_alias}' => '{$_page}',\n";
-		}
-		$dat.= ");\n";
-
-		//$this->save_config('pukiwiki.ini.php', 'page_aliases', $dat);
-
-		$dat .= "\$root->page_aliases_i = array(\n";
-		foreach($page_aliases_i as $_alias => $_page) {
-			$_alias = str_replace($quote['from'], $quote['to'], $_alias);
-			$_page = str_replace($quote['from'], $quote['to'], $_page);
-			$dat .= "\t'{$_alias}' => '{$_page}',\n";
-		}
-		$dat.= ");";
-
-		$this->save_config('pukiwiki.ini.php', 'page_aliases', $dat);
-
 		// Clear cache *.api
 		$GLOBALS['xpwiki_cache_deletes'][$this->cont['CACHE_DIR']]['api'] = '*.autolink.api';
 	}
 
 	// ページ別名が設定されているか
 	function is_alias($name) {
-		if ($this->root->page_case_insensitive) {
-			$page_aliases = $this->root->page_aliases_i;
-			$name = strtolower($name);
-		} else {
-			$page_aliases = $this->root->page_aliases;
-		}
-		return isset($page_aliases[$name])? $page_aliases[$name] : FALSE;
+		$page = $this->get_name_by_alias($name);
+		return ($page === '')? false : $page;
 	}
-
+	
+	// db からページ別名一覧を取得
+	function get_pagealiases($pages = array(), $asKey = false) {
+		$aliases = array();
+		$in = array();
+		if ($pages) {
+			foreach($pages as $page) {
+				if ($pgid = $this->get_pgid_by_name($page)) {
+					$in[] = $pgid;
+				}
+			}
+		}
+		if (! $pages || $in) {
+			$where = '';
+			if ($in) {
+				$where = ' WHERE `pgid` IN ('.join(',', $in).')';
+			}
+			$query = 'SELECT `name`'.($asKey? ', `pgid`' : '').' FROM `'.$this->xpwiki->db->prefix($this->root->mydirname.'_alias').'`'.$where;
+			if  ($result = $this->xpwiki->db->query($query)) {
+				while ($alias = $this->xpwiki->db->fetchRow($result)) {
+					if (! $asKey) {
+						$aliases[] = $alias[0];
+					} else {
+						$aliases[$alias[0]] = $alias[1];
+					}
+				}
+			}
+		}
+		return $aliases;
+	}
+	
+	// db からページ別名に対応する実ページ名を取得
+	function get_name_by_alias($alias) {
+		$page = '';
+		if ($this->root->page_case_insensitive) {
+			$where = ' WHERE LOWER(`name`)='.$this->xpwiki->db->quoteString(strtolower($alias));
+		} else {
+			$where = ' WHERE `name`='.$this->xpwiki->db->quoteString($alias);
+		}
+		$query = 'SELECT `pgid` FROM `'.$this->xpwiki->db->prefix($this->root->mydirname.'_alias').'`'.$where.' LIMIT 1';
+		//exit($query);
+		if ($result = $this->xpwiki->db->query($query)) {
+			list($pgid) = $this->xpwiki->db->fetchRow($result);
+			$page = $this->get_name_by_pgid($pgid);
+		}
+		return $page;
+	}
+	
+	
 	// ページオーダーを取得
 	function get_page_order ($page) {
 		if (! isset($this->root->pgorders[$page])) {

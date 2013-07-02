@@ -19,8 +19,8 @@ class xpwiki_plugin_edit extends xpwiki_plugin {
 		$page = isset($this->root->vars['page']) ? $this->root->vars['page'] : '';
 
 		// check alias page
-		if (!$this->func->is_page($page) && isset($this->root->page_aliases[$page])) {
-			$page = $this->root->page_aliases[$page];
+		if (!$this->func->is_page($page) && $real = $this->func->is_alias($page)) {
+			$page = $real;
 		}
 
 		if ($page && $this->root->page_case_insensitive) {

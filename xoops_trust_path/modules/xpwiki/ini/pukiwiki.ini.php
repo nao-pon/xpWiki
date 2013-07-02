@@ -11,8 +11,6 @@
 /////////////////////////////////////////////////
 // Variable initialize
 $root->ext_autolinks = array();	// External AutoLink
-$root->page_aliases = array(); // Pagename aliases
-$root->page_aliases_i = array(); // Pagename aliases (case-insensitive)
 
 /////////////////////////////////////////////////
 // Functionality settings

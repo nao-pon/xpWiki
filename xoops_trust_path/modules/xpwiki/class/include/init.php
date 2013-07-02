@@ -230,7 +230,10 @@ if (isset($const['page_show'])) {
 	if ($root->userinfo['admin']) {
 		// Database check
 		$query = 'SELECT `key` FROM ' . $this->xpwiki->db->prefix($root->mydirname.'_cache') . ' LIMIT 1' ;
-		if(! $this->xpwiki->db->query($query)) {
+		$_dbChkRes = $this->xpwiki->db->query($query);
+		$query = "SELECT count(*) FROM ".$this->xpwiki->db->prefix($root->mydirname.'_alias');
+		$_dbChkRes = ($_dbChkRes && $this->xpwiki->db->query($query));
+		if(! $_dbChkRes) {
 			$title = 'Please update this module on admin panel.';
 			if (defined('XOOPS_CUBE_LEGACY')) {
 				$this->redirect_header(XOOPS_URL . '/modules/legacy/admin/index.php?action=ModuleUpdate&dirname=' . $root->mydirname, 1, $title);
@@ -275,11 +278,6 @@ if (isset($const['page_show'])) {
 		if ($temp) {
 			if ($die) $die .= "\n";	// A breath
 			$die .= 'Define(s) not found: (Maybe the old *.ini.php?)' . "\n" . $temp;
-		}
-
-		// page aliases (case-insensitive data)
-		if ($root->page_aliases && ! $root->page_aliases_i) {
-			$this->save_page_alias();
 		}
 
 		if($die) $this->die_message(nl2br("\n\n" . $die));

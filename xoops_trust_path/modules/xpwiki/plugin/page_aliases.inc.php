@@ -1,7 +1,6 @@
 <?php
 /*
  * Created on 2007/08/30 by nao-pon http://hypweb.net/
- * $Id: page_aliases.inc.php,v 1.4 2011/09/17 07:32:44 nao-pon Exp $
  */
 
 class xpwiki_plugin_page_aliases extends xpwiki_plugin {
@@ -44,16 +43,12 @@ class xpwiki_plugin_page_aliases extends xpwiki_plugin {
 	}
 
 	function get() {
-		$result = array_intersect($this->root->page_aliases, $this->func->get_existpages());
-		//$result = $this->root->page_aliases;
+		$result = $this->func->get_pagealiases($this->func->get_existpages(), true);
 		$ret = "- Page aliases list\n";
-		foreach($result as $_alias => $_page) {
+		foreach($result as $_alias => $pgid) {
+			$_page = $this->func->get_name_by_pgid($pgid);
 			$ret .= "-- [[{$_alias}]] &#187; [[{$_page}]]\n";
 		}
-//		$ret = "|Alias|Page|h\n";
-//		foreach($this->root->page_aliases as $_alias => $_page) {
-//			$ret .= "|[[{$_alias}]]|[[{$_page}]]|\n";
-//		}
 		return $this->func->convert_html($ret);
 	}
 }
