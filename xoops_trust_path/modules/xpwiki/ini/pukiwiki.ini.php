@@ -134,8 +134,8 @@ $const['PLUGIN_REF_PLAYERS']['real'] = array(
 // フラッシュプレーヤーの設定
 // プレーヤーの配置先は "trust/modules/xpwiki/skin/swf"
 //// http://flowplayer.org/
-$const['PLUGIN_REF_FLV_PLAYER'] = 'flowplayer-3.2.2.swf';
-$const['PLUGIN_REF_FLV_PLAYER_VARS'] = '{"config":\'{"clip":{"url":"$url","autoPlay":false},"plugins":{"controls":{"url":"$srcurlflowplayer.controls-3.2.1.swf"}}}}\'}';
+$const['PLUGIN_REF_FLV_PLAYER'] = 'flowplayer.swf';
+$const['PLUGIN_REF_FLV_PLAYER_VARS'] = '{"config":\'{"clip":{"url":"$url","autoPlay":false},"plugins":{"controls":{"url":"$srcurlflowplayer.controls.swf"}}}}\'}';
 $const['PLUGIN_REF_FLV_PLAYER_CTR_WIDTH'] = 0;
 $const['PLUGIN_REF_FLV_PLAYER_CTR_HEIGHT'] = 0;
 //// http://rexef.com/webtool/flaver3/
