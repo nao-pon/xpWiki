@@ -3746,6 +3746,7 @@ EOD;
 			$nonconvert = (empty($this->vars['nonconvert']))? '' : '<input type="hidden" name="nonconvert" value="1" />';
 			$enc_hint = '<input type="hidden" name="encode_hint" value="' . $this->cont['PKWK_ENCODING_HINT'] . '" />'
 			          . '<input type="hidden" name="charset" value="UTF-8" />';
+			$csrf_protect = isset($_SESSION['HYP_CSRF_TOKEN'])? '<input type="hidden" name="HypToken" value="'.htmlspecialchars($_SESSION['HYP_CSRF_TOKEN']).'" />' : '';
 			$attaches = '';
 			if ($s_id) {
 				$other_option = $template = $reading = $alias = $pageorder = '';
@@ -3756,7 +3757,7 @@ EOD;
 			$other_hide = (! $other_option_checked)? 'style="display:none;"' : '';
 			$other_hide_js = '';
 		} else {
-			$nonconvert = $ajax_submit = $ajax_cancel = $enc_hint = $other_hide = '';
+			$nonconvert = $ajax_submit = $ajax_cancel = $enc_hint = $other_hide = $csrf_protect = '';
 			$form_class = $popup? 'edit_form_ajax' : 'edit_form';
 			$ajax_cancel = $popup? ' onsubmit="window.parent.XpWiki.PopupHide();return false;"' : '';
 			$other_hide_js = (! $other_option_checked)? '<script type="text/javascript">$(\'xpwiki_edit_other\').style.display = \'none\';</script>' : '';
@@ -3794,6 +3795,7 @@ EOD;
   </div>
   $nonconvert
   $enc_hint
+  $csrf_protect
   $popup
   <input type="hidden" name="cmd"    value="edit" />
   <input type="hidden" name="page"   value="$s_page" />
