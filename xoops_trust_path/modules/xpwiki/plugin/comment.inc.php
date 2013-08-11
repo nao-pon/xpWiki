@@ -21,6 +21,9 @@ class xpwiki_plugin_comment extends xpwiki_plugin {
 		$this->cont['PLUGIN_COMMENT_FORMAT_NAME'] =  '[[$name]]';
 		$this->cont['PLUGIN_COMMENT_FORMAT_NOW'] =   '&new{$now};';
 		$this->cont['PLUGIN_COMMENT_FORMAT_STRING'] =  "\x08MSG\x08 -- \x08NAME\x08 \x08NOW\x08";
+		
+		// for spam block
+		$this->cont['PLUGIN_COMMENT_ALLOW_URL_IN_NAME'] = false;
 
 		$this->options = array(
 			'auth'   => FALSE,
@@ -53,6 +56,10 @@ class xpwiki_plugin_comment extends xpwiki_plugin {
 		$comment  = str_replace('$msg', $this->root->vars['msg'], $this->cont['PLUGIN_COMMENT_FORMAT_MSG']);
 		if(isset($this->root->vars['name']) || ($this->root->vars['nodate'] != '1')) {
 			$_name = (! isset($this->root->vars['name']) || $this->root->vars['name'] == '') ? $this->root->_no_name : $this->root->vars['name'];
+			// check name
+			if (empty($this->cont['PLUGIN_COMMENT_ALLOW_URL_IN_NAME']) && preg_match('#https?://|\b[a-z0-9][a-z0-9_-]+\.[a-z]{2,6}\b#i', $_name)) {
+				return array('msg'=>'', 'body'=>''); // Do nothing
+			}
 			// save name to cookie
 			if ($_name) { $this->func->save_name2cookie($_name); }
 			$_name = ($_name == '') ? '' : str_replace('$name', $_name, $this->cont['PLUGIN_COMMENT_FORMAT_NAME']);

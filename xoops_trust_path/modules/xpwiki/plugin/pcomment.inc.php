@@ -38,6 +38,9 @@ class xpwiki_plugin_pcomment extends xpwiki_plugin {
 		// Update recording page's timestamp instead of parent's page itself
 		$this->conf['TIMESTAMP'] =  1;
 
+		// for spam block
+		$this->conf['ALLOW_URL_IN_NAME'] = false;
+
 		// Template "default"
 		$this->conf['FORMAT_NAME']['default'] = '[[$name]]';
 		$this->conf['FORMAT_MSG']['default']  = '$msg';
@@ -322,6 +325,11 @@ EOD;
 		$msg = str_replace('$msg', rtrim($this->root->vars['msg']), $FORMAT_MSG);
 		$msg = str_replace("\x08" . 'USER_CODE' . "\x08", ($this->root->userinfo['uid']? 'uid:' . $this->root->userinfo['uid'] : 'ucd:' . $this->root->userinfo['ucd']), $msg);
 		$name = (! isset($this->root->vars['name']) || $this->root->vars['name'] == '') ? $this->root->_no_name : $this->root->vars['name'];
+
+		// check name
+		if (empty($this->conf['ALLOW_URL_IN_NAME']) && preg_match('#https?://|\b[a-z0-9][a-z0-9_-]+\.[a-z]{2,6}\b#i', $name)) {
+			return array('msg'=>'', 'body'=>''); // Do nothing
+		}
 
 		//$this->twitter_post($refer, $name, $msg, $this->func->get_page_uri($refer, TRUE));
 		if (! empty($this->root->post['twitter'])) {
