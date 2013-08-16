@@ -4,6 +4,8 @@
 // $Id: loader.php,v 1.73 2012/02/19 07:48:51 nao-pon Exp $
 //
 
+@ini_set('magic_quotes_runtime', '0');
+@ini_set('magic_quotes_sybase', '0');
 ignore_user_abort(FALSE);
 error_reporting(0);
 
