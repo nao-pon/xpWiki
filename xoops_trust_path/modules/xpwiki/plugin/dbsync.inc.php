@@ -869,16 +869,15 @@ __EOD__;
 
 	function plugin_dbsync_next_do()
 	{
-	//	global $script,$post,$_links_messages;
 
 		//$token = $this->func->get_token_html();
-		$token = '';
+		$token = !empty($_SESSION['HYP_CSRF_TOKEN'])? '<input type="hidden" name="HypToken" value="'.htmlspecialchars($_SESSION['HYP_CSRF_TOKEN']).'" />' : '';
 		$script = $this->func->get_script_uri();
 		$html = <<<__EOD__
 <form method="POST" action="{$script}" onsubmit="return pukiwiki_check(this);">
  <div>
   {$token}
-  <input type="hidden" name="encode_hint" value="คื" />
+  <input type="hidden" name="encode_hint" value="{$this->cont['PKWK_ENCODING_HINT']}" />
   <input type="hidden" name="plugin" value="dbsync" />
   <input type="hidden" name="pmode" value="update" />
   <input type="hidden" name="init" value="{$this->root->post['init']}" />
