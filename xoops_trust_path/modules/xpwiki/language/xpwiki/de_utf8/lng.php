@@ -527,7 +527,7 @@ $root->_msg_template_force   = 'Ändere mit einem Seitennamen der bereits existi
 $root->_err_template_already = ' $1 existiert bereits.';
 $root->_err_template_invalid = ' $1 ist kein gültiger Seitenname.';
 $root->_btn_template_create  = 'Anlegen';
-$root->_title_templatei      = 'Neue Seite anlegen und  $1 als Vorlage benutzen.';
+$root->_title_template       = 'Neue Seite anlegen und  $1 als Vorlage benutzen.';
 
 ///////////////////////////////////////
 // tracker.inc.php

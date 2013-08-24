@@ -525,7 +525,7 @@ $root->_msg_template_force   = 'Edit with a page name which already exists';
 $root->_err_template_already = ' $1 already exists.';
 $root->_err_template_invalid = ' $1 is not a valid page name.';
 $root->_btn_template_create  = 'Create';
-$root->_title_templatei      = 'create a new page, using  $1 as a template.';
+$root->_title_template       = 'create a new page, using  $1 as a template.';
 
 ///////////////////////////////////////
 // tracker.inc.php

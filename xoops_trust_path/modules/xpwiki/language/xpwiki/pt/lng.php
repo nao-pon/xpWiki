@@ -519,7 +519,7 @@ $root->_msg_template_force   = 'Editar com um nome de página que já existe';
 $root->_err_template_already = ' $1 já existe.';
 $root->_err_template_invalid = ' $1 não é um nome de página válido.';
 $root->_btn_template_create  = 'Criar';
-$root->_title_templatei      = 'Criar uma nova página usando $1 como um modelo.';
+$root->_title_template       = 'Criar uma nova página usando $1 como um modelo.';
 
 ///////////////////////////////////////
 // tracker.inc.php
