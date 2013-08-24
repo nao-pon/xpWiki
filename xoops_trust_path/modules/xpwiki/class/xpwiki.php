@@ -68,7 +68,7 @@ class XpWiki {
 
 	}
 
-	function & getSingleton ($mddir, $iniClear = true) {
+	public static function & getSingleton ($mddir, $iniClear = true) {
 		static $obj;
 		if (! isset($obj[$mddir])) {
 			$obj[$mddir] = new XpWiki($mddir);
@@ -82,7 +82,7 @@ class XpWiki {
 		return $obj[$mddir];
 	}
 
-	function & getInitedSingleton ($mddir) {
+	public static function & getInitedSingleton ($mddir) {
 		static $obj;
 		if (! isset($obj[$mddir])) {
 			$obj[$mddir] = new XpWiki($mddir);
