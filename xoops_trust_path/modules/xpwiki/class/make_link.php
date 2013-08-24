@@ -77,7 +77,7 @@ class XpWikiInlineConverter {
 
 		$string = preg_replace_callback('/'.$this->pattern.'/xS', array (& $this, 'replace'), $string);
 
-		$retval = $this->func->make_line_rules(htmlspecialchars($string));
+		$retval = $this->func->make_line_rules($this->func->htmlspecialchars($string));
 
 		$i = 0;
 		$found = strpos($retval, "\x08");
@@ -92,7 +92,7 @@ class XpWikiInlineConverter {
 	function replace($arr) {
 		$obj = $this->get_converter($arr);
 
-		$this->result[] = ($obj !== NULL && $obj->set($arr, $this->page) !== FALSE) ? $obj->toString() : $this->func->make_line_rules(htmlspecialchars($arr[0]));
+		$this->result[] = ($obj !== NULL && $obj->set($arr, $this->page) !== FALSE) ? $obj->toString() : $this->func->make_line_rules($this->func->htmlspecialchars($arr[0]));
 
 		return "\x08"; // Add a mark into latest processed part
 	}
@@ -191,7 +191,7 @@ class XpWikiLink {
 				$alias = preg_replace('/\s*title="[^"]*"/', '', $alias);
 				$this->use_lightbox = FALSE;
 			} else {
-				$alias = '<img src="'.htmlspecialchars($alias).'" alt="'.$name.'" />';
+				$alias = '<img src="'.$this->func->htmlspecialchars($alias).'" alt="'.$name.'" />';
 				$this->use_lightbox = TRUE;
 			}
 			//if ($alias === $name) {
@@ -300,7 +300,7 @@ EOD;
 		} else {
 			// No such plugin, or Failed
 			$body = (($body === '') ? '' : '{'.$body.'}').';';
-			return $this->func->make_line_rules(htmlspecialchars('&'.$this->plain).$body);
+			return $this->func->make_line_rules($this->func->htmlspecialchars('&'.$this->plain).$body);
 		}
 	}
 }
@@ -506,7 +506,7 @@ EOD;
 		list (,, $alias, $name) = $this->splice($arr);
 		// https?:/// -> $this->cont['ROOT_URL']
 		$name = preg_replace('#^(?:site:|https?:/)//#', $this->cont['ROOT_URL'], $name);
-		return parent :: setParam($page, htmlspecialchars($name), '', 'url', $alias === '' ? $name : $alias);
+		return parent :: setParam($page, $this->func->htmlspecialchars($name), '', 'url', $alias === '' ? $name : $alias);
 	}
 
 	function toString() {
@@ -566,7 +566,7 @@ EOD;
 				$alias = mb_convert_encoding(rawurldecode($alias), $this->cont['SOURCE_ENCODING'], 'AUTO');
 			}
 		}
-		return parent :: setParam($page, htmlspecialchars($name), '', ($mail? 'mailto' : 'url'), $alias);
+		return parent :: setParam($page, $this->func->htmlspecialchars($name), '', ($mail? 'mailto' : 'url'), $alias);
 	}
 
 	function toString() {
@@ -582,9 +582,9 @@ EOD;
 		if ($this->root->bitly_clickable && ! $this->has_bracket && ! $this->is_image && $this->type !== 'mailto') {
 			$_name = str_replace('&amp;', '&', $this->name);
 			$this->name = $this->func->bitly($_name);
-			$this->alias = htmlspecialchars($this->name);
+			$this->alias = $this->func->htmlspecialchars($this->name);
 			if ($this->root->bitly_clickable === 2 && $_name !== $this->name && !($this->root->bitly_domain_internal && strpos($this->name, 'http://' . $this->root->bitly_domain_internal) === 0)) {
-				$host = '<span class="modest"> (' . htmlspecialchars($this->host) . ')</span>';
+				$host = '<span class="modest"> (' . $this->func->htmlspecialchars($this->host) . ')</span>';
 			}
 		}
 		return '<a href="'.$this->name.'"'.$title.$rel.$class.$img.$target.'>'.$this->alias.'</a>'.$host;
@@ -618,7 +618,7 @@ EOD;
 		list (, $name, $alias) = $this->splice($arr);
 		// https?:/// -> $this->cont['ROOT_URL']
 		$name = preg_replace('#^(?:site:|https?:/)//#', $this->cont['ROOT_URL'], $name);
-		return parent :: setParam($page, htmlspecialchars($name), '', 'url', $alias);
+		return parent :: setParam($page, $this->func->htmlspecialchars($name), '', 'url', $alias);
 	}
 
 	function toString() {
@@ -657,9 +657,9 @@ EOD;
 	}
 
 	function toString() {
-		$title = ' title="' . htmlspecialchars($this->name) . '"';
-		$href = 'file://' . htmlspecialchars(str_replace(array('|','\\'), array(':','/'), $this->name));
-		return '<a href="'.$href.'"'.$title.'>'.htmlspecialchars($this->alias).'</a>';
+		$title = ' title="' . $this->func->htmlspecialchars($this->name) . '"';
+		$href = 'file://' . $this->func->htmlspecialchars(str_replace(array('|','\\'), array(':','/'), $this->name));
+		return '<a href="'.$href.'"'.$title.'>'.$this->func->htmlspecialchars($this->alias).'</a>';
 	}
 }
 
@@ -789,15 +789,15 @@ EOD;
 
 		if (is_object($url)) {
 			$this->otherObj =& $url;
-			return parent :: setParam($page, htmlspecialchars($_param), '', 'pagename', $alias === '' ? $name.':'.$this->param : $alias);
+			return parent :: setParam($page, $this->func->htmlspecialchars($_param), '', 'pagename', $alias === '' ? $name.':'.$this->param : $alias);
 		}
 
 		$this->otherObj = NULL;
 
 		if (!$url) return false;
-		$this->url = htmlspecialchars($url);
+		$this->url = $this->func->htmlspecialchars($url);
 
-		return parent :: setParam($page, htmlspecialchars($name.':'.$this->param), '', 'InterWikiName', $alias === '' ? $name.':'.$this->param : $alias);
+		return parent :: setParam($page, $this->func->htmlspecialchars($name.':'.$this->param), '', 'InterWikiName', $alias === '' ? $name.':'.$this->param : $alias);
 	}
 
 	function toString() {

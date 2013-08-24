@@ -63,7 +63,7 @@ class xpwiki_plugin_isbn extends xpwiki_plugin {
 		$this->root->rtf['disable_render_cache'] = true;
 
 		$aryargs = func_get_args();
-		$isbn = htmlspecialchars($aryargs[0]);	// for XSS
+		$isbn = $this->func->htmlspecialchars($aryargs[0]);	// for XSS
 		$isbn = str_replace("-","",$isbn);
 
 		$align = "right"; //µ¬ÄêÃÍ
@@ -78,14 +78,14 @@ class xpwiki_plugin_isbn extends xpwiki_plugin {
 				elseif (strtolower($aryargs[2]) == 'header' || $aryargs[2] == 'h') $header = "header";
 				elseif (strtolower($aryargs[2]) == 'info') $header = "info";
 				elseif (strtolower($aryargs[2]) == 'img' || $aryargs[2] == 'image') $title = "image";
-				else $title = htmlspecialchars($aryargs[2]);
+				else $title = $this->func->htmlspecialchars($aryargs[2]);
 			case 2:
 				if (strtolower($aryargs[1]) == 'left') $align = "left";
 				elseif (strtolower($aryargs[1]) == 'clear') $align = "clear";
 				elseif (strtolower($aryargs[1]) == 'header' || $aryargs[1] == 'h') $header = "header";
 				elseif (strtolower($aryargs[1]) == 'info') $header = "info";
 				elseif (strtolower($aryargs[1]) == 'img' || $aryargs[1] == 'image') $title = "image";
-				else $title = htmlspecialchars($aryargs[1]);
+				else $title = $this->func->htmlspecialchars($aryargs[1]);
 			case 1:
 				if (strtolower($aryargs[0]) == 'clear')
 				{
@@ -146,8 +146,8 @@ class xpwiki_plugin_isbn extends xpwiki_plugin {
 		$body = preg_replace('#</?(a|span)[^>]*>#i','',$body);
 		$body = preg_replace('#(?:alt|title)=("|\').*\1#i','',$body);
 		list($isbn,$option) = array_pad($prms,2,"");
-		$option = htmlspecialchars($option); // for XSS
-		$isbn = htmlspecialchars($isbn); // for XSS
+		$option = $this->func->htmlspecialchars($option); // for XSS
+		$isbn = $this->func->htmlspecialchars($isbn); // for XSS
 		$isbn = str_replace("-","",$isbn);
 
 		$tmpary = array();
@@ -159,7 +159,7 @@ class xpwiki_plugin_isbn extends xpwiki_plugin {
 
 		if ($tmpary[2]) $price = "<div style=\"text-align:right;\">".str_replace('$1', $tmpary[2], $this->msg['currency'])."</div>";
 		$title = $tmpary[0];
-		//$text = htmlspecialchars(preg_replace('#</?(a|span)[^>]*>#i','',$option));
+		//$text = $this->func->htmlspecialchars(preg_replace('#</?(a|span)[^>]*>#i','',$option));
 		$alt = $this->plugin_isbn_get_caption($tmpary);
 		$amazon_a = '<a href="'.str_replace(array('_ISBN_', 'AMAZON_ASE_ID'), array($isbn, $this->config['AMAZON_ASE_ID']), $this->config['ISBN_AMAZON_SHOP']).'" target="_blank" title="'.$alt.'">';
 		$match = array();

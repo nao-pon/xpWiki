@@ -26,7 +26,7 @@ class xpwiki_plugin_page_comments extends xpwiki_plugin {
 				}
 			}
 		}
-		$options['class'] = htmlspecialchars($options['class']);
+		$options['class'] = $this->func->htmlspecialchars($options['class']);
 
 		$comments = '';
 		if ($this->func->is_page($page) && $this->root->allow_pagecomment && $this->root->enable_pagecomment) {

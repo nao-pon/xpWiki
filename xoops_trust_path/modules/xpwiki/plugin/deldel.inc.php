@@ -125,7 +125,7 @@ class xpwiki_plugin_deldel extends xpwiki_plugin {
 					1 => $this->msg['btn_exec']);
 		$is_cascade = (empty($this->root->vars['cascade'])) ? false : true;
 		$move_to = (empty($this->root->vars['move'])) ? '' : $this->root->vars['movedir'];
-		$this->root->vars['s_regxp'] = (empty($this->root->vars['regexp']))? "" : htmlspecialchars($this->root->vars['regexp']);
+		$this->root->vars['s_regxp'] = (empty($this->root->vars['regexp']))? "" : $this->func->htmlspecialchars($this->root->vars['regexp']);
 		$body = '';
 		$moved = false;
 		$script = $this->func->get_script_uri();
@@ -179,7 +179,7 @@ class xpwiki_plugin_deldel extends xpwiki_plugin {
 					}
 					if(is_null($target)){
 						$error_msg = "<p>{$this->msg['msg_regexp_error']}</p>\n";
-						$error_msg .= "<p>". htmlspecialchars($this->root->vars['regexp']) ."</p>";
+						$error_msg .= "<p>". $this->func->htmlspecialchars($this->root->vars['regexp']) ."</p>";
 						$error_msg .= $this->make_body($this->root->vars['cmd'], $this->cont['DATA_DIR'], true);
 						$error_msg .= "<p><a href=\"{$this->root->script}?cmd=deldel\">".$this->msg['msg_back_word']."</a></p>";
 						return array('msg'=>$this->msg['title_delete_error'] ,'body'=>$error_msg);
@@ -259,7 +259,7 @@ class xpwiki_plugin_deldel extends xpwiki_plugin {
 					{
 						@set_time_limit($execution_time);
 
-						$s_page = htmlspecialchars($page, ENT_QUOTES);
+						$s_page = $this->func->htmlspecialchars($page, ENT_QUOTES);
 						if (!empty($this->root->vars['move_to'])) {
 							static $to_obj;
 							if (!$to_obj) {
@@ -340,7 +340,7 @@ class xpwiki_plugin_deldel extends xpwiki_plugin {
 					$mes = 'backup';
 					foreach($this->root->vars['pages'] as $page){
 						@set_time_limit($execution_time);
-						$s_page = htmlspecialchars($page, ENT_QUOTES);
+						$s_page = $this->func->htmlspecialchars($page, ENT_QUOTES);
 						$f_page = $this->get_filename2($mes,$page);
 						if(is_file($f_page) && !$this->func->is_freeze($page)){
 							$flag[$s_page] = unlink($f_page);
@@ -377,7 +377,7 @@ class xpwiki_plugin_deldel extends xpwiki_plugin {
 					$mes = 'diff';
 					foreach($this->root->vars['pages'] as $page){
 						@set_time_limit($execution_time);
-						$s_page = htmlspecialchars($page, ENT_QUOTES);
+						$s_page = $this->func->htmlspecialchars($page, ENT_QUOTES);
 						$f_page = $this->get_filename2($mes,$page);
 						if(is_file($f_page) && !$this->func->is_freeze($spage)){
 							$flag[$s_page] = unlink($f_page);
@@ -390,7 +390,7 @@ class xpwiki_plugin_deldel extends xpwiki_plugin {
 					$mes = 'referer';
 					foreach($this->root->vars['pages'] as $page){
 						@set_time_limit($execution_time);
-						$s_page = htmlspecialchars($page, ENT_QUOTES);
+						$s_page = $this->func->htmlspecialchars($page, ENT_QUOTES);
 						$f_page = $this->get_filename2($mes,$page);
 						if(is_file($f_page) && !$this->func->is_freeze($spage)){
 							$flag[$s_page] = unlink($f_page);
@@ -403,7 +403,7 @@ class xpwiki_plugin_deldel extends xpwiki_plugin {
 					$mes = 'counter';
 					foreach($this->root->vars['pages'] as $page){
 						@set_time_limit($execution_time);
-						$s_page = htmlspecialchars($page, ENT_QUOTES);
+						$s_page = $this->func->htmlspecialchars($page, ENT_QUOTES);
 						$f_page = $this->get_filename2($mes,$page);
 						if(is_file($f_page)){
 							$flag[$s_page] = unlink($f_page);
@@ -466,7 +466,7 @@ class xpwiki_plugin_deldel extends xpwiki_plugin {
 		foreach($pages as $file=>$page) {
 		//foreach($pages as $page) {
 			$r_page	 = rawurlencode($page);
-			$s_page	 = htmlspecialchars($page, ENT_QUOTES);
+			$s_page	 = $this->func->htmlspecialchars($page, ENT_QUOTES);
 			$passage = $this->func->get_pg_passage($page);
 			// 変更ココから by okkez
 			$checked = ($checked || !empty($this->root->post['no_page']))? " checked=\"true\"" : "";
@@ -479,7 +479,7 @@ class xpwiki_plugin_deldel extends xpwiki_plugin {
 			// ココまで
 
 			if ($withfilename) {
-				$s_file = htmlspecialchars($file);
+				$s_file = $this->func->htmlspecialchars($file);
 				$str .= "\n" . '	<ul><li>' . $s_file . '</li></ul>' .
 			"\n" . '   ';
 			}
@@ -659,14 +659,14 @@ class xpwiki_plugin_deldel extends xpwiki_plugin {
 		  case 'REFERER' :
 		  case 'COUNTER':
 			foreach($pages as $page){
-				$s_page = htmlspecialchars($page,ENT_QUOTES);
+				$s_page = $this->func->htmlspecialchars($page,ENT_QUOTES);
 				$body .= "<li><input type=\"hidden\" name=\"pages[$i]\" value=\"$s_page\"/>$s_page<br/></li>\n";
 				$i++;
 			}
 			break;
 		  case 'UPLOAD' :
 			foreach($pages as $page){
-				$s_page = htmlspecialchars($page,ENT_QUOTES);
+				$s_page = $this->func->htmlspecialchars($page,ENT_QUOTES);
 				$temp = split("=|&amp;",$s_page);
 				$file = rawurldecode($temp[1]);
 				$refer = rawurldecode($temp[3]);
@@ -691,7 +691,7 @@ class xpwiki_plugin_deldel extends xpwiki_plugin {
 				$cascade_disabled = ' disabled="disabled"';
 			}
 			$body .= "<input type=\"checkbox\" name=\"cascade\" value=\"1\"".(($is_cascade)? " checked=\"true\"" : "").$cascade_disabled." /> <span>{$this->msg['msg_together_flag']}</span><br />\n";
-			$body .= ($move_to)? '<div>' . $this->msg['msg_move_flag'] . htmlspecialchars($move_to).'<input type="hidden" name="move_to" value="'.htmlspecialchars($move_to).'" /></div>' : '';
+			$body .= ($move_to)? '<div>' . $this->msg['msg_move_flag'] . $this->func->htmlspecialchars($move_to).'<input type="hidden" name="move_to" value="'.$this->func->htmlspecialchars($move_to).'" /></div>' : '';
 		}
 		$body .= "<input type=\"submit\" value=\"{$this->msg['btn_exec']}\"/>\n</div></form>\n";
 		$body .= "<p>{$this->msg['msg_auth']}</p>";
@@ -852,7 +852,7 @@ class XpWikiAttachFile2 extends XpWikiAttachFile
 		$param	= 'file=' . rawurlencode($this->file) . '&amp;refer=' . rawurlencode($this->page) .
 		($this->age ? '&amp;age=' . $this->age : '');
 		$title = $this->time_str . ' ' . $this->size_str;
-		$label = ($showicon ? $this->cont['PLUGIN_ATTACH_FILE_ICON'] : '') . htmlspecialchars($this->file);
+		$label = ($showicon ? $this->cont['PLUGIN_ATTACH_FILE_ICON'] : '') . $this->func->htmlspecialchars($this->file);
 		if ($this->age) {
 			$label .= ' (backup No.' . $this->age . ')';
 		}
@@ -899,7 +899,7 @@ class XpWikiAttachFiles2 extends XpWikiAttachFiles
 				$_files[$age] = $this->files[$file][$age]->toString(FALSE, TRUE);
 			}
 			if (! isset($_files[0])) {
-				$_files[0] = htmlspecialchars($file);
+				$_files[0] = $this->func->htmlspecialchars($file);
 			}
 			ksort($_files);
 			$_file = $_files[0];

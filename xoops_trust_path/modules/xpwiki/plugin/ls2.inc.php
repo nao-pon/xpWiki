@@ -88,7 +88,7 @@ class xpwiki_plugin_ls2 extends xpwiki_plugin {
 		$body = $this->plugin_ls2_show_lists($prefix, $params);
 
 		return array('body'=>$body,
-		'msg'=>str_replace('$1', htmlspecialchars($prefix), $this->root->_ls2_msg_title));
+		'msg'=>str_replace('$1', $this->func->htmlspecialchars($prefix), $this->root->_ls2_msg_title));
 	}
 
 	function can_call_otherdir_convert() {
@@ -114,8 +114,8 @@ class xpwiki_plugin_ls2 extends xpwiki_plugin {
 		if ($prefix === '/') $prefix = '';
 		$params['_base_lev'] = substr_count($prefix, '/');
 
-		$title = (! empty($params['_args'])) ? htmlspecialchars(join(',', $params['_args'])) :   // Manual
-			str_replace('$1', htmlspecialchars($prefix), $this->root->_ls2_msg_title); // Auto
+		$title = (! empty($params['_args'])) ? $this->func->htmlspecialchars(join(',', $params['_args'])) :   // Manual
+			str_replace('$1', $this->func->htmlspecialchars($prefix), $this->root->_ls2_msg_title); // Auto
 
 		$tmp = array();
 		$tmp[] = 'plugin=ls2&amp;prefix=$prefix';
@@ -220,7 +220,7 @@ class xpwiki_plugin_ls2 extends xpwiki_plugin {
 		if ($params['reverse']) $pages = array_reverse($pages);
 
 		if (empty($pages)) {
-			return str_replace('$1', htmlspecialchars($prefix), $this->root->_ls2_err_nopages);
+			return str_replace('$1', $this->func->htmlspecialchars($prefix), $this->root->_ls2_err_nopages);
 		} else {
 			$rows = ceil(count($pages) / $params['col']);
 			$pages_g = array_chunk($pages, $rows);
@@ -250,7 +250,7 @@ class xpwiki_plugin_ls2 extends xpwiki_plugin {
 		if (! $is_done) $params["page_$page"] = ++$_ls2_anchor[$this->xpwiki->pid];
 
 		$r_page = rawurlencode($page);
-		$s_page = htmlspecialchars($page);
+		$s_page = $this->func->htmlspecialchars($page);
 		$title  = $s_page . ' ' . $this->func->get_pg_passage($page, FALSE);
 		if ($this->root->pagename_num2str && $this->func->is_page($page)) $s_page =  preg_replace('/\/(?:[0-9\-]+|[B0-9][A-Z0-9]{9})$/','/'.$this->func->get_heading($page),$s_page);
 		$margin_left = 0;

@@ -991,7 +991,7 @@ class TableDiffFormatter extends DiffFormatter
   }
 
   function _pre($text){
-    $text = htmlspecialchars($text);
+    $text = str_replace(array('&', '<', '>', '"'), array('&amp;', '&lt;', '&gt;', '&quot;'), $text);
     $text = str_replace('  ',' &nbsp;',$text);
     return $text;
   }

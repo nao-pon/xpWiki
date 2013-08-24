@@ -421,7 +421,7 @@ EOD;
 			if ($pginfo['einherit'] === 3) $pginfo['einherit'] = 1;
 			if ($pginfo['vinherit'] === 3) $pginfo['vinherit'] = 1;
 		}
-		$spage = htmlspecialchars($page);
+		$spage = $this->func->htmlspecialchars($page);
 
 		$s_['einhelit'] = array_pad(array(), 4, '');
 		$s_['einhelit'][$pginfo['einherit']] = ' checked="checked"';
@@ -464,9 +464,9 @@ EOD;
 				$eaid = intval($eaid);
 				if ($eaid && ! $this->func->check_admin($eaid)) {
 					if ($pginfo['einherit'] === 4) {
-						$edit_user_list .= htmlspecialchars($this->func->getUnameFromId($eaid)).'['.$eaid.'] ';
+						$edit_user_list .= $this->func->htmlspecialchars($this->func->getUnameFromId($eaid)).'['.$eaid.'] ';
 					} else {
-						$edit_user_list .= '<span class="exist">'.htmlspecialchars($this->func->getUnameFromId($eaid)).'['.$eaid.'] </span>';
+						$edit_user_list .= '<span class="exist">'.$this->func->htmlspecialchars($this->func->getUnameFromId($eaid)).'['.$eaid.'] </span>';
 					}
 				}
 			}
@@ -484,9 +484,9 @@ EOD;
 				$vaid = intval($vaid);
 				if ($vaid && ! $this->func->check_admin($vaid)) {
 					if ($pginfo['vinherit'] === 4) {
-						$view_user_list .= htmlspecialchars($this->func->getUnameFromId($vaid)).'['.$vaid.'] ';
+						$view_user_list .= $this->func->htmlspecialchars($this->func->getUnameFromId($vaid)).'['.$vaid.'] ';
 					} else {
-						$view_user_list .= '<span class="exist">'.htmlspecialchars($this->func->getUnameFromId($vaid)).'['.$vaid.'] </span>';
+						$view_user_list .= '<span class="exist">'.$this->func->htmlspecialchars($this->func->getUnameFromId($vaid)).'['.$vaid.'] </span>';
 					}
 				}
 			}
@@ -503,7 +503,7 @@ EOD;
 
 		$title_permission_default = ($page && $this->root->userinfo['admin'])? '<hr /><p><a href="'.$this->root->script.'?cmd=pginfo">'.$this->msg['title_permission_default'].'</a></p>' : '';
 
-		$uid_form = ($page && $this->root->userinfo['admin'])? '&nbsp;&nbsp;' . $this->root->_LANG['skin']['pageowner'] . ' User ID: <input type="text" name="uid" size="5" value="' . htmlspecialchars($pginfo['uid']) . '" />' : '';
+		$uid_form = ($page && $this->root->userinfo['admin'])? '&nbsp;&nbsp;' . $this->root->_LANG['skin']['pageowner'] . ' User ID: <input type="text" name="uid" size="5" value="' . $this->func->htmlspecialchars($pginfo['uid']) . '" />' : '';
 		$script = $this->func->get_script_uri();
 		$form = <<<EOD
 <script language="javascript">

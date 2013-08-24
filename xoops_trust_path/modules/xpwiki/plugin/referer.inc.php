@@ -117,7 +117,7 @@ class xpwiki_plugin_referer extends xpwiki_plugin {
 		$arg = array();
 		$arg[] = 'plugin=referer';
 		$arg[] = 'page=' . rawurlencode($page);
-		if (isset($this->root->vars['sort'])){ $arg[] = 'sort=' . htmlspecialchars($this->root->vars['sort']); }
+		if (isset($this->root->vars['sort'])){ $arg[] = 'sort=' . $this->func->htmlspecialchars($this->root->vars['sort']); }
 		
 		$nav = $this->func->getPageNav($total, $max, $start,  'start', join('&amp;', $arg));
 		$navi = 'Total: ' . number_format($total) . ' links ' . $nav->renderNav();
@@ -146,8 +146,8 @@ class xpwiki_plugin_referer extends xpwiki_plugin {
 			$i++;
 			
 			// 非ASCIIキャラクタ(だけ)をURLエンコードしておく BugTrack/440
-			$e_url = htmlspecialchars(preg_replace('/([" \x80-\xff]+)/e', 'rawurlencode("$1")', $url));
-			$s_url = htmlspecialchars(mb_convert_encoding(rawurldecode($url), $this->cont['SOURCE_ENCODING'], 'auto'));
+			$e_url = $this->func->htmlspecialchars(preg_replace('/([" \x80-\xff]+)/e', 'rawurlencode("$1")', $url));
+			$s_url = $this->func->htmlspecialchars(mb_convert_encoding(rawurldecode($url), $this->cont['SOURCE_ENCODING'], 'auto'));
 			$s_url = str_replace('&amp;amp;', '&amp;', $s_url);
 			
 			$s_url = preg_replace('#^https?://#i', '', $s_url);
@@ -220,7 +220,7 @@ EOD;
 			// BGCOLOR(#88ff88)
 			$matches = array();
 			foreach ($pconfig_color as $x)
-				$color[$this->xpwiki->pid][$x[0]] = htmlspecialchars(
+				$color[$this->xpwiki->pid][$x[0]] = $this->func->htmlspecialchars(
 					preg_match('/BGCOLOR\(([^)]+)\)/si', $x[1], $matches) ?
 						$matches[1] : $x[1]);
 		}

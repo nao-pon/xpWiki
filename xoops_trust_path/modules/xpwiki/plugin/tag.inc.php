@@ -239,7 +239,7 @@ class XpWikiPluginTag
 			sort($tags);
 			$tag = $tags[0];
 			$url = $this->func->get_script_uri() . '?' . 'cmd=lsx&amp;rtag=' . rawurlencode($tag);
-			$cloud_p->add(htmlspecialchars($tag), $url, $count);
+			$cloud_p->add($this->func->htmlspecialchars($tag), $url, $count);
 		}
 		return $cloud_p->html($limit);
 	}
@@ -406,7 +406,7 @@ class XpWikiPluginTag
 		$ret = '<span class="tag">';
 		$ret .= 'Tag: ';
 		foreach ($tags as $tag) {
-			$ret .= '<a href="' . $this->func->get_script_uri() . '?cmd=lsx&amp;rtag=' . rawurlencode($tag) . '">' . htmlspecialchars($tag) . '</a> ';
+			$ret .= '<a href="' . $this->func->get_script_uri() . '?cmd=lsx&amp;rtag=' . rawurlencode($tag) . '">' . $this->func->htmlspecialchars($tag) . '</a> ';
 		}
 		$ret .= '</span>';
 		return $ret;

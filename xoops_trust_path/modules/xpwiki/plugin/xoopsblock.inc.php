@@ -122,7 +122,7 @@ class xpwiki_plugin_xoopsblock extends xpwiki_plugin {
 			if (is_object($xoopsUser)) {
 				$xoopsTpl->assign(array('xoops_isuser' => true, 'xoops_userid' => $xoopsUser->getVar('uid'), 'xoops_uname' => $xoopsUser->getVar('uname'), 'xoops_isadmin' => $xoopsUser->isAdmin()));
 			}
-			$xoopsTpl->assign('xoops_requesturi', htmlspecialchars($GLOBALS['xoopsRequestUri'], ENT_QUOTES));
+			$xoopsTpl->assign('xoops_requesturi', $this->func->htmlspecialchars($GLOBALS['xoopsRequestUri'], ENT_QUOTES));
 
 			foreach ($tgt_bids as $bid) {
 				$myblock = new XoopsBlock($bid);

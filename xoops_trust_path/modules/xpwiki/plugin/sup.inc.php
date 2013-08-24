@@ -11,7 +11,7 @@ class xpwiki_plugin_sup extends xpwiki_plugin {
 		$body = array_pop($args);
 		if ($body === ''){
 			if (isset($args[0])) {
-				$body = htmlspecialchars($args[0]);
+				$body = $this->func->htmlspecialchars($args[0]);
 			} else {
 				return FALSE;
 			}

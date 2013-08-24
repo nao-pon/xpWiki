@@ -36,7 +36,7 @@ class xpwiki_plugin_diff extends xpwiki_plugin {
 	//	global $_title_diff_delete;
 	
 		$r_page = rawurlencode($page);
-		$s_page = htmlspecialchars($page);
+		$s_page = $this->func->htmlspecialchars($page);
 		$lasteditor = $this->func->get_lasteditor($this->func->get_pginfo($page));
 		$menu = array(
 			'<li>' . $this->root->_LANG['skin']['recent'] . ': ' . $lasteditor . '</li>',
@@ -58,9 +58,9 @@ class xpwiki_plugin_diff extends xpwiki_plugin {
 				$menu[] = '<li><a href="' . $this->root->script . '?cmd=diff&amp;action=delete&amp;page=' .
 				$r_page . '">' . str_replace('$1', $s_page, $this->root->_title_diff_delete) . '</a></li>';
 			}
-			$msg = '<pre>' . $this->func->diff_style_to_css(htmlspecialchars(file_get_contents($filename))) . '</pre>' . "\n";
+			$msg = '<pre>' . $this->func->diff_style_to_css($this->func->htmlspecialchars(file_get_contents($filename))) . '</pre>' . "\n";
 		} else if ($is_page) {
-			$diffdata = trim(htmlspecialchars($this->func->get_source($page, TRUE, TRUE)));
+			$diffdata = trim($this->func->htmlspecialchars($this->func->get_source($page, TRUE, TRUE)));
 			$msg = '<pre><span class="diff_added">' . $diffdata . '</span></pre>' . "\n";
 		} else {
 			return array('msg'=>$this->root->_title_diff, 'body'=>$this->root->_msg_notfound);
@@ -101,7 +101,7 @@ EOD;
 			}
 		}
 	
-		$s_page = htmlspecialchars($page);
+		$s_page = $this->func->htmlspecialchars($page);
 		$script = $this->func->get_script_uri();
 		$body .= <<<EOD
 <p>{$this->root->_msg_diff_adminpass}</p>

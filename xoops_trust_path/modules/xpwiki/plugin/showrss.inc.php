@@ -64,11 +64,11 @@ class xpwiki_plugin_showrss extends xpwiki_plugin {
 
 		$class = ($template == '' || $template == 'default') ? 'XpWikiShowRSS_html' : 'XpWikiShowRSS_html_' . $template;
 		if (! is_numeric($cachehour))
-			return '#showrss: Cache-lifetime seems not numeric: ' . htmlspecialchars($cachehour) . '<br />' . "\n";
+			return '#showrss: Cache-lifetime seems not numeric: ' . $this->func->htmlspecialchars($cachehour) . '<br />' . "\n";
 		if (! XC_CLASS_EXISTS($class))
-			return '#showrss: Template not found: ' . htmlspecialchars($template) . '<br />' . "\n";
+			return '#showrss: Template not found: ' . $this->func->htmlspecialchars($template) . '<br />' . "\n";
 		if (! $this->func->is_url($uri))
-			return '#showrss: Seems not URI: ' . htmlspecialchars($uri) . '<br />' . "\n";
+			return '#showrss: Seems not URI: ' . $this->func->htmlspecialchars($uri) . '<br />' . "\n";
 
 		$cachehour = max(0.016, $cachehour); // 最低1分はキャッシュ
 
@@ -229,7 +229,7 @@ class XpWikiShowRSS_html
 
 							if (! $allow_html) {
 								$item['DESCRIPTION'] = strip_tags($item['DESCRIPTION']);
-								$item['DESCRIPTION'] = htmlspecialchars(mb_substr($item['DESCRIPTION'], 0, 255, 'UTF-8'));
+								$item['DESCRIPTION'] = $this->func->htmlspecialchars(mb_substr($item['DESCRIPTION'], 0, 255, 'UTF-8'), ENT_COMPAT, 'UTF-8');
 								$item['DESCRIPTION'] = preg_replace('/&amp;#(\d+);/', '&#$1;', $item['DESCRIPTION']);
 							}
 
@@ -368,10 +368,10 @@ class XpWikiShowRSS_XML
 
 	function escape($str)
 	{
-		// Unescape already-escaped chars (&lt;, &gt;, &amp;, ...) in RSS body before htmlspecialchars()
+		// Unescape already-escaped chars (&lt;, &gt;, &amp;, ...) in RSS body before $this->func->htmlspecialchars()
 		$str = strtr($str, array_flip(get_html_translation_table(ENT_COMPAT)));
 		// Escape
-		$str = htmlspecialchars($str);
+		$str = $this->func->htmlspecialchars($str, ENT_COMPAT, $this->encoding);
 		//echo $str;
 		// Unescape
 		$str = str_replace('&amp;', '&', $str);

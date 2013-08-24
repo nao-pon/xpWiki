@@ -680,7 +680,7 @@ __EOD__;
 					$mode = "insert";
 				}
 
-				$s_page = htmlspecialchars($page);
+				$s_page = $this->func->htmlspecialchars($page);
 				if ($this->root->post['p_info']) { echo 'Start: '. $s_page . '<br />'; }
 				if ($this->root->post['plain_bg'] || $this->func->plain_db_write($page,$mode,TRUE))
 				{
@@ -871,7 +871,7 @@ __EOD__;
 	{
 
 		//$token = $this->func->get_token_html();
-		$token = !empty($_SESSION['HYP_CSRF_TOKEN'])? '<input type="hidden" name="HypToken" value="'.htmlspecialchars($_SESSION['HYP_CSRF_TOKEN']).'" />' : '';
+		$token = !empty($_SESSION['HYP_CSRF_TOKEN'])? '<input type="hidden" name="HypToken" value="'.$this->func->htmlspecialchars($_SESSION['HYP_CSRF_TOKEN']).'" />' : '';
 		$script = $this->func->get_script_uri();
 		$html = <<<__EOD__
 <form method="POST" action="{$script}" onsubmit="return pukiwiki_check(this);">

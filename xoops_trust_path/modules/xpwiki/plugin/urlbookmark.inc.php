@@ -172,7 +172,7 @@ class xpwiki_plugin_urlbookmark extends xpwiki_plugin {
 		$nodate = in_array('nodate',$options) ? '1' : '0';
 		$above = in_array('above',$options) ? '1' : (in_array('below',$options) ? '0' : $this->config['URLBOOKMARK_INS']);
 		
-		$s_page = htmlspecialchars($this->root->vars['page']);
+		$s_page = $this->func->htmlspecialchars($this->root->vars['page']);
 		$urlbookmark_cols = $this->config['URLBOOKMARK_COMMENT_COLS'];
 		$url_cols = $this->config['URLBOOKMARK_URL_COLS'];
 		$script = $this->func->get_script_uri();

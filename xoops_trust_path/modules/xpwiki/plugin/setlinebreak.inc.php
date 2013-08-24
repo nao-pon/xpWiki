@@ -49,7 +49,7 @@ class xpwiki_plugin_setlinebreak extends xpwiki_plugin {
 	
 			default:
 				return '#setlinebreak: Invalid argument: ' .
-				htmlspecialchars($args[0]) . '<br />';
+				$this->func->htmlspecialchars($args[0]) . '<br />';
 			}
 		}
 		return '';

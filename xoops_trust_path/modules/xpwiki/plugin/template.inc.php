@@ -49,7 +49,7 @@ class xpwiki_plugin_template extends xpwiki_plugin {
 		}
 		$begin_select = $end_select = '';
 		for ($i = 0; $i < count($lines); $i++) {
-			$line = htmlspecialchars(mb_strimwidth($lines[$i], 0, $this->cont['MAX_LEN'], '...'));
+			$line = $this->func->htmlspecialchars(mb_strimwidth($lines[$i], 0, $this->cont['MAX_LEN'], '...'));
 	
 			$tag = ($i == $begin) ? ' selected="selected"' : '';
 			$begin_select .= "<option value=\"$i\"$tag>$line</option>\n";
@@ -58,7 +58,7 @@ class xpwiki_plugin_template extends xpwiki_plugin {
 			$end_select .= "<option value=\"$i\"$tag>$line</option>\n";
 		}
 	
-		$_page = htmlspecialchars($page);
+		$_page = $this->func->htmlspecialchars($page);
 		$msg = $tag = '';
 		if ($is_page) {
 			$msg = $this->root->_err_template_already;
@@ -67,7 +67,7 @@ class xpwiki_plugin_template extends xpwiki_plugin {
 			$msg = str_replace('$1', $_page, $this->root->_err_template_invalid);
 		}
 	
-		$s_refer = htmlspecialchars($this->root->vars['refer']);
+		$s_refer = $this->func->htmlspecialchars($this->root->vars['refer']);
 		$s_page  = ($page === '') ? str_replace('$1', $s_refer, $this->root->_msg_template_page) : $_page;
 		$script = $this->func->get_script_uri();
 		$ret     = <<<EOD

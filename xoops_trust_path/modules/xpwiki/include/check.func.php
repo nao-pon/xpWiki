@@ -137,7 +137,7 @@ function xpwikifunc_defdata_check ($mydirname, $mode = 'install') {
 							// touch page
 							$xpwiki->func->touch_page($page, $timestamp[$file]);
 
-							$msg[] = "Updated a page '" . htmlspecialchars($page) . "'.<br />";
+							$msg[] = "Updated a page '" . $xpwiki->func->htmlspecialchars($page) . "'.<br />";
 						}
 					}
 				}

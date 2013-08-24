@@ -109,7 +109,7 @@ class xpwiki_plugin_include extends xpwiki_plugin {
 		}
 
 		$with_title = ($options['title']? TRUE : ($options['notitle']? FALSE : $this->cont['PLUGIN_INCLUDE_WITH_TITLE']));
-		$s_page = htmlspecialchars($page);
+		$s_page = $this->func->htmlspecialchars($page);
 		$r_page = rawurlencode($page);
 		
 		// Include A page, that probably includes another pages
@@ -125,7 +125,7 @@ class xpwiki_plugin_include extends xpwiki_plugin {
 			$link = '<a href="' . $this->func->get_page_uri($page, TRUE) . '">' . $s_page . '</a>'; // Read link
 		
 			// I'm stuffed
-			$pageKey4disp = htmlspecialchars($pageKey);
+			$pageKey4disp = $this->func->htmlspecialchars($pageKey);
 			if ($this->root->render_mode === 'main' && isset($included[$this->xpwiki->pid][$pageKey])) {
 				return '#include('.$pageKey4disp.'): Included already: ' . $link . '<br />' . "\n";
 			} if (! $targetObj->func->is_page($page)) {

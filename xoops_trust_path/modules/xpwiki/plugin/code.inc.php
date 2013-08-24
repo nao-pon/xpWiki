@@ -134,7 +134,7 @@ class xpwiki_plugin_code extends xpwiki_plugin {
 	        return $this->cont['PLUGIN_CODE_USAGE'];
 	    }
 		if ($num_of_arg != 1 && ! $this->_plugin_code_check_argment($args[0], $option))
-	        $lang = htmlspecialchars(strtolower($args[0])); // 言語名かオプションの判定
+	        $lang = $this->func->htmlspecialchars(strtolower($args[0])); // 言語名かオプションの判定
 
 		$begin = 1;
 		$end = null;
@@ -353,7 +353,7 @@ class xpwiki_plugin_code extends xpwiki_plugin {
 			// Invalid color
 			foreach(array($color, $bgcolor) as $col){
 				if ($col != '' && ! preg_match($this->cont['PLUGIN_PRE_COLOR_REGEX'], $col))
-					return '<p class="error">#pre():Invalid color: '.htmlspecialchars($col).';</p>';
+					return '<p class="error">#pre():Invalid color: '.$this->func->htmlspecialchars($col).';</p>';
 			}
 			if ($color != '' ) {
 				$style   = ' style="color:'.$color;
@@ -380,7 +380,7 @@ class xpwiki_plugin_code extends xpwiki_plugin {
 			$end = substr_count($text, "\n") + $begin -1;
 
 		if ($this->cont['PLUGIN_PRE_VERVATIM_HARD']  && ! $option['soft']  || $option['hard']) {
-			$text = htmlspecialchars($text);
+			$text = $this->func->htmlspecialchars($text);
 		} else {
 			$text = $this->func->make_link($text);
 		}
@@ -416,7 +416,7 @@ class xpwiki_plugin_code extends xpwiki_plugin {
 			}
 			if ($lang === null) {
 				if ($this->_plugin_code_mimetype($arg)) {
-					$data['_error'] = '<p class="error">Maybe file extension like binary. '.htmlspecialchars($arg).';</p>';
+					$data['_error'] = '<p class="error">Maybe file extension like binary. '.$this->func->htmlspecialchars($arg).';</p>';
 					return 0;
 				} else {
 					$lang = 'pre';
@@ -430,7 +430,7 @@ class xpwiki_plugin_code extends xpwiki_plugin {
 	        }
 	        $data['data'] = $params['data'];
 	        if ($data['data'] == "\n" || $data['data'] == '' || $data['data'] == null) {
-	            $data['_error'] ='<p class="error">file '.htmlspecialchars($params['title']).' is empty.</p>';
+	            $data['_error'] ='<p class="error">file '.$this->func->htmlspecialchars($params['title']).' is empty.</p>';
 	            return 0;
 	        }
 			if ($this->cont['PLUGIN_CODE_FILE_ICON'] && !$option['noicon'] || $option['icon']) {
@@ -443,7 +443,7 @@ class xpwiki_plugin_code extends xpwiki_plugin {
 
 		} else {
 			$data['data'] = $arg;
-			if ($option['title']) $data['title'] = '<h5 class="'.$this->cont['PLUGIN_CODE_HEADER'].'title">'.htmlspecialchars($option['title']).'</h5>'."\n";
+			if ($option['title']) $data['title'] = '<h5 class="'.$this->cont['PLUGIN_CODE_HEADER'].'title">'.$this->func->htmlspecialchars($option['title']).'</h5>'."\n";
 			return 1;
 		}
 		return 0;
@@ -537,8 +537,8 @@ class xpwiki_plugin_code extends xpwiki_plugin {
 	            $params['_error'] = 'Cannot assign URL';
 	            return $params;
 	        }
-	        $url = htmlspecialchars($fname);
-	        $params['title'] = htmlspecialchars(preg_match('/([^\/]+)$/', $fname, $matches) ? $matches[1] : $url);
+	        $url = $this->func->htmlspecialchars($fname);
+	        $params['title'] = $this->func->htmlspecialchars(preg_match('/([^\/]+)$/', $fname, $matches) ? $matches[1] : $url);
 	    } else {  // 添付ファイル
 	        if (! is_dir($this->cont['UPLOAD_DIR'])) {
 	            $params['_error'] = 'No UPLOAD_DIR';
@@ -562,10 +562,10 @@ class xpwiki_plugin_code extends xpwiki_plugin {
 	        }
 
 	        if (! $is_file) {
-	            $params['_error'] = htmlspecialchars('File not found: "' .$fname . '" at page "' . $page . '"');
+	            $params['_error'] = $this->func->htmlspecialchars('File not found: "' .$fname . '" at page "' . $page . '"');
 	            return $params;
 	        }
-	        $params['title'] = htmlspecialchars($fname);
+	        $params['title'] = $this->func->htmlspecialchars($fname);
 	        $fname = $file;
 
 			$url = $this->root->script . '?plugin=attach' . '&amp;refer=' . rawurlencode($page) .

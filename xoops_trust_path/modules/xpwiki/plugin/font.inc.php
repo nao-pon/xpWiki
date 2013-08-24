@@ -48,20 +48,20 @@ class xpwiki_plugin_font extends xpwiki_plugin {
 			{
 				if ($color_type)
 				{
-					$style .= "color:".htmlspecialchars($color[1]).";";
+					$style .= "color:".$this->func->htmlspecialchars($color[1]).";";
 					$color_type = false;
 				} else {
-					$style .= "background-color:".htmlspecialchars($color[1]).";";
+					$style .= "background-color:".$this->func->htmlspecialchars($color[1]).";";
 				}
 			}
 			elseif (preg_match('/^(\d+)$/',$prm,$size))
-				//$style .= "font-size:".htmlspecialchars($size[1])."px;display:inline-block;line-height:130%;text-indent:0px;";
-				$style .= "font-size:".htmlspecialchars($size[1])."px;line-height:130%;";
+				//$style .= "font-size:".$this->func->htmlspecialchars($size[1])."px;display:inline-block;line-height:130%;text-indent:0px;";
+				$style .= "font-size:".$this->func->htmlspecialchars($size[1])."px;line-height:130%;";
 			elseif (preg_match('/^(\d+(%|px|pt|em))$/',$prm,$size))
-				//$style .= "font-size:".htmlspecialchars($size[1]).";display:inline-block;line-height:130%;text-indent:0px;";
-				$style .= "font-size:".htmlspecialchars($size[1]).";line-height:130%;";
+				//$style .= "font-size:".$this->func->htmlspecialchars($size[1]).";display:inline-block;line-height:130%;text-indent:0px;";
+				$style .= "font-size:".$this->func->htmlspecialchars($size[1]).";line-height:130%;";
 			elseif (preg_match('/^class:(.+)$/',$prm,$arg))
-				$class = ' class="' . str_replace('"' , '', htmlspecialchars($arg[1])) . '"';
+				$class = ' class="' . str_replace('"' , '', $this->func->htmlspecialchars($arg[1])) . '"';
 			
 		}
 		if (count($decoration))

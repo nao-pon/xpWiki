@@ -49,7 +49,7 @@ class XpWikiPukiExtAutoLink {
 		if (strlen($name) < $this->ext_autolink_len) {return $match[0];}
 
 		$page = $this->ext_autolink_base.$name;
-		$title = htmlspecialchars(str_replace('[KEY]', $this->ext_autolink_base.$name, $this->ext_autolink_title));
+		$title = $this->func->htmlspecialchars(str_replace('[KEY]', $this->ext_autolink_base.$name, $this->ext_autolink_title));
 
 		if ($this->ext_autolink_own !== false) {
 			// own site
@@ -69,9 +69,9 @@ class XpWikiPukiExtAutoLink {
 				if (isset($this->ext_autolink_replace['from'])) {
 					$_url = str_replace($this->ext_autolink_replace['from'], $this->ext_autolink_replace['func']($page), $this->ext_autolink_pat);
 				}
-				return '<a href="'.$_url.'" title="'.$title.'" class="' . $this->ext_autolink_a_class . '"' . $target . '>'.htmlspecialchars($name).'</a>';
+				return '<a href="'.$_url.'" title="'.$title.'" class="' . $this->ext_autolink_a_class . '"' . $target . '>'.$this->func->htmlspecialchars($name).'</a>';
 			} else {
-				return '<a href="'.$this->ext_autolink_url.'?'.rawurlencode($page).'" title="'.$title.'" class="' . $this->ext_autolink_a_class . '"' . $target . '>'.htmlspecialchars($name).'</a>';
+				return '<a href="'.$this->ext_autolink_url.'?'.rawurlencode($page).'" title="'.$title.'" class="' . $this->ext_autolink_a_class . '"' . $target . '>'.$this->func->htmlspecialchars($name).'</a>';
 			}
 		}
 	}

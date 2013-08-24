@@ -24,14 +24,14 @@ class xpwiki_plugin_newpage extends xpwiki_plugin {
 			if ($default === '$uname') {
 				$default = $this->cont['USER_NAME_REPLACE'];
 			} else {
-				$default = htmlspecialchars($default);
+				$default = $this->func->htmlspecialchars($default);
 			}
 		}
 
 		if (! preg_match('/^' . $this->root->BracketName . '$/', $newpage)) $newpage = '';
 
 
-		$s_page = htmlspecialchars(isset($this->root->vars['refer']) ? $this->root->vars['refer'] : $this->root->vars['page']);
+		$s_page = $this->func->htmlspecialchars(isset($this->root->vars['refer']) ? $this->root->vars['refer'] : $this->root->vars['page']);
 
 		++$id[$this->xpwiki->pid];
 		$base_form = $newpage? $this->get_base_form($newpage, $id[$this->xpwiki->pid]) : '<label for="_p_newpage_'.$id[$this->xpwiki->pid].'">' . $this->root->_msg_newpage . ': </label>';
@@ -88,7 +88,7 @@ EOD;
 		}
 
 		$form = array();
-		$base = htmlspecialchars($base) . '/';
+		$base = $this->func->htmlspecialchars($base) . '/';
 		if (count($pages) < 1) {
 			$form[] = '<input type="hidden" name="base" value="' . $base . '" />';
 			$form[] = '<label for="_p_newpage_'.$id.'">'.$base.'</label>';
@@ -96,7 +96,7 @@ EOD;
 			$form[] = '<select name="base" size="1" onchange="$(\'_p_newpage_'.$id.'\').focus();">';
 			$form[] = '<option selected="selected">' . $base . '</option>';
 			foreach($pages as $page) {
-				$form[] = '<option>' . htmlspecialchars($page) . '/</option>';
+				$form[] = '<option>' . $this->func->htmlspecialchars($page) . '/</option>';
 			}
 			$form[] = '</select>';
 		}

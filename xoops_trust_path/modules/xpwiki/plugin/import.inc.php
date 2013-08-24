@@ -97,14 +97,14 @@ EOD;
 		$keep_page_sel = array_pad(array(), 3, '');
 		$keep_page_sel[$keep_page] = ' checked';
 		
-		$target_module = $this->msg['target_module'] . htmlspecialchars($mdir) . htmlspecialchars(' -> ' . $this->root->mydirname);
+		$target_module = $this->msg['target_module'] . $this->func->htmlspecialchars($mdir) . $this->func->htmlspecialchars(' -> ' . $this->root->mydirname);
 		
 		$this->from_dir = $mdir;
 		$this->msg = array_map(array(& $this, 'replace_msg'), $this->msg);
 
 		$script = $this->func->get_script_uri();
 		$form = '<form action="'.$script.'" method="post">';
-		$form .= $this->msg['target_page'].$this->msg['target_page_note'].'<br /><input type="text" name="target_page" value="'.htmlspecialchars($target_page).'" size="50" /><br />';
+		$form .= $this->msg['target_page'].$this->msg['target_page_note'].'<br /><input type="text" name="target_page" value="'.$this->func->htmlspecialchars($target_page).'" size="50" /><br />';
 		if ($type === 'pwm') {
 			$form .= $this->msg['keep_pgid'].'<br />';
 			$form .= '&nbsp;&nbsp;<input type="radio" name="keep_pgid" value="1"'.$keep_pgid_sel[1].' /> '.$this->msg['keep_pgid_1'].'<br />';
@@ -117,7 +117,7 @@ EOD;
 			$form .= '&nbsp;&nbsp;<input type="radio" name="keep_page" value="1"'.$keep_page_sel[1].' /> '.$this->msg['keep_page_1'].'<br />';
 			$form .= '&nbsp;&nbsp;<input type="radio" name="keep_page" value="2"'.$keep_page_sel[2].' /> '.$this->msg['keep_page_2'].'<br />';
 		}
-		$dir = htmlspecialchars($dir);
+		$dir = $this->func->htmlspecialchars($dir);
 		$form .= <<<EOD
 <input type="submit" value="{$this->msg['btn_do_next']}" />
 &nbsp;&nbsp;&nbsp;&nbsp;<input type="submit" name="go_first" value="{$this->msg['btn_go_first']}" />
@@ -152,9 +152,9 @@ EOD;
 
 		if (!$keep_pgid || !$keep_page) return $this->select_option($this->msg['invalid_option']);
 		
-		$target_module = $this->msg['target_module'] . htmlspecialchars($mdir) . htmlspecialchars(' -> ' . $this->root->mydirname);
+		$target_module = $this->msg['target_module'] . $this->func->htmlspecialchars($mdir) . $this->func->htmlspecialchars(' -> ' . $this->root->mydirname);
 		if ($target_page) $target_page = join(' & ', preg_split('/\s*&\s*/',$target_page));
-		$target_page = htmlspecialchars($target_page);
+		$target_page = $this->func->htmlspecialchars($target_page);
 		
 		$options = array();
 		$options[$this->msg['target_page']] = $target_page ? $this->msg['target_page_sel'] . $target_page : $this->msg['target_page_all'];
@@ -379,7 +379,7 @@ EOD;
 			foreach ($array as $arr)
 			{
 				$pre .= ' '.$arr[1].$arr[2]."\n";
-				$dlist .= ':'.str_replace(array('|',':'),array('&#x7c;','&#x3a;'),htmlspecialchars($arr[0])).'|'.$arr[1].$arr[2]."\n";
+				$dlist .= ':'.str_replace(array('|',':'),array('&#x7c;','&#x3a;'),$this->func->htmlspecialchars($arr[0])).'|'.$arr[1].$arr[2]."\n";
 			}
 			$result .= $pre."\n\n".$dlist;
 		}

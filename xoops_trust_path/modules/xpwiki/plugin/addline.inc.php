@@ -66,7 +66,7 @@ class xpwiki_plugin_addline extends xpwiki_plugin {
 				else if (preg_match("/btn:(.+)/i",$opt,$args)){
 					$btn_text = $args[1];
 					if (strtolower(substr($btn_text, -4)) === "auth") {
-						$btn_text = htmlspecialchars(rtrim(substr($btn_text, 0, strlen($btn_text)-4), ':'));
+						$btn_text = $this->func->htmlspecialchars(rtrim(substr($btn_text, 0, strlen($btn_text)-4), ':'));
 						$auth = 1;
 						if ($this->cont['PKWK_READONLY'] || ! $this->func->check_editable($this->root->vars['page'], FALSE, FALSE)) {
 							$disabled = ' disabled="disabled"';
@@ -74,10 +74,10 @@ class xpwiki_plugin_addline extends xpwiki_plugin {
 					}
 				}
 				else if (preg_match("/rtext:(.+)/i",$opt,$args)){
-					$right_text = htmlspecialchars($args[1]);
+					$right_text = $this->func->htmlspecialchars($args[1]);
 				}
 				else if (preg_match("/ltext:(.+)/i",$opt,$args)){
-					$left_text = htmlspecialchars($args[1]);
+					$left_text = $this->func->htmlspecialchars($args[1]);
 				}
 				else if ( $opt === 'below' || $opt === 'down' ){
 					$above = 0;
@@ -96,8 +96,8 @@ class xpwiki_plugin_addline extends xpwiki_plugin {
 			if (! $disabled && $no_flag[$this->xpwiki->pid]) $btn_text .= "[$addline_no]";
 		}
 	
-		$f_page	  = htmlspecialchars($this->root->vars['page']);
-		$f_config = htmlspecialchars($configname);
+		$f_page	  = $this->func->htmlspecialchars($this->root->vars['page']);
+		$f_config = $this->func->htmlspecialchars($configname);
 	
 		$string = '';
 		$script = $this->func->get_script_uri();
@@ -203,7 +203,7 @@ EOD;
 		$config = new XpWikiConfig($this->xpwiki, 'plugin/addline/'.$configname);
 		if (!$config->read())
 		{
-			return array( 'msg' => 'addline error', 'body' => "<p>config file '".htmlspecialchars($configname)."' is not exist.");
+			return array( 'msg' => 'addline error', 'body' => "<p>config file '".$this->func->htmlspecialchars($configname)."' is not exist.");
 		}
 		$config->config_name = $configname;
 		$addline = join('', $this->addline_get_source($config->page));

@@ -31,12 +31,12 @@ class xpwiki_plugin_lookup extends xpwiki_plugin {
 		if ($num == 0 || $num > 3) return $this->cont['PLUGIN_LOOKUP_USAGE'];
 
 		$args = func_get_args();
-		$interwiki = htmlspecialchars(trim($args[0]));
+		$interwiki = $this->func->htmlspecialchars(trim($args[0]));
 		$button    = isset($args[1]) ? trim($args[1]) : '';
-		$button    = ($button != '') ? htmlspecialchars($button) : 'lookup';
-		$default   = ($num > 2) ? htmlspecialchars(trim($args[2])) : '';
+		$button    = ($button != '') ? $this->func->htmlspecialchars($button) : 'lookup';
+		$default   = ($num > 2) ? $this->func->htmlspecialchars(trim($args[2])) : '';
 		$default = str_replace('$uname', $this->cont['USER_NAME_REPLACE'], $default);
-		$s_page    = htmlspecialchars($this->root->vars['page']);
+		$s_page    = $this->func->htmlspecialchars($this->root->vars['page']);
 		++$id[$this->xpwiki->pid];
 
 		$script = $this->func->get_script_uri();
@@ -67,7 +67,7 @@ EOD;
 		$url = $this->func->get_interwiki_url($inter, $page);
 		if ($url === FALSE) {
 			$msg = sprintf('InterWikiName "%s" not found', $inter);
-			$msg = htmlspecialchars($msg);
+			$msg = $this->func->htmlspecialchars($msg);
 			return array('msg'=>'Not found', 'body'=>$msg);
 		}
 

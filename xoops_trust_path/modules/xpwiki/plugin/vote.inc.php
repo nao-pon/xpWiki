@@ -203,9 +203,9 @@ class xpwiki_plugin_vote extends xpwiki_plugin {
 		. $count_label
 		. "<td align=\"left\" class=\"vote_label\" style=\"padding-left:1em;padding-right:1em\"><strong>{$this->msg['choice']}</strong>"
 		. "<input type=\"hidden\" name=\"plugin\" value=\"vote\" />\n"
-		. "<input type=\"hidden\" name=\"refer\" value=\"".htmlspecialchars($this->root->vars["page"])."\" />\n"
-		. "<input type=\"hidden\" name=\"vote_no\" value=\"".htmlspecialchars($vote_no[$this->xpwiki->pid])."\" />\n"
-		. "<input type=\"hidden\" name=\"digest\" value=\"".htmlspecialchars($this->root->digest)."\" />\n"
+		. "<input type=\"hidden\" name=\"refer\" value=\"".$this->func->htmlspecialchars($this->root->vars["page"])."\" />\n"
+		. "<input type=\"hidden\" name=\"vote_no\" value=\"".$this->func->htmlspecialchars($vote_no[$this->xpwiki->pid])."\" />\n"
+		. "<input type=\"hidden\" name=\"digest\" value=\"".$this->func->htmlspecialchars($this->root->digest)."\" />\n"
 		. "</td>\n"
 		. "<td align=\"center\" class=\"vote_label\"><strong>{$this->msg['votes']}</strong></td>\n"
 		. "</tr>\n";
@@ -228,7 +228,7 @@ class xpwiki_plugin_vote extends xpwiki_plugin {
 			
 			$string .= "<tr>".$cnt_tag
 				.  "<td align=\"left\" class=\"$cls\" style=\"padding-left:1em;padding-right:1em;\">$link</td>"
-			.  "<td align=\"right\" class=\"$cls\" nowrap=\"nowrap\">$cnt&nbsp;&nbsp;<input type=\"submit\" name=\"vote_".htmlspecialchars($e_arg)."\" value=\"{$this->msg['votes']}\" class=\"submit\"{$readonly} /></td>"
+			.  "<td align=\"right\" class=\"$cls\" nowrap=\"nowrap\">$cnt&nbsp;&nbsp;<input type=\"submit\" name=\"vote_".$this->func->htmlspecialchars($e_arg)."\" value=\"{$this->msg['votes']}\" class=\"submit\"{$readonly} /></td>"
 			.  "</tr>\n";
 			$line ++;
 		}

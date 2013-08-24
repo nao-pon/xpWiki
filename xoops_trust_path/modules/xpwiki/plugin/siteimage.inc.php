@@ -110,7 +110,7 @@ class xpwiki_plugin_siteimage extends xpwiki_plugin {
 			$url = 'http://' . $url;
 		}
 		
-		$target = htmlspecialchars($prms['target']);
+		$target = $this->func->htmlspecialchars($prms['target']);
 		$nolink = $prms['nolink'];
 		$thumburl = $this->fetch_url . $url;
 		
@@ -161,7 +161,7 @@ class xpwiki_plugin_siteimage extends xpwiki_plugin {
 		}
 		
 		$cache_url = str_replace($this->cont['DATA_HOME'], $this->cont['HOME_URL'], $thumb_file);
-		$url = htmlspecialchars($url);
+		$url = $this->func->htmlspecialchars($url);
 		$title = preg_replace('#^https?://#i', '', $url);
 		$ret = "<img src=\"".$cache_url."\" width=\"{$thumb_size['width']}\" height=\"{$thumb_size['height']}\" alt=\"{$title}\">";
 		if (!$nolink)

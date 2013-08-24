@@ -26,7 +26,7 @@ class xpwiki_plugin_source extends xpwiki_plugin {
 	
 		return array('msg' => $this->root->_source_messages['msg_title'],
 		'body' => '<pre id="source">' .
-		htmlspecialchars($this->func->get_source($page, TRUE, TRUE)) . '</pre>');
+		$this->func->htmlspecialchars($this->func->get_source($page, TRUE, TRUE)) . '</pre>');
 	}
 }
 ?>

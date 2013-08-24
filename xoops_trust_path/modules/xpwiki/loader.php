@@ -497,7 +497,7 @@ if ($type === 'js' || $type === 'css' || is_file($src_file)) {
 function xpwiki_make_facemarks (& $wiki, $skin_dirname, $cache, $face_tag_ver) {
 	$fck_face = $tags_full = $tags = array();
 	foreach($wiki->root->wikihelper_facemarks as $key => $img) {
-		$key = htmlspecialchars($key, ENT_QUOTES);
+		$key = $wiki->func->htmlspecialchars($key, ENT_QUOTES);
 		$q_key = str_replace("'", "\\'", $key);
 		if ($img{0} === '*') {
 			$img = substr($img, 1);

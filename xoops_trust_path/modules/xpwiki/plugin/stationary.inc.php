@@ -43,7 +43,7 @@ class xpwiki_plugin_stationary extends xpwiki_plugin {
 			$result = join(',', $args);
 		}
 	
-		return '#stationary(' . htmlspecialchars($result) . ')<br />';
+		return '#stationary(' . $this->func->htmlspecialchars($result) . ')<br />';
 	}
 	
 	// In-line type plugin: &stationary; or &stationary(foo); , or &stationary(foo){bar};
@@ -59,7 +59,7 @@ class xpwiki_plugin_stationary extends xpwiki_plugin {
 			$args[$key] = trim($args[$key]);
 		$result = join(',', $args);
 	
-		return '&amp;stationary(' . htmlspecialchars($result) . '){' . $body . '};';
+		return '&amp;stationary(' . $this->func->htmlspecialchars($result) . '){' . $body . '};';
 	}
 	
 	// Action-type plugin: ?plugin=stationary&foo=bar

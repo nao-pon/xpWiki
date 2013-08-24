@@ -44,9 +44,9 @@ class xpwiki_plugin_insert extends xpwiki_plugin {
 			$title = $this->root->_title_collided;
 			$body = $this->root->_msg_collided . "\n";
 	
-			$s_refer  = htmlspecialchars($this->root->vars['refer']);
-			$s_digest = htmlspecialchars($this->root->vars['digest']);
-			$s_postdata_input = htmlspecialchars($postdata_input);
+			$s_refer  = $this->func->htmlspecialchars($this->root->vars['refer']);
+			$s_digest = $this->func->htmlspecialchars($this->root->vars['digest']);
+			$s_postdata_input = $this->func->htmlspecialchars($postdata_input);
 			$script = $this->func->get_script_uri();
 			$body .= <<<EOD
 <form action="{$script}?cmd=preview" method="post">
@@ -84,8 +84,8 @@ EOD;
 	
 		$insert_no = $numbers[$this->xpwiki->pid][$this->root->vars['page']]++;
 	
-		$s_page   = htmlspecialchars($this->root->vars['page']);
-		$s_digest = htmlspecialchars($this->root->digest);
+		$s_page   = $this->func->htmlspecialchars($this->root->vars['page']);
+		$s_digest = $this->func->htmlspecialchars($this->root->digest);
 		$s_cols = $this->cont['INSERT_COLS'];
 		$s_rows = $this->cont['INSERT_ROWS'];
 		$script = $this->func->get_script_uri();

@@ -95,9 +95,9 @@ EOD;
 			if ( $btn_name == $this->msg['btn_name'] ) {
 				$btn_name  = $this->msg['btn_name_collect'];
 			}
-			$s_page	  = htmlspecialchars($page);
-			$s_refer  = htmlspecialchars($collect);
-			$s_digest = htmlspecialchars($this->root->digest);
+			$s_page	  = $this->func->htmlspecialchars($page);
+			$s_refer  = $this->func->htmlspecialchars($collect);
+			$s_digest = $this->func->htmlspecialchars($this->root->digest);
 			$script = $this->func->get_script_uri();
 			return <<<EOD
 <div style="margin:0px auto 0px 0px;text-align:left;" title="collect">
@@ -651,7 +651,7 @@ EOD;
 		$oldpagesrc = $this->func->remove_pginfo($oldpagesrc);
 
 		if ($oldpagemd5 != $this->root->vars['digest']) {
-			$retvars['msg'] = str_replace('$1',htmlspecialchars($this->func->strip_bracket($this->root->vars['page'])),$this->root->_title_collided);
+			$retvars['msg'] = str_replace('$1',$this->func->htmlspecialchars($this->func->strip_bracket($this->root->vars['page'])),$this->root->_title_collided);
 			$retvars['body'] = str_replace('$1',$this->func->make_pagelink($this->root->vars['page']),$this->msg['msg__collided']);
 			$retvars['body'] .= "<p>|--> ".$this->func->make_pagelink($this->root->vars['page'])."</p>";
 
@@ -672,7 +672,7 @@ EOD;
 			}
 
 			$retvars['msg'] = $this->root->_title_deleted;
-			$retvars['body'] = str_replace('$1',htmlspecialchars($refer),$this->root->_title_deleted);
+			$retvars['body'] = str_replace('$1',$this->func->htmlspecialchars($refer),$this->root->_title_deleted);
 			$this->func->tb_delete($refer);
 		}
 
@@ -689,13 +689,13 @@ EOD;
 		$checked_time = array_key_exists('notimestamp',$this->root->vars) ? ' checked="checked"' : '';
 
 		$r_page	  = rawurlencode($page);
-		$s_page	  = htmlspecialchars($page);
+		$s_page	  = $this->func->htmlspecialchars($page);
 		$r_digest = rawurlencode($digest);
-		$s_digest = htmlspecialchars($digest);
-		$s_postdata_input = htmlspecialchars(str_replace("&br;","\n",$postdata_input));
-		$s_headdata = htmlspecialchars( $headdata );
-		$s_taildata = htmlspecialchars( $taildata );
-		$s_original = array_key_exists('original',$this->root->vars) ? htmlspecialchars($this->root->vars['original']) : $s_headdata . $s_postdata_input . $s_taildata;
+		$s_digest = $this->func->htmlspecialchars($digest);
+		$s_postdata_input = $this->func->htmlspecialchars(str_replace("&br;","\n",$postdata_input));
+		$s_headdata = $this->func->htmlspecialchars( $headdata );
+		$s_taildata = $this->func->htmlspecialchars( $taildata );
+		$s_original = array_key_exists('original',$this->root->vars) ? $this->func->htmlspecialchars($this->root->vars['original']) : $s_headdata . $s_postdata_input . $s_taildata;
 		$b_preview = array_key_exists('preview',$this->root->vars); // プレビュー中TRUE
 		$btn_preview = $b_preview ? $this->root->_btn_repreview : $this->root->_btn_preview;
 		$timestamp_tag = ($this->root->userinfo['admin'] || (($this->root->userinfo['uid'] == $this->func->get_pg_auther($this->root->vars['page'])) && $this->root->userinfo['uid']))?

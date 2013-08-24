@@ -23,12 +23,12 @@ class xpwiki_plugin_color extends xpwiki_plugin {
 	//	global $pkwk_dtd;
 	
 		$args = func_get_args();
-		$text = $this->func->strip_autolink(array_pop($args)); // Already htmlspecialchars(text)
+		$text = $this->func->strip_autolink(array_pop($args)); // Already $this->func->htmlspecialchars(text)
 	
 		list($color, $bgcolor) = array_pad($args, 2, '');
 		if ($color != '' && $bgcolor != '' && $text == '') {
 			// Maybe the old style: '&color(foreground,text);'
-			$text    = htmlspecialchars($bgcolor);
+			$text    = $this->func->htmlspecialchars($bgcolor);
 			$bgcolor = '';
 		}
 		if (($color == '' && $bgcolor == '') || $text == '' || func_num_args() > 3)
@@ -37,7 +37,7 @@ class xpwiki_plugin_color extends xpwiki_plugin {
 		// Invalid color
 		foreach(array($color, $bgcolor) as $col){
 			if ($col != '' && ! preg_match($this->cont['PLUGIN_COLOR_REGEX'], $col))
-				return '&color():Invalid color: ' . htmlspecialchars($col) . ';';
+				return '&color():Invalid color: ' . $this->func->htmlspecialchars($col) . ';';
 		}
 	
 		if ($this->cont['PLUGIN_COLOR_ALLOW_CSS'] === TRUE || ! isset($this->root->pkwk_dtd) || $this->root->pkwk_dtd == $this->cont['PKWK_DTD_XHTML_1_1']) {

@@ -529,7 +529,7 @@ class xpwiki_plugin_attach extends xpwiki_plugin {
 		$allow_extensions = $this->get_allow_extensions();
 		if (empty($options['asSystem']) && !$overwrite && $allow_extensions && !$this->func->is_owner($page)
 			 && !preg_match("/\.(".join("|",$allow_extensions).")$/i",$fname)) {
-			return array('result'=>FALSE,'msg'=>str_replace('$1',htmlspecialchars(preg_replace('/.*\.([^.]*)$/',"$1",$fname)),$this->root->_attach_messages['err_extension']));
+			return array('result'=>FALSE,'msg'=>str_replace('$1',$this->func->htmlspecialchars(preg_replace('/.*\.([^.]*)$/',"$1",$fname)),$this->root->_attach_messages['err_extension']));
 		}
 
 		$_size = @ getimagesize($tmpname);
@@ -614,7 +614,7 @@ class xpwiki_plugin_attach extends xpwiki_plugin {
 
 		if ($this->func->is_page($page)) {
 			if (!$notouch) {
-				if (!$changelog) $changelog = 'Attached file: ' . htmlspecialchars($obj->file);
+				if (!$changelog) $changelog = 'Attached file: ' . $this->func->htmlspecialchars($obj->file);
 				$this->root->rtf['page_touch'][$page][] = $changelog;
 			}
 			$this->func->clear_page_cache($page);
@@ -674,13 +674,13 @@ class xpwiki_plugin_attach extends xpwiki_plugin {
 		$prm = '';
 		if (!empty($this->root->vars['make_thumb']) && $imagesize) {
 			if (!empty($this->root->vars['thumb_r'])) {
-				$prm = ','.htmlspecialchars((int)$this->root->vars['thumb_r']).'%';
+				$prm = ','.$this->func->htmlspecialchars((int)$this->root->vars['thumb_r']).'%';
 			} else {
 				if (!empty($this->root->vars['thumb_w'])) {
-					$prm = ',mw:'.htmlspecialchars((int)$this->root->vars['thumb_w']);
+					$prm = ',mw:'.$this->func->htmlspecialchars((int)$this->root->vars['thumb_w']);
 				}
 				if (!empty($this->root->vars['thumb_h'])) {
-					$prm .= ',mh:'.htmlspecialchars((int)$this->root->vars['thumb_h']);
+					$prm .= ',mh:'.$this->func->htmlspecialchars((int)$this->root->vars['thumb_h']);
 				}
 			}
 		}
@@ -974,7 +974,7 @@ class xpwiki_plugin_attach extends xpwiki_plugin {
 		$this->root->pagecache_profiles = 'default';
 
 		if ($this->cont['ATTACH_UPLOAD_EDITER_ONLY'] && ! $this->func->check_editable($page, false, false)) {
-			return str_replace('$1', htmlspecialchars($page), $this->root->_attach_messages['msg_noupload']);
+			return str_replace('$1', $this->func->htmlspecialchars($page), $this->root->_attach_messages['msg_noupload']);
 		}
 
 		// Use fileuploader.js
@@ -993,7 +993,7 @@ class xpwiki_plugin_attach extends xpwiki_plugin {
 
 		// refid »ØÄê
 		$_refid = (!empty($this->root->vars['refid']))? $this->root->vars['refid'] : '';
-		$refid = ($_refid)? '<input type="hidden" name="refid" value="'.htmlspecialchars($_refid).'" />' : '';
+		$refid = ($_refid)? '<input type="hidden" name="refid" value="'.$this->func->htmlspecialchars($_refid).'" />' : '';
 
 		$thumb_px = $this->cont['ATTACH_CONFIG_REF_THUMB'];
 		$thumb = (!empty($this->root->vars['refid']) && !empty($this->root->vars['thumb']))?
@@ -1003,10 +1003,10 @@ class xpwiki_plugin_attach extends xpwiki_plugin {
 			'W:<input type="text" name="thumb_w" size="3" value="'.$thumb_px.'" /> x ' .
 			'H:<input type="text" name="thumb_h" size="3" value="'.$thumb_px.'" />(Max)</p>' : '';
 		$_filename = (!empty($this->root->vars['filename']))? $this->root->vars['filename'] : '';
-		$filename = ($_filename)? '<input type="hidden" name="filename" value="'.htmlspecialchars($this->root->vars['filename']).'" />' : '';
+		$filename = ($_filename)? '<input type="hidden" name="filename" value="'.$this->func->htmlspecialchars($this->root->vars['filename']).'" />' : '';
 
 		$r_page = rawurlencode($page);
-		$s_page = htmlspecialchars($page);
+		$s_page = $this->func->htmlspecialchars($page);
 		$is_popup = isset($this->root->vars['popup']);
 
 		$target = '';
@@ -1021,7 +1021,7 @@ class xpwiki_plugin_attach extends xpwiki_plugin {
 		}
 
 		$_returi = (!empty($this->root->vars['returi']))? $this->root->vars['returi'] : '';
-		$returi = ($_returi)? '<input type="hidden" name="returi" value="'.htmlspecialchars($this->root->vars['returi']).'" />' : '';
+		$returi = ($_returi)? '<input type="hidden" name="returi" value="'.$this->func->htmlspecialchars($this->root->vars['returi']).'" />' : '';
 		
 		$navi = '';
 		if (! $is_popup) {
@@ -1343,7 +1343,7 @@ EOD;
 		if (!empty($this->root->vars['to'])) {
 			if ($to = $this->func->cache_get_db($this->root->vars['to'], 'attach:to')) {
 				$url = $this->root->siteinfo['host'] . $to;
-				$s_url = str_replace('&amp;', '&', htmlspecialchars($url));
+				$s_url = str_replace('&amp;', '&', $this->func->htmlspecialchars($url));
 				// clear output buffer
 				$this->func->clear_output_buffer();
 				$output = <<<EOD

@@ -180,7 +180,7 @@ class XpWikiPukiWikiFunc extends XpWikiBaseFunc {
 		if ($this->root->vars['cmd'] === 'edit' && isset($this->root->vars['esummary'])) {
 			$esummary = $this->root->vars['esummary'];
 			$esummary = str_replace(array("\r", "\n", "\t"), ' ', $esummary);
-			$esummary = htmlspecialchars($esummary);
+			$esummary = $this->htmlspecialchars($esummary);
 		} else {
 			if (! empty($this->root->rtf['esummary'])) {
 				$esummary = $this->root->rtf['esummary'];
@@ -252,7 +252,7 @@ class XpWikiPukiWikiFunc extends XpWikiBaseFunc {
 			$pginfo['lastucd'] = $this->root->userinfo['ucd'];
 			$pginfo['lastuname'] = $this->root->userinfo['uname_s'];
 			if ($this->root->cookie['name'] && $this->root->userinfo['uname'] !== $this->root->cookie['name']) {
-				$pginfo['lastuname'] = htmlspecialchars($this->root->cookie['name']);
+				$pginfo['lastuname'] = $this->htmlspecialchars($this->root->cookie['name']);
 				if ($mode === 'insert') {
 					$pginfo['uname'] = $pginfo['lastuname'];
 				}
@@ -260,7 +260,7 @@ class XpWikiPukiWikiFunc extends XpWikiBaseFunc {
 					$pginfo['lastuname'] .= '('.$pginfo['lastuname'].')';
 				}
 			}
-			$pginfo['lastuname'] = htmlspecialchars($pginfo['lastuname']);
+			$pginfo['lastuname'] = $this->htmlspecialchars($pginfo['lastuname']);
 			if (! is_null($pgorder)) $pginfo['pgorder'] = $pgorder;
 			$pginfo['esummary'] = $esummary;
 			$pginfo_str = '#pginfo('.join("\t",$pginfo).')'."\n";
@@ -655,7 +655,7 @@ class XpWikiPukiWikiFunc extends XpWikiBaseFunc {
 		// File replacement (Edit)
 
 		if (! $this->is_pagename($page))
-			$this->die_message(str_replace('$1', htmlspecialchars($page),
+			$this->die_message(str_replace('$1', $this->htmlspecialchars($page),
 			            str_replace('$2', 'WikiName', $this->root->_msg_invalidiwn)));
 
 		$str = rtrim(preg_replace('/' . "\r" . '/', '', $str)) . "\n";
@@ -663,12 +663,12 @@ class XpWikiPukiWikiFunc extends XpWikiBaseFunc {
 
 		if (! HypCommonFunc::flock_put_contents($file, $str)) {
 			die('fopen() failed: ' .
-			htmlspecialchars(basename($dir) . '/' . $this->encode($page) . '.txt') .
+			$this->htmlspecialchars(basename($dir) . '/' . $this->encode($page) . '.txt') .
 			'<br />' . "\n" .
 			'Maybe permission is not writable or filename is too long');
 		}
 //		$fp = fopen($file, 'a') or die('fopen() failed: ' .
-//			htmlspecialchars(basename($dir) . '/' . $this->encode($page) . '.txt') .
+//			$this->htmlspecialchars(basename($dir) . '/' . $this->encode($page) . '.txt') .
 //			'<br />' . "\n" .
 //			'Maybe permission is not writable or filename is too long');
 //		set_file_buffer($fp, 0);
@@ -722,7 +722,7 @@ class XpWikiPukiWikiFunc extends XpWikiBaseFunc {
 
 		// Add
 		array_unshift($lines, '-' . $this->format_date($this->cont['UTIME']) . ' - ' . $_page .
-			htmlspecialchars($subject) . "\n");
+			$this->htmlspecialchars($subject) . "\n");
 
 		// Get latest $limit reports
 		$lines = array_splice($lines, 0, $limit);
@@ -1016,7 +1016,7 @@ class XpWikiPukiWikiFunc extends XpWikiBaseFunc {
 
 		// Check owner
 		$stat = stat($filename) or
-			die('pkwk_chown(): stat() failed for: '  . basename(htmlspecialchars($filename)));
+			die('pkwk_chown(): stat() failed for: '  . basename($this->htmlspecialchars($filename)));
 		if ($stat[4] === $php_uid) {
 			// NOTE: Windows always here
 			$result = TRUE; // Seems the same UID. Nothing to do
@@ -1033,10 +1033,10 @@ class XpWikiPukiWikiFunc extends XpWikiBaseFunc {
 			if ($donot) {
 				if (filemtime($tmp) + 30 < time()) {
 					if (! @ unlink($tmp)) {
-						die('pkwk_chown(): failed. Not writable a flie. "'.basename(htmlspecialchars($tmp)).'"');
+						die('pkwk_chown(): failed. Not writable a flie. "'.basename($this->htmlspecialchars($tmp)).'"');
 					}
 				} else {
-					die('pkwk_chown(): failed. Already exists "'.basename(htmlspecialchars($tmp)).'"');
+					die('pkwk_chown(): failed. Already exists "'.basename($this->htmlspecialchars($tmp)).'"');
 				}
 			}
 
@@ -1045,7 +1045,7 @@ class XpWikiPukiWikiFunc extends XpWikiBaseFunc {
 			// NOTE: Not 'r+'. Don't check write permission here
 			$ffile = fopen($filename, 'r') or
 				die('pkwk_chown(): fopen() failed for: ' .
-					basename(htmlspecialchars($filename)));
+					basename($this->htmlspecialchars($filename)));
 
 			// Try to chown by re-creating files
 			// NOTE:
@@ -1068,7 +1068,7 @@ class XpWikiPukiWikiFunc extends XpWikiBaseFunc {
 				fclose($ffile);
 				@unlink($tmp);
 				die('pkwk_chown(): flock() failed for: ' .
-					basename(htmlspecialchars($filename)));
+					basename($this->htmlspecialchars($filename)));
 			}
 		}
 
@@ -1090,7 +1090,7 @@ class XpWikiPukiWikiFunc extends XpWikiBaseFunc {
 			return $result;
 		} else {
 			die('pkwk_touch_file(): Invalid UID and (not writable for the directory or not a flie): ' .
-				htmlspecialchars(basename($filename)));
+				$this->htmlspecialchars(basename($filename)));
 		}
 	}
 //----- End file.php -----//
@@ -1495,12 +1495,12 @@ class XpWikiPukiWikiFunc extends XpWikiBaseFunc {
 			return FALSE;
 		} else {
 			$fp = fopen($this->get_filename($page), 'rb') or
-				die('is_freeze(): fopen() failed: ' . htmlspecialchars($page));
+				die('is_freeze(): fopen() failed: ' . $this->htmlspecialchars($page));
 			flock($fp, LOCK_SH);
 			rewind($fp);
 			$buffer = fgets($fp, 9);
 			flock($fp, LOCK_UN);
-			fclose($fp) or die('is_freeze(): fclose() failed: ' . htmlspecialchars($page));
+			fclose($fp) or die('is_freeze(): fclose() failed: ' . $this->htmlspecialchars($page));
 
 			$is_freeze[$this->root->mydirname][$page] = ($buffer !== FALSE && rtrim($buffer, "\r\n") === '#freeze');
 			return $is_freeze[$this->root->mydirname][$page];
@@ -1613,7 +1613,7 @@ class XpWikiPukiWikiFunc extends XpWikiBaseFunc {
 				$char = mb_substr($word_nm, $pos, 1, $this->cont['SOURCE_ENCODING']);
 
 				// Just normalized one? (ASCII char or Zenkaku-Katakana?)
-				$or = array(preg_quote($do_escape ? htmlspecialchars($char) : $char, $quote));
+				$or = array(preg_quote($do_escape ? $this->htmlspecialchars($char) : $char, $quote));
 				if (strlen($char) === 1) {
 					// An ASCII (single-byte) character
 					foreach (array(strtoupper($char), strtolower($char)) as $_char) {
@@ -1690,7 +1690,7 @@ class XpWikiPukiWikiFunc extends XpWikiBaseFunc {
 		if ($non_format) return array_keys($pages);
 
 		$r_word = rawurlencode($word);
-		$s_word = htmlspecialchars($word);
+		$s_word = $this->htmlspecialchars($word);
 		if (empty($pages))
 			return str_replace('$1', $s_word, $this->root->_msg_notfoundresult);
 
@@ -1699,7 +1699,7 @@ class XpWikiPukiWikiFunc extends XpWikiBaseFunc {
 		$retval = '<ul class="list1">' . "\n";
 		foreach (array_keys($pages) as $page) {
 			$r_page  = rawurlencode($page);
-			$s_page  = htmlspecialchars($page);
+			$s_page  = $this->htmlspecialchars($page);
 			$passage = $this->root->show_passage ? ' ' . $this->get_passage($this->get_filetime($page)) : '';
 			$retval .= ' <li><a href="' . $this->root->script . '?' .
 				$r_page . '&amp;word=' . $r_word . '">' . $s_page .
@@ -1789,15 +1789,15 @@ class XpWikiPukiWikiFunc extends XpWikiBaseFunc {
 
 		foreach($pages as $file=>$page) {
 			$r_page  = ($cmd === 'read' && $this->root->static_url)? $this->get_page_uri($page) : rawurlencode($page);
-			$s_page  = htmlspecialchars($page, ENT_QUOTES);
+			$s_page  = $this->htmlspecialchars($page, ENT_QUOTES);
 			$passage = $this->get_pg_passage($page);
-			$title = (empty($titles[$page]))? '' : ' [ ' . htmlspecialchars($titles[$page]) . ' ]';
+			$title = (empty($titles[$page]))? '' : ' [ ' . $this->htmlspecialchars($titles[$page]) . ' ]';
 
 			$str = '   <li><a href="' . $href . $r_page . '">' .
 				$s_page . '</a>' . $passage . $title;
 
 			if ($withfilename) {
-				$s_file = htmlspecialchars($file);
+				$s_file = $this->htmlspecialchars($file);
 				$str .= "\n" . '    <ul class="list3"><li>' . $s_file . '</li></ul>' .
 					"\n" . '   ';
 			}
@@ -1871,7 +1871,7 @@ class XpWikiPukiWikiFunc extends XpWikiBaseFunc {
 	function catrule()
 	{
 		if (! $this->is_page($this->root->rule_page)) {
-			return '<p>Sorry, page \'' . htmlspecialchars($this->root->rule_page) .
+			return '<p>Sorry, page \'' . $this->htmlspecialchars($this->root->rule_page) .
 				'\' unavailable.</p>';
 		} else {
 			return $this->convert_html($this->get_source($this->root->rule_page));
@@ -2326,7 +2326,7 @@ EOD;
 		static $popup_pos = array();
 
 		$_page = $page;
-		$s_page = htmlspecialchars($this->strip_bracket($page));
+		$s_page = $this->htmlspecialchars($this->strip_bracket($page));
 
 		if ($this->root->page_case_insensitive) {
 			$this->get_pagename_realcase($page);
@@ -2363,14 +2363,14 @@ EOD;
 			$s_alias = ($this->root->pagename_num2str && $this->is_page($page)) ? preg_replace('/\/(?:[0-9\-]+|[B0-9][A-Z0-9]{9})$/', '/'.str_replace('/', '&#47;', $this->get_heading($page)), $s_page) : $s_page;
 		}
 		if ($compact_base) {
-			$s_alias = preg_replace('/^'.preg_quote(htmlspecialchars($compact_base).'/', '/').'/', '', $s_alias);
+			$s_alias = preg_replace('/^'.preg_quote($this->htmlspecialchars($compact_base).'/', '/').'/', '', $s_alias);
 		}
 		if ($this->root->hierarchy_insert) {
 			$s_alias = preg_replace('#((?:^|\G|>)[^<]*?)/#', '$1' . $this->root->hierarchy_insert . '/', $s_alias);
 		}
 
 		// Remake
-		$s_page = htmlspecialchars($page);
+		$s_page = $this->htmlspecialchars($page);
 
 		// Anchor only
 		if ($page === '') return '<a href="' . $anchor . '" class="'.$class.'">' . $s_alias . '</a>';
@@ -2391,7 +2391,7 @@ EOD;
 					if ($compact_base && $compact_base === $_landing) {
 						break;
 					}
-					$element = htmlspecialchars(array_pop($parts));
+					$element = $this->htmlspecialchars(array_pop($parts));
 					$topic_path[] = $this->make_pagelink($_landing, $element);
 				}
 				if ($topic_path) {
@@ -2432,8 +2432,8 @@ EOD;
 				}
 				$options['popup']['position'] = $popup_pos[$this->root->mydirname];
 			}
-			$onclick = ' onclick="return XpWiki.pagePopup({dir:\'' . htmlspecialchars($this->root->mydirname, ENT_QUOTES) .
-			'\',page:\'' . htmlspecialchars(str_replace('\'', '\\\'', $page) . $anchor) . '\'' .
+			$onclick = ' onclick="return XpWiki.pagePopup({dir:\'' . $this->htmlspecialchars($this->root->mydirname, ENT_QUOTES) .
+			'\',page:\'' . $this->htmlspecialchars(str_replace('\'', '\\\'', $page) . $anchor) . '\'' .
 			$options['popup']['position'] . '});"';
 			$class .= '_popup';
 		}
@@ -2467,7 +2467,7 @@ EOD;
 			// Dangling link
 			if ($this->cont['PKWK_READONLY'] === 1 || ! $this->check_editable($page,false,false)) return $s_alias; // No dacorations
 
-			$title = htmlspecialchars(str_replace('$1', $page, $this->root->_title_edit));
+			$title = $this->htmlspecialchars(str_replace('$1', $page, $this->root->_title_edit));
 			$retval = $basepath  . '<!--NA-->' . $s_alias . '<!--/NA--><a href="' .
 				$this->root->script . '?cmd=edit&amp;page=' . $r_page . $r_refer . '" class="' . $class . '" title="' . $title . '"' . $onclick . '>' .
 				$this->root->_symbol_noexists . '</a>';
@@ -3027,7 +3027,7 @@ EOD;
 			} else {
 				// With exit
 				$body = $title = str_replace('$1',
-					htmlspecialchars($this->strip_bracket($page)), $this->root->_title_cannotedit);
+					$this->htmlspecialchars($this->strip_bracket($page)), $this->root->_title_cannotedit);
 				if ($this->is_freeze($page))
 					$body .= '(<a href="' . $this->root->script . '?cmd=unfreeze&amp;page=' .
 						rawurlencode($page) . '">' . $this->root->_msg_unfreeze . '</a>)';
@@ -3110,7 +3110,7 @@ EOD;
 				}
 				if ($exit_flag) {
 					$body = $title = str_replace('$1',
-						htmlspecialchars($this->strip_bracket($page)), $title_cannot);
+						$this->htmlspecialchars($this->strip_bracket($page)), $title_cannot);
 					$page = str_replace('$1', $this->make_search($page), $title_cannot);
 					$this->catbody($title, $page, $body);
 					exit;
@@ -3183,7 +3183,7 @@ EOD;
 			$body = preg_replace("/\n*$/", "\n", $body);
 
 			$fp = $this->_backup_fopen($page, 'wb')
-				or $this->die_message('Cannot open ' . htmlspecialchars($this->_backup_get_filename($page)) .
+				or $this->die_message('Cannot open ' . $this->htmlspecialchars($this->_backup_get_filename($page)) .
 				'<br />Maybe permission is not writable or filename is too long');
 			$this->_backup_fputs($fp, $strout);
 			$this->_backup_fputs($fp, $body);
@@ -3306,7 +3306,7 @@ EOD;
 				$this->root->do_update_diff_table .= '<tr>';
 				$params = array($_obj->get('left'), $_obj->get('right'), $_obj->text());
 				foreach ($params as $key=>$text) {
-					$text = htmlspecialchars($text);
+					$text = $this->htmlspecialchars($text);
 					if (trim($text) === '') $text = '&nbsp;';
 					$this->root->do_update_diff_table .= '<' . $tags[$key] .
 						' class="style_' . $tags[$key] . '">' . $text .
@@ -3398,7 +3398,7 @@ EOD;
 		// Set skin functions
 		$navigator = create_function('&$this, $key, $value = \'\', $javascript = \'\', $withIcon = FALSE, $x = 20, $y = 20',    'return XpWikiFunc::skin_navigator($this, $key, $value, $javascript, $withIcon, $x, $y);');
 		$toolbar   = create_function('&$this, $key, $x = 20, $y = 20, $javascript = \'\'', 'return XpWikiFunc::skin_toolbar($this, $key, $x, $y, $javascript);');
-		$ajax_edit_js = ($this->root->use_ajax_edit)? ' onclick="return xpwiki_ajax_edit(\''.htmlspecialchars($r_page, ENT_QUOTES).'\');"' : '';
+		$ajax_edit_js = ($this->root->use_ajax_edit)? ' onclick="return xpwiki_ajax_edit(\''.$this->htmlspecialchars($r_page, ENT_QUOTES).'\');"' : '';
 
 		// Set $_LINK for skin
 		$_LINK['add']      = "{$this->root->script}?cmd=add&amp;page=$r_page#{$this->root->mydirname}_header";
@@ -3547,7 +3547,7 @@ EOD;
 		// Search words
 		if ($this->root->search_word_color && isset($this->root->vars['word'])) {
 			$body = '<div class="small">' . $this->root->_msg_word
-			      . preg_replace('/&amp;#(\d+;)/', '&#$1', htmlspecialchars($this->root->vars['word']))
+			      . preg_replace('/&amp;#(\d+;)/', '&#$1', $this->htmlspecialchars($this->root->vars['word']))
 			      . '</div>' . $this->root->hr . "\n" . $body;
 
 			list($body, $notes) = $this->word_highlight(array($body, $notes), $this->root->vars['word']);
@@ -3591,7 +3591,7 @@ EOD;
 			foreach($this->get_existpages() as $_page) {
 				if ($_page === $this->root->whatsnew || $this->check_non_list($_page))
 					continue;
-				$s_page = htmlspecialchars($_page);
+				$s_page = $this->htmlspecialchars($_page);
 				$pages[$_page] = '   <option value="' . $s_page . '">' .
 				$s_page . '</option>';
 			}
@@ -3612,8 +3612,8 @@ EOD;
 		}
 
 		$r_page      = rawurlencode($page);
-		$s_page      = htmlspecialchars($page);
-		$s_id        = isset($this->root->vars['paraid']) ? htmlspecialchars($this->root->vars['paraid']) : '';
+		$s_page      = $this->htmlspecialchars($page);
+		$s_id        = isset($this->root->vars['paraid']) ? $this->htmlspecialchars($this->root->vars['paraid']) : '';
 
 		if (!$s_id) {
 			if (isset($_COOKIE['_xweop'])) {
@@ -3626,14 +3626,14 @@ EOD;
 
 			// Othor options
 			if (!empty($this->root->rtf['preview'])) {
-				$pgtitle_str = isset($this->root->vars['pgtitle'])? htmlspecialchars($this->root->vars['pgtitle']) : '';
-				$reading_str = isset($this->root->vars['reading'])? htmlspecialchars($this->root->vars['reading']) : '';
-				$alias_str = isset($this->root->vars['alias'])? htmlspecialchars($this->root->vars['alias']) : '';
+				$pgtitle_str = isset($this->root->vars['pgtitle'])? $this->htmlspecialchars($this->root->vars['pgtitle']) : '';
+				$reading_str = isset($this->root->vars['reading'])? $this->htmlspecialchars($this->root->vars['reading']) : '';
+				$alias_str = isset($this->root->vars['alias'])? $this->htmlspecialchars($this->root->vars['alias']) : '';
 				$order_val = isset($this->root->vars['pgorder'])? floatval($this->root->vars['pgorder']) : 1;
 			} else {
 				$pgtitle_str = $this->extract_pgtitle($postdata);
-				$reading_str = htmlspecialchars($this->get_page_reading($page));
-				$alias_str = htmlspecialchars($this->get_page_alias($page, false, false, 'relative'));
+				$reading_str = $this->htmlspecialchars($this->get_page_reading($page));
+				$alias_str = $this->htmlspecialchars($this->get_page_alias($page, false, false, 'relative'));
 				$order_val = floatval($this->get_page_order($page));
 			}
 
@@ -3671,9 +3671,9 @@ EOD;
 		}
 
 		$originalkey = '';
-		$s_postdata  = htmlspecialchars($refer . $postdata);
-		$originalkey = htmlspecialchars((string)$this->root->vars['orgkey']);
-		$s_digest    = htmlspecialchars($digest);
+		$s_postdata  = $this->htmlspecialchars($refer . $postdata);
+		$originalkey = $this->htmlspecialchars((string)$this->root->vars['orgkey']);
+		$s_digest    = $this->htmlspecialchars($digest);
 		$b_preview   = isset($this->root->vars['preview']); // TRUE when preview
 		$btn_preview = $b_preview ? $this->root->_btn_repreview : $this->root->_btn_preview;
 
@@ -3681,8 +3681,8 @@ EOD;
 		if ($this->root->userinfo['uid']) {
 			$uname = '<input type="hidden" name="uname" value="'.$this->cont['USER_NAME_REPLACE'].'" />';
 		} else {
-			$_uname = (!empty($this->root->rtf['preview']) && isset($this->root->vars['uname']))? htmlspecialchars($this->root->vars['uname']) : $this->cont['USER_NAME_REPLACE'];
-			$_anonymous = (!empty($this->root->rtf['preview']) && !empty($this->root->vars['anonymous']))? htmlspecialchars($this->root->vars['anonymous']) : $this->root->cookie['name'];
+			$_uname = (!empty($this->root->rtf['preview']) && isset($this->root->vars['uname']))? $this->htmlspecialchars($this->root->vars['uname']) : $this->cont['USER_NAME_REPLACE'];
+			$_anonymous = (!empty($this->root->rtf['preview']) && !empty($this->root->vars['anonymous']))? $this->htmlspecialchars($this->root->vars['anonymous']) : $this->root->cookie['name'];
 			$_anonymous_checked = (!empty($this->root->vars['anonymous']))? ' checked="checked"' : '';
 			$uname = '<label for="_edit_form_uname"><span class="edit_form_title">'
 			       . $this->root->_btn_name . '</span></label>';
@@ -3706,14 +3706,14 @@ EOD;
 		}
 
 		// edit summary
-		$_esummary = (! empty($this->root->rtf['preview']) && isset($this->root->vars['esummary']))? htmlspecialchars($this->root->vars['esummary']) : '';
+		$_esummary = (! empty($this->root->rtf['preview']) && isset($this->root->vars['esummary']))? $this->htmlspecialchars($this->root->vars['esummary']) : '';
 		$esummary = '<div><label for="_edit_form_esummary"><span class="edit_form_title">' . $this->root->_btn_esummary . ':</span></label> <input type="text" name="esummary" id="_edit_form_esummary" value="' . $_esummary . '" size="60" />'.$twitter.'</div>';
 
 		// Q & A 認証
 		$riddle = '';
 		if (isset($options['riddle'])) {
 			$riddle = '<div><span class="edit_form_title">' . $this->root->_btn_riddle . '</span><br />' .
-				'&nbsp;&nbsp;<span class="edit_form_title">Q:</span> ' . htmlspecialchars($options['riddle']) . '<br />' .
+				'&nbsp;&nbsp;<span class="edit_form_title">Q:</span> ' . $this->htmlspecialchars($options['riddle']) . '<br />' .
 				'&nbsp;&nbsp;<span class="edit_form_title">A:</span> <input type="text" name="riddle'.md5($this->cont['HOME_URL'].$options['riddle']) .
 				'" size="30" value="" autocomplete="off" onkeyup="(function(e){if(e.value&&!$(\'edit_write_hidden\')){var w=document.createElement(\'input\');w.id=\'edit_write_hidden\';w.type=\'hidden\';w.name=\'write\';e.parentNode.appendChild(w);}})(this)" />' .
 				'</div>';
@@ -3746,7 +3746,7 @@ EOD;
 			$nonconvert = (empty($this->vars['nonconvert']))? '' : '<input type="hidden" name="nonconvert" value="1" />';
 			$enc_hint = '<input type="hidden" name="encode_hint" value="' . $this->cont['PKWK_ENCODING_HINT'] . '" />'
 			          . '<input type="hidden" name="charset" value="UTF-8" />';
-			$csrf_protect = isset($_SESSION['HYP_CSRF_TOKEN'])? '<input type="hidden" name="HypToken" value="'.htmlspecialchars($_SESSION['HYP_CSRF_TOKEN']).'" />' : '';
+			$csrf_protect = isset($_SESSION['HYP_CSRF_TOKEN'])? '<input type="hidden" name="HypToken" value="'.$this->htmlspecialchars($_SESSION['HYP_CSRF_TOKEN']).'" />' : '';
 			$attaches = '';
 			if ($s_id) {
 				$other_option = $template = $reading = $alias = $pageorder = '';
@@ -3769,7 +3769,7 @@ EOD;
 		if (isset($this->root->vars['help'])) {
 			$help = $this->root->hr . $this->catrule();
 		} else {
-			$sdir = htmlspecialchars($this->root->mydirname, ENT_QUOTES);
+			$sdir = $this->htmlspecialchars($this->root->mydirname, ENT_QUOTES);
 			$popup_pos = $this->get_popup_pos($this->root->page_popup_position);
 			$help = '<ul class="list1"><li><a class="pagelink_popup" href="' .
 				$this->root->script . '?cmd=edit&amp;help=true&amp;page=' . $r_page .
@@ -3948,7 +3948,7 @@ EOD;
 	// Make a backlink. searching-link of the page name, by the page name, for the page name
 	function make_search($page)
 	{
-		$s_page = htmlspecialchars($page);
+		$s_page = $this->htmlspecialchars($page);
 		$r_page = rawurlencode($page);
 
 		$title = sprintf($this->root->_title_backlink, $s_page);
@@ -4018,7 +4018,7 @@ EOD;
 		if (version_compare(PHP_VERSION, '4.3.0', '>=')) {
 			if (headers_sent($file, $line))
 			    die('Headers already sent at ' .
-			    	htmlspecialchars($file) .
+			    	$this->htmlspecialchars($file) .
 				' line ' . $line . '.');
 		} else {
 			if (headers_sent())
@@ -4087,7 +4087,7 @@ EOD;
 			break;
 		}
 
-		$charset = htmlspecialchars($charset);
+		$charset = $this->htmlspecialchars($charset);
 
 		// Output XML or not
 		if ($type === $this->cont['PKWK_DTD_TYPE_XHTML']) echo '<?xml version="1.0" encoding="' . $charset . '" ?>' . "\n";
@@ -4521,7 +4521,7 @@ EOD;
 			// ページが存在している
 			if (! empty($rel_new)) {
 	    			$fp = fopen($rel_file, 'w')
-	    				or $this->die_message('cannot write ' . htmlspecialchars($rel_file));
+	    				or $this->die_message('cannot write ' . $this->htmlspecialchars($rel_file));
 				fputs($fp, join("\t", $rel_new));
 				fclose($fp);
 			}
@@ -4598,7 +4598,7 @@ EOD;
 			$rel = array_unique($rel);
 			if (! empty($rel)) {
 				$fp = fopen($this->cont['CACHE_DIR'] . $this->encode($page) . '.rel', 'w')
-					or $this->die_message('cannot write ' . htmlspecialchars($this->cont['CACHE_DIR'] . $this->encode($page) . '.rel'));
+					or $this->die_message('cannot write ' . $this->htmlspecialchars($this->cont['CACHE_DIR'] . $this->encode($page) . '.rel'));
 				fputs($fp, join("\t", $rel));
 				fclose($fp);
 			}
@@ -4606,7 +4606,7 @@ EOD;
 
 		foreach ($ref as $page=>$arr) {
 			$fp  = fopen($this->cont['CACHE_DIR'] . $this->encode($page) . '.ref', 'w')
-				or $this->die_message('cannot write ' . htmlspecialchars($this->cont['CACHE_DIR'] . $this->encode($page) . '.ref'));
+				or $this->die_message('cannot write ' . $this->htmlspecialchars($this->cont['CACHE_DIR'] . $this->encode($page) . '.ref'));
 			foreach ($arr as $ref_page=>$ref_auto)
 				fputs($fp, $ref_page . "\t" . $ref_auto . "\n");
 			fclose($fp);
@@ -4635,7 +4635,7 @@ EOD;
 			}
 			if ($is_page || ! $all_auto) {
 				$fp = fopen($ref_file, 'w')
-					 or $this->die_message('cannot write ' . htmlspecialchars($ref_file));
+					 or $this->die_message('cannot write ' . $this->htmlspecialchars($ref_file));
 				fputs($fp, $ref);
 				fclose($fp);
 			}
@@ -4664,7 +4664,7 @@ EOD;
 			unlink($ref_file);
 			if (($is_page || ! $all_auto) && $ref !== '') {
 				$fp = fopen($ref_file, 'w')
-					or $this->die_message('cannot write ' . htmlspecialchars($ref_file));
+					or $this->die_message('cannot write ' . $this->htmlspecialchars($ref_file));
 				fputs($fp, $ref);
 				fclose($fp);
 			}

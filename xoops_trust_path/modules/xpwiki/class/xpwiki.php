@@ -27,6 +27,7 @@ class XpWiki {
 	var $pid;
 
 	var $isXpWiki = TRUE;
+	var $isSinglton = FALSE;
 
 	var $admin_messages = array();
 
@@ -71,6 +72,7 @@ class XpWiki {
 		static $obj;
 		if (! isset($obj[$mddir])) {
 			$obj[$mddir] = new XpWiki($mddir);
+			$obj[$mddir]->isSinglton = true;
 		}
 		if ($iniClear) {
 			$obj[$mddir]->clearIniRoot();
@@ -176,7 +178,7 @@ class XpWiki {
 		if (isset($root->vars['plugin'])) {
 			// Plug-in action
 			if (! $func->exist_plugin_action($root->vars['plugin'])) {
-				$s_plugin = htmlspecialchars($root->vars['plugin']);
+				$s_plugin = $func->htmlspecialchars($root->vars['plugin']);
 				$msg      = "plugin=$s_plugin is not implemented.";
 				$retvars  = array('msg'=>$msg,'body'=>$msg);
 			} else {
@@ -190,7 +192,7 @@ class XpWiki {
 		} else if (isset($root->vars['cmd'])) {
 			// Command action
 			if (! $func->exist_plugin_action($root->vars['cmd'])) {
-				$s_cmd   = htmlspecialchars($root->vars['cmd']);
+				$s_cmd   = $func->htmlspecialchars($root->vars['cmd']);
 				$msg     = "cmd=$s_cmd is not implemented.";
 				$retvars = array('msg'=>$msg,'body'=>$msg);
 			} else {
@@ -215,7 +217,7 @@ class XpWiki {
 				}
 				exit();
 			}
-			$title = htmlspecialchars($func->strip_bracket($base));
+			$title = $func->htmlspecialchars($func->strip_bracket($base));
 			$page  = $func->make_search($base);
 
 			if (! empty($retvars['msg'])) {
@@ -270,7 +272,7 @@ class XpWiki {
 										array('$page_title', '$content_title', '$module_title'),
 										array($page_title, $content_title, $root->module_title),
 										$root->html_head_title));
-				$root->pagetitle_action = isset($root->_LANG['skin'][$root->vars['cmd']])? htmlspecialchars($root->_LANG['skin'][$root->vars['cmd']]) : '';
+				$root->pagetitle_action = isset($root->_LANG['skin'][$root->vars['cmd']])? $func->htmlspecialchars($root->_LANG['skin'][$root->vars['cmd']]) : '';
 				$this->title         = $title;
 				$this->page          = $base;
 				$this->skin_title    = $page;
@@ -656,9 +658,9 @@ EOD;
 			$langman->read( 'modinfo.php' , $mydirname , 'xpwiki' ) ;
 		}
 		
-		$msgToBBcode = htmlspecialchars(constant($constpref . '_MSG_TO_BBCODE_EDITOR'), ENT_QUOTES);
-		$msgToWiki = htmlspecialchars(constant($constpref . '_MSG_TO_WIKI_EDITOR'), ENT_QUOTES);
-		$msgSwitch = htmlspecialchars(constant($constpref . '_MSG_TO_SWITCH_EDITOR'), ENT_QUOTES);
+		$msgToBBcode = htmlspecialchars(constant($constpref . '_MSG_TO_BBCODE_EDITOR'), ENT_QUOTES, _CHARSET);
+		$msgToWiki = htmlspecialchars(constant($constpref . '_MSG_TO_WIKI_EDITOR'), ENT_QUOTES, _CHARSET);
+		$msgSwitch = htmlspecialchars(constant($constpref . '_MSG_TO_SWITCH_EDITOR'), ENT_QUOTES, _CHARSET);
 		
 		return <<<EOD
 <script type="text/javascript">

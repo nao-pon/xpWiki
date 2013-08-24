@@ -88,7 +88,7 @@ class xpwiki_plugin_tracker extends xpwiki_plugin
 		$config = new XpWikiConfig($this->xpwiki, 'plugin/tracker/'.$config_name);
 
 		if (!$config->read()) {
-			return '#tracker: Config \'' . htmlspecialchars($config_name) . '\' not found<br />';
+			return '#tracker: Config \'' . $this->func->htmlspecialchars($config_name) . '\' not found<br />';
 		}
 		$config->config_name = $config_name;
 		//$fields = $this->plugin_tracker_get_fields($base,$refer,$config);
@@ -135,7 +135,7 @@ EOD;
 		if (!$this->func->is_pagename($refer)) {
 			return array(
 				'msg'  => 'Cannot write',
-				'body' => 'Page name (' . htmlspecialchars($refer) . ') invalid'
+				'body' => 'Page name (' . $this->func->htmlspecialchars($refer) . ') invalid'
 			);
 		}
 
@@ -161,14 +161,14 @@ EOD;
 		$config_name = isset($this->root->post['_config']) ? $this->root->post['_config'] : '';
 		$config = new XpWikiConfig($this->xpwiki, 'plugin/tracker/' . $config_name);
 		if (! $config->read()) {
-			return '<p>config file \'' . htmlspecialchars($config_name) . '\' not found.</p>';
+			return '<p>config file \'' . $this->func->htmlspecialchars($config_name) . '\' not found.</p>';
 		}
 		$config->config_name = $config_name;
 		$template_page = $config->page . '/page';
 		if (! $this->func->is_page($template_page)) {
 			return array(
 				'msg'  => 'Cannot write',
-				'body' => 'Page template (' . htmlspecialchars($template_page) . ') not exists'
+				'body' => 'Page template (' . $this->func->htmlspecialchars($template_page) . ') not exists'
 			);
 		}
 
@@ -352,7 +352,7 @@ EOD;
 		$config = new XpWikiConfig($this->xpwiki, 'plugin/tracker/' . $config_name);
 
 		if (!$config->read()) {
-			return '#tracker_list: Config not found: ' . htmlspecialchars($config_name) . '<br />';
+			return '#tracker_list: Config not found: ' . $this->func->htmlspecialchars($config_name) . '<br />';
 		}
 		$config->config_name = $config_name;
 		if (!$this->func->is_page($config->page.'/'.$list)) {
@@ -361,11 +361,11 @@ EOD;
 
 		$list = new XpWikiTracker_list($this->xpwiki, $base, $refer, $config, $list);
 		if ($list->sortRows($order_commands) === FALSE) {
-			return '#tracker_list: ' . htmlspecialchars($list->error) . '<br />';
+			return '#tracker_list: ' . $this->func->htmlspecialchars($list->error) . '<br />';
 		}
 		$result = $list->toString($limit);
 		if ($result === FALSE) {
-			return '#tracker_list: ' . htmlspecialchars($list->error) . '<br />';
+			return '#tracker_list: ' . $this->func->htmlspecialchars($list->error) . '<br />';
 		}
 		unset($list);
 		return $this->func->convert_html($result);
@@ -464,12 +464,12 @@ class XpWikiTracker_field_text extends XpWikiTracker_field
 
 	function get_tag()
 	{
-		$s_name = htmlspecialchars($this->name);
-		$s_size = htmlspecialchars($this->values[0]);
+		$s_name = $this->func->htmlspecialchars($this->name);
+		$s_size = $this->func->htmlspecialchars($this->values[0]);
 		if ($this->default_value == '$uname' || $this->default_value == '$X_uname' ) {
 			$this->default_value = $this->cont['USER_NAME_REPLACE'];
 		}
-		$s_value = htmlspecialchars($this->default_value);
+		$s_value = $this->func->htmlspecialchars($this->default_value);
 		$helper = ($this->name == "_name" || is_a($this, "XpWikiTracker_field_page"))? "" : " rel=\"wikihelper\"";
 		return "<input type=\"text\" name=\"$s_name\"{$helper} size=\"$s_size\" value=\"$s_value\" />";
 	}
@@ -516,10 +516,10 @@ class XpWikiTracker_field_textarea extends XpWikiTracker_field
 	var $sort_type = SORT_STRING;
 
 	function get_tag() {
-		$s_name = htmlspecialchars($this->name);
-		$s_cols = htmlspecialchars($this->values[0]);
-		$s_rows = htmlspecialchars($this->values[1]);
-		$s_value = htmlspecialchars($this->default_value);
+		$s_name = $this->func->htmlspecialchars($this->name);
+		$s_cols = $this->func->htmlspecialchars($this->values[0]);
+		$s_rows = $this->func->htmlspecialchars($this->values[1]);
+		$s_value = $this->func->htmlspecialchars($this->default_value);
 		$domid = $this->func->get_domid('tracker', $s_name, true);
 		$emoji = (in_array('emoji', $this->values))? $this->func->get_emoji_pad($domid, FALSE) : '';
 		return "<textarea id=\"$domid\" name=\"$s_name\" cols=\"$s_cols\" rows=\"$s_rows\">$s_value</textarea>$emoji";
@@ -559,8 +559,8 @@ class XpWikiTracker_field_format extends XpWikiTracker_field
 
 	function get_tag()
 	{
-		$s_name = htmlspecialchars($this->name);
-		$s_size = htmlspecialchars($this->values[0]);
+		$s_name = $this->func->htmlspecialchars($this->name);
+		$s_size = $this->func->htmlspecialchars($this->values[0]);
 		return "<input type=\"text\" name=\"$s_name\" size=\"$s_size\" />";
 	}
 
@@ -610,8 +610,8 @@ class XpWikiTracker_field_file extends XpWikiTracker_field_format
 	{
 		static $loaded = array();
 
-		$s_name = htmlspecialchars($this->name);
-		$s_size = htmlspecialchars($this->values[0]);
+		$s_name = $this->func->htmlspecialchars($this->name);
+		$s_size = $this->func->htmlspecialchars($this->values[0]);
 		$s_id = '_p_tracker_' . $s_name . '_' . $this->id;
 
 		$attach_plugin =& $this->func->get_plugin_instance('attach');
@@ -653,12 +653,12 @@ class XpWikiTracker_field_radio extends XpWikiTracker_field_format
 
 	function get_tag()
 	{
-		$s_name = htmlspecialchars($this->name);
+		$s_name = $this->func->htmlspecialchars($this->name);
 		$retval = '';
 		$id = 0;
 		foreach ($this->config->get($this->name) as $option)
 		{
-			$s_option = htmlspecialchars($option[0]);
+			$s_option = $this->func->htmlspecialchars($option[0]);
 			$checked = trim($option[0]) == trim($this->default_value) ? ' checked="checked"' : '';
 			++$id;
 			$s_id = '_p_tracker_' . $s_name . '_' . $this->id . '_' . $id;
@@ -698,16 +698,16 @@ class XpWikiTracker_field_select extends XpWikiTracker_field_radio
 
 	function get_tag($empty=FALSE)
 	{
-		$s_name = htmlspecialchars($this->name);
+		$s_name = $this->func->htmlspecialchars($this->name);
 		$s_size = (isset($this->values[0]) && is_numeric($this->values[0])) ?
-			' size="'.htmlspecialchars($this->values[0]).'"' : '';
+			' size="'.$this->func->htmlspecialchars($this->values[0]).'"' : '';
 		$s_multiple = (isset($this->values[1]) && strtolower($this->values[1]) == 'multiple') ?
 			' multiple="multiple"' : '';
 		$retval = "<select name=\"{$s_name}[]\"$s_size$s_multiple>\n";
 		if ($empty) $retval .= ' <option value=""></option>' . "\n";
 		$defaults = array_flip(preg_split('/\s*,\s*/',$this->default_value,-1,PREG_SPLIT_NO_EMPTY));
 		foreach ($this->config->get($this->name) as $option) {
-			$s_option = htmlspecialchars($option[0]);
+			$s_option = $this->func->htmlspecialchars($option[0]);
 			$selected = isset($defaults[trim($option[0])]) ? ' selected="selected"' : '';
 			$retval .= " <option value=\"$s_option\"$selected>$s_option</option>\n";
 		}
@@ -723,12 +723,12 @@ class XpWikiTracker_field_checkbox extends XpWikiTracker_field_radio
 
 	function get_tag()
 	{
-		$s_name = htmlspecialchars($this->name);
+		$s_name = $this->func->htmlspecialchars($this->name);
 		$defaults = array_flip(preg_split('/\s*,\s*/',$this->default_value,-1,PREG_SPLIT_NO_EMPTY));
 		$retval = '';
 		$id = 0;
 		foreach ($this->config->get($this->name) as $option) {
-			$s_option = htmlspecialchars($option[0]);
+			$s_option = $this->func->htmlspecialchars($option[0]);
 			$checked = isset($defaults[trim($option[0])]) ?
 				' checked="checked"' : '';
 			++$id;
@@ -748,8 +748,8 @@ class XpWikiTracker_field_hidden extends XpWikiTracker_field_radio
 
 	function get_tag()
 	{
-		$s_name = htmlspecialchars($this->name);
-		$s_default = htmlspecialchars($this->default_value);
+		$s_name = $this->func->htmlspecialchars($this->name);
+		$s_default = $this->func->htmlspecialchars($this->default_value);
 		$retval = "<input type=\"hidden\" name=\"$s_name\" value=\"$s_default\" />\n";
 
 		return $retval;
@@ -760,10 +760,10 @@ class XpWikiTracker_field_submit extends XpWikiTracker_field
 {
 	function get_tag()
 	{
-		$s_title  = htmlspecialchars($this->title);
-		$s_base   = htmlspecialchars($this->base);
-		$s_refer  = htmlspecialchars($this->refer);
-		$s_config = htmlspecialchars($this->config->config_name);
+		$s_title  = $this->func->htmlspecialchars($this->title);
+		$s_base   = $this->func->htmlspecialchars($this->base);
+		$s_refer  = $this->func->htmlspecialchars($this->refer);
+		$s_config = $this->func->htmlspecialchars($this->config->config_name);
 
 		return <<<EOD
 <input type="submit" value="$s_title" />

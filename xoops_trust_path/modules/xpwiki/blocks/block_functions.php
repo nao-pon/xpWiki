@@ -42,7 +42,7 @@ function b_xpwiki_notification_edit( $options )
 	$form = "
 		<input type='hidden' name='options[0]' value='$mydirname' />
 		<label for='this_template'>"._MB_XPWIKI_THISTEMPLATE."</label>&nbsp;:
-		<input type='text' size='40' name='options[1]' id='this_template' value='".htmlspecialchars($this_template,ENT_QUOTES)."' /> ( {$defs[1]} )
+		<input type='text' size='40' name='options[1]' id='this_template' value='".htmlspecialchars($this_template,ENT_QUOTES,_CHARSET)."' /> ( {$defs[1]} )
 		<br />
 	\n" ;
 
@@ -162,13 +162,13 @@ function b_xpwiki_a_page_edit( $options )
 		<input type='text' size='20' name='options[2]' id='blockwidth' value='".$width."' /> ( {$defs[2]} )
 		<br />
 		<label for='this_template'>"._MB_XPWIKI_THISTEMPLATE."</label>&nbsp;:
-		<input type='text' size='40' name='options[3]' id='this_template' value='".htmlspecialchars($this_template,ENT_QUOTES)."' /> ( {$defs[3]} )
+		<input type='text' size='40' name='options[3]' id='this_template' value='".htmlspecialchars($this_template,ENT_QUOTES,_CHARSET)."' /> ( {$defs[3]} )
 		<br />
 		<label for='divclass'>"._MB_XPWIKI_DIVCLASS."</label>&nbsp;:
-		<input type='text' size='30' name='options[4]' id='divclass' value='".htmlspecialchars($div_class,ENT_QUOTES)."' /> ( {$defs[4]} )
+		<input type='text' size='30' name='options[4]' id='divclass' value='".htmlspecialchars($div_class,ENT_QUOTES,_CHARSET)."' /> ( {$defs[4]} )
 		<br />
 		<label for='this_css'>"._MB_XPWIKI_THISCSS."</label>&nbsp;:
-		<input type='text' size='30' name='options[5]' id='this_css' value='".htmlspecialchars($css,ENT_QUOTES)."' /> ( {$defs[5]} )
+		<input type='text' size='30' name='options[5]' id='this_css' value='".htmlspecialchars($css,ENT_QUOTES,_CHARSET)."' /> ( {$defs[5]} )
 		<br />
 		<label>"._MB_XPWIKI_DISABLEDPAGECACHE."</label>&nbsp;:
 		<input type='radio' name='options[6]' value='1'{$check_pagecache[0]} />Yes &nbsp; <input type='radio' name='options[6]' value='0'{$check_pagecache[1]} />No &nbsp; ( {$defs[6]} )
@@ -177,7 +177,7 @@ function b_xpwiki_a_page_edit( $options )
 		<input type='radio' name='options[7]' value='module'{$check_headtag['module']} id='headtag_module' /><label for='headtag_module'>xoops_module_header</label> &nbsp; <input type='radio' name='options[7]' value='block'{$check_headtag['block']} id='headtag_block' /><label for='headtag_block'>xoops_block_header</label> &nbsp; <input type='radio' name='options[7]' value='body'{$check_headtag['body']} id='headtag_body' /><label for='headtag_body'>&lt;body&gt;(Inline)</label>
 		<br />( {$defs[7]} )<br />
 		<label for='target_page'>"._MB_XPWIKI_TARGETPAGE."</label>&nbsp;:
-		<input type='text' size='30' name='options[8]' id='target_page' value='".htmlspecialchars($target_page,ENT_QUOTES)."' /><br />( \"PageName\" or \"xpWiki module dirname::PageName\" )
+		<input type='text' size='30' name='options[8]' id='target_page' value='".htmlspecialchars($target_page,ENT_QUOTES,_CHARSET)."' /><br />( \"PageName\" or \"xpWiki module dirname::PageName\" )
 		<br />
 		\n" ;
 	return $form;
@@ -283,13 +283,13 @@ function b_xpwiki_block_edit( $options )
 		<input type='text' size='20' name='options[1]' id='blockwidth' value='".$width."' /> ( {$defs[1]} )
 		<br />
 		<label for='this_template'>"._MB_XPWIKI_THISTEMPLATE."</label>&nbsp;:
-		<input type='text' size='40' name='options[2]' id='this_template' value='".htmlspecialchars($this_template,ENT_QUOTES)."' /> ( {$defs[2]} )
+		<input type='text' size='40' name='options[2]' id='this_template' value='".htmlspecialchars($this_template,ENT_QUOTES,_CHARSET)."' /> ( {$defs[2]} )
 		<br />
 		<label for='divclass'>"._MB_XPWIKI_DIVCLASS."</label>&nbsp;:
-		<input type='text' size='30' name='options[3]' id='divclass' value='".htmlspecialchars($div_class,ENT_QUOTES)."' /> ( {$defs[3]} )
+		<input type='text' size='30' name='options[3]' id='divclass' value='".htmlspecialchars($div_class,ENT_QUOTES,_CHARSET)."' /> ( {$defs[3]} )
 		<br />
 		<label for='this_css'>"._MB_XPWIKI_THISCSS."</label>&nbsp;:
-		<input type='text' size='30' name='options[4]' id='this_css' value='".htmlspecialchars($css,ENT_QUOTES)."' /> ( {$defs[4]} )
+		<input type='text' size='30' name='options[4]' id='this_css' value='".htmlspecialchars($css,ENT_QUOTES,_CHARSET)."' /> ( {$defs[4]} )
 		<br />
 		<label>"._MB_XPWIKI_HEAD_TAG_PLACE."</label>&nbsp;:
 		<input type='radio' name='options[5]' value='module'{$check_headtag['module']} id='headtag_module' /><label for='headtag_module'>xoops_module_header</label> &nbsp; <input type='radio' name='options[5]' value='block'{$check_headtag['block']} id='headtag_block' /><label for='headtag_block'>xoops_block_header</label> &nbsp; <input type='radio' name='options[5]' value='body'{$check_headtag['body']} id='headtag_body' /><label for='headtag_body'>&lt;body&gt;(Inline)</label>

@@ -80,7 +80,7 @@ if (! $no_accesskey && $this->root->runmode === 'standalone') {
 		$this->make_link('&pb1;'),
 		$this->cont['ROOT_URL'],
 		$this->root->accesskey,
-		htmlspecialchars($this->root->siteinfo['sitename']) );
+		$this->htmlspecialchars($this->root->siteinfo['sitename']) );
 
 	$header .= sprintf('<div style="%s">%s</div>',
 		$style['easyLogin'],
@@ -91,7 +91,7 @@ if (! $no_accesskey && $this->root->runmode === 'standalone') {
 		$this->make_link('&pb3;'),
 		$link['top'],
 		$this->root->accesskey,
-		htmlspecialchars($this->root->module['title']),
+		$this->htmlspecialchars($this->root->module['title']),
 		$link['rss'],
 		'((e:f699))' );
 }

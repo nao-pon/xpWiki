@@ -134,7 +134,7 @@ class xpwiki_plugin_recent extends xpwiki_plugin {
 				'<ul class="recent_list">' . "\n";
 			}
 
-			$s_page = htmlspecialchars($page);
+			$s_page = $this->func->htmlspecialchars($page);
 			if($page === $this->root->vars['page']) {
 				// No need to link to the page you just read, or notify where you just read
 				$items .= ' <li><!--NA-->' . str_replace('/', '/' . $this->root->hierarchy_insert, $s_page) . '<!--/NA--></li>' . "\n";

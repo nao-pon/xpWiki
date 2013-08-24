@@ -88,7 +88,7 @@ if (isset($this->root->pkwk_dtd)) {
 <?php if ($this->root->nofollow || ! $is_read)  {?> <meta name="robots" content="NOINDEX,NOFOLLOW" /><?php }?>
 <?php if ($this->cont['PKWK_ALLOW_JAVASCRIPT'] && isset($this->root->javascript)) {?> <meta http-equiv="Content-Script-Type" content="text/javascript" /><?php }?>
 
- <title><?php echo htmlspecialchars($this->root->pagetitle) ?> - <?php echo $this->root->siteinfo['sitename'] ?></title>
+ <title><?php echo $this->htmlspecialchars($this->root->pagetitle) ?> - <?php echo $this->root->siteinfo['sitename'] ?></title>
 
 <?php echo $head_pre_tag?>
 <?php echo <<<EOD

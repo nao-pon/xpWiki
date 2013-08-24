@@ -8,7 +8,7 @@
 if (isset($_GET['l'])) {
 	$url = $_GET['l'];
 	$google = 'http://www.google.co.jp/gwt/n?u=' . rawurlencode($url);
-	$url = str_replace('&amp;', '&',htmlspecialchars($_GET['l']));
+	$url = str_replace('&amp;', '&',htmlspecialchars($_GET['l'], ENT_COMPAT, 'ISO-8859-1'));
 
 	// clear output buffer
 	while( ob_get_level() ) {

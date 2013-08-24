@@ -220,7 +220,7 @@ EOD;
 		}
 
 		if(!$files) {
-			$params['_body'] = $this->msg['err_noimage'] . ($pattern? '(' . htmlspecialchars($pattern) . ')': '');
+			$params['_body'] = $this->msg['err_noimage'] . ($pattern? '(' . $this->func->htmlspecialchars($pattern) . ')': '');
 			return $params;
 		}
 	

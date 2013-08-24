@@ -35,7 +35,7 @@ class xpwiki_plugin_menu extends xpwiki_plugin {
 		$page_menus = array();
 		if (isset($this->root->vars['refer']) && $this->root->vars['refer'] !== '') {
 			$_page = $this->root->vars['refer'];
-			$msg = htmlspecialchars($_page) . ' - Menu';
+			$msg = $this->func->htmlspecialchars($_page) . ' - Menu';
 			
 			$is_editable =  $this->func->check_editable($_page, FALSE, FALSE);
 			$is_freeze = $this->func->is_freeze($_page);
@@ -85,8 +85,8 @@ class xpwiki_plugin_menu extends xpwiki_plugin {
 		if ($num > 0) {
 			// Try to change default 'MenuBar' page name (only)
 			if ($num > 1)       return '#menu(): Zero or One argument needed';
-			//if ($menu[$this->root->mydirname] !== NULL) return '#menu(): Already set: ' . htmlspecialchars($menu[$this->root->mydirname]);
-			if (isset($GLOBALS['Xpwiki_'.$this->root->mydirname]['cache']['MenuPage'])) return '#menu(): Already set: ' . htmlspecialchars($GLOBALS['Xpwiki_'.$this->root->mydirname]['cache']['MenuPage']);
+			//if ($menu[$this->root->mydirname] !== NULL) return '#menu(): Already set: ' . $this->func->htmlspecialchars($menu[$this->root->mydirname]);
+			if (isset($GLOBALS['Xpwiki_'.$this->root->mydirname]['cache']['MenuPage'])) return '#menu(): Already set: ' . $this->func->htmlspecialchars($GLOBALS['Xpwiki_'.$this->root->mydirname]['cache']['MenuPage']);
 			$args = func_get_args();
 			$args[0] = $this->func->get_fullname($args[0], $this->root->vars['page']);
 			if (! $this->func->is_page($args[0])) {
@@ -121,7 +121,7 @@ class xpwiki_plugin_menu extends xpwiki_plugin {
 			if (! $this->func->is_page($page)) {
 				return '';
 			} else if ($this->root->vars['page'] == $page) {
-				return '<!-- #menu(): You already view ' . htmlspecialchars($page) . ' -->';
+				return '<!-- #menu(): You already view ' . $this->func->htmlspecialchars($page) . ' -->';
 			} else {
 				// Cut fixed anchors
 				$menutext = preg_replace('/^(\*{1,5}.*)\[#[A-Za-z][_0-9a-zA-Z-]+\](.*)$/m', '$1$2', $this->func->get_source($page));

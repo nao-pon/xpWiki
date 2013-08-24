@@ -90,13 +90,13 @@ if (! $nolinks) {
 		if ($_link[0] === '/') {
 			$_link = $this->root->siteinfo['host'] . $_link;
 		}
-		$_link = htmlspecialchars(str_replace('&amp;', '&', $_link));
+		$_link = $this->htmlspecialchars(str_replace('&amp;', '&', $_link));
 		$_link = preg_replace('#^'.preg_quote($this->root->siteinfo['host'], '#').'#', '<sup class="links">(This host)</sup>', $_link);
-		//$links[] = '<sup class="links">['.$i.']</sup> ' . htmlspecialchars(str_replace('&amp;', '&', $link));
+		//$links[] = '<sup class="links">['.$i.']</sup> ' . $this->htmlspecialchars(str_replace('&amp;', '&', $link));
 		$links[] = $_link;
 	}
 	if ($links) {
-		$thisHost = '(This host) = ' . htmlspecialchars($this->root->siteinfo['host']);
+		$thisHost = '(This host) = ' . $this->htmlspecialchars($this->root->siteinfo['host']);
 		//$links = '<hr /><dl><dt>Links list <sub>'.$thisHost.'</sub><dt><dd>' . join('<br />', $links) . '</dd></dl>';
 		$links = '<hr /><h2>Links list</h2><p><small>'.$thisHost.'</small></p><ol class="list1 links"><li>' . join('</li><li>', $links) . '</li></ol>';
 	} else {
@@ -197,7 +197,7 @@ if (isset($this->root->pkwk_dtd)) {
  <meta name="robots" content="NOINDEX,NOFOLLOW" />
 <?php if ($this->cont['PKWK_ALLOW_JAVASCRIPT'] && isset($this->root->javascript)) {?> <meta http-equiv="Content-Script-Type" content="text/javascript" /><?php }?>
 
- <title><?php echo htmlspecialchars($this->root->pagetitle) ?> - <?php echo $this->root->siteinfo['sitename'] ?></title>
+ <title><?php echo $this->htmlspecialchars($this->root->pagetitle) ?> - <?php echo $this->root->siteinfo['sitename'] ?></title>
 
 <?php echo $head_pre_tag?>
 <?php echo <<<EOD

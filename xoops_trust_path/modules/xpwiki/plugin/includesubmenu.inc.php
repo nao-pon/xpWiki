@@ -58,7 +58,7 @@ class xpwiki_plugin_includesubmenu extends xpwiki_plugin {
 	
 	  if ($ShowPageName) {
 	    $r_page = rawurlencode($SubMenuPageName);
-	    $s_page = htmlspecialchars($SubMenuPageName);
+	    $s_page = $this->func->htmlspecialchars($SubMenuPageName);
 	    $link = "<a href=\"{$this->root->script}?cmd=edit&amp;page=$r_page\">$s_page</a>";
 	    $body = "<h1>$link</h1>\n$body";
 	  }

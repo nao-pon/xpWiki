@@ -101,7 +101,7 @@ class XpWikiFunc extends XpWikiXoopsWrapper {
 		$name = strtolower($name);
 		if(isset($exist[$this->xpwiki->pid][$name])) {
 			if (++$count[$this->xpwiki->pid][$name] > $this->cont['PKWK_PLUGIN_CALL_TIME_LIMIT'])
-				die('Alert: plugin "' . htmlspecialchars($name) .
+				die('Alert: plugin "' . $this->htmlspecialchars($name) .
 				'" was called over ' . $this->cont['PKWK_PLUGIN_CALL_TIME_LIMIT'] .
 				' times. SPAM or someting?<br />' . "\n" .
 				'<a href="' . $this->cont['HOME_URL'] . '?cmd=edit&amp;page='.
@@ -280,7 +280,7 @@ class XpWikiFunc extends XpWikiXoopsWrapper {
 		array_pop($this->root->plugin_stack);
 
 		if ($retvar === FALSE) {
-			return htmlspecialchars('#' . $name .
+			return $this->htmlspecialchars('#' . $name .
 				($args != '' ? '(' . $args . ')' : ''));
 		}
 
@@ -343,7 +343,7 @@ class XpWikiFunc extends XpWikiXoopsWrapper {
 
 		if($retvar === FALSE) {
 			// Do nothing
-			return htmlspecialchars('&' . $name . ($args ? '(' . $args . ')' : '') . ';');
+			return $this->htmlspecialchars('&' . $name . ($args ? '(' . $args . ')' : '') . ';');
 		} else {
 			if (in_array($name, $this->root->description_ignore_inlines)) {
 				return $this->wrap_description_ignore($retvar);
@@ -359,7 +359,7 @@ class XpWikiFunc extends XpWikiXoopsWrapper {
 				$log = join(', ', $log);
 				if ($this->is_page($page)) {
 					if ($log) {
-						$this->root->rtf['esummary'] = $log; // $log require htmlspecialchars()
+						$this->root->rtf['esummary'] = $log; // $log require $this->htmlspecialchars()
 						$this->push_page_changes($page, $log);
 					} else {
 						$this->root->rtf['esummary'] = str_replace('$name', $name, $this->root->plugin_edit_summary);
@@ -440,7 +440,7 @@ class XpWikiFunc extends XpWikiXoopsWrapper {
 			} else {
 				$this->root->userinfo['uname'] = $this->root->cookie['name'];
 			}
-			$this->root->userinfo['uname_s'] = htmlspecialchars($this->root->userinfo['uname']);
+			$this->root->userinfo['uname_s'] = $this->htmlspecialchars($this->root->userinfo['uname']);
 		}
 
 		// 他の言語切り替えシステムをチェック
@@ -780,7 +780,7 @@ class XpWikiFunc extends XpWikiXoopsWrapper {
 			$_tmp = array_pad(explode("\t",$match[1]), 14, '');
 			$pginfo['uid']       = (int)$_tmp[0];
 			$pginfo['ucd']       = $_tmp[1];
-			$pginfo['uname']     = $_tmp[2];      // already htmlspecialchars()
+			$pginfo['uname']     = $_tmp[2];      // already $this->htmlspecialchars()
 			$pginfo['einherit']  = (int)$_tmp[3];
 			$pginfo['eaids']     = $_tmp[4];
 			$pginfo['egids']     = $_tmp[5];
@@ -789,7 +789,7 @@ class XpWikiFunc extends XpWikiXoopsWrapper {
 			$pginfo['vgids']     = $_tmp[8];
 			$pginfo['lastuid']   = (int)$_tmp[9];
 			$pginfo['lastucd']   = $_tmp[10];
-			$pginfo['lastuname'] = $_tmp[11];     // already htmlspecialchars()
+			$pginfo['lastuname'] = $_tmp[11];     // already $this->htmlspecialchars()
 			$pginfo['pgorder']   = min(9, max(0, ($_tmp[12] === '')? 1 : floatval($_tmp[12])));
 			$pginfo['esummary']  = $_tmp[13];
 		} else {
@@ -835,7 +835,7 @@ class XpWikiFunc extends XpWikiXoopsWrapper {
 		if (in_array($user_check, $this->root->user_pages)) {
 			$uname = $this->page_basename($page);
 			$pginfo['uid'] = $this->get_uid_by_uname($uname);
-			$pginfo['uname']     = htmlspecialchars($uname);
+			$pginfo['uname']     = $this->htmlspecialchars($uname);
 			$pginfo['einherit']  = 1;
 			$pginfo['eaids']     = $pginfo['uid'];
 			$pginfo['egids']     = 'none';
@@ -1158,7 +1158,7 @@ class XpWikiFunc extends XpWikiXoopsWrapper {
 			} else if (is_bool($var)) {
 				$var = ($var)? 'true' : 'false';
 			} else {
-				$var = '"' . htmlspecialchars($var) . '"';
+				$var = '"' . $this->htmlspecialchars($var) . '"';
 			}
 			$key = $src = $name . ' = ' . $var . ';';
 		}
@@ -1484,6 +1484,20 @@ class XpWikiFunc extends XpWikiXoopsWrapper {
 		return htmlspecialchars_decode($str, $quote_style);
 	}
 
+	// htmlspecialchars compat to PHP <= 5.3
+	function htmlspecialchars ($str, $flags = ENT_COMPAT, $encoding = null, $double_encode = true) {
+		if (is_null($encoding)) {
+			$encoding = $this->cont['CONTENT_CHARSET'];
+			switch ($encoding) {
+				case 'EUCJP-WIN':
+				case 'EUCJP':
+					$encoding = 'EUC-JP';
+					break;
+			}
+		}
+		return htmlspecialchars($str, $flags, $encoding, $double_encode);
+	}
+
 	// ページ頭文字読みの配列を取得
 	function get_readings() {
 		$readings = array();
@@ -1660,7 +1674,7 @@ class XpWikiFunc extends XpWikiXoopsWrapper {
 			if (! isset($link[$key])) { echo $key.' LINK NOT FOUND'; return FALSE; }
 			if (! $obj->cont['PKWK_ALLOW_JAVASCRIPT']) $javascript = '';
 
-			$title = (isset($lang[$key]))? htmlspecialchars($lang[$key]) : '';
+			$title = (isset($lang[$key]))? $obj->htmlspecialchars($lang[$key]) : '';
 			$ret = ($withIcon? $obj->skin_getIcon($obj, $key, $x, $y) : '');
 			if ($withIcon !== 'icon') {
 				$ret .= ($value === '') ? (isset($lang[$key.'_s'])? $lang[$key.'_s'] : $lang[$key]) : $value;
@@ -1696,7 +1710,7 @@ class XpWikiFunc extends XpWikiXoopsWrapper {
 		$lang  = & $obj->root->_LANG['skin'];
 		$image = & $obj->root->_IMAGE['skin'];
 		if (! isset($image[$key])) return ' | ';
-		$alt = (isset($lang[$key]))? htmlspecialchars($lang[$key]) : '';
+		$alt = (isset($lang[$key]))? $obj->htmlspecialchars($lang[$key]) : '';
 		$src = (strpos($image[$key], 'src=') === 0)? $obj->cont['LOADER_URL'] . '?' . $image[$key] : $obj->cont['IMAGE_DIR'] . $image[$key];
 		return '<img src="' . $src . '" width="' . $x . '" height="' . $y . '" ' .
 				'alt="' . $alt . '" title="' . $alt . '" />';
@@ -1735,7 +1749,7 @@ class XpWikiFunc extends XpWikiXoopsWrapper {
 		//$ret[] = array($name => $self, $url = '');
 		while (! empty($parts)) {
 			$landing = join('/', $parts);
-			$element = htmlspecialchars(array_pop($parts));
+			$element = $this->htmlspecialchars(array_pop($parts));
 
 			if (! $this->is_page($landing)) {
 				// Page not exists
@@ -1818,7 +1832,7 @@ class XpWikiFunc extends XpWikiXoopsWrapper {
 		if ($page !== '') {
 			$url = $this->get_page_uri($page, true);
 			if (!$title) {
-				$title = str_replace('$1', htmlspecialchars($page), $this->root->_title_updated);
+				$title = str_replace('$1', $this->htmlspecialchars($page), $this->root->_title_updated);
 			}
 		}
 		if (!$url) {
@@ -1916,7 +1930,7 @@ class XpWikiFunc extends XpWikiXoopsWrapper {
 		// clear output buffer
 		$this->clear_output_buffer();
 
-		$json = htmlspecialchars(json_encode($res), ENT_NOQUOTES);
+		$json = $this->htmlspecialchars(json_encode($res), ENT_NOQUOTES, 'UTF-8');
 
 		header('Content-Type: text/javascript; charset=utf-8');
 		header('Content-Length: '. strlen($json));
@@ -1992,7 +2006,7 @@ EOD;
 
 	function output_popup ($body) {
 		// set target
-		$body = preg_replace('/(<a[^>]+)(href=(?:"|\')[^#])/isS', '$1target="' . ((intval($this->root->vars['popup']) === 1)? '_parent' : htmlspecialchars(substr($this->root->vars['popup'],0,30))) . '" $2', $body);
+		$body = preg_replace('/(<a[^>]+)(href=(?:"|\')[^#])/isS', '$1target="' . ((intval($this->root->vars['popup']) === 1)? '_parent' : $this->htmlspecialchars(substr($this->root->vars['popup'],0,30))) . '" $2', $body);
 
 		// Head Tags
 		list($head_pre_tag, $head_tag) = $this->get_additional_headtags();
@@ -2313,7 +2327,7 @@ EOD;
 		}
 
 		if ($this->cont['PageForRef'] !== $this->cont['PAGENAME']) {
-			$body = preg_replace('/(<form[^>]*?>)/' , '$1<input type="hidden" name="uploadpage" value="'.htmlspecialchars($this->cont['PageForRef']).'" />', $body);
+			$body = preg_replace('/(<form[^>]*?>)/' , '$1<input type="hidden" name="uploadpage" value="'.$this->htmlspecialchars($this->cont['PageForRef']).'" />', $body);
 		}
 
 		// TextArea id
@@ -2345,7 +2359,7 @@ EOD;
 
 		if (!$alt) $alt = $url;
 
-		$favicon = '<img src="'.$this->cont['LOADER_URL'].'?src=favicon&amp;url='.rawurlencode($url).'" width="'.$size.'" height="'.$size.'" border="0" alt="'.htmlspecialchars($alt).'" class="'.$class.'" />';
+		$favicon = '<img src="'.$this->cont['LOADER_URL'].'?src=favicon&amp;url='.rawurlencode($url).'" width="'.$size.'" height="'.$size.'" border="0" alt="'.$this->htmlspecialchars($alt).'" class="'.$class.'" />';
 
 		return $favicon;
 	}
@@ -2780,7 +2794,7 @@ EOD;
 		$keys = $this->get_search_words(array_keys($keys), TRUE);
 		$id = 0;
 		foreach ($keys as $key=>$pattern) {
-			$s_key    = htmlspecialchars($key);
+			$s_key    = $this->htmlspecialchars($key);
 			$pattern  = '/' .
 				'<(textarea|script|style)[^>]*>.*?<\/\\1>' .	// Ignore textareas
 				'|' . '<[^>]*>' .			// Ignore tags
@@ -3028,8 +3042,8 @@ EOD;
 		// 末尾に分断された実態参照があれば削除
 		$str = preg_replace('/&([^;]+)?$/', '', $str);
 		// サニタイズ
-		//if ($htmlspecialchar) $str = str_replace('&amp;', '&', htmlspecialchars($str));
-		if ($htmlspecialchar) $str = htmlspecialchars($str);
+		//if ($htmlspecialchar) $str = str_replace('&amp;', '&', $this->htmlspecialchars($str));
+		if ($htmlspecialchar) $str = $this->htmlspecialchars($str);
 		return $str;
 	}
 	
@@ -3148,8 +3162,8 @@ EOD;
 		if (!$res) return "";
 		$_ret = $db->fetchRow($res);
 		if ($_ret[0] === '- no title -') $_ret[0] = $page;
-		$_ret = preg_replace('/&amp;(#?[a-z0-9]+?);/i', '&$1;', htmlspecialchars($_ret[0], ENT_QUOTES));
-		return $ret[$this->root->mydirname][$page] = ($_ret || $init)? $_ret : htmlspecialchars($page,ENT_NOQUOTES);
+		$_ret = preg_replace('/&amp;(#?[a-z0-9]+?);/i', '&$1;', $this->htmlspecialchars($_ret[0], ENT_QUOTES));
+		return $ret[$this->root->mydirname][$page] = ($_ret || $init)? $_ret : $this->htmlspecialchars($page,ENT_NOQUOTES);
 	}
 
 	// 全ページ名を配列にDB版
@@ -4153,7 +4167,7 @@ EOD;
 		if ($non_format) return array_keys($pages);
 
 		$r_word = rawurlencode($words);
-		$s_word = preg_replace('/&amp;#(\d+;)/', '&#$1', htmlspecialchars($words));
+		$s_word = preg_replace('/&amp;#(\d+;)/', '&#$1', $this->htmlspecialchars($words));
 
 		if (empty($pages))
 			return str_replace('$1', $s_word, $this->root->_msg_notfoundresult);
@@ -4171,10 +4185,10 @@ EOD;
 		foreach ($pages as $page => $data) {
 			if (empty($data[0])) $data[0] = $this->get_filetime($page);
 			if (empty($data[1])) $data[1] = $this->get_heading($page);
-			$s_page  = htmlspecialchars($page);
+			$s_page  = $this->htmlspecialchars($page);
 			$passage = $this->root->show_passage ? ' ' . $this->get_passage($data[0]) : '';
 			$retval .= ' <li><a href="' . $this->get_page_uri($page, TRUE) . ($this->root->static_url ? '?' : '&amp;') . 'word=' . $r_word . '">' . $s_page .
-				'</a><small>' . $passage . '</small> [ ' . htmlspecialchars($data[1]) . ' ]' . "\n";
+				'</a><small>' . $passage . '</small> [ ' . $this->htmlspecialchars($data[1]) . ' ]' . "\n";
 			if ($options['context'] === 'db') {
 				$retval .= '<div class="context">' . HypCommonFunc::make_context($data[2], $keywords) . '</div>';
 			} else if ($options['context'] === 'conv') {

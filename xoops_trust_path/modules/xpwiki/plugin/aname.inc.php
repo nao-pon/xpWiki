@@ -102,7 +102,7 @@ class xpwiki_plugin_aname extends xpwiki_plugin {
 				return $this->plugin_aname_usage($convert, 'ID too long');
 			if (! preg_match($this->cont['PLUGIN_ANAME_ID_REGEX'], $id))
 				return $this->plugin_aname_usage($convert, 'Invalid ID string: ' .
-				htmlspecialchars($id));
+				$this->func->htmlspecialchars($id));
 			$_id[$this->xpwiki->pid][$id] = TRUE; // Set
 		}
 	
@@ -120,16 +120,16 @@ class xpwiki_plugin_aname extends xpwiki_plugin {
 				$height = ($height)? ' height="' . $height . '"' : '';
 				$width = min($this->max_image_size, intval($options['width']));
 				$width = ($width)? ' width="' . $width . '"' : '';
-				$alt = ' alt="' . htmlspecialchars($options['alt']? $options['alt'] : $options['src']) . '"';
+				$alt = ' alt="' . $this->func->htmlspecialchars($options['alt']? $options['alt'] : $options['src']) . '"';
 				$body = '<img src="' . $this->cont['LOADER_URL'] . '?src=' . $options['src'] . '"' . $alt . $height . $width . ' />';
 				$convert = FALSE;
 			}
 		}
 		if ($convert) {
-			$body = htmlspecialchars($body);
+			$body = $this->func->htmlspecialchars($body);
 		}
 		
-		$id = htmlspecialchars($id); // Insurance
+		$id = $this->func->htmlspecialchars($id); // Insurance
 		$class   = $f_super ? 'anchor_super' : 'anchor';
 		$attr_id = $f_noid  ? '' : ' id="' . $id . '" name="' . $id . '"';
 		$url     = $f_full  ? $this->func->get_page_uri($this->root->vars['page'], true) : '';

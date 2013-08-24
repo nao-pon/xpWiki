@@ -136,7 +136,7 @@ class xpwiki_plugin_amazon extends xpwiki_plugin {
 
 			if ($this->cont['PKWK_READONLY']) return ''; // Show nothing
 
-			$s_page = htmlspecialchars($this->root->vars['page']);
+			$s_page = $this->func->htmlspecialchars($this->root->vars['page']);
 			if ($s_page == '') $s_page = isset($this->root->vars['refer']) ? $this->root->vars['refer'] : '';
 			$script = $this->func->get_script_uri();
 			$ret = <<<EOD
@@ -159,12 +159,12 @@ EOD;
 		if ($align == 'clear') return '<div style="clear:both"></div>'; // 改行挿入
 		if ($align != 'left') $align = 'right'; // 配置決定
 
-		$this->asin_all = htmlspecialchars($aryargs[0]);  // for XSS
+		$this->asin_all = $this->func->htmlspecialchars($aryargs[0]);  // for XSS
 		if ($this->is_asin() == FALSE && $align != 'clear') return FALSE;
 
 		if ($aryargs[2] != '') {
 			// タイトル指定
-			$title = $alt = htmlspecialchars($aryargs[2]); // for XSS
+			$title = $alt = $this->func->htmlspecialchars($aryargs[2]); // for XSS
 			if ($alt == 'image') {
 				$alt = $this->plugin_amazon_get_asin_title();
 				if ($alt[0] === "\t") {
@@ -215,7 +215,7 @@ EOD;
 
 		$s_page   = isset($this->root->vars['refer']) ? $this->root->vars['refer'] : '';
 		$this->asin_all = isset($this->root->vars['asin']) ?
-			htmlspecialchars(rawurlencode($this->func->strip_bracket($this->root->vars['asin']))) : '';
+			$this->func->htmlspecialchars(rawurlencode($this->func->strip_bracket($this->root->vars['asin']))) : '';
 
 		if (! $this->is_asin()) {
 			$retvars['msg']   = $this->msg['edit_title'];
@@ -261,7 +261,7 @@ EOD;
 
 		list($this->asin_all) = func_get_args();
 
-		$this->asin_all = htmlspecialchars($this->asin_all); // for XSS
+		$this->asin_all = $this->func->htmlspecialchars($this->asin_all); // for XSS
 		if (! $this->is_asin()) return FALSE;
 
 		$title = $this->plugin_amazon_get_asin_title();

@@ -48,12 +48,12 @@ class xpwiki_plugin_yetlist extends xpwiki_plugin {
 				foreach ($refer as $_refer) {
 					$r_refer = rawurlencode($_refer);
 					$link_refs[] = '<a href="' . $script . '?' . $r_refer . '">' .
-					htmlspecialchars($_refer) . '</a>';
+					$this->func->htmlspecialchars($_refer) . '</a>';
 				}
 				$link_ref = join(' ', $link_refs);
 				unset($link_refs);
 	
-				$s_page = htmlspecialchars($page);
+				$s_page = $this->func->htmlspecialchars($page);
 				if ($this->cont['PKWK_READONLY']) {
 					$href = $s_page;
 				} else {

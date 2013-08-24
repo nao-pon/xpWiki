@@ -115,7 +115,7 @@ class xpwiki_plugin_gmap_mark extends xpwiki_plugin {
 		foreach ($params as $param) {
 			list($index, $value) = array_pad(split('=', $param, 2), 2, '');
 			$index = trim($index);
-			if ($index !== 'caption2') $value = htmlspecialchars(trim($value), ENT_QUOTES);
+			if ($index !== 'caption2') $value = $this->func->htmlspecialchars(trim($value), ENT_QUOTES);
 			$inoptions[$index] = $value;
 			if ($index == 'zoom') {$isSetZoom = true;}//for old api
 		}
@@ -177,7 +177,7 @@ class xpwiki_plugin_gmap_mark extends xpwiki_plugin {
 		}
 
 	    if ($titleispagename) {
-	        $title = htmlspecialchars($this->root->vars['page'], ENT_QUOTES);
+	        $title = $this->func->htmlspecialchars($this->root->vars['page'], ENT_QUOTES);
 	    }
 
 		//携帯デバイス用リスト出力

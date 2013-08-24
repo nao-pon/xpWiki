@@ -31,7 +31,7 @@ class xpwiki_plugin_sitemap extends xpwiki_plugin {
 		foreach($pages as $page) {
 			list($time, $name) = explode("\t", $page);
 			$items[] = "<url>";
-			$items[] = "<loc>" . htmlspecialchars($this->func->get_page_uri($name, TRUE), ENT_QUOTES) . '</loc>';
+			$items[] = "<loc>" . $this->func->htmlspecialchars($this->func->get_page_uri($name, TRUE), ENT_QUOTES, 'UTF-8') . '</loc>';
 			$items[] = "<lastmod>" . gmdate('Y-m-d\TH:i:s+00:00', ($time + $this->cont['LOCALZONE'])) . '</lastmod>';
 			//$items[] = "<changefreq></changefreq>";
 			$items[] = "</url>";

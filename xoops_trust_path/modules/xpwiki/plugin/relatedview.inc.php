@@ -94,7 +94,7 @@ class xpwiki_plugin_relatedview extends xpwiki_plugin {
 		if ($arg) {
 			$this->fetch_options($args, $arg, array(), '_args', ' *(?:=>|=|:) *');
 			if (! empty($args['_args'])) {
-				return '<p>relatedview : unknown option(s). '.htmlspecialchars(join(',', $args['_args'])).'</p>';
+				return '<p>relatedview : unknown option(s). '.$this->func->htmlspecialchars(join(',', $args['_args'])).'</p>';
 			}
 		}
 		$category = isset($this->cont['PageForRef']) ? $this->func->strip_bracket($this->cont['PageForRef']) : '';

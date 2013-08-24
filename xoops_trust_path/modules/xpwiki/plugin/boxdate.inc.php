@@ -47,7 +47,7 @@ class xpwiki_plugin_boxdate extends xpwiki_plugin {
 
 		$time = strtotime($date);
 		if ($time === -1 || $time === FALSE) {
-			$s_page = htmlspecialchars($page); // Failed. Why?
+			$s_page = $this->func->htmlspecialchars($page); // Failed. Why?
 		} else {
 			$this->func->add_tag_head('calendar.css');
 			$week   = $this->root->weeklabels[date('w', $time)];

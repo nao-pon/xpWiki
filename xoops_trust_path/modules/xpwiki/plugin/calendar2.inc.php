@@ -48,7 +48,7 @@ class xpwiki_plugin_calendar2 extends xpwiki_plugin {
 				}
 			}
 		}
-		$options['class'] = htmlspecialchars($options['class']);
+		$options['class'] = $this->func->htmlspecialchars($options['class']);
 
 		$date = date('Y-m-d');
 		$page .= '/' . $date;
@@ -86,7 +86,7 @@ class xpwiki_plugin_calendar2 extends xpwiki_plugin {
 
 				// for PukiWikiMod compat
 				} else if(strtolower(substr($arg,0,9)) == "category:"){
-					$category_view = htmlspecialchars(substr($arg,8));
+					$category_view = $this->func->htmlspecialchars(substr($arg,8));
 				} else if(strtolower(substr($arg,0,9)) == "contents:"){
 					$contents_lev = (int)substr($arg,9);
 
@@ -102,9 +102,9 @@ class xpwiki_plugin_calendar2 extends xpwiki_plugin {
 			$prefix = $base . '/';
 		}
 		$r_base   = rawurlencode($base);
-		$s_base   = htmlspecialchars($base);
+		$s_base   = $this->func->htmlspecialchars($base);
 		$r_prefix = rawurlencode($prefix);
-		$s_prefix = htmlspecialchars($prefix);
+		$s_prefix = $this->func->htmlspecialchars($prefix);
 
 		$yr  = substr($date_str, 0, 4);
 		$mon = substr($date_str, 4, 2);
@@ -191,7 +191,7 @@ EOD;
 			$dt     = sprintf('%4d-%02d-%02d', $year, $m_num, $day);
 			$page   = $prefix . $dt;
 			$r_page = rawurlencode($page);
-			$s_page = htmlspecialchars($page);
+			$s_page = $this->func->htmlspecialchars($page);
 
 			if ($wday == 0 && $day > 1) {
 				$ret .=
@@ -282,7 +282,7 @@ EOD;
 		}
 
 		//$aryargs = array($this->root->vars['page'], $date, 'off');
-		$s_page  = htmlspecialchars($this->root->vars['page']);
+		$s_page  = $this->func->htmlspecialchars($this->root->vars['page']);
 
 		// Set nest level
 		if (!isset($this->root->rtf['convert_nest'])) {

@@ -80,9 +80,9 @@ class xpwiki_plugin_navi extends xpwiki_plugin {
 			$is_home = ($home === $current);
 			if (! $is_home &&
 			    ! preg_match('/^' . preg_quote($home, '/') . '/', $current)) {
-				return '#navi(' . htmlspecialchars($home) .
+				return '#navi(' . $this->func->htmlspecialchars($home) .
 				'): Not a child page like: ' .
-				htmlspecialchars($home . '/' . $this->func->basename($current)) .
+				$this->func->htmlspecialchars($home . '/' . $this->func->basename($current)) .
 				'<br />';
 			}
 			$set_home = TRUE;
@@ -98,7 +98,7 @@ class xpwiki_plugin_navi extends xpwiki_plugin {
 		
 		if (! $this->func->is_page($home)) {
 			return '#navi(contents-page-name): No such page: ' .
-			htmlspecialchars($home) . '<br />';
+			$this->func->htmlspecialchars($home) . '<br />';
 		}		
 		
 		$key = $home_default? '/' : $home;
@@ -171,17 +171,17 @@ class xpwiki_plugin_navi extends xpwiki_plugin {
 			if (! $is_home) {
 				$navi[$this->xpwiki->pid][$key]['prev']  = $this->func->make_pagelink($prev, '#compact:' . $home);
 				$navi[$this->xpwiki->pid][$key]['prev1'] = $this->func->make_pagelink($prev, $this->root->_navi_prev);
-				$this->func->add_tag_head('<link rel="prev" title="' . htmlspecialchars($prev) . '" href="' . $this->func->get_page_uri($prev, TRUE) . '" />');
+				$this->func->add_tag_head('<link rel="prev" title="' . $this->func->htmlspecialchars($prev) . '" href="' . $this->func->get_page_uri($prev, TRUE) . '" />');
 			}
 			if ($next != '') {
 				$navi[$this->xpwiki->pid][$key]['next']  = $this->func->make_pagelink($next, '#compact:' . $home);
 				$navi[$this->xpwiki->pid][$key]['next1'] = $this->func->make_pagelink($next, $this->root->_navi_next);
-				$this->func->add_tag_head('<link rel="next" title="' . htmlspecialchars($next) . '" href="' . $this->func->get_page_uri($next, TRUE) . '" />');
+				$this->func->add_tag_head('<link rel="next" title="' . $this->func->htmlspecialchars($next) . '" href="' . $this->func->get_page_uri($next, TRUE) . '" />');
 			}
 			$navi[$this->xpwiki->pid][$key]['home']  = $this->func->make_pagelink($home);
 			if ($set_home) {
 				$navi[$this->xpwiki->pid][$key]['home1'] = $this->func->make_pagelink($home, $this->root->_navi_home);
-				$this->func->add_tag_head('<link rel="start" title="' . htmlspecialchars($home) . '" href="' . $this->func->get_page_uri($home, TRUE) . '" />');
+				$this->func->add_tag_head('<link rel="start" title="' . $this->func->htmlspecialchars($home) . '" href="' . $this->func->get_page_uri($home, TRUE) . '" />');
 			}
 			
 			// Generate <link> tag: start next prev(previous) parent(up)
@@ -190,7 +190,7 @@ class xpwiki_plugin_navi extends xpwiki_plugin {
 				foreach (array('start'=>$home, 'next'=>$next,
 			    'prev'=>$prev, 'up'=>$up) as $rel=>$_page) {
 					if ($_page !== '') {
-						$s_page = htmlspecialchars($_page);
+						$s_page = $this->func->htmlspecialchars($_page);
 						$r_page = rawurlencode($_page);
 						$this->root->head_tags[] = ' <link rel="' .
 						$rel . '" href="' . $this->root->script .
@@ -210,7 +210,7 @@ class xpwiki_plugin_navi extends xpwiki_plugin {
 				return '#navi(contents-page-name): You already view the result<br />';
 			} else if ($count == 1) {
 				// Sentinel only: Show usage and warning
-				$home = htmlspecialchars($home);
+				$home = $this->func->htmlspecialchars($home);
 				$ret .= '#navi(' . $home . '): No child page like: ' .
 				$home . '/Foo';
 			} else {

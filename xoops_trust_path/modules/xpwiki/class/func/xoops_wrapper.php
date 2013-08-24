@@ -88,7 +88,7 @@ class XpWikiXoopsWrapper extends XpWikiBackupFunc {
 			$this->root->userinfo['uid'] = (int)$user->uid();
 			$this->root->userinfo['email'] = $user->email();
 			$this->root->userinfo['uname'] = $user->uname('n');
-			$this->root->userinfo['uname_s'] = htmlspecialchars($this->root->userinfo['uname']);
+			$this->root->userinfo['uname_s'] = $this->htmlspecialchars($this->root->userinfo['uname']);
 			$this->root->userinfo['name'] = $user->name('s');
 			$this->root->userinfo['gids'] = $user->getGroups();
 		}
@@ -117,7 +117,7 @@ class XpWikiXoopsWrapper extends XpWikiBackupFunc {
 				$result['admin'] = $user->isAdmin($this->root->module['mid']);
 				$result['email'] = $user->email();
 				$result['uname'] = $user->uname('n');
-				$result['uname_s'] = htmlspecialchars($result['uname']);
+				$result['uname_s'] = $this->htmlspecialchars($result['uname']);
 				$result['uid'] = $uid;
 				$result['gids'] = $user->getGroups();
 			}
@@ -161,7 +161,7 @@ class XpWikiXoopsWrapper extends XpWikiBackupFunc {
 			} else {
 				// With exit
 				$body = $title = str_replace('$1',
-					htmlspecialchars($this->strip_bracket($page)), $this->root->_title_cannotedit);
+					$this->htmlspecialchars($this->strip_bracket($page)), $this->root->_title_cannotedit);
 				if ($this->is_freeze($page))
 					$body .= '(<a href="' . $this->root->script . '?cmd=unfreeze&amp;page=' .
 						rawurlencode($page) . '">' . $this->root->_msg_unfreeze . '</a>)';
@@ -395,7 +395,7 @@ class XpWikiXoopsWrapper extends XpWikiBackupFunc {
 			$list = $XM->getGroupList();
 		}
 		if (isset($list[$id])) {
-			return htmlspecialchars($list[$id]);
+			return $this->htmlspecialchars($list[$id]);
 		} else {
 			return '';
 		}
@@ -425,7 +425,7 @@ class XpWikiXoopsWrapper extends XpWikiBackupFunc {
 			$user = $this->get_userinfo_by_id($uid);
 			$uname = $user['uname'];
 		}
-		$uname = htmlspecialchars($uname);
+		$uname = $this->htmlspecialchars($uname);
 
 		if (! $uid) {
 			return $uname;

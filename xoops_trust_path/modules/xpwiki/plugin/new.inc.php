@@ -44,7 +44,7 @@ class xpwiki_plugin_new extends xpwiki_plugin {
 		
 		$this->fetch_options($options, $args);
 		
-		$options['class'] = htmlspecialchars($options['class']);
+		$options['class'] = $this->func->htmlspecialchars($options['class']);
 		
 		if($date !== '') {
 			// Show 'New!' message by the time of the $date string

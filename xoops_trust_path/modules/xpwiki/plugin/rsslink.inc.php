@@ -70,12 +70,12 @@ class xpwiki_plugin_rsslink extends xpwiki_plugin {
 		if ($this->func->is_page($page))
 		{
 			$s_page = '&amp;p='.rawurlencode($page);
-			$page = ' of '.htmlspecialchars($page);
+			$page = ' of '.$this->func->htmlspecialchars($page);
 		}
 		else
 		{
 			$s_page = '';
-			$page = ' of '.htmlspecialchars($this->root->module['name']);
+			$page = ' of '.$this->func->htmlspecialchars($this->root->module['name']);
 		}
 		
 		$title = 'RSS' . $ver . $page;

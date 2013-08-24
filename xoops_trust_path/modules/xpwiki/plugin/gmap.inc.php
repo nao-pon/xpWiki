@@ -257,7 +257,7 @@ class xpwiki_plugin_gmap extends xpwiki_plugin {
 					if ($page == '') {
 						$page = '(Empty Page Name)';
 					}
-					$body = htmlspecialchars($page);
+					$body = $this->func->htmlspecialchars($page);
 					$body .= '<br>Unknown page name';
 				}
 				$this->func->pkwk_common_headers();
@@ -295,13 +295,13 @@ EOD;
 		$default_lng  = empty( $this->root->get['lng'] )  ? $this->cont['PLUGIN_GMAP_DEF_LNG']  : floatval( $this->root->get['lng'] ) ;
 		$default_zoom = empty( $this->root->get['zoom'] ) ? $this->cont['PLUGIN_GMAP_DEF_ZOOM'] : intval( $this->root->get['zoom'] ) ;
 
-		$markers = isset($this->root->get['markers'])? '&amp;markers=' . htmlspecialchars($this->root->get['markers']) : '';
+		$markers = isset($this->root->get['markers'])? '&amp;markers=' . $this->func->htmlspecialchars($this->root->get['markers']) : '';
 		$refer = isset($this->root->get['refer'])? $this->root->get['refer'] : '';
 		$title = isset($this->root->get['t'])? $this->root->get['t'] : '';
 
 		$back = '';
 		if ($refer) {
-			$refer = htmlspecialchars(preg_replace('#^[a-zA-Z]+://[^/]+#', '', $refer));
+			$refer = $this->func->htmlspecialchars(preg_replace('#^[a-zA-Z]+://[^/]+#', '', $refer));
 			$back = '[ <a href="'.$this->root->siteinfo['host'].$refer.'">' . $this->root->_msg_back_word . '</a> ]';
 			$refer = '&amp;refer=' . $refer;
 		}
@@ -367,7 +367,7 @@ EOD;
 			$zoomdown = '';
 		}
 		
-		$title = $title? '<h3>' . htmlspecialchars($title) . '</h3>' : '';
+		$title = $title? '<h3>' . $this->func->htmlspecialchars($title) . '</h3>' : '';
 		$ret = <<<EOD
 <a href="{$maplink}&amp;zoom={$mapkeys['zoom']}&amp;lng={$mapkeys['lngdown']}&amp;lat={$mapkeys['latup']}{$other}"  accesskey="1" ></a>
 <a href="{$maplink}&amp;zoom={$mapkeys['zoom']}&amp;lng={$mapkeys['lng']}&amp;lat={$mapkeys['latup']}{$other}"  accesskey="2" ></a>
@@ -480,7 +480,7 @@ EOD;
 			$url = $this->google_staticmap_url.$params.'size='.$this->conf['StaticMapSize'].'&amp;type=mobile&amp;key='.$this->root->google_api_key;
 		}
 		if ($markers && $useAction < 2) {
-			$url .= '&amp;markers=' . htmlspecialchars($markers);
+			$url .= '&amp;markers=' . $this->func->htmlspecialchars($markers);
 		}
 		return $url;
 	}
@@ -522,7 +522,7 @@ EOD;
 				continue;
 			}
 			$index = trim(substr($param, 0, $pos));
-			$value = htmlspecialchars(trim(substr($param, $pos+1)), ENT_QUOTES);
+			$value = $this->func->htmlspecialchars(trim(substr($param, $pos+1)), ENT_QUOTES);
 			$inoptions[$index] = $value;
 			if ($index == 'cx') {$cx = (float)$value;}//for old api
 			if ($index == 'cy') {$cy = (float)$value;}//for old api
@@ -813,7 +813,7 @@ EOD;
 				}
 				$kml = $ref->get_ref_url($pagename, $kml, false, true);
 			} else {
-				$kml = htmlspecialchars($kml, ENT_QUOTES, $this->cont['SOURCE_ENCODING']);
+				$kml = $this->func->htmlspecialchars($kml, ENT_QUOTES, $this->cont['SOURCE_ENCODING']);
 			}
 			$kml = str_replace('&amp;', '&', $kml);
 			$output .= "var kmllayer = new google.maps.KmlLayer(\"$kml\");\n";

@@ -148,7 +148,7 @@ class xpwiki_plugin_tb extends xpwiki_plugin {
 			// _utime_, title, excerpt, _blog_name_
 			array_shift($arr); // Cut utime
 			list ($url, $title, $excerpt) = array_map(
-				create_function('$a', 'return htmlspecialchars($a);'), $arr);
+				create_function('$a', 'return $this->func->htmlspecialchars($a);'), $arr);
 			$items .= <<<EOD
 
    <item>
@@ -159,7 +159,7 @@ class xpwiki_plugin_tb extends xpwiki_plugin {
 EOD;
 		}
 
-		$title = htmlspecialchars($page);
+		$title = $this->func->htmlspecialchars($page);
 		$link  = $this->root->script . '?' . rawurlencode($page);
 		$this->root->vars['page'] = $page;
 		$excerpt = $this->func->strip_htmltag($this->func->convert_html($this->func->get_source($page)));

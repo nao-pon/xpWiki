@@ -89,7 +89,7 @@ class XpWikiExtension_xoopsSearch extends XpWikiExtension {
 			$link = $this->func->get_page_uri($myrow['name']);
 			$ret[] = array(
 				'link'    => $link . ((strpos($link, '?') === false)? '?' : '&amp;') . 'word=' . $sword,
-				'title'   => htmlspecialchars($myrow['name'].$title, ENT_QUOTES),
+				'title'   => htmlspecialchars($myrow['name'].$title, ENT_QUOTES ,_CHARSET),
 				'image'   => 'skin/loader.php?src=xoops_search.png',
 				'time'    => $myrow['editedtime'] + $this->cont['LOCALZONE'],
 				'uid'     => $myrow['uid'],

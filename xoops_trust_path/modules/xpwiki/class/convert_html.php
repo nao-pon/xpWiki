@@ -391,11 +391,11 @@ class XpWikiTableCell extends XpWikiElement {
 			} else
 				if ($matches[3]) {
 					$name = $matches[2] ? 'background-color' : 'color';
-					$this->style[$name] = $name.':'.htmlspecialchars($matches[3]).';';
+					$this->style[$name] = $name.':'.$this->func->htmlspecialchars($matches[3]).';';
 					$text = $matches[5];
 				} else
 					if ($matches[4]) {
-						$this->style['size'] = 'font-size:'.htmlspecialchars($matches[4]).'px;';
+						$this->style['size'] = 'font-size:'.$this->func->htmlspecialchars($matches[4]).'px;';
 						$text = $matches[5];
 					}
 		}
@@ -504,7 +504,7 @@ class XpWikiTableCell extends XpWikiElement {
 		// ¥»¥ëÇØ·Ê²è
 		if (preg_match("/(?:[SCB]C):\(([^),]*)(,once|,1)?\) ?/i",$cells[0],$tmp)) {
 			if (strpos($tmp[1], $this->cont['ROOT_URL']) === 0) {
-				$tmp[1] = htmlspecialchars($tmp[1]);
+				$tmp[1] = $this->func->htmlspecialchars($tmp[1]);
 				$this->style['background-image'] .= "background-image: url(".$tmp[1].");";
 				if (!empty($tmp[2])) $this->style['background-image'] .= "background-repeat: no-repeat;";
 			}
@@ -813,7 +813,7 @@ class XpWikiTable extends XpWikiElement {
 		// ¥Æ¡¼¥Ö¥ëÇØ·Ê²èÁü»ØÄê
 		if (preg_match("/TC:\(([^),]*)(,(?:no|one(?:ce)?|1))?\) ?/i",$string,$reg)) {
 			if (strpos($reg[1], $this->cont['ROOT_URL']) === 0) {
-				$reg[1] = htmlspecialchars($reg[1]);
+				$reg[1] = $this->func->htmlspecialchars($reg[1]);
 				$this->table_sheet .= "background-image: url(".$reg[1].");";
 				if (!empty($reg[2])) $this->table_sheet .= "background-repeat: no-repeat;";
 			}
@@ -926,7 +926,7 @@ class XpWikiYTable extends XpWikiElement {
 class XpWikiPre extends XpWikiElement {
 	function XpWikiPre(& $root, $text) {
 		parent :: XpWikiElement($root->xpwiki);
-		$this->elements[] = htmlspecialchars((!$this->root->preformat_ltrim || $text === '' || $text {
+		$this->elements[] = $this->func->htmlspecialchars((!$this->root->preformat_ltrim || $text === '' || $text {
 			0}
 		!= ' ') ? $text : substr($text, 1));
 	}

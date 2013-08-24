@@ -34,7 +34,7 @@ class xpwiki_plugin_backup extends xpwiki_plugin {
 		if ($page === '') return array('msg'=>$this->root->_title_backuplist, 'body'=>$this->plugin_backup_get_list_all());
 
 		$this->func->check_readable($page, true, true);
-		$s_page = htmlspecialchars($page);
+		$s_page = $this->func->htmlspecialchars($page);
 		$pgid = $this->func->get_pgid_by_name($page);
 		$isowner = $this->func->is_owner($page);
 		$s_age = (isset($this->root->vars['age'])) ? $this->root->vars['age'] : 0;
@@ -56,7 +56,7 @@ class xpwiki_plugin_backup extends xpwiki_plugin {
 
 		$s_action = $r_action = '';
 		if ($action != '') {
-			$s_action = htmlspecialchars($action);
+			$s_action = $this->func->htmlspecialchars($action);
 			$r_action = rawurlencode($action);
 		}
 
@@ -64,9 +64,9 @@ class xpwiki_plugin_backup extends xpwiki_plugin {
 
 		$view_now = ($action === 'diff' || $action === 'source');
 
-		$edit_icon = '<a href="' . $this->cont['HOME_URL'] . '?cmd=edit&amp;pgid=' . $pgid . '&amp;backup=$1" title="' . htmlspecialchars($this->root->_msg_backupedit) . '"><img src="' . $this->icons['edit']['url'] . '" alt="' . htmlspecialchars($this->root->_msg_backupedit) . '" width="' . $this->icons['edit']['width'] . '" height="' . $this->icons['edit']['height'] . '" /></a>';
-		$source_icon = '<a href="' . $this->cont['HOME_URL'] . '?cmd=backup&amp;pgid=' . $pgid . '&amp;action=source&amp;age=$1" title="' . htmlspecialchars($this->root->_msg_source) . '"><img src="' . $this->icons['source']['url'] . '" alt="' . htmlspecialchars($this->root->_msg_source) . '" width="' . $this->icons['source']['width'] . '" height="' . $this->icons['source']['height'] . '" /></a>';
-		$rewind_icon = '<a href="' . $this->cont['HOME_URL'] . '?cmd=backup&amp;pgid=' . $pgid . '&amp;action=rewind&amp;age=$1" title="' . htmlspecialchars($this->root->_msg_rewind) . '"><img src="' . $this->icons['rewind']['url'] . '" alt="' . htmlspecialchars($this->root->_msg_rewind) . '" width="' . $this->icons['rewind']['width'] . '" height="' . $this->icons['rewind']['height'] . '" /></a>';
+		$edit_icon = '<a href="' . $this->cont['HOME_URL'] . '?cmd=edit&amp;pgid=' . $pgid . '&amp;backup=$1" title="' . $this->func->htmlspecialchars($this->root->_msg_backupedit) . '"><img src="' . $this->icons['edit']['url'] . '" alt="' . $this->func->htmlspecialchars($this->root->_msg_backupedit) . '" width="' . $this->icons['edit']['width'] . '" height="' . $this->icons['edit']['height'] . '" /></a>';
+		$source_icon = '<a href="' . $this->cont['HOME_URL'] . '?cmd=backup&amp;pgid=' . $pgid . '&amp;action=source&amp;age=$1" title="' . $this->func->htmlspecialchars($this->root->_msg_source) . '"><img src="' . $this->icons['source']['url'] . '" alt="' . $this->func->htmlspecialchars($this->root->_msg_source) . '" width="' . $this->icons['source']['width'] . '" height="' . $this->icons['source']['height'] . '" /></a>';
+		$rewind_icon = '<a href="' . $this->cont['HOME_URL'] . '?cmd=backup&amp;pgid=' . $pgid . '&amp;action=rewind&amp;age=$1" title="' . $this->func->htmlspecialchars($this->root->_msg_rewind) . '"><img src="' . $this->icons['rewind']['url'] . '" alt="' . $this->func->htmlspecialchars($this->root->_msg_rewind) . '" width="' . $this->icons['rewind']['width'] . '" height="' . $this->icons['rewind']['height'] . '" /></a>';
 
 		if ($view_now && ($s_age === 'Cur' || !$s_age)) {
 			$s_age = 'Cur';
@@ -155,9 +155,9 @@ EOD;
 			// list
 			$_name = '_title_backup' . $action;
 			$title = $this->root->$_name;
-			$list .= '<li>'.htmlspecialchars(str_replace(array('$1', '$2'), array($page, ' All'), $title)) . "\n";
+			$list .= '<li>'.$this->func->htmlspecialchars(str_replace(array('$1', '$2'), array($page, ' All'), $title)) . "\n";
 			foreach($backups as $age => $val) {
-				$s_title = htmlspecialchars(str_replace(array('$1', '$2'), array($page, $age), $title));
+				$s_title = $this->func->htmlspecialchars(str_replace(array('$1', '$2'), array($page, $age), $title));
 				$date = $this->func->format_date($val['time']);
 				$pginfo = $this->func->get_pginfo('',$val['data']);
 				$lasteditor = $this->func->get_lasteditor($pginfo);
@@ -183,7 +183,7 @@ EOD;
 				} else {
 					$title = '';
 				}
-				$s_title = htmlspecialchars(str_replace('$1', $page, $title));
+				$s_title = $this->func->htmlspecialchars(str_replace('$1', $page, $title));
 				$date = $this->func->format_date($this->func->get_filetime($page));
 				$pginfo = $this->func->get_pginfo($page);
 				$esummary = $this->make_esummary($pginfo['esummary']);
@@ -214,7 +214,7 @@ EOD;
 				$date = $this->func->format_date($backups[$age]['time']);
 				$pginfo = $this->func->get_pginfo('',$backups[$age]['data']);
 				$lasteditor = $this->func->get_lasteditor($pginfo);
-				$title = htmlspecialchars(strip_tags($this->make_age_label($age, $date, $lasteditor)));
+				$title = $this->func->htmlspecialchars(strip_tags($this->make_age_label($age, $date, $lasteditor)));
 
 				$navi_link[0] = '<a href="'.$nav_href . $age .'" title="' . $title . '">&#171; ' . $this->root->_navi_prev . '</a>';
 			}
@@ -229,7 +229,7 @@ EOD;
 					$pginfo = $this->func->get_pginfo($page);
 				}
 				$lasteditor = $this->func->get_lasteditor($pginfo);
-				$title = htmlspecialchars(strip_tags($this->make_age_label($age, $date, $lasteditor)));
+				$title = $this->func->htmlspecialchars(strip_tags($this->make_age_label($age, $date, $lasteditor)));
 				$navi_link[1] = '<a href="'.$nav_href . $age .'" title="' . $title . '">' . $this->root->_navi_next . ' &#187;</a>';
 			}
 			$navi = '<div>' . $navi_link[0] . '&nbsp;&nbsp;' . $navi_link[1] .'</div>';
@@ -285,7 +285,7 @@ EOD;
 				$title = $this->root->_title_backupsource;
 				$data = join('', $backups[$s_age]['data']);
 			}
-			$sorce = htmlspecialchars($this->func->remove_pginfo($data));
+			$sorce = $this->func->htmlspecialchars($this->func->remove_pginfo($data));
 			if ($this->root->viewmode === 'print' || $this->cont['UA_PROFILE'] === 'keitai') {
 				$body .=<<<EOD
 <pre class="code">
@@ -354,7 +354,7 @@ EOD;
 		}
 
 		$script = $this->func->get_script_uri();
-		$s_page = htmlspecialchars($page);
+		$s_page = $this->func->htmlspecialchars($page);
 		$s_title = str_replace('$1', $s_page, $this->root->_title_backup_delete);
 		$body .= <<<EOD
 <p>$s_title</p>
@@ -379,12 +379,12 @@ EOD;
 </ul>
 EOD;
 
-		return $ul . '<pre>' . $this->func->diff_style_to_css(htmlspecialchars($str)) . '</pre>' . "\n";
+		return $ul . '<pre>' . $this->func->diff_style_to_css($this->func->htmlspecialchars($str)) . '</pre>' . "\n";
 	}
 
 	function plugin_backup_get_list($page) {
 		$script = $this->func->get_script_uri();
-		$s_page = htmlspecialchars($page);
+		$s_page = $this->func->htmlspecialchars($page);
 		$pgid = $this->func->get_pgid_by_name($page);
 		$retval = array();
 		$page_link = $this->func->make_pagelink($page);
@@ -482,7 +482,7 @@ EOD;
 			$this->func->touch_page($page, $time);
 			//$this->root->rtf['page_touch'][$page][] = 'Rewound to ' . ($count - $age + 2) . ' ages ago.';
 
-			$s_page = htmlspecialchars($page);
+			$s_page = $this->func->htmlspecialchars($page);
 			return array(
 				'msg'  => str_replace('$1', $age, $this->root->_msg_rewinded),
 				'body' => ''

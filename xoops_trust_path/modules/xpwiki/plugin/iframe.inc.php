@@ -104,7 +104,7 @@ class xpwiki_plugin_iframe extends xpwiki_plugin {
 		// CSS 読み込み
 		$this->func->add_tag_head('iframe.css');
 		
-		$url = htmlspecialchars($url); 
+		$url = $this->func->htmlspecialchars($url); 
 		$params = array(
 			'style'    => FALSE,
 			'iestyle'   => FALSE,
@@ -125,11 +125,11 @@ class xpwiki_plugin_iframe extends xpwiki_plugin {
 			$class=" class=\"iframe_ie\"";
 			if ( $params['iestyle'] != FALSE )
 			{
-				$style = ' style="' . htmlspecialchars(strip_tags(trim($params['iestyle'], '"'))) . '"'; 
+				$style = ' style="' . $this->func->htmlspecialchars(strip_tags(trim($params['iestyle'], '"'))) . '"'; 
 			}
 			else if ( $params['style'] != FALSE )
 			{
-				$style = ' style="' . htmlspecialchars(strip_tags(trim($params['style'], '"'))) . '"';
+				$style = ' style="' . $this->func->htmlspecialchars(strip_tags(trim($params['style'], '"'))) . '"';
 			}
 			
 			return <<<HTML

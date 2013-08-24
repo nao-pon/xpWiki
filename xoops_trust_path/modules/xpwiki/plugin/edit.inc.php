@@ -162,7 +162,7 @@ EOD;
 			$this->func->convert_finisher($body);
 
 			$title = (!$ng_riddle)? $this->root->_title_preview : $this->root->_title_ng_riddle;
-			$title = '<h3>'.str_replace('$1', htmlspecialchars($page), $title).'</h3>';
+			$title = '<h3>'.str_replace('$1', $this->func->htmlspecialchars($page), $title).'</h3>';
 			$body = $title.$body;
 
 			if (preg_match('/\(\([eisv]:[0-9a-f]{4}\)\)|\[emj:\d{1,4}(?::(?:im|ez|sb))?\]/S', $body)) {
@@ -237,16 +237,16 @@ EOD;
 		if ($isfreeze || !$is_editable) return ''; // Show nothing
 
 		// Paragraph edit enabled or not
-		$short = htmlspecialchars('Edit');
+		$short = $this->func->htmlspecialchars('Edit');
 		$js = $ajax = '';
-		$ajaxurl = htmlspecialchars(rawurlencode($s_page), ENT_QUOTES);
+		$ajaxurl = $this->func->htmlspecialchars(rawurlencode($s_page), ENT_QUOTES);
 		if ($this->root->fixed_heading_anchor_edit && $editable && $ispage && ! $isfreeze) {
 			// Paragraph editing
-			$js = ' onmouseover="wikihelper_area_highlite(\'' . htmlspecialchars($id) . '\',1);"' .
-					' onmouseout="wikihelper_area_highlite(\'' . htmlspecialchars($id) . '\',0);"';
-			$ajax = ($this->root->use_ajax_edit && $this->root->render_mode === 'main')? ' onclick="return xpwiki_ajax_edit(\'' . $ajaxurl . '\',\'' . htmlspecialchars($id) . '\');"' : '';
+			$js = ' onmouseover="wikihelper_area_highlite(\'' . $this->func->htmlspecialchars($id) . '\',1);"' .
+					' onmouseout="wikihelper_area_highlite(\'' . $this->func->htmlspecialchars($id) . '\',0);"';
+			$ajax = ($this->root->use_ajax_edit && $this->root->render_mode === 'main')? ' onclick="return xpwiki_ajax_edit(\'' . $ajaxurl . '\',\'' . $this->func->htmlspecialchars($id) . '\');"' : '';
 			$id    = rawurlencode($id);
-			$title = htmlspecialchars(str_replace('$1', $s_page.$page, $this->root->_title_edit));
+			$title = $this->func->htmlspecialchars(str_replace('$1', $s_page.$page, $this->root->_title_edit));
 			$icon = '<img src="' . $this->cont['IMAGE_DIR'] . 'paraedit.png' .
 			'" width="9" height="9" alt="' .
 			$short . '" title="' . $title . '" /> ';
@@ -262,7 +262,7 @@ EOD;
 				$icon  = 'edit.png';
 				$ajax = ($this->root->use_ajax_edit && $this->root->render_mode === 'main')? ' onclick="return xpwiki_ajax_edit(\'' . $ajaxurl . '\');"' : '';
 			}
-			$title = htmlspecialchars(sprintf($title, $s_page));
+			$title = $this->func->htmlspecialchars(sprintf($title, $s_page));
 			$icon = '<img src="' . $this->cont['IMAGE_DIR'] . $icon .
 			'" width="20" height="20" alt="' .
 			$short . '" title="' . $title . '" />';
@@ -416,10 +416,10 @@ EOD;
 			} else {
 				$url = $this->cont['HOME_URL'];
 			}
-			$title = str_replace('$1', htmlspecialchars($page), $this->root->_title_deleted);
+			$title = str_replace('$1', $this->func->htmlspecialchars($page), $this->root->_title_deleted);
 
 			if (isset($this->root->vars['ajax'])) {
-				$url = htmlspecialchars($url, ENT_QUOTES);
+				$url = $this->func->htmlspecialchars($url, ENT_QUOTES);
 				$body = <<<EOD
 <xpwiki>
 <content><![CDATA[{$title}]]></content>
@@ -447,7 +447,7 @@ EOD;
 			} else {
 				$obj = new XpWiki($this->root->mydirname);
 				$obj->init($page);
-				$obj->root->userinfo['uname_s'] = htmlspecialchars($this->root->cookie['name']);
+				$obj->root->userinfo['uname_s'] = $this->func->htmlspecialchars($this->root->cookie['name']);
 				$obj->execute();
 				if (isset($obj->root->rtf['useJavascriptInHead'])) {
 					$body = '<script src="" />';
@@ -455,7 +455,7 @@ EOD;
 					$body = $obj->body;
 					// set target
 					if (isset($this->root->vars['popup'])) {
-						$body = preg_replace('/(<a[^>]+)(href=(?:"|\')[^#])/isS', '$1target="' . ((intval($this->root->vars['popup']) === 1)? '_parent' : htmlspecialchars(substr($this->root->vars['popup'],0,30))) . '" $2', $body);
+						$body = preg_replace('/(<a[^>]+)(href=(?:"|\')[^#])/isS', '$1target="' . ((intval($this->root->vars['popup']) === 1)? '_parent' : $this->func->htmlspecialchars(substr($this->root->vars['popup'],0,30))) . '" $2', $body);
 					}
 					$body = str_replace(array('<![CDATA[', ']]>'), '', $body);
 				}

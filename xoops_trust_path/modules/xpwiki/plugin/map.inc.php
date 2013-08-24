@@ -81,7 +81,7 @@ class xpwiki_plugin_map extends xpwiki_plugin {
 			
 			if ($this->show_not_related) {
 				$retval['body'] .= '<hr />' . "\n" .
-				'<p>Not related from ' . htmlspecialchars($refer) . '</p>' . "\n";
+				'<p>Not related from ' . $this->func->htmlspecialchars($refer) . '</p>' . "\n";
 				$keys = array_keys($nodes);
 				sort($keys);
 				$retval['body'] .= '<ul>' . "\n";

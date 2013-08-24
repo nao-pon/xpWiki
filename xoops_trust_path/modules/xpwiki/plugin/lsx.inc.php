@@ -102,7 +102,7 @@ class XpWikiPluginLsx
 
 	function body($args, $args_decomposed = FALSE)
 	{
-		$parser = new XpWikiPluginLsxOptionParser();
+		$parser = new XpWikiPluginLsxOptionParser($this->xpwiki);
 		$this->options = $parser->parse_options($args, $this->options, $args_decomposed);
 
 		if ($this->options['rtag'][1]) {
@@ -130,7 +130,7 @@ class XpWikiPluginLsx
 	{
 		$this->filter_pages();
 
-		$parser = new XpWikiPluginLsxOptionParser();
+		$parser = new XpWikiPluginLsxOptionParser($this->xpwiki);
 		$mdepth = $this->depth_metapages();
 		$this->options['depth'][1] = $parser->parse_numoption($this->options['depth'][1], 1, $mdepth);
 		if ($parser->error != "") { $this->error = $parser->error; return; }
@@ -339,7 +339,7 @@ class XpWikiPluginLsx
 	function make_pagelink($page, $alias)
 	{
 		$tmp = $this->root->show_passage; $this->root->show_passage = 0;
-		$link = $this->func->make_pagelink($page, htmlspecialchars($alias));
+		$link = $this->func->make_pagelink($page, $this->func->htmlspecialchars($alias));
 		$this->root->show_passage = $tmp;
 		return $link;
 	}
@@ -626,7 +626,7 @@ class XpWikiPluginLsx
 				$this->error  = 'The tag token, ' . $this->options['tag'][1] . ', is invalid. ';
 				$this->error .= 'Perhaps, the tag does not exist. ';
 			}
-			$this->title = $this->root->_title_list." [Tag: ".htmlspecialchars($this->options['tag'][1])." ]";
+			$this->title = $this->root->_title_list." [Tag: ".$this->func->htmlspecialchars($this->options['tag'][1])." ]";
 		}
 		$metapages = array();
 		foreach ($pages as $i => $page) {
@@ -732,7 +732,13 @@ class XpWikiPluginLsx
 class XpWikiPluginLsxOptionParser
 {
 	var $error = "";
-
+	var $func;
+	
+	function __construct(& $xpwiki)
+	{
+		$this->func =& $xpwiki->func;
+	}
+	
 	function parse_options($args, $options, $decomposed = FALSE)
 	{
 		if (! $decomposed) {
@@ -762,7 +768,7 @@ class XpWikiPluginLsxOptionParser
 				$options[$key][1] = $val;
 				break;
 			case 'sanitize':
-				$options[$key][1] = htmlspecialchars($val);
+				$options[$key][1] = $this->func->htmlspecialchars($val);
 				break;
 			case 'number':
 				// Do not parse yet, parse after getting min and max. Here, just format checking

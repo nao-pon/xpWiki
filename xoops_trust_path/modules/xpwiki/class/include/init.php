@@ -48,12 +48,6 @@ if (substr($const['SKIN_NAME'],0,3) === "tD-") {
 // Compat
 $root->anonymous = $root->_no_name = $root->siteinfo['anonymous'];
 
-// アクセスユーザーの情報読み込み
-$this->set_userinfo();
-
-// cookie 用ユーザーコード取得 & cookie読み書き
-$this->load_usercookie();
-
 /////////////////////////////////////////////////
 // Language / Encoding settings
 
@@ -71,6 +65,13 @@ $const['FILE_ENCORD_EXT'] = ($const['CONTENT_CHARSET'] === 'UTF-8')? '_utf8' : '
 
 // Locale
 if (empty($const['LC_CTYPE'])) $const['LC_CTYPE'] = $this->get_LC_CTYPE();
+
+/////////////////////////////////////////////////
+// アクセスユーザーの情報読み込み
+$this->set_userinfo();
+
+// cookie 用ユーザーコード取得 & cookie読み書き
+$this->load_usercookie();
 
 /////////////////////////////////////////////////
 // INI_FILE: Require Lang Conf

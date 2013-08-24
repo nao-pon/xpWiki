@@ -75,7 +75,7 @@ class xpwiki_plugin_footnotes extends xpwiki_plugin {
 							if ($options['category'] && !isset($catName[$category])) {
 								$idType = isset($this->root->footnote_categories[$category])? $this->root->footnote_categories[$category] : '*$1';
 								$catTitle = ($this->config['category_title'])? $this->config['category_title'] : $idType;
-								$catName[$category] = '<div class="' . $catClass . '">' . str_replace('$1', htmlspecialchars($category), $catTitle) . '</div>';
+								$catName[$category] = '<div class="' . $catClass . '">' . str_replace('$1', $this->func->htmlspecialchars($category), $catTitle) . '</div>';
 							}
 							$catSets[$category][$key] = $val;
 							if (!$options['noclear']) {

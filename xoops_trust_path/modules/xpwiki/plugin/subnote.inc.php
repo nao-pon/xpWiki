@@ -37,8 +37,8 @@ class xpwiki_plugin_subnote extends xpwiki_plugin {
 		$this->fetch_options($parames, $op);
 		$popup_pos = $this->func->get_popup_pos($parames);
 
-		$js = 'XpWiki.domInitFunctions.push(function(){XpWiki.pagePopup({dir:\'' . htmlspecialchars($this->root->mydirname, ENT_QUOTES) .
-			'\',page:\'' . htmlspecialchars(str_replace('\'', '\\\'', $page) . $anchor) . '\'' .
+		$js = 'XpWiki.domInitFunctions.push(function(){XpWiki.pagePopup({dir:\'' . $this->func->htmlspecialchars($this->root->mydirname, ENT_QUOTES) .
+			'\',page:\'' . $this->func->htmlspecialchars(str_replace('\'', '\\\'', $page) . $anchor) . '\'' .
 			$popup_pos . '});});';
 
 		$this->func->add_js_var_head($js);
@@ -60,7 +60,7 @@ class xpwiki_plugin_subnote extends xpwiki_plugin {
 		$parames = $this->config['parames'];
 		$this->fetch_options($parames, $op);
 
-		$parames['format'] = htmlspecialchars($parames['format']);
+		$parames['format'] = $this->func->htmlspecialchars($parames['format']);
 
 		$prefix = $this->root->notepage . '/';
 		$page = $this->cont['PAGENAME'];
@@ -100,7 +100,7 @@ class xpwiki_plugin_subnote extends xpwiki_plugin {
 			}
 		}
 
-		$alias = $alias? $alias : htmlspecialchars($page);
+		$alias = $alias? $alias : $this->func->htmlspecialchars($page);
 		return sprintf('<span class="nowrap">' . $parames['format'] . '</span>', $icon . $this->func->make_pagelink($page, $alias, $anchor, '', 'pagelink', $options).$new);
 	}
 }

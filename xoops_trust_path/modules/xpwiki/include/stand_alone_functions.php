@@ -68,12 +68,12 @@ function xpwiki_saf_getRecentPages_base( $options ) {
 
 		$entry = array(
 			'id'          => $xpwiki->func->get_pgid_by_name($page),
-			'pagename'    => htmlspecialchars($page),
+			'pagename'    => htmlspecialchars($page, ENT_COMPAT, $xpwiki->cont['SOURCE_ENCODING']),
 			'views'       => $xpwiki->func->get_page_views($page),
 			'replies'     => $xpwiki->func->count_page_comments($page),
 			'pubtime'     => ($time + date('Z')),
 			'link'        => $xpwiki->func->get_page_uri($page, true),
-			'headline'    => htmlspecialchars($title),
+			'headline'    => htmlspecialchars($title, ENT_COMPAT, $xpwiki->cont['SOURCE_ENCODING']),
 			'description' => $description,
 			'pginfo'      => $pginfo,
 		);

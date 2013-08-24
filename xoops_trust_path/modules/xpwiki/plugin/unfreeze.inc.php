@@ -50,7 +50,7 @@ class xpwiki_plugin_unfreeze extends xpwiki_plugin {
 		} else {
 			// Show unfreeze form
 			$msg    = & $this->root->_title_unfreeze;
-			$s_page = htmlspecialchars($page);
+			$s_page = $this->func->htmlspecialchars($page);
 			$script = $this->func->get_script_uri();
 			$body   = ($pass === NULL) ? '' : "<p><strong>{$this->root->_msg_invalidpass}</strong></p>\n";
 			$body  .= <<<EOD

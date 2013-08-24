@@ -43,7 +43,7 @@ class xpwiki_plugin_build_js extends xpwiki_plugin {
 				$attr = ' class="button"';
 			}
 
-			return '<span'.$attr.' onclick="' . $jsfunc . '(\''.htmlspecialchars($args[1], ENT_QUOTES).'\',\''.$args[2].'\')">'.$this->root->_attach_messages['msg_insert'].'</span>';
+			return '<span'.$attr.' onclick="' . $jsfunc . '(\''.$this->func->htmlspecialchars($args[1], ENT_QUOTES).'\',\''.$args[2].'\')">'.$this->root->_attach_messages['msg_insert'].'</span>';
 
 			break;
 		case 'attachDel':
@@ -58,7 +58,7 @@ class xpwiki_plugin_build_js extends xpwiki_plugin {
 			$param .= 'file='.rawurlencode($file);
 			if ($returi) $param .= '&amp;returi='.rawurlencode($returi);
 
-			return '<a href="'.$this->root->script.'?plugin=attach&pcmd=delete'.$param.'" title="'.$this->root->_btn_delete.'" onclick="return confirm(\''.htmlspecialchars($file, ENT_QUOTES).': '.htmlspecialchars($this->root->_attach_messages['msg_delete'], ENT_QUOTES).'\')"><img src="'.$this->cont['LOADER_URL'].'?src=trash_16.gif" alt="'.$this->root->_btn_delete.'" /></a>';
+			return '<a href="'.$this->root->script.'?plugin=attach&pcmd=delete'.$param.'" title="'.$this->root->_btn_delete.'" onclick="return confirm(\''.$this->func->htmlspecialchars($file, ENT_QUOTES).': '.$this->func->htmlspecialchars($this->root->_attach_messages['msg_delete'], ENT_QUOTES).'\')"><img src="'.$this->cont['LOADER_URL'].'?src=trash_16.gif" alt="'.$this->root->_btn_delete.'" /></a>';
 
 			break;
 		default :

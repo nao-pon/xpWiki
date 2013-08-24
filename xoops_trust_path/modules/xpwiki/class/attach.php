@@ -182,7 +182,7 @@ class XpWikiAttachFile
 		$user = $user['uname_s'];
 		if (!$this->status['owner']) {
 			if ($this->status['uname']) {
-				$user = htmlspecialchars($this->status['uname']);
+				$user = $this->func->htmlspecialchars($this->status['uname']);
 			}
 			$user = $user . " [".$this->status['ucd'] . "]";
 		}
@@ -254,7 +254,7 @@ class XpWikiAttachFile
 		       . '&amp;';
 		$param2 = 'file='.$file_e;
 		$title = $this->time_str.' '.$this->size_str;
-		$label = ($showicon ? $this->cont['FILE_ICON'] : '').htmlspecialchars($this->status['org_fname']);
+		$label = ($showicon ? $this->cont['FILE_ICON'] : '').$this->func->htmlspecialchars($this->status['org_fname']);
 		if ($this->age) {
 			if ($mode == "imglist"){
 				$label = 'backup No.'.$this->age;
@@ -275,7 +275,7 @@ class XpWikiAttachFile
 					if ($is_owner) $info .= ' &build_js(attachDel,'.str_replace('|', '&#124;', $this->page).','.str_replace('|', '&#124;', $this->file).','.$this->age.','.$returi.');';
 				} else {
 					$info = "\n<span class=\"small\">[<a href=\"{$this->root->script}?plugin=attach&amp;pcmd=info{$param}{$param2}\" title=\"$_title\">{$this->root->_attach_messages['btn_info']}</a>]</span>";
-					if ($is_owner) $info .= '<a href="'.$this->root->script.'?plugin=attach&pcmd=delete'.$param.$param2.'&amp;returi='.rawurlencode($returi).'" title="'.$this->root->_btn_delete.'" onclick="return confirm(\''.htmlspecialchars($this->file, ENT_QUOTES).': '.htmlspecialchars($this->root->_attach_messages['msg_delete'], ENT_QUOTES).'\')"><img src="'.$this->cont['LOADER_URL'].'?src=trash_16.gif" alt="'.$this->root->_btn_delete.'" /></a>';
+					if ($is_owner) $info .= '<a href="'.$this->root->script.'?plugin=attach&pcmd=delete'.$param.$param2.'&amp;returi='.rawurlencode($returi).'" title="'.$this->root->_btn_delete.'" onclick="return confirm(\''.$this->func->htmlspecialchars($this->file, ENT_QUOTES).': '.$this->func->htmlspecialchars($this->root->_attach_messages['msg_delete'], ENT_QUOTES).'\')"><img src="'.$this->cont['LOADER_URL'].'?src=trash_16.gif" alt="'.$this->root->_btn_delete.'" /></a>';
 				}
 			}
 			$count = ($showicon and !empty($this->status['count'][$this->age])) ?
@@ -308,8 +308,8 @@ class XpWikiAttachFile
 	function info($err) {
 
 		$r_page = rawurlencode($this->page);
-		$s_page = htmlspecialchars($this->page);
-		$s_file = htmlspecialchars($this->file);
+		$s_page = $this->func->htmlspecialchars($this->page);
+		$s_file = $this->func->htmlspecialchars($this->file);
 		$s_err = ($err == '') ? '' : '<p style="font-weight:bold">'.$this->root->_attach_messages[$err].'</p>';
 		$ref = "";
 		$img_info = "";
@@ -423,7 +423,7 @@ EOD;
 						'<label for="_p_attach_newname">' . $this->root->_attach_messages['msg_newname'] .
 						':</label> ' .
 						'<input type="text" name="newname" id="_p_attach_newname" size="40" value="' .
-						(htmlspecialchars(empty($this->status['org_fname'])? $this->file : $this->status['org_fname'])) . '" /><br />';
+						($this->func->htmlspecialchars(empty($this->status['org_fname'])? $this->file : $this->status['org_fname'])) . '" /><br />';
 				}
 				if ($this->status['copyright']) {
 					$msg_copyright  = '<input type="radio" id="pcmd_c" name="pcmd" value="copyright0" /><label for="pcmd_c">'.$this->root->_attach_messages['msg_copyright0'].'</label>';
@@ -447,7 +447,7 @@ EOD;
 		$info = $this->toString(TRUE,FALSE);
 		$copyright = ($this->status['copyright'])? ' checked=TRUE' : '';
 
-		$retval = array('msg'=>sprintf($this->root->_attach_messages['msg_info'],htmlspecialchars($this->file)));
+		$retval = array('msg'=>sprintf($this->root->_attach_messages['msg_info'],$this->func->htmlspecialchars($this->file)));
 		$page_link = $this->func->make_pagelink($s_page);
 		$ex_tags = '';
 		if ($this->status['imagesize']) {
@@ -609,7 +609,7 @@ EOD;
 			$this->putstatus(TRUE);
 		}
 		if ($this->func->is_page($this->page)) {
-			$this->root->rtf['esummary'] = 'Deleted an attach file: ' . htmlspecialchars($this->file);
+			$this->root->rtf['esummary'] = 'Deleted an attach file: ' . $this->func->htmlspecialchars($this->file);
 			$this->func->touch_page($this->page, NULL, TRUE);
 		}
 
@@ -781,7 +781,7 @@ EOD;
 			($this->age ? '&age='.$this->age : '');
 		$redirect = "{$this->root->script}?plugin=attach&pcmd=info$param";
 
-		$msg = str_replace('$1', htmlspecialchars($this->status['org_fname']), $this->root->_title_updated);
+		$msg = str_replace('$1', $this->func->htmlspecialchars($this->status['org_fname']), $this->root->_title_updated);
 
 		return array('msg' => $msg, 'redirect' => $redirect);
 
@@ -1109,7 +1109,7 @@ class XpWikiAttachFiles
 				if ($this->is_popup) {
 					continue;
 				}
-				$_files[0] = htmlspecialchars($file);
+				$_files[0] = $this->func->htmlspecialchars($file);
 			}
 			ksort($_files);
 			$_file = $_files[0];
@@ -1170,7 +1170,7 @@ class XpWikiAttachFiles
 		$showall = ($fromall && $this->max < $this->count)? " [&nbsp;<a href=\"{$showall_href}\">Show All</a>&nbsp;]" : "";
 		if ($this->is_popup) {
 			if ($fromall) {
-				$showall = "<div class=\"filelist_page\"><a href=\"{$showall_href}\">" . htmlspecialchars($this->page) . '</a>' . $filecount . '<small>' . $showall . '</small></div>';
+				$showall = "<div class=\"filelist_page\"><a href=\"{$showall_href}\">" . $this->func->htmlspecialchars($this->page) . '</a>' . $filecount . '<small>' . $showall . '</small></div>';
 			} else {
 				$showall = '';
 			}
@@ -1338,11 +1338,11 @@ class XpWikiAttachPages
 		$hiddens = array();
 		$hiddens['plugin'] = 'attach';
 		$hiddens['pcmd'] = $pcmd;
-		$hiddens['refer'] = (isset($this->root->vars['refer']))? htmlspecialchars($this->root->vars['refer']) : '';
+		$hiddens['refer'] = (isset($this->root->vars['refer']))? $this->func->htmlspecialchars($this->root->vars['refer']) : '';
 		foreach($otherkeys as $key) {
 			if (isset($this->root->vars[$key])) {
 				$otherprams[] = rawurlencode($key) . '=' . rawurlencode($this->root->vars[$key]);
-				$hiddens[htmlspecialchars($key)] = htmlspecialchars($this->root->vars[$key]);
+				$hiddens[$this->func->htmlspecialchars($key)] = $this->func->htmlspecialchars($this->root->vars[$key]);
 			}
 		}
 
@@ -1372,7 +1372,7 @@ class XpWikiAttachPages
 					if ($this->root->vars['basedir'] === $dir) {
 						$defaultpage = $this->root->vars['base'];
 					}
-					$otherDirs[] = '<option value="' . $dir . '#' . htmlspecialchars($defaultpage) . '"' . $selected . '>' . htmlspecialchars($val['title']) . '</option>';
+					$otherDirs[] = '<option value="' . $dir . '#' . $this->func->htmlspecialchars($defaultpage) . '"' . $selected . '>' . $this->func->htmlspecialchars($val['title']) . '</option>';
 				}
 				$otherDir = '<form><img src="' . $this->cont['LOADER_URL'] . '?src=folder_go.png" alt="Dir" /> <select name="otherdir" style="max-width:85%;" onchange="xpwiki_dir_selector_change(this.options[this.selectedIndex].value)">' . join('', $otherDirs) . '</select></form>';
 			}
@@ -1412,7 +1412,7 @@ class XpWikiAttachPages
 							$_class = 'attachable';
 							if ($this->cont['UA_PROFILE'] !== 'default') $_attachable = '&uarr;';
 						}
-						$otherPages[] = '<option class="'.$_class.'" value="' . rawurlencode($_page) . '"' . $selected . '>' . $_attachable . htmlspecialchars($_page) . $count . '</option>';
+						$otherPages[] = '<option class="'.$_class.'" value="' . rawurlencode($_page) . '"' . $selected . '>' . $_attachable . $this->func->htmlspecialchars($_page) . $count . '</option>';
 					}
 				}
 				$otherPages[] = '</optgroup>';
@@ -1425,14 +1425,14 @@ class XpWikiAttachPages
 					if ($this->func->check_readable($row[0], false, false)) {
 						if (in_array($row[0], $shown)) continue;
 						$selected = ($row[0] === $page)? ' selected="selected"' : '';
-						$_page = htmlspecialchars($row[0]);
+						$_page = $this->func->htmlspecialchars($row[0]);
 						$_attachable = '';
 						$_class = 'readable';
 						if ($attach->attachable($_page)) {
 							$_class = 'attachable';
 							if ($this->cont['UA_PROFILE'] !== 'default') $_attachable = '&uarr;';
 						}
-						$otherPages[] = '<option class="'.$_class.'" value="' . rawurlencode($_page) . '"' . $selected . '>' . $_attachable . htmlspecialchars($_page) . ' (' . $row[1] . ')</option>';
+						$otherPages[] = '<option class="'.$_class.'" value="' . rawurlencode($_page) . '"' . $selected . '>' . $_attachable . $this->func->htmlspecialchars($_page) . ' (' . $row[1] . ')</option>';
 					}
 				}
 				$otherPages[] = '</optgroup>';
@@ -1441,7 +1441,7 @@ class XpWikiAttachPages
 				$thisPage = '<option value="">--- ' . $this->root->_attach_messages['msg_page_select'] . ' ---</option>';
 				if ($this->root->vars['basedir'] === $this->root->mydirname) {
 					$selected = ($this->root->vars['base'] === $page)? ' selected="selected"' : '';
-					$thisPage .= '<option value="'.rawurlencode($this->root->vars['base']).'"' . $selected . '>' . htmlspecialchars($this->root->vars['base']) . $this->root->_attach_messages['msg_select_current'] . '</option>';
+					$thisPage .= '<option value="'.rawurlencode($this->root->vars['base']).'"' . $selected . '>' . $this->func->htmlspecialchars($this->root->vars['base']) . $this->root->_attach_messages['msg_select_current'] . '</option>';
 				}
 				if (! empty($this->root->vars['refer'])) $thisPage .= '<option value="#">'.$this->root->_attach_messages['msg_show_all_pages'].'</option>';
 				$base = rawurlencode($this->root->vars['base']);
@@ -1470,7 +1470,7 @@ function xpwiki_dir_selector_change(dir) {
 EOD;
 		}
 
-		$sword = (isset($this->root->vars['word']))? htmlspecialchars($this->root->vars['word']) : '';
+		$sword = (isset($this->root->vars['word']))? $this->func->htmlspecialchars($this->root->vars['word']) : '';
 		$hidden = '';
 		unset($hiddens['word']);
 		foreach($hiddens as $key=> $val) {

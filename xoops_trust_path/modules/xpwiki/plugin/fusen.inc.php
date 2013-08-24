@@ -163,7 +163,7 @@ class xpwiki_plugin_fusen extends xpwiki_plugin {
 		$X_ucd = ''; //WIKI_UCD_DEF;
 		$js_refer = $this->plugin_fusen_jsencode($refer);
 		$auth = $this->func->is_owner($refer)? 1 : 0;
-		$s_refer = htmlspecialchars($refer);
+		$s_refer = $this->func->htmlspecialchars($refer);
 
 		$burn = ($auth)? "(<a href=\"javascript:fusen_burn()\" title=\"{$this->msg['cap_dustbox_empty']}\">{$this->msg['cap_empty']}</a>)" : "";
 		$js_massages = '';
@@ -497,7 +497,7 @@ EOD;
 				$options = array('overwrite' => TRUE, 'asSystem' => TRUE);
 				if ($this->root->vars['mode'] == 'edit') {
 					// 編集時はタイムスタンプを更新する
-					$options['changelog'] = '[Fusen:' . $id . '] ' . htmlspecialchars($txt);
+					$options['changelog'] = '[Fusen:' . $id . '] ' . $this->func->htmlspecialchars($txt);
 					$ret = $atatch_obj->do_upload($refer, $this->cont['FUSEN_ATTACH_FILENAME'], $fname.".tmp",FALSE,NULL,FALSE,$options);
 				} else {
 					// その他はタイムスタンプを更新しない
@@ -608,7 +608,7 @@ EOD;
 			$json .= '"tc":"' . $dat['tc'] . '",';
 			$json .= '"bg":"' . $dat['bg'] . '",';
 			$json .= '"disp":"' .$this->plugin_fusen_jsencode($dat['disp']) . '",';
-			$json .= '"txt":"' . $this->plugin_fusen_jsencode(htmlspecialchars($dat['txt'])) . '",';
+			$json .= '"txt":"' . $this->plugin_fusen_jsencode($this->func->htmlspecialchars($dat['txt'])) . '",';
 			$json .= '"name":"' . $this->plugin_fusen_jsencode($this->func->make_link($dat['name'])) . '",';
 			$json .= '"mt":"' . ($dat['mt']? $dat['mt'] : "" ) . '",';
 			$json .= '"et":"' . ($dat['et']? $dat['et'] : "" ) . '",';

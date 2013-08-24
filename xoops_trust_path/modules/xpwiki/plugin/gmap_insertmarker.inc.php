@@ -43,8 +43,8 @@ class xpwiki_plugin_gmap_insertmarker extends xpwiki_plugin {
 		$maptypes = array('satellite', 'hybrid', 'physical', 'terrain');
 		$mtypename = in_array($mtype, $maptypes)? $mtype : 'roadmap';
 
-		$map    = htmlspecialchars(trim($this->root->vars['map']));
-		$icon   = htmlspecialchars($this->root->vars['icon']);
+		$map    = $this->func->htmlspecialchars(trim($this->root->vars['map']));
+		$icon   = $this->func->htmlspecialchars($this->root->vars['icon']);
 		$flat   = isset($this->root->vars['flat'])? true : false;
 		$title   = substr($this->root->vars['title'], 0, $this->cont['PLUGIN_GMAP_INSERTMARKER_TITLE_MAXLEN']);
 		$caption = substr(trim($this->root->vars['caption']), 0, $this->cont['PLUGIN_GMAP_INSERTMARKER_CAPTION_MAXLEN']);
@@ -66,10 +66,10 @@ class xpwiki_plugin_gmap_insertmarker extends xpwiki_plugin {
 		
 		$caption .= ($save_addr)? ($caption? '&br;' : '') . $this->msg['cap_addr'] . ': ' . $this->root->vars['addr'] : '';
 
-		$title   = htmlspecialchars(str_replace("\n", '', $title));
+		$title   = $this->func->htmlspecialchars(str_replace("\n", '', $title));
 		$caption = str_replace("\n", '&br;', $caption);
-		$image   = htmlspecialchars($image);
-		$maxurl  = htmlspecialchars($maxurl);
+		$image   = $this->func->htmlspecialchars($image);
+		$maxurl  = $this->func->htmlspecialchars($maxurl);
 
 		$marker = '-&'.$plugin.'_mark('.$lat.', '.$lng;
 		if ($title)         $marker .= ', title='.$title;
@@ -171,7 +171,7 @@ class xpwiki_plugin_gmap_insertmarker extends xpwiki_plugin {
 			$pos = strpos($param, '=');
 			if ($pos == false) continue;
 			$index = trim(substr($param, 0, $pos));
-			$value = htmlspecialchars(trim(substr($param, $pos+1)), ENT_QUOTES);
+			$value = $this->func->htmlspecialchars(trim(substr($param, $pos+1)), ENT_QUOTES);
 			$inoptions[$index] = $value;
 		}
 
@@ -199,7 +199,7 @@ class xpwiki_plugin_gmap_insertmarker extends xpwiki_plugin {
 		}
 		$direction = $options['direction'];
 		$this->root->script    = $this->func->get_script_uri();
-		$s_page    = htmlspecialchars($this->root->vars['page']);
+		$s_page    = $this->func->htmlspecialchars($this->root->vars['page']);
 		$page = $p_gmap->get_pgid($this->root->vars['page']);
 		$plugin = end($this->root->plugin_stack);
 

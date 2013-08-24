@@ -59,7 +59,7 @@ if (! isset($this->cont['TDIARY_THEME']) || $this->cont['TDIARY_THEME'] == '') {
 	$theme_css = $this->cont['DATA_HOME'] . 'skin/tdiary_theme/' . $theme . '/' . $theme . '.css';
 	if (! is_file($theme_css)) {
 		echo 'tDiary theme wrapper: ';
-		echo 'Theme not found: ' . htmlspecialchars($theme_css) . '<br />';
+		echo 'Theme not found: ' . $this->htmlspecialchars($theme_css) . '<br />';
 		echo 'You can get tdiary-theme from: ';
 		echo 'http://sourceforge.net/projects/tdiary/';
 		exit;
@@ -586,7 +586,7 @@ $css_prefix_id = $this->root->css_prefix ? ' id="' . ltrim($this->root->css_pref
 <?php if ($this->root->nofollow || ! $is_read)  { ?> <meta name="robots" content="NOINDEX,NOFOLLOW" /><?php } ?>
 <?php if ($this->cont['PKWK_ALLOW_JAVASCRIPT'] && isset($this->root->javascript)) { ?> <meta http-equiv="Content-Script-Type" content="text/javascript" /><?php } ?>
 
- <title><?php echo htmlspecialchars($this->root->pagetitle) ?> - <?php echo $this->root->siteinfo['sitename'] ?></title>
+ <title><?php echo $this->htmlspecialchars($this->root->pagetitle) ?> - <?php echo $this->root->siteinfo['sitename'] ?></title>
 
 <?php echo $head_pre_tag?>
  <?php echo $favicon ?>
@@ -597,7 +597,7 @@ $css_prefix_id = $this->root->css_prefix ? ' id="' . ltrim($this->root->css_pref
  <link rel="alternate" type="application/rss+xml" title="RSS" href="<?php echo $link['rss'] ?>" /><?php // RSS auto-discovery ?>
 <?php echo $head_tag ?>
 </head>
-<body<?php echo $css_prefix_id ?>><!-- Theme:<?php echo htmlspecialchars($theme) . ' Sidebar:' . $sidebar ?> -->
+<body<?php echo $css_prefix_id ?>><!-- Theme:<?php echo $this->htmlspecialchars($theme) . ' Sidebar:' . $sidebar ?> -->
 <div class="xpwiki_<?php echo $dirname ?>" style="position:relative;">
 
 <?php if ($menu && $sidebar == 'strict') { ?>
@@ -707,7 +707,7 @@ $css_prefix_id = $this->root->css_prefix ? ' id="' . ltrim($this->root->css_pref
 $title = '';
 if ($disable_backlink) {
 	if ($_page !== '') {
-		$title = htmlspecialchars($_page);
+		$title = $this->htmlspecialchars($_page);
 	} else {
 		$title = $page; // Search, or something message
 	}
@@ -715,7 +715,7 @@ if ($disable_backlink) {
 	if ($page !== '') {
 		$title = $page;
 	} else {
-		$title =  htmlspecialchars($_page);
+		$title =  $this->htmlspecialchars($_page);
 	}
 }
 $title_date = $title_text = '';

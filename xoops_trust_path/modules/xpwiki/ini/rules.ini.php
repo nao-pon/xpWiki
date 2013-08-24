@@ -44,7 +44,7 @@ $root->str_rules = array(
 	'&page;'	=> array_pop($page_array),
 	'&fpage;'	=> $root->vars['page'],
 	'&t;'   	=> "\t",
-	'&ua;'      => htmlspecialchars($root->ua),
+	'&ua;'      => $this->htmlspecialchars($root->ua),
 );
 
 //  preg_replace_callback を使用する置換

@@ -91,7 +91,7 @@ class xpwiki_plugin_paint extends xpwiki_plugin {
 			if (array_key_exists('refer',$this->root->vars))
 			{
 				$r_refer = rawurlencode($this->root->vars['refer']);
-				$s_refer = htmlspecialchars($this->root->vars['refer']);
+				$s_refer = $this->func->htmlspecialchars($this->root->vars['refer']);
 			}
 			$link = "<p><a href=\"{$this->root->script}?$r_refer\">$s_refer</a></p>";;
 	
@@ -115,7 +115,7 @@ class xpwiki_plugin_paint extends xpwiki_plugin {
 			$f_w = (is_numeric($width) and $width > 0) ? $width : $this->cont['PAINT_DEFAULT_WIDTH'];
 			$f_h = (is_numeric($height) and $height > 0) ? $height : $this->cont['PAINT_DEFAULT_HEIGHT'];
 			$f_refer = array_key_exists('refer',$this->root->vars) ? $this->func->encode($this->root->vars['refer']) : ''; // BBSPainter.jarがshift-jisに変換するのを回避
-			$f_digest = array_key_exists('digest',$this->root->vars) ? htmlspecialchars($this->root->vars['digest']) : '';
+			$f_digest = array_key_exists('digest',$this->root->vars) ? $this->func->htmlspecialchars($this->root->vars['digest']) : '';
 			$f_no = (array_key_exists('paint_no',$this->root->vars) and is_numeric($this->root->vars['paint_no'])) ?
 				$this->root->vars['paint_no'] + 0 : 0;
 	
@@ -193,7 +193,7 @@ EOD;
 		}
 	
 		//XSS脆弱性問題 - 外部から来た変数をエスケープ
-		$f_page = htmlspecialchars($this->root->vars['page']);
+		$f_page = $this->func->htmlspecialchars($this->root->vars['page']);
 	
 		$max = sprintf($this->root->_paint_messages['msg_max'],$this->cont['PAINT_MAX_WIDTH'],$this->cont['PAINT_MAX_HEIGHT']);
 		$script = $this->func->get_script_uri();

@@ -36,7 +36,7 @@ class xpwiki_plugin_random extends xpwiki_plugin {
 	
 		return "<p><a href=\"{$this->root->script}?plugin=random&amp;refer=" .
 		rawurlencode($this->root->vars['page']) . '">' .
-		htmlspecialchars($title) . '</a></p>';
+		$this->func->htmlspecialchars($title) . '</a></p>';
 	}
 	
 	function plugin_random_action()

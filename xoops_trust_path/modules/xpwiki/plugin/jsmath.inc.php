@@ -18,7 +18,7 @@ class xpwiki_plugin_jsmath extends xpwiki_plugin {
 		
 		$args = func_get_args();
 		if ($body = $this->get_body($args)) {
-			return'<!--NA--><div class="math" style="text-aligh:left;">' . htmlspecialchars($body) . '</div><!--/NA-->';
+			return'<!--NA--><div class="math" style="text-aligh:left;">' . $this->func->htmlspecialchars($body) . '</div><!--/NA-->';
 		} else {
 			return '';
 		}
@@ -27,7 +27,7 @@ class xpwiki_plugin_jsmath extends xpwiki_plugin {
 	function plugin_jsmath_inline () {
 		$args = func_get_args();
 		$_body = array_pop($args); // {}
-		$body =  htmlspecialchars($this->get_body($args));
+		$body =  $this->func->htmlspecialchars($this->get_body($args));
 		
 		$body = $_body? $_body : $body;
 		

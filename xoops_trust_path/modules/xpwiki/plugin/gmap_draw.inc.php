@@ -104,7 +104,7 @@ class xpwiki_plugin_gmap_draw extends xpwiki_plugin {
 				continue;
 			}
 			$index = trim(substr($param, 0, $pos));
-			$value = htmlspecialchars(trim(substr($param, $pos+1)), ENT_QUOTES);
+			$value = $this->func->htmlspecialchars(trim(substr($param, $pos+1)), ENT_QUOTES);
 	
 			$inoptions[$index] = $value;
 		}

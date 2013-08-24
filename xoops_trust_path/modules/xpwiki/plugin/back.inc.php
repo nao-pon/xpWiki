@@ -29,7 +29,7 @@ class xpwiki_plugin_back extends xpwiki_plugin {
 		list($word, $align, $hr, $href) = array_pad(func_get_args(), 4, '');
 	
 		$word = trim($word);
-		$word = ($word == '') ? $this->root->_msg_back_word : htmlspecialchars($word);
+		$word = ($word == '') ? $this->root->_msg_back_word : $this->func->htmlspecialchars($word);
 	
 		$align = strtolower(trim($align));
 		switch($align){

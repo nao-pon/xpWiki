@@ -43,7 +43,7 @@ class xpwiki_plugin_freeze extends xpwiki_plugin {
 		} else {
 			// Show a freeze form
 			$msg    = & $this->root->_title_freeze;
-			$s_page = htmlspecialchars($page);
+			$s_page = $this->func->htmlspecialchars($page);
 			$script = $this->func->get_script_uri();
 			$body   = ($pass === NULL) ? '' : "<p><strong>{$this->root->_msg_invalidpass}</strong></p>\n";
 			$body  .= <<<EOD

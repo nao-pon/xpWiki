@@ -47,21 +47,25 @@ class xpwiki_plugin_skin_changer extends xpwiki_plugin {
 		$now_query = preg_replace('/&?(word|'.preg_quote(session_name(), '/').')=[^&]+/', '', $now_query);
 		$now_query = preg_replace("/&+$/", "", $now_query);
 		
+		if ($now_query) {
+			$this->root->pagecache_min = 0;
+		}
+		
 		$link = (empty($now_query))? "setskin=" : "{$now_query}&setskin="; 
 		foreach ($skins as $name=>$skin) {
 			if ($skin == $this->root->cookie['skin'] && ($this->root->pagecache_min === 0 || $this->root->userinfo['uid'] !== 0)) {
-				$ret .= '<li style="font-weight:bold;">'.htmlspecialchars($name).'</li>'."\n";
+				$ret .= '<li style="font-weight:bold;">'.$this->func->htmlspecialchars($name).'</li>'."\n";
 			} else {
-				$ret .= '<li><a href="?'.htmlspecialchars($link.$skin).'" title="Change skin">'.htmlspecialchars($name).'</a></li>'."\n";
+				$ret .= '<li><a href="?'.$this->func->htmlspecialchars($link.$skin).'" title="Change skin">'.$this->func->htmlspecialchars($name).'</a></li>'."\n";
 			}
 		}
 		$ret .= '<li>t-Diary Skins'."\n";
 		$ret .= '<ul class="list2" style="padding-left:'.$this->root->_ul_margin.'px;margin-left:'.$this->root->_ul_margin.'px;">'."\n";
 		foreach ($t_skins as $name=>$skin) {
 			if ($skin == $this->root->cookie['skin'] && ($this->root->pagecache_min === 0 || $this->root->userinfo['uid'] !== 0)) {
-				$ret .= '<li style="font-weight:bold;">'.htmlspecialchars($name).'</li>'."\n";
+				$ret .= '<li style="font-weight:bold;">'.$this->func->htmlspecialchars($name).'</li>'."\n";
 			} else {
-				$ret .= '<li><a href="?'.htmlspecialchars($link.$skin).'" title="Change skin">'.htmlspecialchars($name).'</a></li>'."\n";
+				$ret .= '<li><a href="?'.$this->func->htmlspecialchars($link.$skin).'" title="Change skin">'.$this->func->htmlspecialchars($name).'</a></li>'."\n";
 			}
 		}
 		$ret .= '</ul></li>'."\n";
@@ -76,7 +80,7 @@ class xpwiki_plugin_skin_changer extends xpwiki_plugin {
 		$name = @$argv[0];
 		
 		if (!$text) {
-			$text = htmlspecialchars($name);
+			$text = $this->func->htmlspecialchars($name);
 		}
 		
 		if (!$name && !$text) { return false; }

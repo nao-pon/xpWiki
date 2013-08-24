@@ -163,7 +163,7 @@ class xpwiki_plugin_rws extends xpwiki_plugin {
 
 			$html = $srv->getHTML($f);
 
-			$header = ($k && ! is_null($srv->compactArray['totalresults']))? $srv->makeSearchLink($k, sprintf($this->msg['more_search'], htmlspecialchars($k)), TRUE) : '';
+			$header = ($k && ! is_null($srv->compactArray['totalresults']))? $srv->makeSearchLink($k, sprintf($this->msg['more_search'], $this->func->htmlspecialchars($k)), TRUE) : '';
 			$ret = $header . "\x08" . $html;
 
 			// remove wrong characters

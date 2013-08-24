@@ -46,7 +46,7 @@ class xpwiki_plugin_html extends xpwiki_plugin {
 	    	}
 	    } else {
 		    if (! $this->func->is_editable_only_admin($page)) {
-		        $page = htmlspecialchars($page);
+		        $page = $this->func->htmlspecialchars($page);
 		        if ($this->cont['UI_LANG'] === 'ja' && $this->cont['SOURCE_ENCODING'] === 'UTF-8') {
 		        	$this->msg['error_admin'] = mb_convert_encoding($this->msg['error_admin'], 'UTF-8', 'EUC-JP');
 		        }

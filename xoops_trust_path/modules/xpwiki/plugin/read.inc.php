@@ -71,7 +71,7 @@ class xpwiki_plugin_read extends xpwiki_plugin {
 			// 無効なページ名
 			return array(
 				'msg'=>$this->root->_title_invalidwn,
-				'body'=>str_replace('$1', htmlspecialchars($page),
+				'body'=>str_replace('$1', $this->func->htmlspecialchars($page),
 				str_replace('$2', 'WikiName', $this->root->_msg_invalidiwn))
 			);
 		}

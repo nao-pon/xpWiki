@@ -29,7 +29,7 @@ class xpwiki_plugin_bitly extends xpwiki_plugin {
 			$url = array_shift($args);
 			$title = preg_replace('#^https?://#i', '', $url);
 			if ($title !== $url) {
-				$title = htmlspecialchars($title);
+				$title = $this->func->htmlspecialchars($title);
 				$url = $this->func->bitly($url, FALSE);
 				if (in_array('qrcode', $args)) {
 					$body = '<img src="'.$url.'.qrcode" alt="QR Code" width="80" height="80" />';
@@ -37,9 +37,9 @@ class xpwiki_plugin_bitly extends xpwiki_plugin {
 				if ($body) {
 					$body = preg_replace('#</?a[^>]*?>#i', '', $body);
 				} else {
-					$body = htmlspecialchars($url);
+					$body = $this->func->htmlspecialchars($url);
 				}
-				return '<a href="' . htmlspecialchars($url) . '" title="' . $title . '">' . $body . '</a>';
+				return '<a href="' . $this->func->htmlspecialchars($url) . '" title="' . $title . '">' . $body . '</a>';
 			}
 		}
 		return FALSE;

@@ -46,9 +46,9 @@ class xpwiki_plugin_memo extends xpwiki_plugin {
 			$title = $this->root->_title_collided;
 			$body  = $this->root->_msg_collided . "\n";
 	
-			$s_refer  = htmlspecialchars($this->root->vars['refer']);
-			$s_digest = htmlspecialchars($this->root->vars['digest']);
-			$s_postdata_input = htmlspecialchars($postdata_input);
+			$s_refer  = $this->func->htmlspecialchars($this->root->vars['refer']);
+			$s_digest = $this->func->htmlspecialchars($this->root->vars['digest']);
+			$s_postdata_input = $this->func->htmlspecialchars($postdata_input);
 			$script = $this->func->get_script_uri();
 			$body .= <<<EOD
 <form action="{$script}?cmd=preview" method="post">
@@ -87,7 +87,7 @@ EOD;
 		$data = implode(',', $data);	// Care all arguments
 		$data = str_replace('&#x2c;', ',', $data); // Unescape commas
 		$data = str_replace('&#x22;', '"', $data); // Unescape double quotes
-		$data = htmlspecialchars(str_replace('\n', "\n", $data));
+		$data = $this->func->htmlspecialchars(str_replace('\n', "\n", $data));
 	
 		if ($this->cont['PKWK_READONLY']) {
 			$_script = '';
@@ -97,8 +97,8 @@ EOD;
 			$_submit = '<input type="submit" name="memo"    value="' . $this->root->_btn_memo_update . '" />';
 		}
 	
-		$s_page   = htmlspecialchars($this->root->vars['page']);
-		$s_digest = htmlspecialchars($this->root->digest);
+		$s_page   = $this->func->htmlspecialchars($this->root->vars['page']);
+		$s_digest = $this->func->htmlspecialchars($this->root->digest);
 		$s_cols   = $this->cont['MEMO_COLS'];
 		$s_rows   = $this->cont['MEMO_ROWS'];
 		$string   = <<<EOD

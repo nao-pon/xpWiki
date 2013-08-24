@@ -116,7 +116,7 @@ class xpwiki_plugin_gsearch extends xpwiki_plugin {
 	{
 		$search_url = 'http://ajax.googleapis.com/ajax/services/search/$mode?v=1.0&userip='.$_SERVER['REMOTE_ADDR'];
 
-		$qs = htmlspecialchars($query);
+		$qs = $this->func->htmlspecialchars($query);
 		// REST リクエストの構築
 		$query = rawurlencode(mb_convert_encoding(trim($query),"UTF-8",$this->cont['SOURCE_ENCODING']));
 		$max = min((int)$this->params['max'], 8);
@@ -177,7 +177,7 @@ class xpwiki_plugin_gsearch extends xpwiki_plugin {
 		}
 
 		$func = "plugin_gsearch_build_".$mode;
-		$target = htmlspecialchars($this->params['target']);
+		$target = $this->func->htmlspecialchars($this->params['target']);
 		$html = $this->$func($res['responseData'],$target,$this->params['col']);
 		
 		if (isset($res['responseData']['cursor']) && isset($res['responseData']['cursor']['moreResultsUrl'])) {
@@ -251,9 +251,9 @@ class xpwiki_plugin_gsearch extends xpwiki_plugin {
 			foreach ($dats as $dat)
 			{
 				if ($this->plugin_gsearch_check_ngsite($dat['url'])) {continue;}
-				$title = "[".$dat['titleNoFormatting']."]".htmlspecialchars($dat['contentNoFormatting']);
+				$title = "[".$dat['titleNoFormatting']."]".$this->func->htmlspecialchars($dat['contentNoFormatting']);
 				$size = $dat['width']." x ".$dat['height'];
-				$site = "[ <a href=\"".htmlspecialchars($dat['originalContextUrl'])."\" target='{$target}'>Site</a> ]";
+				$site = "[ <a href=\"".$this->func->htmlspecialchars($dat['originalContextUrl'])."\" target='{$target}'>Site</a> ]";
 
 				if ($cnt++ % $col === 0 && $cnt !== 1) $html .= "</tr><tr>";
 				$html .= "<td style='text-align:center;vertical-align:middle;'>";
@@ -288,8 +288,8 @@ class xpwiki_plugin_gsearch extends xpwiki_plugin {
 			foreach ($dats as $dat)
 			{
 				if ($this->plugin_gsearch_check_ngsite($dat['url'])) {continue;}
-				$title = "[".$dat['titleNoFormatting']."]".htmlspecialchars($dat['contentNoFormatting']);
-				$site = " [ <a href=\"".htmlspecialchars($dat['url'])."\" target='{$target}'>Site</a> ]";
+				$title = "[".$dat['titleNoFormatting']."]".$this->func->htmlspecialchars($dat['contentNoFormatting']);
+				$site = " [ <a href=\"".$this->func->htmlspecialchars($dat['url'])."\" target='{$target}'>Site</a> ]";
 				$min = (int)($dat['duration'] / 60);
 				$sec = sprintf("%02d",($dat['duration'] % 60));
 				$length = $min.":".$sec;

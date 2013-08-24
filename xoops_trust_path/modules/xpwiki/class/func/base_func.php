@@ -44,7 +44,7 @@ class XpWikiBaseFunc {
 			'admin' => FALSE,
 			'uid' => 0,
 			'uname' => $defname,
-			'uname_s' => htmlspecialchars($defname),
+			'uname_s' => $this->htmlspecialchars($defname),
 			'email' => '',
 			'gids' => array(),
 			);

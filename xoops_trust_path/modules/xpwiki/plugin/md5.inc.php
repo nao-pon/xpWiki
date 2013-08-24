@@ -66,7 +66,7 @@ class xpwiki_plugin_md5 extends xpwiki_plugin {
 		if (strlen($value) > $this->cont['PKWK_PASSPHRASE_LIMIT_LENGTH'])
 			$this->func->die_message('Limit: malicious message length');
 	
-		if ($value != '') $value = 'value="' . htmlspecialchars($value) . '" ';
+		if ($value != '') $value = 'value="' . $this->func->htmlspecialchars($value) . '" ';
 	
 		$sha1_enabled = function_exists('sha1');
 		$sha1_checked = $md5_checked = '';

@@ -93,7 +93,7 @@ class xpwiki_plugin_related extends xpwiki_plugin {
 		}
 	
 		// Result
-		$s_word = htmlspecialchars($_page);
+		$s_word = $this->func->htmlspecialchars($_page);
 		$msg = 'Backlinks for: ' . $s_word;
 		$retval = $this->func->make_pagelink($_page, 'Return to ' . $s_word) . '<br />'. "\n";
 		

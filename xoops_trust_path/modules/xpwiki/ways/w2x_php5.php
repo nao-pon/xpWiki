@@ -84,6 +84,14 @@ if ($source || $line_break === '') {
 
 Send_xml($source, strval($line_break));
 
+function _htmlspecialchars ($str, $flags = ENT_COMPAT, $encoding = null, $double_encode = true) {
+	if (is_null($encoding)) {
+		$encoding = 'UTF-8';
+	}
+	return htmlspecialchars($str, $flags, $encoding, $double_encode);
+}
+
+
 function debug($data){
 	$file = dirname(__FILE__) . '/debug.txt';
 	@ unlink($file);
@@ -157,10 +165,10 @@ function guiedit_convert_ref($args, $div = TRUE) {
 	$body = $argbody = '';
 	if (! $div) {
 		$body = array_pop($args);
-		if ($body) $argbody = '{' . htmlspecialchars($body) . '}';
+		if ($body) $argbody = '{' . _htmlspecialchars($body) . '}';
 	}
 
-	$options = htmlspecialchars(join(',', $args));
+	$options = _htmlspecialchars(join(',', $args));
 
 	$filename = array_shift($args);
 	$_title = array();
@@ -218,13 +226,13 @@ function guiedit_convert_ref($args, $div = TRUE) {
 		$align = 'right';
 	}
 
-	$other = !empty($_title) ? htmlspecialchars(join(',', $_title)) : '';
+	$other = !empty($_title) ? _htmlspecialchars(join(',', $_title)) : '';
 	$other = preg_replace("/^,/", '', $other);
 
 	$attribute = 'class="ref" contenteditable="false" style="cursor:default"';
 	$attribute .= ' _filename="' . $filename . '"';
 	$attribute .= ' _othor="' . $other . '"';
-	$attribute .= ' _alt="' . htmlspecialchars($body) . '"';
+	$attribute .= ' _alt="' . _htmlspecialchars($body) . '"';
 	$attribute .= ' _width="' . ($params['_w'] ? $params['_w'] : '') . '"';
 	$attribute .= ' _height="' . ($params['_h'] ? $params['_h'] : '') . '"';
 	$attribute .= ' _mw="' . ($params['_mw'] ? $params['_mw'] : '') . '"';
@@ -239,11 +247,11 @@ function guiedit_convert_ref($args, $div = TRUE) {
 	$attribute .= ' _zoom="' . $params['zoom'] . '"';
 
 	if ($div) {
-		$attribute .= ' _source="' . htmlspecialchars("#ref($options)") . '"';
+		$attribute .= ' _source="' . _htmlspecialchars("#ref($options)") . '"';
 		$tags = "<div $attribute>#ref($options)</div>";
 	} else {
 		$inner = "&ref($options)$argbody;";
-		$attribute .= ' _source="' . htmlspecialchars($inner) . '"';
+		$attribute .= ' _source="' . _htmlspecialchars($inner) . '"';
 		$html = get_ref_html($args_org, false);
 		if (preg_match('#^<img[^>]+?'.'>$#', $html)) {
 			$attribute = str_replace('contenteditable="false"', 'contenteditable="true"', $attribute);
@@ -349,7 +357,7 @@ class InlineConverterEx {
 		global $xpwiki;
 
 		if ($enc) {
-			$line = htmlspecialchars($line);
+			$line = _htmlspecialchars($line);
 		}
 
 		// easy ref ( {{filename|alias}} )
@@ -471,18 +479,18 @@ class InlineConverterEx {
 					{
 						if ($color_type)
 						{
-							$style .= "color:".htmlspecialchars($color[1]).";";
+							$style .= "color:"._htmlspecialchars($color[1]).";";
 							$color_type = false;
 						} else {
-							$style .= "background-color:".htmlspecialchars($color[1]).";";
+							$style .= "background-color:"._htmlspecialchars($color[1]).";";
 						}
 					}
 					elseif (preg_match('/^(\d+(%|px|pt|em))$/',$prm,$size))
-						$style .= "font-size:".htmlspecialchars($size[1]).";line-height:130%;";
+						$style .= "font-size:"._htmlspecialchars($size[1]).";line-height:130%;";
 					elseif (preg_match('/^(\d+)$/',$prm,$size))
-						$style .= "font-size:".htmlspecialchars($size[1])."px;line-height:130%;";
+						$style .= "font-size:"._htmlspecialchars($size[1])."px;line-height:130%;";
 					elseif (preg_match('/^class:(.+)$/',$prm,$arg))
-						$class = ' class="' . str_replace('"' , '', htmlspecialchars($arg[1])) . '"';
+						$class = ' class="' . str_replace('"' , '', _htmlspecialchars($arg[1])) . '"';
 				}
 				if (count($decoration))
 					$style .= "text-decoration:".join(" ",$decoration).";";
@@ -517,7 +525,7 @@ class InlineConverterEx {
 				return guiedit_convert_ref($aryargs, FALSE);
 			case 'sub':
 				if (! $body && isset($aryargs[0])) {
-					$body = htmlspecialchars($aryargs[0]);
+					$body = _htmlspecialchars($aryargs[0]);
 				}
 				if ($body) {
 					return '<sub>' . $this->convert($body, TRUE, FALSE) . '</sub>';
@@ -525,7 +533,7 @@ class InlineConverterEx {
 				break;
 			case 'sup':
 				if (! $body && isset($aryargs[0])) {
-					$body = htmlspecialchars($aryargs[0]);
+					$body = _htmlspecialchars($aryargs[0]);
 				}
 				if ($body) {
 					return '<sup>' . $this->convert($body, TRUE, FALSE) . '</sup>';
@@ -1103,10 +1111,10 @@ class TableCellEx extends ElementEx
 				if (preg_match("/^#[0-9a-f]{3}$/i", $color)) {
 					$color = preg_replace("/[0-9a-f]/i", "$0$0", $color);
 				}
-				$this->style[$name] = $name . ':' . htmlspecialchars($color) . ';';
+				$this->style[$name] = $name . ':' . _htmlspecialchars($color) . ';';
 				$text = $matches[5];
 			} else if ($matches[4]) {
-				$this->style['size'] = 'font-size:' . htmlspecialchars($matches[4]) . 'px;';
+				$this->style['size'] = 'font-size:' . _htmlspecialchars($matches[4]) . 'px;';
 				$text = $matches[5];
 			}
 		}
@@ -1241,7 +1249,7 @@ class TableCellEx extends ElementEx
 		// ¥»¥ëµ¬ÄêÇØ·Ê²è»ØÄê
 		if (preg_match("/(?:[SCB]C):\(([^),]*)(,(?:no|one(?:ce)?|1))?\) ?/i",$cells[0],$tmp)) {
 			if (strpos($tmp[1], $xpwiki->cont['ROOT_URL']) === 0) {
-				$tmp[1] = htmlspecialchars($tmp[1]);
+				$tmp[1] = _htmlspecialchars($tmp[1]);
 				$this->style['background-image'] = "background-image: url(".$tmp[1].");";
 				if (!empty($tmp[2])) $this->style['bgcolor'] .= "background-repeat: no-repeat;";
 			}
@@ -1555,7 +1563,7 @@ class TableEx extends ElementEx
 		if (preg_match("/TC:\(([^),]*)(,(?:no|one(?:ce)?|1))?\) ?/i",$string,$reg)) {
 			//$reg[1] = str_replace("http","HTTP",$reg[1]);
 			if (strpos($reg[1], $xpwiki->cont['ROOT_URL']) === 0) {
-				$reg[1] = htmlspecialchars($reg[1]);
+				$reg[1] = _htmlspecialchars($reg[1]);
 				$this->table_sheet .= "background-image: url(".$reg[1].");";
 				if (!empty($reg[2])) $this->table_sheet .= "background-repeat: no-repeat;";
 			}
@@ -1667,7 +1675,7 @@ class PreEx extends ElementEx
 	{
 		global $preformat_ltrim;
 		parent::ElementEx();
-		$this->elements[] = htmlspecialchars(
+		$this->elements[] = _htmlspecialchars(
 			(! $preformat_ltrim || $text == '' || $text{0} != ' ') ? $text : substr($text, 1));
 		$this->class = $root->comment? ' class="comment"' : '';
 	}
@@ -1723,11 +1731,11 @@ class DivEx extends ElementEx
 		}
 
 		if ($this->text) {
-			$this->text = str_replace(' ', '&nbsp;',htmlspecialchars($this->text));
+			$this->text = str_replace(' ', '&nbsp;',_htmlspecialchars($this->text));
 			$this->text = preg_replace("/\r/", "<br />", $this->text);
 		}
 
-		$this->param = htmlspecialchars($this->param);
+		$this->param = _htmlspecialchars($this->param);
 		$inner = "#$this->name" . ($this->param ? "($this->param)" : '') . $this->text;
 		if (MSIE) $styles[] = 'cursor:default;';
 

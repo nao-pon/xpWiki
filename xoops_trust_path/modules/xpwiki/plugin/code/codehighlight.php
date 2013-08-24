@@ -100,7 +100,7 @@ class XpWikiCodeHighlight {
 			if ('php' == $lang) // PHPは標準機能を使う
 				$src =  '<pre class="code">'.$this->highlightPHP($src). '</pre>';
 			else // 未定義言語
-				$src =  '<pre class="code"><code class="unknown">' .htmlspecialchars($src). '</code></pre>';
+				$src =  '<pre class="code"><code class="unknown">' .$this->func->htmlspecialchars($src). '</code></pre>';
 		}
 		$option['menu']  = ($this->cont['PLUGIN_CODE_MENU']  && ! $option['nomenu']  || $option['menu']);
 		$option['menu']  = ($option['menu'] && $option['outline']);
@@ -214,7 +214,7 @@ class XpWikiCodeHighlight {
 			case $this->cont['PLUGIN_CODE_HEAD_COMMENT']:
 			case $this->cont['PLUGIN_CODE_COMMENT_CHAR']:
 				// 行頭の1文字でコメントと判断できるもの
-				$line = htmlspecialchars(substr($line,0,-1), ENT_QUOTES);
+				$line = $this->func->htmlspecialchars(substr($line,0,-1), ENT_QUOTES);
 				if ($option['link']) 
 					$line = preg_replace('/(s?https?:\/\/|ftp:\/\/|mailto:)([-_.!~*()a-zA-Z0-9;\/:@?=+$,%#]|&amp;)+/',
 										 '<a href="$0">$0</a>',$line);
@@ -242,7 +242,7 @@ class XpWikiCodeHighlight {
 			case $this->cont['PLUGIN_CODE_COMMENT_WORD']:
 				// 2文字以上のパターンから始まるコメント
 				if (strncmp($line, $commentpattern, strlen($commentpattern)) == 0) {
-					$line = htmlspecialchars(substr($line,0,-1), ENT_QUOTES);
+					$line = $this->func->htmlspecialchars(substr($line,0,-1), ENT_QUOTES);
 					if ($option['link']) 
 						$line = preg_replace('/(s?https?:\/\/|ftp:\/\/|mailto:)([-_.!~*()a-zA-Z0-9;\/:@?=+$,%#]|&amp;)+/',
 											 '<a href="$0">$0</a>',$line);
@@ -276,7 +276,7 @@ class XpWikiCodeHighlight {
 					$str_continue = 0;
 				}
 				$index = $code_keyword[$line[0]];
-				$line = htmlspecialchars($line, ENT_QUOTES);
+				$line = $this->func->htmlspecialchars($line, ENT_QUOTES);
 				if ($option['link']) 
 					$line = preg_replace('/(s?https?:\/\/|ftp:\/\/|mailto:)([-_.!~*()a-zA-Z0-9;\/:@?=+$,%#]|&amp;)+/',
 										 '<a href="$0">$0</a>',$line);
@@ -301,7 +301,7 @@ class XpWikiCodeHighlight {
 					if (strncmp($line, $pattern, strlen($pattern)) == 0) {
 						$index = $code_keyword[$pattern];
 						// htmlに追加
-						$line = htmlspecialchars($line, ENT_QUOTES);
+						$line = $this->func->htmlspecialchars($line, ENT_QUOTES);
 						if ($option['link']) 
 							$line = preg_replace('/(s?https?:\/\/|ftp:\/\/|mailto:)([-_.!~*()a-zA-Z0-9;\/:@?=+$,%#]|&amp;)+/',
 												 '<a href="$0">$0</a>',$line);
@@ -317,7 +317,7 @@ class XpWikiCodeHighlight {
 				// 行頭の1文字が意味を持つものか判定
 				$index = $code_keyword[$line[0]];
 				if ($index != '') {
-					$line = htmlspecialchars($line, ENT_QUOTES);
+					$line = $this->func->htmlspecialchars($line, ENT_QUOTES);
 					$html .= '<span class="'.$this->cont['PLUGIN_CODE_HEADER'].$code_css[$index-1].'">'.$line.'</span>';
 					$line = $this->getline($string); // next line
 					continue 2;
@@ -335,8 +335,8 @@ class XpWikiCodeHighlight {
 				// makeのターゲット用 識別子(アルファベットから始まっている)
 				$str_pos = strpos($line, $post_identifire);
 				if ($str_pos !== false) {
-					$result  = htmlspecialchars(substr($line, 0, $str_pos), ENT_QUOTES);
-					$result2 = htmlspecialchars(substr($line, $str_pos+1), ENT_QUOTES);
+					$result  = $this->func->htmlspecialchars(substr($line, 0, $str_pos), ENT_QUOTES);
+					$result2 = $this->func->htmlspecialchars(substr($line, $str_pos+1), ENT_QUOTES);
 					$html .= '<span class="'.$this->cont['PLUGIN_CODE_HEADER'].'target">'.$result.$post_identifire.'</span>'
 						.'<span class="'.$this->cont['PLUGIN_CODE_HEADER'].'src">'.$result2.'</span>';
 					$line = $this->getline($string); // next line
@@ -354,7 +354,7 @@ class XpWikiCodeHighlight {
 				}
 
 				$index = $code_keyword[$line[0]];
-				$src = rtrim(htmlspecialchars($line, ENT_QUOTES));
+				$src = rtrim($this->func->htmlspecialchars($line, ENT_QUOTES));
 				if ($option['link']) 
 					$src = preg_replace('/(s?https?:\/\/|ftp:\/\/|mailto:)([-_.!~*()a-zA-Z0-9;\/:@?=+$,%#]|&amp;)+/',
 										'<a href="$0">$0</a>',$src);
@@ -373,7 +373,7 @@ class XpWikiCodeHighlight {
 				$result = '';
 				while (in_array($line[0], $multilineEOL) === false && $line !== false) {
 					// 効果の範囲内を取得する
-					$src = htmlspecialchars($line, ENT_QUOTES);
+					$src = $this->func->htmlspecialchars($line, ENT_QUOTES);
 					if ($option['link']) 
 						$src = preg_replace('/(s?https?:\/\/|ftp:\/\/|mailto:)([-_.!~*()a-zA-Z0-9;\/:@?=+$,%#]|&amp;)+/',
 											 '<a href="$0">$0</a>',$src);
@@ -416,7 +416,7 @@ class XpWikiCodeHighlight {
 					$index = $code_keyword[strtolower($result)];// 大文字小文字を区別しない
 				else
 					$index = $code_keyword[$result];
-				$result = htmlspecialchars($result, ENT_QUOTES);
+				$result = $this->func->htmlspecialchars($result, ENT_QUOTES);
  				if ($index != '')
 					$html .= '<span class="'.$this->cont['PLUGIN_CODE_HEADER'].$code_css[$index-1].'">'.$result.'</span>';
 				else
@@ -448,7 +448,7 @@ class XpWikiCodeHighlight {
  			default:
 				// 行内を解析せずにHTMLに追加する (diff)
 				if($linemode) {
-					$line = htmlspecialchars($line, ENT_QUOTES);
+					$line = $this->func->htmlspecialchars($line, ENT_QUOTES);
 					if ($option['link']) 
 						$html .= preg_replace('/(s?https?:\/\/|ftp:\/\/|mailto:)([-_.!~*()a-zA-Z0-9;\/:@?=+$,%#]|&amp;)+/',
 											  '<a href="$0">$0</a>',$line);
@@ -483,7 +483,7 @@ class XpWikiCodeHighlight {
 						$index = $code_keyword[strtolower($result)];// 大文字小文字を区別しない
 					else
 						$index = $code_keyword[$result];
-					$result = htmlspecialchars($result, ENT_QUOTES);
+					$result = $this->func->htmlspecialchars($result, ENT_QUOTES);
 
 					if ($index!='')
 						$html .= '<span class="'.$this->cont['PLUGIN_CODE_HEADER'].$code_css[$index-1].'">'.$result.'</span>';
@@ -512,7 +512,7 @@ class XpWikiCodeHighlight {
 						$index = $code_keyword[strtolower($result)];// 大文字小文字を区別しない
 					else
 						$index = $code_keyword[$result];
-					$result = htmlspecialchars($result, ENT_QUOTES);
+					$result = $this->func->htmlspecialchars($result, ENT_QUOTES);
 					if ($index != '')
 						$html .= '<span class="'.$this->cont['PLUGIN_CODE_HEADER'].$code_css[$index-1].'">'.$result.'</span>';
 					else
@@ -555,7 +555,7 @@ class XpWikiCodeHighlight {
 							$str_pos = 0;
 							$string = '';
 							$code = false;
-							$result = htmlspecialchars($result, ENT_QUOTES);
+							$result = $this->func->htmlspecialchars($result, ENT_QUOTES);
 							if ($option['link']) 
 								$result = preg_replace('/(s?https?:\/\/|ftp:\/\/|mailto:)([-_.!~*()a-zA-Z0-9;\/:@?=+$,%#]|&amp;)+/',
 													   '<a href="$0">$0</a>',$result);
@@ -581,7 +581,7 @@ class XpWikiCodeHighlight {
 						$result = $code.substr($line, $pos, $str_pos - $pos);
 					}
 					// htmlに追加
-					$result = htmlspecialchars($result, ENT_QUOTES);
+					$result = $this->func->htmlspecialchars($result, ENT_QUOTES);
 					if ($option['link']) 
 						$result = preg_replace('/(s?https?:\/\/|ftp:\/\/|mailto:)([-_.!~*()a-zA-Z0-9;\/:@?=+$,%#]|&amp;)+/',
 											   '<a href="$0">$0</a>',$result);
@@ -593,7 +593,7 @@ class XpWikiCodeHighlight {
 
 				case $this->cont['PLUGIN_CODE_COMMENT_CHAR']: // 1文字で決まるコメント
 					$line = substr($line, $str_pos-1, $str_len-$str_pos);
-					$line = htmlspecialchars($line, ENT_QUOTES);
+					$line = $this->func->htmlspecialchars($line, ENT_QUOTES);
 					if ($option['link']) 
 						$line = preg_replace('/(s?https?:\/\/|ftp:\/\/|mailto:)([-_.!~*()a-zA-Z0-9;\/:@?=+$,%#]|&amp;)+/',
 											 '<a href="$0">$0</a>',$line);
@@ -746,7 +746,7 @@ class XpWikiCodeHighlight {
 					if ($code == "\n") ++$num_of_line;
 				}
 				// htmlに追加
-				$html .= htmlspecialchars($start.$result, ENT_QUOTES);
+				$html .= $this->func->htmlspecialchars($start.$result, ENT_QUOTES);
 				
 				// 次の検索用に読み込み
 				if ($str_len == $str_pos) $code = false; else $code = $string[$str_pos++]; // getc
@@ -819,7 +819,7 @@ class XpWikiCodeHighlight {
 						}
 						
 						// htmlに追加
-						$result = str_replace('\t', $this->cont['PLUGIN_CODE_WIDTHOFTAB'], htmlspecialchars($result, ENT_QUOTES));
+						$result = str_replace('\t', $this->cont['PLUGIN_CODE_WIDTHOFTAB'], $this->func->htmlspecialchars($result, ENT_QUOTES));
 						if ($option['link']) 
 							$result = preg_replace('/(s?https?:\/\/|ftp:\/\/|mailto:)([-_.!~*()a-zA-Z0-9;\/:@?=+$,%#]|&amp;)+/',
 												   '<a href="$0">$0</a>',$result);
@@ -881,7 +881,7 @@ class XpWikiCodeHighlight {
 						++$num_of_line;
 						$startline = 1;
 						// htmlに追加
-						$result = str_replace('\t', $this->cont['PLUGIN_CODE_WIDTHOFTAB'], htmlspecialchars($result, ENT_QUOTES));
+						$result = str_replace('\t', $this->cont['PLUGIN_CODE_WIDTHOFTAB'], $this->func->htmlspecialchars($result, ENT_QUOTES));
 						if ($option['link']) 
 							$result = preg_replace('/(s?https?:\/\/|ftp:\/\/|mailto:)([-_.!~*()a-zA-Z0-9;\/:@?=+$,%#]|&amp;)+/',
 												   '<a href="$0">$0</a>',$result);
@@ -908,7 +908,7 @@ class XpWikiCodeHighlight {
 					$index = $code_keyword[strtolower($result)];// 大文字小文字を区別しない
 				else
 					$index = $code_keyword[$result];
-				$result = htmlspecialchars($result, ENT_QUOTES);
+				$result = $this->func->htmlspecialchars($result, ENT_QUOTES);
 
 				if ($str_continue != 0) {
 					$this->endRegion($num_of_line);
@@ -961,7 +961,7 @@ class XpWikiCodeHighlight {
 					$index = $code_keyword[strtolower($result)];// 大文字小文字を区別しない
 				else
 					$index = $code_keyword[$result];
-				$result = htmlspecialchars($result, ENT_QUOTES);
+				$result = $this->func->htmlspecialchars($result, ENT_QUOTES);
 				
 				if ($str_continue != 0) {
 					$this->endRegion($num_of_line);
@@ -1029,7 +1029,7 @@ class XpWikiCodeHighlight {
 				$num_of_line += substr_count($result,"\n");
 				$startline = 0;		
 				// htmlに追加
-				$result = htmlspecialchars($result, ENT_QUOTES);
+				$result = $this->func->htmlspecialchars($result, ENT_QUOTES);
 				if ($option['link']) 
 					$result = preg_replace('/(s?https?:\/\/|ftp:\/\/|mailto:)([-_.!~*()a-zA-Z0-9;\/:@?=+$,%#]|&amp;)+/',
 										   '<a href="$0">$0</a>',$result);
@@ -1069,7 +1069,7 @@ class XpWikiCodeHighlight {
 				$num_of_line+=substr_count($result,"\n");
 				$startline = 0;
 				// htmlに追加
-				$result = htmlspecialchars($result, ENT_QUOTES);
+				$result = $this->func->htmlspecialchars($result, ENT_QUOTES);
 				if ($option['link']) 
 					$result = preg_replace('/(s?https?:\/\/|ftp:\/\/|mailto:)([-_.!~*()a-zA-Z0-9;\/:@?=+$,%#]|&amp;)+/',
 										   '<a href="$0">$0</a>',$result);
@@ -1111,7 +1111,7 @@ class XpWikiCodeHighlight {
 				$num_of_line+=substr_count($result,"\n");
 				
 				// htmlに追加
-				$result = htmlspecialchars($result, ENT_QUOTES);
+				$result = $this->func->htmlspecialchars($result, ENT_QUOTES);
 				if ($option['link']) 
 					$result = preg_replace('/(s?https?:\/\/|ftp:\/\/|mailto:)([-_.!~*()a-zA-Z0-9;\/:@?=+$,%#]|&amp;)+/',
 										   '<a href="$0">$0</a>',$result);
@@ -1149,7 +1149,7 @@ class XpWikiCodeHighlight {
 				$result = $code.substr($string, $pos, $str_pos - $pos);
 				
 				// htmlに追加
-				$result = htmlspecialchars($result, ENT_QUOTES);
+				$result = $this->func->htmlspecialchars($result, ENT_QUOTES);
 				if ($option['link']) 
 					$result = preg_replace('/(s?https?:\/\/|ftp:\/\/|mailto:)([-_.!~*()a-zA-Z0-9;\/:@?=+$,%#]|&amp;)+/',
 										   '<a href="$0">$0</a>',$result);

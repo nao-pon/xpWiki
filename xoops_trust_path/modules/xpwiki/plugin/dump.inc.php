@@ -209,7 +209,7 @@ class xpwiki_plugin_dump extends xpwiki_plugin {
 					} else {
 						$this->func->redirect_header($this->cont['HOME_URL'] . '?cmd=dump',
 							1,
-							htmlspecialchars($this->root->vars['file']) . 'was not found.');
+							$this->func->htmlspecialchars($this->root->vars['file']) . 'was not found.');
 					}
 
 					return array('exit' => 0);	// Àµ¾ï½ªÎ»
@@ -508,7 +508,7 @@ class xpwiki_plugin_dump extends xpwiki_plugin {
 			foreach($files['ng'] as $type => $errors) {
 				foreach($errors as $name) {
 					$filename = basename($name);
-					$filename = htmlspecialchars($tar->decode_filename($filename));
+					$filename = $this->func->htmlspecialchars($tar->decode_filename($filename));
 					$msg .= "<li><span class=\"dump_result_error\">$type: $name</span><br />( $filename )</li>\n";
 				}
 			}
@@ -559,10 +559,10 @@ class xpwiki_plugin_dump extends xpwiki_plugin {
 					if ($query) {
 						if ($this->xpwiki->db->query($query)) {
 							if (! empty($this->root->vars['show_sql'])) {
-								$msg['ok'][] = htmlspecialchars($query);
+								$msg['ok'][] = $this->func->htmlspecialchars($query);
 							}
 						} else {
-							$msg['ng']['SQL Error'][] = '<span class="diff_removed">' . htmlspecialchars($query) . '</span>';
+							$msg['ng']['SQL Error'][] = '<span class="diff_removed">' . $this->func->htmlspecialchars($query) . '</span>';
 						}
 					}
 				}
@@ -785,18 +785,18 @@ EOD;
 				foreach($tars as $name => $tars) {
 					if (count($tars) === 1) {
 						$tar = $tars[0];
-						$tar_view = htmlspecialchars($tar);
+						$tar_view = $this->func->htmlspecialchars($tar);
 						$checked = ($reqfile)? ' checked="checked"' : '';
 						$fsize = filesize($this->cont['CACHE_DIR'].$tar);
 						$radio .= '    <input type="radio" name="localfile" id="_p_dump_localfile'.$i.'" value="'.$tar_view.'"' . $checked . ' /><label for="_p_dump_localfile'.$i++.'"> '.$tar_view .' ( '. $this->func->bytes2KMT($fsize) . ' )</label>';
 						$radio .= '    <a target="xpwiki_dump" href="'.$this->cont['HOME_URL'].'?cmd=dump&amp;act=download&amp;file='.rawurlencode($tar).'"'.$t_dl.'>'.$image.'</a><br />' . "\n";
 					} else {
 						natsort($tars);
-						$radio .= '    <input type="radio" disabled="disabled" /> ' . htmlspecialchars($name) . '<br />';
+						$radio .= '    <input type="radio" disabled="disabled" /> ' . $this->func->htmlspecialchars($name) . '<br />';
 						foreach($tars as $tar) {
-							$tar_view = htmlspecialchars(substr($tar, strlen($name)));
+							$tar_view = $this->func->htmlspecialchars(substr($tar, strlen($name)));
 							$fsize = filesize($this->cont['CACHE_DIR'].$tar);
-							$radio .= '    &nbsp;&nbsp;&nbsp;&nbsp;<input type="radio" name="localfile" id="_p_dump_localfile'.$i.'" value="'.htmlspecialchars($tar).'" /><label for="_p_dump_localfile'.$i++.'"> '.$tar_view .' ( '. $this->func->bytes2KMT($fsize) . ' )</label>';
+							$radio .= '    &nbsp;&nbsp;&nbsp;&nbsp;<input type="radio" name="localfile" id="_p_dump_localfile'.$i.'" value="'.$this->func->htmlspecialchars($tar).'" /><label for="_p_dump_localfile'.$i++.'"> '.$tar_view .' ( '. $this->func->bytes2KMT($fsize) . ' )</label>';
 							$radio .= '    <a target="xpwiki_dump" href="'.$this->cont['HOME_URL'].'?cmd=dump&amp;act=download&amp;file='.rawurlencode($tar).'"'.$t_dl.'>'.$image.'</a><br />' . "\n";
 						}
 					}

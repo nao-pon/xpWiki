@@ -42,9 +42,9 @@ class xpwiki_plugin_search extends xpwiki_plugin {
 	{
 	
 		if ($this->cont['PLUGIN_SEARCH_DISABLE_GET_ACCESS']) {
-			$s_word = isset($this->root->post['word']) ? htmlspecialchars($this->root->post['word']) : '';
+			$s_word = isset($this->root->post['word']) ? $this->func->htmlspecialchars($this->root->post['word']) : '';
 		} else {
-			$s_word = isset($this->root->vars['word']) ? htmlspecialchars($this->root->vars['word']) : '';
+			$s_word = isset($this->root->vars['word']) ? $this->func->htmlspecialchars($this->root->vars['word']) : '';
 		}
 		$s_word = preg_replace('/&amp;#(\d+;)/', '&#$1', $s_word);
 		
@@ -121,7 +121,7 @@ class xpwiki_plugin_search extends xpwiki_plugin {
 				++$_num;
 				if ($this->cont['PLUGIN_SEARCH_MAX_BASE'] < $_num) break;
 				$label_id = '_p_search_base_id_' . $_num;
-				$s_base   = htmlspecialchars($base);
+				$s_base   = $this->func->htmlspecialchars($base);
 				$base_str = '<strong>' . $s_base . '</strong>';
 				$base_label = str_replace('$1', $base_str, $this->root->_search_pages);
 				$base_msg  .=<<<EOD

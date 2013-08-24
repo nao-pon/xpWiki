@@ -84,8 +84,8 @@ EOD;
 			$comment = array('file'=>htmlspecialchars(str_replace($this->root->mytrustdirpath,'TRUST',$sdir.'/'.$file)),'rev'=>'','date'=>'');
 			if (preg_match('/\$'.'Id: (.+),v (\d+\.\d+) (\d{4}\/\d{2}\/\d{2} \d{2}:\d{2}:\d{2})/',$data,$matches))
 			{
-				$comment['rev'] = htmlspecialchars($matches[2]);
-				$comment['date'] = htmlspecialchars($matches[3]);
+				$comment['rev'] = $this->func->htmlspecialchars($matches[2]);
+				$comment['date'] = $this->func->htmlspecialchars($matches[3]);
 			}
 			$comments[str_replace($this->root->mytrustdirpath,'',$sdir.'/'.$file)] = $comment;
 		}

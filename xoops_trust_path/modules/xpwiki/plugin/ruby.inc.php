@@ -29,7 +29,7 @@ class xpwiki_plugin_ruby extends xpwiki_plugin {
 		if ($ruby == '' || $body == '') return $this->cont['PLUGIN_RUBY_USAGE'];
 	
 		return '<ruby><rb>' . $body . '</rb>' . '<rp>(</rp>' .
-		'<rt>' .  htmlspecialchars($ruby) . '</rt>' . '<rp>)</rp>' .
+		'<rt>' .  $this->func->htmlspecialchars($ruby) . '</rt>' . '<rp>)</rp>' .
 		'</ruby>';
 	}
 }

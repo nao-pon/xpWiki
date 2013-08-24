@@ -175,7 +175,7 @@ class xpwiki_plugin_aws extends xpwiki_plugin {
 
 			//if (! empty($this->root->rtf['preview'])) {$html .= $ama->url;}
 
-			$header = ($k && ! is_null($ama->compactArray['totalresults']))? $ama->makeSearchLink($k, sprintf($this->msg['more_search'], htmlspecialchars($k)), TRUE) : '';
+			$header = ($k && ! is_null($ama->compactArray['totalresults']))? $ama->makeSearchLink($k, sprintf($this->msg['more_search'], $this->func->htmlspecialchars($k)), TRUE) : '';
 			$ret = $header . "\x08" . $html;
 
 			// remove wrong characters

@@ -11,7 +11,7 @@ class xpwiki_plugin_topicpath extends xpwiki_plugin {
 		$this->cont['PLUGIN_TOPICPATH_TOP_DISPLAY'] =  1;
 		
 		// Label for $defaultpage
-		$this->cont['PLUGIN_TOPICPATH_TOP_LABEL'] = htmlspecialchars($this->root->module['title']);
+		$this->cont['PLUGIN_TOPICPATH_TOP_LABEL'] = $this->func->htmlspecialchars($this->root->module['title']);
 		
 		// Separetor / of / topic / path
 		$this->cont['PLUGIN_TOPICPATH_TOP_SEPARATOR'] =  ' / ';
@@ -34,7 +34,7 @@ class xpwiki_plugin_topicpath extends xpwiki_plugin {
 	function plugin_topicpath_inline($sep = '')
 	{
 		if ($sep) {
-			$sep = htmlspecialchars($sep);
+			$sep = $this->func->htmlspecialchars($sep);
 			$sep = preg_replace('/&amp;(#[0-9]+|#x[0-9a-f]+|' . $this->root->entity_pattern . ';)/','&$1',$sep);
 			$this->cont['PLUGIN_TOPICPATH_TOP_SEPARATOR'] = $sep;
 		}
@@ -57,7 +57,7 @@ class xpwiki_plugin_topicpath extends xpwiki_plugin {
 			$topic_path = array();
 			while (! empty($parts)) {
 				$_landing = join('/', $parts);
-				$element = htmlspecialchars(array_pop($parts));
+				$element = $this->func->htmlspecialchars(array_pop($parts));
 				if (! $b_link)  {
 					// This page ($_landing == $page)
 					$b_link = TRUE;

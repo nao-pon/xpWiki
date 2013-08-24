@@ -191,7 +191,7 @@ class xpwiki_plugin_user_pref extends xpwiki_plugin {
 					$user_tag = strtolower($this->make_user_tag());
 					$user_pref['moblog_user_mail'] = str_replace('*', $user_tag, $this->root->moblog_pop_mail);
 				}
-				$this->root->moblog_user_mail = htmlspecialchars($user_pref['moblog_user_mail']);
+				$this->root->moblog_user_mail = $this->func->htmlspecialchars($user_pref['moblog_user_mail']);
 				$this->root->moblog_user_mail_rawurlenc = rawurlencode($user_pref['moblog_user_mail']);
 			}
 			if (! $user_pref['twitter_access_token']) {
@@ -213,7 +213,7 @@ class xpwiki_plugin_user_pref extends xpwiki_plugin {
 				foreach ($table as $row) {
 					if (isset($row[1]) && strtolower(trim($row[0])) === 'myblog') {
 						$page = $this->func->strip_bracket(trim($row[1]));
-						$pages[] = htmlspecialchars($page);
+						$pages[] = $this->func->htmlspecialchars($page);
 					}
 				}
 				$user_pref['xmlrpc_pages'] = join("\n", $pages);
@@ -248,8 +248,8 @@ EOD;
 				$description = ! empty($conf['description'])? $conf['description'] : (! empty($this->msg[$key]['description'])? $this->msg[$key]['description'] : '');
 				$description = preg_replace('/\{\$root->(.+?)\}/e', '$this->root->$1', $description);
 				$value = isset($user_pref[$key])? $user_pref[$key] : '';
-				$value4disp = htmlspecialchars($value);
-				$name4disp = htmlspecialchars($key);
+				$value4disp = $this->func->htmlspecialchars($value);
+				$name4disp = $this->func->htmlspecialchars($key);
 				$real = '';
 
 				$extention = ! empty($this->msg[$key]['extention'])? $this->msg[$key]['extention'] : '';
@@ -358,7 +358,7 @@ EOD;
 
 		$done = array('<dl>');
 		foreach($posts as $key=>$val) {
-			$done[] = '<dt>'.htmlspecialchars($key).'<dt><dd>'.nl2br(htmlspecialchars($val)).'<dd>';
+			$done[] = '<dt>'.$this->func->htmlspecialchars($key).'<dt><dd>'.nl2br($this->func->htmlspecialchars($val)).'<dd>';
 		}
 		$done[] = '</dl>';
 

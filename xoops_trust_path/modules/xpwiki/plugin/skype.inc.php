@@ -37,7 +37,7 @@ class xpwiki_plugin_skype extends xpwiki_plugin {
 		if (!$options['id']) {
 			return FALSE;
 		} else {
-			$id = htmlspecialchars($options['id']);
+			$id = $this->func->htmlspecialchars($options['id']);
 		}
 		
 		if (! $alias) {

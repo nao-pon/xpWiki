@@ -227,7 +227,7 @@ class xpwiki_plugin_ajaxtree extends xpwiki_plugin {
 		$this->func->add_tag_head('ajaxtree.css');
 		$this->func->add_tag_head('ajaxtree.js');
 
-		$html = '<h5>' . htmlspecialchars($this->root->_ajaxtree_messages['title']) . '</h5>' . "\n"
+		$html = '<h5>' . $this->func->htmlspecialchars($this->root->_ajaxtree_messages['title']) . '</h5>' . "\n"
 		  . '<div id="' . $this->root->mydirname . '_ajaxtree" class="xpwiki_ajaxtree">' . "\n"
 		  . $this->plugin_ajaxtree_read_file($file) . "\n"
 		  . '</div>' . "\n";
@@ -252,7 +252,7 @@ class xpwiki_plugin_ajaxtree extends xpwiki_plugin {
 
 		$pos = 0;
 		foreach ($ancestors as $ancestor) {
-			$search = '<a title="' . htmlspecialchars($ancestor) . '"';
+			$search = '<a title="' . $this->func->htmlspecialchars($ancestor) . '"';
 			$pos	= strpos($html, $search, $pos);
 			if ($pos === false) {
 				continue;
@@ -369,8 +369,8 @@ class xpwiki_plugin_ajaxtree extends xpwiki_plugin {
 			} else {
 				$url = $this->plugin_ajaxtree_get_script_uri();
 			}
-			$title	 = htmlspecialchars('/');
-			$s_label = htmlspecialchars($this->root->_ajaxtree_messages['toppage']);
+			$title	 = $this->func->htmlspecialchars('/');
+			$s_label = $this->func->htmlspecialchars($this->root->_ajaxtree_messages['toppage']);
 			$count	 = isset($counts['/']) ? ' <span class="count">(' . $counts['/'] . ')</span>' : '';
 			$html	 = '<a title="' . $title . '" href="' . $url . '" class="block">' . $s_label . $count . '</a>' . "\n";
 		}
@@ -420,10 +420,10 @@ class xpwiki_plugin_ajaxtree extends xpwiki_plugin {
 		$html = '<ul class="depth_'.$depth.'">';
 		foreach ($pages as $page) {
 			$indents = str_repeat(' ', $depth);
-			$title	 = htmlspecialchars($page);
+			$title	 = $this->func->htmlspecialchars($page);
 			$url = $this->func->get_page_uri($page, true);
 			$label = substr($page, $offset);
-			$s_label = htmlspecialchars($label);
+			$s_label = $this->func->htmlspecialchars($label);
 			if ($this->root->pagename_num2str && $this->func->is_page($page)) {
 				$s_label = preg_replace('/^(?:[0-9\-]+|[B0-9][A-Z0-9]{9})$/', $this->func->get_heading($page), $s_label);
 			}

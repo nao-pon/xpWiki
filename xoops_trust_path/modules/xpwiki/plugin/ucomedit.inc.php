@@ -99,7 +99,7 @@ EOD;
 	
 	function plugin_ucomedit_action()
 	{
-		$s_target = htmlspecialchars($this->root->post['target']);
+		$s_target = $this->func->htmlspecialchars($this->root->post['target']);
 		$mode = $this->root->post['mode'];
 		$attachObj = new XpWikiAttachFile($this->xpwiki, $this->root->post['refer'], $this->root->post['target']);
 		if (! $attachObj->is_owner()) {

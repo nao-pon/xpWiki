@@ -153,7 +153,7 @@ class xpwiki_plugin_comment extends xpwiki_plugin {
 		$emojipad = (! $options['emoji'] || $options['noemoji'])? '' : '<div'.$emoji_style.'>' . $this->func->get_emoji_pad($domid, FALSE) . '</div>';
 
 		$script = $this->func->get_script_uri();
-		$s_page = htmlspecialchars($this->root->vars['page']);
+		$s_page = $this->func->htmlspecialchars($this->root->vars['page']);
 		$string = <<<EOD
 <br />
 <form action="$script" method="post">

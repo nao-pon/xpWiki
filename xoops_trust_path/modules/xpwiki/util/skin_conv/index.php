@@ -183,8 +183,9 @@ foreach($files as $input) {
 			fwrite($fp, rtrim($out));
 			fclose($fp);
 		}
+		$enc = mb_detect_encoding($out, 'auto');
 		echo "<pre>";
-		echo htmlspecialchars($out);
+		echo htmlspecialchars($out, ENT_COMPAT, $enc);
 		echo "</pre>";
 
 	} else {

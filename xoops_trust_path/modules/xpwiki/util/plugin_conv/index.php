@@ -7,6 +7,9 @@ $func_reg = '/(?:(?:(?:\/\/|#|<\?php).*?(?:\r\n|\r|\n)|\r\n|\r|\n))*(?:function[
 
 $keys_reg = '/^(and|or|xor|exception|php_user_filter|array|as|break|case|class|const|continue|declare|default|die|do|echo|else|elseif|empty|enddeclare|endfor|endforeach|endif|endswitch|endwhile|eval|exit|extends|for|foreach|function|global|if|include|include_once|isset|list|new|print|require|require_once|return|static|switch|unset|use|var|while|final|php_user_filter|interface|implements|extends|public|private|protected|abstract|clone|try|catch|throw|cfunction|old_function|this)$/i';
 
+$over_funcs = array('htmlspecialchars');
+$over_funcs = array_flip($over_funcs);
+
 $defines = $func_all = $global_all = array();
 $other_all = $output_all = "";
 
@@ -314,7 +317,7 @@ foreach($files as $input) {
 					preg_match_all($funcname_reg,$_line,$match,PREG_PATTERN_ORDER);
 					$funcs = array_unique($match[0]);
 					foreach ($funcs as $func_name) {
-						if (!function_exists($func_name) && !preg_match($keys_reg,$func_name)) {
+						if (isset($over_funcs[strtolower($func_name)]) || (!function_exists($func_name) && !preg_match($keys_reg,$func_name))) {
 							$line_old = $line;
 							// 自己関数？
 							if (array_search($func_name,$my_funcs) !== FALSE) {
@@ -522,9 +525,9 @@ EOD;
 			fclose($fp);
 		}
 		*/
-
+		$enc = mb_detect_encoding($out, 'auto');
 		echo "<pre>";
-		echo htmlspecialchars($out);
+		echo @htmlspecialchars($out, ENT_COMPAT, $enc);
 		echo "</pre>";
 
 	} else {

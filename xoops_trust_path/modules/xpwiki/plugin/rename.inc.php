@@ -138,8 +138,8 @@ class xpwiki_plugin_rename extends xpwiki_plugin {
 		}
 		$select_refer = $this->plugin_rename_getselecttag($refer);
 
-		$s_src = htmlspecialchars($this->plugin_rename_getvar('src'));
-		$s_dst = htmlspecialchars($this->plugin_rename_getvar('dst'));
+		$s_src = $this->func->htmlspecialchars($this->plugin_rename_getvar('src'));
+		$s_dst = $this->func->htmlspecialchars($this->plugin_rename_getvar('dst'));
 		$script = $this->func->get_script_uri();
 		$ret = array();
 		$ret['msg']  = $this->root->_rename_messages['msg_title'];
@@ -182,9 +182,9 @@ EOD;
 			$msg_related = '<label for="_p_rename_related">' . $this->root->_rename_messages['msg_do_related'] . '</label>' .
 		'<input type="checkbox" name="related" id="_p_rename_related" value="1" checked="checked" /><br />';
 
-		$msg_rename = sprintf($this->root->_rename_messages['msg_rename'], $this->func->make_pagelink($refer, htmlspecialchars($refer), '', '', 'pagelink', $this->make_pagelink_options));
-		$s_page  = htmlspecialchars($page);
-		$s_refer = htmlspecialchars($refer);
+		$msg_rename = sprintf($this->root->_rename_messages['msg_rename'], $this->func->make_pagelink($refer, $this->func->htmlspecialchars($refer), '', '', 'pagelink', $this->make_pagelink_options));
+		$s_page  = $this->func->htmlspecialchars($page);
+		$s_refer = $this->func->htmlspecialchars($refer);
 		$script = $this->func->get_script_uri();
 		$ret = array();
 		$ret['msg']  = $this->root->_rename_messages['msg_title'];
@@ -206,7 +206,7 @@ EOD;
 			$ret['body'] .= '<hr /><p>' . $this->root->_rename_messages['msg_related'] . '</p><ul>';
 			sort($related);
 			foreach ($related as $name)
-				$ret['body'] .= '<li>' . $this->func->make_pagelink($name, htmlspecialchars($name), '', '', 'pagelink', $this->make_pagelink_options) . '</li>';
+				$ret['body'] .= '<li>' . $this->func->make_pagelink($name, $this->func->htmlspecialchars($name), '', '', 'pagelink', $this->make_pagelink_options) . '</li>';
 			$ret['body'] .= '</ul>';
 		}
 		return $ret;
@@ -287,16 +287,16 @@ EOD;
 
 		$method = $this->plugin_rename_getvar('method');
 		if ($method == 'regex') {
-			$s_src = htmlspecialchars($this->plugin_rename_getvar('src'));
-			$s_dst = htmlspecialchars($this->plugin_rename_getvar('dst'));
+			$s_src = $this->func->htmlspecialchars($this->plugin_rename_getvar('src'));
+			$s_dst = $this->func->htmlspecialchars($this->plugin_rename_getvar('dst'));
 			$msg   .= $this->root->_rename_messages['msg_part_rep'] . '<br />';
 			$input .= '<input type="hidden" name="method" value="regex" />';
 			$input .= '<input type="hidden" name="src"    value="' . $s_src . '" />';
 			$input .= '<input type="hidden" name="dst"    value="' . $s_dst . '" />';
 		} else {
-			$s_refer   = htmlspecialchars($this->plugin_rename_getvar('refer'));
-			$s_page    = htmlspecialchars($this->plugin_rename_getvar('page'));
-			$s_related = htmlspecialchars($this->plugin_rename_getvar('related'));
+			$s_refer   = $this->func->htmlspecialchars($this->plugin_rename_getvar('refer'));
+			$s_page    = $this->func->htmlspecialchars($this->plugin_rename_getvar('page'));
+			$s_related = $this->func->htmlspecialchars($this->plugin_rename_getvar('related'));
 			$msg   .= $this->root->_rename_messages['msg_page'] . '<br />';
 			$input .= '<input type="hidden" name="method"  value="page" />';
 			$input .= '<input type="hidden" name="refer"   value="' . $s_refer   . '" />';
@@ -308,9 +308,9 @@ EOD;
 			$msg .= $this->root->_rename_messages['err_already_below'] . '<ul>';
 			foreach ($exists as $page=>$arr) {
 				$pname = $this->func->decode($page);
-				$msg .= '<li>' . $this->func->make_pagelink($pname, htmlspecialchars($pname), '', '', 'pagelink', $this->make_pagelink_options);
+				$msg .= '<li>' . $this->func->make_pagelink($pname, $this->func->htmlspecialchars($pname), '', '', 'pagelink', $this->make_pagelink_options);
 				$msg .= $this->root->_rename_messages['msg_arrow'];
-				$msg .= htmlspecialchars($pname);
+				$msg .= $this->func->htmlspecialchars($pname);
 				if (! empty($arr)) {
 					$msg .= '<ul>' . "\n";
 					foreach ($arr as $ofile=>$nfile)
@@ -353,9 +353,9 @@ EOD;
 		$ret['body'] .= '<ul>' . "\n";
 		foreach ($pages as $old=>$new)
 			$oldname = $this->func->decode($old);
-			$ret['body'] .= '<li>' .  $this->func->make_pagelink($oldname, htmlspecialchars($oldname), '', '', 'pagelink',$this->make_pagelink_options) .
+			$ret['body'] .= '<li>' .  $this->func->make_pagelink($oldname, $this->func->htmlspecialchars($oldname), '', '', 'pagelink',$this->make_pagelink_options) .
 			$this->root->_rename_messages['msg_arrow'] .
-			htmlspecialchars($this->func->decode($new)) .  '</li>' . "\n";
+			$this->func->htmlspecialchars($this->func->decode($new)) .  '</li>' . "\n";
 		$ret['body'] .= '</ul>' . "\n";
 		return $ret;
 	}
@@ -490,7 +490,7 @@ EOD;
 			if ($_page === $this->root->whatsnew) continue;
 
 			$selected = ($_page === $page) ? ' selected' : '';
-			$s_page = htmlspecialchars($_page);
+			$s_page = $this->func->htmlspecialchars($_page);
 			$pages[$_page] = '<option value="' . $s_page . '"' . $selected . '>' .
 			$s_page . '</option>';
 		}

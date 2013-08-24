@@ -100,9 +100,9 @@ class xpwiki_plugin_article extends xpwiki_plugin {
 	
 			$body = $this->root->_msg_collided . "\n";
 	
-			$s_refer    = htmlspecialchars($this->root->post['refer']);
-			$s_digest   = htmlspecialchars($this->root->post['digest']);
-			$s_postdata = htmlspecialchars($postdata_input);
+			$s_refer    = $this->func->htmlspecialchars($this->root->post['refer']);
+			$s_digest   = $this->func->htmlspecialchars($this->root->post['digest']);
+			$s_postdata = $this->func->htmlspecialchars($postdata_input);
 			$script = $this->func->get_script_uri();
 			$body .= <<<EOD
 <form action="{$script}?cmd=preview" method="post">
@@ -163,8 +163,8 @@ EOD;
 	
 		$article_no = $numbers[$this->xpwiki->pid][$this->root->vars['page']]++;
 	
-		$s_page   = htmlspecialchars($this->root->vars['page']);
-		$s_digest = htmlspecialchars($this->root->digest);
+		$s_page   = $this->func->htmlspecialchars($this->root->vars['page']);
+		$s_digest = $this->func->htmlspecialchars($this->root->digest);
 		$name_cols = $this->cont['PLUGIN_ARTICLE_NAME_COLS'];
 		$subject_cols = $this->cont['PLUGIN_ARTICLE_SUBJECT_COLS'];
 		$article_rows = $this->cont['PLUGIN_ARTICLE_ROWS'];

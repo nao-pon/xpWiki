@@ -370,7 +370,7 @@ class xpwiki_plugin_ref extends xpwiki_plugin {
 			return $params;
 		}
 
-		if ($params['_title']) $lvar['caption'] = htmlspecialchars(join(', ', $params['_title']));
+		if ($params['_title']) $lvar['caption'] = $this->func->htmlspecialchars(join(', ', $params['_title']));
 
 		// ファイルタイプの設定
 		$this->get_type($lvar, $args, $params);
@@ -493,15 +493,15 @@ class xpwiki_plugin_ref extends xpwiki_plugin {
 					// サムネイルあり
 					// URL のローカルパスをURIパスに変換
 					$lvar['url'] = str_replace($this->cont['DATA_HOME'], $this->cont['HOME_URL'], $lvar['url']);
-					$lvar['link'] = htmlspecialchars($lvar['name']);
+					$lvar['link'] = $this->func->htmlspecialchars($lvar['name']);
 				} else {
 					// サムネイルなし
-					$lvar['url'] = htmlspecialchars($lvar['name']);
+					$lvar['url'] = $this->func->htmlspecialchars($lvar['name']);
 					$lvar['link'] = $lvar['url'];
 				}
 
 			} else {
-				$lvar['url'] = htmlspecialchars($lvar['name']);
+				$lvar['url'] = $this->func->htmlspecialchars($lvar['name']);
 				$lvar['link'] = $lvar['url'];
 			}
 
@@ -518,16 +518,16 @@ class xpwiki_plugin_ref extends xpwiki_plugin {
 			if (in_array('name', $this->conf['imgTitles'])) $lvar['title'][] = $_filename;
 			if (in_array('name', $this->conf['imgAlts'])) $lvar['alt'][] = $_filename;
 
-			$lvar['title'] = htmlspecialchars(join(', ', $lvar['title']));
+			$lvar['title'] = $this->func->htmlspecialchars(join(', ', $lvar['title']));
 
 		} else if ($lvar['type'] === 2) {
 			// URL画像以外
 			$lvar['url'] = '';
 			if (empty($lvar['text'])) {
-				$lvar['link'] = htmlspecialchars($lvar['name']);
-				$lvar['text'] = htmlspecialchars($lvar['name']);
+				$lvar['link'] = $this->func->htmlspecialchars($lvar['name']);
+				$lvar['text'] = $this->func->htmlspecialchars($lvar['name']);
 				$lvar['title'][] = (preg_match('/([^\/]+)$/', $lvar['name'], $match))? $match[1] : '';
-				$lvar['title'] = htmlspecialchars(join(', ', $lvar['title']));
+				$lvar['title'] = $this->func->htmlspecialchars(join(', ', $lvar['title']));
 			}
 		} else if ($lvar['type'] === 3) {
 			// 添付画像
@@ -539,7 +539,7 @@ class xpwiki_plugin_ref extends xpwiki_plugin {
 			}
 
 			if ($lvar['isurl']) {
-				$lvar['link'] = htmlspecialchars($lvar['isurl']);
+				$lvar['link'] = $this->func->htmlspecialchars($lvar['isurl']);
 			} else {
 				$lvar['link'] = '';
 			}
@@ -648,7 +648,7 @@ class xpwiki_plugin_ref extends xpwiki_plugin {
 
 			$lvar['text'] = '';
 			if (! empty($lvar['title'])) {
-				$lvar['title'] = $this->func->make_line_rules(htmlspecialchars(join(', ', $lvar['title'])));
+				$lvar['title'] = $this->func->make_line_rules($this->func->htmlspecialchars(join(', ', $lvar['title'])));
 			} else {
 				$lvar['title'] = '';
 			}
@@ -669,16 +669,16 @@ class xpwiki_plugin_ref extends xpwiki_plugin {
 				}
 				if (! empty($lvar['title'])) {
 					// タイトルが指定されている
-					$lvar['text'] = htmlspecialchars(join(', ', $lvar['title']));
-					$lvar['title'] = htmlspecialchars(preg_replace('/([^\/]+)$/', "$1", $lvar['status']['org_fname']? $lvar['status']['org_fname'] : $lvar['name']) . ', ' . $lvar['info']);
+					$lvar['text'] = $this->func->htmlspecialchars(join(', ', $lvar['title']));
+					$lvar['title'] = $this->func->htmlspecialchars(preg_replace('/([^\/]+)$/', "$1", $lvar['status']['org_fname']? $lvar['status']['org_fname'] : $lvar['name']) . ', ' . $lvar['info']);
 				} else {
-					$lvar['text'] = htmlspecialchars(preg_replace('/([^\/]+)$/', "$1", $lvar['status']['org_fname']? $lvar['status']['org_fname'] : $lvar['name']));
-					$lvar['title'] = htmlspecialchars($lvar['info']);
+					$lvar['text'] = $this->func->htmlspecialchars(preg_replace('/([^\/]+)$/', "$1", $lvar['status']['org_fname']? $lvar['status']['org_fname'] : $lvar['name']));
+					$lvar['title'] = $this->func->htmlspecialchars($lvar['info']);
 				}
 			} else {
 				$lvar['text'] = $lvar['link'];
 				//$lvar['title'][] = (preg_match('/([^\/]+)$/', $lvar['link'], $match))? $match[1] : '';
-				$lvar['title'] = htmlspecialchars(join(', ', $lvar['title']));
+				$lvar['title'] = $this->func->htmlspecialchars(join(', ', $lvar['title']));
 			}
 		}
 
@@ -687,7 +687,7 @@ class xpwiki_plugin_ref extends xpwiki_plugin {
 		if (empty($lvar['alt'])) {
 			$lvar['alt'] = '';
 		} elseif (is_array($lvar['alt'])) {
-			$lvar['alt'] = $this->func->make_line_rules(htmlspecialchars(join(', ', $lvar['alt'])));
+			$lvar['alt'] = $this->func->make_line_rules($this->func->htmlspecialchars(join(', ', $lvar['alt'])));
 		}
 
 		// 出力組み立て
@@ -763,7 +763,7 @@ class xpwiki_plugin_ref extends xpwiki_plugin {
 
 				if ($lvar['isurl']) {
 					// Net Video
-					$url = htmlspecialchars($lvar['name']);
+					$url = $this->func->htmlspecialchars($lvar['name']);
 				} else {
 					$url = $this->get_ref_url($lvar['page'], $lvar['name'], true);
 				}
@@ -817,7 +817,7 @@ class xpwiki_plugin_ref extends xpwiki_plugin {
 						$object_attr = '';
 						foreach(array('classid', 'codebase') as $key) {
 							if (!empty($this->cont['PLUGIN_REF_PLAYERS'][$object_type][$key])) {
-								$object_attr = ' '. $key . '="' . htmlspecialchars($this->cont['PLUGIN_REF_PLAYERS'][$object_type][$key]) .'"';
+								$object_attr = ' '. $key . '="' . $this->func->htmlspecialchars($this->cont['PLUGIN_REF_PLAYERS'][$object_type][$key]) .'"';
 							}
 						}
 
@@ -1250,7 +1250,7 @@ _HTML_;
 										$size = '';
 									}
 									$lvar['text'] = str_replace('$size', $size, $lvar['text']);
-									$link = htmlspecialchars($lvar['name']);
+									$link = $this->func->htmlspecialchars($lvar['name']);
 									$link = '<a href="'.$link.'">'.$link.'</a>';
 									//$lvar['text'] = '<div class="video">' . str_replace('$link', $link, $lvar['text']) . '</div>';
 									$lvar['text'] = str_replace('$link', $link, $lvar['text']);
@@ -1279,7 +1279,7 @@ _HTML_;
 											'imagesize' => $size
 										);
 										$lvar['status']['noinline'] = -1;
-										$lvar['link'] = htmlspecialchars($lvar['name']);
+										$lvar['link'] = $this->func->htmlspecialchars($lvar['name']);
 										$lvar['file'] = '';
 										$lvar['name'] = trim($netvideo['src']);
 										$lvar['attrs'] = (isset($netvideo['attribute']))? $netvideo['attribute'] : '';
@@ -1347,7 +1347,7 @@ _HTML_;
 					// Promote new design
 					if ($is_file_default && $is_file_second) {
 						// Because of race condition NOW
-						$params['_error'] = htmlspecialchars('The same file name "' .
+						$params['_error'] = $this->func->htmlspecialchars('The same file name "' .
 						$lvar['name'] . '" at both page: "' .  $lvar['page'] . '" and "' .  $_page .
 						'". Try ref(pagename/filename) to specify one of them');
 					} else {
@@ -1365,7 +1365,7 @@ _HTML_;
 			}
 			if (! $is_file) {
 				if ($this->root->render_mode !== 'render' && !$this->func->is_page($lvar['page'])) {
-					$params['_error'] = $this->root->_msg_notfound . '(' . htmlspecialchars($lvar['page']) .  ')';
+					$params['_error'] = $this->root->_msg_notfound . '(' . $this->func->htmlspecialchars($lvar['page']) .  ')';
 				} else {
 					if ($lvar['name'] === '') {
 						$params['_error'] = 'Require File Name [ &ref(FILE NAME); or #ref(FILE NAME) ]';
@@ -1661,7 +1661,7 @@ _HTML_;
 			} else if (preg_match("/^([0-9.]+)%$/i",$arg,$m)){
 				$params['_%'] = $m[1];
 			} else if (preg_match("/^t:(.*)$/i",$arg,$m)){
-				$m[1] = htmlspecialchars(str_replace("&amp;quot;","",$m[1]));
+				$m[1] = $this->func->htmlspecialchars(str_replace("&amp;quot;","",$m[1]));
 				if ($m[1]) $this->lvar['title'][] = $m[1];
 			} else if (preg_match('/^([0-9]+)x([0-9]+)$/', $arg, $m)) {
 				$params['_size'] = TRUE;
@@ -1689,7 +1689,7 @@ _HTML_;
 		if (! $params['btn']) {
 			$params['btn'] = '[' . $this->root->_LANG['skin']['upload'] . ']';
 		} else {
-			$params['btn'] = htmlspecialchars($params['btn']);
+			$params['btn'] = $this->func->htmlspecialchars($params['btn']);
 		}
 
 		if (! $_attach = $this->func->get_plugin_instance('attach')) {

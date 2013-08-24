@@ -78,9 +78,9 @@ class xpwiki_plugin_calendar9 extends xpwiki_plugin {
 			$prefix = $base.'/';
 		}
 		$r_base = rawurlencode($base);
-		$s_base = htmlspecialchars($base);
+		$s_base = $this->func->htmlspecialchars($base);
 		$r_prefix = rawurlencode($prefix);
-		$s_prefix = htmlspecialchars($prefix);
+		$s_prefix = $this->func->htmlspecialchars($prefix);
 		
 		$yr = substr($date_str,0,4);
 		$mon = substr($date_str,4,2);
@@ -100,7 +100,7 @@ class xpwiki_plugin_calendar9 extends xpwiki_plugin {
 		$day_title = array();
 		$page = $prefix.'DayOff';
 		$r_page = rawurlencode($page);
-		$s_page = htmlspecialchars($page);
+		$s_page = $this->func->htmlspecialchars($page);
 		foreach ($this->func->get_source($s_page) as $line) {
 			$line = trim($line);
 			if (! $line || $line[0] === '/') continue;
@@ -190,7 +190,7 @@ EOD;
 			$titlecolor = '';
 			$page = $prefix.$dt;
 			$r_page = rawurlencode($page);
-			$s_page = htmlspecialchars($page);
+			$s_page = $this->func->htmlspecialchars($page);
 			
 			if (($wday + $diffday) % 7 == 0 and $day > 1) {
 				$ret .= "    </tr>\n    <tr>\n";
@@ -273,8 +273,8 @@ EOD;
 						$href = $this->func->get_page_uri($_page, true);
 						$linkstr = '<a href="' . $href . '" onclick="return xpwiki_cal9_day_edit(\''.$this->root->mydirname.':'.$_page.'\',\'read\',event);">' . $this->func->get_heading($_page) . '</a>'."\n";
 						if ($this->func->check_editable($_page, false, false)) {
-							$short = htmlspecialchars('Edit');
-							$title = htmlspecialchars(str_replace('$1', $s_page.$page, $this->root->_title_edit));
+							$short = $this->func->htmlspecialchars('Edit');
+							$title = $this->func->htmlspecialchars(str_replace('$1', $s_page.$page, $this->root->_title_edit));
 							$icon = '<img src="' . $this->cont['IMAGE_DIR'] . 'paraedit.png' .
 								'" width="9" height="9" alt="' .
 								$short . '" title="' . $title . '" /> ';
@@ -339,7 +339,7 @@ EOD;
 		$yy = sprintf("%04d.%02d",substr($date,0,4),substr($date,4,2));
 		
 		$aryargs = array($this->root->vars['page'],$date);
-		$s_page = htmlspecialchars($this->root->vars['page']);
+		$s_page = $this->func->htmlspecialchars($this->root->vars['page']);
 		
 		$ret['msg'] = "calendar $s_page/$yy";
 		$ret['body'] = call_user_func_array (array(& $this, "plugin_calendar9_convert"),$aryargs);

@@ -90,14 +90,14 @@ class xpwiki_plugin_replacer extends xpwiki_plugin {
 		
 		$script = $this->func->get_script_uri();
 		
-		$spage = htmlspecialchars($this->vars['spage']);
+		$spage = $this->func->htmlspecialchars($this->vars['spage']);
 		
 		$regpage = array_pad(array(), 3, '');
 		if ($this->vars['regpage'] > 2) $this->vars['regpage'] = 0;
 		$regpage[(int)$this->vars['regpage']] = ' checked="checked"';
 		
-		$sword = htmlspecialchars($this->vars['sword']);
-		$rword = htmlspecialchars($this->vars['rword']);
+		$sword = $this->func->htmlspecialchars($this->vars['sword']);
+		$rword = $this->func->htmlspecialchars($this->vars['rword']);
 		
 		$reg = array_pad(array(), 3, '');
 		if (!$this->vars['reg'] || $this->vars['reg']  > 2) $this->vars['reg'] = 0;
@@ -163,7 +163,7 @@ EOD;
 			$vars = $this->vars;
 			$vars['pcmd'] = 'do';
 			foreach($vars as $key => $val) {
-				$doform .= '<input type="hidden" name="'.$key.'" value="'.htmlspecialchars($val).'">';
+				$doform .= '<input type="hidden" name="'.$key.'" value="'.$this->func->htmlspecialchars($val).'">';
 			}
 			$doform .= <<<EOD
 <p><input type="submit" name="" value="{$this->msg['doReplace']}" /></p>
@@ -283,7 +283,7 @@ EOD;
 					$retstr .= '<li><span style="font-size:150%;">' . $this->func->make_pagelink($page, $page) . '</span>';
 					$retstr .= '<ul style="font-size:130%;">';
 					foreach($arr['from'] as $i => $from) {
-						$retstr .= '<li>' . htmlspecialchars($from) . ' &#8658; ' .htmlspecialchars($arr['to'][$i]) . '</li>';
+						$retstr .= '<li>' . $this->func->htmlspecialchars($from) . ' &#8658; ' .$this->func->htmlspecialchars($arr['to'][$i]) . '</li>';
 					}
 					$retstr .= '</ul>';
 					$retstr .= $this->func->compare_diff($arr['src'], $arr['result']);

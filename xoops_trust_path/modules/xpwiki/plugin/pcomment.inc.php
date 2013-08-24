@@ -164,11 +164,11 @@ EOD;
 		if (! $page ) $page = sprintf($this->conf['PAGE'], $this->func->strip_bracket($vars_page));
 		$count = isset($params['_args'][0]) ? intval($params['_args'][0]) : 0;
 		if ($count == 0) $count = $this->conf['NUM_COMMENTS'];
-		$temp = htmlspecialchars($params['template']);
+		$temp = $this->func->htmlspecialchars($params['template']);
 
 		$_page = $this->func->get_fullname($this->func->strip_bracket($page), $vars_page);
 		if (!$this->func->is_pagename($_page))
-			return sprintf($this->root->_pcmt_messages['err_pagename'], htmlspecialchars($_page));
+			return sprintf($this->root->_pcmt_messages['err_pagename'], $this->func->htmlspecialchars($_page));
 
 		$dir = $this->conf['DIRECTION_DEFAULT'];
 		if ($params['below']) {
@@ -232,13 +232,13 @@ EOD;
 				$twitter = '<div><!--NA--><input type="checkbox" id="'.$domid.'" name="twitter" value="1"' . $twitter_disabled . $twitter_checked . ' /><label for="'.$domid.'"> ' . $this->msg['with_twitter'] . '</label>' . $twitter_note . '<!--/NA--></div>';
 			}
 
-			$s_page   = htmlspecialchars($_page);
+			$s_page   = $this->func->htmlspecialchars($_page);
 			if ($this->root->render_mode !== 'render') {
-				$s_refer = htmlspecialchars($vars_page);
+				$s_refer = $this->func->htmlspecialchars($vars_page);
 			} else {
-				$s_refer = htmlspecialchars($_SERVER['REQUEST_URI']);
+				$s_refer = $this->func->htmlspecialchars($_SERVER['REQUEST_URI']);
 			}
-			$s_nodate = htmlspecialchars($params['nodate']);
+			$s_nodate = $this->func->htmlspecialchars($params['nodate']);
 
 			$form_start = '<form action="' . $this->func->get_script_uri() . '" method="post">' . "\n";
 			$form = <<<EOD
@@ -356,7 +356,7 @@ EOD;
 		if (! $this->func->is_page($page)) {
 			$this->func->make_empty_page($page);
 			if (! $new_page = $this->func->auto_template($page)) $new_page = $this->conf['NEW_PAGE_FORMAT'];
-			$postdata = str_replace('<_REFER_>', htmlspecialchars($this->func->strip_bracket($refer)), $new_page) . "\n" .
+			$postdata = str_replace('<_REFER_>', $this->func->htmlspecialchars($this->func->strip_bracket($refer)), $new_page) . "\n" .
 			'-' . $msg . "\n";
 		} else {
 			$postdata = $this->func->get_source($page);

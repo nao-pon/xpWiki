@@ -134,7 +134,7 @@ class xpwiki_plugin_calendar_viewer extends xpwiki_plugin {
 
 		// Avoid Loop etc.
 		if (isset($viewed[$this->xpwiki->pid][$pagename])) {
-			$s_page = htmlspecialchars($pagename);
+			$s_page = $this->func->htmlspecialchars($pagename);
 			return "#calendar_viewer(): You already view: $s_page<br />";
 		} else {
 			$viewed[$this->xpwiki->pid][$pagename] = TRUE; // Valid
@@ -207,7 +207,7 @@ class xpwiki_plugin_calendar_viewer extends xpwiki_plugin {
 				if ($this->cont['PLUGIN_CALENDAR_VIEWER_DATE_FORMAT'] !== FALSE) {
 					$time = strtotime($this->func->basename($page)); // $date_sep must be assumed '-' or ''!
 					if ($time === -1 || $time === FALSE) {
-						$s_page = htmlspecialchars($page); // Failed. Why?
+						$s_page = $this->func->htmlspecialchars($page); // Failed. Why?
 					} else {
 						$week   = $this->root->weeklabels[date('w', $time)];
 						$D      = date('D', $time);
@@ -219,7 +219,7 @@ class xpwiki_plugin_calendar_viewer extends xpwiki_plugin {
 					}
 
 				} else {
-					$s_page = htmlspecialchars($page);
+					$s_page = $this->func->htmlspecialchars($page);
 				}
 				$s_page = $this->func->make_pagelink($page, $s_page);
 			}
@@ -293,7 +293,7 @@ class xpwiki_plugin_calendar_viewer extends xpwiki_plugin {
 
 		// ナビゲート用のリンクを末尾に追加
 		if ($left_YM != '' || $right_YM != '') {
-			$s_date_sep = htmlspecialchars($date_sep);
+			$s_date_sep = $this->func->htmlspecialchars($date_sep);
 			$left_link = $right_link = '';
 			if ($page_YM != '') {
 				$link = $this->root->script . '?plugin=calendar2&amp;file=' . $enc_pagename . '&amp;';
@@ -350,12 +350,12 @@ class xpwiki_plugin_calendar_viewer extends xpwiki_plugin {
 		--$this->root->rtf['convert_nest'];
 
 		//$return_vars_array['msg'] = 'calendar_viewer ' . $vars['page'] . '/' . $page_YM;
-		$return_vars_array['msg'] = 'Calendar view ' . $this->func->make_pagelink($this->root->vars['page'], htmlspecialchars($this->root->vars['page']));
+		$return_vars_array['msg'] = 'Calendar view ' . $this->func->make_pagelink($this->root->vars['page'], $this->func->htmlspecialchars($this->root->vars['page']));
 		if ($this->root->vars['page'] != '') $return_vars_array['msg'] .= ' : ';
 		if (preg_match('/\*/', $page_YM)) {
 			// うーん、n件表示の時はなんてページ名にしたらいい？
 		} else {
-			$return_vars_array['msg'] .= htmlspecialchars($page_YM);
+			$return_vars_array['msg'] .= $this->func->htmlspecialchars($page_YM);
 		}
 
 		$this->root->vars['page'] = $page;

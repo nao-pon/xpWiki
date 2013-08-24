@@ -78,7 +78,7 @@ class xpwiki_plugin_rss extends xpwiki_plugin {
 			}
 		}
 
-		$description = ($added ? ($this->func->substr_entity(htmlspecialchars(trim(preg_replace('/\s+/', ' ', strip_tags($added)))), 0, 250) . '&#182;') : '') . $description;
+		$description = ($added ? ($this->func->substr_entity($this->func->htmlspecialchars(trim(preg_replace('/\s+/', ' ', strip_tags($added)))), 0, 250) . '&#182;') : '') . $description;
 
 		$tags = array();
 		if (is_file($this->cont['CACHE_DIR'] . $this->func->encode($page) . '_page.tag')) {
@@ -141,7 +141,7 @@ class xpwiki_plugin_rss extends xpwiki_plugin {
 			ob_start();
 
 			$lang = $this->cont['LANG'];
-			$page_title = htmlspecialchars($this->root->siteinfo['sitename'] . '::' . $this->root->module_title . $s_base);
+			$page_title = $this->func->htmlspecialchars($this->root->siteinfo['sitename'] . '::' . $this->root->module_title . $s_base);
 			$self = $this->func->get_script_uri();
 			$maketime = $date = substr_replace($this->func->get_date('Y-m-d\TH:i:sO'), ':', -2, 0);
 			$buildtime = $this->func->get_date('r');
@@ -160,7 +160,7 @@ class xpwiki_plugin_rss extends xpwiki_plugin {
 				list($time, $page) = explode("\t", rtrim($line));
 				$r_page = rawurlencode($page);
 				$link = $this->func->get_page_uri($page, true, 'keitai');
-				$title = htmlspecialchars($this->root->pagename_num2str ? preg_replace('/\/(?:[0-9\-]+|[B0-9][A-Z0-9]{9})$/','/'.$this->func->strip_emoji(htmlspecialchars_decode($this->func->get_heading($page))),$page) : $page);
+				$title = $this->func->htmlspecialchars($this->root->pagename_num2str ? preg_replace('/\/(?:[0-9\-]+|[B0-9][A-Z0-9]{9})$/','/'.$this->func->strip_emoji(htmlspecialchars_decode($this->func->get_heading($page))),$page) : $page);
 				if ($base) $title = substr($title, (strlen($base) + 1));
 				if (!$pubtime) $pubtime = $this->func->get_date('r', $time);
 
@@ -180,7 +180,7 @@ EOD;
 
 				case '2.0':
 					list($description, $html, $pginfo) = $this->get_content($page);
-					$author = htmlspecialchars($pginfo['uname']);
+					$author = $this->func->htmlspecialchars($pginfo['uname']);
 					$date = $this->func->get_date('r', $time);
 					$items .= <<<EOD
 <item>
@@ -200,11 +200,11 @@ EOD;
 				case '1.0':
 					// Add <item> into <items>
 					list($description, $html, $pginfo, $tags) = $this->get_content($page);
-					$author = htmlspecialchars($pginfo['uname']);
+					$author = $this->func->htmlspecialchars($pginfo['uname']);
 
 					$tag = '';
 					if ($tags) {
-						$tags = array_map('htmlspecialchars',array_map('rtrim',$tags));
+						$tags = array_map('$this->func->htmlspecialchars',array_map('rtrim',$tags));
 						$tag = '<dc:subject>' . join("</dc:subject>\n <dc:subject>", $tags).'</dc:subject>';
 					}
 
@@ -239,11 +239,11 @@ EOD;
 					break;
 				case 'atom':
 					list($description, $html, $pginfo, $tags) = $this->get_content($page);
-					$author = htmlspecialchars($pginfo['uname']);
+					$author = $this->func->htmlspecialchars($pginfo['uname']);
 
 					$tag = '';
 					if ($tags) {
-						$tags = array_map('htmlspecialchars',array_map('rtrim',$tags));
+						$tags = array_map('$this->func->htmlspecialchars',array_map('rtrim',$tags));
 						foreach($tags as $_tag) {
 							$tag .= '<category term="'.str_replace('"', '\\"',$_tag).'"/>'."\n";
 						}
@@ -360,7 +360,7 @@ EOD;
 				$rpage = ($base)? '&amp;p='.rawurlencode($base) : '';
 				$feedurl = $this->cont['HOME_URL'].'?cmd=rss'.$rpage.'&amp;ver=atom';
 				$rpage = ($base)? '&amp;p='.rawurlencode($base) : '';
-				$modifier = htmlspecialchars($this->root->modifier);
+				$modifier = $this->func->htmlspecialchars($this->root->modifier);
 				print <<<EOD
 <feed xmlns="http://www.w3.org/2005/Atom" xml:lang="$lang">
  <title>$page_title</title>

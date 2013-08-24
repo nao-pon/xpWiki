@@ -78,8 +78,8 @@ $css_charset = $this->cont['CSS_CHARSET'];
 $favicon = ($image['favicon'])? "<link rel=\"SHORTCUT ICON\" href=\"{$image['favicon']}\" />" : "";
 $dirname = $this->root->mydirname;
 $profile = $this->cont['UA_PROFILE'];
-$rsstitle = 'RSS of ' . htmlspecialchars($this->root->module['title']);
-$s_page = htmlspecialchars($_page);
+$rsstitle = 'RSS of ' . $this->htmlspecialchars($this->root->module['title']);
+$s_page = $this->htmlspecialchars($_page);
 
 $upload_js = ' onclick="return XpWiki.fileupFormPopup(\''.$dirname.'\',\''.str_replace('\'', '\\\'', $s_page).'\')"';
 

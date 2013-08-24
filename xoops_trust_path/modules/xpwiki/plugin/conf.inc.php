@@ -479,9 +479,9 @@ EOD;
 			$description = ! empty($conf['description'])? $conf['description'] : (! empty($this->msg[$key]['description'])? $this->msg[$key]['description'] : '');
 			$description = preg_replace('/\{\$root->(.+?)\}/e', '$this->root->$1', $description);
 			$value = ($conf['kind'] === 'root')? $this->root->$key : $this->cont[$key];
-			$value4disp = htmlspecialchars($value);
-			$name4disp = htmlspecialchars((($conf['kind'] === 'root')? 'root_' : 'const_') . $key);
-			$real = htmlspecialchars(($conf['kind'] === 'root')? '$root->'.$key : '$const[\''.$key.'\']');
+			$value4disp = $this->func->htmlspecialchars($value);
+			$name4disp = $this->func->htmlspecialchars((($conf['kind'] === 'root')? 'root_' : 'const_') . $key);
+			$real = $this->func->htmlspecialchars(($conf['kind'] === 'root')? '$root->'.$key : '$const[\''.$key.'\']');
 			$extention = ! empty($this->msg[$key]['extention'])? $this->msg[$key]['extention'] : '';
 			list($form, $attr) = array_pad(explode(',', $conf['form'], 2), 2, '');
 			switch ($form) {
@@ -581,7 +581,7 @@ EOD;
 <p>{$msg_done}</p>
 <hr />
 EOD;
-		$body .= '<pre>'.htmlspecialchars($data).'</pre>';
+		$body .= '<pre>'.$this->func->htmlspecialchars($data).'</pre>';
 		return array('msg'=>$this->msg['title_done'], 'body'=>$body);
 	}
 
