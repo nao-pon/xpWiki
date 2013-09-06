@@ -27,23 +27,22 @@ if ($q !== "") {
 	$order = " ORDER BY `uname` ASC";
 	$limit = 100;
 
-	mysql_connect(XOOPS_DB_HOST, XOOPS_DB_USER, XOOPS_DB_PASS) or die(mysql_error());
-	mysql_select_db(XOOPS_DB_NAME);
+	$link = mysqli_connect(XOOPS_DB_HOST, XOOPS_DB_USER, XOOPS_DB_PASS, XOOPS_DB_NAME) or die(mysqli_error($link));
 
 	if ($use_utf8) {
-		mysql_query( "/*!40101 SET NAMES utf8 */" );
-		mysql_query( "/*!40101 SET SESSION collation_connection=utf8_japanese_ci */" );
+		mysqli_query($link, "/*!40101 SET NAMES utf8 */" );
+		mysqli_query($link, "/*!40101 SET SESSION collation_connection=utf8_japanese_ci */" );
 	} else if ($use_ujis) {
-		mysql_query( "/*!40101 SET NAMES ujis */" );
-		mysql_query( "/*!40101 SET SESSION collation_connection=ujis_japanese_ci */" );
+		mysqli_query($link, "/*!40101 SET NAMES ujis */" );
+		mysqli_query($link, "/*!40101 SET SESSION collation_connection=ujis_japanese_ci */" );
 	}
 
 	$query = "SELECT `uid`, `uname` FROM `".XOOPS_DB_PREFIX."_users`".$where1.$order." LIMIT ".$limit;
 
 	$unames = $suggests = $tags = array();
-	if ($result = mysql_query($query))
+	if ($result = mysqli_query($link, $query))
 	{
-		while($dat = mysql_fetch_row($result))
+		while($dat = mysqli_fetch_row($result))
 		{
 			$unames[] = '"'.str_replace('"','\"',$dat[1]).'['.$dat[0].']"';
 		}
@@ -53,9 +52,9 @@ if ($q !== "") {
 	if ($count < $limit)
 	{
 		$query = "SELECT `uid`, `uname` FROM `".XOOPS_DB_PREFIX."_users`".$where2.$order." LIMIT ".($limit - $count);
-		if ($result = mysql_query($query))
+		if ($result = mysqli_query($link, $query))
 		{
-			while($dat = mysql_fetch_row($result))
+			while($dat = mysqli_fetch_row($result))
 			{
 				$unames[] = '"'.str_replace('"','\"',$dat[1]).'['.$dat[0].']"';
 			}
