@@ -214,7 +214,7 @@ EOD;
 		
 		$query = "SELECT name FROM `".$this->xpwiki->db->prefix($this->root->mydirname . "_attach")."` WHERE {$where}{$order};";
 		$result = $this->xpwiki->db->query($query);
-		while($_row = mysql_fetch_row($result))
+		while($_row = $this->xpwiki->db->fetchRow($result))
 		{
 			$files[$_row[0]] = $this->cont['UPLOAD_DIR'].$this->func->encode($page).'_'.$this->func->encode($_row[0]);
 		}

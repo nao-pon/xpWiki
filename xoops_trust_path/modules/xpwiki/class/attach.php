@@ -1299,7 +1299,7 @@ class XpWikiAttachPages
 			$query = "SELECT DISTINCT p.pgid FROM ".$this->xpwiki->db->prefix($this->root->mydirname."_pginfo")." p INNER JOIN ".$this->xpwiki->db->prefix($this->root->mydirname."_attach")." a ON p.pgid=a.pgid{$where}";
 			$result = $this->xpwiki->db->query($query);
 
-			$this->count = $result ? mysql_num_rows($result) : 0;
+			$this->count = $result ? $this->xpwiki->db->getRowsNum($result) : 0;
 
 			$this->max = $max;
 			$this->start = $start;

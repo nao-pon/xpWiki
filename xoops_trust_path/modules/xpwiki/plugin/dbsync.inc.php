@@ -665,7 +665,7 @@ __EOD__;
 				$id = $this->func->get_pgid_by_name($page, FALSE, TRUE);
 				$query = "SELECT plain FROM `".$this->xpwiki->db->prefix($this->root->mydirname."_plain")."` WHERE `pgid` = ".$id.";";
 				$result = $this->xpwiki->db->query($query);
-				if ($result && mysql_num_rows($result))
+				if ($result && $this->xpwiki->db->getRowsNum($result))
 				{
 					list($text) = $this->xpwiki->db->fetchRow( $result );
 					if ($text && !$this->root->post['plain_all'])
