@@ -1117,7 +1117,7 @@ class XpWikitarlib
 		$this->dirs[] = 'DB@' . $short_name;
 
 		$name =  $this->cont['CACHE_DIR'] . $short_name . '.sql';
-		$dumper = new MySQLDump(null, $name, false, false);
+		$dumper = new MySQLDump($this->xpwiki->db->conn, $name, false, false);
 
 		$dumper->removePrefix = $removePrefix;
 		$dumper->maxFileSize = $this->limitSize;
