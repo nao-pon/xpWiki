@@ -62,7 +62,7 @@ class D3pipesBlockXpwikipagesSubstance extends D3pipesBlockAbstract {
         $ret_0 .= '</select>' ;
 
         // options[1]  (base page)
-        $options[1] = preg_replace( '/[^0-9a-zA-Z_-]/' , '' , @$options[1] ) ;
+        $options[1] = htmlspecialchars( @$options[1] , ENT_QUOTES, _CHARSET) ;
         $ret_1 = 'Base page'.'<input type="text" name="joint_options['.$index.'][1]" value="'.$options[1].'" size="15" />' ;
 
         // options[2]  (max_entries)
