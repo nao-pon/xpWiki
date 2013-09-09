@@ -69,15 +69,16 @@ EOD;
 		$items   = array('php:html_translation_table');
 		$matches = array();
 		foreach ($files as $file) {
-			$source = file($this->cont['W3C_XHTML_DTD_LOCATION'] . $file);
-	//			or die_message('cannot receive ' . W3C_XHTML_DTD_LOCATION . $file . '.');
-			if (! is_array($source)) {
-				$items[] = 'w3c:' . $file . ' COLOR(red):not found.';
+			$results = $this->func->http_request($this->cont['W3C_XHTML_DTD_LOCATION'] . $file,
+				'GET', '', array(), NULL, '', TRUE, 1, 
+				10,  // connect timeout
+				60); // request timeout
+			if (! $results['data'] || $results['rc'] != 200) {
+				$items[] = 'w3c:' . $file . ' COLOR(red):not found.' . $this->func->htmlspecialchars($results['data']);
 				continue;
 			}
 			$items[] = 'w3c:' . $file;
-			if (preg_match_all('/<!ENTITY\s+([A-Za-z0-9]+)/',
-			join('', $source), $matches, PREG_PATTERN_ORDER))
+			if (preg_match_all('/<!ENTITY\s+([A-Za-z0-9]+)/', $results['data'], $matches, PREG_PATTERN_ORDER))
 			{
 				$entities = array_merge($entities, $matches[1]);
 			}
