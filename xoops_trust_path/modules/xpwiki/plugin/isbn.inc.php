@@ -338,6 +338,10 @@ EOD;
 		$filename = $dir . $target . '_' . $this->config['AMAZON_ASE_ID'] . '.isbn';
 
 		$error = '';
+		
+		if (! empty($this->root->rtf['use_cache_always'])) {
+			$check = false;
+		}
 
 		if (!is_file($filename) ||
 			($check && $this->config['ISBN_AMAZON_EXPIRE_TIT'] * 3600 * 24 < $this->cont['UTC'] - filemtime($filename))) {

@@ -146,7 +146,7 @@ class xpwiki_plugin_aws extends xpwiki_plugin {
 			@ unlink($cache_file);
 		}
 
-		if (is_readable($cache_file) && filemtime($cache_file) + $this->config['cache_time'] * 60 > $this->cont['UTC']) {
+		if (is_readable($cache_file) && (!empty($this->root->rtf['use_cache_always']) || filemtime($cache_file) + $this->config['cache_time'] * 60 > $this->cont['UTC'])) {
 			$ret = file_get_contents($cache_file);
 		} else {
 			include_once $this->cont['TRUST_PATH'] . 'class/hyp_common/hsamazon/hyp_simple_amazon.php';
