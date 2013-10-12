@@ -50,12 +50,14 @@ $class .gmap_insertmarker_street_info {
 
 div.gs-result {
 	font-size: 9pt !important;
+	/*
 	position: absolute;
 	top: -10px;
 	left: -5px;
 	width: 100%;
 	height: 135%;
 	overflow: auto;
+	*/
 }
 
 div.gs-country {
