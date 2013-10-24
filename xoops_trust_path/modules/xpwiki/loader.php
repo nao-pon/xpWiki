@@ -282,6 +282,8 @@ if ($type === 'js' || $type === 'css' || is_file($src_file)) {
 	// キャッシュ判定
 	if ($gzip_fname && is_file($gzip_fname) && filemtime($gzip_fname) >= $filetime) {
 		// html側/private/cache に 有効な gzip ファイルがある場合
+		@ini_set('zlib.output_compression', '0');
+		
 		header( 'Content-Type: ' . $c_type );
 		header( 'Last-Modified: ' . gmdate( 'D, d M Y H:i:s', $filetime ) . ' GMT' );
 		header( 'Cache-Control: max-age=' . $maxage );
@@ -472,6 +474,7 @@ if ($type === 'js' || $type === 'css' || is_file($src_file)) {
 	header( 'Etag: '. $etag );
 	header( 'Content-length: '.$length );
 	if ($is_gz) {
+		@ini_set('zlib.output_compression', '0');
 		header( 'Content-Encoding: gzip' );
 		header( 'Vary: Accept-Encoding' );
 	}
