@@ -1,7 +1,6 @@
 <?php
 /*
  * Created on 2008/03/25 by nao-pon http://hypweb.net/
- * $Id: replacer.inc.php,v 1.5 2011/11/26 12:03:10 nao-pon Exp $
  */
 
 class xpwiki_plugin_replacer extends xpwiki_plugin {
@@ -241,6 +240,16 @@ EOD;
 		}
 
 		if ($dh = opendir($base)) {
+			$root =& $this->root;
+			
+			// save for reload rules.ini.php
+			$_saves = array(
+				'page'               => $root->vars['page'],
+				'datetime_rules'     => $root->datetime_rules,
+				'str_rules'          => $root->str_rules,
+				'str_rules_callback' => $root->str_rules_callback,
+			);
+			
 			while (($file = readdir($dh)) !== false && $max > $this->found) {
 				if (preg_match('/^([a-f0-9]+)\.txt$/i', $file, $match)) {
 					$page = $this->func->decode($match[1]);
@@ -250,6 +259,11 @@ EOD;
 					$src = file_get_contents($base . $file);
 					$src = $this->func->remove_pginfo($src);
 					if (preg_match_all($reg, $src, $target, PREG_PATTERN_ORDER)) {
+						$root->vars['page'] = $page;
+						
+						// reload rules.ini.php for make_str_rules()
+						require($this->cont['DATA_HOME'] . 'private/ini/rules.ini.php');
+						
 						$this->found++;
 						$ret[$page]['src'] = $src;
 						$ret[$page]['from'] = array();
@@ -266,6 +280,7 @@ EOD;
 						}
 						$ret[$page]['src'] = $src;
 						$src = preg_replace($reg, $rep, $src);
+						$src = $this->func->make_str_rules($src);
 						$ret[$page]['result'] = $src;
 						if ($this->vars['pcmd'] === 'do') {
 							$this->func->page_write($page, $src, $this->vars['nt']);
@@ -275,6 +290,12 @@ EOD;
 				}
 			}
 			closedir($dh);
+			
+			// restore
+			$root->vars['page']       = $_saves['page'];
+			$root->datetime_rules     = $_saves['datetime_rules'];
+			$root->str_rules          = $_saves['str_rules'];
+			$root->str_rules_callback = $_saves['str_rules_callback'];
 		}
 		if ($this->found) {
 			if ($this->vars['pcmd'] === 'test') {
@@ -359,6 +380,21 @@ EOD;
 			return true;
 		}
 		return false;
+	}
+	
+	////////////////////////////////
+	// functions for rules.ini.php
+	
+	private function format_date($var) {
+		return $this->func->format_date($var);
+	}
+	
+	private function get_date($var) {
+		return $this->func->get_date($var);
+	}
+	
+	private function htmlspecialchars($str, $flags = ENT_COMPAT, $encoding = null, $double_encode = true) {
+		return $this->func->get_date($str, $flags, $encoding, $double_encode);
 	}
 }
 ?>
