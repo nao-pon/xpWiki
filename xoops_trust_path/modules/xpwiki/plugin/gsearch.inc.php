@@ -217,10 +217,10 @@ class xpwiki_plugin_gsearch extends xpwiki_plugin {
 			mb_convert_variables($this->cont['SOURCE_ENCODING'],"UTF-8",$dats);
 			foreach ($dats as $dat)
 			{
-				if ($this->plugin_gsearch_check_ngsite($dat['url'])) {continue;}
+				if ($this->plugin_gsearch_check_ngsite($dat['unescapedUrl'])) {continue;}
 				if ($cnt++ % $limit === 0 && $cnt !== 1) $html .= "</ul></div>".$sdiv."<ul>";
 				$html .= "<li>";
-				$html .= "<a href='".$dat['url']."' target='{$target}'>".$dat['titleNoFormatting']."</a>";
+				$html .= "<a href='".$this->func->htmlspecialchars($dat['unescapedUrl'])."' target='{$target}'>".$dat['titleNoFormatting']."</a>";
 				$html .= "<div class='quotation'>".$this->func->make_link(strip_tags($dat['content']))."</div>";
 				$html .= "</li>";
 			}
@@ -250,7 +250,7 @@ class xpwiki_plugin_gsearch extends xpwiki_plugin {
 			mb_convert_variables($this->cont['SOURCE_ENCODING'],"UTF-8",$dats);
 			foreach ($dats as $dat)
 			{
-				if ($this->plugin_gsearch_check_ngsite($dat['url'])) {continue;}
+				if ($this->plugin_gsearch_check_ngsite($dat['unescapedUrl'])) {continue;}
 				$title = "[".$dat['titleNoFormatting']."]".$this->func->htmlspecialchars($dat['contentNoFormatting']);
 				$size = $dat['width']." x ".$dat['height'];
 				$site = "[ <a href=\"".$this->func->htmlspecialchars($dat['originalContextUrl'])."\" target='{$target}'>Site</a> ]";
@@ -287,9 +287,9 @@ class xpwiki_plugin_gsearch extends xpwiki_plugin {
 			mb_convert_variables($this->cont['SOURCE_ENCODING'],"UTF-8",$dats);
 			foreach ($dats as $dat)
 			{
-				if ($this->plugin_gsearch_check_ngsite($dat['url'])) {continue;}
+				if ($this->plugin_gsearch_check_ngsite($dat['unescapedUrl'])) {continue;}
 				$title = "[".$dat['titleNoFormatting']."]".$this->func->htmlspecialchars($dat['contentNoFormatting']);
-				$site = " [ <a href=\"".$this->func->htmlspecialchars($dat['url'])."\" target='{$target}'>Site</a> ]";
+				$site = " [ <a href=\"".$this->func->htmlspecialchars($dat['unescapedUrl'])."\" target='{$target}'>Site</a> ]";
 				$min = (int)($dat['duration'] / 60);
 				$sec = sprintf("%02d",($dat['duration'] % 60));
 				$length = $min.":".$sec;
