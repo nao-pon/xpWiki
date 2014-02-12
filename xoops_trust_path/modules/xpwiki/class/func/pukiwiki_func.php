@@ -748,15 +748,21 @@ class XpWikiPukiWikiFunc extends XpWikiBaseFunc {
 	{
 		list($pattern, $pattern_a, $forceignorelist) = $autolink_pattern;
 
-		$forceignorelist_ci = array_map('strtolower', $forceignorelist);
-		$forceignorelist_ci = array_unique($forceignorelist_ci);
+		if (is_array($forceignorelist) && ($fi_count = count($forceignorelist))) {
+			$forceignorelist_ci = array_map('strtolower', $forceignorelist);
+			$forceignorelist_ci = array_unique($forceignorelist_ci);
+			$forceignorelist_ci = array_combine($forceignorelist_ci, array_fill(0, count($forceignorelist_ci) ,true));
+			$forceignorelist = array_combine($forceignorelist, array_fill(0, $fi_count ,true));
+		} else {
+			$forceignorelist = $forceignorelist_ci = array();
+		}
 
 		if (! HypCommonFunc::flock_put_contents($filename,
 			  $pattern   . "\n"
 			. $pattern_a . "\n"
 			. join("\t", $forceignorelist) . "\n"
-			. serialize(array_combine($forceignorelist, array_fill(0, count($forceignorelist) ,true))) . "\n"
-			. serialize(array_combine($forceignorelist_ci, array_fill(0, count($forceignorelist_ci) ,true))) . "\n"
+			. serialize($forceignorelist) . "\n"
+			. serialize($forceignorelist_ci) . "\n"
 		)) {
 			$this->die_message('Cannot write ' . $filename);
 		}
