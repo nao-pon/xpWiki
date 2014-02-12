@@ -1343,7 +1343,7 @@ class XpWikitarlib
 
 				//$files[] = '<span class="diff_removed">Debug: ' . $name . '</span>';
 
-				$buff = rtrim(fread($this->fp, $pdsz), "\0");
+				$buff = $pdsz? rtrim(fread($this->fp, $pdsz), "\0") : '';
 
 				if ($charset && strtoupper($charset) !== strtoupper($this->cont['SOURCE_ENCODING'])) {
 					// ファイル名変換
