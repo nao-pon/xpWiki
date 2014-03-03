@@ -58,7 +58,7 @@ $const['LANG'] = $this->get_lang('en');
 $const['CONTENT_CHARSET'] = $this->get_content_charset();
 
 // Internal content encoding (for mbstring extension)
-$const['SOURCE_ENCODING'] = (strtoupper($const['CONTENT_CHARSET']) === 'EUC-JP')? 'eucJP-win' : $const['CONTENT_CHARSET'];
+$const['SOURCE_ENCODING'] = (strtoupper($const['CONTENT_CHARSET']) === 'EUC-JP' && in_array('eucJP-win', mb_list_encodings()))? 'eucJP-win' : $const['CONTENT_CHARSET'];
 
 // Is this site UTF-8?
 $const['FILE_ENCORD_EXT'] = ($const['CONTENT_CHARSET'] === 'UTF-8')? '_utf8' : '';
