@@ -828,7 +828,7 @@ class HeadingEx extends ElementEx
 		if (preg_match('/\s*\[#([_0-9a-zA-Z]+)\]/', $text, $matches)) {
 			$this->id = $matches[1];
 		}
-		$text = preg_replace('/\s*\[#_0-9a-zA-Z+\]/', '', $text);
+		$text = preg_replace('/\s*\[#[_0-9a-zA-Z]+\]/', '', $text);
 
 		$this->insert(Factory_InlineEx($text));
 		$this->level++; // h2,h3,h4
