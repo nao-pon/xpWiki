@@ -663,12 +663,12 @@ __EOD__;
 				}
 
 				$id = $this->func->get_pgid_by_name($page, FALSE, TRUE);
-				$query = "SELECT plain FROM `".$this->xpwiki->db->prefix($this->root->mydirname."_plain")."` WHERE `pgid` = ".$id.";";
+				$query = "SELECT LENGTH(plain) FROM `".$this->xpwiki->db->prefix($this->root->mydirname."_plain")."` WHERE `pgid` = ".$id.";";
 				$result = $this->xpwiki->db->query($query);
 				if ($result && $this->xpwiki->db->getRowsNum($result))
 				{
-					list($text) = $this->xpwiki->db->fetchRow( $result );
-					if ($text && !$this->root->post['plain_all'])
+					list($len) = $this->xpwiki->db->fetchRow( $result );
+					if ($len && !$this->root->post['plain_all'])
 					{
 						$dones[0][] = $file;
 						continue;
