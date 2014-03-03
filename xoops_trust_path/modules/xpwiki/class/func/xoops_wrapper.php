@@ -76,8 +76,6 @@ class XpWikiXoopsWrapper extends XpWikiBackupFunc {
 			global $xoopsUser;
 			$user = $xoopsUser;
 		} else {
-			$module_handler =& xoops_gethandler('module');
-			$XoopsModule =& $module_handler->getByDirname($this->root->mydirname);
 			$user_handler =& xoops_gethandler('user');
 			$user =& $user_handler->get( $uid );
 		}
