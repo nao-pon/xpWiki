@@ -177,7 +177,7 @@ class xpwiki_plugin_code extends xpwiki_plugin {
 			$end = substr_count($lines, "\n") + $begin - 1;
 		}
 
-		$_err = error_reporting(E_ALL ^ E_NOTICE); // orz...
+		$_err = error_reporting(E_ERROR); // orz...
 		$highlight = new $this->config['codehighlightClassName']($this->xpwiki);
 		$lines = $highlight->highlight($lang, $lines, $option, $end, $begin);
 		error_reporting($_err);
