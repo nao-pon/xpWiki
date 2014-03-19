@@ -304,7 +304,7 @@ class xpwiki_plugin_attach extends xpwiki_plugin {
 						@ unlink($_file['tmp_name']);
 						$this->output_json($ret['msg']);
 					}
-					$this->output_json(0); // return success
+					$this->output_json(0, '', (!empty($ret['has_json_msg']) && !empty($ret['msg']))? $ret['msg'] : ''); // return success
 				}
 				
 				// normal upload (non d&d)
@@ -482,6 +482,8 @@ class xpwiki_plugin_attach extends xpwiki_plugin {
 
 		$overwrite = (!empty($options['overwrite']));
 		$changelog = (isset($options['changelog']))? $options['changelog'] : '';
+		$add_mes = array();
+		$has_json_msg = false;
 
 		// ファイル名の正規化
 		$fname = str_replace("\0", '', $fname);
@@ -492,36 +494,43 @@ class xpwiki_plugin_attach extends xpwiki_plugin {
 		// style.css
 		if ($fname === 'style.css' && $this->func->is_owner($page))
 		{
-			if ( is_uploaded_file($tmpname) )
+			if ( is_file($tmpname) )
 			{
 				$_pagecss_file = $this->cont['CACHE_DIR'].$this->func->get_pgid_by_name($page).".css";
 				if (is_file($_pagecss_file)) unlink($_pagecss_file);
-				if (move_uploaded_file($tmpname,$_pagecss_file))
+				if ((is_uploaded_file($tmpname) && move_uploaded_file($tmpname,$_pagecss_file)) || @rename($tmpname,$_pagecss_file))
 				{
 					$this->attach_chmod($_pagecss_file);
 					// 空のファイルの場合はファイル削除
 					if (!trim(file_get_contents($_pagecss_file)))
 					{
 						unlink($_pagecss_file);
-						return array('result'=>TRUE,'msg'=>$this->root->_attach_messages['msg_unset_css']);
+						return array('result'=>TRUE,'msg'=>$this->root->_attach_messages['msg_unset_css'],'has_json_msg'=>TRUE);
 					}
 					else
 					{
-						// 外部ファイルの参照を禁止するなどの書き換え
 						$_data = file_get_contents($_pagecss_file);
-						$_data = preg_replace('#(?:(ht|f)tps?://|boudary)#i', '',$_data);
-						if ($fp = fopen($_pagecss_file,"wb"))
-						{
-							fputs($fp,$_data);
-							fclose($fp);
+						// 管理者以外は外部ファイルの参照を禁止するなどの書き換え
+						if (! $this->root->userinfo['admin']) {
+							$_data = preg_replace('#(?:url\s*\(\s*[\'"]?(?:(?:ht|f)tps?:)?//[^\)]+?\)|@import[^;\r\n]*?;|@import|(?:ht|f)tps?://)#i', '',$_data);
 						}
-
-						return array('result'=>TRUE,'msg'=>$this->root->_attach_messages['msg_set_css']);
+						if (file_put_contents($_pagecss_file, $_data)) {
+							$add_mes[] = $this->root->_attach_messages['msg_set_css'];
+							$has_json_msg = true;
+						}
+						// 元ファイルを添付ファイルとして保存
+						if ($tmpname = tempnam($this->cont['CACHE_DIR'], 'atf')) {
+							file_put_contents($tmpname, $_data);
+							$overwrite = true;
+						}
+						clearstatcache();
 					}
 				}
 				else
+				{
+					@unlink($tmpname);
 					return array('result'=>FALSE,'msg'=>$this->root->_attach_messages['err_exists']);
-
+				}
 			}
 		}
 
@@ -580,35 +589,30 @@ class xpwiki_plugin_attach extends xpwiki_plugin {
 			} while ($obj->exist);
 		} else {
 			$obj = new XpWikiAttachFile($this->xpwiki, $page, $fname);
+			if (is_file($obj->filename)) {
+				unlink($obj->filename);
+				$_action = "update";
+			}
 		}
 
 		if ( is_uploaded_file($tmpname) ) {
-			if ($obj->exist)
-			{
-				return array('result'=>FALSE,'msg'=>$this->root->_attach_messages['err_exists']);
-			}
-
 			if (move_uploaded_file($tmpname,$obj->filename)) {
 				$this->attach_chmod($obj->filename);
 			} else {
-				return array('result'=>FALSE,'msg'=>$this->root->_attach_messages['err_exists']);
+				return array('result'=>FALSE,'msg'=>$this->root->_attach_messages['err_noexist']);
 			}
 		} else {
 			if (! is_file($tmpname) || ! filesize($tmpname)) {
 				if (is_file($tmpname)) {
 					unlink($tmpname);
 				}
-				return array('result'=>FALSE, 'msg'=>$this->root->_attach_messages['err_exists']);
-			}
-			if (is_file($obj->filename)) {
-				unlink($obj->filename);
-				$_action = "update";
+				return array('result'=>FALSE, 'msg'=>$this->root->_attach_messages['err_noexist']);
 			}
 			if (rename($tmpname,$obj->filename)) {
 				$this->attach_chmod($obj->filename);
 			} else {
 				unlink($tmpname);
-				return array('result'=>FALSE, 'msg'=>$this->root->_attach_messages['err_exists']);
+				return array('result'=>FALSE, 'msg'=>$this->root->_attach_messages['err_noexist']);
 			}
 		}
 
@@ -653,19 +657,25 @@ class xpwiki_plugin_attach extends xpwiki_plugin {
 
 		return array(
 			'result'   => TRUE,
-			'msg'      => $this->root->_attach_messages['msg_uploaded'],
-			'name'     => $obj->file
+			'msg'      => $add_mes? join("\n", $add_mes) : $this->root->_attach_messages['msg_uploaded'],
+			'name'     => $obj->file,
+			'has_json_msg' => $has_json_msg
 		);
 	}
 
-	function output_json($msg = 0, $page = '') {
-		if (! $msg) {
-			$this->func->send_json(array('success' => true));
+	function output_json($err = 0, $page = '', $msg = '') {
+		$ret = array();
+		if (! $err) {
+			$ret['success'] = true;
+			$err = $msg;
 		}
-		if (! $page) $page = $this->root->vars['refer'];
-		$msg = str_replace('$1', $page, $msg);
-		$msg = mb_convert_encoding($msg, 'UTF-8', $this->cont['SOURCE_ENCODING']);
-		$this->func->send_json(array('error' => $msg));
+		if ($err) {
+			if (! $page) $page = $this->root->vars['refer'];
+			$err = str_replace('$1', $page, $err);
+			$err = mb_convert_encoding($err, 'UTF-8', $this->cont['SOURCE_ENCODING']);
+			$ret['error'] = $err;
+		}
+		$this->func->send_json($ret);
 	}
 
 	// ref プラグインのソース置換
