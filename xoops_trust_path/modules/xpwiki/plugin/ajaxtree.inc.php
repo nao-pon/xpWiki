@@ -483,20 +483,7 @@ class xpwiki_plugin_ajaxtree extends xpwiki_plugin {
 
 	function plugin_ajaxtree_write_file($filename, $data)
 	{
-		$fp = fopen($filename, is_file($filename) ? 'r+b' : 'wb');
-		if ($fp === false) {
-			return false;
-		}
-		flock($fp, LOCK_EX);
-		$last = ignore_user_abort(1);
-		rewind($fp);
-		fwrite($fp, $data);
-		fflush($fp);
-		ftruncate($fp, ftell($fp));
-		ignore_user_abort($last);
-		flock($fp, LOCK_UN);
-		fclose($fp);
-		return true;
+		return file_put_contents($filename, $data, LOCK_EX);
 	}
 
 	function cache_clear() {
