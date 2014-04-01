@@ -588,10 +588,10 @@ function loader_readfile($file, $use_content_encoding = FALSE) {
 			if ( $use_content_encoding && HYP_X_SENDFILE_MODE === 3) {
 				header('X-Sendfile-Use-CE: Yes');
 			}
-			header('X-Sendfile: ' . $file);
+			header('X-Sendfile: ' . str_replace('%2F', '/', rawurlencode($file)));
 			return;
 		} else if (HYP_X_SENDFILE_MODE === 1) {
-			header('X-LIGHTTPD-send-file: ' . $file);
+			header('X-LIGHTTPD-send-file: ' . str_replace('%2F', '/', rawurlencode($file)));
 			return;
 		}
 	}
