@@ -1,7 +1,6 @@
 // for .uniqueID
-
 (function() {
-    if (!Prototype.Browser.IE && !!window.HTMLElement) {
+    if (!document.uniqueID && !!window.HTMLElement) {
     	var nextUniqueID = 1;
 	    window.HTMLElement.prototype.__defineGetter__('uniqueID', function() {
 	        var uniqueID = 'id' + nextUniqueID++;
