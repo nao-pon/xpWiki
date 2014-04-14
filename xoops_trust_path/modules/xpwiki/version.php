@@ -1,2 +1,2 @@
-<?php $xpwiki_version = '5.02.9';
+<?php $xpwiki_version = '5.02.10';
 if (! defined('XPWIKI_VERSION')) define('XPWIKI_VERSION', $xpwiki_version);
