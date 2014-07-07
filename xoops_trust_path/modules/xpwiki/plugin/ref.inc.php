@@ -924,7 +924,7 @@ EOD;
 <video id="{$domid}" controls="controls"{$media_size_tag}>
 <source src="{$url}" type="{$mime}" />
 {$params['_body']}
-</div>
+</video>
 EOD;
 				}
 			}
