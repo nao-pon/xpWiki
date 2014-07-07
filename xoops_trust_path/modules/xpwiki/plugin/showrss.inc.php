@@ -20,6 +20,10 @@ class xpwiki_plugin_showrss extends xpwiki_plugin {
 			// URL of which it is effective is html is judged from an agreement forward.
 			// 'http://...',
 		);
+		$this->conf['ng_sites'] = array(
+			// Exclude URL from results.
+			// 'http://...',
+		);
 	}
 
 	// Show related extensions are found or not
@@ -205,8 +209,14 @@ class XpWikiShowRSS_html
 				if ($count > $max) break;
 				foreach ($items as $item) {
 					if ($count > $max) break;
+					if ($link = @ $item['LINK']) {
+						foreach($conf['ng_sites'] as $ng_site) {
+							if ($ng_site && strpos($link, $ng_site) === 0) {
+								continue 2;
+							}
+						}
+					}
 					$count++;
-					$link = @ $item['LINK'];
 
 					$this->func->encode_numericentity($item['TITLE'], $this->cont['SOURCE_ENCODING'], 'UTF-8');
 					$linkstr = mb_convert_encoding($item['TITLE'], $this->cont['SOURCE_ENCODING'], 'UTF-8');
