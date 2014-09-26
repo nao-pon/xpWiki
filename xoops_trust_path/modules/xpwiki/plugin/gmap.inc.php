@@ -162,7 +162,7 @@ class xpwiki_plugin_gmap extends xpwiki_plugin {
 		$this->cont['PLUGIN_GMAP_PROFILE'] =  'default';
 
 		// This plugins config
-		$this->conf['ApiVersion'] = '2';
+		$this->conf['ApiVersion'] = '3';
 
 		if ($this->cont['UA_PROFILE'] === 'mobile') {
 			$this->conf['StaticMapSizeW'] = 480;
@@ -934,7 +934,10 @@ EOD;
 	}
 
 	function plugin_gmap_init_output($key) {
-		$this->func->add_js_head('//maps.google.com/maps/api/js?sensor=true&amp;libraries=places&amp;key='.$key, true, 'UTF-8');
+		if (floatval($this->conf['ApiVersion']) < 3) {
+			$this->conf['ApiVersion'] = '3';
+		}
+		$this->func->add_js_head('//maps.google.com/maps/api/js?v='.$this->conf['ApiVersion'].'&amp;sensor=true&amp;libraries=places&amp;key='.$key, true, 'UTF-8');
 		$this->func->add_tag_head('gmap.js');
 		return;
 	}
