@@ -213,7 +213,7 @@ switch ($type) {
 			}
 		}
 		$src_file = $src_files;
-		$c_type = 'application/x-javascript';
+		$c_type = 'text/javascript';
 		$cache_file = $cache_path . $src . ($js_replaces? '_' . $wikihelper_root_url_md5 : '') . '.' . $type;
 		$gzip_fname = $cache_file . '.gz';
 		break;
@@ -267,7 +267,9 @@ if ($type === 'js' || $type === 'css' || is_file($src_file)) {
 			header( 'Pragma: no-cache' );
 		} else {
 			header( 'Cache-Control: public, max-age=' . $maxage );
+			header( $expires );
 		}
+		header( 'Last-Modified: ' . gmdate( 'D, d M Y H:i:s', UNIX_TIME ) . ' GMT' );
 		header( 'Etag: '. $etag );
 		exit();
 	}
@@ -285,8 +287,9 @@ if ($type === 'js' || $type === 'css' || is_file($src_file)) {
 		@ini_set('zlib.output_compression', '0');
 		
 		header( 'Content-Type: ' . $c_type );
-		header( 'Last-Modified: ' . gmdate( 'D, d M Y H:i:s', $filetime ) . ' GMT' );
+		header( 'Last-Modified: ' . gmdate( 'D, d M Y H:i:s', UNIX_TIME ) . ' GMT' );
 		header( 'Cache-Control: max-age=' . $maxage );
+		header( $expires );
 		header( 'Etag: '. $etag );
 		header( 'Content-length: '.filesize($gzip_fname) );
 		header( 'Content-Encoding: gzip' );
@@ -297,7 +300,7 @@ if ($type === 'js' || $type === 'css' || is_file($src_file)) {
 	} else if ($replace && is_file($cache_file) && filemtime($cache_file) >= $filetime) {
 		// html側/private/cache に 有効なキャッシュファイルがある場合
 		header( 'Content-Type: ' . $c_type );
-		header( 'Last-Modified: ' . gmdate( 'D, d M Y H:i:s', $filetime ) . ' GMT' );
+		header( 'Last-Modified: ' . gmdate( 'D, d M Y H:i:s', UNIX_TIME ) . ' GMT' );
 		header( 'Cache-Control: max-age=' . $maxage );
 		header( $expires );
 		header( 'Etag: '. $etag );
@@ -461,7 +464,7 @@ if ($type === 'js' || $type === 'css' || is_file($src_file)) {
 	if (!$length) { $length = filesize($src_file); }
 
 	header( 'Content-Type: ' . $c_type );
-	header( 'Last-Modified: ' . gmdate( 'D, d M Y H:i:s', $filetime ) . ' GMT' );
+	header( 'Last-Modified: ' . gmdate( 'D, d M Y H:i:s', UNIX_TIME ) . ' GMT' );
 	if ($nocache) {
 		header( 'Expires: Thu, 01 Dec 1994 16:00:00 GMT' );
 		header( 'Cache-Control: no-cache, must-revalidate' );
