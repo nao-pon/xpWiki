@@ -1,5 +1,5 @@
 <?php
-// $Id: recent.inc.php,v 1.19 2011/07/29 06:23:06 nao-pon Exp $
+// recent.inc.php nao-pon
 // Copyright (C)
 //   2002-2006 PukiWiki Developers Team
 //   2002      Y.MASUI http://masui.net/pukiwiki/ masui@masui.net
@@ -8,6 +8,16 @@
 // Recent plugin -- Show RecentChanges list
 //   * Usually used at 'MenuBar' page
 //   * Also used at special-page, without no #recnet at 'MenuBar'
+
+/*
+ * [引数]
+ * 1 - 集計対象の仮想階層ページ名又は表示する件数
+ * 2 - 表示する件数又は集計対象の仮想階層ページ名
+ * 3 - 編集日時による絞り込み。本日を基準に -7 で7日前まで。7 で7日後から(未来日付に対応)
+ * 4 - XOOPS の uid による絞り込み
+ * 5 以降 その他のオプション
+ *     'title' - ページタイトルを表示する
+ */
 
 class xpwiki_plugin_recent extends xpwiki_plugin {
 	function plugin_recent_init () {
@@ -42,6 +52,7 @@ class xpwiki_plugin_recent extends xpwiki_plugin {
 		$where = '';
 		$dayaft_time = 0;
 		$uid = 0;
+		$argopts = array('title' => false);
 		if(func_num_args()>0) {
 			$args = func_get_args();
 			$recent_lines = (int)$args[0];
@@ -80,6 +91,11 @@ class xpwiki_plugin_recent extends xpwiki_plugin {
 					$where = '('.$where.') & ';
 				}
 				$where .= '(uid = \'' . $args[3] . '\')';
+			}
+			
+			if (isset($args[4])) {
+				$args = array_slice($args, 4);
+				$this->fetch_options($argopts, $args);
 			}
 		}
 
@@ -142,7 +158,7 @@ class xpwiki_plugin_recent extends xpwiki_plugin {
 				$r_page = rawurlencode($page);
 				$passage = $this->root->show_passage ? ' ' . $this->func->get_passage($time) : '';
 				$compact = ($prefix)? '#compact:'.$prefix : '';
-				$items .= ' <li>'.$this->func->make_pagelink($page, $compact).'</li>' . "\n";
+				$items .= ' <li>'.$this->func->make_pagelink($page, $compact, '', '', 'pagelink', $argopts).'</li>' . "\n";
 
 			}
 		}
