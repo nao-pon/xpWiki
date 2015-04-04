@@ -667,29 +667,34 @@ EOD;
 //<![CDATA[
 (function(){
 if (typeof wikihelper_load_cookie == 'function' ) {
-	var c_ehlp = wikihelper_load_cookie('__whlp');
-	var editor_bbcode = false;
-	if (c_ehlp) {
-		editor_bbcode = (c_ehlp.match(/^1/));
-		c_ehlp = (c_ehlp.replace(/^\d+/, '') === 'on')? 'on' : '';
-	} else {
-		c_ehlp = '';
-	}
-	var elm = document.createElement('div');
-	var btn = document.createElement('button');
-	try { btn.type = 'button'; } catch(e) {} // try for IE8
-	btn.onclick = function(){
-			if (confirm('{$msgSwitch}')) {
-				wikihelper_save_cookie("__whlp", (editor_bbcode? '0' : '1') + c_ehlp, 90 ,'/');
-				location.reload(false);
-			}
-			return false;
-		};
-	var str = document.createTextNode(editor_bbcode? '{$msgToWiki}' : '{$msgToBBcode}');
-	btn.appendChild(str);
-	elm.appendChild(btn);
 	var target = document.getElementById('{$id}');
-	target.parentNode.insertBefore(elm, target);
+	var switcherId = '{$id}-bbcodeSwitcher';
+	if (target.previousSibling && target.previousSibling.id != switcherId) {
+		target._ToBBCodeDone = true;
+		var c_ehlp = wikihelper_load_cookie('__whlp');
+		var editor_bbcode = false;
+		if (c_ehlp) {
+			editor_bbcode = (c_ehlp.match(/^1/));
+			c_ehlp = (c_ehlp.replace(/^\d+/, '') === 'on')? 'on' : '';
+		} else {
+			c_ehlp = '';
+		}
+		var elm = document.createElement('div');
+		elm.id = switcherId;
+		var btn = document.createElement('button');
+		try { btn.type = 'button'; } catch(e) {} // try for IE8
+		btn.onclick = function(){
+				if (confirm('{$msgSwitch}')) {
+					wikihelper_save_cookie("__whlp", (editor_bbcode? '0' : '1') + c_ehlp, 90 ,'/');
+					location.reload(false);
+				}
+				return false;
+			};
+		var str = document.createTextNode(editor_bbcode? '{$msgToWiki}' : '{$msgToBBcode}');
+		btn.appendChild(str);
+		elm.appendChild(btn);
+		target.parentNode.insertBefore(elm, target);
+	}
 }
 }());
 //]]>
