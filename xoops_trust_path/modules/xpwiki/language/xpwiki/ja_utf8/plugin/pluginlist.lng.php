@@ -259,7 +259,7 @@ $msg = array(
 	),
 	'recent' => array(
 		'title' => '最近の数件',
-		'block_usage' => '#recent([<ベースページ名>][,<件数>][,<対象未来日数>][,<対象uid>])',
+		'block_usage' => '#recent([[<ベースページ名>],[<件数>],[<対象未来日数>],[<対象uid>][,title]])',
 		'inline_usage' => ''
 	),
 	'region' => array(

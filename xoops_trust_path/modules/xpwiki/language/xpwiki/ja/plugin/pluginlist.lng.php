@@ -244,7 +244,7 @@ $msg = array(
 	),
 	'popular' => array(
 		'title' => '人気の数件',
-		'block_usage' => '#popular([[件数],[対象外ページ],[today|1|yesterday|-1|total|0],[<ベースページ名>],[0|1]])',
+		'block_usage' => '#popular([[件数],[対象外ページ],[today|1|yesterday|-1|total|0],[<ベースページ名>],[0|1][,title]])',
 		'inline_usage' => ''
 	),
 	'pre' => array(
@@ -259,7 +259,7 @@ $msg = array(
 	),
 	'recent' => array(
 		'title' => '最近の数件',
-		'block_usage' => '#recent([<ベースページ名>][,<件数>][,<対象未来日数>][,<対象uid>])',
+		'block_usage' => '#recent([[<ベースページ名>],[<件数>],[<対象未来日数>],[<対象uid>][,title]])',
 		'inline_usage' => ''
 	),
 	'region' => array(

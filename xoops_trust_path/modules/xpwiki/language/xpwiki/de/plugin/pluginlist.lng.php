@@ -244,7 +244,7 @@ $msg = array(
 	),
 	'popular' => array(
 		'title' => 'Several popular',
-		'block_usage' => '#popular([[Number],[Off the page],[today|1|yesterday|-1|total|0],[<Base page name>],[0|1]])',
+		'block_usage' => '#popular([[Number],[Off the page],[today|1|yesterday|-1|total|0],[<Base page name>],[0|1]][,title])',
 		'inline_usage' => ''
 	),
 	'pre' => array(
@@ -259,7 +259,7 @@ $msg = array(
 	),
 	'recent' => array(
 		'title' => 'Several recent',
-		'block_usage' => '#recent([<Base page name>][,<Number>][,<Future day>][,<UID>])',
+		'block_usage' => '#recent([[<Base page name>],[<Number>],[<Future day>],[<UID>][,title]])',
 		'inline_usage' => ''
 	),
 	'region' => array(
