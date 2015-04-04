@@ -2356,6 +2356,7 @@ EOD;
 		$isset_alias = ($alias);
 		$compact_base = false;
 		$base_key = '#none';
+		$with_title = !empty($options['title']);
 		if (preg_match('/^#compact:(.*)$/', $alias, $match)) {
 			$alias = '';
 			$isset_alias = FALSE;
@@ -2366,7 +2367,10 @@ EOD;
 		if ($alias) {
 			$s_alias = $alias;
 		} else {
-			$s_alias = ($this->root->pagename_num2str && $this->is_page($page)) ? preg_replace('/\/(?:[0-9\-]+|[B0-9][A-Z0-9]{9})$/', '/'.str_replace('/', '&#47;', $this->get_heading($page)), $s_page) : $s_page;
+			$s_alias = (!$with_title && $this->root->pagename_num2str && $this->is_page($page)) ? preg_replace('/\/(?:[0-9\-]+|[B0-9][A-Z0-9]{9})$/', '/'.str_replace('/', '&#47;', $this->get_heading($page)), $s_page) : $s_page;
+		}
+		if ($with_title && $this->is_page($page)) {
+			$s_alias .= ' [' . str_replace('/', '&#47;', $this->get_heading($page)) . ']';
 		}
 		if ($compact_base) {
 			$s_alias = preg_replace('/^'.preg_quote($this->htmlspecialchars($compact_base).'/', '/').'/', '', $s_alias);
