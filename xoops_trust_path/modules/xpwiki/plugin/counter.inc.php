@@ -86,7 +86,7 @@ EOD;
 		$writed = $modify = FALSE;
 
 		$db =& $this->xpwiki->db;
-		$query = 'SELECT `count` as total, `today` as date, `today_count` as today, `yesterday_count` as yesterday, `ip` FROM '.$this->xpwiki->db->prefix($this->root->mydirname."_count").' WHERE `pgid`='.$pgid.' LIMIT 1';
+		$query = 'SELECT `count` as total, `today` as date, `today_count` as today, `yesterday_count` as yesterday, `ip` FROM '.$this->db->prefix($this->root->mydirname."_count").' WHERE `pgid`='.$pgid.' LIMIT 1';
 		if (! $result = $db->query($query)) {
 			$default[$this->xpwiki->pid];
 		}

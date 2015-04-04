@@ -411,8 +411,8 @@ class xpwiki_plugin_deldel extends xpwiki_plugin {
 							$flag[$s_page] = false;
 						}
 						//カウンターDB
-						$query = "DELETE FROM ".$this->xpwiki->db->prefix($this->root->mydirname."_count")." WHERE `pgid` = '".$this->func->get_pgid_by_name($page)."' LIMIT 1;";
-						$result=$this->xpwiki->db->queryF($query);
+						$query = "DELETE FROM ".$this->db->prefix($this->root->mydirname."_count")." WHERE `pgid` = '".$this->func->get_pgid_by_name($page)."' LIMIT 1;";
+						$result=$this->db->queryF($query);
 					}
 					break;
 				}
@@ -794,10 +794,10 @@ class xpwiki_plugin_deldel extends xpwiki_plugin {
 		}
 
 		// Attach
-		$query = "SELECT name,age FROM `".$this->xpwiki->db->prefix($this->root->mydirname."_attach")."` WHERE `pgid` = {$pgid}";
-		$result = $this->xpwiki->db->query($query);
+		$query = "SELECT name,age FROM `".$this->db->prefix($this->root->mydirname."_attach")."` WHERE `pgid` = {$pgid}";
+		$result = $this->db->query($query);
 		$_done = array();
-		while($_row = $this->xpwiki->db->fetchRow($result))
+		while($_row = $this->db->fetchRow($result))
 		{
 			$basename = $this->func->encode($page).'_'.$this->func->encode($_row[0]);
 			$filename = $basename . ($_row[1] ? '.'.$_row[1] : '');

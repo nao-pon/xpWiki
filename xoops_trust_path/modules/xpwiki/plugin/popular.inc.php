@@ -106,7 +106,7 @@ class xpwiki_plugin_popular extends xpwiki_plugin {
 			$where = ' WHERE (c.pgid = p.pgid) AND (p.name NOT LIKE \':%\') AND (today = \'' . $today . '\')' . ($yesterday ? 'AND (c.`yesterday_count` != 0)' : '') . $nopage . $_where;
 			if ($yesterday) {
 				$where .= ' UNION SELECT p.`name`, c.`today_count` AS `count`';
-				$where .= ' FROM ' . $this->xpwiki->db->prefix($this->root->mydirname . '_count') . ' as c INNER JOIN ' . $this->xpwiki->db->prefix($this->root->mydirname . '_pginfo') . ' as p ON c.pgid = p.pgid';
+				$where .= ' FROM ' . $this->db->prefix($this->root->mydirname . '_count') . ' as c INNER JOIN ' . $this->db->prefix($this->root->mydirname . '_pginfo') . ' as p ON c.pgid = p.pgid';
 				$where .= ' WHERE (p.name NOT LIKE \':%\') AND (today = \'' . $yesterday . '\')' . $nopage . $_where;
 				$select = 'p.`name`, c.`yesterday_count` AS `count`';
 			} else {
@@ -116,10 +116,10 @@ class xpwiki_plugin_popular extends xpwiki_plugin {
 			$where = ' WHERE (p.name NOT LIKE \':%\')' . $nopage . $where;
 			$select = 'p.`name`, c.`count` AS `count`';
 		}
-		$query = 'SELECT ' . $select . ' FROM ' . $this->xpwiki->db->prefix($this->root->mydirname . '_count') . ' as c INNER JOIN ' . $this->xpwiki->db->prefix($this->root->mydirname . '_pginfo') . ' as p ON c.pgid = p.pgid ' . $where . ' ORDER BY `count` DESC LIMIT ' . $max;
-		$res = $this->xpwiki->db->query($query);
+		$query = 'SELECT ' . $select . ' FROM ' . $this->db->prefix($this->root->mydirname . '_count') . ' as c INNER JOIN ' . $this->db->prefix($this->root->mydirname . '_pginfo') . ' as p ON c.pgid = p.pgid ' . $where . ' ORDER BY `count` DESC LIMIT ' . $max;
+		$res = $this->db->query($query);
 		if ($res) {
-			while($data = $this->xpwiki->db->fetchRow($res)) {
+			while($data = $this->db->fetchRow($res)) {
 				$counters[$data[0]] = $data[1];
 			}
 		}

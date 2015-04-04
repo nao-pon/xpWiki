@@ -20,6 +20,7 @@ class xpwiki_plugin {
 		$this->root   = & $func->root;
 		$this->cont   = & $func->cont;
 		$this->func   = & $func;
+		$this->db     = $this->xpwiki->db;
 
 		$this->language_loaded = FALSE;
 	}

@@ -26,7 +26,7 @@ class xpwiki_plugin_recentchanges extends xpwiki_plugin {
 			$date = $items = "";
 			$cnt = 0;
 			$items = '<ol class="list1">';
-			//while(list($page, $editedtime) = $this->xpwiki->db->fetchRow($res))
+			//while(list($page, $editedtime) = $this->db->fetchRow($res))
 			foreach($res as $_res)
 			{
 				list($editedtime, $page) = explode("\t", $_res);

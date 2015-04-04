@@ -332,12 +332,12 @@ class xpwiki_plugin_dump extends xpwiki_plugin {
 		if ($bk_ini)    $filecount += $tar->add_dir($this->cont['DATA_HOME'].'private/ini/',  $this->root->_STORAGE['INI_DIR']['add_filter'], false);
 		if ($bk_cache)  $filecount += $tar->add_dir($this->cont['CACHE_DIR'],  $this->root->_STORAGE['CACHE_DIR']['add_filter'], false);
 
-		if ($bk_dbpginfo) $filecount += $tar->add_sql($this->xpwiki->db->prefix($this->root->mydirname.'_pginfo'));
-		if ($bk_dbcount) $filecount += $tar->add_sql($this->xpwiki->db->prefix($this->root->mydirname.'_count'));
-		if ($bk_dbrel) $filecount += $tar->add_sql($this->xpwiki->db->prefix($this->root->mydirname.'_rel'));
-		if ($bk_dbplain) $filecount += $tar->add_sql($this->xpwiki->db->prefix($this->root->mydirname.'_plain'));
-		if ($bk_dbattach) $filecount += $tar->add_sql($this->xpwiki->db->prefix($this->root->mydirname.'_attach'));
-		if ($bk_dbalias) $filecount += $tar->add_sql($this->xpwiki->db->prefix($this->root->mydirname.'_alias'));
+		if ($bk_dbpginfo) $filecount += $tar->add_sql($this->db->prefix($this->root->mydirname.'_pginfo'));
+		if ($bk_dbcount) $filecount += $tar->add_sql($this->db->prefix($this->root->mydirname.'_count'));
+		if ($bk_dbrel) $filecount += $tar->add_sql($this->db->prefix($this->root->mydirname.'_rel'));
+		if ($bk_dbplain) $filecount += $tar->add_sql($this->db->prefix($this->root->mydirname.'_plain'));
+		if ($bk_dbattach) $filecount += $tar->add_sql($this->db->prefix($this->root->mydirname.'_attach'));
+		if ($bk_dbalias) $filecount += $tar->add_sql($this->db->prefix($this->root->mydirname.'_alias'));
 
 		if ($filecount === 0) {
 			//$tar->close();
@@ -544,7 +544,7 @@ class xpwiki_plugin_dump extends xpwiki_plugin {
 					'CREATE TABLE `',
 					'INSERT INTO `' );
 				$to = array();
-				$prefix = $this->xpwiki->db->prefix($this->root->mydirname.'_');
+				$prefix = $this->db->prefix($this->root->mydirname.'_');
 				foreach($reps as $from) {
 					$to = $from . $prefix;
 					$sql = preg_replace('/^'.preg_quote($from, '/').'/mi', $to, $sql);
@@ -557,7 +557,7 @@ class xpwiki_plugin_dump extends xpwiki_plugin {
 				foreach(explode(';', $sql) as $query) {
 					$query = trim(str_replace("\x08", ';', $query));
 					if ($query) {
-						if ($this->xpwiki->db->query($query)) {
+						if ($this->db->query($query)) {
 							if (! empty($this->root->vars['show_sql'])) {
 								$msg['ok'][] = $this->func->htmlspecialchars($query);
 							}
@@ -1112,12 +1112,12 @@ class XpWikitarlib
 			$this->func->die_message('Class "MySQLDump" was not found.');
 		}
 
-		$removePrefix = $this->xpwiki->db->prefix($this->root->mydirname.'_');
+		$removePrefix = $this->db->prefix($this->root->mydirname.'_');
 		$short_name = substr($table, strlen($removePrefix));
 		$this->dirs[] = 'DB@' . $short_name;
 
 		$name =  $this->cont['CACHE_DIR'] . $short_name . '.sql';
-		$dumper = new MySQLDump($this->xpwiki->db->conn, $name, false, false);
+		$dumper = new MySQLDump($this->db->conn, $name, false, false);
 
 		$dumper->removePrefix = $removePrefix;
 		$dumper->maxFileSize = $this->limitSize;

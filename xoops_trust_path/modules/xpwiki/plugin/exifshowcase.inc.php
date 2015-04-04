@@ -212,9 +212,9 @@ EOD;
 			$order = " ORDER BY `mtime` ASC";
 		}
 		
-		$query = "SELECT name FROM `".$this->xpwiki->db->prefix($this->root->mydirname . "_attach")."` WHERE {$where}{$order};";
-		$result = $this->xpwiki->db->query($query);
-		while($_row = $this->xpwiki->db->fetchRow($result))
+		$query = "SELECT name FROM `".$this->db->prefix($this->root->mydirname . "_attach")."` WHERE {$where}{$order};";
+		$result = $this->db->query($query);
+		while($_row = $this->db->fetchRow($result))
 		{
 			$files[$_row[0]] = $this->cont['UPLOAD_DIR'].$this->func->encode($page).'_'.$this->func->encode($_row[0]);
 		}
