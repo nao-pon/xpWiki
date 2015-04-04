@@ -344,44 +344,55 @@ function wikihelper_setActive(elem, istimer)
 		return;
 	}
 
-	if (! wikihelper_mouseover) return;
-	//if (Prototype.Browser.IE) {alert('hoge');}
 	var helper = $("wikihelper_base");
-	if (helper.style.display == 'none' || wikihelper_elem != elem) {
-		if (! elem._focused) {
-			elem.focus();
-			return;
-		}
+	
+	if (! wikihelper_mouseover || helper.style.display != 'none') return;
+	
+	var pos = elem.getBoundingClientRect(),
+	html = document.documentElement,
+	body = document.body,
+	scrollLeft = (body.scrollLeft || html.scrollLeft),
+	scrollTop  = (body.scrollTop || html.scrollTop);
+	
+	pos = (pos.left + scrollLeft) + ':' + (pos.top + scrollTop);
+	var diff = (wikihelper_elem != elem || wikihelper_elem._lastPos != pos);
+	if (!diff && helper.style.display != 'none') return;
 
-		XpWiki.UploadDir = '';
-		XpWiki.UploadPage = '';
-		if ($('XpWikiPopup')) {
-		//	Element.hide('XpWikiPopup');
-		}
+	if (! elem._focused) {
+		elem.focus();
+		return;
+	}
 
-		Element.show(helper);
-		if (wikihelper_elem != elem) {
-			wikihelper_elem = elem;
-			var offset = wikihelper_cumulativeOffset(wikihelper_elem);
-			helper.style.left = (XpWiki.useJQueryMobile? 12 : offset[0]) + "px";
-			helper.style.top = ( offset[1] - helper.offsetHeight - 1 ) + "px";
-			wikihelper_pos();
-		}
+	XpWiki.UploadDir = '';
+	XpWiki.UploadPage = '';
+	if ($('XpWikiPopup')) {
+	//	Element.hide('XpWikiPopup');
+	}
 
-		XpWiki.setUploadVar(wikihelper_elem);
+	Element.show(helper);
 
-		if (XpWiki.isIE6) {
-			oElements = document.getElementsByTagName("select");
-			for (var i = 0; i < oElements.length; i++)
-			{
-				oElement = oElements[i];
-				oElement.style.visibility = "hidden";
-			}
-		}
+	if (diff) {
+		wikihelper_elem = elem;
+		wikihelper_elem._lastPos = pos;
+		var offset = wikihelper_cumulativeOffset(wikihelper_elem);
+		helper.style.left = (XpWiki.useJQueryMobile? 12 : offset[0]) + "px";
+		helper.style.top = ( offset[1] - helper.offsetHeight - 1 ) + "px";
+		wikihelper_pos();
+	}
 
-		if (XpWiki.useJQueryMobile) {
-			jQuery('iframe.youtube-player').css('visibility', 'hidden');
+	XpWiki.setUploadVar(wikihelper_elem);
+
+	if (XpWiki.isIE6) {
+		oElements = document.getElementsByTagName("select");
+		for (var i = 0; i < oElements.length; i++)
+		{
+			oElement = oElements[i];
+			oElement.style.visibility = "hidden";
 		}
+	}
+
+	if (XpWiki.useJQueryMobile) {
+		jQuery('iframe.youtube-player').css('visibility', 'hidden');
 	}
 }
 
