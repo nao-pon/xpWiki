@@ -2,7 +2,7 @@
 /////////////////////////////////////////////////
 // PukiWiki - Yet another WikiWikiWeb clone.
 //
-// $Id: popular.inc.php,v 1.12 2009/11/17 09:18:42 nao-pon Exp $
+// popular.inc.php nao-pon
 //
 
 /*
@@ -20,6 +20,7 @@
  * #popular(20,FrontPage|MenuBar,1)
  * #popular(20,FrontPage|MenuBar,1,XOOPS)
  * #popular(20,FrontPage|MenuBar,-1,,1)
+ * #popular(,,,,,title)
  *
  * [引数]
  * 1 - 表示する件数                                    default 10
@@ -27,6 +28,8 @@
  * 3 - 今日(today|1)か昨日(yesterday|-1)か通算(total|0)の一覧かのフラグ         default false
  * 4 - 集計対象の仮想階層ページ名                      default なし
  * 5 - 多階層ページの場合、最下層のみを表示 ( 0 or 1 ) default 0
+ * 6 以降 その他のオプション
+ *     'title' - ページタイトルを表示する
  */
 
 class xpwiki_plugin_popular extends xpwiki_plugin {
@@ -43,37 +46,27 @@ class xpwiki_plugin_popular extends xpwiki_plugin {
 	function plugin_popular_convert()
 	{
 		
-		$max = $this->cont['PLUGIN_POPULAR_DEFAULT'];
-		$except = '';
-	
-		$array = func_get_args();
-		$yesterday = $today = FALSE;
-		$prefix = '';
-		$compact = 0;
-	
-		switch (func_num_args()) {
-		case 5:
-			if ($array[4]) $compact = 1;
-		case 4:
-			$prefix = $array[3];
-			$prefix = rtrim($prefix, '/');
-		case 3:
-			if ($array[2]) {
-				$array[2] = strtolower($array[2]);
-				if ($array[2] !== 'false' && $array[2] !== 'total') {
-					$today = $this->func->get_date('Y/m/d');
-					if ($array[2] === 'yesterday' || $array[2] === '-1') {
-						$yesterday = $this->func->get_date('Y/m/d', $this->cont['UTIME'] - 86400);
-					}
+		$options = array('title' => false);
+		$keys = array('max', 'except', 'day', 'prefix', 'compact');
+		$args = func_get_args();
+		$this->fetch_options($options, $args, $keys);
+		foreach($keys as $key) {
+			$$key = $options[$key];
+		}
+		$max = $max? (int)$max : $this->cont['PLUGIN_POPULAR_DEFAULT'];
+		$except = $except? str_replace(array("&#124;","&#x7c;",'#'), '|', $except) : '';
+		$yesterday = $today = false;
+		if ($day) {
+			$day = strtolower($day);
+			if ($day !== 'false' && $day !== 'total') {
+				$today = $this->func->get_date('Y/m/d');
+				if ($day === 'yesterday' || $day === '-1') {
+					$yesterday = $this->func->get_date('Y/m/d', $this->cont['UTIME'] - 86400);
 				}
 			}
-		case 2:
-			$except = $array[1];
-			$except = str_replace(array("&#124;","&#x7c;",'#'), '|', $except);
-		case 1:
-			$max = (int)$array[0]; 
-			$max = (!$max)? $this->cont['PLUGIN_POPULAR_DEFAULT'] : $max;
 		}
+		$prefix = $prefix? rtrim($prefix, '/') : '';
+		$compact = $compact? 1 : 0;
 	
 		$nopage = ' AND p.editedtime != 0';
 		if ($except)
@@ -137,6 +130,7 @@ class xpwiki_plugin_popular extends xpwiki_plugin {
 			$_style = ' style="margin-left:' . $_style . 'px;padding-left:' . $_style . 'px;';
 			$items = '<ul class="popular_list"' . $_style . '">';
 			$new_mark = '';
+			$_ops = $options['title']? array('title' => true) : array();
 			
 			foreach ($counters as $page=>$count) {
 				//Newマーク付加
@@ -144,13 +138,13 @@ class xpwiki_plugin_popular extends xpwiki_plugin {
 					$new_mark = $this->func->do_plugin_inline('new', $page . ',nolink');
 				
 				if ($compact)
-					$page = $this->func->make_pagelink($page,$this->func->basename($page));
+					$page = $this->func->make_pagelink($page, $this->func->basename($page), '', '', 'pagelink', $_ops);
 				else
 				{
 					if ($prefix)
-						$page = $this->func->make_pagelink($page, '#compact:' . $prefix);
+						$page = $this->func->make_pagelink($page, '#compact:' . $prefix, '', '', 'pagelink', $_ops);
 					else
-						$page = $this->func->make_pagelink($page);
+						$page = $this->func->make_pagelink($page, '', '', '', 'pagelink', $_ops);
 				}
 				
 				$items .= ' <li>' . $page . '<span class="counter">(' . $count . ')</span>' . $new_mark . '</li>' . "\n";
