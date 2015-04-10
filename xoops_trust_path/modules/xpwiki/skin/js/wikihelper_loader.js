@@ -15,7 +15,8 @@
 		}
 		var charset = 'charset="ISO-8859-1" ';
 		if (lang == 'ja') {
-			charset = 'charset="EUC-JP" ';
+			lang = 'ja_utf8';
+			charset = 'charset="UTF-8" ';
 		}
 		// load default.*.js
 		document.write ('<script type="text/javascript" ' + charset + 'src="$wikihelper_root_url/skin/loader.php?src=default.'+lang+'.js"></script>');
