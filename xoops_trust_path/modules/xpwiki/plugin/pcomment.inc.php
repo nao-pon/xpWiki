@@ -532,11 +532,12 @@ EOD;
 		$comments = str_replace("<a href=\"".$this->root->script."?plugin=areaedit","<a href=\"".$this->root->script."?plugin=areaedit&amp;start=$start",$comments);
 
 		// Add radio buttons
-		if ($reply)
+		if ($reply) {
 			$datarole = ($this->cont['UA_PROFILE'] === 'mobile')? 'data-role="none" ' : '';
 			$comments = preg_replace('/<li>' . "\x01" . '(\d+)' . "\x02" . '(.*)' . "\x03" . '/',
 			'<li class="pcmt"><input class="pcmt" type="radio" name="reply" value="$2" tabindex="$1" '.$datarole.'/>',
 			$comments);
+		}
 
 		return array($comments, $digest);
 	}

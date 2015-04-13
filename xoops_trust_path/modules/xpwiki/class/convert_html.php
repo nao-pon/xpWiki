@@ -37,7 +37,8 @@ class XpWikiElement {
 		$obj->setParent($this);
 		$this->elements[] = & $obj;
 
-		return $this->last = & $obj->last;
+		$this->last = & $obj->last;
+		return $this->last;
 	}
 
 	function canContain($obj) {
@@ -157,7 +158,8 @@ class XpWikiHeading extends XpWikiElement {
 
 	function & insert(& $obj) {
 		parent :: insert($obj);
-		return $this->last = & $this;
+		$this->last = & $this;
+		return $this->last;
 	}
 
 	function canContain(& $obj) {
@@ -247,8 +249,10 @@ class XpWikiListContainer extends XpWikiElement {
 	}
 
 	function & insert(& $obj) {
-		if (!is_a($obj, get_class($this)))
-			return $this->last = & $this->last->insert($obj);
+		if (!is_a($obj, get_class($this))) {
+			$this->last = & $this->last->insert($obj);
+			return $this->last;
+		}
 
 		// Break if no elements found (BugTrack/524)
 		if (count($obj->elements) === 1 && empty ($obj->elements[0]->elements))
