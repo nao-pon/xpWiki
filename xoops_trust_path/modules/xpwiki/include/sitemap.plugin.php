@@ -8,7 +8,7 @@ function b_sitemap_xpwiki( $mydirname ) {
 	
 	global $sitemap_configs;
 	
-	$myts =& MyTextSanitizer::getInstance();
+	(method_exists('MyTextSanitizer', 'sGetInstance') and $myts =& MyTextSanitizer::sGetInstance()) || $myts =& MyTextSanitizer::getInstance();
 	$ret = array();
 
 	include_once dirname(dirname(__FILE__)).'/include.php';
