@@ -127,7 +127,7 @@ if (is_file($_lang)) {
 mb_language($const['MB_LANGUAGE']);
 mb_internal_encoding($const['SOURCE_ENCODING']);
 mb_regex_encoding($const['SOURCE_ENCODING']);
-ini_set('mbstring.http_input', 'pass');
+@ini_set('mbstring.http_input', 'pass');
 mb_http_output('pass');
 mb_detect_order($const['DETECT_ORDER']);
 mb_substitute_character(0x003F);

@@ -13,9 +13,9 @@ if (! defined('_XPWIKI_FILES_LOADED')) {
 	if (error_reporting() > 6143) {
 		if (E_ALL > 30719) {
 			// PHP >= 5.4
-			error_reporting(E_ALL ^ E_STRICT ^ E_DEPRECATED);
+			error_reporting(E_ALL ^ E_STRICT /*^ E_DEPRECATED*/);
 		} else {
-			error_reporting(E_ALL ^ E_DEPRECATED);
+			error_reporting(E_ALL /*^ E_DEPRECATED*/);
 		}
 	}
 
