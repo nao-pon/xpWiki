@@ -637,11 +637,27 @@ EOD;
 	 * @return string           JavaScript
 	 */
 	function get_BBCode_switch_js($id, $mydirname = null) {
-		
 		if (is_null($mydirname)) {
 			if ($this->root->mydirname) {
 				$mydirname = $this->root->mydirname;
 			} else if (defined('XPWIKI_RENDERER_DIR')) {
+				$mydirname = XPWIKI_RENDERER_DIR;
+			} else {
+				$mydirname = 'xpwiki';
+			}
+		}
+		return self::sGet_BBCode_switch_js($id, $mydirname);
+	}
+	/**
+	 * Get JavaScript of switch to (BB-code or Wiki) editor (Static Fundtion)
+	 *
+	 * @param string $id        DomId
+	 * @param string $mydirname xpWiki Module dirname
+	 * @return string           JavaScript
+	 */
+	public static function sGet_BBCode_switch_js($id, $mydirname = null) {
+		if (is_null($mydirname)) {
+			if (defined('XPWIKI_RENDERER_DIR')) {
 				$mydirname = XPWIKI_RENDERER_DIR;
 			} else {
 				$mydirname = 'xpwiki';
