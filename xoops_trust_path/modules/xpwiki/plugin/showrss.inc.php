@@ -422,18 +422,19 @@ class XpWikiShowRSS_XML
 
 		$item = array_map(array(& $this, 'escape'), $this->item);
 		$this->item = array();
+		$showrss =& $this->func->get_plugin_instance('showrss');
 
 		if (isset($item['DC:DATE'])) {
-			$time = xpwiki_plugin_showrss::plugin_showrss_get_timestamp($item['DC:DATE']);
+			$time = $showrss->plugin_showrss_get_timestamp($item['DC:DATE']);
 
 		} else if (isset($item['PUBDATE'])) {
-			$time = xpwiki_plugin_showrss::plugin_showrss_get_timestamp($item['PUBDATE']);
+			$time = $showrss->plugin_showrss_get_timestamp($item['PUBDATE']);
 
 		} else if (isset($item['PUBLISHED'])) {
-			$time = xpwiki_plugin_showrss::plugin_showrss_get_timestamp($item['PUBLISHED']);
+			$time = $showrss->plugin_showrss_get_timestamp($item['PUBLISHED']);
 
 		} else if (isset($item['UPDATED'])) {
-			$time = xpwiki_plugin_showrss::plugin_showrss_get_timestamp($item['UPDATED']);
+			$time = $showrss->plugin_showrss_get_timestamp($item['UPDATED']);
 
 		} else if (isset($item['DESCRIPTION']) &&
 			($description = trim($item['DESCRIPTION'])) != '' &&

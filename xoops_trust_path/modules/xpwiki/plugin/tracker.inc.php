@@ -400,6 +400,7 @@ class XpWikiTracker_field
 	var $sort_type = SORT_REGULAR;
 	var $id = 0;
 	var $field_remover = '';
+	var $tracker;
 
 	function XpWikiTracker_field(& $xpwiki, $field, $base, $refer, & $config)
 	{
@@ -407,6 +408,7 @@ class XpWikiTracker_field
 		$this->root   =& $xpwiki->root;
 		$this->cont   =& $xpwiki->cont;
 		$this->func   =& $xpwiki->func;
+		$this->tracker =& $this->func->get_plugin_instance('tracker');
 		static $id = array();
 		if (!isset($id[$this->xpwiki->pid])) {$id[$this->xpwiki->pid] = 0;} // Unique id per instance
 
@@ -810,6 +812,7 @@ class XpWikiTracker_list
 	var $fields;
 	var $pattern;
 	var $pattern_fields;
+	var $tracker;
 
 	var $rows   = array();
 	var $order  = array();
@@ -828,19 +831,20 @@ class XpWikiTracker_list
 		$this->root   =& $xpwiki->root;
 		$this->cont   =& $xpwiki->cont;
 		$this->func   =& $xpwiki->func;
+		$this->tracker =& $this->func->get_plugin_instance('tracker');
 
 		$this->base     = $base;
 		$this->config   = & $config;
 		$this->list     = $list;
 
-		$fields         = xpwiki_plugin_tracker::plugin_tracker_get_fields($base, $refer, $config);
+		$fields         = $this->tracker->plugin_tracker_get_fields($base, $refer, $config);
 		$pattern        = array();
 		$pattern_fields = array();
 
 		// Generate regexes:
 
 		// TODO: if (is FALSE) OR file_exists()
-		$source = xpwiki_plugin_tracker::plugin_tracker_get_source($config->page . '/page', TRUE);
+		$source = $this->tracker->plugin_tracker_get_source($config->page . '/page', TRUE);
 		// Block-plugins to pseudo fields (#convert => [_block_convert])
 		$source = preg_replace('/^\#([^\(\s]+)(?:\((.*?)\))?\s*$/m', '[_block_$1]', $source);
 
@@ -880,7 +884,7 @@ class XpWikiTracker_list
 		if (isset($this->_added[$page])) return;
 		$this->_added[$page] = TRUE;
 
-		$source = xpwiki_plugin_tracker::plugin_tracker_get_source($page);
+		$source = $this->tracker->plugin_tracker_get_source($page);
 
 		// Compat: 'move to [[page]]' (bugtrack plugin)
 		$matches = array();
@@ -1266,7 +1270,7 @@ class XpWikiTracker_list
 
 		// Loading template
 		$header = $body = array();
-		foreach (xpwiki_plugin_tracker::plugin_tracker_get_source($this->config->page . '/' . $this->list) as $line) {
+		foreach ($this->tracker->plugin_tracker_get_source($this->config->page . '/' . $this->list) as $line) {
 			if (preg_match('/^\|(.+)\|[hfc]$/i', $line)) {
 				// TODO: Why c and f  here
 				$header[] = $line;	// Table header, footer, and decoration
