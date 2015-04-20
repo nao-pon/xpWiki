@@ -10,6 +10,7 @@ class XpWikiCodeHighlight {
 		$this->root   =& $xpwiki->root;
 		$this->cont   =& $xpwiki->cont;
 		$this->func   =& $xpwiki->func;
+		$this->code   =& $this->func->get_plugin_instance('code');
 		
 		$this->cont['PLUGIN_CODE_HEADER'] =  'code_';
 		
@@ -95,7 +96,7 @@ class XpWikiCodeHighlight {
 				if ($src[strlen($src)-1] == "\n")
 					$src = substr($src,0,-1);
 				$data = array('number' => '');
-				$data['number'] = xpwiki_plugin_code::_plugin_code_makeNumber($end, $begin);
+				$data['number'] = $this->code->_plugin_code_makeNumber($end, $begin);
 			}
 			if ('php' == $lang) // PHPは標準機能を使う
 				$src =  '<pre class="code">'.$this->highlightPHP($src). '</pre>';
@@ -135,7 +136,7 @@ class XpWikiCodeHighlight {
 
 		$html .= '<div id="'.$this->cont['PLUGIN_CODE_HEADER'].$this->id_number.'" class="'.$this->cont['PLUGIN_CODE_HEADER'].'table">'
 			. $menu
-			. xpwiki_plugin_code::_plugin_code_column($this->cont, $src, $data['number'], $data['outline'])
+			. $this->code->_plugin_code_column($this->cont, $src, $data['number'], $data['outline'])
 			. '</div>';
 
 		return $html;
@@ -640,7 +641,7 @@ class XpWikiCodeHighlight {
 		$html = array('src' => $html, 'number' => '', 'outline' => '', 'blocknum' => $this->blockno);
 		if($option['outline']) 
 			return $this->makeOutline($html, $option['number'],$end, $begin);
-		if($option['number']) $html['number'] = xpwiki_plugin_code::_plugin_code_makeNumber($end, $begin); 
+		if($option['number']) $html['number'] = $this->code->_plugin_code_makeNumber($end, $begin); 
 		return $html;
 	}
     /**
@@ -1231,7 +1232,7 @@ class XpWikiCodeHighlight {
 		$html = array('src' => $html, 'number' => '', 'outline' => '', 'blocknum' => $this->blockno);
 		if($option['outline']) 
 			return $this->makeOutline($html, $option['number'],$end, $begin); // 最後に改行を削除したため -1
-		if($option['number']) $html['number'] = xpwiki_plugin_code::_plugin_code_makeNumber($end, $begin); 
+		if($option['number']) $html['number'] = $this->code->_plugin_code_makeNumber($end, $begin); 
 		return $html;
 	}
 
