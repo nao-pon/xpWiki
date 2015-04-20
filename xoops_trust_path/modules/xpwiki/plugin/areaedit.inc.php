@@ -323,7 +323,7 @@ EOD;
 						$inline_preview = $num;
 					}
 					else if ( preg_match('/^uid:(\d+)?$/',$opt,$match) ){
-						if ($this->userinfo['uid'] && $this->userinfo['uid'] == $match[1])
+						if ($this->root->userinfo['uid'] && $this->root->userinfo['uid'] == $match[1])
 						{
 							$found_nofreeze = 1;
 							$found_noauth = 1;
