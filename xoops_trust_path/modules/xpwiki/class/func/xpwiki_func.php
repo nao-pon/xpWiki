@@ -1973,13 +1973,12 @@ EOD;
 		// clear output buffer
 		$this->clear_output_buffer();
 
+		ini_set('default_charset', $encode);
 		// mbstring setting
 		if (extension_loaded('mbstring')) {
 			mb_language($this->cont['MB_LANGUAGE']);
-			mb_internal_encoding($this->cont['SOURCE_ENCODING']);
-			ini_set('mbstring.http_input', 'pass');
+			mb_internal_encoding($encode);
 			mb_http_output('pass');
-			mb_detect_order('auto');
 		}
 
 		header ('Content-type: application/xml; charset='.strtolower($encode)) ;
