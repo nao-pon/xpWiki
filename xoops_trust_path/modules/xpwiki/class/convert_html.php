@@ -265,6 +265,10 @@ class XpWikiListContainer extends XpWikiElement {
 
 		return $this->last;
 	}
+	
+	function & elementInsert(& $obj) {
+		return parent::insert($obj);
+	}
 
 	function toString() {
 		return $this->wrap(parent :: toString(), $this->tag, $this->style);
@@ -312,7 +316,7 @@ class XpWikiOList extends XpWikiListContainer {
 class XpWikiDList extends XpWikiListContainer {
 	function XpWikiDList(& $xpwiki, $out) {
 		parent :: XpWikiListContainer($xpwiki, 'dl', 'dt', ':', $out[0]);
-		$this->last = & XpWikiElement :: insert(new XpWikiListElement($xpwiki, $this->level, 'dd'));
+		$this->last = & parent :: elementInsert(new XpWikiListElement($xpwiki, $this->level, 'dd'));
 		if ($out[1] !== '')
 			$this->last = & $this->last->insert($xpwiki->func->Factory_Inline($out[1]));
 	}
