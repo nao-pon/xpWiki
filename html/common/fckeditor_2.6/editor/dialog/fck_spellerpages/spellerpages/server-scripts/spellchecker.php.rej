@@ -1,0 +1,32 @@
+--- editor/dialog/fck_spellerpages/spellerpages/server-scripts/spellchecker.php	(revision 7704)
++++ editor/dialog/fck_spellerpages/spellerpages/server-scripts/spellchecker.php	(revision 7705)
+@@ -14,5 +14,8 @@
+ $spellercss		= '../spellerStyle.css';						// by FredCK
+ $word_win_src	= '../wordWindow.js';							// by FredCK
+-
++# ignore invalid data
++if (empty($_POST['textinputs']) || !is_array($_POST['textinputs'])) {
++  die();
++}
+ $textinputs		= $_POST['textinputs']; # array
+ $input_separator = "A";
+@@ -23,7 +26,9 @@
+ function print_textinputs_var() {
+ 	global $textinputs;
+-	foreach( $textinputs as $key=>$val ) {
++	for( $i = 0; $i < count( $textinputs ); $i++ ) {
++		if (!isset($textinputs[$i]))
++			break;
+ 		# $val = str_replace( "'", "%27", $val );
+-		echo "textinputs[$key] = decodeURIComponent(\"" . htmlspecialchars($val, ENT_QUOTES) . "\");\n";
++		echo "textinputs[$i] = decodeURIComponent(\"" . htmlspecialchars($textinputs[$i], ENT_QUOTES) . "\");\n";
+ 	}
+ }
+@@ -82,4 +87,7 @@
+ 	if( $fh = fopen( $tempfile, 'w' )) {
+ 		for( $i = 0; $i < count( $textinputs ); $i++ ) {
++			# ignore invalid data
++			if (!isset($textinputs[$i]))
++				break;
+ 			$text = urldecode( $textinputs[$i] );
+ 

@@ -1,0 +1,13 @@
+--- editor/dialog/fck_spellerpages/spellerpages/server-scripts/spellchecker.cfm	(revision 7704)
++++ editor/dialog/fck_spellerpages/spellerpages/server-scripts/spellchecker.cfm	(revision 7705)
+@@ -19,5 +19,9 @@
+ <cfset word_win_src = "../wordWindow.js">
+ 
+-<cfset form.checktext = form["textinputs[]"]>
++<cfif StructKeyExists(form, 'textinputs[]')>
++	<cfset form.checktext = form["textinputs[]"]>
++<cfelse>
++	<cfabort>
++</cfif>
+ 
+ <!--- make no difference between URL and FORM scopes --->

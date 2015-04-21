@@ -1,0 +1,9 @@
+--- fckeditor.js	(revision 7704)
++++ fckeditor.js	(revision 7705)
+@@ -60,5 +60,5 @@
+ FCKeditor.MinWidth = 750 ;
+ 
+-FCKeditor.prototype.Version			= '2.6.10' ;
++FCKeditor.prototype.Version			= '2.6.11' ;
+ FCKeditor.prototype.VersionBuild	= '25429' ;
+ 
