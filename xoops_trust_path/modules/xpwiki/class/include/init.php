@@ -123,7 +123,7 @@ if (is_file($_lang)) {
 
 /////////////////////////////////////////////////
 // mbstring setting
-
+ini_set('default_charset', $const['SOURCE_ENCODING']);
 mb_language($const['MB_LANGUAGE']);
 mb_internal_encoding($const['SOURCE_ENCODING']);
 mb_regex_encoding($const['SOURCE_ENCODING']);
