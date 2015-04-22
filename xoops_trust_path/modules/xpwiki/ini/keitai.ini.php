@@ -291,15 +291,15 @@ switch ($root->ua_name) {
 
 	$root->facemark_rules = array(
 	// Face marks
-	'\s(\:\))'	=>	'&#xE6F0;',	// smile
-	'\s(\:D)'	=>	'&#xE6F0;',	// bigsmile
-	'\s(\:p)'	=>	'&#xE728;',	// huh
-	'\s(\:d)'	=>	'&#xE728;',	// huh
-	'\s(XD)'	=>	'&#xE6F2;',	// oh
-	'\s(X\()'	=>	'&#xE6F2;',	// oh
-	'\s(;\))'	=>	'&#xE729;',	// wink
-	'\s(;\()'	=>	'&#xE6F1;',	// sad
-	'\s(\:\()'	=>	'&#xE6F1;',	// sad
+	'\s(\:\))(?!\w)'	=>	'&#xE6F0;',	// smile
+	'\s(\:D)(?!\w)'	=>	'&#xE6F0;',	// bigsmile
+	'\s(\:p)(?!\w)'	=>	'&#xE728;',	// huh
+	'\s(\:d)(?!\w)'	=>	'&#xE728;',	// huh
+	'\s(XD)(?!\w)'	=>	'&#xE6F2;',	// oh
+	'\s(X\()(?!\w)'	=>	'&#xE6F2;',	// oh
+	'\s(;\))(?!\w)'	=>	'&#xE729;',	// wink
+	'\s(;\()(?!\w)'	=>	'&#xE6F1;',	// sad
+	'\s(\:\()(?!\w)'	=>	'&#xE6F1;',	// sad
 	'&amp;(smile);'	=>	'&#xE6F0;',
 	'&amp;(bigsmile);'=>	'&#xE6F0;',
 	'&amp;(huh);'	=>	'&#xE728;',
@@ -351,15 +351,15 @@ switch ($root->ua_name) {
 
 	$root->facemark_rules = array(
 	// Face marks
-	'\s(\:\))'	=>	chr(27).'$Gv'.chr(15),	// '&#57430;',	// smile
-	'\s(\:D)'	=>	chr(27).'$Gv'.chr(15),	// '&#57430;',	// bigsmile => smile
-	'\s(\:p)'	=>	chr(27).'$E%'.chr(15),	// '&#57605;',	// huh
-	'\s(\:d)'	=>	chr(27).'$E%'.chr(15),	// '&#57605;',	// huh
-	'\s(XD)'	=>	chr(27).'$Gx'.chr(15),	// '&#57432;',	// oh
-	'\s(X\()'	=>	chr(27).'$Gx'.chr(15),	// '&#57432;',	// oh
-	'\s(;\))'	=>	chr(27).'$E&'.chr(15),	// '&#57606;',	// winkじゃないけどね(^^; (※目がハート)
-	'\s(;\()'	=>	chr(27).'$E&'.chr(15),	// '&#57606;',	// sad
-	'\s(\:\()'	=>	chr(27).'$Gy'.chr(15),	// '&#57433;',	// sad
+	'\s(\:\))(?!\w)'	=>	chr(27).'$Gv'.chr(15),	// '&#57430;',	// smile
+	'\s(\:D)(?!\w)'	=>	chr(27).'$Gv'.chr(15),	// '&#57430;',	// bigsmile => smile
+	'\s(\:p)(?!\w)'	=>	chr(27).'$E%'.chr(15),	// '&#57605;',	// huh
+	'\s(\:d)(?!\w)'	=>	chr(27).'$E%'.chr(15),	// '&#57605;',	// huh
+	'\s(XD)(?!\w)'	=>	chr(27).'$Gx'.chr(15),	// '&#57432;',	// oh
+	'\s(X\()(?!\w)'	=>	chr(27).'$Gx'.chr(15),	// '&#57432;',	// oh
+	'\s(;\))(?!\w)'	=>	chr(27).'$E&'.chr(15),	// '&#57606;',	// winkじゃないけどね(^^; (※目がハート)
+	'\s(;\()(?!\w)'	=>	chr(27).'$E&'.chr(15),	// '&#57606;',	// sad
+	'\s(\:\()(?!\w)'	=>	chr(27).'$Gy'.chr(15),	// '&#57433;',	// sad
 	'&amp;(smile);'	=>	chr(27).'$Gv'.chr(15),	// '&#57430;',
 	'&amp;(bigsmile);'=>	chr(27).'$Gw'.chr(15),	// '&#57431;',
 	'&amp;(huh);'	=>	chr(27).'$E%'.chr(15),	// '&#57605;',
@@ -410,15 +410,15 @@ switch ($root->ua_name) {
 	if (preg_match('#^KDDI#', $root->ua_agent)) {
 	$root->facemark_rules = array(
 	// Face marks
-	'\s(\:\))'	=>	'<img localsrc="68">',	// smile
-	'\s(\:D)'	=>	'<img localsrc="257">',	// bigsmile
-	'\s(\:p)'	=>	'<img localsrc="264">',	// huh
-	'\s(\:d)'	=>	'<img localsrc="264">',	// huh
-	'\s(XD)'	=>	'<img localsrc="260">',	// oh
-	'\s(X\()'	=>	'<img localsrc="260">',	// oh
-	'\s(;\))'	=>	'<img localsrc="348">',	// wink
-	'\s(;\()'	=>	'<img localsrc="259">',	// sad
-	'\s(\:\()'	=>	'<img localsrc="259">',	// sad
+	'\s(\:\))(?!\w)'	=>	'<img localsrc="68">',	// smile
+	'\s(\:D)(?!\w)'	=>	'<img localsrc="257">',	// bigsmile
+	'\s(\:p)(?!\w)'	=>	'<img localsrc="264">',	// huh
+	'\s(\:d)(?!\w)'	=>	'<img localsrc="264">',	// huh
+	'\s(XD)(?!\w)'	=>	'<img localsrc="260">',	// oh
+	'\s(X\()(?!\w)'	=>	'<img localsrc="260">',	// oh
+	'\s(;\))(?!\w)'	=>	'<img localsrc="348">',	// wink
+	'\s(;\()(?!\w)'	=>	'<img localsrc="259">',	// sad
+	'\s(\:\()(?!\w)'	=>	'<img localsrc="259">',	// sad
 	'&amp;(smile);'	=>	'<img localsrc="68">',
 	'&amp;(bigsmile);'=>	'<img localsrc="257">',
 	'&amp;(huh);'	=>	'<img localsrc="264">',
