@@ -312,7 +312,8 @@ class XpWikiAttachFile
 		$s_file = $this->func->htmlspecialchars($this->file);
 		$s_err = ($err == '') ? '' : '<p style="font-weight:bold">'.$this->root->_attach_messages[$err].'</p>';
 		$ref = "";
-		$img_info = "";
+		$img_info = '';
+		$exif_tags = '';
 		$script = $this->func->get_script_uri();
 		$pass = '';
 		$msg_require = '';
