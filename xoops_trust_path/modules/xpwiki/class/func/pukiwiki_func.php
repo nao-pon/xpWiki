@@ -2306,21 +2306,23 @@ EOD;
 	{
 		static $converter = array();
 		static $converter_pool = array();
+		
+		$pid = $this->xpwiki->pid;
 
-		if (! isset($converter[$this->xpwiki->pid])) $converter[$this->xpwiki->pid] = new XpWikiInlineConverter($this->xpwiki);
+		if (! isset($converter[$pid])) $converter[$pid] = new XpWikiInlineConverter($this->xpwiki);
 
-		if (! isset($converter_pool[$this->xpwiki->pid])) {
-			$converter_pool[$this->xpwiki->pid] = array();
+		if (! isset($converter_pool[$pid])) {
+			$converter_pool[$pid] = array();
 			$clone = NULL;
 		} else {
-			$clone = array_shift($converter_pool[$this->xpwiki->pid]);
+			$clone = array_shift($converter_pool[$pid]);
 		}
 		if ($clone === NULL) {
-			$clone = $converter[$this->xpwiki->pid]->get_clone($converter[$this->xpwiki->pid]);
+			$clone = $converter[$pid]->get_clone($converter[$pid]);
 		}
 
 		$result = $clone->convert($string, ($page !== '') ? $page : $this->root->vars['page']);
-		$converter_pool[$this->xpwiki->pid][] = $clone; // For recycling
+		$converter_pool[$pid][] = $clone; // For recycling
 
 		return $result;
 	}
