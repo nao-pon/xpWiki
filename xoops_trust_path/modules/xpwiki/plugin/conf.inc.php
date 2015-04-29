@@ -474,10 +474,12 @@ class xpwiki_plugin_conf extends xpwiki_plugin {
 <form action="{$script}" method="post">
 <table>
 EOD;
+		$GLOBALS['xpwiki_conf_this'] = $this;
+		$descReplace = create_function('$m', 'return $GLOBALS[\'xpwiki_conf_this\']->root->$m[1];');
 		foreach ($this->conf as $key => $conf) {
 			$caption = ! empty($conf['caption'])? $conf['caption'] : (! empty($this->msg[$key]['caption'])? $this->msg[$key]['caption'] : $key);
 			$description = ! empty($conf['description'])? $conf['description'] : (! empty($this->msg[$key]['description'])? $this->msg[$key]['description'] : '');
-			$description = preg_replace('/\{\$root->(.+?)\}/e', '$this->root->$1', $description);
+			$description = preg_replace_callback('/\{\$root->(.+?)\}/', $descReplace, $description);
 			$value = ($conf['kind'] === 'root')? $this->root->$key : $this->cont[$key];
 			$value4disp = $this->func->htmlspecialchars($value);
 			$name4disp = $this->func->htmlspecialchars((($conf['kind'] === 'root')? 'root_' : 'const_') . $key);
@@ -549,6 +551,7 @@ EOD;
 </tr>
 EOD;
 		}
+		unset($GLOBALS['xpwiki_conf_this']);
 		$body .= <<<EOD
 <tr>
  <td>&nbsp;</td>
