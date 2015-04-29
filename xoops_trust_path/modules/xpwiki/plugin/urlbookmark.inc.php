@@ -20,6 +20,8 @@
  * below   入力フォームの下に追加されていきます。 
  * nodate  日付がつきません。 
  * notitle タイトルの入力項目が表示されません。
+ * notimestamp ページ更新日時を変更しません。
+ * auth    編集権限がある場合のみフォームを表示します。
  */
 
 class xpwiki_plugin_urlbookmark extends xpwiki_plugin {
@@ -105,6 +107,7 @@ class xpwiki_plugin_urlbookmark extends xpwiki_plugin {
 		$this->func->escape_multiline_pre($postdata_old, TRUE);
 		$urlbookmark_no = 0;
 		$urlbookmark_ins = ($this->root->post['above'] == '1');
+		$notimestamp = ($this->root->post['notimestamp'] == '1');
 		
 		foreach ($postdata_old as $line)
 		{
@@ -135,7 +138,7 @@ class xpwiki_plugin_urlbookmark extends xpwiki_plugin {
 		}
 		
 		$this->func->escape_multiline_pre($postdata, FALSE);
-		$this->func->page_write($this->root->post['refer'],$postdata);
+		$this->func->page_write($this->root->post['refer'], $postdata, $notimestamp);
 		
 		$retvars['msg'] = $title;
 		$retvars['body'] = $body;
@@ -171,6 +174,7 @@ class xpwiki_plugin_urlbookmark extends xpwiki_plugin {
 			
 		$nodate = in_array('nodate',$options) ? '1' : '0';
 		$above = in_array('above',$options) ? '1' : (in_array('below',$options) ? '0' : $this->config['URLBOOKMARK_INS']);
+		$notimestamp = in_array('notimestamp',$options) ? '1' : '0';
 		
 		$s_page = $this->func->htmlspecialchars($this->root->vars['page']);
 		$urlbookmark_cols = $this->config['URLBOOKMARK_COMMENT_COLS'];
@@ -185,6 +189,7 @@ class xpwiki_plugin_urlbookmark extends xpwiki_plugin {
   <input type="hidden" name="plugin" value="urlbookmark" />
   <input type="hidden" name="nodate" value="$nodate" />
   <input type="hidden" name="above" value="$above" />
+  <input type="hidden" name="notimestamp" value="$notimestamp" />
   <input type="hidden" name="digest" value="{$this->root->digest}" />
   {$this->msg['btn_url']} <input type="text" name="plink" size="$url_cols" /><br/>
   $titletags
@@ -253,7 +258,7 @@ EOD;
 			'x-sjis'      => 'SJIS',
 			'x-euc-jp'    => 'EUC-JP',
 		);
-		if (preg_match('/<meta[^>]*content=["\'][^"\'>]*charset=([^"\'>]+)["\'][^>]*>/is', $html, $match)) {
+		if (preg_match('/<meta(?:\s*|[^>]*content=["\'][^"\'>]*)charset=["\']?([^"\'>]+)["\'][^>]*>/is', $html, $match)) {
 			$encode = strtolower($match[1]);
 			if (array_key_exists($encode, $codesets)) {
 				return $codesets[$encode];
