@@ -27,7 +27,7 @@ class XpWikiBaseFunc {
 		$this->root->siteinfo['site_name'] = '';
 	}
 	
-	function set_userinfo () {
+	function set_userinfo ($uid = NULL) {
 		$this->root->userinfo['admin'] = FALSE;
 		$this->root->userinfo['uid'] = 0;
 		$this->root->userinfo['email'] = '';
