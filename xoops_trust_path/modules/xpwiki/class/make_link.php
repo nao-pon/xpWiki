@@ -32,6 +32,7 @@ class XpWikiInlineConverter {
 	}
 
 	function XpWikiInlineConverter(& $xpwiki, $converters = NULL, $excludes = NULL) {
+		static $filtersCache = array();
 
 		$this->func = & $xpwiki->func;
 
@@ -55,7 +56,31 @@ class XpWikiInlineConverter {
 
 		$this->converters = $patterns = array ();
 		$start = 1;
-
+		
+		if (!isset($filtersCache[$xpwiki->root->mydirname])) {
+			$filters = array();
+			if ($xpwiki->root->make_link_plugins) {
+				$pluginDir = dirname(__FILE__) . '/plugin/make_link/';
+				foreach($xpwiki->root->make_link_plugins as $plugin) {
+					$pluginFile = $pluginDir.$plugin.'.php';
+					if (is_readable($pluginFile)) {
+						include $pluginFile;
+						if (isset($filter) && is_array($filter)) {
+							foreach($filter as $key => $val) {
+								if (!isset($filters[$key])) {
+									$filters[$key] = array();
+								}
+								$filters[$key][] = $val;
+							}
+						}
+					}
+				}
+			}
+			$filtersCache[$xpwiki->root->mydirname] = $filters;
+		} else {
+			$filters = $filtersCache[$xpwiki->root->mydirname];
+		}
+		
 		foreach ($converters as $name) {
 			$classname = 'XpWikiLink_'.$name;
 			$converter = new $classname ($xpwiki, $start);
@@ -64,6 +89,9 @@ class XpWikiInlineConverter {
 				continue;
 
 			$patterns[] = '('."\n".$pattern."\n".')';
+			if (isset($filters[$name])) {
+				$converter->setFilter($filters[$name]);
+			}
 			$this->converters[$start] = $converter;
 			$start += $converter->get_count();
 			++ $start;
@@ -137,6 +165,8 @@ class XpWikiLink {
 	var $alias;
 
 	var $is_image;
+	
+	protected $filter = array();
 
 	// Constructor
 	function XpWikiLink(& $xpwiki, $start) {
@@ -148,7 +178,11 @@ class XpWikiLink {
 
 		$this->start = $start;
 	}
-
+	
+	public function setFilter($filter) {
+		$this->filter = $filter;
+	}
+	
 	// Return a regex pattern to match
 	function get_pattern() {
 	}
@@ -570,6 +604,7 @@ EOD;
 	}
 
 	function toString() {
+		$moreTag = '';
 		if ($this->type === 'mailto') {
 			$rel = ' rel="nofollow"';
 			$title = ' title="' . substr($this->name, 7) . '"';
@@ -578,16 +613,35 @@ EOD;
 			list($rel, $class, $target, $title) = $this->getATagAttr($this->name);
 			$img = ($this->is_image && $this->use_lightbox)? ' type="img"' : '';
 		}
-		$host = '';
-		if ($this->root->bitly_clickable && ! $this->has_bracket && ! $this->is_image && $this->type !== 'mailto') {
+		$filter = $this->filter;
+		if ($filter && is_array($filter)) {
+			foreach($filter as $func) {
+				if (is_callable($func)) {
+					call_user_func($func, array(&$this, &$moreTag, &$rel, &$class, &$target, &$title, &$img));
+				}
+			}
+		}
+		if ($moreTag === '' && $this->root->bitly_clickable && ! $this->has_bracket && ! $this->is_image && $this->type !== 'mailto') {
 			$_name = str_replace('&amp;', '&', $this->name);
 			$this->name = $this->func->bitly($_name);
 			$this->alias = $this->func->htmlspecialchars($this->name);
 			if ($this->root->bitly_clickable === 2 && $_name !== $this->name && !($this->root->bitly_domain_internal && strpos($this->name, 'http://' . $this->root->bitly_domain_internal) === 0)) {
-				$host = '<span class="modest"> (' . $this->func->htmlspecialchars($this->host) . ')</span>';
+				$moreTag = '<span class="modest"> (' . $this->func->htmlspecialchars($this->host) . ')</span>';
 			}
 		}
-		return '<a href="'.$this->name.'"'.$title.$rel.$class.$img.$target.'>'.$this->alias.'</a>'.$host;
+		return '<a href="'.$this->name.'"'.$title.$rel.$class.$img.$target.'>'.$this->alias.'</a>'.$moreTag;
+	}
+	
+	public static function amazonAssociatesLink(&$args) {
+		$self =& $args[0];
+		$moreTag =& $args[1];
+		if ($self->root->amazon_AssociateTag && strpos($self->name, 'http://www.amazon.co.jp/') === 0) {
+			if (preg_match('#/dp/([^/]+?)/#', $self->name, $m)) {
+				$self->name = 'http://www.amazon.co.jp/gp/product/'.$m[1].'/ref=as_li_ss_tl?ie=UTF8&camp=247&creative=7399&creativeASIN='.$m[1].'&linkCode=as2&tag=' . $self->root->amazon_AssociateTag;
+				$moreTag = '<img src="http://ir-jp.amazon-adsystem.com/e/ir?t='.$self->root->amazon_AssociateTag.'&l=as2&o=9&a='.$m[1].'" width="1" height="1" border="0" alt="" style="border:none !important; margin:0px !important;" />';
+			}
+		}
+		unset($self, $moreTag);
 	}
 }
 

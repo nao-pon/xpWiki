@@ -13,6 +13,10 @@
 $root->ext_autolinks = array();	// External AutoLink
 
 /////////////////////////////////////////////////
+// make_link plugins (class/plugin/make_link)
+$root->make_link_plugins = array('amazonAssociatesLink');
+
+/////////////////////////////////////////////////
 // Functionality settings
 
 // PKWK_OPTIMISE - Ignore verbose but understandable checking and warning
