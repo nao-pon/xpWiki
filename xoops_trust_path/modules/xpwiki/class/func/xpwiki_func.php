@@ -1668,7 +1668,7 @@ class XpWikiFunc extends XpWikiXoopsWrapper {
 	}
 
 	// SKIN Function
-	function skin_navigator (& $obj, $key, $value = '', $javascript = '', $withIcon = FALSE, $x = 20, $y = 20) {
+	public static function skin_navigator (& $obj, $key, $value = '', $javascript = '', $withIcon = FALSE, $x = 20, $y = 20) {
 		static $cmds = NULL;
 		static $disabled = NULL;
 		if (is_null($cmds)) {
@@ -1703,7 +1703,7 @@ class XpWikiFunc extends XpWikiXoopsWrapper {
 	}
 
 	// SKIN Function
-	function skin_toolbar (& $obj, $key, $x = 20, $y = 20, $javascript = '') {
+	public static function skin_toolbar (& $obj, $key, $x = 20, $y = 20, $javascript = '') {
 		$lang  = & $obj->root->_LANG['skin'];
 		$link  = & $obj->root->_LINK;
 		$image = & $obj->root->_IMAGE['skin'];
@@ -1719,7 +1719,7 @@ class XpWikiFunc extends XpWikiXoopsWrapper {
 	}
 
 	// SKIN Function
-	function skin_getIcon(&$obj, $key, $x = 20, $y = 20) {
+	public static function skin_getIcon(&$obj, $key, $x = 20, $y = 20) {
 		$lang  = & $obj->root->_LANG['skin'];
 		$image = & $obj->root->_IMAGE['skin'];
 		if (! isset($image[$key])) return ' | ';
@@ -1729,7 +1729,7 @@ class XpWikiFunc extends XpWikiXoopsWrapper {
 				'alt="' . $alt . '" title="' . $alt . '" />';
 	}
 
-	// SKIN Function
+	// SKIN Function (non static)
 	function skin_link_extractor($arr) {
 		static $i = 0;
 		$head = $arr[1];
