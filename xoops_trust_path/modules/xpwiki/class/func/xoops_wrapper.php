@@ -99,7 +99,7 @@ class XpWikiXoopsWrapper extends XpWikiBackupFunc {
 		if (is_null($uid)) $cache[$this->root->mydirname] = $this->root->userinfo;
 	}
 
-	function get_userinfo_by_id ($uid = 0) {
+	function get_userinfo_by_id ($uid = 0, $defname=NULL) {
 		static $cache = array();
 		
 		if (isset($cache[$uid])) return $cache[$uid];
