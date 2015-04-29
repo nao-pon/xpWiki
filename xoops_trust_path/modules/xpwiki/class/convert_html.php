@@ -162,7 +162,7 @@ class XpWikiHeading extends XpWikiElement {
 		return $this->last;
 	}
 
-	function canContain(& $obj) {
+	function canContain($obj) {
 		return FALSE;
 	}
 
@@ -185,7 +185,7 @@ class XpWikiHRule extends XpWikiElement {
 		parent :: XpWikiElement($root->xpwiki);
 	}
 
-	function canContain(& $obj) {
+	function canContain($obj) {
 		return FALSE;
 	}
 
@@ -230,7 +230,7 @@ class XpWikiListContainer extends XpWikiElement {
 		}
 	}
 
-	function canContain(& $obj) {
+	function canContain($obj) {
 		return (!is_a($obj, 'XpWikiListContainer') || ($this->tag === $obj->tag && $this->level === $obj->level));
 	}
 
@@ -283,7 +283,7 @@ class XpWikiListElement extends XpWikiElement {
 		$this->style = $style;
 	}
 
-	function canContain(& $obj) {
+	function canContain($obj) {
 		return (!is_a($obj, 'XpWikiListContainer') || ($obj->level > $this->level));
 	}
 
@@ -345,7 +345,7 @@ class XpWikiBQuote extends XpWikiElement {
 		}
 	}
 
-	function canContain(& $obj) {
+	function canContain($obj) {
 		return (!is_a($obj, get_class($this)) || $obj->level >= $this->level);
 	}
 
@@ -645,7 +645,7 @@ class XpWikiTable extends XpWikiElement {
 		$this->elements[] = $row;
 	}
 
-	function canContain(& $obj) {
+	function canContain($obj) {
 		return is_a($obj, 'XpWikiTable') && ($obj->col === $this->col);
 	}
 
@@ -908,7 +908,7 @@ class XpWikiYTable extends XpWikiElement {
 		$this->elements[] = implode('', $str);
 	}
 
-	function canContain(& $obj) {
+	function canContain($obj) {
 		return is_a($obj, 'XpWikiYTable') && ($obj->col === $this->col);
 	}
 
@@ -939,7 +939,7 @@ class XpWikiPre extends XpWikiElement {
 		!= ' ') ? $text : substr($text, 1));
 	}
 
-	function canContain(& $obj) {
+	function canContain($obj) {
 		return is_a($obj, 'XpWikiPre');
 	}
 
@@ -967,7 +967,7 @@ class XpWikiDiv extends XpWikiElement {
 		$this->body = $this->func->do_plugin_convert($this->name, $this->param);
 	}
 
-	function canContain(& $obj) {
+	function canContain($obj) {
 		return FALSE;
 	}
 
@@ -985,7 +985,7 @@ class XpWikiAlign extends XpWikiElement {
 		$this->align = $align;
 	}
 
-	function canContain(& $obj) {
+	function canContain($obj) {
 		return is_a($obj, 'XpWikiInline');
 	}
 
