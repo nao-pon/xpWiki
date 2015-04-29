@@ -471,7 +471,8 @@ class XpWikiFunc extends XpWikiXoopsWrapper {
 		if(!$this->root->cookie['ucd']){
 			$this->root->cookie['ucd'] = md5(getenv("REMOTE_ADDR"). __FILE__ .gmdate("Ymd", $this->cont['UTC']+9*60*60));
 		}
-		$this->root->userinfo['ucd'] = substr(crypt($this->root->cookie['ucd'],($this->root->adminpass)? $this->root->adminpass : 'id'),-11);
+		$salt = ($this->root->adminpass)? preg_replace('/[^0-9a-zA-Z.]/', '', $this->root->adminpass) : 'id';
+		$this->root->userinfo['ucd'] = substr(crypt($this->root->cookie['ucd'],$salt),-11);
 
 		// スキン指定をcookieにセット
 		if (isset($this->root->get['setskin'])) {
