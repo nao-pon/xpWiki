@@ -34,6 +34,7 @@ class XpWikiAttachFile
 		);
 	var $action = 'update';
 	var $dbinfo = array();
+	private $pluginAttach;
 
 	function XpWikiAttachFile(& $xpwiki, $page, $file, $age=0, $pgid=0)
 	{
@@ -51,6 +52,8 @@ class XpWikiAttachFile
 		$this->basename = $this->cont['UPLOAD_DIR'].$this->func->encode($page).'_'.$this->func->encode($this->file);
 		$this->filename = $this->basename . ($age ? '.'.$age : '');
 		$this->logname = $this->basename.'.log';
+		
+		$this->pluginAttach = $this->func->get_plugin_instance('attach');
 
 		if ($this->id) {
 			$this->get_dbinfo();
@@ -70,7 +73,7 @@ class XpWikiAttachFile
 		if ($this->type) {
 			$mime = $this->type;
 		} else {
-			$mime = xpwiki_plugin_attach::attach_mime_content_type($this->filename, $this->status);
+			$mime = $this->pluginAttach->attach_mime_content_type($this->filename, $this->status);
 		}
 		list($type) = explode('/', $mime);
 		$type = strtolower($type);
@@ -169,7 +172,7 @@ class XpWikiAttachFile
 				$this->status['imagesize'] = unserialize($this->status['imagesize']);
 			}
 			if (! $this->status['mime']) {
-				$this->status['mime'] = $this->type = !empty($this->dbinfo['type'])? $this->dbinfo['type'] : xpwiki_plugin_attach::attach_mime_content_type($this->filename, $this->status);
+				$this->status['mime'] = $this->type = !empty($this->dbinfo['type'])? $this->dbinfo['type'] : $this->pluginAttach->attach_mime_content_type($this->filename, $this->status);
 			} elseif (! $this->type) {
 				$this->type = $this->status['mime'];
 			}
@@ -224,7 +227,7 @@ class XpWikiAttachFile
 		if ($this->action == "insert")
 		{
 			if (! $this->size) $this->size = filesize($this->filename);
-			if (! $this->type) $this->type = xpwiki_plugin_attach::attach_mime_content_type($this->filename, $this->status);
+			if (! $this->type) $this->type = $this->pluginAttach->attach_mime_content_type($this->filename, $this->status);
 			if (! $this->time) $this->time = filemtime($this->filename) - $this->cont['LOCALZONE'];
 		}
 		$data['id']   = $this->id;
@@ -239,7 +242,7 @@ class XpWikiAttachFile
 
 	}
 	// 日付の比較関数
-	function datecomp($a,$b)
+	public static function datecomp($a,$b)
 	{
 		return ($a->time == $b->time) ? 0 : (($a->time > $b->time) ? -1 : 1);
 	}
@@ -569,7 +572,7 @@ EOD;
 	{
 		if ($this->status['freeze'])
 		{
-			return xpwiki_plugin_attach::attach_info('msg_isfreeze');
+			return $this->pluginAttach->attach_info('msg_isfreeze');
 		}
 
 		$uid = $this->func->get_pg_auther($this->root->vars['page']);
@@ -578,10 +581,10 @@ EOD;
 			// 管理者とページ作成者とファイル所有者以外
 			if (! $this->func->pkwk_login($pass)) {
 				if (($this->cont['ATTACH_PASSWORD_REQUIRE'] && (!$pass || md5($pass) != $this->status['pass'])) || $this->status['owner'])
-					return xpwiki_plugin_attach::attach_info('err_password');
+					return $this->pluginAttach->attach_info('err_password');
 
 				if ($this->cont['ATTACH_DELETE_ADMIN_ONLY'] || $this->age)
-					return xpwiki_plugin_attach::attach_info('err_adminpass');
+					return $this->pluginAttach->attach_info('err_adminpass');
 			}
 		}
 
@@ -621,18 +624,18 @@ EOD;
 
 	function rename($pass, $newname)
 	{
-		if ($this->status['freeze']) return xpwiki_plugin_attach::attach_info('msg_isfreeze');
+		if ($this->status['freeze']) return $this->pluginAttach->attach_info('msg_isfreeze');
 
 		if (! $this->func->pkwk_login($pass)) {
 			if ($this->cont['PLUGIN_ATTACH_DELETE_ADMIN_ONLY']) {
-				return xpwiki_plugin_attach::attach_info('err_adminpass');
+				return $this->pluginAttach->attach_info('err_adminpass');
 			} else if ($this->cont['PLUGIN_ATTACH_PASSWORD_REQUIRE'] &&
 				md5($pass) != $this->status['pass']) {
-				return xpwiki_plugin_attach::attach_info('err_password');
+				return $this->pluginAttach->attach_info('err_password');
 			}
 		}
 
-		$fname = xpwiki_plugin_attach::regularize_fname ($newname, $this->page);
+		$fname = $this->pluginAttach->regularize_fname ($newname, $this->page);
 
 		$hasBackup = count($this->status['count']) - 1;
 
@@ -680,7 +683,7 @@ EOD;
 		{
 			if (! $this->func->pkwk_login($pass)) {
 				if (($this->cont['ATTACH_PASSWORD_REQUIRE'] and (!$pass || md5($pass) != $this->status['pass'])) || $this->status['owner'])
-					return xpwiki_plugin_attach::attach_info('err_password');
+					return $this->pluginAttach->attach_info('err_password');
 			}
 		}
 		$this->getstatus();
@@ -701,7 +704,7 @@ EOD;
 		{
 			if (! $this->func->pkwk_login($pass)) {
 				if (($this->cont['ATTACH_PASSWORD_REQUIRE'] and (!$pass || md5($pass) != $this->status['pass'])) || $this->status['owner'])
-					return xpwiki_plugin_attach::attach_info('err_password');
+					return $this->pluginAttach->attach_info('err_password');
 			}
 		}
 
@@ -730,7 +733,7 @@ EOD;
 		{
 			if (! $this->func->pkwk_login($pass)) {
 				if (($this->cont['ATTACH_PASSWORD_REQUIRE'] and (!$pass || md5($pass) != $this->status['pass'])) || $this->status['owner'])
-					return xpwiki_plugin_attach::attach_info('err_password');
+					return $this->pluginAttach->attach_info('err_password');
 			}
 		}
 
@@ -752,7 +755,7 @@ EOD;
 		// 管理者以外
 		{
 			if (! $this->func->pkwk_login($pass)) {
-				return xpwiki_plugin_attach::attach_info('err_adminpass');
+				return $this->pluginAttach->attach_info('err_adminpass');
 			}
 		}
 
@@ -771,7 +774,7 @@ EOD;
 		if (!$this->is_owner())
 		// 管理者とページ作成者とファイル所有者以外
 		{
-			return xpwiki_plugin_attach::attach_info('err_password');
+			return $this->pluginAttach->attach_info('err_password');
 		}
 
 		$this->getstatus();
@@ -808,7 +811,7 @@ EOD;
 		if (!$this->is_owner())
 		{
 			if ($this->status['copyright'])
-				return xpwiki_plugin_attach::attach_info('err_copyright');
+				return $this->pluginAttach->attach_info('err_copyright');
 		}
 
 		// video, image でサイズが未取得の場合は取得しておく
