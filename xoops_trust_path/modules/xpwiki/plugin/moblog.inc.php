@@ -635,6 +635,13 @@ class xpwiki_plugin_moblog extends xpwiki_plugin {
 									//回転指定 or 自動回転($rotate = 0)
 									HypCommonFunc::rotateImage($save_file, $rotate);
 									
+									// GPS 情報除去
+									if ($_size && version_compare(HypCommonFunc::get_version(), '20150515', '>=')) {
+										if (!empty($this->root->vars['rmgps'])) {
+											HypCommonFunc::removeExifGps($save_file);
+										}
+									}
+									
 									// ページが無ければ空ページを作成
 									if (!$this->func->is_page($page)) {
 										$this->func->make_empty_page($page, false);
