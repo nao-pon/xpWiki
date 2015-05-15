@@ -636,6 +636,14 @@ class xpwiki_plugin_attach extends xpwiki_plugin {
 			$_admins = (int)$this->func->check_admin($this->root->userinfo['uid']);
 		}
 
+		if ($_size && version_compare(HypCommonFunc::get_version(), '20150515', '>=')) {
+			// 自動回転を試みる
+			HypCommonFunc::rotateImage($obj->filename, 0);
+			if (!empty($this->root->vars['rmgps'])) {
+				HypCommonFunc::removeExifGps($obj->filename);
+			}
+		}
+
 		$obj->getstatus();
 		$obj->status['age'] = 0;
 		$obj->status['pass'] = ($pass !== TRUE and $pass !== NULL) ? $pass : '';
@@ -1139,6 +1147,7 @@ EOD;
   $pass
   <input type="submit" class="upload_btn" value="{$this->root->_attach_messages['btn_upload']}" />
   <div>$antar_tag</div>
+  <div><input type="checkbox" id="_p_attach_rmgps_{$pgid}_{$load[$this->xpwiki->pid][$page]}" name="rmgps" value="1" checked="checked" /> <label for="_p_attach_rmgps_{$pgid}_{$load[$this->xpwiki->pid][$page]}">{$this->root->_attach_messages['msg_rmgps']}</label></div>
   <div><input type="checkbox" id="_p_attach_copyright_{$pgid}_{$load[$this->xpwiki->pid][$page]}" name="copyright" value="1" /> <label for="_p_attach_copyright_{$pgid}_{$load[$this->xpwiki->pid][$page]}">{$this->root->_attach_messages['msg_copyright']}</label></div>
  </div>
 </form>
@@ -1153,7 +1162,10 @@ EOD;
 $msg_maxsize
 </span></div>
 $allow_extensions
-<div id="{$_domid}_check" style="display:none;"><input type="checkbox" id="_p_attach_copyright_{$pgid}_{$load[$this->xpwiki->pid][$page]}" name="copyright" value="1" /> <label for="_p_attach_copyright_{$pgid}_{$load[$this->xpwiki->pid][$page]}">{$this->root->_attach_messages['msg_copyright']}</label></div>
+<div id="{$_domid}_check" style="display:none;">
+	<div><input type="checkbox" id="_p_attach_rmgps_{$pgid}_{$load[$this->xpwiki->pid][$page]}" name="rmgps" value="1" checked="checked" /> <label for="_p_attach_rmgps_{$pgid}_{$load[$this->xpwiki->pid][$page]}">{$this->root->_attach_messages['msg_rmgps']}</label></div>
+	<div><input type="checkbox" id="_p_attach_copyright_{$pgid}_{$load[$this->xpwiki->pid][$page]}" name="copyright" value="1" /> <label for="_p_attach_copyright_{$pgid}_{$load[$this->xpwiki->pid][$page]}">{$this->root->_attach_messages['msg_copyright']}</label></div>
+</div>
 <div id="{$_domid}">
 	<noscript>$form</noscript>
 </div>
@@ -1184,6 +1196,9 @@ XpWiki.domInitFunctions.push(
 					if (! pass) return false;
 					this.params['_pass'] = pass;
 					needpass = 0;
+				}
+				if ($('_p_attach_rmgps_{$pgid}_{$load[$this->xpwiki->pid][$page]}').checked) {
+					this.params['rmgps'] = 1;
 				}
 				if ($('_p_attach_copyright_{$pgid}_{$load[$this->xpwiki->pid][$page]}').checked) {
 					this.params['copyright'] = 1;

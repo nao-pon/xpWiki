@@ -631,10 +631,10 @@ class xpwiki_plugin_moblog extends xpwiki_plugin {
 
 									list($usec) = explode(' ', microtime());
 									if (!$filename) $filename = $this->cont['UTC'].'_'.$usec.'.'.$sub;
-									//回転指定
-									if ($rotate) {
-										HypCommonFunc::rotateImage($save_file, $rotate);
-									}
+									
+									//回転指定 or 自動回転($rotate = 0)
+									HypCommonFunc::rotateImage($save_file, $rotate);
+									
 									// ページが無ければ空ページを作成
 									if (!$this->func->is_page($page)) {
 										$this->func->make_empty_page($page, false);

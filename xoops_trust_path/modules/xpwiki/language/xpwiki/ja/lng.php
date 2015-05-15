@@ -297,6 +297,7 @@ $root->_attach_messages = array(
 	'msg_send_mms' => 'MMS でメール送信',
 	'msg_drop_files_here' => 'アップロードするには、ここにファイルをドロップ',
 	'msg_for_upload' => 'このページにアップロードする権限がありません。<br />アップロードするには、<img src="'.$const['LOADER_URL'].'?src=page_attach.png" alt="Page" />ページ選択で "<span class="attachable">このような表示</span>" のページを選択して下さい。',
+	'msg_rmgps' => '写真のGPS情報を消去する',
 );
 
 ///////////////////////////////////////
