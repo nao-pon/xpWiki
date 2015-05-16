@@ -638,9 +638,9 @@ class xpwiki_plugin_attach extends xpwiki_plugin {
 
 		if ($_size && version_compare(HypCommonFunc::get_version(), '20150515', '>=')) {
 			// 自動回転を試みる
-			HypCommonFunc::rotateImage($obj->filename, 0);
+			HypCommonFunc::rotateImage($obj->filename, 0, 95, $_size);
 			if (!empty($this->root->vars['rmgps'])) {
-				HypCommonFunc::removeExifGps($obj->filename);
+				HypCommonFunc::removeExifGps($obj->filename, $_size);
 			}
 		}
 
