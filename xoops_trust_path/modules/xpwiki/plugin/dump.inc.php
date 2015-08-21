@@ -1112,12 +1112,14 @@ class XpWikitarlib
 			$this->func->die_message('Class "MySQLDump" was not found.');
 		}
 
-		$removePrefix = $this->db->prefix($this->root->mydirname.'_');
+		$db = $this->xpwiki->db;
+		
+		$removePrefix = $db->prefix($this->root->mydirname.'_');
 		$short_name = substr($table, strlen($removePrefix));
 		$this->dirs[] = 'DB@' . $short_name;
 
 		$name =  $this->cont['CACHE_DIR'] . $short_name . '.sql';
-		$dumper = new MySQLDump($this->db->conn, $name, false, false);
+		$dumper = new MySQLDump($db->conn, $name, false, false);
 
 		$dumper->removePrefix = $removePrefix;
 		$dumper->maxFileSize = $this->limitSize;
