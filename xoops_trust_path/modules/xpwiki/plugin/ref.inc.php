@@ -105,7 +105,7 @@ class xpwiki_plugin_ref extends xpwiki_plugin {
 		$this->conf['local_dir_mapper'] = array(
 			// xelfinder
 			'#^.+/([a-zA-Z0-9_-]+)/(?:index\.php(?:/|\?page=))?(?:view|tmb(?:/|&s=)\d+)(?:/|&file=)(\d+)(?:/|&).*?$#'
-			=> $this->cont['TRUST_PATH'] . 'uploads/xelfinder/' . rawurlencode(rtrim(substr($this->cont['ROOT_URL'], 7), '/')) . '_$1_$2',
+			=> $this->cont['TRUST_PATH'] . 'uploads/xelfinder/' . rawurlencode(defined('XELFINDER_DB_FILENAME_PREFIX')? XELFINDER_DB_FILENAME_PREFIX : rtrim(substr($this->cont['ROOT_URL'], strpos($this->cont['ROOT_URL'], '://') + 3), '/')) . '_$1_$2',
 		);
 
 	}
