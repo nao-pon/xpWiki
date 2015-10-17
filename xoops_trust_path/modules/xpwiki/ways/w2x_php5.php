@@ -312,10 +312,10 @@ function csv_explode($separator, $string)
 // Implode an array with CSV data format (escape double quotes)
 function csv_implode($glue, $pieces)
 {
-	$_glue = ($glue !== '') ? '\\' . $glue{0} : '';
+	$_glue = ($glue !== '') ? preg_quote($glue[0], '/') : '';
 	$arr = array();
 	foreach ($pieces as $str) {
-		if (ereg('[' . $_glue . '"' . "\n\r" . ']', $str))
+		if (preg_match('/[' . $_glue . '"\n\r]/', $str))
 			$str = '"' . str_replace('"', '""', $str) . '"';
 		$arr[] = $str;
 	}

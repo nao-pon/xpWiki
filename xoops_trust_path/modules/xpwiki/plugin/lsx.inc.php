@@ -689,6 +689,8 @@ class XpWikiPluginLsx
 	function filter_pages()
 	{
 		$metapages = array();
+		$exceptReg = ($this->options['except'][1] !== "")? '#'.str_replace('#', '\\#', $this->options['except'][1]).'#i' : '';
+		$filterReg = ($this->options['filter'][1] !== "")? '#'.str_replace('#', '\\#', $this->options['filter'][1]).'#i' : '';
 		foreach ($this->metapages as $i => $metapage) {
 			unset($this->metapages[$i]);
 			$page = $metapage['page'];
@@ -698,13 +700,13 @@ class XpWikiPluginLsx
 					continue;
 				}
 			}
-			if ($this->options['except'][1] !== "") {
-				if (ereg($this->options['except'][1], $relative)) {
+			if ($exceptReg) {
+				if (preg_match($exceptReg, $relative)) {
 					continue;
 				}
 			}
-			if ($this->options['filter'][1] !== "") {
-				if (!ereg($this->options['filter'][1], $relative)) {
+			if ($filterReg) {
+				if (!preg_match($filterReg, $relative)) {
 					continue;
 				}
 			}

@@ -82,7 +82,7 @@ class xpwiki_plugin_iframe extends xpwiki_plugin {
 	{
 		$url = array_shift( $args );
 		
-		if(! ereg( $this->iframe_accept_regurl , $url ) ) // 正規表現マッチが失敗
+		if(! preg_match('#'.$this->iframe_accept_regurl.'#' , $url ) ) // 正規表現マッチが失敗
 		{
 			$match = FALSE;
 			foreach( $this->iframe_accept_url as $value ) // ただの文字列マッチ
@@ -118,7 +118,7 @@ class xpwiki_plugin_iframe extends xpwiki_plugin {
 		// USER_AGENT が IE の場合は iframe タグを使用
 		// コンテンツがheight,widthの値よりも小さい場合でもダミーのscrollbarが表示されてしまうため
 		// iframe を使用するには XHTML1.1 のままだと XHTML 構文エラー
-		if (ereg("MSIE (3|4|5|6|7)", $this->root->ua ) )
+		if (preg_match('/MSIE (3|4|5|6|7)/', $this->root->ua ) )
 		{
 			$this->root->pkwk_dtd = $this->cont['PKWK_DTD_XHTML_1_0_TRANSITIONAL'];
 			$this->root->html_transitional = 1;

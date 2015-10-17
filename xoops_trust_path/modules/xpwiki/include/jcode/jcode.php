@@ -65,9 +65,9 @@ function AutoDetect(&$str)
 	//4:UTF-8
 	//5:Unknown
 
-	if (!ereg("[\x80-\xFF]", $str)) {
+	if (!preg_match('/[\x80-\xFF]/', $str)) {
 		// --- Check ISO-2022-JP ---
-		if (ereg("\x1B", $str)) return 3; // ISO-2022-JP(JIS)
+		if (preg_match('/\x1B/', $str)) return 3; // ISO-2022-JP(JIS)
 		return 0; //US-ASCII
 	}
 
