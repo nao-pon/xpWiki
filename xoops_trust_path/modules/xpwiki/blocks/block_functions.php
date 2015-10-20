@@ -121,7 +121,11 @@ function b_xpwiki_a_page_show( $options )
 		'pagename' => $page ,
 		'content'  => $str ,
 	) ;
-
+	
+	if (defined('ICMS_ROOT_PATH') && !class_exists('XoopsTpl')) {
+		include_once ICMS_ROOT_PATH.'/class/template.php';
+	}
+	
 	$tpl = new XoopsTpl() ;
 	$tpl->assign( 'block' , $block ) ;
 	$ret['content'] = $tpl->fetch( $this_template ) ;
@@ -250,7 +254,11 @@ function b_xpwiki_block_show( $options, $src, $nocache = false )
 		'pagename' => '' ,
 		'content'  => $str ,
 	) ;
-
+	
+	if (defined('ICMS_ROOT_PATH') && !class_exists('XoopsTpl')) {
+		include_once ICMS_ROOT_PATH.'/class/template.php';
+	}
+	
 	$tpl = new XoopsTpl() ;
 	$tpl->assign( 'block' , $block ) ;
 	$ret['content'] = $tpl->fetch( $this_template ) ;
