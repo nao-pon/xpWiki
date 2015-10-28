@@ -419,9 +419,12 @@ if ($type === 'js' || $type === 'css' || is_file($src_file)) {
 					} else {
 						$filemanagerTag = '';
 					}
+					if (!$renderPopupPos = @json_encode($xpwiki->root->render_popuplink_position)) {
+						$renderPopupPos = '{}';
+					}
 					$_out = str_replace(
-						array('$face_tag_full', '$face_tag', '$fck_smileys', '$module_url', '$encode_hint', '$charset',                       '$ieDomLoadedDisabled', '$faviconSetClass',                   '$faviconReplaceClass',                   '$UseWikihelperAtAll', '$RendererDir', '$RendererPage', '$fckeditor_path', '$fckxpwiki_path', '$skinname', '$ie6JsPass', '$imageDir', '$filemanagerTag'),
-						array( $face_tag_full,   $face_tag,   $fck_smileys,   $module_url,   $encode_hint,   $xpwiki->cont['CONTENT_CHARSET'], $ieDomLoadedDisabled,   $xpwiki->root->favicon_set_classname, $xpwiki->root->favicon_replace_classname, $UseWikihelperAtAll,   $RendererDir,   $RendererPage,   $fckeditor_path,   $fckxpwiki_path,   $skinname,   $ie6JsPass,   $imageDir,   $filemanagerTag ),
+						array('$face_tag_full', '$face_tag', '$fck_smileys', '$module_url', '$encode_hint', '$charset',                       '$ieDomLoadedDisabled', '$faviconSetClass',                   '$faviconReplaceClass',                   '$UseWikihelperAtAll', '$RendererDir', '$RendererPage', '$fckeditor_path', '$fckxpwiki_path', '$skinname', '$ie6JsPass', '$imageDir', '$filemanagerTag', '$renderPopupPos'),
+						array( $face_tag_full,   $face_tag,   $fck_smileys,   $module_url,   $encode_hint,   $xpwiki->cont['CONTENT_CHARSET'], $ieDomLoadedDisabled,   $xpwiki->root->favicon_set_classname, $xpwiki->root->favicon_replace_classname, $UseWikihelperAtAll,   $RendererDir,   $RendererPage,   $fckeditor_path,   $fckxpwiki_path,   $skinname,   $ie6JsPass,   $imageDir,   $filemanagerTag,   $renderPopupPos ),
 					$_out);
 				}
 				if (in_array($_src, $js_replaces)) {

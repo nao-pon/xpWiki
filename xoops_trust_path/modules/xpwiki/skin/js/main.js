@@ -40,6 +40,7 @@ XpWiki.FCKxpwiki_path = '$fckxpwiki_path';
 XpWiki.ie6JsPass = $ie6JsPass;
 XpWiki.imageDir = '$imageDir';
 XpWiki.filemanagerTag = '$filemanagerTag';
+XpWiki.renderPopupPos = $renderPopupPos;
 $skinname;
 
 // Load CSS

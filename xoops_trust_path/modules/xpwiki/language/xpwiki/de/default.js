@@ -27,6 +27,7 @@ var wikihelper_msg_wrap = "to Wrap text";
 var wikihelper_msg_nowrap = "to Nowrap text";
 var wikihelper_msg_rich_editor = "Rich Editor";
 var wikihelper_msg_normal_editor = "Normal Editor";
+var wikihelper_msg_about_format = "About Format";
 
 // Set wikihelper_root_url
 var wikihelper_root_url = "$wikihelper_root_url";

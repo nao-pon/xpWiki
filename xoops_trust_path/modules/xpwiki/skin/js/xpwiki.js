@@ -466,7 +466,7 @@ var XpWiki = {
 
 		var btn = document.createElement('div');
 		btn.id = id + '_WrapBtn';
-		btn.className = 'xpwikiWrapBtn';
+		btn.className = 'xpwikiTareaBtn xpwikiWrapBtn';
 		btn.innerHTML = wikihelper_msg_nowrap;
 		Event.observe(btn, 'click', function(){
 			this.innerHTML = XpWiki.textaraWrap(id);
@@ -476,13 +476,16 @@ var XpWiki = {
 		this.DOMNode_insertAfter(btn, refNode);
 
 		var mydir;
-		if (txtarea.getAttribute("rel") == "wikihelper" && ! txtarea.className.match(/\bnorich\b/)) {
+		if (txtarea.getAttribute("rel") == "wikihelper") {
 			if (id.match(/^[a-z0-9_-]+:/i)) {
 				mydir = id.replace(/^([a-z0-9_-]+):.+$/i, "$1");
 			} else {
 				mydir = this.RendererDir;
+				this.addAboutButton(id, mydir);
 			}
-			this.addFckButton(id, mydir);
+			if (! txtarea.className.match(/\bnorich\b/)) {
+				this.addFckButton(id, mydir);
+			}
 		}
 
 	},
@@ -499,7 +502,7 @@ var XpWiki = {
 
 			var btn = document.createElement('div');
 			btn.id = id + '_FckBtn';
-			btn.className = 'xpwikiFckBtn';
+			btn.className = 'xpwikiTareaBtn xpwikiFckBtn';
 			btn.innerHTML = wikihelper_msg_rich_editor;
 			Event.observe(btn, 'click', function(){
 				XpWiki.switch2FCK(id, mydir);
@@ -507,6 +510,27 @@ var XpWiki = {
 			var refNode = ($(id + '_resize_base_resizeXY'))? $(id + '_resize_base_resizeXY') : $(id);
 			this.DOMNode_insertAfter(btn, refNode);
 		}
+	},
+
+	addAboutButton: function (id, mydir) {
+
+		if  (this.useJQueryMobile) return;
+
+		var txtarea = $(id);
+
+		if (typeof(txtarea.XpWiki_addAbout_done) != 'undefined') return false;
+		txtarea.XpWiki_addAbout_done = true;
+
+		var self = this;
+		var btn = document.createElement('div');
+		btn.id = id + '_AboutBtn';
+		btn.className = 'xpwikiTareaBtn xpwikiAboutBtn';
+		btn.innerHTML = wikihelper_msg_about_format;
+		Event.observe(btn, 'click', function(){
+			self.pagePopup(self.objMerge({dir:mydir ,page:'FormattingRules'}, self.renderPopupPos));
+		});
+		var refNode = ($(id + '_resize_base_resizeXY'))? $(id + '_resize_base_resizeXY') : $(id);
+		this.DOMNode_insertAfter(btn, refNode);
 	},
 
 	addCssInHead: function (filename) {
@@ -1316,6 +1340,18 @@ var XpWiki = {
 			element = element.offsetParent;
 		} while (element);
 		return Element._returnOffset(valueL, valueT);
+	},
+
+	objMerge: function(obj1, obj2) {
+		if (!obj2) {
+			obj2 = {};
+		}
+		for (var attrname in obj2) {
+			if (obj2.hasOwnProperty(attrname)) {
+				obj1[attrname] = obj2[attrname];
+			}
+		}
+		return obj1;
 	},
 
 	getDomBody: function() {

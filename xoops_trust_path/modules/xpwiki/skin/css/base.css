@@ -96,7 +96,7 @@ img.xpwikiFavicon {
 	margin: 0px !important;
 }
 
-div.xpwikiWrapBtn {
+div.xpwikiTareaBtn {
 	float: right !important;
 	width: auto !important;
 	font-size: 11px !important;;
@@ -110,28 +110,7 @@ div.xpwikiWrapBtn {
 	-webkit-border-radius: 4px !important;
 	border-radius: 4px !important;
 }
-div.xpwikiWrapBtn:hover {
-	padding: 0px 4px !important;;
-	border: 2px solid orange !important;;
-	border-top-color: gold !important;;
-	border-left-color: gold !important;;
-}
-
-div.xpwikiFckBtn {
-	float: right !important;
-	width: auto !important;
-	font-size: 11px !important;;
-	margin-top: 2px !important;;
-	margin-right: 1px !important;;
-	padding: 1px 5px !important;;
-	border: 1px solid gray !important;;
-	cursor: pointer !important;
-	background: #F5F5F5 url(./loader.php?src=buttonbg.gif) repeat-x scroll center bottom !important;
-	-moz-border-radius: 4px !important;
-	-webkit-border-radius: 4px !important;
-	border-radius: 4px !important;
-}
-div.xpwikiFckBtn:hover {
+div.xpwikiTareaBtn:hover {
 	padding: 0px 4px !important;;
 	border: 2px solid orange !important;;
 	border-top-color: gold !important;;
