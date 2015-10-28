@@ -766,7 +766,7 @@ class XpWikiLink_mailto_i18n extends XpWikiLink {
  \[\[
  ((?:(?!\]\]).)+)(?:>|:)     # (1) alias
 )?
-([_0-9a-zA-Z.-]+@)                   # (2) toname
+([0-9a-zA-Z!#$%&'*+\/=?^_`{|}~-]+[0-9a-zA-Z!#$%&'*+\/=?^_`{|}~.-]*@) # (2) toname
 ([^\/"<>\s]+\.[A-Za-z0-9-]+) # (3) host
 (?($s1)\]\])                 # close bracket if (1)
 EOD;
