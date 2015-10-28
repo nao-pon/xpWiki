@@ -10,7 +10,7 @@ class xpwiki_plugin_snsref extends xpwiki_plugin {
 		$this->sns = array(
 				'twitter'   => '#^https?://twitter\.com/[a-z0-9_-]+/status/([0-9]+)#i',
 				'google'    => '#^(https?://plus\.google\.com/(?:[^/]+/)*?([0-9]+)/posts/([a-z0-9]+))#i',
-				'facebook'  => '#^(https?://www\.facebook\.com/(?:([a-z0-9._-]+)/posts/|photo.php\?fbid=)([0-9]+))#i',
+				'facebook'  => '#^(https?://www\.facebook\.com/(?:([a-z0-9._-]+)/posts/|photo.php\?fbid=|video.php\?v=)([0-9]+))#i',
 				'instagram' => '#^https?://instagram\.com/p/([a-z0-9]+)#i',
 				'vine'      => '#^https?://vine\.co/v/([a-z0-9]+)#i',
 		);
