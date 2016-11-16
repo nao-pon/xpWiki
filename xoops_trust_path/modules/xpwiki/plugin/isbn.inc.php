@@ -15,9 +15,9 @@ class xpwiki_plugin_isbn extends xpwiki_plugin {
 		// AmazonアソシエイトID
 		$this->config['AMAZON_ASE_ID'] = $this->root->amazon_AssociateTag;
 		// amazon shop URI (_ISBN_ に商品IDがセットされる)
-		$this->config['ISBN_AMAZON_SHOP'] = 'http://www.amazon.co.jp/exec/obidos/ASIN/_ISBN_/ref=nosim/AMAZON_ASE_ID';
+		$this->config['ISBN_AMAZON_SHOP'] = 'https://www.amazon.co.jp/exec/obidos/ASIN/_ISBN_/ref=nosim/AMAZON_ASE_ID';
 		// amazon UsedShop URI (_ISBN_ に商品IDがセットされる)
-		$this->config['ISBN_AMAZON_USED'] = 'http://www.amazon.co.jp/exec/obidos/tg/detail/offer-listing/-/_ISBN_/all/ref=AMAZON_ASE_ID';
+		$this->config['ISBN_AMAZON_USED'] = 'https://www.amazon.co.jp/exec/obidos/tg/detail/offer-listing/-/_ISBN_/all/ref=AMAZON_ASE_ID';
 
 		/////////////////////////////////////////////////
 		// expire 画像キャッシュを何日で削除するか
@@ -212,7 +212,7 @@ class xpwiki_plugin_isbn extends xpwiki_plugin {
 	{
 		$alt = $this->plugin_isbn_get_caption($data);
 		$amazon_a = '<a href="'.str_replace(array('_ISBN_', 'AMAZON_ASE_ID'), array($isbn, $this->config['AMAZON_ASE_ID']), $this->config['ISBN_AMAZON_SHOP']).'" target="_blank" title="'.$alt.'">';
-		$amazon_s1 = "<a href=\"http://www.amazon.co.jp/exec/obidos/external-search/?mode=blended&amp;keyword=";
+		$amazon_s1 = "<a href=\"https://www.amazon.co.jp/exec/obidos/external-search/?mode=blended&amp;keyword=";
 		$amazon_s2 = "&amp;tag=".$this->config['AMAZON_ASE_ID']."&amp;encoding-string-jp=%93%FA%96%7B%8C%EA&amp;Go.x=14&amp;Go.y=5\" target=\"_blank\" alt=\"Amazon Serach\" title=\"Amazon Serach\">";
 
 		$off = "";

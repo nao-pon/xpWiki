@@ -15,14 +15,14 @@
 (function(){
  var   gsearch_css='default.css', // You need to edit this so it it points to your version of the default.css
   m=google.maps, // fewer keystrokes is good
-  gmlocalsearch_css='http://www.google.com/uds/solutions/localsearch/gmlocalsearch.css',
+  gmlocalsearch_css='//www.google.com/uds/solutions/localsearch/gmlocalsearch.css',
   defaultOptions={ // default options for the control; should be pretty self-explanatory
    'resultSetSize' : 8,
    'clearResultsString' : 'X',
    'minimizeResultsString' : '_',
    'maximizeResultsString' : '^',
    'icons' : [],
-   'shadow' : new m['MarkerImage']('http://www.google.com/mapfiles/gadget/shadow50Small80.png',null,null,new m.Point(8,28)),
+   'shadow' : new m['MarkerImage']('//www.google.com/mapfiles/gadget/shadow50Small80.png',null,null,new m.Point(8,28)),
    'showResultsList' : true,
    'showResultsMarkers' : true,
    'searchFormOptions' : {}
@@ -366,7 +366,7 @@
  LocalSearch['callback']=function(context,response){
   LocalSearch['searchers'][context]['RAWcallback'](response)
  };
- LocalSearch.baseUrl='http://ajax.googleapis.com/ajax/services/search/local?';
+ LocalSearch.baseUrl='//ajax.googleapis.com/ajax/services/search/local?';
  
  
  // SearchForm so we don't have to include google.search every time.
@@ -411,7 +411,7 @@
                                      createEl('td','gsc-branding-user-defined'),
                                      createEl('td','gsc-branding-text',[createEl('div','gsc-branding-text',['powered by'])]),
                                      createEl('gsc-branding-img-noclear',[createEl('img','gsc-branding-img-noclear',null,{
-                                                                                    'src' : 'http://www.google.com/uds/css/small-logo.png'
+                                                                                    'src' : '//www.google.com/uds/css/small-logo.png'
                                                                                    })])
                                     ])
                           ])])

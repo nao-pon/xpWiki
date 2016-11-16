@@ -3408,8 +3408,8 @@ EOD;
 
 
 		// Set skin functions
-		$navigator = create_function('&$this, $key, $value = \'\', $javascript = \'\', $withIcon = FALSE, $x = 20, $y = 20',    'return XpWikiFunc::skin_navigator($this, $key, $value, $javascript, $withIcon, $x, $y);');
-		$toolbar   = create_function('&$this, $key, $x = 20, $y = 20, $javascript = \'\'', 'return XpWikiFunc::skin_toolbar($this, $key, $x, $y, $javascript);');
+		$navigator = create_function('&$xpwiki, $key, $value = \'\', $javascript = \'\', $withIcon = FALSE, $x = 20, $y = 20',    'return XpWikiFunc::skin_navigator($xpwiki, $key, $value, $javascript, $withIcon, $x, $y);');
+		$toolbar   = create_function('&$xpwiki, $key, $x = 20, $y = 20, $javascript = \'\'', 'return XpWikiFunc::skin_toolbar($xpwiki, $key, $x, $y, $javascript);');
 		$ajax_edit_js = ($this->root->use_ajax_edit)? ' onclick="return xpwiki_ajax_edit(\''.$this->htmlspecialchars($r_page, ENT_QUOTES).'\');"' : '';
 
 		// Set $_LINK for skin

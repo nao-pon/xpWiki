@@ -898,7 +898,7 @@ EOD;
 					if ($this->cont['UA_PROFILE'] === 'default') {
 						$rurl = rawurlencode(str_replace('&amp;', '&', $url));
 						$params['_body'] = <<<EOD
-<iframe src="http://docs.google.com/viewer?url={$rurl}&amp;embedded=true" style="border:none;"{$size_tag}></iframe>
+<iframe src="https://docs.google.com/viewer?url={$rurl}&amp;embedded=true" style="border:none;"{$size_tag}></iframe>
 EOD;
 					}
 				} else {

@@ -15,7 +15,7 @@ class xpwiki_plugin_twitter extends xpwiki_plugin {
 		if ($args) {
 			$name = array_pop($args);
 			if (! $alias) $alias = $this->func->htmlspecialchars($name);
-			return '<a href="http://twitter.com/' . urlencode($name) . '">' . $alias . '</a>';
+			return '<a href="https://twitter.com/' . urlencode($name) . '">' . $alias . '</a>';
 		} else {
 			return $this->usage;
 		}

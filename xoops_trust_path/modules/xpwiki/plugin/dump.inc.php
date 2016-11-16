@@ -1267,6 +1267,7 @@ class XpWikitarlib
 		$files = array('ok'=>array(),'ng'=>array(),'dir'=>array(),'sql'=>array(),'sqltables'=>array());
 		$longname = '';
 		$charset = '';
+		$doconv = false;
 
 		while(1) {
 			$buff = fread($this->fp, $this->cont['TARLIB_HDR_LEN']);
@@ -1348,6 +1349,7 @@ class XpWikitarlib
 				$buff = $pdsz? rtrim(fread($this->fp, $pdsz), "\0") : '';
 
 				if ($charset && strtoupper($charset) !== strtoupper($this->cont['SOURCE_ENCODING'])) {
+					$doconv = true;
 					// ファイル名変換
 					$dirname = dirname($name);
 					$filename = basename($name);
@@ -1373,6 +1375,9 @@ class XpWikitarlib
 
 					if (in_array($extention, array('txt','log','sql','add','php'))) {
 						// ファイル内容変換
+						if ($filename === 'pukiwiki.ini.php') {
+							$buff = preg_replace('/\$const\[\'LC_CTYPE\'\] = \'[^\']+\';/', '$const[\'LC_CTYPE\'] = \'\';', $buff);
+						}
 						$buff = mb_convert_encoding($buff, $this->cont['SOURCE_ENCODING'], $charset);
 						$size = strlen($buff);
 					} else if ($extention === 'gz') {
@@ -1428,6 +1433,23 @@ class XpWikitarlib
 				$files['ng']['Bypass'][] = $name;
 			}
 		}
+
+		// キャッシュファイルの処理
+		// remove cache
+		foreach(array('render_*', '*.autolink.api', '*.extautolink', 'autolink.dat', 'interwiki.dat') as $pat) {
+			foreach(glob($this->cont['CACHE_DIR'].$pat) as $file) {
+				@unlink($file);
+			}
+		}
+		// remake tag plugin cache
+		if ($pi = $this->func->get_plugin_instance('tag')) {
+			$retvar = call_user_func(array($pi, 'plugin_tag_action'));
+		}
+		// remake ajaxtree plugin cache
+		if ($pi = $this->func->get_plugin_instance('ajaxtree')) {
+			$retvar = call_user_func(array($pi, 'plugin_ajaxtree_action'));
+		}
+		
 		return $files;
 	}
 

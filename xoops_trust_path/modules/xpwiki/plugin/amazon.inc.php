@@ -71,12 +71,12 @@ class xpwiki_plugin_amazon extends xpwiki_plugin {
 		switch($this->cont['LANG']){
 		case 'ja':
 			// Amazon shop
-			$this->config['PLUGIN_AMAZON_SHOP_URI'] =  'http://www.amazon.co.jp/exec/obidos/ASIN/';
+			$this->config['PLUGIN_AMAZON_SHOP_URI'] =  'https://www.amazon.co.jp/exec/obidos/ASIN/';
 
 			break;
 		default:
 			// Amazon shop
-			$this->config['PLUGIN_AMAZON_SHOP_URI'] =  'http://www.amazon.com/exec/obidos/ASIN/';
+			$this->config['PLUGIN_AMAZON_SHOP_URI'] =  'https://www.amazon.com/exec/obidos/ASIN/';
 
 			break;
 		}
@@ -108,12 +108,12 @@ class xpwiki_plugin_amazon extends xpwiki_plugin {
 		switch($this->cont['LANG']){
 		case 'ja':
 			// Amazon shop
-			$this->config['PLUGIN_AMAZON_SHOP_URI'] =  'http://www.amazon.co.jp/exec/obidos/ASIN/';
+			$this->config['PLUGIN_AMAZON_SHOP_URI'] =  'https://www.amazon.co.jp/exec/obidos/ASIN/';
 
 			break;
 		default:
 			// Amazon shop
-			$this->config['PLUGIN_AMAZON_SHOP_URI'] =  'http://www.amazon.com/exec/obidos/ASIN/';
+			$this->config['PLUGIN_AMAZON_SHOP_URI'] =  'https://www.amazon.com/exec/obidos/ASIN/';
 
 			break;
 		}

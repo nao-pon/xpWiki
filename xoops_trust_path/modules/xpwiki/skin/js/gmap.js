@@ -728,7 +728,7 @@ var PGStreet = function(page, mapname, options) {
 	if (!!options.streetlayer) {
 		var streetViewLayer = new google.maps.ImageMapType({
 			getTileUrl : function(coord, zoom) {
-				return "http://www.google.com/cbk?output=overlay&zoom=" + zoom + "&x=" + coord.x + "&y=" + coord.y + "&cb_client=api";
+				return "//www.google.com/cbk?output=overlay&zoom=" + zoom + "&x=" + coord.x + "&y=" + coord.y + "&cb_client=api";
 			},
 			tileSize: new google.maps.Size(256, 256)
 		});
@@ -815,7 +815,7 @@ var PGDropMarker = function(map, options) {
 		//position: new google.maps.LatLng(map.getCenter()),
 		position: map.getCenter(),
 		icon: {
-			url: 'http://www.google.com/mapfiles/gadget/arrowSmall80.png',
+			url: '//www.google.com/mapfiles/gadget/arrowSmall80.png',
 			size: new google.maps.Size(31, 27),
 			anchor: new google.maps.Point(8, 27)},
 		map: map,

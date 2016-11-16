@@ -103,7 +103,7 @@ class xpwiki_plugin_yahoo extends xpwiki_plugin {
 		list($ret,$refresh) = $this->plugin_yahoo_get($mode,$query,$prms['type'],$max,$prms['target'],$prms['col']);
 
 		$cr = '<!-- Begin Yahoo! JAPAN Web Services Attribution Snippet -->
-<a href="http://developer.yahoo.co.jp/about" target="'.$this->root->link_target.'"><img src="http://i.yimg.jp/images/yjdn/yjdn_attbtn2_105_17.gif" width="105" height="17" title="'.$this->msg['msg_websvc'].' by Yahoo! JAPAN" alt="'.$this->msg['msg_websvc'].' by Yahoo! JAPAN" border="0" style="margin:15px 15px 15px 15px"></a>
+<a href="http://developer.yahoo.co.jp/about" target="'.$this->root->link_target.'"><img src="//i.yimg.jp/images/yjdn/yjdn_attbtn2_105_17.gif" width="105" height="17" title="'.$this->msg['msg_websvc'].' by Yahoo! JAPAN" alt="'.$this->msg['msg_websvc'].' by Yahoo! JAPAN" border="0" style="margin:15px 15px 15px 15px"></a>
 <!-- End Yahoo! JAPAN Web Services Attribution Snippet -->';
 
 		$this->func->add_tag_head('yahoo.css');

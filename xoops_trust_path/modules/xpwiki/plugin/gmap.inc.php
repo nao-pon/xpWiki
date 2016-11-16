@@ -463,9 +463,9 @@ EOD;
 				if ($title) {
 					$title = rawurlencode(mb_convert_encoding(' ('.$title.')', 'UTF-8', $this->cont['SOURCE_ENCODING']));
 				}
-				$url = 'http://maps.google.com/maps?q=loc:'.$lat.','.$lng.$title.'&z='.$zoom.'&iwloc=A';
+				$url = '//maps.google.com/maps?q=loc:'.$lat.','.$lng.$title.'&z='.$zoom.'&iwloc=A';
 			} else {
-				$url = 'http://www.google.co.jp/m/local?site=local&ll='.$lat.','.$lng.'&z='.$zoom;
+				$url = '//www.google.co.jp/m/local?site=local&ll='.$lat.','.$lng.'&z='.$zoom;
 			}
 		} else if ($useAction) {
 			$url = $this->root->script . '?plugin=gmap&amp;action=static&amp;lat='.$lat.'&amp;lng='.$lng.'&amp;zoom='.$zoom.'&amp;refer='.rawurlencode(@ $_SERVER['REQUEST_URI']);

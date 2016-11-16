@@ -8,7 +8,7 @@
 class xpwiki_plugin_skype extends xpwiki_plugin {
 	function xpwiki_plugin_skype($func) {
 		parent::xpwiki_plugin($func);
-		$func->add_js_head('http://download.skype.com/share/skypebuttons/js/skypeCheck.js');
+		$func->add_js_head('//download.skype.com/share/skypebuttons/js/skypeCheck.js');
 	}
 	
 	function plugin_skype_init() {
@@ -61,9 +61,9 @@ class xpwiki_plugin_skype extends xpwiki_plugin {
 		}
 		
 		$image = '';
-		if ($status) {
-			$image = '<img src="http://mystatus.skype.com/' . $status . '/' . $id . '" />';
-		}
+		//if ($status) {
+		//	$image = '<img src="http://mystatus.skype.com/' . $status . '/' . $id . '" />';
+		//}
 		
 		$link = 'skype:' . $id . '?' . $mode;
 		

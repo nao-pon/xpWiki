@@ -14,8 +14,8 @@
 class xpwiki_plugin_gmap_icon extends xpwiki_plugin {
 	function plugin_gmap_icon_init () {
 
-		$this->cont['PLUGIN_GMAP_ICON_IMAGE'] =  'http://maps.google.com/mapfiles/ms/icons/red-dot.png';
-		$this->cont['PLUGIN_GMAP_ICON_SHADOW'] = 'http://maps.google.com/mapfiles/ms/icons/msmarker.shadow.png';
+		$this->cont['PLUGIN_GMAP_ICON_IMAGE'] =  '//maps.google.com/mapfiles/ms/icons/red-dot.png';
+		$this->cont['PLUGIN_GMAP_ICON_SHADOW'] = '//maps.google.com/mapfiles/ms/icons/msmarker.shadow.png';
 		$this->cont['PLUGIN_GMAP_ICON_IW'] =  32;
 		$this->cont['PLUGIN_GMAP_ICON_IH'] =  32;
 		$this->cont['PLUGIN_GMAP_ICON_SW'] =  59;
@@ -26,11 +26,11 @@ class xpwiki_plugin_gmap_icon extends xpwiki_plugin {
 		//$this->cont['PLUGIN_GMAP_ICON_SANCHORY'] =  0;
 		$this->cont['PLUGIN_GMAP_ICON_SANCHORX'] =  null;
 		$this->cont['PLUGIN_GMAP_ICON_SANCHORY'] =  null;
-		//$this->cont['PLUGIN_GMAP_ICON_TRANSPARENT'] =  'http://www.google.com/mapfiles/markerTransparent.png';
+		//$this->cont['PLUGIN_GMAP_ICON_TRANSPARENT'] =  '//www.google.com/mapfiles/markerTransparent.png';
 		//$this->cont['PLUGIN_GMAP_ICON_AREA'] =  '1 7 7 0 13 0 19 7 19 12 13 20 12 23 11 34 9 34 8 23 6 19 1 13 1 70';
 		$this->cont['PLUGIN_GMAP_ICON_AREA'] =  '';
 
-		$this->cont['PLUGIN_GMAP_ICON_REGEX'] = '#^http://[a-z]+\.google\.com#i';
+		$this->cont['PLUGIN_GMAP_ICON_REGEX'] = '#^https?://[a-z]+\.google\.com#i';
 	}
 	
 	function plugin_gmap_icon_get_default () {

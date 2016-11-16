@@ -168,25 +168,25 @@ $const['PLUGIN_REF_NETVIDEOS']['niconico'] = array(
 $const['PLUGIN_REF_NETVIDEOS']['youtube'] = array(
 	'regex'     => '#^https?://(?:www\.youtube\.com/watch\?.*?v=|youtu.be\/)([0-9a-z_-]+)#i',
 	'type'      => 'html',
-	'src'       => '<iframe class="youtube-player" type="text/html"$size src="http://www.youtube.com/embed/$1?wmode=transparent&amp;autohide=1&amp;rel=0" frameborder="0"><noiframe>$link</noiframe></iframe>',
+	'src'       => '<iframe class="youtube-player" type="text/html"$size src="https://www.youtube.com/embed/$1?wmode=transparent&amp;autohide=1&amp;rel=0" frameborder="0"><noiframe>$link</noiframe></iframe>',
 	'src_keitai'=> '$link',
 	'width'     => 480,
 	'height'    => 270,
 );
 
-$const['PLUGIN_REF_NETVIDEOS']['google'] = array(
-	'regex'     => '#^http://video\.google\.com/videoplay\?docid=([0-9-]+)#i',
-	'type'      => 'flash',
-	'src'       => 'http://video.google.com/googleplayer.swf?docid=$1&hl=&fs=true',
-	'width'     => 480,
-	'height'    => 296,
-	'attribute' => 'allowfullscreen="true" allowscriptaccess="always"'
-);
+//$const['PLUGIN_REF_NETVIDEOS']['google'] = array(
+//	'regex'     => '#^http://video\.google\.com/videoplay\?docid=([0-9-]+)#i',
+//	'type'      => 'flash',
+//	'src'       => 'http://video.google.com/googleplayer.swf?docid=$1&hl=&fs=true',
+//	'width'     => 480,
+//	'height'    => 296,
+//	'attribute' => 'allowfullscreen="true" allowscriptaccess="always"'
+//);
 
 $const['PLUGIN_REF_NETVIDEOS']['ustream'] = array(
-	'regex'     => '#^http://www.ustream.tv/recorded/([0-9]+)#i',
+	'regex'     => '#^https?://www.ustream.tv/recorded/([0-9]+)#i',
 	'type'      => 'flash',
-	'src'       => 'http://www.ustream.tv/flash/video/$1',
+	'src'       => 'https://www.ustream.tv/flash/video/$1',
 	'width'     => 480,
 	'height'    => 296,
 	'attribute' => 'flashvars="loc=%2F&autoplay=false&vid=$1&locale=" allowfullscreen="true" allowscriptaccess="always"'
@@ -203,18 +203,18 @@ $const['PLUGIN_REF_NETVIDEOS']['ustream'] = array(
 //);
 
 $const['PLUGIN_REF_NETVIDEOS']['vimeo'] = array(
-	'regex'     => '#^http://vimeo\.com/([0-9]+)#i',
+	'regex'     => '#^https?://vimeo\.com/([0-9]+)#i',
 	'type'      => 'html',
-	'src'       => '<iframe src="http://player.vimeo.com/video/$1?title=0&amp;byline=0&amp;portrait=0&amp;color=c9ff23"$size " frameborder="0"><noiframe>$link</noiframe></iframe>',
+	'src'       => '<iframe src="https://player.vimeo.com/video/$1?title=0&amp;byline=0&amp;portrait=0&amp;color=c9ff23"$size " frameborder="0"><noiframe>$link</noiframe></iframe>',
 	'src_keitai'=> '$link',
 	'width'     => 480,
 	'height'    => 270,
 );
 
 $const['PLUGIN_REF_NETVIDEOS']['veoh'] = array(
-	'regex'     => '#^http://www\.veoh\.com/(?:[a-z\/]+/)?watch/([a-z0-9]+)#i',
+	'regex'     => '#^https?://www\.veoh\.com/(?:[a-z\/]+/)?watch/([a-z0-9]+)#i',
 	'type'      => 'flash',
-	'src'       => 'http://www.veoh.com/static/swf/webplayer/WebPlayer.swf?version=AFrontend.5.5.2.1030&permalinkId=$1&player=videodetailsembedded&videoAutoPlay=0&id=anonymous',
+	'src'       => 'https://www.veoh.com/static/swf/webplayer/WebPlayer.swf?version=AFrontend.5.5.2.1030&permalinkId=$1&player=videodetailsembedded&videoAutoPlay=0&id=anonymous',
 	'width'     => 480,
 	'height'    => 296,
 	'attribute' => 'allowFullScreen="true" allowScriptAccess="always"'
@@ -230,22 +230,22 @@ $const['PLUGIN_REF_NETVIDEOS']['pandora'] = array(
 );
 
 $const['PLUGIN_REF_NETVIDEOS']['slideboom'] = array(
-	'regex'     => '#^http://www\.slideboom\.com/presentations/(\d+)/#i',
+	'regex'     => '#^https?://www\.slideboom\.com/presentations/(\d+)/#i',
 	'type'      => 'flash',
-	'src'       => 'http://www.slideboom.com/player/player.swf?id_resource=$1',
+	'src'       => 'https://www.slideboom.com/player/player.swf?id_resource=$1',
 	'width'     => 480,
 	'height'    => 417,
 	'attribute' => 'allowFullScreen="true" allowScriptAccess="always" quality="high" bgcolor="#ffffff"'
 );
 
-$const['PLUGIN_REF_NETVIDEOS']['slidesix'] = array(
-	'regex'     => '#^http://slidesix.com/view/([a-z0-9-_]+)#i',
-	'type'      => 'flash',
-	'src'       => 'http://slidesix.com/viewer/SlideSixViewer.swf?alias=$1',
-	'width'     => 480,
-	'height'    => 380,
-	'attribute' => 'allowFullScreen="true" allowScriptAccess="always" wmode="transparent" quality="best"'
-);
+//$const['PLUGIN_REF_NETVIDEOS']['slidesix'] = array(
+//	'regex'     => '#^http://slidesix.com/view/([a-z0-9-_]+)#i',
+//	'type'      => 'flash',
+//	'src'       => 'http://slidesix.com/viewer/SlideSixViewer.swf?alias=$1',
+//	'width'     => 480,
+//	'height'    => 380,
+//	'attribute' => 'allowFullScreen="true" allowScriptAccess="always" wmode="transparent" quality="best"'
+//);
 
 // image, video, audio の添付ファイルオープン時にリファラをチェックする
 // 0:チェックしない, 1:未定義は許可, 2:未定義も不許可

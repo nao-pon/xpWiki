@@ -44,7 +44,7 @@ $msg = array(
 
 	'moblog_user_mail' => array(
 		'caption'     => 'モブログ送信先メールアドレス',
-		'description' => '<img src="http://chart.apis.google.com/chart?chs=100x100&cht=qr&chl={$root->moblog_user_mail_rawurlenc}" width="100" height="100" alt="{$root->moblog_user_mail}" align="left" />あなた専用のモブログ送信先メールアドレスは「<a href="mailto:{$root->moblog_user_mail}">{$root->moblog_user_mail}</a>」です。<br />' .
+		'description' => '<img src="https://chart.apis.google.com/chart?chs=100x100&cht=qr&chl={$root->moblog_user_mail_rawurlenc}" width="100" height="100" alt="{$root->moblog_user_mail}" align="left" />あなた専用のモブログ送信先メールアドレスは「<a href="mailto:{$root->moblog_user_mail}">{$root->moblog_user_mail}</a>」です。<br />' .
 				'このメールアドレス宛に送信された場合、送信元に関わらずあなたからの投稿として扱われますので、他人に知られることのないように十分に注意してください。<br />' .
 				'このメールアドレスを変更したい場合は、「モブログページ」を一旦空にして登録すると、新しいメールアドレスになります。',
 	),

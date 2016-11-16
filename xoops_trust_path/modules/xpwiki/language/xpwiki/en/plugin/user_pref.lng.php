@@ -44,7 +44,7 @@ $msg = array(
 
 	'moblog_user_mail' => array(
 		'caption'     => 'Mail address for your moblog',
-		'description' => '<img src="http://chart.apis.google.com/chart?chs=100x100&cht=qr&chl={$root->moblog_user_mail_rawurlenc}" width="100" height="100" alt="{$root->moblog_user_mail}" align="left" />Your moblog destination mail address is "<a href="mailto:{$root->moblog_user_mail}">{$root->moblog_user_mail}</a>".<br />' .
+		'description' => '<img src="https://chart.apis.google.com/chart?chs=100x100&cht=qr&chl={$root->moblog_user_mail_rawurlenc}" width="100" height="100" alt="{$root->moblog_user_mail}" align="left" />Your moblog destination mail address is "<a href="mailto:{$root->moblog_user_mail}">{$root->moblog_user_mail}</a>".<br />' .
 				'The E-mail transmitted to this mail address appropriating is always treated as a contribution from you. Therefore, do not inform others of it.<br />' .
 				'If "Moblog page" is emptied once and registered, it becomes a new mail address to change this mail address.',
 	),
