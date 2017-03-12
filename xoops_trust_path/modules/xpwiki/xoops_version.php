@@ -18,7 +18,7 @@ include $_parentdirname . '/version.php';
 $modversion['name'] = $mydirname ;
 $modversion['version'] = $xpwiki_version ;
 $modversion['description'] = constant($constpref.'_MODULE_DESCRIPTION') ;
-$modversion['credits'] = '&copy; 2006-2014 hypweb.net.';
+$modversion['credits'] = '&copy; 2006-2017 hypweb.net.';
 $modversion['author'] = 'nao-pon' ;
 $modversion['help'] = '' ;
 $modversion['license'] = 'GPL' ;
