@@ -37,7 +37,7 @@ CREATE TABLE `count` (
   `today` varchar(10) NOT NULL default '',
   `today_count` int(11) NOT NULL default '0',
   `yesterday_count` int(11) NOT NULL default '0',
-  `ip` varchar(15) NOT NULL default '',
+  `ip` varchar(39) NOT NULL default '',
   PRIMARY KEY  (`pgid`),
   KEY `today` (`today`)
 ) ENGINE=MyISAM;
@@ -100,7 +100,7 @@ CREATE TABLE `tb` (
   `title` varchar(255) NOT NULL default '',
   `excerpt` text NOT NULL,
   `blog_name` varchar(255) NOT NULL default '',
-  `ip` varchar(15) NOT NULL default '',
+  `ip` varchar(39) NOT NULL default '',
   KEY `tbid` (`tbid`),
   KEY `pgid` (`pgid`)
 ) ENGINE=MyISAM;

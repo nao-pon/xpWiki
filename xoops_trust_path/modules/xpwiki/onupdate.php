@@ -213,7 +213,25 @@ function xpwiki_onupdate_base( $module , $mydirname )
         	//$msgs[] = $query;
         }
     }
-
+    if ($result = $db->query('SHOW COLUMNS FROM '.$table.' LIKE "ip"')) {
+    	$arr = $db->fetchArray($result);
+    	$newType = 'varchar(39)';
+    	if (strtolower($arr['Type']) !== $newType) {
+    		$query = 'ALTER TABLE `'.$table.'` CHANGE `ip` `ip` '.$newType.' NOT NULL default \'\'';
+    		$db->query($query);
+    	}
+    }
+    
+    $table = $db->prefix($mydirname.'_tb');
+    if ($result = $db->query('SHOW COLUMNS FROM '.$table.' LIKE "ip"')) {
+    	$arr = $db->fetchArray($result);
+    	$newType = 'varchar(39)';
+    	if (strtolower($arr['Type']) !== $newType) {
+    		$query = 'ALTER TABLE `'.$table.'` CHANGE `ip` `ip` '.$newType.' NOT NULL default \'\'';
+    		$db->query($query);
+    	}
+    }
+   
 	// TEMPLATES (all templates have been already removed by modulesadmin)
 	$tplfile_handler =& xoops_gethandler( 'tplfile' ) ;
 	$tpl_path = dirname(__FILE__).'/templates' ;
