@@ -22,7 +22,12 @@ class XpWikiline_diff
 {
 	var $arr1, $arr2, $m, $n, $pos, $key, $plus, $minus, $equal, $reverse;
 
-	function XpWikiline_diff($plus = '+', $minus = '-', $equal = ' ')
+	public function XpWikiline_diff($plus = '+', $minus = '-', $equal = ' ')
+	{
+		return self::__construct($plus, $minus, $equal);
+	}
+	
+	public function __construct($plus = '+', $minus = '-', $equal = ' ')
 	{
 		$this->plus  = $plus;
 		$this->minus = $minus;
@@ -177,7 +182,12 @@ class XpWikiDiffLine
 	var $text;
 	var $status;
 
-	function XpWikiDiffLine($text)
+	public function XpWikiDiffLine($text)
+	{
+		return self::__construct($text);
+	}
+
+	public function __construct($text)
 	{
 		$this->text   = $text . "\n";
 		$this->status = array();

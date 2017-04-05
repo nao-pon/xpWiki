@@ -10,7 +10,11 @@ class XpWikiElement {
 
 	var $xpwiki;
 
-	function XpWikiElement(& $xpwiki) {
+	public function XpWikiElement(& $xpwiki) {
+		return self::__construct($xpwiki);
+	}
+
+	public function __construct(& $xpwiki) {
 
 		$this->xpwiki = & $xpwiki;
 		$this->root = & $xpwiki->root;
@@ -25,7 +29,7 @@ class XpWikiElement {
 		$this->parent = & $parent;
 	}
 
-	function & add(& $obj) {
+	function & add($obj) {
 		if ($this->canContain($obj)) {
 			return $this->insert($obj);
 		} else {
@@ -33,7 +37,7 @@ class XpWikiElement {
 		}
 	}
 
-	function & insert(& $obj) {
+	function & insert($obj) {
 		$obj->setParent($this);
 		$this->elements[] = & $obj;
 
@@ -83,11 +87,15 @@ class XpWikiElement {
 // Inline elements
 class XpWikiInline extends XpWikiElement {
 	function XpWikiInline(& $xpwiki, $text) {
-		parent :: XpWikiElement($xpwiki);
+		return self::__construct($xpwiki, $text);
+	}
+
+	public function __construct(& $xpwiki, $text) {
+		parent :: __construct($xpwiki);
 		$this->elements[] = trim((substr($text, 0, 1) === "\n") ? $text : $this->func->make_link($text));
 	}
 
-	function & insert(& $obj) {
+	function & insert($obj) {
 		$this->elements[] = $obj->elements[0];
 		return $this;
 	}
@@ -111,8 +119,12 @@ class XpWikiInline extends XpWikiElement {
 class XpWikiParagraph extends XpWikiElement {
 	var $param;
 
-	function XpWikiParagraph(& $xpwiki, $text, $param = '') {
-		parent :: XpWikiElement($xpwiki);
+	public function XpWikiParagraph(& $xpwiki, $text, $param = '') {
+		return self::__construct($xpwiki, $text, $param);
+	}
+
+	public function __construct(& $xpwiki, $text, $param = '') {
+		parent :: __construct($xpwiki);
 		$this->param = $param;
 		if ($text === '')
 			return;
@@ -141,8 +153,12 @@ class XpWikiHeading extends XpWikiElement {
 	var $msg_top;
 	var $class;
 
-	function XpWikiHeading(& $root, $text) {
-		parent :: XpWikiElement($root->xpwiki);
+	public function XpWikiHeading(& $root, $text) {
+		return self::__construct($root, $text);
+	}
+
+	public function __construct(& $root, $text) {
+		parent :: __construct($root->xpwiki);
 
 		$this->level = min(5, strspn($text, '*'));
 		list ($text, $anchor, $this->msg_top, $this->id, $this->paraid) = $root->getAnchor($text, $this->level);
@@ -156,7 +172,7 @@ class XpWikiHeading extends XpWikiElement {
 		$this->level++; // h2,h3,h4
 	}
 
-	function & insert(& $obj) {
+	function & insert($obj) {
 		parent :: insert($obj);
 		$this->last = & $this;
 		return $this->last;
@@ -181,8 +197,12 @@ class XpWikiHeading extends XpWikiElement {
 // ----
 // Horizontal Rule
 class XpWikiHRule extends XpWikiElement {
-	function XpWikiHRule(& $root, $text) {
-		parent :: XpWikiElement($root->xpwiki);
+	public function XpWikiHRule(& $root, $text) {
+		return self::__construct($root, $text);
+	}
+
+	public function __construct(& $root, $text) {
+		parent :: __construct($root->xpwiki);
 	}
 
 	function canContain($obj) {
@@ -203,8 +223,12 @@ class XpWikiListContainer extends XpWikiElement {
 	var $margin;
 	var $left_margin;
 
-	function XpWikiListContainer(& $xpwiki, $tag, $tag2, $head, $text) {
-		parent :: XpWikiElement($xpwiki);
+	public function XpWikiListContainer(& $xpwiki, $tag, $tag2, $head, $text) {
+		return self::__construct($xpwiki, $tag, $tag2, $head, $text);
+	}
+
+	public function __construct(& $xpwiki, $tag, $tag2, $head, $text) {
+		parent :: __construct($xpwiki);
 
 		$var_margin = '_'.$tag.'_margin';
 		$var_left_margin = '_'.$tag.'_left_margin';
@@ -248,7 +272,7 @@ class XpWikiListContainer extends XpWikiElement {
 		$this->style = sprintf($this->root->_list_pad_str, $this->level, $margin, $margin);
 	}
 
-	function & insert(& $obj) {
+	function & insert($obj) {
 		if (!is_a($obj, get_class($this))) {
 			$this->last = & $this->last->insert($obj);
 			return $this->last;
@@ -266,7 +290,7 @@ class XpWikiListContainer extends XpWikiElement {
 		return $this->last;
 	}
 	
-	function & elementInsert(& $obj) {
+	function & elementInsert($obj) {
 		return parent::insert($obj);
 	}
 
@@ -276,8 +300,12 @@ class XpWikiListContainer extends XpWikiElement {
 }
 
 class XpWikiListElement extends XpWikiElement {
-	function XpWikiListElement(& $xpwiki, $level, $head, $style='') {
-		parent :: XpWikiElement($xpwiki);
+	public function XpWikiListElement(& $xpwiki, $level, $head, $style='') {
+		return self::__construct($xpwiki, $level, $head, $style);
+	}
+
+	public function __construct(& $xpwiki, $level, $head, $style='') {
+		parent :: __construct($xpwiki);
 		$this->level = $level;
 		$this->head = $head;
 		$this->style = $style;
@@ -296,8 +324,12 @@ class XpWikiListElement extends XpWikiElement {
 // - Two
 // - Three
 class XpWikiUList extends XpWikiListContainer {
-	function XpWikiUList(& $root, $text) {
-		parent :: XpWikiListContainer($root->xpwiki, 'ul', 'li', '-', $text);
+	public function XpWikiUList(& $root, $text) {
+		return self::__construct($root, $text);
+	}
+
+	public function __construct(& $root, $text) {
+		parent :: __construct($root->xpwiki, 'ul', 'li', '-', $text);
 	}
 }
 
@@ -305,8 +337,12 @@ class XpWikiUList extends XpWikiListContainer {
 // + Two
 // + Three
 class XpWikiOList extends XpWikiListContainer {
-	function XpWikiOList(& $root, $text) {
-		parent :: XpWikiListContainer($root->xpwiki, 'ol', 'li', '+', $text);
+	public function XpWikiOList(& $root, $text) {
+		return self::__construct($root, $text);
+	}
+
+	public function __construct(& $root, $text) {
+		parent :: __construct($root->xpwiki, 'ol', 'li', '+', $text);
 	}
 }
 
@@ -314,8 +350,12 @@ class XpWikiOList extends XpWikiListContainer {
 // : definition2 | description2
 // : definition3 | description3
 class XpWikiDList extends XpWikiListContainer {
-	function XpWikiDList(& $xpwiki, $out) {
-		parent :: XpWikiListContainer($xpwiki, 'dl', 'dt', ':', $out[0]);
+	public function XpWikiDList(& $xpwiki, $out) {
+		return self::__construct($xpwiki, $out);
+	}
+
+	public function __construct(& $xpwiki, $out) {
+		parent :: __construct($xpwiki, 'dl', 'dt', ':', $out[0]);
 		$this->last = & parent :: elementInsert(new XpWikiListElement($xpwiki, $this->level, 'dd'));
 		if ($out[1] !== '')
 			$this->last = & $this->last->insert($xpwiki->func->Factory_Inline($out[1]));
@@ -327,8 +367,12 @@ class XpWikiDList extends XpWikiListContainer {
 class XpWikiBQuote extends XpWikiElement {
 	var $level;
 
-	function XpWikiBQuote(& $root, $text) {
-		parent :: XpWikiElement($root->xpwiki);
+	public function XpWikiBQuote(& $root, $text) {
+		return self::__construct($root, $text);
+	}
+
+	public function __construct(& $root, $text) {
+		parent :: __construct($root->xpwiki);
 
 		$head = substr($text, 0, 1);
 		$this->level = min(3, strspn($text, $head));
@@ -349,7 +393,7 @@ class XpWikiBQuote extends XpWikiElement {
 		return (!is_a($obj, get_class($this)) || $obj->level >= $this->level);
 	}
 
-	function & insert(& $obj) {
+	function & insert($obj) {
 		// BugTrack/521, BugTrack/545
 		if (is_a($obj, 'XpWikiinline'))
 			return parent :: insert($obj->toPara(' class="quotation"'));
@@ -384,8 +428,12 @@ class XpWikiTableCell extends XpWikiElement {
 	var $rowspan = 1;
 	var $style; // is array('width'=>, 'align'=>...);
 
-	function XpWikiTableCell(& $xpwiki, $text, $is_template = FALSE) {
-		parent :: XpWikiElement($xpwiki);
+	public function XpWikiTableCell(& $xpwiki, $text, $is_template = FALSE) {
+		return self::__construct($xpwiki, $text, $is_template);
+	}
+
+	public function __construct(& $xpwiki, $text, $is_template = FALSE) {
+		parent :: __construct($xpwiki);
 		$this->style = $matches = array ();
 
 		if ($this->root->extended_table_format) {
@@ -619,8 +667,12 @@ class XpWikiTable extends XpWikiElement {
 	var $col; // number of column
 	var $table_around,$table_sheet,$table_style,$div_style,$table_align;
 
-	function XpWikiTable(& $xpwiki, $out) {
-		parent :: XpWikiElement($xpwiki);
+	public function XpWikiTable(& $xpwiki, $out) {
+		return self::__construct($xpwiki, $out);
+	}
+
+	public function __construct(& $xpwiki, $out) {
+		parent :: __construct($xpwiki);
 
 		$cells = explode('|', $out[1]);
 
@@ -649,7 +701,7 @@ class XpWikiTable extends XpWikiElement {
 		return is_a($obj, 'XpWikiTable') && ($obj->col === $this->col);
 	}
 
-	function & insert(& $obj) {
+	function & insert($obj) {
 		$this->elements[] = $obj->elements[0];
 		$this->types[] = $obj->type;
 		return $this;
@@ -859,12 +911,16 @@ class XpWikiTable extends XpWikiElement {
 class XpWikiYTable extends XpWikiElement {
 	var $col;	// Number of columns
 
+	public function XpWikiYTable(& $xpwiki, $row = array('cell1 ', ' cell2 ', ' cell3')) {
+		return self::__construct($xpwiki, $row);
+	}
+
 	// TODO: Seems unable to show literal '==' without tricks.
 	//       But it will be imcompatible.
 	// TODO: Why toString() or toXHTML() here
-	function XpWikiYTable(& $xpwiki, $row = array('cell1 ', ' cell2 ', ' cell3'))
+	public function __construct(& $xpwiki, $row = array('cell1 ', ' cell2 ', ' cell3'))
 	{
-		parent::XpWikiElement($xpwiki);
+		parent::__construct($xpwiki);
 
 		$str = array();
 		$col = count($row);
@@ -912,7 +968,7 @@ class XpWikiYTable extends XpWikiElement {
 		return is_a($obj, 'XpWikiYTable') && ($obj->col === $this->col);
 	}
 
-	function & insert(& $obj) {
+	function & insert($obj) {
 		$this->elements[] = $obj->elements[0];
 		return $this;
 	}
@@ -932,8 +988,12 @@ class XpWikiYTable extends XpWikiElement {
 // ' 'Space-beginning sentence
 // ' 'Space-beginning sentence
 class XpWikiPre extends XpWikiElement {
-	function XpWikiPre(& $root, $text) {
-		parent :: XpWikiElement($root->xpwiki);
+	public function XpWikiPre(& $root, $text) {
+		return self::__construct($root, $text);
+	}
+	
+	public function __construct(& $root, $text) {
+		parent :: __construct($root->xpwiki);
 		$this->elements[] = $this->func->htmlspecialchars((!$this->root->preformat_ltrim || $text === '' || $text {
 			0}
 		!= ' ') ? $text : substr($text, 1));
@@ -943,7 +1003,7 @@ class XpWikiPre extends XpWikiElement {
 		return is_a($obj, 'XpWikiPre');
 	}
 
-	function & insert(& $obj) {
+	function & insert($obj) {
 		$this->elements[] = $obj->elements[0];
 		return $this;
 	}
@@ -960,8 +1020,12 @@ class XpWikiDiv extends XpWikiElement {
 	var $param;
 	var $body;
 
-	function XpWikiDiv(& $xpwiki, $out) {
-		parent :: XpWikiElement($xpwiki);
+	public function XpWikiDiv(& $xpwiki, $out) {
+		return self::__construct($xpwiki, $out);
+	}
+
+	public function __construct(& $xpwiki, $out) {
+		parent :: __construct($xpwiki);
 		list (, $this->name, $this->param) = array_pad($out, 3, '');
 		// Call #plugin
 		$this->body = $this->func->do_plugin_convert($this->name, $this->param);
@@ -980,8 +1044,12 @@ class XpWikiDiv extends XpWikiElement {
 class XpWikiAlign extends XpWikiElement {
 	var $align;
 
-	function XpWikiAlign(& $xpwiki, $align) {
-		parent :: XpWikiElement($xpwiki);
+	public function XpWikiAlign(& $xpwiki, $align) {
+		return self::__construct($xpwiki, $align);
+	}
+
+	public function __construct(& $xpwiki, $align) {
+		parent :: __construct($xpwiki);
 		$this->align = $align;
 	}
 
@@ -1012,13 +1080,17 @@ class XpWikiBody extends XpWikiElement {
 		',' => 'YTable',
 		'#' => 'Div');
 
-	function XpWikiBody(& $xpwiki, $id) {
+	public function XpWikiBody(& $xpwiki, $id) {
+		return self::__construct($xpwiki, $id);
+	}
+
+	public function __construct(& $xpwiki, $id) {
 		$this->id = $id;
 		$this->contents = new XpWikiElement($xpwiki);
 		$this->contents->last_level = 0;
 		$this->contents->count = 0;
 		$this->contents_last = & $this->contents;
-		parent :: XpWikiElement($xpwiki);
+		parent :: __construct($xpwiki);
 	}
 
 	function parse($lines) {
@@ -1200,7 +1272,7 @@ class XpWikiBody extends XpWikiElement {
 		return array ($text, $anchor, ($this->count > 1 ? $this->root->top : ''), $autoid, $id);
 	}
 
-	function & insert(& $obj) {
+	function & insert($obj) {
 		if (is_a($obj, 'XpWikiInline'))
 			$obj = & $obj->toPara();
 		return parent :: insert($obj);
@@ -1244,8 +1316,12 @@ EOD;
 }
 
 class XpWikiContents_UList extends XpWikiListContainer {
-	function XpWikiContents_UList(& $xpwiki, $text, $level, $id) {
-		parent :: XpWikiListContainer($xpwiki, 'ul', 'li', '-', str_repeat('-', $level).(is_null($id)? "\x08" : ''));
+	public function XpWikiContents_UList(& $xpwiki, $text, $level, $id) {
+		return self::__construct($xpwiki, $text, $level, $id);
+	}
+
+	public function __construct(& $xpwiki, $text, $level, $id) {
+		parent :: __construct($xpwiki, 'ul', 'li', '-', str_repeat('-', $level).(is_null($id)? "\x08" : ''));
 		if (!is_null($id)) {
 			// Reformatting $text
 			// A line started with "\n" means "preformatted" ... X(

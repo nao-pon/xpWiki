@@ -30,7 +30,10 @@ class _DiffOp {
 class _DiffOp_Copy extends _DiffOp {
   var $type = 'copy';
 
-  function _DiffOp_Copy ($orig, $closing = false) {
+  public function _DiffOp_Copy ($orig, $closing = false) {
+    return self::__construct($orig, $closing);
+  }
+  public function __construct ($orig, $closing = false) {
     if (!is_array($closing))
       $closing = $orig;
     $this->orig = $orig;
@@ -45,7 +48,10 @@ class _DiffOp_Copy extends _DiffOp {
 class _DiffOp_Delete extends _DiffOp {
   var $type = 'delete';
 
-  function _DiffOp_Delete ($lines) {
+  public function _DiffOp_Delete ($lines) {
+    return self::__construct($lines);
+  }
+  public function __construct ($lines) {
     $this->orig = $lines;
     $this->closing = false;
   }
@@ -58,7 +64,10 @@ class _DiffOp_Delete extends _DiffOp {
 class _DiffOp_Add extends _DiffOp {
   var $type = 'add';
 
-  function _DiffOp_Add ($lines) {
+  public function _DiffOp_Add ($lines) {
+    return self::__construct($lines);
+  }
+  public function __construct ($lines) {
     $this->closing = $lines;
     $this->orig = false;
   }
@@ -71,7 +80,10 @@ class _DiffOp_Add extends _DiffOp {
 class _DiffOp_Change extends _DiffOp {
   var $type = 'change';
 
-  function _DiffOp_Change ($orig, $closing) {
+  public function _DiffOp_Change ($orig, $closing) {
+    return self::__construct($orig, $closing);
+  }
+  public function __construct ($orig, $closing) {
     $this->orig = $orig;
     $this->closing = $closing;
   }
@@ -493,6 +505,9 @@ class Diff
 {
   var $edits;
 
+  public function Diff($from_lines, $to_lines) {
+    return self::__construct($from_lines, $to_lines);
+  }
   /**
    * Constructor.
    * Computes diff between sequences of strings.
@@ -501,7 +516,7 @@ class Diff
    *      (Typically these are lines from a file.)
    * @param $to_lines array An array of strings.
    */
-  function Diff($from_lines, $to_lines) {
+  public function __construct($from_lines, $to_lines) {
     $eng = new _DiffEngine;
     $this->edits = $eng->diff($from_lines, $to_lines);
     //$this->_check($from_lines, $to_lines);
@@ -627,6 +642,9 @@ class Diff
 class MappedDiff
 extends Diff
 {
+  public function MappedDiff($from_lines, $to_lines, $mapped_from_lines, $mapped_to_lines) {
+    return self::__construct($from_lines, $to_lines, $mapped_from_lines, $mapped_to_lines);
+  }
   /**
    * Constructor.
    *
@@ -650,7 +668,7 @@ extends Diff
    * @param $mapped_to_lines array This array should
    *  have the same number of elements as $to_lines.
    */
-  function MappedDiff($from_lines, $to_lines,
+  public function __construct($from_lines, $to_lines,
             $mapped_from_lines, $mapped_to_lines) {
 
     assert(sizeof($from_lines) == sizeof($mapped_from_lines));
@@ -839,8 +857,11 @@ define('HWLDF_NBSP', "\xC2\xA0");     // utf-8 non-breaking space. // by nao-pon
 
 class _HWLDF_WordAccumulator {
   var $nbsp; // by nao-pon
+  public function _HWLDF_WordAccumulator ($options = array()) {
+    return self::__construct($options);
+  }
 //  function _HWLDF_WordAccumulator ()) {
-  function _HWLDF_WordAccumulator ($options = array()) { // by nao-pon
+  public function __construct($options = array()) { // by nao-pon
     $this->_lines = array();
     $this->_line = '';
     $this->_group = '';
@@ -900,7 +921,10 @@ class WordLevelDiff extends MappedDiff
 {
   var $_WordAccumulator_options; // by nao-pon
 
-  function WordLevelDiff ($orig_lines, $closing_lines) {
+  public function WordLevelDiff ($orig_lines, $closing_lines) {
+    return self::__construct($orig_lines, $closing_lines);
+  }
+  public function __construct($orig_lines, $closing_lines) {
     $this->_WordAccumulator_options['nbsp'] = '&nbsp;'; // by nao-pon
     list ($orig_words, $orig_stripped) = $this->_split($orig_lines);
     list ($closing_words, $closing_stripped) = $this->_split($closing_lines);
@@ -954,7 +978,10 @@ class WordLevelDiff extends MappedDiff
  */
 class UnifiedDiffFormatter extends DiffFormatter
 {
-    function UnifiedDiffFormatter($context_lines = 4) {
+    public function UnifiedDiffFormatter($context_lines = 4) {
+        return self::__construct($context_lines);
+    }
+    public function __construct($context_lines = 4) {
         $this->leading_context_lines = $context_lines;
         $this->trailing_context_lines = $context_lines;
     }
@@ -985,7 +1012,10 @@ class UnifiedDiffFormatter extends DiffFormatter
  */
 class TableDiffFormatter extends DiffFormatter
 {
-  function TableDiffFormatter() {
+  public function TableDiffFormatter() {
+    return self::__construct();
+  }
+  public function __construct() {
     $this->leading_context_lines = 2;
     $this->trailing_context_lines = 2;
   }

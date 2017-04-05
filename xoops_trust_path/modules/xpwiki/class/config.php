@@ -24,7 +24,12 @@ class XpWikiConfig
 	var $name, $page; // Page name
 	var $objs = array();
 
-	function XpWikiConfig(&$xpwiki, $name)
+	public function XpWikiConfig(&$xpwiki, $name)
+	{
+		return self::__construct($xpwiki, $name);
+	}
+
+	public function __construct(&$xpwiki, $name)
 	{
 		$this->root = & $xpwiki->root;
 		$this->cont = & $xpwiki->cont;
@@ -136,7 +141,12 @@ class XpWikiConfigTable
 	var $after  = array();	// Page contents (except table ones)
 	var $values = array();	// Table contents
 
-	function XpWikiConfigTable($title, $obj = NULL)
+	public function XpWikiConfigTable($title, $obj = NULL)
+	{
+		return self::__construct($title, $obj);
+	}
+
+	public function __construct($title, $obj = NULL)
 	{
 		if ($obj !== NULL) {
 			$this->title  = $obj->title;

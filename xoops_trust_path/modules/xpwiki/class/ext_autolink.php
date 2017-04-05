@@ -8,7 +8,11 @@ class XpWikiPukiExtAutoLink {
 	var $ext_autolinks;
 	var $rt_global;
 
-	function XpWikiPukiExtAutoLink (& $xpwiki, $rt_global) {
+	public function XpWikiPukiExtAutoLink (& $xpwiki, $rt_global) {
+		return self::__construct($xpwiki, $rt_global);
+	}
+
+	public function __construct(& $xpwiki, $rt_global) {
 		ini_set('mbstring.substitute_character', 'none');
 		$this->xpwiki = & $xpwiki;
 		$this->root = & $xpwiki->root;

@@ -31,7 +31,11 @@ class XpWikiInlineConverter {
 		$this->converters = $converters;
 	}
 
-	function XpWikiInlineConverter(& $xpwiki, $converters = NULL, $excludes = NULL) {
+	public function XpWikiInlineConverter(& $xpwiki, $converters = NULL, $excludes = NULL) {
+		return self::__construct($xpwiki, $converters, $excludes);
+	}
+
+	public function __construct(& $xpwiki, $converters = NULL, $excludes = NULL) {
 		static $filtersCache = array();
 
 		$this->func = & $xpwiki->func;
@@ -168,8 +172,12 @@ class XpWikiLink {
 	
 	protected $filter = array();
 
+	public function XpWikiLink(& $xpwiki, $start) {
+		return self::__construct($xpwiki, $start);
+	}
+
 	// Constructor
-	function XpWikiLink(& $xpwiki, $start) {
+	public function __construct(& $xpwiki, $start) {
 
 		$this->xpwiki = & $xpwiki;
 		$this->root = & $xpwiki->root;
@@ -279,8 +287,12 @@ class XpWikiLink_plugin extends XpWikiLink {
 	var $pattern;
 	var $plain, $param;
 
-	function XpWikiLink_plugin(& $xpwiki, $start) {
-		parent :: XpWikiLink($xpwiki, $start);
+	public function XpWikiLink_plugin(& $xpwiki, $start) {
+		return self::__construct($xpwiki, $start);
+	}
+
+	public function __construct(& $xpwiki, $start) {
+		parent :: __construct($xpwiki, $start);
 	}
 
 	function get_pattern() {
@@ -344,8 +356,12 @@ class XpWikiLink_easyref extends XpWikiLink {
 	var $pattern;
 	var $plain, $param;
 
-	function XpWikiLink_easyref(& $xpwiki, $start) {
-		parent :: XpWikiLink($xpwiki, $start);
+	public function XpWikiLink_easyref(& $xpwiki, $start) {
+		return self::__construct($xpwiki, $start);
+	}
+
+	public function __construct(& $xpwiki, $start) {
+		parent :: __construct($xpwiki, $start);
 	}
 
 	function get_pattern() {
@@ -379,8 +395,12 @@ EOD;
 
 // Footnotes
 class XpWikiLink_note extends XpWikiLink {
-	function XpWikiLink_note(& $xpwiki, $start) {
-		parent :: XpWikiLink($xpwiki, $start);
+	public function XpWikiLink_note(& $xpwiki, $start) {
+		return self::__construct($xpwiki, $start);
+	}
+
+	public function __construct(& $xpwiki, $start) {
+		parent :: __construct($xpwiki, $start);
 	}
 
 	function get_pattern() {
@@ -514,8 +534,12 @@ EOD;
 
 // URLs
 class XpWikiLink_url extends XpWikiLink {
-	function XpWikiLink_url(& $xpwiki, $start) {
-		parent :: XpWikiLink($xpwiki, $start);
+	public function XpWikiLink_url(& $xpwiki, $start) {
+		return self::__construct($xpwiki, $start);
+	}
+
+	public function __construct(& $xpwiki, $start) {
+		parent :: __construct($xpwiki, $start);
 	}
 
 	function get_pattern() {
@@ -552,8 +576,12 @@ EOD;
 
 // URLs i18n
 class XpWikiLink_url_i18n extends XpWikiLink {
-	function XpWikiLink_url_i18n(& $xpwiki, $start) {
-		parent :: XpWikiLink($xpwiki, $start);
+	public function XpWikiLink_url_i18n(& $xpwiki, $start) {
+		return self::__construct($xpwiki, $start);
+	}
+
+	public function __construct(& $xpwiki, $start) {
+		parent :: __construct($xpwiki, $start);
 	}
 
 	function get_pattern() {
@@ -617,7 +645,8 @@ EOD;
 		if ($filter && is_array($filter)) {
 			foreach($filter as $func) {
 				if (is_callable($func)) {
-					call_user_func($func, array(&$this, &$moreTag, &$rel, &$class, &$target, &$title, &$img));
+					$args = array(&$this, &$moreTag, &$rel, &$class, &$target, &$title, &$img);
+					call_user_func_array($func, array(&$args));
 				}
 			}
 		}
@@ -647,8 +676,12 @@ EOD;
 
 // URLs (InterWiki definition on "InterWikiName")
 class XpWikiLink_url_interwiki extends XpWikiLink {
-	function XpWikiLink_url_interwiki(& $xpwiki, $start) {
-		parent :: XpWikiLink($xpwiki, $start);
+	public function XpWikiLink_url_interwiki(& $xpwiki, $start) {
+		return self::__construct($xpwiki, $start);
+	}
+
+	public function __construct(& $xpwiki, $start) {
+		parent :: __construct($xpwiki, $start);
 	}
 
 	function get_pattern() {
@@ -683,8 +716,12 @@ EOD;
 
 // file: URL schemes
 class XpWikiLink_file extends XpWikiLink {
-	function XpWikiLink_filesys(& $xpwiki, $start) {
-		parent :: XpWikiLink($xpwiki, $start);
+	public function XpWikiLink_filesys(& $xpwiki, $start) {
+		return self::__construct($xpwiki, $start);
+	}
+
+	public function __construct(& $xpwiki, $start) {
+		parent :: __construct($xpwiki, $start);
 	}
 
 	function get_pattern() {
@@ -721,8 +758,12 @@ EOD;
 class XpWikiLink_mailto extends XpWikiLink {
 	var $is_image, $image;
 
-	function XpWikiLink_mailto(& $xpwiki, $start) {
-		parent :: XpWikiLink($xpwiki, $start);
+	public function XpWikiLink_mailto(& $xpwiki, $start) {
+		return self::__construct($xpwiki, $start);
+	}
+
+	public function __construct(& $xpwiki, $start) {
+		parent :: __construct($xpwiki, $start);
 	}
 
 	function get_pattern() {
@@ -755,8 +796,12 @@ EOD;
 class XpWikiLink_mailto_i18n extends XpWikiLink {
 	var $is_image, $image;
 
-	function XpWikiLink_mailto(& $xpwiki, $start) {
-		parent :: XpWikiLink($xpwiki, $start);
+	public function XpWikiLink_mailto(& $xpwiki, $start) {
+		return self::__construct($xpwiki, $start);
+	}
+
+	public function __construct(& $xpwiki, $start) {
+		parent :: __construct($xpwiki, $start);
 	}
 
 	function get_pattern() {
@@ -800,8 +845,12 @@ class XpWikiLink_interwikiname extends XpWikiLink {
 
 	var $otherObj = NULL;
 
-	function XpWikiLink_interwikiname(& $xpwiki, $start) {
-		parent :: XpWikiLink($xpwiki, $start);
+	public function XpWikiLink_interwikiname(& $xpwiki, $start) {
+		return self::__construct($xpwiki, $start);
+	}
+
+	public function __construct(& $xpwiki, $start) {
+		parent :: __construct($xpwiki, $start);
 	}
 
 	function get_pattern() {
@@ -870,8 +919,12 @@ EOD;
 class XpWikiLink_bracketname extends XpWikiLink {
 	var $anchor, $refer;
 
-	function XpWikiLink_bracketname(& $xpwiki, $start) {
-		parent :: XpWikiLink($xpwiki, $start);
+	public function XpWikiLink_bracketname(& $xpwiki, $start) {
+		return self::__construct($xpwiki, $start);
+	}
+
+	public function __construct(& $xpwiki, $start) {
+		parent :: __construct($xpwiki, $start);
 	}
 
 	function get_pattern() {
@@ -940,8 +993,12 @@ EOD;
 
 // WikiNames
 class XpWikiLink_wikiname extends XpWikiLink {
-	function XpWikiLink_wikiname(& $xpwiki, $start) {
-		parent :: XpWikiLink($xpwiki, $start);
+	public function XpWikiLink_wikiname(& $xpwiki, $start) {
+		return self::__construct($xpwiki, $start);
+	}
+
+	public function __construct(& $xpwiki, $start) {
+		parent :: __construct($xpwiki, $start);
 	}
 
 	function get_pattern() {
@@ -970,10 +1027,14 @@ class XpWikiLink_autolink extends XpWikiLink {
 	var $auto;
 	var $auto_a; // alphabet only
 
-	function XpWikiLink_autolink(& $xpwiki, $start) {
+	public function XpWikiLink_autolink(& $xpwiki, $start) {
+		return self::__construct($xpwiki, $start);
+	}
+
+	public function __construct(& $xpwiki, $start) {
 		//		global $autolink;
 
-		parent :: XpWikiLink($xpwiki, $start);
+		parent :: __construct($xpwiki, $start);
 
 		if (!$this->root->autolink || !is_file($this->cont['CACHE_DIR'].$this->cont['PKWK_AUTOLINK_REGEX_CACHE']))
 			return;
@@ -1010,8 +1071,12 @@ class XpWikiLink_autolink extends XpWikiLink {
 }
 
 class XpWikiLink_autolink_a extends XpWikiLink_autolink {
-	function XpWikiLink_autolink_a(& $xpwiki, $start) {
-		parent :: XpWikiLink_autolink($xpwiki, $start);
+	public function XpWikiLink_autolink_a(& $xpwiki, $start) {
+		return self::__construct($xpwiki, $start);
+	}
+
+	public function __construct(& $xpwiki, $start) {
+		parent :: __construct($xpwiki, $start);
 	}
 
 	function get_pattern() {
@@ -1026,10 +1091,14 @@ class XpWikiLink_autoalias extends XpWikiLink {
 	var $auto_a; // alphabet only
 	var $alias;
 
-	function XpWikiLink_autoalias(& $xpwiki, $start) {
+	public function XpWikiLink_autoalias(& $xpwiki, $start) {
+		return self::__construct($xpwiki, $start);
+	}
+
+	public function __construct(& $xpwiki, $start) {
 		//		global $autoalias, $aliaspage;
 
-		parent :: XpWikiLink($xpwiki, $start);
+		parent :: __construct($xpwiki, $start);
 
 		if (!$this->root->autoalias || !is_file($this->cont['CACHE_DIR'].$this->cont['PKWK_AUTOALIAS_REGEX_CACHE']) || $this->page === $this->root->aliaspage) {
 			return;
@@ -1067,11 +1136,14 @@ class XpWikiLink_autoalias extends XpWikiLink {
 }
 
 class XpWikiLink_autoalias_a extends XpWikiLink_autoalias {
-	function XpWikiLink_autoalias_a(& $xpwiki, $start) {
-		parent :: XpWikiLink_autoalias($xpwiki, $start);
+	public function XpWikiLink_autoalias_a(& $xpwiki, $start) {
+		return self::__construct($xpwiki, $start);
+	}
+
+	public function __construct(& $xpwiki, $start) {
+		parent :: __construct($xpwiki, $start);
 	}
 	function get_pattern() {
 		return isset ($this->auto_a) ? '('.$this->auto_a.')' : FALSE;
 	}
 }
-?>

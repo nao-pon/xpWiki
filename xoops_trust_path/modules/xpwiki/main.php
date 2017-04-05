@@ -9,6 +9,8 @@ if (
 	exit();
 }
 
+$errLevel = error_reporting();
+
 $mytrustdirname = basename( dirname( __FILE__ ) ) ;
 $mytrustdirpath = dirname( __FILE__ ) ;
 
@@ -40,6 +42,8 @@ if ($xpwiki->root->userinfo['admin']) {
 		$xpwiki->html = '<p style="color:red;font-weight:bold;">' . join('<br />', $xpwiki->admin_messages).'</p><hr />'.$xpwiki->html;
 	}
 }
+
+error_reporting($errLevel);
 
 if ($xpwiki->runmode === 'xoops') {
 

@@ -14,7 +14,11 @@ class xpwiki_plugin {
 	var $name;
 	var $msg;
 
-	function xpwiki_plugin (&$func) {
+	public function xpwiki_plugin (&$func) {
+		return self::__construct($func);
+	}
+
+	public function __construct(&$func) {
 
 		$this->xpwiki = & $func->xpwiki;
 		$this->root   = & $func->root;

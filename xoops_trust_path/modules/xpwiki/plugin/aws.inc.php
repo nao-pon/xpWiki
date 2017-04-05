@@ -33,8 +33,12 @@ class xpwiki_plugin_aws extends xpwiki_plugin {
 
 	}
 
-	function xpwiki_plugin_aws(& $func) {
-		parent::xpwiki_plugin($func);
+	public function xpwiki_plugin_aws(& $func) {
+		return self::__construct($func);
+	}
+
+	public function __construct(& $func) {
+		parent::__construct($func);
 
 		// Amazon associate ID
 		if (! $this->root->amazon_AssociateTag) {

@@ -33,8 +33,12 @@ class xpwiki_plugin_ref extends xpwiki_plugin {
 	var $flg_lightbox_loaded = false;
 	var $lvar = array();
 
-	function xpwiki_plugin_ref(& $func) {
-		parent::xpwiki_plugin($func);
+	public function xpwiki_plugin_ref(& $func) {
+		return self::__construct($func);
+	}
+
+	public function __construct(& $func) {
+		parent::__construct($func);
 		$this->conf['imgAlts'] = explode(',', $this->root->ref_img_alt);
 		$this->conf['imgTitles'] = explode(',', $this->root->ref_img_title);
 		$this->conf['imgAlts'] = array_map('trim', $this->conf['imgAlts']);

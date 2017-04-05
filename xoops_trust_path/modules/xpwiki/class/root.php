@@ -138,7 +138,10 @@ class XpWikiRoot {
 	var $pagecache_profiles;
 	var $plugin_stack;
 
-	function xpwiki_root() {
+	public function xpwiki_root() {
+		return self::__construct();
+	}
+	public function __construct() {
 
 	}
 

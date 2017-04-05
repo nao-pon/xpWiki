@@ -31,7 +31,11 @@ class XpWiki {
 
 	var $admin_messages = array();
 
-	function XpWiki ($mydirname, $moddir='modules/') {
+	public function XpWiki($mydirname, $moddir='modules/') {
+		return self::__construct($mydirname, $moddir);
+	}
+
+	public function __construct($mydirname, $moddir='modules/') {
 
 		static $pid;
 

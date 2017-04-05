@@ -94,8 +94,12 @@ EOD;
 		);
 	}
 
-	function xpwiki_plugin_pcomment(& $xpwiki) {
-		parent::xpwiki_plugin($xpwiki);
+	public function xpwiki_plugin_pcomment(& $func) {
+		return  self::__construct($func);
+	}
+
+	public function __construct(& $func) {
+		parent::__construct($func);
 		$this->conf['options_default'] = array(
 			'noname'  => FALSE,
 			'nodate'  => FALSE,

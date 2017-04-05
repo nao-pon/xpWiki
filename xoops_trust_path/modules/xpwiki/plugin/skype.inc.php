@@ -6,8 +6,12 @@
  */
 
 class xpwiki_plugin_skype extends xpwiki_plugin {
-	function xpwiki_plugin_skype($func) {
-		parent::xpwiki_plugin($func);
+	public function xpwiki_plugin_skype(& $func) {
+		return self::__construct($func);
+	}
+
+	public function __construct($func) {
+		parent::__construct($func);
 		$func->add_js_head('//download.skype.com/share/skypebuttons/js/skypeCheck.js');
 	}
 	

@@ -13,7 +13,11 @@ class XpWikiFunc extends XpWikiXoopsWrapper {
 	var $cont;
 	var $pid;
 
-	function XpWikiFunc (& $xpwiki) {
+	public function XpWikiFunc (& $xpwiki) {
+		return self::__construct($xpwiki);
+	}
+
+	public function __construct(& $xpwiki) {
 		$this->xpwiki = & $xpwiki;
 		$this->root  = & $xpwiki->root;
 		$this->cont = & $xpwiki->cont;
@@ -1430,6 +1434,7 @@ class XpWikiFunc extends XpWikiXoopsWrapper {
 	function return_bytes($val) {
 		$val = trim($val);
 		$last = strtolower($val{strlen($val)-1});
+		$val = (int)$val;
 		switch($last) {
 			// 'G' は、PHP 5.1.0 より有効となる
 			case 'g':

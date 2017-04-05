@@ -31,8 +31,12 @@ class xpwiki_plugin_isbn extends xpwiki_plugin {
 		$this->config['conflink'] = ($this->root->userinfo['admin'])? ' ( <a href="'.$this->cont['HOME_URL'].'?cmd=conf#amazon_AssociateTag" target="_blank">confirm with this link</a> )' : '';
 	}
 
-	function xpwiki_plugin_isbn(& $func) {
-		parent::xpwiki_plugin($func);
+	public function xpwiki_plugin_isbn(& $func) {
+		return self::__construct($func);
+	}
+
+	public function __construct(& $func) {
+		parent::__construct($func);
 
 		// Amazon associate ID
 		if (! $this->root->amazon_AssociateTag) {

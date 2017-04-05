@@ -36,7 +36,12 @@ class XpWikiAttachFile
 	var $dbinfo = array();
 	private $pluginAttach;
 
-	function XpWikiAttachFile(& $xpwiki, $page, $file, $age=0, $pgid=0)
+	public function XpWikiAttachFile(& $xpwiki, $page, $file, $age=0, $pgid=0)
+	{
+		return self::__construct($xpwiki, $page, $file, $age, $pgid);
+	}
+	
+	public function __construct(& $xpwiki, $page, $file, $age=0, $pgid=0)
 	{
 		$this->xpwiki =& $xpwiki;
 		$this->root   =& $xpwiki->root;
@@ -993,7 +998,12 @@ class XpWikiAttachFiles
 	var $start = 0;
 	var $order = "";
 
-	function XpWikiAttachFiles(& $xpwiki, $page)
+	public function XpWikiAttachFiles(& $xpwiki, $page)
+	{
+		return self::__construct($xpwiki, $page);
+	}
+
+	public function __construct(& $xpwiki, $page)
 	{
 		$this->xpwiki =& $xpwiki;
 		$this->root   =& $xpwiki->root;
@@ -1217,7 +1227,12 @@ class XpWikiAttachPages
 	var $mode = "";
 	var $err = 0;
 
-	function XpWikiAttachPages(& $xpwiki, $page='',$age=NULL,$isbn=true,$max=50,$start=0,$fromall=FALSE,$f_order="time",$mode="")
+	public function XpWikiAttachPages(& $xpwiki, $page='',$age=NULL,$isbn=true,$max=50,$start=0,$fromall=FALSE,$f_order="time",$mode="")
+	{
+		return self::__construct($xpwiki, $page, $age, $isbn, $max, $start, $fromall ,$f_order, $mode);
+	}
+
+	public function __construct(& $xpwiki, $page='',$age=NULL,$isbn=true,$max=50,$start=0,$fromall=FALSE,$f_order="time",$mode="")
 	{
 		$this->xpwiki =& $xpwiki;
 		$this->root   =& $xpwiki->root;
