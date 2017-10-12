@@ -458,7 +458,7 @@ class XpWikiPukiWikiFunc extends XpWikiBaseFunc {
 							$pats[] = '($file === \''.$target.'\')';
 						}
 					}
-					$func = function($file) { eval('$res = ('.join(' || ', $pats).');'); return $res; };
+					$func = function($file) use ($pats) { eval('$res = ('.join(' || ', $pats).');'); return $res; };
 					while($file = readdir($dir_h)) {
 						if ($func($file)) {
 							if ($file{0} !== '.') unlink($dir . $file);
