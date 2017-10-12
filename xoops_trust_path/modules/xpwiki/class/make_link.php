@@ -654,7 +654,7 @@ EOD;
 			$_name = str_replace('&amp;', '&', $this->name);
 			$this->name = $this->func->bitly($_name);
 			$this->alias = $this->func->htmlspecialchars($this->name);
-			if ($this->root->bitly_clickable === 2 && $_name !== $this->name && !($this->root->bitly_domain_internal && strpos($this->name, 'http://' . $this->root->bitly_domain_internal) === 0)) {
+			if ($this->root->bitly_clickable === 2 && $_name !== $this->name && !($this->root->bitly_domain_internal && $this->host === $this->root->bitly_domain_internal)) {
 				$moreTag = '<span class="modest"> (' . $this->func->htmlspecialchars($this->host) . ')</span>';
 			}
 		}

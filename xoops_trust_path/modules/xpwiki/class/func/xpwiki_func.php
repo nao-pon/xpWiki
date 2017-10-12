@@ -2926,9 +2926,9 @@ EOD;
 	function bitly($url, $returnEmpty = FALSE, $cache = 864000) {
 		$ret = $returnEmpty? '' : $url;
 		if ($this->root->bitly_login && $this->root->bitly_apiKey) {
-			if (strtolower(substr($url, 0, 14)) === 'http://bit.ly/'
-			|| ($this->root->bitly_domain_internal && preg_match('#^http://'.preg_quote($this->root->bitly_domain_internal, '#').'/#i', $url))
-			|| ($this->root->bitly_domain_external && preg_match('#^http://'.preg_quote($this->root->bitly_domain_external, '#').'/#i', $url))
+			if (preg_match('#^https?://bit.ly/#i', $url)
+			|| ($this->root->bitly_domain_internal && preg_match('#^https?://'.preg_quote($this->root->bitly_domain_internal, '#').'/#i', $url))
+			|| ($this->root->bitly_domain_external && preg_match('#^https?://'.preg_quote($this->root->bitly_domain_external, '#').'/#i', $url))
 			    ) {
 				$ret = $url;
 			} else if (! $cache || ! $ret = $this->cache_get_db($sha1 = sha1($url), 'bitly', false, true)) {
@@ -2950,11 +2950,11 @@ EOD;
 					$q .= '&domain=' . urlencode($domain);
 				}
 				$res = $this->http_request($q);
-				if ($res['rc'] === 200 && substr($res['data'], 0, 7) === 'http://')	{
+				if ($res['rc'] === 200 && preg_match('#^https?://#i', $res['data']))	{
 					$ret = trim($res['data']);
 					if ($domain && $domain !== 'bit.ly') {
 						// domain を指定しても bit.ly で返ってくることがある？
-						$ret = str_replace('http://bit.ly', 'http://'.$domain, $ret);
+						$ret = preg_replace('#^(https?://)bit\.ly#i', '$1'.$domain, $ret);
 					}
 					if ($cache) {
 						$this->cache_save_db($ret, 'bitly', $cache, $sha1);
