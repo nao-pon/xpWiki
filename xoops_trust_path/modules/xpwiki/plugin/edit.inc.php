@@ -121,7 +121,7 @@ EOD;
 			// Add target="_blank"
 			$postdata = preg_replace_callback(
 						'/(<script.*?<\/script>)|(<a[^>]+)>/isS' ,
-						create_function('$arr', 'return $arr[1]? $arr[1] : ((strpos($arr[2], \'target=\') === FALSE)? "$arr[2] target=\"_blank\">" : "$arr[0]");') ,
+						function($arr){ return $arr[1]? $arr[1] : ((strpos($arr[2], 'target=') === FALSE)? ($arr[2].' target="_blank">') : $arr[0]); },
 						$postdata
 					);
 			if (isset($this->root->vars['ajax'])) {

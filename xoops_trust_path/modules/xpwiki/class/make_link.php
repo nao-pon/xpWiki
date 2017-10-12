@@ -15,9 +15,9 @@ class XpWikiInlineConverter {
 
 		if (!isset ($clone_func)) {
 			if (version_compare(PHP_VERSION, '5.0.0', '<')) {
-				$clone_func = create_function('$a', 'return $a;');
+				$clone_func = function($a){ return $a; };
 			} else {
-				$clone_func = create_function('$a', 'return clone $a;');
+				$clone_func = function($a) { return clone $a; };
 			}
 		}
 		return $clone_func ($obj);

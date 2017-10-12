@@ -232,13 +232,13 @@ class XpWikiPukiExtAutoLink {
 		if ($this->ext_autolink_pat) {
 			if (strpos($this->ext_autolink_pat, '[URL_ENCODE]') !== false) {
 				$this->ext_autolink_replace['from'] = '[URL_ENCODE]';
-				$this->ext_autolink_replace['func'] = create_function('$key', 'return urlencode($key);');
+				$this->ext_autolink_replace['func'] = function($key) { return urlencode($key); };
 			} else if (strpos($this->ext_autolink_pat, '[WIKI_ENCODE]') !== false) {
 				$this->ext_autolink_replace['from'] = '[WIKI_ENCODE]';
-				$this->ext_autolink_replace['func'] = create_function('$key', 'return XpWikiFunc::encode($key);');
+				$this->ext_autolink_replace['func'] = function($key) { return XpWikiFunc::encode($key); };
 			} else if (strpos($this->ext_autolink_pat, '[EWORDS_ENCODE]') !== false) {
 				$this->ext_autolink_replace['from'] = '[EWORDS_ENCODE]';
-				$this->ext_autolink_replace['func'] = create_function('$key', 'return str_replace(array(\'%\',\'.\'), array(\'\',\'2E\'), urlencode($key));');
+				$this->ext_autolink_replace['func'] = function($key) { return str_replace(array('%','.'), array('','2E'), urlencode($key)); };
 			}
 		}
 

@@ -282,7 +282,7 @@ function guiedit_make_line_rules($line) {
 	static $pattern, $replace;
 
 	if (!isset($pattern)) {
-		$pattern = array_map(create_function('$a', 'return \'/\' . $a . \'/\';'), array_keys($guiedit_line_rules));
+		$pattern = array_map(function($a) { return '/' . $a . '/'; }, array_keys($guiedit_line_rules));
 		$replace = array_values($guiedit_line_rules);
 		unset($guiedit_line_rules);
 	}
@@ -345,9 +345,9 @@ class InlineConverterEx {
 
 		if (!isset ($clone_func)) {
 			if (version_compare(PHP_VERSION, '5.0.0', '<')) {
-				$clone_func = create_function('$a', 'return $a;');
+				$clone_func = function($a) { return $a; };
 			} else {
-				$clone_func = create_function('$a', 'return clone $a;');
+				$clone_func = function($a) { return clone $a; };
 			}
 		}
 		return $clone_func ($obj);
@@ -367,17 +367,17 @@ class InlineConverterEx {
 
 		// インライン・プラグイン
 		$pattern = '/&amp;([0-9a-zA-Z_-]+)(?:\(((?:(?!\)[;{]).)*)\))?(?:\{((?:(?R)|(?!};).)*)\})?;/';
-		$line = preg_replace_callback($pattern, array(&$this, 'convert_plugin'), $line);
+		$line = preg_replace_callback($pattern, array($this, 'convert_plugin'), $line);
 
 		// ルールの変換
 		$line = guiedit_make_line_rules($line);
 
 		// 文字サイズの変換
 		$pattern = "/<span\s(style=\"font-size:(\d+)px|class=\"size([1-7])).*?>/";
-		$line = preg_replace_callback($pattern, array(&$this, 'convert_size'), $line);
+		$line = preg_replace_callback($pattern, array($this, 'convert_size'), $line);
 		// 色の変換
 		$pattern = "/<sapn\sstyle=\"color:([#0-9a-z]+)(; background-color:([#0-9a-z]+))?\">/";
-		$line = preg_replace_callback($pattern, array(&$this, 'convert_color'), $line);
+		$line = preg_replace_callback($pattern, array($this, 'convert_color'), $line);
 
 		// リンク
 		if ($link) {

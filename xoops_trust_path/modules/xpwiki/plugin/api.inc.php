@@ -58,7 +58,8 @@ class xpwiki_plugin_api extends xpwiki_plugin {
 						}
 					}
 					// Strip $base
-					$pages = array_map(create_function('$page','return substr($page,'.(strlen($base)+1).');'), $pages);
+					$_baseLen = strlen($base) + 1;
+					$pages = array_map(function($page) use($_baseLen) { return substr($page, $_baseLen); }, $pages);
 				} else {
 					// Merge with all aliases
 					$pages = array_merge($pages, $all_aliases);

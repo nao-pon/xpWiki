@@ -549,7 +549,7 @@ class XpWikiTracker_field_format extends XpWikiTracker_field
 		parent::XpWikiTracker_field($xpwiki, $field, $base, $refer, $config);
 
 		foreach ($this->config->get($this->name) as $option) {
-			list($key,$style,$format) = array_pad(array_map(create_function('$a','return trim($a);'),$option),3,'');
+			list($key,$style,$format) = array_pad(array_map('trim',$option),3,'');
 			if ($style != '') {
 				$this->styles[$key] = $style;
 			}
@@ -684,7 +684,7 @@ class XpWikiTracker_field_radio extends XpWikiTracker_field_format
 
 		if (! isset($options[$name])) {
 			$values = array_map(
-				create_function('$array', 'return $array[0];'),
+				function($array) { return $array[0]; },
 				$this->config->get($name)
 			);
 			$options[$name] = array_flip($values);	// array('value0' => 0, 'value1' => 1, ...)

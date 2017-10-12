@@ -2349,21 +2349,20 @@ EOD;
 
 		// TextArea id
 		if (strpos($body, '<textarea') !== FALSE) {
-
-			$_func = <<<EOD
-static \$i = 0;
-if (strpos(\$match[2], ' id="') !== FALSE) {
-	if (strpos(\$match[2], ' id="{$this->root->mydirname}:') === FALSE) {
-		\$match[2] = str_replace(' id="', ' id="{$this->root->mydirname}:', \$match[2]);
-	}
-	return \$match[1] . \$match[2] . '>';
-} else {
-	\$i++;
-	\$id = '{$this->root->mydirname}:xpwiki_txtarea_' . \$i;
-	return \$match[1] . \$match[2] . ' id="' . \$id . '">';
-}
-EOD;
-			$body = preg_replace_callback('/(<textarea)([^>]*?)>/', create_function('$match', $_func), $body);
+			$_mydirname = $this->root->mydirname;
+			$body = preg_replace_callback('/(<textarea)([^>]*?)>/', function($match) use($_mydirname) {
+				static $i = 0;
+				if (strpos($match[2], ' id="') !== FALSE) {
+					if (strpos($match[2], ' id="'.$_mydirname.':') === FALSE) {
+						$match[2] = str_replace(' id="', ' id="'.$_mydirname.':', $match[2]);
+					}
+					return $match[1] . $match[2] . '>';
+				} else {
+					$i++;
+					$id = $_mydirname.':xpwiki_txtarea_' . $i;
+					return $match[1] . $match[2] . ' id="' . $id . '">';
+				}
+			}, $body);
 		}
 	}
 
@@ -2812,29 +2811,23 @@ EOD;
 		$keys = $this->get_search_words(array_keys($keys), TRUE);
 		$id = 0;
 		foreach ($keys as $key=>$pattern) {
-			$s_key    = $this->htmlspecialchars($key);
-			$pattern  = '/' .
-				'<(textarea|script|style)[^>]*>.*?<\/\\1>' .	// Ignore textareas
+			$_pattern  = '/' .
+				'<(?:textarea|script|style)[^>]*>.*?<\/\\1>' .	// Ignore textareas
 				'|' . '<[^>]*>' .			// Ignore tags
 				'|' . ( preg_match('/^(&?#?[\d]+|#?[\d]+;|&#?|#|;)$/', $key)?
 				'&[^;]+;' :					// Ignore entities
 				'&#[^\d]+;' ) .				// Ignore entities (Not numerical entities only)
 				'|' . '(' . $pattern . ')' .		// $matches[1]: Regex for a search word
 				'/sS';
-			$decorate_Nth_word = create_function(
-				'$matches',
-				'return (isset($matches[2])) ? ' .
-					'\'<strong class="word' .
-						$id .
-					'">\' . $matches[2] . \'</strong>\' : ' .
-					'$matches[0];'
-			);
+			$decorate_Nth_word =function($matches) use($id) {
+				return (isset($matches[1])) ? '<strong class="word' . $id . '">' . $matches[1] . '</strong>' : $matches[0];
+			};
 			if (is_array($body)) {
 				foreach ($body as $key => $val) {
-					$body[$key] = preg_replace_callback($pattern, $decorate_Nth_word, $body[$key]);
+					$body[$key] = preg_replace_callback($_pattern, $decorate_Nth_word, $body[$key]);
 				}
 			} else {
-				$body  = preg_replace_callback($pattern, $decorate_Nth_word, $body);
+				$body  = preg_replace_callback($_pattern, $decorate_Nth_word, $body);
 			}
 			++$id;
 		}

@@ -191,9 +191,9 @@ class xpwiki_plugin_calendar_viewer extends xpwiki_plugin {
 
 			$src = $this->func->get_source($page);
 
-			$src = preg_replace_callback('/^\*{1,5}/m', create_function('$match',
-					'return substr($match[0] . str_repeat("*", ('.$min_header.' - 1)), 0, 5);'
-					), $src);
+			$src = preg_replace_callback('/^\*{1,5}/m', function($match) use($min_header) {
+						return substr($match[0] . str_repeat("*", ($min_header - 1)), 0, 5);
+					}, $src);
 
 			if ($this->conf['Use_boxdate']) {
 				$src = preg_replace('/^#boxdate(\(.*?\))?\n/m', '', $src, 1);

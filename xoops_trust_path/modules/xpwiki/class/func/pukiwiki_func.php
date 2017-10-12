@@ -458,7 +458,7 @@ class XpWikiPukiWikiFunc extends XpWikiBaseFunc {
 							$pats[] = '($file === \''.$target.'\')';
 						}
 					}
-					$func = create_function('$file', 'return ('.join(' || ', $pats).');');
+					$func = function($file) { eval('$res = ('.join(' || ', $pats).');'); return $res; };
 					while($file = readdir($dir_h)) {
 						if ($func($file)) {
 							if ($file{0} !== '.') unlink($dir . $file);
@@ -1580,16 +1580,15 @@ class XpWikiPukiWikiFunc extends XpWikiBaseFunc {
 	{
 		static $init, $mb_convert_kana, $pre, $post, $quote = '/';
 
+		$enc = $this->cont['SOURCE_ENCODING'];
 		if (! isset($init)) {
 			// function: mb_convert_kana() is for Japanese code only
 			if ($this->cont['LANG'] === 'ja' && function_exists('mb_convert_kana')) {
-				$mb_convert_kana = create_function('$str, $option',
-					'return mb_convert_kana($str, $option, "'.$this->cont["SOURCE_ENCODING"].'");');
+				$mb_convert_kana = function($str, $option) use($enc) { return mb_convert_kana($str, $option, $enc); };
 			} else {
-				$mb_convert_kana = create_function('$str, $option',
-					'return $str;');
+				$mb_convert_kana = function($str, $option) { return $str; };
 			}
-			if ($this->cont['SOURCE_ENCODING'] === 'EUC-JP') {
+			if ($enc === 'EUC-JP') {
 				// Perl memo - Correct pattern-matching with EUC-JP
 				// http://www.din.or.jp/~ohzaki/perl.htm#JP_Match (Japanese)
 				$pre  = '(?<!\x8F)';
@@ -1611,12 +1610,12 @@ class XpWikiPukiWikiFunc extends XpWikiBaseFunc {
 
 			// Normalize: ASCII letters = to single-byte. Others = to Zenkaku and Katakana
 			$word_nm = $mb_convert_kana($word, 'aKCV');
-			$nmlen   = mb_strlen($word_nm, $this->cont['SOURCE_ENCODING']);
+			$nmlen   = mb_strlen($word_nm, $enc);
 
 			// Each chars may be served ...
 			$chars = array();
 			for ($pos = 0; $pos < $nmlen; $pos++) {
-				$char = mb_substr($word_nm, $pos, 1, $this->cont['SOURCE_ENCODING']);
+				$char = mb_substr($word_nm, $pos, 1, $enc);
 
 				// Just normalized one? (ASCII char or Zenkaku-Katakana?)
 				$or = array(preg_quote($do_escape ? $this->htmlspecialchars($char) : $char, $quote));
@@ -3408,8 +3407,8 @@ EOD;
 
 
 		// Set skin functions
-		$navigator = create_function('&$xpwiki, $key, $value = \'\', $javascript = \'\', $withIcon = FALSE, $x = 20, $y = 20',    'return XpWikiFunc::skin_navigator($xpwiki, $key, $value, $javascript, $withIcon, $x, $y);');
-		$toolbar   = create_function('&$xpwiki, $key, $x = 20, $y = 20, $javascript = \'\'', 'return XpWikiFunc::skin_toolbar($xpwiki, $key, $x, $y, $javascript);');
+		$navigator = function($xpwiki, $key, $value = '', $javascript = '', $withIcon = FALSE, $x = 20, $y = 20) { return XpWikiFunc::skin_navigator($xpwiki, $key, $value, $javascript, $withIcon, $x, $y); };
+		$toolbar   = function($xpwiki, $key, $x = 20, $y = 20, $javascript = '') { return XpWikiFunc::skin_toolbar($xpwiki, $key, $x, $y, $javascript); };
 		$ajax_edit_js = ($this->root->use_ajax_edit)? ' onclick="return xpwiki_ajax_edit(\''.$this->htmlspecialchars($r_page, ENT_QUOTES).'\');"' : '';
 
 		// Set $_LINK for skin
@@ -3921,8 +3920,9 @@ EOD;
 		static $pattern, $replace;
 
 		if (! isset($pattern[$this->xpwiki->pid])) {
-			$pattern[$this->xpwiki->pid] = array_map(create_function('$a',
-				'return \'/\' . $a . \'/\';'), array_keys($this->root->line_rules));
+			$pattern[$this->xpwiki->pid] = array_map(
+				function($a) { return '/' . $a . '/'; },
+				array_keys($this->root->line_rules));
 			$replace[$this->xpwiki->pid] = array_values($this->root->line_rules);
 			unset($this->root->line_rules);
 		}

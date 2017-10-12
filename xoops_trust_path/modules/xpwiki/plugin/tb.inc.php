@@ -147,8 +147,7 @@ class xpwiki_plugin_tb extends xpwiki_plugin {
 		foreach ($this->func->tb_get($this->func->tb_get_filename($page)) as $arr) {
 			// _utime_, title, excerpt, _blog_name_
 			array_shift($arr); // Cut utime
-			list ($url, $title, $excerpt) = array_map(
-				create_function('$a', 'return $this->func->htmlspecialchars($a);'), $arr);
+			list ($url, $title, $excerpt) = array_map($this->func->htmlspecialchars, $arr);
 			$items .= <<<EOD
 
    <item>
@@ -208,7 +207,7 @@ EOD;
 		$data = $this->func->tb_get($this->func->tb_get_filename($page));
 
 		// Sort: The first is the latest
-		usort($data, create_function('$a,$b', 'return $b[0] - $a[0];'));
+		usort($data, function($a, $b) { return $b[0] - $a[0]; });
 
 		$tb_body = '';
 		foreach ($data as $x) {

@@ -119,26 +119,6 @@ if ($hasComments) {
 	}
 }
 
-//$body = preg_replace('/[a-zA-Z0-9]/', '$0&#8203;', $body);
-//$body = HypCommonFunc::html_wordwrap($body);
-
-/*
-$body = preg_replace_callback('/(<pre[^>]*?>)(.*?)(</pre>)/',
-create_function('$arg',
-	'$arg[2] = preg_replace_callback(\'/(<[^>]*>)|([!=\x23-\x3b\x3f-\x7e])/isS\',
-	create_function(\\\'$arg\\\',
-		\\\'if ($arg[1]) { return $arg[1]; } else { return $arg[2] . "&#8203;";}\\\'
-	),$arg[2]);'
-), $body);
-*/
-
-/*
-$body = preg_replace_callback('/(<(script|textarea|style|option).*?<\/\\2>|<[^>]*>)|((?>&#?[a-z0-9]+;|\(\([eis]:[0-9a-f]{4}\)\)|[!=\x23-\x3b\x3f-\x7e]){36})/isS',
-create_function('$arg',
-	'if ($arg[1]) { return $arg[1]; } else { return $arg[3] . "&#8203;";}'
-),$body);
-*/
-
 $js = <<<EOD
 <script>
 if (! Prototype.Browser.IE) {
