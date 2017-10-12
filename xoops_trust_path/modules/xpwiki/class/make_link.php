@@ -664,10 +664,10 @@ EOD;
 	public static function amazonAssociatesLink(&$args) {
 		$self =& $args[0];
 		$moreTag =& $args[1];
-		if ($self->root->amazon_AssociateTag && strpos($self->name, 'http://www.amazon.co.jp/') === 0) {
+		if ($self->root->amazon_AssociateTag && $self->host === 'www.amazon.co.jp') {
 			if (preg_match('#/dp/([^/]+?)/#', $self->name, $m)) {
-				$self->name = 'http://www.amazon.co.jp/gp/product/'.$m[1].'/ref=as_li_ss_tl?ie=UTF8&camp=247&creative=7399&creativeASIN='.$m[1].'&linkCode=as2&tag=' . $self->root->amazon_AssociateTag;
-				$moreTag = '<img src="http://ir-jp.amazon-adsystem.com/e/ir?t='.$self->root->amazon_AssociateTag.'&l=as2&o=9&a='.$m[1].'" width="1" height="1" border="0" alt="" style="border:none !important; margin:0px !important;" />';
+				$self->name = 'https://www.amazon.co.jp/gp/product/'.$m[1].'/ref=as_li_ss_tl?ie=UTF8&camp=247&creative=7399&creativeASIN='.$m[1].'&linkCode=as2&tag=' . $self->root->amazon_AssociateTag;
+				$moreTag = '<img src="https://ir-jp.amazon-adsystem.com/e/ir?t='.$self->root->amazon_AssociateTag.'&l=as2&o=9&a='.$m[1].'" width="1" height="1" border="0" alt="" style="border:none !important; margin:0px !important;" />';
 			}
 		}
 		unset($self, $moreTag);
