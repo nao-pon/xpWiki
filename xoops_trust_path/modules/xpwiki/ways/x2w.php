@@ -68,7 +68,7 @@ function Send_xml($postdata)
 function xhtml2wiki($source)
 {
 	if (DEBUG) {
-		error_reporting(E_ALL);
+		error_reporting(-1);
 	} else {
 		error_reporting(0);
 	}
@@ -90,37 +90,38 @@ function xhtml2wiki($source)
 // 変換クラス
 class XHTML2Wiki
 {
-	var $body;
-	var $text;
-	var $parent_div;
-	var $div_level;
-	var $level_array;
-	var $list_level;
-	var $last_div;
-	var $basicStyles;
-	var $comment;
-	var $tempvars = array();
-	var $SavedOutputLine;
-	var $foundDT;
+	private $body;
+	private $text;
+	private $parent_div;
+	private $div_level;
+	private $level_array;
+	private $list_level;
+	private $last_div;
+	private $basicStyles;
+	private $comment;
+	private $tempvars = array();
+	private $SavedOutputLine;
+	private $foundDT;
 
 	//	初期化
-	function XHTML2Wiki() {
+	public function __construct() {
 		$this->parent_div = array('');
 		$this->level_array = array();
 		$this->div_level = 0;
 		$this->list_level = 0;
 		$this->last_div = '';
+		$this->body = array();
 		$this->text = '';
 		$this->SavedOutputLine = '';
 		$this->foundDT = array();
 	}
 
 	// 変換メソッド
-	function Convert($source) {
-		$this->body = '';
+	public function Convert($source) {
+		$this->body = array();
 
 		// タグを小文字に統一
-		$source = preg_replace('#</?[a-zA-Z]+#e', 'strtolower("$0")', $source);
+		$source = preg_replace_callback('#</?[a-zA-Z]+#', function($m){ return strtolower($m[0]); }, $source);
 
 		$source = preg_replace('#(<br[^>]*?>)\n#s', '$1', $source);
 		$source = preg_replace('#(<p>&nbsp;</p>\s*)+$#s', '', $source);
@@ -129,8 +130,6 @@ class XHTML2Wiki
 		$source = preg_replace('#(</(?:form|table|tbody|thead|tfoot|tr|colgroup|p|div|h[1-6]|pre|ol|ul|li|dl|dt|dd|td|th|blockquote)>)\s*#s', "$1\n", $source);
 		$source = preg_replace('#(<blockquote[^>]*?>)\s*#s', "$1\n", $source);
 		$source = preg_replace('#\s*(</blockquote>)#s', "\n$1", $source);
-
-		//debug($source);
 
 		// １行ずつに分割
 		$source = explode("\n", $source);
@@ -155,7 +154,7 @@ class XHTML2Wiki
 	}
 
 	// ブロック要素
-	function Div($line) {
+	protected function Div($line) {
 		if ($line == '' && $this->GetDiv() !== 'Pre') {
 			return;
 		}
@@ -268,7 +267,7 @@ class XHTML2Wiki
 	}
 
 	// 番号付きリスト
-	function OList($line) {
+	protected function OList($line) {
 		if (preg_match("/<\/ol>/", $line)) {
 			$this->div_level--;
 			$this->list_level--;
@@ -292,7 +291,7 @@ class XHTML2Wiki
 	}
 
 	// 番号なしリスト
-	function UList($line) {
+	protected function UList($line) {
 		if (preg_match("/<\/ul>/", $line)) {
 			$this->div_level--;
 			$this->list_level--;
@@ -316,7 +315,7 @@ class XHTML2Wiki
 	}
 
 	// 定義リスト
-	function DList($line) {
+	protected function DList($line) {
 		if (preg_match("/<\/dl>/", $line)) {
 			$this->foundDT[$this->list_level] = false;
 			$this->div_level--;
@@ -348,7 +347,7 @@ class XHTML2Wiki
 	}
 
 	// 引用文
-	function Blockquote($line) {
+	protected function Blockquote($line) {
 		if (preg_match("/<\/blockquote>/", $line)) {
 			if ($this->list_level > 0 && $this->div_level <= 3 && count($this->parent_div) > $this->div_level) {
 				$this->OutputLine(str_repeat('<', $this->GetLevel()), '');
@@ -371,7 +370,7 @@ class XHTML2Wiki
 	}
 
 	// テーブル
-	function Table($line) {
+	protected function Table($line) {
 		static $cells;
 		static $row, $col;
 		static $is_cell = false;
@@ -440,7 +439,7 @@ class XHTML2Wiki
 				$cells = array();
 				$row = 0;
 			}
-			$texts = '';
+			$texts = array();
 			$this->basicStyles = array();
 			$_col = 0;
 			while (preg_match("/<col\b(.*?)?\/?>(.*)/", $line, $matches)) {
@@ -465,7 +464,7 @@ class XHTML2Wiki
 	}
 
 	// セルの属性を取得
-	function GetTableAttribute($attribute, $col, $c = false) {
+	protected function GetTableAttribute($attribute, $col, $c = false) {
 		static $borders = array(
 			'solid' => '(s)',
 			'double' => '(d)',
@@ -478,8 +477,8 @@ class XHTML2Wiki
 		);
 		static $colors_reg = "aqua|navy|black|olive|blue|purple|fuchsia|red|gray|silver|green|teal|lime|white|maroon|yellow|transparent";
 
-		$pattern = "/rgb\((\d+),\s(\d+),\s(\d+)\)/ie";
-		$attribute = preg_replace($pattern, 'sprintf("#%02x%02x%02x", "$1", "$2", "$3")', $attribute);
+		$pattern = "/rgb\((\d+),\s(\d+),\s(\d+)\)/i";
+		$attribute = preg_replace_callback($pattern, function($m){ return sprintf("#%02x%02x%02x", $m[1], $m[2], $m[3]); }, $attribute);
 
 		$text = '';
 		$extexts = array();
@@ -594,7 +593,7 @@ class XHTML2Wiki
 		return $text;
 	}
 
-	function GetTableStyle($attribute) {
+	protected function GetTableStyle($attribute) {
 		static $borders = array(
 			'solid' => '(s)',
 			'double' => '(d)',
@@ -607,8 +606,8 @@ class XHTML2Wiki
 		);
 		static $colors_reg = "aqua|navy|black|olive|blue|purple|fuchsia|red|gray|silver|green|teal|lime|white|maroon|yellow|transparent";
 
-		$pattern = "/rgb\((\d+),\s(\d+),\s(\d+)\)/ie";
-		$attribute = preg_replace($pattern, 'sprintf("#%02x%02x%02x", "$1", "$2", "$3")', $attribute);
+		$pattern = "/rgb\((\d+),\s(\d+),\s(\d+)\)/i";
+		$attribute = preg_replace_callback($pattern, function($m){ return sprintf("#%02x%02x%02x", $m[1], $m[2], $m[3]); }, $attribute);
 
 		$this->tableStyle = '';
 
@@ -692,7 +691,7 @@ class XHTML2Wiki
 	}
 
 	// テーブルを出力
-	function OutputTable($cells, $type) {
+	protected function OutputTable($cells, $type) {
 		if ($this->SavedOutputLine) {
 			$out = $this->SavedOutputLine;
 			$this->SavedOutputLine = '';
@@ -719,7 +718,7 @@ class XHTML2Wiki
 	}
 
 	// 段落
-	function Paragraph($line) {
+	protected function Paragraph($line) {
 		$head = $this->list_level? '~' : '';
 		$align = '';
 		$p = false;
@@ -763,13 +762,13 @@ class XHTML2Wiki
 	}
 
 	// インライン要素
-	function Inline($line) {
+	protected function Inline($line) {
 		// 数値参照文字(10進)
 		$pattern = "/<span\s[^>]*?class=\"chrref10\"[^>]*?".">(.*?)<\/span>/";
-		$line = preg_replace_callback($pattern, array(&$this, 'CharacterRef10'), $line);
+		$line = preg_replace_callback($pattern, array($this, 'CharacterRef10'), $line);
 		// 文字実体参照
 		$pattern = "/<span\s[^>]*?class=\"chrref\"[^>]*?".">(.*?)<\/span>/";
-		$line = preg_replace_callback($pattern, array(&$this, 'CharacterRef'), $line);
+		$line = preg_replace_callback($pattern, array($this, 'CharacterRef'), $line);
 
 		$line = $this->EncodeSpecialChars($line);
 		$line = preg_replace("/\n/", "", $line);
@@ -793,7 +792,7 @@ class XHTML2Wiki
 		$line = preg_replace("/<a\sname=\"(.*?)\">(.*?)<\/a>/", "&aname($1){" . "$2" . "};", $line);
 		// 顔文字
 		$line = preg_replace("/^(<img\s.*?alt=\"\[?.*?\]?\".*?>)/", '&amp;nbsp;$1', $line);
-		$line = preg_replace("/\s?<img\s.*?alt=\"(\[)?(.*?)(\])?\".*?>/e", '"$1" ? "&$2;" : " $2"', $line);
+		$line = preg_replace_callback("/\s?<img\s.*?alt=\"(\[)?(.*?)(\])?\".*?>/", function($m){ return $m[1]? '&'.$m[2].';' : ' '.$m[2]; }, $line);
 		// 太字
 		$line = preg_replace("/<\/?strong>/", "''", $line);
 		// 斜体
@@ -821,7 +820,7 @@ class XHTML2Wiki
 			$line = preg_replace("/<br[^>]*?>|<\/p>\s*<p[^>]*?>/", "&br;", $line);
 		}
 		else if ($line_break) {
-			$line = preg_replace("/<br[^>]*?>(<br[^>]*?>)?/e", '("$1" ? "~" : "") . "\n"', $line);
+			$line = preg_replace_callback("/<br[^>]*?>(<br[^>]*?>)?/", function($m){ return ($m[1] ? '~' : '') . "\n"; }, $line);
 		}
 		else {
 			$line = preg_replace("/<br[^>]*?>/", "~\n", $line);
@@ -846,7 +845,7 @@ class XHTML2Wiki
 	}
 
 	// リンク
-	function Link($matches) {
+	protected function Link($matches) {
 		$url = $matches[1];
 		$alias = $matches[2];
 		$alias = preg_replace("/<br[^>]*?>/", '&br;', $alias);
@@ -855,7 +854,7 @@ class XHTML2Wiki
 	}
 
 	// 文字装飾 <span> の入れ子をシンプルにする
-	function SpanSimplify($matches) {
+	protected function SpanSimplify($matches) {
 		$open = substr_count($matches[1], '<span');
 		$close = strlen($matches[3]);
 		$style = '';
@@ -866,7 +865,7 @@ class XHTML2Wiki
 	}
 
 	// 文字のサイズ・色
-	function Font($matches) {
+	protected function Font($matches) {
 		static $foot_array = array();
 		$attribute = $matches[1];
 		$body = preg_replace('#<br[^>]*?>#', '&br;', $matches[2]);
@@ -896,8 +895,8 @@ class XHTML2Wiki
 		}
 
 		// color & backgroung-color
-		$pattern = "/rgb\((\d+),\s(\d+),\s(\d+)\)/e";
-		$attribute = preg_replace($pattern, 'sprintf("#%02x%02x%02x", "$1", "$2", "$3")', $attribute);
+		$pattern = "/rgb\((\d+),\s(\d+),\s(\d+)\)/";
+		$attribute = preg_replace_callback($pattern, function($m){ return sprintf("#%02x%02x%02x", $m[1], $m[2], $m[3]); }, $attribute);
 
 		$matches = array();
 		if (preg_match("/background-color:\s?([#0-9a-z]+)/i", $attribute, $matches)) {
@@ -942,7 +941,7 @@ class XHTML2Wiki
 	}
 
 	// インライン型プラグイン
-	function InlinePlugin($matches) {
+	protected function InlinePlugin($matches) {
 		static $pattern, $replace;
 
 		if (!isset($pattern)) {
@@ -958,7 +957,7 @@ class XHTML2Wiki
 		return preg_replace($pattern, $replace, $matches[2] . ';');
 	}
 
-	function InlinePluginRef($matches) {
+	protected function InlinePluginRef($matches) {
 		static $pattern, $replace;
 
 		if (!isset($pattern)) {
@@ -987,23 +986,23 @@ class XHTML2Wiki
 	}
 
 	// 参照文字
-	function CharacterRef10($matches) {
+	protected function CharacterRef10($matches) {
 		$map = array(0, 0x10FFFF, 0, 0xFFFFFF);
 		return mb_encode_numericentity(str_replace('&amp;', '&', $matches[1]), $map, 'UTF-8');
 	}
-	function CharacterRef($matches) {
+	protected function CharacterRef($matches) {
 		return str_replace('&', '&amp;', $matches[1]);
 	}
 
 	// ブロック要素の開始
-	function StartDiv($element) {
+	protected function StartDiv($element) {
 		array_unshift($this->parent_div, $element);
 		array_unshift($this->level_array, $this->div_level);
 		$this->div_level = 0;
 	}
 
 	// ブロック要素の終了
-	function EndDiv() {
+	protected function EndDiv() {
 		$this->last_div = $this->GetDiv();
 		array_shift($this->parent_div);
 		$this->div_level = array_shift($this->level_array);
@@ -1011,12 +1010,12 @@ class XHTML2Wiki
 	}
 
 	// 親のブロック要素を取得
-	function GetDiv() {
+	protected function GetDiv() {
 		return $this->parent_div[0];
 	}
 
 	// １行出力
-	function OutputLine($head = '', $line = '', $foot = '') {
+	protected function OutputLine($head = '', $line = '', $foot = '') {
 		if ($this->SavedOutputLine) {
 			$out = $this->SavedOutputLine;
 			$this->SavedOutputLine = '';
@@ -1034,12 +1033,12 @@ class XHTML2Wiki
 	}
 
 	// 引用などのレベルは３までなので４以上の時は３を返す
-	function GetLevel() {
+	protected function GetLevel() {
 		return ($this->div_level <= 3) ? $this->div_level : 3;
 	}
 
 	// エンコード
-	function EncodeSpecialChars($line) {
+	protected function EncodeSpecialChars($line) {
 		static $pattern = array('%%', '\'\'', '[[', ']]');
 		static $replace = array('&#037;&#037;', '&#039;&#039;', '&#091;&#091;', '&#093;&#093;');
 
@@ -1050,7 +1049,7 @@ class XHTML2Wiki
 	}
 
 	// 特殊な HTML エンティティを文字に戻す
-	function DecodeSpecialChars($line) {
+	protected function DecodeSpecialChars($line) {
 		static $pattern = array('&lt;', '&gt;', '&quot;', '&nbsp;', '&amp;');
 		static $replace = array('<', '>', '"', ' ', '&');
 
