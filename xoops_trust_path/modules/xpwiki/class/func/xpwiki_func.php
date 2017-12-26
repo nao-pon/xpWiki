@@ -4404,10 +4404,10 @@ EOD;
 		
 		if ($aliases_old === $aliases) return false;
 		
+		$pgid = $this->get_pgid_by_name($page);
+		$query = 'DELETE FROM `'.$this->xpwiki->db->prefix($this->root->mydirname.'_alias').'` WHERE `pgid`='.$pgid;
+		$this->xpwiki->db->query($query);
 		if ($alias) {
-			$pgid = $this->get_pgid_by_name($page);
-			$query = 'DELETE FROM `'.$this->xpwiki->db->prefix($this->root->mydirname.'_alias').'` WHERE `pgid`='.$pgid;
-			$this->xpwiki->db->query($query);
 			$query = array();
 			foreach($aliases as $_alias) {
 				$_check = ($this->root->page_case_insensitive)? $this->get_pagename_realcase($_alias) : $_alias;
