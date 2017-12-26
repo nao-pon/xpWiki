@@ -145,7 +145,7 @@ class XpWikiPukiWikiFunc extends XpWikiBaseFunc {
 			$postdata = $this->make_str_rules($postdata);
 
 			// Page aliases
-			if ($this->root->vars['cmd'] === 'edit' && isset($this->root->post['alias'])) {
+			if ($mode === 'update' && $this->root->vars['cmd'] === 'edit' && isset($this->root->post['alias'])) {
 				$need_autolink_update = $this->put_page_alias($page, $this->root->post['alias']);
 			}
 		}
@@ -318,6 +318,10 @@ class XpWikiPukiWikiFunc extends XpWikiBaseFunc {
 				$this->tb_send($page, $plus, $minus);
 			}
 			*/
+			// Page aliases
+			if ($mode === 'insert' && $this->root->vars['cmd'] === 'edit' && isset($this->root->post['alias'])) {
+				$need_autolink_update = $this->put_page_alias($page, $this->root->post['alias']);
+			}
 
 			// Update autoalias.dat (AutoAliasName)
 			if ($this->root->autoalias
