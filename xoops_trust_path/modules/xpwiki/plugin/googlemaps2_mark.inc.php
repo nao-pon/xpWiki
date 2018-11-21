@@ -115,7 +115,7 @@ class xpwiki_plugin_googlemaps2_mark extends xpwiki_plugin {
 		$isSetZoom = false;
 		$inoptions['caption'] = '';
 		foreach ($params as $param) {
-			list($index, $value) = array_pad(split('=', $param, 2), 2, '');
+			list($index, $value) = array_pad(explode('=', $param, 2), 2, '');
 			$index = trim($index);
 			if ($index !== 'caption2') $value = $this->func->htmlspecialchars(trim($value), ENT_QUOTES);
 			$inoptions[$index] = $value;

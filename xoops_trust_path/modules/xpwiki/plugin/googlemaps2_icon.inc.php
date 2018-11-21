@@ -84,7 +84,7 @@ class xpwiki_plugin_googlemaps2_icon extends xpwiki_plugin {
 		
 		$inoptions = array();
 		foreach ($params as $param) {
-			list($index, $value) = array_pad(split('=', $param, 2), 2, '');
+			list($index, $value) = array_pad(explode('=', $param, 2), 2, '');
 			$index = trim($index);
 			$value = $this->func->htmlspecialchars(trim($value), ENT_QUOTES);
 			$inoptions[$index] = $value;
