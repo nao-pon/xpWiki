@@ -667,7 +667,7 @@ class xpwiki_plugin_deldel extends xpwiki_plugin {
 		  case 'UPLOAD' :
 			foreach($pages as $page){
 				$s_page = $this->func->htmlspecialchars($page,ENT_QUOTES);
-				$temp = split("=|&amp;",$s_page);
+				$temp = preg_split("/=|&amp;/",$s_page);
 				$file = rawurldecode($temp[1]);
 				$refer = rawurldecode($temp[3]);
 				$age = isset($temp[5])? rawurldecode($temp[5]) : 0 ;
