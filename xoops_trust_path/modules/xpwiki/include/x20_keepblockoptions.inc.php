@@ -62,7 +62,7 @@ if ($record) {
 	}
 	
 	for ($i = 1 ; $i <= $count ; $i++) {
-		$sql = "SELECT name,options FROM ".$db->prefix('newblocks')." WHERE mid=".$mid." AND func_num=".$i." AND show_func=".$db->quoteString($modversion['blocks'][$i]['show_func'])." AND func_file='".mysql_real_escape_string($modversion['blocks'][$i]['file'])."'";
+		$sql = "SELECT name,options FROM ".$db->prefix('newblocks')." WHERE mid=".$mid." AND func_num=".$i." AND show_func=".$db->quoteString($modversion['blocks'][$i]['show_func'])." AND func_file='".$db->quoteString($modversion['blocks'][$i]['file'])."'";
 		$fresult = $db->query($sql);
 		$fblock = $db->fetchArray($fresult);
 		if ( isset( $fblock['options'] ) ) {
