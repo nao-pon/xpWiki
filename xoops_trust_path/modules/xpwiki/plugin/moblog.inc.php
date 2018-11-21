@@ -497,12 +497,12 @@ class xpwiki_plugin_moblog extends xpwiki_plugin {
 					$boureg = array();
 					preg_match('#boundary="([^"]+)"#i', $head, $boureg);
 					$body = str_replace($boureg[1], urlencode($boureg[1]), $body);
-					$part = split("\r\n--".urlencode($boureg[1])."-?-?",$body);
+					$part = preg_split("#\r\n--".urlencode($boureg[1])."-?-?#",$body);
 					$boureg2 = array();
 					if (preg_match('#boundary="([^"]+)"#i', $body, $boureg2)) {//multipart/altanative
 						$body = str_replace($boureg2[1], urlencode($boureg2[1]), $body);
 						$body = preg_replace("#\r\n--".urlencode($boureg[1])."-?-?\r\n#i","",$body);
-						$part = split("\r\n--".urlencode($boureg2[1])."-?-?",$body);
+						$part = preg_split("#\r\n--".urlencode($boureg2[1])."-?-?#",$body);
 					}
 				} else {
 					$part[0] = $dat;// 普通のテキストメール
