@@ -435,9 +435,9 @@ class InlineConverterEx {
 			// ルールの変換
 			$matches[0] = guiedit_make_line_rules($matches[0]);
 			// 数値参照文字(10進)
-			$matches[0] = preg_replace('/(&amp;#[0-9]+?;)+/e', '"<span class=\"chrref10\">".str_replace(\'&amp;\',\'&\',\'$0\')."</span>"', $matches[0]);
+			$matches[0] = preg_replace_callback('/(&amp;#[0-9]+?;)+/', function($m){ return "<span class=\"chrref10\">".str_replace('&amp;','&',$m[0])."</span>"; }, $matches[0]);
 			// 文字実体参照
-			$matches[0] = preg_replace('/(&amp;[a-z]+?;)+/ie', '"<span class=\"chrref\">".str_replace(\'&amp;\',\'&\',\'$0\')."</span>"', $matches[0]);
+			$matches[0] = preg_replace_callback('/(&amp;[a-z]+?;)+/i', function($m){ return "<span class=\"chrref\">".str_replace('&amp;','&',$m[0])."</span>"; }, $matches[0]);
 			return $matches[0];
 		}
 

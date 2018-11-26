@@ -2223,7 +2223,7 @@ EOD;
 				$arg = preg_replace('/U\+([0-9A-F]{2,5})/', "\x08$1", $arg);
 				if ($fromencode !== 'UTF-8') $arg = mb_convert_encoding($arg, 'UTF-8', $fromencode);
 				$arg = mb_convert_encoding($arg, $toencode, 'UTF-8');
-				$arg = preg_replace('/U\+([0-9A-F]{2,5})/e', '"&#".base_convert("$1",16,10).";"', $arg);
+				$arg = preg_replace_callback('/U\+([0-9A-F]{2,5})/', function($m){ return "&#".base_convert($m[1],16,10).";"; }, $arg);
 				$arg = preg_replace('/\x08([0-9A-F]{2,5})/', 'U+$1', $arg);
 				mb_substitute_character($_sub);
 				$arg = mb_convert_encoding($arg, $fromencode, $toencode);
@@ -2966,7 +2966,8 @@ EOD;
 	}
 
 	function bitlize($str) {
-		return preg_replace('/(https?:\/\/[_0-9a-zA-Z\/\@\$()!?&%#:;.,~\'=*+-]+)/ie', "\$this->bitly('$1')", $str);
+		$_t = $this;
+		return preg_replace_callback('/(https?:\/\/[_0-9a-zA-Z\/\@\$()!?&%#:;.,~\'=*+-]+)/i', function($m) use($_t) { return $_t->bitly($m[1]); }, $str);
 	}
 
 	function bytes2KMT($bytes, $decimal = 1, $threshold = 921) {

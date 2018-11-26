@@ -461,7 +461,7 @@ EOD;
 					unset($this->root->foot_explain_disabled[$id]);
 					preg_match('/id="notefoot_(.+?)"/', $foot_explain, $match);
 					$newid = $match[1] . '.';
-					$this->root->foot_explain[$id] = preg_replace('/(<a[^>]+?>)/e', 'str_replace("'.$match[1].'","'.$newid.'","$1")', $foot_explain);
+					$this->root->foot_explain[$id] = preg_replace_callback('/(<a[^>]+?>)/', function($m) use($match, $newid) { return str_replace($match[1], $newid, $m[1]); }, $foot_explain);
 					$elm_id  = 'notetext_' . $newid;
 					$foot_id = 'notefoot_' . $newid;
 				}

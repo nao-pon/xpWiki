@@ -147,7 +147,7 @@ class xpwiki_plugin_referer extends xpwiki_plugin {
 			$i++;
 			
 			// 非ASCIIキャラクタ(だけ)をURLエンコードしておく BugTrack/440
-			$e_url = $this->func->htmlspecialchars(preg_replace('/([" \x80-\xff]+)/e', 'rawurlencode("$1")', $url));
+			$e_url = $this->func->htmlspecialchars(preg_replace_callback('/([" \x80-\xff]+)/', function($m){ return rawurlencode($m[1]); }, $url));
 			$s_url = $this->func->htmlspecialchars(mb_convert_encoding(rawurldecode($url), $this->cont['SOURCE_ENCODING'], 'auto'));
 			$s_url = str_replace('&amp;amp;', '&amp;', $s_url);
 			

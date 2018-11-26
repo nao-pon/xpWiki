@@ -266,18 +266,18 @@ function _convert_skin ($str) {
 			$line = "//".$line;
 		} else {
 			// '' 内をエスケープ
-			$line = preg_replace("/'.*?'/se","_for_quote_replace('$0','\$','in')",$line);
-			$line = preg_replace("/'.*?'/se","_for_quote_replace2('$0','\"','in')",$line);
+			$line = preg_replace_callback("/'.*?'/s",function($m){ return _for_quote_replace($m[0],'\$','in'); },$line);
+			$line = preg_replace_callback("/'.*?'/s",function($m){ return _for_quote_replace2($m[0],'\"','in'); },$line);
 			foreach ($globals as $global) {
 				// "" 内
-				$line = preg_replace('/(?<!\\\\)(".*?(?<!\\\\)")/ie',"_global_replace('$global','$0')",$line);
+				$line = preg_replace_callback('/(?<!\\\\)(".*?(?<!\\\\)")/i',function($m) use($global) { return _global_replace($global,$m[0]); },$line);
 
 				// その他
 				$line = preg_replace("/".preg_quote($global,"/")."(?![a-zA-Z0-9_\x7f-\xff])/",'$this->root->'.substr($global,1),$line);
 			}
 			// '' 内をエスケープ解除
-			$line = preg_replace("/'.*?'/se","_for_quote_replace2('$0','\"','out')",$line);
-			$line = preg_replace("/'.*?'/se","_for_quote_replace('$0','\$','out')",$line);
+			$line = preg_replace_callback("/'.*?'/s",function($m){ return _for_quote_replace2($m[0],'\"','out'); },$line);
+			$line = preg_replace_callback("/'.*?'/s",function($m){ return _for_quote_replace($m[0],'\$','out'); },$line);
 		}
 		//関数名書き換え
 		//echo htmlspecialchars($_line)."<br>";
@@ -302,12 +302,12 @@ function _convert_skin ($str) {
 		foreach ($consts as $const) {
 			// '' 内をエスケープ
 			$key = $const[0];
-			$line = preg_replace("/'.*?'/e","_for_quote_replace('$0','$key','in')",$line);
+			$line = preg_replace_callback("/'.*?'/",function($m) use($key) { return _for_quote_replace($m[0],$key,'in'); },$line);
 
 			$line = preg_replace("/(?<![_0-9a-zA-Z'\"])".$const."(?![_0-9a-zA-Z'\"])/","\$this->cont['$0']",$line);
 
 			// '' 内をエスケープ解除
-			$line = preg_replace("/'.*?'/e","_for_quote_replace('$0','$key','out')",$line);
+			$line = preg_replace_callback("/'.*?'/",function($m) use($key) { return _for_quote_replace($m[0],$key,'out'); },$line);
 		}
 
 		$out.= $line."\n";

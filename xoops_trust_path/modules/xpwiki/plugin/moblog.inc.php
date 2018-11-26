@@ -597,13 +597,13 @@ class xpwiki_plugin_moblog extends xpwiki_plugin {
 						// ISBN, ASIN 変換
 						if (! empty($this->config['isbn'])) {
 							$isbn = $this->config['isbn'];
-							$text = preg_replace('/^([A-Za-z0-9]{10}|\d{13})$/me', 'str_replace(\'__ISBN__\', \'$1\', \''.$isbn.'\')', $text);
+							$text = preg_replace_callback('/^([A-Za-z0-9]{10}|\d{13})$/m', function($m){ return str_replace('__ISBN__', $m[1], $isbn); }, $text);
 						}
 
 						// キーワード@amazon 変換
 						if (! empty($this->config['amazon'])) {
 							$amazon = $this->config['amazon'];
-							$text = preg_replace('/^(.+)@amazon$/mei', 'str_replace(\'__KEYWORD__\', \'$1\', \''.$amazon.'\')', $text);
+							$text = preg_replace_callback('/^(.+)@amazon$/mi', function($m){ return str_replace('__KEYWORD__', $m[1], $amazon); }, $text);
 						}
 
 						$body_text[$sub][] = trim($text);

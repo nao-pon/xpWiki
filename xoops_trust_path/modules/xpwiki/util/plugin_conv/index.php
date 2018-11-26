@@ -251,13 +251,13 @@ foreach($files as $input) {
 					$line = "//".$line;
 				} else {
 					// '' 内をエスケープ
-					$line = preg_replace("/'.*?'/se","_for_quote_replace('$0','\$','in')",$line);
-					$line = preg_replace("/'.*?'/se","_for_quote_replace2('$0','\"','in')",$line);
+					$line = preg_replace_callback("/'.*?'/s",function($m){ return _for_quote_replace($m[0],'\$','in'); },$line);
+					$line = preg_replace_callback("/'.*?'/s",function($m){ return _for_quote_replace2($m[0],'\"','in'); },$line);
 					foreach ($globals as $global) {
 						//echo "[{$global}]<br>";
 						// "" 内
 						//$line = preg_replace('/("[^\']*?)\{?'.preg_quote($global,"/").'((?:\[[^\]]+\])*)(?![a-zA-Z0-9_\x7f-\xff])\}?([^\']*?")/i',"$1{\$this->root->".substr($global,1)."$2}$3",$line);
-						$line = preg_replace('/(?<!\\\\)(".*?(?<!\\\\)")/ie',"_global_replace('$global','$0')",$line);
+						$line = preg_replace_callback('/(?<!\\\\)(".*?(?<!\\\\)")/i',function($m) use($global) { return _global_replace($global,$m[0]); },$line);
 
 						// その他
 						//ヒアドキュメント内
@@ -268,16 +268,16 @@ foreach($files as $input) {
 						}
 					}
 					// '' 内をエスケープ解除
-					$line = preg_replace("/'.*?'/se","_for_quote_replace2('$0','\"','out')",$line);
-					$line = preg_replace("/'.*?'/se","_for_quote_replace('$0','\$','out')",$line);
+					$line = preg_replace_callback("/'.*?'/s",function($m){ return _for_quote_replace2($m[0],'\"','out'); },$line);
+					$line = preg_replace_callback("/'.*?'/s",function($m){ return _for_quote_replace($m[0],'\$','out'); },$line);
 				}
 
 				// static 変数書き換え
 				if (preg_match("/(?:^|\s*)static(.+);/s",$line,$match)) {
 					//echo $match[1]."<hr>";
 					//引用符の中のカンマをエスケープ
-					$match[1] = preg_replace("/('|\").*?\\1/e","_for_quote_replace('$0',',','in','$1')",$match[1]);
-					$match[1] = preg_replace("/array\((.+?)\)/ie","'array('.str_replace(',','\x08','$1').')'",$match[1]);
+					$match[1] = preg_replace_callback("/('|\").*?\\1/",function($m){ return _for_quote_replace($m[0],',','in,$m[1]'); },$match[1]);
+					$match[1] = preg_replace_callback("/array\((.+?)\)/i", function($m){ return 'array('.str_replace(',','\x08',$m[1]).')'; },$match[1]);
 
 					$_tmp = array_unique(explode(",",preg_replace("/\s+/","",$match[1])));
 					$pears = array();
@@ -429,12 +429,12 @@ EOD;
 			foreach ($consts as $const) {
 				// '' 内をエスケープ
 				$key = $const[0];
-				$line = preg_replace("/'.*?'/se","_for_quote_replace('$0','$key','in')",$line);
+				$line = preg_replace_callback("/'.*?'/s",function($m) use($key){ return _for_quote_replace($m[0],$key,'in'); },$line);
 
 				$line = preg_replace("/(?<![_0-9a-zA-Z'\"])".$const."(?![_0-9a-zA-Z'\"])/","\$this->cont['$0']",$line);
 
 				// '' 内をエスケープ解除
-				$line = preg_replace("/'.*?'/se","_for_quote_replace('$0','$key','out')",$line);
+				$line = preg_replace_callback("/'.*?'/s",function($m) use($key){ return _for_quote_replace($m[0],$key,'out'); },$line);
 			}
 		}
 		$out .= $line."\n";
