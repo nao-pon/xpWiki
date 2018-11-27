@@ -71,7 +71,7 @@ function AutoDetect(&$str)
 		return 0; //US-ASCII
 	}
 
-	$b = unpack('C*', ereg_replace("^[^\x80-\xFF]+", "", $str));
+	$b = unpack('C*', preg_replace("/^[^\x80-\xFF]+/", "", $str));
 	$n = count($b);
 
 	// --- Check EUC-JP ---
