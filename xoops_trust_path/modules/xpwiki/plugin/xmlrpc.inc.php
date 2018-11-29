@@ -74,7 +74,11 @@ EOD;
 
 			if ($this->op_debug) {
 				global $HTTP_RAW_POST_DATA;
-				$this->debug($HTTP_RAW_POST_DATA);
+				if (!empty($HTTP_RAW_POST_DATA)) {
+					$this->debug($HTTP_RAW_POST_DATA);
+				} else {
+					$this->debug(file_get_contents('php://input'));
+				}
 			}
 
 			$GLOBALS['xpWikiXmlRpcObj'] =& $this;
