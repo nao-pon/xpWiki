@@ -274,7 +274,7 @@ function guiedit_make_line_rules($line) {
 	static $pattern, $replace;
 
 	if (!isset($pattern)) {
-		$pattern = array_map(create_function('$a', 'return \'/\' . $a . \'/\';'), array_keys($guiedit_line_rules));
+		$pattern = array_map(function($a) { return '/' . $a . '/'; }, array_keys($guiedit_line_rules));
 		$replace = array_values($guiedit_line_rules);
 		unset($guiedit_line_rules);
 	}
@@ -338,8 +338,10 @@ class InlineConverterEx {
 		if (!isset ($clone_func)) {
 			if (version_compare(PHP_VERSION, '5.0.0', '<')) {
 				$clone_func = create_function('$a', 'return $a;');
-			} else {
+			} elseif (version_compare(PHP_VERSION, '5.3.0', '<')) {
 				$clone_func = create_function('$a', 'return clone $a;');
+			} else {
+				$clone_func = function($a) { return clone $a; };
 			}
 		}
 		return $clone_func ($obj);
