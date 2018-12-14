@@ -475,7 +475,7 @@ class xpwiki_plugin_conf extends xpwiki_plugin {
 <table>
 EOD;
 		$GLOBALS['xpwiki_conf_this'] = $this;
-		$descReplace = function($m) { return $GLOBALS['xpwiki_conf_this']->root->$m[1]; };
+		$descReplace = function($m) { return $GLOBALS['xpwiki_conf_this']->root->{$m[1]}; };
 		foreach ($this->conf as $key => $conf) {
 			$caption = ! empty($conf['caption'])? $conf['caption'] : (! empty($this->msg[$key]['caption'])? $this->msg[$key]['caption'] : $key);
 			$description = ! empty($conf['description'])? $conf['description'] : (! empty($this->msg[$key]['description'])? $this->msg[$key]['description'] : '');
