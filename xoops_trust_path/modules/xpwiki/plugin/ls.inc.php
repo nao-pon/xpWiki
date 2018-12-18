@@ -49,7 +49,7 @@ class xpwiki_plugin_ls extends xpwiki_plugin {
 				// 見出しの固有ID部を削除
 				$comment = preg_replace('/^(\*{1,5}.*)\[#[A-Za-z][_0-9a-zA-Z-]+\](.*)$/','$1$2',$comment);
 	
-				$comment = '- ' . ereg_replace('^[-*]+','',$comment);
+				$comment = '- ' . preg_replace('/^[-*]+/','',$comment);
 			}
 			$ls[] = "-[[$page]] $comment";
 		}

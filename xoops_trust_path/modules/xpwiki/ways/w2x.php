@@ -274,7 +274,7 @@ function guiedit_make_line_rules($line) {
 	static $pattern, $replace;
 
 	if (!isset($pattern)) {
-		$pattern = array_map(create_function('$a', 'return \'/\' . $a . \'/\';'), array_keys($guiedit_line_rules));
+		$pattern = array_map(function($a) { return '/' . $a . '/'; }, array_keys($guiedit_line_rules));
 		$replace = array_values($guiedit_line_rules);
 		unset($guiedit_line_rules);
 	}
@@ -338,8 +338,10 @@ class InlineConverterEx {
 		if (!isset ($clone_func)) {
 			if (version_compare(PHP_VERSION, '5.0.0', '<')) {
 				$clone_func = create_function('$a', 'return $a;');
-			} else {
+			} elseif (version_compare(PHP_VERSION, '5.3.0', '<')) {
 				$clone_func = create_function('$a', 'return clone $a;');
+			} else {
+				$clone_func = function($a) { return clone $a; };
 			}
 		}
 		return $clone_func ($obj);
@@ -435,9 +437,9 @@ class InlineConverterEx {
 			// ルールの変換
 			$matches[0] = guiedit_make_line_rules($matches[0]);
 			// 数値参照文字(10進)
-			$matches[0] = preg_replace('/(&amp;#[0-9]+?;)+/e', '"<span class=\"chrref10\">".str_replace(\'&amp;\',\'&\',\'$0\')."</span>"', $matches[0]);
+			$matches[0] = preg_replace_callback('/(&amp;#[0-9]+?;)+/', function($m){ return "<span class=\"chrref10\">".str_replace('&amp;','&',$m[0])."</span>"; }, $matches[0]);
 			// 文字実体参照
-			$matches[0] = preg_replace('/(&amp;[a-z]+?;)+/ie', '"<span class=\"chrref\">".str_replace(\'&amp;\',\'&\',\'$0\')."</span>"', $matches[0]);
+			$matches[0] = preg_replace_callback('/(&amp;[a-z]+?;)+/i', function($m){ return "<span class=\"chrref\">".str_replace('&amp;','&',$m[0])."</span>"; }, $matches[0]);
 			return $matches[0];
 		}
 

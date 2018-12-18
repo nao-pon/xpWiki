@@ -552,7 +552,7 @@ class xpwiki_plugin_dump extends xpwiki_plugin {
 				$sql = preg_replace('/^--.*$/m', '', $sql);
 				$sql = preg_replace('/[\r\n]+/', ' ', $sql);
 				$sql = str_replace('\\\'', "\x07", $sql);
-				$sql = preg_replace('/\'([^\']*?)\'/e', '"\'".str_replace(\';\', "\x08", \'\\1\')."\'"', $sql);
+				$sql = preg_replace_callback('/\'([^\']*?)\'/', function($m){ return "'" . str_replace(';', "\x08", $m[1]) ."'"; }, $sql);
 				$sql = str_replace("\x07", '\\\'', $sql);
 				foreach(explode(';', $sql) as $query) {
 					$query = trim(str_replace("\x08", ';', $query));

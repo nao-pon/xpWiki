@@ -511,7 +511,7 @@ EOD;
 
 		$update_flag = FALSE;
 		if ( array_key_exists('areaedit_msg', $this->root->vars) ){
-			$lines = split("\n", str_replace("\r",'',$this->root->vars['areaedit_msg']));
+			$lines = explode("\n", str_replace("\r",'',$this->root->vars['areaedit_msg']));
 			$update_flag = TRUE;
 		}
 		else if ( $collect ){

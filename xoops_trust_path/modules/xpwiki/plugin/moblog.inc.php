@@ -497,12 +497,12 @@ class xpwiki_plugin_moblog extends xpwiki_plugin {
 					$boureg = array();
 					preg_match('#boundary="([^"]+)"#i', $head, $boureg);
 					$body = str_replace($boureg[1], urlencode($boureg[1]), $body);
-					$part = split("\r\n--".urlencode($boureg[1])."-?-?",$body);
+					$part = preg_split("#\r\n--".urlencode($boureg[1])."-?-?#",$body);
 					$boureg2 = array();
 					if (preg_match('#boundary="([^"]+)"#i', $body, $boureg2)) {//multipart/altanative
 						$body = str_replace($boureg2[1], urlencode($boureg2[1]), $body);
 						$body = preg_replace("#\r\n--".urlencode($boureg[1])."-?-?\r\n#i","",$body);
-						$part = split("\r\n--".urlencode($boureg2[1])."-?-?",$body);
+						$part = preg_split("#\r\n--".urlencode($boureg2[1])."-?-?#",$body);
 					}
 				} else {
 					$part[0] = $dat;// 普通のテキストメール
@@ -597,13 +597,13 @@ class xpwiki_plugin_moblog extends xpwiki_plugin {
 						// ISBN, ASIN 変換
 						if (! empty($this->config['isbn'])) {
 							$isbn = $this->config['isbn'];
-							$text = preg_replace('/^([A-Za-z0-9]{10}|\d{13})$/me', 'str_replace(\'__ISBN__\', \'$1\', \''.$isbn.'\')', $text);
+							$text = preg_replace_callback('/^([A-Za-z0-9]{10}|\d{13})$/m', function($m){ return str_replace('__ISBN__', $m[1], $isbn); }, $text);
 						}
 
 						// キーワード@amazon 変換
 						if (! empty($this->config['amazon'])) {
 							$amazon = $this->config['amazon'];
-							$text = preg_replace('/^(.+)@amazon$/mei', 'str_replace(\'__KEYWORD__\', \'$1\', \''.$amazon.'\')', $text);
+							$text = preg_replace_callback('/^(.+)@amazon$/mi', function($m){ return str_replace('__KEYWORD__', $m[1], $amazon); }, $text);
 						}
 
 						$body_text[$sub][] = trim($text);

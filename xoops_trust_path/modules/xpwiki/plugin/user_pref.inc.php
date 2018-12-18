@@ -246,7 +246,8 @@ EOD;
 			foreach ($this->user_pref as $key => $conf) {
 				$caption = ! empty($conf['caption'])? $conf['caption'] : (! empty($this->msg[$key]['caption'])? $this->msg[$key]['caption'] : $key);
 				$description = ! empty($conf['description'])? $conf['description'] : (! empty($this->msg[$key]['description'])? $this->msg[$key]['description'] : '');
-				$description = preg_replace('/\{\$root->(.+?)\}/e', '$this->root->$1', $description);
+				$_t = $this;
+				$description = preg_replace_callback('/\{\$root->(.+?)\}/', function($m) use($_t) { return $_t->root->{$m[1]}; }, $description);
 				$value = isset($user_pref[$key])? $user_pref[$key] : '';
 				$value4disp = $this->func->htmlspecialchars($value);
 				$name4disp = $this->func->htmlspecialchars($key);

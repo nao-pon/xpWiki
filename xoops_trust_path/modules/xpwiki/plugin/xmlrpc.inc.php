@@ -74,7 +74,11 @@ EOD;
 
 			if ($this->op_debug) {
 				global $HTTP_RAW_POST_DATA;
-				$this->debug($HTTP_RAW_POST_DATA);
+				if (!empty($HTTP_RAW_POST_DATA)) {
+					$this->debug($HTTP_RAW_POST_DATA);
+				} else {
+					$this->debug(file_get_contents('php://input'));
+				}
 			}
 
 			$GLOBALS['xpWikiXmlRpcObj'] =& $this;
@@ -314,7 +318,8 @@ EOD;
 							$set_data = preg_replace('#<br[^>]*?>#', "\n", $set_data);
 						}
 						if ($this->config['striptags']) {
-							$set_data = preg_replace('/<img[^>]+?src=["\']'.preg_quote($this->cont['HOME_URL'].'gate.php?way=ref', '/').'[^"\'> ]+?page=([^&]+)[^"\'> ]+?src=([^&"\']+)[^>]*?>/ie', '"\n\n#ref(".rawurldecode("$1")."/".rawurldecode("$2")."'.$this->config['ref'].')\n\n"', $set_data);
+							$_r = $this->config['ref'];
+							$set_data = preg_replace_callback('/<img[^>]+?src=["\']'.preg_quote($this->cont['HOME_URL'].'gate.php?way=ref', '/').'[^"\'> ]+?page=([^&]+)[^"\'> ]+?src=([^&"\']+)[^>]*?>/i', function($m) use($_r) { return "\n\n#ref(".rawurldecode($m[1])."/".rawurldecode($m[2]).$_r.")\n\n"; }, $set_data);
 							$set_data = preg_replace('/<img[^>]+?src=["\']([^"\'> ]+)[^>]*?>/i', "\n\n#ref($1".$this->config['ref'].");\n\n", $set_data);
 							$set_data = strip_tags($set_data);
 							$set_data = $this->func->unhtmlspecialchars($set_data);
