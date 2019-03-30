@@ -250,7 +250,7 @@ function wikihelper_cumulativeOffset(forElement) {
 	Element.remove($('wikihelper_base'));
 	base.appendChild(helper);
 
-	return Element._returnOffset(valueL, valueT);
+	return new Element.Offset(valueL, valueT);
 }
 
 function wikihelper_initTexts(obj)
