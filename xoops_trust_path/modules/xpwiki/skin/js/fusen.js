@@ -547,6 +547,7 @@ function fusen_save()
 	fusen_init(1);
 	fusen_hide('fusen_editbox');
 	fusen_FCK2normal();
+	return false;
 }
 
 function fusen_FCK2normal() {

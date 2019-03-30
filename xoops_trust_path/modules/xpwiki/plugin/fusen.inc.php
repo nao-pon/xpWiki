@@ -212,7 +212,7 @@ fusenVar['ReadOnly'] = {$readonly};
 <div class="{$divclass}" id="fusen_container">
 	<div id="fusen_editbox" class="fusen_editbox">
 	  <div class="fusen_editbox_title">{$this->msg['cap_fusen_edit']}</div>
-	  <form id="edit_frm" method="post" action="./" style="padding:0px; margin:0px" onsubmit="fusen_save(); return false;">
+	  <form id="edit_frm" method="post" action="./" style="padding:0px; margin:0px" onsubmit="return fusen_save();">
 	      <textarea name="body" id="xpwiki_fusen_edit" cols="50" rows="5" style="width:98%;"></textarea>
 	      {$this->msg['cap_fore_color']}:<select id="edit_tc" name="tc" size="1">
 	        <option id="tc000000" value="#000000" style="color: #000000" selected="selected">&#9632;{$this->msg['cap_black']}</option>

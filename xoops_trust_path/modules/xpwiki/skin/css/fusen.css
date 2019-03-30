@@ -39,11 +39,18 @@ $class fieldset.fusen_fieldset *
 
 $class fieldset.fusen_fieldset
 {
+	min-width: 0;
+	max-width: 100%;
 	margin-top: 3px;
 	margin-bottom: 2px;
 	-webkit-border-radius: 10px;
 	-moz-border-radius: 10px;
 	border-radius: 10px;
+}
+
+$class fieldset.fusen_fieldset input
+{
+	max-width: 100%;
 }
 
 $class div.fusen_top_menu
