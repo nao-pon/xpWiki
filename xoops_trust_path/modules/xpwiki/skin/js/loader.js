@@ -89,7 +89,7 @@ if (typeof(document.evaluate) != 'function') {
 // main.js
 if (wikihelper_WinIE && wikihelper_WinIE < 9 && (typeof Prototype == 'undefined' || Prototype.Version != '1.6.0.3')) {
 	xpwiki_scripts += 'prototype_1.6.0.3,';
-} else if (typeof Prototype == 'undefined' || Prototype.Version != '1.7') {
+} else if (typeof Prototype == 'undefined' || Prototype.Version != '1.7.3') {
 	xpwiki_scripts += 'pnc,prototype,';
 }
 if (xpwiki_scripts.match('prototype')) {
