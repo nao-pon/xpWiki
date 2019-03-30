@@ -1339,7 +1339,7 @@ var XpWiki = {
 			}
 			element = element.offsetParent;
 		} while (element);
-		return Element._returnOffset(valueL, valueT);
+		return new Element.Offset(valueL, valueT);
 	},
 
 	objMerge: function(obj1, obj2) {
@@ -1453,3 +1453,9 @@ if (typeof addEventListener == 'undefined') {
 		})();
 	})();
 }
+
+// restore noconflict prototype
+if (window.ncPrototypeArrayFrom) {
+	Array.from = window.ncPrototypeArrayFrom;
+}
+delete window.ncPrototypeArrayFrom;
