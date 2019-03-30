@@ -14,8 +14,8 @@
 class xpwiki_plugin_gmap_icon extends xpwiki_plugin {
 	function plugin_gmap_icon_init () {
 
-		$this->cont['PLUGIN_GMAP_ICON_IMAGE'] =  '//maps.google.com/mapfiles/ms/icons/red-dot.png';
-		$this->cont['PLUGIN_GMAP_ICON_SHADOW'] = '//maps.google.com/mapfiles/ms/icons/msmarker.shadow.png';
+		$this->cont['PLUGIN_GMAP_ICON_IMAGE'] =  'https://maps.google.com/mapfiles/ms/icons/red-dot.png';
+		$this->cont['PLUGIN_GMAP_ICON_SHADOW'] = 'https://maps.google.com/mapfiles/ms/icons/msmarker.shadow.png';
 		$this->cont['PLUGIN_GMAP_ICON_IW'] =  32;
 		$this->cont['PLUGIN_GMAP_ICON_IH'] =  32;
 		$this->cont['PLUGIN_GMAP_ICON_SW'] =  59;

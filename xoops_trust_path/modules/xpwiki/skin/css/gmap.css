@@ -2,6 +2,11 @@ $class div.gmap_map img {
 	max-width: none !important;
 }
 
+$class .gm-iv-container,
+$class .gm-iv-address {
+	margin-top: 10px;
+}
+
 $class div.gmap_map div {
 	max-width: none !important;
 }

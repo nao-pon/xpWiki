@@ -110,7 +110,7 @@ class xpwiki_plugin_gmap extends xpwiki_plugin {
 
 	var $map_count = array();
 	var $lastmap_name;
-	var $google_staticmap_url = 'https://maps.googleapis.com/maps/api/staticmap?sensor=true&amp;';
+	var $google_staticmap_url = 'https://maps.googleapis.com/maps/api/staticmap?';
 
 	function plugin_gmap_init () {
 
@@ -155,11 +155,11 @@ class xpwiki_plugin_gmap extends xpwiki_plugin {
 		//UAでスキンを切り替えて表示できるようになったが、この定数ではGoogleMapsを
 		//表示可能なプロファイルを設定する。
 		//対応デバイスのプロファイルをカンマ(,)区切りで記入する。
-		//Pukiwiki1.4.5以降でサポートしてるデフォルトのプロファイルはdefaultとkeitaiの二つ。
+		//xpWikiでサポートしてるデフォルトのプロファイルは default,mobile,keitai の3つ。
 		//ユーザーが追加したプロファイルがあり、それもGoogleMapsが表示可能なデバイスなら追加すること。
 		//またデフォルトのプロファイルを"default"以外の名前にしている場合も変更すること。
-		//注:GoogleMapsは携帯電話で表示できない。
-		$this->cont['PLUGIN_GMAP_PROFILE'] =  'default';
+		//注:GoogleMapsは携帯(ガラケー)電話で表示できない。
+		$this->cont['PLUGIN_GMAP_PROFILE'] =  'default,mobile';
 
 		// This plugins config
 		$this->conf['ApiVersion'] = '3';
@@ -429,7 +429,7 @@ EOD;
 	// 	+ LB          RB +
 	// 	+ BL    BC    BR +
 	// 	+----------------+
-	function gmap_get_pos_constant($val, $default) {
+	function gmap_get_pos_constant($val, $default = '') {
 		static $pos = array(
 				'T' => 'TOP',
 				'B' => 'BOTTOM',
@@ -437,6 +437,9 @@ EOD;
 				'C' => 'CENTER',
 				'R' => 'RIGHT');
 		
+		if (!$default) {
+			$default = 'RB';
+		}
 		if (is_numeric($val) || strlen($val) < 2 || !isset($pos[$val[0]]) || !isset($pos[$val[0]])) {
 			$val = $default;
 		}
@@ -463,9 +466,9 @@ EOD;
 				if ($title) {
 					$title = rawurlencode(mb_convert_encoding(' ('.$title.')', 'UTF-8', $this->cont['SOURCE_ENCODING']));
 				}
-				$url = '//maps.google.com/maps?q=loc:'.$lat.','.$lng.$title.'&z='.$zoom.'&iwloc=A';
+				$url = 'https://maps.google.com/maps?q=loc:'.$lat.','.$lng.$title.'&z='.$zoom.'&iwloc=A';
 			} else {
-				$url = '//www.google.co.jp/m/local?site=local&ll='.$lat.','.$lng.'&z='.$zoom;
+				$url = 'https://www.google.co.jp/m/local?site=local&ll='.$lat.','.$lng.'&z='.$zoom;
 			}
 		} else if ($useAction) {
 			$url = $this->root->script . '?plugin=gmap&amp;action=static&amp;lat='.$lat.'&amp;lng='.$lng.'&amp;zoom='.$zoom.'&amp;refer='.rawurlencode(@ $_SERVER['REQUEST_URI']);
@@ -564,7 +567,7 @@ EOD;
 		$searchctrl		= $this->gmap_getpos($options['searchctrl']);
 		$dropmarker		= $this->plugin_gmap_getbool($options['dropmarker']);
 		$togglemarker	= $this->plugin_gmap_getbool($options['togglemarker']);
-		$googlebar		= $this->gmap_getpos($options['googlebar']);
+		$googlebar		= 0; // $this->gmap_getpos($options['googlebar']); // サポート終了
 		//$overviewwidth	= $options['overviewwidth']; // 廃止
 		//$overviewheight = $options['overviewheight']; // 廃止
 		$api			= isset($options['api'])? (integer)$options['api'] : 2; //非奨励
@@ -646,7 +649,7 @@ EOD;
 		$mOptions = array();
 		
 		// Basic
-		$mOptions[] = "center: new google.maps.LatLng($lat, $lng)";
+		$mOptions[] = "center: {lat: $lat, lng: $lng}";
 		$mOptions[] = "zoom: $zoom";
 		$mOptions[] = "mapTypeId: google.maps.MapTypeId.$type";
 		
@@ -699,6 +702,7 @@ EOD;
 		//if ($scalectrl != "none") {
 		if($scalectrl) {
 			$mOptions[] = "scaleControl: true";
+			$_def = '';
 			if ($scalectrl === 1 && ($googlebar === 1 || $googlebar === 'BL')) {
 				$_def = 'RB';
 			}
@@ -822,7 +826,7 @@ EOD;
 
 		// GoogleBar
 		if ($googlebar) {
-			$this->func->add_js_head('//www.google.com/uds/api?file=uds.js&amp;v=1');
+			$this->func->add_js_head('https://www.google.com/uds/api?file=uds.js&amp;v=1');
 			$this->func->add_tag_head('jGoogleBarV3.css');
 			$this->func->add_tag_head('jGoogleBarV3.js');
 			$output .= "var gbarOptions={searchFormOptions:{hintString:'{$this->msg['do_local_search']}',buttonText:'{$this->root->_LANG['skin']['search_s']}'}};\n";
@@ -937,7 +941,7 @@ EOD;
 		if (floatval($this->conf['ApiVersion']) < 3) {
 			$this->conf['ApiVersion'] = '3';
 		}
-		$this->func->add_js_head('//maps.google.com/maps/api/js?v='.$this->conf['ApiVersion'].'&amp;sensor=true&amp;libraries=places&amp;key='.$key, true, 'UTF-8');
+		$this->func->add_js_head('https://maps.googleapis.com/maps/api/js?v='.$this->conf['ApiVersion'].'&amp;libraries=places&amp;key='.$key, true, 'UTF-8');
 		$this->func->add_tag_head('gmap.js');
 		return;
 	}

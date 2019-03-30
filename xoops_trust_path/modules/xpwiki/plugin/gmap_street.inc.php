@@ -34,6 +34,8 @@ class xpwiki_plugin_gmap_street extends xpwiki_plugin {
 		$this->cont['PLUGIN_GMAP_STREET_DEF_PITCH'] =       0;       //ストリートビューの仰角 (-90 - 90)
 		$this->cont['PLUGIN_GMAP_STREET_DEF_ZOOM'] =        1;       //ストリートビューのズーム値
 		$this->cont['PLUGIN_GMAP_STREET_DEF_MARKERZOOM'] =  18;      //マーカークリックで自動ズームアップ時の最大値(0 - 21) 0:無効
+		$this->cont['PLUGIN_GMAP_STREET_DEF_LINKS']        = false;  //矢印のコントローラ(true, false)
+		$this->cont['PLUGIN_GMAP_STREET_DEF_IMAGEDATE']    = true;   //画像の撮影日の表示
 	}
 
 	function get_default() {
@@ -44,7 +46,9 @@ class xpwiki_plugin_gmap_street extends xpwiki_plugin {
 			'heading'		 => $this->cont['PLUGIN_GMAP_STREET_DEF_HEADING'],
 			'pitch'			 => $this->cont['PLUGIN_GMAP_STREET_DEF_PITCH'],
 			'zoom'			 => $this->cont['PLUGIN_GMAP_STREET_DEF_ZOOM'],
-			'markerzoom'	 => $this->cont['PLUGIN_GMAP_STREET_DEF_MARKERZOOM']
+			'markerzoom'	 => $this->cont['PLUGIN_GMAP_STREET_DEF_MARKERZOOM'],
+			'links'          => $this->cont['PLUGIN_GMAP_STREET_DEF_LINKS'],
+			'imageDate'      => $this->cont['PLUGIN_GMAP_STREET_DEF_IMAGEDATE']
 		);
 	}
 
@@ -103,6 +107,8 @@ class xpwiki_plugin_gmap_street extends xpwiki_plugin {
 		$pitch = intval($options['pitch']);
 		$zoom = intval($options['zoom']);
 		$markerzoom = intval($options['markerzoom']);
+		$links = $p_gmap->plugin_gmap_getbool($options['links'])? 'true' : 'false';
+		$imageDate = $p_gmap->plugin_gmap_getbool($options['imageDate'])? 'true' : 'false';
 		
 		$optObj = array();
 		
@@ -111,7 +117,9 @@ class xpwiki_plugin_gmap_street extends xpwiki_plugin {
 		$optObj[] = "pitch: $pitch";
 		$optObj[] = "zoom: $zoom";
 		$optObj[] = "markerzoom: $markerzoom";
-		
+		$optObj[] = "linksControl: $links";
+		$optObj[] = "imageDateControl: $imageDate";
+
 		$optObj = '{' . join(',' , $optObj) . '}';
 
 		$output = <<<EOD

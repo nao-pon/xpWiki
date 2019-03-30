@@ -8,30 +8,30 @@ if (typeof(googlemaps_maps) == 'undefined') {
 		} catch(e) {}
 	}
 
-	var googlemaps_maps = new Array();
-	var googlemaps_markers = new Array();
-	var googlemaps_zoomarkers = new Array();
-	var googlemaps_icons = new Array();
-	var googlemaps_crossctrl = new Array();
-	var googlemaps_searchctrl = new Array();
-	var googlemaps_infowindow = new Array();
-	var googlemaps_dropmarker = new Array();
-	var onloadfunc = new Array();
-	var onloadfunc2 = new Array();
-	var onloadfunc3 = new Array();
+	var googlemaps_maps = [];
+	var googlemaps_markers = [];
+	var googlemaps_zoomarkers = [];
+	var googlemaps_icons = [];
+	var googlemaps_crossctrl = [];
+	var googlemaps_searchctrl = [];
+	var googlemaps_infowindow = [];
+	var googlemaps_dropmarker = [];
+	var onloadfunc = [];
+	var onloadfunc2 = [];
+	var onloadfunc3 = [];
 }
 
 var PGMap = function(page, mapname, options) {
 	// init page var
 	if (typeof(googlemaps_maps[page]) == 'undefined') {
-		googlemaps_maps[page] = new Array();
-		googlemaps_markers[page] = new Array();
-		googlemaps_zoomarkers[page] = new Array();
-		googlemaps_icons[page] = new Array();
-		googlemaps_crossctrl[page] = new Array();
-		googlemaps_searchctrl[page] = new Array();
-		googlemaps_infowindow[page] = new Array();
-		googlemaps_dropmarker[page] = new Array();
+		googlemaps_maps[page] = [];
+		googlemaps_markers[page] = [];
+		googlemaps_zoomarkers[page] = [];
+		googlemaps_icons[page] = [];
+		googlemaps_crossctrl[page] = [];
+		googlemaps_searchctrl[page] = [];
+		googlemaps_infowindow[page] = [];
+		googlemaps_dropmarker[page] = [];
 	}
 	
 	// Cancel Event dblclick bubble up
@@ -39,13 +39,13 @@ var PGMap = function(page, mapname, options) {
 		(e || window.event).stop();
 	});
 	
-	var map = new google.maps.Map(document.getElementById(mapname),options);
+	var map = new google.maps.Map(document.getElementById(mapname), options);
 	
 	// init map var
 	googlemaps_maps[page][mapname] = map;
-	googlemaps_markers[page][mapname] = new Array();
-	googlemaps_zoomarkers[page][mapname] = new Array();
-	map._onloadfunc = new Array();
+	googlemaps_markers[page][mapname] = [];
+	googlemaps_zoomarkers[page][mapname] = [];
+	map._onloadfunc = [];
 
 	//map.pukiwikiname = mapname;
 	map.wikipage = page;
@@ -56,14 +56,14 @@ var PGMap = function(page, mapname, options) {
 	}
 	
 	google.maps.event.addListener(map, "dblclick", function(e) {
-		googlemaps_infowindow[page]["$mapname"].close();
+		googlemaps_infowindow[page][mapname].close();
 	});
 
 	google.maps.event.addListener(map, "zoom_changed", function() {
 		var markers = googlemaps_zoomarkers[page][mapname];
 	
 		var zoom = map.getZoom();
-		for (name in markers) {
+		for (var name in markers) {
 			if (!markers.hasOwnProperty(name)) continue;
 			var m = markers[name];
 			var minzoom = m.minzoom <  0 ?  0 : m.minzoom;
@@ -106,13 +106,13 @@ var PGMap = function(page, mapname, options) {
 var PGMarker = function(point, icon, flat, page, map, hidden, visible, title, minzoom, maxzoom) {
 	var marker = null;
 	if (hidden == false) {
-		var opt = new Object();
+		var opt = {};
 		opt.position = point;
 		var setIcon;
 		if (icon != '') {
 			setIcon = googlemaps_icons[page][icon];
-		} else if (!!googlemaps_icons[page]['Default']) {
-			setIcon = googlemaps_icons[page]['Default'];
+		} else if (!!googlemaps_icons[page].Default) {
+			setIcon = googlemaps_icons[page].Default;
 		} else {
 			setIcon = null;
 		}
@@ -179,9 +179,14 @@ var PGMarker = function(point, icon, flat, page, map, hidden, visible, title, mi
 			var root = document.createElement('div');
 			root.innerHTML = _html;
 
-			var checkNodes = new Array();
+			var checkNodes = [];
 			var doneOpenInfoWindow = false;
 			checkNodes.push(root);
+
+			var openInfoWindowFunc = function (xmlhttp) {
+				infowindow.setContent(_html);
+				infowindow.open(map, marker);
+			};
 
 			while (checkNodes.length) {
 				var node = checkNodes.shift();
@@ -194,10 +199,6 @@ var PGMarker = function(point, icon, flat, page, map, hidden, visible, title, mi
 					if (tag && tag.toUpperCase() == "IMG") {
 						if (node.complete == false) {
 							// Wait while load image.
-							var openInfoWindowFunc = function (xmlhttp) {
-								infowindow.setContent(_html);
-								infowindow.open(map, marker);
-							};
 							var async = false;
 							if (agent.indexOf("msie") != -1 && agent.indexOf("opera") == -1) {
 								async = true;
@@ -256,6 +257,7 @@ var PGTool = new function () {
 			case 0:
 				x = x - y * 0.000046038 - x * 0.000083043 + 0.010040;
 				y = y - y * 0.00010695  + x * 0.000017464 + 0.00460170;
+				break;
 			case 1:
 				t = x;
 				x = y;
@@ -290,10 +292,10 @@ var PGTool = new function () {
 		if (typeof(ActiveXObject) == "function") {
 			try {
 				return new ActiveXObject("Msxml2.XMLHTTP");
-			} catch(e) {};
+			} catch(e) {}
 			try {
 				return new ActiveXObject("Microsoft.XMLHTTP");
-			} catch(e) {};
+			} catch(e) {}
 		}
 		return null;
 	};
@@ -368,14 +370,14 @@ var PGTool = new function () {
 		if (option) {
 			if (isFinite(option.lat) && isFinite(option.lng) && isFinite(option.heading) && isFinite(option.pitch) && isFinite(option.zoom)) {
 				setTimeout(function(){
-					setPoint(basePoint, new google.maps.LatLng(option.lat, option.lng));}
-				, 200);
+					setPoint(basePoint, new google.maps.LatLng(option.lat, option.lng));
+				}, 200);
 				return;
 			}
 		}
 		
 		if (typeof sv._nearPoints == 'undefined') {
-			sv._nearPoints = new Array();
+			sv._nearPoints = [];
 		}
 		if (!basePoint) {
 			basePoint = (sv._orgLatlng || map.getCenter());
@@ -424,7 +426,7 @@ var PGTool = new function () {
 			}
 			var h = 0;
 			if (!point.equals(nearestLatLng)) {
-				var h = 90 - (Math.atan2(point.lat() - nearestLatLng.lat(), point.lng() - nearestLatLng.lng()) * 180 / Math.PI);
+				h = 90 - (Math.atan2(point.lat() - nearestLatLng.lat(), point.lng() - nearestLatLng.lng()) * 180 / Math.PI);
 			}
 			if (result.location) {
 				sv.setPano(result.location.pano);
@@ -458,7 +460,7 @@ var PGTool = new function () {
 		var mapBlock  = '#gmap(lat=' + centerLat + ', lng=' + centerLng;
 		mapBlock += maptag;
 
-		for (key in options) {
+		for (var key in options) {
 			if (!options.hasOwnProperty(key)) continue;
 			if (key == 'page' || key == 'mapname' || key == 'lat' || key == 'lng' || key == 'zoom' || key == 'type') continue;
 			mapBlock += ', ' + key + '=' + options[key];
@@ -473,7 +475,7 @@ var PGTool = new function () {
 		$(options.mapname + '_info').innerHTML = '<p>' + mapBlock + '</p><p>' + mapMark + '</p>';
 
 	};
-};
+}();
 
 var PGDraw = new function () {
 	var self = this;
@@ -525,8 +527,8 @@ var PGDraw = new function () {
 		var incr = (ed - st) / div;
 		var lat = point.lat();
 		var lng = point.lng();
-		var out_plist = new Array();
-		var in_plist  = new Array();
+		var out_plist = [];
+		var in_plist  = [];
 		var rad = 0.017453292519943295; /* Math.PI/180.0 */
 		var en = 0.00903576399827824;   /* 1/(6341km * rad) */
 		var out_clat = outradius * en; 
@@ -584,7 +586,7 @@ var PGDraw = new function () {
 			fillColor:     self.fillcolor,
 			fillOpacity:   self.fillopacity}); 
 	}
-};
+}();
 
 
 //
@@ -594,7 +596,7 @@ PGCross = function(map) {
 
 	var createWidget = function(nsize, lwidth, lcolor) {
 		var hsize = (nsize - lwidth) / 2;
-		var nsize = hsize * 2 + lwidth;
+		nsize = hsize * 2 + lwidth;
 		var border = document.createElement("div");
 		border.width = nsize;
 		border.height = nsize;
@@ -702,6 +704,7 @@ PGCross = function(map) {
 //
 var PGStreet = function(page, mapname, options) {
 	var map = googlemaps_maps[page][mapname];
+	var mapDiv = map.getDiv();
 
 	var streetViewDiv = document.getElementById(mapname + '_street');
 	
@@ -711,11 +714,12 @@ var PGStreet = function(page, mapname, options) {
 	});
 	
 	var streetViewOptions = {
-		position : map.getCenter()
+		position : map.getCenter(),
+		pov : { heading:options.heading, pitch:options.pitch, zoom:options.zoom },
+		linksControl : options.linksControl,
+		imageDateControl : options.imageDateControl
 	};
 	var streetView = new google.maps.StreetViewPanorama(streetViewDiv, streetViewOptions);
-	
-	streetView.setPov({heading:options.heading,pitch:options.pitch,zoom:options.zoom});
 	
 	map._streetView = streetView;
 	map._streetView._orgLatlng = map.getCenter();
@@ -723,7 +727,16 @@ var PGStreet = function(page, mapname, options) {
 	
 	map.setStreetView(streetView);
 	
-	map.bindTo('center', streetView, 'position');
+	var dragging;
+	google.maps.event.addDomListener(mapDiv, 'mousedown', function() {
+		dragging = true;
+	});
+	google.maps.event.addDomListener(mapDiv, 'mouseup', function() {
+		dragging = false;
+	});
+	google.maps.event.addListener(streetView, 'position_changed', function() {
+		!dragging && map.panTo(streetView.getPosition());
+	});
 	
 	if (!!options.streetlayer) {
 		var streetViewLayer = new google.maps.ImageMapType({
@@ -764,18 +777,20 @@ function PGSearch() {
 		this.container.appendChild(txtbox);
 		
 		var searchbox = new google.maps.places.SearchBox(txtbox);
-		var markers = new Array();
+		var markers = [];
 
 		google.maps.event.addListener(searchbox, 'places_changed', function () {
 			var places = searchbox.getPlaces();
 			
-			for (var i = 0, marker; marker = markers[i]; i++) {
+			for (var i = 0, marker; markers[i]; i++) {
+				marker = markers[i];
 				marker.setMap(null);
 			}
-			markers = new Array();
+			markers = [];
 
 			var bounds = new google.maps.LatLngBounds();
-			for (var i = 0, place; place = places[i]; i++) {
+			for (var i = 0, place; places[i]; i++) {
+				place = places[i];
 				var image = {
 						url: place.icon,
 						size: new google.maps.Size(71, 71),
@@ -1038,7 +1053,7 @@ function p_gmap_togglemarker_checkbox (page, mapname, undefname, defname) {
 		var icon = markers[key].icon;
 		icons[icon] = 1;
 	}
-	var iconlist = new Array();
+	var iconlist = [];
 	for (n in icons) {
 		if (!icons.hasOwnProperty(n)) continue;
 		iconlist.push(n);
@@ -1106,7 +1121,7 @@ function p_gmap_regist_marker (page, mapname, center, key, option) {
 function p_googlemaps_mark_to_map (page, mapname) {
 	var markers = googlemaps_markers[page][mapname];
 	
-	for (key in markers) {
+	for (var key in markers) {
 		if (!markers.hasOwnProperty(key)) continue;
 		var m = markers[key];
 
