@@ -162,6 +162,7 @@ switch ($type) {
 		$gzip_fname = $cache_file.'.gz';
 		break;
 	case 'js':
+		$charset = strtolower(preg_replace('/[^_0-9a-zA-Z_\-]+/','',@ $_GET['charset']));
 		$module_url = XOOPS_URL.'/'.basename(dirname($root_path));
 		$wikihelper_root_url = $module_url . '/' . basename($root_path);
 		$wikihelper_root_url_md5 = md5($wikihelper_root_url);
@@ -215,6 +216,9 @@ switch ($type) {
 		}
 		$src_file = $src_files;
 		$c_type = 'text/javascript';
+		if ($charset) {
+			$c_type .= '; charset=' . $charset;
+		}
 		$cache_file = $cache_path . $src . ($js_replaces? '_' . $wikihelper_root_url_md5 : '') . '.' . $type;
 		$gzip_fname = $cache_file . '.gz';
 		break;

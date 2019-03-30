@@ -81,6 +81,7 @@ if (typeof(document.evaluate) != 'function') {
 	xpwiki_scripts += 'xpath,';
 }
 
+// pnc.js - prototype noconflict
 // prototype.js
 // script.aculo.us
 // resizable.js
@@ -89,7 +90,7 @@ if (typeof(document.evaluate) != 'function') {
 if (wikihelper_WinIE && wikihelper_WinIE < 9 && (typeof Prototype == 'undefined' || Prototype.Version != '1.6.0.3')) {
 	xpwiki_scripts += 'prototype_1.6.0.3,';
 } else if (typeof Prototype == 'undefined' || Prototype.Version != '1.7') {
-	xpwiki_scripts += 'prototype,';
+	xpwiki_scripts += 'pnc,prototype,';
 }
 if (xpwiki_scripts.match('prototype')) {
 	// check builder,controls,slider,sound and reload
