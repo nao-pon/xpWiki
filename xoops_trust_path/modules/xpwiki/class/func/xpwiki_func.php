@@ -708,7 +708,7 @@ class XpWikiFunc extends XpWikiXoopsWrapper {
 		}
 
 		// WikiHelper JavaScript
-		$this->root->head_tags['3.default.js'] = '<script type="text/javascript" src="'.$this->cont['LOADER_URL'].'?src=default.'.$this->cont['UI_LANG'].$this->cont['FILE_ENCORD_EXT'].'.js"></script>';
+		$this->root->head_tags['3.default.js'] = '<script type="text/javascript" src="'.$this->cont['LOADER_URL'].'?src=default.'.$this->cont['UI_LANG'].$this->cont['FILE_ENCORD_EXT'].'.js&amp;charset='.$this->cont['SOURCE_ENCODING'].'"></script>';
 
 		// key sort (CSS fast)
 		ksort($this->root->head_pre_tags);
